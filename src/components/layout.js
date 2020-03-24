@@ -8,7 +8,13 @@ function Header(props) {
   return (
     <Flex py="2" px="4" bg="gray.200">
       <Link to="/">{props.title}</Link>
-      <Text ml="3">
+      <Text
+        ml="3"
+        display={{
+          base: 'none',
+          md: 'block'
+        }}
+      >
         Status:{' '}
         <Box as="span" color="green.300" fontWeight="bold">
           OK
