@@ -1,7 +1,7 @@
 import Layout from '../components/layout';
 import React from 'react';
-import {Heading} from '@chakra-ui/core';
 import {Helmet} from 'react-helmet';
+import {Text} from '@chakra-ui/core';
 
 export default function Index() {
   return (
@@ -9,7 +9,7 @@ export default function Index() {
       <Helmet>
         <title>Home</title>
       </Helmet>
-      <Heading>Hello world</Heading>
+      <Text>Hello world</Text>
     </Layout>
   );
 }
