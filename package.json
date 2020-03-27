@@ -11,14 +11,18 @@
     "@chakra-ui/core": "^0.6.1",
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",
+    "@svgr/webpack": "^5.3.0",
     "emotion-theming": "^10.0.27",
     "gatsby": "^2.20.3",
     "gatsby-plugin-chakra-ui": "^0.1.4",
+    "gatsby-plugin-prefetch-google-fonts": "^1.4.3",
     "gatsby-plugin-react-helmet": "^3.2.1",
+    "gatsby-plugin-svgr": "^2.0.2",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-helmet": "^5.2.1"
+    "react-helmet": "^5.2.1",
+    "react-icons": "^3.9.0"
   },
   "devDependencies": {
     "@trevorblades/eslint-config": "^7.0.2",
