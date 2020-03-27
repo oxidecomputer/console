@@ -22,8 +22,8 @@ import {Helmet} from 'react-helmet';
 
 function Header(props) {
   return (
-    <Box bg="gray.800" pb="32">
-      <Box maxW="7xl" mx="auto" px={[6, 8]}>
+    <Box as="header" bg="gray.800" pb="32">
+      <Box as="nav" maxW="7xl" mx="auto" px={[6, 8]}>
         <Box borderBottom="1px" borderColor="gray.700">
           <Flex align="center" justify="space-between" h="16" px="0">
             <Flex align="center">
