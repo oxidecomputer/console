@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import avatar from '../assets/jessie.jpg';
 import logo from '../assets/logo-dark.svg';
+import {IoIosNotifications} from 'react-icons/io';
+
 import {
   Box,
   CloseButton,
@@ -69,8 +71,8 @@ function Header(props) {
                   variant="link"
                   color="gray.200"
                   aria-label="Notifications"
-                  icon="warning-2"
-                  size="lg"
+                  icon={IoIosNotifications}
+                  fontSize="24px"
                 />
                 <Menu>
                   <MenuButton ml="3" position="relative">
