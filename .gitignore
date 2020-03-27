@@ -1,3 +1,16 @@
+# deps installed by npm
 node_modules
+package-lock.json
+
+# gatsby things
 .cache
 public
+
+# secrets
+.env
+
+# macOS related files
+.DS_Store
+.AppleDouble
+.LSOverride
+
