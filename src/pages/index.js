@@ -10,6 +10,9 @@ export default function Index() {
         <title>Home</title>
       </Helmet>
       <Text>Hello world</Text>
+      {/* <Box>
+        <Heading>Hello world</Heading>
+      </Box> */}
     </Layout>
   );
 }

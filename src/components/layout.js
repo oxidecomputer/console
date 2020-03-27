@@ -23,7 +23,7 @@ import {Helmet} from 'react-helmet';
 function Header(props) {
   return (
     <Box bg="gray.800" pb="32">
-      <Box maxW="6xl" mx="auto" px={[6, 8]}>
+      <Box maxW="7xl" mx="auto" px={[6, 8]}>
         <Box borderBottom="1px" borderColor="gray.700">
           <Flex align="center" justify="space-between" h="16" px="0">
             <Flex align="center">
@@ -36,8 +36,8 @@ function Header(props) {
                     as={GatsbyLink}
                     to={props.title}
                     px="3"
-                    py="2"
-                    rounded="md"
+                    py="1"
+                    rounded="sm"
                     fontSize="md"
                     color="white"
                     bg="gray.900"
@@ -51,11 +51,10 @@ function Header(props) {
                     to="/"
                     ml="4"
                     px="3"
-                    py="2"
-                    rounded="md"
+                    py="1"
+                    rounded="sm"
                     fontSize="md"
                     color="gray.300"
-                    bg="gray.900"
                     _hover={{color: 'white', bg: 'gray.700'}}
                     _focus={{color: 'white', bg: 'gray.700'}}
                   >
@@ -106,7 +105,7 @@ function Header(props) {
         </Box>
       </Box>
       <Box py="10">
-        <Box maxW="6xl" mx="auto" px={[4, 6, 8]}>
+        <Box maxW="7xl" mx="auto" px={[4, 6, 8]}>
           <Heading as="h1" size="xl" color="white">
             Dashboard
           </Heading>
@@ -140,7 +139,7 @@ export default function Layout(props) {
       <Box bg="gray.100">
         <Header title={title} />
         <Box mt="-8rem">
-          <Box maxW="6xl" mx="auto" pb="12" px={[4, 6, 8]}>
+          <Box maxW="7xl" mx="auto" pb="12" px={[4, 6, 8]}>
             <Box
               rounded="md"
               shadow="sm"
