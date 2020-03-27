@@ -1,6 +1,5 @@
 # deps installed by npm
 node_modules
-package-lock.json
 
 # gatsby things
 .cache
