@@ -2,7 +2,9 @@
   "scripts": {
     "start": "gatsby develop",
     "build": "gatsby build",
-    "serve": "gatsby serve"
+    "serve": "gatsby serve",
+    "test": "jest",
+    "pretest": "eslint src gatsby-config.js"
   },
   "eslintConfig": {
     "extends": "@trevorblades/eslint-config/react"
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@trevorblades/eslint-config": "^7.0.2",
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "jest": "^25.2.7"
   }
 }
