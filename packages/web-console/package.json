@@ -1,5 +1,5 @@
 {
-  "name": "web-console",
+  "name": "@oxide/web-console",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
