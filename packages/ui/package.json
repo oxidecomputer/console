@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@oxide/theme": "^0.0.0",
-    "react": "^16.14.0",
+    "react-is": "16.8.0",
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
@@ -22,10 +22,12 @@
     "@storybook/react": "^6.1.15",
     "@storybook/theming": "^6.1.16",
     "@types/styled-components": "^5.1.7",
-    "babel-loader": "^8.2.2",
-    "react-dom": "^16.14.0",
-    "react-is": "^16.13.1",
+    "babel-loader": "8.1.0",
     "storybook": "^6.1.15",
     "webpack": "^5.19.0"
+  },
+  "peerDependencies": {
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   }
 }
