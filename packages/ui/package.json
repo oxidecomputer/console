@@ -1,0 +1,33 @@
+{
+  "name": "@oxide/ui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "storybook:dev": "start-storybook -p 6006 --quiet",
+    "build-storybook": "build-storybook"
+  },
+  "dependencies": {
+    "@oxide/theme": "^0.0.0",
+    "react-is": "16.8.0",
+    "styled-components": "^5.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
+    "@storybook/addons": "^6.1.16",
+    "@storybook/react": "^6.1.15",
+    "@storybook/theming": "^6.1.16",
+    "@types/styled-components": "^5.1.7",
+    "babel-loader": "8.1.0",
+    "storybook": "^6.1.15",
+    "webpack": "^5.19.0"
+  },
+  "peerDependencies": {
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
+  }
+}
