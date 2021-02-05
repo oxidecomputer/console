@@ -8,7 +8,9 @@
     "packages/*"
   ],
   "scripts": {
-    "storybook:dev": "lerna run storybook:dev --parallel"
+    "storybook:dev": "lerna run storybook:dev --parallel",
+    "start:dev": "lerna run start:dev --stream",
+    "test": "lerna run test --stream"
   },
   "dependencies": {
     "react": "^16.14.0",
