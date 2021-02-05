@@ -5,9 +5,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "tsc --watch --preserveWatchOutput",
-    "storybook:dev": "yarn dev",
+    "storybook:dev": "tsc --watch --preserveWatchOutput",
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "tsc --build --clean"
   }
 }

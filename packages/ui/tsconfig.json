@@ -1,11 +1,18 @@
 {
-  "extends": "../../tsconfig.react.json",
   "compilerOptions": {
-    "composite": true,
-    "outDir": "dist"
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noImplicitAny": true,
+    "module": "ES6",
+    "target": "ES6",
+    "jsx": "react",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "composite": true
   },
-  "include": ["src"],
-  "references": [
-    {"path": "../theme"}
-  ]
+  "include": ["./src/*"],
+  "exclude": ["**/__tests__/**", "**/stories/**"],
+  "references": [{ "path": "../theme" }]
 }

@@ -1,43 +1,26 @@
 {
   "name": "@oxide/web-console",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@oxide/ui": "^1.0.0",
-    "@testing-library/dom": "^7.29.4",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.8",
-    "react-scripts": "4.0.1",
-    "web-vitals": "^0.2.4"
-  },
-  "devDependencies": {},
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "webpack serve --config webpack.config.js"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "dependencies": {
+    "@oxide/ui": "1.0.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "@babel/preset-react": "^7.12.13",
+    "@babel/preset-typescript": "^7.12.13",
+    "@hot-loader/react-dom": "^16.14.0",
+    "babel-loader": "^8.2.2",
+    "fork-ts-checker-webpack-plugin": "^6.1.0",
+    "react-hot-loader": "^4.13.0",
+    "ts-loader": "^8.0.15",
+    "webpack": "^5.20.2",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
   }
 }

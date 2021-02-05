@@ -2,7 +2,7 @@ import { Theme } from './theme'
 
 export const defaultTheme: Theme = {
   colors: {
-    primary: 'red',
+    primary: '#2BBB85',
     secondary: '#A6A6A6',
     background: '#0E1518',
     navBackground: '#1D2225',

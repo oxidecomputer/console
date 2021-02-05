@@ -1,12 +1,14 @@
 {
   "name": "@oxide/ui",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "storybook:dev": "start-storybook -p 6006 --quiet",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "clean": "tsc --build --clean"
   },
   "dependencies": {
     "@oxide/theme": "^0.0.0",
