@@ -11,7 +11,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@oxide/theme": "^0.0.0",
+    "@oxide/theme": "1.0.0",
     "react-is": "16.8.0",
     "styled-components": "^5.2.1"
   },
