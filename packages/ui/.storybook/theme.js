@@ -4,11 +4,11 @@ import { create } from '@storybook/theming'
 export default create({
   base: 'dark',
 
-  colorPrimary: defaultTheme.colors.primary,
-  colorSecondary: defaultTheme.colors.secondary,
+  colorPrimary: defaultTheme.colors.mainText,
+  colorSecondary: defaultTheme.colors.mainTextDimmed,
 
   // UI
-  appBg: defaultTheme.colors.background,
+  appBg: defaultTheme.colors.mainBg,
 
   brandTitle: 'Oxide - Console Storybook',
 })
