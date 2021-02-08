@@ -27,7 +27,8 @@ const baseTheme: BaseTheme = {
     sans: `'Inter', sans-serif`,
     mono: `'GT America Mono', monospace`,
   },
-  // Spacing is based on an 4px grid. Any spacing unit should be divisible by 4px. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
+
+  // Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
   // Usage: `theme.spacing(4)` => '1rem' (16px)
   //
   // Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`

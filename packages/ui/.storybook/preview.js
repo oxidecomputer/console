@@ -1,8 +1,9 @@
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from '@oxide/theme'
-import { colors, ThemeColors } from '@oxide/theme'
+import { colors } from '@oxide/theme'
 
-const values = (colors: ThemeColors) =>
+// FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
+const values = (colors) =>
   Object.keys(colors).map((key) => {
     return { name: key, value: colors[key] }
   })
