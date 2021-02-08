@@ -1,22 +1,22 @@
 import { Theme, ThemeColors } from './theme'
 
 export const colors: ThemeColors = {
-  white: '#FFFFFF',
-  black: '#000000',
+  white: 'hsl(0, 0%, 100%)',
+  black: 'hsl(0, 0%, 0%)',
 
-  gray50: '#FAFAFA',
-  gray100: '#F4F4F5',
-  gray200: '#E4E4E7',
-  gray300: '#D4D4D8',
-  gray400: '#A1A1AA',
-  gray500: '#71717A',
-  gray600: '#52525B',
-  gray700: '#3F3F46',
-  gray800: '#27272A',
-  gray900: '#18181B',
+  gray50: 'hsl(0, 0%, 98%)',
+  gray100: 'hsl(240, 5%, 96%)',
+  gray200: 'hsl(240, 6%, 90%)',
+  gray300: 'hsl(240, 5%, 84%)',
+  gray400: 'hsl(240, 5%, 65%)',
+  gray500: 'hsl(240, 4%, 46%)',
+  gray600: 'hsl(240, 5%, 34%)',
+  gray700: 'hsl(240, 5%, 26%)',
+  gray800: 'hsl(240, 4%, 16%)',
+  gray900: 'hsl(240, 6%, 10%)',
 
-  green50: '#F0FDF4',
-  green500: '#22C55E',
+  green50: 'hsl(138, 76%, 97%)',
+  green500: 'hsl(142, 71%, 45%)',
 }
 
 type BaseTheme = Omit<Theme, 'colors'>
