@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Run NX
-        uses: mansagroup/nrwl-nx-actions@v1
+      - name: Nrwl Nx
+        uses: MansaGroup/nrwl-nx-action@v2.0.3
         with:
           targets: lint,build,test
