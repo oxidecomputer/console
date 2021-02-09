@@ -1,0 +1,125 @@
+{
+  "version": 2,
+  "cli": {
+    "defaultCollection": "@nrwl/react"
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "style": "styled-components",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "styled-components"
+      },
+      "library": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
+    }
+  },
+  "defaultProject": "web-console",
+  "projects": {
+    "web-console": {
+      "root": "apps/web-console",
+      "sourceRoot": "apps/web-console/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/web-console",
+            "index": "apps/web-console/src/index.html",
+            "main": "apps/web-console/src/main.tsx",
+            "polyfills": "apps/web-console/src/polyfills.ts",
+            "tsConfig": "apps/web-console/tsconfig.app.json",
+            "assets": [
+              "apps/web-console/src/favicon.ico",
+              "apps/web-console/src/assets"
+            ],
+            "styles": [],
+            "scripts": [],
+            "webpackConfig": "@nrwl/react/plugins/webpack"
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/web-console/src/environments/environment.ts",
+                  "with": "apps/web-console/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/web:dev-server",
+          "options": {
+            "buildTarget": "web-console:build"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "web-console:build:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/web-console/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/web-console"],
+          "options": {
+            "jestConfig": "apps/web-console/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "web-console-e2e": {
+      "root": "apps/web-console-e2e",
+      "sourceRoot": "apps/web-console-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/web-console-e2e/cypress.json",
+            "tsConfig": "apps/web-console-e2e/tsconfig.e2e.json",
+            "devServerTarget": "web-console:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "web-console:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/web-console-e2e/**/*.{js,ts}"]
+          }
+        }
+      }
+    }
+  }
+}
