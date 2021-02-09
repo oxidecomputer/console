@@ -17,6 +17,7 @@
   },
   "projects": {
     "web-console": { "tags": [] },
-    "web-console-e2e": { "tags": [], "implicitDependencies": ["web-console"] }
+    "web-console-e2e": { "tags": [], "implicitDependencies": ["web-console"] },
+    "ui": { "tags": [] }
   }
 }
