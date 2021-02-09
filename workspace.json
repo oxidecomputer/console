@@ -8,14 +8,17 @@
       "application": {
         "style": "styled-components",
         "linter": "eslint",
-        "babel": true
+        "babel": true,
+        "pascalCaseFiles": true
       },
       "component": {
-        "style": "styled-components"
+        "style": "styled-components",
+        "pascalCaseFiles": true
       },
       "library": {
         "style": "styled-components",
-        "linter": "eslint"
+        "linter": "eslint",
+        "pascalCaseFiles": true
       }
     }
   },
