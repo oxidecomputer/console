@@ -1,3 +1,5 @@
+name: Lint, Build & Test
+
 on: pull_request
 
 jobs:
