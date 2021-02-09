@@ -111,3 +111,5 @@ Text.defaultProps = {
   size: 'base',
   weight: 400,
 };
+
+export default Text;
