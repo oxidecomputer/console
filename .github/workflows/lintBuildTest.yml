@@ -33,4 +33,4 @@ jobs:
         run: yarn
 
       - name: Nrwl Nx
-        run: yarn affected:lint && yarn affected:build && yarn affected:test
+        run: yarn affected:lint --base=main && yarn affected:build --base=main && yarn affected:test --base=main
