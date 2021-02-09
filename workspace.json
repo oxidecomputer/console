@@ -28,9 +28,7 @@
       "targets": {
         "build": {
           "executor": "@nrwl/web:build",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/web-console",
             "index": "apps/web-console/src/index.html",
@@ -84,16 +82,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "apps/web-console/**/*.{ts,tsx,js,jsx}"
-            ]
+            "lintFilePatterns": ["apps/web-console/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/apps/web-console"
-          ],
+          "outputs": ["coverage/apps/web-console"],
           "options": {
             "jestConfig": "apps/web-console/jest.config.js",
             "passWithNoTests": true
@@ -122,9 +116,7 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "apps/web-console-e2e/**/*.{js,ts}"
-            ]
+            "lintFilePatterns": ["apps/web-console-e2e/**/*.{js,ts}"]
           }
         }
       }
@@ -137,16 +129,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/ui/**/*.{ts,tsx,js,jsx}"
-            ]
+            "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/ui"
-          ],
+          "outputs": ["coverage/libs/ui"],
           "options": {
             "jestConfig": "libs/ui/jest.config.js",
             "passWithNoTests": true
