@@ -1,0 +1,15 @@
+on: pull_request
+
+jobs:
+  nx:
+    name: 'Lint, Build & Test'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Run NX
+        uses: mansagroup/nrwl-nx-actions@v1
+        with:
+          targets: lint,build,test
