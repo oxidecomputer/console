@@ -33,6 +33,4 @@ jobs:
         run: yarn
 
       - name: Nrwl Nx
-        uses: MansaGroup/nrwl-nx-action@v2.0.3
-        with:
-          targets: lint,build,test
+        run: yarn affected:lint && yarn affected:build && yarn affected:test
