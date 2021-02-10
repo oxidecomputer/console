@@ -13,9 +13,9 @@ jobs:
         with:
           fetch-depth: 0
       - run: |
-          git show -q main
-          git show -q feature/gh-actions
-          git diff feature/gh-actions main
+          git show -q origin/main
+          git show -q origin/feature/gh-actions
+          git diff origin/feature/gh-actions origin/main
 
       - name: Use Node.js
         uses: actions/setup-node@v1
