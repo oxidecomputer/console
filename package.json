@@ -51,6 +51,7 @@
     "@nrwl/tao": "11.2.10",
     "@nrwl/web": "11.2.10",
     "@nrwl/workspace": "11.2.10",
+    "@storybook/addon-a11y": "^6.1.17",
     "@storybook/addon-essentials": "^6.1.17",
     "@storybook/addon-knobs": "^6.1.11",
     "@storybook/addon-links": "^6.1.17",
