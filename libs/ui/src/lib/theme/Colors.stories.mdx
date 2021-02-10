@@ -1,0 +1,41 @@
+<!-- Colors.stories.mdx-->
+
+import { Meta, Story } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+import { colors } from './index'
+
+<Meta title="Colors" />
+
+# Colors
+
+<Story name="Palette">
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(5, 1fr)`,
+      gridGap: '2vw',
+    }}
+  >
+    {Object.keys(colors).map((key) => {
+      return (
+        <div
+          style={{
+            textAlign: 'center',
+            border: `1px solid ${colors.gray300}`,
+            borderRadius: `4px`,
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '4vw',
+              backgroundColor: colors[key],
+              borderRadius: '4px 4px 0 0',
+            }}
+          />
+          <code>colors.{key}</code>
+        </div>
+      )
+    })}
+  </div>
+</Story>
