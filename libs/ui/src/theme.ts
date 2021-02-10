@@ -1,20 +1,20 @@
 export interface ThemeColors {
-  white: string;
-  black: string;
+  white: string
+  black: string
 
-  gray50: string;
-  gray100: string;
-  gray200: string;
-  gray300: string;
-  gray400: string;
-  gray500: string;
-  gray600: string;
-  gray700: string;
-  gray800: string;
-  gray900: string;
+  gray50: string
+  gray100: string
+  gray200: string
+  gray300: string
+  gray400: string
+  gray500: string
+  gray600: string
+  gray700: string
+  gray800: string
+  gray900: string
 
-  green50: string;
-  green500: string;
+  green50: string
+  green500: string
 }
 
 type SizingMultiplier =
@@ -38,20 +38,20 @@ type SizingMultiplier =
   | 40
   | 48
   | 56
-  | 64;
+  | 64
 
 export interface Theme {
   colors: {
     // TODO: Figure out better names
-    mainBg: string;
-    mainText: string;
-    mainTextDimmed: string;
-  };
+    mainBg: string
+    mainText: string
+    mainTextDimmed: string
+  }
   fonts: {
-    sans: string;
-    mono: string;
-  };
-  spacing: (size: SizingMultiplier) => void;
+    sans: string
+    mono: string
+  }
+  spacing: (size: SizingMultiplier) => void
 }
 
 export const colors: ThemeColors = {
@@ -71,9 +71,9 @@ export const colors: ThemeColors = {
 
   green50: 'hsl(138, 76%, 97%)',
   green500: 'hsl(142, 71%, 45%)',
-};
+}
 
-type BaseTheme = Omit<Theme, 'colors'>;
+type BaseTheme = Omit<Theme, 'colors'>
 
 const baseTheme: BaseTheme = {
   // TODO: Host these font files and use @font-face declarations in a global stylesheet
@@ -87,7 +87,7 @@ const baseTheme: BaseTheme = {
   //
   // Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`
   spacing: (size) => `${size * 0.25}rem`,
-};
+}
 
 // TODO: Add colors for 'light mode'
 // export const lightTheme: Theme = {
@@ -102,6 +102,6 @@ export const darkTheme: Theme = {
     mainText: colors.gray50,
     mainTextDimmed: colors.gray400,
   },
-};
+}
 
-export const defaultTheme: Theme = darkTheme;
+export const defaultTheme: Theme = darkTheme
