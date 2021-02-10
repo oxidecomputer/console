@@ -100,10 +100,7 @@ export interface TextProps {
   weight?: number;
 }
 
-export const Text: React.FunctionComponent<TextProps> = ({
-  children,
-  ...props
-}) => {
+export const Text: React.FC<TextProps> = ({ children, ...props }) => {
   return <StyledText {...props}>{children}</StyledText>;
 };
 
