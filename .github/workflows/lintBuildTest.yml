@@ -12,6 +12,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+        run: |
+          git show -q main
+          git show -q feature/gh-actions
+          git diff feature/gh-actions main
 
       - name: Use Node.js
         uses: actions/setup-node@v1
