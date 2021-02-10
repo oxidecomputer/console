@@ -1,9 +1,9 @@
-import React from 'react';
+import React from 'react'
 
-import styled from 'styled-components';
+import styled from 'styled-components'
 
-import { ReactComponent as Logo } from './logo.svg';
-import star from './star.svg';
+import { ReactComponent as Logo } from './logo.svg'
+import star from './star.svg'
 
 const StyledApp = styled.div`
   font-family: sans-serif;
@@ -132,7 +132,7 @@ const StyledApp = styled.div`
     width: 16px;
     margin-right: 4px;
   }
-`;
+`
 
 export function App() {
   return (
@@ -226,7 +226,7 @@ nx affected:e2e
         </details>
       </main>
     </StyledApp>
-  );
+  )
 }
 
-export default App;
+export default App

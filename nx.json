@@ -34,9 +34,7 @@
     },
     "web-console-e2e": {
       "tags": [],
-      "implicitDependencies": [
-        "web-console"
-      ]
+      "implicitDependencies": ["web-console"]
     },
     "ui": {
       "tags": []
