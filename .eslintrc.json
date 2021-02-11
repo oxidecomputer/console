@@ -15,7 +15,8 @@
               { "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] }
             ]
           }
-        ]
+        ],
+        "func-style": ["error", "expression"]
       }
     },
     {
