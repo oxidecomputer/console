@@ -1,7 +1,7 @@
 import React, { FC, ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { ThemeProvider } from 'styled-components'
-import { defaultTheme } from './theme'
+import { defaultTheme } from './lib/theme'
 
 const Providers: FC = ({ children }) => (
   <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
