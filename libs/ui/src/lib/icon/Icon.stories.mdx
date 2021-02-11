@@ -8,11 +8,30 @@ import { Icon, icons } from './Icon'
 
 # Icons
 
-Making inline SVG icons accessible: https://www.deque.com/blog/creating-accessible-svgs/
+Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/).
+
+Rendering them inline means their `fill` color can be changed via CSS. Each `.svg` icon should follow [accessibility best practices](https://www.deque.com/blog/creating-accessible-svgs/). In this case, it means making sure of the following:
+
+- the parent `<svg>` tag has `role="img"` to ensure it gets treated as an image
+- the parent `<svg>` tag has an aria labelledby property `aria-labelledby="icon-[ICON_NAME_HERE]"`
+- and the first child should be a `<title>` tag with the matching id `id="icon-[ICON_NAME_HERE]"`
+
+## Usage
+
+The `<Icon />` component takes two props.
+
+- `name` can be any of the names listed in the table below
+- `color` can be any of the available theme colors (e.g. `"green500"`) or any valid CSS color (e.g. `"#ff0000`)
+
+```tsx
+<Icon name="dashboard" color="gray500" />
+```
+
+## All icons
 
 <table>
   <tr>
-    <th>Icon</th>
+    <th>SVG</th>
     <th>Name</th>
   </tr>
   {Object.keys(icons).map((key) => {
