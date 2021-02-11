@@ -1,4 +1,4 @@
-import { Theme, ThemeColors } from './theme'
+import { DefaultTheme as Theme, ThemeColors } from 'styled-components'
 
 export const colors: ThemeColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -68,6 +68,7 @@ const baseTheme: BaseTheme = {
     sans: `'Inter', sans-serif`,
     mono: `'GT America Mono', monospace`,
   },
+  themeColors: colors,
 
   // Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
   // Usage: `theme.spacing(4)` => '1rem' (16px)
