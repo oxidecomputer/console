@@ -68,7 +68,11 @@ module.exports = async ({ config, mode }) => {
         {
           use: [
             {
-              loader: require.resolve('raw-loader'),
+              loader: require.resolve('url-loader'),
+              options: {
+                limit: 10000, // 10kB
+                name: '[name].[hash:7].[ext]',
+              },
             },
           ],
         },
