@@ -1,0 +1,38 @@
+<!-- Colors.stories.mdx-->
+
+import { Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+import { colors } from './index'
+
+<Meta title="Colors" />
+
+export const ColorWrapper = styled.div`
+  width: 100%;
+  height: 1.5em;
+  background-color: ${(props) => props.bgColor};
+  border-radius: 4px 0 0 4px;
+`
+
+# Colors
+
+These are the available colors that the light theme and dark theme reference.
+
+<div
+  style={{
+    alignItems: 'center',
+    display: 'grid',
+    gridTemplateColumns: `repeat(2, 1fr)`,
+    gridGap: '0.5rem',
+  }}
+>
+  {Object.keys(colors).map((key) => {
+    return (
+      <>
+        <ColorWrapper bgColor={colors[key]} />
+        <div>
+          <code>colors.{key}</code>
+        </div>
+      </>
+    )
+  })}
+</div>

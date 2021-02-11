@@ -1,7 +1,7 @@
 import React from 'react'
 // import { addDecorator } from '@storybook/react';
 import { ThemeProvider } from 'styled-components'
-import { colors, defaultTheme } from '../src/theme'
+import { colors, defaultTheme } from '../src/lib/theme'
 
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const values = (colors) =>
