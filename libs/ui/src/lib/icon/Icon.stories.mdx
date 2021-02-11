@@ -2,7 +2,7 @@
 
 import { Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
-import Icon from './Icon'
+import { Icon, icons } from './Icon'
 
 <Meta title="Icons" component={Icon} />
 
@@ -10,24 +10,21 @@ import Icon from './Icon'
 
 Making inline SVG icons accessible: https://www.deque.com/blog/creating-accessible-svgs/
 
-<Icon name="dashboard" />
-
-<div
-  style={{
-    alignItems: 'center',
-    display: 'grid',
-    gridTemplateColumns: `repeat(2, 1fr)`,
-    gridGap: '0.5rem',
-  }}
->
-  {/* {Object.keys(colors).map((key) => {
+<table>
+  <tr>
+    <th>Icon</th>
+    <th>Name</th>
+  </tr>
+  {Object.keys(icons).map((key) => {
     return (
-      <>
-        <ColorWrapper bgColor={colors[key]} />
-        <div>
-          <code>colors.{key}</code>
-        </div>
-      </>
+      <tr>
+        <td>
+          <Icon name={key} />
+        </td>
+        <td>
+          <code>{key}</code>
+        </td>
+      </tr>
     )
-  })} */}
-</div>
+  })}
+</table>
