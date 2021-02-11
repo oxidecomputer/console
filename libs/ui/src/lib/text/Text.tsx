@@ -72,14 +72,6 @@ const getSizeStyles = (size: SizeProp) => {
   }
 }
 
-const StyledText = styled.span`
-  color: inherit;
-  font-family: ${(props) => props.theme.fonts.sans};
-  font-weight: ${(props: TextProps) => props.weight};
-
-  ${(props: TextProps) => getSizeStyles(props.size)};
-`
-
 type SizeProp =
   | 'xs'
   | 'sm'
@@ -100,9 +92,13 @@ export interface TextProps {
   weight?: number
 }
 
-export const Text: React.FC<TextProps> = ({ children, ...props }) => {
-  return <StyledText {...props}>{children}</StyledText>
-}
+export const Text = styled.span<TextProps>`
+  color: inherit;
+  font-family: ${(props) => props.theme.fonts.sans};
+  font-weight: ${(props) => props.weight};
+
+  ${(props) => getSizeStyles(props.size)};
+`
 
 Text.defaultProps = {
   size: 'base',
