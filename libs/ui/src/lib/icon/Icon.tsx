@@ -16,6 +16,7 @@ import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
+import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
@@ -33,6 +34,7 @@ export const icons = {
   pulse: <PulseIcon />,
   search: <SearchIcon />,
   server: <ServerIcon />,
+  support: <SupportIcon />,
   users: <UsersIcon />,
 }
 
