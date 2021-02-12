@@ -2,24 +2,34 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as AddIcon } from '../../assets/add.svg'
+import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
 import { ReactComponent as DarkModeIcon } from '../../assets/dark-mode.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as ExtensionsIcon } from '../../assets/extensions.svg'
 import { ReactComponent as FilesIcon } from '../../assets/files.svg'
 import { ReactComponent as FoldersIcon } from '../../assets/folders.svg'
+import { ReactComponent as GearIcon } from '../../assets/gear.svg'
+import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
+import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
+import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
   add: <AddIcon />,
+  commandMenu: <CommandMenuIcon />,
   darkMode: <DarkModeIcon />,
   dashboard: <DashboardIcon />,
   extensions: <ExtensionsIcon />,
   files: <FilesIcon />,
   folders: <FoldersIcon />,
+  gear: <GearIcon />,
+  history: <HistoryIcon />,
+  instances: <InstancesIcon />,
   openFolder: <OpenFolderIcon />,
+  pulse: <PulseIcon />,
   search: <SearchIcon />,
   server: <ServerIcon />,
   users: <UsersIcon />,
@@ -46,7 +56,7 @@ const StyledIcon = styled.span`
   display: inline-block;
 
   ${(props) =>
-    props.color && props.theme[props.color]
+    props.color && props.theme.themeColors[props.color]
       ? css`
           fill: props.theme.themeColors[props.color];
         `
