@@ -54,7 +54,7 @@ const StyledIcon = styled.span`
   }
 `
 
-export function Icon<IconProps>({ name, ...props }) {
+export const Icon = ({ name, ...props }: IconProps) => {
   if (name && icons[name]) {
     return <StyledIcon {...props}>{icons[name]}</StyledIcon>
   }
