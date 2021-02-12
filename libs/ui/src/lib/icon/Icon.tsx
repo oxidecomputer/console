@@ -1,5 +1,6 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
+import { colors } from '../theme'
 
 import { ReactComponent as AddIcon } from '../../assets/add.svg'
 import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
@@ -37,8 +38,17 @@ export const icons = {
 
 type SizeProp = 'base'
 export interface IconProps {
-  color: string
+  /**
+   * Set the color using a theme color ("green500") or a valid CSS value ("blue" or "#f00")
+   */
+  color: keyof typeof colors | string
+  /**
+   * Name (which corresponds to the `<title>`) of the SVG
+   */
   name: keyof typeof icons
+  /**
+   * Set the size
+   */
   size: SizeProp
 }
 
@@ -52,18 +62,20 @@ const getSizeStyles = (size: SizeProp) => {
   }
 }
 
-const StyledIcon = styled.span`
+const StyledIcon = styled.span<IconProps>`
   display: inline-block;
 
   ${(props) =>
-    props.color && props.theme.themeColors[props.color]
+    props.color &&
+    props.theme.themeColors &&
+    props.theme.themeColors[props.color]
       ? css`
-          fill: props.theme.themeColors[props.color];
+          fill: ${props.theme.themeColors[props.color]};
         `
       : css`
           fill: ${props.color};
         `}
-  ${(props: IconProps) => getSizeStyles(props.size)};
+  ${(props) => getSizeStyles(props.size)};
 
   > svg {
     height: auto;
@@ -84,6 +96,6 @@ export const Icon = ({ name, ...props }: IconProps) => {
 export default Icon
 
 Icon.defaultProps = {
-  color: '#f00',
+  color: 'black',
   size: 'base',
 }

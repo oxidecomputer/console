@@ -1,6 +1,6 @@
 <!-- Icons.stories.mdx-->
 
-import { Meta } from '@storybook/addon-docs/blocks'
+import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { Icon, icons } from './Icon'
 
@@ -9,6 +9,14 @@ import { Icon, icons } from './Icon'
 # Icons
 
 Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS.
+
+export const Template = (args) => <Icon {...args} />
+
+<Canvas>
+  <Story name="Icon" args={{ name: 'gear', color: 'green500' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
 
 ## Accessibility
 
@@ -36,7 +44,7 @@ The `<Icon />` component takes two props.
 - `color` can be any of the available theme colors (e.g. `"green500"`) or any valid CSS color (e.g. `"#ff0000`)
 
 ```tsx
-<Icon name="dashboard" color="gray500" />
+<Icon name="dashboard" color="green500" />
 ```
 
 ## All icons

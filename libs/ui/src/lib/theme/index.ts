@@ -85,11 +85,6 @@ const baseTheme: BaseTheme = {
 
 export const darkTheme: Theme = {
   ...baseTheme,
-  colors: {
-    mainBg: colors.gray900,
-    mainText: colors.gray50,
-    mainTextDimmed: colors.gray400,
-  },
 }
 
 export const defaultTheme: Theme = darkTheme
