@@ -64,6 +64,6 @@ export const Icon = ({ name, ...props }: IconProps) => {
 export default Icon
 
 Icon.defaultProps = {
-  color: '#ff0000',
+  color: '#000',
   size: 'base',
 }
