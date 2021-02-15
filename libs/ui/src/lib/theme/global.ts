@@ -171,28 +171,33 @@ export const normalize = css`
   }
 `
 
-export const fonts = css`
-  /* TODO: @font-face */
-`
-
-export const GlobalStyle = createGlobalStyle`
-  ${normalize}
-
-  html, body {
+export const globalStyles = css`
+  html,
+  body {
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
   }
 
-  h1, h2, h3, h4, h5, h6, p, ol, ul {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ol,
+  ul {
     margin: 0;
     padding: 0;
   }
 
-  ol, ul {
+  ol,
+  ul {
     list-style-type: none;
   }
 
-  a, a:link {
+  a,
+  a:link {
     color: ${(props) => props.theme.themeColors.gray100};
     text-decoration: none;
   }
@@ -209,4 +214,9 @@ export const GlobalStyle = createGlobalStyle`
   a:active {
     color: ${(props) => props.theme.themeColors.gray300};
   }
+`
+
+export const GlobalStyle = createGlobalStyle`
+  ${normalize}
+  ${globalStyles}
 `

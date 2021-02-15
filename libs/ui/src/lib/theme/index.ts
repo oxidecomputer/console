@@ -78,10 +78,14 @@ const baseTheme: BaseTheme = {
 }
 
 // TODO: Add colors for 'light mode'
-// export const lightTheme: Theme = {
-//   ...baseTheme,
-//   colors: {}
-// }
+export const lightTheme: Theme = {
+  ...baseTheme,
+  colors: {
+    mainBg: colors.white,
+    mainText: colors.gray900,
+    mainTextDimmed: colors.gray600,
+  },
+}
 
 export const darkTheme: Theme = {
   ...baseTheme,
