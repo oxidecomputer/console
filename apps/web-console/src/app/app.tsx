@@ -33,6 +33,10 @@ const Title = styled(Text)`
   text-transform: uppercase;
 `
 
+const StyledBreadcrumbs = styled(Breadcrumbs)`
+  margin: ${(props) => props.theme.spacing(4)} 0 0 0;
+`
+
 export const App = () => {
   return (
     <Wrapper>
@@ -45,7 +49,7 @@ export const App = () => {
           <Text size="sm">Notifications Icon</Text>
           <Text size="sm">Avatar</Text>
         </GlobalNav>
-        <Breadcrumbs
+        <StyledBreadcrumbs
           data={[
             { href: '#orgs', label: 'Organizations' },
             { label: 'Colossal Cave Adventure' },

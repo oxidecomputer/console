@@ -4,14 +4,13 @@ import styled from 'styled-components'
 import { Text } from '../text/Text'
 
 export interface BreadcrumbsProps {
+  /**
+   * Render an ordered list using this 'data' prop. Each item in the array is an object with the keys 'href' and 'label'. Links will render if an 'href' is present. The name of the breadcrumb will be the corresponding 'label'.
+   */
   data?: { href?: string; label: string }[]
 }
 
 const StyledList = styled.ol`
-  list-style-type: none;
-  margin: ${(props) => props.theme.spacing(4)} 0 0 0;
-  padding: 0;
-
   text-transform: uppercase;
 `
 
@@ -36,11 +35,10 @@ const StyledListItem = styled.li`
   }
 `
 
-export const Breadcrumbs = (props: BreadcrumbsProps) => {
-  const { data } = props
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
   if (data && !!data.length) {
     return (
-      <StyledList>
+      <StyledList {...rest}>
         {data.map((item, index) => {
           if (item.href) {
             return (
