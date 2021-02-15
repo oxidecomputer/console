@@ -360,4 +360,22 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+
+  a, a:link {
+    color: ${(props) => props.theme.themeColors.gray100};
+    text-decoration: none;
+  }
+
+  a:visited {
+    color: ${(props) => props.theme.themeColors.gray100};
+    text-decoration: underline;
+  }
+
+  a:hover {
+    color: ${(props) => props.theme.themeColors.green500};
+  }
+
+  a:active {
+    color: ${(props) => props.theme.themeColors.gray300};
+  }
 `

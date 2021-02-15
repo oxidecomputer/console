@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Text } from '@oxide/ui'
+import { Breadcrumbs, Text } from '@oxide/ui'
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spacing(4)}
@@ -26,14 +26,9 @@ const GlobalNav = styled.nav`
   }
 `
 
-const Breadcrumbs = styled.div`
-  padding-top: ${(props) => props.theme.spacing(4)};
-
-  color: ${(props) => props.theme.themeColors.gray100};
-  text-transform: uppercase;
-`
-
 const Title = styled(Text)`
+  margin: ${(props) => props.theme.spacing(2)} 0 0 0;
+
   color: ${(props) => props.theme.themeColors.green500};
   text-transform: uppercase;
 `
@@ -50,16 +45,12 @@ export const App = () => {
           <Text size="sm">Notifications Icon</Text>
           <Text size="sm">Avatar</Text>
         </GlobalNav>
-        <Breadcrumbs>
-          <ol>
-            <li>
-              <Text size="sm">Colossal Cave Adventure</Text>
-            </li>
-            <li>
-              <Text size="sm">Projects</Text>
-            </li>
-          </ol>
-        </Breadcrumbs>
+        <Breadcrumbs
+          data={[
+            { href: '#orgs', label: 'Organizations' },
+            { label: 'Colossal Cave Adventure' },
+          ]}
+        />
       </header>
       <main>
         <Title as="h1" size="2xl">
