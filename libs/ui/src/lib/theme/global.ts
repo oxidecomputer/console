@@ -359,5 +359,10 @@ export const fonts = css`
 `
 
 export const GlobalStyle = createGlobalStyle`
-${normalize}
+  ${normalize}
+
+  html, body {
+    background-color: ${(props) => props.theme.themeColors.gray900};
+    color: ${(props) => props.theme.themeColors.gray300};
+  }
 `

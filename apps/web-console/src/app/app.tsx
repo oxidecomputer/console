@@ -3,10 +3,26 @@ import styled from 'styled-components'
 
 import { Text } from '@oxide/ui'
 
-const Wrapper = styled.div``
+const Wrapper = styled.div`
+  padding: ${(props) => props.theme.spacing(4)}
+    ${(props) => props.theme.spacing(6)};
+`
 
 const GlobalNav = styled.nav`
-  text-align: right;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+
+  text-transform: uppercase;
+
+  > * + * {
+    margin-left: ${(props) => props.theme.spacing(6)};
+  }
+
+  > :nth-child(2) {
+    margin-left: ${(props) => props.theme.spacing(12)};
+  }
 `
 
 export const App = () => {
