@@ -12,7 +12,7 @@ export const normalize = css`
  */
 
   html {
-    line-height: 1.15; /* 1 */
+    line-height: 1; /* 1 */
     -webkit-text-size-adjust: 100%; /* 2 */
   }
 
@@ -33,16 +33,6 @@ export const normalize = css`
 
   main {
     display: block;
-  }
-
-  /**
- * Correct the font size and margin on 'h1' elements within 'section' and
- * 'article' contexts in Chrome, Firefox, and Safari.
- */
-
-  h1 {
-    font-size: 2em;
-    margin: 0.67em 0;
   }
 
   /* Grouping content
@@ -364,5 +354,10 @@ export const GlobalStyle = createGlobalStyle`
   html, body {
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
+  }
+
+  h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+    padding: 0;
   }
 `

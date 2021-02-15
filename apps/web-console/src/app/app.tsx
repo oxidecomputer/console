@@ -14,6 +14,7 @@ const GlobalNav = styled.nav`
   flex-wrap: nowrap;
   justify-content: flex-end;
 
+  color: ${(props) => props.theme.themeColors.green50};
   text-transform: uppercase;
 
   > * + * {
@@ -25,20 +26,47 @@ const GlobalNav = styled.nav`
   }
 `
 
+const Breadcrumbs = styled.div`
+  padding-top: ${(props) => props.theme.spacing(4)};
+
+  color: ${(props) => props.theme.themeColors.gray100};
+  text-transform: uppercase;
+`
+
+const Title = styled(Text)`
+  color: ${(props) => props.theme.themeColors.green500};
+  text-transform: uppercase;
+`
+
 export const App = () => {
   return (
     <Wrapper>
       <header>
         <GlobalNav>
-          <Text>Feedback?</Text>
-          <Text>Theme Icon</Text>
-          <Text>Support Icon</Text>
-          <Text>Console Icon</Text>
-          <Text>Notifications Icon</Text>
-          <Text>Avatar</Text>
+          <Text size="sm">Feedback?</Text>
+          <Text size="sm">Theme Icon</Text>
+          <Text size="sm">Support Icon</Text>
+          <Text size="sm">Console Icon</Text>
+          <Text size="sm">Notifications Icon</Text>
+          <Text size="sm">Avatar</Text>
         </GlobalNav>
+        <Breadcrumbs>
+          <ol>
+            <li>
+              <Text size="sm">Colossal Cave Adventure</Text>
+            </li>
+            <li>
+              <Text size="sm">Projects</Text>
+            </li>
+          </ol>
+        </Breadcrumbs>
       </header>
-      <main></main>
+      <main>
+        <Title as="h1" size="2xl">
+          <Text size="sm">Folders Icon</Text>
+          Projects
+        </Title>
+      </main>
     </Wrapper>
   )
 }
