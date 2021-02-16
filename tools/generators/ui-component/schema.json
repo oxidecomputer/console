@@ -10,6 +10,11 @@
         "$source": "argv",
         "index": 0
       }
+    },
+    "skipStories": {
+      "type": "boolean",
+      "description": "Don't create a story for this component",
+      "default": false
     }
   },
   "required": ["name"]

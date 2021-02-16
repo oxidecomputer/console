@@ -1,5 +1,5 @@
 import { Tree, formatFiles, installPackagesTask } from '@nrwl/devkit'
-import { componentGenerator } from '@nrwl/react'
+import { componentGenerator, componentStoryGenerator } from '@nrwl/react'
 
 const REPLACE_EXPORT_REGEX = /^export function (\w*)(\(props: \w*\)) {$/gm
 
@@ -25,13 +25,29 @@ const replaceExportFunction = async (host: Tree) => {
   )
 }
 
-export default async function (host: Tree, schema: any) {
+const generateStoryForComponent = async (host: Tree) => {
+  const files = new Set(
+    host.listChanges().filter((file) => !file.path.includes('spec'))
+  )
+
+  return Promise.all(
+    Array.from(files).map((file) => {
+      const componentPath = file.path.replace('libs/ui/src/', '')
+      componentStoryGenerator(host, { project: 'ui', componentPath })
+    })
+  )
+}
+
+export default async (host: Tree, schema: any) => {
   await componentGenerator(host, {
     pascalCaseFiles: true,
     style: 'styled-components',
     name: schema.name,
     project: 'ui',
   })
+  if (!schema.skipStories) {
+    await generateStoryForComponent(host)
+  }
   await replaceExportFunction(host)
   await formatFiles(host)
   return () => {
