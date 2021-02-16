@@ -50,7 +50,7 @@ export interface IconProps {
 
 const StyledIcon = styled.span<IconProps>`
   display: inline-block;
-  width: 24px;
+  width: ${(props) => props.theme.spacing(6)};
 
   ${(props) =>
     props.color &&
@@ -62,7 +62,6 @@ const StyledIcon = styled.span<IconProps>`
       : css`
           fill: ${props.color};
         `}
-
   > svg {
     height: auto;
     width: 100%;
