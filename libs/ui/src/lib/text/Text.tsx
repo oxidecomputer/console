@@ -1,7 +1,24 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-const getSizeStyles = (size: SizeProp) => {
+export const sizes = [
+  'xxs',
+  'xs',
+  'sm',
+  'base',
+  'lg',
+  'xl',
+  '2xl',
+  '3xl',
+  '4xl',
+  '5xl',
+  '6xl',
+  '7xl',
+  '8xl',
+  '9xl',
+] as const
+
+const getSizeStyles = (size: typeof sizes) => {
   switch (size) {
     case 'xxs':
       return css`
@@ -97,22 +114,6 @@ const StyledText = styled.span<TextProps>`
   ${(props) => getSizeStyles(props.size)};
 `
 
-type SizeProp =
-  | 'xxs'
-  | 'xs'
-  | 'sm'
-  | 'base'
-  | 'lg'
-  | 'xl'
-  | '2xl'
-  | '3xl'
-  | '4xl'
-  | '5xl'
-  | '6xl'
-  | '7xl'
-  | '8xl'
-  | '9xl'
-
 export interface TextProps {
   /**
    * Set the font-family to be sans-serif or monospace
@@ -121,7 +122,7 @@ export interface TextProps {
   /**
    * Set the size of the text
    */
-  size?: SizeProp
+  size?: typeof sizes[number]
   /**
    * Set the font-weight of the text
    */
