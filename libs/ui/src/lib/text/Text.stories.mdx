@@ -9,12 +9,6 @@ import { colors } from '../theme'
   title="Text"
   component={Text}
   argTypes={{
-    color: {
-      control: {
-        type: 'select',
-        options: Object.keys(colors),
-      },
-    },
     font: {
       control: {
         type: 'select',
@@ -69,10 +63,13 @@ Text can be rendered as another element using the `as` prop (built in from `styl
 
 ## Text Sizes
 
+export const defaultArgs = { font: 'sans', weight: 400 }
+
 <Canvas>
   <Story
     name="xxs"
     args={{
+      ...defaultArgs,
       children: `'xxs' size text`,
       size: 'xxs',
     }}
@@ -82,6 +79,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="xs"
     args={{
+      ...defaultArgs,
       children: `'xs' size text`,
       size: 'xs',
     }}
@@ -91,6 +89,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="sm"
     args={{
+      ...defaultArgs,
       children: `'sm' size text`,
       size: 'sm',
     }}
@@ -100,6 +99,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="base"
     args={{
+      ...defaultArgs,
       children: `'base' size text`,
       size: 'base',
     }}
@@ -109,6 +109,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="lg"
     args={{
+      ...defaultArgs,
       children: `'lg' size text`,
       size: 'lg',
     }}
@@ -118,6 +119,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="xl"
     args={{
+      ...defaultArgs,
       children: `'xl' size text`,
       size: 'xl',
     }}
@@ -127,6 +129,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="2xl"
     args={{
+      ...defaultArgs,
       children: `'2xl' size text`,
       size: '2xl',
     }}
@@ -136,6 +139,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="3xl"
     args={{
+      ...defaultArgs,
       children: `'3xl' size text`,
       size: '3xl',
     }}
@@ -145,6 +149,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="4xl"
     args={{
+      ...defaultArgs,
       children: `'4xl' size text`,
       size: '4xl',
     }}
@@ -154,6 +159,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="5xl"
     args={{
+      ...defaultArgs,
       children: `'5xl' size text`,
       size: '5xl',
     }}
@@ -163,6 +169,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="6xl"
     args={{
+      ...defaultArgs,
       children: `'6xl' size text`,
       size: '6xl',
     }}
@@ -172,6 +179,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="7xl"
     args={{
+      ...defaultArgs,
       children: `'7xl' size text`,
       size: '7xl',
     }}
@@ -181,6 +189,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="8xl"
     args={{
+      ...defaultArgs,
       children: `'8xl' size text`,
       size: '8xl',
     }}
@@ -190,6 +199,7 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   <Story
     name="9xl"
     args={{
+      ...defaultArgs,
       children: `'9xl' size text`,
       size: '9xl',
     }}

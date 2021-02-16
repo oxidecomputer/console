@@ -18,7 +18,7 @@ export const sizes = [
   '9xl',
 ] as const
 
-const getSizeStyles = (size: typeof sizes) => {
+const getSizeStyles = (size: typeof sizes[number]) => {
   switch (size) {
     case 'xxs':
       return css`
