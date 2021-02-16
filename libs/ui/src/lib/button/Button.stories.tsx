@@ -1,10 +1,24 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react'
-import { Button, ButtonProps } from './Button'
+import { Button, ButtonProps, sizes, variants } from './Button'
 
 export default {
   component: Button,
   title: 'Button',
+  argTypes: {
+    size: {
+      control: {
+        type: 'select',
+        options: sizes,
+      },
+    },
+    variant: {
+      control: {
+        type: 'select',
+        options: variants,
+      },
+    },
+  },
 } as Meta
 
 const Template: Story<ButtonProps> = (args) => <Button {...args} />

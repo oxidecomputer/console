@@ -2,15 +2,18 @@ import React from 'react'
 
 import styled, { css } from 'styled-components'
 
+export const sizes = ['xs', 'sm', 'base', 'lg'] as const
+export const variants = ['solid', 'outline', 'ghost', 'link'] as const
+
 export interface ButtonProps {
   /**
    * Set the size of the button
    */
-  size: 'xs' | 'sm' | 'base' | 'lg'
+  size: typeof sizes[number]
   /**
    * Style variation or button styles
    */
-  variant: 'solid' | 'outline' | 'ghost' | 'link'
+  variant: typeof variants[number]
   /**
    * Disable button
    */
