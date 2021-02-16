@@ -6,33 +6,33 @@ import { colors } from './index'
 
 <Meta title="Colors" />
 
-export const ColorWrapper = styled.div`
-  width: 100%;
-  height: 1.5em;
-  background-color: ${(props) => props.bgColor};
-  border-radius: 4px 0 0 4px;
-`
-
 # Colors
 
-These are the available colors that the light theme and dark theme reference.
+When using color, please double check that the color contrast follows the [WCAG guidelines](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable/Color_contrast) for accessibility best practices.
 
-<div
-  style={{
-    alignItems: 'center',
-    display: 'grid',
-    gridTemplateColumns: `repeat(2, 1fr)`,
-    gridGap: '0.5rem',
-  }}
->
+## Usage
+
+Colors are exposed directly on both the light theme and the dark theme in `props.theme.themeColors.COLOR_KEY`. Eventually the themes will abstract the colors so that you will not need to reference the theme colors directly.
+
+## Passing Color Contrast Combinations
+
+TODO
+
+## All colors
+
+<table>
+  <tr>
+    <th>Color</th>
+    <th>Key</th>
+  </tr>
   {Object.keys(colors).map((key) => {
     return (
-      <>
-        <ColorWrapper bgColor={colors[key]} />
-        <div>
-          <code>colors.{key}</code>
-        </div>
-      </>
+      <tr>
+        <td style={{ backgroundColor: colors[key], width: '1.5em' }}></td>
+        <td>
+          <code>{key}</code>
+        </td>
+      </tr>
     )
   })}
-</div>
+</table>

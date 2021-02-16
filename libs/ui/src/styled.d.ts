@@ -35,12 +35,6 @@ declare module 'styled-components' {
     black: string
   }
   export interface DefaultTheme {
-    colors: {
-      // TODO: Figure out better names
-      mainBg: string
-      mainText: string
-      mainTextDimmed: string
-    }
     themeColors: ThemeColors
     fonts: {
       sans: string
