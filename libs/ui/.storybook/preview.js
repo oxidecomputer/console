@@ -2,6 +2,7 @@ import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { ThemeProvider } from 'styled-components'
 import { colorPalette, defaultTheme } from '@oxide/theme'
+import { jsxDecorator } from 'storybook-addon-jsx'
 
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const values = (colors) =>
@@ -24,6 +25,7 @@ export const parameters = {
 }
 
 export const decorators = [
+  jsxDecorator,
   (Story) => (
     <ThemeProvider theme={defaultTheme}>
       <Story />
