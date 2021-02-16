@@ -1,5 +1,5 @@
 import React from 'react'
-// import { addDecorator } from '@storybook/react';
+import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { ThemeProvider } from 'styled-components'
 import { colors, defaultTheme } from '../src/lib/theme'
 
@@ -13,6 +13,13 @@ export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   backgrounds: {
     values: values(colors),
+  },
+  docs: {
+    container: ({ children, context }) => (
+      <DocsContainer context={context}>
+        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+      </DocsContainer>
+    ),
   },
 }
 
