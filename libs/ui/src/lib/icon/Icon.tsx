@@ -37,8 +37,6 @@ export const icons = {
   support: <SupportIcon />,
   users: <UsersIcon />,
 }
-
-type SizeProp = 'base'
 export interface IconProps {
   /**
    * Set the color using a theme color ("green500") or a valid CSS value ("blue" or "#f00")
@@ -48,24 +46,11 @@ export interface IconProps {
    * Name (which corresponds to the `<title>`) of the SVG
    */
   name: keyof typeof icons
-  /**
-   * Set the size
-   */
-  size: SizeProp
-}
-
-const getSizeStyles = (size: SizeProp) => {
-  switch (size) {
-    case 'base':
-    default:
-      return css`
-        width: 24px;
-      `
-  }
 }
 
 const StyledIcon = styled.span<IconProps>`
   display: inline-block;
+  width: 24px;
 
   ${(props) =>
     props.color &&
@@ -77,7 +62,6 @@ const StyledIcon = styled.span<IconProps>`
       : css`
           fill: ${props.color};
         `}
-  ${(props) => getSizeStyles(props.size)};
 
   > svg {
     height: auto;
@@ -99,5 +83,4 @@ export default Icon
 
 Icon.defaultProps = {
   color: 'black',
-  size: 'base',
 }
