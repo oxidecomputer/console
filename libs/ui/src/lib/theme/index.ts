@@ -1,4 +1,7 @@
-import { DefaultTheme as Theme, ThemeColors } from 'styled-components'
+import { Theme, ThemeColors } from './theme'
+
+export * from './styled'
+export * from './global'
 
 export const colors: ThemeColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -80,22 +83,10 @@ const baseTheme: BaseTheme = {
 // TODO: Add colors for 'light mode'
 export const lightTheme: Theme = {
   ...baseTheme,
-  colors: {
-    mainBg: colors.white,
-    mainText: colors.gray900,
-    mainTextDimmed: colors.gray600,
-  },
 }
 
 export const darkTheme: Theme = {
   ...baseTheme,
-  colors: {
-    mainBg: colors.gray900,
-    mainText: colors.gray50,
-    mainTextDimmed: colors.gray400,
-  },
 }
 
 export const defaultTheme: Theme = darkTheme
-
-export * from './global'

@@ -19,8 +19,6 @@ export const parameters = {
   docs: {
     // Use an iframe for Docs page so stories have correct background color
     inlineStories: false,
-  },
-  docs: {
     container: ({ children, context }) => (
       <DocsContainer context={context}>
         <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>

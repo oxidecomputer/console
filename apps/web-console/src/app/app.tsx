@@ -1,7 +1,6 @@
 import React from 'react'
-import styled from 'styled-components'
 
-import { Breadcrumbs, Text } from '@oxide/ui'
+import { Breadcrumbs, Text, styled } from '@oxide/ui'
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spacing(4)}
