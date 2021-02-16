@@ -3,8 +3,26 @@
 import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { Icon, icons } from './Icon'
+import { colors } from '../theme'
 
-<Meta title="Icons" component={Icon} />
+<Meta
+  title="Icons"
+  component={Icon}
+  argTypes={{
+    name: {
+      control: {
+        type: 'select',
+        options: Object.keys(icons),
+      },
+    },
+    color: {
+      control: {
+        type: 'select',
+        options: Object.keys(colors),
+      },
+    },
+  }}
+/>
 
 # Icons
 
