@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled, css } from '../theme'
+import styled, { css } from 'styled-components'
 
 const getSizeStyles = (size: SizeProp) => {
   switch (size) {

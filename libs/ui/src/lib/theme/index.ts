@@ -1,9 +1,9 @@
-import { Theme, ThemeColors } from './theme'
+import { DefaultTheme as Theme } from 'styled-components'
+import { Colors } from '@oxide/theme'
 
-export * from './styled'
 export * from './global'
 
-export const colors: ThemeColors = {
+export const colors: Colors = {
   white: 'hsl(0, 0%, 100%)',
   black: 'hsl(0, 0%, 0%)',
 
