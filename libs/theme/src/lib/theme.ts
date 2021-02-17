@@ -1,5 +1,5 @@
 import 'styled-components'
-import { Colors } from './colors'
+import { ColorPalette } from './colors'
 
 type SizingMultiplier =
   | 0.5
@@ -26,7 +26,7 @@ type SizingMultiplier =
 
 declare module 'styled-components' {
   export interface DefaultTheme {
-    themeColors: Colors
+    themeColors: ColorPalette
     fonts: {
       sans: string
       mono: string

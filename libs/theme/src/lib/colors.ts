@@ -1,13 +1,9 @@
 type ColorNames = 'gray' | 'red' | 'yellow' | 'blue' | 'green'
 type ColorValues = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
-type Color = `${ColorNames}${ColorValues}`
+export type Color = `${ColorNames}${ColorValues}` | 'white' | 'black'
+export type ColorPalette = Record<Color, string>
 
-export type Colors = Record<Color, string> & {
-  white: string
-  black: string
-}
-
-export const colorPalette: Colors = {
+export const colorPalette: ColorPalette = {
   white: 'hsl(0, 0%, 100%)',
   black: 'hsl(0, 0%, 0%)',
 

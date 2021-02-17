@@ -1,6 +1,6 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { colors } from '../theme'
+import { Color } from '@oxide/theme'
 
 import { ReactComponent as AddIcon } from '../../assets/add.svg'
 import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
@@ -37,18 +37,19 @@ export const icons = {
   support: <SupportIcon />,
   users: <UsersIcon />,
 }
+type IconName = keyof typeof icons
 export interface IconProps {
   /**
    * Set the color using a theme color ("green500") or a valid CSS value ("blue" or "#f00")
    */
-  color: keyof typeof colors | string
+  color: Color | string
   /**
    * Name (which corresponds to the `<title>`) of the SVG
    */
-  name: keyof typeof icons
+  name: IconName
 }
 
-const StyledIcon = styled.span<IconProps>`
+const StyledIcon = styled.span<{ color: string }>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
@@ -71,9 +72,13 @@ const StyledIcon = styled.span<IconProps>`
   }
 `
 
-export const Icon = ({ name, ...props }: IconProps) => {
+export const Icon = ({ name, color, ...props }: IconProps) => {
   if (name && icons[name]) {
-    return <StyledIcon {...props}>{icons[name]}</StyledIcon>
+    return (
+      <StyledIcon color={color} {...props}>
+        {icons[name]}
+      </StyledIcon>
+    )
   }
   return null
 }
