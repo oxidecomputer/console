@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
 
 export const sizes = [
@@ -17,8 +17,9 @@ export const sizes = [
   '8xl',
   '9xl',
 ] as const
+type Size = typeof sizes[number]
 
-const getSizeStyles = (size: typeof sizes[number]) => {
+const getSizeStyles = (size: Size) => {
   switch (size) {
     case 'xxs':
       return css`
@@ -94,7 +95,7 @@ const getSizeStyles = (size: typeof sizes[number]) => {
   }
 }
 
-const StyledText = styled.span<TextProps>`
+export const Text = styled.span<TextProps>`
   color: inherit;
   font-weight: ${(props) => props.weight};
 
@@ -122,16 +123,12 @@ export interface TextProps {
   /**
    * Set the size of the text
    */
-  size?: typeof sizes[number]
+  size?: Size
   /**
    * Set the font-weight of the text
    */
   weight?: number
 }
-
-export const Text: FC<TextProps> = ({ children, ...props }) => (
-  <StyledText {...props}>{children}</StyledText>
-)
 
 Text.defaultProps = {
   font: 'sans',
