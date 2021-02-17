@@ -1,9 +1,5 @@
-// import original module declarations
 import 'styled-components'
-
-type Colors = 'gray' | 'red' | 'yellow' | 'blue' | 'green'
-type ColorValues = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
-type ColorName = `${Colors}${ColorValues}`
+import { ColorPalette } from './colors'
 
 type SizingMultiplier =
   | 0.5
@@ -30,12 +26,8 @@ type SizingMultiplier =
 
 // Extend the styled-components
 declare module 'styled-components' {
-  export type ThemeColors = Record<ColorName, string> & {
-    white: string
-    black: string
-  }
   export interface DefaultTheme {
-    themeColors: ThemeColors
+    themeColors: ColorPalette
     fonts: {
       sans: string
       mono: string

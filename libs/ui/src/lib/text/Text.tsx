@@ -17,6 +17,7 @@ export const sizes = [
   '8xl',
   '9xl',
 ] as const
+type Size = typeof sizes[number]
 
 const getSizeStyles = (size: typeof sizes[number]) => {
   switch (size) {
@@ -122,7 +123,7 @@ export interface TextProps {
   /**
    * Set the size of the text
    */
-  size?: typeof sizes[number]
+  size?: Size
   /**
    * Set the font-weight of the text
    */

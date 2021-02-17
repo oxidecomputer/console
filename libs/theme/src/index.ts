@@ -1,1 +1,2 @@
-export * from './lib/Theme'
+export * from './lib/theme'
+export * from './lib/colors'

@@ -1,7 +1,8 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { ThemeProvider } from 'styled-components'
-import { colors, defaultTheme } from '../src/lib/theme'
+import { defaultTheme } from '../src/lib/theme'
+import { colorPalette } from '@oxide/theme'
 
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const values = (colors) =>
@@ -12,7 +13,7 @@ const values = (colors) =>
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   backgrounds: {
-    values: values(colors),
+    values: values(colorPalette),
   },
   docs: {
     container: ({ children, context }) => (
