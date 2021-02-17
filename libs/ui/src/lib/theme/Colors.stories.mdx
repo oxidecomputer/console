@@ -2,7 +2,7 @@
 
 import { Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
-import { colors } from './index'
+import { colorPalette } from '@oxide/theme'
 
 <Meta title="Colors" />
 
@@ -25,10 +25,10 @@ TODO
     <th>Color</th>
     <th>Key</th>
   </tr>
-  {Object.keys(colors).map((key) => {
+  {Object.keys(colorPalette).map((key) => {
     return (
       <tr>
-        <td style={{ backgroundColor: colors[key], width: '1.5em' }}></td>
+        <td style={{ backgroundColor: colorPalette[key], width: '1.5em' }}></td>
         <td>
           <code>{key}</code>
         </td>

@@ -1,7 +1,8 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { ThemeProvider } from 'styled-components'
-import { colors, defaultTheme, GlobalStyle } from '../src/lib/theme'
+import { defaultTheme } from '../src/lib/theme'
+import { colorPalette, GlobalStyle } from '@oxide/theme'
 
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const getOptions = (colors) =>
@@ -14,7 +15,7 @@ export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   backgrounds: {
     // Change background color with this drop down of all available colors
-    values: getOptions(colors),
+    values: getOptions(colorPalette),
   },
   docs: {
     // Use an iframe for Docs page so stories have correct background color
@@ -31,10 +32,8 @@ export const parameters = {
 const withThemeProvider = (Story, context) => {
   return (
     <ThemeProvider theme={defaultTheme}>
-      <React.Fragment>
-        <GlobalStyle />
-        <Story {...context} />
-      </React.Fragment>
+      <GlobalStyle />
+      <Story {...context} />
     </ThemeProvider>
   )
 }

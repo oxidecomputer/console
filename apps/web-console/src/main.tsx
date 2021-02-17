@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ThemeProvider } from 'styled-components'
-import { defaultTheme, GlobalStyle } from '@oxide/ui'
+import { defaultTheme } from '@oxide/ui'
+import { GlobalStyle } from '@oxide/theme'
 
 import App from './app/app'
 
