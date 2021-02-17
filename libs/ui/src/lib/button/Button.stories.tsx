@@ -6,16 +6,30 @@ export default {
   component: Button,
   title: 'Button',
   argTypes: {
+    disabled: {
+      table: {
+        type: { summary: 'bool' },
+        defaultValue: { summary: 'false' },
+      },
+    },
     size: {
       control: {
         type: 'select',
         options: sizes,
+      },
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'base' },
       },
     },
     variant: {
       control: {
         type: 'select',
         options: variants,
+      },
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'solid' },
       },
     },
   },

@@ -5,22 +5,25 @@ import styled, { css } from 'styled-components'
 export const sizes = ['xs', 'sm', 'base', 'lg'] as const
 export const variants = ['solid', 'outline', 'ghost', 'link'] as const
 
+type Size = typeof sizes[number]
+type Variant = typeof variants[number]
+
 export interface ButtonProps {
   /**
    * Set the size of the button
    */
-  size: typeof sizes[number]
+  size: Size
   /**
    * Style variation or button styles
    */
-  variant: typeof variants[number]
+  variant: Variant
   /**
    * Disable button
    */
   disabled?: boolean
 }
 
-const getSizeStyles = (size) => {
+const getSizeStyles = (size: Size) => {
   switch (size) {
     case 'xs':
       return css`
@@ -50,7 +53,7 @@ const getSizeStyles = (size) => {
   }
 }
 
-const getVariantStyles = (variant) => {
+const getVariantStyles = (variant: Variant) => {
   switch (variant) {
     case 'outline':
       return css`
