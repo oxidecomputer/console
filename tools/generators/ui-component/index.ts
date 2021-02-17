@@ -25,9 +25,10 @@ const replaceExportFunction = async (host: Tree) => {
   )
 }
 
+const STORY_COMPONENT_REGEX = /(?<!spec)\.tsx$/
 const generateStoryForComponent = async (host: Tree) => {
   const files = new Set(
-    host.listChanges().filter((file) => !file.path.includes('spec'))
+    host.listChanges().filter((file) => STORY_COMPONENT_REGEX.test(file.path))
   )
 
   return Promise.all(
@@ -40,10 +41,14 @@ const generateStoryForComponent = async (host: Tree) => {
 
 export default async (host: Tree, schema: any) => {
   await componentGenerator(host, {
+    // Defaults to @nrwl/react component generator
     pascalCaseFiles: true,
     style: 'styled-components',
-    name: schema.name,
     project: 'ui',
+
+    // Passing our options into this generator
+    export: schema.export,
+    name: schema.name,
   })
   if (!schema.skipStories) {
     await generateStoryForComponent(host)

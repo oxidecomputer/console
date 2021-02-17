@@ -13,8 +13,15 @@
     },
     "skipStories": {
       "type": "boolean",
-      "description": "Don't create a story for this component",
+      "description": "When true, skips creating Jest tests for this component.",
       "default": false
+    },
+    "export": {
+      "type": "boolean",
+      "description": "When true, the component is exported from the project index.ts (if it exists).",
+      "alias": "e",
+      "default": false,
+      "x-prompt": "Should this component be exported in the project?"
     }
   },
   "required": ["name"]
