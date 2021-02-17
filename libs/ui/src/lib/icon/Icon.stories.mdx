@@ -3,7 +3,7 @@
 import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { Icon, icons } from './Icon'
-import { colors } from '../theme'
+import { colorPalette } from '@oxide/theme'
 
 <Meta
   title="Icons"
@@ -18,7 +18,7 @@ import { colors } from '../theme'
     color: {
       control: {
         type: 'select',
-        options: Object.keys(colors),
+        options: Object.keys(colorPalette),
       },
     },
   }}

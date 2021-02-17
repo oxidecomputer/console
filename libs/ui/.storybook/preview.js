@@ -4,6 +4,8 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from '../src/lib/theme'
 import { colorPalette, GlobalStyle } from '@oxide/theme'
 
+console.log(defaultTheme)
+
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const getOptions = (colors) =>
   Object.keys(colors).map((key) => {
@@ -22,8 +24,10 @@ export const parameters = {
     inlineStories: false,
     container: ({ children, context }) => (
       <DocsContainer context={context}>
-        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
-        <GlobalStyle />
+        <ThemeProvider theme={defaultTheme}>
+          <GlobalStyle />
+          {children}
+        </ThemeProvider>
       </DocsContainer>
     ),
   },
