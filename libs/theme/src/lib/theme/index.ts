@@ -1,5 +1,9 @@
 import 'styled-components'
-import { ColorPalette } from './colors'
+import { ColorPalette } from '../colors'
+import { darkTheme } from './dark'
+
+export * from './dark'
+export const defaultTheme = darkTheme
 
 type SizingMultiplier =
   | 0.5

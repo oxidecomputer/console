@@ -1,9 +1,7 @@
 import { DefaultTheme as Theme } from 'styled-components'
-import { colorPalette } from '@oxide/theme'
+import { colorPalette } from '../colors'
 
-type BaseTheme = Omit<Theme, 'colors'>
-
-const baseTheme: BaseTheme = {
+const baseTheme: Theme = {
   // TODO: Host these font files and use @font-face declarations in a global stylesheet
   fonts: {
     sans: `'Inter', sans-serif`,
@@ -24,8 +22,6 @@ const baseTheme: BaseTheme = {
 //   colors: {}
 // }
 
-export const darkTheme: Theme = {
+export const darkTheme = {
   ...baseTheme,
 }
-
-export const defaultTheme: Theme = darkTheme
