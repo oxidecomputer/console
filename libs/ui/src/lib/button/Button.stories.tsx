@@ -1,6 +1,7 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react'
 import { Button, ButtonProps, sizes, variants } from './Button'
+import { icons } from '../icon/Icon'
 
 export default {
   component: Button,
@@ -10,6 +11,11 @@ export default {
       table: {
         type: { summary: 'bool' },
         defaultValue: { summary: 'false' },
+      },
+    },
+    icon: {
+      control: {
+        type: 'object',
       },
     },
     size: {
@@ -62,3 +68,6 @@ Small.args = { ...Default.args, size: 'sm' }
 
 export const Large = Template.bind({})
 Large.args = { ...Default.args, size: 'lg' }
+
+export const Icon = Template.bind({})
+Icon.args = { ...Default.args, icon: { align: 'left', name: 'server' } }

@@ -37,6 +37,9 @@ export const icons = {
   support: <SupportIcon />,
   users: <UsersIcon />,
 }
+
+export type NameType = keyof typeof icons
+
 export interface IconProps {
   /**
    * Set the color using a theme color ("green500") or a valid CSS value ("blue" or "#f00")
@@ -45,23 +48,35 @@ export interface IconProps {
   /**
    * Name (which corresponds to the `<title>`) of the SVG
    */
-  name: keyof typeof icons
+  name: NameType
+}
+
+const getColorStyles = (props: IconProps) => {
+  if (props.color) {
+    const validThemeColor = props.theme.themeColors[props.color]
+    if (validThemeColor) {
+      // found color in themeColors, use it
+      return css`
+        fill: ${validThemeColor};
+      `
+    }
+    // set color manually
+    return css`
+      fill: ${props.color};
+    `
+  }
+  // inherit color
+  return css`
+    fill: currentColor;
+  `
 }
 
 const StyledIcon = styled.span<IconProps>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
-  ${(props) =>
-    props.color &&
-    props.theme.themeColors &&
-    props.theme.themeColors[props.color]
-      ? css`
-          fill: ${props.theme.themeColors[props.color]};
-        `
-      : css`
-          fill: ${props.color};
-        `}
+  ${(props) => getColorStyles(props)};
+
   > svg {
     height: auto;
     width: 100%;

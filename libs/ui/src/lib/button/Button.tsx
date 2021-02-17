@@ -1,6 +1,7 @@
 import React from 'react'
 
 import styled, { css } from 'styled-components'
+import { Icon, NameType } from '../icon/Icon'
 
 export const sizes = ['xs', 'sm', 'base', 'lg'] as const
 export const variants = ['solid', 'outline', 'ghost', 'link'] as const
@@ -9,6 +10,13 @@ type Size = typeof sizes[number]
 type Variant = typeof variants[number]
 
 export interface ButtonProps {
+  /**
+   * Display an icon
+   */
+  icon?: {
+    align: 'left' | 'right'
+    name: NameType
+  }
   /**
    * Set the size of the button
    */
@@ -126,7 +134,22 @@ const StyledButton = styled.button<ButtonProps>`
   ${(props) => getVariantStyles(props.variant)};
 `
 
-export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
+export const Button: React.FC<ButtonProps> = ({ children, icon, ...rest }) => {
+  if (icon) {
+    let renderButtonChildren
+    if (icon.align === 'left') {
+      renderButtonChildren = (
+        <React.Fragment>
+          <Icon name={icon.name} /> {children}
+        </React.Fragment>
+      )
+    }
+    return (
+      <StyledButton type="button" {...rest}>
+        {renderButtonChildren}
+      </StyledButton>
+    )
+  }
   return (
     <StyledButton type="button" {...rest}>
       {children}
