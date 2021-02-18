@@ -1,0 +1,119 @@
+<!-- Icons.stories.mdx-->
+
+import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Button, ButtonProps, sizes, variants } from './Button'
+
+<Meta
+  title="Button"
+  component={Button}
+  argTypes={{
+    disabled: {
+      table: {
+        type: { summary: 'bool' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    icon: {
+      control: {
+        type: 'object',
+      },
+    },
+    size: {
+      control: {
+        type: 'select',
+        options: sizes,
+      },
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'base' },
+      },
+    },
+    variant: {
+      control: {
+        type: 'select',
+        options: variants,
+      },
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'solid' },
+      },
+    },
+  }}
+/>
+
+# Buttons
+
+export const Template = (args) => <Button {...args} />
+const defaultArgs = {
+  children: 'Button',
+  disabled: false,
+  size: 'base',
+  variant: 'solid',
+}
+
+<Canvas>
+  <Story name="Default" args={defaultArgs}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+## Button Sizes
+
+<Canvas>
+  <Story name="xs" args={{ ...defaultArgs, size: 'xs' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="sm" args={{ ...defaultArgs, size: 'sm' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="lg" args={{ ...defaultArgs, size: 'lg' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+## Button Variants
+
+<Canvas>
+  <Story name="Outline" args={{ ...defaultArgs, variant: 'outline' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Ghost" args={{ ...defaultArgs, variant: 'ghost' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Link" args={{ ...defaultArgs, variant: 'link' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+## Button with Icons
+
+<Canvas>
+  <Story
+    name="Left"
+    args={{ ...defaultArgs, icon: { align: 'left', name: 'gear' } }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Right"
+    args={{ ...defaultArgs, icon: { align: 'right', name: 'gear' } }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Icon Only"
+    args={{ ...defaultArgs, children: null, icon: { name: 'gear' } }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Icon Only Rounded"
+    args={{
+      ...defaultArgs,
+      children: null,
+      icon: { name: 'gear', isRounded: true },
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
