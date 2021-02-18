@@ -14,8 +14,9 @@ export interface ButtonProps {
    * Display an icon
    */
   icon?: {
-    align: 'left' | 'right'
+    align?: 'left' | 'right'
     name: NameType
+    rounded?: boolean
   }
   /**
    * Set the size of the button
