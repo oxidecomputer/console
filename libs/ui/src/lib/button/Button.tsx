@@ -126,12 +126,10 @@ const getVariantStyles = (variant: Variant) => {
   }
 }
 
-const iconStyles = css`
-  align-items: center;
-  display: inline-flex;
-  flex-direction: row;
+const StyledIcon = styled(Icon)``
 
-  > *:first-child {
+const iconStyles = css`
+  > ${StyledIcon} {
   }
 `
 
@@ -143,6 +141,10 @@ const roundedStyles = css`
 const StyledButton = styled.button<
   ButtonProps & { hasIcon?: boolean; isRounded?: boolean }
 >`
+  align-items: center;
+  display: inline-flex;
+  flex-direction: row;
+
   border: none;
   border-radius: 0;
   text-transform: uppercase;
@@ -161,13 +163,13 @@ export const Button: React.FC<ButtonProps> = ({ children, icon, ...rest }) => {
     if (align === 'right') {
       renderButtonChildren = (
         <React.Fragment>
-          {children} <Icon {...icon} />
+          {children} <StyledIcon {...icon} />
         </React.Fragment>
       )
     } else {
       renderButtonChildren = (
         <React.Fragment>
-          <Icon {...icon} /> {children}
+          <StyledIcon {...icon} /> {children}
         </React.Fragment>
       )
     }
