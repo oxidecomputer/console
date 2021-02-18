@@ -134,7 +134,7 @@ const StyledApp = styled.div`
   }
 `
 
-export function App() {
+export const App = () => {
   return (
     <StyledApp>
       <header className="flex">

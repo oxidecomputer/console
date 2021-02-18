@@ -42,9 +42,9 @@ export type NameType = keyof typeof icons
 
 export interface IconProps {
   /**
-   * Set the color using a theme color ("green500") or a valid CSS value ("blue" or "#f00")
+   * Set the color using a theme color ("green500")
    */
-  color: keyof typeof colors | string
+  color?: keyof typeof colors
   /**
    * Name (which corresponds to the `<title>`) of the SVG
    */
@@ -52,6 +52,8 @@ export interface IconProps {
 }
 
 const getColorStyles = (props: IconProps) => {
+  console.log('getColorStyles', props.color, props)
+
   if (props.color) {
     const validThemeColor = props.theme.themeColors[props.color]
     if (validThemeColor) {
@@ -94,7 +96,3 @@ export const Icon = ({ name, ...props }: IconProps) => {
 }
 
 export default Icon
-
-Icon.defaultProps = {
-  color: 'black',
-}

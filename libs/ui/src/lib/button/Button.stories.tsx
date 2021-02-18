@@ -1,7 +1,6 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react'
 import { Button, ButtonProps, sizes, variants } from './Button'
-import { icons } from '../icon/Icon'
 
 export default {
   component: Button,
@@ -69,5 +68,27 @@ Small.args = { ...Default.args, size: 'sm' }
 export const Large = Template.bind({})
 Large.args = { ...Default.args, size: 'lg' }
 
-export const Icon = Template.bind({})
-Icon.args = { ...Default.args, icon: { align: 'left', name: 'server' } }
+export const IconLeftOfText = Template.bind({})
+IconLeftOfText.args = {
+  ...Default.args,
+  icon: { align: 'left', name: 'gear' },
+}
+
+export const IconRightOfText = Template.bind({})
+IconRightOfText.args = {
+  ...Default.args,
+  icon: { align: 'right', name: 'gear' },
+}
+
+export const IconOnly = Template.bind({})
+IconOnly.args = {
+  ...Default.args,
+  children: null,
+  icon: { name: 'gear' },
+}
+export const IconOnlyRounded = Template.bind({})
+IconOnlyRounded.args = {
+  ...Default.args,
+  children: null,
+  icon: { name: 'gear', isRounded: true },
+}

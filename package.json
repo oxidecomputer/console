@@ -25,7 +25,8 @@
     "workspace-generator": "nx workspace-generator",
     "dep-graph": "nx dep-graph",
     "help": "nx help",
-    "storybook": "nx run ui:storybook"
+    "storybook": "nx run ui:storybook",
+    "g:ui-component": "nx workspace-generator ui-component"
   },
   "private": true,
   "dependencies": {
@@ -44,6 +45,7 @@
     "@babel/preset-typescript": "7.9.0",
     "@nrwl/cli": "11.2.10",
     "@nrwl/cypress": "11.2.10",
+    "@nrwl/devkit": "11.2.10",
     "@nrwl/eslint-plugin-nx": "11.2.10",
     "@nrwl/jest": "11.2.10",
     "@nrwl/linter": "11.2.10",

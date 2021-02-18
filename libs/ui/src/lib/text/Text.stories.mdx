@@ -1,0 +1,209 @@
+<!-- Text.stories.mdx-->
+
+import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+import { Text, sizes } from './Text'
+import { colors } from '../theme'
+
+<Meta
+  title="Foundations/Text"
+  component={Text}
+  argTypes={{
+    font: {
+      control: {
+        type: 'select',
+        options: ['sans', 'mono'],
+      },
+    },
+    size: {
+      control: {
+        type: 'select',
+        options: sizes,
+      },
+    },
+    weight: {
+      control: {
+        type: 'number',
+      },
+    },
+  }}
+/>
+
+# Text
+
+export const Template = (args) => <Text {...args} />
+
+Text will render as a `<span>` by default.
+
+Text can be rendered as another element using the `as` prop (built in from `styled-components`), but please be sure to use the correct semantic element to maintain an <a href="https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html">accessible Document Outline</a> and rely on styles for changing the appearance, see <a href="https://www.w3.org/WAI/standards-guidelines/wcag/">Web Content Accessibility Guidelines (WCAG)</a> for more detail.
+
+<Canvas>
+  <Story
+    name="Default"
+    args={{
+      children: `Text will render as a 'span' by default.`,
+      font: 'sans',
+      size: 'base',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Render as a p tag"
+    args={{
+      as: 'p',
+      children: `Text can be rendered in a <p> tag using the 'as' prop.`,
+      font: 'sans',
+      size: 'base',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+## Text Sizes
+
+export const defaultArgs = { font: 'sans', weight: 400 }
+
+<Canvas>
+  <Story
+    name="xxs"
+    args={{
+      ...defaultArgs,
+      children: `'xxs' size text`,
+      size: 'xxs',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="xs"
+    args={{
+      ...defaultArgs,
+      children: `'xs' size text`,
+      size: 'xs',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="sm"
+    args={{
+      ...defaultArgs,
+      children: `'sm' size text`,
+      size: 'sm',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="base"
+    args={{
+      ...defaultArgs,
+      children: `'base' size text`,
+      size: 'base',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="lg"
+    args={{
+      ...defaultArgs,
+      children: `'lg' size text`,
+      size: 'lg',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="xl"
+    args={{
+      ...defaultArgs,
+      children: `'xl' size text`,
+      size: 'xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="2xl"
+    args={{
+      ...defaultArgs,
+      children: `'2xl' size text`,
+      size: '2xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="3xl"
+    args={{
+      ...defaultArgs,
+      children: `'3xl' size text`,
+      size: '3xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="4xl"
+    args={{
+      ...defaultArgs,
+      children: `'4xl' size text`,
+      size: '4xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="5xl"
+    args={{
+      ...defaultArgs,
+      children: `'5xl' size text`,
+      size: '5xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="6xl"
+    args={{
+      ...defaultArgs,
+      children: `'6xl' size text`,
+      size: '6xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="7xl"
+    args={{
+      ...defaultArgs,
+      children: `'7xl' size text`,
+      size: '7xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="8xl"
+    args={{
+      ...defaultArgs,
+      children: `'8xl' size text`,
+      size: '8xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="9xl"
+    args={{
+      ...defaultArgs,
+      children: `'9xl' size text`,
+      size: '9xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
