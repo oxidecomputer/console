@@ -6,6 +6,7 @@ const globalStyles = css`
   body {
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
+    font-family: ${(props) => props.theme.fonts.mono};
   }
   h1,
   h2,

@@ -1,9 +1,8 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { ThemeProvider } from 'styled-components'
-import { colorPalette, defaultTheme } from '@oxide/theme'
+import { colorPalette, defaultTheme, GlobalStyle } from '@oxide/theme'
 
-// FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const values = (colors) =>
   Object.keys(colors).map((key) => {
     return { name: key, value: colors[key] }
@@ -12,12 +11,19 @@ const values = (colors) =>
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   backgrounds: {
+    // Bug: background selector is broken for stories written in MDX
+    // See: https://github.com/storybookjs/storybook/issues/7978#issuecomment-726797915
+    default: 'gray900',
     values: values(colorPalette),
   },
   docs: {
+    // Default background does not apply to docs
     container: ({ children, context }) => (
       <DocsContainer context={context}>
-        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+        <ThemeProvider theme={defaultTheme}>
+          <GlobalStyle />
+          {children}
+        </ThemeProvider>
       </DocsContainer>
     ),
   },
@@ -26,6 +32,7 @@ export const parameters = {
 export const decorators = [
   (Story) => (
     <ThemeProvider theme={defaultTheme}>
+      <GlobalStyle />
       <Story />
     </ThemeProvider>
   ),
