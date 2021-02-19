@@ -134,6 +134,12 @@ const getVariantStyles = (variant: Variant) => {
   }
 }
 
+const iconStyles = css`
+  > *:first-child {
+    margin-right: ${({ theme }) => theme.spacing(2)};
+  }
+`
+
 const roundedStyles = css`
   border-radius: ${({ theme }) => theme.spacing(64)};
 `
@@ -151,6 +157,7 @@ const StyledButton = styled.button<
 
   ${(props) => getSizeStyles(props.size, props.isIconOnly)};
   ${(props) => getVariantStyles(props.variant)};
+  ${(props) => props.hasIcon && !props.isIconOnly && iconStyles};
   ${(props) => props.isRounded && roundedStyles};
 `
 
@@ -161,14 +168,14 @@ export const Button: React.FC<ButtonProps> = ({ children, icon, ...rest }) => {
 
     let renderButtonChildren = (
       <React.Fragment>
-        <Icon {...icon} /> {children}
+        <Icon {...icon} /> <span>{children}</span>
       </React.Fragment>
     )
 
     if (align === 'right') {
       renderButtonChildren = (
         <React.Fragment>
-          {children} <Icon {...icon} />
+          <span>{children}</span> <Icon {...icon} />
         </React.Fragment>
       )
     }
