@@ -52,8 +52,6 @@ export interface IconProps {
 }
 
 const getColorStyles = (props: IconProps) => {
-  console.log('getColorStyles', props.color, props)
-
   if (props.color) {
     const validThemeColor = props.theme.themeColors[props.color]
     if (validThemeColor) {

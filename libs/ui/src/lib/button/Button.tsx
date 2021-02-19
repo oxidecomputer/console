@@ -32,32 +32,40 @@ export interface ButtonProps {
   disabled?: boolean
 }
 
-const getSizeStyles = (size: Size) => {
+const getSizeStyles = (size: Size, isIconOnly?: boolean) => {
+  const getPadding = (x, y) => {
+    if (isIconOnly) {
+      return ({ theme }) => theme.spacing(x)
+    } else {
+      return ({ theme }) => `${theme.spacing(x)} ${theme.spacing(y)}`
+    }
+  }
+
   switch (size) {
     case 'xs':
       return css`
         font-size: ${({ theme }) => theme.spacing(3)}; /* 0.75rem */
         line-height: ${1 / 0.75}; /* 1rem */
-        padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(3)}`};
+        padding: ${getPadding(1, 3)};
       `
     case 'sm':
       return css`
         font-size: ${({ theme }) => theme.spacing(3)}; /* 0.75rem */
         line-height: ${1 / 0.75}; /* 1rem */
-        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+        padding: ${getPadding(2, 3)};
       `
     case 'lg':
       return css`
         font-size: 1.125rem; /* theme.spacing(4.5) */
         line-height: ${1.75 / 1.125}; /* 1.75rem */
-        padding: ${({ theme }) => `${theme.spacing(3)} ${theme.spacing(6)}`};
+        padding: ${getPadding(3, 6)};
       `
     case 'base':
     default:
       return css`
         font-size: 0.875rem; /* theme.spacing(3.5) */
         line-height: ${1.25 / 0.875}; /* 1.25rem */
-        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+        padding: ${getPadding(2, 3)};
       `
   }
 }
@@ -126,20 +134,12 @@ const getVariantStyles = (variant: Variant) => {
   }
 }
 
-const StyledIcon = styled(Icon)``
-
-const iconStyles = css`
-  > ${StyledIcon} {
-  }
-`
-
 const roundedStyles = css`
-  /* Padding should be a single number */
   border-radius: ${({ theme }) => theme.spacing(64)};
 `
 
 const StyledButton = styled.button<
-  ButtonProps & { hasIcon?: boolean; isRounded?: boolean }
+  ButtonProps & { hasIcon?: boolean; isRounded?: boolean; isIconOnly?: boolean }
 >`
   align-items: center;
   display: inline-flex;
@@ -149,32 +149,38 @@ const StyledButton = styled.button<
   border-radius: 0;
   text-transform: uppercase;
 
-  ${(props) => getSizeStyles(props.size)};
+  ${(props) => getSizeStyles(props.size, props.isIconOnly)};
   ${(props) => getVariantStyles(props.variant)};
-  ${(props) => props.hasIcon && iconStyles};
   ${(props) => props.isRounded && roundedStyles};
 `
 
 export const Button: React.FC<ButtonProps> = ({ children, icon, ...rest }) => {
   if (icon) {
     const { align, isRounded } = icon
+    const isIconOnly = !children
 
-    let renderButtonChildren
+    let renderButtonChildren = (
+      <React.Fragment>
+        <Icon {...icon} /> {children}
+      </React.Fragment>
+    )
+
     if (align === 'right') {
       renderButtonChildren = (
         <React.Fragment>
-          {children} <StyledIcon {...icon} />
-        </React.Fragment>
-      )
-    } else {
-      renderButtonChildren = (
-        <React.Fragment>
-          <StyledIcon {...icon} /> {children}
+          {children} <Icon {...icon} />
         </React.Fragment>
       )
     }
+
     return (
-      <StyledButton type="button" hasIcon isRounded={isRounded} {...rest}>
+      <StyledButton
+        type="button"
+        hasIcon
+        isRounded={isRounded}
+        isIconOnly={isIconOnly}
+        {...rest}
+      >
         {renderButtonChildren}
       </StyledButton>
     )
