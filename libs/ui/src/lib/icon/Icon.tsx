@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { FC } from 'react'
 import styled, { css } from 'styled-components'
-import { colors } from '../theme'
+import { Color } from '@oxide/theme'
 
 import { ReactComponent as AddIcon } from '../../assets/add.svg'
 import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
@@ -36,22 +36,18 @@ export const icons = {
   server: <ServerIcon />,
   support: <SupportIcon />,
   users: <UsersIcon />,
-}
+} as const
 
-export type NameType = keyof typeof icons
+type Name = keyof typeof icons
 
-export interface IconProps {
+interface StyledIconProps {
   /**
    * Set the color using a theme color ("green500")
    */
-  color?: keyof typeof colors
-  /**
-   * Name (which corresponds to the `<title>`) of the SVG
-   */
-  name: NameType
+  color: Color
 }
 
-const getColorStyles = (props: IconProps) => {
+const getColorStyles = (props: StyledIconProps) => {
   if (props.color) {
     const validThemeColor = props.theme.themeColors[props.color]
     if (validThemeColor) {
@@ -71,7 +67,7 @@ const getColorStyles = (props: IconProps) => {
   `
 }
 
-const StyledIcon = styled.span<IconProps>`
+const StyledIcon = styled.span<{ color: Color }>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
@@ -86,11 +82,15 @@ const StyledIcon = styled.span<IconProps>`
   }
 `
 
-export const Icon = ({ name, ...props }: IconProps) => {
-  if (name && icons[name]) {
-    return <StyledIcon {...props}>{icons[name]}</StyledIcon>
-  }
-  return null
+export interface IconProps extends StyledIconProps {
+  /**
+   * Name (which corresponds to the `<title>`) of the SVG
+   */
+  name: Name
 }
+
+export const Icon: FC<IconProps> = ({ name, ...props }) => (
+  <StyledIcon {...props}>{icons[name]}</StyledIcon>
+)
 
 export default Icon
