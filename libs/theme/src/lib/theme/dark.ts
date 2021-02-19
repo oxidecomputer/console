@@ -16,12 +16,6 @@ const baseTheme: Theme = {
   spacing: (size) => `${size * 0.25}rem`,
 }
 
-// TODO: Add colors for 'light mode'
-// export const lightTheme: Theme = {
-//   ...baseTheme,
-//   colors: {}
-// }
-
 export const darkTheme = {
   ...baseTheme,
 }
