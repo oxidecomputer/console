@@ -1,11 +1,14 @@
 import { css, createGlobalStyle } from 'styled-components'
 import { normalize } from './normalize'
+import { fonts } from './fonts'
 
 const globalStyles = css`
   html,
   body {
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
+    font-family: ${(props) => props.theme.fonts.mono};
+    font-weight: 500;
   }
   h1,
   h2,
@@ -42,5 +45,6 @@ const globalStyles = css`
 
 export const GlobalStyle = createGlobalStyle`
   ${normalize}
+  ${fonts}
   ${globalStyles}
 `
