@@ -1,6 +1,10 @@
-import { DefaultTheme as Theme, ThemeColors } from 'styled-components'
+type ColorNames = 'gray' | 'red' | 'yellow' | 'blue' | 'green'
+type ColorValues = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
 
-export const colors: ThemeColors = {
+export type Color = `${ColorNames}${ColorValues}` | 'white' | 'black'
+export type ColorPalette = Record<Color, string>
+
+export const colorPalette: ColorPalette = {
   white: 'hsl(0, 0%, 100%)',
   black: 'hsl(0, 0%, 0%)',
 
@@ -59,32 +63,3 @@ export const colors: ThemeColors = {
   green800: 'hsl(146, 29%, 38%)',
   green900: 'hsl(146, 30%, 31%)',
 }
-
-type BaseTheme = Omit<Theme, 'colors'>
-
-const baseTheme: BaseTheme = {
-  // TODO: Host these font files and use @font-face declarations in a global stylesheet
-  fonts: {
-    sans: `'Inter', sans-serif`,
-    mono: `'GT America Mono', monospace`,
-  },
-  themeColors: colors,
-
-  // Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
-  // Usage: `theme.spacing(4)` => '1rem' (16px)
-  //
-  // Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`
-  spacing: (size) => `${size * 0.25}rem`,
-}
-
-// TODO: Add colors for 'light mode'
-// export const lightTheme: Theme = {
-//   ...baseTheme,
-//   colors: {}
-// }
-
-export const darkTheme: Theme = {
-  ...baseTheme,
-}
-
-export const defaultTheme: Theme = darkTheme
