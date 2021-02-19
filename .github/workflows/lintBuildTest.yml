@@ -35,10 +35,10 @@ jobs:
         run: yarn
 
       - name: Lint
-        run: yarn affected:lint --base=origin/main
+        run: yarn affected:lint
 
       - name: Build
-        run: yarn affected:build --base=origin/main
+        run: yarn affected:build
 
       - name: Test
-        run: yarn affected:test --base=origin/main
+        run: yarn affected:test
