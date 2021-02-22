@@ -1,0 +1,132 @@
+<!-- Avatar.stories.mdx -->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Avatar, AvatarProps, sizes } from './Avatar'
+
+<Meta
+  title="Components/Avatar"
+  component={Avatar}
+  argTypes={{
+    src: {
+      control: {
+        type: 'string',
+      },
+    },
+    size: {
+      control: {
+        type: 'select',
+        options: Object.keys(sizes),
+      },
+    },
+  }}
+/>
+
+# Avatar
+
+Avatars are used to represent a unique entity, be it a person, a team, an org, or a project.
+
+## Design
+
+Avatars representing persons use a circular shape and avatars representing a group or a project use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
+
+It is preferable that an avatar display an image. Images are personalized and make good use of the ability of the human brain to recognize faces. Project and org avatars contain a fallback in the case an image is not provided. This fallback will display the first letter(s) of the project or org name. Personal avatars have a Gravatar fallback which contains either a configured image or a randomly generated image.
+
+## Usage
+
+<ArgsTable of={Avatar} />
+
+export const Template = (args) => <Avatar {...args} />
+
+export const DefaultArgs = {
+  name: 'Twilight Games',
+}
+
+<Canvas>
+  <Story name="Default" args={{ ...DefaultArgs, size: 'base' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+<Canvas>
+  <Story name="xs" args={{ ...DefaultArgs, size: 'xs' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="sm" args={{ ...DefaultArgs, size: 'sm' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="base" args={{ ...DefaultArgs, size: 'base' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="lg" args={{ ...DefaultArgs, size: 'lg' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="xl" args={{ ...DefaultArgs, size: 'xl' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="2xl" args={{ ...DefaultArgs, size: '2xl' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+<Canvas>
+  <Story
+    name="Image xs"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: 'xs',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Image sm"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: 'sm',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Image base"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: 'base',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Image lg"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: 'lg',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Image xl"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: 'xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Image 2xl"
+    args={{
+      ...DefaultArgs,
+      src: 'https://placekitten.com/500/500',
+      size: '2xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>

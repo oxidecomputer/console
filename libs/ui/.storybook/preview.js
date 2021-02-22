@@ -1,7 +1,16 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { colorPalette, defaultTheme } from '@oxide/theme'
+
+// Temporary global style for <Avatar> stories until GlobalStyle PR is merged:
+// https://github.com/oxidecomputer/console/pull/29/files
+const TemporaryGlobalStyle = createGlobalStyle`
+  img {
+    width: 100%;
+    height: auto;
+  }
+`
 
 // FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
 const values = (colors) =>
@@ -17,6 +26,7 @@ export const parameters = {
   docs: {
     container: ({ children, context }) => (
       <DocsContainer context={context}>
+        <TemporaryGlobalStyle />
         <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
       </DocsContainer>
     ),
@@ -26,6 +36,7 @@ export const parameters = {
 export const decorators = [
   (Story) => (
     <ThemeProvider theme={defaultTheme}>
+      <TemporaryGlobalStyle />
       <Story />
     </ThemeProvider>
   ),
