@@ -14,12 +14,12 @@ Sizes:
 */
 
 export const sizes = {
-  '2xl': '64px',
-  xl: '56px',
-  lg: '48px',
-  base: '40px',
-  sm: '32px',
-  xs: '24px',
+  '2xl': 16, // spacing(16) is 64px
+  xl: 14, // 56px
+  lg: 12, // 48px
+  base: 10, // 40px
+  sm: 8, // 32px
+  xs: 6, // 24px
 }
 
 export interface AvatarProps {
@@ -27,6 +27,10 @@ export interface AvatarProps {
    * Name of person or org
    */
   name: string
+  /**
+   * Persons should be circiular shape and fallback to initials
+   */
+  isPerson: boolean
   /**
    * Override the default size of image
    */
@@ -37,26 +41,46 @@ export interface AvatarProps {
   src?: 'string'
 }
 
-const Wrapper = styled.div<Omit<AvatarProps, 'name'>>`
-  height: ${(props) => sizes[props.size]};
-  width: ${(props) => sizes[props.size]};
+type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
+  isCircle: boolean
+}
+const Wrapper = styled.div<WrapperProps>`
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
 
-  background-color: pink;
+  height: ${(props) => props.theme.spacing(sizes[props.size])};
+  width: ${(props) => props.theme.spacing(sizes[props.size])};
+
+  background-color: ${(props) => props.theme.themeColors.green500};
+  border-radius: ${(props) => (props.isCircle ? '50%' : '0')};
+  font-family: ${(props) => props.theme.fonts.sans};
+  text-transform: uppercase;
 `
 
-export const Avatar: React.FC<AvatarProps> = ({ name, src, size }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  name,
+  isPerson,
+  src,
+  size,
+}) => {
   if (src) {
     return (
-      <Wrapper size={size}>
+      <Wrapper size={size} isCircle={isPerson}>
         <img src={src} alt={name} />
       </Wrapper>
     )
   }
   const firstLetters = name.slice(0, 2)
-  return <Wrapper size={size}>{firstLetters}</Wrapper>
+  return (
+    <Wrapper size={size} isCircle={isPerson}>
+      {firstLetters}
+    </Wrapper>
+  )
 }
 
 Avatar.defaultProps = {
+  isPerson: false,
   size: 'base',
 }
 

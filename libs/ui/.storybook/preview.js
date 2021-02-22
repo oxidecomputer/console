@@ -6,6 +6,10 @@ import { colorPalette, defaultTheme } from '@oxide/theme'
 // Temporary global style for <Avatar> stories until GlobalStyle PR is merged:
 // https://github.com/oxidecomputer/console/pull/29/files
 const TemporaryGlobalStyle = createGlobalStyle`
+  html, body {
+    font-size: 16px;
+  }
+
   img {
     width: 100%;
     height: auto;
