@@ -2,17 +2,6 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-/*
-Sizes:
-64px
-56px
-48px
-40px
-32px
-24px
-
-*/
-
 export const sizes = {
   '2xl': 16, // spacing(16) is 64px
   xl: 14, // 56px
@@ -65,16 +54,38 @@ export const Avatar: React.FC<AvatarProps> = ({
   size,
 }) => {
   if (src) {
+    // Avatar with gravatar image
     return (
       <Wrapper size={size} isCircle={isPerson}>
         <img src={src} alt={name} />
       </Wrapper>
     )
   }
-  const firstLetters = name.slice(0, 2)
+  const getInitials = (name) => {
+    if (typeof name === 'string') {
+      return name
+        .split(' ')
+        .filter((hasValue) => !!hasValue)
+        .map((subname) => subname[0])
+        .slice(0, 2)
+        .join('')
+    }
+    return null
+  }
+  const firstLetters = isPerson ? getInitials(name) : name.slice(0, 2)
+  if (firstLetters) {
+    // Avatar with initials
+    return (
+      <Wrapper size={size} isCircle={isPerson}>
+        {firstLetters}
+      </Wrapper>
+    )
+  }
+  // If there is no gravatar image and cannot find initials, then show an
+  // avatar with a default/placeholder image
   return (
     <Wrapper size={size} isCircle={isPerson}>
-      {firstLetters}
+      TODO
     </Wrapper>
   )
 }
