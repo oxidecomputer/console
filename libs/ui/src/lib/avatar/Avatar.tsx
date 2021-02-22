@@ -13,7 +13,7 @@ export const sizes = {
 
 export interface AvatarProps {
   /**
-   * Name of person or org
+   * Name of person, team, project, org, etc. Required for 'alt' image tag and for finding initials.
    */
   name: string
   /**
@@ -61,8 +61,10 @@ export const Avatar: React.FC<AvatarProps> = ({
       </Wrapper>
     )
   }
+
   const getInitials = (name) => {
-    if (typeof name === 'string') {
+    const hasName = typeof name === 'string' && !!name.length
+    if (hasName) {
       return name
         .split(' ')
         .filter((hasValue) => !!hasValue)
@@ -72,12 +74,13 @@ export const Avatar: React.FC<AvatarProps> = ({
     }
     return null
   }
-  const firstLetters = isPerson ? getInitials(name) : name.slice(0, 2)
-  if (firstLetters) {
+
+  const initials = getInitials(name)
+  if (initials) {
     // Avatar with initials
     return (
       <Wrapper size={size} isCircle={isPerson}>
-        {firstLetters}
+        {initials}
       </Wrapper>
     )
   }
