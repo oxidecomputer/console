@@ -17,6 +17,7 @@ import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
 import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
+import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
@@ -35,6 +36,7 @@ export const icons = {
   server: <ServerIcon />,
   support: <SupportIcon />,
   theme: <ThemeIcon />,
+  user: <UserIcon />,
   users: <UsersIcon />,
 } as const
 type Name = keyof typeof icons
