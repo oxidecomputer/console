@@ -10,6 +10,7 @@ import { ReactComponent as InstanceIcon } from '../../assets/instance.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as MessageIcon } from '../../assets/message.svg'
 import { ReactComponent as MoreIcon } from '../../assets/more.svg'
+import { ReactComponent as OrganizationIcon } from '../../assets/org.svg'
 import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
 import { ReactComponent as ProjectIcon } from '../../assets/project.svg'
 import { ReactComponent as ProjectsIcon } from '../../assets/projects.svg'
@@ -31,6 +32,7 @@ export const icons = {
   instances: <InstancesIcon />,
   message: <MessageIcon />,
   more: <MoreIcon />,
+  organization: <OrganizationIcon />,
   plus: <PlusIcon />,
   project: <ProjectIcon />,
   projects: <ProjectsIcon />,
