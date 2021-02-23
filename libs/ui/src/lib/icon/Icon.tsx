@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
-import { ReactComponent as DarkModeIcon } from '../../assets/dark-mode.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as ExtensionsIcon } from '../../assets/extensions.svg'
 import { ReactComponent as FilesIcon } from '../../assets/files.svg'
@@ -17,11 +16,11 @@ import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
 import { ReactComponent as SupportIcon } from '../../assets/support.svg'
+import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
   command: <CommandIcon />,
-  darkMode: <DarkModeIcon />,
   dashboard: <DashboardIcon />,
   extensions: <ExtensionsIcon />,
   files: <FilesIcon />,
@@ -35,6 +34,7 @@ export const icons = {
   search: <SearchIcon />,
   server: <ServerIcon />,
   support: <SupportIcon />,
+  theme: <ThemeIcon />,
   users: <UsersIcon />,
 } as const
 type Name = keyof typeof icons
