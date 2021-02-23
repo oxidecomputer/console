@@ -4,7 +4,7 @@ import { Button, ButtonProps, buttonSizes, variants } from './Button'
 
 export default {
   component: Button,
-  title: 'Button',
+  title: 'Components/Button',
   argTypes: {
     disabled: {
       table: {
