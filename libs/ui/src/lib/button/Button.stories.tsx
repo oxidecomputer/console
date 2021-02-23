@@ -1,6 +1,6 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react'
-import { Button, ButtonProps, sizes, variants } from './Button'
+import { Button, ButtonProps, buttonSizes, variants } from './Button'
 
 export default {
   component: Button,
@@ -15,7 +15,7 @@ export default {
     size: {
       control: {
         type: 'select',
-        options: sizes,
+        options: buttonSizes,
       },
       table: {
         type: { summary: 'string' },

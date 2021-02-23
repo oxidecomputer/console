@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-export const sizes = [
+export const textSizes = [
   'xxs',
   'xs',
   'sm',
@@ -17,9 +17,9 @@ export const sizes = [
   '8xl',
   '9xl',
 ] as const
-type Size = typeof sizes[number]
+type TextSize = typeof textSizes[number]
 
-const getSizeStyles = (size: typeof sizes[number]) => {
+const getSizeStyles = (size: TextSize) => {
   switch (size) {
     case 'xxs':
       return css`
@@ -123,7 +123,7 @@ export interface TextProps {
   /**
    * Set the size of the text
    */
-  size?: Size
+  size?: TextSize
   /**
    * Set the font-weight of the text
    */
