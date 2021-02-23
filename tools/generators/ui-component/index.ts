@@ -49,6 +49,7 @@ export default async (host: Tree, schema: any) => {
     // Passing our options into this generator
     export: schema.export,
     name: schema.name,
+    directory: schema.directory,
   })
   if (!schema.skipStories) {
     await generateStoryForComponent(host)
