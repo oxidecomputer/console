@@ -115,8 +115,6 @@ const StyledText = styled.span<TextProps>`
   ${(props) => getSizeStyles(props.size)};
 `
 
-type Size = typeof sizes[number]
-
 export interface TextProps {
   /**
    * Set the font-family to be sans-serif or monospace
