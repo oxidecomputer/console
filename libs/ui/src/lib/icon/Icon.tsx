@@ -4,7 +4,6 @@ import { Color } from '@oxide/theme'
 
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
-import { ReactComponent as ExtensionsIcon } from '../../assets/extensions.svg'
 import { ReactComponent as FilesIcon } from '../../assets/files.svg'
 import { ReactComponent as FoldersIcon } from '../../assets/folders.svg'
 import { ReactComponent as GearIcon } from '../../assets/gear.svg'
@@ -13,6 +12,7 @@ import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
 import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
+import { ReactComponent as ResourcesIcon } from '../../assets/resources.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
 import { ReactComponent as SupportIcon } from '../../assets/support.svg'
@@ -22,7 +22,6 @@ import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 export const icons = {
   command: <CommandIcon />,
   dashboard: <DashboardIcon />,
-  extensions: <ExtensionsIcon />,
   files: <FilesIcon />,
   folders: <FoldersIcon />,
   gear: <GearIcon />,
@@ -31,6 +30,7 @@ export const icons = {
   openFolder: <OpenFolderIcon />,
   plus: <PlusIcon />,
   pulse: <PulseIcon />,
+  resources: <ResourcesIcon />,
   search: <SearchIcon />,
   server: <ServerIcon />,
   support: <SupportIcon />,
