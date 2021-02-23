@@ -1,6 +1,7 @@
 import { css, createGlobalStyle } from 'styled-components'
 import { normalize } from './normalize'
-import { fonts } from './fonts'
+
+import './fonts.css'
 
 const globalStyles = css`
   html,
@@ -45,6 +46,5 @@ const globalStyles = css`
 
 export const GlobalStyle = createGlobalStyle`
   ${normalize}
-  ${fonts}
   ${globalStyles}
 `
