@@ -5,7 +5,7 @@ import { Color } from '@oxide/theme'
 import { ReactComponent as CloseIcon } from '../../assets/close.svg'
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
-import { ReactComponent as FilesIcon } from '../../assets/files.svg'
+import { ReactComponent as FileIcon } from '../../assets/file.svg'
 import { ReactComponent as GearIcon } from '../../assets/gear.svg'
 import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
 import { ReactComponent as InstanceIcon } from '../../assets/instance.svg'
@@ -27,7 +27,7 @@ export const icons = {
   close: <CloseIcon />,
   command: <CommandIcon />,
   dashboard: <DashboardIcon />,
-  files: <FilesIcon />,
+  files: <FileIcon />,
   gear: <GearIcon />,
   history: <HistoryIcon />,
   instance: <InstanceIcon />,
