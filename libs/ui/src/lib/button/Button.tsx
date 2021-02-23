@@ -12,11 +12,11 @@ export interface ButtonProps {
   /**
    * Set the size of the button
    */
-  size: ButtonSize
+  size?: ButtonSize
   /**
    * Style variation or button styles
    */
-  variant: Variant
+  variant?: Variant
   /**
    * Disable button
    */
