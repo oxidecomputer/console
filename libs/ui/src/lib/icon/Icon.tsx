@@ -9,7 +9,6 @@ import { ReactComponent as FilesIcon } from '../../assets/files.svg'
 import { ReactComponent as GearIcon } from '../../assets/gear.svg'
 import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
-import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
 import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
 import { ReactComponent as ProjectIcon } from '../../assets/project.svg'
 import { ReactComponent as ProjectsIcon } from '../../assets/projects.svg'
@@ -30,7 +29,6 @@ export const icons = {
   gear: <GearIcon />,
   history: <HistoryIcon />,
   instances: <InstancesIcon />,
-  openFolder: <OpenFolderIcon />,
   plus: <PlusIcon />,
   project: <ProjectIcon />,
   projects: <ProjectsIcon />,
