@@ -12,9 +12,9 @@ import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
 import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
+import { ReactComponent as RackIcon } from '../../assets/rack.svg'
 import { ReactComponent as ResourcesIcon } from '../../assets/resources.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
-import { ReactComponent as ServerIcon } from '../../assets/server.svg'
 import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
 import { ReactComponent as UserIcon } from '../../assets/user.svg'
@@ -31,9 +31,9 @@ export const icons = {
   openFolder: <OpenFolderIcon />,
   plus: <PlusIcon />,
   pulse: <PulseIcon />,
+  rack: <RackIcon />,
   resources: <ResourcesIcon />,
   search: <SearchIcon />,
-  server: <ServerIcon />,
   support: <SupportIcon />,
   theme: <ThemeIcon />,
   user: <UserIcon />,
