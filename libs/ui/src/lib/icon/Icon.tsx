@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
-import { ReactComponent as AddIcon } from '../../assets/add.svg'
 import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
 import { ReactComponent as DarkModeIcon } from '../../assets/dark-mode.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
@@ -13,6 +12,7 @@ import { ReactComponent as GearIcon } from '../../assets/gear.svg'
 import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
+import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
 import { ReactComponent as ServerIcon } from '../../assets/server.svg'
@@ -20,7 +20,6 @@ import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  add: <AddIcon />,
   commandMenu: <CommandMenuIcon />,
   darkMode: <DarkModeIcon />,
   dashboard: <DashboardIcon />,
@@ -31,6 +30,7 @@ export const icons = {
   history: <HistoryIcon />,
   instances: <InstancesIcon />,
   openFolder: <OpenFolderIcon />,
+  plus: <PlusIcon />,
   pulse: <PulseIcon />,
   search: <SearchIcon />,
   server: <ServerIcon />,
