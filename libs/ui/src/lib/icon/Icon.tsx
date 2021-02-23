@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
+import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
 import { ReactComponent as ChevronIcon } from '../../assets/chevron.svg'
 import { ReactComponent as CloseIcon } from '../../assets/close.svg'
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
@@ -25,6 +26,7 @@ import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
+  bookmark: <BookmarkIcon />,
   chevron: <ChevronIcon />,
   close: <CloseIcon />,
   command: <CommandIcon />,
