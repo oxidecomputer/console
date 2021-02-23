@@ -1,7 +1,21 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
-import { ThemeProvider } from 'styled-components'
+import { darkUI } from './theme'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { colorPalette, defaultTheme, GlobalStyle } from '@oxide/theme'
+
+// Bug: https://github.com/storybookjs/storybook/issues/14029
+const DocsStyleOverrides = createGlobalStyle`
+  table.sbdocs tr {
+    background-color: inherit;
+    color: inherit;
+  }
+
+  table.sbdocs tr:nth-of-type(2n) {
+    background-color: inherit;
+    color: inherit;
+  }
+`
 
 const getBackgroundColors = (colors) =>
   Object.keys(colors).map((key) => {
@@ -24,10 +38,12 @@ export const parameters = {
       <DocsContainer context={context}>
         <ThemeProvider theme={defaultTheme}>
           <GlobalStyle />
+          <DocsStyleOverrides />
           {children}
         </ThemeProvider>
       </DocsContainer>
     ),
+    theme: darkUI,
   },
 }
 
