@@ -6,8 +6,6 @@ import { ReactComponent as CloseIcon } from '../../assets/close.svg'
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as FileIcon } from '../../assets/file.svg'
-import { ReactComponent as GearIcon } from '../../assets/gear.svg'
-import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
 import { ReactComponent as InstanceIcon } from '../../assets/instance.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as MessageIcon } from '../../assets/message.svg'
@@ -29,8 +27,6 @@ export const icons = {
   command: <CommandIcon />,
   dashboard: <DashboardIcon />,
   files: <FileIcon />,
-  gear: <GearIcon />,
-  history: <HistoryIcon />,
   instance: <InstanceIcon />,
   instances: <InstancesIcon />,
   message: <MessageIcon />,
