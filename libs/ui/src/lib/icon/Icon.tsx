@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
+import { ReactComponent as CloseIcon } from '../../assets/close.svg'
 import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as FilesIcon } from '../../assets/files.svg'
@@ -21,6 +22,7 @@ import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
+  close: <CloseIcon />,
   command: <CommandIcon />,
   dashboard: <DashboardIcon />,
   files: <FilesIcon />,
