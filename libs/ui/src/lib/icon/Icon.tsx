@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
-import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
+import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as DarkModeIcon } from '../../assets/dark-mode.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as ExtensionsIcon } from '../../assets/extensions.svg'
@@ -20,7 +20,7 @@ import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  commandMenu: <CommandMenuIcon />,
+  command: <CommandIcon />,
   darkMode: <DarkModeIcon />,
   dashboard: <DashboardIcon />,
   extensions: <ExtensionsIcon />,
