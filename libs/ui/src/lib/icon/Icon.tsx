@@ -29,7 +29,7 @@ export const icons = {
   close: <CloseIcon />,
   command: <CommandIcon />,
   dashboard: <DashboardIcon />,
-  files: <FileIcon />,
+  file: <FileIcon />,
   instance: <InstanceIcon />,
   instances: <InstancesIcon />,
   message: <MessageIcon />,
