@@ -31,7 +31,7 @@ Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com
 export const Template = (args) => <Icon {...args} />
 
 <Canvas>
-  <Story name="Icon" args={{ name: 'gear', color: 'green500' }}>
+  <Story name="Icon" args={{ name: 'bookmark', color: 'green500' }}>
     {Template.bind({})}
   </Story>
 </Canvas>
@@ -49,10 +49,10 @@ The `name` prop matches the `[ICON_NAME_HERE]` label so that you know what scree
 For example, the following composition:
 
 ```tsx
-<Icon name="gear" /> Settings
+<Icon name="bookmark" /> Settings
 ```
 
-will output something like "Gear (image) Settings" or "Gear (graphic) Settings" to the user depending on their software and browser combination.
+will output something like "Bookmark (image) Settings" or "Bookmark (graphic) Settings" to the user depending on their software and browser combination.
 
 ## Usage
 
