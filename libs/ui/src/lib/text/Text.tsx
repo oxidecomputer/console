@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-export const sizes = [
+export const textSizes = [
   'xxs',
   'xs',
   'sm',
@@ -17,80 +17,80 @@ export const sizes = [
   '8xl',
   '9xl',
 ] as const
-type Size = typeof sizes[number]
+type TextSize = typeof textSizes[number]
 
-const getSizeStyles = (size: typeof sizes[number]) => {
+const getSizeStyles = (size: TextSize) => {
   switch (size) {
     case 'xxs':
       return css`
-        font-size: 0.6875rem;
-        line-height: ${1 / 0.6875};
+        font-size: 0.6875rem; /* spacing(2.75) */
+        line-height: ${1 / 0.6875}; /* 1rem */
       `
     case 'xs':
       return css`
-        font-size: 0.75rem;
-        line-height: ${1 / 0.75};
+        font-size: ${({ theme }) => theme.spacing(3)}; /* 0.75rem */
+        line-height: ${1 / 0.75}; /* 1rem */
       `
     case 'sm':
       return css`
-        font-size: 0.875rem;
-        line-height: ${1.25 / 0.875};
+        font-size: 0.875rem; /* spacing(3.5) */
+        line-height: ${1.25 / 0.875}; /* 1.25rem */
       `
     case 'lg':
       return css`
-        font-size: 1.125rem;
-        line-height: ${1.75 / 1.125};
+        font-size: 1.125rem; /* spacing(4.5) */
+        line-height: ${1.75 / 1.125}; /* 1.75rem */
       `
     case 'xl':
       return css`
-        font-size: 1.25rem;
-        line-height: ${1.75 / 1.25};
+        font-size: ${({ theme }) => theme.spacing(5)}; /* 1.25rem */
+        line-height: 1.4; /* 1.75rem */
       `
     case '2xl':
       return css`
-        font-size: 1.5rem;
-        line-height: ${2 / 1.5};
+        font-size: ${({ theme }) => theme.spacing(6)}; /* 1.5rem */
+        line-height: ${2 / 1.5}; /* 2rem */
       `
     case '3xl':
       return css`
-        font-size: 1.875rem;
-        line-height: ${2.25 / 1.875};
+        font-size: 1.875rem; /* spacing(7.5) */
+        line-height: 1.2; /* 2.25rem */
       `
     case '4xl':
       return css`
-        font-size: 2.25rem;
-        line-height: ${2.5 / 2.25};
+        font-size: ${({ theme }) => theme.spacing(9)}; /* 2.25rem */
+        line-height: ${2.5 / 2.25}; /* 2.5rem */
       `
     case '5xl':
       return css`
-        font-size: 3rem;
-        line-height: 1;
+        font-size: ${({ theme }) => theme.spacing(9)}; /* 3rem */
+        line-height: 1; /* 3rem */
       `
     case '6xl':
       return css`
-        font-size: 3.75rem;
-        line-height: 1;
+        font-size: 3.75rem; /* spacing(15) */
+        line-height: 1; /* 3.75rem */
       `
     case '7xl':
       return css`
-        font-size: 4.5rem;
-        line-height: 1;
+        font-size: 4.5rem; /* spacing(18) */
+        line-height: 1; /* 4.5rem */
       `
     case '8xl':
       return css`
-        font-size: 6rem;
-        line-height: 1;
+        font-size: ${({ theme }) => theme.spacing(24)}; /* 6rem */
+        line-height: 1; /* 6rem */
       `
     case '9xl':
       return css`
-        font-size: 8rem;
-        line-height: 1;
+        font-size: ${({ theme }) => theme.spacing(32)}; /* 8rem */
+        line-height: 1; /* 8rem */
       `
     case 'base':
     default:
       return css`
-        font-size: 1rem;
-        line-height: 1.5;
+        font-size: ${({ theme }) => theme.spacing(4)}; /* 1rem */
+        line-height: 1.5; /* 1.5rem */
       `
   }
 }
@@ -123,7 +123,7 @@ export interface TextProps {
   /**
    * Set the size of the text
    */
-  size?: Size
+  size?: TextSize
   /**
    * Set the font-weight of the text
    */

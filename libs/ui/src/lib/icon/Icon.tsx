@@ -2,39 +2,57 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { Color } from '@oxide/theme'
 
-import { ReactComponent as AddIcon } from '../../assets/add.svg'
-import { ReactComponent as CommandMenuIcon } from '../../assets/command-menu.svg'
-import { ReactComponent as DarkModeIcon } from '../../assets/dark-mode.svg'
+import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
+import { ReactComponent as ChevronIcon } from '../../assets/chevron.svg'
+import { ReactComponent as CloseIcon } from '../../assets/close.svg'
+import { ReactComponent as CommandIcon } from '../../assets/command.svg'
+import { ReactComponent as CpuIcon } from '../../assets/cpu.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
-import { ReactComponent as ExtensionsIcon } from '../../assets/extensions.svg'
-import { ReactComponent as FilesIcon } from '../../assets/files.svg'
-import { ReactComponent as FoldersIcon } from '../../assets/folders.svg'
-import { ReactComponent as GearIcon } from '../../assets/gear.svg'
-import { ReactComponent as HistoryIcon } from '../../assets/history.svg'
+import { ReactComponent as FileIcon } from '../../assets/file.svg'
+import { ReactComponent as InstanceIcon } from '../../assets/instance.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
-import { ReactComponent as OpenFolderIcon } from '../../assets/open-folder.svg'
+import { ReactComponent as MemoryIcon } from '../../assets/memory.svg'
+import { ReactComponent as MessageIcon } from '../../assets/message.svg'
+import { ReactComponent as MoreIcon } from '../../assets/more.svg'
+import { ReactComponent as OrganizationIcon } from '../../assets/org.svg'
+import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
+import { ReactComponent as ProjectIcon } from '../../assets/project.svg'
+import { ReactComponent as ProjectsIcon } from '../../assets/projects.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
+import { ReactComponent as RackIcon } from '../../assets/rack.svg'
+import { ReactComponent as ResourcesIcon } from '../../assets/resources.svg'
 import { ReactComponent as SearchIcon } from '../../assets/search.svg'
-import { ReactComponent as ServerIcon } from '../../assets/server.svg'
+import { ReactComponent as StorageIcon } from '../../assets/storage.svg'
 import { ReactComponent as SupportIcon } from '../../assets/support.svg'
+import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
+import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  add: <AddIcon />,
-  commandMenu: <CommandMenuIcon />,
-  darkMode: <DarkModeIcon />,
+  bookmark: <BookmarkIcon />,
+  chevron: <ChevronIcon />,
+  close: <CloseIcon />,
+  command: <CommandIcon />,
+  cpu: <CpuIcon />,
   dashboard: <DashboardIcon />,
-  extensions: <ExtensionsIcon />,
-  files: <FilesIcon />,
-  folders: <FoldersIcon />,
-  gear: <GearIcon />,
-  history: <HistoryIcon />,
+  file: <FileIcon />,
+  instance: <InstanceIcon />,
   instances: <InstancesIcon />,
-  openFolder: <OpenFolderIcon />,
+  memory: <MemoryIcon />,
+  message: <MessageIcon />,
+  more: <MoreIcon />,
+  organization: <OrganizationIcon />,
+  plus: <PlusIcon />,
+  project: <ProjectIcon />,
+  projects: <ProjectsIcon />,
   pulse: <PulseIcon />,
+  rack: <RackIcon />,
+  resources: <ResourcesIcon />,
   search: <SearchIcon />,
-  server: <ServerIcon />,
+  storage: <StorageIcon />,
   support: <SupportIcon />,
+  theme: <ThemeIcon />,
+  user: <UserIcon />,
   users: <UsersIcon />,
 } as const
 type Name = keyof typeof icons

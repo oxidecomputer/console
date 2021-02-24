@@ -2,17 +2,17 @@ import React from 'react'
 
 import styled, { css } from 'styled-components'
 
-export const sizes = ['xs', 'sm', 'base', 'lg'] as const
+export const buttonSizes = ['xs', 'sm', 'base', 'lg'] as const
 export const variants = ['solid', 'outline', 'ghost', 'link'] as const
 
-type Size = typeof sizes[number]
+type ButtonSize = typeof buttonSizes[number]
 type Variant = typeof variants[number]
 
 export interface ButtonProps {
   /**
    * Set the size of the button
    */
-  size: Size
+  size: ButtonSize
   /**
    * Style variation or button styles
    */
@@ -23,7 +23,7 @@ export interface ButtonProps {
   disabled?: boolean
 }
 
-const getSizeStyles = (size: Size) => {
+const getSizeStyles = (size: ButtonSize) => {
   switch (size) {
     case 'xs':
       return css`
