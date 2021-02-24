@@ -16,6 +16,7 @@ const StyledGlobalNavigation = styled.div`
   justify-content: flex-end;
   align-items: center;
 
+  // TODO: Fix with proper color
   background-color: ${({ theme }) => theme.themeColors.gray900};
 
   ${({ theme }) => theme.spaceBetweenX(8)}
@@ -29,11 +30,11 @@ const StyledIcon = styled(Icon).attrs({ color: 'white' })``
 
 export const GlobalNavigation = (props: GlobalNavigationProps) => {
   return (
-    <StyledGlobalNavigation>
+    <StyledGlobalNavigation {...props}>
       <Link>Feedback?</Link>
-      <StyledIcon name="darkMode" />
+      <StyledIcon name="theme" />
       <StyledIcon name="support" />
-      <StyledIcon name="commandMenu" />
+      <StyledIcon name="command" />
       <Link>Notifications</Link>
       <Link>Avatar</Link>
     </StyledGlobalNavigation>
