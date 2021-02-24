@@ -35,16 +35,6 @@ import { Avatar, AvatarProps, avatarSizes } from './Avatar'
 
 Avatars are used to represent a unique entity, be it a person, a team, an org, or a project.
 
-## Design
-
-Avatars representing **persons** use a circular shape and avatars representing **a group or a project** use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
-
-It is preferable that an avatar display an image. Images are personalized and make good use of the ability of the human brain to recognize faces. Project and org avatars contain a fallback in the case an image is not provided. This fallback will display the first letter(s) of the project or org name. Personal avatars have a Gravatar fallback which contains either a configured image or a randomly generated image.
-
-## Usage
-
-<ArgsTable of={Avatar} />
-
 export const Template = (args) => <Avatar {...args} />
 
 export const PersonArgs = {
@@ -55,13 +45,21 @@ export const OrgArgs = {
   name: 'Colossal Cave Adventure',
 }
 
-### Default (group or project)
-
 <Canvas>
   <Story name="Default" args={{ ...OrgArgs, size: 'base' }}>
     {Template.bind({})}
   </Story>
 </Canvas>
+
+<ArgsTable of={Avatar} story="^" />
+
+## Design
+
+Avatars representing **persons** use a circular shape and avatars representing **a group or a project** use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
+
+It is preferable that an avatar display an image. Images are personalized and make good use of the ability of the human brain to recognize faces. Project and org avatars contain a fallback in the case an image is not provided. This fallback will display the first letter(s) of the project or org name. Personal avatars have a Gravatar fallback which contains either a configured image or a randomly generated image.
+
+## Stories
 
 ### Group or project fallback
 

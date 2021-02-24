@@ -1,6 +1,6 @@
 <!-- Icons.stories.mdx-->
 
-import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { Icon, icons } from './Icon'
 import { colorPalette } from '@oxide/theme'
@@ -35,6 +35,8 @@ export const Template = (args) => <Icon {...args} />
     {Template.bind({})}
   </Story>
 </Canvas>
+
+<ArgsTable of={Icon} story="^" />
 
 ## Accessibility
 
