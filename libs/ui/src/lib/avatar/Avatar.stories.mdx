@@ -7,9 +7,19 @@ import { Avatar, AvatarProps, avatarSizes } from './Avatar'
   title="Components/Avatar"
   component={Avatar}
   argTypes={{
+    isPerson: {
+      control: {
+        type: 'boolean',
+      },
+    },
+    name: {
+      control: {
+        type: 'text',
+      },
+    },
     src: {
       control: {
-        type: 'string',
+        type: 'text',
       },
     },
     size: {
@@ -80,7 +90,7 @@ export const OrgArgs = {
 
 <Canvas>
   <Story
-    name="Image xs"
+    name="Group - xs"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -90,7 +100,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Image sm"
+    name="Group - sm"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -100,7 +110,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Image base"
+    name="Group - base"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -110,7 +120,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Image lg"
+    name="Group - lg"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -120,7 +130,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Image xl"
+    name="Group - xl"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -130,7 +140,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Image 2xl"
+    name="Group - 2xl"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -145,7 +155,7 @@ export const OrgArgs = {
 
 <Canvas>
   <Story
-    name="Person xs"
+    name="Person - xs"
     args={{
       ...PersonArgs,
       isPerson: true,
@@ -155,7 +165,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Person sm"
+    name="Person - sm"
     args={{
       ...PersonArgs,
       isPerson: true,
@@ -165,7 +175,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Person base"
+    name="Person - base"
     args={{
       ...PersonArgs,
       isPerson: true,
@@ -175,7 +185,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Person lg"
+    name="Person - lg"
     args={{
       ...PersonArgs,
       isPerson: true,
@@ -185,7 +195,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Person xl"
+    name="Person - xl"
     args={{
       ...PersonArgs,
       isPerson: true,
@@ -195,7 +205,7 @@ export const OrgArgs = {
     {Template.bind({})}
   </Story>
   <Story
-    name="Person 2xl"
+    name="Person - 2xl"
     args={{
       ...PersonArgs,
       isPerson: true,

@@ -33,13 +33,14 @@ export interface AvatarProps {
 type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
   isCircle: boolean
 }
+
 const Wrapper = styled.div<WrapperProps>`
   align-items: center;
   display: inline-flex;
   justify-content: center;
 
-  height: ${(props) => props.theme.spacing(sizes[props.size])};
-  width: ${(props) => props.theme.spacing(sizes[props.size])};
+  height: ${(props) => props.theme.spacing(avatarSizes[props.size])};
+  width: ${(props) => props.theme.spacing(avatarSizes[props.size])};
 
   background-color: ${(props) => props.theme.themeColors.green500};
   border-radius: ${(props) => (props.isCircle ? '50%' : '0')};
