@@ -1,7 +1,7 @@
 <!-- Avatar.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Avatar, AvatarProps, sizes } from './Avatar'
+import { Avatar, AvatarProps, avatarSizes } from './Avatar'
 
 <Meta
   title="Components/Avatar"
@@ -15,7 +15,7 @@ import { Avatar, AvatarProps, sizes } from './Avatar'
     size: {
       control: {
         type: 'select',
-        options: Object.keys(sizes),
+        options: Object.keys(avatarSizes),
       },
     },
   }}
@@ -27,7 +27,7 @@ Avatars are used to represent a unique entity, be it a person, a team, an org, o
 
 ## Design
 
-Avatars representing persons use a circular shape and avatars representing a group or a project use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
+Avatars representing **persons** use a circular shape and avatars representing **a group or a project** use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
 
 It is preferable that an avatar display an image. Images are personalized and make good use of the ability of the human brain to recognize faces. Project and org avatars contain a fallback in the case an image is not provided. This fallback will display the first letter(s) of the project or org name. Personal avatars have a Gravatar fallback which contains either a configured image or a randomly generated image.
 
@@ -37,42 +37,52 @@ It is preferable that an avatar display an image. Images are personalized and ma
 
 export const Template = (args) => <Avatar {...args} />
 
-export const DefaultArgs = {
-  name: 'Twilight Games',
+export const PersonArgs = {
+  name: 'Cameron Howe',
 }
 
+export const OrgArgs = {
+  name: 'Colossal Cave Adventure',
+}
+
+### Default (group or project)
+
 <Canvas>
-  <Story name="Default" args={{ ...DefaultArgs, size: 'base' }}>
+  <Story name="Default" args={{ ...OrgArgs, size: 'base' }}>
     {Template.bind({})}
   </Story>
 </Canvas>
 
+### Group or project fallback
+
 <Canvas>
-  <Story name="xs" args={{ ...DefaultArgs, size: 'xs' }}>
+  <Story name="xs" args={{ ...OrgArgs, size: 'xs' }}>
     {Template.bind({})}
   </Story>
-  <Story name="sm" args={{ ...DefaultArgs, size: 'sm' }}>
+  <Story name="sm" args={{ ...OrgArgs, size: 'sm' }}>
     {Template.bind({})}
   </Story>
-  <Story name="base" args={{ ...DefaultArgs, size: 'base' }}>
+  <Story name="base" args={{ ...OrgArgs, size: 'base' }}>
     {Template.bind({})}
   </Story>
-  <Story name="lg" args={{ ...DefaultArgs, size: 'lg' }}>
+  <Story name="lg" args={{ ...OrgArgs, size: 'lg' }}>
     {Template.bind({})}
   </Story>
-  <Story name="xl" args={{ ...DefaultArgs, size: 'xl' }}>
+  <Story name="xl" args={{ ...OrgArgs, size: 'xl' }}>
     {Template.bind({})}
   </Story>
-  <Story name="2xl" args={{ ...DefaultArgs, size: '2xl' }}>
+  <Story name="2xl" args={{ ...OrgArgs, size: '2xl' }}>
     {Template.bind({})}
   </Story>
 </Canvas>
+
+### Group or project with an image
 
 <Canvas>
   <Story
     name="Image xs"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: 'xs',
     }}
@@ -82,7 +92,7 @@ export const DefaultArgs = {
   <Story
     name="Image sm"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: 'sm',
     }}
@@ -92,7 +102,7 @@ export const DefaultArgs = {
   <Story
     name="Image base"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: 'base',
     }}
@@ -102,7 +112,7 @@ export const DefaultArgs = {
   <Story
     name="Image lg"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: 'lg',
     }}
@@ -112,7 +122,7 @@ export const DefaultArgs = {
   <Story
     name="Image xl"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: 'xl',
     }}
@@ -122,7 +132,7 @@ export const DefaultArgs = {
   <Story
     name="Image 2xl"
     args={{
-      ...DefaultArgs,
+      ...OrgArgs,
       src: 'https://placekitten.com/500/500',
       size: '2xl',
     }}
@@ -131,11 +141,13 @@ export const DefaultArgs = {
   </Story>
 </Canvas>
 
+### Person fallback
+
 <Canvas>
   <Story
     name="Person xs"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: 'xs',
     }}
@@ -145,7 +157,7 @@ export const DefaultArgs = {
   <Story
     name="Person sm"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: 'sm',
     }}
@@ -155,7 +167,7 @@ export const DefaultArgs = {
   <Story
     name="Person base"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: 'base',
     }}
@@ -165,7 +177,7 @@ export const DefaultArgs = {
   <Story
     name="Person lg"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: 'lg',
     }}
@@ -175,7 +187,7 @@ export const DefaultArgs = {
   <Story
     name="Person xl"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: 'xl',
     }}
@@ -185,7 +197,7 @@ export const DefaultArgs = {
   <Story
     name="Person 2xl"
     args={{
-      ...DefaultArgs,
+      ...PersonArgs,
       isPerson: true,
       size: '2xl',
     }}

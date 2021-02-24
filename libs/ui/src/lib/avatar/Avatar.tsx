@@ -2,7 +2,7 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-export const sizes = {
+export const avatarSizes = {
   '2xl': 16, // spacing(16) is 64px
   xl: 14, // 56px
   lg: 12, // 48px
@@ -23,7 +23,7 @@ export interface AvatarProps {
   /**
    * Override the default size of image
    */
-  size?: keyof typeof sizes
+  size?: keyof typeof avatarSizes
   /**
    * The url for the image (`<img>`) tag to use
    * */
