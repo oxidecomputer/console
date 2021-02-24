@@ -4,6 +4,11 @@ import { Layout, LayoutProps } from './Layout'
 export default {
   component: Layout,
   title: 'Layout/Skeleton',
+  parameters: {
+    backgrounds: {
+      default: 'gray900',
+    },
+  },
 }
 
 export const primary = () => {

@@ -4,6 +4,9 @@ import { SidebarNavigation, SidebarNavigationProps } from './SidebarNavigation'
 export default {
   component: SidebarNavigation,
   title: 'Layout/SidebarNavigation',
+  parameters: {
+    backgrounds: { default: 'gray900' },
+  },
 }
 
 export const primary = () => {
