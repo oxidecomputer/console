@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Color } from '@oxide/theme'
 
 import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
@@ -61,13 +61,30 @@ interface StyledIconProps {
   /**
    * Set the color using a theme color ("green500")
    */
-  color: Color
+  color?: Color
+}
+
+const getColorStyles = ({ color, theme }) => {
+  if (color) {
+    const validThemeColor = theme.themeColors[color]
+    if (validThemeColor) {
+      // found color in themeColors, use it
+      return css`
+        fill: ${validThemeColor};
+      `
+    }
+  }
+  // inherit color
+  return css`
+    fill: currentColor;
+  `
 }
 
 const StyledIcon = styled.span<{ color: Color }>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
-  fill: ${(props) => props.theme.themeColors[props.color]};
+
+  ${(props) => getColorStyles(props)};
 
   > svg {
     height: auto;
@@ -90,7 +107,3 @@ export const Icon: FC<IconProps> = ({ name, ...props }) => (
 )
 
 export default Icon
-
-Icon.defaultProps = {
-  color: 'black',
-}
