@@ -1,5 +1,9 @@
 import React, { FC } from 'react'
-import styled, { css } from 'styled-components'
+import styled, {
+  css,
+  DefaultTheme,
+  StyledComponentProps,
+} from 'styled-components'
 import { Color } from '@oxide/theme'
 
 import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
@@ -57,22 +61,11 @@ export const icons = {
 } as const
 type Name = keyof typeof icons
 
-interface StyledIconProps {
-  /**
-   * Set the color using a theme color ("green500")
-   */
-  color?: Color
-}
-
-const getColorStyles = ({ color, theme }) => {
+const getColorStyles = (color?: string) => {
   if (color) {
-    const validThemeColor = theme.themeColors[color]
-    if (validThemeColor) {
-      // found color in themeColors, use it
-      return css`
-        fill: ${validThemeColor};
-      `
-    }
+    return css`
+      fill: ${color};
+    `
   }
   // inherit color
   return css`
@@ -80,11 +73,11 @@ const getColorStyles = ({ color, theme }) => {
   `
 }
 
-const StyledIcon = styled.span<{ color: Color }>`
+const StyledIcon = styled.span<{ color?: Color }>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
-  ${(props) => getColorStyles(props)};
+  ${(props) => getColorStyles(props.theme.themeColors[props.color])};
 
   > svg {
     height: auto;
@@ -95,12 +88,22 @@ const StyledIcon = styled.span<{ color: Color }>`
   }
 `
 
-export interface IconProps extends StyledIconProps {
-  /**
-   * Name (which corresponds to the `<title>`) of the SVG
-   */
-  name: Name
-}
+export type IconProps = StyledComponentProps<
+  'span',
+  DefaultTheme,
+  {
+    /**
+     * Name (which corresponds to the `<title>`) of the SVG
+     */
+    name: Name
+
+    /**
+     * Set the color using a theme color ("green500")
+     */
+    color?: Color
+  },
+  never
+>
 
 export const Icon: FC<IconProps> = ({ name, ...props }) => (
   <StyledIcon {...props}>{icons[name]}</StyledIcon>
