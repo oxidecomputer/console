@@ -27,6 +27,7 @@
     "web-console": { "tags": [] },
     "web-console-e2e": { "tags": [], "implicitDependencies": ["web-console"] },
     "ui": { "tags": [] },
-    "theme": { "tags": [] }
+    "theme": { "tags": [] },
+    "backend-types": { "tags": [] }
   }
 }
