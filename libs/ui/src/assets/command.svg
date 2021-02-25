@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-command"><title id="icon-command">Command</title><path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 12.675V15l9-3.825v-2.1l-9-3.825v2.325l6.45 2.55-6.45 2.55zm9 4.575h10.5v2.25h-10.5v-2.25z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-command">
+  <title id="icon-command">Command</title>
+  <path fill-rule="evenodd" clip-rule="evenodd"
+    d="M2.25 12.675V15l9-3.825v-2.1l-9-3.825v2.325l6.45 2.55-6.45 2.55zm9 4.575h10.5v2.25h-10.5v-2.25z" />
+</svg>
