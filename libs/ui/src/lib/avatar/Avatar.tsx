@@ -55,7 +55,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   size,
 }) => {
   if (src) {
-    // Avatar with gravatar image
+    // Avatar with image
     return (
       <Wrapper size={size} isCircle={isPerson}>
         <img src={src} alt={name} />
