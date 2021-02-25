@@ -61,22 +61,18 @@ interface StyledIconProps {
   /**
    * Set the color using a theme color ("green500")
    */
-  color: Color
+  color?: Color
 }
 
-const getColorStyles = (props: StyledIconProps) => {
-  if (props.color) {
-    const validThemeColor = props.theme.themeColors[props.color]
+const getColorStyles = ({ color, theme }) => {
+  if (color) {
+    const validThemeColor = theme.themeColors[color]
     if (validThemeColor) {
       // found color in themeColors, use it
       return css`
         fill: ${validThemeColor};
       `
     }
-    // set color manually
-    return css`
-      fill: ${props.color};
-    `
   }
   // inherit color
   return css`
