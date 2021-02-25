@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-storage"><title id="icon-storage">Storage</title><path d="M16.5 4.5H15v3.075H6.75V4.5H4.5v15h15V8.25l-3-3.75zm-4.5 12c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-storage">
+  <title id="icon-storage">Storage</title>
+  <path
+    d="M16.5 4.5H15v3.075H6.75V4.5H4.5v15h15V8.25l-3-3.75zm-4.5 12c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z" />
+</svg>
