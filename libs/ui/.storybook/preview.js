@@ -1,46 +1,56 @@
 import React from 'react'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
+import { darkUI } from './theme'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
-import { colorPalette, defaultTheme } from '@oxide/theme'
+import { colorPalette, defaultTheme, GlobalStyle } from '@oxide/theme'
 
-// Temporary global style for <Avatar> stories until GlobalStyle PR is merged:
-// https://github.com/oxidecomputer/console/pull/29/files
-const TemporaryGlobalStyle = createGlobalStyle`
-  html, body {
-    font-size: 16px;
+// Bug: https://github.com/storybookjs/storybook/issues/14029
+const DocsStyleOverrides = createGlobalStyle`
+  table.sbdocs tr {
+    background-color: inherit;
+    color: inherit;
   }
 
-  img {
-    width: 100%;
-    height: auto;
+  table.sbdocs tr:nth-of-type(2n) {
+    background-color: inherit;
+    color: inherit;
   }
 `
 
-// FIXME: What background colors will be most valuable to designers? Presumably all the background colors used for each light/dark mode?
-const values = (colors) =>
+const getBackgroundColors = (colors) =>
   Object.keys(colors).map((key) => {
     return { name: key, value: colors[key] }
   })
 
+// Global Parameters
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   backgrounds: {
-    values: values(colorPalette),
+    // Bug: background selector is broken for stories written in MDX
+    // See: https://github.com/storybookjs/storybook/issues/7978#issuecomment-726797915
+    default: 'gray900',
+    // Add background color selector with these color options
+    values: getBackgroundColors(colorPalette),
   },
   docs: {
+    // Default background does not apply to docs
     container: ({ children, context }) => (
       <DocsContainer context={context}>
-        <TemporaryGlobalStyle />
-        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+        <ThemeProvider theme={defaultTheme}>
+          <GlobalStyle />
+          <DocsStyleOverrides />
+          {children}
+        </ThemeProvider>
       </DocsContainer>
     ),
+    theme: darkUI,
   },
 }
 
 export const decorators = [
   (Story) => (
     <ThemeProvider theme={defaultTheme}>
-      <TemporaryGlobalStyle />
+      <GlobalStyle />
       <Story />
     </ThemeProvider>
   ),

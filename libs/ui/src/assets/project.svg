@@ -1,1 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-project"><title id="icon-project">Project</title><path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 5.25h9.75V7.5H3.75V5.25zm0 3.75h16.5v9.75H3.75V9z" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-project">
+  <title id="icon-project">Project</title>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 5.25h9.75V7.5H3.75V5.25zm0 3.75h16.5v9.75H3.75V9z" />
+</svg>
