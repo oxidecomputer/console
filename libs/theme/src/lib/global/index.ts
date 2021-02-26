@@ -27,6 +27,10 @@ const globalStyles = css`
   ul {
     list-style-type: none;
   }
+  img {
+    width: 100%;
+    height: auto;
+  }
   a,
   a:link {
     color: ${(props) => props.theme.themeColors.gray100};

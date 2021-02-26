@@ -31,7 +31,7 @@ export interface AvatarProps {
 }
 
 type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
-  isCircle: boolean
+  isCircle?: boolean
 }
 
 const Wrapper = styled.div<WrapperProps>`
@@ -42,7 +42,7 @@ const Wrapper = styled.div<WrapperProps>`
   height: ${(props) => props.theme.spacing(avatarSizes[props.size])};
   width: ${(props) => props.theme.spacing(avatarSizes[props.size])};
 
-  background-color: ${(props) => props.theme.themeColors.green500};
+  background-color: ${(props) => props.theme.themeColors.gray500};
   border-radius: ${(props) => (props.isCircle ? '50%' : '0')};
   font-family: ${(props) => props.theme.fonts.sans};
   text-transform: uppercase;
@@ -77,18 +77,13 @@ export const Avatar: React.FC<AvatarProps> = ({
   }
 
   const initials = getInitials(name)
-  if (initials) {
-    // Avatar with initials
-    return (
-      <Wrapper size={size} isCircle={isPerson}>
-        {initials}
-      </Wrapper>
-    )
+  if (initials && !isPerson) {
+    // Fallback: Avatar with initials
+    return <Wrapper size={size}>{initials}</Wrapper>
   }
-  // If there is no gravatar image and cannot find initials, then show an
-  // avatar with a default/placeholder image
+  // Fallback: Avatar with a default/placeholder image
   return (
-    <Wrapper size={size} isCircle={isPerson}>
+    <Wrapper size={size} isCircle>
       TODO
     </Wrapper>
   )
