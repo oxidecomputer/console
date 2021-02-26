@@ -22,7 +22,7 @@ Where `<COMPONENT_NAME>` is the name of the new component to include. It takes t
 
 | Option          | Description                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
-| `--skipStories` | Skips generating story book stories                                                                       |
+| `--skipStories` | Skips generating storybook stories                                                                        |
 | `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory |
 
 ## Scaffolded README
