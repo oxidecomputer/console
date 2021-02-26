@@ -2,7 +2,7 @@ import { Tree, formatFiles, installPackagesTask } from '@nrwl/devkit'
 import { componentGenerator, componentStoryGenerator } from '@nrwl/react'
 import * as path from 'path'
 
-const REPLACE_EXPORT_REGEX = /^export function (\w*)(\(props: \w*\)) {$/gm
+const REPLACE_EXPORT_REGEX = /^export function (\w+)\(props: (\w+)\)) {$/gm
 
 const replaceExportFunction = async (host: Tree) => {
   const files = new Set(
@@ -15,7 +15,15 @@ const replaceExportFunction = async (host: Tree) => {
       try {
         host.write(
           file.path,
-          content.replace(REPLACE_EXPORT_REGEX, 'export const $1 = $2 => {')
+          content
+            .replace(
+              REPLACE_EXPORT_REGEX,
+              'export const $1: FC<$2> = (props) => {'
+            )
+            .replace(
+              "import React from 'react'",
+              "import React, { FC } from 'react'"
+            )
         )
       } catch (e) {
         console.warn(
