@@ -15,10 +15,15 @@ This will start the storybook for the `ui` component library and start it on `ht
 ### Creating a new component
 
 ```console
-$ yarn g:ui-component <COMPONENT_NAME> [--skipStories]
+$ yarn g:ui-component <COMPONENT_NAME> [--skipStories] [--directory=<directory>]
 ```
 
-Where `<COMPONENT_NAME>` is the name of the new component to include. If you don't want a storybook story as well; pass `--skipStories`
+Where `<COMPONENT_NAME>` is the name of the new component to include. It takes the following options
+
+| Option          | Description                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| `--skipStories` | Skips generating story book stories                                                                       |
+| `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory |
 
 ## Scaffolded README
 

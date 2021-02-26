@@ -22,6 +22,11 @@
       "alias": "e",
       "default": false,
       "x-prompt": "Should this component be exported in the project?"
+    },
+    "directory": {
+      "type": "string",
+      "description": "Create the component under this directory (can be nested).",
+      "alias": "d"
     }
   },
   "required": ["name"]
