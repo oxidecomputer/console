@@ -31,6 +31,9 @@ const globalStyles = css`
     width: 100%;
     height: auto;
   }
+  abbr[title] {
+    text-decoration: none;
+  }
   a,
   a:link {
     color: ${(props) => props.theme.themeColors.gray100};
