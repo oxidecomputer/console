@@ -5,7 +5,7 @@ import Avatar from './Avatar'
 
 describe('Avatar', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Avatar name="Cameron Howe" />)
+    const { baseElement } = render(<Avatar name="Cameron Howe" isPerson />)
     expect(baseElement).toBeTruthy()
   })
 })
