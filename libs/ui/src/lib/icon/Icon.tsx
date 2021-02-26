@@ -1,5 +1,9 @@
 import React, { FC } from 'react'
-import styled, { css } from 'styled-components'
+import styled, {
+  css,
+  DefaultTheme,
+  StyledComponentProps,
+} from 'styled-components'
 import { Color } from '@oxide/theme'
 
 import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
@@ -57,22 +61,11 @@ export const icons = {
 } as const
 type Name = keyof typeof icons
 
-interface StyledIconProps {
-  /**
-   * Set the color using a theme color ("green500")
-   */
-  color?: Color
-}
-
-const getColorStyles = ({ color, theme }) => {
+const getColorStyles = (color?: string) => {
   if (color) {
-    const validThemeColor = theme.themeColors[color]
-    if (validThemeColor) {
-      // found color in themeColors, use it
-      return css`
-        fill: ${validThemeColor};
-      `
-    }
+    return css`
+      fill: ${color};
+    `
   }
   // inherit color
   return css`
@@ -80,11 +73,20 @@ const getColorStyles = ({ color, theme }) => {
   `
 }
 
-const StyledIcon = styled.span<{ color: Color }>`
+// This type defines the additional props (including all of styled's default
+// props) for the `StyledIcon` component.
+interface StyledIconProps {
+  /**
+   * Set the color using a theme color ("green500")
+   */
+  color?: Color
+}
+
+const StyledIcon = styled.span<StyledIconProps>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
-  ${(props) => getColorStyles(props)};
+  ${(props) => getColorStyles(props.theme.themeColors[props.color])};
 
   > svg {
     height: auto;
@@ -95,12 +97,21 @@ const StyledIcon = styled.span<{ color: Color }>`
   }
 `
 
-export interface IconProps extends StyledIconProps {
+interface InternalIconProps extends StyledIconProps {
   /**
    * Name (which corresponds to the `<title>`) of the SVG
    */
   name: Name
 }
+
+// Since we're spreading props into the `StyledIcon`, we need to type the props
+// with what a `StyledIcon` expects for props
+export type IconProps = StyledComponentProps<
+  'span',
+  DefaultTheme,
+  InternalIconProps,
+  never
+>
 
 export const Icon: FC<IconProps> = ({ name, ...props }) => (
   <StyledIcon {...props}>{icons[name]}</StyledIcon>
