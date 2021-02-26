@@ -73,7 +73,16 @@ const getColorStyles = (color?: string) => {
   `
 }
 
-const StyledIcon = styled.span<{ color?: Color }>`
+// This type defines the additional props (including all of styled's default
+// props) for the `StyledIcon` component.
+interface StyledIconProps {
+  /**
+   * Set the color using a theme color ("green500")
+   */
+  color?: Color
+}
+
+const StyledIcon = styled.span<StyledIconProps>`
   display: inline-block;
   width: ${(props) => props.theme.spacing(6)};
 
@@ -88,20 +97,19 @@ const StyledIcon = styled.span<{ color?: Color }>`
   }
 `
 
+interface InternalIconProps extends StyledIconProps {
+  /**
+   * Name (which corresponds to the `<title>`) of the SVG
+   */
+  name: Name
+}
+
+// Since we're spreading props into the `StyledIcon`, we need to type the props
+// with what a `StyledIcon` expects for props
 export type IconProps = StyledComponentProps<
   'span',
   DefaultTheme,
-  {
-    /**
-     * Name (which corresponds to the `<title>`) of the SVG
-     */
-    name: Name
-
-    /**
-     * Set the color using a theme color ("green500")
-     */
-    color?: Color
-  },
+  InternalIconProps,
   never
 >
 
