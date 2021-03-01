@@ -5,6 +5,7 @@ import { Project } from '@oxide/backend-types'
 
 import { Text } from '../../../text/Text'
 import { Icon } from '../../../icon/Icon'
+import NotificationCount from './notification-count/NotificationCount'
 
 export interface ProjectListProps {
   projects: Project[]
@@ -49,7 +50,23 @@ const List = styled.ul`
   ${({ theme }) => theme.spaceBetweenY(3)}
 `
 
-const ListItem = styled(BaseText).attrs({ as: 'li' })``
+const ListItem = styled.li`
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+
+  ${({ theme }) => theme.spaceBetweenX(1)}
+`
+
+const Title = styled(BaseText)`
+  flex: 1;
+`
+
+const BookmarkIcon = styled(Icon).attrs({
+  color: 'yellow500',
+  name: 'bookmark',
+})``
 
 const Create = styled.div`
   display: flex;
@@ -78,7 +95,11 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
       </Header>
       <List>
         {props.projects.map((p) => (
-          <ListItem key={p.id}>{p.name}</ListItem>
+          <ListItem key={p.id}>
+            <Title>{p.name}</Title>
+            {p.notifications && <NotificationCount count={p.notifications} />}
+            {p.starred && <BookmarkIcon />}
+          </ListItem>
         ))}
       </List>
       <Create>

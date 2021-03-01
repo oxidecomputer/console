@@ -12,7 +12,7 @@ export default {
 export const primary = () => {
   const props: ProjectListProps = {
     projects: [
-      { id: '1', name: 'prod-online' },
+      { id: '1', name: 'prod-online', notifications: 2, starred: true },
       { id: '2', name: 'release-infrastructure' },
       { id: '3', name: 'rendering' },
       { id: '4', name: 'test-infrastructure' },
@@ -20,5 +20,9 @@ export const primary = () => {
     ],
   }
 
-  return <ProjectList {...props} />
+  return (
+    <div style={{ maxWidth: '300px' }}>
+      <ProjectList {...props} />
+    </div>
+  )
 }
