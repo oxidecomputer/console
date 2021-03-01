@@ -1,4 +1,3 @@
-import React from 'react'
 import styled, { css } from 'styled-components'
 
 export const textSizes = [
@@ -19,7 +18,9 @@ export const textSizes = [
 ] as const
 type TextSize = typeof textSizes[number]
 
-const getSizeStyles = (size: TextSize) => {
+const getSizeStyles = (size?: TextSize) => {
+  if (!size) return
+
   switch (size) {
     case 'xxs':
       return css`
@@ -87,33 +88,12 @@ const getSizeStyles = (size: TextSize) => {
         line-height: 1; /* 8rem */
       `
     case 'base':
-    default:
       return css`
         font-size: ${({ theme }) => theme.spacing(4)}; /* 1rem */
         line-height: 1.5; /* 1.5rem */
       `
   }
 }
-
-const StyledText = styled.span<TextProps>`
-  color: inherit;
-  font-weight: ${(props) => props.weight};
-
-  ${(props) => {
-    if (props.font === 'sans') {
-      return css`
-        font-family: ${props.theme.fonts.sans};
-      `
-    }
-    if (props.font === 'mono') {
-      return css`
-        font-family: ${props.theme.fonts.mono};
-      `
-    }
-  }}
-
-  ${(props) => getSizeStyles(props.size)};
-`
 
 export interface TextProps {
   /**
@@ -130,10 +110,29 @@ export interface TextProps {
   weight?: number
 }
 
-export const Text: React.FC<TextProps> = ({ children, ...props }) => {
-  return <StyledText {...props}>{children}</StyledText>
-}
+export const Text = styled.span<TextProps>`
+  color: inherit;
+  ${(props) =>
+    props.weight &&
+    css`
+      font-weight: ${props.weight};
+    `};
 
+  ${(props) => {
+    if (props.font === 'sans') {
+      return css`
+        font-family: ${props.theme.fonts.sans};
+      `
+    }
+    if (props.font === 'mono') {
+      return css`
+        font-family: ${props.theme.fonts.mono};
+      `
+    }
+  }}
+
+  ${(props) => getSizeStyles(props.size)};
+`
 Text.defaultProps = {
   font: 'sans',
   size: 'base',
