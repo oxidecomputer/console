@@ -51,11 +51,22 @@ const List = styled.ul`
 
 const ListItem = styled(BaseText).attrs({ as: 'li' })``
 
-const Create = styled(BaseText).attrs({
-  as: 'div',
+const Create = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  ${({ theme }) => theme.spaceBetweenX(1)}
+`
+
+const CreateText = styled(BaseText).attrs({
   size: 'xxs',
 })`
   color: ${({ theme }) => theme.themeColors.gray400};
+`
+
+const CreateIcon = styled(Icon).attrs({ color: 'gray400', name: 'plus' })`
+  width: ${({ theme }) => theme.spacing(2.5)};
 `
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
@@ -71,7 +82,8 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         ))}
       </List>
       <Create>
-        Create a new project <Icon name="plus" color="gray400" />
+        <CreateText>Create a new project</CreateText>
+        <CreateIcon />
       </Create>
     </StyledProjectList>
   )
