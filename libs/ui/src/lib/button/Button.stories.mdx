@@ -60,17 +60,17 @@ Buttons execute an action, either in the background or foreground of an experien
 
 Different button categories bring varying emphasis to potential user actions. This makes the page comprehensive while guiding the user through performing a task. We have three button categories: Primary, Secondary, and Tertiary.
 
-**Primary**
+**Primary ("Solid")**
 
 - The single most important action that moves the task forward within a context
 - One per context
 
-**Secondary**
+**Secondary ("Subtle")**
 
 - Supplementary actions that the user is motivated to take
 - One or more per context
 
-**Tertiary**
+**Tertiary ("Outline")**
 
 - Less important actions that are not promoted to the user
 - Multiple
@@ -128,10 +128,10 @@ An affirmative action is something that takes the users further in their journey
 ### Button Variants
 
 <Canvas>
-  <Story name="Primary" args={{ ...defaultArgs, variant: 'primary' }}>
+  <Story name="Solid" args={{ ...defaultArgs, variant: 'solid' }}>
     {Template.bind({})}
   </Story>
-  <Story name="Solid" args={{ ...defaultArgs, variant: 'solid' }}>
+  <Story name="Subtle" args={{ ...defaultArgs, variant: 'subtle' }}>
     {Template.bind({})}
   </Story>
   <Story name="Outline" args={{ ...defaultArgs, variant: 'outline' }}>

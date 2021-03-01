@@ -3,13 +3,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
-export const variants = [
-  'primary',
-  'solid',
-  'outline',
-  'ghost',
-  'link',
-] as const
+export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
 
 type ButtonSize = typeof buttonSizes[number]
 type Variant = typeof variants[number]
@@ -57,9 +51,29 @@ const getSizeStyles = (size: ButtonSize) => {
 
 const getVariantStyles = (variant: Variant) => {
   switch (variant) {
+    case 'subtle':
+      return css`
+        background-color: hsla(154, 50%, 50%, 0.16);
+        color: ${({ theme }) => theme.themeColors.green400};
+
+        &:hover:not(:disabled):not([disabled]) {
+          background-color: hsla(153, 63%, 69%, 0.24);
+        }
+
+        &:focus:not(:disabled):not([disabled]) {
+          background-color: hsla(154, 63%, 56%, 0.16);
+          box-shadow: 0 0 0 ${({ theme }) => theme.spacing(1)}
+            rgba(65, 192, 136, 0.16);
+        }
+
+        &:disabled,
+        [disabled] {
+          opacity: 0.4;
+        }
+      `
     case 'outline':
       return css`
-        background-color: ${({ theme }) => theme.themeColors.white};
+        background-color: hsla(146, 51, 64, 0.16);
         box-shadow: inset 0 0 0 1px ${({ theme }) => theme.themeColors.green500};
         color: ${({ theme }) => theme.themeColors.green500};
 
@@ -108,7 +122,14 @@ const getVariantStyles = (variant: Variant) => {
         color: ${({ theme }) => theme.themeColors.green50};
 
         &:hover:not(:disabled):not([disabled]) {
-          background-color: ${({ theme }) => theme.themeColors.green600};
+          background-color: ${({ theme }) => theme.themeColors.green700};
+        }
+
+        &:focus:not(:disabled):not([disabled]) {
+          box-shadow: ${({ theme }) => `
+            0 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
+            0 0 0 ${theme.spacing(0.5)} ${theme.themeColors.gray800},
+            0 0 0 ${theme.spacing(1)} ${theme.themeColors.green600}`};
         }
 
         &:disabled,
