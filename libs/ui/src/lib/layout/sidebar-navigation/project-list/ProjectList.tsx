@@ -10,20 +10,25 @@ export interface ProjectListProps {
   projects: Project[]
 }
 
-const StyledProjectList = styled(Text).attrs({
+const BaseText = styled(Text).attrs({
   size: 'xs',
   font: 'mono',
   weight: 400,
-})`
+})``
+
+const StyledProjectList = styled.div`
   ${({ theme }) => theme.spaceBetweenY(3)}
 `
 
-const Header = styled(Text).attrs({ as: 'header' })`
-  color: ${({ theme }) => theme.themeColors.green500};
+const Header = styled.header`
   text-transform: uppercase;
 `
 
-const Count = styled(Text)`
+const HeaderText = styled(BaseText)`
+  color: ${({ theme }) => theme.themeColors.green500};
+`
+
+const Count = styled(BaseText)`
   color: ${({ theme }) => theme.themeColors.green300};
 `
 
@@ -44,12 +49,10 @@ const List = styled.ul`
   ${({ theme }) => theme.spaceBetweenY(3)}
 `
 
-const ListItem = styled(Text).attrs({ as: 'li' })``
+const ListItem = styled(BaseText).attrs({ as: 'li' })``
 
-const Create = styled(Text).attrs({
+const Create = styled(BaseText).attrs({
   as: 'div',
-  font: 'mono',
-  weight: 400,
   size: 'xxs',
 })`
   color: ${({ theme }) => theme.themeColors.gray400};
@@ -59,7 +62,8 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
     <StyledProjectList>
       <Header>
-        Projects <Count>{props.projects.length}</Count>
+        <HeaderText>Projects </HeaderText>
+        <Count>{props.projects.length}</Count>
       </Header>
       <List>
         {props.projects.map((p) => (
