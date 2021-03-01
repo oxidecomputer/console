@@ -115,7 +115,8 @@ const getVariantStyles = (variant: Variant) => {
         background-color: transparent;
         color: ${({ theme }) => theme.themeColors.green500};
 
-        &:hover:not(:disabled):not([disabled]) {
+        &:hover:not(:disabled):not([disabled]),
+        &:focus {
           text-decoration: underline;
         }
 
@@ -156,6 +157,11 @@ const StyledButton = styled.button<ButtonProps>`
 
   ${(props) => getSizeStyles(props.size)};
   ${(props) => getVariantStyles(props.variant)};
+
+  &:disabled,
+  [disabled] {
+    cursor: not-allowed;
+  }
 `
 
 export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
