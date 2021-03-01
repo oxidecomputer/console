@@ -133,5 +133,10 @@ export const Text = styled.span<TextProps>`
 
   ${(props) => getSizeStyles(props.size)};
 `
+Text.defaultProps = {
+  font: 'sans',
+  size: 'base',
+  weight: 400,
+}
 
 export default Text
