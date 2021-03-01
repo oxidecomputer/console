@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 
-import styled from 'styled-components'
-import { Project } from '@oxide/backend-types'
+import styled, { css } from 'styled-components'
+import { Project, ProjectId } from '@oxide/backend-types'
 
 import { Text } from '../../../text/Text'
 import { Icon } from '../../../icon/Icon'
@@ -9,6 +9,8 @@ import NotificationCount from './notification-count/NotificationCount'
 
 export interface ProjectListProps {
   projects: Project[]
+
+  selectedProjectId?: ProjectId
 }
 
 const BaseText = styled(Text).attrs({
@@ -59,8 +61,14 @@ const ListItem = styled.li`
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
-const Title = styled(BaseText)`
+const Title = styled(BaseText)<{ selected?: boolean }>`
   flex: 1;
+
+  ${({ selected, theme }) =>
+    selected &&
+    css`
+      color: ${theme.themeColors.gray50};
+    `}
 `
 
 const BookmarkIcon = styled(Icon).attrs({
@@ -96,7 +104,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
       <List>
         {props.projects.map((p) => (
           <ListItem key={p.id}>
-            <Title>{p.name}</Title>
+            <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
             {p.notifications && <NotificationCount count={p.notifications} />}
             {p.starred && <BookmarkIcon />}
           </ListItem>

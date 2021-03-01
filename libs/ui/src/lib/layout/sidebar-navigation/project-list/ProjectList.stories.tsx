@@ -18,6 +18,7 @@ export const primary = () => {
       { id: '4', name: 'test-infrastructure' },
       { id: '5', name: 'oxide-demo' },
     ],
+    selectedProjectId: '2',
   }
 
   return (
