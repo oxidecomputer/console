@@ -8,6 +8,11 @@ export const variants = ['solid', 'outline', 'ghost', 'link'] as const
 type ButtonSize = typeof buttonSizes[number]
 type Variant = typeof variants[number]
 
+const sizes = {
+  xs: { fontSize: 0.75, lineHeight: 1 },
+  sm: { fontSize: 0.75, lineHeight: 1 },
+}
+
 export interface ButtonProps {
   /**
    * Set the size of the button
@@ -28,13 +33,13 @@ const getSizeStyles = (size: ButtonSize) => {
     case 'xs':
       return css`
         font-size: 0.75rem;
-        line-height: ${1 / 0.75};
+        line-height: 1;
         padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(3)}`};
       `
     case 'sm':
       return css`
         font-size: 0.75rem;
-        line-height: ${1 / 0.75};
+        line-height: 1;
         padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
       `
     case 'lg':
