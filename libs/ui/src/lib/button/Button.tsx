@@ -60,7 +60,7 @@ const getVariantStyles = (variant: Variant) => {
           background-color: hsla(153, 63%, 69%, 0.24);
         }
 
-        &:focus:not(:disabled):not([disabled]) {
+        &:focus {
           background-color: hsla(154, 63%, 56%, 0.16);
           box-shadow: 0 0 0 ${({ theme }) => theme.spacing(1)}
             rgba(65, 192, 136, 0.16);
@@ -73,12 +73,18 @@ const getVariantStyles = (variant: Variant) => {
       `
     case 'outline':
       return css`
-        background-color: hsla(146, 51, 64, 0.16);
+        background-color: hsla(146, 51%, 64%, 0.16);
         box-shadow: inset 0 0 0 1px ${({ theme }) => theme.themeColors.green500};
-        color: ${({ theme }) => theme.themeColors.green500};
+        color: ${({ theme }) => theme.themeColors.green400};
 
         &:hover:not(:disabled):not([disabled]) {
-          background-color: ${({ theme }) => theme.themeColors.green50};
+          background-color: hsla(146, 51%, 64%, 0.08);
+        }
+
+        &:focus {
+          box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05),
+            0px 0px 0px 2px rgba(115, 210, 156, 0.16),
+            0px 0px 0px 4px rgba(104, 189, 140, 0.16);
         }
 
         &:disabled,
