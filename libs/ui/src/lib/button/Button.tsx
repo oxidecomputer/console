@@ -82,9 +82,12 @@ const getVariantStyles = (variant: Variant) => {
         }
 
         &:focus {
-          box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05),
-            0px 0px 0px 2px rgba(115, 210, 156, 0.16),
-            0px 0px 0px 4px rgba(104, 189, 140, 0.16);
+          box-shadow: ${({ theme }) => `
+            inset 0 0 0 1px ${theme.themeColors.green500},
+            0px 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
+            0px 0px 0px ${theme.spacing(0.5)} hsla(146, 51%, 64%, 0.16),
+            0px 0px 0px ${theme.spacing(1)} hsla(145, 39%, 57%, 0.16)
+            `};
         }
 
         &:disabled,
@@ -95,10 +98,10 @@ const getVariantStyles = (variant: Variant) => {
     case 'ghost':
       return css`
         background-color: transparent;
-        color: ${({ theme }) => theme.themeColors.green500};
+        color: ${({ theme }) => theme.themeColors.green400};
 
-        &:hover:not(:disabled):not([disabled]) {
-          background-color: ${({ theme }) => theme.themeColors.green50};
+        &:focus {
+          background-color: hsla(146, 51%, 64%, 0.16);
         }
 
         &:disabled,
@@ -131,7 +134,7 @@ const getVariantStyles = (variant: Variant) => {
           background-color: ${({ theme }) => theme.themeColors.green700};
         }
 
-        &:focus:not(:disabled):not([disabled]) {
+        &:focus {
           box-shadow: ${({ theme }) => `
             0 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
             0 0 0 ${theme.spacing(0.5)} ${theme.themeColors.gray800},
