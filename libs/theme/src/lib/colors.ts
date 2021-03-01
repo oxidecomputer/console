@@ -64,5 +64,5 @@ export const colorPalette: ColorPalette = Object.keys(colorValues).reduce(
   (palette, name) => {
     return { ...palette, [name]: `hsl(${colorValues[name]})` }
   },
-  {}
+  {} as ColorPalette
 )
