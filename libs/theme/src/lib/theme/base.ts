@@ -16,7 +16,7 @@ import { colorValues, colorPalette } from '../colors'
  *
  * Usage: `color('green600', 0.6)` `color('black')`
  */
-const color = (name: Color, alpha: number) => {
+const color = (name: Color, alpha?: number) => {
   const colorValue = colorValues[name]
   if (alpha) {
     return `hsla(${colorValue}, ${alpha})`
