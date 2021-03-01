@@ -89,7 +89,7 @@ Any button can utilize the loading property to turn a button’s state into a lo
 
 For buttons containing text, the spinner is added to the left of the button, before the icon or label.
 
-### Selected
+### Selected (for Toggles)
 
 Selected buttons act like a toggle that indicate whether or not an option is in a selected state. To indicate to screen readers that the button functions as a toggle it should have `aria-pressed="true"` to align with the visually selected state, otherwise `aria-pressed="false"`.
 
@@ -120,11 +120,17 @@ An affirmative action is something that takes the users further in their journey
   <Story name="lg" args={{ ...defaultArgs, size: 'lg' }}>
     {Template.bind({})}
   </Story>
+  <Story name="xl" args={{ ...defaultArgs, size: 'xl' }}>
+    {Template.bind({})}
+  </Story>
 </Canvas>
 
 ### Button Variants
 
 <Canvas>
+  <Story name="Primary" args={{ ...defaultArgs, variant: 'primary' }}>
+    {Template.bind({})}
+  </Story>
   <Story name="Solid" args={{ ...defaultArgs, variant: 'solid' }}>
     {Template.bind({})}
   </Story>

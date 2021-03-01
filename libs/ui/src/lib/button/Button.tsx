@@ -2,15 +2,24 @@ import React from 'react'
 
 import styled, { css } from 'styled-components'
 
-export const buttonSizes = ['xs', 'sm', 'base', 'lg'] as const
-export const variants = ['solid', 'outline', 'ghost', 'link'] as const
+export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
+export const variants = [
+  'primary',
+  'solid',
+  'outline',
+  'ghost',
+  'link',
+] as const
 
 type ButtonSize = typeof buttonSizes[number]
 type Variant = typeof variants[number]
 
 const sizes = {
-  xs: { fontSize: 0.75, lineHeight: 1 },
-  sm: { fontSize: 0.75, lineHeight: 1 },
+  xs: { fontSize: 3, lineHeight: 1 / 0.75, padding: [2, 3] }, // total height: 32px
+  sm: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2, 3] }, // total height: 36px
+  base: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2.5, 4] }, // total height: 40px
+  lg: { fontSize: 4, lineHeight: 1.5, padding: [2.25, 4.5] }, // total height: 42px
+  xl: { fontSize: 4, lineHeight: 1.5, padding: [3, 6] }, // total height: 48px
 }
 
 export interface ButtonProps {
@@ -29,33 +38,21 @@ export interface ButtonProps {
 }
 
 const getSizeStyles = (size: ButtonSize) => {
-  switch (size) {
-    case 'xs':
-      return css`
-        font-size: 0.75rem;
-        line-height: 1;
-        padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(3)}`};
-      `
-    case 'sm':
-      return css`
-        font-size: 0.75rem;
-        line-height: 1;
-        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
-      `
-    case 'lg':
-      return css`
-        font-size: 1.125rem;
-        line-height: ${1.75 / 1.125};
-        padding: ${({ theme }) => `${theme.spacing(3)} ${theme.spacing(6)}`};
-      `
-    case 'base':
-    default:
-      return css`
-        font-size: 0.875rem;
-        line-height: ${1.25 / 0.875};
-        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
-      `
+  const getPadding = (x, y) => {
+    return ({ theme }) => `${theme.spacing(x)} ${theme.spacing(y)}`
   }
+
+  const buttonSize = sizes[size]
+
+  if (buttonSize) {
+    return css`
+      font-size: ${({ theme }) => theme.spacing(buttonSize.fontSize)};
+      line-height: ${buttonSize.lineHeight};
+      padding: ${getPadding(buttonSize.padding[0], buttonSize.padding[1])};
+    `
+  }
+
+  return css``
 }
 
 const getVariantStyles = (variant: Variant) => {
