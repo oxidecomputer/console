@@ -19,7 +19,7 @@ export interface AvatarProps {
    */
   name: string
   /**
-   * Persons should be circiular shape and fallback to initials
+   * Only persons/individuals should have a circular shape
    */
   isPerson: boolean
   /**
@@ -38,7 +38,6 @@ type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
 }
 
 const StyledIcon = styled(Icon).attrs({ name: 'profile', color: 'gray300' })``
-const StyledImage = styled.img``
 
 const getSizeStyles = (size) => {
   const avatarSize = avatarSizes[size]
@@ -72,10 +71,10 @@ const Wrapper = styled.div<WrapperProps>`
       : css`
           display: inline-block;
         `};
-  vertical-align: middle;
 
   position: relative;
   overflow: hidden;
+  vertical-align: middle;
 
   background-color: ${(props) =>
     props.isCircle
@@ -112,7 +111,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     // Avatar with image
     return (
       <Wrapper size={size} isCircle={isPerson}>
-        <StyledImage src={src} alt={name} />
+        <img src={src} alt={name} />
       </Wrapper>
     )
   }
@@ -127,7 +126,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     )
   }
 
-  // Fallback: Avatar with a default/placeholder image
+  // Fallback: Avatar with a custom profile icon
   return (
     <Wrapper size={size} isCircle>
       <StyledIcon />
