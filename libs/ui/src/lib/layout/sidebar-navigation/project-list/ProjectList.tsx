@@ -19,11 +19,15 @@ const BaseText = styled(Text).attrs({
   weight: 400,
 })``
 
+const Section = styled.section`
+  ${({ theme }) => theme.paddingX(1)}
+`
+
 const StyledProjectList = styled.div`
   ${({ theme }) => theme.spaceBetweenY(3)}
 `
 
-const Header = styled.header`
+const Header = styled(Section).attrs({ as: 'header' })`
   text-transform: uppercase;
 `
 
@@ -35,7 +39,7 @@ const Count = styled(BaseText)`
   color: ${({ theme }) => theme.themeColors.green300};
 `
 
-const List = styled.ul`
+const List = styled(Section).attrs({ as: 'ul' })`
   padding: 0;
 
   list-style: none;
@@ -49,16 +53,22 @@ const List = styled.ul`
   color: ${({ theme }) => theme.themeColors.gray400};
   text-transform: uppercase;
 
-  ${({ theme }) => theme.spaceBetweenY(3)}
+  ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
 const ListItem = styled.li`
   width: 100%;
 
+  padding: ${({ theme }) => theme.spacing(1)};
+
   display: flex;
   flex-direction: row;
 
   ${({ theme }) => theme.spaceBetweenX(1)}
+
+  &:hover {
+    background-color: ${({ theme }) => theme.themeColors.gray700};
+  }
 `
 
 const Title = styled(BaseText)<{ selected?: boolean }>`
@@ -76,7 +86,7 @@ const BookmarkIcon = styled(Icon).attrs({
   name: 'bookmark',
 })``
 
-const Create = styled.div`
+const Create = styled(Section)`
   display: flex;
   justify-content: flex-start;
   align-items: center;

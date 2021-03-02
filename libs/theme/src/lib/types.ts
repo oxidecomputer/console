@@ -14,7 +14,7 @@ export type ColorPalette = Record<Color, string>
 
 // Extend styled-components with our Theme type
 declare module 'styled-components' {
-  export type SpaceBetweenHelper = (
+  export type SpacingHelper = (
     size: SizingMultiplier
   ) => FlattenInterpolation<ThemeProps<DefaultTheme>>
 
@@ -26,7 +26,9 @@ declare module 'styled-components' {
       mono: string
     }
     spacing: (size: SizingMultiplier) => string
-    spaceBetweenX: SpaceBetweenHelper
-    spaceBetweenY: SpaceBetweenHelper
+    spaceBetweenX: SpacingHelper
+    spaceBetweenY: SpacingHelper
+    paddingX: SpacingHelper
+    paddingY: SpacingHelper
   }
 }
