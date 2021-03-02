@@ -88,6 +88,17 @@ const Wrapper = styled.div<WrapperProps>`
   ${(props) => getSizeStyles(props.size)};
 `
 
+const IconAvatar: React.FC<Pick<AvatarProps, 'isPerson' | 'size'>> = ({
+  isPerson,
+  size,
+}) => {
+  return (
+    <Wrapper size={size} isCircle={isPerson}>
+      <StyledIcon />
+    </Wrapper>
+  )
+}
+
 const ImageAvatar: React.FC<AvatarProps> = ({ name, isPerson, size, src }) => {
   return (
     <Wrapper size={size} isCircle={isPerson}>
@@ -119,15 +130,8 @@ const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
     )
   }
 
-  return null
-}
-
-const IconAvatar: React.FC<Pick<AvatarProps, 'size'>> = ({ size }) => {
-  return (
-    <Wrapper size={size} isCircle>
-      <StyledIcon />
-    </Wrapper>
-  )
+  console.warn('Initials were not found for the organization: ', name)
+  return <IconAvatar isPerson={false} size={size} />
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
@@ -146,7 +150,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   }
 
   // Person Fallback: Avatar with a custom profile icon
-  return <IconAvatar size={size} />
+  return <IconAvatar isPerson={isPerson} size={size} />
 }
 
 Avatar.defaultProps = {
