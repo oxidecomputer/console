@@ -20,6 +20,7 @@ declare module 'styled-components' {
 
   export interface DefaultTheme {
     themeColors: ColorPalette
+    color: (name: Color, alpha?: number) => string
     fonts: {
       sans: string
       mono: string
