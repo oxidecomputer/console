@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -88,37 +88,30 @@ const Wrapper = styled.div<WrapperProps>`
   ${(props) => getSizeStyles(props.size)};
 `
 
-const getInitials = (name) => {
-  const hasName = typeof name === 'string' && !!name.length
-  if (hasName) {
-    return name
-      .split(' ')
-      .filter((hasValue) => !!hasValue)
-      .map((subname) => subname[0])
-      .slice(0, 2)
-      .join('')
-  }
-  return null
+const ImageAvatar: React.FC<AvatarProps> = ({ name, isPerson, size, src }) => {
+  return (
+    <Wrapper size={size} isCircle={isPerson}>
+      <img src={src} alt={name} />
+    </Wrapper>
+  )
 }
 
-export const Avatar: React.FC<AvatarProps> = ({
+const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
   name,
-  isPerson,
-  src,
   size,
 }) => {
-  if (src) {
-    // Avatar with image
-    return (
-      <Wrapper size={size} isCircle={isPerson}>
-        <img src={src} alt={name} />
-      </Wrapper>
-    )
-  }
+  const initials = useMemo(
+    () =>
+      name
+        .split(' ')
+        .filter((hasValue) => !!hasValue)
+        .map((subname) => subname[0])
+        .slice(0, 2)
+        .join(''),
+    [name]
+  )
 
-  const initials = getInitials(name)
-  if (initials && !isPerson) {
-    // Fallback: Avatar with initials
+  if (initials) {
     return (
       <Wrapper size={size} hasInitials>
         <abbr title={name}>{initials}</abbr>
@@ -126,12 +119,34 @@ export const Avatar: React.FC<AvatarProps> = ({
     )
   }
 
-  // Fallback: Avatar with a custom profile icon
+  return null
+}
+
+const IconAvatar: React.FC<Pick<AvatarProps, 'size'>> = ({ size }) => {
   return (
     <Wrapper size={size} isCircle>
       <StyledIcon />
     </Wrapper>
   )
+}
+
+export const Avatar: React.FC<AvatarProps> = ({
+  name,
+  isPerson,
+  size,
+  src,
+}) => {
+  if (src) {
+    return <ImageAvatar name={name} isPerson={isPerson} size={size} src={src} />
+  }
+
+  if (!isPerson) {
+    // Group/Org Fallback: Avatar with initials
+    return <InitialsAvatar name={name} size={size} />
+  }
+
+  // Person Fallback: Avatar with a custom profile icon
+  return <IconAvatar size={size} />
 }
 
 Avatar.defaultProps = {

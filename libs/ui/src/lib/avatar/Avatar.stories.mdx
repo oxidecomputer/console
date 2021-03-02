@@ -39,6 +39,7 @@ export const Template = (args) => <Avatar {...args} />
 
 export const PersonArgs = {
   name: 'Cameron Howe',
+  isPerson: true,
 }
 
 export const OrgArgs = {
@@ -61,34 +62,11 @@ It is preferable that an avatar display an image. Images are personalized and ma
 
 ## Stories
 
-### Group or project fallback
-
-<Canvas>
-  <Story name="xs" args={{ ...OrgArgs, size: 'xs' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="sm" args={{ ...OrgArgs, size: 'sm' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="base" args={{ ...OrgArgs, size: 'base' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="lg" args={{ ...OrgArgs, size: 'lg' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="xl" args={{ ...OrgArgs, size: 'xl' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="2xl" args={{ ...OrgArgs, size: '2xl' }}>
-    {Template.bind({})}
-  </Story>
-</Canvas>
-
 ### Group or project with an image
 
 <Canvas>
   <Story
-    name="Group - xs"
+    name="Group/Image/xs"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -98,7 +76,7 @@ It is preferable that an avatar display an image. Images are personalized and ma
     {Template.bind({})}
   </Story>
   <Story
-    name="Group - sm"
+    name="Group/Image/sm"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -108,7 +86,7 @@ It is preferable that an avatar display an image. Images are personalized and ma
     {Template.bind({})}
   </Story>
   <Story
-    name="Group - base"
+    name="Group/Image/base"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -118,7 +96,7 @@ It is preferable that an avatar display an image. Images are personalized and ma
     {Template.bind({})}
   </Story>
   <Story
-    name="Group - lg"
+    name="Group/Image/lg"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -128,7 +106,7 @@ It is preferable that an avatar display an image. Images are personalized and ma
     {Template.bind({})}
   </Story>
   <Story
-    name="Group - xl"
+    name="Group/Image/xl"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
@@ -138,10 +116,98 @@ It is preferable that an avatar display an image. Images are personalized and ma
     {Template.bind({})}
   </Story>
   <Story
-    name="Group - 2xl"
+    name="Group/Image/2xl"
     args={{
       ...OrgArgs,
       src: 'https://placekitten.com/500/500',
+      size: '2xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+### Group or project fallback
+
+<Canvas>
+  <Story name="Group/Fallback/xs" args={{ ...OrgArgs, size: 'xs' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Group/Fallback/sm" args={{ ...OrgArgs, size: 'sm' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Group/Fallback/base" args={{ ...OrgArgs, size: 'base' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Group/Fallback/lg" args={{ ...OrgArgs, size: 'lg' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Group/Fallback/xl" args={{ ...OrgArgs, size: 'xl' }}>
+    {Template.bind({})}
+  </Story>
+  <Story name="Group/Fallback/2xl" args={{ ...OrgArgs, size: '2xl' }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+### Person with an image
+
+<Canvas>
+  <Story
+    name="Person/Image/xs"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
+      size: 'xs',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Person/Image/sm"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
+      size: 'sm',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Person/Image/base"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
+      size: 'base',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Person/Image/lg"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
+      size: 'lg',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Person/Image/xl"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
+      size: 'xl',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Person/Image/2xl"
+    args={{
+      ...PersonArgs,
+      src: 'https://placekitten.com/64/64',
       size: '2xl',
     }}
   >
@@ -153,60 +219,54 @@ It is preferable that an avatar display an image. Images are personalized and ma
 
 <Canvas>
   <Story
-    name="Person - xs"
+    name="Person/Fallback/xs"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: 'xs',
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Person - sm"
+    name="Person/Fallback/sm"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: 'sm',
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Person - base"
+    name="Person/Fallback/base"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: 'base',
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Person - lg"
+    name="Person/Fallback/lg"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: 'lg',
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Person - xl"
+    name="Person/Fallback/xl"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: 'xl',
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Person - 2xl"
+    name="Person/Fallback/2xl"
     args={{
       ...PersonArgs,
-      isPerson: true,
       size: '2xl',
     }}
   >
@@ -218,8 +278,8 @@ It is preferable that an avatar display an image. Images are personalized and ma
 
 <Canvas>
   <Story name="Avatar Alignment">
-    <Avatar {...PersonArgs} isPerson />
-    <Avatar {...PersonArgs} isPerson src="https://placekitten.com/32/32" />
+    <Avatar {...PersonArgs} />
+    <Avatar {...PersonArgs} src="https://placekitten.com/32/32" />
     <Avatar {...OrgArgs} />
     <Avatar {...OrgArgs} src="https://placekitten.com/100/100" />
   </Story>
