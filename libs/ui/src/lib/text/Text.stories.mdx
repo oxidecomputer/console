@@ -1,6 +1,6 @@
 <!-- Text.stories.mdx-->
 
-import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { Text, textSizes } from './Text'
 
@@ -60,7 +60,11 @@ Text can be rendered as another element using the `as` prop (built in from `styl
   </Story>
 </Canvas>
 
-## Text Sizes
+<ArgsTable of={Text} story="^" />
+
+## Stories
+
+### Sizes
 
 export const defaultArgs = { font: 'sans', weight: 400 }
 

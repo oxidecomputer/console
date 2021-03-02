@@ -1,11 +1,11 @@
 import React from 'react'
 import { render } from '../../test-utils'
 
-import Breadcrumbs from './Breadcrumbs'
+import Avatar from './Avatar'
 
-describe('Breadcrumbs', () => {
+describe('Avatar', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Breadcrumbs />)
+    const { baseElement } = render(<Avatar name="Cameron Howe" isPerson />)
     expect(baseElement).toBeTruthy()
   })
 })
