@@ -4,8 +4,13 @@ import { normalize } from './normalize'
 import './fonts.css'
 
 const globalStyles = css`
+  * {
+    box-sizing: inherit;
+  }
   html,
   body {
+    box-sizing: border-box;
+
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
     font-family: ${(props) => props.theme.fonts.mono};
