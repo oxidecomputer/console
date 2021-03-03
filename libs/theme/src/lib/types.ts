@@ -1,7 +1,7 @@
 import 'styled-components'
 
 // Used as a basis for an CSS helper which relies on a base sizing unit.
-type SizingMultiplier = number
+export type SizingMultiplier = number
 
 // Colors
 type ColorNames = 'gray' | 'red' | 'yellow' | 'blue' | 'green'
