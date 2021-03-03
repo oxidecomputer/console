@@ -56,6 +56,15 @@ const List = styled(Section).attrs({ as: 'ul' })`
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
+const Title = styled(BaseText)<{ selected?: boolean }>`
+  flex: 1;
+
+  ${({ selected, theme }) =>
+    selected &&
+    css`
+      color: ${theme.themeColors.gray50};
+    `}
+`
 const ListItem = styled.li`
   width: 100%;
 
@@ -66,19 +75,15 @@ const ListItem = styled.li`
 
   ${({ theme }) => theme.spaceBetweenX(1)}
 
-  &:hover {
+  border: 1px solid transparent;
+
+  :hover {
     background-color: ${({ theme }) => theme.themeColors.gray700};
   }
-`
 
-const Title = styled(BaseText)<{ selected?: boolean }>`
-  flex: 1;
-
-  ${({ selected, theme }) =>
-    selected &&
-    css`
-      color: ${theme.themeColors.gray50};
-    `}
+  :focus {
+    border-color: ${({ theme }) => theme.themeColors.blue500};
+  }
 `
 
 const BookmarkIcon = styled(Icon).attrs({
@@ -113,7 +118,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
       </Header>
       <List>
         {props.projects.map((p) => (
-          <ListItem key={p.id}>
+          <ListItem key={p.id} tabIndex={0}>
             <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
             {p.notifications && <NotificationCount count={p.notifications} />}
             {p.starred && <BookmarkIcon />}
