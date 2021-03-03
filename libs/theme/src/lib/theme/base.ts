@@ -65,7 +65,7 @@ export const baseTheme: Theme = {
   // Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
   // Usage: `theme.spacing(4)` => '1rem' (16px)
   //
-  // Dev Note: EventuSpacingHelper used numbers will map to strings e.g. `theme.spacing('small')`
+  // Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`
   spacing: (size) => `${size * 0.25}rem`,
   spaceBetweenX,
   spaceBetweenY,
