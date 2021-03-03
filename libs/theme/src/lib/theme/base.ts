@@ -16,12 +16,16 @@ import { colorValues, colorPalette } from '../colors'
  *
  * Usage: `color('green600', 0.6)` `color('black')`
  */
-const color = (name: Color, alpha?: number) => {
+const color = (name: Color, alpha?: number): string | null => {
   const colorValue = colorValues[name]
-  if (alpha) {
-    return `hsla(${colorValue}, ${alpha})`
+  if (colorValue) {
+    if (alpha) {
+      return `hsla(${colorValue}, ${alpha})`
+    }
+    return `hsl(${colorValue})`
   }
-  return `hsl(${colorValue})`
+
+  return null
 }
 
 /**
