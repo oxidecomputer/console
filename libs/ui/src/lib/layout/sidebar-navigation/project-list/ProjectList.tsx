@@ -8,10 +8,14 @@ import { Icon } from '../../../icon/Icon'
 import NotificationCount from './notification-count/NotificationCount'
 
 export interface ProjectListProps {
+  /** The list of projects to display in the list */
   projects: Project[]
+  /** The currently selected project id, `null` or `undefined` for none */
   selectedProjectId?: ProjectId
 
+  /** Called when a project is clicked */
   onProjectSelected: (projectId: ProjectId) => void
+  /** Called when the create a new project button is clicked */
   onCreateClicked: () => void
 }
 
