@@ -13,7 +13,7 @@ const Container = styled.div`
   align-items: center;
 
   width: ${({ theme }) => theme.spacing(4)};
-  background-color: ${({ theme }) => theme.themeColors.yellow500};
+  background-color: ${({ theme }) => theme.color('yellow500')};
 
   border-radius: 50%;
 `
@@ -26,7 +26,7 @@ const Count = styled(Text).attrs({
   position: relative;
   bottom: 1px;
 
-  color: ${({ theme }) => theme.themeColors.yellow900};
+  color: ${({ theme }) => theme.color('yellow900')};
 `
 
 export const NotificationCount: FC<NotificationCountProps> = (
