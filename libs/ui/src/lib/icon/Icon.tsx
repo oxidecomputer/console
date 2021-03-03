@@ -85,7 +85,8 @@ export interface IconProps extends React.SVGProps<SVGSVGElement> {
    */
   size?: SizingMultiplier
 }
-const BaseIcon: FC<IconProps> = ({ name, ...props }) => {
+
+const BaseIcon: FC<IconProps> = ({ name, color, size, ...props }) => {
   const IconComponent = icons[name]
 
   return <IconComponent {...props} />
