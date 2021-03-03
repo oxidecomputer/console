@@ -82,14 +82,12 @@ const ListItem = styled.li`
 
   ${({ theme }) => theme.spaceBetweenX(1)}
 
-  border: 1px solid transparent;
-
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
   }
 
   :focus {
-    border-color: ${({ theme }) => theme.color('blue500')};
+    outline: 1px solid ${({ theme }) => theme.color('blue500')};
   }
 `
 
