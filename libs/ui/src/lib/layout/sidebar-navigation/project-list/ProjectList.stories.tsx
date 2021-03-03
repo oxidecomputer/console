@@ -21,16 +21,22 @@ export default {
   },
   argTypes: {
     projects: {
-      description: 'The list of projects to show',
-      defaultValue: demoProjects,
+      defaultValue: [],
     },
   },
+  decorators: [
+    (Story) => (
+      <div style={{ maxWidth: '300px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 } as Meta
 
-const Template = (props: ProjectListProps) => (
-  <div style={{ maxWidth: '300px' }}>
-    <ProjectList {...props} />
-  </div>
-)
+const Template = (props: ProjectListProps) => <ProjectList {...props} />
 
 export const Primary = Template.bind({})
+Primary.args = { projects: demoProjects }
+
+export const Empty = Template.bind({})
+
