@@ -12,6 +12,7 @@ export interface ProjectListProps {
   selectedProjectId?: ProjectId
 
   onProjectSelected: (projectId: ProjectId) => void
+  onCreateClicked: () => void
 }
 
 const BaseText = styled(Text).attrs({
@@ -98,6 +99,8 @@ const Create = styled(Section)`
   justify-content: flex-start;
   align-items: center;
 
+  cursor: pointer;
+
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
@@ -124,7 +127,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
             key={p.id}
             tabIndex={0}
             onClick={() => {
-              props.onProjectSelected && props.onProjectSelected(p.id)
+              props.onProjectSelected(p.id)
             }}
           >
             <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
@@ -133,7 +136,11 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
           </ListItem>
         ))}
       </List>
-      <Create>
+      <Create
+        onClick={() => {
+          props.onCreateClicked()
+        }}
+      >
         <CreateText>Create a new project</CreateText>
         <CreateIcon />
       </Create>
