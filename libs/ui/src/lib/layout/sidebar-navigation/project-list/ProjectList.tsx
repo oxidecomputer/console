@@ -9,8 +9,9 @@ import NotificationCount from './notification-count/NotificationCount'
 
 export interface ProjectListProps {
   projects: Project[]
-
   selectedProjectId?: ProjectId
+
+  onProjectSelected: (projectId: ProjectId) => void
 }
 
 const BaseText = styled(Text).attrs({
@@ -72,6 +73,7 @@ const ListItem = styled.li`
 
   display: flex;
   flex-direction: row;
+  cursor: pointer;
 
   ${({ theme }) => theme.spaceBetweenX(1)}
 
@@ -118,7 +120,13 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
       </Header>
       <List>
         {props.projects.map((p) => (
-          <ListItem key={p.id} tabIndex={0}>
+          <ListItem
+            key={p.id}
+            tabIndex={0}
+            onClick={() => {
+              props.onProjectSelected && props.onProjectSelected(p.id)
+            }}
+          >
             <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
             {p.notifications && <NotificationCount count={p.notifications} />}
             {p.starred && <BookmarkIcon />}
