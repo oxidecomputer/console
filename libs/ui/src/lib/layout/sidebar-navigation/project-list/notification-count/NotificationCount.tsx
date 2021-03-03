@@ -15,7 +15,6 @@ const Container = styled.div`
   width: ${({ theme }) => theme.spacing(4)};
   background-color: ${({ theme }) => theme.themeColors.yellow500};
 
-  border: 1px solid hsla(203, 12, 13, 1);
   border-radius: 50%;
 `
 
