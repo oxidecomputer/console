@@ -32,11 +32,11 @@ const Header = styled(Section).attrs({ as: 'header' })`
 `
 
 const HeaderText = styled(BaseText)`
-  color: ${({ theme }) => theme.themeColors.green500};
+  color: ${({ theme }) => theme.color('green500')};
 `
 
 const Count = styled(BaseText)`
-  color: ${({ theme }) => theme.themeColors.green300};
+  color: ${({ theme }) => theme.color('green300')};
 `
 
 const List = styled(Section).attrs({ as: 'ul' })`
@@ -50,7 +50,7 @@ const List = styled(Section).attrs({ as: 'ul' })`
   align-items: flex-start;
   justify-content: center;
 
-  color: ${({ theme }) => theme.themeColors.gray400};
+  color: ${({ theme }) => theme.color('gray400')};
   text-transform: uppercase;
 
   ${({ theme }) => theme.spaceBetweenY(1)}
@@ -62,7 +62,7 @@ const Title = styled(BaseText)<{ selected?: boolean }>`
   ${({ selected, theme }) =>
     selected &&
     css`
-      color: ${theme.themeColors.gray50};
+      color: ${theme.color('gray50')};
     `}
 `
 const ListItem = styled.li`
@@ -78,11 +78,11 @@ const ListItem = styled.li`
   border: 1px solid transparent;
 
   :hover {
-    background-color: ${({ theme }) => theme.themeColors.gray700};
+    background-color: ${({ theme }) => theme.color('gray700')};
   }
 
   :focus {
-    border-color: ${({ theme }) => theme.themeColors.blue500};
+    border-color: ${({ theme }) => theme.color('blue500')};
   }
 `
 
@@ -102,7 +102,7 @@ const Create = styled(Section)`
 const CreateText = styled(BaseText).attrs({
   size: 'xxs',
 })`
-  color: ${({ theme }) => theme.themeColors.gray400};
+  color: ${({ theme }) => theme.color('gray400')};
 `
 
 const CreateIcon = styled(Icon).attrs({ color: 'gray400', name: 'plus' })`
