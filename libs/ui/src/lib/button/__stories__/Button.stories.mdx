@@ -1,7 +1,8 @@
 <!-- Button.stories.mdx-->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Button, ButtonProps, buttonSizes, variants } from './Button'
+import { Button, buttonSizes, variants } from '../Button'
+import { Default, stories } from './Button.stories'
 
 <Meta
   title="Components/Button"
@@ -38,18 +39,8 @@ import { Button, ButtonProps, buttonSizes, variants } from './Button'
 
 # Buttons
 
-export const Template = (args) => <Button {...args} />
-const defaultArgs = {
-  children: 'Button',
-  disabled: false,
-  size: 'base',
-  variant: 'solid',
-}
-
 <Canvas>
-  <Story name="Default" args={defaultArgs}>
-    {Template.bind({})}
-  </Story>
+  <Story story={Default} />
 </Canvas>
 
 <ArgsTable of={Button} story="^" />
@@ -108,167 +99,61 @@ An affirmative action is something that takes the users further in their journey
 ### Button Sizes
 
 <Canvas>
-  <Story name="xs" args={{ ...defaultArgs, size: 'xs' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="sm" args={{ ...defaultArgs, size: 'sm' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="base" args={{ ...defaultArgs, size: 'base' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="lg" args={{ ...defaultArgs, size: 'lg' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="xl" args={{ ...defaultArgs, size: 'xl' }}>
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.sizes.xs} />
+  <Story story={stories.sizes.sm} />
+  <Story story={stories.sizes.base} />
+  <Story story={stories.sizes.lg} />
+  <Story story={stories.sizes.xl} />
 </Canvas>
 
 ### Button Variants
 
+#### Solid
+
 <Canvas>
-  <Story name="Solid" args={{ ...defaultArgs, variant: 'solid' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="Subtle" args={{ ...defaultArgs, variant: 'subtle' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="Outline" args={{ ...defaultArgs, variant: 'outline' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="Ghost" args={{ ...defaultArgs, variant: 'ghost' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="Link" args={{ ...defaultArgs, variant: 'link' }}>
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.variants.solid_xs} />
+  <Story story={stories.variants.solid_sm} />
+  <Story story={stories.variants.solid_base} />
+  <Story story={stories.variants.solid_lg} />
+  <Story story={stories.variants.solid_xl} />
 </Canvas>
 
 #### Subtle
 
 <Canvas>
-  <Story
-    name="xs Subtle"
-    args={{ ...defaultArgs, size: 'xs', variant: 'subtle' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="sm Subtle"
-    args={{ ...defaultArgs, size: 'sm', variant: 'subtle' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="base Subtle"
-    args={{ ...defaultArgs, size: 'base', variant: 'subtle' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="lg Subtle"
-    args={{ ...defaultArgs, size: 'lg', variant: 'subtle' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="xl Subtle"
-    args={{ ...defaultArgs, size: 'xl', variant: 'subtle' }}
-  >
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.variants.subtle_xs} />
+  <Story story={stories.variants.subtle_sm} />
+  <Story story={stories.variants.subtle_base} />
+  <Story story={stories.variants.subtle_lg} />
+  <Story story={stories.variants.subtle_xl} />
 </Canvas>
 
 #### Outline
 
 <Canvas>
-  <Story
-    name="xs Outline"
-    args={{ ...defaultArgs, size: 'xs', variant: 'outline' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="sm Outline"
-    args={{ ...defaultArgs, size: 'sm', variant: 'outline' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="base Outline"
-    args={{ ...defaultArgs, size: 'base', variant: 'outline' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="lg Outline"
-    args={{ ...defaultArgs, size: 'lg', variant: 'outline' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="xl Outline"
-    args={{ ...defaultArgs, size: 'xl', variant: 'outline' }}
-  >
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.variants.outline_xs} />
+  <Story story={stories.variants.outline_sm} />
+  <Story story={stories.variants.outline_base} />
+  <Story story={stories.variants.outline_lg} />
+  <Story story={stories.variants.outline_xl} />
 </Canvas>
 
 #### Ghost
 
 <Canvas>
-  <Story
-    name="xs Ghost"
-    args={{ ...defaultArgs, size: 'xs', variant: 'ghost' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="sm Ghost"
-    args={{ ...defaultArgs, size: 'sm', variant: 'ghost' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="base Ghost"
-    args={{ ...defaultArgs, size: 'base', variant: 'ghost' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="lg Ghost"
-    args={{ ...defaultArgs, size: 'lg', variant: 'ghost' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="xl Ghost"
-    args={{ ...defaultArgs, size: 'xl', variant: 'ghost' }}
-  >
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.variants.ghost_xs} />
+  <Story story={stories.variants.ghost_sm} />
+  <Story story={stories.variants.ghost_base} />
+  <Story story={stories.variants.ghost_lg} />
+  <Story story={stories.variants.ghost_xl} />
 </Canvas>
 
 #### Link
 
 <Canvas>
-  <Story name="xs Link" args={{ ...defaultArgs, size: 'xs', variant: 'link' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="sm Link" args={{ ...defaultArgs, size: 'sm', variant: 'link' }}>
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="base Link"
-    args={{ ...defaultArgs, size: 'base', variant: 'link' }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story name="lg Link" args={{ ...defaultArgs, size: 'lg', variant: 'link' }}>
-    {Template.bind({})}
-  </Story>
-  <Story name="xl Link" args={{ ...defaultArgs, size: 'xl', variant: 'link' }}>
-    {Template.bind({})}
-  </Story>
+  <Story story={stories.variants.link_xs} />
+  <Story story={stories.variants.link_sm} />
+  <Story story={stories.variants.link_base} />
+  <Story story={stories.variants.link_lg} />
+  <Story story={stories.variants.link_xl} />
 </Canvas>

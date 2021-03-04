@@ -5,8 +5,8 @@ import styled, { css } from 'styled-components'
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
 export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
 
-type ButtonSize = typeof buttonSizes[number]
-type Variant = typeof variants[number]
+export type ButtonSize = typeof buttonSizes[number]
+export type Variant = typeof variants[number]
 
 const sizes = {
   xs: { fontSize: 3, lineHeight: 1 / 0.75, padding: [2, 3] }, // total height: 32px
