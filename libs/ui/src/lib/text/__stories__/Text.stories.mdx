@@ -1,0 +1,91 @@
+<!-- Text.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+import { Text, textSizes } from '../Text'
+import {
+  Default,
+  AsPTag,
+  XXS,
+  XS,
+  SM,
+  Base,
+  LG,
+  XL,
+  TwoXL,
+  ThreeXL,
+  FourXL,
+  FiveXL,
+  SixXL,
+  SevenXL,
+  EightXL,
+  NineXL,
+} from './Text.stories'
+
+<Meta
+  title="Foundations/Text"
+  component={Text}
+  argTypes={{
+    font: {
+      control: {
+        type: 'select',
+        options: ['sans', 'mono'],
+      },
+    },
+    size: {
+      control: {
+        type: 'select',
+        options: textSizes,
+      },
+    },
+    weight: {
+      control: {
+        type: 'range',
+        min: 100,
+        max: 900,
+        step: 100,
+      },
+    },
+    theme: { table: { disable: true } },
+    ref: { table: { disable: true } },
+    as: { table: { disable: true } },
+    forwardedAs: { table: { disable: true } },
+  }}
+/>
+
+# Text
+
+export const Template = ({ children, ...args }) => (
+  <Text {...args}>{children}</Text>
+)
+
+Text will render as a `<span>` by default.
+
+Text can be rendered as another element using the `as` prop (built in from `styled-components`), but please be sure to use the correct semantic element to maintain an <a href="https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html">accessible Document Outline</a> and rely on styles for changing the appearance, see <a href="https://www.w3.org/WAI/standards-guidelines/wcag/">Web Content Accessibility Guidelines (WCAG)</a> for more detail.
+
+<Canvas>
+  <Story story={Default} />
+  <Story story={AsPTag} />
+</Canvas>
+
+<ArgsTable of={Text} story="^" />
+
+## Stories
+
+### Sizes
+
+<Canvas>
+  <Story story={XXS} />
+  <Story story={XS} />
+  <Story story={SM} />
+  <Story story={Base} />
+  <Story story={LG} />
+  <Story story={XL} />
+  <Story story={TwoXL} />
+  <Story story={ThreeXL} />
+  <Story story={FourXL} />
+  <Story story={FiveXL} />
+  <Story story={SixXL} />
+  <Story story={SevenXL} />
+  <Story story={NineXL} />
+</Canvas>
