@@ -1,11 +1,17 @@
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect, useRef } from 'react'
 
 import styled, { css } from 'styled-components'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
-/* eslint-disable-next-line */
-export interface TableProps {}
+/**
+ * This Table component is based off of the ARIA Scrollable Data Grid example:
+ * https://www.w3.org/TR/wai-aria-practices/examples/grid/dataGrids.html
+ */
+
+export interface TableProps {
+  data: Array<{ id: number; rowData: Array<{ colData: string }> }>
+}
 
 const STICKY_INDICES = [0, 1]
 const ROW_HEIGHT = 35
@@ -61,13 +67,20 @@ const StyledCell = styled.div`
   flex: 1 1 0;
 `
 
-const Row = ({ index, style }) => (
-  <StyledRow role="row" aria-rowindex={index + 1} style={style}>
-    <StyledCell role="gridcell">Row {index}</StyledCell>
-    <StyledCell role="gridcell">Row {index}</StyledCell>
-    <StyledCell role="gridcell">Row {index}</StyledCell>
-  </StyledRow>
-)
+const Row = ({ index, style, tableData }) => {
+  const rowData = tableData[index].rowData
+  return (
+    <StyledRow role="row" aria-rowindex={index + 1} style={style}>
+      {rowData.map((col) => {
+        return (
+          <StyledCell role="gridcell" tabIndex="0">
+            {col.colData}
+          </StyledCell>
+        )
+      })}
+    </StyledRow>
+  )
+}
 
 const StickyRow = ({ index }) => (
   <StyledStickyRow role="row" aria-rowindex={index + 1} index={index}>
@@ -89,15 +102,22 @@ const RowGroup = forwardRef((props: any, ref: React.Ref<HTMLDivElement>) => {
 })
 
 const ItemWrapper = ({ data, index, style }) => {
-  const { ItemRenderer, stickyIndices } = data
+  const { ItemRenderer, stickyIndices, tableData } = data
   if (stickyIndices && stickyIndices.includes(index)) {
     return null
   }
-  return <ItemRenderer index={index} style={style} />
+  return <ItemRenderer index={index} style={style} tableData={tableData} />
 }
 
-export const Table = (props: TableProps) => {
+export const Table = ({ data }: TableProps) => {
   const count = 1000
+
+  const focusGrid = useRef(null)
+
+  useEffect(() => {
+    // update grid array when DOM updates
+  }, [])
+
   return (
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
@@ -106,7 +126,11 @@ export const Table = (props: TableProps) => {
             innerElementType={RowGroup}
             height={height}
             itemCount={count}
-            itemData={{ ItemRenderer: Row, stickyIndices: STICKY_INDICES }}
+            itemData={{
+              ItemRenderer: Row,
+              tableData: data,
+              stickyIndices: STICKY_INDICES,
+            }}
             itemSize={(index) => ROW_HEIGHT}
             width={width}
           >
