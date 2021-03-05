@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -164,7 +164,7 @@ const StyledButton = styled.button<ButtonProps>`
   }
 `
 
-export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
+export const Button: FC<ButtonProps> = ({ children, ...rest }) => {
   return (
     <StyledButton type="button" {...rest}>
       {children}

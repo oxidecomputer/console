@@ -8,30 +8,16 @@ import { Default, stories } from './Button.stories'
   title="Components/Button"
   component={Button}
   argTypes={{
-    disabled: {
-      table: {
-        type: { summary: 'bool' },
-        defaultValue: { summary: 'false' },
-      },
-    },
     size: {
       control: {
         type: 'select',
         options: buttonSizes,
-      },
-      table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: 'base' },
       },
     },
     variant: {
       control: {
         type: 'select',
         options: variants,
-      },
-      table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: 'solid' },
       },
     },
   }}

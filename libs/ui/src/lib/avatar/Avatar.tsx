@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { FC, useMemo } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -135,12 +135,7 @@ const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
   return <IconAvatar isPerson={false} size={size} />
 }
 
-export const Avatar: React.FC<AvatarProps> = ({
-  name,
-  isPerson,
-  size,
-  src,
-}) => {
+export const Avatar: FC<AvatarProps> = ({ name, isPerson, size, src }) => {
   if (src) {
     return <ImageAvatar name={name} isPerson={isPerson} size={size} src={src} />
   }
