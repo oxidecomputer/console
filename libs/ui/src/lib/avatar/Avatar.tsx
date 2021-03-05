@@ -13,6 +13,7 @@ export const avatarSizes = {
   xs: { width: 6, fontSize: 3 }, // 24px, 12px
 }
 
+export type AvatarSize = keyof typeof avatarSizes
 export interface AvatarProps {
   /**
    * Name of person, team, project, org, etc. Required for 'alt' image tag and for finding initials.
@@ -25,7 +26,7 @@ export interface AvatarProps {
   /**
    * Override the default size of image
    */
-  size?: keyof typeof avatarSizes
+  size?: AvatarSize
   /**
    * The url for the image (`<img>`) tag to use
    * */
