@@ -1,59 +1,90 @@
 import React, { forwardRef } from 'react'
 
-import styled from 'styled-components'
-import { FixedSizeList } from 'react-window'
+import styled, { css } from 'styled-components'
+import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 /* eslint-disable-next-line */
 export interface TableProps {}
 
 const STICKY_INDICES = [0, 1]
+const ROW_HEIGHT = 35
 
 const Wrapper = styled.div`
   height: 100%;
+
+  background-color: hsla(167, 100%, 5%, 0.92);
+  color: ${(props) => props.theme.color('gray100')};
+  font-size: ${(props) => props.theme.spacing(3.5)};
+  font-weight: 400;
+`
+
+const StyledRowGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+`
+
+const rowStyles = css`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  width: 100%;
+
+  box-shadow: inset 0px -1px 0px rgba(198, 209, 221, 0.5);
 `
 
 const StyledRow = styled.div`
-  display: table-row;
+  ${rowStyles};
 `
 
 const StyledStickyRow = styled.div<{ index: number }>`
-  display: table-row;
+  ${rowStyles};
+
   position: sticky;
   top: ${(props) => props.index * 35}px;
   left: 0;
 
   width: 100%;
-  height: 35px;
+  height: ${ROW_HEIGHT}px;
 
-  border: 1px solid blue;
+  text-transform: uppercase;
 `
 
 const StyledCell = styled.div`
-  display: table-cell;
-  border: 1px solid red;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex: 1 1 0;
 `
 
 const Row = ({ index, style }) => (
   <StyledRow role="row" aria-rowindex={index + 1} style={style}>
+    <StyledCell role="gridcell">Row {index}</StyledCell>
+    <StyledCell role="gridcell">Row {index}</StyledCell>
     <StyledCell role="gridcell">Row {index}</StyledCell>
   </StyledRow>
 )
 
 const StickyRow = ({ index }) => (
   <StyledStickyRow role="row" aria-rowindex={index + 1} index={index}>
-    <StyledCell role="columnheader">Row {index}</StyledCell>
+    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
+    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
+    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
   </StyledStickyRow>
 )
 
 const RowGroup = forwardRef((props: any, ref: React.Ref<HTMLDivElement>) => {
   return (
-    <div role="rowgroup" ref={ref} {...props}>
+    <StyledRowGroup role="rowgroup" ref={ref} {...props}>
       {STICKY_INDICES.map((index) => (
         <StickyRow index={index} key={index} />
       ))}
       {props.children}
-    </div>
+    </StyledRowGroup>
   )
 })
 
@@ -71,16 +102,16 @@ export const Table = (props: TableProps) => {
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
         {({ height, width }) => (
-          <FixedSizeList
+          <VariableSizeList
             innerElementType={RowGroup}
             height={height}
             itemCount={count}
             itemData={{ ItemRenderer: Row, stickyIndices: STICKY_INDICES }}
-            itemSize={35}
+            itemSize={(index) => ROW_HEIGHT}
             width={width}
           >
             {ItemWrapper}
-          </FixedSizeList>
+          </VariableSizeList>
         )}
       </AutoSizer>
     </Wrapper>
