@@ -1,7 +1,7 @@
-import React, { forwardRef, useEffect, useRef } from 'react'
+import React, { createContext, forwardRef, useEffect, useRef } from 'react'
 
 import styled, { css } from 'styled-components'
-import { VariableSizeList } from 'react-window'
+import { VariableSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 /**
@@ -10,16 +10,22 @@ import AutoSizer from 'react-virtualized-auto-sizer'
  */
 
 export interface TableProps {
-  data: Array<{ id: number; rowData: Array<{ colData: string }> }>
+  /**
+   * Column headers to render. Header is the title of the column for the table. Accessor is the key on the data object.
+   */
+  columns: Array<{ Header: string | React.ReactNode; accessor: string }>
+  /**
+   * Rows to render
+   */
+  data: Array<Record<string, unknown>>
 }
 
-const STICKY_INDICES = [0, 1]
 const ROW_HEIGHT = 35
 
 const Wrapper = styled.div`
   height: 100%;
 
-  background-color: hsla(167, 100%, 5%, 0.92);
+  background-color: ${(props) => props.theme.color('gray900')};
   color: ${(props) => props.theme.color('gray100')};
   font-size: ${(props) => props.theme.spacing(3.5)};
   font-weight: 400;
@@ -39,7 +45,7 @@ const rowStyles = css`
 
   width: 100%;
 
-  box-shadow: inset 0px -1px 0px rgba(198, 209, 221, 0.5);
+  box-shadow: inset 0px -1px 0px ${(props) => props.theme.color('gray800')};
 `
 
 const StyledRow = styled.div`
@@ -49,6 +55,7 @@ const StyledRow = styled.div`
 const StyledStickyRow = styled.div<{ index: number }>`
   ${rowStyles};
 
+  z-index: 2;
   position: sticky;
   top: ${(props) => props.index * 35}px;
   left: 0;
@@ -56,6 +63,7 @@ const StyledStickyRow = styled.div<{ index: number }>`
   width: 100%;
   height: ${ROW_HEIGHT}px;
 
+  background-color: ${(props) => props.theme.color('gray800')};
   text-transform: uppercase;
 `
 
@@ -67,75 +75,120 @@ const StyledCell = styled.div`
   flex: 1 1 0;
 `
 
-const Row = ({ index, style, tableData }) => {
-  const rowData = tableData[index].rowData
+const ListContext = createContext({ columns: null })
+ListContext.displayName = 'ListContext'
+
+const StickyRow = ({ index, columns, ...props }) => {
   return (
-    <StyledRow role="row" aria-rowindex={index + 1} style={style}>
-      {rowData.map((col) => {
+    <StyledStickyRow
+      role="row"
+      aria-rowindex={index + 1}
+      index={index}
+      {...props}
+    >
+      {columns.map((col, colIndex) => {
         return (
-          <StyledCell role="gridcell" tabIndex="0">
-            {col.colData}
+          <StyledCell
+            key={`columnheader-${col.accessor}`}
+            role="columnheader"
+            aria-colindex={colIndex + 1}
+          >
+            {col.Header}
           </StyledCell>
         )
       })}
-    </StyledRow>
+    </StyledStickyRow>
   )
 }
 
-const StickyRow = ({ index }) => (
-  <StyledStickyRow role="row" aria-rowindex={index + 1} index={index}>
-    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
-    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
-    <StyledCell role="columnheader">Sticky Row {index}</StyledCell>
-  </StyledStickyRow>
+const Row = ({ index, row, style, ...props }) => {
+  return (
+    <ListContext.Consumer>
+      {({ columns }) => (
+        <StyledRow role="row" aria-rowindex={index + 1} style={style}>
+          {columns.map((col, colIndex) => {
+            const currentCol = col.accessor
+            const rowCell = row[currentCol]
+            // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
+            return (
+              <StyledCell role="gridcell" aria-colindex={colIndex + 1}>
+                {rowCell}
+              </StyledCell>
+            )
+          })}
+        </StyledRow>
+      )}
+    </ListContext.Consumer>
+  )
+}
+
+// innerElementType={InnerWrapper}
+const InnerWrapper = forwardRef(
+  ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
+    return (
+      <ListContext.Consumer>
+        {({ columns }) => (
+          <StyledRowGroup role="rowgroup" ref={ref} {...props}>
+            {columns && columns.length ? (
+              <StickyRow key={0} index={0} columns={columns} />
+            ) : null}
+            {children}
+          </StyledRowGroup>
+        )}
+      </ListContext.Consumer>
+    )
+  }
 )
 
-const RowGroup = forwardRef((props: any, ref: React.Ref<HTMLDivElement>) => {
-  return (
-    <StyledRowGroup role="rowgroup" ref={ref} {...props}>
-      {STICKY_INDICES.map((index) => (
-        <StickyRow index={index} key={index} />
-      ))}
-      {props.children}
-    </StyledRowGroup>
-  )
-})
-
-const ItemWrapper = ({ data, index, style }) => {
-  const { ItemRenderer, stickyIndices, tableData } = data
-  if (stickyIndices && stickyIndices.includes(index)) {
+const ItemWrapper = ({ data, index, style, ...props }) => {
+  const { ItemRenderer, rows } = data
+  const isStickyHeader = index === 0
+  if (isStickyHeader) {
+    // Do not render the first row since `InnerWrapper` will always render it as a sticky row
     return null
   }
-  return <ItemRenderer index={index} style={style} tableData={tableData} />
+  // Pass row data to each row
+  return (
+    <ItemRenderer index={index} style={style} row={rows[index]} {...props} />
+  )
 }
 
-export const Table = ({ data }: TableProps) => {
-  const count = 1000
+export const Table = ({ columns, data }: TableProps) => {
+  if (!columns || !columns.length) {
+    console.warn('Table: Missing `columns` prop')
+    return null
+  }
+  const count = data.length
 
-  const focusGrid = useRef(null)
-
-  useEffect(() => {
-    // update grid array when DOM updates
-  }, [])
+  // TODO: Add keyboard controls
+  // const focusGrid = useRef(null)
+  // useEffect(() => {
+  //   // update grid array when DOM updates
+  // }, [])
 
   return (
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
         {({ height, width }) => (
-          <VariableSizeList
-            innerElementType={RowGroup}
-            height={height}
-            itemCount={count}
-            itemData={{
-              ItemRenderer: Row,
-              tableData: data,
-              stickyIndices: STICKY_INDICES,
+          <ListContext.Provider
+            value={{
+              columns: columns,
             }}
-            itemSize={(index) => ROW_HEIGHT}
-            width={width}
           >
-            {ItemWrapper}
-          </VariableSizeList>
+            <List
+              innerElementType={InnerWrapper}
+              height={height}
+              itemCount={count}
+              itemData={{
+                ItemRenderer: Row,
+                rows: data,
+              }}
+              itemSize={(index) => ROW_HEIGHT}
+              width={width}
+            >
+              {ItemWrapper}
+            </List>
+          </ListContext.Provider>
         )}
       </AutoSizer>
     </Wrapper>

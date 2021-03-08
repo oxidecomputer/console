@@ -6,32 +6,35 @@ export default {
   title: 'Components/Table',
 }
 
+const sampleColumns = [
+  { Header: 'name', accessor: 'name' },
+  { Header: <div>CPU, Ram / Image</div>, accessor: 'cpu' },
+  { Header: 'Status', accessor: 'status' },
+]
+
 const sampleData = new Array(1000).fill('').map((value, index) => {
-  if (index === 0 || index === 1) {
+  if (index % 2) {
     return {
-      id: index,
-      rowData: [
-        { colData: `Sticky Row ${index} A` },
-        { colData: `Sticky Row ${index} B` },
-        { colData: `Sticky Row ${index} C` },
-      ],
+      name: `Web ${index}`,
+      cpu: '1 vCPU, 4 GB Ram, Debian 9.12 x64',
+      status: 'Running 2 months ago',
     }
-  } else {
-    return {
-      id: index,
-      rowData: [
-        { colData: `Row ${index} A` },
-        { colData: `Row ${index} B` },
-        { colData: `Row ${index} C` },
-      ],
-    }
+  }
+  return {
+    name: `Web ${index}`,
+    cpu: '1 vCPU, 4 GB Ram, Debian 9.12 x64',
+    status: (
+      <>
+        <div>Running</div> 3 minutes ago
+      </>
+    ),
   }
 })
 
 export const primary = () => {
   return (
     <div style={{ height: '50vh' }}>
-      <Table data={sampleData} />
+      <Table columns={sampleColumns} data={sampleData} />
     </div>
   )
 }
