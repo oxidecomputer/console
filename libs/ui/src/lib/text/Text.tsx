@@ -17,7 +17,7 @@ export const textSizes = [
   '8xl',
   '9xl',
 ] as const
-type TextSize = typeof textSizes[number]
+export type TextSize = typeof textSizes[number]
 
 const getSizeStyles = (size?: TextSize) => {
   if (!size) return

@@ -1,92 +1,67 @@
-import React from 'react'
 import type { Story } from '@storybook/react'
-import { Text } from '../Text'
+import { storyBuilder } from '@oxide/storybook-helpers'
+import { Text, textSizes } from '../Text'
+import type { TextSize, TextProps } from '../Text'
 
-const Template: Story = (args) => <Text {...args} />
+const builder = storyBuilder(Text, {})
 
-export const Default = Template.bind({})
-Default.args = {
-  children: `Text will render as a 'span' by default.`,
+const numbers = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+]
+const mapKey = (key: string) => {
+  if (/^(\d)/.test(key)) {
+    const [idx, ...letters] = key.split('')
+    const n = parseInt(idx, 10)
+    return [numbers[n], '_', ...letters].join('')
+  }
+
+  return key
 }
 
-export const AsPTag = Template.bind({})
-AsPTag.storyName = 'Render as `p` tag'
-AsPTag.args = {
-  as: 'p',
-  children: `Text can be rendered in a <p> tag using the 'as' prop.`,
-}
+export const textSizeStories = textSizes.reduce(
+  (rest, size) => ({
+    ...rest,
+    [mapKey(size)]: builder.build(size, {
+      size,
+      children: `'${size}' size text`,
+    }),
+  }),
+  {} as Record<TextSize, Story<TextProps>>
+)
 
-export const XXS = Template.bind({})
-XXS.args = { size: 'xxs', children: `'xxs' size text` }
-
-export const XS = Template.bind({})
-XS.args = { size: 'xs', children: `'xs' size text` }
-
-export const SM = Template.bind({})
-SM.args = { size: 'sm', children: `'sm' size text` }
-
-export const Base = Template.bind({})
-Base.args = { size: 'base', children: `'base' size text` }
-
-export const LG = Template.bind({})
-LG.args = { size: 'lg', children: `'lg' size text` }
-
-export const XL = Template.bind({})
-XL.args = { size: 'xl', children: `'xl' size text` }
-
-export const TwoXL = Template.bind({})
-TwoXL.args = { size: '2xl', children: `'2xl' size text` }
-TwoXL.storyName = '2xl'
-
-export const ThreeXL = Template.bind({})
-ThreeXL.args = { size: '3xl', children: `'3xl' size text` }
-ThreeXL.storyName = '3xl'
-
-export const FourXL = Template.bind({})
-FourXL.args = { size: '4xl', children: `'4xl' size text` }
-FourXL.storyName = '4xl'
-
-export const FiveXL = Template.bind({})
-FiveXL.args = { size: '5xl', children: `'5xl' size text` }
-FiveXL.storyName = '5xl'
-
-export const SixXL = Template.bind({})
-SixXL.args = { size: '6xl', children: `'6xl' size text` }
-SixXL.storyName = '6xl'
-
-export const SevenXL = Template.bind({})
-SevenXL.args = { size: '7xl', children: `'7xl' size text` }
-SevenXL.storyName = '7xl'
-
-export const EightXL = Template.bind({})
-EightXL.args = { size: '8xl', children: `'8xl' size text` }
-EightXL.storyName = '8xl'
-
-export const NineXL = Template.bind({})
-NineXL.args = { size: '9xl', children: `'9xl' size text` }
-NineXL.storyName = '9xl'
-
-export const WithIcon = Template.bind({})
-WithIcon.args = {
-  icon: { name: 'plus' },
-  children: 'Create a new project',
-}
-export const WithRightIcon = Template.bind({})
-WithRightIcon.args = {
-  size: 'xs',
-  icon: { align: 'right', name: 'plus' },
-  children: 'Create a new project',
-}
-
-export const TitleWithIcon = Template.bind({})
-TitleWithIcon.args = {
-  icon: { name: 'dashboard' },
-  variant: 'title',
-  children: 'Page title',
-}
-
-export const TitleVariant = Template.bind({})
-TitleVariant.args = {
-  variant: 'title',
-  children: 'Title Text Variant',
+export const stories = {
+  default: builder.build('Default', {
+    children: `Text will render as a 'span' by default.`,
+  }),
+  asPTag: builder.build('Render as `p` tag', {
+    as: 'p',
+    children: `Text can be rendered in a <p> tag using the 'as' prop.`,
+  }),
+  withIcon: builder.build('With Icon', {
+    icon: { name: 'plus' },
+    children: 'Create a new project',
+  }),
+  withRightIcon: builder.build('With Right Icon', {
+    size: 'xs',
+    icon: { align: 'right', name: 'plus' },
+    children: 'Create a new project',
+  }),
+  titleWithIcon: builder.build('Title with Icon', {
+    icon: { name: 'dashboard' },
+    variant: 'title',
+    children: 'Page title',
+  }),
+  titleVariant: builder.build('Title Variant', {
+    variant: 'title',
+    children: 'Title Text Variant',
+  }),
 }

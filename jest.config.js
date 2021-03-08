@@ -4,5 +4,6 @@ module.exports = {
     '<rootDir>/libs/ui',
     '<rootDir>/libs/theme',
     '<rootDir>/libs/api',
+    '<rootDir>/libs/storybook-helpers',
   ],
 }

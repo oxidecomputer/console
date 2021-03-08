@@ -4,28 +4,7 @@ import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { colorPalette } from '@oxide/theme'
 import { Text, textSizes } from '../Text'
-import {
-  Default,
-  AsPTag,
-  XXS,
-  XS,
-  SM,
-  Base,
-  LG,
-  XL,
-  TwoXL,
-  ThreeXL,
-  FourXL,
-  FiveXL,
-  SixXL,
-  SevenXL,
-  EightXL,
-  NineXL,
-  WithIcon,
-  WithRightIcon,
-  TitleWithIcon,
-  TitleVariant,
-} from './Text.stories'
+import { stories, textSizeStories } from './Text.stories'
 
 <Meta
   title="Foundations/Text"
@@ -75,8 +54,8 @@ Text will render as a `<span>` by default.
 Text can be rendered as another element using the `as` prop (built in from `styled-components`), but please be sure to use the correct semantic element to maintain an <a href="https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html">accessible Document Outline</a> and rely on styles for changing the appearance, see <a href="https://www.w3.org/WAI/standards-guidelines/wcag/">Web Content Accessibility Guidelines (WCAG)</a> for more detail.
 
 <Canvas>
-  <Story story={Default} />
-  <Story story={AsPTag} />
+  <Story story={stories.default} />
+  <Story story={stories.asPTag} />
 </Canvas>
 
 <ArgsTable of={Text} story="^" />
@@ -86,38 +65,38 @@ Text can be rendered as another element using the `as` prop (built in from `styl
 ### Left Icon
 
 <Canvas>
-  <Story story={WithIcon} />
+  <Story story={stories.withIcon} />
 </Canvas>
 
 ### Right Icon
 
 <Canvas>
-  <Story story={WithRightIcon} />
+  <Story story={stories.withRightIcon} />
 </Canvas>
 
 #### Title Variant with Icon
 
 <Canvas>
-  <Story story={TitleWithIcon} />
+  <Story story={stories.titleWithIcon} />
 </Canvas>
 
 ### Sizes
 
 <Canvas>
-  <Story story={XXS} />
-  <Story story={XS} />
-  <Story story={SM} />
-  <Story story={Base} />
-  <Story story={LG} />
-  <Story story={XL} />
-  <Story story={TwoXL} />
-  <Story story={ThreeXL} />
-  <Story story={FourXL} />
-  <Story story={FiveXL} />
-  <Story story={SixXL} />
-  <Story story={SevenXL} />
-  <Story story={EightXL} />
-  <Story story={NineXL} />
+  <Story story={stories.xxs} />
+  <Story story={stories.xs} />
+  <Story story={stories.sm} />
+  <Story story={stories.base} />
+  <Story story={stories.lg} />
+  <Story story={stories.xl} />
+  <Story story={stories.two_xl} />
+  <Story story={stories.three_xl} />
+  <Story story={stories.four_xl} />
+  <Story story={stories.five_xl} />
+  <Story story={stories.six_xl} />
+  <Story story={stories.seven_xl} />
+  <Story story={stories.eight_xl} />
+  <Story story={stories.nine_xl} />
 </Canvas>
 
 ### Variants
@@ -125,5 +104,5 @@ Text can be rendered as another element using the `as` prop (built in from `styl
 #### Title
 
 <Canvas>
-  <Story story={TitleVariant} />
+  <Story story={stories.titleVariant} />
 </Canvas>

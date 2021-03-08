@@ -4,6 +4,7 @@ import type { Story } from '@storybook/react'
 import { Button, buttonSizes, variants } from '../Button'
 import type { ButtonProps, ButtonSize, Variant } from '../Button'
 import { Icon } from '../../icon/Icon'
+import { storyBuilder } from '@oxide/storybook-helpers'
 
 type ButtonStory = Story<PropsWithChildren<ButtonProps>>
 
@@ -17,15 +18,17 @@ Default.args = {
   variant: 'solid',
 }
 
+const builder = storyBuilder(Template, {
+  children: 'Button',
+  disabled: false,
+  size: 'base',
+  variant: 'solid',
+})
+
 const sizes = buttonSizes.reduce(
   (rest, size) => ({
     ...rest,
-    [size]: (() => {
-      const Story = Template.bind({})
-      Story.storyName = size
-      Story.args = { ...Default.args, size }
-      return Story
-    })(),
+    [size]: builder.build(size, { size }),
   }),
   {} as Record<ButtonSize, Story<ButtonProps>>
 )
@@ -37,16 +40,10 @@ const variantSizes = variants.reduce(
     ...buttonSizes.reduce(
       (allSizes, size) => ({
         ...allSizes,
-        [`${variant}_${size}`]: (() => {
-          const Story = Template.bind({})
-          Story.storyName = `${variant} ${size}`
-          Story.args = {
-            ...Default.args,
-            variant,
-            size,
-          }
-          return Story
-        })(),
+        [`${variant}_${size}`]: builder.build(`${size} ${variant}`, {
+          variant,
+          size,
+        }),
       }),
       {} as Record<VariantSize, Story<ButtonProps>>
     ),
@@ -60,22 +57,17 @@ const withIcons = variants.reduce(
     ...buttonSizes.reduce(
       (allSizes, size) => ({
         ...allSizes,
-        [`icon_${variant}_${size}`]: (() => {
-          const Story = Template.bind({})
-          Story.storyName = `${variant} with icon ${size}`
-          Story.args = {
-            ...Default.args,
-            variant,
-            size,
-            children: (
-              <>
-                <Icon name="pen" align="left" />
-                Edit
-              </>
-            ),
-          }
-          return Story
-        })(),
+        [`icon_${variant}_${size}`]: builder.build(`Icon: ${size} ${variant}`, {
+          ...Default.args,
+          variant,
+          size,
+          children: (
+            <>
+              <Icon name="pen" align="left" />
+              Edit
+            </>
+          ),
+        }),
       }),
       {} as Record<VariantSize, Story<ButtonProps>>
     ),

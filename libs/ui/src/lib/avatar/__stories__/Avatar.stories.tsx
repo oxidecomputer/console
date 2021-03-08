@@ -1,17 +1,21 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
+import { storyBuilder } from '@oxide/storybook-helpers'
 import type { AvatarProps } from '../Avatar'
 import { Avatar, avatarSizes } from '../Avatar'
 
 const Template: Story<AvatarProps> = (args) => <Avatar {...args} />
 
-export const Person = Template.bind({})
-const personArgs = { name: 'Cameron Howe', isPerson: true }
-Person.args = personArgs
+const personBuilder = storyBuilder(Template, {
+  name: 'Cameron Howe',
+  isPerson: true,
+})
+export const Person = personBuilder.build('Person', {})
 
-export const Organization = Template.bind({})
-const orgArgs = { name: 'Colossal Cave Adventure' }
-Organization.args = orgArgs
+const organizationBuilder = storyBuilder(Template, {
+  name: 'Collosal Cave Adventure',
+})
+export const Organization = organizationBuilder.build('Organization', {})
 
 const types = ['organization', 'person'] as const
 const variants = ['image', 'fallback'] as const
@@ -26,25 +30,16 @@ export const stories = types.reduce(
           const storyNameParts = [type, variant, size]
           const storyName = storyNameParts.join('/')
           const storyKey = storyNameParts.join('_')
+          const builder =
+            type === 'person' ? personBuilder : organizationBuilder
+          const variantArgs =
+            variant === 'image'
+              ? { src: 'http://placekitten.com/500/500' }
+              : { src: undefined }
+
           return {
             ...rest,
-            [storyKey]: (() => {
-              const Story: Story<AvatarProps> = Template.bind({})
-              Story.storyName = storyName
-
-              // Decide on base args to use for this Story
-              const baseArgs =
-                type === 'organization' ? Organization.args : Person.args
-
-              // If the variant is image, include a source image
-              const variantArgs =
-                variant === 'image'
-                  ? { src: 'http://placekitten.com/500/500' }
-                  : { src: undefined }
-
-              Story.args = { ...baseArgs, ...variantArgs, size }
-              return Story
-            })(),
+            [storyKey]: builder.build(storyName, { ...variantArgs, size }),
           }
         }, {}),
       }),
@@ -57,9 +52,12 @@ export const stories = types.reduce(
 const AvatarAlignmentTemplate: Story<AvatarProps> = (args) => (
   <div>
     <Avatar {...args} />
-    <Avatar {...personArgs} src="http://placekitten.com/32/32" />
-    <Avatar {...orgArgs} />
-    <Avatar {...orgArgs} src="http://placekitten.com/100/100" />
+    <Avatar name="Cameron Howe" isPerson src="http://placekitten.com/32/32" />
+    <Avatar name="Collosal Cave Adventure" />
+    <Avatar
+      name="Collosal Cave Adventure"
+      src="http://placekitten.com/100/100"
+    />
   </div>
 )
 
