@@ -88,12 +88,12 @@ const StickyRow = ({ index, columns, ...props }) => {
       index={index}
       {...props}
     >
-      {columns.map((col, colIndex) => {
+      {columns.map((col, columnIndex) => {
         return (
           <StyledCell
             key={`columnheader-${col.accessor}`}
             role="columnheader"
-            aria-colindex={colIndex + 1}
+            aria-colindex={columnIndex + 1}
           >
             {col.Header}
           </StyledCell>
@@ -107,14 +107,19 @@ const Row = ({ index, row, style, ...props }) => {
   return (
     <ListContext.Consumer>
       {({ columns }) => (
-        <StyledRow role="row" aria-rowindex={index + 1} style={style}>
-          {columns.map((col, colIndex) => {
+        <StyledRow
+          role="row"
+          aria-rowindex={index + 1}
+          style={style}
+          {...props}
+        >
+          {columns.map((col, columnIndex) => {
             const currentCol = col.accessor
-            const rowCell = row[currentCol]
+            const currentCell = row[currentCol]
             // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
             return (
-              <StyledCell role="gridcell" aria-colindex={colIndex + 1}>
-                {rowCell}
+              <StyledCell role="gridcell" aria-colindex={columnIndex + 1}>
+                {currentCell}
               </StyledCell>
             )
           })}
@@ -155,9 +160,15 @@ const ItemWrapper = ({ data, index, style, ...props }) => {
   )
 }
 
+const getRowHeight = (index) => ROW_HEIGHT
+
 export const Table = ({ columns, data }: TableProps) => {
   if (!columns || !columns.length) {
     console.warn('Table: Missing `columns` prop')
+    return null
+  }
+  if (!data || !data.length) {
+    console.warn('Table: Missing `data` prop')
     return null
   }
   const count = data.length
@@ -185,7 +196,7 @@ export const Table = ({ columns, data }: TableProps) => {
                 ItemRenderer: Row,
                 rows: data,
               }}
-              itemSize={(index) => ROW_HEIGHT}
+              itemSize={getRowHeight}
               width={width}
             >
               {ItemWrapper}
