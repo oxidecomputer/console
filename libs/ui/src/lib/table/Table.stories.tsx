@@ -8,24 +8,39 @@ export default {
 
 const sampleColumns = [
   { Header: 'name', accessor: 'name' },
-  { Header: <div>CPU, Ram / Image</div>, accessor: 'cpu' },
   { Header: 'Status', accessor: 'status' },
+  { Header: 'Created', accessor: 'created' },
 ]
 
 const sampleData = new Array(1000).fill('').map((value, index) => {
   if (index % 2) {
     return {
       name: `Web ${index}`,
-      cpu: '1 vCPU, 4 GB Ram, Debian 9.12 x64',
-      status: 'Running 2 months ago',
+      status: (
+        <>
+          <div>Running</div>
+          <div>4d 6h</div>
+        </>
+      ),
+      created: (
+        <>
+          <div>Yesterday</div>
+          <div>2:30 PM</div>
+        </>
+      ),
     }
   }
   return {
     name: `Web ${index}`,
-    cpu: '1 vCPU, 4 GB Ram, Debian 9.12 x64',
     status: (
       <>
-        <div>Running</div> 3 minutes ago
+        <div>Running</div> <div>3 minutes ago</div>
+      </>
+    ),
+    created: (
+      <>
+        <div>Yesterday</div>
+        <div>11:30 PM</div>
       </>
     ),
   }

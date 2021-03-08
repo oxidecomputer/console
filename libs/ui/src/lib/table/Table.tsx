@@ -20,7 +20,7 @@ export interface TableProps {
   data: Array<Record<string, unknown>>
 }
 
-const ROW_HEIGHT = 35
+const ROW_HEIGHT = 70
 
 const Wrapper = styled.div`
   height: 100%;
@@ -29,6 +29,7 @@ const Wrapper = styled.div`
   color: ${(props) => props.theme.color('gray100')};
   font-size: ${(props) => props.theme.spacing(3.5)};
   font-weight: 400;
+  line-height: ${1.25 / 0.875}; /* 1.25rem */
 `
 
 const StyledRowGroup = styled.div`
@@ -43,6 +44,7 @@ const rowStyles = css`
   flex-direction: row;
   flex-wrap: nowrap;
 
+  padding: 0 ${(props) => props.theme.spacing(6)};
   width: 100%;
 
   box-shadow: inset 0px -1px 0px ${(props) => props.theme.color('gray800')};
@@ -68,9 +70,9 @@ const StyledStickyRow = styled.div<{ index: number }>`
 `
 
 const StyledCell = styled.div`
-  align-items: center;
   display: flex;
-  flex-direction: row;
+  justify-content: center;
+  flex-direction: column;
   flex-wrap: nowrap;
   flex: 1 1 0;
 `
