@@ -4,7 +4,10 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 // Use the following syntax to add addons!
 rootMain.addons.push('@storybook/addon-links')
 rootMain.stories.push(
-  ...['../src/lib/**/*.stories.mdx', '../src/lib/**/*.stories.@(js|jsx|ts|tsx)']
+  ...[
+    '../src/lib/**/__stories__/*.stories.mdx',
+    '../src/lib/**/!(__stories__/)*.stories.@(ts|tsx)',
+  ]
 )
 rootMain.managerWebpack = async (baseConfig, options) => {
   const tsPaths = new TsconfigPathsPlugin({
