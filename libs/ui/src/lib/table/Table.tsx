@@ -147,7 +147,7 @@ const InnerWrapper = forwardRef(
   }
 )
 
-const ItemWrapper = ({ data, index, style, ...props }) => {
+const RowWrapper = ({ data, index, style, ...props }) => {
   const { ItemRenderer, rows } = data
   const isStickyHeader = index === 0
   if (isStickyHeader) {
@@ -199,7 +199,7 @@ export const Table = ({ columns, data }: TableProps) => {
               itemSize={getRowHeight}
               width={width}
             >
-              {ItemWrapper}
+              {RowWrapper}
             </List>
           </ListContext.Provider>
         )}
