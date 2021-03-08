@@ -1,0 +1,145 @@
+<!-- Button.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Button, buttonSizes, variants } from '../Button'
+import { Default, stories } from './Button.stories'
+
+<Meta
+  title="Components/Button"
+  component={Button}
+  argTypes={{
+    size: {
+      control: {
+        type: 'select',
+        options: buttonSizes,
+      },
+    },
+    variant: {
+      control: {
+        type: 'select',
+        options: variants,
+      },
+    },
+  }}
+/>
+
+# Buttons
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Button} story="^" />
+
+## Design
+
+Buttons execute an action, either in the background or foreground of an experience. Buttons express what action will occur either by text, icon, or both. Additional meaning can be derived from the button variant and occasionally tooltips.
+
+Different button categories bring varying emphasis to potential user actions. This makes the page comprehensive while guiding the user through performing a task. We have three button categories: Primary, Secondary, and Tertiary.
+
+**Primary ("Solid")**
+
+- The single most important action that moves the task forward within a context
+- One per context
+
+**Secondary ("Subtle")**
+
+- Supplementary actions that the user is motivated to take
+- One or more per context
+
+**Tertiary ("Outline")**
+
+- Less important actions that are not promoted to the user
+- Multiple
+
+### States
+
+Button states change visually and/or programmatically depending on user interaction or a predetermined state. For example, programmatically moving focus to a button in a modal when it opens. This ensures they’re accessible and feel reactive for different modalities.
+
+### Disabled
+
+Disabled buttons prevent the user from performing an action. They are there to let the user know a certain action would be possible if circumstances were different. All buttons regardless of style are styled the same way when in the disabled state. Additionally they will show the “not-allowed” cursor style when hovered upon and have a faded text color.
+
+### Loading
+
+Any button can utilize the loading property to turn a button’s state into a loading state. The loading status is indicated by the use of a spinner, and the button is disabled while the state persists.
+
+For buttons containing text, the spinner is added to the left of the button, before the icon or label.
+
+### Selected (for Toggles)
+
+Selected buttons act like a toggle that indicate whether or not an option is in a selected state. To indicate to screen readers that the button functions as a toggle it should have `aria-pressed="true"` to align with the visually selected state, otherwise `aria-pressed="false"`.
+
+### Sizing
+
+Depending on the interface buttons may use different sizes. Block buttons expand to fill the width of their parent container. This can be used for buttons embedded inside smaller width containers or to improve usability on mobile viewports.
+
+### Order
+
+In all cases, affirmative actions are positioned to the outer edge of a container. This means that on left-aligned buttons the affirmative action is the left-most action, and on right-aligned buttons, the affirmative action is the right-most action.
+
+An affirmative action is something that takes the users further in their journey (for example, Save or Delete), while a dismissive action takes a user back (for example, Cancel). Depending on the context, an affirmative action may be destructive.
+
+## Stories
+
+### Button Sizes
+
+<Canvas>
+  <Story story={stories.sizes.xs} />
+  <Story story={stories.sizes.sm} />
+  <Story story={stories.sizes.base} />
+  <Story story={stories.sizes.lg} />
+  <Story story={stories.sizes.xl} />
+</Canvas>
+
+### Button Variants
+
+#### Solid
+
+<Canvas>
+  <Story story={stories.variants.solid_xs} />
+  <Story story={stories.variants.solid_sm} />
+  <Story story={stories.variants.solid_base} />
+  <Story story={stories.variants.solid_lg} />
+  <Story story={stories.variants.solid_xl} />
+</Canvas>
+
+#### Subtle
+
+<Canvas>
+  <Story story={stories.variants.subtle_xs} />
+  <Story story={stories.variants.subtle_sm} />
+  <Story story={stories.variants.subtle_base} />
+  <Story story={stories.variants.subtle_lg} />
+  <Story story={stories.variants.subtle_xl} />
+</Canvas>
+
+#### Outline
+
+<Canvas>
+  <Story story={stories.variants.outline_xs} />
+  <Story story={stories.variants.outline_sm} />
+  <Story story={stories.variants.outline_base} />
+  <Story story={stories.variants.outline_lg} />
+  <Story story={stories.variants.outline_xl} />
+</Canvas>
+
+#### Ghost
+
+<Canvas>
+  <Story story={stories.variants.ghost_xs} />
+  <Story story={stories.variants.ghost_sm} />
+  <Story story={stories.variants.ghost_base} />
+  <Story story={stories.variants.ghost_lg} />
+  <Story story={stories.variants.ghost_xl} />
+</Canvas>
+
+#### Link
+
+<Canvas>
+  <Story story={stories.variants.link_xs} />
+  <Story story={stories.variants.link_sm} />
+  <Story story={stories.variants.link_base} />
+  <Story story={stories.variants.link_lg} />
+  <Story story={stories.variants.link_xl} />
+</Canvas>

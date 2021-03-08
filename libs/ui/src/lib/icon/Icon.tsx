@@ -97,7 +97,7 @@ const StyledIcon = styled(Text)<StyledIconProps>`
   }
 `
 
-interface IconProps extends StyledIconProps {
+export interface IconProps extends StyledIconProps {
   /**
    * Name (which corresponds to the `<title>`) of the SVG
    */
