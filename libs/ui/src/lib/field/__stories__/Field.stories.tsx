@@ -13,7 +13,7 @@ Default.args = {
 
 export const Email = Template.bind({})
 Email.args = {
-  id: 'email1',
+  id: 'email',
   autocomplete: 'email',
   children: 'Email Address',
   error: false,
@@ -23,7 +23,7 @@ Email.args = {
 
 export const EmailInvalid = Template.bind({})
 EmailInvalid.args = {
-  id: 'email2',
+  id: 'email-invalid',
   autocomplete: 'email',
   children: 'Email Address',
   error: true,
