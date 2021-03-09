@@ -2,7 +2,7 @@ import { Tree, formatFiles, installPackagesTask } from '@nrwl/devkit'
 import { componentGenerator, componentStoryGenerator } from '@nrwl/react'
 import * as path from 'path'
 
-const REPLACE_EXPORT_REGEX = /^export function (\w+)\(props: (\w+)\)) {$/gm
+const REPLACE_EXPORT_REGEX = /^export function (\w+)\(props: (\w+)\) {$/gm
 
 const replaceExportFunction = async (host: Tree) => {
   const files = new Set(
