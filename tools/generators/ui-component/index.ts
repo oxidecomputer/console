@@ -50,7 +50,7 @@ const replaceTestingUtils = async (host: Tree) => {
 
       host.write(
         file.path,
-        content.replace('@testling-library/react', relativePath)
+        content.replace('@testing-library/react', relativePath)
       )
     })
   )
