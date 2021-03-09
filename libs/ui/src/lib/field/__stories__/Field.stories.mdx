@@ -1,0 +1,25 @@
+<!-- Icons.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+
+import { Field } from '../Field'
+import { Default, Email, EmailInvalid } from './Field.stories'
+
+<Meta title="Components/Form/Field" component={Field} />
+
+# Field
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Field} story="^" />
+
+<Canvas>
+  <Story story={Email} />
+</Canvas>
+
+<Canvas>
+  <Story story={EmailInvalid} />
+</Canvas>

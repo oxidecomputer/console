@@ -29,6 +29,7 @@ import { ReactComponent as SupportIcon } from '../../assets/support.svg'
 import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
 import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
+import { ReactComponent as WarningIcon } from '../../assets/warning.svg'
 
 export const icons = {
   bookmark: BookmarkIcon,
@@ -57,6 +58,7 @@ export const icons = {
   theme: ThemeIcon,
   user: UserIcon,
   users: UsersIcon,
+  warning: WarningIcon,
 }
 
 type Name = keyof typeof icons

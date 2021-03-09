@@ -6,7 +6,7 @@ import Field from './Field'
 describe('Field', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
-      <Field id="name" error={false} value="">
+      <Field id="name" error={false}>
         Name
       </Field>
     )

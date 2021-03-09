@@ -1,0 +1,27 @@
+<!-- Colors.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+
+import { Field } from '../field/Field'
+import { Email } from '../field/__stories__/Field.stories'
+
+<Meta title="Components/Form" />
+
+# Form
+
+Forms allow for user input where users fill in information into particular fields and submit it to the system. They’re a fundamental but a complex part of interacting with web applications. Getting them right and assisting the users to successfully complete their tasks is essential.
+
+## Design
+
+### Layout
+
+Form elements should move in a single direction so they should only be distributed through one column when the progression of the form is vertical and through one row when the progression is horizontal. Horizontally stacking input fields in a vertically moving form is only acceptable when they’re related, for example, city and state/region.
+
+## Form Components
+
+### Field
+
+<Canvas>
+  <Story story={Email} />
+</Canvas>

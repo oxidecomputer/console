@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
@@ -39,14 +39,10 @@ export interface FieldProps {
   /**
    * Current value of the input
    */
-  value: string
+  value?: string
 }
 
 const StyledField = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-
   color: ${(props) => props.theme.color('gray100')};
 `
 
@@ -58,11 +54,11 @@ const Label = styled(Text).attrs({
 })<{
   htmlFor?: string
 }>`
-  flex: 0 0 100%;
-
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  padding-bottom: ${(props) => props.theme.spacing(1)};
 `
 
 const HelperText = styled(Text).attrs({
@@ -71,27 +67,26 @@ const HelperText = styled(Text).attrs({
   size: 'sm',
 })``
 
-const ErrorIcon = styled(Icon).attrs({ name: 'close', color: 'red500' })`
+const InputWrapper = styled.div`
+  position: relative;
+`
+
+const ErrorIcon = styled(Icon).attrs({ name: 'warning', color: 'red500' })`
   z-index: 1;
-  flex: 0 0 auto;
+  position: absolute;
+  top: 0;
+  right: 0.5em;
+  bottom: 0;
 
-  margin-top: ${(props) => props.theme.spacing(1)};
-  padding-right: 0.5em;
-  width: 1.5em;
-
-  background-color: ${(props) => props.theme.color('gray700')};
-  border-top: 1px solid ${(props) => props.theme.color('red500')};
-  border-bottom: 1px solid ${(props) => props.theme.color('red500')};
-  border-right: 1px solid ${(props) => props.theme.color('red500')};
+  margin: 0;
+  padding: 0;
+  width: 1em;
 `
 
 const StyledInput = styled.input<{ hasError?: boolean }>`
-  flex: 1 1 0%;
-
   display: block;
-  margin-top: ${(props) => props.theme.spacing(1)};
+  margin: 0;
   padding: ${(props) => `${props.theme.spacing(2)} ${props.theme.spacing(3)}`};
-  position: relative;
   width: 100%;
 
   border: 1px solid transparent;
@@ -101,20 +96,27 @@ const StyledInput = styled.input<{ hasError?: boolean }>`
   font-size: ${(props) => props.theme.spacing(3.5)};
   line-height: ${1.25 / 0.875};
 
-  ${(props) =>
-    props.hasError &&
-    `
-    margin-right: -1px;
-
-    border-top: 1px solid ${props.theme.color('red500')};
-    border-bottom: 1px solid ${props.theme.color('red500')};
-    border-left: 1px solid ${props.theme.color('red500')};
-  `}
-
-  &:focus, &:focus + ${ErrorIcon} {
-    outline: none;
+  &:hover {
     background-color: ${(props) => props.theme.color('gray800')};
   }
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) => props.theme.color('green500')};
+    box-shadow: 0px 0px 0px 1px ${(props) => props.theme.color('green500')};
+  }
+
+  ${(props) =>
+    props.hasError &&
+    css`
+      border: 1px solid ${props.theme.color('red500')};
+      padding-right: 2em;
+
+      &:focus {
+        border: 1px solid ${props.theme.color('red500')};
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), 0px 0px 0px 1px #ef4444;
+      }
+    `}
 `
 
 const ErrorMessage = styled(Text).attrs({
@@ -122,8 +124,6 @@ const ErrorMessage = styled(Text).attrs({
   font: 'mono',
   size: 'xs',
 })`
-  flex: 0 0 100%;
-
   margin-top: ${(props) => props.theme.spacing(2)};
 `
 
@@ -141,11 +141,9 @@ export const Field = ({
   type,
   value,
 }: FieldProps) => {
+  const inputRequiredProps = required ? { 'aria-required': true, required } : {}
   const renderErrorMessage = error ? (
-    <>
-      <ErrorIcon />
-      <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
-    </>
+    <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
   ) : null
   const inputErrorProps = error
     ? { 'aria-describedby': `${id}-validation-hint`, hasError: true }
@@ -157,20 +155,22 @@ export const Field = ({
         {children}
         {required ? null : <HelperText>Optional</HelperText>}
       </Label>
-      <StyledInput
-        aria-invalid={error}
-        aria-required={required}
-        autoComplete={autocomplete}
-        onBlur={onBlur}
-        onChange={onChange}
-        onFocus={onFocus}
-        placeholder={placeholder}
-        id={id}
-        required={required}
-        type={type}
-        value={value}
-        {...inputErrorProps}
-      />
+      <InputWrapper>
+        <StyledInput
+          aria-invalid={error}
+          autoComplete={autocomplete}
+          onBlur={onBlur}
+          onChange={onChange}
+          onFocus={onFocus}
+          placeholder={placeholder}
+          id={id}
+          type={type}
+          value={value}
+          {...inputRequiredProps}
+          {...inputErrorProps}
+        />
+        {error ? <ErrorIcon /> : null}
+      </InputWrapper>
       {renderErrorMessage}
     </StyledField>
   )
