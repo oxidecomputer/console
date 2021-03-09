@@ -1,3 +1,4 @@
+export * from './lib/field/Field'
 export * from './lib/avatar/Avatar'
 export * from './lib/breadcrumbs/Breadcrumbs'
 export * from './lib/button/Button'
