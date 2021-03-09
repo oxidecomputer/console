@@ -58,5 +58,23 @@ describe('Story Builders', () => {
       expect(stories.three.storyName).toBe('three')
       expect(stories.three.args).toMatchObject({ enum: 'three' })
     })
+
+    it('accepts an optional key mapper to re-write keys', () => {
+      const stories = builder.storiesFor({ enum: enumValues }, (key) =>
+        key.toUpperCase()
+      )
+
+      expect(stories.one).toBeUndefined()
+      expect(stories.ONE.storyName).toBe('one')
+      expect(stories.ONE.args).toMatchObject({ enum: 'one' })
+
+      expect(stories.two).toBeUndefined()
+      expect(stories.TWO.storyName).toBe('two')
+      expect(stories.TWO.args).toMatchObject({ enum: 'two' })
+
+      expect(stories.three).toBeUndefined()
+      expect(stories.THREE.storyName).toBe('three')
+      expect(stories.THREE.args).toMatchObject({ enum: 'three' })
+    })
   })
 })

@@ -7,9 +7,13 @@ type Variants<B> = readonly B[]
 
 type VariantMap<A> = Partial<Record<keyof A, Variants<A[keyof A]>>>
 
+type KeyMapper<T> = (key: T) => string
 interface StoryBuilder<A = Args> {
   build: (name: string, args?: Partial<A>) => Story<A>
-  storiesFor: (values: VariantMap<A>) => StoriesOf<A>
+  storiesFor: (
+    values: VariantMap<A>,
+    keyMapper?: KeyMapper<keyof A>
+  ) => StoriesOf<A>
 }
 
 export const storyBuilder = <A extends Args>(
@@ -27,7 +31,10 @@ export const storyBuilder = <A extends Args>(
     return story
   }
 
-  const storiesFor: StoryBuilder<A>['storiesFor'] = (values) => {
+  const storiesFor: StoryBuilder<A>['storiesFor'] = (
+    values,
+    keyMapper = (a) => a.toString()
+  ) => {
     const args = Object.keys(values) as Array<keyof typeof values>
 
     return args.reduce((rest, arg) => {
@@ -38,7 +45,7 @@ export const storyBuilder = <A extends Args>(
           const args = { [arg]: v } as Partial<A>
           return {
             ...rest,
-            [v]: build(v, args),
+            [keyMapper(v)]: build(v, args),
           }
         }, {}),
       }
