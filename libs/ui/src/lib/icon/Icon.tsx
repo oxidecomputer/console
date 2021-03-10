@@ -81,7 +81,7 @@ interface StyledIconProps extends TextProps {
    */
   color?: Color
   /**
-   * Rotate the icon (particularly useful for the caret icon)
+   * Rotate the icon (particularly useful for the 'chevron' icon)
    */
   rotate?: number
 }
