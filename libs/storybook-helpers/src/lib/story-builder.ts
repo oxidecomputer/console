@@ -5,13 +5,14 @@ type StoriesOf<A> = Record<string, Story<A>>
 
 type Variants<B> = readonly B[]
 
+type VariantInput<A> = VariantMap<A> | VariantMap<A>[]
 type VariantMap<A> = Partial<Record<keyof A, Variants<A[keyof A]>>>
 
 type KeyMapper<T> = (key: T) => string
-interface StoryBuilder<A = Args> {
+interface StoryBuilder<A extends Args> {
   build: (name: string, args?: Partial<PropsWithChildren<A>>) => Story<A>
   storiesFor: (
-    values: VariantMap<A>,
+    values: VariantInput<A>,
     keyMapper?: KeyMapper<keyof A>
   ) => StoriesOf<A>
 }
@@ -35,19 +36,30 @@ export const storyBuilder = <A extends Args>(
     values,
     keyMapper = (a) => a.toString()
   ) => {
+    if (Array.isArray(values)) {
+      return Object.assign({}, ...values.map((i) => storiesFor(i, keyMapper)))
+    }
+
+    const storiesForProp = (
+      prop: keyof typeof values,
+      vals: Variants<A[keyof A]>
+    ): Partial<Record<A[keyof A], Story<A>>> => {
+      const [head, ...tail] = vals
+
+      if (!head) return {}
+
+      return {
+        [keyMapper(head)]: build(head, { [prop]: head } as Partial<A>),
+        ...storiesForProp(prop, tail),
+      }
+    }
+
     const args = Object.keys(values) as Array<keyof typeof values>
 
     return args.reduce((rest, arg) => {
-      const argValues = values[arg]
       return {
         ...rest,
-        ...argValues.reduce((rest, v) => {
-          const args = { [arg]: v } as Partial<A>
-          return {
-            ...rest,
-            [keyMapper(v)]: build(v, args),
-          }
-        }, {}),
+        ...storiesForProp(arg, values[arg]),
       }
     }, {})
   }

@@ -4,11 +4,15 @@ import { storyBuilder } from './story-builder'
 
 const enumValues = ['one', 'two', 'three'] as const
 type EnumValue = typeof enumValues[number]
+
+const otherEnumValues = ['alpha', 'beta'] as const
+type OtherEnumValue = typeof otherEnumValues[number]
 interface TemplateProps {
   required: string
 
   optional?: string
   enum?: EnumValue
+  otherEnum?: OtherEnumValue
 }
 
 const Template: Story<TemplateProps> = ({ required, optional }) => (
@@ -104,5 +108,30 @@ describe('Story Builders', () => {
       expect(stories.THREE.storyName).toBe('three')
       expect(stories.THREE.args).toMatchObject({ enum: 'three' })
     })
+
+    it('takes multiple top level props, and creates separate entries for each', () => {
+      const stories = builder.storiesFor([
+        { enum: enumValues },
+        { otherEnum: otherEnumValues },
+      ])
+
+      expect(Object.keys(stories)).toHaveLength(5)
+      expect(stories.one.storyName).toBe('one')
+      expect(stories.one.args).toMatchObject({ enum: 'one' })
+
+      expect(stories.two.storyName).toBe('two')
+      expect(stories.two.args).toMatchObject({ enum: 'two' })
+
+      expect(stories.three.storyName).toBe('three')
+      expect(stories.three.args).toMatchObject({ enum: 'three' })
+
+      expect(stories.alpha.storyName).toBe('alpha')
+      expect(stories.alpha.args).toMatchObject({ otherEnum: 'alpha' })
+
+      expect(stories.beta.storyName).toBe('beta')
+      expect(stories.beta.args).toMatchObject({ otherEnum: 'beta' })
+    })
+
+    xit('takes an array of mixed props, e.g. [{size, children}]')
   })
 })
