@@ -11,8 +11,8 @@ Default.args = {
   placeholder: 'placeholder',
 }
 
-export const Email = Template.bind({})
-Email.args = {
+export const EmailField = Template.bind({})
+EmailField.args = {
   id: 'email',
   autocomplete: 'email',
   children: 'Email Address',
@@ -21,8 +21,8 @@ Email.args = {
   required: true,
 }
 
-export const EmailInvalid = Template.bind({})
-EmailInvalid.args = {
+export const InvalidEmailField = Template.bind({})
+InvalidEmailField.args = {
   id: 'email-invalid',
   autocomplete: 'email',
   children: 'Email Address',
