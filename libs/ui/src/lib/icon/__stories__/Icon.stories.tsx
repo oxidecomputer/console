@@ -9,4 +9,4 @@ Default.storyName = 'Icon'
 Default.args = { name: 'bookmark', color: 'green500' }
 
 export const Rotate = Template.bind({})
-Rotate.args = { name: 'chevron', rotate: 90 }
+Rotate.args = { name: 'chevron', rotate: '90deg' }

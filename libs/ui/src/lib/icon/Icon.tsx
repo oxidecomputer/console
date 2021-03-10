@@ -81,9 +81,9 @@ interface StyledIconProps extends TextProps {
    */
   color?: Color
   /**
-   * Rotate the icon (particularly useful for the 'chevron' icon)
+   * Amount to rotate the SVG icon (useful for "chevron"); expects a number followed by an [angle](https://developer.mozilla.org/en-US/docs/Web/CSS/angle) unit: `90deg`, `0.5turn`
    */
-  rotate?: number
+  rotate?: string
 }
 
 const StyledIcon = styled(Text)<StyledIconProps>`
@@ -100,7 +100,7 @@ const StyledIcon = styled(Text)<StyledIconProps>`
     width: 100%;
 
     fill: inherit;
-    ${(props) => props.rotate && `transform: rotate(${props.rotate}deg);`}
+    ${(props) => props.rotate && `transform: rotate(${props.rotate});`}
   }
 `
 
