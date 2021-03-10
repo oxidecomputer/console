@@ -14,9 +14,9 @@ export interface ProjectListProps {
   selectedProjectId?: ProjectId
 
   /** Called when a project is clicked */
-  onProjectSelected: (projectId: ProjectId) => void
+  onProjectSelect: (id: ProjectId) => void
   /** Called when the create a new project button is clicked */
-  onCreateClicked: () => void
+  onProjectCreate: () => void
 }
 
 const BaseText = styled(Text).attrs({
@@ -130,18 +130,20 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
             key={p.id}
             tabIndex={0}
             onClick={() => {
-              props.onProjectSelected(p.id)
+              props.onProjectSelect(p.id)
             }}
           >
             <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
-            {p.notifications && <NotificationCount count={p.notifications} />}
+            {p.notificationsCount && (
+              <NotificationCount count={p.notificationsCount} />
+            )}
             {p.starred && <BookmarkIcon />}
           </ListItem>
         ))}
       </List>
       <Create
         onClick={() => {
-          props.onCreateClicked()
+          props.onProjectCreate()
         }}
       >
         <CreateText>Create a new project</CreateText>

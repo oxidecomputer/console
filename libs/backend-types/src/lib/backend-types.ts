@@ -2,6 +2,6 @@ export type ProjectId = string
 export interface Project {
   id: ProjectId
   name: string
-  notifications?: number
+  notificationsCount?: number
   starred?: boolean
 }

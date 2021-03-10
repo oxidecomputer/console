@@ -1,12 +1,12 @@
 import React from 'react'
 
 import { Meta } from '@storybook/react'
-
-import { ProjectList, ProjectListProps } from './ProjectList'
+import { ProjectList } from './ProjectList'
+import type { ProjectListProps } from './ProjectList'
 import { Project } from '@oxide/backend-types'
 
 const demoProjects: Project[] = [
-  { id: '1', name: 'prod-online', notifications: 2, starred: true },
+  { id: '1', name: 'prod-online', notificationsCount: 2, starred: true },
   { id: '2', name: 'release-infrastructure' },
   { id: '3', name: 'rendering' },
   { id: '4', name: 'test-infrastructure' },
@@ -39,4 +39,3 @@ export const Primary = Template.bind({})
 Primary.args = { projects: demoProjects }
 
 export const Empty = Template.bind({})
-
