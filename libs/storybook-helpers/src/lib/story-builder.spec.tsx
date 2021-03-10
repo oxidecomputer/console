@@ -37,11 +37,39 @@ describe('Story Builders', () => {
     expect(story.args).toMatchObject({ required: 'changed' })
   })
 
-  it("doesn't need to have arguments", () => {
+  it('does not need to have arguments', () => {
     const story = builder.build('Test Story')
 
     expect(story.storyName).toBe('Test Story')
     expect(story.args).toMatchObject({ required: 'test' })
+  })
+
+  it('accepts children as a valid prop', () => {
+    const childrenBuilder = storyBuilder(Template, {
+      required: 'test',
+      children: 'test',
+    })
+    const story = childrenBuilder.build('Test Story')
+
+    expect(story.storyName).toBe('Test Story')
+    expect(story.args).toMatchObject({
+      required: 'test',
+      children: 'test',
+    })
+  })
+
+  it('overrides children as a valid prop', () => {
+    const childrenBuilder = storyBuilder(Template, {
+      required: 'test',
+      children: 'test',
+    })
+    const story = childrenBuilder.build('Test Story', { children: 'test2' })
+
+    expect(story.storyName).toBe('Test Story')
+    expect(story.args).toMatchObject({
+      required: 'test',
+      children: 'test2',
+    })
   })
 
   describe('storiesFor', () => {

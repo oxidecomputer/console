@@ -9,7 +9,7 @@ type VariantMap<A> = Partial<Record<keyof A, Variants<A[keyof A]>>>
 
 type KeyMapper<T> = (key: T) => string
 interface StoryBuilder<A = Args> {
-  build: (name: string, args?: Partial<A>) => Story<A>
+  build: (name: string, args?: Partial<PropsWithChildren<A>>) => Story<A>
   storiesFor: (
     values: VariantMap<A>,
     keyMapper?: KeyMapper<keyof A>
