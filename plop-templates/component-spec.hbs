@@ -1,0 +1,11 @@
+import React, { FC } from 'react'
+import { render } from '../../test-utils'
+
+import { {{name}} } from './{{name}}'
+
+describe('{{name}}', () => {
+  it('should render successfully', () => {
+    const { container } = render(<{{name}} />)
+    expect(container).toBeTruthy()
+  })
+})

@@ -26,7 +26,8 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "storybook": "nx run ui:storybook",
-    "g:ui-component": "nx workspace-generator ui-component"
+    "g:ui-component": "nx workspace-generator ui-component",
+    "plop": "plop"
   },
   "private": true,
   "dependencies": {
@@ -83,6 +84,7 @@
     "eslint-plugin-react": "7.21.5",
     "eslint-plugin-react-hooks": "4.2.0",
     "jest": "26.2.2",
+    "plop": "^2.7.4",
     "prettier": "2.2.1",
     "ts-jest": "26.4.0",
     "ts-node": "~9.1.1",
