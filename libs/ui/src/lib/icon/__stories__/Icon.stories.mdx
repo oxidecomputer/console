@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { colorPalette } from '@oxide/theme'
 
 import { Icon, icons } from '../Icon'
-import { Default } from './Icon.stories'
+import { Default, Rotate } from './Icon.stories'
 
 <Meta
   title="Foundations/Icon"
@@ -70,7 +70,15 @@ The `<Icon />` component takes two props.
 <Icon name="dashboard" color="green500" />
 ```
 
-## All icons
+## Stories
+
+### Rotate
+
+<Canvas>
+  <Story story={Rotate} />
+</Canvas>
+
+### All icons
 
 <table>
   <tr>

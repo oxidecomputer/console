@@ -80,6 +80,10 @@ interface StyledIconProps extends TextProps {
    * Set the color using a theme color ("green500")
    */
   color?: Color
+  /**
+   * Rotate the icon (particularly useful for the caret icon)
+   */
+  rotate?: number
 }
 
 const StyledIcon = styled(Text)<StyledIconProps>`
@@ -96,6 +100,7 @@ const StyledIcon = styled(Text)<StyledIconProps>`
     width: 100%;
 
     fill: inherit;
+    ${(props) => props.rotate && `transform: rotate(${props.rotate}deg);`}
   }
 `
 

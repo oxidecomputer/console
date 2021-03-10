@@ -7,3 +7,6 @@ const Template: Story<IconProps> = (args) => <Icon {...args} />
 export const Default = Template.bind({})
 Default.storyName = 'Icon'
 Default.args = { name: 'bookmark', color: 'green500' }
+
+export const Rotate = Template.bind({})
+Rotate.args = { name: 'caret', rotate: 90 }
