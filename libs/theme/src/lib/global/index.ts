@@ -4,8 +4,13 @@ import { normalize } from './normalize'
 import './fonts.css'
 
 const globalStyles = css`
+  * {
+    box-sizing: inherit;
+  }
   html,
   body {
+    box-sizing: border-box;
+
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
     font-family: ${(props) => props.theme.fonts.mono};
@@ -26,6 +31,13 @@ const globalStyles = css`
   ol,
   ul {
     list-style-type: none;
+  }
+  img {
+    width: 100%;
+    height: auto;
+  }
+  abbr[title] {
+    text-decoration: none;
   }
   a,
   a:link {

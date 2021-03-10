@@ -1,9 +1,11 @@
 <!-- Icons.stories.mdx-->
 
-import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
-import { Icon, icons } from './Icon'
 import { colorPalette } from '@oxide/theme'
+
+import { Icon, icons } from '../Icon'
+import { Default } from './Icon.stories'
 
 <Meta
   title="Foundations/Icon"
@@ -21,6 +23,11 @@ import { colorPalette } from '@oxide/theme'
         options: Object.keys(colorPalette),
       },
     },
+    ref: { table: { disable: true } },
+    theme: { table: { disable: true } },
+    font: { table: { disable: true } },
+    weight: { table: { disable: true } },
+    svgProps: { table: { disable: true } },
   }}
 />
 
@@ -28,13 +35,11 @@ import { colorPalette } from '@oxide/theme'
 
 Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS.
 
-export const Template = (args) => <Icon {...args} />
-
 <Canvas>
-  <Story name="Icon" args={{ name: 'bookmark', color: 'green500' }}>
-    {Template.bind({})}
-  </Story>
+  <Story story={Default} />
 </Canvas>
+
+<ArgsTable of={Icon} story="^" />
 
 ## Accessibility
 

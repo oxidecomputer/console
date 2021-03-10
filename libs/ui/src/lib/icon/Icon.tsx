@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import styled, { css } from 'styled-components'
 import { Color } from '@oxide/theme'
+import { Text, TextProps } from '../text/Text'
 
 import { ReactComponent as BookmarkIcon } from '../../assets/bookmark.svg'
 import { ReactComponent as ChevronIcon } from '../../assets/chevron.svg'
@@ -16,6 +17,7 @@ import { ReactComponent as MessageIcon } from '../../assets/message.svg'
 import { ReactComponent as MoreIcon } from '../../assets/more.svg'
 import { ReactComponent as OrganizationIcon } from '../../assets/org.svg'
 import { ReactComponent as PlusIcon } from '../../assets/plus.svg'
+import { ReactComponent as ProfileIcon } from '../../assets/profile.svg'
 import { ReactComponent as ProjectIcon } from '../../assets/project.svg'
 import { ReactComponent as ProjectsIcon } from '../../assets/projects.svg'
 import { ReactComponent as PulseIcon } from '../../assets/pulse.svg'
@@ -29,50 +31,41 @@ import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  bookmark: <BookmarkIcon />,
-  chevron: <ChevronIcon />,
-  close: <CloseIcon />,
-  command: <CommandIcon />,
-  cpu: <CpuIcon />,
-  dashboard: <DashboardIcon />,
-  file: <FileIcon />,
-  instance: <InstanceIcon />,
-  instances: <InstancesIcon />,
-  memory: <MemoryIcon />,
-  message: <MessageIcon />,
-  more: <MoreIcon />,
-  organization: <OrganizationIcon />,
-  plus: <PlusIcon />,
-  project: <ProjectIcon />,
-  projects: <ProjectsIcon />,
-  pulse: <PulseIcon />,
-  rack: <RackIcon />,
-  resources: <ResourcesIcon />,
-  search: <SearchIcon />,
-  storage: <StorageIcon />,
-  support: <SupportIcon />,
-  theme: <ThemeIcon />,
-  user: <UserIcon />,
-  users: <UsersIcon />,
-} as const
-type Name = keyof typeof icons
-
-interface StyledIconProps {
-  /**
-   * Set the color using a theme color ("green500")
-   */
-  color?: Color
+  bookmark: BookmarkIcon,
+  chevron: ChevronIcon,
+  close: CloseIcon,
+  command: CommandIcon,
+  cpu: CpuIcon,
+  dashboard: DashboardIcon,
+  file: FileIcon,
+  instance: InstanceIcon,
+  instances: InstancesIcon,
+  memory: MemoryIcon,
+  message: MessageIcon,
+  more: MoreIcon,
+  organization: OrganizationIcon,
+  plus: PlusIcon,
+  profile: ProfileIcon,
+  project: ProjectIcon,
+  projects: ProjectsIcon,
+  pulse: PulseIcon,
+  rack: RackIcon,
+  resources: ResourcesIcon,
+  search: SearchIcon,
+  storage: StorageIcon,
+  support: SupportIcon,
+  theme: ThemeIcon,
+  user: UserIcon,
+  users: UsersIcon,
 }
 
-const getColorStyles = ({ color, theme }) => {
+type Name = keyof typeof icons
+
+const getColorStyles = (color?: string) => {
   if (color) {
-    const validThemeColor = theme.themeColors[color]
-    if (validThemeColor) {
-      // found color in themeColors, use it
-      return css`
-        fill: ${validThemeColor};
-      `
-    }
+    return css`
+      fill: ${color};
+    `
   }
   // inherit color
   return css`
@@ -80,16 +73,25 @@ const getColorStyles = ({ color, theme }) => {
   `
 }
 
-const StyledIcon = styled.span<{ color: Color }>`
-  display: inline-block;
-  width: ${(props) => props.theme.spacing(6)};
+interface StyledIconProps extends TextProps {
+  /**
+   * Set the color using a theme color ("green500")
+   */
+  color?: Color
+}
 
-  ${(props) => getColorStyles(props)};
+const StyledIcon = styled(Text)<StyledIconProps>`
+  display: inline-flex;
+  width: 1em;
+
+  justify-content: center;
+  align-items: center;
+
+  ${(props) => getColorStyles(props.theme.themeColors[props.color])};
 
   > svg {
     height: auto;
     width: 100%;
-    vertical-align: middle;
 
     fill: inherit;
   }
@@ -100,10 +102,21 @@ export interface IconProps extends StyledIconProps {
    * Name (which corresponds to the `<title>`) of the SVG
    */
   name: Name
+
+  /**
+   * Props to pass directly to the SVG
+   */
+  svgProps?: React.SVGProps<SVGSVGElement>
 }
 
-export const Icon: FC<IconProps> = ({ name, ...props }) => (
-  <StyledIcon {...props}>{icons[name]}</StyledIcon>
-)
+export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
+  const IconComponent = icons[name]
+
+  return (
+    <StyledIcon {...props}>
+      <IconComponent {...svgProps} />
+    </StyledIcon>
+  )
+}
 
 export default Icon
