@@ -69,3 +69,21 @@ export const storyBuilder = <A extends Args>(
     storiesFor,
   }
 }
+
+export const product = <T>(...items: T[][]): T[][] => {
+  const combine = (acc: T[][], [head, ...tail]: T[][]): T[][] => {
+    if (!head) return acc
+    if (acc.length === 0)
+      return combine(
+        head.map((v) => [v]),
+        tail
+      )
+
+    return combine(
+      [].concat(...acc.map((a) => head.map((b) => [...a, b]))),
+      tail
+    )
+  }
+
+  return combine([], items)
+}
