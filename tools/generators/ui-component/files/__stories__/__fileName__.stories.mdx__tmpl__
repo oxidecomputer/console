@@ -1,0 +1,10 @@
+<!-- <%= className %>.stories.mdx -->
+
+import { Meta } from '@storybook/addon-docs/blocks'
+import { stories } from './<%= fileName %>.stories'
+
+<Meta title="<%= className %>" />
+
+# <%= className %>
+
+<Story story={stories.primary} />

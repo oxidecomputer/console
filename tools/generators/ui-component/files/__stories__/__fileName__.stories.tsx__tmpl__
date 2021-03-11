@@ -1,0 +1,18 @@
+import React from 'react';
+import type { Story } from '@storybook/react'
+import { <%= className %> } from '../<%= fileName %>'
+import type { <%= className %>Props } from '../<%= fileName %>'
+
+export default {
+  component: <%= className %>,
+  title: '<%= className %>'
+};
+
+const Template: Story<<%= className %>Props> = (args) => <<%= className %> {...args} />
+
+const primary = Template.bind({})
+primary.args = {}
+
+export const stories = {
+  primary
+}

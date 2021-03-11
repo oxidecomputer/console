@@ -8,7 +8,6 @@ import {
   generateFiles,
   applyChangesToString,
 } from '@nrwl/devkit'
-import { componentStoryGenerator } from '@nrwl/react'
 import { addImport } from '@nrwl/react/src/utils/ast-utils'
 import * as path from 'path'
 import * as ts from 'typescript'
@@ -18,20 +17,6 @@ interface NormalizedSchema extends Schema {
   projectSourceRoot: string
   fileName: string
   className: string
-}
-
-const STORY_COMPONENT_REGEX = /(?<!spec)\.tsx$/
-const generateStoryForComponent = async (host: Tree) => {
-  const files = new Set(
-    host.listChanges().filter((file) => STORY_COMPONENT_REGEX.test(file.path))
-  )
-
-  return Promise.all(
-    Array.from(files).map((file) => {
-      const componentPath = file.path.replace('libs/ui/src/', '')
-      componentStoryGenerator(host, { project: 'ui', componentPath })
-    })
-  )
 }
 
 const createComponentFiles = (host: Tree, options: NormalizedSchema) => {
@@ -47,6 +32,18 @@ const createComponentFiles = (host: Tree, options: NormalizedSchema) => {
     tmpl: '',
     testingUtilsPath,
   })
+
+  for (const c of host.listChanges()) {
+    let deleteFile = false
+
+    if (options.skipStories && /stories/.test(c.path)) {
+      deleteFile = true
+    }
+
+    if (deleteFile) {
+      host.delete(c.path)
+    }
+  }
 }
 
 const assertValidOptions = (options: Schema) => {
@@ -81,11 +78,9 @@ const getDirectory = (host: Tree, options: Schema) => {
 const normalizeOptions = (host: Tree, options: Schema): NormalizedSchema => {
   assertValidOptions(options)
 
-  const { className, fileName } = names(options.name)
+  const { className } = names(options.name)
   const componentFileName = className
-  const { sourceRoot: projectSourceRoot, projectType } = getProjects(host).get(
-    'ui'
-  )
+  const { sourceRoot: projectSourceRoot } = getProjects(host).get('ui')
 
   const directory = getDirectory(host, options)
 
@@ -131,22 +126,7 @@ export default async (host: Tree, schema: Schema) => {
   createComponentFiles(host, options)
 
   addExportsToBarrel(host, options)
-  // await componentGenerator(host, {
-  //   // Defaults to @nrwl/react component generator
-  //   pascalCaseFiles: true,
-  //   style: 'styled-components',
-  //   project: 'ui',
 
-  //   // Passing our options into this generator
-  //   export: schema.export,
-  //   name: schema.name,
-  //   directory: schema.directory,
-  // })
-  // if (!schema.skipStories) {
-  //   await generateStoryForComponent(host)
-  // }
-  // await replaceTestingUtils(host)
-  // await replaceExportFunction(host)
   await formatFiles(host)
   return () => {
     installPackagesTask(host)

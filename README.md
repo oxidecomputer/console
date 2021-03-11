@@ -12,7 +12,7 @@ This project uses `yarn`, not `npm`, so install Node dependencies with
 yarn install
 ```
 
-For commands that begin with `nx` in the instructions below, you can either 
+For commands that begin with `nx` in the instructions below, you can either
 
 - install `nx` globally with `yarn add global nx` or `npm i -g nx`, or
 - use `yarn nx <command>` to use the copy local to this directory
@@ -39,7 +39,7 @@ Where `<COMPONENT_NAME>` is the name of the new component to include. It takes t
 
 | Option          | Description                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
-| `--skipStories` | Skips generating storybook stories                                                                        |
+| `--skipStories` | Skips generating storybook stories, useful for internal components which shouldn't have stories.          |
 | `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory |
 
 ### Run unit tests
