@@ -19,14 +19,18 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
       name: `Web ${index}`,
       status: (
         <>
-          <div>Running</div>
-          <div>4d 6h</div>
+          <Text font="mono">Running</Text>
+          <Text font="mono" size="sm">
+            4d 6h
+          </Text>
         </>
       ),
       created: (
         <>
-          <div>Yesterday</div>
-          <div>2:30 PM</div>
+          <Text font="mono">Yesterday</Text>
+          <Text font="mono" size="sm">
+            2:30 PM
+          </Text>
         </>
       ),
     }
@@ -35,13 +39,18 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
     name: `Web ${index}`,
     status: (
       <>
-        <div>Running</div> <div>3 minutes ago</div>
+        <Text font="mono">Running</Text>
+        <Text font="mono" size="sm">
+          3 minutes ago
+        </Text>
       </>
     ),
     created: (
       <>
-        <div>Yesterday</div>
-        <div>11:30 PM</div>
+        <Text font="mono">Yesterday</Text>
+        <Text font="mono" size="sm">
+          11:30 PM
+        </Text>
       </>
     ),
   }
