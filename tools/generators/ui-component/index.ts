@@ -1,59 +1,23 @@
-import { Tree, formatFiles, installPackagesTask } from '@nrwl/devkit'
-import { componentGenerator, componentStoryGenerator } from '@nrwl/react'
+import {
+  Tree,
+  formatFiles,
+  installPackagesTask,
+  joinPathFragments,
+  names,
+  getProjects,
+  generateFiles,
+  applyChangesToString,
+} from '@nrwl/devkit'
+import { componentStoryGenerator } from '@nrwl/react'
+import { addImport } from '@nrwl/react/src/utils/ast-utils'
 import * as path from 'path'
+import * as ts from 'typescript'
+import type { Schema } from './schema'
 
-const REPLACE_EXPORT_REGEX = /^export function (\w+)\(props: (\w+)\) {$/gm
-
-const replaceExportFunction = async (host: Tree) => {
-  const files = new Set(
-    host.listChanges().filter((file) => file.type !== 'DELETE')
-  )
-
-  return Promise.all(
-    Array.from(files).map(async (file) => {
-      const content = file.content.toString()
-      try {
-        host.write(
-          file.path,
-          content
-            .replace(
-              REPLACE_EXPORT_REGEX,
-              'export const $1: FC<$2> = (props) => {'
-            )
-            .replace(
-              "import React from 'react'",
-              "import React, { FC } from 'react'"
-            )
-        )
-      } catch (e) {
-        console.warn(
-          `Could not replace exports for ${file.path}. Error: ${e.message}`
-        )
-      }
-    })
-  )
-}
-
-const SPEC_FILE_REGEX = /spec\.tsx$/
-const replaceTestingUtils = async (host: Tree) => {
-  const files = new Set(
-    host.listChanges().filter((file) => SPEC_FILE_REGEX.test(file.path))
-  )
-
-  const pathToTestUtils = path.resolve('./libs/ui/src/test-utils')
-  return Promise.all(
-    Array.from(files).map(async (file) => {
-      const content = file.content.toString()
-      // use '.' to get full path relative to current dir, then '..' to remove the file from the path
-      const filePath = path.resolve('.', file.path, '..')
-      const relativePath = path.relative(filePath, pathToTestUtils)
-
-      host.write(
-        file.path,
-        content.replace('@testing-library/react', relativePath)
-      )
-    })
-  )
+interface NormalizedSchema extends Schema {
+  projectSourceRoot: string
+  fileName: string
+  className: string
 }
 
 const STORY_COMPONENT_REGEX = /(?<!spec)\.tsx$/
@@ -70,23 +34,119 @@ const generateStoryForComponent = async (host: Tree) => {
   )
 }
 
-export default async (host: Tree, schema: any) => {
-  await componentGenerator(host, {
-    // Defaults to @nrwl/react component generator
-    pascalCaseFiles: true,
-    style: 'styled-components',
-    project: 'ui',
+const createComponentFiles = (host: Tree, options: NormalizedSchema) => {
+  const componentDir = joinPathFragments(
+    options.projectSourceRoot,
+    options.directory
+  )
+  const pathToTestUtils = path.resolve('./libs/ui/src/test-utils')
+  const testingUtilsPath = path.relative(componentDir, pathToTestUtils)
 
-    // Passing our options into this generator
-    export: schema.export,
-    name: schema.name,
-    directory: schema.directory,
+  generateFiles(host, joinPathFragments(__dirname, './files'), componentDir, {
+    ...options,
+    tmpl: '',
+    testingUtilsPath,
   })
-  if (!schema.skipStories) {
-    await generateStoryForComponent(host)
+}
+
+const assertValidOptions = (options: Schema) => {
+  const slashes = ['/', '\\']
+  slashes.forEach((s) => {
+    if (options.name.indexOf(s) !== -1) {
+      const [name, ...rest] = options.name.split(s).reverse()
+      let suggestion = rest.map((x) => x.toLowerCase()).join(s)
+      if (options.directory) {
+        suggestion = `${options.directory}${s}${suggestion}`
+      }
+      throw new Error(
+        `Found "${s}" in the component name. Did you mean to use the --directory option (e.g. \`nx g c ${name} --directory ${suggestion}\`)?`
+      )
+    }
+  })
+}
+
+const getDirectory = (host: Tree, options: Schema) => {
+  const { fileName } = names(options.name)
+
+  let baseDir: string
+  if (options.directory) {
+    baseDir = options.directory
+  } else {
+    baseDir = 'lib'
   }
-  await replaceTestingUtils(host)
-  await replaceExportFunction(host)
+
+  return joinPathFragments(baseDir, fileName)
+}
+
+const normalizeOptions = (host: Tree, options: Schema): NormalizedSchema => {
+  assertValidOptions(options)
+
+  const { className, fileName } = names(options.name)
+  const componentFileName = className
+  const { sourceRoot: projectSourceRoot, projectType } = getProjects(host).get(
+    'ui'
+  )
+
+  const directory = getDirectory(host, options)
+
+  return {
+    ...options,
+    directory,
+    className,
+    fileName: componentFileName,
+    projectSourceRoot,
+  }
+}
+
+const addExportsToBarrel = (host: Tree, options: NormalizedSchema) => {
+  if (options.export) {
+    const indexFilePath = joinPathFragments(
+      options.projectSourceRoot,
+      'index.ts'
+    )
+    const buffer = host.read(indexFilePath)
+    if (!!buffer) {
+      const indexSource = buffer.toString('utf-8')
+      const indexSourceFile = ts.createSourceFile(
+        indexFilePath,
+        indexSource,
+        ts.ScriptTarget.Latest,
+        true
+      )
+      const changes = applyChangesToString(
+        indexSource,
+        addImport(
+          indexSourceFile,
+          `export * from './${options.directory}/${options.fileName}'`
+        )
+      )
+      host.write(indexFilePath, changes)
+    }
+  }
+}
+
+export default async (host: Tree, schema: Schema) => {
+  const options = normalizeOptions(host, schema)
+
+  createComponentFiles(host, options)
+
+  addExportsToBarrel(host, options)
+  // await componentGenerator(host, {
+  //   // Defaults to @nrwl/react component generator
+  //   pascalCaseFiles: true,
+  //   style: 'styled-components',
+  //   project: 'ui',
+
+  //   // Passing our options into this generator
+  //   export: schema.export,
+  //   name: schema.name,
+  //   directory: schema.directory,
+  // })
+  // if (!schema.skipStories) {
+  //   await generateStoryForComponent(host)
+  // }
+  // await replaceTestingUtils(host)
+  // await replaceExportFunction(host)
   await formatFiles(host)
   return () => {
     installPackagesTask(host)
