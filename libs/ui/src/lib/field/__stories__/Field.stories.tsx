@@ -31,3 +31,27 @@ InvalidEmailField.args = {
   onChange: (event) => console.log(event.target.value),
   required: true,
 }
+
+export const FieldWithLeftIcon = Template.bind({})
+FieldWithLeftIcon.args = {
+  icon: { align: 'left', name: 'search', color: 'gray300' },
+  id: 'field-left-icon',
+  children: 'Search',
+  error: false,
+  onChange: (event) => console.log(event.target.value),
+  placeholder: 'Instances, people, projects, and more',
+}
+
+export const FieldWithRightIcon = Template.bind({})
+FieldWithRightIcon.args = {
+  icon: {
+    align: 'right',
+    name: 'info',
+    color: 'gray300',
+  },
+  id: 'field-right-icon',
+  children: 'Choose a hostname',
+  error: false,
+  onChange: (event) => console.log(event.target.value),
+  placeholder: 'Select a role',
+}

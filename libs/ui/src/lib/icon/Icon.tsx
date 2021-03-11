@@ -10,6 +10,8 @@ import { ReactComponent as CommandIcon } from '../../assets/command.svg'
 import { ReactComponent as CpuIcon } from '../../assets/cpu.svg'
 import { ReactComponent as DashboardIcon } from '../../assets/dashboard.svg'
 import { ReactComponent as FileIcon } from '../../assets/file.svg'
+import { ReactComponent as InfoIcon } from '../../assets/info.svg'
+import { ReactComponent as InfoFilledIcon } from '../../assets/info-filled.svg'
 import { ReactComponent as InstanceIcon } from '../../assets/instance.svg'
 import { ReactComponent as InstancesIcon } from '../../assets/instances.svg'
 import { ReactComponent as MemoryIcon } from '../../assets/memory.svg'
@@ -30,6 +32,7 @@ import { ReactComponent as ThemeIcon } from '../../assets/theme.svg'
 import { ReactComponent as UserIcon } from '../../assets/user.svg'
 import { ReactComponent as UsersIcon } from '../../assets/users.svg'
 import { ReactComponent as WarningIcon } from '../../assets/warning.svg'
+import { ReactComponent as WarningFilledIcon } from '../../assets/warning-filled.svg'
 
 export const icons = {
   bookmark: BookmarkIcon,
@@ -39,6 +42,8 @@ export const icons = {
   cpu: CpuIcon,
   dashboard: DashboardIcon,
   file: FileIcon,
+  info: InfoIcon,
+  infoFilled: InfoFilledIcon,
   instance: InstanceIcon,
   instances: InstancesIcon,
   memory: MemoryIcon,
@@ -59,6 +64,7 @@ export const icons = {
   user: UserIcon,
   users: UsersIcon,
   warning: WarningIcon,
+  warningFilled: WarningFilledIcon,
 }
 
 type Name = keyof typeof icons
@@ -75,6 +81,12 @@ const getColorStyles = (color?: string) => {
   `
 }
 
+const rotateStyles = (rotate) => {
+  return css`
+    transform: rotate(${rotate});
+  `
+}
+
 interface StyledIconProps extends TextProps {
   /**
    * Set the color using a theme color ("green500")
@@ -86,21 +98,25 @@ interface StyledIconProps extends TextProps {
   rotate?: string
 }
 
-const StyledIcon = styled(Text)<StyledIconProps>`
+const StyledIcon = styled(Text).withConfig({
+  // Do not pass 'color' and 'rotate' props to the DOM
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
+})<StyledIconProps>`
   display: inline-flex;
   width: 1em;
 
   justify-content: center;
   align-items: center;
 
-  ${(props) => getColorStyles(props.theme.themeColors[props.color])};
+  ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
 
   > svg {
     height: auto;
     width: 100%;
 
     fill: inherit;
-    ${(props) => props.rotate && `transform: rotate(${props.rotate});`}
+    ${({ rotate }) => rotate && rotateStyles(rotate)};
   }
 `
 
