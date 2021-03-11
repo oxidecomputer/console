@@ -18,16 +18,20 @@ export interface TableProps {
    * Rows to render
    */
   data: Array<Record<string, unknown>>
+  /**
+   * Row heights passed to the `itemSize` prop of [VariableSizeList](https://react-window.now.sh/#/examples/list/variable-size)
+   */
+  itemSize: (index: number) => number
 }
 
-const ROW_HEIGHT = 70
+const ROW_HEIGHT = 45
 
 const Wrapper = styled.div`
   height: 100%;
 
-  background-color: ${(props) => props.theme.color('gray900')};
-  color: ${(props) => props.theme.color('gray100')};
-  font-size: ${(props) => props.theme.spacing(3.5)};
+  background-color: ${({ theme }) => theme.color('gray900')};
+  color: ${({ theme }) => theme.color('gray100')};
+  font-size: ${({ theme }) => theme.spacing(3.5)};
   font-weight: 400;
   line-height: ${1.25 / 0.875}; /* 1.25rem */
 `
@@ -44,10 +48,10 @@ const rowStyles = css`
   flex-direction: row;
   flex-wrap: nowrap;
 
-  padding: 0 ${(props) => props.theme.spacing(6)};
+  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
   width: 100%;
 
-  box-shadow: inset 0px -1px 0px ${(props) => props.theme.color('gray800')};
+  box-shadow: inset 0px -1px 0px ${({ theme }) => theme.color('gray800')};
 `
 
 const StyledRow = styled.div`
@@ -59,13 +63,12 @@ const StyledStickyRow = styled.div<{ index: number }>`
 
   z-index: 2;
   position: sticky;
-  top: ${(props) => props.index * 35}px;
+  top: ${(props) => props.index * ROW_HEIGHT}px;
   left: 0;
 
   width: 100%;
-  height: ${ROW_HEIGHT}px;
 
-  background-color: ${(props) => props.theme.color('gray800')};
+  background-color: ${({ theme }) => theme.color('gray800')};
   text-transform: uppercase;
 `
 
@@ -129,7 +132,6 @@ const Row = ({ index, row, style, ...props }) => {
   )
 }
 
-// innerElementType={InnerWrapper}
 const InnerWrapper = forwardRef(
   ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
     return (
@@ -160,9 +162,7 @@ const RowWrapper = ({ data, index, style, ...props }) => {
   )
 }
 
-const getRowHeight = (index) => ROW_HEIGHT
-
-export const Table = ({ columns, data }: TableProps) => {
+export const Table = ({ columns, data, itemSize }: TableProps) => {
   if (!columns || !columns.length) {
     console.warn('Table: Missing `columns` prop')
     return null
@@ -196,7 +196,7 @@ export const Table = ({ columns, data }: TableProps) => {
                 ItemRenderer: Row,
                 rows: data,
               }}
-              itemSize={getRowHeight}
+              itemSize={itemSize}
               width={width}
             >
               {RowWrapper}
@@ -206,6 +206,10 @@ export const Table = ({ columns, data }: TableProps) => {
       </AutoSizer>
     </Wrapper>
   )
+}
+
+Table.defaultProps = {
+  itemSize: () => ROW_HEIGHT,
 }
 
 export default Table

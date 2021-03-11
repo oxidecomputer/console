@@ -46,10 +46,17 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
   }
 })
 
+const getItemSize = (index) => {
+  if (index === 0) {
+    return 45
+  }
+  return 64
+}
+
 export const primary = () => {
   return (
     <div style={{ height: '50vh' }}>
-      <Table columns={sampleColumns} data={sampleData} />
+      <Table columns={sampleColumns} data={sampleData} itemSize={getItemSize} />
     </div>
   )
 }
