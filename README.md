@@ -32,15 +32,16 @@ Run `nx serve web-console` for a dev server. Navigate to http://localhost:4200/.
 ### Create a new component
 
 ```
-yarn g:ui-component <COMPONENT_NAME> [--skipStories] [--directory=<directory>]
+yarn g:ui-component <COMPONENT_NAME> [--skipStories] [--storyType=(csf|mdx)] [--directory=<directory>]
 ```
 
 Where `<COMPONENT_NAME>` is the name of the new component to include. It takes the following options
 
-| Option          | Description                                                                                               |
-| --------------- | --------------------------------------------------------------------------------------------------------- |
-| `--skipStories` | Skips generating storybook stories, useful for internal components which shouldn't have stories.          |
-| `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory |
+| Option          | Description                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `--skipStories` | Skips generating storybook stories, useful for internal components which shouldn't have stories.                            |
+| `--storyType`   | Decides on the type of stories (either `mdx` or `csf`) to build. Does nothing if `--skipStories` is enabled (default `csf`) |
+| `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory                   |
 
 ### Run unit tests
 

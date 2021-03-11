@@ -16,6 +16,11 @@
       "description": "When true, skips creating Jest tests for this component.",
       "default": false
     },
+    "storyType": {
+      "type": "string",
+      "description": "Decide which type of stories to create `csf` or `mdx`",
+      "default": "csf"
+    },
     "export": {
       "type": "boolean",
       "description": "When true, the component is exported from the project index.ts (if it exists).",

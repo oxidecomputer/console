@@ -40,6 +40,22 @@ const createComponentFiles = (host: Tree, options: NormalizedSchema) => {
       deleteFile = true
     }
 
+    if (
+      !options.skipStories &&
+      options.storyType === 'csf' &&
+      /\/__stories__\//.test(c.path)
+    ) {
+      deleteFile = true
+    }
+
+    if (
+      !options.skipStories &&
+      options.storyType === 'mdx' &&
+      /(?<!__stories__)\/\w*\.stories\.tsx/.test(c.path)
+    ) {
+      deleteFile = true
+    }
+
     if (deleteFile) {
       host.delete(c.path)
     }
@@ -47,6 +63,10 @@ const createComponentFiles = (host: Tree, options: NormalizedSchema) => {
 }
 
 const assertValidOptions = (options: Schema) => {
+  if (options.storyType !== 'mdx' && options.storyType !== 'csf') {
+    throw new Error(`Invalid story type. Valid options are \`mdx\` or \`csf\``)
+  }
+
   const slashes = ['/', '\\']
   slashes.forEach((s) => {
     if (options.name.indexOf(s) !== -1) {
@@ -86,6 +106,7 @@ const normalizeOptions = (host: Tree, options: Schema): NormalizedSchema => {
 
   return {
     ...options,
+    storyType: options.storyType || 'csf',
     directory,
     className,
     fileName: componentFileName,
