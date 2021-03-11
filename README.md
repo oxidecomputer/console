@@ -37,7 +37,11 @@ Generate a React component, a test file, and a Storybook story with
 yarn plop ui-component
 ```
 
-It will prompt for a component name and a subdirectory of `libs/ui/src/lib` for the component to go in (default is root, i.e., `libs/ui/src/lib`).
+It will prompt for a component name and a subdirectory of `libs/ui/src/lib` for the component to go in (default is root, i.e., `libs/ui/src/lib`). You can skip the prompts by including one or both of those directly in the command: 
+
+```
+yarn plop ui-component RedButton buttons
+```
 
 ### Run unit tests
 
