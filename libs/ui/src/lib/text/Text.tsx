@@ -142,9 +142,6 @@ export const Text = styled.span.withConfig({
         font-family: ${theme.fonts[font]};
       `
     }
-    return css`
-      font-family: inherit;
-    `
   }}
 
   ${(props) => getSizeStyles(props.size)};
