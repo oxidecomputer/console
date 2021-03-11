@@ -92,53 +92,55 @@ export const OperationList = () => {
         <HeaderText>Operations</HeaderText>
       </Header>
       <List>
-        <ListItem tabIndex={0} onClick={null}>
+        <ListItem tabIndex={0}>
           <StyledIcon name="dashboard" />
-          <Title selected={false}>System</Title>
+          <Title>System</Title>
         </ListItem>
-        <ListItem tabIndex={0} onClick={null}>
+
+        <ListItem tabIndex={0}>
           <StyledIcon name="resources" />
-          <Title selected={false}>Resources</Title>
+          <Title selected={true}>Resources</Title>
         </ListItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>Instances</Title>
+          <Title>Instances</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>VPCs</Title>
+          <Title>VPCs</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>Images</Title>
+          <Title selected={true}>Images</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>Disks</Title>
+          <Title>Disks</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>Snapshots</Title>
+          <Title>Snapshots</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>├</BoxGlyph>
-          <Title selected={false}>Firewall Rules</Title>
+          <Title>Firewall Rules</Title>
         </ListSubItem>
-        <ListSubItem tabIndex={0} onClick={null}>
+        <ListSubItem tabIndex={0}>
           <BoxGlyph>└</BoxGlyph>
-          <Title selected={false}>IP Addresses</Title>
+          <Title>IP Addresses</Title>
         </ListSubItem>
-        <ListItem tabIndex={0} onClick={null}>
+
+        <ListItem tabIndex={0}>
           <StyledIcon name="organization" />
-          <Title selected={false}>Organizations</Title>
+          <Title>Organizations</Title>
         </ListItem>
-        <ListItem tabIndex={0} onClick={null}>
+        <ListItem tabIndex={0}>
           <StyledIcon name="projects" />
-          <Title selected={false}>Projects</Title>
+          <Title>Projects</Title>
         </ListItem>
-        <ListItem tabIndex={0} onClick={null}>
+        <ListItem tabIndex={0}>
           <StyledIcon name="users" />
-          <Title selected={false}>IAM</Title>
+          <Title>IAM</Title>
         </ListItem>
       </List>
     </StyledOperationList>
