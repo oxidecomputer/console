@@ -6,6 +6,7 @@
     "start": "webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.prod.config.ts",
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
+    "checks": "yarn typecheck && yarn lint && yarn format:check && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "e2e": "echo 'to be implemented'",
