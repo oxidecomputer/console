@@ -120,6 +120,7 @@ const Row = ({ index, row, style, ...props }) => {
             const currentCol = col.accessor
             const currentCell = row[currentCol]
             // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
+            // https://github.com/oxidecomputer/console/issues/66
             return (
               <StyledCell role="gridcell" aria-colindex={columnIndex + 1}>
                 {currentCell}
@@ -174,11 +175,7 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
   const count = data.length
 
   // TODO: Add keyboard controls
-  // const focusGrid = useRef(null)
-  // useEffect(() => {
-  //   // update grid array when DOM updates
-  // }, [])
-
+  // https://github.com/oxidecomputer/console/issues/66
   return (
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
