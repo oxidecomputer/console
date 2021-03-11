@@ -1,7 +1,7 @@
 import React, { createContext, forwardRef, useEffect, useRef } from 'react'
 
 import styled, { css } from 'styled-components'
-import { VariableSizeList as List } from 'react-window'
+import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 /**
@@ -25,12 +25,15 @@ export interface TableProps {
 }
 
 const ROW_HEIGHT = 45
+const DARK_GREEN = `hsla(167, 100%, 5%, 1)`
+const BORDER_COLOR = `hsla(209, 25%, 82%, 0.5)`
 
 const Wrapper = styled.div`
   height: 100%;
 
-  background-color: ${({ theme }) => theme.color('gray900')};
-  color: ${({ theme }) => theme.color('gray100')};
+  background-color: ${DARK_GREEN};
+  color: ${({ theme }) => theme.color('gray50')};
+  font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.spacing(3.5)};
   font-weight: 400;
   line-height: ${1.25 / 0.875}; /* 1.25rem */
@@ -43,15 +46,28 @@ const StyledRowGroup = styled.div`
   flex: 1 1 auto;
 `
 
+const StyledCell = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  flex: 1 1 0;
+
+  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
+
+  &:not(:first-child) {
+    box-shadow: inset 1px 0 0 ${BORDER_COLOR};
+  }
+`
+
 const rowStyles = css`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 
-  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
   width: 100%;
 
-  box-shadow: inset 0px -1px 0px ${({ theme }) => theme.color('gray800')};
+  box-shadow: inset 0 -1px 0 ${BORDER_COLOR};
 `
 
 const StyledRow = styled.div`
@@ -68,16 +84,13 @@ const StyledStickyRow = styled.div<{ index: number }>`
 
   width: 100%;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${DARK_GREEN};
+  color: ${({ theme }) => theme.color('green500')};
   text-transform: uppercase;
-`
 
-const StyledCell = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  flex: 1 1 0;
+  ${StyledCell} {
+    background-color: ${({ theme }) => theme.color('green500', 0.16)};
+  }
 `
 
 const ListContext = createContext({ columns: null })
@@ -151,16 +164,14 @@ const InnerWrapper = forwardRef(
 )
 
 const RowWrapper = ({ data, index, style, ...props }) => {
-  const { ItemRenderer, rows } = data
   const isStickyHeader = index === 0
   if (isStickyHeader) {
-    // Do not render the first row since `InnerWrapper` will always render it as a sticky row
+    // Do not render the columns header (aka first row) since `InnerWrapper` will always render it as a sticky row
     return null
   }
   // Pass row data to each row
-  return (
-    <ItemRenderer index={index} style={style} row={rows[index]} {...props} />
-  )
+  const row = data[index]
+  return <Row index={index} style={style} row={row} {...props} />
 }
 
 export const Table = ({ columns, data, itemSize }: TableProps) => {
@@ -173,9 +184,12 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
     return null
   }
   const count = data.length
+  // Each row is absolutely positioned using a `top` offset, so make sure the column headers take space of the first row
+  const itemData = [columns, ...data]
 
   // TODO: Add keyboard controls
   // https://github.com/oxidecomputer/console/issues/66
+
   return (
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
@@ -185,19 +199,16 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
               columns: columns,
             }}
           >
-            <List
+            <VariableSizeList
               innerElementType={InnerWrapper}
               height={height}
               itemCount={count}
-              itemData={{
-                ItemRenderer: Row,
-                rows: data,
-              }}
+              itemData={itemData}
               itemSize={itemSize}
               width={width}
             >
               {RowWrapper}
-            </List>
+            </VariableSizeList>
           </ListContext.Provider>
         )}
       </AutoSizer>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Table, TableProps } from './Table'
+import { Text } from '../text/Text'
 
 export default {
   component: Table,
