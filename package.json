@@ -26,7 +26,6 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "storybook": "nx run ui:storybook",
-    "g:ui-component": "nx workspace-generator ui-component",
     "plop": "plop"
   },
   "private": true,
