@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { Color, Font } from '@oxide/theme'
 
 export const textSizes = [
   'xxs',
@@ -97,9 +98,13 @@ const getSizeStyles = (size?: TextSize) => {
 
 export interface TextProps {
   /**
+   * Set a color from theme, otherwise color will default to inherit
+   */
+  color?: Color
+  /**
    * Set the font-family to be sans-serif or monospace
    */
-  font?: 'sans' | 'mono'
+  font?: Font
   /**
    * Set the size of the text
    */
@@ -110,23 +115,31 @@ export interface TextProps {
   weight?: number
 }
 
-export const Text = styled.span<TextProps>`
-  color: inherit;
-  ${(props) =>
-    props.weight &&
-    css`
-      font-weight: ${props.weight};
-    `};
-
-  ${(props) => {
-    if (props.font === 'sans') {
+export const Text = styled.span.withConfig({
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    // Do not pass color or size directly to DOM
+    !['color', 'size'].includes(prop) && defaultValidatorFn(prop),
+})<TextProps>`
+  ${({ color, theme }) => {
+    if (color) {
       return css`
-        font-family: ${props.theme.fonts.sans};
+        color: ${theme.color(color)};
       `
     }
-    if (props.font === 'mono') {
+    return css`
+      color: inherit;
+    `
+  }}
+  ${({ weight }) =>
+    weight &&
+    css`
+      font-weight: ${weight};
+    `};
+
+  ${({ font, theme }) => {
+    if (font) {
       return css`
-        font-family: ${props.theme.fonts.mono};
+        font-family: ${theme.fonts[font]};
       `
     }
   }}
