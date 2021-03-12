@@ -1,4 +1,4 @@
-import React, { createContext, forwardRef, useEffect, useRef } from 'react'
+import React, { createContext, forwardRef, useContext } from 'react'
 
 import styled, { css } from 'styled-components'
 import { VariableSizeList } from 'react-window'
@@ -78,7 +78,7 @@ const StyledStickyRow = styled.div<{ index: number }>`
   ${rowStyles};
 
   z-index: 2;
-  position: sticky;
+  position: sticky; /* sometimes the table peeks through at the top */
   top: ${(props) => props.index * ROW_HEIGHT}px;
   left: 0;
 
@@ -120,56 +120,49 @@ const StickyRow = ({ index, columns, ...props }) => {
 }
 
 const Row = ({ index, row, style, ...props }) => {
+  const { columns } = useContext(ListContext)
   return (
-    <ListContext.Consumer>
-      {({ columns }) => (
-        <StyledRow
-          role="row"
-          aria-rowindex={index + 1}
-          style={style}
-          {...props}
-        >
-          {columns.map((col, columnIndex) => {
-            const currentCol = col.accessor
-            const currentCell = row[currentCol]
-            // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
-            // https://github.com/oxidecomputer/console/issues/66
-            return (
-              <StyledCell role="gridcell" aria-colindex={columnIndex + 1}>
-                {currentCell}
-              </StyledCell>
-            )
-          })}
-        </StyledRow>
-      )}
-    </ListContext.Consumer>
+    <StyledRow role="row" aria-rowindex={index + 1} style={style} {...props}>
+      {columns.map((col, columnIndex) => {
+        const currentCol = col.accessor
+        const currentCell = row[currentCol]
+        // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
+        // https://github.com/oxidecomputer/console/issues/66
+        return (
+          <StyledCell role="gridcell" aria-colindex={columnIndex + 1}>
+            {currentCell}
+          </StyledCell>
+        )
+      })}
+    </StyledRow>
   )
 }
 
 const InnerWrapper = forwardRef(
   ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
+    const { columns } = useContext(ListContext)
+    // You can think of role="rowgroup" as equivalent to <tbody> element
     return (
-      <ListContext.Consumer>
-        {({ columns }) => (
-          <StyledRowGroup role="rowgroup" ref={ref} {...props}>
-            {columns && columns.length ? (
-              <StickyRow key={0} index={0} columns={columns} />
-            ) : null}
-            {children}
-          </StyledRowGroup>
-        )}
-      </ListContext.Consumer>
+      <StyledRowGroup role="rowgroup" ref={ref} {...props}>
+        {columns && columns.length ? (
+          <StickyRow key={0} index={0} columns={columns} />
+        ) : null}
+        {children}
+      </StyledRowGroup>
     )
   }
 )
 
 const RowWrapper = ({ data, index, style, ...props }) => {
+  // react-window will only render & mount the rows that are visible in the viewport
+  // (so this component is not guaranteed to always have access to `data[0]`)
   const isStickyHeader = index === 0
   if (isStickyHeader) {
-    // Do not render the columns header (aka first row) since `InnerWrapper` will always render it as a sticky row
+    // Skip rendering the columns header (aka the first row) because
+    // `InnerWrapper` will always render it as a sticky row
     return null
   }
-  // Pass row data to each row
+  // Pass row data to each visible row
   const row = data[index]
   return <Row index={index} style={style} row={row} {...props} />
 }
@@ -184,7 +177,7 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
     return null
   }
   const count = data.length
-  // Each row is absolutely positioned using a `top` offset, so make sure the column headers take space of the first row
+  // Each row is absolutely positioned using a `top` offset, so make sure the column headers take up the 'space' of the first row
   const itemData = [columns, ...data]
 
   // TODO: Add keyboard controls
