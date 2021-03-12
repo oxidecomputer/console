@@ -1,8 +1,4 @@
-import {
-  css,
-  DefaultTheme as Theme,
-  SpaceBetweenHelper,
-} from 'styled-components'
+import { css, DefaultTheme as Theme, SpacingHelper } from 'styled-components'
 import { Color } from '../types'
 import { colorValues, colorPalette } from '../colors'
 
@@ -29,7 +25,7 @@ const color = (name: Color, alpha?: number) => {
  *
  * @param size The size of the distance between child elements
  */
-const spaceBetweenX: SpaceBetweenHelper = (size) => css`
+const spaceBetweenX: SpacingHelper = (size) => css`
   & > * + * {
     margin-left: ${({ theme }) => theme.spacing(size)};
     margin-right: 0;
@@ -41,11 +37,21 @@ const spaceBetweenX: SpaceBetweenHelper = (size) => css`
  *
  * @param size The size of the distance between child elements
  */
-const spaceBetweenY: SpaceBetweenHelper = (size) => css`
+const spaceBetweenY: SpacingHelper = (size) => css`
   & > * + * {
     margin-top: ${({ theme }) => theme.spacing(size)};
     margin-bottom: 0;
   }
+`
+
+const paddingX: SpacingHelper = (size) => css`
+  padding-left: ${({ theme }) => theme.spacing(size)};
+  padding-right: ${({ theme }) => theme.spacing(size)};
+`
+
+const paddingY: SpacingHelper = (size) => css`
+  padding-top: ${({ theme }) => theme.spacing(size)};
+  padding-bottom: ${({ theme }) => theme.spacing(size)};
 `
 
 export const baseTheme: Theme = {
@@ -63,4 +69,6 @@ export const baseTheme: Theme = {
   spacing: (size) => `${size * 0.25}rem`,
   spaceBetweenX,
   spaceBetweenY,
+  paddingX,
+  paddingY,
 }

@@ -211,6 +211,31 @@
           }
         }
       }
+    },
+    "backend-types": {
+      "root": "libs/backend-types",
+      "sourceRoot": "libs/backend-types/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/backend-types/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/backend-types"
+          ],
+          "options": {
+            "jestConfig": "libs/backend-types/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   }
 }
