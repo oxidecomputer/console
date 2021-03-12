@@ -10,6 +10,9 @@ type ColorValues = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
 export type Color = `${ColorNames}${ColorValues}` | 'white' | 'black'
 export type ColorPalette = Record<Color, string>
 
+// Fonts
+export type Fonts = 'sans' | 'mono'
+
 // Helper functions
 
 // Extend styled-components with our Theme type
@@ -22,8 +25,7 @@ declare module 'styled-components' {
     themeColors: ColorPalette
     color: (name: Color, alpha?: number) => string
     fonts: {
-      sans: string
-      mono: string
+      [key in Fonts]: string
     }
     spacing: (size: SizingMultiplier) => string
     spaceBetweenX: SpacingHelper

@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { Color } from '@oxide/theme'
+import { Color, Fonts } from '@oxide/theme'
 
 export const textSizes = [
   'xxs',
@@ -104,7 +104,7 @@ export interface TextProps {
   /**
    * Set the font-family to be sans-serif or monospace
    */
-  font?: 'sans' | 'mono'
+  font?: Fonts
   /**
    * Set the size of the text
    */
