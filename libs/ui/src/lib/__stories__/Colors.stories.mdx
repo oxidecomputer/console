@@ -12,7 +12,20 @@ When using color, please double check that the color contrast follows the [WCAG 
 
 ## Usage
 
-Colors are exposed directly on both the light theme and the dark theme in `props.theme.themeColors.COLOR_KEY`. Eventually the themes will abstract the colors so that you will not need to reference the theme colors directly.
+A color function is available for both light and dark theme that takes a color name and an optional alpha value: `props.theme.color(COLOR_NAME, ALPHA)`. The alpha value defaults to `1` if no alpha is given.
+
+**Examples**
+
+- Oxide Yellow 50: `props.theme.color("yellow50")`
+- Oxide Green 500 at a 16% opacity: `props.theme.color("green500", 0.16)`
+
+### Future Usage
+
+Eventually the `color()` helper will abstract the colors so that you will not need to reference the color names directly. e.g. `props.theme.color("buttonBackground")` The exact API is to be determined.
+
+### Legacy Usage
+
+Use the `color()` function wherever possible. Colors are also exposed directly on both the light theme and the dark theme in `props.theme.themeColors.COLOR_KEY`.
 
 ## Passing Color Contrast Combinations
 
