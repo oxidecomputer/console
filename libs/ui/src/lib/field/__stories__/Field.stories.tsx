@@ -55,3 +55,19 @@ FieldWithRightIcon.args = {
   onChange: (event) => console.log(event.target.value),
   placeholder: 'Select a role',
 }
+
+export const FieldWithHint = Template.bind({})
+FieldWithHint.args = {
+  icon: {
+    align: 'right',
+    name: 'info',
+    color: 'gray300',
+  },
+  id: 'field-hint',
+  children: 'Choose a hostname',
+  error: true,
+  hint:
+    'Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods.',
+  onChange: (event) => console.log(event.target.value),
+  placeholder: 'Select a role',
+}

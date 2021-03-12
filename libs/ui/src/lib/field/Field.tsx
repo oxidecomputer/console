@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -77,6 +77,8 @@ const HintText = styled(Text).attrs({
   weight: 400,
   size: 'sm',
 })`
+  padding-bottom: ${(props) => props.theme.spacing(2)};
+
   color: ${({ theme }) => theme.color('gray300')};
 `
 
@@ -181,12 +183,18 @@ export const Field = ({
   value,
 }: FieldProps) => {
   const inputRequiredProps = required ? { 'aria-required': true, required } : {}
-  const renderErrorMessage = error ? (
-    <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
-  ) : null
   const inputErrorProps = error
     ? { 'aria-describedby': `${id}-validation-hint`, hasError: true }
     : {}
+  const inputHintProps = hint ? { 'aria-describedby': `${id}-hint` } : {}
+  // Resolve hint prop overriding error prop here
+
+  const renderErrorMessage = error ? (
+    <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
+  ) : null
+  const renderHintMessage = hint ? (
+    <HintText id={`${id}-hint`}>{hint}</HintText>
+  ) : null
 
   const hasIcon = !!icon && !!icon.name
   const alignIcon = hasIcon ? icon.align : null
@@ -199,7 +207,7 @@ export const Field = ({
         {children}
         {required ? null : <OptionalText>Optional</OptionalText>}
       </Label>
-      {hint ? <HintText id={`${id}-hint`}>{hint}</HintText> : null}
+      {renderHintMessage}
       <InputWrapper>
         <StyledInput
           alignIcon={alignIcon}
@@ -214,6 +222,7 @@ export const Field = ({
           value={value}
           {...inputRequiredProps}
           {...inputErrorProps}
+          {...inputHintProps}
         />
         {renderIcon}
       </InputWrapper>
