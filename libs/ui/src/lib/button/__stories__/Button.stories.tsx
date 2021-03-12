@@ -10,20 +10,14 @@ type ButtonStory = Story<PropsWithChildren<ButtonProps>>
 
 const Template: ButtonStory = (args) => <Button {...args} />
 
-export const Default: ButtonStory = Template.bind({})
-Default.args = {
-  children: 'Button',
-  disabled: false,
-  size: 'base',
-  variant: 'solid',
-}
-
 const builder = storyBuilder(Template, {
   children: 'Button',
   disabled: false,
   size: 'base',
   variant: 'solid',
 })
+
+export const Default = builder.build('Default')
 
 const sizes = buttonSizes.reduce(
   (rest, size) => ({

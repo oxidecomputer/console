@@ -10,7 +10,7 @@ type VariantMap<A> = Partial<Record<keyof A, Variants<A[keyof A]>>>
 
 type KeyMapper<T> = (key: T) => string
 interface StoryBuilder<A extends Args> {
-  build: (name: string, args?: Partial<PropsWithChildren<A>>) => Story<A>
+  build: (name: string, args?: Partial<A>) => Story<A>
   storiesFor: (
     values: VariantInput<A>,
     keyMapper?: KeyMapper<keyof A>
@@ -19,7 +19,7 @@ interface StoryBuilder<A extends Args> {
 
 export const storyBuilder = <A extends Args>(
   baseStory: Story<A>,
-  defaultArgs: PropsWithChildren<A>
+  defaultArgs: A
 ): StoryBuilder<A> => {
   const build: StoryBuilder<A>['build'] = (name, args = {}) => {
     const story: Story<A> = baseStory.bind({})
