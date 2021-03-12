@@ -3,6 +3,7 @@
 import { Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { colorPalette } from '@oxide/theme'
+import { AllColors } from './Colors.stories'
 
 <Meta title="Foundations/Colors" />
 
@@ -33,19 +34,50 @@ TODO
 
 ## All colors
 
-<table>
-  <tr>
-    <th>Color</th>
-    <th>Key</th>
-  </tr>
-  {Object.keys(colorPalette).map((key) => {
+<AllColors>
+  {(colorName, colorGroup) => {
+    const isSingleColor = colorGroup.length === 1
+    const renderColor = colorGroup.map((color) => {
+      return (
+        <div
+          style={{
+            flex: '0 1 auto',
+            display: 'flex',
+            alignItems: 'stretch',
+            marginBottom: '1em',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: colorPalette[color],
+              width: '1.5em',
+              marginRight: '0.25em',
+              borderRadius: '50em',
+              border: `1px solid ${colorPalette.gray800}`,
+            }}
+          ></div>
+          <div>
+            <code>{color}</code>
+            <br />
+            <code>{colorPalette[color]}</code>
+          </div>
+        </div>
+      )
+    })
     return (
-      <tr>
-        <td style={{ backgroundColor: colorPalette[key], width: '1.5em' }}></td>
-        <td>
-          <code>{key}</code>
-        </td>
-      </tr>
+      <div
+        style={{
+          flex: isSingleColor ? '1 1 50%' : 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          flexWrap: 'wrap',
+          marginRight: isSingleColor ? '0' : '1em',
+          marginBottom: '1em',
+        }}
+      >
+        <p>{colorName}</p>
+        {renderColor}
+      </div>
     )
-  })}
-</table>
+  }}
+</AllColors>
