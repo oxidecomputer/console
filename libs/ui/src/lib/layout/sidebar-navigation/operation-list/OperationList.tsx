@@ -11,10 +11,6 @@ const BaseText = styled(Text).attrs({
   weight: 400,
 })``
 
-const StyledOperationList = styled.div`
-  ${({ theme }) => theme.spaceBetweenY(1)}
-`
-
 const Header = styled.header`
   padding: ${({ theme }) => theme.spacing(1)};
   text-transform: uppercase;
@@ -25,33 +21,20 @@ const HeaderText = styled(BaseText)`
 `
 
 const List = styled.ul`
-  padding: 0;
-
-  list-style: none;
-
   display: flex;
   flex-direction: column;
-
-  align-items: flex-start;
-  justify-content: center;
 
   color: ${({ theme }) => theme.color('gray400')};
   text-transform: uppercase;
 
   ${({ theme }) => theme.spaceBetweenY(1)}
+  margin-top: ${({ theme }) => theme.spacing(1)};
 `
 
-const ListItem = styled.li`
-  padding: ${({ theme }) => theme.spacing(1)};
-  width: 100%;
-
-  padding: ${({ theme }) => theme.spacing(1)};
-
-  display: flex;
-  flex-direction: row;
+const BaseLink = styled.a`
+  color: ${({ theme }) => theme.color('gray400')} !important;
   cursor: pointer;
-
-  ${({ theme }) => theme.spaceBetweenX(1)}
+  padding: ${({ theme }) => theme.spacing(1)};
 
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
@@ -62,13 +45,34 @@ const ListItem = styled.li`
   }
 `
 
-const ListSubItem = styled(ListItem)`
+const ListItemLink = styled(BaseLink)`
+  display: flex;
+  ${({ theme }) => theme.spaceBetweenX(2)}
+`
+
+const glyphWidth = '1rem';
+
+const ListSubItem = styled.li`
   margin-left: 1.75rem;
+
+  ::before {
+    content: '├';
+    color: ${({ theme }) => theme.color('yellow500')};
+    width: ${glyphWidth};
+    display: inline-block;
+  }
+
+  :last-child::before {
+    content: '└';
+  }
+`
+
+const SubItemLink = styled(BaseLink)`
+  width: calc(100% - ${glyphWidth});
+  display: inline-block;
 `
 
 const Title = styled(BaseText)<{ selected?: boolean }>`
-  flex: 1;
-
   ${({ selected, theme }) =>
     selected &&
     css`
@@ -76,74 +80,86 @@ const Title = styled(BaseText)<{ selected?: boolean }>`
     `}
 `
 
-const StyledIcon = styled(Icon)`
-  margin-right: 0.5rem;
-`
-
-const BoxGlyph = styled.span`
-  margin-right: 0.25rem;
-  color: ${({ theme }) => theme.color('yellow500')};
-`
+const SubItemTitle = styled(Title).attrs({ size: 'xxs' })``
 
 export const OperationList = () => {
   return (
-    <StyledOperationList>
+    <nav>
       <Header>
         <HeaderText>Operations</HeaderText>
       </Header>
       <List>
-        <ListItem tabIndex={0}>
-          <StyledIcon name="dashboard" />
-          <Title>System</Title>
-        </ListItem>
+        <li>
+          <ListItemLink>
+            <Icon name="dashboard" />
+            <Title>System</Title>
+          </ListItemLink>
+        </li>
 
-        <ListItem tabIndex={0}>
-          <StyledIcon name="resources" />
-          <Title selected={true}>Resources</Title>
-        </ListItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title>Instances</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title>VPCs</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title selected={true}>Images</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title>Disks</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title>Snapshots</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>├</BoxGlyph>
-          <Title>Firewall Rules</Title>
-        </ListSubItem>
-        <ListSubItem tabIndex={0}>
-          <BoxGlyph>└</BoxGlyph>
-          <Title>IP Addresses</Title>
-        </ListSubItem>
+        <li>
+          <ListItemLink>
+            <Icon name="resources" />
+            <Title selected={true}>Resources</Title>
+          </ListItemLink>
+          <List>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>Instances</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>VPCs</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle selected={true}>Images</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>Disks</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>Snapshots</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>Firewall Rules</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+            <ListSubItem>
+              <SubItemLink href="#">
+                <SubItemTitle>IP Addresses</SubItemTitle>
+              </SubItemLink>
+            </ListSubItem>
+          </List>
+        </li>
 
-        <ListItem tabIndex={0}>
-          <StyledIcon name="organization" />
-          <Title>Organizations</Title>
-        </ListItem>
-        <ListItem tabIndex={0}>
-          <StyledIcon name="projects" />
-          <Title>Projects</Title>
-        </ListItem>
-        <ListItem tabIndex={0}>
-          <StyledIcon name="users" />
-          <Title>IAM</Title>
-        </ListItem>
+        <li>
+          <ListItemLink>
+            <Icon name="organization" />
+            <Title>Organizations</Title>
+          </ListItemLink>
+        </li>
+        <li>
+          <ListItemLink>
+            <Icon name="projects" />
+            <Title>Projects</Title>
+          </ListItemLink>
+        </li>
+        <li>
+          <ListItemLink>
+            <Icon name="users" />
+            <Title>IAM</Title>
+          </ListItemLink>
+        </li>
       </List>
-    </StyledOperationList>
+    </nav>
   )
 }
 

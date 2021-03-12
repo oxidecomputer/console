@@ -6,7 +6,7 @@ export default {
   title: 'Layout/Sidebar Navigation/Operation List',
   decorators: [
     (Story) => (
-      <div style={{ maxWidth: '220px' }}>
+      <div style={{ maxWidth: '180px' }}>
         <Story />
       </div>
     ),
