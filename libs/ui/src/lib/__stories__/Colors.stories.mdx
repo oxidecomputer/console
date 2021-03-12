@@ -67,15 +67,14 @@ TODO
     return (
       <div
         style={{
-          flex: isSingleColor ? '1 1 50%' : 'auto',
+          flex: isSingleColor ? '1 1 100%' : 'auto',
           display: 'flex',
           flexDirection: 'column',
           flexWrap: 'wrap',
           marginRight: isSingleColor ? '0' : '1em',
-          marginBottom: '1em',
         }}
       >
-        <p>{colorName}</p>
+        <p style={{ textTransform: 'capitalize' }}>{colorName}</p>
         {renderColor}
       </div>
     )
