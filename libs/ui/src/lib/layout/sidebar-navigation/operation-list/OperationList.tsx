@@ -33,7 +33,6 @@ const List = styled.ul`
 
 const BaseLink = styled.a`
   color: ${({ theme }) => theme.color('gray400')} !important;
-  cursor: pointer;
   padding: ${({ theme }) => theme.spacing(1)};
 
   :hover {
@@ -90,14 +89,14 @@ export const OperationList = () => {
       </Header>
       <List>
         <li>
-          <ListItemLink>
+          <ListItemLink href="#">
             <Icon name="dashboard" />
             <Title>System</Title>
           </ListItemLink>
         </li>
 
         <li>
-          <ListItemLink>
+          <ListItemLink href="#">
             <Icon name="resources" />
             <Title selected={true}>Resources</Title>
           </ListItemLink>
@@ -141,19 +140,19 @@ export const OperationList = () => {
         </li>
 
         <li>
-          <ListItemLink>
+          <ListItemLink href="#">
             <Icon name="organization" />
             <Title>Organizations</Title>
           </ListItemLink>
         </li>
         <li>
-          <ListItemLink>
+          <ListItemLink href="#">
             <Icon name="projects" />
             <Title>Projects</Title>
           </ListItemLink>
         </li>
         <li>
-          <ListItemLink>
+          <ListItemLink href="#">
             <Icon name="users" />
             <Title>IAM</Title>
           </ListItemLink>
