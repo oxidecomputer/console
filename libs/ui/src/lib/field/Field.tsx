@@ -48,7 +48,7 @@ export interface FieldProps {
 }
 
 const StyledField = styled.div`
-  color: ${(props) => props.theme.color('gray100')};
+  color: ${({ theme }) => theme.color('gray100')};
 `
 
 const Label = styled(Text).attrs({
@@ -63,7 +63,7 @@ const Label = styled(Text).attrs({
   flex-direction: row;
   justify-content: space-between;
 
-  padding-bottom: ${(props) => props.theme.spacing(1)};
+  padding-bottom: ${({ theme }) => theme.spacing(1)};
 `
 
 const OptionalText = styled(Text).attrs({
@@ -78,7 +78,7 @@ const HintText = styled(Text).attrs({
   size: 'sm',
 })`
   display: block;
-  padding-bottom: ${(props) => props.theme.spacing(2)};
+  padding-bottom: ${({ theme }) => theme.spacing(2)};
 
   color: ${({ theme }) => theme.color('gray300')};
 `
@@ -114,24 +114,24 @@ const StyledInput = styled.input<{
 }>`
   display: block;
   margin: 0;
-  padding: ${(props) => `${props.theme.spacing(2)} ${props.theme.spacing(3)}`};
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
   width: 100%;
 
   border: 1px solid transparent;
-  background-color: ${(props) => props.theme.color('gray700')};
-  color: ${(props) => props.theme.color('gray100')};
-  font-family: ${(props) => props.theme.fonts.sans};
-  font-size: ${(props) => props.theme.spacing(3.5)};
+  background-color: ${({ theme }) => theme.color('gray700')};
+  color: ${({ theme }) => theme.color('gray100')};
+  font-family: ${({ theme }) => theme.fonts.sans};
+  font-size: ${({ theme }) => theme.spacing(3.5)};
   line-height: ${1.25 / 0.875};
 
   &:hover {
-    background-color: ${(props) => props.theme.color('gray800')};
+    background-color: ${({ theme }) => theme.color('gray800')};
   }
 
   &:focus {
     outline: none;
-    border-color: ${(props) => props.theme.color('green500')};
-    box-shadow: 0px 0px 0px 1px ${(props) => props.theme.color('green500')};
+    border-color: ${({ theme }) => theme.color('green500')};
+    box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
   }
 
   ${({ alignIcon, theme }) => {
@@ -196,9 +196,6 @@ export const Field = ({
           'aria-describedby': `${errorId} ${hintId}`,
         }
       : { ...inputRequiredProps }
-
-  console.log('required', required, 'error', error)
-  console.log('inputProps', inputProps)
 
   const renderErrorMessage = error ? (
     <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
