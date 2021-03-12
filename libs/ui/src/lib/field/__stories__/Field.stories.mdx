@@ -13,7 +13,14 @@ import {
   FieldWithHint,
 } from './Field.stories'
 
-<Meta title="Components/Field" component={Field} />
+<Meta
+  title="Components/Field"
+  component={Field}
+  argTypes={{
+    required: { control: { type: 'boolean' } },
+    error: { control: { type: 'boolean' } },
+  }}
+/>
 
 # Field
 

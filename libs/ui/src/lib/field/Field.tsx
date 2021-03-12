@@ -26,7 +26,7 @@ export interface FieldProps {
   /**
    * Additional text to associate with this specific field
    */
-  hint: string | React.ReactNode
+  hint?: string | React.ReactNode
   icon?: { align: 'left' | 'right' } & IconProps
   id: string
   onBlur?: () => void
@@ -77,6 +77,7 @@ const HintText = styled(Text).attrs({
   weight: 400,
   size: 'sm',
 })`
+  display: block;
   padding-bottom: ${(props) => props.theme.spacing(2)};
 
   color: ${({ theme }) => theme.color('gray300')};
@@ -183,11 +184,21 @@ export const Field = ({
   value,
 }: FieldProps) => {
   const inputRequiredProps = required ? { 'aria-required': true, required } : {}
-  const inputErrorProps = error
-    ? { 'aria-describedby': `${id}-validation-hint`, hasError: true }
-    : {}
-  const inputHintProps = hint ? { 'aria-describedby': `${id}-hint` } : {}
-  // Resolve hint prop overriding error prop here
+  const inputErrorProps = error ? { hasError: true } : {}
+
+  const errorId = error ? `${id}-validation-hint` : ``
+  const hintId = hint ? `${id}-hint` : ``
+  const inputProps =
+    error || hint
+      ? {
+          ...inputRequiredProps,
+          ...inputErrorProps,
+          'aria-describedby': `${errorId} ${hintId}`,
+        }
+      : { ...inputRequiredProps }
+
+  console.log('required', required, 'error', error)
+  console.log('inputProps', inputProps)
 
   const renderErrorMessage = error ? (
     <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
@@ -200,7 +211,6 @@ export const Field = ({
   const alignIcon = hasIcon ? icon.align : null
   const renderIcon = hasIcon ? <StyledIcon {...icon} /> : null
 
-  // TODO: aria-describedby can refer to multiple elements. Make sure it has both the hint & the error
   return (
     <StyledField>
       <Label htmlFor={id}>
@@ -220,9 +230,7 @@ export const Field = ({
           id={id}
           type={type}
           value={value}
-          {...inputRequiredProps}
-          {...inputErrorProps}
-          {...inputHintProps}
+          {...inputProps}
         />
         {renderIcon}
       </InputWrapper>
