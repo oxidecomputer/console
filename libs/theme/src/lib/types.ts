@@ -11,7 +11,7 @@ export type Color = `${ColorNames}${ColorValues}` | 'white' | 'black'
 export type ColorPalette = Record<Color, string>
 
 // Fonts
-export type Fonts = 'sans' | 'mono'
+export type Font = 'sans' | 'mono'
 
 // Helper functions
 
@@ -25,7 +25,7 @@ declare module 'styled-components' {
     themeColors: ColorPalette
     color: (name: Color, alpha?: number) => string
     fonts: {
-      [key in Fonts]: string
+      [key in Font]: string
     }
     spacing: (size: SizingMultiplier) => string
     spaceBetweenX: SpacingHelper
