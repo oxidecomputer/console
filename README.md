@@ -37,10 +37,16 @@ Generate a React component, a test file, and a Storybook story with
 yarn plop ui-component
 ```
 
-It will prompt for a component name and a subdirectory of `libs/ui/src/lib` for the component to go in (default is root, i.e., `libs/ui/src/lib`). You can skip the prompts by including one or both of those directly in the command: 
+It will prompt for: 
+
+- component name
+- a subdirectory of `libs/ui/src/lib` for the component to go in (default is root, i.e., `libs/ui/src/lib`), and
+- whether to use [MDX](https://storybook.js.org/docs/react/api/mdx) story format or the default [CSF](https://storybook.js.org/docs/react/api/csf)
+
+You can skip the prompts by including the answers directly in the command: 
 
 ```
-yarn plop ui-component RedButton buttons
+yarn plop ui-component RedButton buttons n
 ```
 
 ### Run unit tests

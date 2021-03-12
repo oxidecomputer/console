@@ -16,11 +16,17 @@ module.exports = (plop) => {
         name: 'subdir',
         message: `Directory within ${ROOT_DIR}? (leave blank for root)`,
       },
+      {
+        type: 'confirm',
+        name: 'mdx',
+        message: 'Use MDX story format? (N for CSF)',
+        default: false,
+      },
     ],
-    actions: ({ subdir }) => {
-      const dir = path.join(ROOT_DIR, subdir)
+    actions: (args) => {
+      const dir = path.join(ROOT_DIR, args.subdir)
       const testUtilsRelPath = path.relative(
-        path.join('./', subdir, 'just-need', 'two-things-here'),
+        path.join('./', args.subdir, 'just-need', 'two-things-here'),
         './test-utils'
       )
       return [
@@ -41,6 +47,21 @@ module.exports = (plop) => {
           path: '{{dir}}/{{dashCase name}}/{{name}}.stories.tsx',
           templateFile: 'plop-templates/component-stories.hbs',
           data: { dir },
+          skip: () => args.mdx && 'CSF skipped, using MDX',
+        },
+        {
+          type: 'add',
+          path: '{{dir}}/{{dashCase name}}/__stories__/{{name}}.stories.mdx',
+          templateFile: 'plop-templates/component-mdx.hbs',
+          data: { dir },
+          skip: () => !args.mdx && 'MDX skipped, using CSF',
+        },
+        {
+          type: 'add',
+          path: '{{dir}}/{{dashCase name}}/__stories__/{{name}}.stories.tsx',
+          templateFile: 'plop-templates/component-stories.hbs',
+          data: { dir },
+          skip: () => !args.mdx && 'MDX skipped, using CSF',
         },
       ]
     },
