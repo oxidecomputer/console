@@ -105,6 +105,7 @@ const StickyRow = ({ index, columns, ...props }) => {
       {...props}
     >
       {columns.map((col, columnIndex) => {
+        // role="columnheader" is the WAI-ARIA mapping for the <th> element
         return (
           <StyledCell
             key={`columnheader-${col.accessor}`}
@@ -129,7 +130,11 @@ const Row = ({ index, row, style, ...props }) => {
         // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
         // https://github.com/oxidecomputer/console/issues/66
         return (
-          <StyledCell role="gridcell" aria-colindex={columnIndex + 1}>
+          <StyledCell
+            key={`gridcell-${col.accessor}-${columnIndex}`}
+            role="gridcell"
+            aria-colindex={columnIndex + 1}
+          >
             {currentCell}
           </StyledCell>
         )
@@ -141,7 +146,7 @@ const Row = ({ index, row, style, ...props }) => {
 const InnerWrapper = forwardRef(
   ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
     const { columns } = useContext(ListContext)
-    // role="rowgroup" is equivalent WAI-ARIA mapping for the <tbody> element
+    // role="rowgroup" is the WAI-ARIA mapping for the <tbody> element
     return (
       <StyledRowGroup role="rowgroup" ref={ref} {...props}>
         {columns && columns.length ? (
