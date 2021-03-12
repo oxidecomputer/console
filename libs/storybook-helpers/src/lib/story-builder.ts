@@ -1,5 +1,5 @@
-import type { PropsWithChildren } from 'react'
 import type { Args, Story } from '@storybook/react'
+import { product } from './helpers'
 
 type StoriesOf<A> = Record<string, Story<A>>
 
@@ -40,26 +40,23 @@ export const storyBuilder = <A extends Args>(
       return Object.assign({}, ...values.map((i) => storiesFor(i, keyMapper)))
     }
 
-    const storiesForProp = (
-      prop: keyof typeof values,
-      vals: Variants<A[keyof A]>
-    ): Partial<Record<A[keyof A], Story<A>>> => {
-      const [head, ...tail] = vals
-
-      if (!head) return {}
-
-      return {
-        [keyMapper(head)]: build(head, { [prop]: head } as Partial<A>),
-        ...storiesForProp(prop, tail),
-      }
-    }
-
     const args = Object.keys(values) as Array<keyof typeof values>
+    const argValues = args.map((key) =>
+      values[key].map((v) => ({ [key]: v } as Partial<A>))
+    )
 
-    return args.reduce((rest, arg) => {
+    const storyProps = product(...argValues).map((v) =>
+      v.reduce((props, a) => ({ ...props, ...a }), {})
+    )
+
+    return storyProps.reduce((rest, props) => {
+      const values = Object.values(props)
+      const storyKey = values.join('_')
+      const storyName = values.join('/')
+
       return {
         ...rest,
-        ...storiesForProp(arg, values[arg]),
+        [keyMapper(storyKey)]: build(storyName, props),
       }
     }, {})
   }
@@ -68,22 +65,4 @@ export const storyBuilder = <A extends Args>(
     build,
     storiesFor,
   }
-}
-
-export const product = <T>(...items: T[][]): T[][] => {
-  const combine = (acc: T[][], [head, ...tail]: T[][]): T[][] => {
-    if (!head) return acc
-    if (acc.length === 0)
-      return combine(
-        head.map((v) => [v]),
-        tail
-      )
-
-    return combine(
-      [].concat(...acc.map((a) => head.map((b) => [...a, b]))),
-      tail
-    )
-  }
-
-  return combine([], items)
 }

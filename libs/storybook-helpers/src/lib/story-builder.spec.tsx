@@ -1,6 +1,5 @@
 import React from 'react'
-import type { Story } from '@storybook/react'
-import { storyBuilder, product } from './story-builder'
+import { storyBuilder } from './story-builder'
 
 const enumValues = ['one', 'two', 'three'] as const
 type EnumValue = typeof enumValues[number]
@@ -132,90 +131,48 @@ describe('Story Builders', () => {
       expect(stories.beta.args).toMatchObject({ otherEnum: 'beta' })
     })
 
-    xit('takes an array of mixed props and combines them, e.g. [{size, children}]', () => {
+    it('takes an array of mixed props and combines them, e.g. [{size, children}]', () => {
       const stories = builder.storiesFor({
         enum: enumValues,
         otherEnum: otherEnumValues,
       })
 
       expect(Object.keys(stories)).toHaveLength(6)
-      expect(stories.one_alpha.storyName).toBe('one_alpha')
+      expect(stories.one_alpha.storyName).toBe('one/alpha')
       expect(stories.one_alpha.args).toMatchObject({
         enum: 'one',
         otherEnum: 'alpha',
       })
 
-      expect(stories.one_beta.storyName).toBe('one_beta')
+      expect(stories.one_beta.storyName).toBe('one/beta')
       expect(stories.one_beta.args).toMatchObject({
         enum: 'one',
         otherEnum: 'beta',
       })
 
-      expect(stories.two_alpha.storyName).toBe('two_alpha')
+      expect(stories.two_alpha.storyName).toBe('two/alpha')
       expect(stories.two_alpha.args).toMatchObject({
         enum: 'two',
         otherEnum: 'alpha',
       })
 
-      expect(stories.two_beta.storyName).toBe('two_beta')
+      expect(stories.two_beta.storyName).toBe('two/beta')
       expect(stories.two_beta.args).toMatchObject({
         enum: 'two',
         otherEnum: 'beta',
       })
 
-      expect(stories.three_alpha.storyName).toBe('three_alpha')
+      expect(stories.three_alpha.storyName).toBe('three/alpha')
       expect(stories.three_alpha.args).toMatchObject({
         enum: 'three',
         otherEnum: 'alpha',
       })
 
-      expect(stories.three_beta.storyName).toBe('three_beta')
+      expect(stories.three_beta.storyName).toBe('three/beta')
       expect(stories.three_beta.args).toMatchObject({
         enum: 'three',
         otherEnum: 'beta',
       })
     })
-  })
-})
-
-describe('product', () => {
-  test('no input returns an empty array', () => {
-    expect(product()).toEqual([])
-  })
-
-  test('empty array = empty array', () => {
-    expect(product([])).toEqual([])
-  })
-
-  test('single value = single value', () => {
-    expect(product([1])).toEqual([[1]])
-  })
-
-  test('single input array returns the items separated into individual array', () => {
-    expect(product([1, 2, 3])).toEqual([[1], [2], [3]])
-  })
-
-  test('combines two arrays', () => {
-    expect(product([1], [1])).toEqual([[1, 1]])
-  })
-
-  test('combines a complex example', () => {
-    expect(product(['a', 'b', 'c'], ['1', '2'], ['alpha'])).toEqual([
-      ['a', '1', 'alpha'],
-      ['a', '2', 'alpha'],
-      ['b', '1', 'alpha'],
-      ['b', '2', 'alpha'],
-      ['c', '1', 'alpha'],
-      ['c', '2', 'alpha'],
-    ])
-  })
-
-  test('allows combinations of value types', () => {
-    expect(product<string | number>(['a', 'b'], [1, 2])).toEqual([
-      ['a', 1],
-      ['a', 2],
-      ['b', 1],
-      ['b', 2],
-    ])
   })
 })
