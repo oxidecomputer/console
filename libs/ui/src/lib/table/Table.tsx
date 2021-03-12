@@ -141,7 +141,7 @@ const Row = ({ index, row, style, ...props }) => {
 const InnerWrapper = forwardRef(
   ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
     const { columns } = useContext(ListContext)
-    // You can think of role="rowgroup" as equivalent to <tbody> element
+    // role="rowgroup" is equivalent WAI-ARIA mapping for the <tbody> element
     return (
       <StyledRowGroup role="rowgroup" ref={ref} {...props}>
         {columns && columns.length ? (
@@ -158,7 +158,7 @@ const RowWrapper = ({ data, index, style, ...props }) => {
   // (so this component is not guaranteed to always have access to `data[0]`)
   const isStickyHeader = index === 0
   if (isStickyHeader) {
-    // Skip rendering the columns header (aka the first row) because
+    // Skip rendering the first row that displays the column headings, because
     // `InnerWrapper` will always render it as a sticky row
     return null
   }
@@ -177,8 +177,9 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
     return null
   }
   const count = data.length
-  // Each row is absolutely positioned using a `top` offset, so make sure the column headers take up the 'space' of the first row
-  const itemData = [columns, ...data]
+  // Each row is absolutely positioned using a `top` offset
+  // Make sure something takes up the 'space' of the first row
+  const itemData = [[], ...data]
 
   // TODO: Add keyboard controls
   // https://github.com/oxidecomputer/console/issues/66
