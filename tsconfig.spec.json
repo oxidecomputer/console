@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@oxide/ui": ["libs/ui/src/index.ts"],
+      "@oxide/theme": ["libs/theme/src/index.ts"],
+      "@oxide/backend-types": ["libs/backend-types/src/index.ts"]
+    }
+  }
+}

@@ -44,4 +44,4 @@ jobs:
         run: yarn affected:build
 
       - name: Test
-        run: yarn affected:test
+        run: yarn test
