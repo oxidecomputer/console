@@ -15,6 +15,7 @@ export interface FieldProps {
    * Text or element used as children of the `label` element
    */
   children: string | React.ReactNode
+  disabled: boolean
   /**
    * input is invalid
    */
@@ -47,8 +48,14 @@ export interface FieldProps {
   value?: string
 }
 
-const StyledField = styled.div`
+const StyledField = styled.div<{ disabled: boolean }>`
   color: ${({ theme }) => theme.color('gray100')};
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.4;
+    `};
 `
 
 const Label = styled(Text).attrs({
@@ -124,7 +131,7 @@ const StyledInput = styled.input<{
   font-size: ${({ theme }) => theme.spacing(3.5)};
   line-height: ${1.25 / 0.875};
 
-  &:hover {
+  &:hover:not([disabled]) {
     background-color: ${({ theme }) => theme.color('gray800')};
   }
 
@@ -170,6 +177,7 @@ const ErrorMessage = styled(Text).attrs({
 export const Field = ({
   autocomplete,
   children,
+  disabled,
   error,
   errorMessage,
   hint,
@@ -209,7 +217,7 @@ export const Field = ({
   const renderIcon = hasIcon ? <StyledIcon {...icon} /> : null
 
   return (
-    <StyledField>
+    <StyledField disabled={disabled}>
       <Label htmlFor={id}>
         {children}
         {required ? null : <OptionalText>Optional</OptionalText>}
@@ -220,6 +228,7 @@ export const Field = ({
           alignIcon={alignIcon}
           aria-invalid={error}
           autoComplete={autocomplete}
+          disabled={disabled}
           onBlur={onBlur}
           onChange={onChange}
           onFocus={onFocus}
@@ -237,6 +246,7 @@ export const Field = ({
 }
 
 Field.defaultProps = {
+  disabled: false,
   error: false,
   required: false,
   type: 'text',

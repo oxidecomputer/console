@@ -32,6 +32,16 @@ InvalidEmailField.args = {
   required: true,
 }
 
+export const DisabledField = Template.bind({})
+DisabledField.args = {
+  id: 'disabled-example',
+  children: 'Disabled Field',
+  disabled: true,
+  error: false,
+  onChange: (event) => console.log(event.target.value),
+  required: true,
+}
+
 export const FieldWithLeftIcon = Template.bind({})
 FieldWithLeftIcon.args = {
   icon: { align: 'left', name: 'search', color: 'gray300' },
