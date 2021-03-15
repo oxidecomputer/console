@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-users">
-  <title id="icon-users">Users</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Users</title>
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M18.5 4a2 2 0 110 4 2 2 0 010-4zM12 6.8a2.4 2.4 0 110 4.8 2.4 2.4 0 010-4.8zM15 20v-7.2H9V20h6zm1-11h5v6h-5V9zM3 9h5v6H3V9zm2.5-5a2 2 0 110 4 2 2 0 010-4z" />
 </svg>

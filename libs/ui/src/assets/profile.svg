@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 51" role="img" aria-labelledby="icon-profile">
-  <title id="icon-profile">Profile</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 51" role="img">
+  <title>Profile</title>
   <path d="M64 42.984v8.019H0v-7.99a39.94 39.94 0 0132.01-16.01c13.078 0 24.694 6.277 31.99 15.98zM42.672 11a10.667 10.667 0 11-21.333 0 10.667 10.667 0 0121.333 0z"/>
 </svg>

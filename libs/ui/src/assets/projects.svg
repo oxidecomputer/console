@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-projects">
-  <title id="icon-projects">Projects</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Projects</title>
   <path d="M2.35 5.519h15.481v1.876H4.227v7.272H2.35V5.519zM2.35 2h9.148v2.111H2.35V2z" />
   <path d="M6.165 12.852h15.481V22H6.165v-9.148zM6.165 9.334h9.148v2.11H6.165v-2.11z" />
 </svg>
