@@ -9,7 +9,7 @@ rootMain.stories.push(
     '../src/lib/**/!(__stories__/)*.stories.@(ts|tsx)',
   ]
 )
-rootMain.managerWebpack = async (baseConfig, options) => {
+rootMain.managerWebpack = async (baseConfig) => {
   const tsPaths = new TsconfigPathsPlugin({
     configFile: './tsconfig.json',
   })
