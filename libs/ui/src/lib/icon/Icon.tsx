@@ -107,7 +107,7 @@ export interface IconProps extends StyledIconProps {
   /**
    * Props to pass directly to the SVG
    */
-  svgProps?: React.SVGProps<SVGSVGElement>
+  svgProps?: React.SVGProps<SVGSVGElement> & { titleId?: string }
 }
 
 export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
