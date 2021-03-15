@@ -113,18 +113,18 @@ export interface IconProps extends StyledIconProps {
 export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   const IconComponent = icons[name]
   const titleId = useMemo(() => uuidv4(), [])
-  let addSvgProps = { ...svgProps }
+  // let addSvgProps = { ...svgProps }
 
   // All icons should have a default <title> tag
   // Generate a titleId here so that the `id` and corresponding `aria-labelledby`
   // attributes are always unique
-  if (!addSvgProps.titleId) {
-    addSvgProps = { titleId: titleId, ...addSvgProps }
-  }
+  // if (!addSvgProps.titleId) {
+  // addSvgProps = { titleId: titleId, ...addSvgProps }
+  // }
 
   return (
     <StyledIcon {...props}>
-      <IconComponent {...addSvgProps} />
+      <IconComponent {...svgProps} />
     </StyledIcon>
   )
 }

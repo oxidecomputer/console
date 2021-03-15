@@ -99,7 +99,7 @@ const IconAvatar: React.FC<Pick<AvatarProps, 'name' | 'isPerson' | 'size'>> = ({
 }) => {
   return (
     <Wrapper size={size} isCircle={isPerson}>
-      <StyledIcon svgProps={{ title: name }} />
+      <StyledIcon />
     </Wrapper>
   )
 }
