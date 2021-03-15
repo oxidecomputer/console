@@ -3,6 +3,7 @@
 import { Meta } from '@storybook/addon-docs/blocks'
 import styled from 'styled-components'
 import { colorPalette } from '@oxide/theme'
+import { AllColors } from './Colors.stories'
 
 <Meta title="Foundations/Colors" />
 
@@ -12,7 +13,20 @@ When using color, please double check that the color contrast follows the [WCAG 
 
 ## Usage
 
-Colors are exposed directly on both the light theme and the dark theme in `props.theme.themeColors.COLOR_KEY`. Eventually the themes will abstract the colors so that you will not need to reference the theme colors directly.
+A color function is available for both light and dark theme that takes a color name and an optional alpha value: `props.theme.color(COLOR_NAME, ALPHA)`. The alpha value defaults to `1` if no alpha is given.
+
+**Examples**
+
+- Oxide Yellow 50: `props.theme.color("yellow50")`
+- Oxide Green 500 at a 16% opacity: `props.theme.color("green500", 0.16)`
+
+### Future Usage
+
+Eventually the `color()` helper will abstract the colors so that you will not need to reference the color names directly. e.g. `props.theme.color("buttonBackground")` The exact API is to be determined.
+
+### Legacy Usage
+
+Use the `color()` function wherever possible. Colors are also exposed directly on both the light theme and the dark theme in `props.theme.themeColors.COLOR_KEY`.
 
 ## Passing Color Contrast Combinations
 
@@ -20,19 +34,49 @@ TODO
 
 ## All colors
 
-<table>
-  <tr>
-    <th>Color</th>
-    <th>Key</th>
-  </tr>
-  {Object.keys(colorPalette).map((key) => {
+<AllColors>
+  {(colorName, colorGroup) => {
+    const isSingleColor = colorGroup.length === 1
+    const renderColor = colorGroup.map((color) => {
+      return (
+        <div
+          style={{
+            flex: '0 1 auto',
+            display: 'flex',
+            alignItems: 'stretch',
+            marginBottom: '1em',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: colorPalette[color],
+              width: '1.5em',
+              marginRight: '0.25em',
+              borderRadius: '50em',
+              border: `1px solid ${colorPalette.gray800}`,
+            }}
+          ></div>
+          <div>
+            <code>{color}</code>
+            <br />
+            <code>{colorPalette[color]}</code>
+          </div>
+        </div>
+      )
+    })
     return (
-      <tr>
-        <td style={{ backgroundColor: colorPalette[key], width: '1.5em' }}></td>
-        <td>
-          <code>{key}</code>
-        </td>
-      </tr>
+      <div
+        style={{
+          flex: isSingleColor ? '1 1 100%' : 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          flexWrap: 'wrap',
+          marginRight: isSingleColor ? '0' : '1em',
+        }}
+      >
+        <p style={{ textTransform: 'capitalize' }}>{colorName}</p>
+        {renderColor}
+      </div>
     )
-  })}
-</table>
+  }}
+</AllColors>
