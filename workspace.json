@@ -39,7 +39,7 @@
             "index": "apps/web-console/src/index.html",
             "main": "apps/web-console/src/main.tsx",
             "polyfills": "apps/web-console/src/polyfills.ts",
-            "tsConfig": "apps/web-console/tsconfig.app.json",
+            "tsConfig": "./tsconfig.json",
             "assets": [
               "apps/web-console/src/favicon.ico",
               "apps/web-console/src/assets"

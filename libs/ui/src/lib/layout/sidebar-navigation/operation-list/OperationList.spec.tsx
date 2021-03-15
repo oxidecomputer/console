@@ -1,5 +1,5 @@
-import React, { FC } from 'react'
-import { render } from '../../../test-utils'
+import React from 'react'
+import { render } from '../../../../test-utils'
 
 import OperationList from './OperationList'
 

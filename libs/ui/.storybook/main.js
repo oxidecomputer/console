@@ -11,7 +11,7 @@ rootMain.stories.push(
 )
 rootMain.managerWebpack = async (baseConfig, options) => {
   const tsPaths = new TsconfigPathsPlugin({
-    configFile: './tsconfig.base.json',
+    configFile: './tsconfig.json',
   })
 
   return {

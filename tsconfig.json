@@ -13,6 +13,8 @@
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "baseUrl": ".",
     "paths": {
       "@oxide/ui": ["libs/ui/src/index.ts"],
@@ -20,5 +22,5 @@
       "@oxide/backend-types": ["libs/backend-types/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp", "apps/web-console-e2e"]
 }

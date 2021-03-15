@@ -1,4 +1,4 @@
-const tsBaseConfig = require('../tsconfig.base.json')
+const tsBaseConfig = require('../tsconfig.json')
 module.exports = {
   stories: [],
   addons: ['@storybook/addon-essentials', '@storybook/addon-a11y'],

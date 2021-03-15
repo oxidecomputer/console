@@ -26,7 +26,8 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "storybook": "nx run ui:storybook",
-    "g:ui-component": "nx workspace-generator ui-component"
+    "g:ui-component": "nx workspace-generator ui-component",
+    "typecheck": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
