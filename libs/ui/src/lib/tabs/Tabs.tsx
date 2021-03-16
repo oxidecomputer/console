@@ -34,6 +34,10 @@ const StyledButton = styled(Button).attrs({
         `}
 
   border-bottom: 1px solid currentColor;
+
+  &:hover {
+    color: ${({ theme }) => theme.color('green500')};
+  }
 `
 
 const Panel = styled.div<{ isVisible: boolean }>`
@@ -63,14 +67,16 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
     // TODO: what happens if there are multiple Tabs components? Use a better id??
     const tabIndex = index + 1
     const isSelected = currentTabIndex === tabIndex
+    const addAriaProps = isSelected ? {} : { tabIndex: -1 }
     return (
       <StyledButton
-        aria-controls={`tabpanel-${tabIndex}`}
+        aria-controls={`panel-${tabIndex}`}
         aria-selected={isSelected}
         id={`${tabIndex}`}
         isSelected={isSelected}
         onClick={handleClick}
         role="tab"
+        {...addAriaProps}
       >
         {tab}
       </StyledButton>
@@ -79,7 +85,7 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
 
   const renderPanels = panels.map((panel, index) => {
     const tabIndex = index + 1
-    const panelIndex = `"panel"-${tabIndex}`
+    const panelIndex = `panel-${tabIndex}`
     const isVisible = currentTabIndex === tabIndex
     return (
       <Panel

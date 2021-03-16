@@ -7,9 +7,6 @@ export default {
 }
 
 export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: TabsProps = {}
-
   return (
     <Tabs
       label="Project View"
