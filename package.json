@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.prod.config.ts",
-    "build:storybook": "echo 'call webpack with storybook config'",
+    "build:storybook": "build-storybook -o dist/storybook/ui",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx libs apps",
     "e2e": "echo 'to be implemented'",
