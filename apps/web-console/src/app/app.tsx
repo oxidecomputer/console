@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import { ReactComponent as Logo } from './logo.svg'
 import star from './star.svg'
 
-import { Icon } from '@oxide/ui'
-
 const StyledApp = styled.div`
   min-width: 300px;
   max-width: 600px;
@@ -143,7 +141,6 @@ export const App = () => {
         <h1>Welcome to web-console!</h1>
       </header>
       <main>
-        <Icon name="profile" />
         <h2>Resources &amp; Tools</h2>
         <p>Thank you for using and showing some ♥ for Nx.</p>
         <div className="flex github-star-container">
