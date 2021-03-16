@@ -2,7 +2,7 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-import { Button /*Icon*/ } from '@oxide/ui'
+import { Button, Icon } from '@oxide/ui'
 
 const StyledApp = styled.div`
   min-width: 300px;
@@ -45,6 +45,14 @@ const StyledApp = styled.div`
     font-size: 20px;
     margin: 40px 0 10px 0;
   }
+
+  button {
+    display: inline-flex;
+  }
+
+  svg {
+    margin-right: ${({ theme }) => theme.spacing(1)};
+  }
 `
 
 export const App = () => {
@@ -54,9 +62,10 @@ export const App = () => {
         <h1>Welcome to web-console!</h1>
       </header>
       <main>
-        <h2>A button imported from @oxide/ui</h2>
+        <h2>A button imported from @oxide/ui with an SVG icon inside</h2>
         <Button size="base" variant="solid">
-          {/* <Icon name="cpu" /> */}I don&apos;t do anything
+          <Icon name="plus" />
+          Hello I don&apos;t do anything
         </Button>
       </main>
     </StyledApp>
