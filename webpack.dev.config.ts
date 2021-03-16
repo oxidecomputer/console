@@ -17,7 +17,7 @@ const config = merge<webpack.Configuration>(sharedConfig, {
   ],
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: path.join(__dirname, 'dist/apps/web-console'),
     historyApiFallback: true,
     port: 4000,
     hot: true,

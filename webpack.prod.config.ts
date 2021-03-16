@@ -7,7 +7,7 @@ import sharedConfig from './webpack.shared.config'
 const config = merge<webpack.Configuration>(sharedConfig, {
   mode: 'production',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dist/apps/web-console'),
     filename: '[name].[contenthash].js',
     publicPath: '',
   },
