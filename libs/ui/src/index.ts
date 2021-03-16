@@ -1,3 +1,4 @@
+export * from './lib/tabs/Tabs'
 export * from './lib/table/Table'
 export * from './lib/avatar/Avatar'
 export * from './lib/breadcrumbs/Breadcrumbs'
