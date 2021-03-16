@@ -34,7 +34,12 @@ module.exports = async ({ config, mode }) => {
     },
     {
       test: /\.svg$/,
-      use: ['@svgr/webpack'],
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: { titleProp: true },
+        },
+      ],
     }
   )
 

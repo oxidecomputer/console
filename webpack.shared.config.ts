@@ -32,7 +32,12 @@ export default {
       },
       {
         test: /\.svg$/,
-        use: ['@svgr/webpack'],
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: { titleProp: true },
+          },
+        ],
       },
     ],
   },
