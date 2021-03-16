@@ -1,21 +1,10 @@
 # Oxide - Console
 
-This project was generated using [Nx](https://nx.dev).
-
-## Getting started
-
-### Dependencies
-
-This project uses `yarn`, not `npm`, so install Node dependencies with
+## Install dependencies
 
 ```
 yarn install
 ```
-
-For commands that begin with `nx` in the instructions below, you can either
-
-- install `nx` globally with `yarn add global nx` or `npm i -g nx`, or
-- use `yarn nx <command>` to use the copy local to this directory
 
 ### Run Storybook
 
@@ -27,51 +16,16 @@ This will start the storybook for the `ui` component library and start it on `ht
 
 ### Run dev server
 
-Run `nx serve web-console` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+Run `yarn start` and navigate to http://localhost:4000/. The app will automatically reload if you change code.
 
 ### Create a new component
 
-```
-yarn g:ui-component <COMPONENT_NAME> [--skipStories] [--directory=<directory>]
-```
-
-Where `<COMPONENT_NAME>` is the name of the new component to include. It takes the following options
-
-| Option          | Description                                                                                               |
-| --------------- | --------------------------------------------------------------------------------------------------------- |
-| `--skipStories` | Skips generating storybook stories                                                                        |
-| `--directory`   | Sets the base directory for the component to be generated inside, this is relative to the `src` directory |
+TBA in other PR
 
 ### Run unit tests
 
-Run `nx test <app_name>` to execute the unit tests via [Jest](https://jestjs.io). For example, `nx test ui` would run the tests for the component library in `libs/ui`.
+Run `yarn test` to execute the unit tests. Because this just calls [Jest](https://jestjs.io), you can use any flag Jest takes, like `yarn test --onlyChanged` or `yarn test --watch`.
 
-Run `nx affected:test` to execute the unit tests affected by a change.
+### Build for production
 
-### Run end-to-end tests
-
-Run `nx e2e <app_name>` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
-## Less common tasks
-
-### Generate an application
-
-Run `nx g @nrwl/react:app <app_name>` to generate an application.
-
-When using Nx, you can create multiple applications and libraries in the same workspace.
-
-### Generate a library
-
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
-
-Libraries are shareable across libraries and applications. They can be imported from `@oxide/mylib`.
-
-### Build
-
-Run `nx build <app_name>` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-### Show dependency graph
-
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+Run `yarn build` to build the console app. The build artifacts will be stored in the `dist/` directory.

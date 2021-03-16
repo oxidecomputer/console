@@ -3,7 +3,7 @@ name: Lint, Build & Test
 on: pull_request
 
 jobs:
-  nx:
+  ci:
     name: 'Lint, Build & Test'
     runs-on: ubuntu-latest
 
