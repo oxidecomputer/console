@@ -1,5 +1,6 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo } from 'react'
 import styled, { css } from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import { Color } from '@oxide/theme'
 import { Text, TextProps } from '../text/Text'
 
@@ -106,15 +107,27 @@ export interface IconProps extends StyledIconProps {
   /**
    * Props to pass directly to the SVG
    */
-  svgProps?: React.SVGProps<SVGSVGElement>
+  svgProps?: React.SVGProps<SVGSVGElement> & {
+    title?: string
+    titleId?: string
+  }
 }
 
 export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   const IconComponent = icons[name]
+  const titleId = useMemo(() => uuidv4(), [])
+  let addSvgProps = { ...svgProps }
+
+  // All icons should have a default <title> tag
+  // Generate a titleId here so that the `id` and corresponding `aria-labelledby`
+  // attributes are always unique
+  if (!addSvgProps.titleId) {
+    addSvgProps = { titleId: titleId, ...addSvgProps }
+  }
 
   return (
     <StyledIcon {...props}>
-      <IconComponent {...svgProps} />
+      <IconComponent {...addSvgProps} />
     </StyledIcon>
   )
 }

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-search">
-  <title id="icon-search">Search</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Search</title>
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M17.319 15.908A8.001 8.001 0 005.343 5.343 8 8 0 0015.908 17.32l.042.045 4.242 4.243S20.61 21.39 21 21c.39-.39.607-.808.607-.808l-4.243-4.242a1.046 1.046 0 00-.045-.042zm-2.076-9.15a6 6 0 11-8.485 8.485 6 6 0 018.485-8.486z" />
 </svg>
