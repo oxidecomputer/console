@@ -12,7 +12,7 @@ This project uses `yarn`, not `npm`, so install Node dependencies with
 yarn install
 ```
 
-For commands that begin with `nx` in the instructions below, you can either 
+For commands that begin with `nx` in the instructions below, you can either
 
 - install `nx` globally with `yarn add global nx` or `npm i -g nx`, or
 - use `yarn nx <command>` to use the copy local to this directory

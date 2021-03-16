@@ -9,8 +9,8 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/ui',
-  "moduleNameMapper": {
-    "\\.(css|less)$": "identity-obj-proxy",
-    "^@oxide/theme$": "<rootDir>/../theme/src",
-  }
+  moduleNameMapper: {
+    '\\.(css|less)$': 'identity-obj-proxy',
+    '^@oxide/theme$': '<rootDir>/../theme/src',
+  },
 }

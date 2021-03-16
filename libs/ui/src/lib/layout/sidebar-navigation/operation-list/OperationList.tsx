@@ -49,7 +49,7 @@ const ListItemLink = styled(BaseLink)`
   ${({ theme }) => theme.spaceBetweenX(2)}
 `
 
-const glyphWidth = '1rem';
+const glyphWidth = '1rem'
 
 const ListSubItem = styled.li`
   margin-left: 1.75rem;

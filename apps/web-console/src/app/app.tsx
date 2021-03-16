@@ -2,7 +2,7 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-import { Button, /*Icon*/ } from '@oxide/ui'
+import { Button /*Icon*/ } from '@oxide/ui'
 
 const StyledApp = styled.div`
   min-width: 300px;
@@ -54,12 +54,10 @@ export const App = () => {
         <h1>Welcome to web-console!</h1>
       </header>
       <main>
-        <h2>
-          A button imported from @oxide/ui
-        </h2>
+        <h2>A button imported from @oxide/ui</h2>
         <Button size="base" variant="solid">
-          {/* <Icon name="cpu" /> */}
-          I don&apos;t do anything</Button>
+          {/* <Icon name="cpu" /> */}I don&apos;t do anything
+        </Button>
       </main>
     </StyledApp>
   )
