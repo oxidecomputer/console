@@ -6,7 +6,7 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "plugins": ["prettier", "@typescript-eslint", "react-hooks"],
   "settings": {
     "react": {
       "version": "detect"
@@ -16,10 +16,13 @@
     "node": true
   },
   "rules": {
+    "prettier/prettier": "error",
+
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "react/display-name": "off",
     "react/prop-types": "off"
-  }
+  },
+  "ignorePatterns": ["dist/"]
 }
