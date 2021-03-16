@@ -1,95 +1,106 @@
 import React, { FC, useState, useCallback } from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Button } from '../button/Button'
 
 export interface TabsProps {
+  /**
+   * A short description for the Tabs. It gets passed to `aria-label`
+   */
+  label: string
+  /**
+   * An array of each tab name
+   */
   tabs: string[]
+  panels: Array<React.ReactNode>
 }
 
-const Wrapper = styled.div`
-  color: pink;
-`
+const Wrapper = styled.div``
+
+const TabList = styled.div``
 
 const StyledButton = styled(Button).attrs({
   size: 'base',
   variant: 'ghost',
-})`
+})<{ isSelected: boolean }>`
+  ${({ isSelected, theme }) =>
+    isSelected
+      ? css`
+          color: ${theme.color('green500')};
+        `
+      : css`
+          color: ${theme.color('green50')};
+        `}
+
   border-bottom: 1px solid currentColor;
 `
 
-export const Tabs: FC<TabsProps> = ({ tabs }) => {
+const Panel = styled.div<{ isVisible: boolean }>`
+  ${({ isVisible }) =>
+    isVisible
+      ? null
+      : css`
+          display: none;
+        `}
+`
+
+export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
   const [currentTabIndex, setCurrentTabIndex] = useState(1)
   const handleClick = useCallback(
     (ev) => {
       const nextTabIndex = ev.target.id
-      setCurrentTabIndex(nextTabIndex)
-      console.log('handleClick', nextTabIndex)
+      setCurrentTabIndex(parseInt(nextTabIndex))
     },
     [setCurrentTabIndex]
   )
 
-  const renderTabs =
-    tabs && tabs.length
-      ? tabs.map((tab, index) => {
-          const tabIndex = index + 1
-          const isSelected = currentTabIndex === tabIndex
-          return (
-            <StyledButton
-              aria-controls={`tabpanel-${tabIndex}`}
-              aria-selected={isSelected}
-              id={`${tabIndex}`}
-              onClick={handleClick}
-              role="tab"
-            >
-              {tab}
-            </StyledButton>
-          )
-        })
-      : null
+  if (!tabs || !tabs.length) {
+    return null
+  }
+
+  const renderTabs = tabs.map((tab, index) => {
+    // TODO: what happens if there are multiple Tabs components? Use a better id??
+    const tabIndex = index + 1
+    const isSelected = currentTabIndex === tabIndex
+    return (
+      <StyledButton
+        aria-controls={`tabpanel-${tabIndex}`}
+        aria-selected={isSelected}
+        id={`${tabIndex}`}
+        isSelected={isSelected}
+        onClick={handleClick}
+        role="tab"
+      >
+        {tab}
+      </StyledButton>
+    )
+  })
+
+  const renderPanels = panels.map((panel, index) => {
+    const tabIndex = index + 1
+    const panelIndex = `"panel"-${tabIndex}`
+    const isVisible = currentTabIndex === tabIndex
+    return (
+      <Panel
+        aria-hidden={!isVisible}
+        aria-labelledby={`${tabIndex}`}
+        id={panelIndex}
+        isVisible={isVisible}
+        role="tabpanel"
+        tabIndex={0}
+      >
+        {panel}
+      </Panel>
+    )
+  })
 
   return (
     <Wrapper>
-      <div role="tablist" aria-label="Entertainment">
+      <TabList role="tablist" aria-label={label}>
         {renderTabs}
-      </div>
-
-      <div tabindex="0" role="tabpanel" id="nils-tab" aria-labelledby="nils">
-        <p>
-          Nils Frahm is a German musician, composer and record producer based in
-          Berlin. He is known for combining classical and electronic music and
-          for an unconventional approach to the piano in which he mixes a grand
-          piano, upright piano, Roland Juno-60, Rhodes piano, drum machine, and
-          Moog Taurus.
-        </p>
-      </div>
-
-      <div
-        tabindex="0"
-        role="tabpanel"
-        id="agnes-tab"
-        aria-labelledby="agnes"
-        hidden=""
-      >
-        <p>
-          Agnes Caroline Thaarup Obel is a Danish singer/songwriter. Her first
-          album, Philharmonics, was released by PIAS Recordings on 4 October
-          2010 in Europe. Philharmonics was certified gold in June 2011 by the
-          Belgian Entertainment Association (BEA) for sales of 10,000 Copies.
-        </p>
-      </div>
-
-      <div
-        tabindex="0"
-        role="tabpanel"
-        id="complexcomplex"
-        aria-labelledby="complex"
-        hidden=""
-      >
-        <p>Fear of complicated buildings:</p>
-        <p>A complex complex complex.</p>
-      </div>
+      </TabList>
+      {renderPanels}
     </Wrapper>
   )
 }
