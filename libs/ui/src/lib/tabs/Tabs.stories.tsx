@@ -2,13 +2,17 @@ import React, { FC } from 'react'
 import { Tabs, TabsProps } from './Tabs'
 
 export default {
+  title: 'Components/Tabs',
   component: Tabs,
-  title: 'Tabs',
 }
 
 export const primary = () => {
   /* eslint-disable-next-line */
   const props: TabsProps = {}
 
-  return <Tabs />
+  return (
+    <Tabs
+      tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
+    />
+  )
 }

@@ -3,7 +3,7 @@ import React, { FC } from 'react'
 import styled, { css } from 'styled-components'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
-export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
+export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
@@ -18,6 +18,14 @@ const sizes = {
 
 export interface ButtonProps {
   /**
+   * Set an optional id
+   */
+  id?: string
+  /**
+   * Explicitly set an ARIA role, e.g. role="tab" for the Tabs component
+   */
+  role?: string
+  /**
    * Set the size of the button
    */
   size: ButtonSize
@@ -29,6 +37,10 @@ export interface ButtonProps {
    * Disable button
    */
   disabled?: boolean
+  /**
+   * Handle click events
+   */
+  onClick?: (event) => void
 }
 
 const getSizeStyles = (size: ButtonSize) => {
