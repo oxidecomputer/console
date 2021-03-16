@@ -35,7 +35,10 @@ export default {
         use: [
           {
             loader: '@svgr/webpack',
-            options: { titleProp: true },
+            options: {
+              titleProp: true,
+              svgo: false,
+            },
           },
         ],
       },

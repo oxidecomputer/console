@@ -4,7 +4,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
  *
  * @param {Parameters<typeof rootWebpackConfig>[0]} options
  */
-module.exports = async ({ config, mode }) => {
+module.exports = async ({ config }) => {
   const tsPaths = new TsconfigPathsPlugin({
     configFile: './tsconfig.json',
   })
@@ -37,7 +37,10 @@ module.exports = async ({ config, mode }) => {
       use: [
         {
           loader: '@svgr/webpack',
-          options: { titleProp: true },
+          options: {
+            titleProp: true,
+            svgo: false,
+          },
         },
       ],
     }
