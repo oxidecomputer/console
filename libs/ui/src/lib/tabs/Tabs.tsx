@@ -3,6 +3,7 @@ import React, { FC, useState, useCallback } from 'react'
 import styled, { css } from 'styled-components'
 
 import { Button } from '../button/Button'
+import { KEYS } from '../keys-utils'
 
 export interface TabsProps {
   /**
@@ -49,14 +50,83 @@ const Panel = styled.div<{ isVisible: boolean }>`
         `}
 `
 
+// Add or subtract depending on key pressed
+const DIRECTION = {
+  37: -1, // left
+  38: -1,
+  39: 1, // right
+  40: 1,
+}
+
 export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
   const [currentTabIndex, setCurrentTabIndex] = useState(1)
   const handleClick = useCallback(
-    (ev) => {
-      const nextTabIndex = ev.target.id
+    (event) => {
+      const nextTabIndex = event.target.id
       setCurrentTabIndex(parseInt(nextTabIndex))
     },
     [setCurrentTabIndex]
+  )
+
+  // Either focus the next, previous, first, or last tab, depending on key pressed
+  const setCurrentTabOnKeyPress = (event) => {
+    const key = event.keyCode
+
+    if (DIRECTION[key]) {
+      console.log('existing in DIRECTION', DIRECTION[key])
+      const { target } = event
+      console.log('target', target)
+    }
+  }
+
+  const handleKeydown = useCallback(
+    (event) => {
+      const { keyCode } = event
+      switch (keyCode) {
+        case KEYS.end:
+          event.preventDefault()
+          // Activate last tab
+          console.log('TODO: activate last tab')
+          setCurrentTabIndex(tabs.length)
+          break
+        case KEYS.home:
+          event.preventDefault()
+          // Activiate first tab
+          console.log('TODO: activate first tab')
+          setCurrentTabIndex(1)
+          break
+        case KEYS.up:
+        case KEYS.down:
+          // Up and down are in keydown
+          // because we need to prevent page scroll
+          // Do nothing
+          break
+      }
+    },
+    [setCurrentTabIndex, tabs]
+  )
+
+  const handleKeyup = useCallback(
+    (event) => {
+      const { keyCode } = event
+
+      switch (keyCode) {
+        case KEYS.left:
+        case KEYS.right:
+          event.preventDefault()
+          setCurrentTabOnKeyPress(event)
+          break
+        case KEYS.delete:
+          console.log('TODO: determine deletable')
+          break
+        case KEYS.enter:
+        case KEYS.space:
+          // Set current tab
+          handleClick(event)
+          break
+      }
+    },
+    [handleClick]
   )
 
   if (!tabs || !tabs.length) {
@@ -75,6 +145,8 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
         id={`${tabIndex}`}
         isSelected={isSelected}
         onClick={handleClick}
+        onKeyDown={handleKeydown}
+        onKeyUp={handleKeyup}
         role="tab"
         {...addAriaProps}
       >

@@ -41,6 +41,8 @@ export interface ButtonProps {
    * Handle click events
    */
   onClick?: (event) => void
+  onKeyDown?: (event) => void
+  onKeyUp?: (event) => void
 }
 
 const getSizeStyles = (size: ButtonSize) => {
