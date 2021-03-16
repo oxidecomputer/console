@@ -1,8 +1,8 @@
 import React from 'react'
 import { Story } from '@storybook/react'
-import { Field, FieldProps } from '../Field'
+import { TextField, TextFieldProps } from '../TextField'
 
-const Template: Story<FieldProps> = (args) => <Field {...args} />
+const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
 
 export const Default = Template.bind({})
 Default.args = {

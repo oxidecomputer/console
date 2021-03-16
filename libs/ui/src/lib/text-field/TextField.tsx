@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -6,7 +6,7 @@ import { Icon, IconProps } from '../icon/Icon'
 import { Text } from '../text/Text'
 
 /* eslint-disable-next-line */
-export interface FieldProps {
+export interface TextFieldProps {
   /**
    * Commonly used fields can often be filled out automatically by the browser
    */
@@ -48,7 +48,7 @@ export interface FieldProps {
   value?: string
 }
 
-const StyledField = styled.div<{ disabled: boolean }>`
+const Wrapper = styled.div<{ disabled: boolean }>`
   color: ${({ theme }) => theme.color('gray100')};
 
   ${({ disabled }) =>
@@ -174,11 +174,11 @@ const ErrorMessage = styled(Text).attrs({
   margin-top: ${(props) => props.theme.spacing(2)};
 `
 
-export const Field = ({
+export const TextField = ({
   autocomplete,
   children,
-  disabled,
-  error,
+  disabled = false,
+  error = false,
   errorMessage,
   hint,
   icon,
@@ -187,10 +187,10 @@ export const Field = ({
   onChange,
   onFocus,
   placeholder,
-  required,
-  type,
+  required = false,
+  type = 'text',
   value,
-}: FieldProps) => {
+}: TextFieldProps) => {
   const inputRequiredProps = required ? { 'aria-required': true, required } : {}
   const inputErrorProps = error ? { hasError: true } : {}
 
@@ -217,7 +217,7 @@ export const Field = ({
   const renderIcon = hasIcon ? <StyledIcon {...icon} /> : null
 
   return (
-    <StyledField disabled={disabled}>
+    <Wrapper disabled={disabled}>
       <Label htmlFor={id}>
         {children}
         {required ? null : <OptionalText>Optional</OptionalText>}
@@ -241,15 +241,8 @@ export const Field = ({
         {renderIcon}
       </InputWrapper>
       {renderErrorMessage}
-    </StyledField>
+    </Wrapper>
   )
 }
 
-Field.defaultProps = {
-  disabled: false,
-  error: false,
-  required: false,
-  type: 'text',
-}
-
-export default Field
+export default TextField
