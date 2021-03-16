@@ -6,7 +6,7 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
-  "plugins": ["prettier", "@typescript-eslint", "react-hooks"],
+  "plugins": ["@typescript-eslint", "react-hooks"],
   "settings": {
     "react": {
       "version": "detect"
@@ -16,8 +16,6 @@
     "node": true
   },
   "rules": {
-    "prettier/prettier": "error",
-
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
     "@typescript-eslint/explicit-module-boundary-types": "off",

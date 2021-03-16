@@ -10,6 +10,7 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "storybook": "start-storybook -c libs/ui/.storybook -p 4400",
     "typecheck": "tsc --noEmit"
   },

@@ -1,4 +1,4 @@
-name: Lint, Build & Test
+name: CI
 
 on: pull_request
 
@@ -39,6 +39,9 @@ jobs:
 
       - name: Lint
         run: yarn lint
+
+      - name: Check formatting
+        run: yarn format:check
 
       - name: Build
         run: yarn build
