@@ -1,26 +1,35 @@
-const rootMain = require('../../../.storybook/main')
+const tsBaseConfig = require('../../../tsconfig.json')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
-// Use the following syntax to add addons!
-rootMain.addons.push('@storybook/addon-links')
-rootMain.stories.push(
-  ...[
+module.exports = {
+  stories: [
     '../src/lib/**/__stories__/*.stories.mdx',
     '../src/lib/**/!(__stories__/)*.stories.@(ts|tsx)',
-  ]
-)
-rootMain.managerWebpack = async (baseConfig, options) => {
-  const tsPaths = new TsconfigPathsPlugin({
-    configFile: './tsconfig.base.json',
-  })
-
-  return {
-    ...baseConfig,
-    resolve: {
-      ...baseConfig.resolve,
-      plugins: [...baseConfig.resolve.plugins, tsPaths],
+  ],
+  addons: [
+    '@storybook/addon-essentials',
+    '@storybook/addon-a11y',
+    '@storybook/addon-links',
+  ],
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      shouldExtractValuesFromUnion: true,
+      propFilter: (prop) =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
+      compilerOptions: {
+        allowSyntheticDefaultImports: false,
+        esModuleInterop: false,
+        paths: tsBaseConfig.compilerOptions.paths,
+      },
     },
-  }
+  },
+  managerWebpack: async (config) => {
+    const tsPaths = new TsconfigPathsPlugin({
+      configFile: './tsconfig.json',
+    })
+    config.resolve.plugins.push(tsPaths)
+    return config
+  },
 }
-
-module.exports = rootMain

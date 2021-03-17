@@ -1,9 +1,9 @@
-name: Lint, Build & Test
+name: CI
 
 on: pull_request
 
 jobs:
-  nx:
+  ci:
     name: 'Lint, Build & Test'
     runs-on: ubuntu-latest
 
@@ -34,11 +34,17 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Typecheck
+        run: yarn typecheck
+
       - name: Lint
-        run: yarn affected:lint
+        run: yarn lint
+
+      - name: Check formatting
+        run: yarn format:check
 
       - name: Build
-        run: yarn affected:build
+        run: yarn build
 
       - name: Test
-        run: yarn affected:test
+        run: yarn test

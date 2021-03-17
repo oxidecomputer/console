@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react'
 
 import styled, { css } from 'styled-components'
 
-import Icon from '../icon/Icon'
+import { Icon, IconProps } from '../icon/Icon'
 
 export const avatarSizes = {
   '2xl': { width: 16, fontSize: 6 }, // spacing(16) is 64px, 24px
@@ -38,7 +38,10 @@ type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
   hasInitials?: boolean
 }
 
-const StyledIcon = styled(Icon).attrs({ name: 'profile', color: 'gray300' })``
+const StyledIcon = styled(Icon).attrs({
+  name: 'profile',
+  color: 'gray300',
+})<IconProps>``
 
 const getSizeStyles = (size) => {
   const avatarSize = avatarSizes[size]
@@ -89,13 +92,14 @@ const Wrapper = styled.div<WrapperProps>`
   ${(props) => getSizeStyles(props.size)};
 `
 
-const IconAvatar: React.FC<Pick<AvatarProps, 'isPerson' | 'size'>> = ({
+const IconAvatar: React.FC<Pick<AvatarProps, 'name' | 'isPerson' | 'size'>> = ({
+  name,
   isPerson,
   size,
 }) => {
   return (
     <Wrapper size={size} isCircle={isPerson}>
-      <StyledIcon />
+      <StyledIcon svgProps={{ title: name }} />
     </Wrapper>
   )
 }
@@ -132,7 +136,7 @@ const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
   }
 
   console.warn('Initials were not found for the organization: ', name)
-  return <IconAvatar isPerson={false} size={size} />
+  return <IconAvatar name={name} isPerson={false} size={size} />
 }
 
 export const Avatar: FC<AvatarProps> = ({ name, isPerson, size, src }) => {
@@ -146,7 +150,7 @@ export const Avatar: FC<AvatarProps> = ({ name, isPerson, size, src }) => {
   }
 
   // Person Fallback: Avatar with a custom profile icon
-  return <IconAvatar isPerson={isPerson} size={size} />
+  return <IconAvatar name={name} isPerson={isPerson} size={size} />
 }
 
 Avatar.defaultProps = {
