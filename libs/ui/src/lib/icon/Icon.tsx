@@ -39,7 +39,7 @@ import { default as UserIcon } from '../../assets/user.svg'
 import { default as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  arrowRight: ArrowIcon,
+  arrow: ArrowIcon,
   bookmark: BookmarkIcon,
   chevron: ChevronIcon,
   close: CloseIcon,
