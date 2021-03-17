@@ -10,7 +10,6 @@ export interface GlobalNavProps {}
 
 const StyledGlobalNav = styled.div`
   align-items: center;
-  background-color: ${({ theme }) => theme.color('gray800')};
   display: flex;
   width: 100%;
   height: 56px;
