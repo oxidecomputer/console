@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { Color } from '@oxide/theme'
 import { Text, TextProps } from '../text/Text'
 
-import { default as ArrowRightIcon } from '../../assets/arrowRight.svg'
+import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
-import { default as ChevronLeftIcon } from '../../assets/chevronLeft.svg'
+import { default as ChevronIcon } from '../../assets/chevron.svg'
 import { default as CloseIcon } from '../../assets/close.svg'
 import { default as CommandIcon } from '../../assets/command.svg'
 import { default as CpuIcon } from '../../assets/cpu.svg'
@@ -39,9 +39,9 @@ import { default as UserIcon } from '../../assets/user.svg'
 import { default as UsersIcon } from '../../assets/users.svg'
 
 export const icons = {
-  arrowRight: ArrowRightIcon,
+  arrowRight: ArrowIcon,
   bookmark: BookmarkIcon,
-  chevronLeft: ChevronLeftIcon,
+  chevron: ChevronIcon,
   close: CloseIcon,
   command: CommandIcon,
   cpu: CpuIcon,
