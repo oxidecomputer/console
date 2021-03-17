@@ -5,7 +5,7 @@ import NotificationCount from './NotificationCount'
 
 describe('NotificationCount', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<NotificationCount />)
+    const { baseElement } = render(<NotificationCount count={1} />)
     expect(baseElement).toBeTruthy()
   })
 })

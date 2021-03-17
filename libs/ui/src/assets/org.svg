@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-organization">
-  <title id="icon-organization">Organization</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Organization</title>
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M12 2.454l4.243 4.243L12 10.939 7.757 6.697 12 2.454zM10.94 12L6.696 7.757 2.454 12l4.243 4.243L10.939 12zm10.606 0l-4.243-4.243L13.061 12l4.242 4.243L21.546 12zm-5.303 5.303L12 13.061l-4.243 4.242L12 21.546l4.243-4.243z" />
 </svg>

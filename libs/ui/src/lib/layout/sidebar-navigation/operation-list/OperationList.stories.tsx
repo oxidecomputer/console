@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 import { OperationList } from './OperationList'
 
 export default {

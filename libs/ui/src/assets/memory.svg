@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-memory">
-  <title id="icon-memory">Memory</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Memory</title>
   <path d="M6.75 5.5h1.5V4h-1.5v1.5z" />
   <path fill-rule="evenodd" clip-rule="evenodd" d="M22 7H2v10h20V7zM4 10.5h1.5V9H4v1.5zM20 15h-1.5v-1.5H20V15z" />
   <path

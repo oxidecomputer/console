@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, TableProps } from './Table'
+import { Table } from './Table'
 import { Text } from '../text/Text'
 
 export default {
