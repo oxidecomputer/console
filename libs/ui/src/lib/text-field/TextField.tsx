@@ -15,11 +15,14 @@ export interface TextFieldProps {
    * Text or element used as children of the `label` element
    */
   children: string | React.ReactNode
-  disabled: boolean
   /**
-   * input is invalid
+   * Required for accessibility. Defaults to `false`.
    */
-  error: boolean
+  disabled?: boolean
+  /**
+   * Required for accessibility. Defaults to `false`. Input is invalid
+   */
+  error?: boolean
   /**
    * Error message text to render
    */
@@ -35,13 +38,13 @@ export interface TextFieldProps {
   onFocus?: () => void
   placeholder?: string
   /**
-   * Optional or required
+   * Required for accessibility. Defaults to `false`.
    */
-  required: boolean
+  required?: boolean
   /**
-   * type of `input`, e.g. email, text, tel, etc.
+   * Required. Defaults to `text`. Type of input, e.g. email, text, tel, etc.
    */
-  type: string
+  type?: string
   /**
    * Current value of the input
    */
