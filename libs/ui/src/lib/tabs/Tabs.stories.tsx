@@ -1,5 +1,5 @@
-import React, { FC } from 'react'
-import { Tabs, TabsProps } from './Tabs'
+import React from 'react'
+import { Tabs } from './Tabs'
 
 export default {
   title: 'Components/Tabs',

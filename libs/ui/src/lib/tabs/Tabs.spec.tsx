@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 import { render } from '../../test-utils'
 
 import Tabs from './Tabs'
