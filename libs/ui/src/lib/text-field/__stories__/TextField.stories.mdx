@@ -1,0 +1,72 @@
+<!-- Icons.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import styled from 'styled-components'
+
+import { TextField } from '../TextField'
+import {
+  Default,
+  EmailField,
+  InvalidEmailField,
+  DisabledField,
+  FieldWithLeftIcon,
+  FieldWithRightIcon,
+  FieldWithHint,
+} from './TextField.stories'
+
+<Meta
+  title="Components/TextField"
+  component={Field}
+  argTypes={{
+    required: { control: { type: 'boolean' } },
+    error: { control: { type: 'boolean' } },
+  }}
+/>
+
+# TextField
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Field} story="^" />
+
+## Stories
+
+### Email TextField
+
+<Canvas>
+  <Story name="Email" story={EmailField} />
+</Canvas>
+
+### Invalid Email TextField
+
+<Canvas>
+  <Story name="Invalid Email" story={InvalidEmailField} />
+</Canvas>
+
+### Disabled TextField
+
+<Canvas>
+  <Story story={DisabledField} />
+</Canvas>
+
+### TextField with Icon
+
+#### Left aligned
+
+<Canvas>
+  <Story name="Field with Left Icon" story={FieldWithLeftIcon} />
+</Canvas>
+
+#### Right aligned
+
+<Canvas>
+  <Story name="Field with Right Icon" story={FieldWithRightIcon} />
+</Canvas>
+
+### TextField with Hint
+
+<Canvas>
+  <Story name="Field with Hint" story={FieldWithHint} />
+</Canvas>

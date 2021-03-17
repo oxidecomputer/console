@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-instances">
-  <title id="icon-instances">Instances</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>Instances</title>
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M8.25 6.75V4.5H19.5v11.25h-2.25v-9h-9zM4.5 8.25h11.25V19.5H4.5V8.25z" />
 </svg>

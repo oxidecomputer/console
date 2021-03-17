@@ -1,6 +1,8 @@
 import { create } from '@storybook/theming'
 import { colorPalette } from '@oxide/theme'
 
+// Storybook Theme Options:
+// https://github.com/storybookjs/storybook/blob/next/lib/theming/src/types.ts
 export default create({
   brandTitle: 'Oxide - Console Storybook',
   brandUrl: 'https://console-ui-storybook.vercel.app/',

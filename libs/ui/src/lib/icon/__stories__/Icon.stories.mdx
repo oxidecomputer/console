@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { colorPalette } from '@oxide/theme'
 
 import { Icon, icons } from '../Icon'
-import { Default } from './Icon.stories'
+import { Default, Rotate, CustomTitle } from './Icon.stories'
 
 <Meta
   title="Foundations/Icon"
@@ -46,10 +46,9 @@ Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com
 Each `.svg` icon should follow [accessibility best practices](https://www.deque.com/blog/creating-accessible-svgs/). In this case, it means making sure of the following:
 
 - the parent `<svg>` tag has `role="img"` to ensure it gets treated as an image
-- the parent `<svg>` tag has an aria labelledby property `aria-labelledby="icon-[ICON_NAME_HERE]"`
-- and the first child should be a `<title>` tag with the matching id `id="icon-[ICON_NAME_HERE]"`
+- and the first child should be a `<title>` tag
 
-The `name` prop matches the `[ICON_NAME_HERE]` label so that you know what screenreaders will be reading. Since each icon is read by a screenreader, treat them as additional text when composing them with other elements.
+The `name` prop matches the contents of the `<title>` tag so that you know what screenreaders will be reading. Since each icon is read by a screenreader, treat them as additional text when composing them with other elements.
 
 For example, the following composition:
 
@@ -58,6 +57,17 @@ For example, the following composition:
 ```
 
 will output something like "Bookmark (image) Settings" or "Bookmark (graphic) Settings" to the user depending on their software and browser combination.
+
+**Note:**
+
+The `<Icon>` component will take care of adding a unique identifier for the `aria-labelledby` and `id` attributes. The `titleProp` flag is set to `true` in the [SVGR Title options](https://react-svgr.com/docs/options/#title). Relying on `<Icon>` to create a unique `titleId` will ensure there are never duplicate IDs in the DOM.
+
+If, for some reason, you need to know the ID, you can pass one yourself:
+
+```jsx
+/* Icon component will take care of creating the `titleId` for you */
+<Icon svgProps={{ title: 'Cameron Howe', titleId: 'avatar-cameron-howe' }} />
+```
 
 ## Usage
 
@@ -69,6 +79,20 @@ The `<Icon />` component takes two props.
 ```tsx
 <Icon name="dashboard" color="green500" />
 ```
+
+## Stories
+
+### Rotate
+
+<Canvas>
+  <Story story={Rotate} />
+</Canvas>
+
+### Icon with custom Title tag
+
+<Canvas>
+  <Story story={CustomTitle} />
+</Canvas>
 
 ## All icons
 
