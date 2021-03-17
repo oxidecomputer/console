@@ -29,6 +29,7 @@ import { default as SearchIcon } from '../../assets/search.svg'
 import { default as StorageIcon } from '../../assets/storage.svg'
 import { default as SupportIcon } from '../../assets/support.svg'
 import { default as ThemeIcon } from '../../assets/theme.svg'
+import { default as TrashIcon } from '../../assets/trash.svg'
 import { default as UserIcon } from '../../assets/user.svg'
 import { default as UsersIcon } from '../../assets/users.svg'
 
@@ -58,6 +59,7 @@ export const icons = {
   storage: StorageIcon,
   support: SupportIcon,
   theme: ThemeIcon,
+  trash: TrashIcon,
   user: UserIcon,
   users: UsersIcon,
 }
