@@ -17,8 +17,9 @@ import { default as InstancesIcon } from '../../assets/instances.svg'
 import { default as MemoryIcon } from '../../assets/memory.svg'
 import { default as MessageIcon } from '../../assets/message.svg'
 import { default as MoreIcon } from '../../assets/more.svg'
+import { default as NotificationsIcon } from '../../assets/notifications.svg'
 import { default as OrganizationIcon } from '../../assets/org.svg'
-import { default as penIcon } from '../../assets/pen.svg'
+import { default as PenIcon } from '../../assets/pen.svg'
 import { default as PlayButtonOIcon } from '../../assets/playButtonO.svg'
 import { default as PlayPauseOIcon } from '../../assets/playPauseO.svg'
 import { default as PlayStopOIcon } from '../../assets/playStopO.svg'
@@ -52,8 +53,9 @@ export const icons = {
   memory: MemoryIcon,
   message: MessageIcon,
   more: MoreIcon,
+  notifications: NotificationsIcon,
   organization: OrganizationIcon,
-  pen: penIcon,
+  pen: PenIcon,
   playButtonO: PlayButtonOIcon,
   playPauseO: PlayPauseOIcon,
   playStopO: PlayStopOIcon,
