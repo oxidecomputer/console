@@ -1,0 +1,5 @@
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 20" role="img" aria-labelledby="icon-warning">
+  <title id="icon-warning">Warning</title>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M0 20L11 0l11 20H0zm2.5-1.5l8.5-15 8.5 15h-17z" />
+  <path d="M10 7h2v7.5h-2V7zM10 15.5h2v2h-2v-2z" />
+</svg>

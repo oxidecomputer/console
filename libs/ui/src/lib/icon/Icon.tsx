@@ -11,6 +11,8 @@ import { default as CommandIcon } from '../../assets/command.svg'
 import { default as CpuIcon } from '../../assets/cpu.svg'
 import { default as DashboardIcon } from '../../assets/dashboard.svg'
 import { default as FileIcon } from '../../assets/file.svg'
+import { default as InfoFilledIcon } from '../../assets/info-filled.svg'
+import { default as InfoIcon } from '../../assets/info.svg'
 import { default as InstanceIcon } from '../../assets/instance.svg'
 import { default as InstancesIcon } from '../../assets/instances.svg'
 import { default as MemoryIcon } from '../../assets/memory.svg'
@@ -30,6 +32,8 @@ import { default as SupportIcon } from '../../assets/support.svg'
 import { default as ThemeIcon } from '../../assets/theme.svg'
 import { default as UserIcon } from '../../assets/user.svg'
 import { default as UsersIcon } from '../../assets/users.svg'
+import { default as WarningFilledIcon } from '../../assets/warning-filled.svg'
+import { default as WarningIcon } from '../../assets/warning.svg'
 
 export const icons = {
   bookmark: BookmarkIcon,
@@ -39,6 +43,8 @@ export const icons = {
   cpu: CpuIcon,
   dashboard: DashboardIcon,
   file: FileIcon,
+  info: InfoIcon,
+  infoFilled: InfoFilledIcon,
   instance: InstanceIcon,
   instances: InstancesIcon,
   memory: MemoryIcon,
@@ -58,6 +64,8 @@ export const icons = {
   theme: ThemeIcon,
   user: UserIcon,
   users: UsersIcon,
+  warning: WarningIcon,
+  warningFilled: WarningFilledIcon,
 }
 
 type Name = keyof typeof icons
@@ -74,27 +82,42 @@ const getColorStyles = (color?: string) => {
   `
 }
 
+const rotateStyles = (rotate) => {
+  return css`
+    transform: rotate(${rotate});
+  `
+}
+
 interface StyledIconProps extends TextProps {
   /**
    * Set the color using a theme color ("green500")
    */
   color?: Color
+  /**
+   * Amount to rotate the SVG icon (useful for "chevron"); expects a number followed by an [angle](https://developer.mozilla.org/en-US/docs/Web/CSS/angle) unit: `90deg`, `0.5turn`
+   */
+  rotate?: string
 }
 
-const StyledIcon = styled(Text)<StyledIconProps>`
+const StyledIcon = styled(Text).withConfig({
+  // Do not pass 'color' and 'rotate' props to the DOM
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
+})<StyledIconProps>`
   display: inline-flex;
   width: 1em;
 
   justify-content: center;
   align-items: center;
 
-  ${(props) => getColorStyles(props.theme.themeColors[props.color])};
+  ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
 
   > svg {
     height: auto;
     width: 100%;
 
     fill: inherit;
+    ${({ rotate }) => rotate && rotateStyles(rotate)};
   }
 `
 

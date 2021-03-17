@@ -15,6 +15,15 @@ const DocsStyleOverrides = createGlobalStyle`
     background-color: inherit;
     color: inherit;
   }
+
+  .sbdocs-wrapper {
+    padding-top: 1.5rem;
+  }
+
+  h1.sbdocs, h2.sbdocs, h3.sbdocs, h4.sbdocs, h5.sbdocs, h6.sbdocs, p.sbdocs {
+    /* Use single direction margins only */
+    margin: 1.25em 0 0 0 !important;
+  }
 `
 
 const getBackgroundColors = (colors) =>
