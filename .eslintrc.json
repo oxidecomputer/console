@@ -22,5 +22,13 @@
     "react/display-name": "off",
     "react/prop-types": "off"
   },
-  "ignorePatterns": ["dist/"]
+  "ignorePatterns": ["dist/"],
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    }
+  ]
 }
