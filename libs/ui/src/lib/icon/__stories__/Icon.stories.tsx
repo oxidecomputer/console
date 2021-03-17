@@ -6,7 +6,7 @@ const Template: Story<IconProps> = (args) => <Icon {...args} />
 
 export const Default = Template.bind({})
 Default.storyName = 'Icon'
-Default.args = { name: 'bookmark', color: 'green500' }
+Default.args = { name: 'bookmark', color: 'green500', size: '3xl' }
 
 export const CustomTitle = Template.bind({})
 CustomTitle.storyName = 'Custom Title'
