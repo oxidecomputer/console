@@ -1,8 +1,8 @@
 import React from 'react'
 
-import styled from 'styled-components'
+import styled, { StyledComponent, DefaultTheme } from 'styled-components'
 
-import { Text } from '../text/Text'
+import { Text, TextProps } from '../text/Text'
 
 export interface BreadcrumbsProps {
   /**
@@ -47,7 +47,7 @@ const Link = styled(Text).attrs({
   &:hover {
     color: ${({ theme }) => theme.color('green500')};
   }
-`
+` as StyledComponent<'a', DefaultTheme, TextProps>
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
   if (data && !!data.length) {
