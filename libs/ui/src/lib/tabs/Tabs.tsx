@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  createRef,
-} from 'react'
+import React, { FC, useState, useCallback, useEffect, createRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -59,29 +52,25 @@ const Panel = styled.div<{ isVisible: boolean }>`
 
 // Add or subtract depending on key pressed
 const DIRECTION = {
-  37: -1, // retreat
-  38: -1,
-  39: 1, // advance
-  40: 1,
+  [KEYS.left]: -1, // retreat
+  [KEYS.right]: 1, // advance
 }
 
 export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
-  const [tabRefs, setTabRefs] = useState([])
+  const [refs, setRefs] = useState([])
   const [activeTab, setActiveTab] = useState(0)
 
   useEffect(() => {
-    // update refs
-    const refs = new Array(tabs.length)
+    // create refs for all the tabs
+    const initialize = new Array(tabs.length)
       .fill('')
-      .map((item, index) => tabRefs[index] || createRef())
-    console.log('useEffect', refs)
-    setTabRefs(refs)
+      .map((item, index) => refs[index] || createRef())
+    setRefs(initialize)
   }, tabs)
 
   const handleClick = useCallback(
-    (event) => {
-      const nextTabIndex = event.target.id
-      setActiveTab(parseInt(nextTabIndex))
+    (index) => () => {
+      setActiveTab(index)
     },
     [setActiveTab]
   )
@@ -93,7 +82,7 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
         case KEYS.end:
           event.preventDefault()
           // Activate last tab
-          setActiveTab(tabs.length)
+          setActiveTab(tabs.length - 1)
           break
         case KEYS.home:
           event.preventDefault()
@@ -112,7 +101,7 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
   )
 
   const handleKeyup = useCallback(
-    (event) => {
+    (index) => (event) => {
       const { keyCode } = event
 
       switch (keyCode) {
@@ -121,36 +110,28 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
           event.preventDefault()
           // Either focus the next, previous, first, or last tab, depending on key pressed
           if (DIRECTION[keyCode]) {
-            const {
-              target: { id },
-            } = event
             // Modulus allows the end to circle to the beginning
-            const next = (parseInt(id) + DIRECTION[keyCode]) % tabs.length
+            const next = (parseInt(index) + DIRECTION[keyCode]) % tabs.length
             // Circle from beginning to end
             if (next === -1) {
               // focus the last item
-              tabRefs[tabs.length - 1].current.focus()
+              refs[tabs.length - 1].current.focus()
             }
             if (tabs[next]) {
-              // this ref is a Component instance, not the DOM element
-              // Move focus but do not select it until enter is pressed
-              if (tabRefs[next].current) {
-                tabRefs[next].current.focus()
+              if (refs[next].current) {
+                refs[next].current.focus()
               }
             }
           }
           break
-        case KEYS.delete:
-          console.log('TODO: determine deletable')
-          break
         case KEYS.enter:
         case KEYS.space:
-          // Activate current tab
-          handleClick(event)
+          // Activate current tab or tab with focus
+          setActiveTab(index)
           break
       }
     },
-    [handleClick, tabRefs]
+    [setActiveTab, refs]
   )
 
   if (!tabs || !tabs.length) {
@@ -158,21 +139,19 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
   }
 
   const renderTabs = tabs.map((tab, index) => {
-    // TODO: what happens if there are multiple Tabs components? Use a better id??
-    const tabIndex = index
-    const isSelected = activeTab === tabIndex
+    const isSelected = activeTab === index
     const addAriaProps = isSelected ? {} : { tabIndex: -1 }
     return (
       <StyledButton
-        key={`tab-button-${index}`}
-        aria-controls={`panel-${tabIndex}`}
+        key={`button-${index}`}
+        aria-controls={`panel-${index}`}
         aria-selected={isSelected}
-        ref={tabRefs[index]}
-        id={`${tabIndex}`}
+        ref={refs[index]}
+        id={`button-${index}`}
         isSelected={isSelected}
-        onClick={handleClick}
+        onClick={handleClick(index)}
         onKeyDown={handleKeydown}
-        onKeyUp={handleKeyup}
+        onKeyUp={handleKeyup(index)}
         role="tab"
         {...addAriaProps}
       >
@@ -182,15 +161,13 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
   })
 
   const renderPanels = panels.map((panel, index) => {
-    const tabIndex = index
-    const panelIndex = `panel-${tabIndex}`
-    const isVisible = activeTab === tabIndex
+    const isVisible = activeTab === index
     return (
       <Panel
-        key={`tab-panel-${index}`}
+        key={`panel-${index}`}
         aria-hidden={!isVisible}
-        aria-labelledby={`${tabIndex}`}
-        id={panelIndex}
+        aria-labelledby={`button-${index}`}
+        id={`panel-${index}`}
         isVisible={isVisible}
         role="tabpanel"
         tabIndex={0}
