@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "storybook": "start-storybook -c libs/ui/.storybook -p 4400",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "plop": "plop"
   },
   "private": true,
   "dependencies": {
@@ -69,6 +70,7 @@
     "html-webpack-plugin": "^5.3.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "26.2.2",
+    "plop": "^2.7.4",
     "prettier": "2.2.1",
     "style-loader": "^2.0.0",
     "ts-jest": "26.4.0",
