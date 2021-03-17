@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { PropsWithChildren, forwardRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -28,11 +28,11 @@ export interface ButtonProps {
   /**
    * Set the size of the button
    */
-  size: ButtonSize
+  size?: ButtonSize
   /**
    * Style variation or button styles
    */
-  variant: Variant
+  variant?: Variant
   /**
    * Disable button
    */
@@ -177,18 +177,23 @@ const StyledButton = styled.button<ButtonProps>`
     cursor: not-allowed;
   }
 `
-
-export const Button: FC<ButtonProps> = ({ children, ...rest }) => {
+// Use `forwardRef` so the ref points to the DOM element (not the React Component)
+// so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
+export const Button = forwardRef<
+  HTMLButtonElement,
+  PropsWithChildren<ButtonProps>
+>(({ children, size = 'base', variant = 'solid', ...rest }, ref) => {
   return (
-    <StyledButton type="button" {...rest}>
+    <StyledButton
+      ref={ref}
+      type="button"
+      size={size}
+      variant={variant}
+      {...rest}
+    >
       {children}
     </StyledButton>
   )
-}
-
-Button.defaultProps = {
-  size: 'base',
-  variant: 'solid',
-}
+})
 
 export default Button

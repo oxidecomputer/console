@@ -12,11 +12,11 @@ export const primary = () => {
       label="Project View"
       tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       panels={[
-        <div>Overview panel</div>,
-        <div>Metrics panel</div>,
-        <div>Activity panel</div>,
-        <div>Acess & IAM panel</div>,
-        <div>Settings panel</div>,
+        <div key={1}>Overview panel</div>,
+        <div key={2}>Metrics panel</div>,
+        <div key={3}>Activity panel</div>,
+        <div key={4}>Acess & IAM panel</div>,
+        <div key={5}>Settings panel</div>,
       ]}
     />
   )
