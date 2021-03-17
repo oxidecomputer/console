@@ -5,7 +5,9 @@ import TextField from './TextField'
 
 describe('TextField', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<TextField />)
+    const { baseElement } = render(
+      <TextField id="textfield-email">Email</TextField>
+    )
     expect(baseElement).toBeTruthy()
   })
 })
