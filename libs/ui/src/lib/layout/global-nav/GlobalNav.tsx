@@ -4,7 +4,6 @@ import styled from 'styled-components'
 
 import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
-import { Button } from '../../button/Button'
 
 /* eslint-disable-next-line */
 export interface GlobalNavProps {}
@@ -49,7 +48,7 @@ const TickBar = styled.div`
   height: 20px;
 `
 
-const ProfileButton = styled.button`
+const Button = styled.button`
   background-color: transparent;
   border: none;
   color: ${({ theme }) => theme.themeColors.gray100};
@@ -70,22 +69,22 @@ export const GlobalNav: FC<GlobalNavProps> = () => {
       <Link href="#">
         <StyledText>Feedback?</StyledText>
       </Link>
-      <Link href="#">
+      <Button>
         <StyledIcon name="theme" />
-      </Link>
+      </Button>
       <Link href="#">
         <StyledIcon name="support" />
       </Link>
       <Link href="#">
         <StyledIcon name="command" />
       </Link>
-      <Link href="#">
+      <Button>
         <StyledIcon name="notifications" />
-      </Link>
-      <ProfileButton>
+      </Button>
+      <Button>
         {/* placeholder for profile photo? where would we get that */}
         <StyledIcon name="profile" />
-      </ProfileButton>
+      </Button>
     </StyledGlobalNav>
   )
 }
