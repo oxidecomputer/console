@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>playStopO</title>
+  <path d="M14.727 9.273H9.273v5.454h5.454V9.273z" />
+  <path fill-rule="evenodd" clip-rule="evenodd"
+    d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10zm-1.818 0a8.182 8.182 0 11-16.364 0 8.182 8.182 0 0116.364 0z" />
+</svg>
