@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
 
 import styled, { css } from 'styled-components'
+import type { DefaultTheme } from 'styled-components'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
 export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
@@ -9,7 +10,10 @@ export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
 
-const sizes = {
+const sizes: Record<
+  ButtonSize,
+  { fontSize: number; lineHeight: number; padding: [number, number] }
+> = {
   xs: { fontSize: 3, lineHeight: 1 / 0.75, padding: [2, 3] }, // total height: 32px
   sm: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2, 3] }, // total height: 36px
   base: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2.5, 4] }, // total height: 40px
@@ -47,9 +51,11 @@ export interface ButtonProps {
 }
 
 const getSizeStyles = (size: ButtonSize) => {
-  const getPadding = (x, y) => {
-    return ({ theme }) => `${theme.spacing(x)} ${theme.spacing(y)}`
-  }
+  const getPadding = (x: number, y: number) => ({
+    theme,
+  }: {
+    theme: DefaultTheme
+  }) => `${theme.spacing(x)} ${theme.spacing(y)}`
 
   const buttonSize = sizes[size]
 
