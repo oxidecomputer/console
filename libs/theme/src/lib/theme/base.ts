@@ -1,7 +1,6 @@
-import type { SpacingHelper, DefaultTheme as Theme } from 'styled-components'
 import { css } from 'styled-components'
-import type { Color } from '../types'
-import { colorPalette, colorValues } from '../colors'
+import type { Color, SpacingHelper, Theme } from '../types'
+import { colorDefinitions, colorPalette } from '../colors'
 
 // TODO: Move these functions to their own modules
 
@@ -14,7 +13,7 @@ import { colorPalette, colorValues } from '../colors'
  * Usage: `color('green600', 0.6)` `color('black')`
  */
 const color = (name: Color, alpha?: number) => {
-  const colorValue = colorValues[name]
+  const colorValue = colorDefinitions[name]
   if (alpha) {
     return `hsla(${colorValue}, ${alpha})`
   }
