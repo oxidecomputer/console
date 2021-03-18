@@ -7,6 +7,10 @@ import { KEYS } from '../keys-utils'
 
 export interface TabsProps {
   /**
+   * Should tab buttons take up the full width of the container
+   */
+  fullWidth?: boolean
+  /**
    * A short description for the Tabs. It gets passed to `aria-label`
    */
   label: string
@@ -14,17 +18,24 @@ export interface TabsProps {
    * An array of each tab name
    */
   tabs: string[]
+  /**
+   * Panel to render for corresponding active tab.
+   */
   panels: Array<React.ReactNode>
 }
 
 const Wrapper = styled.div``
 
-const TabList = styled.div``
+const TabList = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+`
 
 const StyledButton = styled(Button).attrs({
   size: 'base',
   variant: 'ghost',
-})<{ isSelected: boolean }>`
+})<{ fullWidth: boolean; isSelected: boolean }>`
   ${({ isSelected, theme }) =>
     isSelected
       ? css`
@@ -34,6 +45,12 @@ const StyledButton = styled(Button).attrs({
           color: ${theme.color('green50')};
         `}
 
+  ${({ fullWidth }) =>
+    fullWidth
+      ? css`
+          flex: 1;
+        `
+      : null}
   border-bottom: 1px solid currentColor;
 
   &:hover {
@@ -56,7 +73,12 @@ const DIRECTION = {
   [KEYS.right]: 1, // advance
 }
 
-export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
+export const Tabs: FC<TabsProps> = ({
+  fullWidth = false,
+  label,
+  tabs,
+  panels,
+}) => {
   const [refs, setRefs] = useState([])
   const [activeTab, setActiveTab] = useState(0)
 
@@ -143,15 +165,16 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
     const addAriaProps = isSelected ? {} : { tabIndex: -1 }
     return (
       <StyledButton
-        key={`button-${index}`}
         aria-controls={`panel-${index}`}
         aria-selected={isSelected}
-        ref={refs[index]}
+        fullWidth={fullWidth}
         id={`button-${index}`}
         isSelected={isSelected}
+        key={`button-${index}`}
         onClick={handleClick(index)}
         onKeyDown={handleKeydown}
         onKeyUp={handleKeyup(index)}
+        ref={refs[index]}
         role="tab"
         {...addAriaProps}
       >
