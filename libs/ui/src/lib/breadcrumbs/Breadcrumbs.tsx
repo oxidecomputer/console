@@ -3,7 +3,6 @@ import React from 'react'
 import styled, { StyledComponent, DefaultTheme } from 'styled-components'
 
 import { Text, TextProps } from '../text/Text'
-import { Button } from '../button/Button'
 
 export interface BreadcrumbsProps {
   /**
