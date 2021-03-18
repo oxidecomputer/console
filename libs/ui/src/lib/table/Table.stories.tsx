@@ -56,7 +56,7 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
   }
 })
 
-const getItemSize = (index) => {
+const getItemSize = (index: number) => {
   if (index === 0) {
     return 45
   }
