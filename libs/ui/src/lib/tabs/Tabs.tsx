@@ -59,6 +59,8 @@ const StyledButton = styled(Button).attrs({
 `
 
 const Panel = styled.div<{ isVisible: boolean }>`
+  margin-top: ${({ theme }) => theme.spacing(4)};
+
   ${({ isVisible }) =>
     isVisible
       ? null
