@@ -45,12 +45,7 @@ const StyledButton = styled(Button).attrs({
           color: ${theme.color('green50')};
         `}
 
-  ${({ fullWidth }) =>
-    fullWidth
-      ? css`
-          flex: 1;
-        `
-      : null}
+  ${({ fullWidth }) => (fullWidth ? `flex: 1;` : null)}
   border-bottom: 1px solid currentColor;
 
   &:hover {
@@ -61,12 +56,7 @@ const StyledButton = styled(Button).attrs({
 const Panel = styled.div<{ isVisible: boolean }>`
   margin-top: ${({ theme }) => theme.spacing(4)};
 
-  ${({ isVisible }) =>
-    isVisible
-      ? null
-      : css`
-          display: none;
-        `}
+  ${({ isVisible }) => (isVisible ? null : `display: none;`)};
 `
 
 // Add or subtract depending on key pressed
@@ -90,73 +80,63 @@ export const Tabs: FC<TabsProps> = ({
       .fill('')
       .map((item, index) => refs[index] || createRef())
     setRefs(initialize)
-  }, tabs)
+  }, [tabs])
 
-  const handleClick = useCallback(
-    (index) => () => {
-      setActiveTab(index)
-    },
-    [setActiveTab]
-  )
+  const handleClick = (index) => () => {
+    setActiveTab(index)
+  }
 
-  const handleKeydown = useCallback(
-    (event) => {
-      const { keyCode } = event
-      switch (keyCode) {
-        case KEYS.end:
-          event.preventDefault()
-          // Activate last tab
-          setActiveTab(tabs.length - 1)
-          break
-        case KEYS.home:
-          event.preventDefault()
-          // Activiate first tab
-          setActiveTab(0)
-          break
-        case KEYS.up:
-        case KEYS.down:
-          // Up and down are in keydown
-          // because we need to prevent page scroll
-          // Do nothing
-          break
-      }
-    },
-    [setActiveTab, tabs]
-  )
+  const handleKeydown = (event) => {
+    const { keyCode } = event
+    switch (keyCode) {
+      case KEYS.end:
+        event.preventDefault()
+        // Activate last tab
+        setActiveTab(tabs.length - 1)
+        break
+      case KEYS.home:
+        event.preventDefault()
+        // Activiate first tab
+        setActiveTab(0)
+        break
+      case KEYS.up:
+      case KEYS.down:
+        // Up and down are in keydown
+        // because we need to prevent page scroll
+        // Do nothing
+        break
+    }
+  }
 
-  const handleKeyup = useCallback(
-    (index) => (event) => {
-      const { keyCode } = event
+  const handleKeyup = (index) => (event) => {
+    const { keyCode } = event
 
-      switch (keyCode) {
-        case KEYS.left:
-        case KEYS.right:
-          event.preventDefault()
-          // Either focus the next, previous, first, or last tab, depending on key pressed
-          if (DIRECTION[keyCode]) {
-            // Modulus allows the end to circle to the beginning
-            const next = (parseInt(index) + DIRECTION[keyCode]) % tabs.length
-            // Circle from beginning to end
-            if (next === -1) {
-              // focus the last item
-              refs[tabs.length - 1].current.focus()
-            }
-            if (tabs[next]) {
-              if (refs[next].current) {
-                refs[next].current.focus()
-              }
+    switch (keyCode) {
+      case KEYS.left:
+      case KEYS.right:
+        event.preventDefault()
+        // Either focus the next, previous, first, or last tab, depending on key pressed
+        if (DIRECTION[keyCode]) {
+          // Modulus allows the end to circle to the beginning
+          const next = (parseInt(index) + DIRECTION[keyCode]) % tabs.length
+          // Circle from beginning to end
+          if (next === -1) {
+            // focus the last item
+            refs[tabs.length - 1].current.focus()
+          } else if (tabs[next]) {
+            if (refs[next].current) {
+              refs[next].current.focus()
             }
           }
-          break
-        case KEYS.enter:
-        case KEYS.space:
-          // Activate current tab or tab with focus
-          setActiveTab(index)
-          break
-      }
-    },
-    [setActiveTab, refs]
-  )
+        }
+        break
+      case KEYS.enter:
+      case KEYS.space:
+        // Activate current tab or tab with focus
+        setActiveTab(index)
+        break
+    }
+  }
 
   if (!tabs || !tabs.length) {
     return null
