@@ -1,4 +1,5 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'

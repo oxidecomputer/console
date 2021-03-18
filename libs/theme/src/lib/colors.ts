@@ -1,4 +1,4 @@
-import { ColorPalette } from './types'
+import type { ColorPalette } from './types'
 
 export const colorValues: ColorPalette = {
   white: '0, 0%, 100%',

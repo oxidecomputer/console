@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { Color, Font } from '@oxide/theme'
+import type { Color, Font } from '@oxide/theme'
 
 export const textSizes = [
   'xxs',

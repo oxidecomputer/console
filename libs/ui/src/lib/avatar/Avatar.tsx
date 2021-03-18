@@ -1,8 +1,10 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 
 import styled, { css } from 'styled-components'
 
-import { Icon, IconProps } from '../icon/Icon'
+import type { IconProps } from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 
 export const avatarSizes = {
   '2xl': { width: 16, fontSize: 6 }, // spacing(16) is 64px, 24px

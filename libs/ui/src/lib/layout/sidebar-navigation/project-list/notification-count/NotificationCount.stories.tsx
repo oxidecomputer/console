@@ -1,5 +1,6 @@
 import React from 'react'
-import { NotificationCount, NotificationCountProps } from './NotificationCount'
+import type { NotificationCountProps } from './NotificationCount'
+import { NotificationCount } from './NotificationCount'
 
 export default {
   component: NotificationCount,

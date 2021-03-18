@@ -1,6 +1,7 @@
-import { css, DefaultTheme as Theme, SpacingHelper } from 'styled-components'
-import { Color } from '../types'
-import { colorValues, colorPalette } from '../colors'
+import type { SpacingHelper, DefaultTheme as Theme } from 'styled-components'
+import { css } from 'styled-components'
+import type { Color } from '../types'
+import { colorPalette, colorValues } from '../colors'
 
 // TODO: Move these functions to their own modules
 
