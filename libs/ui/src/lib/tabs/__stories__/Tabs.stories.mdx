@@ -1,0 +1,47 @@
+<!-- Tabs.stories.mdx-->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Tabs } from '../Tabs'
+import { Default, FullWidth } from './Tabs.stories'
+
+<Meta
+  title="Components/Tabs"
+  component={Tabs}
+  argTypes={{
+    fullWidth: {
+      control: {
+        type: 'boolean',
+      },
+    },
+    label: {
+      control: {
+        type: 'text',
+      },
+    },
+    tabs: {
+      control: {
+        type: 'array',
+      },
+    },
+  }}
+/>
+
+# Tabs
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Tabs} story="^" />
+
+## Accessibility
+
+This component takes care of the ARIA attributes for you. It follows the [ARIA Best Practices Authoring 1.1 Example of Tabs with Manual Activation](https://www.w3.org/TR/wai-aria-practices/examples/tabs/tabs-2/tabs.html).
+
+## Stories
+
+### Full width
+
+<Canvas>
+  <Story story={FullWidth} />
+</Canvas>
