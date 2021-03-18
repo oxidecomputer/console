@@ -3,6 +3,7 @@ import React from 'react'
 import styled, { StyledComponent, DefaultTheme } from 'styled-components'
 
 import { Text, TextProps } from '../text/Text'
+import { Button } from '../button/Button'
 
 export interface BreadcrumbsProps {
   /**
@@ -38,7 +39,7 @@ const Link = styled(Text).attrs({
   size: 'sm',
   font: 'mono',
   weight: 400,
-  as: 'a',
+  forwardedAs: 'a',
 })`
   &:link,
   &:visited {

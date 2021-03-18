@@ -1,5 +1,7 @@
+import React, { FC } from 'react'
 import styled, { css } from 'styled-components'
 import { Color, Font } from '@oxide/theme'
+import { Icon, IconProps } from '../icon/Icon'
 
 export const textSizes = [
   'xxs',
@@ -106,6 +108,10 @@ export interface TextProps {
    */
   font?: Font
   /**
+   * Display an icon
+   */
+  icon?: { align: 'left' | 'right' } & IconProps
+  /**
    * Set the size of the text
    */
   size?: TextSize
@@ -115,7 +121,7 @@ export interface TextProps {
   weight?: number
 }
 
-export const Text = styled.span.withConfig({
+const StyledText = styled.span.withConfig({
   shouldForwardProp: (prop, defaultValidatorFn) =>
     // Do not pass color or size directly to DOM
     !['color', 'size'].includes(prop) && defaultValidatorFn(prop),
@@ -146,10 +152,19 @@ export const Text = styled.span.withConfig({
 
   ${(props) => getSizeStyles(props.size)};
 `
-Text.defaultProps = {
-  font: 'sans',
-  size: 'base',
-  weight: 400,
+
+export const Text: React.FC<TextProps> = ({
+  children,
+  font = 'sans',
+  size = 'base',
+  weight = 400,
+  ...rest
+}) => {
+  return (
+    <StyledText font={font} size={size} weight={weight} {...rest}>
+      {children}
+    </StyledText>
+  )
 }
 
 export default Text
