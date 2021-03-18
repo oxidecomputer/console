@@ -100,6 +100,10 @@ const getVariantStyles = (variant: Variant) => {
         background-color: transparent;
         color: ${({ theme }) => theme.themeColors.green400};
 
+        &:hover:not(:disabled):not([disabled]) {
+          background-color: hsla(146, 51%, 64%, 0.08);
+        }
+
         &:focus {
           background-color: hsla(146, 51%, 64%, 0.16);
         }
