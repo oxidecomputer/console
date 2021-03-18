@@ -162,6 +162,10 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
 
   const renderPanels = panels.map((panel, index) => {
     const isVisible = activeTab === index
+    // Only render visible panels for better performance
+    const renderPanel = isVisible ? panel : null
+    // Keep the wrapper in the DOM so the aria attributes between
+    // button and panel are always linked
     return (
       <Panel
         key={`panel-${index}`}
@@ -175,7 +179,7 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
           margin: '1rem 0',
         }}
       >
-        {panel}
+        {renderPanel}
       </Panel>
     )
   })
