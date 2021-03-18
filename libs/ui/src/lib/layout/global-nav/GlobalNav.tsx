@@ -12,15 +12,14 @@ const StyledGlobalNav = styled.div`
   align-items: center;
   display: flex;
   width: 100%;
-  height: 56px;
+  height: ${({ theme }) => theme.spacing(14)};
   justify-content: right;
   ${({ theme }) => theme.paddingY(4)}
   ${({ theme }) => theme.paddingX(6)}
 `
 
 const StyledIcon = styled(Icon)`
-  height: 1.5rem;
-  width: 1.5rem;
+  width: ${({ theme }) => theme.spacing(6)};
 `
 
 const Link = styled.a`
@@ -42,12 +41,12 @@ const TickBar = styled.div`
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' role='img' aria-labelledby='icon-warning-filled'%3E%3Ctitle id='icon-warning-filled'%3EWarning%3C/title%3E%3Cpath fill='gray' fill-rule='evenodd' clip-rule='evenodd' d='M0 19.75L10 .25l10 19.5H0zM11 14V6.5H9V14h2zm0 3.5v-2H9v2h2z'/%3E%3C/svg%3E%0A");
   background-position: center right;
   background-repeat: repeat-x;
-  background-size: 20px;
+  background-size: ${({ theme }) => theme.spacing(5)};
+  height: ${({ theme }) => theme.spacing(5)};
   width: 100%;
-  height: 20px;
 `
 
-const Button = styled.button`
+const Button = styled.button.attrs({ type: 'button' })`
   background-color: transparent;
   border: none;
   color: ${({ theme }) => theme.themeColors.gray100};
