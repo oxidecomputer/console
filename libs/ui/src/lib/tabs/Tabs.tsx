@@ -171,6 +171,9 @@ export const Tabs: FC<TabsProps> = ({ label, tabs, panels }) => {
         isVisible={isVisible}
         role="tabpanel"
         tabIndex={0}
+        style={{
+          margin: '1rem 0',
+        }}
       >
         {panel}
       </Panel>
