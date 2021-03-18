@@ -104,8 +104,14 @@ The `<Icon />` component takes two props.
   {Object.keys(icons).map((key) => {
     return (
       <tr>
-        <td>
-          <Icon name={key} />
+        <td
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '1rem',
+          }}
+        >
+          <Icon name={key} size="3xl" />
         </td>
         <td>
           <code>{key}</code>

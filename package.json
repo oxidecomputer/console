@@ -6,6 +6,7 @@
     "start": "webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.prod.config.ts",
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
+    "checks": "yarn typecheck && yarn lint && yarn format:check && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "e2e": "echo 'to be implemented'",
@@ -25,7 +26,8 @@
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
     "styled-components": "5.2.1",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -47,6 +49,7 @@
     "@types/react-dom": "16.9.9",
     "@types/react-is": "16.7.1",
     "@types/styled-components": "5.1.4",
+    "@types/uuid": "^8.3.0",
     "@types/webpack": "^4.41.26",
     "@types/webpack-dev-server": "^3.11.2",
     "@typescript-eslint/eslint-plugin": "4.15.0",

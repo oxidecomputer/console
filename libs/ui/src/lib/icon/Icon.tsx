@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Color } from '@oxide/theme'
 import { Text, TextProps } from '../text/Text'
 
+import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
 import { default as ChevronIcon } from '../../assets/chevron.svg'
 import { default as CloseIcon } from '../../assets/close.svg'
@@ -18,7 +19,12 @@ import { default as InstancesIcon } from '../../assets/instances.svg'
 import { default as MemoryIcon } from '../../assets/memory.svg'
 import { default as MessageIcon } from '../../assets/message.svg'
 import { default as MoreIcon } from '../../assets/more.svg'
+import { default as NotificationsIcon } from '../../assets/notifications.svg'
 import { default as OrganizationIcon } from '../../assets/org.svg'
+import { default as PenIcon } from '../../assets/pen.svg'
+import { default as PlayButtonOIcon } from '../../assets/playButtonO.svg'
+import { default as PlayPauseOIcon } from '../../assets/playPauseO.svg'
+import { default as PlayStopOIcon } from '../../assets/playStopO.svg'
 import { default as PlusIcon } from '../../assets/plus.svg'
 import { default as ProfileIcon } from '../../assets/profile.svg'
 import { default as ProjectIcon } from '../../assets/project.svg'
@@ -27,15 +33,18 @@ import { default as PulseIcon } from '../../assets/pulse.svg'
 import { default as RackIcon } from '../../assets/rack.svg'
 import { default as ResourcesIcon } from '../../assets/resources.svg'
 import { default as SearchIcon } from '../../assets/search.svg'
+import { default as StopwatchIcon } from '../../assets/stopwatch.svg'
 import { default as StorageIcon } from '../../assets/storage.svg'
 import { default as SupportIcon } from '../../assets/support.svg'
 import { default as ThemeIcon } from '../../assets/theme.svg'
+import { default as TrashIcon } from '../../assets/trash.svg'
 import { default as UserIcon } from '../../assets/user.svg'
 import { default as UsersIcon } from '../../assets/users.svg'
 import { default as WarningFilledIcon } from '../../assets/warning-filled.svg'
 import { default as WarningIcon } from '../../assets/warning.svg'
 
 export const icons = {
+  arrow: ArrowIcon,
   bookmark: BookmarkIcon,
   chevron: ChevronIcon,
   close: CloseIcon,
@@ -50,7 +59,12 @@ export const icons = {
   memory: MemoryIcon,
   message: MessageIcon,
   more: MoreIcon,
+  notifications: NotificationsIcon,
   organization: OrganizationIcon,
+  pen: PenIcon,
+  playButtonO: PlayButtonOIcon,
+  playPauseO: PlayPauseOIcon,
+  playStopO: PlayStopOIcon,
   plus: PlusIcon,
   profile: ProfileIcon,
   project: ProjectIcon,
@@ -59,9 +73,11 @@ export const icons = {
   rack: RackIcon,
   resources: ResourcesIcon,
   search: SearchIcon,
+  stopwatch: StopwatchIcon,
   storage: StorageIcon,
   support: SupportIcon,
   theme: ThemeIcon,
+  trash: TrashIcon,
   user: UserIcon,
   users: UsersIcon,
   warning: WarningIcon,
