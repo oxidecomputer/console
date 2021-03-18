@@ -6,7 +6,10 @@ import styled, { css } from 'styled-components'
 import type { IconProps } from '../icon/Icon'
 import { Icon } from '../icon/Icon'
 
-export const avatarSizes = {
+export const avatarSizes = ['2xl', 'xl', 'lg', 'base', 'sm', 'xs'] as const
+export type AvatarSize = typeof avatarSizes[number]
+
+const sizeMap: Record<AvatarSize, { width: number; fontSize: number }> = {
   '2xl': { width: 16, fontSize: 6 }, // spacing(16) is 64px, 24px
   xl: { width: 14, fontSize: 5 }, // 56px, 20px
   lg: { width: 12, fontSize: 4.5 }, // 48px, 18px
@@ -15,7 +18,6 @@ export const avatarSizes = {
   xs: { width: 6, fontSize: 3 }, // 24px, 12px
 }
 
-export type AvatarSize = keyof typeof avatarSizes
 export interface AvatarProps {
   /**
    * Name of person, team, project, org, etc. Required for 'alt' image tag and for finding initials.
@@ -24,7 +26,7 @@ export interface AvatarProps {
   /**
    * Only persons/individuals should have a circular shape
    */
-  isPerson: boolean
+  isPerson?: boolean
   /**
    * Override the default size of image
    */
@@ -32,7 +34,7 @@ export interface AvatarProps {
   /**
    * The url for the image (`<img>`) tag to use
    * */
-  src?: 'string'
+  src?: string
 }
 
 type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
@@ -45,8 +47,8 @@ const StyledIcon = styled(Icon).attrs({
   color: 'gray300',
 })<IconProps>``
 
-const getSizeStyles = (size) => {
-  const avatarSize = avatarSizes[size]
+const getSizeStyles = (size: AvatarSize) => {
+  const avatarSize = sizeMap[size]
   if (avatarSize) {
     return css`
       height: ${({ theme }) => theme.spacing(avatarSize.width)};
@@ -91,7 +93,7 @@ const Wrapper = styled.div<WrapperProps>`
   line-height: 1;
   text-transform: uppercase;
 
-  ${(props) => getSizeStyles(props.size)};
+  ${({ size }) => size && getSizeStyles(size)};
 `
 
 const IconAvatar: React.FC<Pick<AvatarProps, 'name' | 'isPerson' | 'size'>> = ({
