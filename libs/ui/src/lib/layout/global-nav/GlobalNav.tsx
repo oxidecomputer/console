@@ -38,6 +38,7 @@ const StyledText = styled(Text).attrs({
 `
 
 const TickBar = styled.div`
+  // placeholder: url-encoded contents of warning-filled.svg
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' role='img' aria-labelledby='icon-warning-filled'%3E%3Ctitle id='icon-warning-filled'%3EWarning%3C/title%3E%3Cpath fill='gray' fill-rule='evenodd' clip-rule='evenodd' d='M0 19.75L10 .25l10 19.5H0zM11 14V6.5H9V14h2zm0 3.5v-2H9v2h2z'/%3E%3C/svg%3E%0A");
   background-position: center right;
   background-repeat: repeat-x;
