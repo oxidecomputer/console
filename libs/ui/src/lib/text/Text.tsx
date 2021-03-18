@@ -98,6 +98,22 @@ const getSizeStyles = (size?: TextSize) => {
   }
 }
 
+type Variant = 'base' | 'title'
+const getVariantStyles = (variant?: Variant) => {
+  switch (variant) {
+    case 'title':
+      return css`
+        ${getSizeStyles('2xl')};
+        color: ${({ theme }) => theme.color('green500')};
+        font-family: ${({ theme }) => theme.fonts.mono};
+        text-transform: uppercase;
+      `
+    case 'base':
+    default:
+      return null
+  }
+}
+
 export interface TextProps {
   /**
    * Set a color from theme, otherwise color will default to inherit
@@ -119,6 +135,10 @@ export interface TextProps {
    * Set the font-weight of the text
    */
   weight?: number
+  /**
+   * Common variant styles for text
+   */
+  variant?: Variant
 }
 
 const StyledText = styled.span.withConfig({
@@ -151,17 +171,41 @@ const StyledText = styled.span.withConfig({
   }}
 
   ${(props) => getSizeStyles(props.size)};
+  ${(props) => getVariantStyles(props.variant)};
 `
 
-export const Text: React.FC<TextProps> = ({
+export const Text: FC<TextProps> = ({
   children,
   font = 'sans',
+  icon,
   size = 'base',
   weight = 400,
+  variant = 'base',
   ...rest
 }) => {
+  if (icon) {
+    const { align, ...iconProps } = icon
+    console.log('size', size, 'color', rest.color)
+    return (
+      <StyledText
+        font={font}
+        size={size}
+        weight={weight}
+        variant={variant}
+        {...rest}
+      >
+        <Icon {...iconProps} size="2xl" /> {children}
+      </StyledText>
+    )
+  }
   return (
-    <StyledText font={font} size={size} weight={weight} {...rest}>
+    <StyledText
+      font={font}
+      size={size}
+      weight={weight}
+      variant={variant}
+      {...rest}
+    >
       {children}
     </StyledText>
   )

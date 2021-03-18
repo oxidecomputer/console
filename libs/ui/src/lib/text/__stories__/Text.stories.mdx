@@ -21,6 +21,9 @@ import {
   SevenXL,
   EightXL,
   NineXL,
+  WithIcon,
+  TitleWithIcon,
+  TitleVariant,
 } from './Text.stories'
 
 <Meta
@@ -79,6 +82,18 @@ Text can be rendered as another element using the `forwardedAs` prop (built in f
 
 ## Stories
 
+### Icon
+
+<Canvas>
+  <Story story={WithIcon} />
+</Canvas>
+
+#### Title Variant with Icon
+
+<Canvas>
+  <Story story={TitleWithIcon} />
+</Canvas>
+
 ### Sizes
 
 <Canvas>
@@ -95,4 +110,12 @@ Text can be rendered as another element using the `forwardedAs` prop (built in f
   <Story story={SixXL} />
   <Story story={SevenXL} />
   <Story story={NineXL} />
+</Canvas>
+
+### Variants
+
+#### Title
+
+<Canvas>
+  <Story story={TitleVariant} />
 </Canvas>

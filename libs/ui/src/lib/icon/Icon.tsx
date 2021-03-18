@@ -115,16 +115,18 @@ interface StyledIconProps extends TextProps {
   rotate?: string
 }
 
-const StyledIcon = styled(Text).withConfig({
+// styled.svg(props => )
+
+const StyledIcon = styled.span.withConfig({
   // Do not pass 'color' and 'rotate' props to the DOM
   shouldForwardProp: (prop, defaultValidatorFn) =>
     !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
 })<StyledIconProps>`
-  display: inline-flex;
   width: 1em;
+  height: 100%;
 
-  justify-content: center;
-  align-items: center;
+  display: inline-block;
+  vertical-align: middle;
 
   ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
 

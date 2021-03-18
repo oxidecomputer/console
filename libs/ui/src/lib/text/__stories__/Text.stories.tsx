@@ -65,3 +65,19 @@ EightXL.storyName = '8xl'
 export const NineXL = Template.bind({})
 NineXL.args = { size: '9xl', children: `'9xl' size text` }
 NineXL.storyName = '9xl'
+
+export const WithIcon = Template.bind({})
+WithIcon.args = { icon: { name: 'plus' }, children: 'Text with icon' }
+
+export const TitleWithIcon = Template.bind({})
+TitleWithIcon.args = {
+  icon: { name: 'plus' },
+  variant: 'title',
+  children: 'Text with icon',
+}
+
+export const TitleVariant = Template.bind({})
+TitleVariant.args = {
+  variant: 'title',
+  children: 'Title Text Variant',
+}
