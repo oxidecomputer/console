@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback, useEffect, createRef } from 'react'
+import React, { FC, useState, useEffect, createRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
