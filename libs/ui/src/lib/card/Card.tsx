@@ -87,6 +87,11 @@ const Footer = styled.footer`
 const FooterText = styled(BaseText).attrs({
   color: 'green50',
   size: 'sm',
+  icon: {
+    align: 'right',
+    name: 'arrow',
+    color: 'green50',
+  },
 })`
   text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};
@@ -118,7 +123,6 @@ export const Card: FC<CardProps> = (props) => {
       </Main>
       <Footer>
         <FooterText>View Pagename </FooterText>
-        <Icon name="arrow" size="sm" color="green50" />
       </Footer>
     </StyledCard>
   )
