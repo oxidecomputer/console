@@ -106,12 +106,26 @@ const getVariantStyles = (variant?: Variant) => {
         ${getSizeStyles('2xl')};
         color: ${({ theme }) => theme.color('green500')};
         font-family: ${({ theme }) => theme.fonts.mono};
+        font-weight: 400;
         text-transform: uppercase;
       `
     case 'base':
     default:
       return null
   }
+}
+
+type IconType = { align: 'left' | 'right' } & IconProps
+const getIconStyles = (hasIcon: boolean) => {
+  if (hasIcon) {
+    return css`
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: top;
+    `
+  }
+  return null
 }
 
 export interface TextProps {
@@ -123,10 +137,11 @@ export interface TextProps {
    * Set the font-family to be sans-serif or monospace
    */
   font?: Font
+  hasIcon?: boolean
   /**
    * Display an icon
    */
-  icon?: { align: 'left' | 'right' } & IconProps
+  icon?: IconType
   /**
    * Set the size of the text
    */
@@ -170,8 +185,9 @@ const StyledText = styled.span.withConfig({
     }
   }}
 
-  ${(props) => getSizeStyles(props.size)};
-  ${(props) => getVariantStyles(props.variant)};
+  ${({ hasIcon }) => getIconStyles(hasIcon)};
+  ${({ size }) => getSizeStyles(size)};
+  ${({ variant }) => getVariantStyles(variant)};
 `
 
 export const Text: FC<TextProps> = ({
@@ -184,17 +200,27 @@ export const Text: FC<TextProps> = ({
   ...rest
 }) => {
   if (icon) {
-    const { align, ...iconProps } = icon
-    console.log('size', size, 'color', rest.color)
+    const { align = 'left' } = icon
+    const renderChildren =
+      align === 'right' ? (
+        <>
+          {children} <Icon align={align} {...icon} />
+        </>
+      ) : (
+        <>
+          <Icon align={align} {...icon} /> {children}
+        </>
+      )
     return (
       <StyledText
         font={font}
         size={size}
         weight={weight}
         variant={variant}
+        hasIcon
         {...rest}
       >
-        <Icon {...iconProps} size="2xl" /> {children}
+        {renderChildren}
       </StyledText>
     )
   }

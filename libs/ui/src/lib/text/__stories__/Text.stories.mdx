@@ -22,6 +22,7 @@ import {
   EightXL,
   NineXL,
   WithIcon,
+  WithRightIcon,
   TitleWithIcon,
   TitleVariant,
 } from './Text.stories'
@@ -82,10 +83,16 @@ Text can be rendered as another element using the `forwardedAs` prop (built in f
 
 ## Stories
 
-### Icon
+### Left Icon
 
 <Canvas>
   <Story story={WithIcon} />
+</Canvas>
+
+### Right Icon
+
+<Canvas>
+  <Story story={WithRightIcon} />
 </Canvas>
 
 #### Title Variant with Icon
@@ -109,6 +116,7 @@ Text can be rendered as another element using the `forwardedAs` prop (built in f
   <Story story={FiveXL} />
   <Story story={SixXL} />
   <Story story={SevenXL} />
+  <Story story={EightXL} />
   <Story story={NineXL} />
 </Canvas>
 
