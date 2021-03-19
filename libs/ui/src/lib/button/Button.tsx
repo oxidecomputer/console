@@ -1,9 +1,9 @@
-import React, { FC } from 'react'
+import React, { PropsWithChildren, forwardRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
-export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
+export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
@@ -18,17 +18,31 @@ const sizes = {
 
 export interface ButtonProps {
   /**
+   * Set an optional id
+   */
+  id?: string
+  /**
+   * Explicitly set an ARIA role, e.g. role="tab" for the Tabs component
+   */
+  role?: string
+  /**
    * Set the size of the button
    */
-  size: ButtonSize
+  size?: ButtonSize
   /**
    * Style variation or button styles
    */
-  variant: Variant
+  variant?: Variant
   /**
    * Disable button
    */
   disabled?: boolean
+  /**
+   * Handle click events
+   */
+  onClick?: (event) => void
+  onKeyDown?: (event) => void
+  onKeyUp?: (event) => void
 }
 
 const getSizeStyles = (size: ButtonSize) => {
@@ -167,18 +181,23 @@ const StyledButton = styled.button<ButtonProps>`
     cursor: not-allowed;
   }
 `
-
-export const Button: FC<ButtonProps> = ({ children, ...rest }) => {
+// Use `forwardRef` so the ref points to the DOM element (not the React Component)
+// so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
+export const Button = forwardRef<
+  HTMLButtonElement,
+  PropsWithChildren<ButtonProps>
+>(({ children, size = 'base', variant = 'solid', ...rest }, ref) => {
   return (
-    <StyledButton type="button" {...rest}>
+    <StyledButton
+      ref={ref}
+      type="button"
+      size={size}
+      variant={variant}
+      {...rest}
+    >
       {children}
     </StyledButton>
   )
-}
-
-Button.defaultProps = {
-  size: 'base',
-  variant: 'solid',
-}
+})
 
 export default Button
