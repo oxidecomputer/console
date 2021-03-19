@@ -5,12 +5,9 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "regenerator": true
-      }
-    ],
-    ["styled-components", { "pure": true, "ssr": true }]
+    "@babel/plugin-transform-runtime",
+    ["styled-components", { "pure": true, "ssr": true }],
+    "babel-plugin-macros",
+    "@babel/plugin-transform-react-jsx"
   ]
 }
