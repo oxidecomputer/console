@@ -111,12 +111,12 @@ const getVariantStyles = (variant?: Variant) => {
       `
     case 'base':
     default:
-      return null
+      return ``
   }
 }
 
 type IconType = { align: 'left' | 'right' } & IconProps
-const getIconStyles = (hasIcon: boolean) => {
+const getIconStyles = (hasIcon?: boolean) => {
   if (hasIcon) {
     return css`
       display: inline-flex;
@@ -125,7 +125,7 @@ const getIconStyles = (hasIcon: boolean) => {
       vertical-align: top;
     `
   }
-  return null
+  return ``
 }
 
 export interface TextProps {
@@ -161,7 +161,7 @@ const StyledText = styled.span.withConfig({
   shouldForwardProp: (prop, defaultValidatorFn) =>
     // Do not pass color or size directly to DOM
     !['color', 'size'].includes(prop) && defaultValidatorFn(prop),
-})<TextProps>`
+})<TextProps & { hasIcon?: boolean }>`
   ${({ color, theme }) => {
     if (color) {
       return css`
@@ -202,6 +202,7 @@ export const Text: FC<TextProps> = ({
 }) => {
   if (icon) {
     const { align = 'left' } = icon
+
     return (
       <StyledText
         font={font}

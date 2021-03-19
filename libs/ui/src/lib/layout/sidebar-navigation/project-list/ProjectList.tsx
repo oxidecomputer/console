@@ -107,7 +107,8 @@ const Create = styled(Row).attrs({ as: 'footer' })`
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
-const CreateText = styled(BaseText).attrs({
+const CreateText = styled(BaseText).attrs((props): typeof props => ({
+  ...props,
   color: 'gray400',
   size: 'xxs',
   icon: {
@@ -115,13 +116,13 @@ const CreateText = styled(BaseText).attrs({
     name: 'plus',
     color: 'gray400',
   },
-})``
+}))``
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
     <StyledProjectList>
       <Header>
-        <HeaderText>Projects </HeaderText>
+        <HeaderText>Projects</HeaderText>
         <Count>{props.projects.length}</Count>
       </Header>
       <List>

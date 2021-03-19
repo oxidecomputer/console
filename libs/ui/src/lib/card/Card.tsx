@@ -3,7 +3,6 @@ import React, { FC, useMemo } from 'react'
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
-import { Icon } from '../icon/Icon'
 import { default as Sparkline } from './sparkline.svg'
 
 export interface CardProps {
@@ -21,7 +20,7 @@ const Main = styled.main`
 const BaseText = styled(Text).attrs({ font: 'mono' })``
 
 const Title = styled(BaseText).attrs({
-  as: 'div',
+  forwardedAs: 'div',
   color: 'green50',
   size: 'lg',
 })`
@@ -29,7 +28,7 @@ const Title = styled(BaseText).attrs({
 `
 
 const Subtitle = styled(BaseText).attrs({
-  as: 'div',
+  forwardedAs: 'div',
   color: 'green50',
   size: 'sm',
 })``
@@ -66,9 +65,12 @@ const MainDataValue = styled(BaseText).attrs({
   align-self: baseline;
 `
 
-const SecondaryDataValue = styled(MainDataValue).attrs({
-  size: 'sm',
-})``
+const SecondaryDataValue = styled(MainDataValue).attrs(
+  (props): typeof props => ({
+    ...props,
+    size: 'sm',
+  })
+)``
 
 const Chart = styled.section`
   flex: 1;
