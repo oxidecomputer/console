@@ -142,7 +142,6 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         }}
       >
         <CreateText icon={{ align: 'right', name: 'plus', color: 'gray400' }}>
-          <div>ok?</div>
           Create a new project
         </CreateText>
       </Create>

@@ -211,9 +211,9 @@ export const Text: FC<TextProps> = ({
         weight={weight}
         {...rest}
       >
-        {align === 'left' ? <Icon align={align} {...icon} /> : null}
+        {align === 'left' ? <Icon align="left" {...icon} /> : null}
         {children}
-        {align === 'right' ? <Icon align={align} {...icon} /> : null}
+        {align === 'right' ? <Icon align="right" {...icon} /> : null}
       </StyledText>
     )
   }
