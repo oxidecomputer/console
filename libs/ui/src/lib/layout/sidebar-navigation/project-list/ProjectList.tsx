@@ -108,10 +108,9 @@ const Create = styled(Row).attrs({ as: 'footer' })`
 `
 
 const CreateText = styled(BaseText).attrs({
+  color: 'gray400',
   size: 'xxs',
-})`
-  color: ${({ theme }) => theme.color('gray400')};
-`
+})``
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
@@ -143,6 +142,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         }}
       >
         <CreateText icon={{ align: 'right', name: 'plus', color: 'gray400' }}>
+          <div>ok?</div>
           Create a new project
         </CreateText>
       </Create>

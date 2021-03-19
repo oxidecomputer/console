@@ -129,6 +129,7 @@ const getIconStyles = (hasIcon: boolean) => {
 }
 
 export interface TextProps {
+  id?: string
   /**
    * Set a color from theme, otherwise color will default to inherit
    */
@@ -201,16 +202,6 @@ export const Text: FC<TextProps> = ({
 }) => {
   if (icon) {
     const { align = 'left' } = icon
-    const renderChildren =
-      align === 'right' ? (
-        <>
-          {children} <Icon align={align} {...icon} />
-        </>
-      ) : (
-        <>
-          <Icon align={align} {...icon} /> {children}
-        </>
-      )
     return (
       <StyledText
         font={font}
@@ -220,7 +211,9 @@ export const Text: FC<TextProps> = ({
         weight={weight}
         {...rest}
       >
-        {renderChildren}
+        {align === 'left' ? <Icon align={align} {...icon} /> : null}
+        {children}
+        {align === 'right' ? <Icon align={align} {...icon} /> : null}
       </StyledText>
     )
   }

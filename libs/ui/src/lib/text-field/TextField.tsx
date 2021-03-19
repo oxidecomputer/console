@@ -62,7 +62,7 @@ const Wrapper = styled.div<{ disabled: boolean }>`
 `
 
 const Label = styled(Text).attrs({
-  as: 'label',
+  forwardedAs: 'label',
   font: 'mono',
   weight: 500,
   size: 'base',
