@@ -104,7 +104,6 @@ const rotateStyles = (rotate) => {
 }
 
 const getAlignStyles = (align) => {
-  console.log('align', align)
   if (align === 'left') {
     return css`
       margin-right: 0.5em;

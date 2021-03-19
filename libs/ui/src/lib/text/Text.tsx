@@ -195,8 +195,8 @@ export const Text: FC<TextProps> = ({
   font = 'sans',
   icon,
   size = 'base',
-  weight = 400,
   variant = 'base',
+  weight = 400,
   ...rest
 }) => {
   if (icon) {
@@ -214,10 +214,10 @@ export const Text: FC<TextProps> = ({
     return (
       <StyledText
         font={font}
-        size={size}
-        weight={weight}
-        variant={variant}
         hasIcon
+        size={size}
+        variant={variant}
+        weight={weight}
         {...rest}
       >
         {renderChildren}
@@ -228,8 +228,8 @@ export const Text: FC<TextProps> = ({
     <StyledText
       font={font}
       size={size}
-      weight={weight}
       variant={variant}
+      weight={weight}
       {...rest}
     >
       {children}

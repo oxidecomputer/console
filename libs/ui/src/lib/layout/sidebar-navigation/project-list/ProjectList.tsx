@@ -113,10 +113,6 @@ const CreateText = styled(BaseText).attrs({
   color: ${({ theme }) => theme.color('gray400')};
 `
 
-const CreateIcon = styled(Icon).attrs({ color: 'gray400', name: 'plus' })`
-  width: ${({ theme }) => theme.spacing(2.5)};
-`
-
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
     <StyledProjectList>
@@ -146,8 +142,9 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
           props.onProjectCreate()
         }}
       >
-        <CreateText>Create a new project</CreateText>
-        <CreateIcon />
+        <CreateText icon={{ align: 'right', name: 'plus', color: 'gray400' }}>
+          Create a new project
+        </CreateText>
       </Create>
     </StyledProjectList>
   )
