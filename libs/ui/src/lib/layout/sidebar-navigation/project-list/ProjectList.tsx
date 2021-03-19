@@ -3,7 +3,7 @@ import React, { FC } from 'react'
 import styled, { css } from 'styled-components'
 import { Project, ProjectId } from '@oxide/backend-types'
 
-import { Text } from '../../../text/Text'
+import { Text, TextProps } from '../../../text/Text'
 import { Icon } from '../../../icon/Icon'
 import NotificationCount from './notification-count/NotificationCount'
 
@@ -19,11 +19,11 @@ export interface ProjectListProps {
   onProjectCreate: () => void
 }
 
-const BaseText = styled(Text).attrs({
-  size: 'xs',
+const baseTextProps: Partial<TextProps> = {
   font: 'mono',
+  size: 'xs',
   weight: 400,
-})``
+}
 
 const StyledProjectList = styled.div`
   ${({ theme }) => theme.spaceBetweenY(1)}
@@ -37,11 +37,15 @@ const Header = styled(Row).attrs({ as: 'header' })`
   text-transform: uppercase;
 `
 
-const HeaderText = styled(BaseText)`
+const HeaderText = styled(Text).attrs({
+  ...baseTextProps,
+})`
   color: ${({ theme }) => theme.color('green500')};
 `
 
-const Count = styled(BaseText)`
+const Count = styled(Text).attrs({
+  ...baseTextProps,
+})`
   color: ${({ theme }) => theme.color('green300')};
 `
 
@@ -82,7 +86,9 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   }
 `
 
-const Title = styled(BaseText)<{ selected?: boolean }>`
+const Title = styled(Text).attrs({
+  ...baseTextProps,
+})<{ selected?: boolean }>`
   flex: 1;
 
   ${({ selected, theme }) =>
@@ -107,8 +113,8 @@ const Create = styled(Row).attrs({ as: 'footer' })`
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
-const CreateText = styled(BaseText).attrs((props): typeof props => ({
-  ...props,
+const CreateText = styled(Text).attrs({
+  ...baseTextProps,
   color: 'gray400',
   size: 'xxs',
   icon: {
@@ -116,7 +122,7 @@ const CreateText = styled(BaseText).attrs((props): typeof props => ({
     name: 'plus',
     color: 'gray400',
   },
-}))``
+})``
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
