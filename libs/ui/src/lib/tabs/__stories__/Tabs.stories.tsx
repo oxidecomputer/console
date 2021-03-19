@@ -5,7 +5,7 @@ import { Tabs, TabsProps } from '../Tabs'
 const sampleProps = {
   label: 'Project View',
   tabs: ['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings'],
-  panels: [
+  children: [
     <div key={1}>Overview panel content</div>,
     <div key={2}>Metrics panel content</div>,
     <div key={3}>Activity panel content</div>,

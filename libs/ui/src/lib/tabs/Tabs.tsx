@@ -21,7 +21,7 @@ export interface TabsProps {
   /**
    * Panel to render for corresponding active tab.
    */
-  panels: Array<React.ReactNode>
+  children: Array<React.ReactNode>
 }
 
 const Wrapper = styled.div``
@@ -69,7 +69,7 @@ export const Tabs: FC<TabsProps> = ({
   fullWidth = false,
   label,
   tabs,
-  panels,
+  children,
 }) => {
   const [refs, setRefs] = useState([])
   const [activeTab, setActiveTab] = useState(0)
@@ -165,7 +165,7 @@ export const Tabs: FC<TabsProps> = ({
     )
   })
 
-  const renderPanels = panels.map((panel, index) => {
+  const renderPanels = React.Children.map(children, (panel, index) => {
     const isVisible = activeTab === index
     // Only render visible panels for better performance
     const renderPanel = isVisible ? panel : null
