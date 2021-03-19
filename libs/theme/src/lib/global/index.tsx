@@ -1,6 +1,6 @@
 import React from 'react'
 import { createGlobalStyle } from 'styled-components'
-import tw, { GlobalStyles as BaseStyles } from 'twin.macro'
+import tw, { GlobalStyles as BaseStyles, theme } from 'twin.macro'
 
 import './fonts.css'
 
@@ -14,7 +14,7 @@ const CustomStyles = createGlobalStyle`
   }
   html,
   body {
-    ${tw`box-border bg-gray-900 text-gray-300 font-mono font-normal`}
+    ${tw`box-border bg-primary text-primary font-mono font-normal`}
   }
   h1,
   h2,
@@ -41,16 +41,34 @@ const CustomStyles = createGlobalStyle`
   }
   a,
   a:link {
-    ${tw`text-gray-100 no-underline`}
+    ${tw`text-primary no-underline`}
   }
   a:visited {
-    ${tw`text-gray-100 underline`}
+    ${tw`text-primary underline`}
   }
   a:hover {
-    ${tw`text-green-500`}
+    ${tw`text-secondary`}
   }
   a:active {
     ${tw`text-gray-300`}
+  }
+
+  .light {
+    --bg-primary: ${theme`colors.gray.50`};
+    --bg-secondary: ${theme`colors.gray.100`};
+    --text-primary: ${theme`colors.gray.900`};
+    --text-secondary: ${theme`colors.green.900`};
+    --color-primary: ${theme`colors.green.600`};
+  }
+  .dark {
+    --bg-primary: ${theme`colors.gray.900`};
+    --bg-secondary: ${theme`colors.gray.900`};
+    --text-primary: ${theme`colors.green.50`};
+    --text-secondary: ${theme`colors.green.500`};
+    --color-primary: ${theme`colors.green.400`};
+  }
+  body {
+    ${tw`bg-primary text-primary`}
   }
 `
 

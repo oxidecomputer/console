@@ -59,6 +59,23 @@ module.exports = {
         900: '#23684a',
       },
     },
+    extend: {
+      backgroundColor: {
+        primary: 'var(--bg-primary)',
+        secondary: 'var(--bg-secondary)',
+        tertiary: 'var(--color-primary)',
+      },
+      textColor: {
+        primary: 'var(--text-primary)',
+        secondary: 'var(--text-secondary)',
+        tertiary: 'var(--color-primary)',
+      },
+      opacity: {
+        8: 0.08,
+        16: 0.16,
+        24: 0.24,
+      },
+    },
   },
   plugins: [],
 }
