@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
+import React from 'react'
 import type { Story } from '@storybook/react'
 import { Button, buttonSizes, variants } from '../Button'
 import type { ButtonProps, ButtonSize, Variant } from '../Button'
