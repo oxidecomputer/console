@@ -1,64 +1,27 @@
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import tw, { styled } from 'twin.macro'
 
-import { Text } from '../../../text/Text'
 import { Icon } from '../../../icon/Icon'
 
-const BaseText = styled(Text).attrs({
-  size: 'xs',
-  font: 'mono',
-  weight: 400,
-})``
+const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
-const Header = styled.header`
-  padding: ${({ theme }) => theme.spacing(1)};
-  text-transform: uppercase;
-`
-
-const HeaderText = styled(BaseText)`
-  color: ${({ theme }) => theme.color('green500')};
-`
-
-const List = styled.ul`
-  display: flex;
-  flex-direction: column;
-
-  color: ${({ theme }) => theme.color('gray400')};
-  text-transform: uppercase;
-
-  ${({ theme }) => theme.spaceBetweenY(1)}
-  margin-top: ${({ theme }) => theme.spacing(1)};
-`
-
-const BaseLink = styled.a`
-  color: ${({ theme }) => theme.color('gray400')} !important;
-  padding: ${({ theme }) => theme.spacing(1)};
-
-  :hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
-  }
-
-  :focus {
-    outline: 1px solid ${({ theme }) => theme.color('blue500')};
-  }
-`
+const BaseLink = tw.a`text-gray-400! p-1 hover:bg-gray-700 focus:outline-blue`
 
 const ListItemLink = styled(BaseLink)`
-  display: flex;
-  ${({ theme }) => theme.spaceBetweenX(2)}
+  ${tw`flex space-x-2`}
 `
 
 const glyphWidth = '1rem'
 
 const ListSubItem = styled.li`
-  margin-left: 1.75rem;
+  ${tw`ml-7`}
 
   ::before {
     content: '├';
-    color: ${({ theme }) => theme.color('yellow500')};
     width: ${glyphWidth};
     display: inline-block;
+    ${tw`text-yellow-500 text-base w-4`}
   }
 
   :last-child::before {
@@ -71,22 +34,16 @@ const SubItemLink = styled(BaseLink)`
   display: inline-block;
 `
 
-const Title = styled(BaseText)<{ selected?: boolean }>`
-  ${({ selected, theme }) =>
-    selected &&
-    css`
-      color: ${theme.color('gray50')};
-    `}
-`
+const Title = styled.span<{ selected?: boolean }>(({ selected }) => [
+  selected && tw`text-primary`,
+])
 
 const SubItemTitle = styled(Title).attrs({ size: 'xxs' })``
 
 export const OperationList = () => {
   return (
-    <nav>
-      <Header>
-        <HeaderText>Operations</HeaderText>
-      </Header>
+    <nav tw="text-xs font-mono">
+      <header tw="p-1 uppercase text-secondary">Operations</header>
       <List>
         <li>
           <ListItemLink href="#">

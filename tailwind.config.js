@@ -75,6 +75,9 @@ module.exports = {
         16: 0.16,
         24: 0.24,
       },
+      outline: {
+        blue: `1px solid ${colors.blue[500]}`,
+      },
     },
   },
   plugins: [],
