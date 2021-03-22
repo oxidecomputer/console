@@ -11,7 +11,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
  */
 
 export interface TableColumn {
-  Header: string | ReactNode
+  Header: ReactNode
   accessor: string
 }
 
