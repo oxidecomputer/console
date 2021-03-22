@@ -4,7 +4,9 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 import type { Project, ProjectId } from '@oxide/backend-types'
 
-import { Text, TextProps } from '../../../text/Text'
+import { Text } from '../../../text/Text'
+import type { TextProps } from '../../../text/Text'
+import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { Icon } from '../../../icon/Icon'
 import NotificationCount from './notification-count/NotificationCount'
 
@@ -114,10 +116,12 @@ const Create = styled(Row).attrs({ as: 'footer' })`
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
-const CreateText = styled(Text).attrs({
-  ...baseTextProps,
-  color: 'gray400',
-  size: 'xxs',
+const CreateText = styled(TextWithIcon).attrs({
+  text: {
+    ...baseTextProps,
+    color: 'gray400',
+    size: 'xxs',
+  },
   icon: {
     align: 'right',
     name: 'plus',

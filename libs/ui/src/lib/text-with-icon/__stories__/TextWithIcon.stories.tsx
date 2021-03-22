@@ -1,5 +1,5 @@
 import React from 'react'
-import { Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { TextWithIcon } from '../TextWithIcon'
 
 export default {
@@ -7,7 +7,9 @@ export default {
   title: 'TextWithIcon',
 }
 
-const Template: Story = (args) => <TextWithIcon {...args} />
+const Template: Story = (args) => (
+  <TextWithIcon icon={{ name: 'plus' }} {...args} />
+)
 
 export const Default = Template.bind({})
 Default.args = {
