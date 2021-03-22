@@ -1,5 +1,6 @@
 import React from 'react'
-import { GlobalNav, GlobalNavProps } from './GlobalNav'
+import type { GlobalNavProps } from './GlobalNav'
+import { GlobalNav } from './GlobalNav'
 
 export default {
   component: GlobalNav,

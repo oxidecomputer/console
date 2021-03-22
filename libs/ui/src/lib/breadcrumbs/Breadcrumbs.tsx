@@ -1,8 +1,10 @@
 import React from 'react'
 
-import styled, { StyledComponent, DefaultTheme } from 'styled-components'
+import type { DefaultTheme, StyledComponent } from 'styled-components'
+import styled from 'styled-components'
 
-import { Text, TextProps } from '../text/Text'
+import type { TextProps } from '../text/Text'
+import { Text } from '../text/Text'
 
 export interface BreadcrumbsProps {
   /**

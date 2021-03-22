@@ -1,5 +1,7 @@
-import React, { FC, ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import type { FC, ReactElement } from 'react'
+import React from 'react'
+import type { RenderOptions } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from '@oxide/theme'
 

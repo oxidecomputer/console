@@ -2,7 +2,8 @@ import React from 'react'
 
 import styled, { css } from 'styled-components'
 
-import { Icon, IconProps } from '../icon/Icon'
+import type { IconProps } from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
 /* eslint-disable-next-line */

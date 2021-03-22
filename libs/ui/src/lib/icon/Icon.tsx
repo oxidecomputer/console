@@ -1,7 +1,8 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 import styled, { css } from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { Color } from '@oxide/theme'
+import type { Color } from '@oxide/theme'
 
 import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
@@ -103,24 +104,7 @@ const rotateStyles = (rotate) => {
   `
 }
 
-const getAlignStyles = (align) => {
-  if (align === 'left') {
-    return css`
-      margin-right: 0.5em;
-    `
-  }
-  if (align === 'right') {
-    return css`
-      margin-left: 0.5em;
-    `
-  }
-}
-
 interface StyledIconProps {
-  /**
-   * Add margin to left or right based on alignment
-   */
-  align?: 'left' | 'right'
   /**
    * Set the color using a theme color ("green500")
    */
@@ -161,7 +145,7 @@ const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   return <IconComponent {...addSvgProps} {...props} />
 }
 
-const StyledIcon = styled(SvgIcon).withConfig({
+export const Icon = styled(SvgIcon).withConfig({
   // Do not pass 'color' and 'rotate' props to the DOM
   shouldForwardProp: (prop, defaultValidatorFn) =>
     !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
@@ -169,13 +153,8 @@ const StyledIcon = styled(SvgIcon).withConfig({
   flex-shrink: 0;
   width: 1em; /* icon size is controlled by parent font-size */
 
-  ${({ align }) => getAlignStyles(align)};
   ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
   ${({ rotate }) => rotate && rotateStyles(rotate)};
 `
-
-export const Icon: FC<IconProps> = ({ ...props }) => {
-  return <StyledIcon {...props} />
-}
 
 export default Icon

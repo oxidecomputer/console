@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { Meta } from '@storybook/react'
+import type { Meta } from '@storybook/react'
 import { ProjectList } from './ProjectList'
 import type { ProjectListProps } from './ProjectList'
-import { Project } from '@oxide/backend-types'
+import type { Project } from '@oxide/backend-types'
 
 const demoProjects: Project[] = [
   { id: '1', name: 'prod-online', notificationsCount: 2, starred: true },

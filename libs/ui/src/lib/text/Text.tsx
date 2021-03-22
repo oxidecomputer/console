@@ -1,7 +1,9 @@
-import React, { FC } from 'react'
+import type { FC } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
-import { Color, Font } from '@oxide/theme'
-import { Icon, IconProps } from '../icon/Icon'
+import type { Color, Font } from '@oxide/theme'
+import type { IconProps } from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 
 export const textSizes = [
   'xxs',

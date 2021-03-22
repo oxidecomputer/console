@@ -1,8 +1,10 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
-import { Text, TextProps } from '../text/Text'
+import { Text } from '../text/Text'
+import { TextWithIcon } from '../text-with-icon/TextWithIcon'
 import { default as Sparkline } from './sparkline.svg'
 
 export interface CardProps {
@@ -92,10 +94,8 @@ const Footer = styled.footer`
   justify-content: baseline;
 `
 
-const FooterText = styled(Text).attrs({
-  ...baseTextProps,
-  color: 'green50',
-  size: 'sm',
+const FooterText = styled(TextWithIcon).attrs({
+  text: { ...baseTextProps, color: 'green50', size: 'sm' },
   icon: {
     align: 'right',
     name: 'arrow',
