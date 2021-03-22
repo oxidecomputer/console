@@ -12,7 +12,7 @@
     "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "storybook": "NODE_ENV=production start-storybook -c libs/ui/.storybook -p 4400",
+    "storybook": "NODE_ENV=production start-storybook -c libs/ui/.storybook -p 4400 --ci",
     "typecheck": "tsc --noEmit",
     "plop": "plop"
   },
@@ -75,6 +75,7 @@
     "jest": "26.2.2",
     "plop": "^2.7.4",
     "prettier": "2.2.1",
+    "storybook-dark-mode": "^1.0.7",
     "style-loader": "^2.0.0",
     "ts-jest": "26.4.0",
     "ts-node": "^9.1.1",

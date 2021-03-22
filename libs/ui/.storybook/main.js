@@ -10,6 +10,7 @@ module.exports = {
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
     '@storybook/addon-links',
+    'storybook-dark-mode',
   ],
   typescript: {
     reactDocgen: 'react-docgen-typescript',

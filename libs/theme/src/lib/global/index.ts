@@ -11,8 +11,8 @@ const globalStyles = css`
   body {
     box-sizing: border-box;
 
-    background-color: ${(props) => props.theme.themeColors.gray900};
-    color: ${(props) => props.theme.themeColors.gray300};
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: ${(props) => props.theme.fonts.mono};
     font-weight: 500;
   }
@@ -53,6 +53,21 @@ const globalStyles = css`
   }
   a:active {
     color: ${(props) => props.theme.themeColors.gray300};
+  }
+
+  .light {
+    --bg-primary: ${({ theme }) => theme.themeColors.gray50};
+    --bg-secondary: ${({ theme }) => theme.themeColors.gray100};
+    --text-primary: ${({ theme }) => theme.themeColors.gray900};
+    --text-secondary: ${({ theme }) => theme.themeColors.green900};
+    --color-primary: ${({ theme }) => theme.themeColors.green600};
+  }
+  .dark {
+    --bg-primary: ${({ theme }) => theme.themeColors.gray900};
+    --bg-secondary: ${({ theme }) => theme.themeColors.gray900};
+    --text-primary: ${({ theme }) => theme.themeColors.green50};
+    --text-secondary: ${({ theme }) => theme.themeColors.green500};
+    --color-primary: ${({ theme }) => theme.themeColors.green400};
   }
 `
 
