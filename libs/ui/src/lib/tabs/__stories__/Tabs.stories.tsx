@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
-import { Tabs, TabsProps } from '../Tabs'
+import type { TabsProps } from '../Tabs'
+import { Tabs } from '../Tabs'
 
 const sampleProps = {
   label: 'Project View',
