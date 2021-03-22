@@ -96,9 +96,9 @@ const Footer = styled.footer`
 `
 
 const FooterText = styled(TextWithIcon).attrs({
+  align: 'right',
   text: { ...baseTextProps, color: 'green50', size: 'sm' },
   icon: {
-    align: 'right',
     name: 'arrow',
     color: 'green50',
   },

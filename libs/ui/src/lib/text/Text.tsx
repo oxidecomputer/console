@@ -1,9 +1,5 @@
-import type { FC } from 'react'
-import React from 'react'
 import styled, { css } from 'styled-components'
 import type { Color, Font } from '@oxide/theme'
-import type { IconProps } from '../icon/Icon'
-import { Icon } from '../icon/Icon'
 
 export const textSizes = [
   'xxs',
@@ -116,20 +112,6 @@ const getVariantStyles = (variant?: Variant) => {
       return ``
   }
 }
-
-type IconType = { align: 'left' | 'right' } & IconProps
-const getIconStyles = (hasIcon?: boolean) => {
-  if (hasIcon) {
-    return css`
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      vertical-align: top;
-    `
-  }
-  return ``
-}
-
 export interface TextProps {
   id?: string
   /**
@@ -140,11 +122,6 @@ export interface TextProps {
    * Set the font-family to be sans-serif or monospace
    */
   font?: Font
-  hasIcon?: boolean
-  /**
-   * Display an icon
-   */
-  icon?: IconType
   /**
    * Set the size of the text
    */
@@ -159,11 +136,11 @@ export interface TextProps {
   variant?: Variant
 }
 
-const StyledText = styled.span.withConfig({
+export const Text = styled.span.withConfig({
   shouldForwardProp: (prop, defaultValidatorFn) =>
     // Do not pass color or size directly to DOM
     !['color', 'size'].includes(prop) && defaultValidatorFn(prop),
-})<TextProps & { hasIcon?: boolean }>`
+})<TextProps>`
   ${({ color, theme }) => {
     if (color) {
       return css`
@@ -188,49 +165,8 @@ const StyledText = styled.span.withConfig({
     }
   }}
 
-  ${({ hasIcon }) => getIconStyles(hasIcon)};
   ${({ size }) => getSizeStyles(size)};
   ${({ variant }) => getVariantStyles(variant)};
 `
-
-export const Text: FC<TextProps> = ({
-  children,
-  font = 'sans',
-  icon,
-  size = 'base',
-  variant = 'base',
-  weight = 400,
-  ...rest
-}) => {
-  if (icon) {
-    const { align = 'left' } = icon
-
-    return (
-      <StyledText
-        font={font}
-        hasIcon
-        size={size}
-        variant={variant}
-        weight={weight}
-        {...rest}
-      >
-        {align === 'left' ? <Icon align="left" {...icon} /> : null}
-        {children}
-        {align === 'right' ? <Icon align="right" {...icon} /> : null}
-      </StyledText>
-    )
-  }
-  return (
-    <StyledText
-      font={font}
-      size={size}
-      variant={variant}
-      weight={weight}
-      {...rest}
-    >
-      {children}
-    </StyledText>
-  )
-}
 
 export default Text
