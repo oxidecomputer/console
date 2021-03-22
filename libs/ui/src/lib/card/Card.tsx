@@ -119,7 +119,7 @@ export const Card: FC<CardProps> = (props) => {
       </Main>
       <Footer>
         <FooterText>View Pagename </FooterText>
-        <Icon name="arrow" size="sm" color="green50" />
+        <Icon name="arrow" color="green50" />
       </Footer>
     </StyledCard>
   )
