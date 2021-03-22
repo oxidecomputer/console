@@ -26,7 +26,7 @@ const baseTextProps: Partial<TextProps> = {
 
 const Title = styled(Text).attrs({
   ...baseTextProps,
-  forwardedAs: 'div',
+  as: 'div',
   color: 'green50',
   size: 'lg',
 })`
@@ -35,7 +35,7 @@ const Title = styled(Text).attrs({
 
 const Subtitle = styled(Text).attrs({
   ...baseTextProps,
-  forwardedAs: 'div',
+  as: 'div',
   color: 'green50',
   size: 'sm',
 })``
@@ -74,12 +74,9 @@ const MainDataValue = styled(Text).attrs({
   align-self: baseline;
 `
 
-const SecondaryDataValue = styled(MainDataValue).attrs(
-  (props): typeof props => ({
-    ...props,
-    size: 'sm',
-  })
-)``
+const SecondaryDataValue = styled(MainDataValue).attrs({
+  size: 'sm',
+})``
 
 const Chart = styled.section`
   flex: 1;
@@ -97,11 +94,11 @@ const Footer = styled.footer`
 
 const FooterText = styled(TextWithIcon).attrs({
   align: 'right',
-  text: { ...baseTextProps, color: 'green50', size: 'sm' },
   icon: {
     name: 'arrow',
     color: 'green50',
   },
+  text: { ...baseTextProps, color: 'green50', size: 'sm' },
 })`
   text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};

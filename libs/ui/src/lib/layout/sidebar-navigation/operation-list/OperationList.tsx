@@ -79,10 +79,9 @@ const Title = styled(BaseText)<{ selected?: boolean }>`
     `}
 `
 
-const SubItemTitle = styled(Title).attrs((props): typeof props => ({
-  ...props,
+const SubItemTitle = styled(Title).attrs({
   size: 'xxs',
-}))``
+})``
 
 export const OperationList = () => {
   return (

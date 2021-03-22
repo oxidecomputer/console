@@ -40,7 +40,7 @@ const Link = styled(Text).attrs({
   size: 'sm',
   font: 'mono',
   weight: 400,
-  forwardedAs: 'a',
+  as: 'a',
 })`
   &:link,
   &:visited {

@@ -117,15 +117,15 @@ const Create = styled(Row).attrs({ as: 'footer' })`
 `
 
 const CreateText = styled(TextWithIcon).attrs({
+  align: 'right',
+  icon: {
+    name: 'plus',
+    color: 'gray400',
+  },
   text: {
     ...baseTextProps,
     color: 'gray400',
     size: 'xxs',
-  },
-  icon: {
-    align: 'right',
-    name: 'plus',
-    color: 'gray400',
   },
 })``
 
