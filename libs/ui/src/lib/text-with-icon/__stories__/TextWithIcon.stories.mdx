@@ -1,0 +1,35 @@
+<!-- TextWithIcon.stories.mdx -->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Default, TitleVariant } from './TextWithIcon.stories'
+
+<Meta
+  title="TextWithIcon"
+  argTypes={{
+    align: {
+      control: {
+        type: 'radio',
+        options: ['left', 'right'],
+      },
+    },
+    text: {
+      control: { type: 'object' },
+    },
+  }}
+/>
+
+# Text with Icon
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Text} story="^" />
+
+## Stories
+
+### Title Variant
+
+<Canvas>
+  <Story story={TitleVariant} />
+</Canvas>
