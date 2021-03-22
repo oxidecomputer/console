@@ -1,6 +1,7 @@
 import React from 'react'
-import { Story, Meta } from '@storybook/react'
-import { Breadcrumbs, BreadcrumbsProps } from './Breadcrumbs'
+import type { Meta, Story } from '@storybook/react'
+import type { BreadcrumbsProps } from './Breadcrumbs'
+import { Breadcrumbs } from './Breadcrumbs'
 
 // Follow https://github.com/storybookjs/storybook/issues/12078
 // for allowing better controls for objects

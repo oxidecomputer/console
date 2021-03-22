@@ -1,7 +1,8 @@
-import React, { FC } from 'react'
+import type { FC } from 'react'
+import React from 'react'
 
 import styled, { css } from 'styled-components'
-import { Project, ProjectId } from '@oxide/backend-types'
+import type { Project, ProjectId } from '@oxide/backend-types'
 
 import { Text } from '../../../text/Text'
 import { Icon } from '../../../icon/Icon'

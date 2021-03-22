@@ -1,4 +1,4 @@
-import { css, createGlobalStyle } from 'styled-components'
+import { createGlobalStyle, css } from 'styled-components'
 import { normalize } from './normalize'
 
 import './fonts.css'

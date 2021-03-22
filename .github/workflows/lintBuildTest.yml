@@ -40,9 +40,6 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Check formatting
-        run: yarn format:check
-
       - name: Build
         run: yarn build
 

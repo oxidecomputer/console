@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, forwardRef } from 'react'
+import type { PropsWithChildren } from 'react'
+import React, { forwardRef } from 'react'
 
 import styled, { css } from 'styled-components'
 

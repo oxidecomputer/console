@@ -1,6 +1,7 @@
 import React from 'react'
-import { Story } from '@storybook/react'
-import { TextField, TextFieldProps } from '../TextField'
+import type { Story } from '@storybook/react'
+import type { TextFieldProps } from '../TextField'
+import { TextField } from '../TextField'
 
 const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
 
