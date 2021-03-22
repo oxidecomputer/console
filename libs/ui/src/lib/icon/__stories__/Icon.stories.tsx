@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
-import { Icon, IconProps } from '../Icon'
+import { Icon } from '../Icon'
+import type { IconProps } from '../Icon'
 
 const Template: Story<IconProps> = (args) => <Icon {...args} />
 

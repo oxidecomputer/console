@@ -1,7 +1,8 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 import styled, { css } from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { Color } from '@oxide/theme'
+import type { Color } from '@oxide/theme'
 
 import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
