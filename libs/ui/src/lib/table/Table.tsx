@@ -213,7 +213,7 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
   return (
     <Wrapper role="grid" aria-rowcount={count}>
       <AutoSizer>
-        {({ height, width }) => (
+        {({ height, width }: { height: number; width: number }) => (
           <ListContext.Provider
             value={{
               columns: columns,
