@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
+import { Avatar } from '../../avatar/Avatar'
 
 /* eslint-disable-next-line */
 export interface GlobalNavProps {}
@@ -34,8 +35,6 @@ const StyledText = styled(Text).attrs({
   weight: 400,
 })`
   text-transform: uppercase;
-  margin-left: ${({ theme }) => theme.spacing(8)};
-  margin-right: ${({ theme }) => theme.spacing(5)};
 `
 
 const TickBar = styled.div`
@@ -62,13 +61,18 @@ const Button = styled.button.attrs({ type: 'button' })`
   }
 `
 
+const FeedbackButton = styled(Button)`
+  margin-left: ${({ theme }) => theme.spacing(10)};
+  margin-right: ${({ theme }) => theme.spacing(4)};
+`
+
 export const GlobalNav: FC<GlobalNavProps> = () => {
   return (
     <StyledGlobalNav>
       <TickBar />
-      <Link href="#">
+      <FeedbackButton>
         <StyledText>Feedback?</StyledText>
-      </Link>
+      </FeedbackButton>
       <Button>
         <StyledIcon name="theme" />
       </Button>
@@ -82,8 +86,7 @@ export const GlobalNav: FC<GlobalNavProps> = () => {
         <StyledIcon name="notifications" />
       </Button>
       <Button>
-        {/* placeholder for profile photo? where would we get that */}
-        <StyledIcon name="profile" />
+        <Avatar isPerson size="sm" name="Some User" />
       </Button>
     </StyledGlobalNav>
   )
