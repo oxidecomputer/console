@@ -4,7 +4,7 @@ import { TextWithIcon } from '../TextWithIcon'
 
 export default {
   component: TextWithIcon,
-  title: 'TextWithIcon',
+  title: 'Foundations/TTextWithIcon',
 }
 
 const Template: Story = (args) => (

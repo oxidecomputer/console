@@ -113,7 +113,6 @@ const getVariantStyles = (variant?: Variant) => {
   }
 }
 export interface TextProps {
-  id?: string
   /**
    * Set a color from theme, otherwise color will default to inherit
    */

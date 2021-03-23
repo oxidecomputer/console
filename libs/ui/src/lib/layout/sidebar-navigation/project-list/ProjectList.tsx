@@ -40,15 +40,11 @@ const Header = styled(Row).attrs({ as: 'header' })`
   text-transform: uppercase;
 `
 
-const HeaderText = styled(Text).attrs({
-  ...baseTextProps,
-})`
+const HeaderText = styled(Text).attrs(baseTextProps)`
   color: ${({ theme }) => theme.color('green500')};
 `
 
-const Count = styled(Text).attrs({
-  ...baseTextProps,
-})`
+const Count = styled(Text).attrs(baseTextProps)`
   color: ${({ theme }) => theme.color('green300')};
 `
 
@@ -89,9 +85,7 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   }
 `
 
-const Title = styled(Text).attrs({
-  ...baseTextProps,
-})<{ selected?: boolean }>`
+const Title = styled(Text).attrs(baseTextProps)<{ selected?: boolean }>`
   flex: 1;
 
   ${({ selected, theme }) =>
