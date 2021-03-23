@@ -181,10 +181,10 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
     console.warn('Table: Missing `data` prop')
     return null
   }
-  const count = data.length
   // Each row is absolutely positioned using a `top` offset
   // Make sure something takes up the 'space' of the first row
   const itemData = [[], ...data]
+  const count = itemData.length
 
   // TODO: Add keyboard controls
   // https://github.com/oxidecomputer/console/issues/66

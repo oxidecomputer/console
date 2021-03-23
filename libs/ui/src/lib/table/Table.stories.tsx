@@ -63,10 +63,42 @@ const getItemSize = (index) => {
   return 64
 }
 
-export const primary = () => {
+export const Default = () => {
   return (
     <div style={{ height: '50vh' }}>
       <Table columns={sampleColumns} data={sampleData} itemSize={getItemSize} />
+    </div>
+  )
+}
+
+export const SingleRow = () => {
+  return (
+    <div style={{ height: '109px' }}>
+      <Table
+        columns={sampleColumns}
+        data={[
+          {
+            name: `Single Row`,
+            status: (
+              <>
+                <Text font="mono">Running</Text>
+                <Text font="mono" size="sm">
+                  4d 6h
+                </Text>
+              </>
+            ),
+            created: (
+              <>
+                <Text font="mono">Yesterday</Text>
+                <Text font="mono" size="sm">
+                  2:30 PM
+                </Text>
+              </>
+            ),
+          },
+        ]}
+        itemSize={getItemSize}
+      />
     </div>
   )
 }
