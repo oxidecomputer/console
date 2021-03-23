@@ -2,7 +2,7 @@ import React from 'react'
 
 import styled from 'styled-components'
 import { Text } from '../text/Text'
-import { Icon as BaseIcon } from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 
 // TODO: a lot of these will be numbers in the PAI, and we will have a presentation
 // layer that makes them human readable. since we don't know the format yet,
@@ -29,8 +29,12 @@ const Cell = styled.span`
   }
 `
 
-const Icon = styled(BaseIcon)`
+const IconMiddle = styled(Icon)`
   margin: 0 ${({ theme }) => theme.spacing(2)};
+`
+
+const IconRight = styled(Icon)`
+  margin-left: ${({ theme }) => theme.spacing(2)};
 `
 
 const Wrapper = styled(Text).attrs({ font: 'mono' })`
@@ -49,13 +53,13 @@ export const InstanceDetails = (props: InstanceDetailsProps) => {
       <span>
         {props.vm.os}
         {/* placeholder for OS-specific icon */}
-        <Icon name="warning" />
+        <IconMiddle name="warning" />
         {props.vm.version} {props.vm.arch}
       </span>
       <span>
         {props.hostname}
         {/* placeholder for copy icon */}
-        <Icon name="warning" />
+        <IconRight name="warning" />
       </span>
       <span>{props.ip}</span>
     </Wrapper>
