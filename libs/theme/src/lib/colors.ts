@@ -1,6 +1,6 @@
-import type { ColorPalette } from './types'
+import type { Color, ColorPalette } from './types'
 
-export const colorValues: ColorPalette = {
+export const colorDefinitions: ColorPalette = {
   white: '0, 0%, 100%',
   black: '0, 0%, 0%',
 
@@ -60,9 +60,7 @@ export const colorValues: ColorPalette = {
   green900: '154, 50%, 27%',
 }
 
-export const colorPalette: ColorPalette = Object.keys(colorValues).reduce(
-  (palette, name) => {
-    return { ...palette, [name]: `hsl(${colorValues[name]})` }
-  },
-  {} as ColorPalette
-)
+export const colorNames = Object.keys(colorDefinitions) as Color[]
+export const colorPalette: ColorPalette = colorNames.reduce((palette, name) => {
+  return { ...palette, [name]: `hsl(${colorDefinitions[name]})` }
+}, {} as ColorPalette)

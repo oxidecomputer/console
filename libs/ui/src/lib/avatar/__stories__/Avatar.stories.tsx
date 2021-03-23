@@ -6,10 +6,12 @@ import { Avatar, avatarSizes } from '../Avatar'
 const Template: Story<AvatarProps> = (args) => <Avatar {...args} />
 
 export const Person = Template.bind({})
-Person.args = { name: 'Cameron Howe', isPerson: true }
+const personArgs = { name: 'Cameron Howe', isPerson: true }
+Person.args = personArgs
 
 export const Organization = Template.bind({})
-Organization.args = { name: 'Colossal Cave Adventure' }
+const orgArgs = { name: 'Colossal Cave Adventure' }
+Organization.args = orgArgs
 
 const types = ['organization', 'person'] as const
 const variants = ['image', 'fallback'] as const
@@ -20,7 +22,7 @@ export const stories = types.reduce(
     ...variants.reduce(
       (rest, variant) => ({
         ...rest,
-        ...Object.keys(avatarSizes).reduce((rest, size) => {
+        ...avatarSizes.reduce((rest, size) => {
           const storyNameParts = [type, variant, size]
           const storyName = storyNameParts.join('/')
           const storyKey = storyNameParts.join('_')
@@ -38,7 +40,7 @@ export const stories = types.reduce(
               const variantArgs =
                 variant === 'image'
                   ? { src: 'http://placekitten.com/500/500' }
-                  : {}
+                  : { src: undefined }
 
               Story.args = { ...baseArgs, ...variantArgs, size }
               return Story
@@ -55,9 +57,9 @@ export const stories = types.reduce(
 const AvatarAlignmentTemplate: Story<AvatarProps> = (args) => (
   <div>
     <Avatar {...args} />
-    <Avatar {...Person.args} src="http://placekitten.com/32/32" />
-    <Avatar {...Organization.args} />
-    <Avatar {...Organization.args} src="http://placekitten.com/100/100" />
+    <Avatar {...personArgs} src="http://placekitten.com/32/32" />
+    <Avatar {...orgArgs} />
+    <Avatar {...orgArgs} src="http://placekitten.com/100/100" />
   </div>
 )
 
