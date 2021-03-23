@@ -8,7 +8,6 @@ import type { TextProps } from '../text/Text'
 import { Icon } from '../icon/Icon'
 import type { IconProps } from '../icon/Icon'
 
-/* eslint-disable-next-line */
 export interface TextWithIconProps {
   align?: 'left' | 'right'
   icon: IconProps
@@ -20,6 +19,7 @@ const StyledIcon = styled(Icon)<{ align: 'left' | 'right' }>`
   ${({ align }) => align === 'right' && `margin-left: 0.5em;`};
 `
 
+/* Note: this does not handle alignment when Text wraps or becomes a paragraph. `align-items: flex-start` does not align the icon with the center of the first line of text, instead it requires some kind of `padding-top` in order to be truly centered aligned. Since Icon and Text have a variable font-size, this top padding is hard to quantify. A different solution may be required for the paragraph use case. Cross that bridge when we get to it. */
 const StyledText = styled(Text)`
   display: inline-flex;
   align-items: center;
