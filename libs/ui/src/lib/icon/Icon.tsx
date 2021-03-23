@@ -98,7 +98,7 @@ const getColorStyles = (color?: string) => {
   `
 }
 
-const rotateStyles = (rotate) => {
+const rotateStyles = (rotate: string) => {
   return css`
     transform: rotate(${rotate});
   `
@@ -153,7 +153,7 @@ export const Icon = styled(SvgIcon).withConfig({
   flex-shrink: 0;
   width: 1em; /* icon size is controlled by parent font-size */
 
-  ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
+  ${({ theme, color }) => color && getColorStyles(theme.themeColors[color])}
   ${({ rotate }) => rotate && rotateStyles(rotate)};
 `
 
