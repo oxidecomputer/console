@@ -2,7 +2,7 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-import { Button, Icon } from '@oxide/ui'
+import { Button, Table, Icon, Text } from '@oxide/ui'
 
 const StyledApp = styled.div`
   min-width: 300px;
@@ -61,6 +61,25 @@ export const App = () => {
       <header className="flex">
         <h1>Welcome to web-console!</h1>
       </header>
+      <div style={{ height: '50vh' }}>
+        <Text>Attached Disks</Text>
+        <Table
+          columns={[
+            { Header: 'Name/Image', accessor: 'name' },
+            { Header: 'Size (GB)', accessor: 'size' },
+            { Header: 'Mode', accessor: 'mode' },
+            { Header: '', accessor: 'actions' },
+          ]}
+          data={[
+            {
+              name: 'ngix Unbuntu 18.84',
+              size: 20,
+              mode: 'boot, read/write',
+              actions: 'Button',
+            },
+          ]}
+        />
+      </div>
       <main>
         <h2>A button imported from @oxide/ui with an SVG icon inside</h2>
         <Button size="base" variant="solid">
