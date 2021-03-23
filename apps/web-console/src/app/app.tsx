@@ -75,7 +75,31 @@ export const App = () => {
               name: 'ngix Unbuntu 18.84',
               size: 20,
               mode: 'boot, read/write',
-              actions: 'Button',
+              actions: (
+                <Button>
+                  <Icon name="more" />
+                </Button>
+              ),
+            },
+            {
+              name: 'grafana Unbuntu 18.84',
+              size: 20,
+              mode: 'read/write',
+              actions: (
+                <Button>
+                  <Icon name="more" />
+                </Button>
+              ),
+            },
+            {
+              name: 'grafana-state Unbuntu 18.84',
+              size: 20,
+              mode: 'read/write',
+              actions: (
+                <Button>
+                  <Icon name="more" />
+                </Button>
+              ),
             },
           ]}
         />
