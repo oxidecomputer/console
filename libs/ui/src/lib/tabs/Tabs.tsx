@@ -82,7 +82,7 @@ export const Tabs: FC<TabsProps> = ({
       .fill('')
       .map((item, index) => refs[index] || createRef())
     setRefs(initialize)
-  }, [tabs])
+  }, [tabs, refs])
 
   useEffect(() => {
     if (!focusTab) return

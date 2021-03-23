@@ -53,7 +53,7 @@ const ColorGroupComponent: React.FC<{ group: ColorGroup }> = ({ group }) => {
           name: k,
           value: colorPalette[k],
         })),
-    [group, colorPalette]
+    [group]
   )
   return (
     <ColorGroupContainer isSingleColor={colors.length === 1}>
