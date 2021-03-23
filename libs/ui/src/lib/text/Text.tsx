@@ -146,9 +146,7 @@ export const Text = styled.span.withConfig({
         color: ${theme.color(color)};
       `
     }
-    return css`
-      color: inherit;
-    `
+    /* By default, color: inherit will be applied */
   }}
   ${({ weight }) =>
     weight &&
@@ -162,6 +160,9 @@ export const Text = styled.span.withConfig({
         font-family: ${theme.fonts[font]};
       `
     }
+    return css`
+      font-family: inherit;
+    `
   }}
 
   ${({ size }) => getSizeStyles(size)};
