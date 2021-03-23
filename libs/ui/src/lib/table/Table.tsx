@@ -10,10 +10,17 @@ import AutoSizer from 'react-virtualized-auto-sizer'
  */
 
 export interface TableProps {
+  /** Allow styled-components to add custom styles */
+  className?: string
   /**
    * Column headers to render. Header is the title of the column for the table. Accessor is the key on the data object.
    */
-  columns: Array<{ Header: string | React.ReactNode; accessor: string }>
+  columns: Array<{
+    Header: string | React.ReactNode
+    accessor: string
+    width?: number
+    arrange?: 'fill' | 'none'
+  }>
   /**
    * Rows to render
    */
@@ -46,14 +53,33 @@ const StyledRowGroup = styled.div`
   flex: 1 1 auto;
 `
 
-const StyledCell = styled.div`
+/* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
+const StyledCell = styled.div.withConfig({
+  // Do not pass 'width' prop to the DOM
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !['width'].includes(prop) && defaultValidatorFn(prop),
+})<{ arrange?: 'fill' | 'none'; width?: number }>`
   display: flex;
   justify-content: center;
   flex-direction: column;
   flex-wrap: nowrap;
+
   flex: 1 1 0;
+  /* flex-basis: 0 will ignore the content of the cells and distribute all space */
 
   padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
+
+  ${({ arrange, width, theme }) => {
+    if (width) {
+      return css`
+        padding: 0;
+        max-width: ${theme.spacing(width)};
+      `
+    }
+    if (arrange === 'fill') {
+      /* TODO */
+    }
+  }};
 
   &:not(:first-child) {
     box-shadow: inset 1px 0 0 ${BORDER_COLOR};
@@ -111,6 +137,8 @@ const StickyRow = ({ index, columns, ...props }) => {
             key={`columnheader-${col.accessor}`}
             role="columnheader"
             aria-colindex={columnIndex + 1}
+            width={col.width || null}
+            arrange={col.arrange || 'none'}
           >
             {col.Header}
           </StyledCell>
@@ -134,6 +162,8 @@ const Row = ({ index, row, style, ...props }) => {
             key={`gridcell-${col.accessor}-${columnIndex}`}
             role="gridcell"
             aria-colindex={columnIndex + 1}
+            width={col.width || null}
+            arrange={col.arrange || 'none'}
           >
             {currentCell}
           </StyledCell>
@@ -172,7 +202,7 @@ const RowWrapper = ({ data, index, style, ...props }) => {
   return <Row index={index} style={style} row={row} {...props} />
 }
 
-export const Table = ({ columns, data, itemSize }: TableProps) => {
+export const Table = ({ className, columns, data, itemSize }: TableProps) => {
   if (!columns || !columns.length) {
     console.warn('Table: Missing `columns` prop')
     return null
@@ -190,7 +220,7 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
   // https://github.com/oxidecomputer/console/issues/66
 
   return (
-    <Wrapper role="grid" aria-rowcount={count}>
+    <Wrapper role="grid" aria-rowcount={count} className={className}>
       <AutoSizer>
         {({ height, width }) => (
           <ListContext.Provider

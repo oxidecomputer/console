@@ -4,50 +4,111 @@ import styled from 'styled-components'
 
 import { Button, Table, Icon, Text } from '@oxide/ui'
 
-export const InstancePageTables = () => {
+const Wrapper = styled.div`
+  height: 25vh;
+`
+
+const StyledTable = styled(Table)`
+  margin-top: ${({ theme }) => theme.spacing(4)};
+`
+
+const StyledButton = styled(Button).attrs({
+  size: 'sm',
+  variant: 'ghost',
+})`
+  width: 100%;
+`
+
+const SAMPLE_DATA = [
+  {
+    name: 'ngix',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'boot, read/write',
+  },
+  {
+    name: 'grafana',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+  {
+    name: 'grafana-state',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+  {
+    name: 'ngix',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'boot, read/write',
+  },
+  {
+    name: 'grafana',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+  {
+    name: 'grafana-state',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+  {
+    name: 'ngix',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'boot, read/write',
+  },
+  {
+    name: 'grafana',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+  {
+    name: 'grafana-state',
+    image: 'Unbuntu 18.84',
+    size: 20,
+    mode: 'read/write',
+  },
+]
+
+export const InstancePageTables = ({ data = SAMPLE_DATA }) => {
+  const formatData = data.map((entry) => {
+    return {
+      name: (
+        <>
+          <Text size="sm">{entry.name}</Text>
+          <Text size="xxs" color="gray400">
+            {entry.image}
+          </Text>
+        </>
+      ),
+      size: entry.size,
+      mode: <Text size="sm">{entry.mode}</Text>,
+      actions: (
+        <StyledButton>
+          <Icon name="more" />
+        </StyledButton>
+      ),
+    }
+  })
   return (
-    <div style={{ height: '50vh' }}>
-      <Text>Attached Disks</Text>
-      <Table
+    <Wrapper>
+      <Text color="gray50">Attached Disks</Text>
+      <StyledTable
+        itemSize={() => 48}
         columns={[
-          { Header: 'Name/Image', accessor: 'name' },
+          { Header: 'Name/Image', accessor: 'name', arrange: 'fill' },
           { Header: 'Size (GB)', accessor: 'size' },
           { Header: 'Mode', accessor: 'mode' },
-          { Header: '', accessor: 'actions' },
+          { Header: '', accessor: 'actions', width: 12 },
         ]}
-        data={[
-          {
-            name: 'ngix Unbuntu 18.84',
-            size: 20,
-            mode: 'boot, read/write',
-            actions: (
-              <Button>
-                <Icon name="more" />
-              </Button>
-            ),
-          },
-          {
-            name: 'grafana Unbuntu 18.84',
-            size: 20,
-            mode: 'read/write',
-            actions: (
-              <Button>
-                <Icon name="more" />
-              </Button>
-            ),
-          },
-          {
-            name: 'grafana-state Unbuntu 18.84',
-            size: 20,
-            mode: 'read/write',
-            actions: (
-              <Button>
-                <Icon name="more" />
-              </Button>
-            ),
-          },
-        ]}
+        data={formatData}
       />
-    </div>
+    </Wrapper>
   )
 }
