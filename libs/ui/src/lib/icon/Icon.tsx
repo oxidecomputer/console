@@ -149,6 +149,10 @@ export interface IconProps extends StyledIconProps {
 const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   const IconComponent = icons[name]
   const titleId = useMemo(() => uuidv4(), [])
+  if (!IconComponent) {
+    console.warn('Cannot find icon for: ', name)
+    return null
+  }
   let addSvgProps = { ...svgProps }
 
   // All icons should have a default <title> tag
