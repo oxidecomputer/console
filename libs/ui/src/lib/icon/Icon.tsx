@@ -154,6 +154,7 @@ const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   // All icons should have a default <title> tag
   // Generate a titleId here so that the `id` and corresponding `aria-labelledby`
   // attributes are always unique
+  // TODO: Allow icon to have the equivalent of an empty alt="" tag
   if (!addSvgProps.titleId) {
     addSvgProps = { titleId: titleId, ...svgProps }
   }
@@ -162,9 +163,11 @@ const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
 }
 
 export const Icon = styled(SvgIcon).withConfig({
-  // Do not pass 'color' and 'rotate' props to the DOM
-  shouldForwardProp: (prop, defaultValidatorFn) =>
-    !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
+  shouldForwardProp: (prop) => {
+    // Do not pass 'color' and 'rotate' props to the DOM
+    // but do pass 'svgProps' to SvgIcon
+    return !['color', 'rotate'].includes(prop)
+  },
 })<StyledIconProps>`
   flex-shrink: 0;
   width: 1em; /* icon size is controlled by parent font-size */
