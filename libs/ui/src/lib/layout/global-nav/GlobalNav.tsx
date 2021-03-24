@@ -62,7 +62,7 @@ const FeedbackButton = styled(Button)`
   margin-right: ${({ theme }) => theme.spacing(2)};
 `
 
-export const GlobalNav: FC<GlobalNavProps> = () => {
+export const GlobalNav: FC = () => {
   return (
     <StyledGlobalNav>
       <TickBar />
