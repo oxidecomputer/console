@@ -13,10 +13,14 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 export interface TableColumn {
   Header: ReactNode
   accessor: string
+  width?: number
+  arrange?: 'fill' | 'none'
 }
 
 export type TableData = Record<string, ReactNode>[]
 export interface TableProps {
+  /** Allow styled-components to add custom styles */
+  className?: string
   /**
    * Column headers to render. Header is the title of the column for the table. Accessor is the key on the data object.
    */
@@ -53,14 +57,35 @@ const StyledRowGroup = styled.div`
   flex: 1 1 auto;
 `
 
-const StyledCell = styled.div`
+/* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
+const StyledCell = styled.div.withConfig({
+  // Do not pass 'width' prop to the DOM
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !['width'].includes(prop) && defaultValidatorFn(prop),
+})<{ arrange?: 'fill' | 'none'; width?: number }>`
   display: flex;
   justify-content: center;
   flex-direction: column;
   flex-wrap: nowrap;
+
   flex: 1 1 0;
+  /* flex-basis: 0 will ignore the content of the cells and distribute all space */
 
   padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
+
+  ${({ arrange, width, theme }) => {
+    if (width) {
+      return css`
+        padding: 0;
+        max-width: ${theme.spacing(width)};
+      `
+    }
+    if (arrange === 'fill') {
+      return css`
+        flex-grow: 4;
+      `
+    }
+  }};
 
   &:not(:first-child) {
     box-shadow: inset 1px 0 0 ${BORDER_COLOR};
@@ -84,6 +109,7 @@ const StyledRow = styled.div`
 interface BaseRowProps {
   index: number
 }
+
 const StyledStickyRow = styled.div<BaseRowProps>`
   ${rowStyles};
 
@@ -125,6 +151,8 @@ const StickyRow: FC<StickyRowProps> = ({ index, columns, ...props }) => {
             key={`columnheader-${col.accessor}`}
             role="columnheader"
             aria-colindex={columnIndex + 1}
+            width={col.width}
+            arrange={col.arrange || 'none'}
           >
             {col.Header}
           </StyledCell>
@@ -136,11 +164,13 @@ const StickyRow: FC<StickyRowProps> = ({ index, columns, ...props }) => {
 
 interface RowProps extends BaseRowProps {
   row: Record<string, ReactNode>
+  style?: React.CSSProperties
 }
-const Row: FC<RowProps> = ({ index, row, ...props }) => {
+
+const Row: FC<RowProps> = ({ index, row, style, ...props }) => {
   const { columns } = useContext(ListContext)
   return (
-    <StyledRow role="row" aria-rowindex={index + 1} {...props}>
+    <StyledRow role="row" aria-rowindex={index + 1} style={style} {...props}>
       {columns &&
         columns.map((col, columnIndex) => {
           const currentCol = col.accessor
@@ -152,6 +182,8 @@ const Row: FC<RowProps> = ({ index, row, ...props }) => {
               key={`gridcell-${col.accessor}-${columnIndex}`}
               role="gridcell"
               aria-colindex={columnIndex + 1}
+              width={col.width}
+              arrange={col.arrange || 'none'}
             >
               {currentCell}
             </StyledCell>
@@ -179,6 +211,7 @@ const InnerWrapper = forwardRef(
 interface RowWrapperProps extends BaseRowProps {
   data: TableData
 }
+
 const RowWrapper: FC<RowWrapperProps> = ({ data, index, ...props }) => {
   // react-window will only render & mount the rows that are visible in the viewport
   // (so this component is not guaranteed to always have access to `data[0]`)
@@ -193,7 +226,7 @@ const RowWrapper: FC<RowWrapperProps> = ({ data, index, ...props }) => {
   return <Row index={index} row={row} {...props} />
 }
 
-export const Table = ({ columns, data, itemSize }: TableProps) => {
+export const Table = ({ className, columns, data, itemSize }: TableProps) => {
   if (!columns || !columns.length) {
     console.warn('Table: Missing `columns` prop')
     return null
@@ -202,16 +235,16 @@ export const Table = ({ columns, data, itemSize }: TableProps) => {
     console.warn('Table: Missing `data` prop')
     return null
   }
-  const count = data.length
   // Each row is absolutely positioned using a `top` offset
   // Make sure something takes up the 'space' of the first row
   const itemData = [[], ...data]
+  const count = itemData.length
 
   // TODO: Add keyboard controls
   // https://github.com/oxidecomputer/console/issues/66
 
   return (
-    <Wrapper role="grid" aria-rowcount={count}>
+    <Wrapper role="grid" aria-rowcount={count} className={className}>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <ListContext.Provider
