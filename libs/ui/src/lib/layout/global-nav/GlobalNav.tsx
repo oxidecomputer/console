@@ -18,7 +18,7 @@ const StyledGlobalNav = styled.div`
 `
 
 const StyledIcon = styled(Icon)`
-  width: ${({ theme }) => theme.spacing(7)};
+  width: ${({ theme }) => theme.spacing(6)};
 `
 
 const Link = styled.a`
@@ -83,7 +83,7 @@ export const GlobalNav: FC<GlobalNavProps> = () => {
         <StyledIcon name="notifications" />
       </Button>
       <Button>
-        <Avatar isPerson size="sm" name="Some User" />
+        <Avatar isPerson size="xs" name="Some User" />
       </Button>
     </StyledGlobalNav>
   )
