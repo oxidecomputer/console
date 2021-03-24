@@ -157,5 +157,3 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
     </StyledProjectList>
   )
 }
-
-export default ProjectList

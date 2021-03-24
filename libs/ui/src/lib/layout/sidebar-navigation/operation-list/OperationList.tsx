@@ -163,5 +163,3 @@ export const OperationList = () => {
     </nav>
   )
 }
-
-export default OperationList
