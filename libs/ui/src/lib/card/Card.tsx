@@ -138,5 +138,3 @@ export const Card: FC<CardProps> = (props) => {
     </StyledCard>
   )
 }
-
-export default Card
