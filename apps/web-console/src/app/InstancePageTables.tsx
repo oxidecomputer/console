@@ -100,7 +100,7 @@ export const InstancePageTables = ({ data = SAMPLE_DATA }) => {
     <Wrapper>
       <Text color="gray50">Attached Disks</Text>
       <StyledTable
-        itemSize={() => 48}
+        itemSize={() => 44}
         columns={[
           { Header: 'Name/Image', accessor: 'name', arrange: 'fill' },
           { Header: 'Size (GB)', accessor: 'size' },
