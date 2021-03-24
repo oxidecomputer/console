@@ -85,7 +85,7 @@ export const Tabs: FC<TabsProps> = ({
   }, [tabs])
 
   useEffect(() => {
-    if (focusTab == null) return
+    if (focusTab === null) return
 
     const ref = refs[focusTab]
     if (ref && ref.current) {
