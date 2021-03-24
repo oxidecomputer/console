@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Arrow</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M15.038 6.343l-1.411 1.418 3.27 3.255-13.605.013.002 2 13.568-.013-3.215 3.23 1.417 1.41 5.644-5.67-5.67-5.643z" />
+  <path
+    d="M20.186 8l-1.944 2.005 4.507 4.603L4 14.628l.003 2.828 18.697-.02-4.43 4.569L20.222 24 28 15.981 20.186 8z" />
 </svg>

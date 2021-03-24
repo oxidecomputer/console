@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Users</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M18.5 4a2 2 0 110 4 2 2 0 010-4zM12 6.8a2.4 2.4 0 110 4.8 2.4 2.4 0 010-4.8zM15 20v-7.2H9V20h6zm1-11h5v6h-5V9zM3 9h5v6H3V9zm2.5-5a2 2 0 110 4 2 2 0 010-4z" />
+  <path fill-rule="evenodd"
+    d="M7.333 5a2.667 2.667 0 110 5.334 2.667 2.667 0 010-5.334zm17.334 0a2.667 2.667 0 110 5.334 2.667 2.667 0 010-5.334zM16 9.067a3.2 3.2 0 110 6.4 3.2 3.2 0 010-6.4zm4 8h-8V27h8v-9.933zm1.333-5.4H28v8h-6.667v-8zM4 11.666h6.667v8H4v-8z"
+    clip-rule="evenodd" />
 </svg>

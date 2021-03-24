@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Resources</title>
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M21 3v8h-8V3h8zm-10 8V3H3v8h8zm10 10v-8h-8v8h8zm-10 0v-8H3v8h8z" />
+  <path fill-rule="evenodd"
+    d="M28 4v10.667H17.333V4H28zM14.667 14.667V4H4v10.667h10.667zM28 28V17.333H17.333V28H28zm-13.333 0V17.333H4V28h10.667z"
+    clip-rule="evenodd" />
 </svg>
