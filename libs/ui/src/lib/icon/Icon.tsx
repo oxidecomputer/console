@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import type { Color } from '@oxide/theme'
 
@@ -120,24 +120,6 @@ export const icons = {
 
 type Name = keyof typeof icons
 
-const getColorStyles = (color?: string) => {
-  if (color) {
-    return css`
-      fill: ${color};
-    `
-  }
-  // inherit color
-  return css`
-    fill: currentColor;
-  `
-}
-
-const rotateStyles = (rotate: string) => {
-  return css`
-    transform: rotate(${rotate});
-  `
-}
-
 interface StyledIconProps {
   /**
    * Set the color using a theme color ("green500")
@@ -187,8 +169,10 @@ export const Icon = styled(SvgIcon).withConfig({
   flex-shrink: 0;
   width: 1em; /* icon size is controlled by parent font-size */
 
-  ${({ theme, color }) => color && getColorStyles(theme.themeColors[color])}
-  ${({ rotate }) => rotate && rotateStyles(rotate)};
+  fill: ${({ color, theme }) =>
+    color ? theme.themeColors[color] : 'currentColor'};
+
+  ${({ rotate }) => rotate && `transform: rotate(${rotate})`};
 `
 
 export default Icon
