@@ -66,7 +66,7 @@ export default ({ children }: AppLayoutProps) => {
   return (
     <Wrapper>
       <Sidebar>
-        <Text size="3xl" font="mono" weight={400} color="green500">
+        <Text size="3xl" weight={400} color="green500">
           0xide
         </Text>
         <ProjectList
