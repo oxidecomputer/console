@@ -164,9 +164,9 @@ const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
 
 export const Icon = styled(SvgIcon).withConfig({
   shouldForwardProp: (prop) => {
-    // Do not pass 'color' and 'rotate' props to the DOM
+    // Do not pass 'align', 'color', 'rotate' (etc) props to the DOM
     // but do pass 'svgProps' to SvgIcon
-    return !['color', 'rotate'].includes(prop)
+    return ['className', 'svgProps', 'name'].includes(prop)
   },
 })<StyledIconProps>`
   flex-shrink: 0;
