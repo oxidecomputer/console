@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from '../../test-utils'
 
-import Card from './Card'
+import { Card } from './Card'
 
 describe('Card', () => {
   it('should render successfully', () => {

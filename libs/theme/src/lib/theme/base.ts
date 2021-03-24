@@ -54,6 +54,16 @@ const paddingY: SpacingHelper = (size) => css`
   padding-bottom: ${({ theme }) => theme.spacing(size)};
 `
 
+const marginX: SpacingHelper = (size) => css`
+  margin-left: ${({ theme }) => theme.spacing(size)};
+  margin-right: ${({ theme }) => theme.spacing(size)};
+`
+
+const marginY: SpacingHelper = (size) => css`
+  margin-top: ${({ theme }) => theme.spacing(size)};
+  margin-bottom: ${({ theme }) => theme.spacing(size)};
+`
+
 export const baseTheme: Theme = {
   fonts: {
     sans: `'Inter', sans-serif`,
@@ -71,4 +81,6 @@ export const baseTheme: Theme = {
   spaceBetweenY,
   paddingX,
   paddingY,
+  marginX,
+  marginY,
 }

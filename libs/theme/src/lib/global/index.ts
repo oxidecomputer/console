@@ -14,7 +14,7 @@ const globalStyles = css`
     background-color: ${(props) => props.theme.themeColors.gray900};
     color: ${(props) => props.theme.themeColors.gray300};
     font-family: ${(props) => props.theme.fonts.mono};
-    font-weight: 500;
+    font-weight: 400;
   }
   h1,
   h2,

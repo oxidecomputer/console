@@ -18,20 +18,14 @@ const StyledList = styled.ol`
 `
 
 const StyledListItem = styled.li`
-  position: relative;
   display: inline-block;
-  margin-left: ${({ theme }) => theme.spacing(2)};
-  padding-left: ${({ theme }) => theme.spacing(4)};
-  &:first-child {
-    margin-left: 0;
-    padding-left: 0;
-  }
+
   &:not(:first-child):before {
     content: '/';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
+
+    display: inline-flex;
+    margin: 0 ${({ theme }) => theme.spacing(2)};
+
     color: ${({ theme }) => theme.color('yellow500')};
   }
 `
