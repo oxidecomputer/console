@@ -33,12 +33,13 @@ const StyledText = styled(Text).attrs({
 
 const TickBar = styled.div`
   ${({ theme }) =>
-    `background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 0 16 26'%3E%3Cpath fill='${encodeURI(
+    `background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20'%3E%3Cpath fill='${encodeURI(
       theme.color('gray700')
-    )}' d='M7.014 2.74h1.98v20.68h-1.98V2.74z'/%3E%3C/svg%3E%0A");`}
+    )}' d='M0 0H1.6V20H0V0Z'/%3E%3C/svg%3E%0A");`}
   background-position: center left;
   background-repeat: repeat-x;
-  background-size: ${({ theme }) => theme.spacing(5)};
+  background-size: ${({ theme }) => theme.spacing(4)}
+    ${({ theme }) => theme.spacing(5)};
   height: ${({ theme }) => theme.spacing(5)};
   width: 100%;
 `
