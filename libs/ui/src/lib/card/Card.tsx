@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { Text } from '../text/Text'
 import type { TextProps } from '../text/Text'
 import { TextWithIcon } from '../text-with-icon/TextWithIcon'
-import { default as Sparkline } from './sparkline.svg'
+import Sparkline from './sparkline.svg'
 
 export interface CardProps {
   title: string
