@@ -48,7 +48,7 @@ export const InstanceDetails = (props: InstanceDetailsProps) => {
       <span>
         <Cell>{props.cpu} vCPU</Cell>
         <Cell>{props.memory} RAM</Cell>
-        <Cell>{props.storage} DISK</Cell>
+        <Cell style={{ textTransform: 'uppercase' }}>{props.storage} Disk</Cell>
       </span>
       <span>
         {props.vm.os}
