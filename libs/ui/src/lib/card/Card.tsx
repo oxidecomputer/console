@@ -126,7 +126,7 @@ export const Card: FC<CardProps> = (props) => {
             <Sparkline
               style={{
                 stroke: '#48D597',
-                strokeOpacity: '0.8',
+                strokeOpacity: 0.8,
               }}
             />
           </Chart>
