@@ -1,5 +1,5 @@
-import type { KeyboardEvent, FC, RefObject, EventHandler } from 'react'
-import React, { useState, useEffect, createRef } from 'react'
+import type { KeyboardEvent, FC, EventHandler } from 'react'
+import React, { useState, useEffect, useMemo, createRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -72,17 +72,15 @@ export const Tabs: FC<TabsProps> = ({
   tabs,
   children,
 }) => {
-  const [refs, setRefs] = useState<RefObject<HTMLButtonElement>[]>([])
   const [activeTab, setActiveTab] = useState(0)
   const [focusTab, setFocusTab] = useState<number | null>(null)
 
-  useEffect(() => {
-    // create refs for all the tabs
-    const initialize = new Array(tabs.length)
-      .fill('')
-      .map(() => createRef<HTMLButtonElement>())
-    setRefs(initialize)
-  }, [tabs])
+  // create refs for all the tabs
+  const refs = useMemo(
+    () =>
+      new Array(tabs.length).fill('').map(() => createRef<HTMLButtonElement>()),
+    [tabs]
+  )
 
   useEffect(() => {
     if (focusTab === null) return
