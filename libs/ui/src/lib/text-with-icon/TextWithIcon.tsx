@@ -10,6 +10,7 @@ import type { IconProps } from '../icon/Icon'
 
 export interface TextWithIconProps {
   align?: 'left' | 'right'
+  className?: string
   icon: IconProps
   text?: TextProps
 }
@@ -30,12 +31,13 @@ const StyledText = styled(Text)`
 
 export const TextWithIcon: FC<TextWithIconProps> = ({
   align = 'left',
+  className,
   children,
   icon,
   text,
 }) => {
   return (
-    <StyledText {...text}>
+    <StyledText className={className} {...text}>
       {align === 'left' ? <StyledIcon align="left" {...icon} /> : null}
       {children}
       {align === 'right' ? <StyledIcon align="right" {...icon} /> : null}
