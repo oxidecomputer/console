@@ -81,7 +81,9 @@ const StyledCell = styled.div.withConfig({
       `
     }
     if (arrange === 'fill') {
-      /* TODO */
+      return css`
+        flex-grow: 4;
+      `
     }
   }};
 
