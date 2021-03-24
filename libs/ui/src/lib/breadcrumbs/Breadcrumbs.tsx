@@ -59,7 +59,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
           }
           return (
             <StyledListItem key={`breadcrumbs-${index}`}>
-              <Text font="mono" size="sm" color="gray400">
+              <Text font="mono" size="sm" color="gray500">
                 {item.label}
               </Text>
             </StyledListItem>
