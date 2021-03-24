@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+  <title>Play button o</title>
+  <path fill-rule="evenodd"
+    d="M16 26.636c5.874 0 10.636-4.762 10.636-10.636S21.874 5.364 16 5.364 5.364 10.126 5.364 16 10.126 26.636 16 26.636zM16 29c7.18 0 13-5.82 13-13S23.18 3 16 3 3 8.82 3 16s5.82 13 13 13z"
+    clip-rule="evenodd" />
+  <path d="M20.727 16l-7.09 5.117V10.883L20.726 16z" />
+</svg>

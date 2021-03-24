@@ -1,36 +1,12 @@
 import React from 'react'
+import AppLayout from '../app-layout/AppLayout'
+import InstancePage from '../pages/instance/InstancePage'
 
-import styled from 'styled-components'
-
-import { Tabs } from '@oxide/ui'
-import { InstancePageTables } from './InstancePageTables'
-
-const Wrapper = styled.div``
-
-const StyledMain = styled.main`
-  padding: 0 ${({ theme }) => theme.spacing(6)};
-`
-
-const OverviewPanel = styled.div``
-
-export const App = () => {
+const App = () => {
   return (
-    <Wrapper>
-      <StyledMain>
-        <Tabs
-          label="Instance Page"
-          tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
-        >
-          <OverviewPanel>
-            <InstancePageTables />
-          </OverviewPanel>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </Tabs>
-      </StyledMain>
-    </Wrapper>
+    <AppLayout>
+      <InstancePage />
+    </AppLayout>
   )
 }
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import { OperationList } from './OperationList'
+import type { Meta } from '@storybook/react'
 
 export default {
   component: OperationList,
@@ -11,7 +12,7 @@ export default {
       </div>
     ),
   ],
-}
+} as Meta
 
 export const primary = () => {
   return <OperationList />

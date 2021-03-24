@@ -1,11 +1,14 @@
+import type { PropsWithChildren } from 'react'
 import React from 'react'
 import type { Story } from '@storybook/react'
 import { Button, buttonSizes, variants } from '../Button'
 import type { ButtonProps, ButtonSize, Variant } from '../Button'
 
-const Template: Story<ButtonProps> = (args) => <Button {...args} />
+type ButtonStory = Story<PropsWithChildren<ButtonProps>>
 
-export const Default = Template.bind({})
+const Template: ButtonStory = (args) => <Button {...args} />
+
+export const Default: ButtonStory = Template.bind({})
 Default.args = {
   children: 'Button',
   disabled: false,

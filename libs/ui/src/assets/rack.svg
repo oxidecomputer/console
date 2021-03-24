@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
-  <title>Server</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M2.25 3.75v4.5h19.5v-4.5H2.25zm2.25 3c-.45 0-.75-.3-.75-.75s.3-.75.75-.75.75.3.75.75-.3.75-.75.75zm-2.25 3v4.5h19.5v-4.5H2.25zm2.25 3c-.45 0-.75-.3-.75-.75s.3-.75.75-.75.75.3.75.75-.3.75-.75.75zm-2.25 7.5v-4.5h19.5v4.5H2.25zM3.75 18c0 .45.3.75.75.75s.75-.3.75-.75-.3-.75-.75-.75-.75.3-.75.75z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+  <title>Rack</title>
+  <path fill-rule="evenodd"
+    d="M3 5v6h26V5H3zm3 4c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 4v6h26v-6H3zm3 4c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zM3 27v-6h26v6H3zm2-3c0 .6.4 1 1 1s1-.4 1-1-.4-1-1-1-1 .4-1 1z"
+    clip-rule="evenodd" />
 </svg>

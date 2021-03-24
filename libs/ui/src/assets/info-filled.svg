@@ -1,4 +1,6 @@
-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-labelledby="icon-info">
-  <title id="icon-info">More Info</title>
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm1-15.5v2h-2v-2h2zm0 3.5v7.5h-2V10h2z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+  <title>Info filled</title>
+  <path fill-rule="evenodd"
+    d="M16 29c7.18 0 13-5.82 13-13S23.18 3 16 3 3 8.82 3 16s5.82 13 13 13zm1.3-20.15v2.6h-2.6v-2.6h2.6zm0 4.55v9.75h-2.6V13.4h2.6z"
+    clip-rule="evenodd" />
 </svg>

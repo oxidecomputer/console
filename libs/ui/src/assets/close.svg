@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Close</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M10.585 12L4.16 18.427l1.414 1.414L12 13.414l6.427 6.427 1.414-1.414L13.414 12l6.427-6.427-1.415-1.414L12 10.585 5.573 4.16 4.159 5.573 10.585 12z" />
+  <path fill-rule="evenodd"
+    d="M14.584 15.998L5 25.58l1.414 1.415 9.584-9.584 9.583 9.584 1.415-1.415-9.584-9.583 9.584-9.584L25.58 5l-9.583 9.584L6.414 5 5 6.414l9.584 9.584z"
+    clip-rule="evenodd" />
 </svg>

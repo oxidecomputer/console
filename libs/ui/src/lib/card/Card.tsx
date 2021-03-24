@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { Text } from '../text/Text'
 import type { TextProps } from '../text/Text'
 import { TextWithIcon } from '../text-with-icon/TextWithIcon'
-import { default as Sparkline } from './sparkline.svg'
+import Sparkline from './sparkline.svg'
 
 export interface CardProps {
   title: string
@@ -17,7 +17,7 @@ const StyledCard = styled.article``
 
 const Main = styled.main`
   padding: ${({ theme }) => theme.spacing(4)};
-  background: ${({ theme }) => theme.color('green800', 0.33)};
+  background: ${({ theme }) => theme.color('green800', 0.24)};
 `
 
 const baseTextProps: Partial<TextProps> = {
@@ -58,8 +58,8 @@ const DataTable = styled.div`
 
 const DataHeader = styled(Text).attrs({
   ...baseTextProps,
-  color: 'green700',
-  size: 'xs',
+  color: 'green500',
+  size: 'sm',
   role: 'columnheader',
 })`
   text-transform: uppercase;
@@ -84,11 +84,10 @@ const Chart = styled.section`
 `
 
 const Footer = styled.footer`
-  background: ${({ theme }) => theme.color('green900', 0.33)};
+  background: ${({ theme }) => theme.color('green800', 0.16)};
   padding: ${({ theme }) => theme.spacing(4)};
   display: flex;
   flex-direction: row;
-
   justify-content: baseline;
 `
 
@@ -124,7 +123,12 @@ export const Card: FC<CardProps> = (props) => {
             <SecondaryDataValue>3%</SecondaryDataValue>
           </DataTable>
           <Chart>
-            <Sparkline />
+            <Sparkline
+              style={{
+                stroke: '#48D597',
+                strokeOpacity: 0.8,
+              }}
+            />
           </Chart>
         </Data>
       </Main>
@@ -134,5 +138,3 @@ export const Card: FC<CardProps> = (props) => {
     </StyledCard>
   )
 }
-
-export default Card

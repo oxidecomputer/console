@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
-  <title>Organization</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M12 2.454l4.243 4.243L12 10.939 7.757 6.697 12 2.454zM10.94 12L6.696 7.757 2.454 12l4.243 4.243L10.939 12zm10.606 0l-4.243-4.243L13.061 12l4.242 4.243L21.546 12zm-5.303 5.303L12 13.061l-4.243 4.242L12 21.546l4.243-4.243z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+  <title>Org</title>
+  <path fill-rule="evenodd"
+    d="M16 3l5.778 5.778L16 14.556l-5.778-5.778L16 3zm-1.444 13l-5.778-5.778L3 16l5.778 5.778L14.555 16zM29 16l-5.778-5.778L17.445 16l5.777 5.778L29 16zm-7.222 7.222L16 17.444l-5.778 5.778L16 29l5.778-5.778z"
+    clip-rule="evenodd" />
 </svg>

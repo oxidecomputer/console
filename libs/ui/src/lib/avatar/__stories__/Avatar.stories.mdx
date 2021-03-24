@@ -17,7 +17,7 @@ import {
     size: {
       control: {
         type: 'select',
-        options: Object.keys(avatarSizes),
+        options: avatarSizes,
       },
     },
   }}
@@ -40,7 +40,6 @@ export const OrgArgs = {
 
 <Canvas>
   <Story story={Person} />
-  <Story story={Organization} />
 </Canvas>
 
 <ArgsTable of={Avatar} story="^" />

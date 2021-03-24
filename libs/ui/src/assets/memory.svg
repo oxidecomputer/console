@@ -1,7 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Memory</title>
-  <path d="M6.75 5.5h1.5V4h-1.5v1.5z" />
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M22 7H2v10h20V7zM4 10.5h1.5V9H4v1.5zM20 15h-1.5v-1.5H20V15z" />
-  <path
-    d="M5.25 5.5h-1.5V4h1.5v1.5zM9.75 5.5h1.5V4h-1.5v1.5zM14.25 5.5h-1.5V4h1.5v1.5zM15.75 5.5h1.5V4h-1.5v1.5zM20.25 5.5h-1.5V4h1.5v1.5zM6.75 20h1.5v-1.5h-1.5V20zM5.25 20h-1.5v-1.5h1.5V20zM9.75 20h1.5v-1.5h-1.5V20zM14.25 20h-1.5v-1.5h1.5V20zM15.75 20h1.5v-1.5h-1.5V20zM20.25 20h-1.5v-1.5h1.5V20z" />
+  <path fill-rule="evenodd"
+    d="M5 6h2v2H5V6zm0 20v-2h2v2H5zm6-20H9v2h2V6zM9 24h2v2H9v-2zm6-18h-2v2h2V6zm-2 18h2v2h-2v-2zm6-18h-2v2h2V6zm-2 18h2v2h-2v-2zm6-18h-2v2h2V6zm-2 18h2v2h-2v-2zm6-18h-2v2h2V6zm-2 20v-2h2v2h-2zM3 9h26v14H3V9zm3 5v-2h2v2H6zm18 6v-2h2v2h-2z"
+    clip-rule="evenodd" />
 </svg>

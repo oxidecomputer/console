@@ -1,56 +1,32 @@
 import React from 'react'
-
+import type { FC } from 'react'
 import styled, { css } from 'styled-components'
+import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import type { IconProps } from '../icon/Icon'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
-/* eslint-disable-next-line */
-export interface TextFieldProps {
-  /**
-   * Commonly used fields can often be filled out automatically by the browser
-   */
-  autocomplete?: string
-  /**
-   * Text or element used as children of the `label` element
-   */
-  children: string | React.ReactNode
-  /**
-   * Required for accessibility. Defaults to `false`.
-   */
-  disabled?: boolean
-  /**
-   * Required for accessibility. Defaults to `false`. Input is invalid
-   */
-  error?: boolean
-  /**
-   * Error message text to render
-   */
-  errorMessage?: string
-  /**
-   * Additional text to associate with this specific field
-   */
-  hint?: string | React.ReactNode
-  icon?: { align: 'left' | 'right' } & IconProps
-  id: string
-  onBlur?: () => void
-  onChange?: () => void
-  onFocus?: () => void
-  placeholder?: string
-  /**
-   * Required for accessibility. Defaults to `false`.
-   */
-  required?: boolean
-  /**
-   * Required. Defaults to `text`. Type of input, e.g. email, text, tel, etc.
-   */
-  type?: string
-  /**
-   * Current value of the input
-   */
-  value?: string
-}
+export type TextFieldProps = StyledComponentProps<
+  'input',
+  DefaultTheme,
+  {
+    /**
+     * Required for accessibility. Defaults to `false`. Input is invalid
+     */
+    error?: boolean
+    /**
+     * Error message text to render
+     */
+    errorMessage?: string
+    /**
+     * Additional text to associate with this specific field
+     */
+    hint?: string | React.ReactNode
+    icon?: StyledIconProps & IconProps
+  },
+  never
+>
 
 const Wrapper = styled.div<{ disabled: boolean }>`
   color: ${({ theme }) => theme.color('gray100')};
@@ -98,7 +74,10 @@ const InputWrapper = styled.div`
   position: relative;
 `
 
-const StyledIcon = styled(Icon)<{ align: 'left' | 'right' }>`
+interface StyledIconProps {
+  align: 'left' | 'right'
+}
+const StyledIcon = styled(Icon)<StyledIconProps>`
   z-index: 1;
   position: absolute;
   top: 0;
@@ -178,8 +157,7 @@ const ErrorMessage = styled(Text).attrs({
   margin-top: ${(props) => props.theme.spacing(2)};
 `
 
-export const TextField = ({
-  autocomplete,
+export const TextField: FC<TextFieldProps> = ({
   children,
   disabled = false,
   error = false,
@@ -187,64 +165,37 @@ export const TextField = ({
   hint,
   icon,
   id,
-  onBlur,
-  onChange,
-  onFocus,
-  placeholder,
   required = false,
   type = 'text',
-  value,
-}: TextFieldProps) => {
-  const inputRequiredProps = required ? { 'aria-required': true, required } : {}
-  const inputErrorProps = error ? { hasError: true } : {}
-
+  className,
+  ...inputProps
+}) => {
   const errorId = error ? `${id}-validation-hint` : ``
   const hintId = hint ? `${id}-hint` : ``
-  const inputProps =
-    error || hint
-      ? {
-          ...inputRequiredProps,
-          ...inputErrorProps,
-          'aria-describedby': `${errorId} ${hintId}`,
-        }
-      : { ...inputRequiredProps }
-
-  const renderErrorMessage = error ? (
-    <ErrorMessage id={`${id}-validation-hint`}>{errorMessage}</ErrorMessage>
-  ) : null
-  const renderHintMessage = hint ? (
-    <HintText id={`${id}-hint`}>{hint}</HintText>
-  ) : null
-
-  const hasIcon = !!icon && !!icon.name
-  const alignIcon = hasIcon ? icon.align : null
-  const renderIcon = hasIcon ? <StyledIcon {...icon} /> : null
 
   return (
-    <Wrapper disabled={disabled}>
+    <Wrapper disabled={disabled} className={className}>
       <Label htmlFor={id}>
         {children}
-        {required ? null : <OptionalText>Optional</OptionalText>}
+        {!required && <OptionalText>Optional</OptionalText>}
       </Label>
-      {renderHintMessage}
+      {hint && <HintText id={hintId}>{hint}</HintText>}
       <InputWrapper>
         <StyledInput
-          alignIcon={alignIcon}
+          alignIcon={icon && icon.align}
           aria-invalid={error}
-          autoComplete={autocomplete}
-          disabled={disabled}
-          onBlur={onBlur}
-          onChange={onChange}
-          onFocus={onFocus}
-          placeholder={placeholder}
-          id={id}
           type={type}
-          value={value}
+          aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
+          hasError={!!error}
+          required={required}
+          aria-required={required || undefined}
+          id={id}
+          disabled={disabled}
           {...inputProps}
         />
-        {renderIcon}
+        {icon && <StyledIcon {...icon} />}
       </InputWrapper>
-      {renderErrorMessage}
+      {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>
   )
 }

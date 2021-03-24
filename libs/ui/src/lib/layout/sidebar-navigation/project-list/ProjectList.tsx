@@ -38,6 +38,7 @@ const Row = styled.section`
 
 const Header = styled(Row).attrs({ as: 'header' })`
   text-transform: uppercase;
+  ${({ theme }) => theme.spaceBetweenX(2)}
 `
 
 const HeaderText = styled(Text).attrs(baseTextProps)`
@@ -157,5 +158,3 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
     </StyledProjectList>
   )
 }
-
-export default ProjectList

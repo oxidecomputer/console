@@ -1,4 +1,5 @@
 import React, { createContext, forwardRef, useContext } from 'react'
+import type { FC, ReactNode } from 'react'
 
 import styled, { css } from 'styled-components'
 import { VariableSizeList } from 'react-window'
@@ -9,22 +10,25 @@ import AutoSizer from 'react-virtualized-auto-sizer'
  * https://www.w3.org/TR/wai-aria-practices/examples/grid/dataGrids.html
  */
 
+export interface TableColumn {
+  Header: ReactNode
+  accessor: string
+  width?: number
+  arrange?: 'fill' | 'none'
+}
+
+export type TableData = Record<string, ReactNode>[]
 export interface TableProps {
   /** Allow styled-components to add custom styles */
   className?: string
   /**
    * Column headers to render. Header is the title of the column for the table. Accessor is the key on the data object.
    */
-  columns: Array<{
-    Header: string | React.ReactNode
-    accessor: string
-    width?: number
-    arrange?: 'fill' | 'none'
-  }>
+  columns: TableColumn[]
   /**
    * Rows to render
    */
-  data: Array<Record<string, unknown>>
+  data: TableData
   /**
    * Row heights passed to the `itemSize` prop of [VariableSizeList](https://react-window.now.sh/#/examples/list/variable-size)
    */
@@ -100,7 +104,11 @@ const StyledRow = styled.div`
   ${rowStyles};
 `
 
-const StyledStickyRow = styled.div<{ index: number }>`
+interface BaseRowProps {
+  index: number
+}
+
+const StyledStickyRow = styled.div<BaseRowProps>`
   ${rowStyles};
 
   z-index: 2;
@@ -119,10 +127,14 @@ const StyledStickyRow = styled.div<{ index: number }>`
   }
 `
 
-const ListContext = createContext({ columns: null })
+const ListContext = createContext<{ columns: TableColumn[] | null }>({
+  columns: null,
+})
 ListContext.displayName = 'ListContext'
 
-const StickyRow = ({ index, columns, ...props }) => {
+type StickyRowProps = BaseRowProps & Pick<TableProps, 'columns'>
+
+const StickyRow: FC<StickyRowProps> = ({ index, columns, ...props }) => {
   return (
     <StyledStickyRow
       role="row"
@@ -148,27 +160,33 @@ const StickyRow = ({ index, columns, ...props }) => {
   )
 }
 
-const Row = ({ index, row, style, ...props }) => {
+interface RowProps extends BaseRowProps {
+  row: Record<string, ReactNode>
+  style?: React.CSSProperties
+}
+
+const Row: FC<RowProps> = ({ index, row, style, ...props }) => {
   const { columns } = useContext(ListContext)
   return (
     <StyledRow role="row" aria-rowindex={index + 1} style={style} {...props}>
-      {columns.map((col, columnIndex) => {
-        const currentCol = col.accessor
-        const currentCell = row[currentCol]
-        // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
-        // https://github.com/oxidecomputer/console/issues/66
-        return (
-          <StyledCell
-            key={`gridcell-${col.accessor}-${columnIndex}`}
-            role="gridcell"
-            aria-colindex={columnIndex + 1}
-            width={col.width || null}
-            arrange={col.arrange || 'none'}
-          >
-            {currentCell}
-          </StyledCell>
-        )
-      })}
+      {columns &&
+        columns.map((col, columnIndex) => {
+          const currentCol = col.accessor
+          const currentCell = row[currentCol]
+          // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
+          // https://github.com/oxidecomputer/console/issues/66
+          return (
+            <StyledCell
+              key={`gridcell-${col.accessor}-${columnIndex}`}
+              role="gridcell"
+              aria-colindex={columnIndex + 1}
+              width={col.width || null}
+              arrange={col.arrange || 'none'}
+            >
+              {currentCell}
+            </StyledCell>
+          )
+        })}
     </StyledRow>
   )
 }
@@ -188,7 +206,11 @@ const InnerWrapper = forwardRef(
   }
 )
 
-const RowWrapper = ({ data, index, style, ...props }) => {
+interface RowWrapperProps extends BaseRowProps {
+  data: TableData
+}
+
+const RowWrapper: FC<RowWrapperProps> = ({ data, index, ...props }) => {
   // react-window will only render & mount the rows that are visible in the viewport
   // (so this component is not guaranteed to always have access to `data[0]`)
   const isStickyHeader = index === 0
@@ -199,7 +221,7 @@ const RowWrapper = ({ data, index, style, ...props }) => {
   }
   // Pass row data to each visible row
   const row = data[index]
-  return <Row index={index} style={style} row={row} {...props} />
+  return <Row index={index} row={row} {...props} />
 }
 
 export const Table = ({ className, columns, data, itemSize }: TableProps) => {
@@ -222,7 +244,7 @@ export const Table = ({ className, columns, data, itemSize }: TableProps) => {
   return (
     <Wrapper role="grid" aria-rowcount={count} className={className}>
       <AutoSizer>
-        {({ height, width }) => (
+        {({ height, width }: { height: number; width: number }) => (
           <ListContext.Provider
             value={{
               columns: columns,

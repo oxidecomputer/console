@@ -1,5 +1,5 @@
-import type { FC } from 'react'
-import React, { useState, useEffect, createRef } from 'react'
+import type { KeyboardEvent, FC, EventHandler } from 'react'
+import React, { useState, useEffect, useMemo, createRef } from 'react'
 
 import styled, { css } from 'styled-components'
 
@@ -72,22 +72,32 @@ export const Tabs: FC<TabsProps> = ({
   tabs,
   children,
 }) => {
-  const [refs, setRefs] = useState([])
   const [activeTab, setActiveTab] = useState(0)
+  const [focusTab, setFocusTab] = useState<number | null>(null)
+
+  // create refs for all the tabs
+  const refs = useMemo(
+    () =>
+      new Array(tabs.length).fill('').map(() => createRef<HTMLButtonElement>()),
+    [tabs]
+  )
 
   useEffect(() => {
-    // create refs for all the tabs
-    const initialize = new Array(tabs.length)
-      .fill('')
-      .map((item, index) => refs[index] || createRef())
-    setRefs(initialize)
-  }, [tabs])
+    if (focusTab === null) return
 
-  const handleClick = (index) => () => {
+    const ref = refs[focusTab]
+    if (ref && ref.current) {
+      ref.current.focus()
+    }
+  }, [refs, focusTab])
+
+  const handleClick = (index: number) => () => {
     setActiveTab(index)
   }
 
-  const handleKeydown = (event) => {
+  const handleKeydown: EventHandler<KeyboardEvent<HTMLButtonElement>> = (
+    event
+  ) => {
     const { keyCode } = event
     switch (keyCode) {
       case KEYS.end:
@@ -109,7 +119,9 @@ export const Tabs: FC<TabsProps> = ({
     }
   }
 
-  const handleKeyup = (index) => (event) => {
+  const handleKeyup = (
+    index: number
+  ): EventHandler<KeyboardEvent<HTMLButtonElement>> => (event) => {
     const { keyCode } = event
 
     switch (keyCode) {
@@ -119,15 +131,13 @@ export const Tabs: FC<TabsProps> = ({
         // Either focus the next, previous, first, or last tab, depending on key pressed
         if (DIRECTION[keyCode]) {
           // Modulus allows the end to circle to the beginning
-          const next = (parseInt(index) + DIRECTION[keyCode]) % tabs.length
+          const next = (index + DIRECTION[keyCode]) % tabs.length
           // Circle from beginning to end
           if (next === -1) {
             // focus the last item
-            refs[tabs.length - 1].current.focus()
-          } else if (tabs[next]) {
-            if (refs[next].current) {
-              refs[next].current.focus()
-            }
+            setFocusTab(tabs.length - 1)
+          } else {
+            setFocusTab(next)
           }
         }
         break
@@ -189,7 +199,13 @@ export const Tabs: FC<TabsProps> = ({
 
   return (
     <Wrapper>
-      <TabList role="tablist" aria-label={label}>
+      <TabList
+        role="tablist"
+        aria-label={label}
+        onBlur={() => {
+          setFocusTab(null)
+        }}
+      >
         {renderTabs}
       </TabList>
       {renderPanels}
