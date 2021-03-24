@@ -38,38 +38,23 @@ const Title = styled(TextWithIcon).attrs({
   },
 })``
 
-const PageActions = styled.div`
-  display: flex;
-  ${({ theme }) => theme.spaceBetweenX(3)}
-`
-
-const ActionButton = styled(Button).attrs({
+const InstanceAction = styled(Button).attrs({
+  size: 'xs',
   variant: 'ghost',
 })``
 
-const Edit = styled(TextWithIcon).attrs({
-  icon: { name: 'pen' },
-})``
-
-const Reset = styled(TextWithIcon).attrs({
-  icon: { name: 'stopwatch' },
-})``
-
-const Stop = styled(TextWithIcon).attrs({
-  icon: { name: 'playStopO' },
-})``
-
-const Suspend = styled(TextWithIcon).attrs({
-  icon: { name: 'playPauseO' },
-})``
-
-const Delete = styled(TextWithIcon).attrs({
-  icon: { name: 'trash' },
-})``
-
-const AltButton = styled(Button).attrs({
+const PageAction = styled(Button).attrs({
+  size: 'xs',
   variant: 'outline',
 })``
+
+const Actions = styled.div`
+  display: flex;
+
+  ${PageAction} {
+    margin-left: ${({ theme }) => theme.spacing(3)};
+  }
+`
 
 const Metadata = styled(Text).attrs({
   color: 'gray300',
@@ -101,27 +86,27 @@ export default () => {
       <Breadcrumbs data={breadcrumbs} />
       <Header>
         <Title>Instances</Title>
-        <PageActions>
-          <ActionButton>
-            <Edit>Edit</Edit>
-          </ActionButton>
-          <ActionButton>
-            <Reset>Reset</Reset>
-          </ActionButton>
-          <ActionButton>
-            <Stop>Stop</Stop>
-          </ActionButton>
-          <ActionButton>
-            <Suspend>Suspend</Suspend>
-          </ActionButton>
-          <ActionButton>
-            <Delete>Delete</Delete>
-          </ActionButton>
-          <AltButton>SSH</AltButton>
-          <AltButton>
+        <Actions>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'stopwatch' }}>Reset</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'playStopO' }}>Stop</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'playPauseO' }}>Suspend</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'trash' }}>Delete</TextWithIcon>
+          </InstanceAction>
+          <PageAction>SSH</PageAction>
+          <PageAction>
             <Icon name="more" />
-          </AltButton>
-        </PageActions>
+          </PageAction>
+        </Actions>
       </Header>
       <Metadata>TODO: Metadata</Metadata>
       <StyledTabs
