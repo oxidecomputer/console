@@ -40,7 +40,6 @@ const Wrapper = styled.div<{ disabled: boolean }>`
 
 const Label = styled(Text).attrs({
   forwardedAs: 'label',
-  font: 'mono',
   weight: 500,
   size: 'base',
 })<{
@@ -53,17 +52,9 @@ const Label = styled(Text).attrs({
   padding-bottom: ${({ theme }) => theme.spacing(1)};
 `
 
-const OptionalText = styled(Text).attrs({
-  font: 'mono',
-  weight: 400,
-  size: 'sm',
-})``
+const OptionalText = styled(Text).attrs({ weight: 400, size: 'sm' })``
 
-const HintText = styled(Text).attrs({
-  font: 'mono',
-  weight: 400,
-  size: 'sm',
-})`
+const HintText = styled(Text).attrs({ weight: 400, size: 'sm' })`
   display: block;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
 
@@ -81,16 +72,8 @@ const StyledIcon = styled(Icon)<StyledIconProps>`
   z-index: 1;
   position: absolute;
   top: 0;
-  ${({ align, theme }) =>
-    align === 'left' &&
-    css`
-      left: ${theme.spacing(2.5)};
-    `};
-  ${({ align, theme }) =>
-    align === 'right' &&
-    css`
-      right: ${theme.spacing(2.5)};
-    `};
+  ${({ align, theme }) => align === 'left' && `left: ${theme.spacing(2.5)};`};
+  ${({ align, theme }) => align === 'right' && `right: ${theme.spacing(2.5)};`};
   bottom: 0;
 
   margin: 0;
@@ -126,14 +109,10 @@ const StyledInput = styled.input<{
 
   ${({ alignIcon, theme }) => {
     if (alignIcon === 'left') {
-      return css`
-        padding-left: ${theme.spacing(9)};
-      `
+      return `padding-left: ${theme.spacing(9)};`
     }
     if (alignIcon === 'right') {
-      return css`
-        padding-right: ${theme.spacing(9)};
-      `
+      return `padding-right: ${theme.spacing(9)};`
     }
   }};
 
@@ -149,11 +128,7 @@ const StyledInput = styled.input<{
     `}
 `
 
-const ErrorMessage = styled(Text).attrs({
-  as: 'div',
-  font: 'mono',
-  size: 'xs',
-})`
+const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
   margin-top: ${(props) => props.theme.spacing(2)};
 `
 

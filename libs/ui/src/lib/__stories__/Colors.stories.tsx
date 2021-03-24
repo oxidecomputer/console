@@ -17,7 +17,7 @@ const ColorVisualizer = styled.div<{ value: string }>`
   margin-right: ${({ theme }) => theme.spacing(3)};
   border: 1px solid ${({ theme }) => theme.color('gray800')};
 `
-const ColorInfo = styled(Text).attrs({ as: 'code', font: 'mono' })`
+const ColorInfo = styled(Text).attrs({ as: 'code' })`
   display: flex;
   :first-of-type {
     margin-bottom: ${({ theme }) => theme.spacing(3)};
