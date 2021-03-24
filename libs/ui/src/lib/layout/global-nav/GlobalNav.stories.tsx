@@ -1,5 +1,4 @@
 import React from 'react'
-import type { GlobalNavProps } from './GlobalNav'
 import { GlobalNav } from './GlobalNav'
 
 export default {
@@ -7,9 +6,4 @@ export default {
   title: 'Layout/Global Navigation',
 }
 
-export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: GlobalNavProps = {}
-
-  return <GlobalNav />
-}
+export const primary = () => <GlobalNav />
