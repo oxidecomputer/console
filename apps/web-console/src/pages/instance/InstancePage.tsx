@@ -1,10 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Breadcrumbs } from '@oxide/ui'
-import { Card } from '@oxide/ui'
-
-import { Tabs } from '@oxide/ui'
+import { Breadcrumbs, Card, InstanceDetails, Tabs } from '@oxide/ui'
 import { InstancePageTables } from './InstancePageTables'
 
 const breadcrumbs = [
@@ -35,6 +32,14 @@ export default () => {
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
+      <InstanceDetails
+        cpu="2"
+        memory="8 GB"
+        storage="100 GB"
+        vm={{ os: 'Debian', version: '9.12', arch: 'x64' }}
+        hostname="db1.useast1.inst"
+        ip="10.10.16.7"
+      />
       <Tabs
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}

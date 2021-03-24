@@ -21,6 +21,10 @@ export interface InstanceDetailsProps {
 }
 
 const Cell = styled.span`
+  display: inline-flex;
+`
+
+const ResourceCell = styled.span`
   :before {
     content: ' // ';
   }
@@ -34,34 +38,36 @@ const IconMiddle = styled(Icon)`
 `
 
 const IconRight = styled(Icon)`
-  margin-left: ${({ theme }) => theme.spacing(2)};
+  margin-left: ${({ theme }) => theme.spacing(1)};
 `
 
-const Wrapper = styled(Text).attrs({ font: 'mono' })`
+const Wrapper = styled(Text).attrs({ font: 'mono', size: 'sm', as: 'div' })`
   ${({ theme }) => theme.spaceBetweenX(4)}
 `
 
 export const InstanceDetails = (props: InstanceDetailsProps) => {
   return (
     <Wrapper>
-      <Text color="green500">BADGE PLACEHOLDER</Text>
+      {/* placeholder, waiting for badges */}
+      <Text color="green500">[RUNNING]</Text>
       <span>
-        <Cell>{props.cpu} vCPU</Cell>
-        <Cell>{props.memory} RAM</Cell>
-        <Cell style={{ textTransform: 'uppercase' }}>{props.storage} Disk</Cell>
+        <ResourceCell>{props.cpu} vCPU</ResourceCell>
+        <ResourceCell>{props.memory} RAM</ResourceCell>
+        <ResourceCell style={{ textTransform: 'uppercase' }}>
+          {props.storage} Disk
+        </ResourceCell>
       </span>
-      <span>
+      <Cell>
         {props.vm.os}
         {/* placeholder for OS-specific icon */}
         <IconMiddle name="warning" />
         {props.vm.version} {props.vm.arch}
-      </span>
-      <span>
+      </Cell>
+      <Cell>
         {props.hostname}
-        {/* placeholder for copy icon */}
-        <IconRight name="warning" />
-      </span>
-      <span>{props.ip}</span>
+        <IconRight name="copy" />
+      </Cell>
+      <Cell>{props.ip}</Cell>
     </Wrapper>
   )
 }
