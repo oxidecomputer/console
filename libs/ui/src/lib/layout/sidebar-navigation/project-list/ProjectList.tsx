@@ -71,9 +71,9 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
 
   padding: ${({ theme }) => theme.spacing(1)};
 
+  align-items: center;
   display: flex;
   flex-direction: row;
-  cursor: pointer;
 
   ${({ theme }) => theme.spaceBetweenX(1)}
 

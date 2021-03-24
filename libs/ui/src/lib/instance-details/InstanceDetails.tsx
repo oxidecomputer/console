@@ -21,6 +21,7 @@ export interface InstanceDetailsProps {
 }
 
 const Cell = styled.span`
+  align-items: center;
   display: inline-flex;
 `
 
