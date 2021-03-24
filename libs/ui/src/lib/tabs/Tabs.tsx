@@ -80,12 +80,12 @@ export const Tabs: FC<TabsProps> = ({
     // create refs for all the tabs
     const initialize = new Array(tabs.length)
       .fill('')
-      .map((item, index) => refs[index] || createRef())
+      .map(() => createRef<HTMLButtonElement>())
     setRefs(initialize)
-  }, [tabs, refs])
+  }, [tabs])
 
   useEffect(() => {
-    if (!focusTab) return
+    if (focusTab == null) return
 
     const ref = refs[focusTab]
     if (ref && ref.current) {
