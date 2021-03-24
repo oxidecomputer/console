@@ -43,6 +43,8 @@ export interface Theme {
   spaceBetweenY: SpacingHelper
   paddingX: SpacingHelper
   paddingY: SpacingHelper
+  marginX: SpacingHelper
+  marginY: SpacingHelper
 }
 
 // Extend styled-components with our Theme type

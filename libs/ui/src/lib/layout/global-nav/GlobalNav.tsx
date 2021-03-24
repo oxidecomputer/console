@@ -14,10 +14,7 @@ const StyledGlobalNav = styled.div`
   align-items: center;
   display: flex;
   width: 100%;
-  height: ${({ theme }) => theme.spacing(14)};
   justify-content: right;
-  ${({ theme }) => theme.paddingY(4)}
-  ${({ theme }) => theme.paddingX(6)}
 `
 
 const StyledIcon = styled(Icon)`

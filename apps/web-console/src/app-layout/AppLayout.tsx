@@ -33,24 +33,33 @@ const projects = [
 ]
 
 const Wrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 14rem auto;
+  grid-template-rows: 3.5rem auto;
+  grid-template-areas:
+    'sidebar topnav'
+    'sidebar content';
+  min-height: 100vh;
 `
 
 const Sidebar = styled.div`
   background-color: ${({ theme }) => theme.color('gray800')};
+  grid-area: sidebar;
   padding: ${({ theme }) => theme.spacing(4)};
-  width: 220px;
-  min-height: 100vh;
 
   ${({ theme }) => theme.spaceBetweenY(6)};
 `
 
-const Main = styled.div`
-  width: calc(100vw - 220px);
+const Content = styled.main`
+  grid-area: content;
+  ${({ theme }) => theme.marginX(6)}
+  ${({ theme }) => theme.marginY(2)}
 `
 
-const Content = styled.div`
-  padding: ${({ theme }) => theme.spacing(6)};
+const GlobalNavContainer = styled.header`
+  align-self: center;
+  grid-area: topnav;
+  ${({ theme }) => theme.marginX(6)}
 `
 
 export default ({ children }: AppLayoutProps) => {
@@ -67,10 +76,10 @@ export default ({ children }: AppLayoutProps) => {
         />
         <OperationList />
       </Sidebar>
-      <Main>
+      <GlobalNavContainer>
         <GlobalNav />
-        <Content>{children}</Content>
-      </Main>
+      </GlobalNavContainer>
+      <Content>{children}</Content>
     </Wrapper>
   )
 }
