@@ -8,7 +8,6 @@ import {
   Icon,
   InstanceDetails,
   Tabs,
-  Text,
   TextWithIcon,
 } from '@oxide/ui'
 
