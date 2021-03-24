@@ -26,11 +26,7 @@ const Link = styled.a`
   display: inline-flex;
 `
 
-const StyledText = styled(Text).attrs({
-  size: 'sm',
-  font: 'mono',
-  weight: 400,
-})`
+const StyledText = styled(Text).attrs({ size: 'sm', weight: 400 })`
   text-transform: uppercase;
 `
 

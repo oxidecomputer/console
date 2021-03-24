@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import type { Project, ProjectId } from '@oxide/backend-types'
 
 import { Text } from '../../../text/Text'
@@ -23,7 +23,6 @@ export interface ProjectListProps {
 }
 
 const baseTextProps: Partial<TextProps> = {
-  font: 'mono',
   size: 'xs',
   weight: 400,
 }
@@ -89,11 +88,7 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
 const Title = styled(Text).attrs(baseTextProps)<{ selected?: boolean }>`
   flex: 1;
 
-  ${({ selected, theme }) =>
-    selected &&
-    css`
-      color: ${theme.color('gray50')};
-    `}
+  ${({ selected, theme }) => selected && `color: ${theme.color('gray50')};`}
 `
 
 const BookmarkIcon = styled(Icon).attrs({
@@ -113,15 +108,8 @@ const Create = styled(Row).attrs({ as: 'footer' })`
 
 const CreateText = styled(TextWithIcon).attrs({
   align: 'right',
-  icon: {
-    name: 'plus',
-    color: 'gray400',
-  },
-  text: {
-    ...baseTextProps,
-    color: 'gray400',
-    size: 'xxs',
-  },
+  icon: { name: 'plus', color: 'gray400' },
+  text: { color: 'gray400', size: 'xxs' },
 })``
 
 export const ProjectList: FC<ProjectListProps> = (props) => {

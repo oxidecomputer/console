@@ -32,7 +32,6 @@ const StyledListItem = styled.li`
 
 const Link = styled(Text).attrs({
   size: 'sm',
-  font: 'mono',
   weight: 400,
   as: 'a',
 })`

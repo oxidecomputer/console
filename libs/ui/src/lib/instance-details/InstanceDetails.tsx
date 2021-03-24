@@ -42,7 +42,7 @@ const IconRight = styled(Icon)`
   margin-left: ${({ theme }) => theme.spacing(1)};
 `
 
-const Wrapper = styled(Text).attrs({ font: 'mono', size: 'sm', as: 'div' })`
+const Wrapper = styled(Text).attrs({ size: 'sm', as: 'div' })`
   ${({ theme }) => theme.spaceBetweenX(4)}
 `
 

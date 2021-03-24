@@ -4,7 +4,6 @@ import React, { useMemo } from 'react'
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
-import type { TextProps } from '../text/Text'
 import { TextWithIcon } from '../text-with-icon/TextWithIcon'
 import Sparkline from './sparkline.svg'
 
@@ -20,12 +19,7 @@ const Main = styled.main`
   background: ${({ theme }) => theme.color('green800', 0.24)};
 `
 
-const baseTextProps: Partial<TextProps> = {
-  font: 'mono',
-}
-
 const Title = styled(Text).attrs({
-  ...baseTextProps,
   as: 'div',
   color: 'green50',
   size: 'lg',
@@ -34,7 +28,6 @@ const Title = styled(Text).attrs({
 `
 
 const Subtitle = styled(Text).attrs({
-  ...baseTextProps,
   as: 'div',
   color: 'green50',
   size: 'sm',
@@ -57,7 +50,6 @@ const DataTable = styled.div`
 `
 
 const DataHeader = styled(Text).attrs({
-  ...baseTextProps,
   color: 'green500',
   size: 'sm',
   role: 'columnheader',
@@ -66,7 +58,6 @@ const DataHeader = styled(Text).attrs({
 `
 
 const MainDataValue = styled(Text).attrs({
-  ...baseTextProps,
   color: 'gray50',
   size: 'xl',
   role: 'cell',
@@ -97,7 +88,7 @@ const FooterText = styled(TextWithIcon).attrs({
     name: 'arrow',
     color: 'green50',
   },
-  text: { ...baseTextProps, color: 'green50', size: 'sm' },
+  text: { color: 'green50', size: 'sm' },
 })`
   text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};

@@ -19,11 +19,7 @@ const Container = styled.div`
   border-radius: 50%;
 `
 
-const Count = styled(Text).attrs({
-  font: 'mono',
-  weight: 400,
-  size: 'xs',
-})`
+const Count = styled(Text).attrs({ weight: 400, size: 'xs' })`
   position: relative;
   bottom: 1px;
 
