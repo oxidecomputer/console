@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components'
 import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 
-const BaseText = styled(Text).attrs({ size: 'xs', weight: 400 })``
+const BaseText = styled(Text).attrs({ size: 'xs' })``
 
 const Header = styled.header`
   padding: ${({ theme }) => theme.spacing(1)};
@@ -68,7 +68,7 @@ const SubItemLink = styled(BaseLink)`
 `
 
 const TitleWithIcon = styled(TextWithIcon).attrs({
-  text: { size: 'xs', weight: 400 },
+  text: { size: 'xs' },
 })<{ selected?: boolean }>`
   ${({ selected, theme }) =>
     selected &&
