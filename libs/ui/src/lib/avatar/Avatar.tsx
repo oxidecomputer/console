@@ -58,7 +58,7 @@ const getSizeStyles = (size: AvatarSize) => {
 
       ${StyledIcon} {
         position: absolute;
-        top: 20%;
+        top: 18%;
         right: 0;
         left: 0;
 
