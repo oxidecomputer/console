@@ -6,11 +6,11 @@ import type { Color } from '@oxide/theme'
 
 import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
-import { default as CheckDIcon } from '../../assets/check-d.svg'
-import { default as CheckEIcon } from '../../assets/check-e.svg'
+import { default as CheckDashIcon } from '../../assets/check-d.svg'
+import { default as CheckEmptyIcon } from '../../assets/check-e.svg'
 import { default as CheckOFilledIcon } from '../../assets/check-o-filled.svg'
 import { default as CheckOIcon } from '../../assets/check-o.svg'
-import { default as CheckRIcon } from '../../assets/check-r.svg'
+import { default as CheckSquareIcon } from '../../assets/check-r.svg'
 import { default as CheckIcon } from '../../assets/check.svg'
 import { default as ChevronIcon } from '../../assets/chevron.svg'
 import { default as CloseIcon } from '../../assets/close.svg'
@@ -34,7 +34,7 @@ import { default as NetworkingIcon } from '../../assets/networking.svg'
 import { default as NotificationsIcon } from '../../assets/notifications.svg'
 import { default as OrganizationIcon } from '../../assets/org.svg'
 import { default as PenIcon } from '../../assets/pen.svg'
-import { default as PlayButtonOIcon } from '../../assets/play-button-o.svg'
+import { default as PlayOIcon } from '../../assets/play-button-o.svg'
 import { default as PlayPauseOIcon } from '../../assets/play-pause-o.svg'
 import { default as PlayStopOIcon } from '../../assets/play-stop-o.svg'
 import { default as PlusIcon } from '../../assets/plus.svg'
@@ -63,11 +63,11 @@ import { default as WarningIcon } from '../../assets/warning.svg'
 export const icons = {
   arrow: ArrowIcon,
   bookmark: BookmarkIcon,
-  checkD: CheckDIcon,
-  checkE: CheckEIcon,
+  checkDash: CheckDashIcon,
+  checkEmpty: CheckEmptyIcon,
   checkOFilled: CheckOFilledIcon,
   checkO: CheckOIcon,
-  checkR: CheckRIcon,
+  checkSquare: CheckSquareIcon,
   check: CheckIcon,
   chevron: ChevronIcon,
   close: CloseIcon,
@@ -91,7 +91,7 @@ export const icons = {
   notifications: NotificationsIcon,
   organization: OrganizationIcon,
   pen: PenIcon,
-  playButtonO: PlayButtonOIcon,
+  playO: PlayOIcon,
   playPauseO: PlayPauseOIcon,
   playStopO: PlayStopOIcon,
   plus: PlusIcon,
