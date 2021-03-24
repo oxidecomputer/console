@@ -1,6 +1,8 @@
 import React from 'react'
-import { Story } from '@storybook/react'
-import { TextField, TextFieldProps } from '../TextField'
+import type { Story } from '@storybook/react'
+
+import type { TextFieldProps } from '../TextField'
+import { TextField } from '../TextField'
 
 const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
 
@@ -14,21 +16,19 @@ Default.args = {
 export const EmailField = Template.bind({})
 EmailField.args = {
   id: 'email',
-  autocomplete: 'email',
+  autoComplete: 'email',
   children: 'Email Address',
   error: false,
-  onChange: (event) => console.log(event.target.value),
   required: true,
 }
 
 export const InvalidEmailField = Template.bind({})
 InvalidEmailField.args = {
   id: 'email-invalid',
-  autocomplete: 'email',
+  autoComplete: 'email',
   children: 'Email Address',
   error: true,
   errorMessage: 'Please enter a valid email address',
-  onChange: (event) => console.log(event.target.value),
   required: true,
 }
 
@@ -38,7 +38,6 @@ DisabledField.args = {
   children: 'Disabled Field',
   disabled: true,
   error: false,
-  onChange: (event) => console.log(event.target.value),
   required: true,
 }
 
@@ -48,7 +47,6 @@ FieldWithLeftIcon.args = {
   id: 'field-left-icon',
   children: 'Search',
   error: false,
-  onChange: (event) => console.log(event.target.value),
   placeholder: 'Instances, people, projects, and more',
 }
 
@@ -64,7 +62,6 @@ FieldWithRightIcon.args = {
   error: false,
   hint:
     'Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods.',
-  onChange: (event) => console.log(event.target.value),
 }
 
 export const FieldWithHint = Template.bind({})
@@ -78,5 +75,4 @@ FieldWithHint.args = {
   children: 'Add a description',
   error: false,
   hint: 'What is unique about your organization?',
-  onChange: (event) => console.log(event.target.value),
 }

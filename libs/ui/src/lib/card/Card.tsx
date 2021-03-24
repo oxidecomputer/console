@@ -1,9 +1,11 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
-import { Icon } from '../icon/Icon'
+import type { TextProps } from '../text/Text'
+import { TextWithIcon } from '../text-with-icon/TextWithIcon'
 import { default as Sparkline } from './sparkline.svg'
 
 export interface CardProps {
@@ -18,9 +20,12 @@ const Main = styled.main`
   background: ${({ theme }) => theme.color('green800', 0.24)};
 `
 
-const BaseText = styled(Text).attrs({ font: 'mono' })``
+const baseTextProps: Partial<TextProps> = {
+  font: 'mono',
+}
 
-const Title = styled(BaseText).attrs({
+const Title = styled(Text).attrs({
+  ...baseTextProps,
   as: 'div',
   color: 'green50',
   size: 'lg',
@@ -28,7 +33,8 @@ const Title = styled(BaseText).attrs({
   text-transform: uppercase;
 `
 
-const Subtitle = styled(BaseText).attrs({
+const Subtitle = styled(Text).attrs({
+  ...baseTextProps,
   as: 'div',
   color: 'green50',
   size: 'sm',
@@ -50,7 +56,8 @@ const DataTable = styled.div`
   column-gap: ${({ theme }) => theme.spacing(6)};
 `
 
-const DataHeader = styled(BaseText).attrs({
+const DataHeader = styled(Text).attrs({
+  ...baseTextProps,
   color: 'green500',
   size: 'sm',
   role: 'columnheader',
@@ -58,7 +65,8 @@ const DataHeader = styled(BaseText).attrs({
   text-transform: uppercase;
 `
 
-const MainDataValue = styled(BaseText).attrs({
+const MainDataValue = styled(Text).attrs({
+  ...baseTextProps,
   color: 'gray50',
   size: 'xl',
   role: 'cell',
@@ -83,9 +91,13 @@ const Footer = styled.footer`
   justify-content: baseline;
 `
 
-const FooterText = styled(BaseText).attrs({
-  color: 'green50',
-  size: 'sm',
+const FooterText = styled(TextWithIcon).attrs({
+  align: 'right',
+  icon: {
+    name: 'arrow',
+    color: 'green50',
+  },
+  text: { ...baseTextProps, color: 'green50', size: 'sm' },
 })`
   text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};
@@ -122,7 +134,6 @@ export const Card: FC<CardProps> = (props) => {
       </Main>
       <Footer>
         <FooterText>View Pagename </FooterText>
-        <Icon name="arrow" size="sm" color="green50" />
       </Footer>
     </StyledCard>
   )

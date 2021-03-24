@@ -1,9 +1,12 @@
-import React, { FC } from 'react'
+import type { FC } from 'react'
+import React from 'react'
 
 import styled, { css } from 'styled-components'
-import { Project, ProjectId } from '@oxide/backend-types'
+import type { Project, ProjectId } from '@oxide/backend-types'
 
 import { Text } from '../../../text/Text'
+import type { TextProps } from '../../../text/Text'
+import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { Icon } from '../../../icon/Icon'
 import NotificationCount from './notification-count/NotificationCount'
 
@@ -19,11 +22,11 @@ export interface ProjectListProps {
   onProjectCreate: () => void
 }
 
-const BaseText = styled(Text).attrs({
-  size: 'xs',
+const baseTextProps: Partial<TextProps> = {
   font: 'mono',
+  size: 'xs',
   weight: 400,
-})``
+}
 
 const StyledProjectList = styled.div`
   ${({ theme }) => theme.spaceBetweenY(1)}
@@ -37,11 +40,11 @@ const Header = styled(Row).attrs({ as: 'header' })`
   text-transform: uppercase;
 `
 
-const HeaderText = styled(BaseText)`
+const HeaderText = styled(Text).attrs(baseTextProps)`
   color: ${({ theme }) => theme.color('green500')};
 `
 
-const Count = styled(BaseText)`
+const Count = styled(Text).attrs(baseTextProps)`
   color: ${({ theme }) => theme.color('green300')};
 `
 
@@ -82,7 +85,7 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   }
 `
 
-const Title = styled(BaseText)<{ selected?: boolean }>`
+const Title = styled(Text).attrs(baseTextProps)<{ selected?: boolean }>`
   flex: 1;
 
   ${({ selected, theme }) =>
@@ -107,21 +110,24 @@ const Create = styled(Row).attrs({ as: 'footer' })`
   ${({ theme }) => theme.spaceBetweenX(1)}
 `
 
-const CreateText = styled(BaseText).attrs({
-  size: 'xxs',
-})`
-  color: ${({ theme }) => theme.color('gray400')};
-`
-
-const CreateIcon = styled(Icon).attrs({ color: 'gray400', name: 'plus' })`
-  width: ${({ theme }) => theme.spacing(2.5)};
-`
+const CreateText = styled(TextWithIcon).attrs({
+  align: 'right',
+  icon: {
+    name: 'plus',
+    color: 'gray400',
+  },
+  text: {
+    ...baseTextProps,
+    color: 'gray400',
+    size: 'xxs',
+  },
+})``
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
     <StyledProjectList>
       <Header>
-        <HeaderText>Projects </HeaderText>
+        <HeaderText>Projects</HeaderText>
         <Count>{props.projects.length}</Count>
       </Header>
       <List>
@@ -147,7 +153,6 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         }}
       >
         <CreateText>Create a new project</CreateText>
-        <CreateIcon />
       </Create>
     </StyledProjectList>
   )

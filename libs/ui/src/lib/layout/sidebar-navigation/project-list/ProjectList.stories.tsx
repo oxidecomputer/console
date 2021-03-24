@@ -1,9 +1,9 @@
 import React from 'react'
+import type { Meta, Story } from '@storybook/react'
+import type { Project } from '@oxide/backend-types'
 
-import { Meta } from '@storybook/react'
 import { ProjectList } from './ProjectList'
 import type { ProjectListProps } from './ProjectList'
-import { Project } from '@oxide/backend-types'
 
 const demoProjects: Project[] = [
   { id: '1', name: 'prod-online', notificationsCount: 2, starred: true },
@@ -33,7 +33,7 @@ export default {
   ],
 } as Meta
 
-const Template = (props: ProjectListProps) => <ProjectList {...props} />
+const Template: Story<ProjectListProps> = (args) => <ProjectList {...args} />
 
 export const Primary = Template.bind({})
 Primary.args = { projects: demoProjects }

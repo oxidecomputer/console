@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { Color, Font } from '@oxide/theme'
+import type { Color, Font } from '@oxide/theme'
 
 export const textSizes = [
   'xxs',
@@ -96,6 +96,22 @@ const getSizeStyles = (size?: TextSize) => {
   }
 }
 
+type Variant = 'base' | 'title'
+const getVariantStyles = (variant?: Variant) => {
+  switch (variant) {
+    case 'title':
+      return css`
+        ${getSizeStyles('2xl')};
+        color: ${({ theme }) => theme.color('green500')};
+        font-family: ${({ theme }) => theme.fonts.mono};
+        font-weight: 400;
+        text-transform: uppercase;
+      `
+    case 'base':
+    default:
+      return ``
+  }
+}
 export interface TextProps {
   /**
    * Set a color from theme, otherwise color will default to inherit
@@ -113,6 +129,10 @@ export interface TextProps {
    * Set the font-weight of the text
    */
   weight?: number
+  /**
+   * Common variant styles for text
+   */
+  variant?: Variant
 }
 
 export const Text = styled.span.withConfig({
@@ -126,9 +146,7 @@ export const Text = styled.span.withConfig({
         color: ${theme.color(color)};
       `
     }
-    return css`
-      color: inherit;
-    `
+    /* By default, color: inherit will be applied */
   }}
   ${({ weight }) =>
     weight &&
@@ -142,14 +160,13 @@ export const Text = styled.span.withConfig({
         font-family: ${theme.fonts[font]};
       `
     }
+    return css`
+      font-family: inherit;
+    `
   }}
 
-  ${(props) => getSizeStyles(props.size)};
+  ${({ size }) => getSizeStyles(size)};
+  ${({ variant }) => getVariantStyles(variant)};
 `
-Text.defaultProps = {
-  font: 'sans',
-  size: 'base',
-  weight: 400,
-}
 
 export default Text

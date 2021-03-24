@@ -1,8 +1,8 @@
-import React, { FC, useMemo } from 'react'
+import type { FC } from 'react'
+import React, { useMemo } from 'react'
 import styled, { css } from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { Color } from '@oxide/theme'
-import { Text, TextProps } from '../text/Text'
+import type { Color } from '@oxide/theme'
 
 import { default as ArrowIcon } from '../../assets/arrow.svg'
 import { default as BookmarkIcon } from '../../assets/bookmark.svg'
@@ -98,13 +98,13 @@ const getColorStyles = (color?: string) => {
   `
 }
 
-const rotateStyles = (rotate) => {
+const rotateStyles = (rotate: string) => {
   return css`
     transform: rotate(${rotate});
   `
 }
 
-interface StyledIconProps extends TextProps {
+interface StyledIconProps {
   /**
    * Set the color using a theme color ("green500")
    */
@@ -114,28 +114,6 @@ interface StyledIconProps extends TextProps {
    */
   rotate?: string
 }
-
-const StyledIcon = styled(Text).withConfig({
-  // Do not pass 'color' and 'rotate' props to the DOM
-  shouldForwardProp: (prop, defaultValidatorFn) =>
-    !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
-})<StyledIconProps>`
-  display: inline-flex;
-  width: 1em;
-
-  justify-content: center;
-  align-items: center;
-
-  ${({ theme, color }) => getColorStyles(theme.themeColors[color])};
-
-  > svg {
-    height: auto;
-    width: 100%;
-
-    fill: inherit;
-    ${({ rotate }) => rotate && rotateStyles(rotate)};
-  }
-`
 
 export interface IconProps extends StyledIconProps {
   /**
@@ -152,7 +130,7 @@ export interface IconProps extends StyledIconProps {
   }
 }
 
-export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
+const SvgIcon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   const IconComponent = icons[name]
   const titleId = useMemo(() => uuidv4(), [])
   let addSvgProps = { ...svgProps }
@@ -161,14 +139,22 @@ export const Icon: FC<IconProps> = ({ name, svgProps, ...props }) => {
   // Generate a titleId here so that the `id` and corresponding `aria-labelledby`
   // attributes are always unique
   if (!addSvgProps.titleId) {
-    addSvgProps = { titleId: titleId, ...addSvgProps }
+    addSvgProps = { titleId: titleId, ...svgProps }
   }
 
-  return (
-    <StyledIcon {...props}>
-      <IconComponent {...addSvgProps} />
-    </StyledIcon>
-  )
+  return <IconComponent {...addSvgProps} {...props} />
 }
+
+export const Icon = styled(SvgIcon).withConfig({
+  // Do not pass 'color' and 'rotate' props to the DOM
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !['color', 'rotate'].includes(prop) && defaultValidatorFn(prop),
+})<StyledIconProps>`
+  flex-shrink: 0;
+  width: 1em; /* icon size is controlled by parent font-size */
+
+  ${({ theme, color }) => color && getColorStyles(theme.themeColors[color])}
+  ${({ rotate }) => rotate && rotateStyles(rotate)};
+`
 
 export default Icon

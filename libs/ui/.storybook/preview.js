@@ -24,6 +24,10 @@ const DocsStyleOverrides = createGlobalStyle`
     /* Use single direction margins only */
     margin: 1.25em 0 0 0 !important;
   }
+
+  a, a:link {
+    text-decoration: underline !important;
+  }
 `
 
 const getBackgroundColors = (colors) =>

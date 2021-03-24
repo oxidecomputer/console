@@ -1,6 +1,10 @@
 name: CI
 
-on: pull_request
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   ci:
@@ -39,9 +43,6 @@ jobs:
 
       - name: Lint
         run: yarn lint
-
-      - name: Check formatting
-        run: yarn format:check
 
       - name: Build
         run: yarn build

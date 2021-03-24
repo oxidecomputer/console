@@ -1,5 +1,5 @@
 import React from 'react'
-import { Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { Text } from '../Text'
 
 const Template: Story = (args) => <Text {...args} />
@@ -65,3 +65,28 @@ EightXL.storyName = '8xl'
 export const NineXL = Template.bind({})
 NineXL.args = { size: '9xl', children: `'9xl' size text` }
 NineXL.storyName = '9xl'
+
+export const WithIcon = Template.bind({})
+WithIcon.args = {
+  icon: { name: 'plus' },
+  children: 'Create a new project',
+}
+export const WithRightIcon = Template.bind({})
+WithRightIcon.args = {
+  size: 'xs',
+  icon: { align: 'right', name: 'plus' },
+  children: 'Create a new project',
+}
+
+export const TitleWithIcon = Template.bind({})
+TitleWithIcon.args = {
+  icon: { name: 'dashboard' },
+  variant: 'title',
+  children: 'Page title',
+}
+
+export const TitleVariant = Template.bind({})
+TitleVariant.args = {
+  variant: 'title',
+  children: 'Title Text Variant',
+}
