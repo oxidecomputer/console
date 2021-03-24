@@ -41,6 +41,25 @@ Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com
 
 <ArgsTable of={Icon} story="^" />
 
+## All icons
+
+<div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '1rem' }}>
+  {Object.keys(icons).map((key) => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0.5rem',
+        fontSize: '2rem',
+        width: 200,
+      }}
+    >
+      <Icon name={key} style={{ marginRight: '1rem' }} />
+      <code>{key}</code>
+    </div>
+  ))}
+</div>
+
 ## Accessibility
 
 Each `.svg` icon should follow [accessibility best practices](https://www.deque.com/blog/creating-accessible-svgs/). In this case, it means making sure of the following:
@@ -93,32 +112,3 @@ The `<Icon />` component takes two props.
 <Canvas>
   <Story story={CustomTitle} />
 </Canvas>
-
-## All icons
-
-<table>
-  <tr>
-    <th>SVG</th>
-    <th>Name</th>
-  </tr>
-  {Object.keys(icons).map((key) => {
-    return (
-      <tr>
-        <td
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '1rem',
-            fontSize: '32px',
-          }}
-        >
-          <Icon name={key} size="3xl" />
-        </td>
-        <td>
-          <code>{key}</code>
-        </td>
-      </tr>
-    )
-  })}
-</table>
