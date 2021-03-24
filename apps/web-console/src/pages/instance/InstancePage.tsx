@@ -1,7 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Breadcrumbs, Card, InstanceDetails, Tabs } from '@oxide/ui'
+import {
+  Breadcrumbs,
+  Button,
+  Card,
+  Icon,
+  InstanceDetails,
+  Tabs,
+  TextWithIcon,
+} from '@oxide/ui'
+
 import { InstancePageTables } from './InstancePageTables'
 
 const breadcrumbs = [
@@ -12,8 +21,48 @@ const breadcrumbs = [
   { label: 'DB1' },
 ]
 
-const Wrapper = styled.div`
-  ${({ theme }) => theme.spaceBetweenY(4)}
+const Wrapper = styled.div``
+
+const Header = styled.header`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: ${({ theme }) => theme.spacing(2)};
+`
+
+const Title = styled(TextWithIcon).attrs({
+  text: { variant: 'title', as: 'h1' },
+  icon: {
+    name: 'instance',
+  },
+})``
+
+const InstanceAction = styled(Button).attrs({
+  size: 'xs',
+  variant: 'ghost',
+})``
+
+const PageAction = styled(Button).attrs({
+  size: 'xs',
+  variant: 'outline',
+})``
+
+const Actions = styled.div`
+  display: flex;
+
+  ${PageAction} {
+    margin-left: ${({ theme }) => theme.spacing(3)};
+  }
+`
+
+const Metadata = styled.div`
+  margin-top: ${({ theme }) => theme.spacing(3)};
+`
+
+const StyledTabs = styled(Tabs)`
+  margin-top: ${({ theme }) => theme.spacing(4)};
 `
 
 const CardList = styled.div`
@@ -32,15 +81,41 @@ export default () => {
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
-      <InstanceDetails
-        cpu="2"
-        memory="8 GB"
-        storage="100 GB"
-        vm={{ os: 'Debian', version: '9.12', arch: 'x64' }}
-        hostname="db1.useast1.inst"
-        ip="10.10.16.7"
-      />
-      <Tabs
+      <Header>
+        <Title>DB1</Title>
+        <Actions>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'stopwatch' }}>Reset</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'playStopO' }}>Stop</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'playPauseO' }}>Suspend</TextWithIcon>
+          </InstanceAction>
+          <InstanceAction>
+            <TextWithIcon icon={{ name: 'trash' }}>Delete</TextWithIcon>
+          </InstanceAction>
+          <PageAction>SSH</PageAction>
+          <PageAction>
+            <Icon name="more" />
+          </PageAction>
+        </Actions>
+      </Header>
+      <Metadata>
+        <InstanceDetails
+          cpu="2"
+          memory="8 GB"
+          storage="100 GB"
+          vm={{ os: 'Debian', version: '9.12', arch: 'x64' }}
+          hostname="db1.useast1.inst"
+          ip="10.10.16.7"
+        />
+      </Metadata>
+      <StyledTabs
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
@@ -58,7 +133,7 @@ export default () => {
         <div></div>
         <div></div>
         <div></div>
-      </Tabs>
+      </StyledTabs>
     </Wrapper>
   )
 }

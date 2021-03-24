@@ -7,6 +7,7 @@ import { Button } from '../button/Button'
 import { KEYS } from '../keys-utils'
 
 export interface TabsProps {
+  className?: string
   /**
    * Should tab buttons take up the full width of the container
    */
@@ -67,10 +68,11 @@ const DIRECTION = {
 }
 
 export const Tabs: FC<TabsProps> = ({
+  children,
+  className,
   fullWidth = false,
   label,
   tabs,
-  children,
 }) => {
   const [activeTab, setActiveTab] = useState(0)
   const [focusTab, setFocusTab] = useState<number | null>(null)
@@ -198,7 +200,7 @@ export const Tabs: FC<TabsProps> = ({
   })
 
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <TabList
         role="tablist"
         aria-label={label}
