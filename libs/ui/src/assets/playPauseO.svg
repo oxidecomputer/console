@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
-  <title>playPauseO</title>
-  <path d="M9.273 9.273h1.818v5.454H9.273V9.273zM14.727 14.727H12.91V9.273h1.818v5.454z" />
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10zm-1.818 0a8.182 8.182 0 11-16.364 0 8.182 8.182 0 0116.364 0z" />
-</svg>

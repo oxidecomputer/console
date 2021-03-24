@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+  <title>Copy</title>
+  <path fill-rule="evenodd"
+    d="M6 4h12l4 4v1h4v20H11v-3H6V4zm6 22v2h13V10h-3v16H12zm8-16H8v2h12v-2zm-3 4H8v2h9v-2zm-9 6h11v-2H8v2z"
+    clip-rule="evenodd" />
+</svg>

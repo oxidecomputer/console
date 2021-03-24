@@ -1,5 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
   <title>Command</title>
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M2.25 12.675V15l9-3.825v-2.1l-9-3.825v2.325l6.45 2.55-6.45 2.55zm9 4.575h10.5v2.25h-10.5v-2.25z" />
+  <path fill-rule="evenodd" d="M3 16.9V20l12-5.1v-2.8L3 7v3.1l8.6 3.4L3 16.9zM15 23h14v3H15v-3z" clip-rule="evenodd" />
 </svg>
