@@ -151,7 +151,7 @@ const StickyRow: FC<StickyRowProps> = ({ index, columns, ...props }) => {
             key={`columnheader-${col.accessor}`}
             role="columnheader"
             aria-colindex={columnIndex + 1}
-            width={col.width || null}
+            width={col.width}
             arrange={col.arrange || 'none'}
           >
             {col.Header}
@@ -182,7 +182,7 @@ const Row: FC<RowProps> = ({ index, row, style, ...props }) => {
               key={`gridcell-${col.accessor}-${columnIndex}`}
               role="gridcell"
               aria-colindex={columnIndex + 1}
-              width={col.width || null}
+              width={col.width}
               arrange={col.arrange || 'none'}
             >
               {currentCell}
