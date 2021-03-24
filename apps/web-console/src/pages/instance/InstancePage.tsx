@@ -38,9 +38,12 @@ const Title = styled(TextWithIcon).attrs({
   },
 })``
 
-const PageActions = styled.div``
+const PageActions = styled.div`
+  display: flex;
+  ${({ theme }) => theme.spaceBetweenX(3)}
+`
 
-const StyledButton = styled(Button).attrs({
+const ActionButton = styled(Button).attrs({
   variant: 'ghost',
 })``
 
@@ -62,6 +65,10 @@ const Suspend = styled(TextWithIcon).attrs({
 
 const Delete = styled(TextWithIcon).attrs({
   icon: { name: 'trash' },
+})``
+
+const AltButton = styled(Button).attrs({
+  variant: 'outline',
 })``
 
 const Metadata = styled(Text).attrs({
@@ -95,25 +102,25 @@ export default () => {
       <Header>
         <Title>Instances</Title>
         <PageActions>
-          <StyledButton>
+          <ActionButton>
             <Edit>Edit</Edit>
-          </StyledButton>
-          <StyledButton>
+          </ActionButton>
+          <ActionButton>
             <Reset>Reset</Reset>
-          </StyledButton>
-          <StyledButton>
+          </ActionButton>
+          <ActionButton>
             <Stop>Stop</Stop>
-          </StyledButton>
-          <StyledButton>
+          </ActionButton>
+          <ActionButton>
             <Suspend>Suspend</Suspend>
-          </StyledButton>
-          <StyledButton>
+          </ActionButton>
+          <ActionButton>
             <Delete>Delete</Delete>
-          </StyledButton>
-          <Button variant="outline">SSH</Button>
-          <Button variant="outline">
+          </ActionButton>
+          <AltButton>SSH</AltButton>
+          <AltButton>
             <Icon name="more" />
-          </Button>
+          </AltButton>
         </PageActions>
       </Header>
       <Metadata>TODO: Metadata</Metadata>
