@@ -18,8 +18,8 @@ const ColorVisualizer = styled.div<{ value: string }>`
   border: 1px solid ${({ theme }) => theme.color('gray800')};
 `
 const ColorInfo = styled(Text).attrs({ as: 'code', font: 'mono' })`
-display: flex;
-:first-of-type {
+  display: flex;
+  :first-of-type {
     margin-bottom: ${({ theme }) => theme.spacing(3)};
   }
 `
@@ -30,10 +30,12 @@ const ColorComponent: React.FC<{ name: Color; value: string }> = ({
 }) => (
   <ColorContainer>
     <ColorVisualizer value={value} />
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column'
-      }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <ColorInfo>{name}</ColorInfo>
       <ColorInfo>{value}</ColorInfo>
     </div>
