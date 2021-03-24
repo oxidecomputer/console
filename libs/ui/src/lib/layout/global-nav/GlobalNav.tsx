@@ -18,11 +18,11 @@ const StyledGlobalNav = styled.div`
 `
 
 const StyledIcon = styled(Icon)`
-  width: ${({ theme }) => theme.spacing(6)};
+  width: ${({ theme }) => theme.spacing(7)};
 `
 
 const Link = styled.a`
-  margin-left: ${({ theme }) => theme.spacing(6)};
+  margin-left: ${({ theme }) => theme.spacing(8)};
   display: inline-flex;
 `
 
@@ -49,7 +49,7 @@ const Button = styled.button.attrs({ type: 'button' })`
   border: none;
   color: ${({ theme }) => theme.themeColors.gray100};
   display: inline-flex;
-  margin-left: ${({ theme }) => theme.spacing(6)};
+  margin-left: ${({ theme }) => theme.spacing(8)};
   padding: 0;
 
   &:hover {
@@ -60,7 +60,7 @@ const Button = styled.button.attrs({ type: 'button' })`
 
 const FeedbackButton = styled(Button)`
   margin-left: ${({ theme }) => theme.spacing(10)};
-  margin-right: ${({ theme }) => theme.spacing(4)};
+  margin-right: ${({ theme }) => theme.spacing(2)};
 `
 
 export const GlobalNav: FC<GlobalNavProps> = () => {
