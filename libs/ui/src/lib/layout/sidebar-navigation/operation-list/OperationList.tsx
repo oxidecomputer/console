@@ -3,7 +3,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 import { Text } from '../../../text/Text'
-import { Icon } from '../../../icon/Icon'
+import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 
 const BaseText = styled(Text).attrs({
   size: 'xs',
@@ -71,7 +71,13 @@ const SubItemLink = styled(BaseLink)`
   display: inline-block;
 `
 
-const Title = styled(BaseText)<{ selected?: boolean }>`
+const TitleWithIcon = styled(TextWithIcon).attrs({
+  text: {
+    size: 'xs',
+    font: 'mono',
+    weight: 400,
+  },
+})<{ selected?: boolean }>`
   ${({ selected, theme }) =>
     selected &&
     css`
@@ -79,9 +85,15 @@ const Title = styled(BaseText)<{ selected?: boolean }>`
     `}
 `
 
-const SubItemTitle = styled(Title).attrs({
+const SubItemTitle = styled(BaseText).attrs({
   size: 'xxs',
-})``
+})<{ selected?: boolean }>`
+  ${({ selected, theme }) =>
+    selected &&
+    css`
+      color: ${theme.color('gray50')};
+    `}
+`
 
 export const OperationList = () => {
   return (
@@ -92,15 +104,15 @@ export const OperationList = () => {
       <List>
         <li>
           <ListItemLink href="#">
-            <Icon name="dashboard" />
-            <Title>System</Title>
+            <TitleWithIcon icon={{ name: 'dashboard' }}>System</TitleWithIcon>
           </ListItemLink>
         </li>
 
         <li>
           <ListItemLink href="#">
-            <Icon name="resources" />
-            <Title selected={true}>Resources</Title>
+            <TitleWithIcon icon={{ name: 'resources' }} selected={true}>
+              Resources
+            </TitleWithIcon>
           </ListItemLink>
           <List>
             <ListSubItem>
@@ -143,20 +155,19 @@ export const OperationList = () => {
 
         <li>
           <ListItemLink href="#">
-            <Icon name="organization" />
-            <Title>Organizations</Title>
+            <TitleWithIcon icon={{ name: 'organization' }}>
+              Organizations
+            </TitleWithIcon>
           </ListItemLink>
         </li>
         <li>
           <ListItemLink href="#">
-            <Icon name="projects" />
-            <Title>Projects</Title>
+            <TitleWithIcon icon={{ name: 'projects' }}>Projects</TitleWithIcon>
           </ListItemLink>
         </li>
         <li>
           <ListItemLink href="#">
-            <Icon name="users" />
-            <Title>IAM</Title>
+            <TitleWithIcon icon={{ name: 'users' }}>IAM</TitleWithIcon>
           </ListItemLink>
         </li>
       </List>
