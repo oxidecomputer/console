@@ -7,9 +7,6 @@ import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
 
-/* eslint-disable-next-line */
-export interface GlobalNavProps {}
-
 const StyledGlobalNav = styled.div`
   align-items: center;
   display: flex;
@@ -35,9 +32,8 @@ const StyledText = styled(Text).attrs({
 `
 
 const TickBar = styled.div`
-  // placeholder: url-encoded contents of warning-filled.svg
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' role='img' aria-labelledby='icon-warning-filled'%3E%3Ctitle id='icon-warning-filled'%3EWarning%3C/title%3E%3Cpath fill='gray' fill-rule='evenodd' clip-rule='evenodd' d='M0 19.75L10 .25l10 19.5H0zM11 14V6.5H9V14h2zm0 3.5v-2H9v2h2z'/%3E%3C/svg%3E%0A");
-  background-position: center right;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 0 16 26'%3E%3Cpath fill='%233F3F46' fill-rule='evenodd' clip-rule='evenodd' d='M7.014 2.74h1.98v20.68h-1.98V2.74z'/%3E%3C/svg%3E%0A");
+  background-position: center left;
   background-repeat: repeat-x;
   background-size: ${({ theme }) => theme.spacing(5)};
   height: ${({ theme }) => theme.spacing(5)};
