@@ -12,21 +12,31 @@ const ColorContainer = styled.div`
 `
 const ColorVisualizer = styled.div<{ value: string }>`
   background-color: ${({ value }) => value};
-  width: ${({ theme }) => theme.spacing(6)};
-  margin-right: ${({ theme }) => theme.spacing(2)};
+  width: ${({ theme }) => theme.spacing(12)};
+  height: ${({ theme }) => theme.spacing(12)};
+  margin-right: ${({ theme }) => theme.spacing(3)};
   border: 1px solid ${({ theme }) => theme.color('gray800')};
-  border-radius: 50em;
 `
-const ColorInfo = styled(Text).attrs({ as: 'code', font: 'mono' })``
+const ColorInfo = styled(Text).attrs({ as: 'code', font: 'mono' })`
+  display: flex;
+  :first-of-type {
+    margin-bottom: ${({ theme }) => theme.spacing(3)};
+  }
+`
+
 const ColorComponent: React.FC<{ name: Color; value: string }> = ({
   name,
   value,
 }) => (
   <ColorContainer>
     <ColorVisualizer value={value} />
-    <div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <ColorInfo>{name}</ColorInfo>
-      <br />
       <ColorInfo>{value}</ColorInfo>
     </div>
   </ColorContainer>

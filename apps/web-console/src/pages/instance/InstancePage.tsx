@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Icon,
+  InstanceDetails,
   Tabs,
   Text,
   TextWithIcon,
@@ -24,6 +25,7 @@ const breadcrumbs = [
 const Wrapper = styled.div``
 
 const Header = styled.header`
+  align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -56,12 +58,8 @@ const Actions = styled.div`
   }
 `
 
-const Metadata = styled(Text).attrs({
-  color: 'gray300',
-})`
-  display: block;
+const Metadata = styled.div`
   margin-top: ${({ theme }) => theme.spacing(3)};
-  text-transform: uppercase;
 `
 
 const StyledTabs = styled(Tabs)`
@@ -85,7 +83,7 @@ export default () => {
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
       <Header>
-        <Title>Instances</Title>
+        <Title>DB1</Title>
         <Actions>
           <InstanceAction>
             <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
@@ -108,7 +106,16 @@ export default () => {
           </PageAction>
         </Actions>
       </Header>
-      <Metadata>TODO: Metadata</Metadata>
+      <Metadata>
+        <InstanceDetails
+          cpu="2"
+          memory="8 GB"
+          storage="100 GB"
+          vm={{ os: 'Debian', version: '9.12', arch: 'x64' }}
+          hostname="db1.useast1.inst"
+          ip="10.10.16.7"
+        />
+      </Metadata>
       <StyledTabs
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
