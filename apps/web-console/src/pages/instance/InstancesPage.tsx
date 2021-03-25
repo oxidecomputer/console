@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import type { RouteComponentProps } from '@reach/router'
+import { useParams } from 'react-router-dom'
 
 import { Breadcrumbs, TextWithIcon } from '@oxide/ui'
 
@@ -28,16 +28,17 @@ const breadcrumbs = [
   { label: 'Instances' },
 ]
 
-interface Props extends RouteComponentProps {
-  projectId?: string
+type Params = {
+  projectId: string
 }
 
-const InstancesPage = (props: Props) => {
+const InstancesPage = () => {
+  const { projectId } = useParams<Params>()
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
       <Header>
-        <Title>Instances for Project: {props.projectId}</Title>
+        <Title>Instances for Project: {projectId}</Title>
       </Header>
       <p style={{ marginTop: '2rem' }}>There is nothing here, sorry</p>
     </>

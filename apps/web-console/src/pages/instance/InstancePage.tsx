@@ -1,7 +1,5 @@
-import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
-import type { RouteComponentProps } from '@reach/router'
 
 import {
   Breadcrumbs,
@@ -79,7 +77,7 @@ const CardList = styled.div`
 `
 const OverviewPanel = styled.div``
 
-const InstancePage: FC<RouteComponentProps> = () => {
+const InstancePage = () => {
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
