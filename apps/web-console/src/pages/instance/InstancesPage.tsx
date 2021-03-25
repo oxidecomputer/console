@@ -29,7 +29,7 @@ const breadcrumbs = [
 ]
 
 type Params = {
-  projectId: string
+  projectId?: string
 }
 
 const InstancesPage = () => {
