@@ -24,7 +24,6 @@ export interface ProjectListProps {
 
 const baseTextProps: Partial<TextProps> = {
   size: 'xs',
-  weight: 400,
 }
 
 const StyledProjectList = styled.div`

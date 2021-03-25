@@ -30,11 +30,7 @@ const StyledListItem = styled.li`
   }
 `
 
-const Link = styled(Text).attrs({
-  size: 'sm',
-  weight: 400,
-  as: 'a',
-})`
+const Link = styled(Text).attrs({ size: 'sm', as: 'a' })`
   &:link,
   &:visited {
     color: ${({ theme }) => theme.color('gray400')};
