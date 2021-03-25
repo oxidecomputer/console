@@ -19,6 +19,7 @@ const sizeMap: Record<AvatarSize, { width: number; fontSize: number }> = {
 }
 
 export interface AvatarProps {
+  className?: string
   /**
    * Name of person, team, project, org, etc. Required for 'alt' image tag and for finding initials.
    */
@@ -96,30 +97,33 @@ const Wrapper = styled.div<WrapperProps>`
   ${({ size }) => size && getSizeStyles(size)};
 `
 
-const IconAvatar: React.FC<Pick<AvatarProps, 'name' | 'isPerson' | 'size'>> = ({
-  name,
-  isPerson,
-  size,
-}) => {
+const IconAvatar: React.FC<
+  Pick<AvatarProps, 'className' | 'name' | 'isPerson' | 'size'>
+> = ({ className, name, isPerson, size }) => {
   return (
-    <Wrapper size={size} isCircle={isPerson}>
+    <Wrapper className={className} size={size} isCircle={isPerson}>
       <StyledIcon svgProps={{ title: name }} />
     </Wrapper>
   )
 }
 
-const ImageAvatar: React.FC<AvatarProps> = ({ name, isPerson, size, src }) => {
+const ImageAvatar: React.FC<AvatarProps> = ({
+  className,
+  name,
+  isPerson,
+  size,
+  src,
+}) => {
   return (
-    <Wrapper size={size} isCircle={isPerson}>
+    <Wrapper className={className} size={size} isCircle={isPerson}>
       <img src={src} alt={name} />
     </Wrapper>
   )
 }
 
-const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
-  name,
-  size,
-}) => {
+const InitialsAvatar: React.FC<
+  Pick<AvatarProps, 'className' | 'name' | 'size'>
+> = ({ className, name, size }) => {
   const initials = useMemo(
     () =>
       name
@@ -133,7 +137,7 @@ const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
 
   if (initials) {
     return (
-      <Wrapper size={size} hasInitials>
+      <Wrapper className={className} size={size} hasInitials>
         <abbr title={name}>{initials}</abbr>
       </Wrapper>
     )
@@ -143,18 +147,39 @@ const InitialsAvatar: React.FC<Pick<AvatarProps, 'name' | 'size'>> = ({
   return <IconAvatar name={name} isPerson={false} size={size} />
 }
 
-export const Avatar: FC<AvatarProps> = ({ name, isPerson, size, src }) => {
+export const Avatar: FC<AvatarProps> = ({
+  className,
+  name,
+  isPerson,
+  size,
+  src,
+}) => {
   if (src) {
-    return <ImageAvatar name={name} isPerson={isPerson} size={size} src={src} />
+    return (
+      <ImageAvatar
+        className={className}
+        name={name}
+        isPerson={isPerson}
+        size={size}
+        src={src}
+      />
+    )
   }
 
   if (!isPerson) {
     // Group/Org Fallback: Avatar with initials
-    return <InitialsAvatar name={name} size={size} />
+    return <InitialsAvatar className={className} name={name} size={size} />
   }
 
   // Person Fallback: Avatar with a custom profile icon
-  return <IconAvatar name={name} isPerson={isPerson} size={size} />
+  return (
+    <IconAvatar
+      className={className}
+      name={name}
+      isPerson={isPerson}
+      size={size}
+    />
+  )
 }
 
 Avatar.defaultProps = {

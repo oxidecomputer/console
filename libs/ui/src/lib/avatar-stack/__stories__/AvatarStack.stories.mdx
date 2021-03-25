@@ -1,0 +1,27 @@
+<!-- AvatarStack.stories.mdx -->
+
+import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks'
+import { Default, stories } from './AvatarStack.stories'
+import { AvatarStack } from '../AvatarStack'
+
+<Meta title="Components/AvatarStack" component={AvatarStack} />
+
+# AvatarStack
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={AvatarStack} story="^" />
+
+## Stories
+
+### Sizes
+
+<Canvas>
+  <Story story={stories.xs} />
+  <Story story={stories.sm} />
+  <Story story={stories.base} />
+  <Story story={stories.lg} />
+  <Story story={stories.xl} />
+</Canvas>
