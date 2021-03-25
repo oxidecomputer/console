@@ -5,7 +5,7 @@ import { AvatarStack } from './AvatarStack'
 
 describe('AvatarStack', () => {
   it('should render successfully', () => {
-    const { container } = render(<AvatarStack />)
+    const { container } = render(<AvatarStack data={[]} />)
     expect(container).toBeTruthy()
   })
 })
