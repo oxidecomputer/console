@@ -52,9 +52,9 @@ const Label = styled(Text).attrs({
   padding-bottom: ${({ theme }) => theme.spacing(1)};
 `
 
-const OptionalText = styled(Text).attrs({ weight: 400, size: 'sm' })``
+const OptionalText = styled(Text).attrs({ size: 'sm' })``
 
-const HintText = styled(Text).attrs({ weight: 400, size: 'sm' })`
+const HintText = styled(Text).attrs({ size: 'sm' })`
   display: block;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
 
