@@ -12,9 +12,8 @@ export interface BreadcrumbsProps {
   data?: { href?: string; label: string }[]
 }
 
-const StyledList = styled.ol`
+const StyledList = styled(Text).attrs({ as: 'ol', size: 'sm' })`
   text-transform: uppercase;
-  font-size: 0.875rem;
 `
 
 const StyledListItem = styled.li`
