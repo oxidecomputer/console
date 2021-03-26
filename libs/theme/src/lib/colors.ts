@@ -14,7 +14,14 @@ export const colorValues = [
   900,
 ] as const
 export type ColorValues = typeof colorValues[number]
-export type Color = `${ColorGroup}${ColorValues}` | 'white' | 'black'
+type MainColor = `${ColorGroup}${ColorValues}`
+
+export const bgColors = ['purple', 'yellow', 'green', 'blue', 'red'] as const
+type BGColor = `darkBg${Capitalize<typeof bgColors[number]>}`
+
+type WhiteBlack = 'white' | 'black'
+
+export type Color = MainColor | BGColor | WhiteBlack
 export type ColorPalette = Record<Color, string>
 
 export const colorDefinitions: ColorPalette = {
@@ -75,6 +82,12 @@ export const colorDefinitions: ColorPalette = {
   green700: '153, 50%, 42%',
   green800: '154, 50%, 34%',
   green900: '154, 50%, 27%',
+
+  darkBgPurple: '255, 30%, 18%',
+  darkBgYellow: '65, 13%, 18%',
+  darkBgGreen: '163, 37%, 15%',
+  darkBgBlue: '220, 30%, 18%',
+  darkBgRed: '330, 12%, 16%',
 }
 
 export const colorNames = Object.keys(colorDefinitions) as Color[]

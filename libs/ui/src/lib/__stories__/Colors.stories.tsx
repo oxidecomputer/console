@@ -1,8 +1,13 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { colorPalette, colorGroups } from '@oxide/theme'
-import type { Color, ColorGroup } from '@oxide/theme'
+import { colorPalette, colorGroups, colorNames } from '@oxide/theme'
+import type { Color } from '@oxide/theme'
 import Text from '../text/Text'
+
+interface ColorProps {
+  name: Color
+  value: string
+}
 
 const ColorContainer = styled.div`
   display: flex;
@@ -10,7 +15,7 @@ const ColorContainer = styled.div`
   align-items: stretch;
   margin-bottom: ${({ theme }) => theme.spacing(4)};
 `
-const ColorVisualizer = styled.div<{ value: string }>`
+const ColorVisualizer = styled.div<Pick<ColorProps, 'value'>>`
   background-color: ${({ value }) => value};
   width: ${({ theme }) => theme.spacing(12)};
   height: ${({ theme }) => theme.spacing(12)};
@@ -24,10 +29,7 @@ const ColorInfo = styled(Text).attrs({ as: 'code' })`
   }
 `
 
-const ColorComponent: React.FC<{ name: Color; value: string }> = ({
-  name,
-  value,
-}) => (
+const ColorComponent: React.FC<ColorProps> = ({ name, value }) => (
   <ColorContainer>
     <ColorVisualizer value={value} />
     <div
@@ -43,37 +45,27 @@ const ColorComponent: React.FC<{ name: Color; value: string }> = ({
 )
 
 const ColorGroupContainer = styled.div<{ isSingleColor?: boolean }>`
-  flex: ${({ isSingleColor }) => (isSingleColor ? '1 1 100%' : 'auto')};
+  flex: ${({ isSingleColor }) => (isSingleColor ? '1 1 100%' : '0 0 25%')};
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin-right: ${({ isSingleColor }) => (isSingleColor ? '0' : '1em')};
 `
 const ColorGroupTitle = styled(Text).attrs({ as: 'h3', font: 'sans' })`
   text-transform: capitalize;
   margin: ${({ theme }) => theme.spacing(4)} 0;
 `
 
-const ColorGroupComponent: React.FC<{ group: ColorGroup }> = ({ group }) => {
-  const colors = useMemo(
-    () =>
-      (Object.keys(colorPalette) as Color[])
-        .filter((color) => color.startsWith(group))
-        .map((k) => ({
-          name: k,
-          value: colorPalette[k],
-        })),
-    [group]
-  )
-  return (
-    <ColorGroupContainer isSingleColor={colors.length === 1}>
-      <ColorGroupTitle>{group}</ColorGroupTitle>
-      {colors.map(({ name, value }) => (
-        <ColorComponent key={name} name={name} value={value} />
-      ))}
-    </ColorGroupContainer>
-  )
-}
+const ColorGroupComponent: React.FC<{
+  group: string
+  colors: ColorProps[]
+}> = ({ group, colors }) => (
+  <ColorGroupContainer isSingleColor={colors.length === 1}>
+    <ColorGroupTitle>{group}</ColorGroupTitle>
+    {colors.map(({ name, value }) => (
+      <ColorComponent key={name} name={name} value={value} />
+    ))}
+  </ColorGroupContainer>
+)
 
 const Container = styled.div`
   display: flex;
@@ -82,12 +74,30 @@ const Container = styled.div`
   flex-wrap: wrap;
 `
 
-export const AllColors: React.FC = () => {
-  return (
-    <Container>
-      {colorGroups.map((group) => (
-        <ColorGroupComponent key={group} group={group} />
-      ))}
-    </Container>
-  )
-}
+const findColors = (v: string): ColorProps[] =>
+  colorNames
+    .filter((color) => color.startsWith(v))
+    .map((k) => ({
+      name: k,
+      value: colorPalette[k],
+    }))
+
+const mapColors = (group: string): [string, ColorProps[]] => [
+  group,
+  findColors(group),
+]
+
+const groups: [string, ColorProps[]][] = [
+  mapColors('white'),
+  mapColors('black'),
+  ...colorGroups.map(mapColors),
+  mapColors('darkBg'),
+]
+
+export const AllColors: React.FC = () => (
+  <Container>
+    {groups.map(([group, colors]) => (
+      <ColorGroupComponent key={group} group={group} colors={colors} />
+    ))}
+  </Container>
+)
