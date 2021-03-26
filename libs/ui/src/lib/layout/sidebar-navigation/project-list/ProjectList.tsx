@@ -23,7 +23,7 @@ export interface ProjectListProps {
 }
 
 const baseTextProps: Partial<TextProps> = {
-  size: 'xs',
+  size: 'sm',
 }
 
 const StyledProjectList = styled.div`
@@ -84,7 +84,7 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   }
 `
 
-const Title = styled(Text).attrs(baseTextProps)<{ selected?: boolean }>`
+const Title = styled(Text).attrs({ size: 'xs' })<{ selected?: boolean }>`
   flex: 1;
 
   ${({ selected, theme }) => selected && `color: ${theme.color('gray50')};`}

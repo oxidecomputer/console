@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components'
 import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 
-const BaseText = styled(Text).attrs({ size: 'xs' })``
+const BaseText = styled(Text).attrs({ size: 'sm' })``
 
 const Header = styled.header`
   padding: ${({ theme }) => theme.spacing(1)};
