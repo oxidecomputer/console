@@ -8,6 +8,7 @@ import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
 
 const StyledGlobalNav = styled.div`
+  align-items: center;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
