@@ -11,9 +11,7 @@ wait_for_up() {
   while ! echo exit | nc localhost "$1"; do sleep 0.1; done
 }
 
-tmux new -d -s omicron-console
-
-tmux send-keys "cargo run --bin=nexus -- examples/config.toml" Enter
+tmux new -d -s omicron-console -- cargo run --bin=nexus -- examples/config.toml
 wait_for_up 12220
 
 tmux split-window "cargo run --bin=sled_agent -- $(uuidgen) 127.0.0.1:12345 127.0.0.1:12221"
