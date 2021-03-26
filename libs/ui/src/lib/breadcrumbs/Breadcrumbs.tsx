@@ -1,9 +1,8 @@
 import React from 'react'
 
-import type { DefaultTheme, StyledComponent } from 'styled-components'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import type { TextProps } from '../text/Text'
 import { Text } from '../text/Text'
 
 export interface BreadcrumbsProps {
@@ -13,7 +12,7 @@ export interface BreadcrumbsProps {
   data?: { href?: string; label: string }[]
 }
 
-const StyledList = styled.ol`
+const StyledList = styled(Text).attrs({ as: 'ol', size: 'sm' })`
   text-transform: uppercase;
 `
 
@@ -30,7 +29,7 @@ const StyledListItem = styled.li`
   }
 `
 
-const Link = styled(Text).attrs({ size: 'sm', as: 'a' })`
+const StyledLink = styled(Link)`
   &:link,
   &:visited {
     color: ${({ theme }) => theme.color('gray400')};
@@ -38,7 +37,7 @@ const Link = styled(Text).attrs({ size: 'sm', as: 'a' })`
   &:hover {
     color: ${({ theme }) => theme.color('green500')};
   }
-` as StyledComponent<'a', DefaultTheme, TextProps>
+`
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
   if (data && !!data.length) {
@@ -48,15 +47,13 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
           if (item.href) {
             return (
               <StyledListItem key={`breadcrumbs-${index}`}>
-                <Link href={item.href}>{item.label}</Link>
+                <StyledLink to={item.href}>{item.label}</StyledLink>
               </StyledListItem>
             )
           }
           return (
             <StyledListItem key={`breadcrumbs-${index}`}>
-              <Text size="sm" color="gray500">
-                {item.label}
-              </Text>
+              <Text color="gray500">{item.label}</Text>
             </StyledListItem>
           )
         })}

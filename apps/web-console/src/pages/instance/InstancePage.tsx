@@ -17,7 +17,7 @@ const breadcrumbs = [
   { href: '/', label: 'Maze War' },
   { href: '/first', label: 'Projects' },
   { href: '/second', label: 'prod-online' },
-  { href: '/third', label: 'Instances' },
+  { href: '/projects/prod-online/instances', label: 'Instances' },
   { label: 'DB1' },
 ]
 
@@ -77,7 +77,7 @@ const CardList = styled.div`
 `
 const OverviewPanel = styled.div``
 
-export default () => {
+const InstancePage = () => {
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
@@ -137,3 +137,5 @@ export default () => {
     </Wrapper>
   )
 }
+
+export default InstancePage
