@@ -45,8 +45,11 @@ const Wrapper = styled.div`
 const Sidebar = styled.div`
   background-color: ${({ theme }) => theme.color('gray800')};
   grid-area: sidebar;
-  padding: ${({ theme }) => theme.spacing(4)};
+  padding-left: ${({ theme }) => theme.spacing(4)};
+  padding-right: ${({ theme }) => theme.spacing(4)};
+`
 
+const SidebarLists = styled.div`
   ${({ theme }) => theme.spaceBetweenY(6)};
 `
 
@@ -66,15 +69,15 @@ export default ({ children }: AppLayoutProps) => {
   return (
     <Wrapper>
       <Sidebar>
-        <Text size="3xl" color="green500">
-          0xide
-        </Text>
-        <ProjectList
-          projects={projects}
-          onProjectSelect={() => null}
-          onProjectCreate={() => null}
-        />
-        <OperationList />
+
+        <SidebarLists>
+          <ProjectList
+            projects={projects}
+            onProjectSelect={() => null}
+            onProjectCreate={() => null}
+          />
+          <OperationList />
+        </SidebarLists>
       </Sidebar>
       <GlobalNavContainer>
         <GlobalNav />
