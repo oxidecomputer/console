@@ -175,7 +175,10 @@ export const Icon = styled(SvgIcon).withConfig({
     return ['className', 'svgProps', 'name'].includes(prop)
   },
 })<StyledIconProps>`
+  align-self: center; /* displays correct height for Safari */
   flex-shrink: 0;
+
+  height: auto;
   width: 1em; /* icon size is controlled by parent font-size */
 
   fill: ${({ color, theme }) =>

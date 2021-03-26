@@ -10,8 +10,8 @@ import { Avatar } from '../../avatar/Avatar'
 const StyledGlobalNav = styled.div`
   align-items: center;
   display: flex;
-  width: 100%;
-  justify-content: right;
+  flex-direction: row;
+  flex-wrap: nowrap;
 `
 
 const StyledIcon = styled(Icon)`

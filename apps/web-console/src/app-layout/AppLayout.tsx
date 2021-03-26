@@ -67,9 +67,14 @@ const Content = styled.main`
 `
 
 const GlobalNavContainer = styled.header`
+  position: sticky;
+  top: 0;
+
   align-self: center;
   grid-area: topnav;
-  ${({ theme }) => theme.marginX(6)}
+  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(6)};
+
+  background-color: ${({ theme }) => theme.color('gray900')};
 `
 
 export default ({ children }: AppLayoutProps) => {
