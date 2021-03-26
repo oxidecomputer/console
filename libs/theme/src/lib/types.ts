@@ -1,27 +1,9 @@
 import 'styled-components'
 import type { FlattenInterpolation, ThemeProps } from 'styled-components'
+import type { Color, ColorPalette } from './colors'
 
 // Used as a basis for an CSS helper which relies on a base sizing unit.
 type SizingMultiplier = number
-
-// Colors
-export const colorGroups = ['gray', 'red', 'yellow', 'blue', 'green'] as const
-export type ColorGroup = typeof colorGroups[number]
-export const colorValues = [
-  50,
-  100,
-  200,
-  300,
-  400,
-  500,
-  600,
-  700,
-  800,
-  900,
-] as const
-export type ColorValues = typeof colorValues[number]
-export type Color = `${ColorGroup}${ColorValues}` | 'white' | 'black'
-export type ColorPalette = Record<Color, string>
 
 // Fonts
 export type Font = 'sans' | 'mono'
