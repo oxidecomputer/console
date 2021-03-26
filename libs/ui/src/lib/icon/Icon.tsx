@@ -27,6 +27,7 @@ import InfoFilledIcon from '../../assets/info-filled.svg'
 import InfoIcon from '../../assets/info.svg'
 import InstanceIcon from '../../assets/instance.svg'
 import InstancesIcon from '../../assets/instances.svg'
+import ListIcon from '../../assets/list.svg'
 import MemoryIcon from '../../assets/memory.svg'
 import MessageIcon from '../../assets/message.svg'
 import MoreIcon from '../../assets/more.svg'
@@ -84,6 +85,7 @@ export const icons = {
   infoFilled: InfoFilledIcon,
   instance: InstanceIcon,
   instances: InstancesIcon,
+  list: ListIcon,
   memory: MemoryIcon,
   message: MessageIcon,
   more: MoreIcon,
