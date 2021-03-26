@@ -1,5 +1,6 @@
 import { css } from 'styled-components'
-import type { Color, SpacingHelper, Theme } from '../types'
+import type { SpacingHelper, Theme } from '../types'
+import type { Color } from '../colors'
 import { colorDefinitions, colorPalette } from '../colors'
 
 // TODO: Move these functions to their own modules
