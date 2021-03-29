@@ -53,6 +53,7 @@ const Sidebar = styled.div`
 `
 
 const WordmarkWrapper = styled.div`
+  z-index: 1;
   position: sticky;
   top: 0;
 
