@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Setup (in omicron directory). First install rustup: https://rustup.rs/. Then:
 #
 #   rustup install stable
@@ -18,6 +20,6 @@ tmux split-window "cargo run --bin=sled_agent -- $(uuidgen) 127.0.0.1:12345 127.
 wait_for_up 12221
 
 # zsh is to prevent the pane from closing when the script is done 
-tmux split-window "../console/tools/populate_omicron_data.sh; zsh"
+tmux split-window "../console/tools/populate_omicron_data.sh; bash"
 
 tmux attach-session -t omicron-console
