@@ -40,14 +40,16 @@ const Wrapper = styled.div`
   grid-template-areas:
     'sidebar topnav'
     'sidebar content';
-  min-height: 100vh;
+  height: 100vh;
 `
 
 const Sidebar = styled.div`
-  background-color: ${({ theme }) => theme.color('gray800')};
   grid-area: sidebar;
+  overflow: auto;
   padding-left: ${({ theme }) => theme.spacing(4)};
   padding-right: ${({ theme }) => theme.spacing(4)};
+
+  background-color: ${({ theme }) => theme.color('gray800')};
 `
 
 const WordmarkWrapper = styled.div`
@@ -62,8 +64,9 @@ const SidebarLists = styled.div`
 
 const Content = styled.main`
   grid-area: content;
-  ${({ theme }) => theme.marginX(6)}
-  ${({ theme }) => theme.marginY(2)}
+  overflow: auto;
+
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(6)};`};
 `
 
 const GlobalNavContainer = styled.header`
@@ -72,7 +75,7 @@ const GlobalNavContainer = styled.header`
 
   align-self: center;
   grid-area: topnav;
-  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(6)};
+  padding: ${({ theme }) => `${theme.spacing(4)} ${theme.spacing(6)};`};
 
   background-color: ${({ theme }) => theme.color('gray900')};
 `
