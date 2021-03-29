@@ -12,6 +12,16 @@ export const normalize = css`
   main {
     display: block;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    font-size: 100%;
+    font: inherit;
+  }
   hr {
     box-sizing: content-box;
     height: 0;

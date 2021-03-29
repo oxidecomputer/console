@@ -136,9 +136,10 @@ export interface TextProps {
 }
 
 export const Text = styled.span.withConfig({
-  shouldForwardProp: (prop, defaultValidatorFn) =>
+  shouldForwardProp: (prop, defaultValidatorFn) => {
     // Do not pass color or size directly to DOM
-    !['color', 'size'].includes(prop) && defaultValidatorFn(prop),
+    return !['color', 'size'].includes(prop) && defaultValidatorFn(prop)
+  },
 })<TextProps>`
   ${({ color, theme }) => {
     if (color) {
