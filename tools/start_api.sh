@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# Setup (in omicron directory). First install rustup: https://rustup.rs/. Then:
-#
-#   rustup install stable
-#   cargo build
-#   npm i -g json
-#   brew install tmux
-
-# this script assumes it's being run from inside the omicron repo
+# this script assumes it's being run from inside the omicron repo and the console
+# repo shares the same parent directory
 
 wait_for_up() {
   while ! echo exit | nc localhost "$1"; do sleep 0.1; done
