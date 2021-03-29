@@ -21,19 +21,6 @@ export interface InstanceDetailsProps {
 }
 
 const Cell = styled.span`
-  align-items: center;
-  display: inline-flex;
-  margin-right: ${({ theme }) => theme.spacing(2.5)};
-  :last-of-type {
-    margin-right: 0;
-  }
-  :first-of-type:before {
-    content: ' // ';
-    padding-right: ${({ theme }) => theme.spacing(2.5)};
-  }
-`
-
-const ResourceCell = styled.span`
   :before {
     content: ' // ';
   }
@@ -42,39 +29,32 @@ const ResourceCell = styled.span`
   }
 `
 
-const IconRight = styled(Icon)`
+const StyledIcon = styled(Icon)`
   margin-left: ${({ theme }) => theme.spacing(1)};
+  margin-right: ${({ theme }) => theme.spacing(3)};
 `
 
-const Wrapper = styled(Text).attrs({ size: 'sm', as: 'div' })`
-  ${({ theme }) => theme.spaceBetweenX(3)}
+const BadgePlaceholder = styled(Text).attrs({ color: 'green500' })`
+  margin-right: ${({ theme }) => theme.spacing(3)};
 `
 
 export const InstanceDetails = (props: InstanceDetailsProps) => {
   return (
-    <Wrapper>
-      {/* placeholder, waiting for badges */}
-      <Text color="green500">[RUNNING]</Text>
+    <Text size="sm">
+      <BadgePlaceholder>[RUNNING]</BadgePlaceholder>
       <span>
-        <ResourceCell>{props.cpu} vCPU</ResourceCell>
-        <ResourceCell>{props.memory} RAM</ResourceCell>
-        <ResourceCell style={{ textTransform: 'uppercase' }}>
-          {props.storage} Disk
-        </ResourceCell>
-      </span>
-      <span>
-        <Cell>{props.vm.os}</Cell>
+        <Cell>{props.cpu} vCPU</Cell>
+        <Cell>{props.memory} RAM</Cell>
+        <Cell style={{ textTransform: 'uppercase' }}>{props.storage} Disk</Cell>
         <Cell>
-          {props.vm.version} {props.vm.arch}
+          {props.vm.os} {props.vm.version} {props.vm.arch}
         </Cell>
-      </span>
-      <span>
         <Cell>
           {props.hostname}
-          <IconRight name="copy" />
+          <StyledIcon name="copy" />
+          {props.ip}
         </Cell>
-        <Cell>{props.ip}</Cell>
       </span>
-    </Wrapper>
+    </Text>
   )
 }
