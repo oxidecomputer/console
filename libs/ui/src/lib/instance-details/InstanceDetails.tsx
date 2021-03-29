@@ -63,9 +63,7 @@ export const InstanceDetails = (props: InstanceDetailsProps) => {
         </ResourceCell>
       </span>
       <span>
-        <Cell>
-          {props.vm.os}
-        </Cell>
+        <Cell>{props.vm.os}</Cell>
         <Cell>
           {props.vm.version} {props.vm.arch}
         </Cell>
