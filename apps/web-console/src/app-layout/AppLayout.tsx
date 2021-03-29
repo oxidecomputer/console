@@ -53,9 +53,14 @@ const Sidebar = styled.div`
 `
 
 const WordmarkWrapper = styled.div`
+  position: sticky;
+  top: 0;
+
   display: flex;
   align-items: center;
   height: ${({ theme }) => theme.spacing(14)};
+
+  background-color: ${({ theme }) => theme.color('gray800')};
 `
 
 const SidebarLists = styled.div`
