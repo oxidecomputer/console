@@ -1,4 +1,5 @@
 import React from 'react'
+import {BrowserRouter as Router} from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
@@ -52,7 +53,9 @@ export const parameters = {
         <ThemeProvider theme={defaultTheme}>
           <GlobalStyle />
           <DocsStyleOverrides />
-          {children}
+          <Router>
+            {children}
+          </Router>
         </ThemeProvider>
       </DocsContainer>
     ),
@@ -64,7 +67,9 @@ export const decorators = [
   (Story) => (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
-      <Story />
+      <Router>
+        <Story />
+      </Router>
     </ThemeProvider>
   ),
 ]
