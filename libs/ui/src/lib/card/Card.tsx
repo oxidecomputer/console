@@ -1,9 +1,9 @@
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
-
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
-import { Text } from '../text/Text'
+
+import { styleUtils as su } from '@oxide/theme'
 import { TextWithIcon } from '../text-with-icon/TextWithIcon'
 import Sparkline from './sparkline.svg'
 
@@ -12,33 +12,29 @@ export interface CardProps {
   subtitle: string
 }
 
-const StyledCard = styled.article``
+const StyledCard = styled.article`
+  color: ${su.color('green50')};
+`
 
 const Main = styled.main`
-  padding: ${({ theme }) => theme.spacing(4)};
-  background: ${({ theme }) => theme.color('green800', 0.24)};
+  padding: ${su.spacing(4)};
+  background-color: ${su.color('green800', 0.24)};
 `
 
-const Title = styled(Text).attrs({
-  as: 'div',
-  color: 'green50',
-  size: 'lg',
-})`
+const Title = styled.div`
   text-transform: uppercase;
+  ${su.textSize('lg')}
 `
 
-const Subtitle = styled(Text).attrs({
-  as: 'div',
-  color: 'green50',
-  size: 'sm',
-})``
+const Subtitle = styled.div`
+  ${su.textSize('sm')}
+`
 
 const Data = styled.div`
   display: flex;
-  flex-direction: row;
 
-  margin-top: ${({ theme }) => theme.spacing(6)};
-  margin-bottom: ${({ theme }) => theme.spacing(16)};
+  margin-top: ${su.spacing(6)};
+  margin-bottom: ${su.spacing(16)};
 `
 
 const DataTable = styled.div`
@@ -46,28 +42,23 @@ const DataTable = styled.div`
 
   display: grid;
   grid-template: 1fr 1fr / 1fr 1fr;
-  column-gap: ${({ theme }) => theme.spacing(6)};
+  column-gap: ${su.spacing(6)};
 `
 
-const DataHeader = styled(Text).attrs({
-  color: 'green500',
-  size: 'sm',
-  role: 'columnheader',
-})`
+const DataHeader = styled.span.attrs({ role: 'columnheader' })`
   text-transform: uppercase;
+  ${su.textSize('sm')}
+  color: ${su.color('green500')}
 `
 
-const MainDataValue = styled(Text).attrs({
-  color: 'gray50',
-  size: 'xl',
-  role: 'cell',
-})`
+const MainDataValue = styled.span.attrs({ role: 'cell' })`
   align-self: baseline;
+  ${su.textSize('xl')}
 `
 
-const SecondaryDataValue = styled(MainDataValue).attrs({
-  size: 'sm',
-})``
+const SecondaryDataValue = styled(MainDataValue)`
+  ${su.textSize('sm')}
+`
 
 const Chart = styled.section`
   flex: 1;
@@ -75,23 +66,19 @@ const Chart = styled.section`
 `
 
 const Footer = styled.footer`
-  background: ${({ theme }) => theme.color('green800', 0.16)};
-  padding: ${({ theme }) => theme.spacing(4)};
+  background: ${su.color('green800', 0.16)};
+  padding: ${su.spacing(4)};
   display: flex;
-  flex-direction: row;
   justify-content: baseline;
 `
 
 const FooterText = styled(TextWithIcon).attrs({
   align: 'right',
-  icon: {
-    name: 'arrow',
-    color: 'green50',
-  },
-  text: { color: 'green50', size: 'sm' },
+  icon: { name: 'arrow' },
 })`
   text-transform: uppercase;
-  margin-right: ${({ theme }) => theme.spacing(2)};
+  margin-right: ${su.spacing(2)};
+  ${su.textSize('sm')}
 `
 
 export const Card: FC<CardProps> = (props) => {
