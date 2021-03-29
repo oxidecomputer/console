@@ -31,7 +31,6 @@ const Cell = styled.span`
     content: ' // ';
     padding-right: ${({ theme }) => theme.spacing(2.5)};
   }
-  }
 `
 
 const ResourceCell = styled.span`
