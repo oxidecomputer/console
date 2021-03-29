@@ -23,6 +23,15 @@ export interface InstanceDetailsProps {
 const Cell = styled.span`
   align-items: center;
   display: inline-flex;
+  margin-right: ${({ theme }) => theme.spacing(2.5)};
+  :last-of-type {
+    margin-right: 0;
+  }
+  :first-of-type:before {
+    content: ' // ';
+    padding-right: ${({ theme }) => theme.spacing(2.5)};
+  }
+  }
 `
 
 const ResourceCell = styled.span`
@@ -34,16 +43,12 @@ const ResourceCell = styled.span`
   }
 `
 
-const IconMiddle = styled(Icon)`
-  margin: 0 ${({ theme }) => theme.spacing(2)};
-`
-
 const IconRight = styled(Icon)`
   margin-left: ${({ theme }) => theme.spacing(1)};
 `
 
 const Wrapper = styled(Text).attrs({ size: 'sm', as: 'div' })`
-  ${({ theme }) => theme.spaceBetweenX(4)}
+  ${({ theme }) => theme.spaceBetweenX(3)}
 `
 
 export const InstanceDetails = (props: InstanceDetailsProps) => {
@@ -58,17 +63,21 @@ export const InstanceDetails = (props: InstanceDetailsProps) => {
           {props.storage} Disk
         </ResourceCell>
       </span>
-      <Cell>
-        {props.vm.os}
-        {/* placeholder for OS-specific icon */}
-        <IconMiddle name="warning" />
-        {props.vm.version} {props.vm.arch}
-      </Cell>
-      <Cell>
-        {props.hostname}
-        <IconRight name="copy" />
-      </Cell>
-      <Cell>{props.ip}</Cell>
+      <span>
+        <Cell>
+          {props.vm.os}
+        </Cell>
+        <Cell>
+          {props.vm.version} {props.vm.arch}
+        </Cell>
+      </span>
+      <span>
+        <Cell>
+          {props.hostname}
+          <IconRight name="copy" />
+        </Cell>
+        <Cell>{props.ip}</Cell>
+      </span>
     </Wrapper>
   )
 }
