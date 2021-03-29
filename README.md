@@ -20,7 +20,7 @@ Run `yarn start` and navigate to http://localhost:4000/. The app will automatica
 
 ### Run API
 
-Clone https://github.com/oxidecomputer/omicron in the same parent directory as `console` and install [rustup](https://rustup.rs/). Then:
+Clone [omicron](https://github.com/oxidecomputer/omicron) in the same parent directory as the console and install [rustup](https://rustup.rs/). Then:
 
 ```
 rustup install stable  # install Rust
@@ -36,6 +36,40 @@ The easy way to run everything is to use the `tools/run_api.sh` script, which us
 ```
 
 To stop the API run `tools/stop_api.sh` (which kills the tmux session) or kill the tmux session manually.
+
+<details>
+<summary>Configuring tmux</summary
+
+Because running the API requires running two programs plus the populate data script, we use tmux to split the terminal into panes so we can see the log output of all three. tmux has its own complicated set of [keyboard shortcuts](https://tmuxcheatsheet.com/). A good way to avoid having to deal with that if you want to poke around in the server logs is to create `~/.tmux.conf` that looks like this:
+
+```
+set -g mouse on
+```
+
+This will let you click to focus a pane and scrolling output with the mouse will automatically work. If you do want to use the shortcuts, here's a `tmux.conf` to make it a little more vim-like:
+
+```shell
+# change leader key from ctrl-b to ctrl-a
+unbind C-b
+set-option -g prefix C-a
+bind-key C-a send-prefix
+
+# ctrl-a v makes a vertical split, ctrl-a h make a horizontal split
+bind v split-window -h
+bind s split-window -v
+unbind '"'
+unbind %
+
+# ctrl-a h/j/k/l move between panes
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+set -g mouse on
+```
+
+</details>
 
 <details>
 <summary>Running without tmux</summary>
