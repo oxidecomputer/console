@@ -4,6 +4,7 @@ import React, { forwardRef } from 'react'
 import styled, { css } from 'styled-components'
 import type { StyledComponentProps } from 'styled-components'
 import type { Theme } from '@oxide/theme'
+import { Icon } from '../icon/Icon'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
 export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
@@ -13,13 +14,23 @@ export type Variant = typeof variants[number]
 
 const sizes: Record<
   ButtonSize,
-  { fontSize: number; lineHeight: number; padding: [number, number] }
+  {
+    iconSize: number
+    fontSize: number
+    lineHeight: number
+    padding: [number, number]
+  }
 > = {
-  xs: { fontSize: 3, lineHeight: 1 / 0.75, padding: [2, 3] }, // total height: 32px
-  sm: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2, 3] }, // total height: 36px
-  base: { fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2.5, 4] }, // total height: 40px
-  lg: { fontSize: 4, lineHeight: 1.5, padding: [2.25, 4.5] }, // total height: 42px
-  xl: { fontSize: 4, lineHeight: 1.5, padding: [3, 6] }, // total height: 48px
+  xs: { iconSize: 4, fontSize: 3, lineHeight: 1 / 0.75, padding: [2, 3] }, // total height: 32px
+  sm: { iconSize: 4, fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2, 3] }, // total height: 36px
+  base: {
+    iconSize: 5,
+    fontSize: 3.5,
+    lineHeight: 1.25 / 0.875,
+    padding: [2.5, 4],
+  }, // total height: 40px
+  lg: { iconSize: 5, fontSize: 4, lineHeight: 1.5, padding: [2.25, 4.5] }, // total height: 42px
+  xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [3, 6] }, // total height: 48px
 }
 
 export type ButtonProps = StyledComponentProps<
@@ -49,6 +60,10 @@ const getSizeStyles = (size: ButtonSize) => {
       font-size: ${({ theme }) => theme.spacing(buttonSize.fontSize)};
       line-height: ${buttonSize.lineHeight};
       padding: ${getPadding(buttonSize.padding[0], buttonSize.padding[1])};
+
+      ${Icon} {
+        width: ${({ theme }) => theme.spacing(buttonSize.iconSize)};
+      }
     `
   }
 
@@ -164,6 +179,11 @@ const StyledButton = styled.button<ButtonProps>`
   border: none;
   border-radius: 0;
   text-transform: uppercase;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
 
   ${({ size }) => size && getSizeStyles(size)};
   ${({ variant }) => variant && getVariantStyles(variant)};

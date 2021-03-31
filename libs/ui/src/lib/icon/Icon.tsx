@@ -124,6 +124,10 @@ type Name = keyof typeof icons
 
 interface StyledIconProps {
   /**
+   * Add optional margin
+   */
+  align?: 'left' | 'right'
+  /**
    * Set the color using a theme color ("green500")
    */
   color?: Color
@@ -185,6 +189,14 @@ export const Icon = styled(SvgIcon).withConfig({
     color ? theme.themeColors[color] : 'currentColor'};
 
   ${({ rotate }) => rotate && `transform: rotate(${rotate})`};
+  ${({ align }) => {
+    if (align === 'left') {
+      return `margin-right: 0.5em;`
+    }
+    if (align === 'right') {
+      return `margin-left: 0.5em;`
+    }
+  }}
 `
 
 export default Icon

@@ -3,6 +3,7 @@ import React from 'react'
 import type { Story } from '@storybook/react'
 import { Button, buttonSizes, variants } from '../Button'
 import type { ButtonProps, ButtonSize, Variant } from '../Button'
+import { Icon } from '../../icon/Icon'
 
 type ButtonStory = Story<PropsWithChildren<ButtonProps>>
 
@@ -38,8 +39,41 @@ const variantSizes = variants.reduce(
         ...allSizes,
         [`${variant}_${size}`]: (() => {
           const Story = Template.bind({})
-          Story.storyName = `${size} ${variant}`
-          Story.args = { ...Default.args, variant, size }
+          Story.storyName = `${variant} ${size}`
+          Story.args = {
+            ...Default.args,
+            variant,
+            size,
+          }
+          return Story
+        })(),
+      }),
+      {} as Record<VariantSize, Story<ButtonProps>>
+    ),
+  }),
+  {} as Record<Variant, Record<ButtonSize, Story<ButtonProps>>>
+)
+
+const withIcons = variants.reduce(
+  (allVariants, variant) => ({
+    ...allVariants,
+    ...buttonSizes.reduce(
+      (allSizes, size) => ({
+        ...allSizes,
+        [`icon_${variant}_${size}`]: (() => {
+          const Story = Template.bind({})
+          Story.storyName = `${variant} with icon ${size}`
+          Story.args = {
+            ...Default.args,
+            variant,
+            size,
+            children: (
+              <>
+                <Icon name="pen" align="left" />
+                Edit
+              </>
+            ),
+          }
           return Story
         })(),
       }),
@@ -52,4 +86,5 @@ const variantSizes = variants.reduce(
 export const stories = {
   sizes,
   variants: variantSizes,
+  withIcons: withIcons,
 }
