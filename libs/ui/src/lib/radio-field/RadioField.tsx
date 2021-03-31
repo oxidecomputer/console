@@ -30,12 +30,16 @@ export interface RadioFieldProps {
 }
 
 const Label = styled.label`
+  align-items: center;
   display: inline-flex;
+  justify-content: center;
 `
 
 const LabelChildren = styled.span``
 
-const StyledIcon = styled(Icon).attrs({ align: 'left' })``
+const StyledIcon = styled(Icon).attrs({ align: 'left' })`
+  width: ${({ theme }) => theme.spacing(3.5)};
+`
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
@@ -59,7 +63,7 @@ const StyledInput = styled.input`
 `
 
 const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
-  margin-top: ${(props) => props.theme.spacing(2)};
+  margin-top: ${({ theme }) => theme.spacing(2)};
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
