@@ -38,41 +38,43 @@ const Wrapper = styled.div`
   grid-template-columns: 14rem auto;
   grid-template-rows: 3.5rem auto;
   grid-template-areas:
-    'sidebar topnav'
+    'logo globalnav'
     'sidebar content';
-  min-height: 100vh;
+  height: 100vh;
+
+  background-color: ${({ theme }) => theme.color('gray800')};
 `
 
 const Sidebar = styled.div`
-  background-color: ${({ theme }) => theme.color('gray800')};
   grid-area: sidebar;
-  padding-left: ${({ theme }) => theme.spacing(4)};
-  padding-right: ${({ theme }) => theme.spacing(4)};
+  margin-left: ${({ theme }) => theme.spacing(4)};
+  margin-right: ${({ theme }) => theme.spacing(4)};
+  margin-bottom: ${({ theme }) => theme.spacing(6)};
+  overflow: auto;
+
+  ${({ theme }) => theme.spaceBetweenY(6)};
 `
 
 const WordmarkWrapper = styled.div`
-  display: flex;
   align-items: center;
+  grid-area: logo;
+  display: flex;
   height: ${({ theme }) => theme.spacing(14)};
-`
-
-const SidebarLists = styled.div`
-  ${({ theme }) => theme.spaceBetweenY(6)};
+  padding-left: ${({ theme }) => theme.spacing(4)};
 `
 
 const Content = styled.main`
   grid-area: content;
-  ${({ theme }) => theme.marginX(6)}
-  ${({ theme }) => theme.marginY(2)}
+  overflow: auto;
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(6)};`};
+
+  background-color: ${({ theme }) => theme.color('gray900')};
 `
 
 const GlobalNavContainer = styled.header`
-  position: sticky;
-  top: 0;
-
   align-self: center;
-  grid-area: topnav;
-  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(6)};
+  grid-area: globalnav;
+  padding: ${({ theme }) => `${theme.spacing(4)} ${theme.spacing(6)};`};
 
   background-color: ${({ theme }) => theme.color('gray900')};
 `
@@ -80,18 +82,16 @@ const GlobalNavContainer = styled.header`
 export default ({ children }: AppLayoutProps) => {
   return (
     <Wrapper>
+      <WordmarkWrapper>
+        <Wordmark />
+      </WordmarkWrapper>
       <Sidebar>
-        <WordmarkWrapper>
-          <Wordmark />
-        </WordmarkWrapper>
-        <SidebarLists>
-          <ProjectList
-            projects={projects}
-            onProjectSelect={() => null}
-            onProjectCreate={() => null}
-          />
-          <OperationList />
-        </SidebarLists>
+        <ProjectList
+          projects={projects}
+          onProjectSelect={() => null}
+          onProjectCreate={() => null}
+        />
+        <OperationList />
       </Sidebar>
       <GlobalNavContainer>
         <GlobalNav />
