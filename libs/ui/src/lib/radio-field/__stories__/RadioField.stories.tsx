@@ -5,11 +5,6 @@ import type { RadioFieldProps } from '../RadioField'
 import { RadioField } from '../RadioField'
 import { Text } from '../../text/Text'
 
-export default {
-  component: RadioField,
-  title: 'Components/RadioField',
-}
-
 const Template: Story<RadioFieldProps> = (args) => <RadioField {...args} />
 
 export const Default = Template.bind({})
@@ -25,8 +20,19 @@ Default.args = {
 
 export const Checked = Template.bind({})
 Checked.args = {
-  checked: true,
+  name: 'group',
   value: 'is-checked',
+  children: (
+    <Text color="white" size="sm">
+      Automatically format and mount
+    </Text>
+  ),
+}
+
+export const withHint = Template.bind({})
+withHint.args = {
+  name: 'group',
+  value: 'with-hint',
   children: (
     <Text color="white" size="sm">
       Automatically format and mount

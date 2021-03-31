@@ -22,6 +22,7 @@ export interface RadioFieldProps {
    * Additional text to associate with this specific field
    */
   hint?: string | React.ReactNode
+  name?: string
   required?: boolean
   /**
    * The value is a useful way to handle controlled radio inputs
@@ -29,16 +30,26 @@ export interface RadioFieldProps {
   value: string
 }
 
-const Label = styled.label`
-  align-items: center;
-  display: inline-flex;
-  justify-content: center;
+const Wrapper = styled.div`
+  > * {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+  }
 `
 
-const LabelChildren = styled.span``
+const Label = styled.label``
+
+const LabelChildren = styled.span`
+  display: inline-block;
+`
 
 const StyledIcon = styled(Icon).attrs({ align: 'left' })`
   width: ${({ theme }) => theme.spacing(3.5)};
+
+  &:focus {
+    outline: none;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
+  }
 `
 
 const StyledInput = styled.input`
@@ -67,51 +78,49 @@ const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
-  display: block;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
+  display: inline-block;
 
   color: ${({ theme }) => theme.color('gray300')};
 `
 
 export const RadioField: FC<RadioFieldProps> = ({
-  checked = false,
   children,
   error = false,
   errorMessage,
   hint,
+  name,
   onChange,
   required = false,
   value,
 }) => {
   const errorId = error ? `${value}-validation-hint` : ``
   const hintId = hint ? `${value}-hint` : ``
-  const [isChecked, setChecked] = React.useState(checked)
+
   const handleChange = React.useCallback(
     (event) => {
-      onChange && onChange(event)
-      if (event.target.value === value) {
-        setChecked(true)
+      if (onChange) {
+        onChange(event)
       }
     },
-    [onChange, value]
+    [onChange]
   )
   return (
-    <>
+    <Wrapper>
       <Label>
         <StyledInput
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
           aria-invalid={error}
-          checked={isChecked}
           onChange={handleChange}
+          name={name}
           required={required}
           type="radio"
           value={value}
         />
-        <StyledIcon name={isChecked ? 'radioF' : 'radioE'} />
+        <StyledIcon name="radioE" />
         <LabelChildren>{children}</LabelChildren>
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
-    </>
+    </Wrapper>
   )
 }
