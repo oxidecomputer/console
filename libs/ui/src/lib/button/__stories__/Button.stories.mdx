@@ -2,6 +2,8 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Button, buttonSizes, variants } from '../Button'
+import { Icon } from '../../icon/Icon'
+import { TextWithIcon } from '../../text-with-icon/TextWithIcon'
 import { Default, stories } from './Button.stories'
 
 <Meta
@@ -92,6 +94,35 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.sizes.xl} />
 </Canvas>
 
+### Button with Icons
+
+<Canvas>
+  <Story name="with icon left">
+    <Button>
+      <Icon name="pen" align="left" />
+      Edit
+    </Button>
+  </Story>
+  <Story name="with icon right">
+    <Button>
+      Create new project
+      <Icon name="plus" align="right" />
+    </Button>
+  </Story>
+  <Story name="TextWithIcon left">
+    <Button>
+      <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
+    </Button>
+  </Story>
+  <Story name="TextWithIcon right">
+    <Button>
+      <TextWithIcon icon={{ name: 'plus' }} align="right">
+        Create new project
+      </TextWithIcon>
+    </Button>
+  </Story>
+</Canvas>
+
 ### Button Variants
 
 #### Solid
@@ -104,6 +135,14 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.variants.solid_xl} />
 </Canvas>
 
+<Canvas>
+  <Story story={stories.withIcons.icon_solid_xs} />
+  <Story story={stories.withIcons.icon_solid_sm} />
+  <Story story={stories.withIcons.icon_solid_base} />
+  <Story story={stories.withIcons.icon_solid_lg} />
+  <Story story={stories.withIcons.icon_solid_xl} />
+</Canvas>
+
 #### Subtle
 
 <Canvas>
@@ -112,6 +151,14 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.variants.subtle_base} />
   <Story story={stories.variants.subtle_lg} />
   <Story story={stories.variants.subtle_xl} />
+</Canvas>
+
+<Canvas>
+  <Story story={stories.withIcons.icon_subtle_xs} />
+  <Story story={stories.withIcons.icon_subtle_sm} />
+  <Story story={stories.withIcons.icon_subtle_base} />
+  <Story story={stories.withIcons.icon_subtle_lg} />
+  <Story story={stories.withIcons.icon_subtle_xl} />
 </Canvas>
 
 #### Outline
@@ -124,6 +171,14 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.variants.outline_xl} />
 </Canvas>
 
+<Canvas>
+  <Story story={stories.withIcons.icon_outline_xs} />
+  <Story story={stories.withIcons.icon_outline_sm} />
+  <Story story={stories.withIcons.icon_outline_base} />
+  <Story story={stories.withIcons.icon_outline_lg} />
+  <Story story={stories.withIcons.icon_outline_xl} />
+</Canvas>
+
 #### Ghost
 
 <Canvas>
@@ -134,6 +189,14 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.variants.ghost_xl} />
 </Canvas>
 
+<Canvas>
+  <Story story={stories.withIcons.icon_ghost_xs} />
+  <Story story={stories.withIcons.icon_ghost_sm} />
+  <Story story={stories.withIcons.icon_ghost_base} />
+  <Story story={stories.withIcons.icon_ghost_lg} />
+  <Story story={stories.withIcons.icon_ghost_xl} />
+</Canvas>
+
 #### Link
 
 <Canvas>
@@ -142,4 +205,12 @@ An affirmative action is something that takes the users further in their journey
   <Story story={stories.variants.link_base} />
   <Story story={stories.variants.link_lg} />
   <Story story={stories.variants.link_xl} />
+</Canvas>
+
+<Canvas>
+  <Story story={stories.withIcons.icon_link_xs} />
+  <Story story={stories.withIcons.icon_link_sm} />
+  <Story story={stories.withIcons.icon_link_base} />
+  <Story story={stories.withIcons.icon_link_lg} />
+  <Story story={stories.withIcons.icon_link_xl} />
 </Canvas>
