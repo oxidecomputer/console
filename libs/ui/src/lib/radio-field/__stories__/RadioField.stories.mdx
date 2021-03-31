@@ -1,0 +1,26 @@
+<!-- RadioField.stories.mdx -->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Checked, Default } from './RadioField.stories'
+
+<Meta
+  title="Components/RadioField"
+  component={RadioField}
+  argTypes={{
+    checked: { control: { type: 'boolean' } },
+    error: { control: { type: 'boolean' } },
+    required: { control: { type: 'boolean' } },
+  }}
+/>
+
+# RadioField
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={TextField} story="^" />
+
+<Canvas>
+  <Story story={Checked} />
+</Canvas>
