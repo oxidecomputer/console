@@ -8,10 +8,13 @@ import { Icon } from '../icon/Icon'
 
 /* eslint-disable-next-line */
 export interface RadioFieldProps {
+  /**
+   * RadioGroup will handle checked based on its value
+   */
   checked?: boolean
   onChange: React.ChangeEventHandler
   /**
-   * Required for accessibility. Defaults to `false`. Input is invalid
+   * Defaults to `false`. Input is invalid
    */
   error?: boolean
   /**
@@ -22,6 +25,9 @@ export interface RadioFieldProps {
    * Additional text to associate with this specific field
    */
   hint?: string | React.ReactNode
+  /**
+   * RadioGroup will pass `name` to Radio fields.
+   */
   name?: string
   required?: boolean
   /**
@@ -30,26 +36,36 @@ export interface RadioFieldProps {
   value: string
 }
 
+const INDENT = 6
+const RADIO_WIDTH = 3.5
+
 const Wrapper = styled.div`
-  > * {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
-  }
+  padding-left: ${({ theme }) => theme.spacing(INDENT)};
 `
 
-const Label = styled.label``
-
-const LabelChildren = styled.span`
-  display: inline-block;
+const Label = styled.label`
+  align-items: center;
+  display: inline-flex;
+  width: 100%;
 `
 
-const StyledIcon = styled(Icon).attrs({ align: 'left' })`
-  width: ${({ theme }) => theme.spacing(3.5)};
+const LabelText = styled(Text).attrs({ size: 'sm' })`
+  color: ${({ theme }) => theme.color('white')};
+`
 
-  &:focus {
-    outline: none;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
-  }
+const IconWrapper = styled.span`
+  margin-right: ${({ theme }) => theme.spacing(INDENT - RADIO_WIDTH)};
+  margin-left: ${({ theme }) => theme.spacing(-1 * INDENT)};
+`
+
+const EmptyRadio = styled(Icon)`
+  width: ${({ theme }) => theme.spacing(RADIO_WIDTH)};
+`
+
+const FilledRadio = styled(Icon)`
+  width: ${({ theme }) => theme.spacing(RADIO_WIDTH)};
+
+  color: ${({ theme }) => theme.color('green500')};
 `
 
 const StyledInput = styled.input`
@@ -62,28 +78,40 @@ const StyledInput = styled.input`
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
 
-  &:focus + ${StyledIcon} {
-    outline: none;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
+  &:focus + ${IconWrapper} {
+    ${EmptyRadio}, ${FilledRadio} {
+      outline: none;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
+    }
   }
 
-  &:checked + ${StyledIcon} {
-    color: ${({ theme }) => theme.color('green500')};
+  &:checked + ${IconWrapper} {
+    ${EmptyRadio} {
+      display: none;
+    }
   }
+
+  &:not(:checked) + ${IconWrapper} {
+    ${FilledRadio} {
+      display: none;
+    }
+  }
+`
+
+const HintText = styled(Text).attrs({ size: 'sm' })`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(1)};
+
+  color: ${({ theme }) => theme.color('gray300')};
 `
 
 const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
   margin-top: ${({ theme }) => theme.spacing(2)};
 `
 
-const HintText = styled(Text).attrs({ size: 'sm' })`
-  display: inline-block;
-
-  color: ${({ theme }) => theme.color('gray300')};
-`
-
 export const RadioField: FC<RadioFieldProps> = ({
+  checked,
   children,
   error = false,
   errorMessage,
@@ -93,7 +121,7 @@ export const RadioField: FC<RadioFieldProps> = ({
   required = false,
   value,
 }) => {
-  const errorId = error ? `${value}-validation-hint` : ``
+  const errorId = error ? `${value}-validation-hint ` : ``
   const hintId = hint ? `${value}-hint` : ``
 
   const handleChange = React.useCallback(
@@ -108,16 +136,20 @@ export const RadioField: FC<RadioFieldProps> = ({
     <Wrapper>
       <Label>
         <StyledInput
-          aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
+          aria-describedby={error || hint ? `${errorId}${hintId}` : undefined}
           aria-invalid={error}
-          onChange={handleChange}
+          checked={checked}
           name={name}
+          onChange={handleChange}
           required={required}
           type="radio"
           value={value}
         />
-        <StyledIcon name="radioE" />
-        <LabelChildren>{children}</LabelChildren>
+        <IconWrapper>
+          <EmptyRadio name="radioE" />
+          <FilledRadio name="radioF" />
+        </IconWrapper>
+        <LabelText>{children}</LabelText>
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
