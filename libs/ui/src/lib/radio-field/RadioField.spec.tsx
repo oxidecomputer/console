@@ -5,7 +5,7 @@ import { RadioField } from './RadioField'
 
 describe('RadioField', () => {
   it('should render successfully', () => {
-    const { container } = render(<RadioField />)
+    const { container } = render(<RadioField value="example" />)
     expect(container).toBeTruthy()
   })
 })

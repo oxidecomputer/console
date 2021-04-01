@@ -2,39 +2,44 @@ import type { FC } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
+import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
 
-/* eslint-disable-next-line */
-export interface RadioFieldProps {
-  /**
-   * RadioGroup will handle checked based on its value
-   */
-  checked?: boolean
-  onChange: React.ChangeEventHandler
-  /**
-   * Defaults to `false`. Input is invalid
-   */
-  error?: boolean
-  /**
-   * Error message text to render
-   */
-  errorMessage?: string
-  /**
-   * Additional text to associate with this specific field
-   */
-  hint?: string | React.ReactNode
-  /**
-   * RadioGroup will pass `name` to Radio fields.
-   */
-  name?: string
-  required?: boolean
-  /**
-   * The value is a useful way to handle controlled radio inputs
-   */
-  value: string
-}
+export type RadioFieldProps = StyledComponentProps<
+  'input',
+  DefaultTheme,
+  {
+    /**
+     * RadioGroup will handle checked based on its value
+     */
+    checked?: boolean
+    onChange?: React.ChangeEventHandler
+    /**
+     * Defaults to `false`. Input is invalid
+     */
+    error?: boolean
+    /**
+     * Error message text to render
+     */
+    errorMessage?: string
+    /**
+     * Additional text to associate with this specific field
+     */
+    hint?: string | React.ReactNode
+    /**
+     * RadioGroup will pass `name` to Radio fields.
+     */
+    name?: string
+    required?: boolean
+    /**
+     * The value is a useful way to handle controlled radio inputs
+     */
+    value: string
+  },
+  never
+>
 
 const INDENT = 6
 const RADIO_WIDTH = 3.5
