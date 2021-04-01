@@ -1,7 +1,7 @@
-export * from './generated'
+export * from './__generated__'
 export * from './hooks'
 
-import { DefaultApi, Configuration } from './generated'
+import { DefaultApi, Configuration } from './__generated__'
 
 const prodConfig = new Configuration({ basePath: '/api' })
 const devConfig = new Configuration({ basePath: '/api' })
