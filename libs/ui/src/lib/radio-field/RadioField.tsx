@@ -7,6 +7,7 @@ import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
 
+type Variant = 'base' | 'two-line'
 export type RadioFieldProps = StyledComponentProps<
   'input',
   DefaultTheme,
@@ -37,7 +38,7 @@ export type RadioFieldProps = StyledComponentProps<
      * The value is a useful way to handle controlled radio inputs
      */
     value: string
-    variant?: 'base' | 'two-line'
+    variant?: Variant
   },
   never
 >
@@ -45,8 +46,13 @@ export type RadioFieldProps = StyledComponentProps<
 const INDENT = 6
 const RADIO_WIDTH = 3.5
 
-const Wrapper = styled.div`
-  padding-left: ${({ theme }) => theme.spacing(INDENT)};
+const Wrapper = styled.div<{ variant: Variant }>`
+  ${({ variant, theme }) =>
+    variant === 'base' && `padding-left: ${theme.spacing(INDENT)};`}
+
+  & > * {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
 `
 
 const Label = styled.label`
@@ -149,7 +155,7 @@ export const RadioField: FC<RadioFieldProps> = ({
     ) : null
 
   return (
-    <Wrapper>
+    <Wrapper variant={variant}>
       <Label>
         <StyledInput
           aria-describedby={error || hint ? `${errorId}${hintId}` : undefined}
