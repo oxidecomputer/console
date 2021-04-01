@@ -10,7 +10,7 @@ export const Default = Template.bind({})
 Default.args = {
   children: 'Automatically format and mount',
   hint: 'Some details about automatically formatting and mounting disks.',
-  value: 'custom',
+  value: 'default',
 }
 
 export const Checked = Template.bind({})
@@ -32,15 +32,8 @@ export const withError = Template.bind({})
 withError.args = {
   children: 'Comments',
   error: true,
-  errorMessage: 'This field is required.',
+  errorMessage: 'Error message shows up like this.',
   hint: 'Get notified when someones posts a comment on a posting.',
   name: 'group',
   value: 'with-error',
-}
-
-export const TwoLine = Template.bind({})
-TwoLine.args = {
-  children: '2 CPUs 4 GB RAM',
-  value: 'two-line',
-  variant: 'two-line',
 }

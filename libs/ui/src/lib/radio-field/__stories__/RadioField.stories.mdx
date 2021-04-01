@@ -1,14 +1,9 @@
 <!-- RadioField.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import {
-  Checked,
-  Default,
-  withHint,
-  withError,
-  TwoLine,
-} from './RadioField.stories'
+import { Checked, Default, withHint, withError } from './RadioField.stories'
 import { RadioField } from '../RadioField'
+import { Text } from '../../text/Text'
 
 <Meta
   title="Components/RadioField"
@@ -72,8 +67,71 @@ Selecting one option unselects all others.
 
 ### Variants
 
-#### Two Line
+#### Card
+
+##### Two Lines
 
 <Canvas>
-  <Story story={TwoLine} />
+  <Story name="Card Two Lines">
+    <RadioField name="group1" value="radio1" variant="card">
+      <Text>1 CPUs</Text>
+      <br />
+      <Text>4 GB RAM</Text>
+    </RadioField>
+  </Story>
+  <Story name="Card Two Lines with Hint">
+    <RadioField
+      checked
+      name="group1"
+      value="radio2"
+      variant="card"
+      hint="More details show up like this."
+    >
+      <Text>1 CPUs</Text>
+      <br />
+      <Text>4 GB RAM</Text>
+    </RadioField>
+  </Story>
+  <Story name="Card Two Lines with Error">
+    <RadioField
+      name="group1"
+      value="radio3"
+      variant="card"
+      error
+      errorMessage="Error message shows up like this."
+    >
+      <Text>1 CPUs</Text>
+      <br />
+      <Text>4 GB RAM</Text>
+    </RadioField>
+  </Story>
+</Canvas>
+
+##### Single Line
+
+<Canvas>
+  <Story name="Card">
+    <RadioField name="group2" variant="card">
+      100 GB
+    </RadioField>
+  </Story>
+  <Story name="Card with Hint">
+    <RadioField
+      name="group2"
+      variant="card"
+      hint="More details show up like this."
+    >
+      200 GB
+    </RadioField>
+  </Story>
+  <Story name="Card with Error">
+    <RadioField
+      name="group2"
+      variant="card"
+      error
+      errorMessage="Error message shows up like this."
+    >
+      300 GB
+    </RadioField>
+  </Story>
 </Canvas>
