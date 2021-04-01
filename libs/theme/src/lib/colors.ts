@@ -7,6 +7,7 @@ export const colorGroups = [
   'darkBlue',
   'green',
   'darkGreen',
+  'purple',
 ] as const
 export type ColorGroup = typeof colorGroups[number]
 export const colorValues = [
@@ -112,6 +113,17 @@ export const colorDefinitions: ColorPalette = {
   darkGreen700: '0, 0%, 100%',
   darkGreen800: '163, 37%, 15%',
   darkGreen900: '176, 23%, 12%',
+
+  purple50: '270, 100%, 98%',
+  purple100: '269, 100%, 95%',
+  purple200: '269, 100%, 92%',
+  purple300: '269, 97%, 85%',
+  purple400: '270, 95%, 75%',
+  purple500: '271, 91%, 65%',
+  purple600: '271, 81%, 56%',
+  purple700: '272, 72%, 47%',
+  purple800: '273, 67%, 39%',
+  purple900: '274, 66%, 32%',
 
   darkBgPurple: '255, 30%, 18%',
   darkBgYellow: '65, 13%, 18%',

@@ -14,6 +14,7 @@ import CpuIcon from '../../assets/cpu.svg'
 import DangerFilledIcon from '../../assets/danger-filled.svg'
 import DangerIcon from '../../assets/danger.svg'
 import DashboardIcon from '../../assets/dashboard.svg'
+import DotIcon from '../../assets/dot.svg'
 import ExternalIcon from '../../assets/external.svg'
 import FileIcon from '../../assets/file.svg'
 import FilterIcon from '../../assets/filter.svg'
@@ -72,6 +73,7 @@ export const icons = {
   danger: DangerIcon,
   dangerFilled: DangerFilledIcon,
   dashboard: DashboardIcon,
+  dot: DotIcon,
   external: ExternalIcon,
   file: FileIcon,
   filter: FilterIcon,

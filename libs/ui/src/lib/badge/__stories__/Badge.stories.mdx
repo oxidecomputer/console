@@ -1,0 +1,27 @@
+<!-- Badge.stories.mdx -->
+
+import { Meta, ArgsTable, Story, Canvas } from '@storybook/addon-docs/blocks'
+import { stories } from './Badge.stories'
+import { Badge } from '../Badge'
+
+<Meta
+  title="Components/Badge"
+  component={Badge}
+  parameters={{
+    actions: { argTypesRegex: '^on.*' },
+  }}
+/>
+
+# Badge
+
+<Canvas>
+  <Story story={stories.primary} />
+</Canvas>
+
+<ArgsTable of={Badge} story="^" />
+
+# Rationalle
+
+Badges highlight metadata of objects, the kind of information that always needs some context and isn’t useful on its own. For example, they can be used to indicate an issue’s status, a member’s role, or if a branch is protected.
+
+Showing metadata does not require the use of badges, you can just use plain icons, text, or both. But if the metadata is worth highlighting or differentiating, badges can help.

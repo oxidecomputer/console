@@ -1,5 +1,5 @@
 import { css } from 'styled-components'
-import type { SpacingHelper, Theme } from '../types'
+import type { SpacingHelper, SizingMultiplier, Theme } from '../types'
 import type { Color } from '../colors'
 import { colorDefinitions, colorPalette } from '../colors'
 
@@ -65,6 +65,17 @@ const marginY: SpacingHelper = (size) => css`
   margin-bottom: ${({ theme }) => theme.spacing(size)};
 `
 
+// Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
+// Usage: `theme.spacing(4)` => '1rem' (16px)
+//        `theme.spacing([4, 4 ,4 ,4])` => '1rem 1rem 1rem 1rem'
+//
+// Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`
+const spacing = (size: SizingMultiplier | SizingMultiplier[]): string => {
+  const helper = (n: number): string => `${n * 0.25}rem`
+
+  return Array.isArray(size) ? size.map(helper).join(' ') : helper(size)
+}
+
 export const baseTheme: Theme = {
   fonts: {
     sans: `'Inter', sans-serif`,
@@ -73,11 +84,7 @@ export const baseTheme: Theme = {
   color: color,
   themeColors: colorPalette,
 
-  // Spacing is based on Tailwind's default spacing scale. See: https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale
-  // Usage: `theme.spacing(4)` => '1rem' (16px)
-  //
-  // Dev Note: Eventually most commonly used numbers will map to strings e.g. `theme.spacing('small')`
-  spacing: (size) => `${size * 0.25}rem`,
+  spacing,
   spaceBetweenX,
   spaceBetweenY,
   paddingX,
