@@ -1,5 +1,8 @@
 import React from 'react'
+// import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
+
+// import { useApiData, api } from '@oxide/api'
 
 import {
   Breadcrumbs,
@@ -37,7 +40,9 @@ const Title = styled(TextWithIcon).attrs({
   icon: {
     name: 'instance',
   },
-})``
+})`
+  text-transform: uppercase;
+`
 
 const InstanceAction = styled(Button).attrs({
   size: 'xs',
@@ -77,7 +82,21 @@ const CardList = styled.div`
 `
 const OverviewPanel = styled.div``
 
+// type Params = {
+//   projectName: string
+//   instanceName: string
+// }
+
 const InstancePage = () => {
+  // const { projectName, instanceName } = useParams<Params>()
+
+  // const { data } = useApiData(api.apiProjectInstancesGetInstance, {
+  //   instanceName,
+  //   projectName,
+  // })
+
+  // if (!data) return <div>loading</div>
+
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />

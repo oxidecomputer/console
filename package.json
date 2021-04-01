@@ -27,6 +27,7 @@
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
     "styled-components": "5.2.1",
+    "swr": "^0.5.4",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2"
   },
