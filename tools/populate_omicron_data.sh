@@ -11,6 +11,7 @@
 ./tools/oxapi_demo project_create_demo oxide-demo
 
 ./tools/oxapi_demo instance_create_demo prod-online db1
+./tools/oxapi_demo instance_create_demo prod-online db2
 
 ./tools/oxapi_demo disk_create_demo prod-online nginx
 ./tools/oxapi_demo disk_create_demo prod-online grafana

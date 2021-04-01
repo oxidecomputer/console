@@ -21,6 +21,12 @@ const config = merge<webpack.Configuration>(sharedConfig, {
     historyApiFallback: true,
     port: 4000,
     hot: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:12220',
+        pathRewrite: { '^/api': '' },
+      },
+    },
   },
 })
 

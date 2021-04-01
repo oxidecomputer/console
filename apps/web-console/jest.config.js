@@ -7,5 +7,6 @@ module.exports = {
     '\\.(css|less)$': 'identity-obj-proxy',
     '^@oxide/ui$': '<rootDir>/../../libs/ui/src',
     '^@oxide/theme$': '<rootDir>/../../libs/theme/src',
+    '^@oxide/api$': '<rootDir>/../../libs/api',
   },
 }
