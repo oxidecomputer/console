@@ -31,7 +31,12 @@ const projects = [
     id: '5',
     name: 'oxide-demo',
   },
-]
+].map((p) => ({
+  ...p,
+  description: '',
+  timeCreated: new Date(),
+  timeModified: new Date(),
+}))
 
 const Wrapper = styled.div`
   display: grid;
