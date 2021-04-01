@@ -1,6 +1,6 @@
 # Oxide - Console
 
-## Install dependencies
+### Install dependencies
 
 ```
 yarn install
