@@ -1,0 +1,65 @@
+<!-- RadioField.stories.mdx -->
+
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Checked, Default, withHint, withError } from './RadioField.stories'
+import { RadioField } from '../RadioField'
+
+<Meta
+  title="Components/RadioField"
+  component={RadioField}
+  argTypes={{
+    checked: { control: { type: 'boolean' } },
+    error: { control: { type: 'boolean' } },
+    required: { control: { type: 'boolean' } },
+  }}
+/>
+
+# RadioField
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={RadioField} story="^" />
+
+## Design
+
+A radio input typically represents a single option in a group of related choices. Each radio input is boolean and only one can be selected at a time.
+
+### Usage
+
+Use radio inputs to present a set of options, where only one option can be selected at a time.
+One radio input should be selected as the default choice by using the `checked` attribute.
+
+#### Legends, Labels, and Help text
+
+Radio input labels are set in regular font weight, positioned to the right of the element, and should be as short as possible.
+
+Use a `fieldset` with `legend` (set in bold font weight and positioned above the group of radio inputs) to group a set of radio inputs. Some screen readers will announce the contents of the `legend` before each nested input to maintain context for a user.
+
+Help text can be added below the radio input label or as a paragraph below the group.
+
+#### Interaction
+
+Users are able to select an option with click/tap on the radio button or its label.
+Selecting one option unselects all others.
+
+## Stories
+
+### Checked
+
+<Canvas>
+  <Story story={Checked} />
+</Canvas>
+
+### With Hint
+
+<Canvas>
+  <Story story={withHint} />
+</Canvas>
+
+### With Error
+
+<Canvas>
+  <Story story={withError} />
+</Canvas>
