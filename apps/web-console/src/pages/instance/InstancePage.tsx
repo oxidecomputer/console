@@ -1,5 +1,5 @@
 import React from 'react'
-// import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 // import { useApiData, api } from '@oxide/api'
@@ -82,13 +82,13 @@ const CardList = styled.div`
 `
 const OverviewPanel = styled.div``
 
-// type Params = {
-//   projectName: string
-//   instanceName: string
-// }
+type Params = {
+  projectName: string
+  instanceName: string
+}
 
 const InstancePage = () => {
-  // const { projectName, instanceName } = useParams<Params>()
+  const { /* projectName, */ instanceName } = useParams<Params>()
 
   // const { data } = useApiData(api.apiProjectInstancesGetInstance, {
   //   instanceName,
@@ -101,7 +101,7 @@ const InstancePage = () => {
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
       <Header>
-        <Title>DB1</Title>
+        <Title>{instanceName}</Title>
         <Actions>
           <InstanceAction>
             <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
