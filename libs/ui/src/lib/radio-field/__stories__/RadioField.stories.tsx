@@ -8,32 +8,39 @@ const Template: Story<RadioFieldProps> = (args) => <RadioField {...args} />
 
 export const Default = Template.bind({})
 Default.args = {
-  value: 'custom',
   children: 'Automatically format and mount',
   hint: 'Some details about automatically formatting and mounting disks.',
+  value: 'custom',
 }
 
 export const Checked = Template.bind({})
 Checked.args = {
   checked: true,
-  value: 'is-checked',
   children: 'Remember Me',
+  value: 'is-checked',
 }
 
 export const withHint = Template.bind({})
 withHint.args = {
-  name: 'group',
-  value: 'with-hint',
   children: 'Comments',
   hint: 'Get notified when someones posts a comment on a posting.',
+  name: 'group',
+  value: 'with-hint',
 }
 
 export const withError = Template.bind({})
 withError.args = {
-  name: 'group',
-  value: 'with-error',
   children: 'Comments',
-  hint: 'Get notified when someones posts a comment on a posting.',
   error: true,
   errorMessage: 'This field is required.',
+  hint: 'Get notified when someones posts a comment on a posting.',
+  name: 'group',
+  value: 'with-error',
+}
+
+export const TwoLine = Template.bind({})
+TwoLine.args = {
+  children: '2 CPUs 4 GB RAM',
+  value: 'two-line',
+  variant: 'two-line',
 }

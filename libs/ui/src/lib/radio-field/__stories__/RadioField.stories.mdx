@@ -1,7 +1,13 @@
 <!-- RadioField.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Checked, Default, withHint, withError } from './RadioField.stories'
+import {
+  Checked,
+  Default,
+  withHint,
+  withError,
+  TwoLine,
+} from './RadioField.stories'
 import { RadioField } from '../RadioField'
 
 <Meta
@@ -62,4 +68,12 @@ Selecting one option unselects all others.
 
 <Canvas>
   <Story story={withError} />
+</Canvas>
+
+### Variants
+
+#### Two Line
+
+<Canvas>
+  <Story story={TwoLine} />
 </Canvas>

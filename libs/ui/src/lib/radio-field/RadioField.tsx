@@ -37,6 +37,7 @@ export type RadioFieldProps = StyledComponentProps<
      * The value is a useful way to handle controlled radio inputs
      */
     value: string
+    variant?: 'base' | 'two-line'
   },
   never
 >
@@ -125,6 +126,7 @@ export const RadioField: FC<RadioFieldProps> = ({
   onChange,
   required = false,
   value,
+  variant = 'base',
 }) => {
   const errorId = error ? `${value}-validation-hint ` : ``
   const hintId = hint ? `${value}-hint` : ``
@@ -137,6 +139,15 @@ export const RadioField: FC<RadioFieldProps> = ({
     },
     [onChange]
   )
+
+  const renderIcons =
+    variant === 'base' ? (
+      <IconWrapper>
+        <EmptyRadio name="radioE" />
+        <FilledRadio name="radioF" />
+      </IconWrapper>
+    ) : null
+
   return (
     <Wrapper>
       <Label>
@@ -150,10 +161,7 @@ export const RadioField: FC<RadioFieldProps> = ({
           type="radio"
           value={value}
         />
-        <IconWrapper>
-          <EmptyRadio name="radioE" />
-          <FilledRadio name="radioF" />
-        </IconWrapper>
+        {renderIcons}
         <LabelText>{children}</LabelText>
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
