@@ -1,16 +1,12 @@
 import React from 'react'
-import { render } from '../test-utils'
+import { render, screen } from '../test-utils'
 
 import App from './app'
 
 describe('App', () => {
-  it('should render successfully', () => {
+  it('should render successfully', async () => {
     const { baseElement } = render(<App />)
     expect(baseElement).toBeTruthy()
-  })
-
-  it('should have a greeting as the title', () => {
-    const { getByText } = render(<App />)
-    expect(getByText('Maze War')).toBeTruthy()
+    await screen.findByText('Attached Disks')
   })
 })
