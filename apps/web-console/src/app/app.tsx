@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 import InstancePage from '../pages/instance/InstancePage'
 import InstancesPage from '../pages/instance/InstancesPage'
+import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
 
 const App = () => {
   return (
@@ -16,6 +17,9 @@ const App = () => {
         <Switch>
           <Route path="/" exact>
             <Redirect to="/projects/prod-online/instances/db1" />
+          </Route>
+          <Route path="/projects/:projectName/instances/new">
+            <InstanceCreatePage />
           </Route>
           <Route path="/projects/:projectName/instances/:instanceName">
             <InstancePage />
