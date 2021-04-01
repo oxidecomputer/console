@@ -129,14 +129,6 @@ export const RadioField: FC<RadioFieldProps> = ({
   const errorId = error ? `${value}-validation-hint ` : ``
   const hintId = hint ? `${value}-hint` : ``
 
-  const handleChange = React.useCallback(
-    (event) => {
-      if (onChange) {
-        onChange(event)
-      }
-    },
-    [onChange]
-  )
   return (
     <Wrapper>
       <Label>
@@ -145,7 +137,7 @@ export const RadioField: FC<RadioFieldProps> = ({
           aria-invalid={error}
           checked={checked}
           name={name}
-          onChange={handleChange}
+          onChange={onChange}
           required={required}
           type="radio"
           value={value}
