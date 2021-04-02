@@ -91,6 +91,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   defaultValue = null,
   direction = 'column',
   legend,
+  onChange,
   name,
   required = false,
 }) => {
@@ -99,8 +100,9 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   const handleChange = React.useCallback(
     (event) => {
       setChecked(event.target.value)
+      onChange && onChange(event)
     },
-    [setChecked]
+    [setChecked, onChange]
   )
   return (
     <StyledFieldset direction={direction}>
