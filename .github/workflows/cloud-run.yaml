@@ -45,7 +45,7 @@ jobs:
         with:
           push: true
           file: ./ci/omicron/Dockerfile
-          tags: gcr.io/${PROJECT_ID}/${SERVICE_NAME}:pr-${{github.event.number}}
+          tags: gcr.io/${{ secrets.GOOGLE_CLOUD_PROJECT }}/omicron-console-dev:pr-${{github.event.number}}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
