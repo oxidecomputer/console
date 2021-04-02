@@ -21,6 +21,9 @@ const Template: Story<RadioGroupProps> = (args) => (
 
 const CardTemplate: Story<RadioGroupProps> = (args) => (
   <RadioGroup {...args}>
+    <RadioField variant="card" value="50">
+      50 GB
+    </RadioField>
     <RadioField variant="card" value="100">
       100 GB
     </RadioField>
@@ -29,6 +32,24 @@ const CardTemplate: Story<RadioGroupProps> = (args) => (
     </RadioField>
     <RadioField variant="card" value="300">
       300 GB
+    </RadioField>
+    <RadioField variant="card" value="400">
+      400 GB
+    </RadioField>
+    <RadioField variant="card" value="500">
+      500 GB
+    </RadioField>
+    <RadioField variant="card" value="600">
+      600 GB
+    </RadioField>
+    <RadioField variant="card" value="700">
+      700 GB
+    </RadioField>
+    <RadioField variant="card" value="800">
+      800 GB
+    </RadioField>
+    <RadioField variant="card" value="900">
+      900 GB
     </RadioField>
   </RadioGroup>
 )
@@ -41,7 +62,15 @@ Default.args = {
 
 export const withInitialChecked = CardTemplate.bind({})
 withInitialChecked.args = {
+  defaultValue: '100',
+  direction: 'row',
   legend: 'Add storage',
   name: 'group2',
-  defaultValue: '100',
+}
+
+export const withFixedRow = CardTemplate.bind({})
+withFixedRow.args = {
+  direction: 'fixed-row',
+  legend: 'Add storage',
+  name: 'group3',
 }

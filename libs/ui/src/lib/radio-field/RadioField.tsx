@@ -39,6 +39,8 @@ const INDENT = 6
 const RADIO_WIDTH = 3.5
 
 const Wrapper = styled.div<{ variant: Variant }>`
+  flex-shrink: 0;
+
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
