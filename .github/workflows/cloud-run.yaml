@@ -39,12 +39,20 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+      - name: Install Google Cloud Docker
+        run: gcloud components install docker-credential-gcr
+      - name: Setup Docker for GCR
+        run: gcloud auth configure-docker
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           push: true
           file: ./ci/omicron/Dockerfile
-          tags: gcr.io/${PROJECT_ID}/${SERVICE_NAME}:${GITHUB_SHA}
+          tags: gcr.io/${PROJECT_ID}/${SERVICE_NAME}:${{ steps.extract_branch.outputs.branch }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -58,13 +66,17 @@ jobs:
         with:
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
           service_account_key: ${{ secrets.GOOGLE_CLOUD_SA_KEY }}
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Get HEAD Commit Hash
         id: commit
         run: echo "::set-output name=hash::$(git rev-parse --short HEAD)"
       - name: Deploy Revision On Cloud Run
         run: |
           gcloud run deploy "$SERVICE_NAME" \
-          --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA" \
+          --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:${{ steps.extract_branch.outputs.branch }}" \
           --region "$RUN_REGION" \
           --platform=managed \
           --port=3000 \
