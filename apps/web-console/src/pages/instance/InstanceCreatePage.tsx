@@ -1,16 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Breadcrumbs, TextWithIcon } from '@oxide/ui'
-
-const Header = styled.header`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  margin-top: ${({ theme }) => theme.spacing(2)};
-`
+import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -31,9 +22,9 @@ const InstancesPage = () => {
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
-      <Header>
+      <PageHeader>
         <Title>Create Instance</Title>
-      </Header>
+      </PageHeader>
       <p style={{ marginTop: '2rem' }}>There is nothing here, sorry</p>
     </>
   )

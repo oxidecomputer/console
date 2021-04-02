@@ -3,21 +3,12 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 
-import { Breadcrumbs, TextWithIcon } from '@oxide/ui'
-
-const Header = styled.header`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  margin-top: ${({ theme }) => theme.spacing(2)};
-`
+import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: {
-    name: 'instance',
+    name: 'instances',
   },
 })``
 
@@ -37,9 +28,9 @@ const InstancesPage = () => {
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
-      <Header>
+      <PageHeader>
         <Title>Instances for Project: {projectName}</Title>
-      </Header>
+      </PageHeader>
       <p style={{ marginTop: '2rem' }}>There is nothing here, sorry</p>
     </>
   )
