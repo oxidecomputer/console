@@ -76,8 +76,7 @@ const StyledIcon = styled(Icon)<StyledIconProps>`
   ${({ align, theme }) => align === 'right' && `right: ${theme.spacing(2.5)};`};
   bottom: 0;
 
-  margin: 0;
-  padding: 0;
+  height: 100%;
   width: ${({ theme }) => theme.spacing(5)};
 `
 
