@@ -12,6 +12,7 @@
     "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
     "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "typecheck": "tsc",
     "plop": "plop"
   },
   "private": true,
