@@ -60,7 +60,7 @@ jobs:
       - name: Deploy Revision On Cloud Run
         run: |
           gcloud run deploy omicron-console-dev \
-          --image "gcr.io/${{secrets.GOOGLE_CLOUD_PROJECT }}/omicron-console-dev:pr-${{github.event.number}} \
+          --image "gcr.io/${{secrets.GOOGLE_CLOUD_PROJECT }}/omicron-console-dev:pr-${{github.event.number}}" \
           --region "us-central1" \
           --platform=managed \
           --port=3000 \
