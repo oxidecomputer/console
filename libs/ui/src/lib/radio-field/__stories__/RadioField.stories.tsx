@@ -27,13 +27,3 @@ withHint.args = {
   name: 'group',
   value: 'with-hint',
 }
-
-export const withError = Template.bind({})
-withError.args = {
-  children: 'Comments',
-  error: true,
-  errorMessage: 'Error message shows up like this.',
-  hint: 'Get notified when someones posts a comment on a posting.',
-  name: 'group',
-  value: 'with-error',
-}

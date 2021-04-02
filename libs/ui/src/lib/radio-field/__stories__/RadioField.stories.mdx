@@ -1,12 +1,12 @@
 <!-- RadioField.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Checked, Default, withHint, withError } from './RadioField.stories'
+import { Checked, Default, withHint } from './RadioField.stories'
 import { RadioField } from '../RadioField'
 import { Text } from '../../text/Text'
 
 <Meta
-  title="Components/RadioField"
+  title="Components/Forms/RadioField"
   component={RadioField}
   argTypes={{
     checked: { control: { type: 'boolean' } },
@@ -59,12 +59,6 @@ Selecting one option unselects all others.
   <Story story={withHint} />
 </Canvas>
 
-### With Error
-
-<Canvas>
-  <Story story={withError} />
-</Canvas>
-
 ### Variants
 
 #### Card
@@ -81,28 +75,21 @@ Selecting one option unselects all others.
   </Story>
   <Story name="Card Two Lines with Hint">
     <RadioField
-      checked
       name="group1"
       value="radio2"
       variant="card"
       hint="More details show up like this."
     >
-      <Text>1 CPUs</Text>
+      <Text>2 CPUs</Text>
       <br />
       <Text>4 GB RAM</Text>
     </RadioField>
   </Story>
-  <Story name="Card Two Lines with Error">
-    <RadioField
-      name="group1"
-      value="radio3"
-      variant="card"
-      error
-      errorMessage="Error message shows up like this."
-    >
-      <Text>1 CPUs</Text>
+  <Story name="Card Two Lines Checked">
+    <RadioField checked name="group1" value="radio3" variant="card">
+      <Text>4 CPUs</Text>
       <br />
-      <Text>4 GB RAM</Text>
+      <Text>8 GB RAM</Text>
     </RadioField>
   </Story>
 </Canvas>
@@ -124,13 +111,8 @@ Selecting one option unselects all others.
       200 GB
     </RadioField>
   </Story>
-  <Story name="Card with Error">
-    <RadioField
-      name="group2"
-      variant="card"
-      error
-      errorMessage="Error message shows up like this."
-    >
+  <Story name="Card Checked">
+    <RadioField checked name="group2" variant="card">
       300 GB
     </RadioField>
   </Story>

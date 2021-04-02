@@ -18,14 +18,6 @@ export type RadioFieldProps = StyledComponentProps<
     checked?: boolean
     onChange?: React.ChangeEventHandler
     /**
-     * Defaults to `false`. Input is invalid
-     */
-    error?: boolean
-    /**
-     * Error message text to render
-     */
-    errorMessage?: string
-    /**
      * Additional text to associate with this specific field
      */
     hint?: string | React.ReactNode
@@ -151,15 +143,9 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
   color: ${({ theme }) => theme.color('gray300')};
 `
 
-const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
-  margin-top: ${({ theme }) => theme.spacing(2)};
-`
-
 export const RadioField: FC<RadioFieldProps> = ({
   checked,
   children,
-  error = false,
-  errorMessage,
   hint,
   name,
   onChange,
@@ -167,8 +153,8 @@ export const RadioField: FC<RadioFieldProps> = ({
   value,
   variant = 'base',
 }) => {
-  const errorId = error ? `${value}-validation-hint ` : ``
   const hintId = hint ? `${value}-hint` : ``
+  const ariaProps = hint ? { 'aria-describedby': hintId } : {}
 
   const handleChange = React.useCallback(
     (event) => {
@@ -191,20 +177,18 @@ export const RadioField: FC<RadioFieldProps> = ({
     <Wrapper variant={variant}>
       <Label>
         <StyledInput
-          aria-describedby={error || hint ? `${errorId}${hintId}` : undefined}
-          aria-invalid={error}
           checked={checked}
           name={name}
           onChange={handleChange}
           required={required}
           type="radio"
           value={value}
+          {...ariaProps}
         />
         {renderIcons}
         <LabelText radioVariant={variant}>{children}</LabelText>
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>
   )
 }
