@@ -63,7 +63,6 @@ jobs:
           --image "gcr.io/${{secrets.GOOGLE_CLOUD_PROJECT }}/omicron-console-dev:pr-${{github.event.number}}" \
           --region "us-central1" \
           --platform=managed \
-          --port=3000 \
           --revision-suffix=${{github.event.number}}-${{steps.commit.outputs.hash}} \
           --allow-unauthenticated \
           --max-instances=1
