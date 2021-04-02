@@ -29,9 +29,7 @@ const Wrapper = styled.div``
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
-  icon: {
-    name: 'dashboard',
-  },
+  icon: { name: 'dashboard' },
 })`
   text-transform: uppercase;
 `

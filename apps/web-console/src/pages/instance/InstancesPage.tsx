@@ -7,9 +7,7 @@ import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
-  icon: {
-    name: 'instances',
-  },
+  icon: { name: 'instances' },
 })``
 
 const breadcrumbs = [
