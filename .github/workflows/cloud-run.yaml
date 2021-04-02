@@ -48,7 +48,7 @@ jobs:
         with:
           push: true
           file: ./ci/omicron/Dockerfile
-          tags: gcr.io/${PROJECT_ID}/${SERVICE_NAME}:${{github.event.number}}
+          tags: gcr.io/${PROJECT_ID}/${SERVICE_NAME}:pr-${{github.event.number}}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -68,7 +68,7 @@ jobs:
       - name: Deploy Revision On Cloud Run
         run: |
           gcloud run deploy "$SERVICE_NAME" \
-          --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:${{github.event.number}} \
+          --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:pr-${{github.event.number}} \
           --region "$RUN_REGION" \
           --platform=managed \
           --port=3000 \
