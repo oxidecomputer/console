@@ -80,10 +80,12 @@ const StyledIcon = styled(Icon)<StyledIconProps>`
   width: ${({ theme }) => theme.spacing(5)};
 `
 
-const StyledInput = styled.input<{
+type StyledInputType = {
   hasError?: boolean
   alignIcon?: 'left' | 'right'
-}>`
+}
+
+const StyledInput = styled.input<StyledInputType>`
   display: block;
   margin: 0;
   padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
