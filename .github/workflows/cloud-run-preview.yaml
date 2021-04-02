@@ -1,15 +1,10 @@
-name: Preview
+name: Preview API
 
 on:
   pull_request:
     branches:
       - "main"
     types: [synchronize, opened, reopened]
-
-env:
-  PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
-  RUN_REGION: us-central1
-  SERVICE_NAME: omicron-console-dev
 
 jobs:
   container:
@@ -64,9 +59,9 @@ jobs:
         run: echo "::set-output name=hash::$(git rev-parse --short HEAD)"
       - name: Deploy Revision On Cloud Run
         run: |
-          gcloud run deploy "$SERVICE_NAME" \
-          --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:pr-${{github.event.number}} \
-          --region "$RUN_REGION" \
+          gcloud run deploy omicron-console-dev \
+          --image "gcr.io/${{secrets.GOOGLE_CLOUD_PROJECT }}/omicron-console-dev:pr-${{github.event.number}} \
+          --region "us-central1" \
           --platform=managed \
           --port=3000 \
           --revision-suffix=${{github.event.number}}-${{steps.commit.outputs.hash}} \
@@ -75,14 +70,14 @@ jobs:
       - name: Update Traffic
         run: |
           gcloud components install beta
-          gcloud beta run services update-traffic "$SERVICE_NAME" \
-            --update-tags pr-${{github.event.number}}=${SERVICE_NAME}-${{github.event.number}}-${{steps.commit.outputs.hash}} \
+          gcloud beta run services update-traffic omicron-console-dev \
+            --update-tags pr-${{github.event.number}}=omicron-console-dev-${{github.event.number}}-${{steps.commit.outputs.hash}} \
             --platform=managed \
-            --region "$RUN_REGION" \
+            --region "us-central1" \
       - name: Get Preview URL
         id: preview-url
         run: |
-          url=$(gcloud run services describe $SERVICE_NAME --format 'value(status.url)' --platform=managed --region=${RUN_REGION} | sed 's|https://|https://pr-${{github.event.number}}---|g')
+          url=$(gcloud run services describe omicron-console-dev --format 'value(status.url)' --platform=managed --region=us-central1 | sed 's|https://|https://pr-${{github.event.number}}---|g')
           echo "::set-output name=url::$url"
       - name: Post PR comment with preview deployment URL
         uses: mshick/add-pr-comment@v1
