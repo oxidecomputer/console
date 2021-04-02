@@ -53,6 +53,7 @@ export default {
         __dirname,
         'libs/backend-types/src/'
       ),
+      '@oxide/api': path.resolve(__dirname, 'libs/api/'),
     },
   },
   plugins: [

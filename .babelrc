@@ -11,6 +11,7 @@
         "regenerator": true
       }
     ],
-    ["styled-components", { "pure": true, "ssr": true }]
+    ["styled-components", { "pure": true, "ssr": true }],
+    "@babel/plugin-proposal-class-properties"
   ]
 }

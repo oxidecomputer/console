@@ -1,6 +1,6 @@
 # Oxide - Console
 
-## Install dependencies
+### Install dependencies
 
 ```
 yarn install
@@ -104,10 +104,12 @@ You can skip the prompts by including the answers directly in the command:
 yarn plop ui-component RedButton buttons n
 ```
 
-### Run unit tests
+### Other useful commands
 
-Run `yarn test` to execute the unit tests. Because this just calls [Jest](https://jestjs.io), you can use any flag Jest takes, like `yarn test --onlyChanged` or `yarn test --watch`.
-
-### Build for production
-
-Run `yarn build` to build the console app. The build artifacts will be stored in the `dist/` directory.
+| Command       | Description                                                      |
+| ------------- | ---------------------------------------------------------------- |
+| `yarn test`   | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`   |
+| `yarn lint`   | ESLint                                                           |
+| `yarn tsc`    | Check types                                                      |
+| `yarn ci`     | Lint, tests, and types                                           |
+| `yarn format` | Format everything. Rarely necessary thanks to editor integration |

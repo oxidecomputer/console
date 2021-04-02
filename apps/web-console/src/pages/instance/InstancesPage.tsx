@@ -29,16 +29,16 @@ const breadcrumbs = [
 ]
 
 type Params = {
-  projectId?: string
+  projectName: string
 }
 
 const InstancesPage = () => {
-  const { projectId } = useParams<Params>()
+  const { projectName } = useParams<Params>()
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
       <Header>
-        <Title>Instances for Project: {projectId}</Title>
+        <Title>Instances for Project: {projectName}</Title>
       </Header>
       <p style={{ marginTop: '2rem' }}>There is nothing here, sorry</p>
     </>

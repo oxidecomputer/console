@@ -156,15 +156,6 @@ export const RadioField: FC<RadioFieldProps> = ({
   const hintId = hint ? `${value}-hint` : ``
   const ariaProps = hint ? { 'aria-describedby': hintId } : {}
 
-  const handleChange = React.useCallback(
-    (event) => {
-      if (onChange) {
-        onChange(event)
-      }
-    },
-    [onChange]
-  )
-
   const renderIcons =
     variant === 'base' ? (
       <IconWrapper>
@@ -179,7 +170,7 @@ export const RadioField: FC<RadioFieldProps> = ({
         <StyledInput
           checked={checked}
           name={name}
-          onChange={handleChange}
+          onChange={onChange}
           required={required}
           type="radio"
           value={value}
