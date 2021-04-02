@@ -39,7 +39,7 @@ jobs:
         run: yarn
 
       - name: Typecheck
-        run: yarn typecheck
+        run: yarn tsc
 
       - name: Lint
         run: yarn lint

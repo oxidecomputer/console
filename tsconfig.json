@@ -18,6 +18,7 @@
     "strict": true,
     "jsx": "react",
     "baseUrl": ".",
+    "noEmit": true,
     "paths": {
       "@oxide/ui": ["libs/ui/src/index.ts"],
       "@oxide/theme": ["libs/theme/src/index.ts"],
