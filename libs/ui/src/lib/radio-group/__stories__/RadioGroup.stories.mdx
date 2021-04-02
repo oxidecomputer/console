@@ -1,15 +1,14 @@
 <!-- RadioGroup.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { stories } from './RadioGroup.stories'
+import { Default, withInitialChecked } from './RadioGroup.stories'
 import { RadioGroup } from '../RadioGroup'
+import { RadioField } from '../../radio-field/RadioField'
 
 <Meta
   title="Components/Forms/RadioGroup"
   component={RadioGroup}
   argTypes={{
-    checked: { control: { type: 'boolean' } },
-    error: { control: { type: 'boolean' } },
     required: { control: { type: 'boolean' } },
   }}
 />
@@ -17,7 +16,7 @@ import { RadioGroup } from '../RadioGroup'
 # RadioGroup
 
 <Canvas>
-  <Story story={stories.Default} />
+  <Story story={Default} />
 </Canvas>
 
 <ArgsTable of={RadioGroup} story="^" />
@@ -39,3 +38,11 @@ Use a `fieldset` with `legend` (set in bold font weight and positioned above the
 
 Users are able to select an option with click/tap on the radio button or its label.
 Selecting one option unselects all others.
+
+## Stories
+
+### with initially checked option
+
+<Canvas>
+  <Story story={withInitialChecked} />
+</Canvas>
