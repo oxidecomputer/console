@@ -91,6 +91,7 @@ const StyledInput = styled.input<StyledInputType>`
   padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
   width: 100%;
 
+  appearance: textfield;
   border: 1px solid transparent;
   background-color: ${({ theme }) => theme.color('gray700')};
   color: ${({ theme }) => theme.color('gray100')};
