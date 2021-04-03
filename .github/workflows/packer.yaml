@@ -3,7 +3,7 @@ name: Packer
 on:
   push:
     paths:
-      - "packer/**" # Only run on changes to the src directory.
+      - "packer/**" # Only run on changes to the packer directory.
       - ".github/workflows/packer.yml" # Run when this file changes.
 
 jobs:
