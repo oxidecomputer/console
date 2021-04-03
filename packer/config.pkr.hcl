@@ -50,6 +50,32 @@ EOF
   }
 }
 
+variable "ssl_cert" {
+  default = env("SSL_CERT")
+
+  validation {
+    condition     = length(var.ssl_cert) > 0
+    error_message = <<EOF
+The ssl_cert var is not set: make sure to at least set the SSL_CERT env var.
+To fix this you could also set the ssl_cert variable from the arguments, for example:
+$ packer build -var=ssl_cert=...
+EOF
+  }
+}
+
+variable "ssl_key" {
+  default = env("SSL_KEY")
+
+  validation {
+    condition     = length(var.ssl_key) > 0
+    error_message = <<EOF
+The ssl_key var is not set: make sure to at least set the SSL_KEY env var.
+To fix this you could also set the ssl_key variable from the arguments, for example:
+$ packer build -var=ssl_key=...
+EOF
+  }
+}
+
 source "googlecompute" "oxide-console-base" {
     project_id = "oxide-console"
     // FROM: https://console.cloud.google.com/compute/images
@@ -84,7 +110,9 @@ build {
             "GITHUB_TOKEN=${var.github_token}",
             "TAILSCALE_MACHINE_KEY=${var.tailscale_machine_key}",
             "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
-            "CLOUDFLARE_TOKEN=${var.cloudflare_token}"
+            "CLOUDFLARE_TOKEN=${var.cloudflare_token}",
+            "SSL_CERT=${var.ssl_cert}",
+            "SSL_KEY=${var.ssl_key}"
         ]
     }
     provisioner "shell" {

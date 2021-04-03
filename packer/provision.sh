@@ -68,6 +68,8 @@ echo "${TAILSCALE_MACHINE_KEY}" | sudo tee /etc/tailscale/machine_key
 sudo mkdir -p /etc/cloudflare
 echo "${CLOUDFLARE_EMAIL}" | sudo tee /etc/cloudflare/email
 echo "${CLOUDFLARE_TOKEN}" | sudo tee /etc/cloudflare/token
+echo "${SSL_CERT}" | sudo tee /etc/cloudflare/certificate
+echo "${SSL_KEY}" | sudo tee /etc/cloudflare/private_key
 
 # Clean up
 sudo apt autoremove -y
