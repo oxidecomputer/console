@@ -1,0 +1,12 @@
+[Unit]
+Description=Allow connections on port 80 and 443
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+ExecStart=/sbin/iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

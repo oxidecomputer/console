@@ -1,0 +1,41 @@
+name: Packer
+
+on:
+  push:
+    paths:
+      - "packer/**" # Only run on changes to the src directory.
+      - ".github/workflows/packer.yml" # Run when this file changes.
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: packer
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_PACKER }}
+          service_account_key: ${{ secrets.GCP_SA_KEY_PACKER }}
+          export_default_credentials: true
+
+      # validate templates
+      - name: Validate Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: packer/config.pkr.hcl
+
+      # build artifact
+      - name: Build Artifact
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort"
+          target: packer/config.pkr.hcl
+        env:
+          PACKER_LOG: 1
+          GITHUB_TOKEN: ${{secrets.GLOBAL_GITHUB_TOKEN}}
