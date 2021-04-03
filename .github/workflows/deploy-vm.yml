@@ -11,7 +11,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to GitHub Packages Docker Registry
