@@ -4,7 +4,7 @@
 # start_api.sh. if you do run it manually, note that it's meant to be run
 # from inside the omicron repo and it assumes nexus and sled agent are running
 
-npm install -g json
+sudo npm install -g json
 
 oxapi_demo project_create_demo prod-online
 oxapi_demo project_create_demo release-infrastructure
