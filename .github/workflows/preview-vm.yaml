@@ -1,0 +1,24 @@
+name: Preview VM
+
+ on:
+   pull_request:
+     branches:
+       - "main"
+     types: [synchronize, opened, reopened]
+
+ jobs:
+   container:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Extract branch name
+         shell: bash
+         run: echo "##[set-output name=branch;]$(echo ${{github.event.pull_request.head.ref}} | sed 's#refs/heads/##g')"
+         id: extract_branch
+       - name: Post PR comment with preview deployment URL
+         uses: mshick/add-pr-comment@v1
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         with:
+           message: |
+             Successfully deployed preview at https://console-git-${{steps.extract_branch.outputs.branch}}
+           allow-repeats: false
