@@ -57,6 +57,11 @@ sudo docker pull ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action
 sudo mkdir -p /etc/tailscale
 echo "${TAILSCALE_MACHINE_KEY}" | sudo tee /etc/tailscale/machine_key
 
+# Set the cloudflare variables
+sudo mkdir -p /etc/cloudflare
+echo "${CLOUDFLARE_EMAIL}" | sudo tee /etc/cloudflare/email
+echo "${CLOUDFLARE_TOKEN}" | sudo tee /etc/cloudflare/token
+
 # Clean up
 sudo apt autoremove -y
 sudo apt clean -y

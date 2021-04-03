@@ -24,6 +24,32 @@ EOF
   }
 }
 
+variable "cloudflare_email" {
+  default = env("CLOUDFLARE_EMAIL")
+
+  validation {
+    condition     = length(var.cloudflare_email) > 0
+    error_message = <<EOF
+The cloudflare_email var is not set: make sure to at least set the CLOUDFLARE_EMAIL env var.
+To fix this you could also set the cloudflare_email variable from the arguments, for example:
+$ packer build -var=cloudflare_email=...
+EOF
+  }
+}
+
+variable "cloudflare_token" {
+  default = env("CLOUDFLARE_TOKEN")
+
+  validation {
+    condition     = length(var.cloudflare_token) > 0
+    error_message = <<EOF
+The cloudflare_token var is not set: make sure to at least set the CLOUDFLARE_TOKEN env var.
+To fix this you could also set the cloudflare_token variable from the arguments, for example:
+$ packer build -var=cloudflare_token=...
+EOF
+  }
+}
+
 source "googlecompute" "oxide-console-base" {
     project_id = "oxide-console"
     // FROM: https://console.cloud.google.com/compute/images
@@ -48,7 +74,9 @@ build {
         timeout      = "10s"
 		environment_vars = [
             "GITHUB_TOKEN=${var.github_token}",
-            "TAILSCALE_MACHINE_KEY=${var.tailscale_machine_key}"
+            "TAILSCALE_MACHINE_KEY=${var.tailscale_machine_key}",
+            "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
+            "CLOUDFLARE_TOKEN=${var.cloudflare_token}"
         ]
     }
     provisioner "shell" {
