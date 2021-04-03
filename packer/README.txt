@@ -8,3 +8,4 @@ TODO:
 - github action to comment on pull requests with the URL
 - cleanup old images
 - cleanup instances after the PR is merged or closed
+- cleanup tailscale old machine names
