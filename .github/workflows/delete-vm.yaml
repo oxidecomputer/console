@@ -19,6 +19,4 @@ jobs:
         shell: bash
         run: |
           export BRANCH=$(echo "${{github.event.ref}}" | sed "s#refs/head/##g")
-          gcloud compute instances delete "console-git-${BRANCH}" --quiet \
-	          --zone=us-central1-a || true
-
+          gcloud compute instances delete "console-git-${BRANCH}" --quiet --zone=us-central1-a || true
