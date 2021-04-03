@@ -68,6 +68,10 @@ build {
         source = "packer/omicron.toml"
         destination = "/tmp/omicron.toml"
     }
+    provisioner "file"{
+        source = "packer/nginx"
+        destination = "/tmp/nginx"
+    }
     provisioner "shell" {
         script = "packer/provision.sh"
         pause_before = "10s"

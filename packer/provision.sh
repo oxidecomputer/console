@@ -46,12 +46,16 @@ sudo systemctl start iptables-routing.service
 sudo mkdir -p /etc/omicron
 sudo mv /tmp/omicron.toml /etc/omicron/config.toml
 
+# Move the nginx configs to the right directory.
+sudo mv /tmp/nginx /etc/nginx
+
 # Login to the GitHub container registry.
 sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
 
 # Pre-pull the base docker images we need.
 sudo docker pull cockroachdb/cockroach
 sudo docker pull ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action
+sudo docker pull ghcr.io/oxidecomputer/cio:cfcert
 
 # Set the tailscale machine key
 sudo mkdir -p /etc/tailscale
