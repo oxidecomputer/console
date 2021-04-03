@@ -44,3 +44,5 @@ jobs:
           TAILSCALE_MACHINE_KEY: ${{secrets.TAILSCALE_MACHINE_KEY}}
           CLOUDFLARE_EMAIL: ${{secrets.CLOUDFLARE_EMAIL}}
           CLOUDFLARE_TOKEN: ${{secrets.CLOUDFLARE_TOKEN}}
+          SSL_CERT: ${{secrets.SSL_CERT}}
+          SSL_KEY: ${{secrets.SSL_KEY}}
