@@ -39,3 +39,4 @@ jobs:
         env:
           PACKER_LOG: 1
           GITHUB_TOKEN: ${{secrets.GLOBAL_GITHUB_TOKEN}}
+          TAILSCALE_MACHINE_KEY: ${{secrets.TAILSCALE_MACHINE_KEY}}
