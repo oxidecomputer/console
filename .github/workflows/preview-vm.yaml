@@ -1,13 +1,13 @@
 name: Preview VM
 
- on:
+on:
    pull_request:
      branches:
        - "main"
      types: [synchronize, opened, reopened]
 
- jobs:
-   container:
+jobs:
+   comment:
      runs-on: ubuntu-latest
      steps:
        - name: Extract branch name
