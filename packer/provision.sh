@@ -49,6 +49,9 @@ sudo mv /tmp/omicron.toml /etc/omicron/config.toml
 # Move the nginx configs to the right directory.
 sudo mv /tmp/nginx /etc/nginx
 
+# Move the oxapi_demo script to the right location.
+sudo mv /tmp/oxapi_demo /usr/local/bin/oxapi_demo
+
 # Login to the GitHub container registry.
 sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
 

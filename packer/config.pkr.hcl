@@ -68,6 +68,10 @@ build {
         source = "packer/omicron.toml"
         destination = "/tmp/omicron.toml"
     }
+    provisioner "file" {
+        source = "packer/oxapi_demo"
+        destination = "/tmp/oxapi_demo"
+    }
     provisioner "file"{
         source = "packer/nginx"
         destination = "/tmp/nginx"
@@ -90,6 +94,11 @@ build {
     }
     provisioner "shell" {
         script = "packer/bootstrap-omicron.sh"
+        pause_before = "10s"
+        timeout      = "10s"
+    }
+    provisioner "shell" {
+        script = "packer/populate-omicron-data.sh"
         pause_before = "10s"
         timeout      = "10s"
     }
