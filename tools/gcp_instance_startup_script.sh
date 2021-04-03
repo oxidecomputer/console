@@ -10,6 +10,6 @@ tailscale up --authkey=${TAILSCALE_MACHINE_KEY}
 docker run -d \
 	--restart=always \
 	--name=console \
-	-p 0.0.0.0:80 \
+	-p 0.0.0.0:80:80 \
 	--entrypoint=sled_agent \
 	ghcr.io/oxidecomputer/console:BRANCH_NAME
