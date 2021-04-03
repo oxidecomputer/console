@@ -47,11 +47,15 @@ sudo mkdir -p /etc/omicron
 sudo mv /tmp/omicron.toml /etc/omicron/config.toml
 
 # Login to the GitHub container registry.
-sudo docker login ghcr.io -u jessfraz -p $GITHUB_TOKEN
+sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
 
 # Pre-pull the base docker images we need.
 sudo docker pull cockroachdb/cockroach
 sudo docker pull ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action
+
+# Set the tailscale machine key
+sudo mkdir -p /etc/tailscale
+echo "${TAILSCALE_MACHINE_KEY}" | sudo tee /etc/tailscale/machine_key
 
 # Clean up
 sudo apt autoremove -y
