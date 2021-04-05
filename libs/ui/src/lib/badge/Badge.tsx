@@ -3,6 +3,8 @@ import type { FC } from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
+import type { ButtonSize } from '../button/Button'
+import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { TextSize } from '../text/Text'
 import Text from '../text/Text'
@@ -40,13 +42,16 @@ const sizeMap: Record<
   Size,
   {
     textSize: TextSize
-    iconSizes: Record<VariantWithIcon, number>
+    iconSizes: {
+      notification: number
+      closable: ButtonSize
+    }
     padding: Record<Variant, number[]>
   }
 > = {
   sm: {
     textSize: 'xxs',
-    iconSizes: { notification: 2, closable: 2 },
+    iconSizes: { notification: 2, closable: 'xs' },
     padding: {
       base: [0, 1],
       notification: [0, 2, 0, 1],
@@ -55,7 +60,7 @@ const sizeMap: Record<
   },
   base: {
     textSize: 'sm',
-    iconSizes: { notification: 2, closable: 3 },
+    iconSizes: { notification: 2, closable: 'sm' },
     padding: {
       base: [1, 3],
       notification: [1, 3, 1, 2],
@@ -64,7 +69,7 @@ const sizeMap: Record<
   },
   xl: {
     textSize: 'sm',
-    iconSizes: { notification: 2, closable: 3 },
+    iconSizes: { notification: 2, closable: 'sm' },
     padding: {
       base: [2, 4],
       notification: [2, 4, 2, 3],
@@ -106,8 +111,12 @@ const BadgeText = styled(Text).attrs({ size: 'sm' })<{ textColor: Color }>`
   line-height: 1;
 `
 
-const StyledIcon = styled(Icon)<{ iconSize: number; pointer?: boolean }>`
-  width: ${({ theme, iconSize }) => theme.spacing(iconSize)};
+const StyledIcon = styled(Icon)<{ iconSize?: number; pointer?: boolean }>`
+  ${({ theme, iconSize }) =>
+    iconSize &&
+    css`
+      width: ${theme.spacing(iconSize)};
+    `}
   ${({ pointer }) =>
     pointer &&
     css`
@@ -144,14 +153,13 @@ export const Badge: FC<BadgeProps> = ({
         {title}
       </BadgeText>
       {variant === 'closable' && (
-        <StyledIcon
-          iconSize={iconSizes.closable}
-          color={text}
-          name="close"
-          onClick={() => onClose()}
-          align="right"
-          pointer
-        />
+        <Button
+          variant="link"
+          onClick={() => onClose && onClose()}
+          size={iconSizes.closable}
+        >
+          <StyledIcon color={text} name="close" align="right" pointer />
+        </Button>
       )}
     </StyledBadge>
   )
