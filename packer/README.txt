@@ -1,6 +1,8 @@
 In order to do deploy previews easily and behind the VPN we first bake a VM
 image, we will reuse as the base image for each VM.
 
+## Pre-baked image
+
 On the image is the following:
 - Tailscale is installed
 - Docker is installed
@@ -13,6 +15,8 @@ On the image is the following:
   https://119.rfd.oxide.computer)
 
 Packer is the tool used for building the image.
+
+## VM launched
 
 When the VM is launched you can find what is done on startup in
 tools/gcp_instance_startup_script.sh.
