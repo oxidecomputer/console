@@ -1,17 +1,21 @@
 import React from 'react'
 import type { Meta, Story } from '@storybook/react'
-import type { Project } from '@oxide/backend-types'
 
 import { ProjectList } from './ProjectList'
 import type { ProjectListProps } from './ProjectList'
 
-const demoProjects: Project[] = [
-  { id: '1', name: 'prod-online', notificationsCount: 2, starred: true },
+const demoProjects = [
+  { id: '1', name: 'prod-online' },
   { id: '2', name: 'release-infrastructure' },
   { id: '3', name: 'rendering' },
   { id: '4', name: 'test-infrastructure' },
   { id: '5', name: 'oxide-demo' },
-]
+].map((p) => ({
+  ...p,
+  description: '',
+  timeCreated: new Date(),
+  timeModified: new Date(),
+}))
 
 export default {
   component: ProjectList,
