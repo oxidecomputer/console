@@ -1,11 +1,13 @@
 # build environment
 FROM node:14-alpine as build
+ARG api_url=https://console-git-main.internal.oxide.computer:8888
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./
 COPY yarn.lock ./
 RUN yarn
 COPY . ./
+ENV API_URL=${api_url}
 RUN yarn build
 
 # production environment

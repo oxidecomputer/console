@@ -23,6 +23,7 @@ docker run --rm \
 		cfcert console-git-BRANCH_NAME.internal.oxide.computer ${TAILSCALE_IP}
 
 # Run the console.
+docker pull ghcr.io/oxidecomputer/console:BRANCH_NAME
 docker run -d \
 	--restart=always \
 	--name=console \

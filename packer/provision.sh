@@ -56,9 +56,8 @@ sudo mv /tmp/oxapi_demo /usr/local/bin/oxapi_demo
 sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
 
 # Pre-pull the base docker images we need.
-sudo docker pull cockroachdb/cockroach
-sudo docker pull ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action
 sudo docker pull ghcr.io/oxidecomputer/cio:cfcert
+sudo docker pull ghcr.io/oxidecomputer/console:packer
 
 # Set the tailscale machine key
 sudo mkdir -p /etc/tailscale

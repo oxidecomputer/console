@@ -46,6 +46,8 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/console:${{ steps.extract_branch.outputs.branch }},ghcr.io/${{ github.repository_owner }}/console:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          build-args: |
+            api_url=https://console-git-${{ steps.extract_branch.outputs.branch }}.internal.oxide.computer:8888
   create-vm:
     needs: [docker-image]
     runs-on: ubuntu-latest
