@@ -14,10 +14,9 @@ export TAILSCALE_IP=$(tailscale status --active | grep console-git-BRANCH_NAME |
 export CLOUDFLARE_EMAIL=$(cat /etc/cloudflare/email | tr -d '[:space:]')
 export CLOUDFLARE_TOKEN=$(cat /etc/cloudflare/token | tr -d '[:space:]')
 
-# Create the certificate and A record for the domain.
+# Create the A record for the domain.
 docker run --rm \
 	--name=cfcert \
-	-v "/etc/cloudflare:/etc/cloudflare" \
 	-e CLOUDFLARE_EMAIL \
 	-e CLOUDFLARE_TOKEN \
 	ghcr.io/oxidecomputer/cio:cfcert \

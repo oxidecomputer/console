@@ -12,7 +12,10 @@ On the image is the following:
   routing cloudflare after the VM is launch. We pre-pull the image since then
   running it when the VM is launched takes less time.
 - SSL cert wildcard for *.internal.oxide.computer (URL syntax is documented in
-  https://119.rfd.oxide.computer)
+  https://119.rfd.oxide.computer).
+  This cert is generated in the configs repo. It expires every three months so
+  the secrets in this repo will need to be updated accordingly when it does,
+  then a new packer image will need to be built.
 
 Packer is the tool used for building the image.
 
