@@ -22,6 +22,30 @@ docker run --rm \
 	ghcr.io/oxidecomputer/cio:cfcert \
 		cfcert console-git-BRANCH_NAME.internal.oxide.computer ${TAILSCALE_IP}
 
+# Populate API data.
+# After we turn on cockroach and get rid of the in-memory store this can
+# be moved to part of the packer build to save time.
+oxapi_demo project_create_demo prod-online
+oxapi_demo project_create_demo release-infrastructure
+oxapi_demo project_create_demo rendering
+oxapi_demo project_create_demo test-infrastructure
+oxapi_demo project_create_demo oxide-demo
+
+oxapi_demo instance_create_demo prod-online db1
+oxapi_demo instance_create_demo prod-online db2
+
+oxapi_demo disk_create_demo prod-online nginx
+oxapi_demo disk_create_demo prod-online grafana
+oxapi_demo disk_create_demo prod-online grafana-state
+oxapi_demo disk_create_demo prod-online vault
+
+oxapi_demo instance_attach_disk prod-online db1 nginx
+oxapi_demo instance_attach_disk prod-online db1 grafana
+oxapi_demo instance_attach_disk prod-online db1 grafana-state
+oxapi_demo instance_attach_disk prod-online db1 vault
+
+echo "\n==== API DATA POPULATED ====\n"
+
 # Run the console.
 docker pull ghcr.io/oxidecomputer/console:BRANCH_NAME
 docker run -d \

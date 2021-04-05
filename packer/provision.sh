@@ -59,6 +59,9 @@ sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
 sudo docker pull ghcr.io/oxidecomputer/cio:cfcert
 sudo docker pull ghcr.io/oxidecomputer/console:packer
 
+# This is for the oxapi script.
+sudo npm install -g json
+
 # Set the tailscale machine key
 sudo mkdir -p /etc/tailscale
 echo "${TAILSCALE_MACHINE_KEY}" | sudo tee /etc/tailscale/machine_key

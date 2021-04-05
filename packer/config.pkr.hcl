@@ -125,9 +125,4 @@ build {
         pause_before = "10s"
         timeout      = "10s"
     }
-    provisioner "shell" {
-        script = "packer/populate-omicron-data.sh"
-        pause_before = "10s"
-        timeout      = "10s"
-    }
 }
