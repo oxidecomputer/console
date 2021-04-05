@@ -22,6 +22,17 @@ docker run --rm \
 	ghcr.io/oxidecomputer/cio:cfcert \
 		cfcert console-git-BRANCH_NAME.internal.oxide.computer ${TAILSCALE_IP}
 
+# Run the console.
+docker pull ghcr.io/oxidecomputer/console:BRANCH_NAME
+docker run -d \
+	--restart=always \
+	--name=console \
+	--net host \
+	-v "/etc/cloudflare:/etc/cloudflare:ro" \
+	-v "/etc/nginx/ssl-params.conf:/etc/nginx/ssl-params.conf:ro" \
+	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
+	ghcr.io/oxidecomputer/console:BRANCH_NAME
+
 # Populate API data.
 # After we turn on cockroach and get rid of the in-memory store this can
 # be moved to part of the packer build to save time.
@@ -45,15 +56,4 @@ oxapi_demo instance_attach_disk prod-online db1 grafana-state
 oxapi_demo instance_attach_disk prod-online db1 vault
 
 echo "\n==== API DATA POPULATED ====\n"
-
-# Run the console.
-docker pull ghcr.io/oxidecomputer/console:BRANCH_NAME
-docker run -d \
-	--restart=always \
-	--name=console \
-	--net host \
-	-v "/etc/cloudflare:/etc/cloudflare:ro" \
-	-v "/etc/nginx/ssl-params.conf:/etc/nginx/ssl-params.conf:ro" \
-	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
-	ghcr.io/oxidecomputer/console:BRANCH_NAME
 
