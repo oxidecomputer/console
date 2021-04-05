@@ -31,6 +31,8 @@ export interface BadgeProps {
   size?: Size
   variant?: Variant
 
+  className?: string
+
   onClose?: () => void
 }
 
@@ -114,6 +116,7 @@ const StyledIcon = styled(Icon)<{ iconSize: number; pointer?: boolean }>`
 `
 
 export const Badge: FC<BadgeProps> = ({
+  className,
   title,
   color = 'gray',
   size = 'base',
@@ -124,7 +127,11 @@ export const Badge: FC<BadgeProps> = ({
   const { textSize, iconSizes, padding } = sizeMap[size]
 
   return (
-    <StyledBadge background={background} padding={padding[variant]}>
+    <StyledBadge
+      className={className}
+      background={background}
+      padding={padding[variant]}
+    >
       {variant === 'notification' && (
         <StyledIcon
           name="dot"
