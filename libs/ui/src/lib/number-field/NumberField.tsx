@@ -6,8 +6,12 @@ import styled from 'styled-components'
 import { TextField } from '../text-field/TextField'
 import { Icon } from '../icon/Icon'
 
-/* eslint-disable-next-line */
-export interface NumberFieldProps {}
+export interface NumberFieldProps {
+  /**
+   * Starting number
+   */
+  defaultValue: number
+}
 
 const StyledTextField = styled(TextField)`
   [type='number'] {
@@ -40,8 +44,11 @@ const Control = styled.button`
   }
 `
 
-export const NumberField: FC<NumberFieldProps> = ({ children }) => {
-  const [value, setValue] = React.useState(0)
+export const NumberField: FC<NumberFieldProps> = ({
+  children,
+  defaultValue = 0,
+}) => {
+  const [value, setValue] = React.useState(defaultValue)
   const handleChange = React.useCallback(
     (event) => {
       setValue(event.target.value)
