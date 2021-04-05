@@ -3,7 +3,7 @@ export * from './hooks'
 
 import { DefaultApi, Configuration } from './__generated__'
 
-const prodConfig = new Configuration({ basePath: '/api' })
+const prodConfig = new Configuration({ basePath: 'http://localhost:8888' })
 const devConfig = new Configuration({ basePath: '/api' })
 
 const api =

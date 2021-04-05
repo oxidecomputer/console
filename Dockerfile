@@ -3,9 +3,9 @@ FROM node:13.12.0-alpine as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./
-RUN npm install
+RUN yarn
 COPY . ./
-RUN npm run build
+RUN yarn build
 
 # production environment
 FROM nginx:stable-alpine

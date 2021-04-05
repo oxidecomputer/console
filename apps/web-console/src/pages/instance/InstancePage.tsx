@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-// import { useApiData, api } from '@oxide/api'
+import { useApiData, api } from '@oxide/api'
 
 import {
   Breadcrumbs,
@@ -78,14 +78,14 @@ type Params = {
 }
 
 const InstancePage = () => {
-  const { /* projectName, */ instanceName } = useParams<Params>()
+  const { projectName, instanceName } = useParams<Params>()
 
-  // const { data } = useApiData(api.apiProjectInstancesGetInstance, {
-  //   instanceName,
-  //   projectName,
-  // })
+  const { data } = useApiData(api.apiProjectInstancesGetInstance, {
+    instanceName,
+    projectName,
+  })
 
-  // if (!data) return <div>loading</div>
+  if (!data) return <div>loading</div>
 
   return (
     <Wrapper>
