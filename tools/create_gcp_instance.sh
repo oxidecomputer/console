@@ -5,7 +5,7 @@ set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 export ZONE="us-central1-a"
-export INSTANCE_TYPE="n1-standard-8"
+export INSTANCE_TYPE="n2-standard-2"
 export GIT_BRANCH="$(git symbolic-ref HEAD 2>/dev/null)"
 export BRANCH_NAME=${GIT_BRANCH#refs/heads/}
 export INSTANCE_NAME="console-git-${BRANCH_NAME}"
