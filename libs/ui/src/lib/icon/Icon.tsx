@@ -30,6 +30,7 @@ import InstancesIcon from '../../assets/instances.svg'
 import ListIcon from '../../assets/list.svg'
 import MemoryIcon from '../../assets/memory.svg'
 import MessageIcon from '../../assets/message.svg'
+import MinusIcon from '../../assets/minus.svg'
 import MoreIcon from '../../assets/more.svg'
 import NetworkingIcon from '../../assets/networking.svg'
 import NotificationsIcon from '../../assets/notifications.svg'
@@ -88,6 +89,7 @@ export const icons = {
   list: ListIcon,
   memory: MemoryIcon,
   message: MessageIcon,
+  minus: MinusIcon,
   more: MoreIcon,
   networking: NetworkingIcon,
   notifications: NotificationsIcon,

@@ -12,6 +12,10 @@ export type TextFieldProps = StyledComponentProps<
   DefaultTheme,
   {
     /**
+     * Optional controls that can manipulate the user input (such as increment/decrement)
+     */
+    controls?: React.ReactNode
+    /**
      * Required for accessibility. Defaults to `false`. Input is invalid
      */
     error?: boolean
@@ -91,7 +95,6 @@ const StyledInput = styled.input<StyledInputType>`
   padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
   width: 100%;
 
-  appearance: textfield;
   border: 1px solid transparent;
   background-color: ${({ theme }) => theme.color('gray700')};
   color: ${({ theme }) => theme.color('gray100')};
@@ -125,7 +128,8 @@ const StyledInput = styled.input<StyledInputType>`
 
       &:focus {
         border: 1px solid ${theme.color('red500')};
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), 0px 0px 0px 1px #ef4444;
+        box-shadow: 0px 1px 2px ${theme.color('black', 0.05)},
+          0px 0px 0px 1px #ef4444;
       }
     `}
 `
@@ -136,6 +140,8 @@ const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
 
 export const TextField: FC<TextFieldProps> = ({
   children,
+  className,
+  controls = null,
   disabled = false,
   error = false,
   errorMessage,
@@ -144,7 +150,6 @@ export const TextField: FC<TextFieldProps> = ({
   id,
   required = false,
   type = 'text',
-  className,
   ...inputProps
 }) => {
   const errorId = error ? `${id}-validation-hint` : ``
@@ -171,6 +176,7 @@ export const TextField: FC<TextFieldProps> = ({
           {...inputProps}
         />
         {icon && <StyledIcon {...icon} />}
+        {controls ? controls : null}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>

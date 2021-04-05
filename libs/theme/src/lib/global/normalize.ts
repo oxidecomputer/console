@@ -75,7 +75,7 @@ export const normalize = css`
   textarea {
     font-family: inherit;
     font-size: 100%;
-    line-height: 1.15;
+    line-height: inherit;
     margin: 0;
   }
   button,
@@ -86,30 +86,17 @@ export const normalize = css`
   select {
     text-transform: none;
   }
-  button,
-  [type='button'],
-  [type='reset'],
-  [type='submit'] {
-    -webkit-appearance: button;
-  }
-  button::-moz-focus-inner,
-  [type='button']::-moz-focus-inner,
-  [type='reset']::-moz-focus-inner,
-  [type='submit']::-moz-focus-inner {
-    border-style: none;
+  button {
     padding: 0;
-  }
-  button:-moz-focusring,
-  [type='button']:-moz-focusring,
-  [type='reset']:-moz-focusring,
-  [type='submit']:-moz-focusring {
-    outline: 1px dotted ButtonText;
+
+    border: 0;
+    background-color: transparent;
+    color: inherit;
   }
   fieldset {
     padding: 0;
   }
   legend {
-    box-sizing: border-box;
     color: inherit;
     display: table;
     max-width: 100%;
@@ -124,7 +111,6 @@ export const normalize = css`
   }
   [type='checkbox'],
   [type='radio'] {
-    box-sizing: border-box;
     padding: 0;
   }
   [type='number']::-webkit-inner-spin-button,
