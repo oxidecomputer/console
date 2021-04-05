@@ -7,8 +7,21 @@ import Icon from '../icon/Icon'
 import type { TextSize } from '../text/Text'
 import Text from '../text/Text'
 
-type BadgeColor = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
-type Size = 'sm' | 'base' | 'xl'
+export const badgeColors = [
+  'gray',
+  'red',
+  'yellow',
+  'green',
+  'blue',
+  'purple',
+] as const
+type BadgeColor = typeof badgeColors[number]
+
+export const badgeSizes = ['sm', 'base', 'xl'] as const
+type Size = typeof badgeSizes[number]
+
+export const badgeVariants = ['base', 'notification', 'closable'] as const
+// This separation helps keep the sizeMap simpler, so we don't have to define icon positionings for variants with no icons
 type VariantWithIcon = 'notification' | 'closable'
 type Variant = 'base' | VariantWithIcon
 
