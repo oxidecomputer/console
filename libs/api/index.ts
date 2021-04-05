@@ -3,15 +3,12 @@ export * from './hooks'
 
 import { DefaultApi, Configuration } from './__generated__'
 
-const prodConfig = new Configuration({ basePath: 'http://localhost:8888' })
-const devConfig = new Configuration({ basePath: '/api' })
-
-const api =
+const config =
   process.env.NODE_ENV === 'production'
-    ? new DefaultApi(prodConfig)
-    : new DefaultApi(devConfig)
+    ? new Configuration({ basePath: process.env.API_URL })
+    : new Configuration({ basePath: '/api' })
 
-export { api }
+export const api = new DefaultApi(config)
 
 // the API methods rely on `this` being bound to the API object. in order to
 // pass the methods around as arguments without explicitly calling .bind(this)
