@@ -9,7 +9,7 @@ on:
       - "apps/**"
       - "tools/**"
       - "Dockerfile"
-      - ".github/workflows/deply-vm.yml" # Run when this file changes.
+      - ".github/workflows/deploy-vm.yml" # Run when this file changes.
   workflow_dispatch:
     inputs:
 jobs:
