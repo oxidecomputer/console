@@ -47,7 +47,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           build-args: |
-            api_url=https://console-git-${{ steps.extract_branch.outputs.branch }}.internal.oxide.computer:8888
+            api_url=https://console-git-${{ steps.extract_branch.outputs.branch }}.internal.oxide.computer/api
   create-vm:
     needs: [docker-image]
     runs-on: ubuntu-latest

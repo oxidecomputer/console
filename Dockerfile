@@ -1,6 +1,6 @@
 # build environment
 FROM node:14-alpine as build
-ARG api_url=https://console-git-main.internal.oxide.computer:8888
+ARG api_url=https://console-git-main.internal.oxide.computer/api
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./

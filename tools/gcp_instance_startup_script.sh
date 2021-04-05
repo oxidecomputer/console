@@ -27,8 +27,7 @@ docker pull ghcr.io/oxidecomputer/console:BRANCH_NAME
 docker run -d \
 	--restart=always \
 	--name=console \
-	-p 0.0.0.0:80:80 \
-	-p 0.0.0.0:443:443 \
+	--net host \
 	-v "/etc/cloudflare:/etc/cloudflare:ro" \
 	-v "/etc/nginx/ssl-params.conf:/etc/nginx/ssl-params.conf:ro" \
 	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
