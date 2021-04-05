@@ -10,12 +10,12 @@ import { Icon } from '../icon/Icon'
 export interface NumberFieldProps {}
 
 const StyledTextField = styled(TextField)`
-  input[type='number'] {
+  [type='number'] {
     appearance: textfield;
   }
 
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
+  [type='number']::-webkit-inner-spin-button,
+  [type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
@@ -27,24 +27,43 @@ const FieldControls = styled.div`
   top: ${BOX_SHADOW_SIZE};
   right: ${BOX_SHADOW_SIZE};
   bottom: ${BOX_SHADOW_SIZE};
+`
 
+const Control = styled.button`
   height: 100%;
-  box-shadow: inset 0 0 2px yellow;
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.color('green500')};
+    box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
+  }
 `
 
 export const NumberField: FC<NumberFieldProps> = ({ children }) => {
+  const [value, setValue] = React.useState(0)
+  const handleChange = React.useCallback(
+    (event) => {
+      setValue(event.target.value)
+    },
+    [setValue]
+  )
+  const handleIncrement = () => setValue(value + 1)
+  const handleDecrement = () => setValue(value - 1)
   return (
     <StyledTextField
       type="number"
       pattern="[0-9]*"
+      onChange={handleChange}
+      value={value}
       controls={
         <FieldControls>
-          <button>
+          <Control onClick={handleDecrement}>
             <Icon name="minus" />
-          </button>
-          <button>
+          </Control>
+          <Control onClick={handleIncrement}>
             <Icon name="plus" />
-          </button>
+          </Control>
         </FieldControls>
       }
     >

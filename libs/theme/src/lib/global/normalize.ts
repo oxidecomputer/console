@@ -113,10 +113,6 @@ export const normalize = css`
   [type='radio'] {
     padding: 0;
   }
-  [type='number']::-webkit-inner-spin-button,
-  [type='number']::-webkit-outer-spin-button {
-    height: auto;
-  }
   [type='search'] {
     -webkit-appearance: textfield;
     outline-offset: -2px;

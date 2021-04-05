@@ -92,7 +92,7 @@ type StyledInputType = {
 const StyledInput = styled.input<StyledInputType>`
   display: block;
   margin: 0;
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+  padding: ${({ theme }) => `${theme.spacing(2.25)} ${theme.spacing(3)}`};
   width: 100%;
 
   border: 1px solid transparent;
@@ -165,14 +165,14 @@ export const TextField: FC<TextFieldProps> = ({
       <InputWrapper>
         <StyledInput
           alignIcon={icon && icon.align}
-          aria-invalid={error}
-          type={type}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
-          hasError={!!error}
-          required={required}
+          aria-invalid={error}
           aria-required={required || undefined}
-          id={id}
           disabled={disabled}
+          hasError={!!error}
+          id={id}
+          required={required}
+          type={type}
           {...inputProps}
         />
         {icon && <StyledIcon {...icon} />}
