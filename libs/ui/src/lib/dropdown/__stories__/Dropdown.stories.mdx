@@ -1,10 +1,15 @@
 <!-- Dropdown.stories.mdx -->
 
-import { Meta } from '@storybook/addon-docs/blocks'
-import { stories } from './Dropdown.stories'
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Default } from './Dropdown.stories'
+import { Dropdown } from '../Dropdown'
 
 <Meta title="Dropdown" />
 
 # Dropdown
 
-<Story story={stories.primary} /> 
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={Dropdown} story="^" />

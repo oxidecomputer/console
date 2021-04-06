@@ -4,20 +4,22 @@ import React from 'react'
 import styled from 'styled-components'
 import {
   Listbox,
-  ListboxInput,
+  // ListboxInput,
   ListboxButton,
-  ListboxPopover,
-  ListboxList,
+  // ListboxPopover,
+  // ListboxList,
   ListboxOption,
 } from '@reach/listbox'
 import '@reach/listbox/styles.css'
 
 /* eslint-disable-next-line */
 export interface DropdownProps {
+  defaultValue?: string
   /**
    * Required for accessibility. Description of the dropdown.
    */
   label: string
+  options: { value: string; label: string }[]
   /**
    * Whether to show label to sighted users
    */
@@ -40,24 +42,35 @@ const VisuallyHidden = styled.div`
   clip: rect(1px, 1px, 1px, 1px) !important;
 `
 
-export const Dropdown: FC<DropdownProps> = ({ label, showLabel = true }) => {
+export const Dropdown: FC<DropdownProps> = ({
+  defaultValue,
+  label,
+  options,
+  showLabel = true,
+}) => {
   const renderLabel = showLabel ? (
     <div id="id">{label}</div>
   ) : (
     <VisuallyHidden id="id">{label}</VisuallyHidden>
   )
+
+  const renderOptions = options.map((option) => {
+    return (
+      <ListboxOption key={option.value} value={option.value}>
+        {option.label}
+      </ListboxOption>
+    )
+  })
+
   return (
     <StyledDropdown>
       {renderLabel}
       <Listbox
         aria-labelledby="id"
-        defaultValue="popeyes"
+        defaultValue={defaultValue}
         button={<ListboxButton />}
       >
-        <ListboxOption value="bojangles">Bojangles'</ListboxOption>
-        <ListboxOption value="churchs">Church's</ListboxOption>
-        <ListboxOption value="kfc">KFC</ListboxOption>
-        <ListboxOption value="popeyes">Popeyes</ListboxOption>
+        {renderOptions}
       </Listbox>
     </StyledDropdown>
   )
