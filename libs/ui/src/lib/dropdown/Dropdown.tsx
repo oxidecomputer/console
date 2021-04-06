@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import {
   // Listbox,
@@ -15,6 +15,7 @@ import {
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
+type SizeType = 'sm' | 'lg'
 export interface DropdownProps {
   defaultValue?: string
   /**
@@ -26,7 +27,7 @@ export interface DropdownProps {
    * Whether to show label to sighted users
    */
   showLabel?: boolean
-  size?: 'sm' | 'lg'
+  size?: SizeType
 }
 
 const Wrapper = styled.div``
@@ -49,7 +50,78 @@ const Label = styled(Text).attrs({
 
 const StyledListboxInput = styled(ListboxInput)`
   margin-top: ${({ theme }) => theme.spacing(1)};
-  border: 1px solid red;
+`
+
+const getButtonStyles = (size: SizeType) => {
+  switch (size) {
+    case 'lg':
+      return css``
+
+    default:
+    case 'sm':
+      return css`
+        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(4)}`};
+
+        font-size: ${({ theme }) => theme.spacing(4)};
+        line-height: 1.5;
+      `
+  }
+}
+
+const StyledListboxButton = styled(ListboxButton)<{ size: SizeType }>`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  vertical-align: top;
+
+  background-color: ${({ theme }) => theme.color('gray800')};
+  color: ${({ theme }) => theme.color('gray50')};
+
+  /* Target the <span> parent of the StyledIcon to vertically center align the icon */
+  [data-reach-listbox-arrow] {
+    display: flex;
+  }
+
+  ${({ size }) => getButtonStyles(size)};
+`
+
+const StyledIcon = styled(Icon).attrs({
+  name: 'chevron',
+  rotate: '270deg',
+})``
+
+const getOptionStyles = (size: SizeType) => {
+  switch (size) {
+    case 'lg':
+      return css``
+
+    default:
+    case 'sm':
+      return css`
+        padding: ${({ theme }) => `${theme.spacing(1.5)} ${theme.spacing(4)}`};
+
+        font-size: ${({ theme }) => theme.spacing(4)};
+        line-height: 1.5;
+      `
+  }
+}
+
+const StyledPopover = styled(ListboxPopover)`
+  z-index: 1;
+
+  background-color: ${({ theme }) => theme.color('gray800')};
+`
+
+const StyledListboxOption = styled(ListboxOption)<{ size: SizeType }>`
+  color: ${({ theme }) => theme.color('gray200')};
+
+  &:hover,
+  &:focus {
+    background-color: ${({ theme }) => theme.color('gray900')};
+  }
+
+  ${({ size }) => getOptionStyles(size)};
 `
 
 export const Dropdown: FC<DropdownProps> = ({
@@ -57,6 +129,7 @@ export const Dropdown: FC<DropdownProps> = ({
   label,
   options,
   showLabel = true,
+  size = 'sm',
 }) => {
   const labelId = useMemo(() => uuidv4(), [])
   const [value, setValue] = React.useState(defaultValue)
@@ -70,9 +143,9 @@ export const Dropdown: FC<DropdownProps> = ({
 
   const renderOptions = options.map((option) => {
     return (
-      <ListboxOption key={option.value} value={option.value}>
+      <StyledListboxOption key={option.value} value={option.value} size={size}>
         {option.label}
-      </ListboxOption>
+      </StyledListboxOption>
     )
   })
 
@@ -84,19 +157,10 @@ export const Dropdown: FC<DropdownProps> = ({
         value={value}
         onChange={handleChange}
       >
-        <ListboxButton arrow={<Icon name="chevron" rotate={'270deg'} />} />
-        <ListboxPopover>
+        <StyledListboxButton arrow={<StyledIcon />} />
+        <StyledPopover>
           <ListboxList>{renderOptions}</ListboxList>
-          <div
-            style={{
-              padding: '10px 10px 0',
-              marginTop: 10,
-              borderTop: '1px solid gray',
-            }}
-          >
-            <p>example stuff yay</p>
-          </div>
-        </ListboxPopover>
+        </StyledPopover>
       </StyledListboxInput>
     </Wrapper>
   )
