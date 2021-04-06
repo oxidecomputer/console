@@ -23,9 +23,9 @@ export const WithState = () => {
   return (
     <NumberField
       onChange={handleChange}
-      value={value}
-      onIncrement={handleIncrement}
       onDecrement={handleDecrement}
+      onIncrement={handleIncrement}
+      value={value}
     >
       Number of Instances
     </NumberField>
