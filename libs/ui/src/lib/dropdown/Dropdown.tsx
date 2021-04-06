@@ -1,18 +1,20 @@
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import {
-  Listbox,
-  // ListboxInput,
+  // Listbox,
+  ListboxInput,
   ListboxButton,
-  // ListboxPopover,
-  // ListboxList,
+  ListboxPopover,
+  ListboxList,
   ListboxOption,
 } from '@reach/listbox'
-import '@reach/listbox/styles.css'
 
-/* eslint-disable-next-line */
+import { Icon } from '../icon/Icon'
+import { Text } from '../text/Text'
+
 export interface DropdownProps {
   defaultValue?: string
   /**
@@ -27,12 +29,10 @@ export interface DropdownProps {
   size?: 'sm' | 'lg'
 }
 
-const StyledDropdown = styled.div`
-  color: pink;
-`
+const Wrapper = styled.div``
 
 /* Hide from sighted users, show to screen readers */
-const VisuallyHidden = styled.div`
+const VisuallyHidden = styled.span`
   position: absolute !important;
   overflow: hidden !important;
   width: 1px !important;
@@ -42,16 +42,30 @@ const VisuallyHidden = styled.div`
   clip: rect(1px, 1px, 1px, 1px) !important;
 `
 
+const Label = styled(Text).attrs({
+  weight: 500,
+  size: 'base',
+})``
+
+const StyledListboxInput = styled(ListboxInput)`
+  margin-top: ${({ theme }) => theme.spacing(1)};
+  border: 1px solid red;
+`
+
 export const Dropdown: FC<DropdownProps> = ({
   defaultValue,
   label,
   options,
   showLabel = true,
 }) => {
+  const labelId = useMemo(() => uuidv4(), [])
+  const [value, setValue] = React.useState(defaultValue)
+  const handleChange = (value: string) => setValue(value)
+
   const renderLabel = showLabel ? (
-    <div id="id">{label}</div>
+    <Label id={labelId}>{label}</Label>
   ) : (
-    <VisuallyHidden id="id">{label}</VisuallyHidden>
+    <VisuallyHidden id={labelId}>{label}</VisuallyHidden>
   )
 
   const renderOptions = options.map((option) => {
@@ -63,15 +77,27 @@ export const Dropdown: FC<DropdownProps> = ({
   })
 
   return (
-    <StyledDropdown>
+    <Wrapper>
       {renderLabel}
-      <Listbox
-        aria-labelledby="id"
-        defaultValue={defaultValue}
-        button={<ListboxButton />}
+      <StyledListboxInput
+        aria-labelledby={labelId}
+        value={value}
+        onChange={handleChange}
       >
-        {renderOptions}
-      </Listbox>
-    </StyledDropdown>
+        <ListboxButton arrow={<Icon name="chevron" rotate={'270deg'} />} />
+        <ListboxPopover>
+          <ListboxList>{renderOptions}</ListboxList>
+          <div
+            style={{
+              padding: '10px 10px 0',
+              marginTop: 10,
+              borderTop: '1px solid gray',
+            }}
+          >
+            <p>example stuff yay</p>
+          </div>
+        </ListboxPopover>
+      </StyledListboxInput>
+    </Wrapper>
   )
 }
