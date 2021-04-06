@@ -64,7 +64,7 @@ jobs:
           export_default_credentials: true
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/} | sed 's#/#-#g')"
         id: extract_branch
       - name: Deploy VM
         shell: bash
