@@ -10,6 +10,7 @@ import {
   Card,
   Icon,
   InstanceDetails,
+  PageHeader,
   Tabs,
   TextWithIcon,
 } from '@oxide/ui'
@@ -26,20 +27,9 @@ const breadcrumbs = [
 
 const Wrapper = styled.div``
 
-const Header = styled.header`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  margin-top: ${({ theme }) => theme.spacing(2)};
-`
-
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
-  icon: {
-    name: 'instance',
-  },
+  icon: { name: 'dashboard' },
 })`
   text-transform: uppercase;
 `
@@ -100,7 +90,7 @@ const InstancePage = () => {
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
-      <Header>
+      <PageHeader>
         <Title>{instanceName}</Title>
         <Actions>
           <InstanceAction>
@@ -123,7 +113,7 @@ const InstancePage = () => {
             <Icon name="more" />
           </PageAction>
         </Actions>
-      </Header>
+      </PageHeader>
       <Metadata>
         <InstanceDetails
           cpu="2"

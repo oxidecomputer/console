@@ -7,6 +7,7 @@
 # prereq: brew install openapi-generator
 
 # couldn't get it to pipe directly with /dev/stdin. it really wants a filename
-openapi-generator generate -i omicron.json -o libs/api/__generated__ -g typescript-fetch
+openapi-generator generate -i omicron.json -o libs/api/__generated__ -g typescript-fetch \
+  --additional-properties=typescriptThreePlus=true
 rm omicron.json
 yarn format > /dev/null 2>&1
