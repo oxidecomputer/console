@@ -95,13 +95,11 @@ export const RadioGroup: FC<RadioGroupProps> = ({
 }) => {
   // Set checked of each child based on state
   const [checked, setChecked] = React.useState(defaultValue)
-  const handleChange = React.useCallback(
-    (event) => {
-      setChecked(event.target.value)
-      onChange && onChange(event)
-    },
-    [setChecked, onChange]
-  )
+  const handleChange: ReactEventHandler = (event) => {
+    const { value } = event.target as HTMLInputElement
+    setChecked(value)
+    onChange && onChange(event)
+  }
   return (
     <StyledFieldset direction={direction}>
       <StyledLegend>{legend}</StyledLegend>
