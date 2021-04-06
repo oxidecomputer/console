@@ -4,7 +4,6 @@ import React, { useMemo } from 'react'
 import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
-import { TextWithIcon } from '../text-with-icon/TextWithIcon'
 import Sparkline from './sparkline.svg'
 
 export interface CardProps {
@@ -82,12 +81,12 @@ const Footer = styled.footer`
   justify-content: baseline;
 `
 
-const FooterText = styled(TextWithIcon).attrs({
-  align: 'right',
-  text: { color: 'green500', size: 'xs' },
+const FooterText = styled(Text).attrs({
+  as: 'div',
+  color: 'green500',
+  size: 'xs',
 })`
   margin-right: ${({ theme }) => theme.spacing(2)};
-  text-transform: inherit;
 `
 
 export const Card: FC<CardProps> = (props) => {
