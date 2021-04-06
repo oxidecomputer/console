@@ -52,74 +52,89 @@ const StyledListboxInput = styled(ListboxInput)`
   margin-top: ${({ theme }) => theme.spacing(1)};
 `
 
-const getButtonStyles = (size: SizeType) => {
-  switch (size) {
-    case 'lg':
-      return css``
-
-    default:
-    case 'sm':
-      return css`
-        padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(4)}`};
-
-        font-size: ${({ theme }) => theme.spacing(4)};
-        line-height: 1.5;
-      `
-  }
-}
-
-const StyledListboxButton = styled(ListboxButton)<{ size: SizeType }>`
+const StyledListboxButton = styled(ListboxButton)`
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(4)}`};
   vertical-align: top;
 
   background-color: ${({ theme }) => theme.color('gray800')};
   color: ${({ theme }) => theme.color('gray50')};
+  font-size: ${({ theme }) => theme.spacing(4)};
+  font-weight: 500;
+  line-height: 1.5;
 
   /* Target the <span> parent of the StyledIcon to vertically center align the icon */
   [data-reach-listbox-arrow] {
     display: flex;
   }
 
-  ${({ size }) => getButtonStyles(size)};
+  &:hover {
+    background-color: ${({ theme }) => theme.color('gray700')};
+  }
+
+  &:focus {
+    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    outline: none;
+  }
 `
 
 const StyledIcon = styled(Icon).attrs({
   name: 'chevron',
   rotate: '270deg',
-})``
+})`
+  margin-left: ${({ theme }) => theme.spacing(5)};
+`
+
+const StyledPopover = styled(ListboxPopover)`
+  z-index: 1;
+  padding-bottom: ${({ theme }) => theme.spacing(2)};
+
+  background-color: ${({ theme }) => theme.color('gray800')};
+  box-shadow: ${({ theme }) =>
+    `0 ${theme.spacing(3)} ${theme.spacing(6)} ${theme.color('black', 0.16)}`};
+`
+
+const StyledListboxList = styled(ListboxList)`
+  &:focus {
+    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    outline: none;
+  }
+`
 
 const getOptionStyles = (size: SizeType) => {
   switch (size) {
     case 'lg':
-      return css``
-
+      return css`
+        padding: ${({ theme }) => `${theme.spacing(2.5)} ${theme.spacing(4)}`};
+      `
     default:
     case 'sm':
       return css`
         padding: ${({ theme }) => `${theme.spacing(1.5)} ${theme.spacing(4)}`};
-
-        font-size: ${({ theme }) => theme.spacing(4)};
-        line-height: 1.5;
       `
   }
 }
-
-const StyledPopover = styled(ListboxPopover)`
-  z-index: 1;
-
-  background-color: ${({ theme }) => theme.color('gray800')};
-`
 
 const StyledListboxOption = styled(ListboxOption)<{ size: SizeType }>`
   color: ${({ theme }) => theme.color('gray200')};
 
   &:hover,
   &:focus {
-    background-color: ${({ theme }) => theme.color('gray900')};
+    background-color: ${({ theme }) => theme.color('gray700')};
   }
+
+  &:focus {
+    outline: none;
+    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+  }
+
+  font-size: ${({ theme }) => theme.spacing(3.5)};
+  font-weight: 400;
+  line-height: 1.5;
 
   ${({ size }) => getOptionStyles(size)};
 `
@@ -159,7 +174,7 @@ export const Dropdown: FC<DropdownProps> = ({
       >
         <StyledListboxButton arrow={<StyledIcon />} />
         <StyledPopover>
-          <ListboxList>{renderOptions}</ListboxList>
+          <StyledListboxList>{renderOptions}</StyledListboxList>
         </StyledPopover>
       </StyledListboxInput>
     </Wrapper>

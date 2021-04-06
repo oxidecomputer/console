@@ -1,8 +1,8 @@
 <!-- Dropdown.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Default } from './Dropdown.stories'
 import { Dropdown } from '../Dropdown'
+import { Default, Small, Large } from './Dropdown.stories'
 
 <Meta title="Dropdown" />
 
@@ -13,3 +13,12 @@ import { Dropdown } from '../Dropdown'
 </Canvas>
 
 <ArgsTable of={Dropdown} story="^" />
+
+## Stories
+
+### Sizes
+
+<Canvas>
+  <Story story={Small} />
+  <Story story={Large} />
+</Canvas>
