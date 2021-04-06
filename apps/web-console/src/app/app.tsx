@@ -9,6 +9,8 @@ import {
 import InstancePage from '../pages/instance/InstancePage'
 import InstancesPage from '../pages/instance/InstancesPage'
 import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
+import ProjectPage from '../pages/projects/ProjectPage'
+import ProjectsPage from '../pages/projects/ProjectsPage'
 
 const App = () => {
   return (
@@ -26,6 +28,12 @@ const App = () => {
           </Route>
           <Route path="/projects/:projectName/instances">
             <InstancesPage />
+          </Route>
+          <Route path="/projects/:projectName">
+            <ProjectPage />
+          </Route>
+          <Route path="/projects">
+            <ProjectsPage />
           </Route>
         </Switch>
       </Router>

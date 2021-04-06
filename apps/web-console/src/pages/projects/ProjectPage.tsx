@@ -11,41 +11,36 @@ const Title = styled(TextWithIcon).attrs({
   icon: { name: 'instances' },
 })``
 
-const breadcrumbs = [
+const breadcrumbsBase = [
   { href: '/', label: 'Maze War' },
   { href: '/projects', label: 'Projects' },
-  { href: '/projects/prod-online', label: 'prod-online' },
-  { label: 'Instances' },
 ]
 
 type Params = {
   projectName: string
 }
 
-const InstancesPage = () => {
+const ProjectPage = () => {
   const { projectName } = useParams<Params>()
-  const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
+  const { data } = useApiData(api.apiProjectsGetProject, { projectName })
 
   if (!data) return <div>loading</div>
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
+      <Breadcrumbs data={[...breadcrumbsBase, { label: projectName }]} />
       <PageHeader>
-        <Title>Instances for Project: {projectName}</Title>
+        <Title>{data.name}</Title>
       </PageHeader>
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
-        {data.items.map((item) => (
-          <li key={item.id}>
-            <Link to={`/projects/${projectName}/instances/${item.name}`}>
-              {item.name}
-            </Link>
-          </li>
-        ))}
-        {data.items.length === 0 && <p>No instances!</p>}
+        <li>ID: {data.id}</li>
+        <li>Description: {data.description}</li>
       </ul>
+      <p>
+        <Link to={`/projects/${projectName}/instances`}>Instances</Link>
+      </p>
     </>
   )
 }
 
-export default InstancesPage
+export default ProjectPage
