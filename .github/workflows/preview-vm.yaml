@@ -20,5 +20,5 @@ jobs:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          with:
            message: |
-             Successfully deployed preview at https://console-git-${{steps.extract_branch.outputs.branch}}.internal.oxide.computer
+             Preview will be deployed at https://console-git-${{steps.extract_branch.outputs.branch}}.internal.oxide.computer
            allow-repeats: false
