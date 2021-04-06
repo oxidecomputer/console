@@ -28,7 +28,6 @@ type VariantWithIcon = 'notification' | 'closable'
 type Variant = 'base' | VariantWithIcon
 
 export interface BadgeProps {
-  title: string
   color?: BadgeColor
   size?: Size
   variant?: Variant
@@ -126,7 +125,7 @@ const StyledIcon = styled(Icon)<{ iconSize?: number; pointer?: boolean }>`
 
 export const Badge: FC<BadgeProps> = ({
   className,
-  title,
+  children,
   color = 'gray',
   size = 'base',
   variant = 'base',
@@ -150,7 +149,7 @@ export const Badge: FC<BadgeProps> = ({
         />
       )}
       <BadgeText size={textSize} textColor={text}>
-        {title}
+        {children}
       </BadgeText>
       {variant === 'closable' && (
         <Button

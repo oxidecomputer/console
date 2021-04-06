@@ -1,12 +1,15 @@
 import type { Story } from '@storybook/react'
+import type { PropsWithChildren } from 'react'
 import React from 'react'
 import type { BadgeProps } from '../Badge'
 import { Badge, badgeSizes, badgeVariants, badgeColors } from '../Badge'
 
-const Template: Story<BadgeProps> = (args) => <Badge {...args} />
+const Template: Story<PropsWithChildren<BadgeProps>> = (args) => (
+  <Badge {...args} />
+)
 
 const primary = Template.bind({})
-primary.args = { title: 'Badge' }
+primary.args = { children: 'Badge' }
 
 const variants = badgeVariants.reduce(
   (stories, variant) => ({

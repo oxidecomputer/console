@@ -42,7 +42,9 @@ const StyledBadge = styled(Badge)`
 export const InstanceDetails = (props: InstanceDetailsProps) => {
   return (
     <Text size="sm">
-      <StyledBadge title="running" variant="notification" color="green" />
+      <StyledBadge variant="notification" color="green">
+        running
+      </StyledBadge>
       <span>
         <Cell>{props.cpu} vCPU</Cell>
         <Cell>{props.memory} RAM</Cell>
