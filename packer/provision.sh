@@ -22,7 +22,6 @@ sudo apt install -y --no-install-recommends \
 	docker-ce \
 	docker-ce-cli \
 	containerd.io \
-	tailscale
 
 # Install node.
 curl -fsSL https://deb.nodesource.com/setup_15.x | sudo bash -
