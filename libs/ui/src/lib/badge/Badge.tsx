@@ -3,8 +3,6 @@ import type { FC } from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
-import type { ButtonSize } from '../button/Button'
-import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { TextSize } from '../text/Text'
 import Text from '../text/Text'
@@ -41,39 +39,40 @@ const sizeMap: Record<
   Size,
   {
     textSize: TextSize
-    iconSizes: {
-      notification: number
-      closable: ButtonSize
-    }
+    iconSizes: Record<VariantWithIcon, number>
     padding: Record<Variant, number[]>
+    borderRadius: number
   }
 > = {
   sm: {
     textSize: 'xxs',
-    iconSizes: { notification: 2, closable: 'xs' },
+    iconSizes: { notification: 2, closable: 2 },
     padding: {
-      base: [0, 1],
-      notification: [0, 2, 0, 1],
-      closable: [0, 1, 0, 2],
+      base: [0.5, 1, 0.75],
+      notification: [0.5, 2, 0.75, 1],
+      closable: [0.5, 1, 0.75, 2],
     },
+    borderRadius: 4,
   },
   base: {
-    textSize: 'sm',
-    iconSizes: { notification: 2, closable: 'sm' },
+    textSize: 'xs',
+    iconSizes: { notification: 2, closable: 3 },
     padding: {
-      base: [1, 3],
-      notification: [1, 3, 1, 2],
-      closable: [1, 2, 1, 3],
+      base: [1.5, 3],
+      notification: [1.5, 3, 1.5, 2],
+      closable: [1.5, 2, 1.5, 3],
     },
+    borderRadius: 6,
   },
   xl: {
     textSize: 'sm',
-    iconSizes: { notification: 2, closable: 'sm' },
+    iconSizes: { notification: 2, closable: 4 },
     padding: {
-      base: [2, 4],
-      notification: [2, 4, 2, 3],
-      closable: [2, 3, 2, 4],
+      base: [2.75, 4],
+      notification: [2.75, 4, 2.75, 3],
+      closable: [2.75, 3, 2.75, 4],
     },
+    borderRadius: 8,
   },
 }
 
@@ -89,6 +88,7 @@ const colorMap: Record<BadgeColor, { background: Color; text: Color }> = {
 const StyledBadge = styled.span<{
   background: Color
   padding: number[]
+  radius: number
 }>`
   position: relative;
 
@@ -101,26 +101,34 @@ const StyledBadge = styled.span<{
     padding: ${theme.spacing(padding)};
   `}
 
-  border-radius: 1em;
+  border-radius: ${({ theme, radius }) => theme.spacing(radius)};
 `
 
-const BadgeText = styled(Text).attrs({ size: 'sm' })<{ textColor: Color }>`
+const BadgeText = styled(Text)<{ textColor: Color }>`
   text-transform: uppercase;
   color: ${({ theme, textColor }) => theme.color(textColor)};
   line-height: 1;
 `
 
-const StyledIcon = styled(Icon)<{ iconSize?: number; pointer?: boolean }>`
+const StyledIcon = styled(Icon)<{ iconSize?: number }>`
   ${({ theme, iconSize }) =>
     iconSize &&
     css`
       width: ${theme.spacing(iconSize)};
     `}
-  ${({ pointer }) =>
-    pointer &&
-    css`
-      cursor: pointer;
-    `}
+`
+
+const StyledButton = styled.button<{ size: number }>`
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: ${({ theme, size }) => theme.spacing(size)};
 `
 
 export const Badge: FC<BadgeProps> = ({
@@ -129,16 +137,17 @@ export const Badge: FC<BadgeProps> = ({
   color = 'gray',
   size = 'base',
   variant = 'base',
-  onClose = () => null,
+  onClose,
 }) => {
   const { background, text } = colorMap[color]
-  const { textSize, iconSizes, padding } = sizeMap[size]
+  const { textSize, iconSizes, padding, borderRadius } = sizeMap[size]
 
   return (
     <StyledBadge
       className={className}
       background={background}
       padding={padding[variant]}
+      radius={borderRadius}
     >
       {variant === 'notification' && (
         <StyledIcon
@@ -152,13 +161,13 @@ export const Badge: FC<BadgeProps> = ({
         {children}
       </BadgeText>
       {variant === 'closable' && (
-        <Button
-          variant="link"
-          onClick={() => onClose && onClose()}
+        <StyledButton
           size={iconSizes.closable}
+          type="button"
+          onClick={() => onClose && onClose()}
         >
-          <StyledIcon color={text} name="close" align="right" pointer />
-        </Button>
+          <StyledIcon color={text} name="close" align="right" />
+        </StyledButton>
       )}
     </StyledBadge>
   )
