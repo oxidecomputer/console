@@ -40,4 +40,4 @@ const variants = badgeVariants.reduce(
 export const stories = {
   primary,
   ...variants,
-} as const
+}
