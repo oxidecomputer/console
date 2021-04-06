@@ -2,6 +2,12 @@
 set -e
 set -o pipefail
 
+# Install tailscale at machine start, there is something they are saving on the
+# host that makes everything think its the same machine.
+sudo apt update
+sudo apt install -y --no-install-recommends \
+	tailscale
+
 # Start tailscale.
 export TAILSCALE_MACHINE_KEY=$(cat /etc/tailscale/machine_key | tr -d '[:space:]')
 tailscale up --authkey=${TAILSCALE_MACHINE_KEY}
