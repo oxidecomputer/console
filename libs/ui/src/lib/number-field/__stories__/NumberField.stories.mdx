@@ -2,11 +2,13 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { NumberField } from '../NumberField'
-import { Default } from './NumberField.stories'
+import { Default, WithState } from './NumberField.stories'
 
-<Meta title="NumberField" component={NumberField} />
+<Meta title="Components/Forms/NumberField" component={NumberField} />
 
 # NumberField
+
+This is a controlled component.
 
 **Note** There are often unexpected behaviors using an input
 of type `number`, as it includes built-in validation to reject non-numerical entries,
@@ -25,3 +27,11 @@ Resources:
 </Canvas>
 
 <ArgsTable of={NumberField} story="^" />
+
+## Stories
+
+### With State
+
+<Canvas>
+  <Story story={WithState} />
+</Canvas>

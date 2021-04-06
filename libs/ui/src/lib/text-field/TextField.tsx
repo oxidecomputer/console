@@ -1,5 +1,5 @@
 import React from 'react'
-import type { FC } from 'react'
+import type { FC, ReactEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
@@ -28,6 +28,8 @@ export type TextFieldProps = StyledComponentProps<
      */
     hint?: string | React.ReactNode
     icon?: StyledIconProps & IconProps
+    onChange?: ReactEventHandler
+    value?: string | number
   },
   never
 >
@@ -176,7 +178,7 @@ export const TextField: FC<TextFieldProps> = ({
           {...inputProps}
         />
         {icon && <StyledIcon {...icon} />}
-        {controls ? controls : null}
+        {controls}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>

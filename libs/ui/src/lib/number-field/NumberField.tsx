@@ -1,18 +1,30 @@
-import type { FC } from 'react'
+import type { FC, ReactEventHandler } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
+import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { TextField } from '../text-field/TextField'
 import { Icon } from '../icon/Icon'
 
-export interface NumberFieldProps {
-  /**
-   * Starting number
-   */
-  defaultValue: number
-}
+export type NumberFieldProps = StyledComponentProps<
+  'input',
+  DefaultTheme,
+  {
+    /**
+     * Starting number
+     */
+    defaultValue?: number
+    onChange?: ReactEventHandler
+    onDecrement?: ReactEventHandler
+    onIncrement?: ReactEventHandler
+    value?: number
+  },
+  never
+>
 
+// The input type='number' comes with built in increment/decrement controls that we
+// hide here so we can render our own instead. for more, see NumberField.stories.mdx
 const StyledTextField = styled(TextField)`
   [type='number'] {
     appearance: textfield;
@@ -40,35 +52,33 @@ const Control = styled.button`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.color('green500')};
-    box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
+    box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color('green500')};
+  }
+
+  &:hover {
+    background-color: ${({ theme }) => theme.color('gray800')};
   }
 `
 
 export const NumberField: FC<NumberFieldProps> = ({
   children,
-  defaultValue = 0,
+  onChange,
+  onDecrement,
+  onIncrement,
+  value,
 }) => {
-  const [value, setValue] = React.useState(defaultValue)
-  const handleChange = React.useCallback(
-    (event) => {
-      setValue(event.target.value)
-    },
-    [setValue]
-  )
-  const handleIncrement = () => setValue(value + 1)
-  const handleDecrement = () => setValue(value - 1)
   return (
     <StyledTextField
       type="number"
       pattern="[0-9]*"
-      onChange={handleChange}
+      onChange={onChange}
       value={value}
       controls={
         <FieldControls>
-          <Control onClick={handleDecrement}>
+          <Control onClick={onDecrement}>
             <Icon name="minus" />
           </Control>
-          <Control onClick={handleIncrement}>
+          <Control onClick={onIncrement}>
             <Icon name="plus" />
           </Control>
         </FieldControls>
