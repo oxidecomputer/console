@@ -1,5 +1,6 @@
 import React from 'react'
-import { Dropdown, DropdownProps } from '../Dropdown'
+import type { DropdownProps } from '../Dropdown'
+import { Dropdown } from '../Dropdown'
 
 export default {
   component: Dropdown,
@@ -10,5 +11,5 @@ export const primary = () => {
   /* eslint-disable-next-line */
   const props: DropdownProps = {}
 
-  return <Dropdown />
+  return <Dropdown label="Choose an operator" />
 }
