@@ -31,6 +31,8 @@ const ProjectPage = () => {
 
   if (!project || !instances) return <div>loading</div>
 
+  console.log({ project, instances })
+
   return (
     <>
       <Breadcrumbs data={[...breadcrumbsBase, { label: projectName }]} />
@@ -43,7 +45,7 @@ const ProjectPage = () => {
       </ul>
       <p>
         <Link to={`/projects/${projectName}/instances`}>
-          See {instances.items.length} Instances
+          See {instances.items?.length || 0} Instances
         </Link>
       </p>
     </>

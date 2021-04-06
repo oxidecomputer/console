@@ -77,7 +77,6 @@ const InstancePage = () => {
     projectName,
   })
 
-  console.log(error)
   if (error) {
     if (error.status === 404) {
       return <div>Instance not found</div>
