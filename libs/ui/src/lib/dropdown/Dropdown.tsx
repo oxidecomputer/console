@@ -22,6 +22,7 @@ export interface DropdownProps {
    * Whether to show label to sighted users
    */
   showLabel?: boolean
+  size?: 'sm' | 'lg'
 }
 
 const StyledDropdown = styled.div`
