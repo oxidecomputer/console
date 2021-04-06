@@ -11,13 +11,6 @@ const Title = styled(TextWithIcon).attrs({
   icon: { name: 'instances' },
 })``
 
-const breadcrumbs = [
-  { href: '/', label: 'Maze War' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/projects/prod-online', label: 'prod-online' },
-  { label: 'Instances' },
-]
-
 type Params = {
   projectName: string
 }
@@ -27,6 +20,13 @@ const InstancesPage = () => {
   const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
 
   if (!data) return <div>loading</div>
+
+  const breadcrumbs = [
+    { href: '/', label: 'Maze War' },
+    { href: '/projects', label: 'Projects' },
+    { href: `/projects/${projectName}`, label: projectName },
+    { label: 'Instances' },
+  ]
 
   return (
     <>

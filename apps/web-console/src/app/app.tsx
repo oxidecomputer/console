@@ -20,20 +20,20 @@ const App = () => {
           <Route path="/" exact>
             <Redirect to="/projects/prod-online/instances/db1" />
           </Route>
-          <Route path="/projects/:projectName/instances/new">
+          <Route path="/projects" exact>
+            <ProjectsPage />
+          </Route>
+          <Route path="/projects/:projectName/instances" exact>
+            <InstancesPage />
+          </Route>
+          <Route path="/projects/:projectName/instances/new" exact>
             <InstanceCreatePage />
           </Route>
           <Route path="/projects/:projectName/instances/:instanceName">
             <InstancePage />
           </Route>
-          <Route path="/projects/:projectName/instances">
-            <InstancesPage />
-          </Route>
           <Route path="/projects/:projectName">
             <ProjectPage />
-          </Route>
-          <Route path="/projects">
-            <ProjectsPage />
           </Route>
         </Switch>
       </Router>

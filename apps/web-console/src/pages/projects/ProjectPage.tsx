@@ -22,22 +22,29 @@ type Params = {
 
 const ProjectPage = () => {
   const { projectName } = useParams<Params>()
-  const { data } = useApiData(api.apiProjectsGetProject, { projectName })
+  const { data: project } = useApiData(api.apiProjectsGetProject, {
+    projectName,
+  })
+  const { data: instances } = useApiData(api.apiProjectInstancesGet, {
+    projectName,
+  })
 
-  if (!data) return <div>loading</div>
+  if (!project || !instances) return <div>loading</div>
 
   return (
     <>
       <Breadcrumbs data={[...breadcrumbsBase, { label: projectName }]} />
       <PageHeader>
-        <Title>{data.name}</Title>
+        <Title>{project.name}</Title>
       </PageHeader>
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
-        <li>ID: {data.id}</li>
-        <li>Description: {data.description}</li>
+        <li>ID: {project.id}</li>
+        <li>Description: {project.description}</li>
       </ul>
       <p>
-        <Link to={`/projects/${projectName}/instances`}>Instances</Link>
+        <Link to={`/projects/${projectName}/instances`}>
+          See {instances.items.length} Instances
+        </Link>
       </p>
     </>
   )
