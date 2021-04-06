@@ -86,8 +86,8 @@ const FooterText = styled(TextWithIcon).attrs({
   align: 'right',
   text: { color: 'green500', size: 'xs' },
 })`
-  text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};
+  text-transform: inherit;
 `
 
 export const Card: FC<CardProps> = (props) => {
