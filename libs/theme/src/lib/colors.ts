@@ -1,5 +1,13 @@
 // Colors
-export const colorGroups = ['gray', 'red', 'yellow', 'blue', 'green'] as const
+export const colorGroups = [
+  'gray',
+  'red',
+  'yellow',
+  'blue',
+  'darkBlue',
+  'green',
+  'darkGreen',
+] as const
 export type ColorGroup = typeof colorGroups[number]
 export const colorValues = [
   50,
@@ -72,6 +80,17 @@ export const colorDefinitions: ColorPalette = {
   blue800: '231, 32%, 43%',
   blue900: '231, 32%, 35%',
 
+  darkBlue50: '0, 0%, 100%',
+  darkBlue100: '0, 0%, 100%',
+  darkBlue200: '0, 0%, 100%',
+  darkBlue300: '0, 0%, 100%',
+  darkBlue400: '0, 0%, 100%',
+  darkBlue500: '0, 0%, 100%',
+  darkBlue600: '0, 0%, 100%',
+  darkBlue700: '0, 0%, 100%',
+  darkBlue800: '203, 12%, 13%',
+  darkBlue900: '198, 26%, 7%',
+
   green50: '154, 64%, 98%',
   green100: '154, 64%, 96%',
   green200: '153, 64%, 89%',
@@ -82,6 +101,17 @@ export const colorDefinitions: ColorPalette = {
   green700: '153, 50%, 42%',
   green800: '154, 50%, 34%',
   green900: '154, 50%, 27%',
+
+  darkGreen50: '0, 0%, 100%',
+  darkGreen100: '0, 0%, 100%',
+  darkGreen200: '0, 0%, 100%',
+  darkGreen300: '0, 0%, 100%',
+  darkGreen400: '0, 0%, 100%',
+  darkGreen500: '0, 0%, 100%',
+  darkGreen600: '0, 0%, 100%',
+  darkGreen700: '0, 0%, 100%',
+  darkGreen800: '163, 37%, 15%',
+  darkGreen900: '176, 23%, 12%',
 
   darkBgPurple: '255, 30%, 18%',
   darkBgYellow: '65, 13%, 18%',

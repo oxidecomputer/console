@@ -1,12 +1,13 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
 
+type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
   'input',
   DefaultTheme,
@@ -16,14 +17,6 @@ export type RadioFieldProps = StyledComponentProps<
      */
     checked?: boolean
     onChange?: React.ChangeEventHandler
-    /**
-     * Defaults to `false`. Input is invalid
-     */
-    error?: boolean
-    /**
-     * Error message text to render
-     */
-    errorMessage?: string
     /**
      * Additional text to associate with this specific field
      */
@@ -37,6 +30,7 @@ export type RadioFieldProps = StyledComponentProps<
      * The value is a useful way to handle controlled radio inputs
      */
     value: string
+    variant?: Variant
   },
   never
 >
@@ -44,18 +38,41 @@ export type RadioFieldProps = StyledComponentProps<
 const INDENT = 6
 const RADIO_WIDTH = 3.5
 
-const Wrapper = styled.div`
-  padding-left: ${({ theme }) => theme.spacing(INDENT)};
+const Wrapper = styled.div<{ variant: Variant }>`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+  ${({ variant, theme }) => {
+    if (variant === 'base') {
+      return css`
+        padding-left: ${theme.spacing(INDENT)};
+      `
+    }
+  }}
 `
 
 const Label = styled.label`
   align-items: center;
   display: inline-flex;
-  width: 100%;
 `
 
-const LabelText = styled(Text).attrs({ size: 'sm' })`
+const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
   color: ${({ theme }) => theme.color('white')};
+
+  ${({ radioVariant, theme }) => {
+    if (radioVariant === 'card') {
+      return css`
+        padding: ${theme.spacing(2)} ${theme.spacing(4)};
+        background-color: ${theme.color('darkGreen800')};
+        border: 1px solid transparent;
+
+        &:hover {
+          background-color: ${theme.color('darkGreen900')};
+        }
+      `
+    }
+  }}
 `
 
 const IconWrapper = styled.span`
@@ -83,17 +100,19 @@ const StyledInput = styled.input`
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
 
-  &:focus + ${IconWrapper} {
-    ${EmptyRadio}, ${FilledRadio} {
-      outline: none;
-      border-radius: 50%;
-      box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
-    }
-  }
-
   &:checked + ${IconWrapper} {
     ${EmptyRadio} {
       display: none;
+    }
+  }
+
+  &:checked + ${LabelText} {
+    background-color: ${({ theme }) => theme.color('darkGreen800')};
+    border-color: ${({ theme }) => theme.color('green500')};
+    box-shadow: 0px 1px 2px ${({ theme }) => theme.color('black', 0.05)};
+
+    &:hover {
+      background-color: ${({ theme }) => theme.color('darkGreen900')};
     }
   }
 
@@ -102,54 +121,65 @@ const StyledInput = styled.input`
       display: none;
     }
   }
+
+  &:focus + ${IconWrapper} {
+    ${EmptyRadio}, ${FilledRadio} {
+      outline: none;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
+    }
+  }
+
+  &:focus + ${LabelText} {
+    outline: none;
+    box-shadow: 0px 0px 0px 2px ${({ theme }) => theme.color('gray900')},
+      0px 0px 0px 3px ${({ theme }) => theme.color('green700')};
+  }
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
-  display: block;
   margin-top: ${({ theme }) => theme.spacing(1)};
 
   color: ${({ theme }) => theme.color('gray300')};
 `
 
-const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
-  margin-top: ${({ theme }) => theme.spacing(2)};
-`
-
 export const RadioField: FC<RadioFieldProps> = ({
   checked,
   children,
-  error = false,
-  errorMessage,
   hint,
   name,
   onChange,
   required = false,
   value,
+  variant = 'base',
 }) => {
-  const errorId = error ? `${value}-validation-hint ` : ``
   const hintId = hint ? `${value}-hint` : ``
+  const ariaProps = hint ? { 'aria-describedby': hintId } : {}
+
+  const renderIcons =
+    variant === 'base' ? (
+      <IconWrapper>
+        <EmptyRadio name="radioE" />
+        <FilledRadio name="radioF" />
+      </IconWrapper>
+    ) : null
 
   return (
-    <Wrapper>
+    <Wrapper variant={variant}>
       <Label>
         <StyledInput
-          aria-describedby={error || hint ? `${errorId}${hintId}` : undefined}
-          aria-invalid={error}
           checked={checked}
           name={name}
           onChange={onChange}
           required={required}
           type="radio"
           value={value}
+          {...ariaProps}
         />
-        <IconWrapper>
-          <EmptyRadio name="radioE" />
-          <FilledRadio name="radioF" />
-        </IconWrapper>
-        <LabelText>{children}</LabelText>
+        {renderIcons}
+        <LabelText radioVariant={variant}>{children}</LabelText>
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>
   )
 }

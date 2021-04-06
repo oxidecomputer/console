@@ -59,6 +59,9 @@ export const parameters = {
     ),
     theme: darkUI,
   },
+  options: {
+    storySort: { method: 'alphabetical'}
+  }
 }
 
 export const decorators = [

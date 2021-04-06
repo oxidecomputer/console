@@ -1,11 +1,12 @@
 <!-- RadioField.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Checked, Default, withHint, withError } from './RadioField.stories'
+import { Checked, Default, withHint, stories } from './RadioField.stories'
 import { RadioField } from '../RadioField'
+import { Text } from '../../text/Text'
 
 <Meta
-  title="Components/RadioField"
+  title="Components/Forms/RadioField"
   component={RadioField}
   argTypes={{
     checked: { control: { type: 'boolean' } },
@@ -58,8 +59,22 @@ Selecting one option unselects all others.
   <Story story={withHint} />
 </Canvas>
 
-### With Error
+### Variants
+
+#### Card
+
+##### Two Lines
 
 <Canvas>
-  <Story story={withError} />
+  <Story story={stories.variants.card_twoLines_default} />
+  <Story story={stories.variants.card_twoLines_hint} />
+  <Story story={stories.variants.card_twoLines_checked} />
+</Canvas>
+
+##### Single Line
+
+<Canvas>
+  <Story story={stories.variants.card_single_default} />
+  <Story story={stories.variants.card_single_hint} />
+  <Story story={stories.variants.card_single_checked} />
 </Canvas>
