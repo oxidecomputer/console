@@ -32,6 +32,5 @@ export function useApiData<P extends Params, R>(
   }
 
   const paramsStr = JSON.stringify(sortObj(params))
-  console.log({ methodName: method.name, paramsStr })
   return useSWR<R>([method.name, paramsStr], () => method(params))
 }

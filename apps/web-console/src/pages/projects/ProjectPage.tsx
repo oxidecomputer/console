@@ -31,8 +31,6 @@ const ProjectPage = () => {
 
   if (!project || !instances) return <div>loading</div>
 
-  console.log({ project, instances })
-
   return (
     <>
       <Breadcrumbs data={[...breadcrumbsBase, { label: projectName }]} />

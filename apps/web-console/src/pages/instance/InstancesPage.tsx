@@ -21,8 +21,6 @@ const InstancesPage = () => {
 
   if (!data) return <div>loading</div>
 
-  console.log({ data })
-
   const breadcrumbs = [
     { href: '/', label: 'Maze War' },
     { href: '/projects', label: 'Projects' },
