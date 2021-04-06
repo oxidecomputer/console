@@ -7,7 +7,7 @@ sudo docker run -d \
 	--restart=always \
 	--name=nexus \
 	--hostname=nexus \
-	-p 0.0.0.0:12221:12221 -p 0.0.0.0:8888:8888  \
+	--net host \
 	-v "/etc/omicron/config.toml:/etc/omicron/config.toml:ro"  \
 	--entrypoint=nexus \
 	ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action \
@@ -18,7 +18,7 @@ sudo docker run -d \
 	--restart=always \
 	--name=sled-agent \
 	--hostname=sled-agent \
-	-p 0.0.0.0:12345:12345 \
+	--net host \
 	--entrypoint=sled_agent \
 	ghcr.io/oxidecomputer/omicron:add-dockerfile-and-github-action \
 		$(uuidgen) 0.0.0.0:12345 0.0.0.0:12221
