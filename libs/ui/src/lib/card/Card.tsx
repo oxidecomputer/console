@@ -21,7 +21,7 @@ const Main = styled.main`
 
 const Title = styled(Text).attrs({
   as: 'div',
-  color: 'green50',
+  color: 'green500',
   size: 'lg',
 })`
   text-transform: uppercase;
@@ -29,7 +29,7 @@ const Title = styled(Text).attrs({
 
 const Subtitle = styled(Text).attrs({
   as: 'div',
-  color: 'green50',
+  color: 'green500',
   size: 'sm',
 })``
 
@@ -76,7 +76,7 @@ const Chart = styled.section`
 
 const Footer = styled.footer`
   background: ${({ theme }) => theme.color('green800', 0.16)};
-  padding: ${({ theme }) => theme.spacing(4)};
+  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
   display: flex;
   flex-direction: row;
   justify-content: baseline;
@@ -84,11 +84,7 @@ const Footer = styled.footer`
 
 const FooterText = styled(TextWithIcon).attrs({
   align: 'right',
-  icon: {
-    name: 'arrow',
-    color: 'green50',
-  },
-  text: { color: 'green50', size: 'sm' },
+  text: { color: 'green500', size: 'xs' },
 })`
   text-transform: uppercase;
   margin-right: ${({ theme }) => theme.spacing(2)};
@@ -124,7 +120,7 @@ export const Card: FC<CardProps> = (props) => {
         </Data>
       </Main>
       <Footer>
-        <FooterText>View Pagename </FooterText>
+        <FooterText>Optional link</FooterText>
       </Footer>
     </StyledCard>
   )
