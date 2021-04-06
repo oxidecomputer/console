@@ -68,11 +68,9 @@ const StyledFieldset = styled.fieldset<{ direction: DirectionType }>`
       return columnStyles
     }
     if (direction === 'row') {
-      console.log('wrap')
       return rowStyles(false)
     }
     if (direction === 'fixed-row') {
-      console.log('no-wrap')
       return rowStyles(true)
     }
   }}
