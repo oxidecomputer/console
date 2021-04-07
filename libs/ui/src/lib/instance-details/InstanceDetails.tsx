@@ -3,6 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
+import { Badge } from '../badge/Badge'
 
 // TODO: a lot of these will be numbers in the PAI, and we will have a presentation
 // layer that makes them human readable. since we don't know the format yet,
@@ -34,14 +35,16 @@ const StyledIcon = styled(Icon)`
   margin-right: ${({ theme }) => theme.spacing(3)};
 `
 
-const BadgePlaceholder = styled(Text).attrs({ color: 'green500' })`
+const StyledBadge = styled(Badge)`
   margin-right: ${({ theme }) => theme.spacing(3)};
 `
 
 export const InstanceDetails = (props: InstanceDetailsProps) => {
   return (
     <Text size="sm">
-      <BadgePlaceholder>[RUNNING]</BadgePlaceholder>
+      <StyledBadge variant="notification" color="green">
+        running
+      </StyledBadge>
       <span>
         <Cell>{props.cpu} vCPU</Cell>
         <Cell>{props.memory} RAM</Cell>
