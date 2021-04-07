@@ -1,4 +1,4 @@
-import type { FC, ReactEventHandler } from 'react'
+import type { ChangeEventHandler, FC } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
@@ -11,14 +11,8 @@ export type NumberFieldProps = StyledComponentProps<
   'input',
   DefaultTheme,
   {
-    /**
-     * Starting number
-     */
-    defaultValue?: number
-    onChange?: ReactEventHandler
-    onDecrement?: ReactEventHandler
-    onIncrement?: ReactEventHandler
-    value?: number
+    handleChange: (newValue: number) => void
+    value: number
   },
   never
 >
@@ -62,11 +56,21 @@ const Control = styled.button`
 
 export const NumberField: FC<NumberFieldProps> = ({
   children,
-  onChange,
-  onDecrement,
-  onIncrement,
+  handleChange,
   value,
 }) => {
+  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    const next = parseInt(event.target.value)
+    if (next) {
+      handleChange(next)
+    }
+  }
+  const onDecrement = () => {
+    handleChange(value - 1)
+  }
+  const onIncrement = () => {
+    handleChange(value + 1)
+  }
   return (
     <StyledTextField
       type="number"
