@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components'
 import type { RadioFieldProps } from '../radio-field/RadioField'
 import { Text } from '../text/Text'
 
-type DirectionType = 'fixed-row' | 'row' | 'column'
+type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
   /**
    * The currently selected or checked Radio button
@@ -16,7 +16,7 @@ export interface RadioGroupProps {
   /**
    * Set direction or layout of radio buttons. Defaults to column.
    */
-  direction?: DirectionType
+  direction?: Direction
   /**
    * Required. Description of radio buttons. Helpful for accessibility.
    */
@@ -56,7 +56,7 @@ const rowStyles = (shouldOverflow: boolean) => css`
   }
 `
 
-const StyledFieldset = styled.fieldset<{ direction: DirectionType }>`
+const StyledFieldset = styled.fieldset<{ direction: Direction }>`
   display: flex;
   justify-content: flex-start;
 
