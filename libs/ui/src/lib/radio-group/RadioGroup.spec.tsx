@@ -7,7 +7,12 @@ import { RadioField } from '../radio-field/RadioField'
 describe('RadioGroup', () => {
   it('should render successfully', () => {
     const { container } = render(
-      <RadioGroup legend="Notifications" name="notifications-settings">
+      <RadioGroup
+        legend="Notifications"
+        name="notifications-settings"
+        checked="all"
+        handleChange={(value) => console.log(value)}
+      >
         <RadioField value="all">Everything</RadioField>
         <RadioField value="none">Nothing</RadioField>
       </RadioGroup>
