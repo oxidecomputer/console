@@ -60,11 +60,17 @@ export const NumberField: FC<NumberFieldProps> = ({
   value,
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const next = parseInt(event.target.value)
-    // the number `e` passes the `type="number"` validation
-    // so only call change handler if `parseInt` returns a number
-    if (next) {
-      handleChange(next)
+    const { value } = event.target
+    if (value === '') {
+      handleChange(0)
+    } else {
+      const next = parseInt(value)
+      // the number `e` passes the `type="number"` validation
+      // so only call change handler if `parseInt` returns a number
+      // note: this will not allow decimals
+      if (next) {
+        handleChange(next)
+      }
     }
   }
   const onDecrement = () => {
