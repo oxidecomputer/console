@@ -39,13 +39,16 @@ const sizeMap: Record<
   Size,
   {
     textSize: TextSize
-    iconSizes: Record<VariantWithIcon, number>
+    icons: Record<VariantWithIcon, { size: number; spacing: number }>
     padding: Record<Variant, number[]>
   }
 > = {
   sm: {
     textSize: 'xxs',
-    iconSizes: { notification: 2, closable: 2 },
+    icons: {
+      notification: { size: 2, spacing: 1.25 },
+      closable: { size: 2, spacing: 1.25 },
+    },
     padding: {
       base: [0.5, 1.25, 0.75],
       notification: [0.5, 2, 0.75, 1.75],
@@ -54,7 +57,10 @@ const sizeMap: Record<
   },
   base: {
     textSize: 'xs',
-    iconSizes: { notification: 2, closable: 3 },
+    icons: {
+      notification: { size: 2, spacing: 1.75 },
+      closable: { size: 3, spacing: 1.5 },
+    },
     padding: {
       base: [1.5, 3],
       notification: [1.5, 3, 1.5, 2],
@@ -63,7 +69,10 @@ const sizeMap: Record<
   },
   xl: {
     textSize: 'sm',
-    iconSizes: { notification: 2, closable: 4 },
+    icons: {
+      notification: { size: 2, spacing: 2.25 },
+      closable: { size: 4, spacing: 2.75 },
+    },
     padding: {
       base: [2.75, 4],
       notification: [2.75, 4, 2.75, 3.25],
@@ -91,10 +100,7 @@ const StyledBadge = styled.span<{
   justify-content: center;
 
   background-color: ${({ theme, background }) => theme.color(background)};
-
-  ${({ theme, padding }) => css`
-    padding: ${theme.spacing(padding)};
-  `}
+  padding: ${({ theme, padding }) => theme.spacing(padding)};
 
   border-radius: 9999px;
 `
@@ -113,7 +119,16 @@ const StyledIcon = styled(Icon)<{ iconSize?: number }>`
     `}
 `
 
-const StyledButton = styled.button<{ size: number }>`
+const NotificationIcon = styled(StyledIcon).attrs({ name: 'dot' })<{
+  spacing: number
+}>`
+  margin-right: ${({ theme, spacing }) => theme.spacing(spacing)};
+`
+
+const StyledButton = styled.button<{
+  size: number
+  spacing: number
+}>`
   background: none;
   border: none;
   margin: 0;
@@ -124,6 +139,7 @@ const StyledButton = styled.button<{ size: number }>`
   justify-content: center;
 
   font-size: ${({ theme, size }) => theme.spacing(size)};
+  margin-left: ${({ theme, spacing }) => theme.spacing(spacing)};
 `
 
 export const Badge: FC<BadgeProps> = ({
@@ -135,7 +151,11 @@ export const Badge: FC<BadgeProps> = ({
   onClose,
 }) => {
   const { background, text } = colorMap[color]
-  const { textSize, iconSizes, padding } = sizeMap[size]
+  const {
+    textSize,
+    icons: { notification, closable },
+    padding,
+  } = sizeMap[size]
 
   return (
     <StyledBadge
@@ -144,11 +164,10 @@ export const Badge: FC<BadgeProps> = ({
       padding={padding[variant]}
     >
       {variant === 'notification' && (
-        <StyledIcon
-          name="dot"
-          iconSize={iconSizes.notification}
+        <NotificationIcon
+          spacing={notification.spacing}
+          iconSize={notification.size}
           color={text}
-          align="left"
         />
       )}
       <BadgeText size={textSize} textColor={text}>
@@ -156,11 +175,12 @@ export const Badge: FC<BadgeProps> = ({
       </BadgeText>
       {variant === 'closable' && (
         <StyledButton
-          size={iconSizes.closable}
+          size={closable.size}
+          spacing={closable.spacing}
           type="button"
           onClick={() => onClose && onClose()}
         >
-          <StyledIcon color={text} name="close" align="right" />
+          <StyledIcon color={text} name="close" />
         </StyledButton>
       )}
     </StyledBadge>
