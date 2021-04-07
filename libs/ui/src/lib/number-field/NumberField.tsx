@@ -61,6 +61,8 @@ export const NumberField: FC<NumberFieldProps> = ({
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const next = parseInt(event.target.value)
+    // the number `e` passes the `type="number"` validation
+    // so only call change handler if `parseInt` returns a number
     if (next) {
       handleChange(next)
     }
