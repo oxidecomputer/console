@@ -73,12 +73,8 @@ export const NumberField: FC<NumberFieldProps> = ({
       }
     }
   }
-  const onDecrement = () => {
-    handleChange(value - 1)
-  }
-  const onIncrement = () => {
-    handleChange(value + 1)
-  }
+  const onDecrement = () => handleChange(value - 1)
+  const onIncrement = () => handleChange(value + 1)
   return (
     <StyledTextField
       type="number"
