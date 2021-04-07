@@ -2006,77 +2006,6 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.6.0.tgz#f022195afdfc942e088ee2101285a1d31c7d727f"
   integrity sha512-cPqjjzuFWNK3BSKLm0abspP0sp/IGOli4p5I5fKFAzdS8fvjdOwDCfZqAaIiXd9lPkOWi3SUUfZof3hEb7J/uw==
 
-"@reach/auto-id@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/auto-id/-/auto-id-0.14.0.tgz#1edfdeddb8fad656ec894a934c78f20c3b341416"
-  integrity sha512-Ym8PBXubuXP7m8CFReqHIH8iXOTcZ3PuAjtHHGuc2EToCwhbbFSf1OouWMUdr6S6vZmu0pOnhOgIE1QGw+dEpw==
-  dependencies:
-    "@reach/utils" "0.14.0"
-    tslib "^2.1.0"
-
-"@reach/descendants@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/descendants/-/descendants-0.14.0.tgz#33f7678e850ba39922817890def4996e61b7d82e"
-  integrity sha512-gbaZZWJzTt2clXGUSS2j5jSJqiPUntVl7QcH+FVP5flAPcddpdShtztNcp2wR5QPKJoRXALs7yQIytwW15siHA==
-  dependencies:
-    "@reach/utils" "0.14.0"
-    tslib "^2.1.0"
-
-"@reach/listbox@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/listbox/-/listbox-0.14.0.tgz#35419580ffc69651b51d29081b9c141f3a9b6b90"
-  integrity sha512-MxJJs26r8Ku2bO4UCL+AWLdqFEt+kSTXr/6KQhkLg5uZtr7lTLjZEHmh3EVJ+LEIYwq8XUDw/E0QSJcuEJd5Zw==
-  dependencies:
-    "@reach/auto-id" "0.14.0"
-    "@reach/descendants" "0.14.0"
-    "@reach/machine" "0.14.0"
-    "@reach/popover" "0.14.0"
-    "@reach/utils" "0.14.0"
-    prop-types "^15.7.2"
-
-"@reach/machine@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/machine/-/machine-0.14.0.tgz#f8ef7f43a8328d849804d41e092d8f7abc49c337"
-  integrity sha512-43vWRK9bLDDntYxagjhDAvOWO/N3O94s0w3JSjj6ky3iyoJydV0NrVe8gCbiDrJGvPRIONIC8OE0nd5mG57h1w==
-  dependencies:
-    "@reach/utils" "0.14.0"
-    "@xstate/fsm" "1.4.0"
-    tslib "^2.1.0"
-
-"@reach/observe-rect@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/@reach/observe-rect/-/observe-rect-1.2.0.tgz#d7a6013b8aafcc64c778a0ccb83355a11204d3b2"
-  integrity sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==
-
-"@reach/popover@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/popover/-/popover-0.14.0.tgz#c3b5db782c744f595669a4d3641392b60b05a0f4"
-  integrity sha512-BvwODRLmmfxLNvsLxINpbCFysgPcCnwBJQdWUixyp9isFaeTc9c8l+KEUgY72Lhxem5G3ryo7qITWg1oMjEL3Q==
-  dependencies:
-    "@reach/portal" "0.14.0"
-    "@reach/rect" "0.14.0"
-    "@reach/utils" "0.14.0"
-    tabbable "^4.0.0"
-    tslib "^2.1.0"
-
-"@reach/portal@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/portal/-/portal-0.14.0.tgz#acb1c3008de1c1b735cccd66d6348b0a0f724316"
-  integrity sha512-b7Ejp83GckaSKP/IIlIpER7dUV3IV/Kz5BTff8rPXA2a2NWKFdpbu5ozKDeAeiXXFLBbRmNk93JPpcvUJAzezw==
-  dependencies:
-    "@reach/utils" "0.14.0"
-    tslib "^2.1.0"
-
-"@reach/rect@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/rect/-/rect-0.14.0.tgz#ac0cb48814c2fbf8cff5a53edf3556c01fe33dc6"
-  integrity sha512-mXunIyFUCbzWlUVwMuI/nL3tLDsPWwe+5knXHQQG5cOqE9tosLt9PqVYQW5iMHdpl9pGqbx7yVXMZKp2hookJg==
-  dependencies:
-    "@reach/observe-rect" "1.2.0"
-    "@reach/utils" "0.14.0"
-    prop-types "^15.7.2"
-    tslib "^2.1.0"
-
 "@reach/router@^1.3.3":
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/@reach/router/-/router-1.3.4.tgz#d2574b19370a70c80480ed91f3da840136d10f8c"
@@ -2086,15 +2015,6 @@
     invariant "^2.2.3"
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
-
-"@reach/utils@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.npmjs.org/@reach/utils/-/utils-0.14.0.tgz#f3ff579c737c3e9528f6f940bc518452f2636810"
-  integrity sha512-QbSFO5p44qUCkOllJM06Lt5A/EsoVIYlB9Ij1vKEezy53keaa5bc879dD2Ahv+mMf+E1VppCeiL6YYvdpJmVVQ==
-  dependencies:
-    "@types/warning" "^3.0.0"
-    tslib "^2.1.0"
-    warning "^4.0.3"
 
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.1"
@@ -3362,11 +3282,6 @@
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
   integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
 
-"@types/warning@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@types/warning/-/warning-3.0.0.tgz#0d2501268ad8f9962b740d387c4654f5f8e23e52"
-  integrity sha1-DSUBJorY+ZYrdA04fEZU9fjiPlI=
-
 "@types/webpack-dev-server@^3.11.2":
   version "3.11.2"
   resolved "https://registry.yarnpkg.com/@types/webpack-dev-server/-/webpack-dev-server-3.11.2.tgz#73915a7d9e0a9b5e010a2388a46f68ab3f770ef8"
@@ -3768,11 +3683,6 @@
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@webpack-cli/serve/-/serve-1.3.0.tgz#2730c770f5f1f132767c63dcaaa4ec28f8c56a6c"
   integrity sha512-k2p2VrONcYVX1wRRrf0f3X2VGltLWcv+JzXRBDmvCxGlCeESx4OXw91TsWeKOkp784uNoVQo313vxJFHXPPwfw==
-
-"@xstate/fsm@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/@xstate/fsm/-/fsm-1.4.0.tgz#6fd082336fde4d026e9e448576189ee5265fa51a"
-  integrity sha512-uTHDeu2xI5E1IFwf37JFQM31RrH7mY7877RqPBS4ZqSNUwoLDuct8AhBWaXGnVizBAYyimVwgCyGa9z/NiRhXA==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -13677,11 +13587,6 @@ symbol.prototype.description@^1.0.0:
     has-symbols "^1.0.1"
     object.getownpropertydescriptors "^2.1.0"
 
-tabbable@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/tabbable/-/tabbable-4.0.0.tgz#5bff1d1135df1482cf0f0206434f15eadbeb9261"
-  integrity sha512-H1XoH1URcBOa/rZZWxLxHCtOdVUEev+9vo5YdYhC9tCY4wnybX+VQrCYuy9ubkg69fCBxCONJOSLGfw0DWMffQ==
-
 table@^5.2.3:
   version "5.4.6"
   resolved "https://registry.yarnpkg.com/table/-/table-5.4.6.tgz#1292d19500ce3f86053b05f0e8e7e4a3bb21079e"
@@ -14074,11 +13979,6 @@ tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
-
-tslib@^2.1.0:
-  version "2.2.0"
-  resolved "https://registry.npmjs.org/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
-  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
 
 tsutils@^3.17.1:
   version "3.20.0"
