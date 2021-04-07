@@ -47,9 +47,9 @@ const sizeMap: Record<
     textSize: 'xxs',
     iconSizes: { notification: 2, closable: 2 },
     padding: {
-      base: [0.5, 1, 0.75],
-      notification: [0.5, 2, 0.75, 1],
-      closable: [0.5, 1, 0.75, 2],
+      base: [0.5, 1.25, 0.75],
+      notification: [0.5, 2, 0.75, 1.75],
+      closable: [0.5, 2, 0.75],
     },
   },
   base: {
@@ -58,7 +58,7 @@ const sizeMap: Record<
     padding: {
       base: [1.5, 3],
       notification: [1.5, 3, 1.5, 2],
-      closable: [1.5, 2, 1.5, 3],
+      closable: [1.5, 2.5],
     },
   },
   xl: {
@@ -66,8 +66,8 @@ const sizeMap: Record<
     iconSizes: { notification: 2, closable: 4 },
     padding: {
       base: [2.75, 4],
-      notification: [2.75, 4, 2.75, 3],
-      closable: [2.75, 3, 2.75, 4],
+      notification: [2.75, 4, 2.75, 3.25],
+      closable: [2.5, 3.5, 2.5, 4],
     },
   },
 }
