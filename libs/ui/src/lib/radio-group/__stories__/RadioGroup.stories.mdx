@@ -1,7 +1,12 @@
 <!-- RadioGroup.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Default, withInitialChecked, withFixedRow } from './RadioGroup.stories'
+import {
+  Default,
+  withInitialChecked,
+  withFixedRow,
+  WithState,
+} from './RadioGroup.stories'
 import { RadioGroup } from '../RadioGroup'
 import { RadioField } from '../../radio-field/RadioField'
 
@@ -51,4 +56,10 @@ Selecting one option unselects all others.
 
 <Canvas>
   <Story story={withFixedRow} />
+</Canvas>
+
+### with state
+
+<Canvas>
+  <Story story={WithState} />
 </Canvas>

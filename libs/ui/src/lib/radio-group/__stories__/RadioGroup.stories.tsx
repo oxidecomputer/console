@@ -62,7 +62,7 @@ Default.args = {
 
 export const withInitialChecked = CardTemplate.bind({})
 withInitialChecked.args = {
-  defaultValue: '100',
+  checked: '100',
   direction: 'row',
   legend: 'Add storage',
   name: 'group2',
@@ -73,4 +73,51 @@ withFixedRow.args = {
   direction: 'fixed-row',
   legend: 'Add storage',
   name: 'group3',
+}
+
+export const WithState = () => {
+  const [value, setValue] = React.useState('100')
+  const handleChange = (value: string) => {
+    setValue(value)
+  }
+  return (
+    <RadioGroup
+      checked={value}
+      direction="row"
+      handleChange={handleChange}
+      legend="Add storage"
+      name="group4"
+    >
+      <RadioField variant="card" value="50">
+        50 GB
+      </RadioField>
+      <RadioField variant="card" value="100">
+        100 GB
+      </RadioField>
+      <RadioField variant="card" value="200">
+        200 GB
+      </RadioField>
+      <RadioField variant="card" value="300">
+        300 GB
+      </RadioField>
+      <RadioField variant="card" value="400">
+        400 GB
+      </RadioField>
+      <RadioField variant="card" value="500">
+        500 GB
+      </RadioField>
+      <RadioField variant="card" value="600">
+        600 GB
+      </RadioField>
+      <RadioField variant="card" value="700">
+        700 GB
+      </RadioField>
+      <RadioField variant="card" value="800">
+        800 GB
+      </RadioField>
+      <RadioField variant="card" value="900">
+        900 GB
+      </RadioField>
+    </RadioGroup>
+  )
 }

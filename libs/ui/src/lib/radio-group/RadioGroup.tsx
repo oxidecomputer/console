@@ -1,9 +1,4 @@
-import type {
-  FC,
-  ReactEventHandler,
-  ReactElement,
-  ChangeEventHandler,
-} from 'react'
+import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
@@ -13,11 +8,11 @@ import { Text } from '../text/Text'
 
 type DirectionType = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
-  children: Array<ReactElement<RadioFieldProps>>
   /**
-   * The default or initially checked option
+   * The currently selected or checked Radio button
    */
-  defaultValue?: string
+  checked: string
+  children: Array<ReactElement<RadioFieldProps>>
   /**
    * Set direction or layout of radio buttons. Defaults to column.
    */
@@ -30,7 +25,7 @@ export interface RadioGroupProps {
    * Required.
    */
   name: string
-  onChange?: ReactEventHandler
+  handleChange: (value: string) => void
   /**
    * Set whether radio group is optional or not.
    */
@@ -91,31 +86,28 @@ const StyledLegend = styled(Text).attrs({
 
 export const RadioGroup: FC<RadioGroupProps> = ({
   children,
-  defaultValue = null,
+  checked,
   direction = 'column',
   legend,
-  onChange,
+  handleChange,
   name,
   required = false,
 }) => {
   // Set checked of each child based on state
-  const [groupValue, setGroupValue] = React.useState(defaultValue)
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const { value } = event.target
-    setGroupValue(value)
-    onChange && onChange(event)
+  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    handleChange && handleChange(event.target.value)
   }
   return (
     <StyledFieldset direction={direction}>
       <StyledLegend>{legend}</StyledLegend>
       {React.Children.map(children, (radioField) => {
-        const isChecked = groupValue === radioField.props.value
+        const isChecked = checked === radioField.props.value
         // Render controlled inputs with checked state
         // Add name prop to group them semantically and add event listener
         return React.cloneElement(radioField, {
           name: name,
           checked: isChecked,
-          onChange: handleChange,
+          onChange: onChange,
           required: required,
         })
       })}
