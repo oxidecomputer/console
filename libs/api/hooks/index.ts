@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 
-type Params = Record<string, unknown>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Params = Record<string, any>
 
 // TODO: write tests for this
 export const sortObj = (obj: Params): Params => {

@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-// import { useApiData, api } from '@oxide/api'
+import { useApiData, api } from '@oxide/api'
 
 import {
   Breadcrumbs,
@@ -16,14 +16,6 @@ import {
 } from '@oxide/ui'
 
 import { InstancePageTables } from './InstancePageTables'
-
-const breadcrumbs = [
-  { href: '/', label: 'Maze War' },
-  { href: '/first', label: 'Projects' },
-  { href: '/second', label: 'prod-online' },
-  { href: '/projects/prod-online/instances', label: 'Instances' },
-  { label: 'DB1' },
-]
 
 const Wrapper = styled.div``
 
@@ -78,14 +70,29 @@ type Params = {
 }
 
 const InstancePage = () => {
-  const { /* projectName, */ instanceName } = useParams<Params>()
+  const { projectName, instanceName } = useParams<Params>()
 
-  // const { data } = useApiData(api.apiProjectInstancesGetInstance, {
-  //   instanceName,
-  //   projectName,
-  // })
+  const { data, error } = useApiData(api.apiProjectInstancesGetInstance, {
+    instanceName,
+    projectName,
+  })
 
-  // if (!data) return <div>loading</div>
+  if (error) {
+    if (error.status === 404) {
+      return <div>Instance not found</div>
+    } else {
+      return <div>loading</div>
+    }
+  }
+  if (!data) return <div>loading</div>
+
+  const breadcrumbs = [
+    { href: '/', label: 'Maze War' },
+    { href: '/projects', label: 'Projects' },
+    { href: `/projects/${projectName}`, label: projectName },
+    { href: `/projects/${projectName}/instances`, label: 'Instances' },
+    { label: instanceName },
+  ]
 
   return (
     <Wrapper>

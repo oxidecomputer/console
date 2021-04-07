@@ -49,10 +49,6 @@ export default {
     alias: {
       '@oxide/theme': path.resolve(__dirname, 'libs/theme/src/'),
       '@oxide/ui': path.resolve(__dirname, 'libs/ui/src/'),
-      '@oxide/backend-types': path.resolve(
-        __dirname,
-        'libs/backend-types/src/'
-      ),
       '@oxide/api': path.resolve(__dirname, 'libs/api/'),
     },
   },

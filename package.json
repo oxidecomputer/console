@@ -11,7 +11,7 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
-    "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "storybook": "rm -rf node_modules/.cache && NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
     "typecheck": "tsc",
     "plop": "plop"
   },
@@ -37,11 +37,10 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
     "@babel/runtime": "^7.13.10",
-    "@storybook/addon-a11y": "^6.1.17",
-    "@storybook/addon-essentials": "^6.1.17",
-    "@storybook/addon-knobs": "^6.1.11",
-    "@storybook/addon-links": "^6.1.17",
-    "@storybook/react": "^6.1.11",
+    "@storybook/addon-a11y": "^6.2.5",
+    "@storybook/addon-essentials": "^6.2.5",
+    "@storybook/addon-links": "^6.2.5",
+    "@storybook/react": "^6.2.5",
     "@svgr/webpack": "^5.4.0",
     "@testing-library/react": "11.1.2",
     "@types/jest": "26.0.8",
@@ -54,6 +53,7 @@
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.2",
     "@types/styled-components": "5.1.4",
+    "@types/terser-webpack-plugin": "^5.0.3",
     "@types/uuid": "^8.3.0",
     "@types/webpack": "^4.41.26",
     "@types/webpack-dev-server": "^3.11.2",
@@ -88,7 +88,6 @@
     "url-loader": "^3.0.0",
     "webpack": "^5.26.0",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2",
-    "webpack-merge": "^5.7.3"
+    "webpack-dev-server": "^3.11.2"
   }
 }

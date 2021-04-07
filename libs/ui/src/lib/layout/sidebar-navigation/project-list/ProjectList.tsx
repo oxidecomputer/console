@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
-import type { Project, ProjectId } from '@oxide/backend-types'
+import type { ApiProjectView } from '@oxide/api'
 
 import { Text } from '../../../text/Text'
 import type { TextProps } from '../../../text/Text'
@@ -10,9 +10,11 @@ import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { Icon } from '../../../icon/Icon'
 import NotificationCount from './notification-count/NotificationCount'
 
+type ProjectId = ApiProjectView['id']
+
 export interface ProjectListProps {
   /** The list of projects to display in the list */
-  projects: Project[]
+  projects: ApiProjectView[]
   /** The currently selected project id, `null` or `undefined` for none */
   selectedProjectId?: ProjectId
 
@@ -119,7 +121,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         <Count>{props.projects.length}</Count>
       </Header>
       <List>
-        {props.projects.map((p) => (
+        {props.projects.map((p, i) => (
           <ListItem
             key={p.id}
             tabIndex={0}
@@ -128,10 +130,8 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
             }}
           >
             <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
-            {p.notificationsCount && (
-              <NotificationCount count={p.notificationsCount} />
-            )}
-            {p.starred && <BookmarkIcon />}
+            {i === 0 && <NotificationCount count={5} />}
+            {i === 0 && <BookmarkIcon />}
           </ListItem>
         ))}
       </List>
