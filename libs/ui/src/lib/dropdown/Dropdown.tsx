@@ -91,7 +91,8 @@ const StyledIcon = styled(Icon).attrs({
 
 const StyledPopover = styled(ListboxPopover)`
   z-index: 1;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
+  margin-top: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(2)};
 
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
@@ -99,6 +100,8 @@ const StyledPopover = styled(ListboxPopover)`
 `
 
 const StyledListboxList = styled(ListboxList)`
+  padding-top: ${({ theme }) => theme.spacing(2)};
+  padding-bottom: ${({ theme }) => theme.spacing(2)};
   &:focus {
     box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
     outline: none;
