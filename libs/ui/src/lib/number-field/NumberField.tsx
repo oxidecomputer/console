@@ -60,15 +60,13 @@ export const NumberField: FC<NumberFieldProps> = ({
   value,
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const { value } = event.target
-    if (value === '') {
+    if (event.target.value === '') {
       handleChange(0)
     } else {
-      const next = parseInt(value)
+      const next = parseInt(event.target.value)
       // the number `e` passes the `type="number"` validation
       // so only call change handler if `parseInt` returns a number
-      // note: this will not allow decimals
-      if (next) {
+      if (!Number.isNaN(next)) {
         handleChange(next)
       }
     }
@@ -78,16 +76,16 @@ export const NumberField: FC<NumberFieldProps> = ({
   return (
     <StyledTextField
       type="number"
-      pattern="[0-9]*"
       onChange={onChange}
+      pattern="[0-9]*"
       value={value}
       controls={
         <FieldControls>
           <Control onClick={onDecrement}>
-            <Icon name="minus" />
+            <Icon name="minus" svgProps={{ title: 'Decrement' }} />
           </Control>
           <Control onClick={onIncrement}>
-            <Icon name="plus" />
+            <Icon name="plus" svgProps={{ title: 'Increment' }} />
           </Control>
         </FieldControls>
       }
