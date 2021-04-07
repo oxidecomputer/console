@@ -1,4 +1,9 @@
-import type { FC, ReactEventHandler, ReactElement } from 'react'
+import type {
+  FC,
+  ReactEventHandler,
+  ReactElement,
+  ChangeEventHandler,
+} from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
@@ -94,17 +99,17 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   required = false,
 }) => {
   // Set checked of each child based on state
-  const [checked, setChecked] = React.useState(defaultValue)
-  const handleChange: ReactEventHandler = (event) => {
-    const { value } = event.target as HTMLInputElement
-    setChecked(value)
+  const [groupValue, setGroupValue] = React.useState(defaultValue)
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    const { value } = event.target
+    setGroupValue(value)
     onChange && onChange(event)
   }
   return (
     <StyledFieldset direction={direction}>
       <StyledLegend>{legend}</StyledLegend>
       {React.Children.map(children, (radioField) => {
-        const isChecked = checked === radioField.props.value
+        const isChecked = groupValue === radioField.props.value
         // Render controlled inputs with checked state
         // Add name prop to group them semantically and add event listener
         return React.cloneElement(radioField, {
