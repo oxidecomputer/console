@@ -41,7 +41,6 @@ const sizeMap: Record<
     textSize: TextSize
     iconSizes: Record<VariantWithIcon, number>
     padding: Record<Variant, number[]>
-    borderRadius: number
   }
 > = {
   sm: {
@@ -52,7 +51,6 @@ const sizeMap: Record<
       notification: [0.5, 2, 0.75, 1],
       closable: [0.5, 1, 0.75, 2],
     },
-    borderRadius: 4,
   },
   base: {
     textSize: 'xs',
@@ -62,7 +60,6 @@ const sizeMap: Record<
       notification: [1.5, 3, 1.5, 2],
       closable: [1.5, 2, 1.5, 3],
     },
-    borderRadius: 6,
   },
   xl: {
     textSize: 'sm',
@@ -72,7 +69,6 @@ const sizeMap: Record<
       notification: [2.75, 4, 2.75, 3],
       closable: [2.75, 3, 2.75, 4],
     },
-    borderRadius: 8,
   },
 }
 
@@ -88,7 +84,6 @@ const colorMap: Record<BadgeColor, { background: Color; text: Color }> = {
 const StyledBadge = styled.span<{
   background: Color
   padding: number[]
-  radius: number
 }>`
   position: relative;
 
@@ -101,7 +96,7 @@ const StyledBadge = styled.span<{
     padding: ${theme.spacing(padding)};
   `}
 
-  border-radius: ${({ theme, radius }) => theme.spacing(radius)};
+  border-radius: 9999px;
 `
 
 const BadgeText = styled(Text)<{ textColor: Color }>`
@@ -140,14 +135,13 @@ export const Badge: FC<BadgeProps> = ({
   onClose,
 }) => {
   const { background, text } = colorMap[color]
-  const { textSize, iconSizes, padding, borderRadius } = sizeMap[size]
+  const { textSize, iconSizes, padding } = sizeMap[size]
 
   return (
     <StyledBadge
       className={className}
       background={background}
       padding={padding[variant]}
-      radius={borderRadius}
     >
       {variant === 'notification' && (
         <StyledIcon
