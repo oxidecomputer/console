@@ -125,7 +125,7 @@ const getOptionStyles = (size: SizeType) => {
   }
 }
 
-const StyledOption = styled.li<{ size: SizeType }>`
+const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   color: ${({ theme }) => theme.color('gray200')};
 
   &:hover,
@@ -143,6 +143,8 @@ const StyledOption = styled.li<{ size: SizeType }>`
   line-height: 1.5;
 
   ${({ size }) => getOptionStyles(size)};
+  ${({ isHighlighted, theme }) =>
+    isHighlighted && `background-color: ${theme.color('gray700')};`};
 `
 
 export const Dropdown: FC<DropdownProps> = ({
@@ -180,6 +182,7 @@ export const Dropdown: FC<DropdownProps> = ({
       value={option.value}
       size={size}
       {...getItemProps({ item: option, index })}
+      isHighlighted={highlightedIndex === index}
     >
       {option.label}
     </StyledOption>
