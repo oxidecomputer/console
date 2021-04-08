@@ -1,27 +1,18 @@
 import type { FC } from 'react'
 import React from 'react'
-
 import styled from 'styled-components'
+import { Link, NavLink } from 'react-router-dom'
+
 import type { ApiProjectView } from '@oxide/api'
+import { defaultTheme as theme } from '@oxide/theme'
 
 import { Text } from '../../../text/Text'
 import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import { Icon } from '../../../icon/Icon'
-import NotificationCount from './notification-count/NotificationCount'
-
-type ProjectId = ApiProjectView['id']
 
 export interface ProjectListProps {
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
-  /** The currently selected project id, `null` or `undefined` for none */
-  selectedProjectId?: ProjectId
-
-  /** Called when a project is clicked */
-  onProjectSelect: (id: ProjectId) => void
-  /** Called when the create a new project button is clicked */
-  onProjectCreate: () => void
 }
 
 const baseTextProps: Partial<TextProps> = {
@@ -60,22 +51,14 @@ const List = styled.ul`
   align-items: flex-start;
   justify-content: center;
 
-  color: ${({ theme }) => theme.color('gray400')};
   text-transform: uppercase;
 
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
 const ListItem = styled(Row).attrs({ as: 'li' })`
+  padding: 0;
   width: 100%;
-
-  padding: ${({ theme }) => theme.spacing(1)};
-
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-
-  ${({ theme }) => theme.spaceBetweenX(1)}
 
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
@@ -86,16 +69,16 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   }
 `
 
-const Title = styled(Text).attrs({ size: 'xs' })<{ selected?: boolean }>`
-  flex: 1;
-
-  ${({ selected, theme }) => selected && `color: ${theme.color('gray50')};`}
+const StyledLink = styled(NavLink)`
+  color: ${({ theme }) => theme.color('gray400')};
+  display: inline-flex;
+  padding: ${({ theme }) => theme.spacing(1)};
+  width: 100%;
 `
 
-const BookmarkIcon = styled(Icon).attrs({
-  color: 'yellow500',
-  name: 'bookmark',
-})``
+const activeLink = {
+  color: theme.color('gray50'),
+}
 
 const Create = styled(Row).attrs({ as: 'footer' })`
   display: flex;
@@ -121,26 +104,18 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         <Count>{props.projects.length}</Count>
       </Header>
       <List>
-        {props.projects.map((p, i) => (
-          <ListItem
-            key={p.id}
-            tabIndex={0}
-            onClick={() => {
-              props.onProjectSelect(p.id)
-            }}
-          >
-            <Title selected={p.id === props.selectedProjectId}>{p.name}</Title>
-            {i === 0 && <NotificationCount count={5} />}
-            {i === 0 && <BookmarkIcon />}
+        {props.projects.map((p) => (
+          <ListItem key={p.id} tabIndex={0}>
+            <StyledLink to={`/projects/${p.name}`} activeStyle={activeLink}>
+              <Text size="xs">{p.name}</Text>
+            </StyledLink>
           </ListItem>
         ))}
       </List>
-      <Create
-        onClick={() => {
-          props.onProjectCreate()
-        }}
-      >
-        <CreateText>Create a new project</CreateText>
+      <Create>
+        <Link to="/projects/new">
+          <CreateText>Create a new project</CreateText>
+        </Link>
       </Create>
     </StyledProjectList>
   )

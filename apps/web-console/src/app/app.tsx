@@ -14,14 +14,17 @@ import ProjectsPage from '../pages/projects/ProjectsPage'
 
 const App = () => {
   return (
-    <AppLayout>
-      <Router>
+    <Router>
+      <AppLayout>
         <Switch>
           <Route path="/" exact>
             <Redirect to="/projects/prod-online/instances/db1" />
           </Route>
           <Route path="/projects" exact>
             <ProjectsPage />
+          </Route>
+          <Route path="/projects/new" exact>
+            <div>[CREATE PROJECT]</div>
           </Route>
           <Route path="/projects/:projectName/instances" exact>
             <InstancesPage />
@@ -36,8 +39,8 @@ const App = () => {
             <ProjectPage />
           </Route>
         </Switch>
-      </Router>
-    </AppLayout>
+      </AppLayout>
+    </Router>
   )
 }
 
