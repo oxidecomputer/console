@@ -1,9 +1,8 @@
 import type { FC } from 'react'
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import type { StyledComponentProps } from 'styled-components'
 import styled, { css } from 'styled-components'
-import { v4 as uuidv4 } from 'uuid'
 import { useSelect } from 'downshift'
 
 import type { Theme } from '@oxide/theme'
@@ -154,7 +153,7 @@ export const Dropdown: FC<DropdownProps> = ({
   showLabel = true,
   size = 'sm',
 }) => {
-  const itemToString = (item) => (item ? item.label : '')
+  const itemToString = (item: OptionType | null) => (item ? item.label : '')
   const {
     isOpen,
     selectedItem,
