@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useApiData, api } from '@oxide/api'
 
 import {
-  Breadcrumbs,
+  LiveBreadcrumbs,
   Button,
   Card,
   Icon,
@@ -86,17 +86,9 @@ const InstancePage = () => {
   }
   if (!data) return <div>loading</div>
 
-  const breadcrumbs = [
-    { href: '/', label: 'Maze War' },
-    { href: '/projects', label: 'Projects' },
-    { href: `/projects/${projectName}`, label: projectName },
-    { href: `/projects/${projectName}/instances`, label: 'Instances' },
-    { label: instanceName },
-  ]
-
   return (
     <Wrapper>
-      <Breadcrumbs data={breadcrumbs} />
+      <LiveBreadcrumbs />
       <PageHeader>
         <Title>{instanceName}</Title>
         <Actions>

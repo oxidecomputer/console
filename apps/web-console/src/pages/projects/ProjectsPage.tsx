@@ -4,14 +4,12 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
 import { useApiData, api } from '@oxide/api'
-import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { LiveBreadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: { name: 'instances' },
 })``
-
-const breadcrumbs = [{ href: '/', label: 'Maze War' }, { label: 'Projects' }]
 
 const ProjectsPage = () => {
   const { data } = useApiData(api.apiProjectsGet, {})
@@ -20,7 +18,7 @@ const ProjectsPage = () => {
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
+      <LiveBreadcrumbs />
       <PageHeader>
         <Title>Projects</Title>
       </PageHeader>
