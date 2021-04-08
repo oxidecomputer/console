@@ -5,6 +5,7 @@ import { useParams, Link } from 'react-router-dom'
 
 import { useApiData, api } from '@oxide/api'
 import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -16,17 +17,12 @@ type Params = {
 }
 
 const InstancesPage = () => {
+  const breadcrumbs = useBreadcrumbs()
+
   const { projectName } = useParams<Params>()
   const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
 
   if (!data) return <div>loading</div>
-
-  const breadcrumbs = [
-    { href: '/', label: 'Maze War' },
-    { href: '/projects', label: 'Projects' },
-    { href: `/projects/${projectName}`, label: projectName },
-    { label: 'Instances' },
-  ]
 
   return (
     <>

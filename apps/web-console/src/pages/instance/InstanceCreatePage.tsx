@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Breadcrumbs, Icon, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -13,15 +14,8 @@ const Title = styled(TextWithIcon).attrs({
   }
 `
 
-const breadcrumbs = [
-  { href: '/', label: 'Maze War' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/projects/prod-online', label: 'prod-online' },
-  { href: '/projects/prod-online/instances', label: 'Instances' },
-  { label: 'Create Instance' },
-]
-
 const InstancesPage = () => {
+  const breadcrumbs = useBreadcrumbs()
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />

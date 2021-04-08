@@ -1,15 +1,18 @@
 import React from 'react'
-
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Text } from '../text/Text'
 
+export type Crumb = { href?: string; label: string }
+
 export interface BreadcrumbsProps {
   /**
-   * Render an ordered list using this 'data' prop. Each item in the array is an object with the keys 'href' and 'label'. Links will render if an 'href' is present. The name of the breadcrumb will be the corresponding 'label'.
+   * Render an ordered list using this 'data' prop. Each item in the array is an
+   * object with the keys 'href' and 'label'. Links will render if an 'href' is
+   * present. The name of the breadcrumb will be the corresponding 'label'.
    */
-  data?: { href?: string; label: string }[]
+  data?: Crumb[]
 }
 
 const StyledList = styled(Text).attrs({ as: 'ol', size: 'sm' })`
@@ -62,5 +65,3 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data, ...rest }) => {
   }
   return null
 }
-
-export default Breadcrumbs
