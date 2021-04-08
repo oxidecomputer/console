@@ -1,42 +1,13 @@
 import React from 'react'
-
 import styled from 'styled-components'
+
+import { useApiData, api } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
 import Wordmark from '../assets/wordmark.svg'
 
 interface AppLayoutProps {
   children: React.ReactNode
 }
-
-const projects = [
-  {
-    id: '1',
-    name: 'prod-online',
-    notificationsCount: 2,
-    starred: true,
-  },
-  {
-    id: '2',
-    name: 'release-infrastructure',
-  },
-  {
-    id: '3',
-    name: 'rendering',
-  },
-  {
-    id: '4',
-    name: 'test-infrastructure',
-  },
-  {
-    id: '5',
-    name: 'oxide-demo',
-  },
-].map((p) => ({
-  ...p,
-  description: '',
-  timeCreated: new Date(),
-  timeModified: new Date(),
-}))
 
 const Wrapper = styled.div`
   display: grid;
@@ -85,17 +56,15 @@ const GlobalNavContainer = styled.header`
 `
 
 export default ({ children }: AppLayoutProps) => {
+  const { data: projects } = useApiData(api.apiProjectsGet, {})
+
   return (
     <Wrapper>
       <WordmarkWrapper>
         <Wordmark />
       </WordmarkWrapper>
       <Sidebar>
-        <ProjectList
-          projects={projects}
-          onProjectSelect={() => null}
-          onProjectCreate={() => null}
-        />
+        <ProjectList projects={projects?.items || []} />
         <OperationList />
       </Sidebar>
       <GlobalNavContainer>

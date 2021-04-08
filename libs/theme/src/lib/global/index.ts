@@ -39,20 +39,9 @@ const globalStyles = css`
   abbr[title] {
     text-decoration: none;
   }
-  a,
-  a:link {
-    color: ${(props) => props.theme.themeColors.gray100};
+  a {
+    color: inherit;
     text-decoration: none;
-  }
-  a:visited {
-    color: ${(props) => props.theme.themeColors.gray100};
-    text-decoration: underline;
-  }
-  a:hover {
-    color: ${(props) => props.theme.themeColors.green500};
-  }
-  a:active {
-    color: ${(props) => props.theme.themeColors.gray300};
   }
 `
 
