@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createRef } from 'react'
 import type { FC } from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
@@ -140,6 +140,7 @@ export const TextField: FC<TextFieldProps> = ({
 }) => {
   const errorId = error ? `${id}-validation-hint` : ``
   const hintId = hint ? `${id}-hint` : ``
+  const inputRef = createRef<HTMLInputElement>()
 
   return (
     <Wrapper disabled={disabled} className={className}>
@@ -148,8 +149,15 @@ export const TextField: FC<TextFieldProps> = ({
         {!required && <OptionalText>Optional</OptionalText>}
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      <InputWrapper hasError={!!error} align={icon && icon.align}>
+      <InputWrapper
+        hasError={!!error}
+        align={icon && icon.align}
+        onClick={() => {
+          inputRef.current?.focus()
+        }}
+      >
         <StyledInput
+          ref={inputRef}
           aria-invalid={error}
           type={type}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
