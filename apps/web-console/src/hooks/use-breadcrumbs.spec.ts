@@ -1,4 +1,4 @@
-import { breadcrumbsForPath } from './LiveBreadcrumbs'
+import { breadcrumbsForPath } from './use-breadcrumbs'
 
 const mazeWar = { href: '/', label: 'Maze War' }
 

@@ -1,8 +1,6 @@
-import React from 'react'
 import { useLocation } from 'react-router-dom'
 
 import type { Crumb } from '@oxide/ui'
-import { Breadcrumbs } from '@oxide/ui'
 
 type SpecialLabel = {
   pred: (p: string) => boolean
@@ -39,7 +37,7 @@ export const breadcrumbsForPath = (path: string): Crumb[] => {
   return [{ href: '/', label: 'Maze War' }, ...pathParts.map(crumbFor)]
 }
 
-export const LiveBreadcrumbs = () => {
+export function useBreadcrumbs() {
   const location = useLocation()
-  return <Breadcrumbs data={breadcrumbsForPath(location.pathname)} />
+  return breadcrumbsForPath(location.pathname)
 }

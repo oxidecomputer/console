@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Icon, PageHeader, TextWithIcon } from '@oxide/ui'
-import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
+import { Breadcrumbs, Icon, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -15,9 +15,10 @@ const Title = styled(TextWithIcon).attrs({
 `
 
 const InstancesPage = () => {
+  const breadcrumbs = useBreadcrumbs()
   return (
     <>
-      <LiveBreadcrumbs />
+      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>

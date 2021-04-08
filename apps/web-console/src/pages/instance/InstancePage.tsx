@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useApiData, api } from '@oxide/api'
 
 import {
+  Breadcrumbs,
   Button,
   Card,
   Icon,
@@ -14,8 +15,8 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 
-import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
 import { InstancePageTables } from './InstancePageTables'
+import { useBreadcrumbs } from '../../hooks'
 
 const Wrapper = styled.div``
 
@@ -70,6 +71,7 @@ type Params = {
 }
 
 const InstancePage = () => {
+  const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
   const { data, error } = useApiData(api.apiProjectInstancesGetInstance, {
@@ -88,7 +90,7 @@ const InstancePage = () => {
 
   return (
     <Wrapper>
-      <LiveBreadcrumbs />
+      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>{instanceName}</Title>
         <Actions>

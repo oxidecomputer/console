@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { useParams, Link } from 'react-router-dom'
 
 import { useApiData, api } from '@oxide/api'
-import { PageHeader, TextWithIcon } from '@oxide/ui'
-import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
+import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -17,6 +17,8 @@ type Params = {
 }
 
 const InstancesPage = () => {
+  const breadcrumbs = useBreadcrumbs()
+
   const { projectName } = useParams<Params>()
   const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
 
@@ -24,7 +26,7 @@ const InstancesPage = () => {
 
   return (
     <>
-      <LiveBreadcrumbs />
+      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Instances for Project: {projectName}</Title>
       </PageHeader>
