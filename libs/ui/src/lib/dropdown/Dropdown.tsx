@@ -126,6 +126,9 @@ const getOptionStyles = (size: SizeType) => {
 
 const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   color: ${({ theme }) => theme.color('gray200')};
+  font-size: ${({ theme }) => theme.spacing(3.5)};
+  font-weight: 400;
+  line-height: 1.5;
 
   &:hover,
   &:focus {
@@ -137,9 +140,13 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
     box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
   }
 
-  font-size: ${({ theme }) => theme.spacing(3.5)};
-  font-weight: 400;
-  line-height: 1.5;
+  &:first-child {
+    margin-top: ${({ theme }) => theme.spacing(2)};
+  }
+
+  &:last-child {
+    margin-bottom: ${({ theme }) => theme.spacing(2)};
+  }
 
   ${({ size }) => getOptionStyles(size)};
   ${({ isHighlighted, theme }) =>
