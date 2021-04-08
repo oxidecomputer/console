@@ -4,7 +4,8 @@ import styled from 'styled-components'
 import { useParams, Link } from 'react-router-dom'
 
 import { useApiData, api } from '@oxide/api'
-import { LiveBreadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { PageHeader, TextWithIcon } from '@oxide/ui'
+import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },

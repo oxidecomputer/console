@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { LiveBreadcrumbs, Icon, PageHeader, TextWithIcon } from '@oxide/ui'
+import { Icon, PageHeader, TextWithIcon } from '@oxide/ui'
+import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },

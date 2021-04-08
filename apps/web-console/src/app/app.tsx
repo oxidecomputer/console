@@ -1,5 +1,5 @@
 import React from 'react'
-import AppLayout from '../app-layout/AppLayout'
+import AppLayout from '../components/AppLayout'
 import {
   BrowserRouter as Router,
   Redirect,

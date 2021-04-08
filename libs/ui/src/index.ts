@@ -1,6 +1,5 @@
 export * from './lib/avatar/Avatar'
 export * from './lib/breadcrumbs/Breadcrumbs'
-export * from './lib/breadcrumbs/LiveBreadcrumbs'
 export * from './lib/button/Button'
 export * from './lib/card/Card'
 export * from './lib/icon/Icon'

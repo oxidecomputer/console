@@ -1,8 +1,8 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 
-import type { Crumb } from './Breadcrumbs'
-import { Breadcrumbs } from './Breadcrumbs'
+import type { Crumb } from '@oxide/ui'
+import { Breadcrumbs } from '@oxide/ui'
 
 type SpecialLabel = {
   pred: (p: string) => boolean

@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import { useApiData, api } from '@oxide/api'
 
 import {
-  LiveBreadcrumbs,
   Button,
   Card,
   Icon,
@@ -15,6 +14,7 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 
+import { LiveBreadcrumbs } from '../../components/LiveBreadcrumbs'
 import { InstancePageTables } from './InstancePageTables'
 
 const Wrapper = styled.div``
