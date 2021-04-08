@@ -13,6 +13,11 @@ export type SpacingHelper = (
   size: SizingMultiplier
 ) => FlattenInterpolation<ThemeProps<Theme>>
 
+export type SpaceBetweenHelper = (
+  size: SizingMultiplier,
+  reverse?: boolean
+) => FlattenInterpolation<ThemeProps<Theme>>
+
 // Our Theme type
 export interface Theme {
   themeColors: ColorPalette
@@ -21,8 +26,8 @@ export interface Theme {
     [key in Font]: string
   }
   spacing: (size: SizingMultiplier | SizingMultiplier[]) => string
-  spaceBetweenX: SpacingHelper
-  spaceBetweenY: SpacingHelper
+  spaceBetweenX: SpaceBetweenHelper
+  spaceBetweenY: SpaceBetweenHelper
   paddingX: SpacingHelper
   paddingY: SpacingHelper
   marginX: SpacingHelper
