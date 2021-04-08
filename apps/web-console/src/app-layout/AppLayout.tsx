@@ -64,6 +64,7 @@ export default ({ children }: AppLayoutProps) => {
         <Wordmark />
       </WordmarkWrapper>
       <Sidebar>
+        {/* TODO: this causes pop-in when the request comes back */}
         <ProjectList projects={projects?.items || []} />
         <OperationList />
       </Sidebar>
