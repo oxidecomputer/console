@@ -23,7 +23,7 @@ export type TextFieldProps = StyledComponentProps<
      * Additional text to associate with this specific field
      */
     hint?: string | React.ReactNode
-    icon?: StyledIconProps & IconProps
+    icon?: { align?: 'left' | 'right' } & IconProps
   },
   never
 >
@@ -61,60 +61,29 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
   color: ${({ theme }) => theme.color('gray300')};
 `
 
-const InputWrapper = styled.div`
-  position: relative;
-`
-
-interface StyledIconProps {
-  align: 'left' | 'right'
-}
-const StyledIcon = styled(Icon)<StyledIconProps>`
-  z-index: 1;
-  position: absolute;
-  top: 0;
-  ${({ align, theme }) => align === 'left' && `left: ${theme.spacing(2.5)};`};
-  ${({ align, theme }) => align === 'right' && `right: ${theme.spacing(2.5)};`};
-  bottom: 0;
-
-  margin: 0;
-  padding: 0;
-  width: ${({ theme }) => theme.spacing(5)};
-`
-
-const StyledInput = styled.input<{
+interface InputWrapperProps {
   hasError?: boolean
-  alignIcon?: 'left' | 'right'
-}>`
-  display: block;
-  margin: 0;
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
-  width: 100%;
+  align?: 'left' | 'right'
+}
+const InputWrapper = styled.div<InputWrapperProps>`
+  display: flex;
+  flex-direction: ${({ align }) =>
+    align && align === 'right' ? 'row' : 'row-reverse'};
+  flex-wrap: nowrap;
+  align-items: center;
 
-  border: 1px solid transparent;
+  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+
   background-color: ${({ theme }) => theme.color('gray700')};
-  color: ${({ theme }) => theme.color('gray100')};
-  font-family: ${({ theme }) => theme.fonts.sans};
-  font-size: ${({ theme }) => theme.spacing(3.5)};
-  line-height: ${1.25 / 0.875};
 
   &:hover:not([disabled]) {
     background-color: ${({ theme }) => theme.color('gray800')};
   }
 
-  &:focus {
-    outline: none;
+  :focus-within {
     border-color: ${({ theme }) => theme.color('green500')};
     box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
   }
-
-  ${({ alignIcon, theme }) => {
-    if (alignIcon === 'left') {
-      return `padding-left: ${theme.spacing(9)};`
-    }
-    if (alignIcon === 'right') {
-      return `padding-right: ${theme.spacing(9)};`
-    }
-  }};
 
   ${({ hasError, theme }) =>
     hasError &&
@@ -126,6 +95,30 @@ const StyledInput = styled.input<{
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), 0px 0px 0px 1px #ef4444;
       }
     `}
+
+  ${({ theme, align }) => align && theme.spaceBetweenX(2, align === 'left')}
+`
+
+const StyledIcon = styled(Icon)`
+  flex: 0 0 auto;
+
+  width: ${({ theme }) => theme.spacing(5)};
+`
+
+const StyledInput = styled.input`
+  flex: 1;
+  margin: 0;
+
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: ${({ theme }) => theme.color('gray100')};
+  font-family: ${({ theme }) => theme.fonts.sans};
+  font-size: ${({ theme }) => theme.spacing(3.5)};
+  line-height: ${1.25 / 0.875};
+
+  :focus {
+    outline: none;
+  }
 `
 
 const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
@@ -155,13 +148,11 @@ export const TextField: FC<TextFieldProps> = ({
         {!required && <OptionalText>Optional</OptionalText>}
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      <InputWrapper>
+      <InputWrapper hasError={!!error} align={icon && icon.align}>
         <StyledInput
-          alignIcon={icon && icon.align}
           aria-invalid={error}
           type={type}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
-          hasError={!!error}
           required={required}
           aria-required={required || undefined}
           id={id}
