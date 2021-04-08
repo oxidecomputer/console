@@ -28,7 +28,7 @@ const List = styled.ul`
 `
 
 const BaseLink = styled.a`
-  color: ${({ theme }) => theme.color('gray400')} !important;
+  color: ${({ theme }) => theme.color('gray400')};
   padding: ${({ theme }) => theme.spacing(1)};
 
   :hover {

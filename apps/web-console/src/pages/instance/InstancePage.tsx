@@ -16,6 +16,7 @@ import {
 } from '@oxide/ui'
 
 import { InstancePageTables } from './InstancePageTables'
+import { useBreadcrumbs } from '../../hooks'
 
 const Wrapper = styled.div``
 
@@ -70,6 +71,7 @@ type Params = {
 }
 
 const InstancePage = () => {
+  const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
   const { data, error } = useApiData(api.apiProjectInstancesGetInstance, {
@@ -85,14 +87,6 @@ const InstancePage = () => {
     }
   }
   if (!data) return <div>loading</div>
-
-  const breadcrumbs = [
-    { href: '/', label: 'Maze War' },
-    { href: '/projects', label: 'Projects' },
-    { href: `/projects/${projectName}`, label: projectName },
-    { href: `/projects/${projectName}/instances`, label: 'Instances' },
-    { label: instanceName },
-  ]
 
   return (
     <Wrapper>

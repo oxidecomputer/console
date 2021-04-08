@@ -5,13 +5,7 @@ import { ProjectList } from './ProjectList'
 
 describe('ProjectList', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(
-      <ProjectList
-        projects={[]}
-        onProjectCreate={jest.fn()}
-        onProjectSelect={jest.fn()}
-      />
-    )
+    const { baseElement } = render(<ProjectList projects={[]} />)
     expect(baseElement).toBeTruthy()
   })
 })

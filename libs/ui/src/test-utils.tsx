@@ -1,12 +1,15 @@
 import type { FC, ReactElement } from 'react'
 import React from 'react'
+import { BrowserRouter as Router } from 'react-router-dom'
 import type { RenderOptions } from '@testing-library/react'
 import { render } from '@testing-library/react'
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from '@oxide/theme'
 
 const Providers: FC = ({ children }) => (
-  <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+  <ThemeProvider theme={defaultTheme}>
+    <Router>{children}</Router>
+  </ThemeProvider>
 )
 
 const customRender = (

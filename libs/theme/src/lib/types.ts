@@ -3,7 +3,7 @@ import type { FlattenInterpolation, ThemeProps } from 'styled-components'
 import type { Color, ColorPalette } from './colors'
 
 // Used as a basis for an CSS helper which relies on a base sizing unit.
-type SizingMultiplier = number
+export type SizingMultiplier = number
 
 // Fonts
 export type Font = 'sans' | 'mono'
@@ -20,7 +20,7 @@ export interface Theme {
   fonts: {
     [key in Font]: string
   }
-  spacing: (size: SizingMultiplier) => string
+  spacing: (size: SizingMultiplier | SizingMultiplier[]) => string
   spaceBetweenX: SpacingHelper
   spaceBetweenY: SpacingHelper
   paddingX: SpacingHelper

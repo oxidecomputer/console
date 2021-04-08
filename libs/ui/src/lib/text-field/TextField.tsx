@@ -1,5 +1,5 @@
 import React from 'react'
-import type { FC } from 'react'
+import type { FC, ReactEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
@@ -11,6 +11,10 @@ export type TextFieldProps = StyledComponentProps<
   'input',
   DefaultTheme,
   {
+    /**
+     * Optional controls that can manipulate the user input (such as increment/decrement)
+     */
+    controls?: React.ReactNode
     /**
      * Required for accessibility. Defaults to `false`. Input is invalid
      */
@@ -24,6 +28,8 @@ export type TextFieldProps = StyledComponentProps<
      */
     hint?: string | React.ReactNode
     icon?: StyledIconProps & IconProps
+    onChange?: ReactEventHandler
+    value?: string | number
   },
   never
 >
@@ -76,18 +82,19 @@ const StyledIcon = styled(Icon)<StyledIconProps>`
   ${({ align, theme }) => align === 'right' && `right: ${theme.spacing(2.5)};`};
   bottom: 0;
 
-  margin: 0;
-  padding: 0;
+  height: 100%;
   width: ${({ theme }) => theme.spacing(5)};
 `
 
-const StyledInput = styled.input<{
+type StyledInputType = {
   hasError?: boolean
   alignIcon?: 'left' | 'right'
-}>`
+}
+
+const StyledInput = styled.input<StyledInputType>`
   display: block;
   margin: 0;
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+  padding: ${({ theme }) => `${theme.spacing(2.25)} ${theme.spacing(3)}`};
   width: 100%;
 
   border: 1px solid transparent;
@@ -123,7 +130,8 @@ const StyledInput = styled.input<{
 
       &:focus {
         border: 1px solid ${theme.color('red500')};
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), 0px 0px 0px 1px #ef4444;
+        box-shadow: 0px 1px 2px ${theme.color('black', 0.05)},
+          0px 0px 0px 1px #ef4444;
       }
     `}
 `
@@ -134,6 +142,8 @@ const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
 
 export const TextField: FC<TextFieldProps> = ({
   children,
+  className,
+  controls = null,
   disabled = false,
   error = false,
   errorMessage,
@@ -142,7 +152,6 @@ export const TextField: FC<TextFieldProps> = ({
   id,
   required = false,
   type = 'text',
-  className,
   ...inputProps
 }) => {
   const errorId = error ? `${id}-validation-hint` : ``
@@ -158,17 +167,18 @@ export const TextField: FC<TextFieldProps> = ({
       <InputWrapper>
         <StyledInput
           alignIcon={icon && icon.align}
-          aria-invalid={error}
-          type={type}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
-          hasError={!!error}
-          required={required}
+          aria-invalid={error}
           aria-required={required || undefined}
-          id={id}
           disabled={disabled}
+          hasError={!!error}
+          id={id}
+          required={required}
+          type={type}
           {...inputProps}
         />
         {icon && <StyledIcon {...icon} />}
+        {controls}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>

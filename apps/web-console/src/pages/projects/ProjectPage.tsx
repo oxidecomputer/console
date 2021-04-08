@@ -5,22 +5,20 @@ import { useParams, Link } from 'react-router-dom'
 
 import { useApiData, api } from '@oxide/api'
 import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: { name: 'instances' },
 })``
 
-const breadcrumbsBase = [
-  { href: '/', label: 'Maze War' },
-  { href: '/projects', label: 'Projects' },
-]
-
 type Params = {
   projectName: string
 }
 
 const ProjectPage = () => {
+  const breadcrumbs = useBreadcrumbs()
+
   const { projectName } = useParams<Params>()
   const { data: project } = useApiData(api.apiProjectsGetProject, {
     projectName,
@@ -33,7 +31,7 @@ const ProjectPage = () => {
 
   return (
     <>
-      <Breadcrumbs data={[...breadcrumbsBase, { label: projectName }]} />
+      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>{project.name}</Title>
       </PageHeader>
