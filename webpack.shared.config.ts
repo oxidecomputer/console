@@ -1,5 +1,5 @@
-import path from 'path'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 
 export default {
   entry: './apps/web-console/src/main.tsx',
@@ -46,11 +46,11 @@ export default {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-    alias: {
-      '@oxide/theme': path.resolve(__dirname, 'libs/theme/src/'),
-      '@oxide/ui': path.resolve(__dirname, 'libs/ui/src/'),
-      '@oxide/api': path.resolve(__dirname, 'libs/api/'),
-    },
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: './tsconfig.json',
+      }),
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
