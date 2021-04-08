@@ -2,7 +2,13 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Dropdown } from '../Dropdown'
-import { Default, Small, Large } from './Dropdown.stories'
+import {
+  Default,
+  Small,
+  Large,
+  HideLabel,
+  WithDefaultValue,
+} from './Dropdown.stories'
 
 <Meta title="Dropdown" />
 
@@ -21,4 +27,16 @@ import { Default, Small, Large } from './Dropdown.stories'
 <Canvas>
   <Story story={Small} />
   <Story story={Large} />
+</Canvas>
+
+### Visually Hide Label
+
+<Canvas>
+  <Story story={HideLabel} />
+</Canvas>
+
+### With Default Value
+
+<Canvas>
+  <Story story={WithDefaultValue} />
 </Canvas>

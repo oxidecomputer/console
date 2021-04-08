@@ -37,3 +37,19 @@ Large.args = {
   options: SAMPLE_OPTIONS,
   size: 'lg',
 }
+
+export const HideLabel = Template.bind({})
+HideLabel.args = {
+  showLabel: false,
+  label: 'Choose an Operator',
+  options: SAMPLE_OPTIONS,
+  size: 'lg',
+}
+
+export const WithDefaultValue = Template.bind({})
+WithDefaultValue.args = {
+  defaultValue: 'de',
+  label: 'Choose an Operator',
+  options: SAMPLE_OPTIONS,
+  size: 'lg',
+}

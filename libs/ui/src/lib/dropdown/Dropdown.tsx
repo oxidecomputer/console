@@ -1,28 +1,24 @@
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
+import type { StyledComponentProps } from 'styled-components'
 import styled, { css } from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  // Listbox,
-  ListboxInput,
-  ListboxButton,
-  ListboxPopover,
-  ListboxList,
-  ListboxOption,
-} from '@reach/listbox'
+import { useSelect } from 'downshift'
 
+import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
 type SizeType = 'sm' | 'lg'
+type OptionType = { value: string; label: string }
 export interface DropdownProps {
   defaultValue?: string
   /**
    * Required for accessibility. Description of the dropdown.
    */
   label: string
-  options: { value: string; label: string }[]
+  options: OptionType[]
   /**
    * Whether to show label to sighted users
    */
@@ -30,10 +26,12 @@ export interface DropdownProps {
   size?: SizeType
 }
 
-const Wrapper = styled.div``
+const Wrapper = styled.div`
+  position: relative;
+`
 
 /* Hide from sighted users, show to screen readers */
-const VisuallyHidden = styled.span`
+const VisuallyHidden = styled.label`
   position: absolute !important;
   overflow: hidden !important;
   width: 1px !important;
@@ -44,33 +42,36 @@ const VisuallyHidden = styled.span`
 `
 
 const Label = styled(Text).attrs({
+  as: 'label',
   weight: 500,
   size: 'base',
 })``
 
-const StyledListboxInput = styled(ListboxInput)`
-  margin-top: ${({ theme }) => theme.spacing(1)};
-`
+type ButtonProps = StyledComponentProps<
+  'button',
+  Theme,
+  { placeholder: boolean },
+  never
+>
 
-const StyledListboxButton = styled(ListboxButton)`
+const StyledButton = styled.button<ButtonProps>`
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 
+  margin-top: ${({ theme }) => theme.spacing(1)};
   padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(4)}`};
   vertical-align: top;
+  width: 100%;
 
   background-color: ${({ theme }) => theme.color('gray800')};
+  border: none;
   color: ${({ theme }) => theme.color('gray50')};
   font-size: ${({ theme }) => theme.spacing(4)};
-  font-weight: 500;
-  line-height: 1.5;
 
-  /* Target the <span> parent of the StyledIcon to vertically center align the icon */
-  [data-reach-listbox-arrow] {
-    display: flex;
-  }
+  font-weight: ${({ placeholder }) => (placeholder ? 400 : 500)};
+  line-height: 1.5;
 
   &:hover {
     background-color: ${({ theme }) => theme.color('gray700')};
@@ -89,16 +90,21 @@ const StyledIcon = styled(Icon).attrs({
   margin-left: ${({ theme }) => theme.spacing(5)};
 `
 
-const StyledPopover = styled(ListboxPopover)`
+const StyledMenu = styled.ul`
   z-index: 1;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
 
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
     `0 ${theme.spacing(3)} ${theme.spacing(6)} ${theme.color('black', 0.16)}`};
-`
+  list-style: none;
 
-const StyledListboxList = styled(ListboxList)`
   &:focus {
     box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
     outline: none;
@@ -119,7 +125,7 @@ const getOptionStyles = (size: SizeType) => {
   }
 }
 
-const StyledListboxOption = styled(ListboxOption)<{ size: SizeType }>`
+const StyledOption = styled.li<{ size: SizeType }>`
   color: ${({ theme }) => theme.color('gray200')};
 
   &:hover,
@@ -146,37 +152,53 @@ export const Dropdown: FC<DropdownProps> = ({
   showLabel = true,
   size = 'sm',
 }) => {
-  const labelId = useMemo(() => uuidv4(), [])
-  const [value, setValue] = React.useState(defaultValue)
-  const handleChange = (value: string) => setValue(value)
+  const itemToString = (item) => (item ? item.label : '')
+  const {
+    isOpen,
+    selectedItem,
+    getToggleButtonProps,
+    getLabelProps,
+    getMenuProps,
+    highlightedIndex,
+    getItemProps,
+  } = useSelect({
+    initialSelectedItem:
+      options.find((option) => option.value === defaultValue) || null,
+    items: options,
+    itemToString: itemToString,
+  })
 
   const renderLabel = showLabel ? (
-    <Label id={labelId}>{label}</Label>
+    <Label {...getLabelProps()}>{label}</Label>
   ) : (
-    <VisuallyHidden id={labelId}>{label}</VisuallyHidden>
+    <VisuallyHidden {...getLabelProps()}>{label}</VisuallyHidden>
   )
 
-  const renderOptions = options.map((option) => {
-    return (
-      <StyledListboxOption key={option.value} value={option.value} size={size}>
-        {option.label}
-      </StyledListboxOption>
-    )
-  })
+  const renderOptions = options.map((option, index) => (
+    <StyledOption
+      key={option.value}
+      value={option.value}
+      size={size}
+      {...getItemProps({ item: option, index })}
+    >
+      {option.label}
+    </StyledOption>
+  ))
 
   return (
     <Wrapper>
       {renderLabel}
-      <StyledListboxInput
-        aria-labelledby={labelId}
-        value={value}
-        onChange={handleChange}
+      <StyledButton
+        type="button"
+        {...getToggleButtonProps()}
+        placeholder={selectedItem ? false : true}
       >
-        <StyledListboxButton arrow={<StyledIcon />} />
-        <StyledPopover>
-          <StyledListboxList>{renderOptions}</StyledListboxList>
-        </StyledPopover>
-      </StyledListboxInput>
+        {selectedItem ? itemToString(selectedItem) : label}
+        <StyledIcon />
+      </StyledButton>
+      <StyledMenu {...getMenuProps()}>{isOpen && renderOptions}</StyledMenu>
+      {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
+      <div tabIndex={0} />
     </Wrapper>
   )
 }
