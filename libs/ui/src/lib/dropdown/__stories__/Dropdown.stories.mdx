@@ -10,9 +10,15 @@ import {
   WithDefaultValue,
 } from './Dropdown.stories'
 
+<!--
+  Docs Story parameters: https://github.com/storybookjs/storybook/blob/ff7c2063819f7940c5e794165559835ccd630a22/addons/docs/src/blocks/Story.tsx
+-->
+
 <Meta title="Components/Dropdown" />
 
 # Dropdown
+
+The Dropdown component uses the [`useSelect`](https://github.com/downshift-js/downshift/tree/master/src/hooks/useSelect) hook from the [downshift.js library](https://www.downshift-js.com/).
 
 <Canvas>
   <Story story={Default} />
