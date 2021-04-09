@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { useApiData, api } from '@oxide/api'
+import { useApi } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
 import Wordmark from '../assets/wordmark.svg'
 
@@ -56,7 +56,7 @@ const GlobalNavContainer = styled.header`
 `
 
 export default ({ children }: AppLayoutProps) => {
-  const { data: projects } = useApiData(api, 'apiProjectsGet', {})
+  const { data: projects } = useApi('apiProjectsGet', {})
 
   return (
     <Wrapper>

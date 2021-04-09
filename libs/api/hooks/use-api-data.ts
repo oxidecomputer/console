@@ -38,12 +38,16 @@ type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
 // We also sort the keys in the params object so that { a: 1, b: 2 }
 // and { b: 2, a: 1 } are considered equivalent. SWR accepts an array
 // of strings as well as a single string.
-export function useApiData<
-  A extends PickByValue<A, (p: any) => Promise<any>>,
-  K extends keyof A
->(api: A, method: K, params: ReqParams<A, K>) {
-  const paramsStr = JSON.stringify(sortObj(params))
-  return useSWR<Response<A, K>>([method, paramsStr], () => api[method](params))
+export function getUseApi<A extends PickByValue<A, (p: any) => Promise<any>>>(
+  api: A
+) {
+  function useApi<K extends keyof A>(method: K, params: ReqParams<A, K>) {
+    const paramsStr = JSON.stringify(sortObj(params))
+    return useSWR<Response<A, K>>([method, paramsStr], () =>
+      api[method](params)
+    )
+  }
+  return useApi
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

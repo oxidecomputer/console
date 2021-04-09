@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { useApiData, api } from '@oxide/api'
+import { useApi } from '@oxide/api'
 
 import {
   Breadcrumbs,
@@ -74,7 +74,7 @@ const InstancePage = () => {
   const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
-  const { data, error } = useApiData(api, 'apiProjectInstancesGetInstance', {
+  const { data, error } = useApi('apiProjectInstancesGetInstance', {
     instanceName,
     projectName,
   })

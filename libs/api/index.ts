@@ -1,5 +1,4 @@
-export * from './__generated__'
-export * from './hooks'
+import { getUseApi } from './hooks'
 
 import { DefaultApi, Configuration } from './__generated__'
 
@@ -8,4 +7,7 @@ const config =
     ? new Configuration({ basePath: process.env.API_URL })
     : new Configuration({ basePath: '/api' })
 
-export const api = new DefaultApi(config)
+const api = new DefaultApi(config)
+
+export const useApi = getUseApi(api)
+export * from './__generated__'

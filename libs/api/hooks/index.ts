@@ -1,1 +1,1 @@
-export { useApiData } from './use-api-data'
+export { getUseApi } from './use-api-data'
