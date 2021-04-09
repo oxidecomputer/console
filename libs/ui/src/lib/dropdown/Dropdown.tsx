@@ -61,7 +61,7 @@ const StyledButton = styled.button<ButtonProps>`
   justify-content: space-between;
 
   margin-top: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(4)}`};
+  padding: ${({ theme }) => theme.spacing([2, 4])};
   vertical-align: top;
   width: 100%;
 
@@ -103,7 +103,7 @@ const StyledMenu = styled(motion.ul)`
 
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
-    `0 ${theme.spacing(3)} ${theme.spacing(6)} ${theme.color('black', 0.16)}`};
+    `${theme.spacing([0, 3, 6])} ${theme.color('black', 0.16)}`};
 
   list-style: none;
 
@@ -117,12 +117,12 @@ const getOptionStyles = (size: SizeType) => {
   switch (size) {
     case 'lg':
       return css`
-        padding: ${({ theme }) => `${theme.spacing(2.5)} ${theme.spacing(4)}`};
+        padding: ${({ theme }) => theme.spacing([2.5, 4])};
       `
     default:
     case 'sm':
       return css`
-        padding: ${({ theme }) => `${theme.spacing(1.5)} ${theme.spacing(4)}`};
+        padding: ${({ theme }) => theme.spacing([1.5, 4])};
       `
   }
 }
@@ -156,6 +156,19 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
     isHighlighted && `background-color: ${theme.color('gray700')};`};
 `
 
+const FRAMER_VARIANTS = {
+  open: {
+    opacity: 1,
+    scale: 1,
+    transition: { ease: 'easeOut', duration: 0.1 },
+  },
+  closed: {
+    opacity: 0,
+    scale: 0.95,
+    transition: { ease: 'easeIn', duration: 0.075 },
+  },
+}
+
 export const Dropdown: FC<DropdownProps> = ({
   defaultValue,
   label,
@@ -164,15 +177,7 @@ export const Dropdown: FC<DropdownProps> = ({
   size = 'sm',
 }) => {
   const itemToString = (item: OptionType | null) => (item ? item.label : '')
-  const {
-    isOpen,
-    selectedItem,
-    getToggleButtonProps,
-    getLabelProps,
-    getMenuProps,
-    highlightedIndex,
-    getItemProps,
-  } = useSelect({
+  const select = useSelect({
     initialSelectedItem:
       options.find((option) => option.value === defaultValue) || null,
     items: options,
@@ -180,9 +185,9 @@ export const Dropdown: FC<DropdownProps> = ({
   })
 
   const renderLabel = showLabel ? (
-    <Label {...getLabelProps()}>{label}</Label>
+    <Label {...select.getLabelProps()}>{label}</Label>
   ) : (
-    <VisuallyHidden {...getLabelProps()}>{label}</VisuallyHidden>
+    <VisuallyHidden {...select.getLabelProps()}>{label}</VisuallyHidden>
   )
 
   const renderOptions = options.map((option, index) => (
@@ -190,45 +195,32 @@ export const Dropdown: FC<DropdownProps> = ({
       key={option.value}
       value={option.value}
       size={size}
-      {...getItemProps({ item: option, index })}
-      isHighlighted={highlightedIndex === index}
+      {...select.getItemProps({ item: option, index })}
+      isHighlighted={select.highlightedIndex === index}
     >
       {option.label}
     </StyledOption>
   ))
-
-  const variants = {
-    open: {
-      opacity: 1,
-      scale: 1,
-      transition: { ease: 'easeOut', duration: 0.1 },
-    },
-    closed: {
-      opacity: 0,
-      scale: 0.95,
-      transition: { ease: 'easeIn', duration: 0.075 },
-    },
-  }
 
   return (
     <Wrapper>
       {renderLabel}
       <StyledButton
         type="button"
-        {...getToggleButtonProps()}
-        placeholder={selectedItem ? false : true}
+        {...select.getToggleButtonProps()}
+        placeholder={select.selectedItem ? false : true}
       >
-        {selectedItem ? itemToString(selectedItem) : label}
+        {select.selectedItem ? itemToString(select.selectedItem) : label}
         <StyledIcon />
       </StyledButton>
       <AnimatePresence>
-        {isOpen && (
+        {select.isOpen && (
           <StyledMenu
-            variants={variants}
+            variants={FRAMER_VARIANTS}
             initial={'closed'}
             animate={'open'}
             exit={'closed'}
-            {...getMenuProps()}
+            {...select.getMenuProps()}
           >
             {renderOptions}
           </StyledMenu>
