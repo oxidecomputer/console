@@ -20,7 +20,7 @@ export interface Theme {
   fonts: {
     [key in Font]: string
   }
-  spacing: (size: SizingMultiplier | SizingMultiplier[]) => string
+  spacing: (...sizes: SizingMultiplier[]) => string
   spaceBetweenX: SpacingHelper
   spaceBetweenY: SpacingHelper
   paddingX: SpacingHelper

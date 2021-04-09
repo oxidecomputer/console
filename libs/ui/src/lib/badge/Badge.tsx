@@ -100,7 +100,7 @@ const StyledBadge = styled.span<{
   justify-content: center;
 
   background-color: ${({ theme, background }) => theme.color(background)};
-  padding: ${({ theme, padding }) => theme.spacing(padding)};
+  padding: ${({ theme, padding }) => theme.spacing(...padding)};
 
   border-radius: 9999px;
 `
