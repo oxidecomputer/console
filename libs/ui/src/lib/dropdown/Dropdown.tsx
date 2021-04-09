@@ -43,8 +43,8 @@ const VisuallyHidden = styled.label`
 
 const Label = styled(Text).attrs({
   as: 'label',
-  weight: 500,
-  size: 'base',
+  color: 'white',
+  size: 'sm',
 })``
 
 type ButtonProps = StyledComponentProps<
