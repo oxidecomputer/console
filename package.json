@@ -17,6 +17,7 @@
   },
   "private": true,
   "dependencies": {
+    "@tippyjs/react": "^4.2.5",
     "core-js": "^3.6.5",
     "document-register-element": "1.13.1",
     "downshift": "^6.1.2",
