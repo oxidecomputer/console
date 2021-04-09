@@ -69,7 +69,7 @@ const StyledButton = styled.button<ButtonProps>`
   justify-content: space-between;
 
   margin-top: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => theme.spacing([2, 4])};
+  padding: ${({ theme }) => theme.spacing(2, 4)};
   vertical-align: top;
   width: 100%;
 
@@ -111,7 +111,7 @@ const StyledMenu = styled(motion.ul)`
 
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
-    `${theme.spacing([0, 3, 6])} ${theme.color('black', 0.16)}`};
+    `${theme.spacing(0, 3, 6)} ${theme.color('black', 0.16)}`};
 
   list-style: none;
 
@@ -125,12 +125,12 @@ const getOptionStyles = (size: SizeType) => {
   switch (size) {
     case 'lg':
       return css`
-        padding: ${({ theme }) => theme.spacing([2.5, 4])};
+        padding: ${({ theme }) => theme.spacing(2.5, 4)};
       `
     default:
     case 'sm':
       return css`
-        padding: ${({ theme }) => theme.spacing([1.5, 4])};
+        padding: ${({ theme }) => theme.spacing(1.5, 4)};
       `
   }
 }
