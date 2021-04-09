@@ -20,7 +20,7 @@ const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
+  const { data } = useApiData(api, 'apiProjectInstancesGet', { projectName })
 
   if (!data) return <div>loading</div>
 

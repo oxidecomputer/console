@@ -20,10 +20,10 @@ const ProjectPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data: project } = useApiData(api.apiProjectsGetProject, {
+  const { data: project } = useApiData(api, 'apiProjectsGetProject', {
     projectName,
   })
-  const { data: instances } = useApiData(api.apiProjectInstancesGet, {
+  const { data: instances } = useApiData(api, 'apiProjectInstancesGet', {
     projectName,
   })
 

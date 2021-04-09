@@ -74,7 +74,7 @@ const InstancePage = () => {
   const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
-  const { data, error } = useApiData(api.apiProjectInstancesGetInstance, {
+  const { data, error } = useApiData(api, 'apiProjectInstancesGetInstance', {
     instanceName,
     projectName,
   })

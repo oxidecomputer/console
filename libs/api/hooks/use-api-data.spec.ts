@@ -1,4 +1,4 @@
-import { sortObj } from './index'
+import { sortObj } from './use-api-data'
 
 describe('sortObj', () => {
   it('sorts object keys alphabetically', () => {

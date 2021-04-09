@@ -14,7 +14,7 @@ const Title = styled(TextWithIcon).attrs({
 
 const ProjectsPage = () => {
   const breadcrumbs = useBreadcrumbs()
-  const { data } = useApiData(api.apiProjectsGet, {})
+  const { data } = useApiData(api, 'apiProjectsGet', {})
 
   if (!data) return <div>loading</div>
 

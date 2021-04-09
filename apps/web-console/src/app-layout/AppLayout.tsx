@@ -56,7 +56,7 @@ const GlobalNavContainer = styled.header`
 `
 
 export default ({ children }: AppLayoutProps) => {
-  const { data: projects } = useApiData(api.apiProjectsGet, {})
+  const { data: projects } = useApiData(api, 'apiProjectsGet', {})
 
   return (
     <Wrapper>
