@@ -4,6 +4,7 @@ import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
 import styled, { css } from 'styled-components'
 import { useSelect } from 'downshift'
+import { AnimatePresence, motion } from 'framer-motion'
 
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
@@ -89,7 +90,7 @@ const StyledIcon = styled(Icon).attrs({
   margin-left: ${({ theme }) => theme.spacing(5)};
 `
 
-const StyledMenu = styled.ul`
+const StyledMenu = styled(motion.ul)`
   z-index: 1;
   position: absolute;
   left: 0;
@@ -102,6 +103,7 @@ const StyledMenu = styled.ul`
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
     `0 ${theme.spacing(3)} ${theme.spacing(6)} ${theme.color('black', 0.16)}`};
+
   list-style: none;
 
   &:focus {
@@ -194,6 +196,19 @@ export const Dropdown: FC<DropdownProps> = ({
     </StyledOption>
   ))
 
+  const variants = {
+    open: {
+      opacity: 1,
+      scale: 1,
+      transition: { ease: 'easeOut', duration: 0.1 },
+    },
+    closed: {
+      opacity: 0,
+      scale: 0.95,
+      transition: { ease: 'easeIn', duration: 0.075 },
+    },
+  }
+
   return (
     <Wrapper>
       {renderLabel}
@@ -205,7 +220,19 @@ export const Dropdown: FC<DropdownProps> = ({
         {selectedItem ? itemToString(selectedItem) : label}
         <StyledIcon />
       </StyledButton>
-      <StyledMenu {...getMenuProps()}>{isOpen && renderOptions}</StyledMenu>
+      <AnimatePresence>
+        {isOpen && (
+          <StyledMenu
+            variants={variants}
+            initial={'closed'}
+            animate={'open'}
+            exit={'closed'}
+            {...getMenuProps()}
+          >
+            {renderOptions}
+          </StyledMenu>
+        )}
+      </AnimatePresence>
       {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
       <div tabIndex={0} />
     </Wrapper>
