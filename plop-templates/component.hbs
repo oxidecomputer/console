@@ -6,14 +6,12 @@ import styled from 'styled-components'
 /* eslint-disable-next-line */
 export interface {{name}}Props {}
 
-const Styled{{name}} = styled.div`
-  color: pink;
-`
+const Wrapper = styled.div``
 
-export const {{name}}: FC<{{name}}Props> = (props) => {
+export const {{name}}: FC<{{name}}Props> = () => {
   return (
-    <Styled{{name}}>
+    <Wrapper>
       <h1>Welcome to {{name}}!</h1>
-    </Styled{{name}}>
+    </Wrapper>
   )
 }

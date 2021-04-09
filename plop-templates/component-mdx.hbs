@@ -1,10 +1,26 @@
 <!-- {{ name }}.stories.mdx -->
 
-import { Meta } from '@storybook/addon-docs/blocks'
-import { stories } from './{{ name }}.stories'
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { {{ name }} } from '../{{ name }}'
+import { Default } from './{{ name }}.stories'
 
 <Meta title="{{ name }}" />
 
 # {{ name }}
 
-<Story story={stories.primary} /> 
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={{{ name }}} story="^" />
+
+## Design
+
+(Notes from Oxide Design System Figma file)
+
+## Stories
+
+### Sizes
+
+<Canvas>
+</Canvas>
