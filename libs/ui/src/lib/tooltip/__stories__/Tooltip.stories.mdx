@@ -1,0 +1,72 @@
+<!-- Tooltip.stories.mdx -->
+
+import { Meta } from '@storybook/addon-docs/blocks'
+import { stories } from './Tooltip.stories'
+
+<Meta title="Tooltip" />
+
+# Tooltip
+
+<Story story={stories.primary} />{' '}
+
+## Design
+
+Tooltips display additional information upon click, hover, or focus. The information should be contextual, useful, and nonessential.
+
+A tooltip is a message box that is displayed when a user hovers over, clicks or gives focus to a UI element such as an icon, a highlighted word, or a button.
+
+Tooltips are different from ALT-attributes, which are intended primarily for static images.
+
+Tooltips fade in upon hover or touch of its trigger element. They fade out upon interacting with an area or element outside of the tooltip or its trigger, or on a delay of the cursor moving outside the tooltip or its trigger element.
+
+### Placement
+
+WIP
+
+There are three variants of tooltips:
+
+### Basic tooltip
+
+A basic tooltip is used to clarify the action or name of an interactive icon button.
+
+#### Guidance
+
+The tooltip content should only contain one or two words.
+
+#### Behavior
+
+Icon tooltips are displayed on hover and focus.
+
+#### Placement
+
+By default, tooltips are placed on top of the referring element. When there isn’t enough space in the viewport, the tooltip is moved to the side or below as needed. If it blocks related content, the preferred tooltip placement can be manually set.
+
+Tooltips should have no space (0px) between themselves and their target. They remain in place while the cursor moves within the target. Tooltips should never obscure the target element.
+
+### Definition tooltip
+
+The definition tooltip provides additional help or defines an item or term. It may be used on the label of a UI element, or on a word embedded in a paragraph.
+
+#### Guidance
+
+Should contain brief, read-only text
+Use on proper nouns, technical terms, or acronyms with two letters or more
+Do not use a definition tooltip on words with fewer than two letters
+
+#### Behavior
+
+Definition tooltips are displayed on hover and focus
+
+### Interactive tooltip
+
+Interactive tooltips may contain rich text and other interactive elements like buttons or links. In general, hiding interactive content in a tooltip is discouraged. Interactive tooltips are best used for onboarding experiences and product tours. These tooltips can also be found in form fields.
+
+#### Guidance
+
+If a user may need to visit an external resource, like while using a form, include a link in your interactive tooltip
+Don’t use without a label. Consider the context a user needs before clicking a link
+
+#### Behavior
+
+Interactive tooltips are displayed when the user clicks on an info icon
+They persistent until intentionally dismissed by clicking outside of the tooltip
