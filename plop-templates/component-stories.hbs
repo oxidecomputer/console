@@ -1,14 +1,14 @@
 import React from 'react'
-import { {{name}}, {{name}}Props } from '{{#if mdx}}.{{/if}}./{{name}}'
+import type { Story } from '@storybook/react'
+import type { {{ name }}Props } from '{{#if mdx}}.{{/if}}./{{ name }}'
+import { {{ name }} } from '{{#if mdx}}.{{/if}}./{{ name }}'
 
 export default {
-  component: {{name}},
-  title: '{{name}}',
+  component: {{ name }},
+  title: '{{ name }}',
 }
 
-export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: {{name}}Props = {}
+const Template: Story<{{ name }}Props> = (args) => <{{ name }} {...args} />
 
-  return <{{name}} />
-}
+export const Default = Template.bind({})
+Default.args = {}
