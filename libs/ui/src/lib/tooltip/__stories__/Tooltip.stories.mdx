@@ -8,7 +8,7 @@ import { Default } from './Tooltip.stories'
 
 # Tooltip
 
-Tooltip uses [the official Tippy.js component package, @tippyjs/react](https://github.com/atomiks/tippyjs-react).
+Tooltip uses the [`react-popper`](https://popper.js.org/react-popper/v2/) library's `usePopper` hook.
 
 <Canvas>
   <Story story={Default} />
@@ -18,9 +18,14 @@ Tooltip uses [the official Tippy.js component package, @tippyjs/react](https://g
 
 ## Accessibility
 
-For accessibility, the `@tippjys/react` package automatically adds the `aria-describedby` attribute to the trigger (`<button>`) to associate it with the Tooltip content, which means these tooltips should act as [auxiliary descriptions](https://inclusive-components.design/tooltips-toggletips/#tooltipasauxiliarydescription), **not** [primary labels](https://inclusive-components.design/tooltips-toggletips/#tooltipasprimarylabel).
+Determine whether the tooltip is used as one of the following:
 
-**More reading**:
+- [primary label](https://inclusive-components.design/tooltips-toggletips/#tooltipasprimarylabel)
+- [auxiliary descriptions](https://inclusive-components.design/tooltips-toggletips/#tooltipasauxiliarydescription)
+
+The Tooltip component takes care of everything else.
+
+**Further reading**:
 
 - [Inclusive Components: Toggles & tooltips](https://inclusive-components.design/tooltips-toggletips/)
 - [WAI-ARIA Best Practices: Tooltip Widget](https://www.w3.org/TR/wai-aria-practices/#tooltip) **Note: The pattern is still a work in progress and does not yet have task force concsensus as of 9 April 2021**
