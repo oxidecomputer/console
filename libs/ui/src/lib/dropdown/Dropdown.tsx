@@ -98,6 +98,7 @@ const StyledMenu = styled(motion.ul)`
 
   overflow-y: auto;
   margin: 0;
+  margin-top: ${({ theme }) => theme.spacing(1)};
   padding: 0;
 
   background-color: ${({ theme }) => theme.color('gray800')};
