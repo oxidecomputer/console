@@ -29,6 +29,17 @@ const DocsStyleOverrides = createGlobalStyle`
   a, a:link {
     text-decoration: underline !important;
   }
+
+  /* Allow dropdown to 'break out' of its container */
+  .sbdocs-preview {
+    overflow: visible;
+  }
+  .docs-story {
+    overflow: visible;
+  }
+  .docs-story > div {
+    overflow: visible;
+  }
 `
 
 const getBackgroundColors = (colors) =>
