@@ -26,7 +26,7 @@ export interface DropdownProps {
   /**
    * Text that initially appears in the Button when nothing is selected
    */
-  placeholder: string
+  placeholder?: string
   /**
    * Whether to show label to sighted users
    */
