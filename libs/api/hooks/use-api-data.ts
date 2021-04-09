@@ -26,7 +26,6 @@ type ReqParams<A, K extends keyof A> = A[K] extends (p: infer P) => Promise<any>
 type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
   ? R
   : never
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // The first argument to useSWR in the standard use case would be
 // the URL to fetch. It is used to uniquely identify the request
@@ -40,11 +39,11 @@ type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
 // and { b: 2, a: 1 } are considered equivalent. SWR accepts an array
 // of strings as well as a single string.
 export function useApiData<
-  A extends PickByValue<A, (p: P) => Promise<R>>,
-  K extends keyof A,
-  P extends ReqParams<A, K>,
-  R extends Response<A, K>
->(api: A, method: K, params: P) {
+  A extends PickByValue<A, (p: any) => Promise<any>>,
+  K extends keyof A
+>(api: A, method: K, params: ReqParams<A, K>) {
   const paramsStr = JSON.stringify(sortObj(params))
-  return useSWR<R>([method, paramsStr], () => api[method](params))
+  return useSWR<Response<A, K>>([method, paramsStr], () => api[method](params))
 }
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
