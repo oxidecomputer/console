@@ -1,10 +1,10 @@
 import useSWR from 'swr'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Params = Record<string, any>
+type ParamsObj = Record<string, any>
 
-export const sortObj = (obj: Params): Params => {
-  const sorted: Params = {}
+export const sortObj = (obj: ParamsObj): ParamsObj => {
+  const sorted: ParamsObj = {}
   for (const k of Object.keys(obj).sort()) {
     sorted[k] = obj[k]
   }
@@ -19,20 +19,18 @@ type PickByValue<T, ValueType> = Pick<
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// given an API object A and a key K where A[K] is a function that takes a
-// single argument and returns a promise...
+// given a function that takes a single argument and returns a promise...
 
-// extract the type of the argument (if it extends Params)
-type ReqParams<A, K extends keyof A> = A[K] extends (p: infer P) => Promise<any>
-  ? P extends Params
+// extract the type of the argument (if it extends Params). We need it to
+// extend Params because otherwise we can't pass it to sortObj
+type Params<F> = F extends (p: infer P) => any
+  ? P extends ParamsObj
     ? P
     : never
   : never
 
 // extract the type of the value inside the promise
-type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
-  ? R
-  : never
+type Response<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 // This all needs explanation. The easiest starting point is what this would
 // look like in plain JS, which is quite simple:
@@ -56,6 +54,12 @@ type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
 //
 // 2. what's up with the types?
 //
+//   A              - api client object
+//   M              - api method name, i.e., a key on the client object
+//   A[M]           - api fetcher function like (p: Params) => Promise<Response>
+//   Params<A[M]>   - extract Params from the function
+//   Response<A[M]> - extract Response from the function
+//
 // The type situation here is pretty gnarly considering how simple the plain JS
 // version is. The difficulty is that we want full type safety, i.e., based on
 // the method name passed in, we want the typechecker to check the params and
@@ -67,9 +71,9 @@ type Response<A, K extends keyof A> = A[K] extends (p: any) => Promise<infer R>
 export function getUseApi<A extends PickByValue<A, (p: any) => Promise<any>>>(
   api: A
 ) {
-  function useApi<K extends keyof A>(method: K, params: ReqParams<A, K>) {
+  function useApi<M extends keyof A>(method: M, params: Params<A[M]>) {
     const paramsStr = JSON.stringify(sortObj(params))
-    return useSWR<Response<A, K>>([method, paramsStr], () =>
+    return useSWR<Response<A[M]>>([method, paramsStr], () =>
       api[method](params)
     )
   }
