@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { useParams, Link } from 'react-router-dom'
 
-import { useApiData, api } from '@oxide/api'
+import { useApi } from '@oxide/api'
 import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 
@@ -20,7 +20,7 @@ const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data } = useApiData(api.apiProjectInstancesGet, { projectName })
+  const { data } = useApi('apiProjectInstancesGet', { projectName })
 
   if (!data) return <div>loading</div>
 

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { Link } from 'react-router-dom'
 
-import { useApiData, api } from '@oxide/api'
+import { useApi } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
 import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 
@@ -14,7 +14,7 @@ const Title = styled(TextWithIcon).attrs({
 
 const ProjectsPage = () => {
   const breadcrumbs = useBreadcrumbs()
-  const { data } = useApiData(api.apiProjectsGet, {})
+  const { data } = useApi('apiProjectsGet', {})
 
   if (!data) return <div>loading</div>
 

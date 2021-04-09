@@ -1,7 +1,6 @@
 import path from 'path'
 import webpack from 'webpack'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
-import TerserPlugin from 'terser-webpack-plugin'
 import sharedConfig from './webpack.shared.config'
 
 const config = {
@@ -19,18 +18,6 @@ const config = {
     }),
     new CleanWebpackPlugin(),
   ],
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          // HACK: temporary fix to make API hook relying on function name work
-          // in production. remove to decrease bundle size once hook is improved
-          keep_fnames: true,
-        },
-      }),
-    ],
-  },
 }
 
 export default config
