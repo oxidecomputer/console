@@ -13,7 +13,7 @@ const Wrapper = styled.div``
 export const Tooltip: FC<TooltipProps> = () => {
   return (
     <Wrapper>
-      <Tippy content="Hello">
+      <Tippy content="Hello" visible>
         <button>trigger</button>
       </Tippy>
     </Wrapper>

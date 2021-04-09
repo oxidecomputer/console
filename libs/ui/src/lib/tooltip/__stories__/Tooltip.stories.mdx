@@ -8,7 +8,7 @@ import { Default } from './Tooltip.stories'
 
 # Tooltip
 
-Tooltip uses [the official Tippy.js component package, @tippyjs/react](https://github.com/atomiks/tippyjs-react)
+Tooltip uses [the official Tippy.js component package, @tippyjs/react](https://github.com/atomiks/tippyjs-react).
 
 <Canvas>
   <Story story={Default} />
@@ -16,11 +16,20 @@ Tooltip uses [the official Tippy.js component package, @tippyjs/react](https://g
 
 <ArgsTable of={Tooltip} story="^" />
 
+## Accessibility
+
+For accessibility, the `@tippjys/react` package automatically adds the `aria-describedby` attribute to the trigger (`<button>`) to associate it with the Tooltip content, which means these tooltips should act as [auxiliary descriptions](https://inclusive-components.design/tooltips-toggletips/#tooltipasauxiliarydescription), **not** [primary labels](https://inclusive-components.design/tooltips-toggletips/#tooltipasprimarylabel).
+
+**More reading**:
+
+- [Inclusive Components: Toggles & tooltips](https://inclusive-components.design/tooltips-toggletips/)
+- [WAI-ARIA Best Practices: Tooltip Widget](https://www.w3.org/TR/wai-aria-practices/#tooltip) **Note: The pattern is still a work in progress and does not yet have task force concsensus as of 9 April 2021**
+
 ## Design
 
-Tooltips display additional information upon click, hover, or focus. The information should be contextual, useful, and nonessential.
+Tooltips display additional information upon hover, or focus. The information should be contextual, useful, and nonessential.
 
-A tooltip is a message box that is displayed when a user hovers over, clicks or gives focus to a UI element such as an icon, a highlighted word, or a button.
+A tooltip is a message box that is displayed when a user hovers over or gives focus to a UI element such as an icon, a highlighted word, or a button.
 
 Tooltips are different from `alt` attributes, which are intended primarily for static images (`<img />`).
 
@@ -28,9 +37,7 @@ Tooltips fade in upon hover or touch of its trigger element. They fade out upon 
 
 ### Placement
 
-_WIP_
-
-There are three variants of tooltips:
+There are two variants of tooltips:
 
 ### 1. Basic tooltip
 
@@ -62,22 +69,4 @@ The definition tooltip provides additional help or defines an item or term. It m
 
 #### Behavior
 
-Definition tooltips are displayed on hover and focus
-
-### 3. Interactive tooltip
-
-Interactive tooltips may contain rich text and other interactive elements like buttons or links. In general, hiding interactive content in a tooltip is discouraged. Interactive tooltips are best used for onboarding experiences and product tours. These tooltips can also be found in form fields.
-
-#### Guidance
-
-- If a user may need to visit an external resource, like while using a form, include a link in your interactive tooltip
-- Don’t use without a label. Consider the context a user needs before clicking a link
-
-#### Behavior
-
-Interactive tooltips are displayed when the user clicks on an info icon
-They persistent until intentionally dismissed by clicking outside of the tooltip
-
-## Stories
-
-### Sizes
+Definition tooltips are displayed on hover and focus.
