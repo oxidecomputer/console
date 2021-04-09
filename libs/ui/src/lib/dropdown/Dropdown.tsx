@@ -15,10 +15,18 @@ type OptionType = { value: string; label: string }
 export interface DropdownProps {
   defaultValue?: string
   /**
+   * Additional text to associate with this specific field
+   */
+  hint?: string | React.ReactNode
+  /**
    * Required for accessibility. Description of the dropdown.
    */
   label: string
   options: OptionType[]
+  /**
+   * Text that initially appears in the Button when nothing is selected
+   */
+  placeholder: string
   /**
    * Whether to show label to sighted users
    */
@@ -156,6 +164,13 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
     isHighlighted && `background-color: ${theme.color('gray700')};`};
 `
 
+const HintText = styled(Text).attrs({ size: 'sm' })`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(1)};
+
+  color: ${({ theme }) => theme.color('gray300')};
+`
+
 const FRAMER_VARIANTS = {
   open: {
     opacity: 1,
@@ -171,8 +186,10 @@ const FRAMER_VARIANTS = {
 
 export const Dropdown: FC<DropdownProps> = ({
   defaultValue,
+  hint,
   label,
   options,
+  placeholder,
   showLabel = true,
   size = 'sm',
 }) => {
@@ -183,12 +200,20 @@ export const Dropdown: FC<DropdownProps> = ({
     items: options,
     itemToString: itemToString,
   })
+  const hintId = hint ? `${select.getLabelProps().labelId}-hint` : ``
+  const ariaProps = hint ? { 'aria-describedby': hintId } : {}
 
   const renderLabel = showLabel ? (
     <Label {...select.getLabelProps()}>{label}</Label>
   ) : (
     <VisuallyHidden {...select.getLabelProps()}>{label}</VisuallyHidden>
   )
+
+  const renderButtonText = select.selectedItem
+    ? itemToString(select.selectedItem)
+    : placeholder
+    ? placeholder
+    : label
 
   const renderOptions = options.map((option, index) => (
     <StyledOption
@@ -209,8 +234,9 @@ export const Dropdown: FC<DropdownProps> = ({
         type="button"
         {...select.getToggleButtonProps()}
         placeholder={select.selectedItem ? false : true}
+        {...ariaProps}
       >
-        {select.selectedItem ? itemToString(select.selectedItem) : label}
+        {renderButtonText}
         <StyledIcon />
       </StyledButton>
       <AnimatePresence>
@@ -228,6 +254,7 @@ export const Dropdown: FC<DropdownProps> = ({
       </AnimatePresence>
       {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
       <div tabIndex={0} />
+      {hint && <HintText id={hintId}>{hint}</HintText>}
     </Wrapper>
   )
 }

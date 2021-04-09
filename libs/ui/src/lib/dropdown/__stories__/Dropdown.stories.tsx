@@ -28,6 +28,7 @@ export const Small = Template.bind({})
 Small.args = {
   label: 'Choose an Operator',
   options: SAMPLE_OPTIONS,
+  placeholder: '...placeholder',
   size: 'sm',
 }
 
@@ -35,6 +36,7 @@ export const Large = Template.bind({})
 Large.args = {
   label: 'Choose an Operator',
   options: SAMPLE_OPTIONS,
+  placeholder: '...placeholder',
   size: 'lg',
 }
 
@@ -52,4 +54,13 @@ WithDefaultValue.args = {
   label: 'Choose an Operator',
   options: SAMPLE_OPTIONS,
   size: 'lg',
+}
+
+export const WithHint = Template.bind({})
+WithHint.args = {
+  showLabel: false,
+  label: 'Choose an Operator',
+  options: SAMPLE_OPTIONS,
+  size: 'lg',
+  hint: 'Hint text appears like this',
 }
