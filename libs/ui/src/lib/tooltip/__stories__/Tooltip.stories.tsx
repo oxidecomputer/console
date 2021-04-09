@@ -1,14 +1,14 @@
 import React from 'react'
-import { Tooltip, TooltipProps } from '../Tooltip'
+import type { Story } from '@storybook/react'
+import type { TooltipProps } from '../Tooltip'
+import { Tooltip } from '../Tooltip'
 
 export default {
   component: Tooltip,
   title: 'Tooltip',
 }
 
-export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: TooltipProps = {}
+const Template: Story<TooltipProps> = (args) => <Tooltip {...args} />
 
-  return <Tooltip />
-}
+export const Default = Template.bind({})
+Default.args = {}

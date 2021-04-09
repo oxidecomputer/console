@@ -6,14 +6,12 @@ import styled from 'styled-components'
 /* eslint-disable-next-line */
 export interface TooltipProps {}
 
-const StyledTooltip = styled.div`
-  color: pink;
-`
+const Wrapper = styled.div``
 
-export const Tooltip: FC<TooltipProps> = (props) => {
+export const Tooltip: FC<TooltipProps> = () => {
   return (
-    <StyledTooltip>
+    <Wrapper>
       <h1>Welcome to Tooltip!</h1>
-    </StyledTooltip>
+    </Wrapper>
   )
 }
