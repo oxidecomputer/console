@@ -3,8 +3,9 @@ import React from 'react'
 
 import styled from 'styled-components'
 
-/* eslint-disable-next-line */
-export interface TooltipProps {}
+export interface TooltipProps {
+  size?: 'sm' | 'lg'
+}
 
 const Wrapper = styled.div``
 
