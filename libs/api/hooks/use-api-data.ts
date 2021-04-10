@@ -2,6 +2,8 @@
 
 import useSWR from 'swr'
 
+import type { ApiResponse } from '../__generated__'
+
 type ParamsObj = Record<string, any>
 
 export const sortObj = (obj: ParamsObj): ParamsObj => {
@@ -25,20 +27,17 @@ type Params<F> = F extends (p: infer P) => any
 // extract the type of the value inside the promise
 type Response<F> = F extends (p: any) => Promise<infer R> ? R : never
 
-// https://github.com/piotrwitek/utility-types/tree/df2502e#pickbyvaluet-valuetype
-type PickByValue<T, ValueType> = Pick<
-  T,
-  { [Key in keyof T]-?: T[Key] extends ValueType ? Key : never }[keyof T]
->
-
 // even though the api object we pass in has other properties on it, as far as
 // getUseApi is concerned it only has the fetcher functions
-type ApiClient<A> = PickByValue<A, (p: any) => Promise<any>>
+type ApiClient<A> = OmitByValue<
+  PickByValue<A, (p: any) => Promise<any>>,
+  (p: any) => Promise<ApiResponse<any>> // exclude "-Raw" fetchers
+>
 
 // prettier-ignore
 export const getUseApi = 
   <A extends ApiClient<A>>(api: A) => 
-  <M extends keyof A>(method: M, params: Params<A[M]>) => {
+  <M extends keyof ApiClient<A>>(method: M, params: Params<A[M]>) => {
     const paramsStr = JSON.stringify(sortObj(params))
     return useSWR<Response<A[M]>>([method, paramsStr], () => api[method](params))
   }
