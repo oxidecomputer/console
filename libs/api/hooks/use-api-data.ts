@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import useSWR from 'swr'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ParamsObj = Record<string, any>
 
 export const sortObj = (obj: ParamsObj): ParamsObj => {
@@ -11,18 +12,10 @@ export const sortObj = (obj: ParamsObj): ParamsObj => {
   return sorted
 }
 
-// https://github.com/piotrwitek/utility-types/tree/df2502e#pickbyvaluet-valuetype
-type PickByValue<T, ValueType> = Pick<
-  T,
-  { [Key in keyof T]-?: T[Key] extends ValueType ? Key : never }[keyof T]
->
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // given a function that takes a single argument and returns a promise...
 
-// extract the type of the argument (if it extends Params). We need it to
-// extend Params because otherwise we can't pass it to sortObj
+// extract the type of the argument (if it extends ParamsObj). We need it to
+// extend ParamsObj because otherwise we can't pass it to sortObj
 type Params<F> = F extends (p: infer P) => any
   ? P extends ParamsObj
     ? P
@@ -32,15 +25,33 @@ type Params<F> = F extends (p: infer P) => any
 // extract the type of the value inside the promise
 type Response<F> = F extends (p: any) => Promise<infer R> ? R : never
 
-// This all needs explanation. The easiest starting point is what this would
-// look like in plain JS, which is quite simple:
+// https://github.com/piotrwitek/utility-types/tree/df2502e#pickbyvaluet-valuetype
+type PickByValue<T, ValueType> = Pick<
+  T,
+  { [Key in keyof T]-?: T[Key] extends ValueType ? Key : never }[keyof T]
+>
+
+// even though the api object we pass in has other properties on it, as far as
+// getUseApi is concerned it only has the fetcher functions
+type ApiClient<A> = PickByValue<A, (p: any) => Promise<any>>
+
+// prettier-ignore
+export const getUseApi = 
+  <A extends ApiClient<A>>(api: A) => 
+  <M extends keyof A>(method: M, params: Params<A[M]>) => {
+    const paramsStr = JSON.stringify(sortObj(params))
+    return useSWR<Response<A[M]>>([method, paramsStr], () => api[method](params))
+  }
+
+// This all needs explanation. The easiest starting point is what getUseApi
+// would look like in plain JS, which is quite simple:
 //
 //   const getUseApi = (api) => (method, params) => {
 //     const paramsStr = JSON.stringify(sortObj(params))
 //     return useSWR([method, paramsStr], () => api[method](params))
 //   }
 //
-// 1. what's up with the JSON.stringify/
+// 1. what's up with the JSON.stringify?
 //
 // The first argument to useSWR in the standard use case would be the URL to
 // fetch. It is used to uniquely identify the request for caching purposes. If
@@ -68,16 +79,3 @@ type Response<F> = F extends (p: any) => Promise<infer R> ? R : never
 // inferred type of the key (the method name) to enforce that params match the
 // expected params on the named method. Finally we use the Response helper to
 // tell useSWR what type to put on the response data.
-export function getUseApi<A extends PickByValue<A, (p: any) => Promise<any>>>(
-  api: A
-) {
-  function useApi<M extends keyof A>(method: M, params: Params<A[M]>) {
-    const paramsStr = JSON.stringify(sortObj(params))
-    return useSWR<Response<A[M]>>([method, paramsStr], () =>
-      api[method](params)
-    )
-  }
-  return useApi
-}
-
-/* eslint-enable @typescript-eslint/no-explicit-any */
