@@ -3,7 +3,7 @@ import type { Story } from '@storybook/react'
 
 import type { TextFieldProps } from '../TextField'
 import { TextField } from '../TextField'
-import { IconAccesory } from '../IconAccesory'
+import { IconAccesory } from '../IconAccessory'
 
 const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
 
