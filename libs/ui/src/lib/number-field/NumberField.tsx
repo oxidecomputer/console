@@ -79,7 +79,7 @@ export const NumberField: FC<NumberFieldProps> = ({
       onChange={onChange}
       pattern="[0-9]*"
       value={value}
-      controls={
+      rightAccessory={
         <FieldControls>
           <Control onClick={onDecrement}>
             <Icon name="minus" svgProps={{ title: 'Decrement' }} />

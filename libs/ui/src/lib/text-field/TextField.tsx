@@ -3,8 +3,6 @@ import type { FC, ReactEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
-import type { IconProps } from '../icon/Icon'
-import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
 export type TextFieldProps = StyledComponentProps<
@@ -12,9 +10,13 @@ export type TextFieldProps = StyledComponentProps<
   DefaultTheme,
   {
     /**
-     * Optional controls that can manipulate the user input (such as increment/decrement)
+     * Optional accessory to place to the left of the input, can be an Icon or some other control
      */
-    controls?: React.ReactNode
+    leftAccessory?: React.ReactNode
+    /**
+     * Optional accessory to place to the right of the input, can be an Icon or some other control
+     */
+    rightAccessory?: React.ReactNode
     /**
      * Required for accessibility. Defaults to `false`. Input is invalid
      */
@@ -27,7 +29,6 @@ export type TextFieldProps = StyledComponentProps<
      * Additional text to associate with this specific field
      */
     hint?: string | React.ReactNode
-    icon?: StyledIconProps & IconProps
     onChange?: ReactEventHandler
     value?: string | number
   },
@@ -69,21 +70,6 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
 
 const InputWrapper = styled.div`
   position: relative;
-`
-
-interface StyledIconProps {
-  align: 'left' | 'right'
-}
-const StyledIcon = styled(Icon)<StyledIconProps>`
-  z-index: 1;
-  position: absolute;
-  top: 0;
-  ${({ align, theme }) => align === 'left' && `left: ${theme.spacing(2.5)};`};
-  ${({ align, theme }) => align === 'right' && `right: ${theme.spacing(2.5)};`};
-  bottom: 0;
-
-  height: 100%;
-  width: ${({ theme }) => theme.spacing(5)};
 `
 
 type StyledInputType = {
@@ -143,12 +129,12 @@ const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
 export const TextField: FC<TextFieldProps> = ({
   children,
   className,
-  controls = null,
+  leftAccessory = null,
+  rightAccessory = null,
   disabled = false,
   error = false,
   errorMessage,
   hint,
-  icon,
   id,
   required = false,
   type = 'text',
@@ -165,8 +151,8 @@ export const TextField: FC<TextFieldProps> = ({
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
       <InputWrapper>
+        {leftAccessory}
         <StyledInput
-          alignIcon={icon && icon.align}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
           aria-invalid={error}
           aria-required={required || undefined}
@@ -177,8 +163,7 @@ export const TextField: FC<TextFieldProps> = ({
           type={type}
           {...inputProps}
         />
-        {icon && <StyledIcon {...icon} />}
-        {controls}
+        {rightAccessory}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>

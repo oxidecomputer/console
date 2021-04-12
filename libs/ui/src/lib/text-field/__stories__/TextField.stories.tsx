@@ -3,6 +3,7 @@ import type { Story } from '@storybook/react'
 
 import type { TextFieldProps } from '../TextField'
 import { TextField } from '../TextField'
+import Icon from '../../icon/Icon'
 
 const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
 
@@ -43,7 +44,7 @@ DisabledField.args = {
 
 export const FieldWithLeftIcon = Template.bind({})
 FieldWithLeftIcon.args = {
-  icon: { align: 'left', name: 'search', color: 'gray300' },
+  leftAccessory: <Icon name="search" color="gray300" />,
   id: 'field-left-icon',
   children: 'Search',
   error: false,
@@ -52,11 +53,7 @@ FieldWithLeftIcon.args = {
 
 export const FieldWithRightIcon = Template.bind({})
 FieldWithRightIcon.args = {
-  icon: {
-    align: 'right',
-    name: 'info',
-    color: 'gray300',
-  },
+  rightAccessory: <Icon name="info" color="gray300" />,
   id: 'field-right-icon',
   children: 'Choose a hostname',
   error: false,
@@ -66,11 +63,7 @@ FieldWithRightIcon.args = {
 
 export const FieldWithHint = Template.bind({})
 FieldWithHint.args = {
-  icon: {
-    align: 'right',
-    name: 'info',
-    color: 'gray300',
-  },
+  rightAccessory: <Icon name="info" color="gray300" />,
   id: 'field-description',
   children: 'Add a description',
   error: false,
