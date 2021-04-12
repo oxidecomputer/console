@@ -4,7 +4,10 @@ Currently this is a two-commit process with a manual lookup of in GCP. Eventuall
 
 1. Update the omicron commit hash [here](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) and push to a PR
 2. Wait for `Packer` Github action to complete
-3. Get the packer image ID from the [list of images](https://console.cloud.google.com/compute/images?project=oxide-console) in GCP (looks like `packer-123456789`)
+3. Get the packer image ID from the `Get image information step` (looks like `packer-123456789`)
+
+   <img width="864" alt="Screen Shot 2021-04-12 at 3 43 43 PM" src="https://user-images.githubusercontent.com/3612203/114452058-007cfe00-9ba6-11eb-9664-7ca466f1a280.png">
+
 4. Update packer image ID [here](https://github.com/oxidecomputer/console/blob/d046263cbfbb80b08757e432a8fcd980b8facbe3/tools/create_gcp_instance.sh#L23) and push
 
 The deployed version will now be based on the new packer image.
