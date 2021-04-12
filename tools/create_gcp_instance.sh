@@ -20,7 +20,7 @@ gcloud compute instances create "$INSTANCE_NAME" \
 	--description="Machine automatically generated from branch ${BRANCH_NAME} of the oxidecomputer/console git repo." \
 	--hostname="${INSTANCE_NAME}.internal.oxide.computer" \
 	--zone=$ZONE \
-	--image=packer-1617744113 \
+	--image=packer-1618253179 \
 	--maintenance-policy=TERMINATE \
 	--restart-on-failure \
 	--machine-type=$INSTANCE_TYPE \
