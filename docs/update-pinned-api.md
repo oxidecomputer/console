@@ -1,6 +1,6 @@
 # Updating the pinned API version
 
-Currently this is a two-commit process with a manual lookup of in GCP. Eventually we will improve this.
+Currently this is a two-commit process. Eventually we will improve this.
 
 1. Update the omicron commit hash [here](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) and push to a PR
 2. Wait for `Packer` Github action to complete
