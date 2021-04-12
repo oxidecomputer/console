@@ -119,7 +119,7 @@ build {
         script = "packer/provision.sh"
         pause_before = "10s"
         timeout      = "10s"
-		environment_vars = [
+        environment_vars = [
             "GITHUB_TOKEN=${var.github_token}",
             "TAILSCALE_MACHINE_KEY=${var.tailscale_machine_key}",
             "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
@@ -137,7 +137,7 @@ build {
         script = "packer/bootstrap-omicron.sh"
         pause_before = "10s"
         timeout      = "10s"
-		environment_vars = [
+        environment_vars = [
             "API_VERSION=${var.api_version}"
         ]
     }
