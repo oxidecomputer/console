@@ -47,3 +47,8 @@ jobs:
           SSL_CERT: ${{secrets.SSL_CERT}}
           SSL_KEY: ${{secrets.SSL_KEY}}
           API_VERSION: cf5b876d3130bd47a848cfcea14d6a7894420bd6
+
+      # get the image information from gcloud
+      - name: Get image information
+        run: |
+          gcloud compute images list --sort-by "creationTimestamp" --filter "name~'packer'" --limit 1
