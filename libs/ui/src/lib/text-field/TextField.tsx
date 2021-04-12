@@ -1,4 +1,4 @@
-import React, { createRef } from 'react'
+import React from 'react'
 import type { FC } from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
@@ -39,7 +39,7 @@ const Wrapper = styled.div<{ disabled: boolean }>`
 `
 
 const Label = styled(Text).attrs({
-  forwardedAs: 'label',
+  as: 'label',
   weight: 500,
   size: 'base',
 })<{
@@ -72,8 +72,6 @@ const InputWrapper = styled.div<InputWrapperProps>`
   flex-wrap: nowrap;
   align-items: center;
 
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
-
   background-color: ${({ theme }) => theme.color('gray700')};
 
   &:hover:not([disabled]) {
@@ -85,6 +83,14 @@ const InputWrapper = styled.div<InputWrapperProps>`
     box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
   }
 
+  ${({ theme, align }) =>
+    (!align || align === 'right') &&
+    css`
+      > input:first-child {
+        padding-left: ${theme.spacing(3.25)};
+      }
+    `}
+
   ${({ hasError, theme }) =>
     hasError &&
     css`
@@ -95,19 +101,23 @@ const InputWrapper = styled.div<InputWrapperProps>`
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), 0px 0px 0px 1px #ef4444;
       }
     `}
+`
 
-  ${({ theme, align }) => align && theme.spaceBetweenX(2, align === 'left')}
+// Not adding padding directly to the icon here because of `box-sizing: border-box;` and the use of height to size icons
+const IconContainer = styled.div`
+  flex: 0 0 auto;
+
+  padding: ${({ theme }) => theme.spacing(2)};
 `
 
 const StyledIcon = styled(Icon)`
-  flex: 0 0 auto;
-
   width: ${({ theme }) => theme.spacing(5)};
 `
 
 const StyledInput = styled.input`
   flex: 1;
   margin: 0;
+  padding: ${({ theme }) => theme.spacing([2.25, 0])};
 
   border: 1px solid transparent;
   background-color: transparent;
@@ -140,7 +150,6 @@ export const TextField: FC<TextFieldProps> = ({
 }) => {
   const errorId = error ? `${id}-validation-hint` : ``
   const hintId = hint ? `${id}-hint` : ``
-  const inputRef = createRef<HTMLInputElement>()
 
   return (
     <Wrapper disabled={disabled} className={className}>
@@ -149,15 +158,8 @@ export const TextField: FC<TextFieldProps> = ({
         {!required && <OptionalText>Optional</OptionalText>}
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      <InputWrapper
-        hasError={!!error}
-        align={icon && icon.align}
-        onClick={() => {
-          inputRef.current?.focus()
-        }}
-      >
+      <InputWrapper hasError={!!error} align={icon && icon.align}>
         <StyledInput
-          ref={inputRef}
           aria-invalid={error}
           type={type}
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
@@ -167,7 +169,12 @@ export const TextField: FC<TextFieldProps> = ({
           disabled={disabled}
           {...inputProps}
         />
-        {icon && <StyledIcon {...icon} />}
+        {icon && (
+          <IconContainer>
+            {/* override the `align` prop passed to Icon, as it applies a margin which is wrong in this case */}
+            <StyledIcon {...icon} align={undefined} />
+          </IconContainer>
+        )}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>
