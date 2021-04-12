@@ -31,16 +31,13 @@ const StyledTextField = styled(TextField)`
   }
 `
 
-const BOX_SHADOW_SIZE = '2px'
 const FieldControls = styled.div`
-  position: absolute;
-  top: ${BOX_SHADOW_SIZE};
-  right: ${BOX_SHADOW_SIZE};
-  bottom: ${BOX_SHADOW_SIZE};
+  display: flex;
+  flex-direction: row;
 `
 
 const Control = styled.button`
-  height: 100%;
+  flex: 0 0 auto;
   padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
 
   &:focus {

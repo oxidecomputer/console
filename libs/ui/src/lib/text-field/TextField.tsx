@@ -68,58 +68,55 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
   color: ${({ theme }) => theme.color('gray300')};
 `
 
-const InputWrapper = styled.div`
-  position: relative;
+const InputWrapper = styled.div<{ hasError: boolean }>`
+  display: flex;
+  flex-direction: row;
+
+  background-color: ${({ theme }) => theme.color('gray700')};
+  border: 1px solid transparent;
+
+  :focus-within {
+    border-color: ${({ theme, hasError }) =>
+      theme.color(hasError ? 'red500' : 'green500')};
+    ${({ theme, hasError }) =>
+      hasError
+        ? css`
+            box-shadow: 0px 1px 2px ${theme.color('black', 0.05)},
+              0px 0px 0px 1px #ef4444;
+          `
+        : css`
+            box-shadow: 0px 0px 0px 1px ${theme.color('green500')};
+          `}
+  }
 `
 
-type StyledInputType = {
-  hasError?: boolean
-  alignIcon?: 'left' | 'right'
-}
+const AccessoryWrapper = styled.span`
+  flex: 0 0 auto;
 
-const StyledInput = styled.input<StyledInputType>`
-  display: block;
-  margin: 0;
-  padding: ${({ theme }) => `${theme.spacing(2.25)} ${theme.spacing(3)}`};
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 
-  border: 1px solid transparent;
-  background-color: ${({ theme }) => theme.color('gray700')};
+const StyledInput = styled.input`
+  flex: 1;
+
+  padding: ${({ theme }) => theme.spacing(2.25, 3)};
+
+  background-color: transparent;
+  &:hover:not([disabled]) {
+    background-color: ${({ theme }) => theme.color('gray800')};
+  }
+
+  border: none;
   color: ${({ theme }) => theme.color('gray100')};
   font-family: ${({ theme }) => theme.fonts.sans};
   font-size: ${({ theme }) => theme.spacing(3.5)};
   line-height: ${1.25 / 0.875};
 
-  &:hover:not([disabled]) {
-    background-color: ${({ theme }) => theme.color('gray800')};
-  }
-
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.color('green500')};
-    box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.color('green500')};
   }
-
-  ${({ alignIcon, theme }) => {
-    if (alignIcon === 'left') {
-      return `padding-left: ${theme.spacing(9)};`
-    }
-    if (alignIcon === 'right') {
-      return `padding-right: ${theme.spacing(9)};`
-    }
-  }};
-
-  ${({ hasError, theme }) =>
-    hasError &&
-    css`
-      border: 1px solid ${theme.color('red500')};
-
-      &:focus {
-        border: 1px solid ${theme.color('red500')};
-        box-shadow: 0px 1px 2px ${theme.color('black', 0.05)},
-          0px 0px 0px 1px #ef4444;
-      }
-    `}
 `
 
 const ErrorMessage = styled(Text).attrs({ as: 'div', size: 'xs' })`
@@ -150,20 +147,21 @@ export const TextField: FC<TextFieldProps> = ({
         {!required && <OptionalText>Optional</OptionalText>}
       </Label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      <InputWrapper>
-        {leftAccessory}
+      <InputWrapper hasError={!!error}>
+        {leftAccessory && <AccessoryWrapper>{leftAccessory}</AccessoryWrapper>}
         <StyledInput
           aria-describedby={error || hint ? `${errorId} ${hintId}` : undefined}
           aria-invalid={error}
           aria-required={required || undefined}
           disabled={disabled}
-          hasError={!!error}
           id={id}
           required={required}
           type={type}
           {...inputProps}
         />
-        {rightAccessory}
+        {rightAccessory && (
+          <AccessoryWrapper>{rightAccessory}</AccessoryWrapper>
+        )}
       </InputWrapper>
       {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
     </Wrapper>
