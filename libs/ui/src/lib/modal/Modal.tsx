@@ -3,26 +3,24 @@ import React from 'react'
 
 import { ModalContainer, Header, Actions, Action, Body } from './ui'
 
-/* eslint-disable-next-line */
-export interface ModalProps {}
-
-
-export const Modal: FC<ModalProps> = () => {
-  return (
-    <TwoButtonModal />
-  )
+export interface ModalProps {
+  /**
+   * Fired when the modal should be closed
+   */
+  onClose: () => void
 }
 
-const TwoButtonModal = () => (
-  <ModalContainer>
-    <Header icon="check">Update successful</Header>
-    <Body>Lorem ipsum ...</Body>
-    <Actions>
-      <Action onClick={() => null}>Cancel</Action>
-      <Action onClick={() => null} primary>
-        Activate
-      </Action>
-    </Actions>
-  </ModalContainer>
-)
-
+export const Modal: FC<ModalProps> = ({ onClose }) => {
+  return (
+    <ModalContainer>
+      <Header icon="check">Update successful</Header>
+      <Body>Lorem ipsum ...</Body>
+      <Actions>
+        <Action onClick={() => onClose()}>Cancel</Action>
+        <Action onClick={() => null} primary>
+          Activate
+        </Action>
+      </Actions>
+    </ModalContainer>
+  )
+}
