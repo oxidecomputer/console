@@ -125,8 +125,7 @@ build {
             "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
             "CLOUDFLARE_TOKEN=${var.cloudflare_token}",
             "SSL_CERT=${var.ssl_cert}",
-            "SSL_KEY=${var.ssl_key}",
-            "API_VERSION=${var.api_version}"
+            "SSL_KEY=${var.ssl_key}"
         ]
     }
     provisioner "shell" {
@@ -138,5 +137,8 @@ build {
         script = "packer/bootstrap-omicron.sh"
         pause_before = "10s"
         timeout      = "10s"
+		environment_vars = [
+            "API_VERSION=${var.api_version}"
+        ]
     }
 }
