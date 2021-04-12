@@ -76,6 +76,19 @@ EOF
   }
 }
 
+variable "api_version" {
+  default = env("API_VERSION")
+
+  validation {
+    condition     = length(var.api_version) > 0
+    error_message = <<EOF
+The api_version var is not set: make sure to at least set the API_VERSION env var.
+To fix this you could also set the api_version variable from the arguments, for example:
+$ packer build -var=api_version=...
+EOF
+  }
+}
+
 source "googlecompute" "oxide-console-base" {
     project_id = "oxide-console"
     // FROM: https://console.cloud.google.com/compute/images
@@ -112,7 +125,8 @@ build {
             "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
             "CLOUDFLARE_TOKEN=${var.cloudflare_token}",
             "SSL_CERT=${var.ssl_cert}",
-            "SSL_KEY=${var.ssl_key}"
+            "SSL_KEY=${var.ssl_key}",
+            "API_VERSION=${var.api_version}"
         ]
     }
     provisioner "shell" {

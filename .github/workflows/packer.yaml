@@ -46,3 +46,4 @@ jobs:
           CLOUDFLARE_TOKEN: ${{secrets.CLOUDFLARE_TOKEN}}
           SSL_CERT: ${{secrets.SSL_CERT}}
           SSL_KEY: ${{secrets.SSL_KEY}}
+          API_VERSION: cf5b876d3130bd47a848cfcea14d6a7894420bd6
