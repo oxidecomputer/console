@@ -13,29 +13,59 @@ interface ModalContainerProps {
     ReactElement<ActionsProps>
   ]
 }
-export const ModalContainer = styled.div<ModalContainerProps>``
+export const ModalContainer = styled.div<ModalContainerProps>`
+  background: ${({ theme }) => theme.color('black')};
 
-const StyledHeader = styled.header``
-const HeaderIcon = styled.span``
+  width: calc(100vw / 3);
+`
+
+const StyledHeader = styled.header`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  padding: ${({ theme }) => theme.spacing(6, 6, 0, 6)};
+  ${({ theme }) => theme.spaceBetweenY(4)}
+`
+const IconContainer = styled.span`
+  flex: 0 0 auto;
+`
+const HeaderIcon = styled.span`
+  display: inline-block;
+  width: ${({ theme }) => theme.spacing(12)};
+  height: ${({ theme }) => theme.spacing(12)};
+  background-color: ${({ theme }) => theme.color('green900')};
+  border-radius: 9999px;
+`
+const StyledIcon = styled(Icon)`
+  font-size: ${({ theme }) => theme.spacing(12)};
+`
 interface HeaderProps {
   icon: IconName
 }
 export const Header: FC<HeaderProps> = ({ icon, children }) => (
   <StyledHeader>
-    <HeaderIcon>
-      <Icon name={icon} color="green500" />
-    </HeaderIcon>
-    <Text>{children}</Text>
+    <IconContainer>
+      <HeaderIcon>
+        <StyledIcon name={icon} color="green500" />
+      </HeaderIcon>
+    </IconContainer>
+    <Text color="green400">{children}</Text>
   </StyledHeader>
 )
 
 interface BodyProps {
   children: ReactNode
 }
-const StyledBody = styled.main``
+const StyledBody = styled.main`
+  padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
+`
 export const Body: FC = ({ children }) => <StyledBody>{children}</StyledBody>
 
-const StyledActions = styled.footer``
+const StyledActions = styled.footer`
+  display: flex;
+  flex-direction: row;
+`
 interface ActionsProps {
   children:
     | ReactElement<ActionProps>
@@ -51,7 +81,9 @@ interface ActionProps {
   onClick: () => void
 }
 
-const StyledAction = styled(Button)``
-export const Action: FC<ActionProps> = ({ children }) => (
-  <StyledAction variant="subtle">{children}</StyledAction>
+const StyledAction = styled(Button)`
+  flex: 1;
+`
+export const Action: FC<ActionProps> = ({ primary, children }) => (
+  <StyledAction variant={primary ? 'solid' : 'subtle'}>{children}</StyledAction>
 )
