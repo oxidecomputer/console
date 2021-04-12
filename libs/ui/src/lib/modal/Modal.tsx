@@ -1,17 +1,28 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import { ModalContainer, Header, Actions, Action, Body } from './ui'
 
 /* eslint-disable-next-line */
 export interface ModalProps {}
 
-const Wrapper = styled.div``
 
 export const Modal: FC<ModalProps> = () => {
   return (
-    <Wrapper>
-      <h1>Welcome to Modal!</h1>
-    </Wrapper>
+    <TwoButtonModal />
   )
 }
+
+const TwoButtonModal = () => (
+  <ModalContainer>
+    <Header icon="check">Update successful</Header>
+    <Body>Lorem ipsum ...</Body>
+    <Actions>
+      <Action onClick={() => null}>Cancel</Action>
+      <Action onClick={() => null} primary>
+        Activate
+      </Action>
+    </Actions>
+  </ModalContainer>
+)
+
