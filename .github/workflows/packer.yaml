@@ -51,4 +51,4 @@ jobs:
       # get the image information from gcloud
       - name: Get image information
         run: |
-          gcloud compute images list --sort-by "creationTimestamp" --filter "name~'packer'" --limit 1
+          gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1
