@@ -1,4 +1,4 @@
-import type { KeyboardEvent, FC, EventHandler } from 'react'
+import type { FC } from 'react'
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 
 import styled from 'styled-components'
@@ -60,9 +60,7 @@ export const Tooltip: FC<TooltipProps> = () => {
   const closeTooltip = useCallback(() => setIsOpen(false), [setIsOpen])
 
   useEffect(() => {
-    const handleKeyDown: (this: Window, ev: KeyboardEvent<Element>) => any = (
-      event
-    ) => {
+    const handleKeyDown: (this: Window, ev: KeyboardEvent) => any = (event) => {
       const { key } = event
       switch (key) {
         case KEYS.escape:
