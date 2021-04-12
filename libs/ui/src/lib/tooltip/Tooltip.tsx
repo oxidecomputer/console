@@ -60,7 +60,7 @@ export const Tooltip: FC<TooltipProps> = () => {
   const closeTooltip = useCallback(() => setIsOpen(false), [setIsOpen])
 
   useEffect(() => {
-    const handleKeyDown: (this: Window, ev: KeyboardEvent) => any = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       const { key } = event
       switch (key) {
         case KEYS.escape:
