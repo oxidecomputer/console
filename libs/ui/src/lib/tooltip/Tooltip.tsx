@@ -8,39 +8,69 @@ import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
 
 export interface TooltipProps {
+  content: string | React.ReactNode
   size?: 'sm' | 'lg'
 }
+
+const ARROW_SIZE = 12
+
+const TooltipArrow = styled.div`
+  visibility: hidden;
+
+  &,
+  &:before {
+    position: absolute;
+    height: ${ARROW_SIZE}px;
+    width: ${ARROW_SIZE}px;
+  }
+
+  &:before {
+    content: '';
+    transform: rotate(45deg);
+    visibility: visible;
+    background-color: ${({ theme }) => theme.color('white')};
+  }
+`
 
 const TooltipButton = styled.button``
 
 const TooltipContainer = styled.div<{ isOpen: boolean }>`
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+
+  &[data-popper-placement^='top'] > ${TooltipArrow} {
+    bottom: ${ARROW_SIZE * -0.5}px;
+  }
+
+  &[data-popper-placement^='right'] > ${TooltipArrow} {
+    left: ${ARROW_SIZE * -0.5}px;
+  }
+
+  &[data-popper-placement^='bottom'] > ${TooltipArrow} {
+    top: ${ARROW_SIZE * -0.5}px;
+  }
+
+  &[data-popper-placement^='left'] > ${TooltipArrow} {
+    right: ${ARROW_SIZE * -0.5}px;
+  }
 `
 
 const TooltipContent = styled(Text).attrs({
   as: 'div',
   size: 'sm',
 })`
-  padding: ${({ theme }) => theme.spacing(4, 2)};
+  padding: ${({ theme }) => theme.spacing(1, 2)};
 
   background-color: ${({ theme }) => theme.color('white')};
   color: ${({ theme }) => theme.color('gray900')};
 `
 
-const ARROW_SIZE = 12
-
-const TooltipArrow = styled.div`
-  width: ${ARROW_SIZE}px;
-  height: ${ARROW_SIZE}px;
-  border: 1px solid red;
-  background-color: ${({ theme }) => theme.color('white')};
-`
-
-export const Tooltip: FC<TooltipProps> = () => {
+export const Tooltip: FC<TooltipProps> = ({ children, content }) => {
   const referenceElement = useRef(null)
   const popperElement = useRef(null)
   const arrowElement = useRef(null)
-  const { styles, attributes } = usePopper(
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { attributes, styles, update } = usePopper(
     referenceElement.current,
     popperElement.current,
     {
@@ -52,11 +82,21 @@ export const Tooltip: FC<TooltipProps> = () => {
             offset: [0, ARROW_SIZE],
           },
         },
+        // disable eventListeners when closed for optimization
+        // (could make difference with many Tooltips on a single page)
+        { name: 'eventListeners', enabled: isOpen },
       ],
     }
   )
-  const [isOpen, setIsOpen] = useState(false)
-  const openTooltip = () => setIsOpen(true)
+
+  const openTooltip = () => {
+    setIsOpen(true)
+    if (update) {
+      // Update popper position
+      // (position will need to update after scrolling, for example)
+      update()
+    }
+  }
   const closeTooltip = useCallback(() => setIsOpen(false), [setIsOpen])
 
   useEffect(() => {
@@ -88,16 +128,16 @@ export const Tooltip: FC<TooltipProps> = () => {
         onFocus={openTooltip}
         onBlur={closeTooltip}
       >
-        Trigger here
+        {children}
       </TooltipButton>
       <TooltipContainer
         ref={popperElement}
-        style={styles.popper}
-        {...attributes.popper}
         role="tooltip"
         isOpen={isOpen}
+        style={styles.popper}
+        {...attributes.popper}
       >
-        <TooltipContent>Popper Element</TooltipContent>
+        <TooltipContent>{content}</TooltipContent>
         <TooltipArrow ref={arrowElement} style={styles.arrow} />
       </TooltipContainer>
     </>

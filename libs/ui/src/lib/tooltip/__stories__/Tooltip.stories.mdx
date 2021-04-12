@@ -2,7 +2,7 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Tooltip } from '../Tooltip'
-import { Default } from './Tooltip.stories'
+import { Default, Definition } from './Tooltip.stories'
 
 <Meta title="Tooltip" />
 
@@ -79,3 +79,13 @@ The definition tooltip provides additional help or defines an item or term. It m
 #### Behavior
 
 Definition tooltips are displayed on hover and focus.
+
+## Stories
+
+### Variants
+
+#### Definition
+
+<Canvas>
+  <Story story={Definition} />
+</Canvas>
