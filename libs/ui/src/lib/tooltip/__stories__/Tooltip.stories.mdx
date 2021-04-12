@@ -3,6 +3,8 @@
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Tooltip } from '../Tooltip'
 import { Default, Definition } from './Tooltip.stories'
+import { Text } from '../../text/Text'
+import { Icon } from '../../icon/Icon'
 
 <Meta title="Tooltip" />
 
@@ -89,3 +91,17 @@ Definition tooltips are displayed on hover and focus.
 <Canvas>
   <Story story={Definition} />
 </Canvas>
+
+<Text size="base">
+  <Tooltip content="notification">
+    <Icon name="warning" />
+  </Tooltip>{' '}
+  In practice, the <code>Tooltip</code> component is{' '}
+  <Tooltip content="Definition" variant="definition">
+    expected
+  </Tooltip>{' '}
+  to be nested inside of the <code>Text</code> component when dealing with text.{' '}
+  <code>Tooltip</code>
+  can use word(s) or icon as the trigger of a tooltip. It should not need any text
+  styles of its own.
+</Text>

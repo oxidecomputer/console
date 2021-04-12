@@ -22,4 +22,5 @@ export const Definition = Template.bind({})
 Definition.args = {
   children: 'Definition tooltip',
   content: 'A brief definition of the underlined word above.',
+  variant: 'definition',
 }

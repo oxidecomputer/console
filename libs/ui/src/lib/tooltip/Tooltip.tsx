@@ -1,14 +1,16 @@
 import type { FC } from 'react'
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { usePopper } from 'react-popper'
 
 import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
 
+type Variant = 'base' | 'definition'
 export interface TooltipProps {
   content: string | React.ReactNode
+  variant?: Variant
   size?: 'sm' | 'lg'
 }
 
@@ -32,7 +34,15 @@ const TooltipArrow = styled.div`
   }
 `
 
-const TooltipButton = styled.button``
+const TooltipButton = styled.button<{ variant: Variant }>`
+  ${({ variant }) => {
+    if (variant === 'definition') {
+      return css`
+        border-bottom: 1px dashed #fff;
+      `
+    }
+  }}
+`
 
 const TooltipContainer = styled.div<{ isOpen: boolean }>`
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
@@ -64,7 +74,11 @@ const TooltipContent = styled(Text).attrs({
   color: ${({ theme }) => theme.color('gray900')};
 `
 
-export const Tooltip: FC<TooltipProps> = ({ children, content }) => {
+export const Tooltip: FC<TooltipProps> = ({
+  children,
+  content,
+  variant = 'base',
+}) => {
   const referenceElement = useRef(null)
   const popperElement = useRef(null)
   const arrowElement = useRef(null)
@@ -127,6 +141,7 @@ export const Tooltip: FC<TooltipProps> = ({ children, content }) => {
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
+        variant={variant}
       >
         {children}
       </TooltipButton>
