@@ -24,6 +24,14 @@ Default.args = {
   options: SAMPLE_OPTIONS,
 }
 
+export const XSmall = Template.bind({})
+XSmall.args = {
+  label: 'Choose an Operator',
+  options: SAMPLE_OPTIONS,
+  placeholder: '...placeholder',
+  size: 'xs',
+}
+
 export const Small = Template.bind({})
 Small.args = {
   label: 'Choose an Operator',

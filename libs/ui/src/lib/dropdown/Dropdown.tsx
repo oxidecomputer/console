@@ -10,7 +10,7 @@ import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
-type SizeType = 'sm' | 'lg'
+type SizeType = 'xs' | 'sm' | 'lg'
 type OptionType = { value: string; label: string }
 export interface DropdownProps {
   defaultValue?: string
@@ -55,10 +55,29 @@ const Label = styled(Text).attrs({
   size: 'sm',
 })``
 
+const getButtonStyles = (size: SizeType) => {
+  switch (size) {
+    case 'xs':
+      return css`
+        padding: ${({ theme }) => theme.spacing(2, 3)};
+
+        font-size: ${({ theme }) => theme.spacing(3)};
+      `
+    default:
+    case 'sm':
+    case 'lg':
+      return css`
+        padding: ${({ theme }) => theme.spacing(2, 4)};
+
+        font-size: ${({ theme }) => theme.spacing(4)};
+      `
+  }
+}
+
 type ButtonProps = StyledComponentProps<
   'button',
   Theme,
-  { hasPlaceholder: boolean },
+  { hasPlaceholder: boolean; size: SizeType },
   never
 >
 
@@ -69,17 +88,17 @@ const StyledButton = styled.button<ButtonProps>`
   justify-content: space-between;
 
   margin-top: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => theme.spacing(2, 4)};
   vertical-align: top;
   width: 100%;
 
   background-color: ${({ theme }) => theme.color('gray800')};
   border: none;
   color: ${({ theme }) => theme.color('gray50')};
-  font-size: ${({ theme }) => theme.spacing(4)};
 
   font-weight: ${({ hasPlaceholder }) => (hasPlaceholder ? 400 : 500)};
   line-height: 1.5;
+
+  ${({ size }) => getButtonStyles(size)};
 
   &:hover {
     background-color: ${({ theme }) => theme.color('gray700')};
@@ -123,21 +142,30 @@ const StyledMenu = styled(motion.ul)`
 
 const getOptionStyles = (size: SizeType) => {
   switch (size) {
+    case 'xs':
+      return css`
+        padding: ${({ theme }) => theme.spacing(2, 3)};
+
+        font-size: ${({ theme }) => theme.spacing(3)};
+      `
     case 'lg':
       return css`
         padding: ${({ theme }) => theme.spacing(2.5, 4)};
+
+        font-size: ${({ theme }) => theme.spacing(3.5)};
       `
     default:
     case 'sm':
       return css`
         padding: ${({ theme }) => theme.spacing(1.5, 4)};
+
+        font-size: ${({ theme }) => theme.spacing(3.5)};
       `
   }
 }
 
 const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   color: ${({ theme }) => theme.color('gray200')};
-  font-size: ${({ theme }) => theme.spacing(3.5)};
   font-weight: 400;
   line-height: 1.5;
 
@@ -234,6 +262,7 @@ export const Dropdown: FC<DropdownProps> = ({
         type="button"
         {...select.getToggleButtonProps()}
         hasPlaceholder={select.selectedItem ? false : true}
+        size={size}
         {...ariaProps}
       >
         {renderButtonText}
