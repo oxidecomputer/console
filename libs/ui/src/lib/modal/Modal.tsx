@@ -1,122 +1,77 @@
-import type { FC, ReactElement, ReactNode } from 'react'
+import type { FC, ReactNode } from 'react'
 import React from 'react'
-import styled from 'styled-components'
-import Button from '../button/Button'
-import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
-import Text from '../text/Text'
+
+import {
+  Action,
+  Actions,
+  Body,
+  Header,
+  OneButtonModal,
+  TwoButtonModal,
+} from './ui'
 
 interface ModalProps {
-  children: [
-    ReactElement<HeaderProps>,
-    ReactElement<BodyProps>,
-    ReactElement<ActionsProps>
-  ]
-}
-export const TwoButtonModal = styled.div<ModalProps>`
-  background: ${({ theme }) => theme.color('black')};
-
-  width: calc(100vw / 3);
-`
-
-export const OneButtonModal = styled.div<ModalProps>`
-  background: ${({ theme }) => theme.color('black')};
-
-  width: calc(100vw / 4);
-`
-
-const StyledHeader = styled.header`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-
-  padding: ${({ theme }) => theme.spacing(6, 6, 0, 6)};
-  ${({ theme }) => theme.spaceBetweenY(4)}
-`
-const IconContainer = styled.span`
-  flex: 0 0 auto;
-`
-const HeaderIcon = styled.span`
-  display: inline-block;
-  width: ${({ theme }) => theme.spacing(12)};
-  height: ${({ theme }) => theme.spacing(12)};
-  background-color: ${({ theme }) => theme.color('green900')};
-  border-radius: 9999px;
-`
-const StyledIcon = styled(Icon)`
-  font-size: ${({ theme }) => theme.spacing(12)};
-`
-interface HeaderProps {
+  title: string
   icon: IconName
-}
-export const Header: FC<HeaderProps> = ({ icon, children }) => (
-  <StyledHeader>
-    <IconContainer>
-      <HeaderIcon>
-        <StyledIcon name={icon} color="green500" />
-      </HeaderIcon>
-    </IconContainer>
-    <Text color="green400">{children}</Text>
-  </StyledHeader>
-)
 
-interface BodyProps {
   children: ReactNode
-}
-const StyledBody = styled.main`
-  padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
-`
-export const Body: FC = ({ children }) => <StyledBody>{children}</StyledBody>
 
-const StyledActions = styled.footer`
-  display: flex;
-  flex-direction: row;
-`
-interface ActionsProps {
-  children:
-    | ReactElement<ActionProps>
-    | [ReactElement<ActionProps>, ReactElement<ActionProps>]
+  onClose: () => void
 }
-export const Actions: FC<ActionsProps> = ({ children }) => (
-  <StyledActions>{children}</StyledActions>
+
+export interface AlertModalProps extends ModalProps {
+  confirmText: string
+
+  onConfirm: () => void
+}
+
+export const AlertModal: FC<AlertModalProps> = ({
+  title,
+  icon,
+  children,
+  confirmText,
+  onConfirm,
+  // onClose,
+}) => (
+  <OneButtonModal>
+    <Header icon={icon}>{title}</Header>
+    <Body>{children}</Body>
+    <Actions>
+      <Action primary onClick={onConfirm}>
+        {confirmText}
+      </Action>
+    </Actions>
+  </OneButtonModal>
 )
 
-interface ActionProps {
-  primary?: boolean
+export interface ConfirmModalProps extends ModalProps {
+  confirmText: string
+  cancelText: string
 
-  onClick: () => void
+  onConfirm: () => void
+  // NOTE: unsure if this should be separate from `onClose` ... might make sense in _some_ situations
+  onCancel: () => void
 }
 
-const StyledAction = styled(Button)`
-  flex: 1;
-`
-export const Action: FC<ActionProps> = ({ primary, children, onClick }) => (
-  <StyledAction
-    variant={primary ? 'solid' : 'subtle'}
-    onClick={() => onClick()}
-  >
-    {children}
-  </StyledAction>
+export const ConfirmModal: FC<ConfirmModalProps> = ({
+  title,
+  icon,
+  children,
+  confirmText,
+  onConfirm,
+  cancelText,
+  onCancel,
+  //onClose,
+}) => (
+  <TwoButtonModal>
+    <Header icon={icon}>{title}</Header>
+    <Body>{children}</Body>
+    <Actions>
+      <Action onClick={onCancel}>{cancelText}</Action>
+      <Action primary onClick={onConfirm}>
+        {confirmText}
+      </Action>
+    </Actions>
+  </TwoButtonModal>
 )
-
-// export interface ModalProps {
-//   /**
-//    * Fired when the modal should be closed
-//    */
-//   onClose: () => void
-// }
-
-// export const Modal: FC<ModalProps> = ({ onClose }) => {
-//   return (
-//     <Modal>
-//       <Header icon="check">Update successful</Header>
-//       <Body>Lorem ipsum ...</Body>
-//       <Actions>
-//         <Action onClick={() => onClose()}>Cancel</Action>
-//         <Action onClick={() => null} primary>
-//           Activate
-//         </Action>
-//       </Actions>
-//     </Modal>
-//   )
-// }

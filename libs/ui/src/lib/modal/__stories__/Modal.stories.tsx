@@ -1,81 +1,33 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
-import {
-  OneButtonModal,
-  TwoButtonModal,
-  Header,
-  Body,
-  Actions,
-  Action,
-} from '../Modal'
-import type { IconName } from '../../icon/icons'
+import type { AlertModalProps, ConfirmModalProps } from '../Modal'
+import { AlertModal, ConfirmModal } from '../Modal'
 
-interface ModalStoryProps {
-  title: string
-  body: string
-  icon: IconName
-}
-
-interface TwoButtonStoryProps extends ModalStoryProps {
-  onCancel: () => void
-  onActivate: () => void
-}
-
-const TwoButtonTemplate: Story<TwoButtonStoryProps> = ({
-  title,
-  icon,
-  body,
-  onCancel,
-  onActivate,
-}) => (
-  <TwoButtonModal>
-    <Header icon={icon}>{title}</Header>
-    <Body>{body}</Body>
-    <Actions>
-      <Action onClick={onCancel}>Cancel</Action>
-      <Action onClick={onActivate} primary>
-        Activate
-      </Action>
-    </Actions>
-  </TwoButtonModal>
+const ConfirmTemplate: Story<ConfirmModalProps> = (args) => (
+  <ConfirmModal {...args} />
 )
 
-export const Default = TwoButtonTemplate.bind({})
+export const Default = ConfirmTemplate.bind({})
 Default.args = {
   title: 'Update successful',
   icon: 'check',
-  body: 'Lorem ipsum ...',
+  children: 'Lorem ipsum ...',
+  cancelText: 'Cancel',
   onCancel: action('onCancel'),
-  onActivate: action('onActivate'),
+  confirmText: 'Activate',
+  onConfirm: action('onConfirm'),
 }
-Default.storyName = 'Two Button Modal'
+Default.storyName = 'Confirm'
 
-interface OneButtonStory extends ModalStoryProps {
-  onGoToDashboard: () => void
-}
+const AlertTemplate: Story<AlertModalProps> = (args) => <AlertModal {...args} />
 
-const OneButtonTemplate: Story<OneButtonStory> = ({
-  title,
-  icon,
-  body,
-  onGoToDashboard,
-}) => (
-  <OneButtonModal>
-    <Header icon={icon}>{title}</Header>
-    <Body>{body}</Body>
-    <Actions>
-      <Action onClick={onGoToDashboard} primary>
-        Go back to dashboard
-      </Action>
-    </Actions>
-  </OneButtonModal>
-)
-export const OneButtonModalStory = OneButtonTemplate.bind({})
-OneButtonModalStory.args = {
+export const AlertStory = AlertTemplate.bind({})
+AlertStory.args = {
   title: 'Update successful',
   icon: 'check',
-  body: 'Lorem ipsum ...',
-  onGoToDashboard: action('onGoToDashboard'),
+  children: 'Lorem ipsum ...',
+  confirmText: 'Go back to dashboard',
+  onConfirm: action('onConfirm'),
 }
-OneButtonModalStory.storyName = 'One Button Modal'
+AlertStory.storyName = 'Alert'
