@@ -3,8 +3,8 @@ name: Packer
 on:
   push:
     paths:
-      - "packer/**" # Only run on changes to the packer directory.
-      - ".github/workflows/packer.yaml" # Run when this file changes.
+      - 'packer/**' # Only run on changes to the packer directory.
+      - '.github/workflows/packer.yaml' # Run when this file changes.
   workflow_dispatch:
     inputs:
 
@@ -36,7 +36,7 @@ jobs:
         uses: hashicorp/packer-github-actions@master
         with:
           command: build
-          arguments: "-color=false -on-error=abort"
+          arguments: '-color=false -on-error=abort'
           target: packer/config.pkr.hcl
         env:
           PACKER_LOG: 1
@@ -46,7 +46,7 @@ jobs:
           CLOUDFLARE_TOKEN: ${{secrets.CLOUDFLARE_TOKEN}}
           SSL_CERT: ${{secrets.SSL_CERT}}
           SSL_KEY: ${{secrets.SSL_KEY}}
-          API_VERSION: cf5b876d3130bd47a848cfcea14d6a7894420bd6
+          API_VERSION: 66b6dbbaaec8819ff7766f63a61f2e0e00652253
 
       # get the image information from gcloud
       - name: Get image information

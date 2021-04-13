@@ -2,14 +2,14 @@ name: push image and deploy vm
 on:
   push:
     paths:
-      - "*.json" # Only run on changes to the packer directory.
-      - "*.js"
-      - "*.ts"
-      - "libs/**"
-      - "apps/**"
-      - "tools/**"
-      - "Dockerfile"
-      - ".github/workflows/deploy-vm.yml" # Run when this file changes.
+      - '*.json' # Only run on changes to the packer directory.
+      - '*.js'
+      - '*.ts'
+      - 'libs/**'
+      - 'apps/**'
+      - 'tools/**'
+      - 'Dockerfile'
+      - '.github/workflows/deploy-vm.yml' # Run when this file changes.
   workflow_dispatch:
     inputs:
 jobs:
@@ -52,7 +52,7 @@ jobs:
     needs: [docker-image]
     runs-on: ubuntu-latest
     environment:
-      name: "Preview VM"
+      name: 'Preview VM'
       url: https://console-git-${{ steps.extract_branch.outputs.branch }}.internal.oxide.computer
     steps:
       - uses: actions/checkout@master
@@ -71,4 +71,3 @@ jobs:
         run: |
           sed -i "s/BRANCH_NAME/${{ steps.extract_branch.outputs.branch }}/g" tools/gcp_instance_startup_script.sh
           ./tools/create_gcp_instance.sh
-
