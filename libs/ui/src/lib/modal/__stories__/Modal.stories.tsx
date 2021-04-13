@@ -1,38 +1,35 @@
 import React from 'react'
-import type { Meta, Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
-import { Modal, Header, Body, Actions, Action } from '../Modal'
+import {
+  OneButtonModal,
+  TwoButtonModal,
+  Header,
+  Body,
+  Actions,
+  Action,
+} from '../Modal'
 import type { IconName } from '../../icon/icons'
-import { icons } from '../../icon/icons'
-
-export default {
-  title: 'Components/Modal',
-  argTypes: {
-    icon: {
-      control: {
-        type: 'select',
-        options: Object.keys(icons),
-      },
-    },
-  },
-} as Meta<ModalStoryProps>
 
 interface ModalStoryProps {
   title: string
   body: string
   icon: IconName
+}
+
+interface TwoButtonStoryProps extends ModalStoryProps {
   onCancel: () => void
   onActivate: () => void
 }
 
-const Template: Story<ModalStoryProps> = ({
+const TwoButtonTemplate: Story<TwoButtonStoryProps> = ({
   title,
   icon,
   body,
   onCancel,
   onActivate,
 }) => (
-  <Modal>
+  <TwoButtonModal>
     <Header icon={icon}>{title}</Header>
     <Body>{body}</Body>
     <Actions>
@@ -41,10 +38,10 @@ const Template: Story<ModalStoryProps> = ({
         Activate
       </Action>
     </Actions>
-  </Modal>
+  </TwoButtonModal>
 )
 
-export const Default = Template.bind({})
+export const Default = TwoButtonTemplate.bind({})
 Default.args = {
   title: 'Update successful',
   icon: 'check',
@@ -53,3 +50,32 @@ Default.args = {
   onActivate: action('onActivate'),
 }
 Default.storyName = 'Two Button Modal'
+
+interface OneButtonStory extends ModalStoryProps {
+  onGoToDashboard: () => void
+}
+
+const OneButtonTemplate: Story<OneButtonStory> = ({
+  title,
+  icon,
+  body,
+  onGoToDashboard,
+}) => (
+  <OneButtonModal>
+    <Header icon={icon}>{title}</Header>
+    <Body>{body}</Body>
+    <Actions>
+      <Action onClick={onGoToDashboard} primary>
+        Go back to dashboard
+      </Action>
+    </Actions>
+  </OneButtonModal>
+)
+export const OneButtonModalStory = OneButtonTemplate.bind({})
+OneButtonModalStory.args = {
+  title: 'Update successful',
+  icon: 'check',
+  body: 'Lorem ipsum ...',
+  onGoToDashboard: action('onGoToDashboard'),
+}
+OneButtonModalStory.storyName = 'One Button Modal'

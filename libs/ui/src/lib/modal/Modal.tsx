@@ -13,10 +13,16 @@ interface ModalProps {
     ReactElement<ActionsProps>
   ]
 }
-export const Modal = styled.div<ModalProps>`
+export const TwoButtonModal = styled.div<ModalProps>`
   background: ${({ theme }) => theme.color('black')};
 
   width: calc(100vw / 3);
+`
+
+export const OneButtonModal = styled.div<ModalProps>`
+  background: ${({ theme }) => theme.color('black')};
+
+  width: calc(100vw / 4);
 `
 
 const StyledHeader = styled.header`

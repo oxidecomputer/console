@@ -1,11 +1,11 @@
 import React from 'react'
 import { render } from '../../test-utils'
 
-import { Modal } from './Modal'
+import { TwoButtonModal } from './Modal'
 
 describe('Modal', () => {
   it('should render successfully', () => {
-    const { container } = render(<Modal />)
+    const { container } = render(<TwoButtonModal />)
     expect(container).toBeTruthy()
   })
 })

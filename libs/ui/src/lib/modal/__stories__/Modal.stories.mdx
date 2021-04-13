@@ -2,9 +2,20 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Modal } from '../Modal'
-import { Default } from './Modal.stories'
+import { Default, OneButtonModalStory } from './Modal.stories'
+import { icons } from '../../icon/icons'
 
-<Meta title="Components/Modal" />
+<Meta
+  title="Components/Modal"
+  argTypes={{
+    icon: {
+      control: {
+        type: 'select',
+        options: Object.keys(icons),
+      },
+    },
+  }}
+/>
 
 # Modal
 
@@ -94,4 +105,8 @@ On small screens where content requires scrolling and the user has to scroll mor
 
 ## Stories
 
-### Sizes
+### One Action
+
+<Canvas>
+  <Story story={OneButtonModalStory} />
+</Canvas>
