@@ -4,10 +4,12 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
-import { Text } from '../text/Text'
+import type { DropdownProps } from '../dropdown/Dropdown'
+import { Dropdown } from '../dropdown/Dropdown'
 import { Icon } from '../icon/Icon'
+import { Text } from '../text/Text'
 
-type Variant = 'base' | 'card'
+type Variant = 'base' | 'card' | 'card-menu'
 export type RadioFieldProps = StyledComponentProps<
   'input',
   DefaultTheme,
@@ -16,7 +18,7 @@ export type RadioFieldProps = StyledComponentProps<
      * RadioGroup will handle checked based on its value
      */
     checked?: boolean
-    onChange?: React.ChangeEventHandler
+    dropdownProps?: DropdownProps
     /**
      * Additional text to associate with this specific field
      */
@@ -25,6 +27,7 @@ export type RadioFieldProps = StyledComponentProps<
      * RadioGroup will pass `name` to Radio fields.
      */
     name?: string
+    onChange?: React.ChangeEventHandler
     required?: boolean
     /**
      * The value is a useful way to handle controlled radio inputs
@@ -63,18 +66,25 @@ const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
   color: ${({ theme }) => theme.color('white')};
 
   ${({ radioVariant, theme }) => {
-    if (radioVariant === 'card') {
-      return css`
-        padding: ${theme.spacing(2)} ${theme.spacing(4)};
-        background-color: ${theme.color('darkGreen800')};
-        border: 1px solid transparent;
+    const cardStyles = css`
+      padding: ${theme.spacing(2)} ${theme.spacing(4)};
+      background-color: ${theme.color('darkGreen800')};
+      border: 1px solid transparent;
 
-        &:hover {
-          background-color: ${theme.color('darkGreen900')};
-        }
+      &:hover {
+        background-color: ${theme.color('darkGreen900')};
+      }
+    `
+    if (radioVariant === 'card') {
+      return cardStyles
+    }
+    if (radioVariant === 'card-menu') {
+      return css`
+        ${cardStyles};
+        width: 100%;
       `
     }
-  }}
+  }}}
 `
 
 const IconWrapper = styled.span`
@@ -148,6 +158,7 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
 export const RadioField: FC<RadioFieldProps> = ({
   checked,
   children,
+  dropdownProps = {},
   hint,
   name,
   onChange,
@@ -166,6 +177,12 @@ export const RadioField: FC<RadioFieldProps> = ({
       </IconWrapper>
     ) : null
 
+  const defaultDropdownProps = { label: '', showLabel: false, size: 'xs' }
+  const renderDropdown =
+    variant === 'card-menu' ? (
+      <Dropdown {...defaultDropdownProps} {...dropdownProps} />
+    ) : null
+
   return (
     <Wrapper variant={variant}>
       <Label>
@@ -181,6 +198,7 @@ export const RadioField: FC<RadioFieldProps> = ({
         {renderIcons}
         <LabelText radioVariant={variant}>{children}</LabelText>
       </Label>
+      {renderDropdown}
       {hint && <HintText id={hintId}>{hint}</HintText>}
     </Wrapper>
   )

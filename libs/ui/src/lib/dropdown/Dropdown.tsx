@@ -77,7 +77,7 @@ const getButtonStyles = (size: SizeType) => {
 type ButtonProps = StyledComponentProps<
   'button',
   Theme,
-  { hasPlaceholder: boolean; size: SizeType },
+  { hasPlaceholder: boolean; size: SizeType; showLabel: boolean },
   never
 >
 
@@ -87,7 +87,7 @@ const StyledButton = styled.button<ButtonProps>`
   flex-direction: row;
   justify-content: space-between;
 
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${({ theme, showLabel }) => (showLabel ? theme.spacing(1) : 0)};
   vertical-align: top;
   width: 100%;
 
@@ -282,6 +282,7 @@ export const Dropdown: FC<DropdownProps> = ({
         type="button"
         {...select.getToggleButtonProps()}
         hasPlaceholder={select.selectedItem ? false : true}
+        showLabel={showLabel}
         size={size}
         {...ariaProps}
       >

@@ -80,16 +80,34 @@ Selecting one option unselects all others.
 #### Card Menu Example
 
 <Canvas>
-  <RadioField name="card-menu" value="card-menu-1" variant="card">
+  <RadioField
+    name="card-menu"
+    value="card-menu-1"
+    variant="card-menu"
+    dropdownProps={{
+      label: 'CentOS Distribution Options',
+      defaultValue: 'centos-8.3 x64',
+      options: [
+        { value: 'centos-8.3 x64', label: '8.3 x64' },
+        { value: 'centos-7.6 x64', label: '7.6 x64' },
+      ],
+    }}
+  >
     CentOS
   </RadioField>
-  <Dropdown
-    label="CentOS Distribution Options"
-    showLabel={false}
-    defaultValue={'8.3 x64'}
-    options={[
-      { value: '8.3 x64', label: '8.3 x64' },
-      { value: '7.6 x64', label: '7.6 x64' },
-    ]}
-  />
+  <RadioField
+    name="card-menu"
+    value="card-menu-2"
+    variant="card-menu"
+    dropdownProps={{
+      label: 'Debian Distribution Options',
+      defaultValue: 'debian-8.3 x64',
+      options: [
+        { value: 'debian-8.3 x64', label: '8.3 x64' },
+        { value: 'debian-7.6 x64', label: '7.6 x64' },
+      ],
+    }}
+  >
+    Debian
+  </RadioField>
 </Canvas>
