@@ -104,6 +104,18 @@ You can skip the prompts by including the answers directly in the command:
 yarn plop ui-component RedButton buttons n
 ```
 
+### Create a new page component
+
+```
+yarn plop page
+```
+
+will prompt for a name and a subdirectory of `apps/web-console/src/pages`. You can skip the prompts by including the answers directly in the command:
+
+```
+yarn plop page Instance resources
+```
+
 ### Other useful commands
 
 | Command       | Description                                                      |
