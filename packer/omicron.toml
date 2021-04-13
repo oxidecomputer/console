@@ -4,7 +4,7 @@
 
 [database]
 # URL for connecting to the database
-url = "postgresql://root@0.0.0.0:8080/omicron?sslmode=disable"
+url = "postgresql://root@0.0.0.0:26257/omicron?sslmode=disable"
 
 [dropshot_external]
 # IP address and TCP port on which to listen for the external API
