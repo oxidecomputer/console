@@ -1,23 +1,27 @@
 #
- # Oxide API: example configuration file
- #
+# Oxide API: example configuration file
+#
 
- [dropshot_external]
- # IP address and TCP port on which to listen for the external API
- bind_address = "0.0.0.0:8888"
+[database]
+# URL for connecting to the database
+url = "postgresql://root@0.0.0.0:8080/omicron?sslmode=disable"
 
- [dropshot_internal]
- # IP address and TCP port on which to listen for the internal API
- bind_address = "0.0.0.0:12221"
+[dropshot_external]
+# IP address and TCP port on which to listen for the external API
+bind_address = "0.0.0.0:8888"
 
- [log]
- # Show log messages of this level and more severe
- level = "info"
+[dropshot_internal]
+# IP address and TCP port on which to listen for the internal API
+bind_address = "0.0.0.0:12221"
 
- # Example output to a terminal (with colors)
- mode = "stderr-terminal"
+[log]
+# Show log messages of this level and more severe
+level = "info"
 
- # Example output to a file, appending if it already exists.
- #mode = "file"
- #path = "logs/server.log"
- #if_exists = "append"
+# Example output to a terminal (with colors)
+mode = "stderr-terminal"
+
+# Example output to a file, appending if it already exists.
+#mode = "file"
+#path = "logs/server.log"
+#if_exists = "append"
