@@ -1,10 +1,13 @@
 #!/bin/bash
 
+set -e # exit if anything fails
+
 # assumes omicron is in the same dir as as the console repo 
 # and it has been built with `cargo build`
 API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 
 cd ../omicron
+git fetch --all
 git checkout $API_VERSION
 cd ../console
 
