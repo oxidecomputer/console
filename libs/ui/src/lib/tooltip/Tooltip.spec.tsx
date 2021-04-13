@@ -5,7 +5,9 @@ import { Tooltip } from './Tooltip'
 
 describe('Tooltip', () => {
   it('should render successfully', () => {
-    const { container } = render(<Tooltip />)
+    const { container } = render(
+      <Tooltip isPrimaryLabel={false} content="Example message" />
+    )
     expect(container).toBeTruthy()
   })
 })

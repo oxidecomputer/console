@@ -1,17 +1,23 @@
 import type { FC } from 'react'
-import React, { useRef, useState, useEffect, useCallback } from 'react'
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 
 import styled, { css } from 'styled-components'
 import { usePopper } from 'react-popper'
+import { v4 as uuid } from 'uuid'
 
 import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
 
 type Variant = 'base' | 'definition'
 export interface TooltipProps {
+  /** Required. Let screen readers know whether this is the primary label or an auxiliary description. */
+  isPrimaryLabel: boolean
+  /** The text to appear on hover/focus */
   content: string | React.ReactNode
+  /** Pass your own onClick handler to the Tooltip trigger */
+  onClick?: () => void
+  /** Change style of tooltip */
   variant?: Variant
-  size?: 'sm' | 'lg'
 }
 
 const ARROW_SIZE = 12
@@ -77,12 +83,18 @@ const TooltipContent = styled(Text).attrs({
 export const Tooltip: FC<TooltipProps> = ({
   children,
   content,
+  isPrimaryLabel,
+  onClick,
   variant = 'base',
 }) => {
   const referenceElement = useRef(null)
   const popperElement = useRef(null)
   const arrowElement = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
+  const popperId = useMemo(() => uuid(), [])
+  const ariaProps = isPrimaryLabel
+    ? { 'aria-labelledby': popperId }
+    : { 'aria-describedby': popperId }
 
   const { attributes, styles, update } = usePopper(
     referenceElement.current,
@@ -137,17 +149,20 @@ export const Tooltip: FC<TooltipProps> = ({
       <TooltipButton
         type="button"
         ref={referenceElement}
+        onClick={onClick}
         onMouseEnter={openTooltip}
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
         variant={variant}
+        {...ariaProps}
       >
         {children}
       </TooltipButton>
       <TooltipContainer
         ref={popperElement}
         role="tooltip"
+        id={popperId}
         isOpen={isOpen}
         style={styles.popper}
         {...attributes.popper}
