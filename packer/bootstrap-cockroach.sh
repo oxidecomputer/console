@@ -11,7 +11,8 @@ sudo docker run -d \
 	--name=roach1 \
 	--hostname=roach1 \
 	--net=roachnet \
-	-p 0.0.0.0:26257:26257 -p 0.0.0.0:8080:8080  \
+	-p 0.0.0.0:26257:26257 \
+	-p 0.0.0.0:8080:8080  \
 	-v "/etc/cockroach/roach1/data:/cockroach/cockroach-data"  \
 	cockroachdb/cockroach start \
 		--insecure \

@@ -2,6 +2,14 @@
 set -e
 set -o pipefail
 
+sudo docker run --rm -i \
+	--name=bootstrap_db \
+	--hostname=nexus \
+	--net host \
+	-v "/etc/omicron/config.toml:/etc/omicron/config.toml:ro"  \
+	--entrypoint=omicron_dev \
+	ghcr.io/oxidecomputer/omicron:"$API_VERSION" \
+		db-populate --database-url "postgresql://root@0.0.0.0:26257/omicron?sslmode=disable"
 # Run nexus.
 sudo docker run -d \
 	--restart=always \
