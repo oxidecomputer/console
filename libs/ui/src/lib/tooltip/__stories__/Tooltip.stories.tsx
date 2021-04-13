@@ -4,6 +4,7 @@ import type { TooltipProps } from '../Tooltip'
 import { Tooltip } from '../Tooltip'
 
 import { Icon } from '../../icon/Icon'
+import { Text } from '../../text/Text'
 
 export default {
   component: Tooltip,
@@ -20,7 +21,7 @@ Default.args = {
 
 export const Definition = Template.bind({})
 Definition.args = {
-  children: 'Definition tooltip',
+  children: <Text size="base">Definition tooltip</Text>,
   content: 'A brief definition of the underlined word above.',
   variant: 'definition',
 }
