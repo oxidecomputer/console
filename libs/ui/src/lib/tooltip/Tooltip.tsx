@@ -12,10 +12,11 @@ type Variant = 'base' | 'definition'
 export interface TooltipProps {
   /** Required. Let screen readers know whether this is the primary label or an auxiliary description. */
   isPrimaryLabel: boolean
+  children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
   /** Pass your own onClick handler to the Tooltip trigger */
-  onClick?: () => void
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
   /** Change style of tooltip */
   variant?: Variant
 }
