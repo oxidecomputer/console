@@ -18,5 +18,5 @@ openapi-generator generate -i omicron.json -o libs/api/__generated__ -g typescri
 rm omicron.json
 yarn format > /dev/null 2>&1
 
-echo "# this is a generated file. do not update manually. see tools/generate_api_client.sh" > libs/api/OMICRON_VERSION
-echo $API_VERSION >> libs/api/OMICRON_VERSION
+echo "# this is a generated file. do not update manually. see tools/generate_api_client.sh" > libs/api/__generated__/OMICRON_VERSION
+echo $API_VERSION >> libs/api/__generated__/OMICRON_VERSION
