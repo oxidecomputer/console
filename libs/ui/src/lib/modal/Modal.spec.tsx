@@ -1,11 +1,21 @@
 import React from 'react'
 import { render } from '../../test-utils'
 
-import { TwoButtonModal } from './Modal'
+import { AlertModal } from './Modal'
 
 describe('Modal', () => {
   it('should render successfully', () => {
-    const { container } = render(<TwoButtonModal />)
+    const { container } = render(
+      <AlertModal
+        confirmText="Confirm"
+        icon="check"
+        title="Test"
+        onClose={jest.fn()}
+        onConfirm={jest.fn()}
+      >
+        This is an alert!
+      </AlertModal>
+    )
     expect(container).toBeTruthy()
   })
 })
