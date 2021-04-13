@@ -9,7 +9,7 @@ sudo docker run --rm \
 	-v "/etc/omicron/config.toml:/etc/omicron/config.toml:ro"  \
 	--entrypoint=omicron_dev \
 	ghcr.io/oxidecomputer/omicron:"$API_VERSION" \
-		db-populate --url "postgresql://root@0.0.0.0:8080/omicron?sslmode=disable"
+		db-populate --database-url "postgresql://root@0.0.0.0:8080/omicron?sslmode=disable"
 # Run nexus.
 sudo docker run -d \
 	--restart=always \
