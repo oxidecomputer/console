@@ -3,6 +3,7 @@
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Checked, Default, withHint, stories } from './RadioField.stories'
 import { RadioField } from '../RadioField'
+import { Dropdown } from '../../dropdown/Dropdown'
 import { Text } from '../../text/Text'
 
 <Meta
@@ -74,4 +75,21 @@ Selecting one option unselects all others.
   <Story story={stories.variants.card_single_default} />
   <Story story={stories.variants.card_single_hint} />
   <Story story={stories.variants.card_single_checked} />
+</Canvas>
+
+#### Card Menu Example
+
+<Canvas>
+  <RadioField name="card-menu" value="card-menu-1" variant="card">
+    CentOS
+  </RadioField>
+  <Dropdown
+    label="CentOS Distribution Options"
+    showLabel={false}
+    defaultValue={'8.3 x64'}
+    options={[
+      { value: '8.3 x64', label: '8.3 x64' },
+      { value: '7.6 x64', label: '7.6 x64' },
+    ]}
+  />
 </Canvas>
