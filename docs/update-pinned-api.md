@@ -17,4 +17,8 @@ The primary source of truth, in the sense that it determines what is actually de
 
 ## Available omicron versions
 
-The list of allowed omicron hashes (i.e., hashes for which there is a docker image for us to pull in) is available [here](https://github.com/orgs/oxidecomputer/packages/container/omicron/versions). That link is probably not accessible to everyone, but it basically contains an image corresponding to every commit on omicron `main` as well as the latest commit on every branch with a PR. You can use a branch name instead of a commit, but that's probably not a good idea, because even if that branch gets updated, your console branch won't until something triggers a new packer build. Better to pin the commit hash corresponding to an omicron branch and then update it when that branch gets more commits.
+The list of allowed omicron hashes (i.e., hashes for which there is a docker image for us to pull in) is available [here](https://github.com/orgs/oxidecomputer/packages/container/omicron/versions). That link is probably not accessible to everyone, but it basically contains an image corresponding to every commit on omicron `main` as well as the latest commit on every branch with a PR.
+
+**We should only be pinning omicron `main` commits in console `main`.** Occasionally, in an in-progress console PR, we may want to _temporarily_ pin to a commit from an as-yet-unmerged API branch. But such a PR should **not** be merged into console `main` until the omicron PR is merged and the pinned version in console updated accordingly.
+
+While you can technically pin an omicron branch name instead of a commit, that's probably not a good idea, because even if that branch gets updated, your console branch won't until something triggers a new packer build. It is always better to pin the commit hash corresponding to an omicron branch and then update it when that branch gets more commits.
