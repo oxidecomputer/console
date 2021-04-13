@@ -71,8 +71,8 @@ export const parameters = {
     theme: darkUI,
   },
   options: {
-    storySort: { method: 'alphabetical'}
-  }
+    storySort: { method: 'alphabetical' },
+  },
 }
 
 export const decorators = [
