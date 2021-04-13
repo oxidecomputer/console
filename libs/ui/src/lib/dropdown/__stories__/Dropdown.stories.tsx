@@ -58,7 +58,7 @@ HideLabel.args = {
 
 export const WithDefaultValue = Template.bind({})
 WithDefaultValue.args = {
-  defaultValue: 'de',
+  defaultValue: 'cj',
   label: 'Choose an Operator',
   options: SAMPLE_OPTIONS,
   size: 'lg',

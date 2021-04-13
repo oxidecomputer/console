@@ -164,7 +164,19 @@ const getOptionStyles = (size: SizeType) => {
   }
 }
 
-const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
+type StyledOptionProps = {
+  size: SizeType
+  isHighlighted: boolean
+  isSelected: boolean
+}
+
+const StyledOption = styled.li<StyledOptionProps>`
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  width: 100%;
+
   color: ${({ theme }) => theme.color('gray200')};
   font-weight: 400;
   line-height: 1.5;
@@ -188,6 +200,8 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   }
 
   ${({ size }) => getOptionStyles(size)};
+  ${({ isSelected, theme }) =>
+    isSelected && `background-color: ${theme.color('gray900')};`};
   ${({ isHighlighted, theme }) =>
     isHighlighted && `background-color: ${theme.color('gray700')};`};
 `
@@ -243,17 +257,23 @@ export const Dropdown: FC<DropdownProps> = ({
     ? placeholder
     : label
 
-  const renderOptions = options.map((option, index) => (
-    <StyledOption
-      key={option.value}
-      value={option.value}
-      size={size}
-      {...select.getItemProps({ item: option, index })}
-      isHighlighted={select.highlightedIndex === index}
-    >
-      {option.label}
-    </StyledOption>
-  ))
+  const renderOptions = options.map((option, index) => {
+    const isSelected =
+      select.selectedItem && select.selectedItem.value === option.value
+    return (
+      <StyledOption
+        key={option.value}
+        value={option.value}
+        size={size}
+        {...select.getItemProps({ item: option, index })}
+        isSelected={isSelected}
+        isHighlighted={select.highlightedIndex === index}
+      >
+        {option.label}
+        {isSelected ? <Icon name="check" /> : null}
+      </StyledOption>
+    )
+  })
 
   return (
     <Wrapper>
