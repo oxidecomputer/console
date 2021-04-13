@@ -8,7 +8,7 @@ API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 
 cd ../omicron
 git fetch --all
-git checkout $API_VERSION
+git checkout "$API_VERSION"
 cd ../console
 
 ../omicron/target/debug/nexus ../omicron/examples/config.toml --openapi > omicron.json
@@ -21,5 +21,7 @@ openapi-generator generate -i omicron.json -o libs/api/__generated__ -g typescri
 rm omicron.json
 yarn format > /dev/null 2>&1
 
-echo "# this is a generated file. do not update manually. see tools/generate_api_client.sh" > libs/api/__generated__/OMICRON_VERSION
-echo $API_VERSION >> libs/api/__generated__/OMICRON_VERSION
+cat > libs/api/__generated__/OMICRON_VERSION <<EOF
+# generated file. do not update manually. see tools/generate_api_client.sh
+$API_VERSION
+EOF
