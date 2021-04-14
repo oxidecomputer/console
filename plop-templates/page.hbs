@@ -1,0 +1,26 @@
+import React from 'react'
+import styled from 'styled-components'
+
+import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useBreadcrumbs } from '{{hooksRelPath}}'
+
+const Title = styled(TextWithIcon).attrs({
+  text: { variant: 'title', as: 'h1' },
+  icon: { name: 'instance' },
+})``
+
+const {{name}}Page = () => {
+  const breadcrumbs = useBreadcrumbs()
+
+  return (
+    <>
+      <Breadcrumbs data={breadcrumbs} />
+      <PageHeader>
+        <Title>{{name}}</Title>
+      </PageHeader>
+      <div style=\{{ marginTop: '1rem' }}>No content yet</div>
+    </>
+  )
+}
+
+export default {{name}}Page
