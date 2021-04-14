@@ -19,7 +19,7 @@ export type SpacingHelper = (
   size: SizingMultiplier
 ) => FlattenInterpolation<ThemeProps<Theme>>
 
-export type Breakpoint = 'base' | 'sm' | 'lg' | 'xl' | '2xl'
+export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
 export type BreakpointHelper = (
   breakpoint: Breakpoint
 ) => (

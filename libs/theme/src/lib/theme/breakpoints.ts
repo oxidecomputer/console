@@ -2,7 +2,7 @@ import { css } from 'styled-components'
 import type { Breakpoint, BreakpointHelper } from '../types'
 
 const breakpoints: Record<Breakpoint, number> = {
-  base: 320,
+  xs: 320,
   sm: 640,
   lg: 1024,
   xl: 1280,
