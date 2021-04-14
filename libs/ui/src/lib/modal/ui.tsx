@@ -1,4 +1,6 @@
 import type { FC, ReactElement, ReactNode } from 'react'
+import { createRef } from 'react'
+import { useEffect, useRef } from 'react'
 import React from 'react'
 import styled from 'styled-components'
 import Button from '../button/Button'
@@ -92,11 +94,21 @@ interface ActionProps {
 const StyledAction = styled(Button)`
   flex: 1;
 `
-export const Action: FC<ActionProps> = ({ primary, children, onClick }) => (
-  <StyledAction
-    variant={primary ? 'solid' : 'subtle'}
-    onClick={() => onClick()}
-  >
-    {children}
-  </StyledAction>
-)
+export const Action: FC<ActionProps> = ({ primary, children, onClick }) => {
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  useEffect(() => {
+    if (!primary) return
+
+    buttonRef.current?.focus()
+  }, [primary])
+
+  return (
+    <StyledAction
+      variant={primary ? 'solid' : 'subtle'}
+      onClick={() => onClick()}
+      ref={buttonRef}
+    >
+      {children}
+    </StyledAction>
+  )
+}
