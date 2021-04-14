@@ -23,4 +23,4 @@
 ./tools/oxapi_demo instance_attach_disk prod-online db1 grafana-state
 ./tools/oxapi_demo instance_attach_disk prod-online db1 vault
 
-echo "\n==== API DATA POPULATED ====\n"
+echo -e "\n==== API DATA POPULATED ====\n"
