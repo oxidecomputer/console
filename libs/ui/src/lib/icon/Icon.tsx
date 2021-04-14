@@ -37,10 +37,10 @@ export const Icon = styled(IconComponent).withConfig({
   ${({ rotate }) => rotate && `transform: rotate(${rotate})`};
   ${({ align }) => {
     if (align === 'left') {
-      return `margin-right: 0.5em;`
+      return `margin-right: 0.5rem;`
     }
     if (align === 'right') {
-      return `margin-left: 0.5em;`
+      return `margin-left: 0.5rem;`
     }
   }}
 `
