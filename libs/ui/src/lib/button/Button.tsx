@@ -210,11 +210,11 @@ const StyledButton = styled.button<ButtonProps>`
     cursor: not-allowed;
   }
 
-  :focus {
-    outline: none;
+  &:focus {
+    outline-style: solid;
     outline-color: transparent
-    outline-style: auto;
     outline-width: 0;
+    outline: 0;
   }
 `
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
