@@ -37,7 +37,7 @@ const TooltipArrow = styled.div`
     content: '';
     transform: rotate(45deg);
     visibility: visible;
-    background-color: ${({ theme }) => theme.color('white')};
+    background-color: ${({ theme }) => theme.color('gray800')};
   }
 `
 
@@ -77,8 +77,8 @@ const TooltipContent = styled(Text).attrs({
 })`
   padding: ${({ theme }) => theme.spacing(1, 2)};
 
-  background-color: ${({ theme }) => theme.color('white')};
-  color: ${({ theme }) => theme.color('gray900')};
+  background-color: ${({ theme }) => theme.color('gray800')};
+  color: ${({ theme }) => theme.color('white')};
 `
 
 export const Tooltip: FC<TooltipProps> = ({
