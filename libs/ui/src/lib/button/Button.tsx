@@ -220,6 +220,13 @@ const StyledButton = styled.button<ButtonProps>`
   [disabled] {
     cursor: not-allowed;
   }
+
+  :focus {
+    outline: none;
+    outline-color: transparent
+    outline-style: auto;
+    outline-width: 0;
+  }
 `
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())

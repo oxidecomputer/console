@@ -43,11 +43,6 @@ const globalStyles = css`
     color: inherit;
     text-decoration: none;
   }
-  :focus {
-    outline: none;
-    outline-color: transparent
-    outline-style: auto;
-    outline-width: 0;
 }
 `
 
