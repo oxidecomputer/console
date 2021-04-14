@@ -5,12 +5,14 @@
 # For additional information regarding the format and rule options, please see:
 # https://github.com/browserslist/browserslist#queries
 #
-# If you need to support different browsers in production, you may tweak the list below.
+# to see the actual set of browsers this produces, run
+#
+#   npx browserslists --config=.browserslistrc
 
-last 1 Chrome version
-last 1 Firefox version
-last 2 Edge major versions
-last 2 Safari major version
-last 2 iOS major versions
+# equivalent to 'defaults'
+> 0.5%
+last 2 versions
 Firefox ESR
-not IE 9-11 # For IE 9-11 support, remove 'not'.
+not dead
+
+not IE 9-11
