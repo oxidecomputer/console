@@ -158,7 +158,7 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
 export const RadioField: FC<RadioFieldProps> = ({
   checked,
   children,
-  dropdownProps = {},
+  dropdownProps,
   hint,
   name,
   onChange,
@@ -177,7 +177,10 @@ export const RadioField: FC<RadioFieldProps> = ({
       </IconWrapper>
     ) : null
 
-  const defaultDropdownProps = { label: '', showLabel: false, size: 'xs' }
+  const defaultDropdownProps = {
+    showLabel: false,
+    size: 'xs',
+  }
   const renderDropdown =
     variant === 'card-menu' ? (
       <Dropdown {...defaultDropdownProps} {...dropdownProps} />
