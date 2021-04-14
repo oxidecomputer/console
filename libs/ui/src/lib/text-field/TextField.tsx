@@ -55,6 +55,7 @@ const Label = styled(Text).attrs({
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: baseline;
 
   padding-bottom: ${({ theme }) => theme.spacing(1)};
 `
