@@ -26,8 +26,8 @@ const sizes: Record<
   base: {
     iconSize: 5,
     fontSize: 3.5,
-    lineHeight: 1.2,
-    padding: [2.5, 4],
+    lineHeight: 1.4,
+    padding: [2, 4],
   }, // total height: 40px
   lg: { iconSize: 5, fontSize: 4, lineHeight: 1.25, padding: [2.25, 4.5] }, // total height: 42px
   xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [2.5, 6] }, // total height: 48px
