@@ -21,7 +21,7 @@ const sizes: Record<
     padding: [number, number]
   }
 > = {
-  xs: { iconSize: 4, fontSize: 3.5, lineHeight: 1, padding: [1.75, 3] }, // total height: 32px
+  xs: { iconSize: 4, fontSize: 3.5, lineHeight: 1.2, padding: [1.5, 3] }, // total height: 32px
   sm: { iconSize: 4, fontSize: 3.5, lineHeight: 1.2, padding: [2, 3] }, // total height: 36px
   base: {
     iconSize: 5,
@@ -30,7 +30,7 @@ const sizes: Record<
     padding: [2.5, 4],
   }, // total height: 40px
   lg: { iconSize: 5, fontSize: 4, lineHeight: 1.25, padding: [2.25, 4.5] }, // total height: 42px
-  xl: { iconSize: 6, fontSize: 4, lineHeight: 1.25, padding: [3, 6] }, // total height: 48px
+  xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [2.5, 6] }, // total height: 48px
 }
 
 export type ButtonProps = StyledComponentProps<
@@ -152,12 +152,10 @@ const getVariantStyles = (variant: Variant) => {
         &:hover:not(:disabled):not([disabled]),
         &:focus {
           text-decoration: underline;
-
           border: solid 2px transparent;
           box-shadow:
             inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
             inset 0 0 0 1px transparent;
-
         }
 
         &:disabled,
