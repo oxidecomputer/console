@@ -43,7 +43,6 @@ const globalStyles = css`
     color: inherit;
     text-decoration: none;
   }
-}
 `
 
 export const GlobalStyle = createGlobalStyle`
