@@ -13,7 +13,7 @@ import {
 
 interface ModalProps {
   title: string
-  icon: IconName
+  icon?: IconName
 
   children: ReactNode
 

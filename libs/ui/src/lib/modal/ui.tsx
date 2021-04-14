@@ -47,15 +47,17 @@ const StyledIcon = styled(Icon)`
   font-size: ${({ theme }) => theme.spacing(12)};
 `
 interface HeaderProps {
-  icon: IconName
+  icon?: IconName
 }
 export const Header: FC<HeaderProps> = ({ icon, children }) => (
   <StyledHeader>
-    <IconContainer>
-      <HeaderIcon>
-        <StyledIcon name={icon} color="green500" />
-      </HeaderIcon>
-    </IconContainer>
+    {icon && (
+      <IconContainer>
+        <HeaderIcon>
+          <StyledIcon name={icon} color="green500" />
+        </HeaderIcon>
+      </IconContainer>
+    )}
     <Text color="green400">{children}</Text>
   </StyledHeader>
 )

@@ -1,7 +1,7 @@
 <!-- Modal.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Modal } from '../Modal'
+import { ConfirmModal } from '../Modal'
 import { Default, AlertStory } from './Modal.stories'
 import { icons } from '../../icon/icons'
 
@@ -11,7 +11,7 @@ import { icons } from '../../icon/icons'
     icon: {
       control: {
         type: 'select',
-        options: Object.keys(icons),
+        options: [null, ...Object.keys(icons)],
       },
     },
   }}
@@ -25,7 +25,7 @@ Modals are used to reveal critical information, show information without losing 
   <Story story={Default} />
 </Canvas>
 
-<ArgsTable of={Modal} story="^" />
+<ArgsTable of={ConfirmModal} story="^" />
 
 ## Design
 
@@ -105,7 +105,7 @@ On small screens where content requires scrolling and the user has to scroll mor
 
 ## Stories
 
-### One Action
+### Alert
 
 <Canvas>
   <Story story={AlertStory} />
