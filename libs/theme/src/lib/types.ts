@@ -1,5 +1,11 @@
 import 'styled-components'
-import type { FlattenInterpolation, ThemeProps } from 'styled-components'
+import type {
+  CSSObject,
+  FlattenInterpolation,
+  FlattenSimpleInterpolation,
+  SimpleInterpolation,
+  ThemeProps,
+} from 'styled-components'
 import type { Color, ColorPalette } from './colors'
 
 // Used as a basis for an CSS helper which relies on a base sizing unit.
@@ -12,6 +18,14 @@ export type Font = 'sans' | 'mono'
 export type SpacingHelper = (
   size: SizingMultiplier
 ) => FlattenInterpolation<ThemeProps<Theme>>
+
+export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
+export type BreakpointHelper = (
+  breakpoint: Breakpoint
+) => (
+  first: CSSObject | TemplateStringsArray,
+  ...args: SimpleInterpolation[]
+) => FlattenSimpleInterpolation
 
 // Our Theme type
 export interface Theme {
@@ -27,6 +41,7 @@ export interface Theme {
   paddingY: SpacingHelper
   marginX: SpacingHelper
   marginY: SpacingHelper
+  breakpoint: BreakpointHelper
 }
 
 // Extend styled-components with our Theme type
