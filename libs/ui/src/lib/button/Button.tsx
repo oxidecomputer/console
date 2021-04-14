@@ -83,10 +83,6 @@ const getVariantStyles = (variant: Variant) => {
         }
 
         &:focus {
-          // background-color: hsla(154, 63%, 56%, 0.16);
-          // box-shadow: 0 0 0 ${({ theme }) => theme.spacing(1)}
-          //   rgba(65, 192, 136, 0.16);
-
           border: solid 2px hsla(154, 63%, 56%, 0.16);
           box-shadow:
             inset 0 0 0 1px ${({ theme }) => theme.themeColors.green400};,
@@ -111,13 +107,6 @@ const getVariantStyles = (variant: Variant) => {
         }
 
         &:focus {
-          // box-shadow: ${({ theme }) => `
-          //   inset 0 0 0 1px ${theme.themeColors.green500},
-          //   0px 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
-          //   0px 0px 0px ${theme.spacing(0.5)} hsla(146, 51%, 64%, 0.16),
-          //   0px 0px 0px ${theme.spacing(1)} hsla(145, 39%, 57%, 0.16)
-          //   `};
-
           border: solid 2px hsla(146, 51%, 64%, 0.16);
           box-shadow:
             inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
