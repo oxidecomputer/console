@@ -24,10 +24,10 @@ tmux split-window
 tmux split-window
 tmux split-window
 
-# db-run inits the db by default
+# run populate explicitly later so we can tell when it's done
 run_in_pane 0 "$UTILS"
 run_in_pane 0 "set_pane_title cockroach"
-run_in_pane 0 "cargo run --bin=omicron_dev -- db-run"
+run_in_pane 0 "cargo run --bin=omicron_dev -- db-run --no-populate"
 
 run_in_pane 1 "$UTILS"
 run_in_pane 1 "set_pane_title nexus"
@@ -44,7 +44,7 @@ run_in_pane 2 "cargo run --bin=sled_agent -- $(uuidgen) 127.0.0.1:12345 127.0.0.
 run_in_pane 3 "$UTILS"
 run_in_pane 3 "set_pane_title 'seed data'"
 run_in_pane 3 "wait_for_up 12345"
-run_in_pane 3 "sleep 5"
+run_in_pane 3 "cargo run --bin=omicron_dev -- db-populate --database-url postgresql://root@127.0.0.1:32221"
 run_in_pane 3 "../console/tools/populate_omicron_data.sh"
 
 tmux attach -t omicron-console
