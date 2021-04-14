@@ -1,11 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuid } from 'uuid'
 
 import { useParams, Link } from 'react-router-dom'
 
-import { useApi, api } from '@oxide/api'
-import { Breadcrumbs, Button, PageHeader, TextWithIcon } from '@oxide/ui'
+import { useApi, api, useAsync } from '@oxide/api'
+import {
+  Breadcrumbs,
+  Button,
+  PageHeader,
+  TextField,
+  TextWithIcon,
+} from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
@@ -13,22 +19,15 @@ const Title = styled(TextWithIcon).attrs({
   icon: { name: 'instances' },
 })``
 
-const createInstance = (projectName: string) =>
-  api.apiProjectInstancesPost({
-    projectName,
-    apiInstanceCreateParams: {
-      bootDiskSize: 1,
-      description: `An instance in project: ${projectName}`,
-      hostname: 'oxide.com',
-      memory: 10,
-      name: `i-${uuid().substr(0, 8)}`,
-      ncpus: 2,
-    },
-  })
-
 type Params = {
   projectName: string
 }
+
+const Box = styled.div`
+  margin-top: 1rem;
+  border: 1px solid white;
+  padding: 1rem;
+`
 
 const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
@@ -36,8 +35,25 @@ const InstancesPage = () => {
   const { projectName } = useParams<Params>()
   const { data, mutate } = useApi('apiProjectInstancesGet', { projectName })
 
+  const [ncpus, setNcpus] = useState('2')
+
+  const createInstance = useAsync(() =>
+    api.apiProjectInstancesPost({
+      projectName,
+      apiInstanceCreateParams: {
+        bootDiskSize: 1,
+        description: `An instance in project: ${projectName}`,
+        hostname: 'oxide.com',
+        memory: 10,
+        name: `i-${uuid().substr(0, 8)}`,
+        // deliberately allow passing strings here to trigger 400s
+        ncpus: /^\d+$/.test(ncpus) ? parseInt(ncpus, 10) : ncpus,
+      },
+    })
+  )
+
   const onCreateClick = async () => {
-    await createInstance(projectName)
+    await createInstance.execute()
     mutate()
   }
 
@@ -59,7 +75,11 @@ const InstancesPage = () => {
         ))}
         {data.items.length === 0 && <p>No instances!</p>}
       </ul>
-      <Button onClick={onCreateClick} style={{ marginTop: '1rem' }}>
+      <Box>Post response: {JSON.stringify(createInstance.value)}</Box>
+      <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
+      <TextField value={ncpus} onChange={(e) => setNcpus(e.target.value)} />
+
+      <Button onClick={onCreateClick} style={{ margin: '1rem' }}>
         Create instance
       </Button>
     </>
