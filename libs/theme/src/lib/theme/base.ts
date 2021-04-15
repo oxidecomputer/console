@@ -2,7 +2,7 @@ import { css } from 'styled-components'
 import type { SpacingHelper, SizingMultiplier, Theme } from '../types'
 import type { Color } from '../colors'
 import { colorDefinitions, colorPalette } from '../colors'
-import { breakpoint } from './breakpoints'
+import { breakpoint } from '../breakpoints'
 
 // TODO: Move these functions to their own modules
 

@@ -1,7 +1,7 @@
 import { css } from 'styled-components'
-import type { Breakpoint, BreakpointHelper } from '../types'
+import type { Breakpoint, BreakpointHelper } from './types'
 
-const breakpoints: Record<Breakpoint, number> = {
+export const breakpoints: Record<Breakpoint, number> = {
   xs: 320,
   sm: 640,
   lg: 1024,
