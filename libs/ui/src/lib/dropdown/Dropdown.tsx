@@ -10,8 +10,9 @@ import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 
-type SizeType = 'xs' | 'sm' | 'lg'
 type OptionType = { value: string; label: string }
+type SizeType = 'xs' | 'sm' | 'lg'
+type VariantType = 'base' | 'green'
 export interface DropdownProps {
   defaultValue?: string
   /**
@@ -32,6 +33,7 @@ export interface DropdownProps {
    */
   showLabel?: boolean
   size?: SizeType
+  variant?: VariantType
 }
 
 const Wrapper = styled.div`
@@ -77,7 +79,12 @@ const getButtonStyles = (size: SizeType) => {
 type ButtonProps = StyledComponentProps<
   'button',
   Theme,
-  { hasPlaceholder: boolean; size: SizeType; showLabel: boolean },
+  {
+    hasPlaceholder: boolean
+    size: SizeType
+    showLabel: boolean
+    variant: VariantType
+  },
   never
 >
 
@@ -91,7 +98,8 @@ const StyledButton = styled.button<ButtonProps>`
   vertical-align: top;
   width: 100%;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${({ theme, variant }) =>
+    variant === 'green' ? theme.color('darkGreen900') : theme.color('gray800')};
   border: none;
   color: ${({ theme }) => theme.color('gray50')};
 
@@ -101,7 +109,10 @@ const StyledButton = styled.button<ButtonProps>`
   ${({ size }) => getButtonStyles(size)};
 
   &:hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${({ theme, variant }) =>
+      variant === 'green'
+        ? theme.color('darkGreen800')
+        : theme.color('gray700')};
   }
 
   &:focus {
@@ -234,6 +245,7 @@ export const Dropdown: FC<DropdownProps> = ({
   placeholder,
   showLabel = true,
   size = 'sm',
+  variant = 'base',
 }) => {
   const itemToString = (item: OptionType | null) => (item ? item.label : '')
   const select = useSelect({
@@ -284,6 +296,7 @@ export const Dropdown: FC<DropdownProps> = ({
         hasPlaceholder={select.selectedItem ? false : true}
         showLabel={showLabel}
         size={size}
+        variant={variant}
         {...ariaProps}
       >
         {renderButtonText}

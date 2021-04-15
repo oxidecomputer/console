@@ -180,6 +180,7 @@ export const RadioField: FC<RadioFieldProps> = ({
   const defaultDropdownProps = {
     showLabel: false,
     size: 'xs',
+    variant: 'green',
   }
   const renderDropdown =
     variant === 'card-menu' ? (
