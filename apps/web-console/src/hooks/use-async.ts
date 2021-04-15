@@ -15,9 +15,12 @@ export function useAsync<R>(asyncFunction: () => Promise<R>) {
     try {
       const response = await asyncFunction()
       setData(response)
-    } catch (error) {
-      const body = await error.json()
-      setError(body)
+    } catch (errorResponse) {
+      const error =
+        typeof errorResponse.json === 'function'
+          ? await errorResponse.json()
+          : errorResponse
+      setError(error)
     } finally {
       setPending(false)
     }
