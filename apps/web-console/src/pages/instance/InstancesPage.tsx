@@ -40,6 +40,12 @@ const InstancesPage = () => {
         ))}
         {data.items.length === 0 && <p>No instances!</p>}
       </ul>
+      <Link
+        style={{ marginTop: '1rem' }}
+        to={`/projects/${projectName}/instances/new`}
+      >
+        Create instance
+      </Link>
     </>
   )
 }
