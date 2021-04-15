@@ -76,7 +76,7 @@ const getVariantStyles = (variant: Variant) => {
       return css`
         background-color: hsla(154, 50%, 50%, 0.16);
         color: ${({ theme }) => theme.themeColors.green400};
-        border: solid 2px hsla(154, 50%, 50%, 0.16);
+        border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: hsla(153, 63%, 69%, 0.24);
