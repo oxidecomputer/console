@@ -4,6 +4,7 @@ import { useAsync } from './use-async'
 describe('useAsync', () => {
   it('starts with null data, null error, and pending false', () => {
     const { result } = renderHook(() => useAsync(() => Promise.resolve(1)))
+
     expect(result.current.data).toBeNull()
     expect(result.current.error).toBeNull()
     expect(result.current.pending).toBe(false)
@@ -16,9 +17,11 @@ describe('useAsync', () => {
     act(() => {
       result.current.execute()
     })
+
     expect(result.current.pending).toBe(true)
     expect(result.current.data).toBeNull()
     expect(result.current.error).toBeNull()
+
     await waitForNextUpdate()
   })
 
@@ -30,6 +33,7 @@ describe('useAsync', () => {
       result.current.execute()
     })
     await waitForNextUpdate()
+
     expect(result.current.data).toBe(1)
     expect(result.current.error).toBeNull()
     expect(result.current.pending).toBe(false)
@@ -43,6 +47,7 @@ describe('useAsync', () => {
       result.current.execute()
     })
     await waitForNextUpdate()
+
     expect(result.current.error).toBe(1)
     expect(result.current.data).toBeNull()
     expect(result.current.pending).toBe(false)
