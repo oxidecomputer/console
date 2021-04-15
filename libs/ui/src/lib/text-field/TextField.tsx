@@ -29,7 +29,7 @@ export type TextFieldProps = StyledComponentProps<
      * Additional text to associate with this specific field
      */
     hint?: string | React.ReactNode
-    onChange?: ReactEventHandler
+    onChange?: ReactEventHandler<HTMLInputElement>
     value?: string | number
   },
   never

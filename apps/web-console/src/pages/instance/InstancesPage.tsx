@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuid } from 'uuid'
@@ -77,9 +78,23 @@ const InstancesPage = () => {
       </ul>
       <Box>Post response: {JSON.stringify(createInstance.value)}</Box>
       <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
-      <TextField value={ncpus} onChange={(e) => setNcpus(e.target.value)} />
+      <div style={{ marginTop: '1rem' }}>
+        <TextField
+          value={ncpus}
+          required
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setNcpus(e.target.value)
+          }
+        >
+          Number of CPUs
+        </TextField>
+      </div>
 
-      <Button onClick={onCreateClick} style={{ margin: '1rem' }}>
+      <Button
+        onClick={onCreateClick}
+        style={{ marginTop: '1rem' }}
+        disabled={createInstance.isPending}
+      >
         Create instance
       </Button>
     </>
