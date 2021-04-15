@@ -66,7 +66,7 @@ const InstancesPage = () => {
 
   const onCreateClick = async () => {
     // TODO: validate client-side before attempting post
-    await createInstance.execute()
+    await createInstance.run()
   }
 
   // redirect on successful post

@@ -10,7 +10,7 @@ interface ResponseError {
 }
 
 interface AsyncResult<R> {
-  execute: () => Promise<void>
+  run: () => Promise<void>
   pending: boolean
   data: R | null
   error: ResponseError | null
@@ -21,7 +21,7 @@ export function useAsync<R>(asyncFunction: () => Promise<R>): AsyncResult<R> {
   const [data, setData] = useState<R | null>(null)
   const [error, setError] = useState<ResponseError | null>(null)
 
-  const execute = async () => {
+  const run = async () => {
     setPending(true)
     setData(null)
     setError(null)
@@ -40,5 +40,5 @@ export function useAsync<R>(asyncFunction: () => Promise<R>): AsyncResult<R> {
     }
   }
 
-  return { execute, pending, data, error }
+  return { run, pending, data, error }
 }

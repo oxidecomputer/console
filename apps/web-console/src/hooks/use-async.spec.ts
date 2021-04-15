@@ -15,7 +15,7 @@ describe('useAsync', () => {
       useAsync(() => Promise.resolve(1))
     )
     act(() => {
-      result.current.execute()
+      result.current.run()
     })
 
     expect(result.current.pending).toBe(true)
@@ -30,7 +30,7 @@ describe('useAsync', () => {
       useAsync(() => Promise.resolve(1))
     )
     act(() => {
-      result.current.execute()
+      result.current.run()
     })
     await waitForNextUpdate()
 
@@ -44,7 +44,7 @@ describe('useAsync', () => {
       useAsync(() => Promise.reject(1))
     )
     act(() => {
-      result.current.execute()
+      result.current.run()
     })
     await waitForNextUpdate()
 
