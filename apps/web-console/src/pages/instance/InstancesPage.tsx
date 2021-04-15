@@ -36,6 +36,8 @@ const InstancesPage = () => {
   const { projectName } = useParams<Params>()
   const { data, mutate } = useApi('apiProjectInstancesGet', { projectName })
 
+  // form state
+  const [instanceName, setInstanceName] = useState('db1')
   const [ncpus, setNcpus] = useState('2')
 
   const createInstance = useAsync(() =>
@@ -46,7 +48,7 @@ const InstancesPage = () => {
         description: `An instance in project: ${projectName}`,
         hostname: 'oxide.com',
         memory: 10,
-        name: `i-${uuid().substr(0, 8)}`,
+        name: instanceName,
         // deliberately allow passing strings here to trigger 400s
         ncpus: /^\d+$/.test(ncpus) ? parseInt(ncpus, 10) : ncpus,
       },
@@ -78,6 +80,17 @@ const InstancesPage = () => {
       </ul>
       <Box>Post response: {JSON.stringify(createInstance.result)}</Box>
       <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
+      <div style={{ marginTop: '1rem' }}>
+        <TextField
+          value={instanceName}
+          required
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setInstanceName(e.target.value)
+          }
+        >
+          Instance name
+        </TextField>
+      </div>
       <div style={{ marginTop: '1rem' }}>
         <TextField
           value={ncpus}
