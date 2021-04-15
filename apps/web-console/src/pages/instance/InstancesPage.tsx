@@ -76,7 +76,7 @@ const InstancesPage = () => {
         ))}
         {data.items.length === 0 && <p>No instances!</p>}
       </ul>
-      <Box>Post response: {JSON.stringify(createInstance.value)}</Box>
+      <Box>Post response: {JSON.stringify(createInstance.result)}</Box>
       <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
       <div style={{ marginTop: '1rem' }}>
         <TextField
@@ -93,7 +93,7 @@ const InstancesPage = () => {
       <Button
         onClick={onCreateClick}
         style={{ marginTop: '1rem' }}
-        disabled={createInstance.isPending}
+        disabled={createInstance.pending}
       >
         Create instance
       </Button>
