@@ -166,9 +166,9 @@ const getVariantStyles = (variant: Variant) => {
     case 'solid':
     default:
       return css`
-        background-color: ${({ theme }) => theme.themeColors.green500};
+        background-color: ${({ theme }) => theme.themeColors.green600};
         color: ${({ theme }) => theme.themeColors.green50};
-        border: solid 2px ${({ theme }) => theme.themeColors.green500};
+        border: solid 2px ${({ theme }) => theme.themeColors.green600};
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: ${({ theme }) => theme.themeColors.green700};
@@ -176,10 +176,10 @@ const getVariantStyles = (variant: Variant) => {
         }
 
         &:focus {
-          border: solid 2px ${({ theme }) => theme.themeColors.green500};
+          border: solid 2px ${({ theme }) => theme.themeColors.green600};
           box-shadow:
             inset 0 0 0 1px ${({ theme }) => theme.themeColors.white};,
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green500};
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green600};
         }
 
         &:disabled,
