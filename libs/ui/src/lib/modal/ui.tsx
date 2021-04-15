@@ -18,12 +18,24 @@ interface ModalContainerProps {
 }
 
 export const Container = styled.div<ModalContainerProps>`
-  background: ${({ theme }) => theme.color('black')};
+  display: flex;
+  flex-direction: column;
 
-  width: calc(100vw / ${({ width }) => width});
+  width: 100%;
+
+  ${({ theme, width }) => theme.breakpoint('lg')`
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0 auto;
+    background: ${theme.color('black')};
+
+    width: calc(100vw / ${width});
+  `};
 `
 
 const StyledHeader = styled.header`
+  flex: 0 0 auto;
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -64,7 +76,13 @@ interface BodyProps {
   children: ReactNode
 }
 const StyledBody = styled.main`
+  flex: 1;
+
   padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
+
+  ${({ theme }) => theme.breakpoint('lg')`
+    flex: 0 0 auto; 
+  `}
 `
 export const Body: FC = ({ children }) => <StyledBody>{children}</StyledBody>
 
