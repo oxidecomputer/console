@@ -27,12 +27,6 @@ import {
  */
 export interface ApiInstanceView1 {
   /**
-   * A count of bytes, typically used either for memory or storage capacity
-   * @type {number}
-   * @memberof ApiInstanceView1
-   */
-  bootDiskSize: number
-  /**
    * human-readable free-form text about a resource
    * @type {string}
    * @memberof ApiInstanceView1
@@ -52,6 +46,8 @@ export interface ApiInstanceView1 {
   id: string
   /**
    * A count of bytes, typically used either for memory or storage capacity
+   *
+   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
    * @memberof ApiInstanceView1
    */
@@ -112,7 +108,6 @@ export function ApiInstanceView1FromJSONTyped(
     return json
   }
   return {
-    bootDiskSize: json['bootDiskSize'],
     description: json['description'],
     hostname: json['hostname'],
     id: json['id'],
@@ -135,7 +130,6 @@ export function ApiInstanceView1ToJSON(value?: ApiInstanceView1 | null): any {
     return null
   }
   return {
-    bootDiskSize: value.bootDiskSize,
     description: value.description,
     hostname: value.hostname,
     id: value.id,

@@ -50,12 +50,6 @@ export interface ApiDiskAttachment1 {
    * @memberof ApiDiskAttachment1
    */
   instanceId: string
-  /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
-   * @type {string}
-   * @memberof ApiDiskAttachment1
-   */
-  instanceName: string
 }
 
 export function ApiDiskAttachment1FromJSON(json: any): ApiDiskAttachment1 {
@@ -74,7 +68,6 @@ export function ApiDiskAttachment1FromJSONTyped(
     diskName: json['diskName'],
     diskState: ApiDiskStateFromJSON(json['diskState']),
     instanceId: json['instanceId'],
-    instanceName: json['instanceName'],
   }
 }
 
@@ -92,6 +85,5 @@ export function ApiDiskAttachment1ToJSON(
     diskName: value.diskName,
     diskState: ApiDiskStateToJSON(value.diskState),
     instanceId: value.instanceId,
-    instanceName: value.instanceName,
   }
 }
