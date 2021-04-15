@@ -100,8 +100,8 @@ export const Tabs: FC<TabsProps> = ({
   const handleKeydown: EventHandler<KeyboardEvent<HTMLButtonElement>> = (
     event
   ) => {
-    const { keyCode } = event
-    switch (keyCode) {
+    const { key } = event
+    switch (key) {
       case KEYS.end:
         event.preventDefault()
         // Activate last tab
@@ -124,16 +124,16 @@ export const Tabs: FC<TabsProps> = ({
   const handleKeyup = (
     index: number
   ): EventHandler<KeyboardEvent<HTMLButtonElement>> => (event) => {
-    const { keyCode } = event
+    const { key } = event
 
-    switch (keyCode) {
+    switch (key) {
       case KEYS.left:
       case KEYS.right:
         event.preventDefault()
         // Either focus the next, previous, first, or last tab, depending on key pressed
-        if (DIRECTION[keyCode]) {
+        if (DIRECTION[key]) {
           // Modulus allows the end to circle to the beginning
-          const next = (index + DIRECTION[keyCode]) % tabs.length
+          const next = (index + DIRECTION[key]) % tabs.length
           // Circle from beginning to end
           if (next === -1) {
             // focus the last item

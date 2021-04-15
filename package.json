@@ -17,6 +17,7 @@
   },
   "private": true,
   "dependencies": {
+    "@popperjs/core": "^2.9.2",
     "core-js": "^3.6.5",
     "document-register-element": "1.13.1",
     "downshift": "^6.1.2",
@@ -24,6 +25,7 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-is": "17.0.1",
+    "react-popper": "^2.2.5",
     "react-router-dom": "^5.2.0",
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
