@@ -8,22 +8,19 @@ import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
 
 interface ModalContainerProps {
+  width: number
+
   children: [
     ReactElement<HeaderProps>,
     ReactElement<BodyProps>,
     ReactElement<ActionsProps>
   ]
 }
-export const TwoButtonModal = styled.div<ModalContainerProps>`
+
+export const Container = styled.div<ModalContainerProps>`
   background: ${({ theme }) => theme.color('black')};
 
-  width: calc(100vw / 3);
-`
-
-export const OneButtonModal = styled.div<ModalContainerProps>`
-  background: ${({ theme }) => theme.color('black')};
-
-  width: calc(100vw / 4);
+  width: calc(100vw / ${({ width }) => width});
 `
 
 const StyledHeader = styled.header`
