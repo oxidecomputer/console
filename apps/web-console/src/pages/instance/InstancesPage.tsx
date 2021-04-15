@@ -1,18 +1,10 @@
-import type { ChangeEvent } from 'react'
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { v4 as uuid } from 'uuid'
 
 import { useParams, Link } from 'react-router-dom'
 
-import { useApi, api, useAsync } from '@oxide/api'
-import {
-  Breadcrumbs,
-  Button,
-  PageHeader,
-  TextField,
-  TextWithIcon,
-} from '@oxide/ui'
+import { useApi } from '@oxide/api'
+import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
@@ -24,41 +16,11 @@ type Params = {
   projectName: string
 }
 
-const Box = styled.div`
-  margin-top: 1rem;
-  border: 1px solid white;
-  padding: 1rem;
-`
-
 const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data, mutate } = useApi('apiProjectInstancesGet', { projectName })
-
-  // form state
-  const [instanceName, setInstanceName] = useState('db1')
-  const [ncpus, setNcpus] = useState('2')
-
-  const createInstance = useAsync(() =>
-    api.apiProjectInstancesPost({
-      projectName,
-      apiInstanceCreateParams: {
-        bootDiskSize: 1,
-        description: `An instance in project: ${projectName}`,
-        hostname: 'oxide.com',
-        memory: 10,
-        name: instanceName,
-        // deliberately allow passing strings here to trigger 400s
-        ncpus: /^\d+$/.test(ncpus) ? parseInt(ncpus, 10) : ncpus,
-      },
-    })
-  )
-
-  const onCreateClick = async () => {
-    await createInstance.execute()
-    mutate()
-  }
+  const { data } = useApi('apiProjectInstancesGet', { projectName })
 
   if (!data) return <div>loading</div>
 
@@ -78,38 +40,12 @@ const InstancesPage = () => {
         ))}
         {data.items.length === 0 && <p>No instances!</p>}
       </ul>
-      <Box>Post response: {JSON.stringify(createInstance.result)}</Box>
-      <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
-      <div style={{ marginTop: '1rem' }}>
-        <TextField
-          value={instanceName}
-          required
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInstanceName(e.target.value)
-          }
-        >
-          Instance name
-        </TextField>
-      </div>
-      <div style={{ marginTop: '1rem' }}>
-        <TextField
-          value={ncpus}
-          required
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setNcpus(e.target.value)
-          }
-        >
-          Number of CPUs
-        </TextField>
-      </div>
-
-      <Button
-        onClick={onCreateClick}
+      <Link
         style={{ marginTop: '1rem' }}
-        disabled={createInstance.pending}
+        to={`/projects/${projectName}/instances/new`}
       >
         Create instance
-      </Button>
+      </Link>
     </>
   )
 }
