@@ -27,9 +27,13 @@ const Title = styled(TextWithIcon).attrs({
 `
 
 const Box = styled.div`
-  margin-top: 1rem;
   border: 1px solid white;
   padding: 1rem;
+`
+
+const FormContainer = styled.div`
+  margin-top: ${({ theme }) => theme.spacing(4)};
+  ${({ theme }) => theme.spaceBetweenY(4)}
 `
 
 type Params = {
@@ -78,8 +82,8 @@ const InstancesPage = () => {
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>
-      <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
-      <div style={{ marginTop: '1rem' }}>
+      <FormContainer>
+        <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
         <TextField
           value={instanceName}
           required
@@ -90,20 +94,14 @@ const InstancesPage = () => {
         >
           Instance name
         </TextField>
-      </div>
-      <div style={{ marginTop: '1rem' }}>
-        <NumberField value={ncpus} required handleChange={setNcpus}>
+        <NumberField value={ncpus} handleChange={setNcpus}>
           Number of CPUs
         </NumberField>
-      </div>
 
-      <Button
-        onClick={onCreateClick}
-        style={{ marginTop: '1rem' }}
-        disabled={createInstance.pending}
-      >
-        Create instance
-      </Button>
+        <Button onClick={onCreateClick} disabled={createInstance.pending}>
+          Create instance
+        </Button>
+      </FormContainer>
     </>
   )
 }

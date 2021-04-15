@@ -76,6 +76,7 @@ export const NumberField: FC<NumberFieldProps> = ({
       onChange={onChange}
       pattern="[0-9]*"
       value={value}
+      required
       rightAccessory={
         <FieldControls>
           <Control onClick={onDecrement}>
