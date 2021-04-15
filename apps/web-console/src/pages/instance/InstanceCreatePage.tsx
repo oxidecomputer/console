@@ -67,10 +67,10 @@ const InstancesPage = () => {
 
   // redirect on successful post
   useEffect(() => {
-    if (createInstance.result) {
+    if (createInstance.data) {
       history.push(`/projects/${projectName}/instances`)
     }
-  }, [createInstance.result, history, projectName])
+  }, [createInstance.data, history, projectName])
 
   return (
     <>

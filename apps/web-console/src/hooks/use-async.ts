@@ -4,17 +4,17 @@ import { useState } from 'react'
 
 export function useAsync<R>(asyncFunction: () => Promise<R>) {
   const [pending, setPending] = useState(false)
-  const [result, setResult] = useState<R | null>(null)
+  const [data, setData] = useState<R | null>(null)
   const [error, setError] = useState<any>(null)
 
   const execute = async () => {
     setPending(true)
-    setResult(null)
+    setData(null)
     setError(null)
 
     try {
       const response = await asyncFunction()
-      setResult(response)
+      setData(response)
     } catch (error) {
       const body = await error.json()
       setError(body)
@@ -23,5 +23,5 @@ export function useAsync<R>(asyncFunction: () => Promise<R>) {
     }
   }
 
-  return { execute, pending, result, error }
+  return { execute, pending, data, error }
 }
