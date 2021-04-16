@@ -75,7 +75,7 @@ export const Header: FC<HeaderProps> = ({ icon, children }) => (
 interface BodyProps {
   children: ReactNode
 }
-const StyledBody = styled.main`
+const StyledBody = styled(Text).attrs({ as: 'main', size: 'sm' })`
   flex: 1;
 
   padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
