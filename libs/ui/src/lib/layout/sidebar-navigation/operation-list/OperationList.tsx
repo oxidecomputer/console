@@ -1,3 +1,4 @@
+import type { FC } from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
@@ -87,9 +88,13 @@ const SubItemTitle = styled(BaseText).attrs({
     `}
 `
 
-export const OperationList = () => {
+export interface OperationListProps {
+  className?: string
+}
+
+export const OperationList: FC<OperationListProps> = ({ className }) => {
   return (
-    <nav>
+    <nav className={className}>
       <Header>
         <HeaderText>Operations</HeaderText>
       </Header>

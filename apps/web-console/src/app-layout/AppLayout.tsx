@@ -27,8 +27,6 @@ const Sidebar = styled.div`
   margin-right: ${({ theme }) => theme.spacing(4)};
   margin-bottom: ${({ theme }) => theme.spacing(6)};
   overflow: auto;
-
-  ${({ theme }) => theme.spaceBetweenY(6)};
 `
 
 const WordmarkWrapper = styled.div`
@@ -55,6 +53,14 @@ const GlobalNavContainer = styled.header`
   background-color: ${({ theme }) => theme.color('gray900')};
 `
 
+const StyledProjectList = styled(ProjectList)`
+  margin-top: ${({ theme }) => theme.spacing(1)};
+`
+
+const StyledOperationList = styled(OperationList)`
+  margin-top: ${({ theme }) => theme.spacing(6)};
+`
+
 export default ({ children }: AppLayoutProps) => {
   const { data: projects } = useApi('apiProjectsGet', {})
 
@@ -65,8 +71,8 @@ export default ({ children }: AppLayoutProps) => {
       </WordmarkWrapper>
       <Sidebar>
         {/* TODO: this causes pop-in when the request comes back */}
-        <ProjectList projects={projects?.items || []} />
-        <OperationList />
+        <StyledProjectList projects={projects?.items || []} />
+        <StyledOperationList />
       </Sidebar>
       <GlobalNavContainer>
         <GlobalNav />

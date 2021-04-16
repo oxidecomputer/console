@@ -11,6 +11,7 @@ import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 
 export interface ProjectListProps {
+  className?: string
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
 }
@@ -19,11 +20,11 @@ const baseTextProps: Partial<TextProps> = {
   size: 'sm',
 }
 
-const StyledProjectList = styled.div`
+const StyledProjectList = styled.section`
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
-const Row = styled.section`
+const Row = styled.div`
   padding: ${({ theme }) => theme.spacing(1)};
 `
 
@@ -98,7 +99,7 @@ const CreateText = styled(TextWithIcon).attrs({
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
-    <StyledProjectList>
+    <StyledProjectList className={props.className}>
       <Header>
         <HeaderText>Projects</HeaderText>
         <Count>{props.projects.length}</Count>
