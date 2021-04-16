@@ -88,7 +88,7 @@ const StyledLegend = styled(Text).attrs({
   display: block;
   width: 100%;
 
-  ${hideLegend && visuallyHiddenCss};
+  ${({ hideLegend }) => hideLegend && visuallyHiddenCss};
 `
 
 export const RadioGroup: FC<RadioGroupProps> = ({
