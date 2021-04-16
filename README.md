@@ -74,13 +74,7 @@ set -g mouse on
 <details>
 <summary>Running without tmux</summary>
 
-If you don't want to use tmux, make sure you've done the above setup and then run each of the following in its own terminal window (in order — the sled agent depends on nexus, and the populate script depends on the sled agent):
-
-```
-cargo run --bin=nexus -- examples/config.toml
-cargo run --bin=sled_agent -- $(uuidgen) 127.0.0.1:12345 127.0.0.1:12221
-../console/tools/populate_omicron_data.sh
-```
+Using the script is strongly recommended, but if you really don't want to, make sure you've done the above setup and then run the commands in `tools/start_api.sh` in separate terminal windows in the same order they are run in that script. Note the dependencies indicated by the `wait_for_up` commands.
 
 </details>
 

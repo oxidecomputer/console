@@ -7,7 +7,7 @@ sudo docker run --rm -i \
 	--hostname=nexus \
 	--net host \
 	-v "/etc/omicron/config.toml:/etc/omicron/config.toml:ro"  \
-	--entrypoint=omicron_dev \
+	--entrypoint=omicron-dev \
 	ghcr.io/oxidecomputer/omicron:"$API_VERSION" \
 		db-populate --database-url "postgresql://root@0.0.0.0:26257/omicron?sslmode=disable"
 # Run nexus.
@@ -27,6 +27,6 @@ sudo docker run -d \
 	--name=sled-agent \
 	--hostname=sled-agent \
 	--net host \
-	--entrypoint=sled_agent \
+	--entrypoint=sled-agent \
 	ghcr.io/oxidecomputer/omicron:"$API_VERSION" \
 		$(uuidgen) 0.0.0.0:12345 0.0.0.0:12221
