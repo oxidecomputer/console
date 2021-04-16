@@ -6,6 +6,7 @@ import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
+import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
@@ -94,13 +95,7 @@ const FilledRadio = styled(Icon)`
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
-  position: absolute !important;
-  overflow: hidden !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  clip: rect(1px, 1px, 1px, 1px) !important;
+  ${visuallyHiddenCss};
 
   &:checked + ${IconWrapper} {
     ${EmptyRadio} {

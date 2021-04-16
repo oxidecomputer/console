@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
 import { Text } from '../text/Text'
+import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
@@ -17,6 +18,11 @@ export interface RadioGroupProps {
    * Set direction or layout of radio buttons. Defaults to column.
    */
   direction?: Direction
+  handleChange: (value: string) => void
+  /**
+   * Hide legend from sighted users.
+   */
+  hideLegend?: boolean
   /**
    * Required. Description of radio buttons. Helpful for accessibility.
    */
@@ -25,7 +31,6 @@ export interface RadioGroupProps {
    * Required.
    */
   name: string
-  handleChange: (value: string) => void
   /**
    * Set whether radio group is optional or not.
    */
@@ -79,17 +84,20 @@ const StyledLegend = styled(Text).attrs({
   as: 'legend',
   color: 'white',
   size: 'lg',
-})`
+})<{ hideLegend: boolean }>`
   display: block;
   width: 100%;
+
+  ${hideLegend && visuallyHiddenCss};
 `
 
 export const RadioGroup: FC<RadioGroupProps> = ({
-  children,
   checked,
+  children,
   direction = 'column',
-  legend,
   handleChange,
+  hideLegend = false,
+  legend,
   name,
   required = false,
 }) => {
@@ -99,7 +107,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   }
   return (
     <StyledFieldset direction={direction}>
-      <StyledLegend>{legend}</StyledLegend>
+      <StyledLegend hideLegend={hideLegend}>{legend}</StyledLegend>
       {React.Children.map(children, (radioField) => {
         const isChecked = checked === radioField.props.value
         // Render controlled inputs with checked state
