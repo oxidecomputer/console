@@ -10,6 +10,8 @@ import {
   Icon,
   PageHeader,
   NumberField,
+  RadioField,
+  Tabs,
   TextField,
   TextWithIcon,
 } from '@oxide/ui'
@@ -31,7 +33,7 @@ const Box = styled.div`
   padding: 1rem;
 `
 
-const FormContainer = styled.div`
+const Form = styled.form`
   margin-top: ${({ theme }) => theme.spacing(4)};
   ${({ theme }) => theme.spaceBetweenY(4)}
 `
@@ -82,7 +84,13 @@ const InstancesPage = () => {
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>
-      <FormContainer>
+      <Form>
+        <Tabs label="Choose an image" tabs={["Distributions", "Custom Images"]}>
+          <div>hello</div>
+          <div>hello</div>
+        </Tabs>
+
+
         <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
         <TextField
           value={instanceName}
@@ -101,7 +109,7 @@ const InstancesPage = () => {
         <Button onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
         </Button>
-      </FormContainer>
+      </Form>
     </>
   )
 }
