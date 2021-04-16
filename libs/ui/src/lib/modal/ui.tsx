@@ -8,6 +8,9 @@ import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
 
 interface ModalContainerProps {
+  /**
+   * Determines the width of the screen for the modal to take, should be a value between 0 and 1.
+   */
   widthPercentage: number
 
   children: [
@@ -23,14 +26,18 @@ export const Container = styled.div<ModalContainerProps>`
 
   width: 100%;
 
-  ${({ theme, width }) => theme.breakpoint('lg')`
+  ${({ theme }) => theme.breakpoint('sm')`
     flex: 0 0 auto;
     align-self: center;
     margin: 0 auto;
     background: ${theme.color('black')};
 
-    width: calc(100vw * ${width}%);
+    width: 50vw;
   `};
+
+  ${({ theme, widthPercentage }) => theme.breakpoint('lg')`
+    width: calc(100vw * ${widthPercentage}); 
+  `}
 `
 
 const StyledHeader = styled.header`
@@ -80,7 +87,7 @@ const StyledBody = styled(Text).attrs({ as: 'main', size: 'sm' })`
 
   padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
 
-  ${({ theme }) => theme.breakpoint('lg')`
+  ${({ theme }) => theme.breakpoint('sm')`
     flex: 0 0 auto; 
   `}
 `
