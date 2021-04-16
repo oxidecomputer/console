@@ -29,7 +29,7 @@ export type TextFieldProps = StyledComponentProps<
      * Additional text to associate with this specific field
      */
     hint?: string | React.ReactNode
-    onChange?: ReactEventHandler
+    onChange?: ReactEventHandler<HTMLInputElement>
     value?: string | number
   },
   never
@@ -55,6 +55,7 @@ const Label = styled(Text).attrs({
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: baseline;
 
   padding-bottom: ${({ theme }) => theme.spacing(1)};
 `

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # generally you don't want to run this manually. it's meant to be used by
 # start_api.sh. if you do run it manually, note that it's meant to be run
 # from inside the omicron repo and it assumes nexus and sled agent are running
@@ -23,4 +25,4 @@
 ./tools/oxapi_demo instance_attach_disk prod-online db1 grafana-state
 ./tools/oxapi_demo instance_attach_disk prod-online db1 vault
 
-echo "\n==== API DATA POPULATED ====\n"
+echo -e "\n==== API DATA POPULATED ====\n"
