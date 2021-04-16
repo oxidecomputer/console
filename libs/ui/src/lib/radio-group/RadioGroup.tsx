@@ -23,6 +23,7 @@ export interface RadioGroupProps {
    * Hide legend from sighted users.
    */
   hideLegend?: boolean
+  hint?: string
   /**
    * Required. Description of radio buttons. Helpful for accessibility.
    */
@@ -91,11 +92,16 @@ const StyledLegend = styled(Text).attrs({
   ${({ hideLegend }) => hideLegend && visuallyHiddenCss};
 `
 
+const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
+  display: block;
+`
+
 export const RadioGroup: FC<RadioGroupProps> = ({
   checked,
   children,
   direction = 'column',
   handleChange,
+  hint,
   hideLegend = false,
   legend,
   name,
@@ -108,9 +114,10 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   return (
     <StyledFieldset direction={direction}>
       <StyledLegend hideLegend={hideLegend}>{legend}</StyledLegend>
+      {hint ? <HintText>{hint}</HintText> : null}
       {React.Children.map(children, (radioField) => {
         const isChecked = checked === radioField.props.value
-        // Render controlled inputs with checked state
+        // Render cinontrolled inputs with checked state
         // Add name prop to group them semantically and add event listener
         return React.cloneElement(radioField, {
           name: name,

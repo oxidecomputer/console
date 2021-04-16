@@ -17,6 +17,7 @@ import {
   TextField,
   TextWithIcon,
 } from '@oxide/ui'
+import type { RadioFieldProps } from '@oxide/ui'
 import { useBreadcrumbs, useAsync } from '../../hooks'
 import { api } from '@oxide/api'
 
@@ -43,13 +44,27 @@ const Form = styled.form`
 `
 
 const StyledText = styled(Text).attrs({
-  as: 'legend',
   color: 'white',
   size: 'lg',
-})``
+})`
+  display: block;
+
+  margin-top: ${({ theme }) => theme.spacing(8)};
+
+  &:first-child {
+    margin-top: 0;
+  }
+`
 
 const StyledTabs = styled(Tabs)`
   margin-top: ${({ theme }) => theme.spacing(1)};
+`
+
+const RadioFieldText = styled(Text).attrs({
+  color: 'green50',
+  size: 'base',
+})`
+  display: block;
 `
 
 type Params = {
@@ -65,8 +80,8 @@ const InstancesPage = () => {
   // form state
   const [instanceName, setInstanceName] = useState('')
   const [ncpus, setNcpus] = useState(1)
-  const [imageField, setImageField] = useState('centos')
-  const [distributionField, setDistributionField] = useState('custom-centos')
+  const [imageField, setImageField] = useState('')
+  const [cpuRamField, setCpuRamField] = useState('')
 
   const createInstance = useAsync(() =>
     api.apiProjectInstancesPost({
@@ -84,6 +99,11 @@ const InstancesPage = () => {
 
   const onCreateClick = async () => {
     // TODO: validate client-side before attempting post
+    const fields = {
+      image: imageField,
+      cpuRam: cpuRamField,
+    }
+    console.log('Create instance with these fields:', fields)
     await createInstance.run()
   }
 
@@ -94,6 +114,15 @@ const InstancesPage = () => {
     }
   }, [createInstance.data, history, projectName])
 
+  const renderRadioFields = (data: RadioFieldProps[]) =>
+    data.map((option) => {
+      return (
+        <RadioField key={option.value} value={option.value} variant="card">
+          {option.children}
+        </RadioField>
+      )
+    })
+
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
@@ -103,52 +132,93 @@ const InstancesPage = () => {
       <Form>
         <StyledText>Choose an image</StyledText>
         <StyledTabs
-          label="Choose an existing distribution or a custom image"
+          label="Choose an image"
           tabs={['Distributions', 'Custom Images']}
         >
-          <div>
-            <RadioGroup
-              hideLegend
-              legend="Choose a distribution"
-              checked={distributionField}
-              handleChange={setDistributionField}
-              direction="fixed-row"
-              name="distributions"
-            >
-              <RadioField value="centos" variant="card">
-                CentOS
-              </RadioField>
-              <RadioField value="debian" variant="card">
-                Debian
-              </RadioField>
-              <RadioField value="fedora" variant="card">
-                Fedora
-              </RadioField>
-            </RadioGroup>
-          </div>
-          <div>
-            <RadioGroup
-              hideLegend
-              legend="Choose a custom image"
-              checked={imageField}
-              handleChange={setImageField}
-              direction="fixed-row"
-              name="custom-image"
-            >
-              <RadioField value="custom-centos" variant="card">
-                CentOS Custom Image
-              </RadioField>
-              <RadioField value="custom-debian" variant="card">
-                Debian Custom Image
-              </RadioField>
-              <RadioField value="custom-fedora" variant="card">
-                Fedora Custom Image
-              </RadioField>
-            </RadioGroup>
-          </div>
+          <RadioGroup
+            hideLegend
+            legend="Choose a distribution"
+            checked={imageField}
+            handleChange={setImageField}
+            direction="fixed-row"
+            name="distributions"
+          >
+            {renderRadioFields([
+              { value: 'centos', children: 'CentOS' },
+              { value: 'debian', children: 'Debian' },
+              { value: 'fedora', children: 'Fedora' },
+              { value: 'freeBsd', children: 'FreeBSD' },
+              { value: 'ubuntu', children: 'Ubuntu' },
+              { value: 'windows1', children: 'Windows' },
+              { value: 'windows2', children: 'Windows' },
+            ])}
+          </RadioGroup>
+          <RadioGroup
+            hideLegend
+            legend="Choose a custom image"
+            checked={imageField}
+            handleChange={setImageField}
+            direction="fixed-row"
+            name="custom-image"
+          >
+            {renderRadioFields([
+              { value: 'custom-centos', children: 'Custom CentOS' },
+              { value: 'custom-debian', children: 'Custom Debian' },
+              { value: 'custom-fedora', children: 'Custom Fedora' },
+            ])}
+          </RadioGroup>
         </StyledTabs>
-
-        <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
+        <StyledText>Choose CPUs and RAM</StyledText>
+        <StyledTabs
+          label="Choose CPUs and RAM"
+          tabs={[
+            'General purpose',
+            'CPU-Optimized',
+            'Memory-Optimized',
+            'Storage-Optimized',
+            'Custom',
+          ]}
+        >
+          <RadioGroup
+            hideLegend
+            legend="Choose a general purpose instance"
+            hint="General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases."
+            checked={cpuRamField}
+            handleChange={setCpuRamField}
+            direction="fixed-row"
+            name="distributions"
+          >
+            {renderRadioFields([
+              {
+                value: 'general-xs',
+                children: (
+                  <>
+                    <RadioFieldText>1 CPUs</RadioFieldText>
+                    <RadioFieldText>2 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+              {
+                value: 'general-sm',
+                children: (
+                  <>
+                    <RadioFieldText>2 CPUs</RadioFieldText>
+                    <RadioFieldText>4 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+              {
+                value: 'general-med',
+                children: (
+                  <>
+                    <RadioFieldText>4 CPUs</RadioFieldText>
+                    <RadioFieldText>16 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+            ])}
+          </RadioGroup>
+        </StyledTabs>
         <TextField
           value={instanceName}
           required
@@ -167,6 +237,7 @@ const InstancesPage = () => {
           Create instance
         </Button>
       </Form>
+      <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
     </>
   )
 }
