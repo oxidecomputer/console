@@ -8,7 +8,7 @@ import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
 
 interface ModalContainerProps {
-  width: number
+  widthPercentage: number
 
   children: [
     ReactElement<HeaderProps>,
@@ -29,7 +29,7 @@ export const Container = styled.div<ModalContainerProps>`
     margin: 0 auto;
     background: ${theme.color('black')};
 
-    width: calc(100vw / ${width});
+    width: calc(100vw * ${width}%);
   `};
 `
 

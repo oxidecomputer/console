@@ -27,7 +27,7 @@ export const AlertModal: FC<AlertModalProps> = ({
   onConfirm,
   // onClose,
 }) => (
-  <Container width={4}>
+  <Container widthPercentage={25}>
     <Header icon={icon}>{title}</Header>
     <Body>{children}</Body>
     <Actions>
@@ -57,7 +57,7 @@ export const ConfirmModal: FC<ConfirmModalProps> = ({
   onCancel,
   //onClose,
 }) => (
-  <Container width={3}>
+  <Container widthPercentage={(1 / 3) * 100}>
     <Header icon={icon}>{title}</Header>
     <Body>{children}</Body>
     <Actions>
