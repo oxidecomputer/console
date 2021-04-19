@@ -52,6 +52,7 @@ const StyledButton = styled(Button).attrs({
     css`
       flex: 1;
       margin-right: ${({ theme }) => theme.spacing(3)};
+
       &:last-of-type {
         margin: 0;
       }
