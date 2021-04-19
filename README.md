@@ -29,10 +29,10 @@ npm i -g json
 brew install tmux cockroachdb/tap/cockroach
 ```
 
-The easy way to run everything is to use the `tools/run_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see `tools/populate_omicron_data.sh` to see exactly what). From the omicron directory, run `tools/run_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
+The easy way to run everything is to use the `tools/start_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see `tools/populate_omicron_data.sh` to see exactly what). From the omicron directory, run `tools/start_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
 
 ```sh
-../console/tools/run_api.sh
+../console/tools/start_api.sh
 ```
 
 To stop the API run `tools/stop_api.sh` (which kills the tmux session) or kill the tmux session manually.
