@@ -1,6 +1,6 @@
 import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { StyledComponentProps } from 'styled-components'
 import styled from 'styled-components'
 
@@ -40,12 +40,19 @@ export const Input: FC<InputProps> = ({
   errorId,
   hintId,
   ...props
-}) => (
-  <StyledInput
-    aria-describedby={errorId || hintId ? `${errorId} ${hintId}` : undefined}
-    aria-invalid={error}
-    aria-required={required}
-    required={required}
-    {...props}
-  />
-)
+}) => {
+  const describedBy = useMemo(
+    () => (errorId || hintId ? `${errorId} ${hintId}` : undefined),
+    [errorId, hintId]
+  )
+
+  return (
+    <StyledInput
+      aria-describedby={describedBy}
+      aria-invalid={error}
+      aria-required={required}
+      required={required}
+      {...props}
+    />
+  )
+}

@@ -7,7 +7,7 @@ import type { Theme } from '@oxide/theme'
 
 export interface FieldProps {
   /**
-   * Unique identifier for this field in the form.
+   * ID of the form field this field represents
    */
   id: string
   /**
@@ -67,9 +67,7 @@ type LabelProps = StyledComponentProps<
 >
 const Label: FC<LabelProps> = ({ required, children, ...labelProps }) => (
   <LabelContainer {...labelProps}>
-    <Text size="sm" weight={500}>
-      {children}
-    </Text>
+    <Text weight={500}>{children}</Text>
     {!required && <Text size="sm">Optional</Text>}
   </LabelContainer>
 )
@@ -112,6 +110,10 @@ const InputContainer = styled.div<Pick<FieldProps, 'error'>>`
             box-shadow: 0px 0px 0px 1px ${theme.color('green500')};
           `}
   }
+
+  > input {
+    flex: 1;
+  }
 `
 
 /* ERROR */
@@ -120,13 +122,15 @@ const ErrorContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing(2)};
 `
 const ErrorMessage: FC<{ id: string }> = ({ id, children }) => (
-  <ErrorContainer id={id}>{children}</ErrorContainer>
+  <ErrorContainer id={id}>
+    <Text size="xs">{children}</Text>
+  </ErrorContainer>
 )
 
 /* FIELD */
 
 export const Field: FC<FieldProps> = ({
-  id,
+  id: id,
   required,
   error,
   errorMessage,
@@ -139,6 +143,7 @@ export const Field: FC<FieldProps> = ({
     id,
   ])
   const hintId = useMemo(() => (hint ? `${id}-hint` : ''), [hint, id])
+
   return (
     <Container>
       <Label required={required} htmlFor={id}>
