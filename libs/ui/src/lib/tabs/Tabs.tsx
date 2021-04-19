@@ -47,17 +47,16 @@ const StyledButton = styled(Button).attrs({
           color: ${theme.color('green50')};
         `}
 
-  ${({ fullWidth }) =>
+  ${({ fullWidth, theme }) =>
     fullWidth &&
     css`
       flex: 1;
-      margin-right: ${({ theme }) => theme.spacing(3)};
+      margin-right: ${theme.spacing(3)};
 
       &:last-of-type {
         margin: 0;
       }
     `}
-      : null}
 
   border-bottom: 1px solid currentColor;
 
