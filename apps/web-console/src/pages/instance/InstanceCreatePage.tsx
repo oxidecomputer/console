@@ -17,7 +17,7 @@ import {
   TextField,
   TextWithIcon,
 } from '@oxide/ui'
-import type { RadioFieldProps } from '@oxide/ui'
+import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useBreadcrumbs, useAsync } from '../../hooks'
 import { api } from '@oxide/api'
 
@@ -123,6 +123,40 @@ const InstancesPage = () => {
       )
     })
 
+  const renderLargeRadioFields = (
+    data: Array<{ value: string; fields: string[] }>
+  ) =>
+    renderRadioFields(
+      data.map((option) => {
+        return {
+          value: option.value,
+          children: option.fields.map((fieldText, index) => (
+            <RadioFieldText key={`field-text-${index}`}>
+              {fieldText}
+            </RadioFieldText>
+          )),
+        }
+      })
+    )
+
+  const renderTabPanels = (
+    data: Array<Pick<RadioGroupProps, 'legend' | 'hint' | 'children'>>
+  ) =>
+    data.map((group, index) => (
+      <RadioGroup
+        checked={cpuRamField}
+        direction="fixed-row"
+        handleChange={setCpuRamField}
+        hideLegend
+        hint={group.hint}
+        key={`distributions-${index}`}
+        legend={group.legend}
+        name={`distrbutions-${index}`}
+      >
+        {group.children}
+      </RadioGroup>
+    ))
+
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
@@ -179,83 +213,99 @@ const InstancesPage = () => {
             'Custom',
           ]}
         >
-          <RadioGroup
-            hideLegend
-            legend="Choose a general purpose instance"
-            hint="General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases."
-            checked={cpuRamField}
-            handleChange={setCpuRamField}
-            direction="fixed-row"
-            name="distributions"
-          >
-            {renderRadioFields([
-              {
-                value: 'general-xs',
-                children: (
-                  <>
-                    <RadioFieldText>1 CPUs</RadioFieldText>
-                    <RadioFieldText>2 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-              {
-                value: 'general-sm',
-                children: (
-                  <>
-                    <RadioFieldText>2 CPUs</RadioFieldText>
-                    <RadioFieldText>4 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-              {
-                value: 'general-med',
-                children: (
-                  <>
-                    <RadioFieldText>4 CPUs</RadioFieldText>
-                    <RadioFieldText>16 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-            ])}
-          </RadioGroup>
-          <RadioGroup
-            hideLegend
-            legend="Choose a CPU-Optimized instance"
-            checked={cpuRamField}
-            handleChange={setCpuRamField}
-            direction="fixed-row"
-            name="distributions"
-          >
-            {renderRadioFields([
-              {
-                value: 'general-xs',
-                children: (
-                  <>
-                    <RadioFieldText>1 CPUs</RadioFieldText>
-                    <RadioFieldText>2 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-              {
-                value: 'general-sm',
-                children: (
-                  <>
-                    <RadioFieldText>2 CPUs</RadioFieldText>
-                    <RadioFieldText>4 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-              {
-                value: 'general-med',
-                children: (
-                  <>
-                    <RadioFieldText>4 CPUs</RadioFieldText>
-                    <RadioFieldText>16 GB RAM</RadioFieldText>
-                  </>
-                ),
-              },
-            ])}
-          </RadioGroup>
+          {renderTabPanels([
+            {
+              legend: 'Choose a general purpose instance',
+              hint:
+                'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+              children: renderLargeRadioFields([
+                {
+                  value: 'general-xs',
+                  fields: ['1 CPUs', '2 GB RAM'],
+                },
+                {
+                  value: 'general-sm',
+                  fields: ['2 CPUs', '4 GB RAM'],
+                },
+                {
+                  value: 'general-med',
+                  fields: ['4 CPUs', '16 GB RAM'],
+                },
+              ]),
+            },
+            {
+              legend: 'Choose a CPU optimized instance',
+              hint: 'CPU optimized instances provide a good balance of...',
+              children: renderLargeRadioFields([
+                {
+                  value: 'cpu-optimized-xs',
+                  fields: ['1 CPUs', '2 GB RAM'],
+                },
+                {
+                  value: 'cpu-optimized-sm',
+                  fields: ['2 CPUs', '4 GB RAM'],
+                },
+                {
+                  value: 'cpu-optimized-med',
+                  fields: ['4 CPUs', '16 GB RAM'],
+                },
+              ]),
+            },
+            {
+              legend: 'Choose a Memory optimized instance',
+              hint: 'Memory optimized instances provide a good balance of...',
+              children: renderLargeRadioFields([
+                {
+                  value: 'memory-optimized-xs',
+                  fields: ['1 CPUs', '2 GB RAM'],
+                },
+                {
+                  value: 'memory-optimized-sm',
+                  fields: ['2 CPUs', '4 GB RAM'],
+                },
+                {
+                  value: 'memory-optimized-med',
+                  fields: ['4 CPUs', '16 GB RAM'],
+                },
+              ]),
+            },
+            {
+              legend: 'Choose a Storage optimized instance',
+              hint: 'Storage optimized instances provide a good balance of...',
+              children: renderLargeRadioFields([
+                {
+                  value: 'storage-optimized-xs',
+                  fields: ['1 CPUs', '2 GB RAM'],
+                },
+                {
+                  value: 'storage-optimized-sm',
+                  fields: ['2 CPUs', '4 GB RAM'],
+                },
+                {
+                  value: 'storage-optimized-med',
+                  fields: ['4 CPUs', '16 GB RAM'],
+                },
+              ]),
+            },
+            {
+              legend: 'Choose a custom instance',
+              hint: 'Custom instances...',
+              children: renderLargeRadioFields([
+                {
+                  value: 'custom-xs',
+                  fields: ['1 CPUs', '2 GB RAM'],
+                },
+                {
+                  value: 'custom-sm',
+                  fields: ['2 CPUs', '4 GB RAM'],
+                },
+                {
+                  value: 'custom-med',
+                  fields: ['4 CPUs', '16 GB RAM'],
+                },
+              ]),
+            },
+          ])}
         </StyledTabs>
         <TextField
           value={instanceName}
