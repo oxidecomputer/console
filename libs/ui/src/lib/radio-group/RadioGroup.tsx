@@ -38,49 +38,11 @@ export interface RadioGroupProps {
   required?: boolean
 }
 
-/* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
-/* gap: ${({ theme }) => theme.spacing(5)}; */
-const columnStyles = css`
-  flex-direction: column;
-  flex-wrap: nowrap;
-
-  & > * + * {
-    margin-top: ${({ theme }) => theme.spacing(5)};
-  }
-`
-
-const rowStyles = (shouldOverflow: boolean) => css`
-  flex-direction: row;
-  ${shouldOverflow
-    ? `flex-wrap: nowrap; overflow-x: auto;`
-    : `flex-wrap: wrap;`};
-
-  & > * + * {
-    margin-top: ${({ theme }) => theme.spacing(3)};
-    margin-right: ${({ theme }) => theme.spacing(5)};
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
-  }
-`
-
-const StyledFieldset = styled.fieldset<{ direction: Direction }>`
-  display: flex;
-  justify-content: flex-start;
-
+const StyledFieldset = styled.fieldset`
   margin: 0;
   border: 0;
-
-  ${({ direction }) => {
-    if (direction === 'column') {
-      return columnStyles
-    }
-    if (direction === 'row') {
-      return rowStyles(false)
-    }
-    if (direction === 'fixed-row') {
-      return rowStyles(true)
-    }
-  }}
 `
+
 const StyledLegend = styled(Text).attrs({
   as: 'legend',
   color: 'white',
@@ -94,6 +56,50 @@ const StyledLegend = styled(Text).attrs({
 
 const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
   display: block;
+  margin-top: ${({ theme }) => theme.spacing(3)};
+  width: 100%;
+`
+
+/* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
+/* gap: ${({ theme }) => theme.spacing(5)}; */
+const columnStyles = css`
+  flex-direction: column;
+  flex-wrap: nowrap;
+  margin-top: ${({ theme }) => theme.spacing(5)};
+
+  & > * + * {
+    margin-top: ${({ theme }) => theme.spacing(5)};
+  }
+`
+
+const rowStyles = (shouldOverflow: boolean) => css`
+  flex-direction: row;
+  ${shouldOverflow
+    ? `flex-wrap: nowrap; overflow-x: auto;`
+    : `flex-wrap: wrap;`};
+  margin-top: ${({ theme }) => theme.spacing(3)};
+
+  & > * {
+    margin-right: ${({ theme }) => theme.spacing(5)};
+    margin-bottom: ${({ theme }) => theme.spacing(5)};
+  }
+`
+
+const RadioFieldsWrapper = styled.div<{ direction: Direction }>`
+  display: flex;
+  justify-content: flex-start;
+
+  ${({ direction }) => {
+    if (direction === 'column') {
+      return columnStyles
+    }
+    if (direction === 'row') {
+      return rowStyles(false)
+    }
+    if (direction === 'fixed-row') {
+      return rowStyles(true)
+    }
+  }}
 `
 
 export const RadioGroup: FC<RadioGroupProps> = ({
@@ -111,21 +117,25 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     handleChange && handleChange(event.target.value)
   }
+  const hintId = `${name}-hint`
+  const ariaProps = hint ? { 'aria-describedby': hintId } : null
   return (
-    <StyledFieldset direction={direction}>
+    <StyledFieldset {...ariaProps}>
       <StyledLegend hideLegend={hideLegend}>{legend}</StyledLegend>
-      {hint ? <HintText>{hint}</HintText> : null}
-      {React.Children.map(children, (radioField) => {
-        const isChecked = checked === radioField.props.value
-        // Render cinontrolled inputs with checked state
-        // Add name prop to group them semantically and add event listener
-        return React.cloneElement(radioField, {
-          name: name,
-          checked: isChecked,
-          onChange: onChange,
-          required: required,
-        })
-      })}
+      {hint ? <HintText id={hintId}>{hint}</HintText> : null}
+      <RadioFieldsWrapper direction={direction}>
+        {React.Children.map(children, (radioField) => {
+          const isChecked = checked === radioField.props.value
+          // Render cinontrolled inputs with checked state
+          // Add name prop to group them semantically and add event listener
+          return React.cloneElement(radioField, {
+            name: name,
+            checked: isChecked,
+            onChange: onChange,
+            required: required,
+          })
+        })}
+      </RadioFieldsWrapper>
     </StyledFieldset>
   )
 }

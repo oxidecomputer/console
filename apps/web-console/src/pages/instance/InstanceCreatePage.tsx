@@ -218,6 +218,44 @@ const InstancesPage = () => {
               },
             ])}
           </RadioGroup>
+          <RadioGroup
+            hideLegend
+            legend="Choose a CPU-Optimized instance"
+            checked={cpuRamField}
+            handleChange={setCpuRamField}
+            direction="fixed-row"
+            name="distributions"
+          >
+            {renderRadioFields([
+              {
+                value: 'general-xs',
+                children: (
+                  <>
+                    <RadioFieldText>1 CPUs</RadioFieldText>
+                    <RadioFieldText>2 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+              {
+                value: 'general-sm',
+                children: (
+                  <>
+                    <RadioFieldText>2 CPUs</RadioFieldText>
+                    <RadioFieldText>4 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+              {
+                value: 'general-med',
+                children: (
+                  <>
+                    <RadioFieldText>4 CPUs</RadioFieldText>
+                    <RadioFieldText>16 GB RAM</RadioFieldText>
+                  </>
+                ),
+              },
+            ])}
+          </RadioGroup>
         </StyledTabs>
         <TextField
           value={instanceName}
