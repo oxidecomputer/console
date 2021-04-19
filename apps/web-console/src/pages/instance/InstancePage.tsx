@@ -126,6 +126,7 @@ const InstancePage = () => {
         />
       </Metadata>
       <StyledTabs
+        fullWidth
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
