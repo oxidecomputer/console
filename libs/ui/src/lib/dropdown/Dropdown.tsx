@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
+import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
@@ -39,14 +40,8 @@ const Wrapper = styled.div`
 `
 
 /* Hide from sighted users, show to screen readers */
-const VisuallyHidden = styled.label`
-  position: absolute !important;
-  overflow: hidden !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  clip: rect(1px, 1px, 1px, 1px) !important;
+const ScreenReaderLabel = styled.label`
+  ${visuallyHiddenCss};
 `
 
 const Label = styled(Text).attrs({
@@ -206,7 +201,7 @@ export const Dropdown: FC<DropdownProps> = ({
   const renderLabel = showLabel ? (
     <Label {...select.getLabelProps()}>{label}</Label>
   ) : (
-    <VisuallyHidden {...select.getLabelProps()}>{label}</VisuallyHidden>
+    <ScreenReaderLabel {...select.getLabelProps()}>{label}</ScreenReaderLabel>
   )
 
   const renderButtonText = select.selectedItem
