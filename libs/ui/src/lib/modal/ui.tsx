@@ -8,25 +8,41 @@ import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
 
 interface ModalContainerProps {
+  /**
+   * Determines the width of the screen for the modal to take, should be a value between 0 and 1.
+   */
+  widthPercentage: number
+
   children: [
     ReactElement<HeaderProps>,
     ReactElement<BodyProps>,
     ReactElement<ActionsProps>
   ]
 }
-export const TwoButtonModal = styled.div<ModalContainerProps>`
-  background: ${({ theme }) => theme.color('black')};
 
-  width: calc(100vw / 3);
-`
+export const Container = styled.div<ModalContainerProps>`
+  display: flex;
+  flex-direction: column;
 
-export const OneButtonModal = styled.div<ModalContainerProps>`
-  background: ${({ theme }) => theme.color('black')};
+  width: 100%;
 
-  width: calc(100vw / 4);
+  ${({ theme }) => theme.breakpoint('sm')`
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0 auto;
+    background: ${theme.color('black')};
+
+    width: 50vw;
+  `};
+
+  ${({ theme, widthPercentage }) => theme.breakpoint('lg')`
+    width: calc(100vw * ${widthPercentage}); 
+  `}
 `
 
 const StyledHeader = styled.header`
+  flex: 0 0 auto;
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -66,8 +82,14 @@ export const Header: FC<HeaderProps> = ({ icon, children }) => (
 interface BodyProps {
   children: ReactNode
 }
-const StyledBody = styled.main`
+const StyledBody = styled(Text).attrs({ as: 'main', size: 'sm' })`
+  flex: 1;
+
   padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
+
+  ${({ theme }) => theme.breakpoint('sm')`
+    flex: 0 0 auto; 
+  `}
 `
 export const Body: FC = ({ children }) => <StyledBody>{children}</StyledBody>
 

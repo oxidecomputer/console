@@ -33,7 +33,7 @@
     "react/display-name": "off",
     "react/prop-types": "off"
   },
-  "ignorePatterns": ["dist/"],
+  "ignorePatterns": ["dist/", "!.storybook"],
   "overrides": [
     {
       "files": ["*.js"],
