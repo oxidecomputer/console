@@ -49,9 +49,7 @@ const Metadata = styled.div`
   margin-top: ${({ theme }) => theme.spacing(3)};
 `
 
-const StyledTabs = styled(Tabs).attrs({
-  fullWidth: true,
-})`
+const StyledTabs = styled(Tabs)`
   margin-top: ${({ theme }) => theme.spacing(4)};
 `
 
@@ -128,6 +126,7 @@ const InstancePage = () => {
         />
       </Metadata>
       <StyledTabs
+        fullWidth
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
