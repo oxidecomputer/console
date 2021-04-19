@@ -58,7 +58,7 @@ const Label = styled(Text).attrs({
 type ButtonProps = StyledComponentProps<
   'button',
   Theme,
-  { placeholder: boolean },
+  { hasPlaceholder: boolean },
   never
 >
 
@@ -78,7 +78,7 @@ const StyledButton = styled.button<ButtonProps>`
   color: ${({ theme }) => theme.color('gray50')};
   font-size: ${({ theme }) => theme.spacing(4)};
 
-  font-weight: ${({ placeholder }) => (placeholder ? 400 : 500)};
+  font-weight: ${({ hasPlaceholder }) => (hasPlaceholder ? 400 : 500)};
   line-height: 1.5;
 
   &:hover {
@@ -232,6 +232,7 @@ export const Dropdown: FC<DropdownProps> = ({
       {renderLabel}
       <StyledButton
         type="button"
+        hasPlaceholder={!select.selectedItem}
         {...select.getToggleButtonProps()}
         {...ariaProps}
       >
