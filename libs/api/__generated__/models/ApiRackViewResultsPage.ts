@@ -23,33 +23,33 @@ import {
 /**
  * A single page of results
  * @export
- * @interface ResultsPageForApiRackView
+ * @interface ApiRackViewResultsPage
  */
-export interface ResultsPageForApiRackView {
+export interface ApiRackViewResultsPage {
   /**
    * list of items on this page of results
    * @type {Array<ApiRackView>}
-   * @memberof ResultsPageForApiRackView
+   * @memberof ApiRackViewResultsPage
    */
   items: Array<ApiRackView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ResultsPageForApiRackView
+   * @memberof ApiRackViewResultsPage
    */
   nextPage?: string
 }
 
-export function ResultsPageForApiRackViewFromJSON(
+export function ApiRackViewResultsPageFromJSON(
   json: any
-): ResultsPageForApiRackView {
-  return ResultsPageForApiRackViewFromJSONTyped(json, false)
+): ApiRackViewResultsPage {
+  return ApiRackViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ResultsPageForApiRackViewFromJSONTyped(
+export function ApiRackViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ResultsPageForApiRackView {
+): ApiRackViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
@@ -59,8 +59,8 @@ export function ResultsPageForApiRackViewFromJSONTyped(
   }
 }
 
-export function ResultsPageForApiRackViewToJSON(
-  value?: ResultsPageForApiRackView | null
+export function ApiRackViewResultsPageToJSON(
+  value?: ApiRackViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined

@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiInstanceView,
-  ApiInstanceViewFromJSON,
-  ApiInstanceViewFromJSONTyped,
-  ApiInstanceViewToJSON,
+  ApiSledView,
+  ApiSledViewFromJSON,
+  ApiSledViewFromJSONTyped,
+  ApiSledViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ResultsPageForApiInstanceView
+ * @interface ApiSledViewResultsPage
  */
-export interface ResultsPageForApiInstanceView {
+export interface ApiSledViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiInstanceView>}
-   * @memberof ResultsPageForApiInstanceView
+   * @type {Array<ApiSledView>}
+   * @memberof ApiSledViewResultsPage
    */
-  items: Array<ApiInstanceView>
+  items: Array<ApiSledView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ResultsPageForApiInstanceView
+   * @memberof ApiSledViewResultsPage
    */
   nextPage?: string
 }
 
-export function ResultsPageForApiInstanceViewFromJSON(
+export function ApiSledViewResultsPageFromJSON(
   json: any
-): ResultsPageForApiInstanceView {
-  return ResultsPageForApiInstanceViewFromJSONTyped(json, false)
+): ApiSledViewResultsPage {
+  return ApiSledViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ResultsPageForApiInstanceViewFromJSONTyped(
+export function ApiSledViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ResultsPageForApiInstanceView {
+): ApiSledViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiInstanceViewFromJSON),
+    items: (json['items'] as Array<any>).map(ApiSledViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ResultsPageForApiInstanceViewToJSON(
-  value?: ResultsPageForApiInstanceView | null
+export function ApiSledViewResultsPageToJSON(
+  value?: ApiSledViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ResultsPageForApiInstanceViewToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiInstanceViewToJSON),
+    items: (value.items as Array<any>).map(ApiSledViewToJSON),
     next_page: value.nextPage,
   }
 }

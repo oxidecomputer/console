@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiProjectView,
-  ApiProjectViewFromJSON,
-  ApiProjectViewFromJSONTyped,
-  ApiProjectViewToJSON,
+  ApiInstanceView,
+  ApiInstanceViewFromJSON,
+  ApiInstanceViewFromJSONTyped,
+  ApiInstanceViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ResultsPageForApiProjectView
+ * @interface ApiInstanceViewResultsPage
  */
-export interface ResultsPageForApiProjectView {
+export interface ApiInstanceViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiProjectView>}
-   * @memberof ResultsPageForApiProjectView
+   * @type {Array<ApiInstanceView>}
+   * @memberof ApiInstanceViewResultsPage
    */
-  items: Array<ApiProjectView>
+  items: Array<ApiInstanceView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ResultsPageForApiProjectView
+   * @memberof ApiInstanceViewResultsPage
    */
   nextPage?: string
 }
 
-export function ResultsPageForApiProjectViewFromJSON(
+export function ApiInstanceViewResultsPageFromJSON(
   json: any
-): ResultsPageForApiProjectView {
-  return ResultsPageForApiProjectViewFromJSONTyped(json, false)
+): ApiInstanceViewResultsPage {
+  return ApiInstanceViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ResultsPageForApiProjectViewFromJSONTyped(
+export function ApiInstanceViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ResultsPageForApiProjectView {
+): ApiInstanceViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiProjectViewFromJSON),
+    items: (json['items'] as Array<any>).map(ApiInstanceViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ResultsPageForApiProjectViewToJSON(
-  value?: ResultsPageForApiProjectView | null
+export function ApiInstanceViewResultsPageToJSON(
+  value?: ApiInstanceViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ResultsPageForApiProjectViewToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiProjectViewToJSON),
+    items: (value.items as Array<any>).map(ApiInstanceViewToJSON),
     next_page: value.nextPage,
   }
 }

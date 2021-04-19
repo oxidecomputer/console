@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiDiskView,
-  ApiDiskViewFromJSON,
-  ApiDiskViewFromJSONTyped,
-  ApiDiskViewToJSON,
+  ApiProjectView,
+  ApiProjectViewFromJSON,
+  ApiProjectViewFromJSONTyped,
+  ApiProjectViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ResultsPageForApiDiskView
+ * @interface ApiProjectViewResultsPage
  */
-export interface ResultsPageForApiDiskView {
+export interface ApiProjectViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiDiskView>}
-   * @memberof ResultsPageForApiDiskView
+   * @type {Array<ApiProjectView>}
+   * @memberof ApiProjectViewResultsPage
    */
-  items: Array<ApiDiskView>
+  items: Array<ApiProjectView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ResultsPageForApiDiskView
+   * @memberof ApiProjectViewResultsPage
    */
   nextPage?: string
 }
 
-export function ResultsPageForApiDiskViewFromJSON(
+export function ApiProjectViewResultsPageFromJSON(
   json: any
-): ResultsPageForApiDiskView {
-  return ResultsPageForApiDiskViewFromJSONTyped(json, false)
+): ApiProjectViewResultsPage {
+  return ApiProjectViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ResultsPageForApiDiskViewFromJSONTyped(
+export function ApiProjectViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ResultsPageForApiDiskView {
+): ApiProjectViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiDiskViewFromJSON),
+    items: (json['items'] as Array<any>).map(ApiProjectViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ResultsPageForApiDiskViewToJSON(
-  value?: ResultsPageForApiDiskView | null
+export function ApiProjectViewResultsPageToJSON(
+  value?: ApiProjectViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ResultsPageForApiDiskViewToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiDiskViewToJSON),
+    items: (value.items as Array<any>).map(ApiProjectViewToJSON),
     next_page: value.nextPage,
   }
 }

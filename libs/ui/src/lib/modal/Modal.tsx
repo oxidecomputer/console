@@ -2,14 +2,7 @@ import type { FC, ReactNode } from 'react'
 import React from 'react'
 import type { IconName } from '../icon/icons'
 
-import {
-  Action,
-  Actions,
-  Body,
-  Header,
-  OneButtonModal,
-  TwoButtonModal,
-} from './ui'
+import { Action, Actions, Body, Header, Container } from './ui'
 
 interface ModalProps {
   title: string
@@ -34,7 +27,7 @@ export const AlertModal: FC<AlertModalProps> = ({
   onConfirm,
   // onClose,
 }) => (
-  <OneButtonModal>
+  <Container widthPercentage={1 / 4}>
     <Header icon={icon}>{title}</Header>
     <Body>{children}</Body>
     <Actions>
@@ -42,7 +35,7 @@ export const AlertModal: FC<AlertModalProps> = ({
         {confirmText}
       </Action>
     </Actions>
-  </OneButtonModal>
+  </Container>
 )
 
 export interface ConfirmModalProps extends ModalProps {
@@ -64,7 +57,7 @@ export const ConfirmModal: FC<ConfirmModalProps> = ({
   onCancel,
   //onClose,
 }) => (
-  <TwoButtonModal>
+  <Container widthPercentage={1 / 3}>
     <Header icon={icon}>{title}</Header>
     <Body>{children}</Body>
     <Actions>
@@ -73,5 +66,5 @@ export const ConfirmModal: FC<ConfirmModalProps> = ({
         {confirmText}
       </Action>
     </Actions>
-  </TwoButtonModal>
+  </Container>
 )

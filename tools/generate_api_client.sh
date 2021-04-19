@@ -11,7 +11,7 @@ git fetch --all
 git checkout "$API_VERSION"
 cd ../console
 
-../omicron/target/debug/nexus ../omicron/examples/config.toml --openapi > omicron.json
+../omicron/target/debug/nexus ../omicron/omicron-nexus/examples/config.toml --openapi > omicron.json
 
 # prereq: brew install openapi-generator
 

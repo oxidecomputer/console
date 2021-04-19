@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import { css } from 'styled-components'
 
 /* Hide from sighted users, show to screen readers */
 export const visuallyHiddenCss = css`
@@ -9,8 +9,4 @@ export const visuallyHiddenCss = css`
   padding: 0 !important;
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
-`
-
-export const VisuallyHidden = styled.span`
-  ${visuallyHiddenCss};
 `

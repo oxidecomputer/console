@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
-import { VisuallyHidden } from '../VisuallyHidden'
+import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
@@ -40,7 +40,9 @@ const Wrapper = styled.div`
 `
 
 /* Hide from sighted users, show to screen readers */
-const ScreenReaderLabel = styled(VisuallyHidden).attrs({ as: 'label' })``
+const ScreenReaderLabel = styled.label`
+  ${visuallyHiddenCss};
+`
 
 const Label = styled(Text).attrs({
   as: 'label',

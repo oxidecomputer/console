@@ -87,7 +87,6 @@ const InstancesPage = () => {
     api.apiProjectInstancesPost({
       projectName,
       apiInstanceCreateParams: {
-        bootDiskSize: 1,
         description: `An instance in project: ${projectName}`,
         hostname: 'oxide.com',
         memory: 10,

@@ -29,10 +29,10 @@ npm i -g json
 brew install tmux cockroachdb/tap/cockroach
 ```
 
-The easy way to run everything is to use the `tools/run_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see `tools/populate_omicron_data.sh` to see exactly what). From the omicron directory, run `tools/run_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
+The easy way to run everything is to use the `tools/start_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see `tools/populate_omicron_data.sh` to see exactly what). From the omicron directory, run `tools/start_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
 
 ```sh
-../console/tools/run_api.sh
+../console/tools/start_api.sh
 ```
 
 To stop the API run `tools/stop_api.sh` (which kills the tmux session) or kill the tmux session manually.
@@ -74,13 +74,7 @@ set -g mouse on
 <details>
 <summary>Running without tmux</summary>
 
-If you don't want to use tmux, make sure you've done the above setup and then run each of the following in its own terminal window (in order — the sled agent depends on nexus, and the populate script depends on the sled agent):
-
-```
-cargo run --bin=nexus -- examples/config.toml
-cargo run --bin=sled_agent -- $(uuidgen) 127.0.0.1:12345 127.0.0.1:12221
-../console/tools/populate_omicron_data.sh
-```
+Using the script is strongly recommended, but if you really don't want to, make sure you've done the above setup and then run the commands in `tools/start_api.sh` in separate terminal windows in the same order they are run in that script. Note the dependencies indicated by the `wait_for_up` commands.
 
 </details>
 

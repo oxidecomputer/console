@@ -11,7 +11,8 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
-    "storybook": "rm -rf node_modules/.cache && NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "storybook:clean": "rm -rf node_modules/.cache && yarn storybook",
     "typecheck": "tsc",
     "plop": "plop"
   },

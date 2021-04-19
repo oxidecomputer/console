@@ -3,7 +3,12 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
-import { colorPalette, defaultTheme, GlobalStyle } from '@oxide/theme'
+import {
+  colorPalette,
+  breakpoints,
+  defaultTheme,
+  GlobalStyle,
+} from '@oxide/theme'
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
 const DocsStyleOverrides = createGlobalStyle`
@@ -72,6 +77,21 @@ export const parameters = {
   },
   options: {
     storySort: { method: 'alphabetical' },
+  },
+  viewport: {
+    viewports: Object.keys(breakpoints).reduce(
+      (obj, breakpoint) => ({
+        ...obj,
+        [breakpoint]: {
+          name: `${breakpoint} Breakpoint`,
+          styles: {
+            width: `${breakpoints[breakpoint]}px`,
+            height: '850px',
+          },
+        },
+      }),
+      {}
+    ),
   },
 }
 

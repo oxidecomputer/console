@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiSledView,
-  ApiSledViewFromJSON,
-  ApiSledViewFromJSONTyped,
-  ApiSledViewToJSON,
+  ApiDiskView,
+  ApiDiskViewFromJSON,
+  ApiDiskViewFromJSONTyped,
+  ApiDiskViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ResultsPageForApiSledView
+ * @interface ApiDiskViewResultsPage
  */
-export interface ResultsPageForApiSledView {
+export interface ApiDiskViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiSledView>}
-   * @memberof ResultsPageForApiSledView
+   * @type {Array<ApiDiskView>}
+   * @memberof ApiDiskViewResultsPage
    */
-  items: Array<ApiSledView>
+  items: Array<ApiDiskView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ResultsPageForApiSledView
+   * @memberof ApiDiskViewResultsPage
    */
   nextPage?: string
 }
 
-export function ResultsPageForApiSledViewFromJSON(
+export function ApiDiskViewResultsPageFromJSON(
   json: any
-): ResultsPageForApiSledView {
-  return ResultsPageForApiSledViewFromJSONTyped(json, false)
+): ApiDiskViewResultsPage {
+  return ApiDiskViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ResultsPageForApiSledViewFromJSONTyped(
+export function ApiDiskViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ResultsPageForApiSledView {
+): ApiDiskViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiSledViewFromJSON),
+    items: (json['items'] as Array<any>).map(ApiDiskViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ResultsPageForApiSledViewToJSON(
-  value?: ResultsPageForApiSledView | null
+export function ApiDiskViewResultsPageToJSON(
+  value?: ApiDiskViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ResultsPageForApiSledViewToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiSledViewToJSON),
+    items: (value.items as Array<any>).map(ApiDiskViewToJSON),
     next_page: value.nextPage,
   }
 }

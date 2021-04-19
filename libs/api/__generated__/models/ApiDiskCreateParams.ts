@@ -33,6 +33,8 @@ export interface ApiDiskCreateParams {
   name: string
   /**
    * A count of bytes, typically used either for memory or storage capacity
+   *
+   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
    * @memberof ApiDiskCreateParams
    */

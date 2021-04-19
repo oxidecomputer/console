@@ -17,24 +17,27 @@ import {
   ApiDiskAttachment,
   ApiDiskAttachmentFromJSON,
   ApiDiskAttachmentToJSON,
-  ApiDiskAttachment1,
-  ApiDiskAttachment1FromJSON,
-  ApiDiskAttachment1ToJSON,
   ApiDiskCreateParams,
   ApiDiskCreateParamsFromJSON,
   ApiDiskCreateParamsToJSON,
-  ApiDiskView1,
-  ApiDiskView1FromJSON,
-  ApiDiskView1ToJSON,
+  ApiDiskView,
+  ApiDiskViewFromJSON,
+  ApiDiskViewToJSON,
+  ApiDiskViewResultsPage,
+  ApiDiskViewResultsPageFromJSON,
+  ApiDiskViewResultsPageToJSON,
   ApiIdSortMode,
   ApiIdSortModeFromJSON,
   ApiIdSortModeToJSON,
   ApiInstanceCreateParams,
   ApiInstanceCreateParamsFromJSON,
   ApiInstanceCreateParamsToJSON,
-  ApiInstanceView1,
-  ApiInstanceView1FromJSON,
-  ApiInstanceView1ToJSON,
+  ApiInstanceView,
+  ApiInstanceViewFromJSON,
+  ApiInstanceViewToJSON,
+  ApiInstanceViewResultsPage,
+  ApiInstanceViewResultsPageFromJSON,
+  ApiInstanceViewResultsPageToJSON,
   ApiNameOrIdSortMode,
   ApiNameOrIdSortModeFromJSON,
   ApiNameOrIdSortModeToJSON,
@@ -47,30 +50,24 @@ import {
   ApiProjectUpdateParams,
   ApiProjectUpdateParamsFromJSON,
   ApiProjectUpdateParamsToJSON,
-  ApiProjectView1,
-  ApiProjectView1FromJSON,
-  ApiProjectView1ToJSON,
-  ApiRackView1,
-  ApiRackView1FromJSON,
-  ApiRackView1ToJSON,
-  ApiSledView1,
-  ApiSledView1FromJSON,
-  ApiSledView1ToJSON,
-  ResultsPageForApiDiskView,
-  ResultsPageForApiDiskViewFromJSON,
-  ResultsPageForApiDiskViewToJSON,
-  ResultsPageForApiInstanceView,
-  ResultsPageForApiInstanceViewFromJSON,
-  ResultsPageForApiInstanceViewToJSON,
-  ResultsPageForApiProjectView,
-  ResultsPageForApiProjectViewFromJSON,
-  ResultsPageForApiProjectViewToJSON,
-  ResultsPageForApiRackView,
-  ResultsPageForApiRackViewFromJSON,
-  ResultsPageForApiRackViewToJSON,
-  ResultsPageForApiSledView,
-  ResultsPageForApiSledViewFromJSON,
-  ResultsPageForApiSledViewToJSON,
+  ApiProjectView,
+  ApiProjectViewFromJSON,
+  ApiProjectViewToJSON,
+  ApiProjectViewResultsPage,
+  ApiProjectViewResultsPageFromJSON,
+  ApiProjectViewResultsPageToJSON,
+  ApiRackView,
+  ApiRackViewFromJSON,
+  ApiRackViewToJSON,
+  ApiRackViewResultsPage,
+  ApiRackViewResultsPageFromJSON,
+  ApiRackViewResultsPageToJSON,
+  ApiSledView,
+  ApiSledViewFromJSON,
+  ApiSledViewToJSON,
+  ApiSledViewResultsPage,
+  ApiSledViewResultsPageFromJSON,
+  ApiSledViewResultsPageToJSON,
 } from '../models'
 
 export interface ApiHardwareRacksGetRequest {
@@ -207,7 +204,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareRacksGetRaw(
     requestParameters: ApiHardwareRacksGetRequest
-  ): Promise<runtime.ApiResponse<ResultsPageForApiRackView>> {
+  ): Promise<runtime.ApiResponse<ApiRackViewResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -232,7 +229,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ResultsPageForApiRackViewFromJSON(jsonValue)
+      ApiRackViewResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -241,7 +238,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareRacksGet(
     requestParameters: ApiHardwareRacksGetRequest
-  ): Promise<ResultsPageForApiRackView> {
+  ): Promise<ApiRackViewResultsPage> {
     const response = await this.apiHardwareRacksGetRaw(requestParameters)
     return await response.value()
   }
@@ -251,7 +248,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareRacksGetRackRaw(
     requestParameters: ApiHardwareRacksGetRackRequest
-  ): Promise<runtime.ApiResponse<ApiRackView1>> {
+  ): Promise<runtime.ApiResponse<ApiRackView>> {
     if (
       requestParameters.rackId === null ||
       requestParameters.rackId === undefined
@@ -277,7 +274,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiRackView1FromJSON(jsonValue)
+      ApiRackViewFromJSON(jsonValue)
     )
   }
 
@@ -286,7 +283,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareRacksGetRack(
     requestParameters: ApiHardwareRacksGetRackRequest
-  ): Promise<ApiRackView1> {
+  ): Promise<ApiRackView> {
     const response = await this.apiHardwareRacksGetRackRaw(requestParameters)
     return await response.value()
   }
@@ -296,7 +293,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareSledsGetRaw(
     requestParameters: ApiHardwareSledsGetRequest
-  ): Promise<runtime.ApiResponse<ResultsPageForApiSledView>> {
+  ): Promise<runtime.ApiResponse<ApiSledViewResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -321,7 +318,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ResultsPageForApiSledViewFromJSON(jsonValue)
+      ApiSledViewResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -330,7 +327,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareSledsGet(
     requestParameters: ApiHardwareSledsGetRequest
-  ): Promise<ResultsPageForApiSledView> {
+  ): Promise<ApiSledViewResultsPage> {
     const response = await this.apiHardwareSledsGetRaw(requestParameters)
     return await response.value()
   }
@@ -340,7 +337,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareSledsGetSledRaw(
     requestParameters: ApiHardwareSledsGetSledRequest
-  ): Promise<runtime.ApiResponse<ApiSledView1>> {
+  ): Promise<runtime.ApiResponse<ApiSledView>> {
     if (
       requestParameters.sledId === null ||
       requestParameters.sledId === undefined
@@ -366,7 +363,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiSledView1FromJSON(jsonValue)
+      ApiSledViewFromJSON(jsonValue)
     )
   }
 
@@ -375,7 +372,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiHardwareSledsGetSled(
     requestParameters: ApiHardwareSledsGetSledRequest
-  ): Promise<ApiSledView1> {
+  ): Promise<ApiSledView> {
     const response = await this.apiHardwareSledsGetSledRaw(requestParameters)
     return await response.value()
   }
@@ -516,7 +513,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiInstanceDisksGetDiskRaw(
     requestParameters: ApiInstanceDisksGetDiskRequest
-  ): Promise<runtime.ApiResponse<ApiDiskAttachment1>> {
+  ): Promise<runtime.ApiResponse<ApiDiskAttachment>> {
     if (
       requestParameters.diskName === null ||
       requestParameters.diskName === undefined
@@ -571,7 +568,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiDiskAttachment1FromJSON(jsonValue)
+      ApiDiskAttachmentFromJSON(jsonValue)
     )
   }
 
@@ -580,7 +577,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiInstanceDisksGetDisk(
     requestParameters: ApiInstanceDisksGetDiskRequest
-  ): Promise<ApiDiskAttachment1> {
+  ): Promise<ApiDiskAttachment> {
     const response = await this.apiInstanceDisksGetDiskRaw(requestParameters)
     return await response.value()
   }
@@ -590,7 +587,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiInstanceDisksPutDiskRaw(
     requestParameters: ApiInstanceDisksPutDiskRequest
-  ): Promise<runtime.ApiResponse<ApiDiskAttachment1>> {
+  ): Promise<runtime.ApiResponse<ApiDiskAttachment>> {
     if (
       requestParameters.diskName === null ||
       requestParameters.diskName === undefined
@@ -645,7 +642,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiDiskAttachment1FromJSON(jsonValue)
+      ApiDiskAttachmentFromJSON(jsonValue)
     )
   }
 
@@ -654,7 +651,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiInstanceDisksPutDisk(
     requestParameters: ApiInstanceDisksPutDiskRequest
-  ): Promise<ApiDiskAttachment1> {
+  ): Promise<ApiDiskAttachment> {
     const response = await this.apiInstanceDisksPutDiskRaw(requestParameters)
     return await response.value()
   }
@@ -721,7 +718,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksGetRaw(
     requestParameters: ApiProjectDisksGetRequest
-  ): Promise<runtime.ApiResponse<ResultsPageForApiDiskView>> {
+  ): Promise<runtime.ApiResponse<ApiDiskViewResultsPage>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -759,7 +756,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ResultsPageForApiDiskViewFromJSON(jsonValue)
+      ApiDiskViewResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -768,7 +765,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksGet(
     requestParameters: ApiProjectDisksGetRequest
-  ): Promise<ResultsPageForApiDiskView> {
+  ): Promise<ApiDiskViewResultsPage> {
     const response = await this.apiProjectDisksGetRaw(requestParameters)
     return await response.value()
   }
@@ -778,7 +775,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksGetDiskRaw(
     requestParameters: ApiProjectDisksGetDiskRequest
-  ): Promise<runtime.ApiResponse<ApiDiskView1>> {
+  ): Promise<runtime.ApiResponse<ApiDiskView>> {
     if (
       requestParameters.diskName === null ||
       requestParameters.diskName === undefined
@@ -819,7 +816,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiDiskView1FromJSON(jsonValue)
+      ApiDiskViewFromJSON(jsonValue)
     )
   }
 
@@ -828,7 +825,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksGetDisk(
     requestParameters: ApiProjectDisksGetDiskRequest
-  ): Promise<ApiDiskView1> {
+  ): Promise<ApiDiskView> {
     const response = await this.apiProjectDisksGetDiskRaw(requestParameters)
     return await response.value()
   }
@@ -838,7 +835,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksPostRaw(
     requestParameters: ApiProjectDisksPostRequest
-  ): Promise<runtime.ApiResponse<ApiDiskView1>> {
+  ): Promise<runtime.ApiResponse<ApiDiskView>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -877,7 +874,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiDiskView1FromJSON(jsonValue)
+      ApiDiskViewFromJSON(jsonValue)
     )
   }
 
@@ -886,7 +883,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectDisksPost(
     requestParameters: ApiProjectDisksPostRequest
-  ): Promise<ApiDiskView1> {
+  ): Promise<ApiDiskView> {
     const response = await this.apiProjectDisksPostRaw(requestParameters)
     return await response.value()
   }
@@ -953,7 +950,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesGetRaw(
     requestParameters: ApiProjectInstancesGetRequest
-  ): Promise<runtime.ApiResponse<ResultsPageForApiInstanceView>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceViewResultsPage>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -991,7 +988,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ResultsPageForApiInstanceViewFromJSON(jsonValue)
+      ApiInstanceViewResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -1000,7 +997,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesGet(
     requestParameters: ApiProjectInstancesGetRequest
-  ): Promise<ResultsPageForApiInstanceView> {
+  ): Promise<ApiInstanceViewResultsPage> {
     const response = await this.apiProjectInstancesGetRaw(requestParameters)
     return await response.value()
   }
@@ -1010,7 +1007,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesGetInstanceRaw(
     requestParameters: ApiProjectInstancesGetInstanceRequest
-  ): Promise<runtime.ApiResponse<ApiInstanceView1>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1051,7 +1048,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiInstanceView1FromJSON(jsonValue)
+      ApiInstanceViewFromJSON(jsonValue)
     )
   }
 
@@ -1060,7 +1057,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesGetInstance(
     requestParameters: ApiProjectInstancesGetInstanceRequest
-  ): Promise<ApiInstanceView1> {
+  ): Promise<ApiInstanceView> {
     const response = await this.apiProjectInstancesGetInstanceRaw(
       requestParameters
     )
@@ -1072,7 +1069,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceRebootRaw(
     requestParameters: ApiProjectInstancesInstanceRebootRequest
-  ): Promise<runtime.ApiResponse<ApiInstanceView1>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1113,7 +1110,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiInstanceView1FromJSON(jsonValue)
+      ApiInstanceViewFromJSON(jsonValue)
     )
   }
 
@@ -1122,7 +1119,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceReboot(
     requestParameters: ApiProjectInstancesInstanceRebootRequest
-  ): Promise<ApiInstanceView1> {
+  ): Promise<ApiInstanceView> {
     const response = await this.apiProjectInstancesInstanceRebootRaw(
       requestParameters
     )
@@ -1134,7 +1131,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceStartRaw(
     requestParameters: ApiProjectInstancesInstanceStartRequest
-  ): Promise<runtime.ApiResponse<ApiInstanceView1>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1175,7 +1172,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiInstanceView1FromJSON(jsonValue)
+      ApiInstanceViewFromJSON(jsonValue)
     )
   }
 
@@ -1184,7 +1181,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceStart(
     requestParameters: ApiProjectInstancesInstanceStartRequest
-  ): Promise<ApiInstanceView1> {
+  ): Promise<ApiInstanceView> {
     const response = await this.apiProjectInstancesInstanceStartRaw(
       requestParameters
     )
@@ -1196,7 +1193,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceStopRaw(
     requestParameters: ApiProjectInstancesInstanceStopRequest
-  ): Promise<runtime.ApiResponse<ApiInstanceView1>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1237,7 +1234,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiInstanceView1FromJSON(jsonValue)
+      ApiInstanceViewFromJSON(jsonValue)
     )
   }
 
@@ -1246,7 +1243,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesInstanceStop(
     requestParameters: ApiProjectInstancesInstanceStopRequest
-  ): Promise<ApiInstanceView1> {
+  ): Promise<ApiInstanceView> {
     const response = await this.apiProjectInstancesInstanceStopRaw(
       requestParameters
     )
@@ -1258,7 +1255,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesPostRaw(
     requestParameters: ApiProjectInstancesPostRequest
-  ): Promise<runtime.ApiResponse<ApiInstanceView1>> {
+  ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1299,7 +1296,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiInstanceView1FromJSON(jsonValue)
+      ApiInstanceViewFromJSON(jsonValue)
     )
   }
 
@@ -1308,7 +1305,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectInstancesPost(
     requestParameters: ApiProjectInstancesPostRequest
-  ): Promise<ApiInstanceView1> {
+  ): Promise<ApiInstanceView> {
     const response = await this.apiProjectInstancesPostRaw(requestParameters)
     return await response.value()
   }
@@ -1360,7 +1357,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsGetRaw(
     requestParameters: ApiProjectsGetRequest
-  ): Promise<runtime.ApiResponse<ResultsPageForApiProjectView>> {
+  ): Promise<runtime.ApiResponse<ApiProjectViewResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -1385,7 +1382,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ResultsPageForApiProjectViewFromJSON(jsonValue)
+      ApiProjectViewResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -1394,7 +1391,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsGet(
     requestParameters: ApiProjectsGetRequest
-  ): Promise<ResultsPageForApiProjectView> {
+  ): Promise<ApiProjectViewResultsPage> {
     const response = await this.apiProjectsGetRaw(requestParameters)
     return await response.value()
   }
@@ -1404,7 +1401,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsGetProjectRaw(
     requestParameters: ApiProjectsGetProjectRequest
-  ): Promise<runtime.ApiResponse<ApiProjectView1>> {
+  ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1430,7 +1427,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiProjectView1FromJSON(jsonValue)
+      ApiProjectViewFromJSON(jsonValue)
     )
   }
 
@@ -1439,7 +1436,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsGetProject(
     requestParameters: ApiProjectsGetProjectRequest
-  ): Promise<ApiProjectView1> {
+  ): Promise<ApiProjectView> {
     const response = await this.apiProjectsGetProjectRaw(requestParameters)
     return await response.value()
   }
@@ -1449,7 +1446,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsPostRaw(
     requestParameters: ApiProjectsPostRequest
-  ): Promise<runtime.ApiResponse<ApiProjectView1>> {
+  ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.apiProjectCreateParams === null ||
       requestParameters.apiProjectCreateParams === undefined
@@ -1477,7 +1474,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiProjectView1FromJSON(jsonValue)
+      ApiProjectViewFromJSON(jsonValue)
     )
   }
 
@@ -1486,7 +1483,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsPost(
     requestParameters: ApiProjectsPostRequest
-  ): Promise<ApiProjectView1> {
+  ): Promise<ApiProjectView> {
     const response = await this.apiProjectsPostRaw(requestParameters)
     return await response.value()
   }
@@ -1496,7 +1493,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsPutProjectRaw(
     requestParameters: ApiProjectsPutProjectRequest
-  ): Promise<runtime.ApiResponse<ApiProjectView1>> {
+  ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1537,7 +1534,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ApiProjectView1FromJSON(jsonValue)
+      ApiProjectViewFromJSON(jsonValue)
     )
   }
 
@@ -1546,7 +1543,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async apiProjectsPutProject(
     requestParameters: ApiProjectsPutProjectRequest
-  ): Promise<ApiProjectView1> {
+  ): Promise<ApiProjectView> {
     const response = await this.apiProjectsPutProjectRaw(requestParameters)
     return await response.value()
   }
