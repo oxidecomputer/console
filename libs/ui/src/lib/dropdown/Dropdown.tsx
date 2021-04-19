@@ -233,7 +233,6 @@ export const Dropdown: FC<DropdownProps> = ({
       <StyledButton
         type="button"
         {...select.getToggleButtonProps()}
-        placeholder={select.selectedItem ? false : true}
         {...ariaProps}
       >
         {renderButtonText}
