@@ -66,8 +66,9 @@ const StyledButton = styled(Button).attrs({
 `
 
 const Panel = styled.div<{ isVisible: boolean }>`
-  ${({ isVisible }) => (isVisible ? null : `display: none;`)};
   overflow: auto;
+
+  ${({ isVisible }) => (isVisible ? null : `display: none;`)};
 `
 
 // Add or subtract depending on key pressed

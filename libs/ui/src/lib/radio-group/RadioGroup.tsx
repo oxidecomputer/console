@@ -38,10 +38,7 @@ export interface RadioGroupProps {
   required?: boolean
 }
 
-const StyledFieldset = styled.fieldset`
-  margin: 0;
-  border: 0;
-`
+const StyledFieldset = styled.fieldset``
 
 const StyledLegend = styled(Text).attrs({
   as: 'legend',
@@ -49,7 +46,6 @@ const StyledLegend = styled(Text).attrs({
   size: 'lg',
 })<{ hideLegend: boolean }>`
   display: block;
-  width: 100%;
 
   ${({ hideLegend }) => hideLegend && visuallyHiddenCss};
 `
@@ -57,7 +53,6 @@ const StyledLegend = styled(Text).attrs({
 const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
   display: block;
   margin-top: ${({ theme }) => theme.spacing(3)};
-  width: 100%;
 `
 
 /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
