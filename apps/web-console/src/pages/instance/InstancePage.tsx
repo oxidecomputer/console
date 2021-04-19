@@ -49,7 +49,9 @@ const Metadata = styled.div`
   margin-top: ${({ theme }) => theme.spacing(3)};
 `
 
-const StyledTabs = styled(Tabs)`
+const StyledTabs = styled(Tabs).attrs({
+  fullWidth: 'true',
+})`
   margin-top: ${({ theme }) => theme.spacing(4)};
 `
 

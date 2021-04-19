@@ -48,10 +48,14 @@ const StyledButton = styled(Button).attrs({
         `}
 
   ${({ fullWidth }) => (fullWidth ? `flex: 1;` : null)}
+  margin-right: ${({ theme }) => theme.spacing(3)};
   border-bottom: 1px solid currentColor;
 
   &:hover {
     color: ${({ theme }) => theme.color('green500')};
+  }
+  &:last-of-type {
+    margin: 0;
   }
 `
 
