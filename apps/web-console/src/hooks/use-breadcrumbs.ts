@@ -2,32 +2,27 @@ import { useLocation } from 'react-router-dom'
 
 import type { Crumb } from '@oxide/ui'
 
-type SpecialLabel = {
-  applies: boolean
-  items: Crumb[]
-}
-
 // TODO: this could be generalized to pull the label out of the route
 // but it would be premature until we have more routes like this
-const specialItems = (path: string): SpecialLabel[] => [
+const specialCrumbs = (path: string) => [
   {
     applies: path.endsWith('/instances-new'),
-    items: [
+    crumbs: [
       { href: path.replace(/-new$/, ''), label: 'instances' },
       { label: 'Create instance' },
     ],
   },
   {
     applies: path.endsWith('/projects-new'),
-    items: [
+    crumbs: [
       { href: path.replace(/-new$/, ''), label: 'projects' },
       { label: 'Create project' },
     ],
   },
 ]
 
-const getSpecialItems = (pathSoFar: string): Crumb[] | undefined =>
-  specialItems(pathSoFar).find((sp) => sp.applies)?.items
+const getSpecialCrumbs = (pathSoFar: string): Crumb[] | undefined =>
+  specialCrumbs(pathSoFar).find((sp) => sp.applies)?.crumbs
 
 export const breadcrumbsForPath = (path: string): Crumb[] => {
   const pathParts = path === '/' ? [] : path.split('/').slice(1)
@@ -37,7 +32,7 @@ export const breadcrumbsForPath = (path: string): Crumb[] => {
     const isLastCrumb = i === pathParts.length - 1
 
     return (
-      getSpecialItems(pathSoFar) || [
+      getSpecialCrumbs(pathSoFar) || [
         {
           label: pathPart,
           href: isLastCrumb ? undefined : pathSoFar,
