@@ -71,6 +71,94 @@ type Params = {
   projectName: string
 }
 
+const INSTANCE_SIZES = {
+  general: [
+    {
+      value: 'xs',
+      memory: 2,
+      ncpus: 1,
+    },
+    {
+      value: 'sm',
+      memory: 4,
+      ncpus: 2,
+    },
+    {
+      value: 'med',
+      memory: 16,
+      ncpus: 4,
+    },
+  ],
+  cpuOptimized: [
+    {
+      value: 'xs',
+      memory: 2,
+      ncpus: 1,
+    },
+    {
+      value: 'sm',
+      memory: 4,
+      ncpus: 2,
+    },
+    {
+      value: 'med',
+      memory: 16,
+      ncpus: 4,
+    },
+  ],
+  memoryOptimized: [
+    {
+      value: 'xs',
+      memory: 2,
+      ncpus: 1,
+    },
+    {
+      value: 'sm',
+      memory: 4,
+      ncpus: 2,
+    },
+    {
+      value: 'med',
+      memory: 16,
+      ncpus: 4,
+    },
+  ],
+  storageOptimized: [
+    {
+      value: 'xs',
+      memory: 2,
+      ncpus: 1,
+    },
+    {
+      value: 'sm',
+      memory: 4,
+      ncpus: 2,
+    },
+    {
+      value: 'med',
+      memory: 16,
+      ncpus: 4,
+    },
+  ],
+  custom: [
+    {
+      value: 'xs',
+      memory: 2,
+      ncpus: 1,
+    },
+    {
+      value: 'sm',
+      memory: 4,
+      ncpus: 2,
+    },
+    {
+      value: 'med',
+      memory: 16,
+      ncpus: 4,
+    },
+  ],
+}
+
 const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
@@ -123,20 +211,25 @@ const InstancesPage = () => {
     })
 
   const renderLargeRadioFields = (
-    data: Array<{ value: string; fields: string[] }>
-  ) =>
-    renderRadioFields(
-      data.map((option) => {
-        return {
-          value: option.value,
-          children: option.fields.map((fieldText, index) => (
-            <RadioFieldText key={`field-text-${index}`}>
-              {fieldText}
-            </RadioFieldText>
-          )),
-        }
-      })
-    )
+    group:
+      | 'general'
+      | 'cpuOptimized'
+      | 'memoryOptimized'
+      | 'storageOptimized'
+      | 'custom'
+  ) => {
+    const data = INSTANCE_SIZES[group]
+    return data.map((option) => (
+      <RadioField
+        key={`${group}-${option.value}`}
+        value={`${group}-${option.value}`}
+        variant="card"
+      >
+        <RadioFieldText>{option.ncpus} CPUs</RadioFieldText>
+        <RadioFieldText>{option.memory} GB RAM</RadioFieldText>
+      </RadioField>
+    ))
+  }
 
   const renderTabPanels = (
     data: Array<Pick<RadioGroupProps, 'legend' | 'hint' | 'children'>>
@@ -217,92 +310,27 @@ const InstancesPage = () => {
               legend: 'Choose a general purpose instance',
               hint:
                 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
-              children: renderLargeRadioFields([
-                {
-                  value: 'general-xs',
-                  fields: ['1 CPUs', '2 GB RAM'],
-                },
-                {
-                  value: 'general-sm',
-                  fields: ['2 CPUs', '4 GB RAM'],
-                },
-                {
-                  value: 'general-med',
-                  fields: ['4 CPUs', '16 GB RAM'],
-                },
-              ]),
+              children: renderLargeRadioFields('general'),
             },
             {
               legend: 'Choose a CPU optimized instance',
               hint: 'CPU optimized instances provide a good balance of...',
-              children: renderLargeRadioFields([
-                {
-                  value: 'cpu-optimized-xs',
-                  fields: ['1 CPUs', '2 GB RAM'],
-                },
-                {
-                  value: 'cpu-optimized-sm',
-                  fields: ['2 CPUs', '4 GB RAM'],
-                },
-                {
-                  value: 'cpu-optimized-med',
-                  fields: ['4 CPUs', '16 GB RAM'],
-                },
-              ]),
+              children: renderLargeRadioFields('cpuOptimized'),
             },
             {
               legend: 'Choose a Memory optimized instance',
               hint: 'Memory optimized instances provide a good balance of...',
-              children: renderLargeRadioFields([
-                {
-                  value: 'memory-optimized-xs',
-                  fields: ['1 CPUs', '2 GB RAM'],
-                },
-                {
-                  value: 'memory-optimized-sm',
-                  fields: ['2 CPUs', '4 GB RAM'],
-                },
-                {
-                  value: 'memory-optimized-med',
-                  fields: ['4 CPUs', '16 GB RAM'],
-                },
-              ]),
+              children: renderLargeRadioFields('memoryOptimized'),
             },
             {
               legend: 'Choose a Storage optimized instance',
               hint: 'Storage optimized instances provide a good balance of...',
-              children: renderLargeRadioFields([
-                {
-                  value: 'storage-optimized-xs',
-                  fields: ['1 CPUs', '2 GB RAM'],
-                },
-                {
-                  value: 'storage-optimized-sm',
-                  fields: ['2 CPUs', '4 GB RAM'],
-                },
-                {
-                  value: 'storage-optimized-med',
-                  fields: ['4 CPUs', '16 GB RAM'],
-                },
-              ]),
+              children: renderLargeRadioFields('storageOptimized'),
             },
             {
               legend: 'Choose a custom instance',
               hint: 'Custom instances...',
-              children: renderLargeRadioFields([
-                {
-                  value: 'custom-xs',
-                  fields: ['1 CPUs', '2 GB RAM'],
-                },
-                {
-                  value: 'custom-sm',
-                  fields: ['2 CPUs', '4 GB RAM'],
-                },
-                {
-                  value: 'custom-med',
-                  fields: ['4 CPUs', '16 GB RAM'],
-                },
-              ]),
+              children: renderLargeRadioFields('custom'),
             },
           ])}
         </StyledTabs>

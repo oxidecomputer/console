@@ -113,7 +113,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
     handleChange && handleChange(event.target.value)
   }
   const hintId = `${name}-hint`
-  const ariaProps = hint ? { 'aria-describedby': hintId } : null
+  const ariaProps = hint ? { 'aria-describedby': hintId, tabIndex: 0 } : null
   return (
     <StyledFieldset {...ariaProps}>
       <StyledLegend hideLegend={hideLegend}>{legend}</StyledLegend>
