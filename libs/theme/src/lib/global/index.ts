@@ -43,6 +43,11 @@ const globalStyles = css`
     color: inherit;
     text-decoration: none;
   }
+
+  &:focus {
+    outline: 1px solid ${(props) => props.theme.themeColors.green500};
+    outline-offset: 2px;
+  }
 `
 
 export const GlobalStyle = createGlobalStyle`
