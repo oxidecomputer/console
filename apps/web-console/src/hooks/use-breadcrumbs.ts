@@ -3,38 +3,50 @@ import { useLocation } from 'react-router-dom'
 import type { Crumb } from '@oxide/ui'
 
 type SpecialLabel = {
-  pred: (p: string) => boolean
-  label: string
+  applies: boolean
+  items: Crumb[]
 }
 
-const specialLabels: SpecialLabel[] = [
+// TODO: this could be generalized to pull the label out of the route
+// but it would be premature until we have more routes like this
+const specialItems = (path: string): SpecialLabel[] => [
   {
-    pred: (path) => path.endsWith('/instances/new'),
-    label: 'Create instance',
+    applies: path.endsWith('/instances-new'),
+    items: [
+      { href: path.replace(/-new$/, ''), label: 'instances' },
+      { label: 'Create instance' },
+    ],
   },
   {
-    pred: (path) => path.endsWith('/projects/new'),
-    label: 'Create project',
+    applies: path.endsWith('/projects-new'),
+    items: [
+      { href: path.replace(/-new$/, ''), label: 'projects' },
+      { label: 'Create project' },
+    ],
   },
 ]
 
-const getSpecialLabel = (pathSoFar: string): string | undefined =>
-  specialLabels.find((sp) => sp.pred(pathSoFar))?.label
+const getSpecialItems = (pathSoFar: string): Crumb[] | undefined =>
+  specialItems(pathSoFar).find((sp) => sp.applies)?.items
 
 export const breadcrumbsForPath = (path: string): Crumb[] => {
   const pathParts = path === '/' ? [] : path.split('/').slice(1)
 
-  const crumbFor = (pathPart: string, i: number): Crumb => {
+  const crumbsFor = (pathPart: string, i: number): Crumb[] => {
     const pathSoFar = '/' + pathParts.slice(0, i + 1).join('/')
     const isLastCrumb = i === pathParts.length - 1
 
-    return {
-      label: getSpecialLabel(pathSoFar) || pathPart,
-      href: isLastCrumb ? undefined : pathSoFar,
-    }
+    return (
+      getSpecialItems(pathSoFar) || [
+        {
+          label: pathPart,
+          href: isLastCrumb ? undefined : pathSoFar,
+        },
+      ]
+    )
   }
 
-  return [{ href: '/', label: 'Maze War' }, ...pathParts.map(crumbFor)]
+  return [{ href: '/', label: 'Maze War' }, ...pathParts.flatMap(crumbsFor)]
 }
 
 export function useBreadcrumbs() {

@@ -113,7 +113,7 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
         ))}
       </List>
       <Create>
-        <Link to="/projects/new">
+        <Link to="/projects-new">
           <CreateText>Create a new project</CreateText>
         </Link>
       </Create>

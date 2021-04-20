@@ -11,7 +11,7 @@
     "target": "es2015",
     "module": "commonjs",
     "esModuleInterop": true,
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,

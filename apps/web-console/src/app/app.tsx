@@ -23,13 +23,13 @@ const App = () => {
           <Route path="/projects" exact>
             <ProjectsPage />
           </Route>
-          <Route path="/projects/new" exact>
+          <Route path="/projects-new" exact>
             <div>[CREATE PROJECT]</div>
           </Route>
           <Route path="/projects/:projectName/instances" exact>
             <InstancesPage />
           </Route>
-          <Route path="/projects/:projectName/instances/new" exact>
+          <Route path="/projects/:projectName/instances-new" exact>
             <InstanceCreatePage />
           </Route>
           <Route path="/projects/:projectName/instances/:instanceName">

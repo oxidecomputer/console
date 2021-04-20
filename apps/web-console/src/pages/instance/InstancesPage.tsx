@@ -42,7 +42,7 @@ const InstancesPage = () => {
       </ul>
       <Link
         style={{ marginTop: '1rem' }}
-        to={`/projects/${projectName}/instances/new`}
+        to={`/projects/${projectName}/instances-new`}
       >
         Create instance
       </Link>

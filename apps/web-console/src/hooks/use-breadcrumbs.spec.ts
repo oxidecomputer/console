@@ -29,7 +29,7 @@ describe('breadcrumbsForPath', () => {
   })
 
   it('applies special labels for create pages', () => {
-    expect(breadcrumbsForPath('/projects/new')).toEqual([
+    expect(breadcrumbsForPath('/projects-new')).toEqual([
       mazeWar,
       { href: '/projects', label: 'projects' },
       { label: 'Create project' },
@@ -37,7 +37,7 @@ describe('breadcrumbsForPath', () => {
   })
 
   it("applies special labels regardless of whether there's other stuff in the path", () => {
-    expect(breadcrumbsForPath('/projects/test-project/instances/new')).toEqual([
+    expect(breadcrumbsForPath('/projects/test-project/instances-new')).toEqual([
       mazeWar,
       { href: '/projects', label: 'projects' },
       { href: '/projects/test-project', label: 'test-project' },
@@ -45,7 +45,7 @@ describe('breadcrumbsForPath', () => {
       { label: 'Create instance' },
     ])
 
-    expect(breadcrumbsForPath('/instances/new')).toEqual([
+    expect(breadcrumbsForPath('/instances-new')).toEqual([
       mazeWar,
       { href: '/instances', label: 'instances' },
       { label: 'Create instance' },
