@@ -16,7 +16,8 @@ gcloud compute instances delete "$INSTANCE_NAME" --quiet \
 
 echo " Creating instance: ${INSTANCE_NAME}"
 
-gcloud compute instances create "$INSTANCE_NAME" \
+# Retry command twice just in case there is a random failure.
+for i in 1 2; do gcloud compute instances create "$INSTANCE_NAME" \
 	--description="Machine automatically generated from branch ${BRANCH_NAME} of the oxidecomputer/console git repo." \
 	--hostname="${INSTANCE_NAME}.internal.oxide.computer" \
 	--zone=$ZONE \
@@ -27,4 +28,5 @@ gcloud compute instances create "$INSTANCE_NAME" \
 	--boot-disk-size=200GB \
 	--boot-disk-auto-delete \
 	--metadata-from-file startup-script=${DIR}/gcp_instance_startup_script.sh \
-	--quiet
+	--quiet \
+	&& break || sleep 5; done
