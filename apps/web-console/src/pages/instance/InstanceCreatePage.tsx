@@ -9,7 +9,6 @@ import {
   Button,
   Icon,
   PageHeader,
-  NumberField,
   RadioGroup,
   RadioField,
   Tabs,
@@ -20,6 +19,7 @@ import {
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useBreadcrumbs, useAsync } from '../../hooks'
 import { api } from '@oxide/api'
+import { Debug } from '../../components/Debug'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -31,11 +31,6 @@ const Title = styled(TextWithIcon).attrs({
     font-size: ${({ theme }) => theme.spacing(8)};
     margin-right: ${({ theme }) => theme.spacing(3)};
   }
-`
-
-const Box = styled.div`
-  border: 1px solid white;
-  padding: 1rem;
 `
 
 const Form = styled.form`
@@ -74,85 +69,85 @@ type Params = {
 const INSTANCE_SIZES = {
   general: [
     {
-      value: 'xs',
+      value: 'general-xs',
       memory: 2,
       ncpus: 1,
     },
     {
-      value: 'sm',
+      value: 'general-sm',
       memory: 4,
       ncpus: 2,
     },
     {
-      value: 'med',
+      value: 'general-med',
       memory: 16,
       ncpus: 4,
     },
   ],
   cpuOptimized: [
     {
-      value: 'xs',
+      value: 'cpuOptimied-xs',
       memory: 2,
       ncpus: 1,
     },
     {
-      value: 'sm',
+      value: 'cpuOptimied-sm',
       memory: 4,
       ncpus: 2,
     },
     {
-      value: 'med',
+      value: 'cpuOptimied-med',
       memory: 16,
       ncpus: 4,
     },
   ],
   memoryOptimized: [
     {
-      value: 'xs',
+      value: 'memoryOptimized-xs',
       memory: 2,
       ncpus: 1,
     },
     {
-      value: 'sm',
+      value: 'memoryOptimized-sm',
       memory: 4,
       ncpus: 2,
     },
     {
-      value: 'med',
+      value: 'memoryOptimized-med',
       memory: 16,
       ncpus: 4,
     },
   ],
   storageOptimized: [
     {
-      value: 'xs',
+      value: 'storageOptimized-xs',
       memory: 2,
       ncpus: 1,
     },
     {
-      value: 'sm',
+      value: 'storageOptimized-sm',
       memory: 4,
       ncpus: 2,
     },
     {
-      value: 'med',
+      value: 'storageOptimized-med',
       memory: 16,
       ncpus: 4,
     },
   ],
   custom: [
     {
-      value: 'xs',
+      value: 'custom-xs',
       memory: 2,
       ncpus: 1,
     },
     {
-      value: 'sm',
+      value: 'custom-sm',
       memory: 4,
       ncpus: 2,
     },
     {
-      value: 'med',
+      value: 'custom-med',
       memory: 16,
       ncpus: 4,
     },
@@ -167,30 +162,35 @@ const InstancesPage = () => {
 
   // form state
   const [instanceName, setInstanceName] = useState('')
-  const [ncpus, setNcpus] = useState(1)
   const [imageField, setImageField] = useState('')
   const [cpuRamField, setCpuRamField] = useState('')
+
+  const getParams = () => {
+    // TODO: validate client-side before attempting to POST
+    const group = cpuRamField.split('-')[0]
+    const foundInstance = INSTANCE_SIZES[group].find(
+      (instance) => instance.value === cpuRamField
+    )
+    const memory = foundInstance.memory
+    const ncpus = foundInstance.ncpus
+
+    return {
+      description: `An instance in project: ${projectName}`,
+      hostname: 'oxide.com',
+      memory: memory,
+      name: instanceName,
+      ncpus: ncpus,
+    }
+  }
 
   const createInstance = useAsync(() =>
     api.apiProjectInstancesPost({
       projectName,
-      apiInstanceCreateParams: {
-        description: `An instance in project: ${projectName}`,
-        hostname: 'oxide.com',
-        memory: 10,
-        name: instanceName,
-        ncpus,
-      },
+      apiInstanceCreateParams: getParams(),
     })
   )
 
   const onCreateClick = async () => {
-    // TODO: validate client-side before attempting post
-    const fields = {
-      image: imageField,
-      cpuRam: cpuRamField,
-    }
-    console.log('Create instance with these fields:', fields)
     await createInstance.run()
   }
 
@@ -210,21 +210,10 @@ const InstancesPage = () => {
       )
     })
 
-  const renderLargeRadioFields = (
-    group:
-      | 'general'
-      | 'cpuOptimized'
-      | 'memoryOptimized'
-      | 'storageOptimized'
-      | 'custom'
-  ) => {
+  const renderLargeRadioFields = (group: keyof typeof INSTANCE_SIZES) => {
     const data = INSTANCE_SIZES[group]
     return data.map((option) => (
-      <RadioField
-        key={`${group}-${option.value}`}
-        value={`${group}-${option.value}`}
-        variant="card"
-      >
+      <RadioField key={option.value} value={option.value} variant="card">
         <RadioFieldText>{option.ncpus} CPUs</RadioFieldText>
         <RadioFieldText>{option.memory} GB RAM</RadioFieldText>
       </RadioField>
@@ -251,6 +240,7 @@ const InstancesPage = () => {
 
   return (
     <>
+      <Debug>Post: {JSON.stringify(createInstance)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Instance</Title>
@@ -344,15 +334,11 @@ const InstancesPage = () => {
         >
           Instance name
         </TextField>
-        <NumberField value={ncpus} handleChange={setNcpus}>
-          Number of CPUs
-        </NumberField>
 
         <Button onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
         </Button>
       </Form>
-      <Box>Post error: {JSON.stringify(createInstance.error)}</Box>
     </>
   )
 }
