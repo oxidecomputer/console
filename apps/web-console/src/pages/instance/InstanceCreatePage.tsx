@@ -66,6 +66,7 @@ type Params = {
   projectName: string
 }
 
+// This data structure is completely made up for the purposes of demonstration only. It is not meant to reflect any opinions on how the backend API endpoint should be structured. Thank you for reading and have a good day!
 const INSTANCE_SIZES = {
   general: [
     {
@@ -167,20 +168,24 @@ const InstancesPage = () => {
 
   const getParams = () => {
     // TODO: validate client-side before attempting to POST
-    const group = cpuRamField.split('-')[0]
-    const foundInstance = INSTANCE_SIZES[group].find(
-      (instance) => instance.value === cpuRamField
-    )
-    const memory = foundInstance.memory
-    const ncpus = foundInstance.ncpus
+    // FIXME: Refactor once the backend API is more settled
+    const groupName = cpuRamField.split('-')[0] as keyof typeof INSTANCE_SIZES
+    const groupOptions = groupName ? INSTANCE_SIZES[groupName] : null
+    const foundInstance = groupOptions
+      ? groupOptions.find((option) => option.value === cpuRamField)
+      : null
+    const memory = foundInstance ? foundInstance.memory : 0
+    const ncpus = foundInstance ? foundInstance.ncpus : 0
 
-    return {
+    const params = {
       description: `An instance in project: ${projectName}`,
       hostname: 'oxide.com',
       memory: memory,
       name: instanceName,
       ncpus: ncpus,
     }
+    console.log('params', params)
+    return params
   }
 
   const createInstance = useAsync(() =>
