@@ -89,9 +89,9 @@ export const Tabs: FC<TabsProps> = ({
   const [focusTab, setFocusTab] = useState<number | null>(null)
 
   // create id for panels
-  const ids = useMemo(() => new Array(tabs.length).fill('').map(() => uuid()), [
-    tabs,
-  ])
+  const prefixId = useMemo(() => uuid(), [])
+  const ids = tabs.map((tabName, index) => `${prefixId}-${tabName}-${index}`)
+
   // create refs for all the tabs
   const refs = useMemo(
     () =>
@@ -116,6 +116,7 @@ export const Tabs: FC<TabsProps> = ({
     event
   ) => {
     const { key } = event
+
     switch (key) {
       case KEYS.end:
         event.preventDefault()

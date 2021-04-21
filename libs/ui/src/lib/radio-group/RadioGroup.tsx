@@ -112,6 +112,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
 }) => {
   // Set checked of each child based on state
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    event.stopPropagation()
     handleChange && handleChange(event.target.value)
   }
   const hintId = `${name}-hint`
