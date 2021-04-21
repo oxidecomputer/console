@@ -181,6 +181,14 @@ const INSTANCE_SIZES = [
   },
 ]
 
+const RadioCardField = (props: RadioFieldProps) => {
+  return (
+    <RadioField key={props.value} value={props.value} variant="card">
+      {props.children}
+    </RadioField>
+  )
+}
+
 const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
@@ -227,15 +235,6 @@ const InstancesPage = () => {
       history.push(`/projects/${projectName}/instances`)
     }
   }, [createInstance.data, history, projectName])
-
-  const renderRadioFields = (data: RadioFieldProps[]) =>
-    data.map((option) => {
-      return (
-        <RadioField key={option.value} value={option.value} variant="card">
-          {option.children}
-        </RadioField>
-      )
-    })
 
   const renderLargeRadioFields = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
@@ -287,15 +286,13 @@ const InstancesPage = () => {
             direction="fixed-row"
             name="distributions"
           >
-            {renderRadioFields([
-              { value: 'centos', children: 'CentOS' },
-              { value: 'debian', children: 'Debian' },
-              { value: 'fedora', children: 'Fedora' },
-              { value: 'freeBsd', children: 'FreeBSD' },
-              { value: 'ubuntu', children: 'Ubuntu' },
-              { value: 'windows1', children: 'Windows' },
-              { value: 'windows2', children: 'Windows' },
-            ])}
+            <RadioCardField value="centos">CentOS</RadioCardField>
+            <RadioCardField value="debian">Debian</RadioCardField>
+            <RadioCardField value="fedora">Fedora</RadioCardField>
+            <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
+            <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
+            <RadioCardField value="windows1">Windows</RadioCardField>
+            <RadioCardField value="windows2">Windows</RadioCardField>
           </RadioGroup>
           <RadioGroup
             hideLegend
@@ -305,11 +302,9 @@ const InstancesPage = () => {
             direction="fixed-row"
             name="custom-image"
           >
-            {renderRadioFields([
-              { value: 'custom-centos', children: 'Custom CentOS' },
-              { value: 'custom-debian', children: 'Custom Debian' },
-              { value: 'custom-fedora', children: 'Custom Fedora' },
-            ])}
+            <RadioCardField value="custom-centos">Custom CentOS</RadioCardField>
+            <RadioCardField value="custom-debian">Custom Debian</RadioCardField>
+            <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
           </RadioGroup>
         </StyledTabs>
         <StyledText>Choose CPUs and RAM</StyledText>
