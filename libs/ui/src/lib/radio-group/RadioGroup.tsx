@@ -66,13 +66,15 @@ const columnStyles = css`
     margin-top: ${({ theme }) => theme.spacing(5)};
   }
 `
-
+const OFFSET = '3px'
 const rowStyles = (shouldOverflow: boolean) => css`
   flex-direction: row;
   ${shouldOverflow
     ? `flex-wrap: nowrap; overflow-x: auto;`
     : `flex-wrap: wrap;`};
   margin-top: ${({ theme }) => theme.spacing(3)};
+  padding-top: ${OFFSET};
+  padding-left: ${OFFSET};
 
   & > * {
     margin-right: ${({ theme }) => theme.spacing(5)};
