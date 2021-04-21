@@ -66,94 +66,102 @@ type Params = {
   projectName: string
 }
 
-// This data structure is completely made up for the purposes of demonstration only. It is not meant to reflect any opinions on how the backend API endpoint should be structured. Thank you for reading and have a good day!
-const INSTANCE_SIZES = {
-  general: [
-    {
-      value: 'general-xs',
-      memory: 2,
-      ncpus: 1,
-    },
-    {
-      value: 'general-sm',
-      memory: 4,
-      ncpus: 2,
-    },
-    {
-      value: 'general-med',
-      memory: 16,
-      ncpus: 4,
-    },
-  ],
-  cpuOptimized: [
-    {
-      value: 'cpuOptimied-xs',
-      memory: 2,
-      ncpus: 1,
-    },
-    {
-      value: 'cpuOptimied-sm',
-      memory: 4,
-      ncpus: 2,
-    },
-    {
-      value: 'cpuOptimied-med',
-      memory: 16,
-      ncpus: 4,
-    },
-  ],
-  memoryOptimized: [
-    {
-      value: 'memoryOptimized-xs',
-      memory: 2,
-      ncpus: 1,
-    },
-    {
-      value: 'memoryOptimized-sm',
-      memory: 4,
-      ncpus: 2,
-    },
-    {
-      value: 'memoryOptimized-med',
-      memory: 16,
-      ncpus: 4,
-    },
-  ],
-  storageOptimized: [
-    {
-      value: 'storageOptimized-xs',
-      memory: 2,
-      ncpus: 1,
-    },
-    {
-      value: 'storageOptimized-sm',
-      memory: 4,
-      ncpus: 2,
-    },
-    {
-      value: 'storageOptimized-med',
-      memory: 16,
-      ncpus: 4,
-    },
-  ],
-  custom: [
-    {
-      value: 'custom-xs',
-      memory: 2,
-      ncpus: 1,
-    },
-    {
-      value: 'custom-sm',
-      memory: 4,
-      ncpus: 2,
-    },
-    {
-      value: 'custom-med',
-      memory: 16,
-      ncpus: 4,
-    },
-  ],
-}
+// This data structure is completely made up for the purposes of demonstration
+// only. It is not meant to reflect any opinions on how the backend API endpoint
+// should be structured. Thank you for reading and have a good day!
+const INSTANCE_SIZES = [
+  {
+    category: 'general',
+    id: 'general-xs',
+    memory: 2,
+    ncpus: 1,
+  },
+  {
+    category: 'general',
+    id: 'general-sm',
+    memory: 4,
+    ncpus: 2,
+  },
+  {
+    category: 'general',
+    id: 'general-med',
+    memory: 16,
+    ncpus: 4,
+  },
+
+  {
+    category: 'cpuOptimized',
+    id: 'cpuOptimized-xs',
+    memory: 3,
+    ncpus: 1,
+  },
+  {
+    category: 'cpuOptimized',
+    id: 'cpuOptimized-sm',
+    memory: 5,
+    ncpus: 3,
+  },
+  {
+    category: 'cpuOptimized',
+    id: 'cpuOptimized-med',
+    memory: 7,
+    ncpus: 5,
+  },
+  {
+    category: 'memoryOptimized',
+    id: 'memoryOptimized-xs',
+    memory: 3,
+    ncpus: 2,
+  },
+  {
+    category: 'memoryOptimized',
+    id: 'memoryOptimized-sm',
+    memory: 5,
+    ncpus: 3,
+  },
+  {
+    category: 'memoryOptimized',
+    id: 'memoryOptimized-med',
+    memory: 17,
+    ncpus: 5,
+  },
+  {
+    category: 'storageOptimized',
+    id: 'storageOptimized-xs',
+    memory: 1,
+    ncpus: 1,
+  },
+  {
+    category: 'storageOptimized',
+    id: 'storageOptimized-sm',
+    memory: 3,
+    ncpus: 1,
+  },
+  {
+    category: 'storageOptimized',
+    id: 'storageOptimized-med',
+    memory: 15,
+    ncpus: 3,
+  },
+  {
+    category: 'custom',
+    id: 'custom-xs',
+    memory: 2,
+    ncpus: 1,
+  },
+  {
+    category: 'custom',
+    id: 'custom-sm',
+    memory: 4,
+    ncpus: 2,
+  },
+  {
+    category: 'custom',
+    id: 'custom-med',
+    memory: 16,
+    ncpus: 4,
+  },
+]
 
 const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
@@ -164,25 +172,27 @@ const InstancesPage = () => {
   // form state
   const [instanceName, setInstanceName] = useState('')
   const [imageField, setImageField] = useState('')
-  const [cpuRamField, setCpuRamField] = useState('')
+  const [instanceSizeValue, setInstanceSizeValue] = useState('')
+  const [instanceSize, setInstanceSize] = useState({ mem: 0, ncpus: 0 })
+
+  const handleChangeInstanceSize = (value: string) => {
+    setInstanceSizeValue(value)
+
+    // FIXME: Refactor once the backend API is more settled
+    const instance = INSTANCE_SIZES.find((option) => option.id === value)
+    if (instance) {
+      setInstanceSize({ mem: instance.memory, ncpus: instance.ncpus })
+    }
+  }
 
   const getParams = () => {
     // TODO: validate client-side before attempting to POST
-    // FIXME: Refactor once the backend API is more settled
-    const groupName = cpuRamField.split('-')[0] as keyof typeof INSTANCE_SIZES
-    const groupOptions = groupName ? INSTANCE_SIZES[groupName] : null
-    const foundInstance = groupOptions
-      ? groupOptions.find((option) => option.value === cpuRamField)
-      : null
-    const memory = foundInstance ? foundInstance.memory : 0
-    const ncpus = foundInstance ? foundInstance.ncpus : 0
-
     const params = {
       description: `An instance in project: ${projectName}`,
       hostname: 'oxide.com',
-      memory: memory,
+      memory: instanceSize.mem,
       name: instanceName,
-      ncpus: ncpus,
+      ncpus: instanceSize.ncpus,
     }
     console.log('params', params)
     return params
@@ -215,14 +225,15 @@ const InstancesPage = () => {
       )
     })
 
-  const renderLargeRadioFields = (group: keyof typeof INSTANCE_SIZES) => {
-    const data = INSTANCE_SIZES[group]
-    return data.map((option) => (
-      <RadioField key={option.value} value={option.value} variant="card">
-        <RadioFieldText>{option.ncpus} CPUs</RadioFieldText>
-        <RadioFieldText>{option.memory} GB RAM</RadioFieldText>
-      </RadioField>
-    ))
+  const renderLargeRadioFields = (category: string) => {
+    return INSTANCE_SIZES.filter((option) => option.category === category).map(
+      (option) => (
+        <RadioField key={option.id} value={option.id} variant="card">
+          <RadioFieldText>{option.ncpus} CPUs</RadioFieldText>
+          <RadioFieldText>{option.memory} GB RAM</RadioFieldText>
+        </RadioField>
+      )
+    )
   }
 
   const renderTabPanels = (
@@ -230,9 +241,9 @@ const InstancesPage = () => {
   ) =>
     data.map((group, index) => (
       <RadioGroup
-        checked={cpuRamField}
+        checked={instanceSizeValue}
         direction="fixed-row"
-        handleChange={setCpuRamField}
+        handleChange={handleChangeInstanceSize}
         hideLegend
         hint={group.hint}
         key={`distributions-${index}`}
