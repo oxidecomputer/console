@@ -1,3 +1,4 @@
+import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
 import Icon from '../../icon/Icon'
@@ -23,12 +24,19 @@ const Control = styled.button`
 `
 
 export interface ControlsProps {
+  /** Fires when the plus button is clicked */
   onIncrement: () => void
+  /** Fires when the minus button is clicked */
   onDecrement: () => void
+
+  /** This component should have no children */
+  children?: never
 }
 
-// Not using React.FC here to avoid the addition of `children`
-export const Controls = ({ onDecrement, onIncrement }: ControlsProps) => (
+export const Controls: FC<ControlsProps> = ({
+  onDecrement,
+  onIncrement,
+}: ControlsProps) => (
   <FieldControls>
     <Control
       onClick={() => {

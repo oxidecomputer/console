@@ -1,17 +1,12 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { FieldProps } from '../Field'
 import { Field } from '../Field'
 import { Input } from '../Input'
+import type { TextFieldProps } from './TextField'
 
-export interface EmailFieldProps extends FieldProps {
-  value: string
-  placeholder?: string
-
-  onChange: (value: string) => void
-
-  children: null
-}
+// Extending `TextFieldProps` here as a way to distinguish this component from TextField
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface EmailFieldProps extends TextFieldProps {}
 
 export const EmailField: FC<EmailFieldProps> = ({
   id,

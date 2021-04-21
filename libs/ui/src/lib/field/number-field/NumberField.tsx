@@ -18,8 +18,10 @@ const StyledInput = styled(Input)`
 `
 
 export interface NumberFieldProps extends FieldProps {
+  /** Value this field should display */
   value: number
 
+  /** Fires when the value entered in the textbox is a valid number, or when the field blurs. */
   onChange: (value: number) => void
 }
 

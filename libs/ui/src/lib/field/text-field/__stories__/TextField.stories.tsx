@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Meta, Story } from '@storybook/react'
+import { action } from '@storybook/addon-actions'
 import type { TextFieldProps } from '..'
 import { TextField } from '..'
 
@@ -16,6 +17,13 @@ Default.args = {
   placeholder: 'placeholder',
   info: '',
   error: '',
+}
+
+export const Controlled = Template.bind({})
+Controlled.args = {
+  ...Default.args,
+  value: '',
+  onChange: action('onChange'),
 }
 
 export const Invalid = Template.bind({})
