@@ -14,6 +14,8 @@ Default.args = {
   id: 'default',
   label: 'Default',
   placeholder: 'placeholder',
+  info: '',
+  error: '',
 }
 
 export const Invalid = Template.bind({})

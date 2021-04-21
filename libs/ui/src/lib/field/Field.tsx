@@ -4,6 +4,8 @@ import type { StyledComponentProps } from 'styled-components'
 import styled, { css } from 'styled-components'
 import Text from '../text/Text'
 import type { Theme } from '@oxide/theme'
+import { Tooltip } from '../tooltip/Tooltip'
+import Icon from '../icon/Icon'
 
 export interface FieldProps {
   /**
@@ -27,9 +29,13 @@ export interface FieldProps {
    */
   error?: string
   /**
-   * Additional text to associate with this specific field
+   * Additional text to associate with this specific field, used to indicate what the field is used for
    */
   hint?: ReactNode
+  /**
+   * Additional text to show in a popover inside the text field, this content should not be requried to understand the use of the field
+   */
+  info?: ReactNode
 
   children: ReactNode
 }
@@ -123,6 +129,19 @@ const ErrorMessage: FC<{ id: string }> = ({ id, children }) => (
   </ErrorContainer>
 )
 
+/* INFO */
+
+const IconContainer = styled.div`
+  padding: ${({ theme }) => theme.spacing(0, 2.25)};
+`
+const InfoPopover: FC = ({ children }) => (
+  <Tooltip isPrimaryLabel={false} content={children}>
+    <IconContainer>
+      <Icon name="infoFilled" color="gray300" />
+    </IconContainer>
+  </Tooltip>
+)
+
 /* FIELD */
 
 export const Field: FC<FieldProps> = ({
@@ -131,6 +150,7 @@ export const Field: FC<FieldProps> = ({
   error,
   hint,
   label,
+  info,
   children,
 }) => {
   const errorId = useMemo(() => (error ? `${id}-validation-hint` : ''), [
@@ -145,7 +165,10 @@ export const Field: FC<FieldProps> = ({
         {label}
       </Label>
       {hint && <Hint id={hintId}>{hint}</Hint>}
-      <InputContainer error={error}>{children}</InputContainer>
+      <InputContainer error={error}>
+        {children}
+        {info && <InfoPopover>{info}</InfoPopover>}
+      </InputContainer>
       {error && <ErrorMessage id={errorId}>{error}</ErrorMessage>}
     </Container>
   )
