@@ -13,7 +13,7 @@ export const Default = Template.bind({})
 Default.args = {
   id: 'email',
   label: 'Email Address',
-  error: false,
+  error: '',
   required: true,
 }
 
@@ -21,7 +21,6 @@ export const Invalid = Template.bind({})
 Invalid.args = {
   id: 'email-invalid',
   label: 'Email Address',
-  error: true,
-  errorMessage: 'Please enter a valid email address',
+  error: 'Please enter a valid email address',
   required: true,
 }

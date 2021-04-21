@@ -20,8 +20,7 @@ export const Invalid = Template.bind({})
 Invalid.args = {
   id: 'invalid',
   label: 'Invalid Field',
-  error: true,
-  errorMessage: 'Field is invalid, please fix',
+  error: 'Field is invalid, please fix',
 }
 
 export const Disabled = Template.bind({})

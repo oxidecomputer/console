@@ -23,13 +23,9 @@ export interface FieldProps {
    */
   label: ReactNode
   /**
-   * Required for accessibility. Defaults to `false`. Input is invalid
+   * Error message text to render, if truthy, marks the field as invalid
    */
-  error?: boolean
-  /**
-   * Error message text to render
-   */
-  errorMessage?: string
+  error?: string
   /**
    * Additional text to associate with this specific field
    */
@@ -133,7 +129,6 @@ export const Field: FC<FieldProps> = ({
   id: id,
   required,
   error,
-  errorMessage,
   hint,
   label,
   children,
@@ -151,7 +146,7 @@ export const Field: FC<FieldProps> = ({
       </Label>
       {hint && <Hint id={hintId}>{hint}</Hint>}
       <InputContainer error={error}>{children}</InputContainer>
-      {error && <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>}
+      {error && <ErrorMessage id={errorId}>{error}</ErrorMessage>}
     </Container>
   )
 }

@@ -27,6 +27,5 @@ Default.args = {
   label: 'Custom Field',
   required: false,
   hint: '',
-  error: false,
-  errorMessage: '',
+  error: '',
 }
