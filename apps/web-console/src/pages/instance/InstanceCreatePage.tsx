@@ -88,6 +88,24 @@ const INSTANCE_SIZES = [
     memory: 16,
     ncpus: 4,
   },
+  {
+    category: 'general',
+    id: 'general-lg',
+    memory: 24,
+    ncpus: 6,
+  },
+  {
+    category: 'general',
+    id: 'general-xl',
+    memory: 32,
+    ncpus: 8,
+  },
+  {
+    category: 'general',
+    id: 'general-2xl',
+    memory: 40,
+    ncpus: 10,
+  },
 
   {
     category: 'cpuOptimized',
@@ -314,7 +332,6 @@ const InstancesPage = () => {
             },
             {
               legend: 'Choose a CPU optimized instance',
-              hint: 'CPU optimized instances provide a good balance of...',
               children: renderLargeRadioFields('cpuOptimized'),
             },
             {
