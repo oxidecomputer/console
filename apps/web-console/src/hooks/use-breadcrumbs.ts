@@ -6,14 +6,14 @@ import type { Crumb } from '@oxide/ui'
 // but it would be premature until we have more routes like this
 const specialCrumbs = (path: string) => [
   {
-    applies: path.endsWith('/instances-new'),
+    applies: /^\/projects\/[^/]+\/instances-new$/.test(path),
     crumbs: [
       { href: path.replace(/-new$/, ''), label: 'instances' },
       { label: 'Create instance' },
     ],
   },
   {
-    applies: path.endsWith('/projects-new'),
+    applies: path === '/projects-new',
     crumbs: [
       { href: path.replace(/-new$/, ''), label: 'projects' },
       { label: 'Create project' },

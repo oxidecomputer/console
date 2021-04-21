@@ -44,11 +44,29 @@ describe('breadcrumbsForPath', () => {
       { href: '/projects/test-project/instances', label: 'instances' },
       { label: 'Create instance' },
     ])
+  })
 
-    expect(breadcrumbsForPath('/instances-new')).toEqual([
+  it("isn't thrown off by resources sharing a name with the create paths", () => {
+    expect(breadcrumbsForPath('/projects/projects-new')).toEqual([
       mazeWar,
-      { href: '/instances', label: 'instances' },
-      { label: 'Create instance' },
+      { href: '/projects', label: 'projects' },
+      { label: 'projects-new' },
+    ])
+
+    expect(breadcrumbsForPath('/projects/instances-new')).toEqual([
+      mazeWar,
+      { href: '/projects', label: 'projects' },
+      { label: 'instances-new' },
+    ])
+
+    expect(
+      breadcrumbsForPath('/projects/test-project/instances/instances-new')
+    ).toEqual([
+      mazeWar,
+      { href: '/projects', label: 'projects' },
+      { href: '/projects/test-project', label: 'test-project' },
+      { href: '/projects/test-project/instances', label: 'instances' },
+      { label: 'instances-new' },
     ])
   })
 })
