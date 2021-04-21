@@ -183,7 +183,7 @@ const INSTANCE_SIZES = [
 
 const RadioCardField = (props: RadioFieldProps) => {
   return (
-    <RadioField key={props.value} value={props.value} variant="card">
+    <RadioField value={props.value} variant="card">
       {props.children}
     </RadioField>
   )
