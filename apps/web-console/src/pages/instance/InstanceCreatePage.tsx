@@ -173,26 +173,19 @@ const InstancesPage = () => {
   const [instanceName, setInstanceName] = useState('')
   const [imageField, setImageField] = useState('')
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
-  const [instanceSize, setInstanceSize] = useState({ mem: 0, ncpus: 0 })
-
-  const handleChangeInstanceSize = (value: string) => {
-    setInstanceSizeValue(value)
-
-    // FIXME: Refactor once the backend API is more settled
-    const instance = INSTANCE_SIZES.find((option) => option.id === value)
-    if (instance) {
-      setInstanceSize({ mem: instance.memory, ncpus: instance.ncpus })
-    }
-  }
 
   const getParams = () => {
-    // TODO: validate client-side before attempting to POST
+    // FIXME: Refactor once the backend API is more settled
+    const instance = INSTANCE_SIZES.find(
+      (option) => option.id === instanceSizeValue
+    ) || { memory: 0, ncpus: 0 }
+
     const params = {
       description: `An instance in project: ${projectName}`,
       hostname: 'oxide.com',
-      memory: instanceSize.mem,
+      memory: instance.memory,
       name: instanceName,
-      ncpus: instanceSize.ncpus,
+      ncpus: instance.ncpus,
     }
     console.log('params', params)
     return params
@@ -206,6 +199,7 @@ const InstancesPage = () => {
   )
 
   const onCreateClick = async () => {
+    // TODO: validate client-side before attempting to POST
     await createInstance.run()
   }
 
@@ -243,12 +237,12 @@ const InstancesPage = () => {
       <RadioGroup
         checked={instanceSizeValue}
         direction="fixed-row"
-        handleChange={handleChangeInstanceSize}
+        handleChange={setInstanceSizeValue}
         hideLegend
         hint={group.hint}
         key={`distributions-${index}`}
         legend={group.legend}
-        name={`distrbutions-${index}`}
+        name={`distributions-${index}`}
       >
         {group.children}
       </RadioGroup>
