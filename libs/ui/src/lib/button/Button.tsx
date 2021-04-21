@@ -21,16 +21,16 @@ const sizes: Record<
     padding: [number, number]
   }
 > = {
-  xs: { iconSize: 4, fontSize: 3.5, lineHeight: 1 / 0.75, padding: [1.75, 3] }, // total height: 32px
-  sm: { iconSize: 4, fontSize: 3.5, lineHeight: 1.25 / 0.875, padding: [2, 3] }, // total height: 36px
+  xs: { iconSize: 4, fontSize: 3.5, lineHeight: 1.2, padding: [1.5, 3] }, // total height: 32px
+  sm: { iconSize: 4, fontSize: 3.5, lineHeight: 1.2, padding: [2, 3] }, // total height: 36px
   base: {
     iconSize: 5,
     fontSize: 3.5,
     lineHeight: 1.25 / 0.875,
-    padding: [2.5, 4],
+    padding: [2, 4],
   }, // total height: 40px
-  lg: { iconSize: 5, fontSize: 4, lineHeight: 1.5, padding: [2.25, 4.5] }, // total height: 42px
-  xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [3, 6] }, // total height: 48px
+  lg: { iconSize: 5, fontSize: 4, lineHeight: 1.25, padding: [2.25, 4.5] }, // total height: 42px
+  xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [2.5, 6] }, // total height: 48px
 }
 
 export type ButtonProps = StyledComponentProps<
@@ -76,15 +76,17 @@ const getVariantStyles = (variant: Variant) => {
       return css`
         background-color: hsla(154, 50%, 50%, 0.16);
         color: ${({ theme }) => theme.themeColors.green400};
+        border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: hsla(153, 63%, 69%, 0.24);
         }
 
         &:focus {
-          background-color: hsla(154, 63%, 56%, 0.16);
-          box-shadow: 0 0 0 ${({ theme }) => theme.spacing(1)}
-            rgba(65, 192, 136, 0.16);
+          border: solid 2px hsla(154, 63%, 56%, 0.16);
+          box-shadow:
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green400};,
+            inset 0 0 0 1px hsla(154, 63%, 56%, 0.16);
         }
 
         &:disabled,
@@ -95,20 +97,20 @@ const getVariantStyles = (variant: Variant) => {
     case 'outline':
       return css`
         background-color: hsla(146, 51%, 64%, 0.16);
-        box-shadow: inset 0 0 0 1px ${({ theme }) => theme.themeColors.green500};
+        box-shadow: inset 0 0 0 1px ${({ theme }) =>
+          theme.themeColors.green500};
         color: ${({ theme }) => theme.themeColors.green400};
+        border: solid 2px hsla(146, 51%, 64%, 0.16);
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: hsla(146, 51%, 64%, 0.08);
         }
 
         &:focus {
-          box-shadow: ${({ theme }) => `
-            inset 0 0 0 1px ${theme.themeColors.green500},
-            0px 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
-            0px 0px 0px ${theme.spacing(0.5)} hsla(146, 51%, 64%, 0.16),
-            0px 0px 0px ${theme.spacing(1)} hsla(145, 39%, 57%, 0.16)
-            `};
+          border: solid 2px hsla(146, 51%, 64%, 0.16);
+          box-shadow:
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+            inset 0 0 0 1px hsla(146, 51%, 64%, 0.16);
         }
 
         &:disabled,
@@ -120,6 +122,7 @@ const getVariantStyles = (variant: Variant) => {
       return css`
         background-color: transparent;
         color: ${({ theme }) => theme.themeColors.green400};
+        border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: hsla(146, 51%, 64%, 0.08);
@@ -127,6 +130,11 @@ const getVariantStyles = (variant: Variant) => {
 
         &:focus {
           background-color: hsla(146, 51%, 64%, 0.16);
+
+          border: solid 2px transparent;
+          box-shadow:
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+            inset 0 0 0 1px transparent;
         }
 
         &:disabled,
@@ -136,13 +144,18 @@ const getVariantStyles = (variant: Variant) => {
       `
     case 'link':
       return css`
-        padding: 0;
+        padding: ${({ theme }) => theme.spacing(1)};
         background-color: transparent;
         color: ${({ theme }) => theme.themeColors.green500};
+        border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]),
         &:focus {
           text-decoration: underline;
+          border: solid 2px transparent;
+          box-shadow:
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+            inset 0 0 0 1px transparent;
         }
 
         &:disabled,
@@ -153,18 +166,20 @@ const getVariantStyles = (variant: Variant) => {
     case 'solid':
     default:
       return css`
-        background-color: ${({ theme }) => theme.themeColors.green500};
+        background-color: ${({ theme }) => theme.themeColors.green600};
         color: ${({ theme }) => theme.themeColors.green50};
+        border: solid 2px ${({ theme }) => theme.themeColors.green600};
 
         &:hover:not(:disabled):not([disabled]) {
           background-color: ${({ theme }) => theme.themeColors.green700};
+          border: solid 2px ${({ theme }) => theme.themeColors.green700};
         }
 
         &:focus {
-          box-shadow: ${({ theme }) => `
-            0 1px ${theme.spacing(0.5)} rgba(0, 0, 0, 0.05),
-            0 0 0 ${theme.spacing(0.5)} ${theme.themeColors.gray800},
-            0 0 0 ${theme.spacing(1)} ${theme.themeColors.green600}`};
+          border: solid 2px ${({ theme }) => theme.themeColors.green600};
+          box-shadow:
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.white};,
+            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green600};
         }
 
         &:disabled,
@@ -191,6 +206,13 @@ const StyledButton = styled.button<ButtonProps>`
   &:disabled,
   [disabled] {
     cursor: not-allowed;
+  }
+
+  &:focus {
+    outline-style: solid;
+    outline-color: transparent
+    outline-width: 0;
+    outline: 0;
   }
 `
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)

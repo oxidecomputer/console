@@ -35,10 +35,6 @@ const BaseLink = styled.a`
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
   }
-
-  :focus {
-    outline: 1px solid ${({ theme }) => theme.color('blue500')};
-  }
 `
 
 const ListItemLink = styled(BaseLink)`
