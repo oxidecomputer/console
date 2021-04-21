@@ -1,8 +1,8 @@
 import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import React, { useState } from 'react'
-import type { NumberFieldProps } from '../'
-import { NumberField } from '../'
+import type { NumberFieldProps } from '..'
+import { NumberField } from '..'
 
 export default {
   title: 'Components/Fields/Number Field',
