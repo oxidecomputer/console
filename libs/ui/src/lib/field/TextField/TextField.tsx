@@ -20,16 +20,14 @@ export const TextField: FC<TextFieldProps> = ({
   onChange,
 
   ...fieldProps
-}) => {
-  return (
-    <Field id={id} {...fieldProps}>
-      <Input
-        id={id}
-        type="text"
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange && onChange(e.target.value)}
-      />
-    </Field>
-  )
-}
+}) => (
+  <Field id={id} {...fieldProps}>
+    <Input
+      id={id}
+      type="text"
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange && onChange(e.target.value)}
+    />
+  </Field>
+)
