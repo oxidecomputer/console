@@ -1,7 +1,7 @@
 import type { Meta, Story } from '@storybook/react'
 import React from 'react'
-import type { EmailFieldProps } from '../'
-import { EmailField } from '../'
+import type { EmailFieldProps } from '..'
+import { EmailField } from '..'
 
 export default {
   title: 'Components/Fields/Email Field',
