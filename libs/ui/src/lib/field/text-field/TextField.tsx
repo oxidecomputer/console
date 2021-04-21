@@ -4,13 +4,17 @@ import type { FieldProps } from '../Field'
 import { Field } from '../Field'
 import { Input } from '../Input'
 
-export interface TextFieldProps extends FieldProps {
+export interface TextFieldProps extends Omit<FieldProps, 'children'> {
+  /** The value the input should show, similar to `value` on `<input>` */
   value: string
+  /** Placeholder string for the input */
   placeholder?: string
 
+  /** onChange handler for the field, automatically maps e.target.value from the event object */
   onChange: (value: string) => void
 
-  children: null
+  /** TextField should never have children */
+  children?: never
 }
 
 export const TextField: FC<TextFieldProps> = ({
