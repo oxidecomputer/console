@@ -182,11 +182,7 @@ const INSTANCE_SIZES = [
 ]
 
 const RadioCardField = (props: RadioFieldProps) => {
-  return (
-    <RadioField value={props.value} variant="card">
-      {props.children}
-    </RadioField>
-  )
+  return <RadioField {...props} variant="card" />
 }
 
 const InstancesPage = () => {
