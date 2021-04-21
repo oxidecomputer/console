@@ -63,10 +63,6 @@ const ListItem = styled(Row).attrs({ as: 'li' })`
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
   }
-
-  :focus {
-    outline: 1px solid ${({ theme }) => theme.color('blue500')};
-  }
 `
 
 const StyledLink = styled(NavLink)`
