@@ -2,6 +2,7 @@ import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
 import styled, { css } from 'styled-components'
+import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
 import { KEYS } from '../keys-utils'
@@ -87,6 +88,10 @@ export const Tabs: FC<TabsProps> = ({
   const [activeTab, setActiveTab] = useState(0)
   const [focusTab, setFocusTab] = useState<number | null>(null)
 
+  // create id for panels
+  const ids = useMemo(() => new Array(tabs.length).fill('').map(() => uuid()), [
+    tabs,
+  ])
   // create refs for all the tabs
   const refs = useMemo(
     () =>
@@ -168,14 +173,15 @@ export const Tabs: FC<TabsProps> = ({
   const renderTabs = tabs.map((tab, index) => {
     const isSelected = activeTab === index
     const addAriaProps = isSelected ? {} : { tabIndex: -1 }
+    const id = ids[index]
     return (
       <StyledButton
-        aria-controls={`panel-${index}`}
+        aria-controls={`panel-${id}`}
         aria-selected={isSelected}
         fullWidth={fullWidth}
-        id={`button-${index}`}
+        id={`button-${id}`}
         isSelected={isSelected}
-        key={`button-${index}`}
+        key={`button-${id}`}
         onClick={handleClick(index)}
         onKeyDown={handleKeydown}
         onKeyUp={handleKeyup(index)}
@@ -194,12 +200,13 @@ export const Tabs: FC<TabsProps> = ({
     const renderPanel = isVisible ? panel : null
     // Keep the wrapper in the DOM so the aria attributes between
     // button and panel are always linked
+    const id = ids[index]
     return (
       <Panel
-        key={`panel-${index}`}
+        key={`panel-${id}`}
         aria-hidden={!isVisible}
-        aria-labelledby={`button-${index}`}
-        id={`panel-${index}`}
+        aria-labelledby={`button-${id}`}
+        id={`panel-${id}`}
         isVisible={isVisible}
         role="tabpanel"
         tabIndex={0}
