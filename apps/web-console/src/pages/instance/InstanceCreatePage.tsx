@@ -8,6 +8,7 @@ import {
   Breadcrumbs,
   Button,
   Icon,
+  NumberField,
   PageHeader,
   RadioGroup,
   RadioField,
@@ -38,7 +39,7 @@ const Form = styled.form`
   ${({ theme }) => theme.spaceBetweenY(4)}
 `
 
-const StyledText = styled(Text).attrs({
+const Heading = styled(Text).attrs({
   color: 'white',
   size: 'lg',
 })`
@@ -51,6 +52,16 @@ const StyledText = styled(Text).attrs({
   }
 `
 
+const Description = styled(Text).attrs({
+  color: 'gray300',
+  size: 'sm',
+})`
+  display: block;
+
+  margin-top: ${({ theme }) => theme.spacing(2)};
+  max-width: ${({ theme }) => theme.spacing(150)};
+`
+
 const StyledTabs = styled(Tabs)`
   margin-top: ${({ theme }) => theme.spacing(1)};
 `
@@ -61,6 +72,8 @@ const RadioFieldText = styled(Text).attrs({
 })`
   display: block;
 `
+
+const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
 
 type Params = {
   projectName: string
@@ -195,6 +208,11 @@ const InstancesPage = () => {
   const [instanceName, setInstanceName] = useState('')
   const [imageField, setImageField] = useState('')
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
+  const [storageField, setStorageField] = useState('')
+  const [configurationField, setConfigurationField] = useState('')
+  const [numberField, setNumberField] = useState(0)
+  const [tagsField, setTagsField] = useState('')
+  const [projectField, setProjectField] = useState('')
 
   const getParams = () => {
     // FIXME: Refactor once the backend API is more settled
@@ -208,6 +226,11 @@ const InstancesPage = () => {
       memory: instance.memory,
       name: instanceName,
       ncpus: instance.ncpus,
+      storageField: storageField,
+      configurationField: configurationField,
+      numberInstancesField: numberField,
+      tagsField: tagsField,
+      projectField: projectField,
     }
     console.log('params', params)
     return params
@@ -269,7 +292,7 @@ const InstancesPage = () => {
         <Title>Create Instance</Title>
       </PageHeader>
       <Form>
-        <StyledText>Choose an image</StyledText>
+        <Heading>Choose an image</Heading>
         <StyledTabs
           label="Choose an image"
           tabs={['Distributions', 'Custom Images']}
@@ -303,7 +326,7 @@ const InstancesPage = () => {
             <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
           </RadioGroup>
         </StyledTabs>
-        <StyledText>Choose CPUs and RAM</StyledText>
+        <Heading>Choose CPUs and RAM</Heading>
         <StyledTabs
           label="Choose CPUs and RAM"
           tabs={[
@@ -342,15 +365,88 @@ const InstancesPage = () => {
             },
           ])}
         </StyledTabs>
-        <TextField
-          value={instanceName}
+        <RadioGroup
+          legend="Add storage"
+          checked={storageField}
+          handleChange={setStorageField}
+          direction="fixed-row"
+          name="storage"
+        >
+          <RadioCardField value="100gb">100 GB</RadioCardField>
+          <RadioCardField value="200gb">200 GB</RadioCardField>
+          <RadioCardField value="500gb">500 GB</RadioCardField>
+          <RadioCardField value="1000gb">1,000 GB</RadioCardField>
+          <RadioCardField value="2000gb">2,000 GB</RadioCardField>
+          <RadioCardField value="custom">Custom</RadioCardField>
+        </RadioGroup>
+        <RadioGroup
+          legend="Choose configuration options"
+          checked={configurationField}
+          handleChange={setConfigurationField}
+          direction="row"
+          name="configuration-options"
+        >
+          <RadioField
+            value="auto"
+            hint="Some details about automatically formatting and mounting disks."
+          >
+            Automatically format and mount
+          </RadioField>
+          <RadioField
+            value="manual"
+            hint="Some details about manually formatting and mounting disks."
+          >
+            Manually format and mount
+          </RadioField>
+        </RadioGroup>
+        <Heading>Authentication</Heading>
+        <Description>
+          We don’t have an SSH key stored for you. Please add one. Adding an SSH
+          Key adds it to your user profile so any instances in any project that
+          you have access to will updated with this additional key. Your
+          existing keys will remain on all your instances.
+        </Description>
+        <StyledButton>Add an SSH key</StyledButton>
+        <Heading>Finalize and create</Heading>
+        <NumberField
+          handleChange={setNumberField}
+          hint="Choose the number of instances you’d like to create with this
+          configuration"
           required
+          value={numberField}
+        >
+          Number of Instances
+        </NumberField>
+        <TextField
+          hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             setInstanceName(e.target.value)
           }
-          placeholder="db1"
+          placeholder="web1"
+          required
+          value={instanceName}
         >
-          Instance name
+          Choose a hostname
+        </TextField>
+        <TextField
+          hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setTagsField(e.target.value)
+          }
+          required
+          value={tagsField}
+        >
+          Add tags
+        </TextField>
+        <TextField
+          hint="Assign instance(s) to a project"
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setProjectField(e.target.value)
+          }
+          required
+          value={projectField}
+        >
+          Select project
         </TextField>
 
         <Button onClick={onCreateClick} disabled={createInstance.pending}>

@@ -2,20 +2,15 @@ import type { ChangeEventHandler, FC } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
-import type { DefaultTheme, StyledComponentProps } from 'styled-components'
+// import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
+import type { TextFieldProps } from '../text-field/TextField'
 import { TextField } from '../text-field/TextField'
 import { Icon } from '../icon/Icon'
-
-export type NumberFieldProps = StyledComponentProps<
-  'input',
-  DefaultTheme,
-  {
-    handleChange: (newValue: number) => void
-    value: number
-  },
-  never
->
+export interface NumberFieldProps extends TextFieldProps {
+  handleChange: (newValue: number) => void
+  value: number
+}
 
 // The input type='number' comes with built in increment/decrement controls that we
 // hide here so we can render our own instead. for more, see NumberField.stories.mdx
@@ -55,6 +50,7 @@ export const NumberField: FC<NumberFieldProps> = ({
   children,
   handleChange,
   value,
+  ...rest
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     if (event.target.value === '') {
@@ -76,6 +72,7 @@ export const NumberField: FC<NumberFieldProps> = ({
       onChange={onChange}
       pattern="[0-9]*"
       value={value}
+      {...rest}
       rightAccessory={
         <FieldControls>
           <Control onClick={onDecrement}>
