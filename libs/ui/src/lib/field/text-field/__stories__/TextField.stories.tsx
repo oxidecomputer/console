@@ -48,6 +48,13 @@ WithHint.args = {
   hint: 'This is a hint about the text field',
 }
 
+export const WithInfo = Template.bind({})
+WithInfo.args = {
+  id: 'with-info',
+  label: 'Text Field with extra info',
+  info: 'Hello, World!',
+}
+
 export const CustomLabel = Template.bind({})
 CustomLabel.args = {
   id: 'custom-label',

@@ -140,6 +140,7 @@ const ErrorMessage: FC<{ id: string }> = ({ id, children }) => (
 
 const IconContainer = styled.div`
   padding: ${({ theme }) => theme.spacing(0, 2.25)};
+  font-size: ${({ theme }) => theme.spacing(5)};
 `
 const InfoPopover: FC = ({ children }) => (
   <Tooltip isPrimaryLabel={false} content={children}>
