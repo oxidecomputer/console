@@ -37,7 +37,7 @@ const Title = styled(TextWithIcon).attrs({
 const Form = styled.form`
   margin-top: ${({ theme }) => theme.spacing(4)};
   margin-bottom: ${({ theme }) => theme.spacing(20)};
-  ${({ theme }) => theme.spaceBetweenY(4)}
+  ${({ theme }) => theme.spaceBetweenY(8)}
 `
 
 const Heading = styled(Text).attrs({
