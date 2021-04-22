@@ -36,6 +36,7 @@ const Title = styled(TextWithIcon).attrs({
 
 const Form = styled.form`
   margin-top: ${({ theme }) => theme.spacing(4)};
+  margin-bottom: ${({ theme }) => theme.spacing(20)};
   ${({ theme }) => theme.spaceBetweenY(4)}
 `
 
@@ -74,6 +75,30 @@ const RadioFieldText = styled(Text).attrs({
 `
 
 const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+
+const StyledNumberField = styled(NumberField)`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 ${({ theme }) => theme.spacing(150)};
+
+  & *:last-child {
+    margin-top: auto;
+  }
+`
+const StyledTextField = styled(TextField)`
+  flex: 1 1 ${({ theme }) => theme.spacing(150)};
+  margin-left: ${({ theme }) => theme.spacing(6)};
+`
+
+const FooterText = styled(Text).attrs({ size: 'xs' })`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(8)};
+`
 
 type Params = {
   projectName: string
@@ -408,26 +433,28 @@ const InstancesPage = () => {
         </Description>
         <StyledButton>Add an SSH key</StyledButton>
         <Heading>Finalize and create</Heading>
-        <NumberField
-          handleChange={setNumberField}
-          hint="Choose the number of instances you’d like to create with this
+        <Row>
+          <StyledNumberField
+            handleChange={setNumberField}
+            hint="Choose the number of instances you’d like to create with this
           configuration"
-          required
-          value={numberField}
-        >
-          Number of Instances
-        </NumberField>
-        <TextField
-          hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInstanceName(e.target.value)
-          }
-          placeholder="web1"
-          required
-          value={instanceName}
-        >
-          Choose a hostname
-        </TextField>
+            required
+            value={numberField}
+          >
+            Number of Instances
+          </StyledNumberField>
+          <StyledTextField
+            hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInstanceName(e.target.value)
+            }
+            placeholder="web1"
+            required
+            value={instanceName}
+          >
+            Choose a hostname
+          </StyledTextField>
+        </Row>
         <TextField
           hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -452,6 +479,9 @@ const InstancesPage = () => {
         <Button onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
         </Button>
+        <FooterText>
+          Equivalent <a href="#">REST</a> or <a href="#">command line</a>
+        </FooterText>
       </Form>
     </>
   )
