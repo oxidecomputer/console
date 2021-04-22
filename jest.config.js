@@ -1,9 +1,17 @@
+const { compilerOptions } = require('./tsconfig')
+
+const mapValues = (obj, f) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, f(v)]))
+
+const libPaths = mapValues(compilerOptions.paths, (paths) => {
+  const dir = paths[0].replace('/index.ts', '')
+  return `<rootDir>/../../${dir}`
+})
+
 const moduleNameMapper = {
   '\\.(svg)$': '<rootDir>/../../__mocks__/svgMock.tsx',
   '\\.(css|less)$': 'identity-obj-proxy',
-  '^@oxide/ui$': '<rootDir>/../../libs/ui/src',
-  '^@oxide/theme$': '<rootDir>/../../libs/theme/src',
-  '^@oxide/api$': '<rootDir>/../../libs/api',
+  ...libPaths,
 }
 
 module.exports = {
