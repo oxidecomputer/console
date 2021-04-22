@@ -64,7 +64,6 @@
     "@types/webpack-dev-server": "^3.11.2",
     "@typescript-eslint/eslint-plugin": "4.15.0",
     "@typescript-eslint/parser": "4.15.0",
-    "babel-jest": "26.2.2",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "1.10.7",
     "clean-webpack-plugin": "^3.0.0",
