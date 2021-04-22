@@ -86,6 +86,7 @@ export const NumberField: FC<NumberFieldProps> = ({
   value,
   onChange,
 
+  disabled,
   ...fieldProps
 }) => {
   const { internalValue, handleChange, handleBlur } = useNumberField(
@@ -93,21 +94,23 @@ export const NumberField: FC<NumberFieldProps> = ({
     onChange
   )
 
+  const handleControls = (delta: number) => () => {
+    onChange(value + delta)
+  }
+
   return (
-    <Field {...fieldProps}>
+    <Field disabled={disabled} {...fieldProps}>
       <StyledInput
         type="number"
         value={internalValue}
         onChange={handleChange}
         onBlur={handleBlur}
+        disabled={disabled}
       />
       <Controls
-        onIncrement={() => {
-          onChange(value + 1)
-        }}
-        onDecrement={() => {
-          onChange(value - 1)
-        }}
+        disabled={disabled}
+        onIncrement={handleControls(1)}
+        onDecrement={handleControls(-1)}
       />
     </Field>
   )

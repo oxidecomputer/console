@@ -23,13 +23,15 @@ export const TextField: FC<TextFieldProps> = ({
   placeholder,
   onChange,
 
+  disabled,
   ...fieldProps
 }) => (
-  <Field id={id} {...fieldProps}>
+  <Field id={id} disabled={disabled} {...fieldProps}>
     <Input
       id={id}
       type="text"
       value={value}
+      disabled={disabled}
       placeholder={placeholder}
       onChange={(e) => onChange && onChange(e.target.value)}
     />

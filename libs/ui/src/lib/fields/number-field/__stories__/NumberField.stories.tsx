@@ -25,6 +25,15 @@ Default.args = {
   onChange: action('onChange'),
 }
 
+export const Disabled = Template.bind({})
+Disabled.args = {
+  id: 'number-field',
+  label: 'Number Field',
+  required: false,
+  disabled: true,
+  value: 0,
+}
+
 const StateTemplate: Story<Omit<NumberFieldProps, 'value' | 'onChange'>> = (
   args
 ) => {
@@ -32,6 +41,7 @@ const StateTemplate: Story<Omit<NumberFieldProps, 'value' | 'onChange'>> = (
 
   return <NumberField value={value} onChange={setValue} {...args} />
 }
+
 export const WithState = StateTemplate.bind({})
 WithState.args = {
   id: 'number-field',

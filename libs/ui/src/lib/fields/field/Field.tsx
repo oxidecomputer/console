@@ -13,6 +13,7 @@ import type { FieldProps } from './types'
 export const Field: FC<FieldProps> = ({
   id: id,
   required,
+  disabled,
   error,
   hint,
   label,
@@ -26,7 +27,7 @@ export const Field: FC<FieldProps> = ({
   const hintId = useMemo(() => (hint ? `${id}-hint` : ''), [hint, id])
 
   return (
-    <Container>
+    <Container disabled={disabled}>
       <Label required={required} htmlFor={id}>
         {label}
       </Label>
