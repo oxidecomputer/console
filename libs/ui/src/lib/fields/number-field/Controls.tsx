@@ -18,7 +18,7 @@ const Control = styled.button`
     box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color('green500')};
   }
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: ${({ theme }) => theme.color('gray800')};
   }
 `
@@ -29,6 +29,9 @@ export interface ControlsProps {
   /** Fires when the minus button is clicked */
   onDecrement: () => void
 
+  /** Should buttons be disabled */
+  disabled?: boolean
+
   /** This component should have no children */
   children?: never
 }
@@ -36,12 +39,14 @@ export interface ControlsProps {
 export const Controls: FC<ControlsProps> = ({
   onDecrement,
   onIncrement,
+  disabled,
 }: ControlsProps) => (
   <FieldControls>
     <Control
       onClick={() => {
         onDecrement()
       }}
+      disabled={disabled}
     >
       <Icon name="minus" svgProps={{ title: 'Decrement' }} />
     </Control>
@@ -49,6 +54,7 @@ export const Controls: FC<ControlsProps> = ({
       onClick={() => {
         onIncrement()
       }}
+      disabled={disabled}
     >
       <Icon name="plus" svgProps={{ title: 'Increment' }} />
     </Control>
