@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import type { FC, ReactNode } from 'react'
+import type { FC, ReactNode, ReactFragment } from 'react'
 import type { StyledComponentProps } from 'styled-components'
 import styled, { css } from 'styled-components'
 import Text from '../text/Text'
@@ -23,7 +23,7 @@ export interface FieldProps {
   /**
    * Label for this field.
    */
-  label: ReactNode
+  label: string | ReactFragment
   /**
    * Error message text to render, if truthy, marks the field as invalid
    */
@@ -61,6 +61,13 @@ const LabelContainer = styled.label`
   padding-bottom: ${({ theme }) => theme.spacing(1)};
 `
 
+const LabelText = styled(Text)`
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+`
+
 type LabelProps = StyledComponentProps<
   'label',
   Theme,
@@ -69,7 +76,7 @@ type LabelProps = StyledComponentProps<
 >
 const Label: FC<LabelProps> = ({ required, children, ...labelProps }) => (
   <LabelContainer {...labelProps}>
-    <Text weight={500}>{children}</Text>
+    <LabelText weight={500}>{children}</LabelText>
     {!required && <Text size="sm">Optional</Text>}
   </LabelContainer>
 )

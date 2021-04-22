@@ -3,6 +3,7 @@ import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import type { TextFieldProps } from '..'
 import { TextField } from '..'
+import Icon from '../../../icon/Icon'
 
 export default {
   title: 'Components/Fields/Text Field',
@@ -45,4 +46,17 @@ WithHint.args = {
   id: 'with-hint',
   label: 'Text Field with Hint',
   hint: 'This is a hint about the text field',
+}
+
+export const CustomLabel = Template.bind({})
+CustomLabel.args = {
+  id: 'custom-label',
+  label: (
+    <>
+      <div style={{ paddingRight: '.5rem' }}>
+        <Icon name="users" color="gray300" />
+      </div>
+      Custom Label
+    </>
+  ),
 }
