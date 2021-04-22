@@ -1,7 +1,7 @@
 import type { Meta, Story } from '@storybook/react'
 import React from 'react'
-import type { FieldProps } from '../'
-import { Field, Input } from '../'
+import type { FieldProps } from '..'
+import { Field, Input } from '..'
 import Icon from '../../icon/Icon'
 
 export default {
