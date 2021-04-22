@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { FieldProps } from '../Field'
-import { Field } from '../Field'
+import type { FieldProps } from '../field'
+import { Field } from '../field'
 import { Input } from '../Input'
 
 export interface TextFieldProps extends Omit<FieldProps, 'children'> {
