@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components'
 import type { FieldProps } from '../types'
 
-export * from './label'
-export * from './hint'
-export * from './error'
-export * from './info-popover'
+export * from './Label'
+export * from './Hint'
+export * from './Error'
+export * from './InfoPopover'
 
 export const Container = styled.div<Pick<FieldProps, 'disabled'>>`
   color: ${({ theme }) => theme.color('gray100')};

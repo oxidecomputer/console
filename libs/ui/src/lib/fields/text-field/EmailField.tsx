@@ -1,8 +1,8 @@
 import type { FC } from 'react'
 import React from 'react'
-import { Field } from '../Field'
-import { Input } from '../Input'
 import type { TextFieldProps } from './TextField'
+import { Field } from '../field'
+import { Input } from '../Input'
 
 // Extending `TextFieldProps` here as a way to distinguish this component from TextField
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
