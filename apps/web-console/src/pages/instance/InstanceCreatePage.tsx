@@ -95,6 +95,8 @@ const StyledTextField = styled(TextField)`
   margin-left: ${({ theme }) => theme.spacing(6)};
 `
 
+const CreateButton = styled(Button).attrs({ fullWidth: true })``
+
 const FooterText = styled(Text).attrs({ size: 'xs' })`
   display: block;
   margin-top: ${({ theme }) => theme.spacing(8)};
@@ -476,9 +478,9 @@ const InstancesPage = () => {
           Select project
         </TextField>
 
-        <Button onClick={onCreateClick} disabled={createInstance.pending}>
+        <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
-        </Button>
+        </CreateButton>
         <FooterText>
           Equivalent <a href="#">REST</a> or <a href="#">command line</a>
         </FooterText>
