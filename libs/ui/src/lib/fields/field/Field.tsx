@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React, { useMemo } from 'react'
+import React from 'react'
 import {
   Container,
   Label,
@@ -20,11 +20,8 @@ export const Field: FC<FieldProps> = ({
   info,
   children,
 }) => {
-  const errorId = useMemo(() => (error ? `${id}-validation-hint` : ''), [
-    error,
-    id,
-  ])
-  const hintId = useMemo(() => (hint ? `${id}-hint` : ''), [hint, id])
+  const errorId = error ? `${id}-validation-hint` : ''
+  const hintId = hint ? `${id}-hint` : ''
 
   return (
     <Container disabled={disabled}>
