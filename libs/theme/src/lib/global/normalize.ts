@@ -94,14 +94,14 @@ export const normalize = css`
     color: inherit;
   }
   fieldset {
+    margin: 0;
     padding: 0;
+    border: 0;
   }
   legend {
     color: inherit;
-    display: table;
     max-width: 100%;
     padding: 0;
-    white-space: normal;
   }
   progress {
     vertical-align: baseline;

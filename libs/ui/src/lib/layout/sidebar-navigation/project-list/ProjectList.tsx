@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
@@ -11,6 +11,7 @@ import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 
 export interface ProjectListProps {
+  className?: string
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
 }
@@ -19,15 +20,16 @@ const baseTextProps: Partial<TextProps> = {
   size: 'sm',
 }
 
-const StyledProjectList = styled.div`
+const StyledProjectList = styled.section`
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
-const Row = styled.section`
+const rowStyles = css`
   padding: ${({ theme }) => theme.spacing(1)};
 `
 
-const Header = styled(Row).attrs({ as: 'header' })`
+const Header = styled.header`
+  ${rowStyles};
   text-transform: uppercase;
   ${({ theme }) => theme.spaceBetweenX(2)}
 `
@@ -56,7 +58,8 @@ const List = styled.ul`
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
-const ListItem = styled(Row).attrs({ as: 'li' })`
+const ListItem = styled.li`
+  ${rowStyles};
   padding: 0;
   width: 100%;
 
@@ -76,7 +79,8 @@ const activeLink = {
   color: theme.color('gray50'),
 }
 
-const Create = styled(Row).attrs({ as: 'footer' })`
+const Create = styled.footer`
+  ${rowStyles};
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -94,7 +98,7 @@ const CreateText = styled(TextWithIcon).attrs({
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
-    <StyledProjectList>
+    <StyledProjectList className={props.className}>
       <Header>
         <HeaderText>Projects</HeaderText>
         <Count>{props.projects.length}</Count>
