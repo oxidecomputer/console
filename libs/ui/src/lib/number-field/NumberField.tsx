@@ -2,7 +2,6 @@ import type { ChangeEventHandler, FC } from 'react'
 import React from 'react'
 
 import styled from 'styled-components'
-// import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import type { TextFieldProps } from '../text-field/TextField'
 import { TextField } from '../text-field/TextField'
