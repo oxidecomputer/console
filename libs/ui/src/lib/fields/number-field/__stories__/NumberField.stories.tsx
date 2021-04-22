@@ -37,7 +37,7 @@ Disabled.args = {
 const StateTemplate: Story<Omit<NumberFieldProps, 'value' | 'onChange'>> = (
   args
 ) => {
-  const [value, setValue] = useState(10)
+  const [value, setValue] = useState(args.defaultValue)
 
   return <NumberField value={value} onChange={setValue} {...args} />
 }
@@ -47,4 +47,5 @@ WithState.args = {
   id: 'number-field',
   label: 'Number Field',
   required: false,
+  defaultValue: 10,
 }

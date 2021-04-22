@@ -1,10 +1,11 @@
-import type { ChangeEvent, FC, FocusEvent } from 'react'
+import type { ChangeEvent, FC, KeyboardEvent } from 'react'
 import React, { useState, useEffect } from 'react'
 import type { FieldProps } from '../field'
 import { Field } from '../field'
 import { Input } from '../Input'
 import { Controls } from './Controls'
 import styled from 'styled-components'
+import { KEYS } from '../../keys-utils'
 
 const StyledInput = styled(Input)`
   appearance: textfield;
@@ -18,48 +19,33 @@ const StyledInput = styled(Input)`
 
 const useNumberField = (
   value: number,
+  defaultValue: number,
   onChange: (newValue: number) => void
 ) => {
   const [internalValue, setInternalValue] = useState(value.toString())
 
   useEffect(() => {
-    // using callback version here prevents this effect depending on the value of `internalValue`, which means this _only_ fires when `value` changes from outside
-    setInternalValue((internalValue) => {
-      // Convert what's currently into the text box into a number
-      const parsedInternalValue = parseFloat(internalValue)
-
-      // if the internal number is not the same as the value being passed in
-      if (parsedInternalValue !== value) {
-        // turn the value being passed into a string and store it in `internalValue`
-        return value.toString()
-      }
-
-      // Otherwise keep internalValue as is, this means the number representation and the string representation are equivalent
-      return internalValue
-    })
+    setInternalValue(value.toString())
   }, [value])
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // Always store what's typed
-    setInternalValue(e.target.value)
+    // filter out non-numeric input
+    if (/^\d*$/.test(e.target.value)) {
+      setInternalValue(e.target.value)
 
-    // try to convert it to a number
-    const number = parseFloat(e.target.value)
-    // if it's a valid number, send it out of the component,
-    if (!Number.isNaN(number)) {
-      onChange(number)
+      // because we're filtering out non-numeric input, the only way this can be NaN
+      // is if it's empty
+      const number = parseFloat(e.target.value)
+      if (!Number.isNaN(number)) {
+        onChange(number)
+      }
     }
-    // Otherwise do nothing as the user is probably in the process of tying something in
   }
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    // Try to parse the number
-    const number = parseFloat(e.target.value)
-
-    // if it is not a valid number
-    if (Number.isNaN(number)) {
-      // reset the input to the current value
-      setInternalValue(value.toString())
+  const handleBlur = () => {
+    if (internalValue.trim() === '') {
+      onChange(defaultValue)
+      setInternalValue(defaultValue.toString())
     }
   }
 
@@ -70,19 +56,23 @@ export interface NumberFieldProps extends FieldProps {
   /** Value this field should display */
   value: number
 
+  /** Initial value and value reverted to on blur when field is cleared out */
+  defaultValue: number
+
   /** Fires when the value entered in the textbox is a valid number, or when the field blurs. */
   onChange: (value: number) => void
 }
 
 export const NumberField: FC<NumberFieldProps> = ({
   value,
+  defaultValue = 0,
   onChange,
-
   disabled,
   ...fieldProps
 }) => {
   const { internalValue, handleChange, handleBlur } = useNumberField(
     value,
+    defaultValue,
     onChange
   )
 
@@ -90,14 +80,23 @@ export const NumberField: FC<NumberFieldProps> = ({
     onChange(value + delta)
   }
 
+  const handleArrowKeys = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === KEYS.up) {
+      handleControls(1)()
+    } else if (event.key === KEYS.down) {
+      handleControls(-1)()
+    }
+  }
+
   return (
     <Field disabled={disabled} {...fieldProps}>
       <StyledInput
-        type="number"
+        type="text"
         value={internalValue}
         onChange={handleChange}
         onBlur={handleBlur}
         disabled={disabled}
+        onKeyDown={handleArrowKeys}
       />
       <Controls
         disabled={disabled}
