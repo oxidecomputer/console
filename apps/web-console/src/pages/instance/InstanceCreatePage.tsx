@@ -91,8 +91,14 @@ const StyledNumberField = styled(NumberField)`
   }
 `
 const StyledTextField = styled(TextField)`
+  display: flex;
+  flex-direction: column;
   flex: 1 1 ${({ theme }) => theme.spacing(150)};
   margin-left: ${({ theme }) => theme.spacing(6)};
+
+  & *:last-child {
+    margin-top: auto;
+  }
 `
 
 const CreateButton = styled(Button).attrs({ fullWidth: true })``
@@ -233,6 +239,7 @@ const InstancesPage = () => {
 
   // form state
   const [instanceName, setInstanceName] = useState('')
+  const [hostname, setHostname] = useState('')
   const [imageField, setImageField] = useState('')
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
   const [storageField, setStorageField] = useState('')
@@ -249,7 +256,7 @@ const InstancesPage = () => {
 
     const params = {
       description: `An instance in project: ${projectName}`,
-      hostname: 'oxide.com',
+      hostname,
       memory: instance.memory,
       name: instanceName,
       ncpus: instance.ncpus,
@@ -453,6 +460,17 @@ const InstancesPage = () => {
             placeholder="web1"
             required
             value={instanceName}
+          >
+            Choose a name
+          </StyledTextField>
+          <StyledTextField
+            hint="Choose a hostname for the instance. In the future this will be optional."
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setHostname(e.target.value)
+            }
+            placeholder="example.com"
+            required
+            value={hostname}
           >
             Choose a hostname
           </StyledTextField>
