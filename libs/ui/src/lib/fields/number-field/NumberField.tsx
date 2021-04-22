@@ -1,5 +1,5 @@
 import type { ChangeEvent, FC, FocusEvent } from 'react'
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { FieldProps } from '../field'
 import { Field } from '../field'
 import { Input } from '../Input'
@@ -39,12 +39,7 @@ const useNumberField = (
     })
   }, [value])
 
-  const onChangeRef = useRef(onChange)
-  useEffect(() => {
-    onChangeRef.current = onChange
-  }, [onChange])
-
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     // Always store what's typed
     setInternalValue(e.target.value)
 
@@ -52,24 +47,21 @@ const useNumberField = (
     const number = parseFloat(e.target.value)
     // if it's a valid number, send it out of the component,
     if (!Number.isNaN(number)) {
-      onChangeRef.current(number)
+      onChange(number)
     }
     // Otherwise do nothing as the user is probably in the process of tying something in
-  }, [])
+  }
 
-  const handleBlur = useCallback(
-    (e: FocusEvent<HTMLInputElement>) => {
-      // Try to parse the number
-      const number = parseFloat(e.target.value)
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    // Try to parse the number
+    const number = parseFloat(e.target.value)
 
-      // if it is not a valid number
-      if (Number.isNaN(number)) {
-        // reset the input to the current value
-        setInternalValue(value.toString())
-      }
-    },
-    [value]
-  )
+    // if it is not a valid number
+    if (Number.isNaN(number)) {
+      // reset the input to the current value
+      setInternalValue(value.toString())
+    }
+  }
 
   return { internalValue, handleChange, handleBlur }
 }
