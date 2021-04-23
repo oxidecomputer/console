@@ -1,7 +1,12 @@
 <!-- RadioGroup.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Default, SingleRow } from './Table.stories'
+import {
+  Default,
+  DefaultWithControls,
+  SingleRow,
+  SingleRowWithControls,
+} from './Table.stories'
 import { Table } from '../Table'
 
 <Meta title="Components/Table" component={Table} />
@@ -28,10 +33,20 @@ Resources:
 
 ## Stories
 
+### Show controls
+
+<Canvas>
+  <Story story={DefaultWithControls} />
+</Canvas>
+
 ### A single row
 
 The table should render only one row.
 
 <Canvas>
   <Story story={SingleRow} />
+</Canvas>
+
+<Canvas>
+  <Story story={SingleRowWithControls} />
 </Canvas>

@@ -5,6 +5,9 @@ import styled, { css } from 'styled-components'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
+import { Button } from '../button/Button'
+import { Icon } from '../icon/Icon'
+
 /**
  * This Table component is based off of the ARIA Scrollable Data Grid example:
  * https://www.w3.org/TR/wai-aria-practices/examples/grid/dataGrids.html
@@ -33,16 +36,44 @@ export interface TableProps {
    * Row heights passed to the `itemSize` prop of [VariableSizeList](https://react-window.now.sh/#/examples/list/variable-size)
    */
   itemSize: (index: number) => number
+  /**
+   * Show UI for controls. Since API is TBD, functionality is TBD
+   */
+  showControls?: boolean
 }
 
+// hsla(167, 100%, 5%, 0.92)
+
 const ROW_HEIGHT = 45
-const DARK_GREEN = `hsla(167, 100%, 5%, 1)`
+const TABLE_BG = `hsla(167, 100%, 5%, 1)`
 const BORDER_COLOR = `hsla(209, 25%, 82%, 0.5)`
+const STICKY_BG = `hsla(165, 37.5%, 12.5%, 1)`
 
 const Wrapper = styled.div`
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+`
+
+const Controls = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+
+  background-color: ${TABLE_BG};
+`
+
+const IconButton = styled(Button).attrs({ variant: 'ghost' })`
+  padding: ${({ theme }) => theme.spacing(4)};
+  color: ${({ theme }) => theme.color('gray400')};
+`
+
+const Grid = styled.div`
   height: 100%;
 
-  background-color: ${DARK_GREEN};
+  background-color: ${TABLE_BG};
   color: ${({ theme }) => theme.color('gray50')};
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.spacing(3.5)};
@@ -120,13 +151,9 @@ const StyledStickyRow = styled.div<BaseRowProps>`
 
   width: 100%;
 
-  background-color: ${DARK_GREEN};
-  color: ${({ theme }) => theme.color('green500')};
+  background-color: ${STICKY_BG};
+  color: ${({ theme }) => theme.color('green50')};
   text-transform: uppercase;
-
-  ${StyledCell} {
-    background-color: ${({ theme }) => theme.color('green500', 0.16)};
-  }
 `
 
 const ListContext = createContext<{ columns: TableColumn[] | null }>({
@@ -226,7 +253,13 @@ const RowWrapper: FC<RowWrapperProps> = ({ data, index, ...props }) => {
   return <Row index={index} row={row} {...props} />
 }
 
-export const Table = ({ className, columns, data, itemSize }: TableProps) => {
+export const Table = ({
+  className,
+  columns,
+  data,
+  itemSize,
+  showControls = false,
+}: TableProps) => {
   if (!columns || !columns.length) {
     console.warn('Table: Missing `columns` prop')
     return null
@@ -244,27 +277,42 @@ export const Table = ({ className, columns, data, itemSize }: TableProps) => {
   // https://github.com/oxidecomputer/console/issues/66
 
   return (
-    <Wrapper role="grid" aria-rowcount={count} className={className}>
-      <AutoSizer>
-        {({ height, width }: { height: number; width: number }) => (
-          <ListContext.Provider
-            value={{
-              columns: columns,
-            }}
-          >
-            <VariableSizeList
-              innerElementType={InnerWrapper}
-              height={height}
-              itemCount={count}
-              itemData={itemData}
-              itemSize={itemSize}
-              width={width}
+    <Wrapper>
+      {showControls ? (
+        <Controls>
+          <IconButton>
+            <Icon name="search" />
+          </IconButton>
+          <IconButton>
+            <Icon name="filter" />
+          </IconButton>
+          <IconButton>
+            <Icon name="viewCols" />
+          </IconButton>
+        </Controls>
+      ) : null}
+      <Grid role="grid" aria-rowcount={count} className={className}>
+        <AutoSizer>
+          {({ height, width }: { height: number; width: number }) => (
+            <ListContext.Provider
+              value={{
+                columns: columns,
+              }}
             >
-              {RowWrapper}
-            </VariableSizeList>
-          </ListContext.Provider>
-        )}
-      </AutoSizer>
+              <VariableSizeList
+                innerElementType={InnerWrapper}
+                height={height}
+                itemCount={count}
+                itemData={itemData}
+                itemSize={itemSize}
+                width={width}
+              >
+                {RowWrapper}
+              </VariableSizeList>
+            </ListContext.Provider>
+          )}
+        </AutoSizer>
+      </Grid>
     </Wrapper>
   )
 }
