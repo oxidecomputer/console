@@ -1,9 +1,14 @@
 const { compilerOptions } = require('./tsconfig')
 
-const mapValues = (obj, f) =>
-  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, f(v)]))
+const mapObj = (obj, kf, vf) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [kf(k), vf(v)]))
 
-const libs = mapValues(compilerOptions.paths, ([path]) => `<rootDir>/${path}`)
+const libs = mapObj(
+  compilerOptions.paths,
+  // need full matches, otherwise @oxide/api matches @oxide/api-mocks
+  (moduleName) => `^${moduleName}$`,
+  (paths) => `<rootDir>/${paths[0]}`
+)
 
 module.exports = {
   moduleNameMapper: {

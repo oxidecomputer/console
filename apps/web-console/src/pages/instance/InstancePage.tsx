@@ -74,7 +74,7 @@ const InstancePage = () => {
   const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
-  const { data, error } = useApi('apiProjectInstancesGetInstance', {
+  const { data: instance, error } = useApi('apiProjectInstancesGetInstance', {
     instanceName,
     projectName,
   })
@@ -86,13 +86,13 @@ const InstancePage = () => {
       return <div>loading</div>
     }
   }
-  if (!data) return <div>loading</div>
+  if (!instance) return <div>loading</div>
 
   return (
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>{instanceName}</Title>
+        <Title>{instance.name}</Title>
         <Actions>
           <InstanceAction>
             <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
@@ -116,14 +116,7 @@ const InstancePage = () => {
         </Actions>
       </PageHeader>
       <Metadata>
-        <InstanceDetails
-          cpu="2"
-          memory="8 GB"
-          storage="100 GB"
-          vm={{ os: 'Debian', version: '9.12', arch: 'x64' }}
-          hostname="db1.useast1.inst"
-          ip="10.10.16.7"
-        />
+        <InstanceDetails instance={instance} />
       </Metadata>
       <StyledTabs
         fullWidth
