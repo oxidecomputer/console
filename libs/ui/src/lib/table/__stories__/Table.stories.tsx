@@ -1,11 +1,6 @@
 import React from 'react'
-import { Table } from './Table'
-import { Text } from '../text/Text'
-
-export default {
-  component: Table,
-  title: 'Components/Table',
-}
+import { Table } from '../Table'
+import { Text } from '../../text/Text'
 
 const sampleColumns = [
   { Header: 'name', accessor: 'name' },
