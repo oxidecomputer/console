@@ -9,7 +9,6 @@
     "ci": "yarn tsc && yarn lint && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
-    "e2e": "echo 'to be implemented'",
     "format": "prettier --write .",
     "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache && yarn storybook",
