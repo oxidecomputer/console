@@ -1,30 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import useSWR from 'swr'
+import { useQuery } from 'react-query'
 
 import type { ApiResponse } from '../__generated__'
 
-type ParamsObj = Record<string, any>
-
-export const sortObj = (obj: ParamsObj): ParamsObj => {
-  const sorted: ParamsObj = {}
-  for (const k of Object.keys(obj).sort()) {
-    sorted[k] = obj[k]
-  }
-  return sorted
-}
-
-// given a function that takes a single argument and returns a promise...
-
-// extract the type of the argument (if it extends ParamsObj). We need it to
-// extend ParamsObj because otherwise we can't pass it to sortObj
-type Params<F> = F extends (p: infer P) => any
-  ? P extends ParamsObj
-    ? P
-    : never
-  : never
-
-// extract the type of the value inside the promise
+type Params<F> = F extends (p: infer P) => any ? P : never
 type Response<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 // even though the api object we pass in has other properties on it, as far as
@@ -37,30 +17,18 @@ type ApiClient<A> = OmitByValue<
 // prettier-ignore
 export const getUseApi = 
   <A extends ApiClient<A>>(api: A) => 
-  <M extends keyof ApiClient<A>>(method: M, params: Params<A[M]>) => {
-    const paramsStr = JSON.stringify(sortObj(params))
-    return useSWR<Response<A[M]>>([method, paramsStr], () => api[method](params))
-  }
+  <M extends keyof ApiClient<A>>(method: M, params: Params<A[M]>) => 
+    useQuery<Response<A[M]>>([method, params], () => api[method](params))
 
-// This all needs explanation. The easiest starting point is what getUseApi
-// would look like in plain JS, which is quite simple:
+// 1. what's up with [method, params]?
 //
-//   const getUseApi = (api) => (method, params) => {
-//     const paramsStr = JSON.stringify(sortObj(params))
-//     return useSWR([method, paramsStr], () => api[method](params))
-//   }
+// https://react-query.tanstack.com/guides/queries
 //
-// 1. what's up with the JSON.stringify?
-//
-// The first argument to useSWR in the standard use case would be the URL to
-// fetch. It is used to uniquely identify the request for caching purposes. If
-// multiple components request the same thing at the same time, SWR will only
-// make one HTTP request. Because we have a generated client library, we do not
-// have URLs. Instead, we have function names and parameter objects. But object
-// literals do not have referential stability across renders, so we have to use
-// JSON.stringify to turn the params into a stable key. We also sort the keys in
-// the params object so that { a: 1, b: 2 } and { b: 2, a: 1 } are considered
-// equivalent. SWR accepts an array of strings as well as a single string.
+// The first arg to useQuery is a unique key, which can be a string, an object,
+// or an array of those. The contents are tested with deep equality (not tricked
+// by key order) to uniquely identify a request for caching purposes. For us, what
+// uniquely identifies a request is the string name of the method and the params
+// object.
 //
 // 2. what's up with the types?
 //
@@ -70,11 +38,25 @@ export const getUseApi =
 //   Params<A[M]>   - extract Params from the function
 //   Response<A[M]> - extract Response from the function
 //
-// The type situation here is pretty gnarly considering how simple the plain JS
-// version is. The difficulty is that we want full type safety, i.e., based on
-// the method name passed in, we want the typechecker to check the params and
-// annotate the response. PickByValue ensures we only call methods on the API
-// object that follow the (params) => Promise<Response> pattern. Then we use the
-// inferred type of the key (the method name) to enforce that params match the
-// expected params on the named method. Finally we use the Response helper to
-// tell useSWR what type to put on the response data.
+// The difficulty is that we want full type safety, i.e., based on the method
+// name passed in, we want the typechecker to check the params and annotate the
+// response. PickByValue ensures we only call methods on the API object that
+// follow the (params) => Promise<Response> pattern. Then we use the inferred
+// type of the key (the method name) to enforce that params match the expected
+// params on the named method. Finally we use the Response helper to tell useSWR
+// what type to put on the response data.
+//
+// 3. why
+//
+//      (api) => (method, params) => useQuery(..., api[method](params))
+//
+//    instead of
+//
+//      const api = new Api()
+//      (method, params) => useQuery(..., api[method](params))
+//
+//    i.e., why not use a closure for api?
+//
+// In order to infer the A type and enforce that M is the right kind of key such
+// that we can pull the params and response off and actually call api[method],
+// api needs to be an argument to the function too.
