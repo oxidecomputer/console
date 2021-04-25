@@ -19,7 +19,7 @@
   "private": true,
   "dependencies": {
     "@popperjs/core": "^2.9.2",
-    "core-js": "^3.6.5",
+    "core-js": "^3.11.0",
     "document-register-element": "1.13.1",
     "downshift": "^6.1.2",
     "filesize": "^6.3.0",
