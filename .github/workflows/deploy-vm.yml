@@ -14,7 +14,9 @@ jobs:
       - uses: actions/checkout@master
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/} | sed 's#/#-#g')"
+        run: echo "::set-output name=branch::$BRANCH_NAME"
+        env:
+          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || 'main' }}
         id: extract_branch
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -59,10 +61,12 @@ jobs:
           export_default_credentials: true
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/} | sed 's#/#-#g')"
+        run: echo "::set-output name=branch::$BRANCH_NAME"
+        env:
+          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || 'main' }}
         id: extract_branch
       - name: Deploy VM
         shell: bash
-        run: |
-          sed -i "s/BRANCH_NAME/${{ steps.extract_branch.outputs.branch }}/g" tools/gcp_instance_startup_script.sh
-          ./tools/create_gcp_instance.sh
+        run: ./tools/create_gcp_instance.sh
+        env:
+          BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
