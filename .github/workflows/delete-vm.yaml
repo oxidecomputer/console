@@ -18,6 +18,4 @@ jobs:
           export_default_credentials: true
       - name: Delete vm for branch
         shell: bash
-        run: gcloud compute instances delete "console-git-${BRANCH}" --quiet --zone=us-central1-a || true
-        env:
-          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: gcloud compute instances delete "console-git-${GITHUB_HEAD_REF}" --quiet --zone=us-central1-a || true
