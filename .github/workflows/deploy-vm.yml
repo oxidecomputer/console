@@ -63,6 +63,8 @@ jobs:
         id: extract_branch
       - name: Deploy VM
         shell: bash
-        run: ./tools/create_gcp_instance.sh
+        run: |
+          sed -i "s/BRANCH_NAME/$BRANCH_NAME/g" tools/gcp_instance_startup_script.sh
+          ./tools/create_gcp_instance.sh
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
