@@ -1,15 +1,8 @@
 name: push image and deploy vm
 on:
+  pull_request:
   push:
-    paths:
-      - '*.json' # Only run on changes to the packer directory.
-      - '*.js'
-      - '*.ts'
-      - 'libs/**'
-      - 'apps/**'
-      - 'tools/**'
-      - 'Dockerfile'
-      - '.github/workflows/deploy-vm.yml' # Run when this file changes.
+    branches: [main]
   workflow_dispatch:
     inputs:
 jobs:

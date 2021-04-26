@@ -1,6 +1,9 @@
 name: Delete VM on branch delete
 
-on: delete
+on:
+  delete:
+  pull_request:
+    types: [closed]
 
 jobs:
   packer:
