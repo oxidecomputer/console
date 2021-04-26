@@ -4,7 +4,7 @@ import type { EmailInputGroupProps } from '..'
 import { EmailInputGroup } from '..'
 
 export default {
-  title: 'Components/Fields/Email Field',
+  title: 'Components/Forms/Input Group/Email Input Group',
 } as Meta<EmailInputGroupProps>
 
 const Template: Story<EmailInputGroupProps> = (args) => (

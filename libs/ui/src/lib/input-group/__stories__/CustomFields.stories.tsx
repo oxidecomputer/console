@@ -5,7 +5,7 @@ import { InputGroup, Input } from '..'
 import Icon from '../../icon/Icon'
 
 export default {
-  title: 'Components/Input Group/Custom Input Groups',
+  title: 'Components/Forms/Input Group/Custom Input Groups',
 } as Meta<InputGroupProps>
 
 const Template: Story<InputGroupProps> = (args) => (

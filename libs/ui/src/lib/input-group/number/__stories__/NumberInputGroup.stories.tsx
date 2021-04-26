@@ -3,10 +3,10 @@ import { action } from '@storybook/addon-actions'
 import React, { useState } from 'react'
 import type { NumberInputGroupProps } from '..'
 import { NumberInputGroup } from '..'
-import mdx from './NumberField.mdx'
+import mdx from './NumberInputGroup.mdx'
 
 export default {
-  title: 'Components/Input Group/Number Field',
+  title: 'Components/Forms/Input Group/Number',
   parameters: {
     docs: {
       page: mdx,

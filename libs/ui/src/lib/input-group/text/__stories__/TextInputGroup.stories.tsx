@@ -6,7 +6,7 @@ import { TextInputGroup } from '..'
 import Icon from '../../../icon/Icon'
 
 export default {
-  title: 'Components/Fields/Text Field',
+  title: 'Components/Forms/Input Group/Text Input Group',
 } as Meta<TextInputGroupProps>
 
 const Template: Story<TextInputGroupProps> = (args) => (
