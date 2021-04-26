@@ -7,7 +7,13 @@ import { GlobalStyle, defaultTheme } from '@oxide/theme'
 
 import App from './app/app'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+})
 
 ReactDOM.render(
   <React.StrictMode>

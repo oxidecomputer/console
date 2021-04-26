@@ -80,8 +80,7 @@ const InstancePage = () => {
   })
 
   if (error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((error as any)?.status === 404) {
+    if (error.status === 404) {
       return <div>Instance not found</div>
     } else {
       return <div>loading</div>

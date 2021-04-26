@@ -6,7 +6,13 @@ import { ThemeProvider } from 'styled-components'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { defaultTheme } from '@oxide/theme'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+})
 
 const Providers: FC = ({ children }) => (
   <ThemeProvider theme={defaultTheme}>
