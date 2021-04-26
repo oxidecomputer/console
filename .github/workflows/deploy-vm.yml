@@ -14,9 +14,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Extract branch name
         shell: bash
-        run: echo "::set-output name=branch::$BRANCH_NAME"
-        env:
-          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || 'main' }}
+        run: echo "::set-output name=branch::${GITHUB_HEAD_REF:-main}"
         id: extract_branch
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -61,9 +59,7 @@ jobs:
           export_default_credentials: true
       - name: Extract branch name
         shell: bash
-        run: echo "::set-output name=branch::$BRANCH_NAME"
-        env:
-          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || 'main' }}
+        run: echo "::set-output name=branch::${GITHUB_HEAD_REF:-main}"
         id: extract_branch
       - name: Deploy VM
         shell: bash
