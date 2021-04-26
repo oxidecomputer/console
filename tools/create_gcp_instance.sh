@@ -24,6 +24,7 @@ function retry {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+
 export ZONE="us-central1-a"
 export INSTANCE_TYPE="n2-standard-2"
 export INSTANCE_NAME="console-git-${BRANCH_NAME}"
