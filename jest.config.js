@@ -16,5 +16,4 @@ module.exports = {
     '\\.(css|less)$': 'identity-obj-proxy',
     ...libs,
   },
-  testPathIgnorePatterns: ['/node_modules/', 'apps/web-console-e2e'],
 }
