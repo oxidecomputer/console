@@ -2,6 +2,26 @@
 set -e
 set -o pipefail
 
+function retry {
+  local retries=$1
+  shift
+
+  local count=0
+  until "$@"; do
+    exit=$?
+    wait=$((2 ** $count))
+    count=$(($count + 1))
+    if [ $count -lt $retries ]; then
+      echo "Retry $count/$retries exited $exit, retrying in $wait seconds..."
+      sleep $wait
+    else
+      echo "Retry $count/$retries exited $exit, no more retries left."
+      return $exit
+    fi
+  done
+  return 0
+}
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 export ZONE="us-central1-a"
@@ -15,7 +35,7 @@ gcloud compute instances delete "$INSTANCE_NAME" --quiet \
 echo " Creating instance: ${INSTANCE_NAME}"
 
 # Retry command twice just in case there is a random failure.
-for i in 1 2; do gcloud compute instances create "$INSTANCE_NAME" \
+retry 2 gcloud compute instances create "$INSTANCE_NAME" \
 	--description="Machine automatically generated from branch ${BRANCH_NAME} of the oxidecomputer/console git repo." \
 	--hostname="${INSTANCE_NAME}.internal.oxide.computer" \
 	--zone=$ZONE \
@@ -26,5 +46,4 @@ for i in 1 2; do gcloud compute instances create "$INSTANCE_NAME" \
 	--boot-disk-size=200GB \
 	--boot-disk-auto-delete \
 	--metadata-from-file startup-script=${DIR}/gcp_instance_startup_script.sh \
-	--quiet \
-	&& break || sleep 5; done
+	--quiet
