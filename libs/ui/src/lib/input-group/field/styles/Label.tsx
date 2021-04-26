@@ -34,7 +34,9 @@ export const Label: FC<LabelProps> = ({
   ...labelProps
 }) => (
   <LabelContainer {...labelProps}>
-    <LabelText weight={500}>{children}</LabelText>
+    <LabelText weight={500} size="base">
+      {children}
+    </LabelText>
     {!required && <Text size="sm">Optional</Text>}
   </LabelContainer>
 )

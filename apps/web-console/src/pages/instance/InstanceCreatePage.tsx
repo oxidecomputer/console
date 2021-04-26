@@ -1,4 +1,3 @@
-import type { ChangeEvent } from 'react'
 import { useEffect } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
@@ -433,38 +432,32 @@ const InstancesPage = () => {
         <Heading>Finalize and create</Heading>
         <Row>
           <StyledTextField
+            id="instance-name"
+            label="Choose a name"
             hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setInstanceName(e.target.value)
-            }
+            onChange={setInstanceName}
             placeholder="web1"
             required
             value={instanceName}
-          >
-            Choose a name
-          </StyledTextField>
+          />
           <StyledTextField
+            id="hostname"
+            label="Choose a hostname"
             hint="Choose a hostname for the instance. In the future this will be optional."
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setHostname(e.target.value)
-            }
+            onChange={setHostname}
             placeholder="example.com"
             required
             value={hostname}
-          >
-            Choose a hostname
-          </StyledTextField>
+          />
         </Row>
         <TextField
+          id="tags"
+          label="Add tags"
           hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setTagsField(e.target.value)
-          }
+          onChange={setTagsField}
           required
           value={tagsField}
-        >
-          Add tags
-        </TextField>
+        />
 
         <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
