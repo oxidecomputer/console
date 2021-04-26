@@ -22,7 +22,8 @@
     "paths": {
       "@oxide/ui": ["libs/ui/src/index.ts"],
       "@oxide/theme": ["libs/theme/src/index.ts"],
-      "@oxide/api": ["libs/api/index.ts"]
+      "@oxide/api": ["libs/api/index.ts"],
+      "@oxide/api-mocks": ["libs/api-mocks/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "apps/web-console-e2e"]
