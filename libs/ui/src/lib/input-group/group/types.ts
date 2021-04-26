@@ -1,6 +1,6 @@
 import type { ReactFragment, ReactNode } from 'react'
 
-export interface FieldProps {
+export interface InputGroupProps {
   /**
    * ID of the form field this field represents
    */

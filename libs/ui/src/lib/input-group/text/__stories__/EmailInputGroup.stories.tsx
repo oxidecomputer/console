@@ -1,13 +1,15 @@
 import type { Meta, Story } from '@storybook/react'
 import React from 'react'
-import type { EmailFieldProps } from '..'
-import { EmailField } from '..'
+import type { EmailInputGroupProps } from '..'
+import { EmailInputGroup } from '..'
 
 export default {
   title: 'Components/Fields/Email Field',
-} as Meta<EmailFieldProps>
+} as Meta<EmailInputGroupProps>
 
-const Template: Story<EmailFieldProps> = (args) => <EmailField {...args} />
+const Template: Story<EmailInputGroupProps> = (args) => (
+  <EmailInputGroup {...args} />
+)
 
 export const Default = Template.bind({})
 Default.args = {

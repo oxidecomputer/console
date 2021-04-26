@@ -8,10 +8,10 @@ import {
   ErrorMessage,
   InfoPopover,
 } from './styles'
-import type { FieldProps } from './types'
+import type { InputGroupProps } from './types'
 
-export const Field: FC<FieldProps> = ({
-  id: id,
+export const InputGroup: FC<InputGroupProps> = ({
+  id,
   required,
   disabled,
   error,

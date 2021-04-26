@@ -4,9 +4,11 @@ import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
 import styled from 'styled-components'
 import Text from '../../../text/Text'
-import type { FieldProps } from '../types'
+import type { InputGroupProps } from '../types'
 
 const LabelContainer = styled.label`
+  flex: 0 0 auto;
+
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -25,7 +27,7 @@ const LabelText = styled(Text)`
 type LabelProps = StyledComponentProps<
   'label',
   Theme,
-  Pick<FieldProps, 'required'>,
+  Pick<InputGroupProps, 'required'>,
   never
 >
 export const Label: FC<LabelProps> = ({

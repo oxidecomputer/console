@@ -1,7 +1,7 @@
 import type { ChangeEvent, FC, FocusEvent } from 'react'
 import React, { useState, useEffect } from 'react'
-import type { FieldProps } from '../field'
-import { Field } from '../field'
+import type { InputGroupProps } from '../group'
+import { InputGroup } from '../group'
 import { Input } from '../Input'
 import { Controls } from './Controls'
 import styled from 'styled-components'
@@ -16,7 +16,7 @@ const StyledInput = styled(Input)`
   }
 `
 
-const useNumberField = (
+const useNumberInputGroup = (
   value: number,
   onChange: (newValue: number) => void
 ) => {
@@ -66,7 +66,7 @@ const useNumberField = (
   return { internalValue, handleChange, handleBlur }
 }
 
-export interface NumberFieldProps extends FieldProps {
+export interface NumberInputGroupProps extends InputGroupProps {
   /** Value this field should display */
   value: number
 
@@ -74,14 +74,14 @@ export interface NumberFieldProps extends FieldProps {
   onChange: (value: number) => void
 }
 
-export const NumberField: FC<NumberFieldProps> = ({
+export const NumberInputGroup: FC<NumberInputGroupProps> = ({
   value,
   onChange,
 
   disabled,
   ...fieldProps
 }) => {
-  const { internalValue, handleChange, handleBlur } = useNumberField(
+  const { internalValue, handleChange, handleBlur } = useNumberInputGroup(
     value,
     onChange
   )
@@ -91,7 +91,7 @@ export const NumberField: FC<NumberFieldProps> = ({
   }
 
   return (
-    <Field disabled={disabled} {...fieldProps}>
+    <InputGroup disabled={disabled} {...fieldProps}>
       <StyledInput
         type="number"
         value={internalValue}
@@ -104,6 +104,6 @@ export const NumberField: FC<NumberFieldProps> = ({
         onIncrement={handleControls(1)}
         onDecrement={handleControls(-1)}
       />
-    </Field>
+    </InputGroup>
   )
 }

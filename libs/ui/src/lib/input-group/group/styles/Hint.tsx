@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Text from '../../../text/Text'
 
 const HintContainer = styled.div`
+  flex: 1;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
 
   color: ${({ theme }) => theme.color('gray300')};

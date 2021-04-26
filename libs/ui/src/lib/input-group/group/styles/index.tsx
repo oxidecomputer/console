@@ -1,12 +1,17 @@
 import styled, { css } from 'styled-components'
-import type { FieldProps } from '../types'
+import type { InputGroupProps } from '../types'
 
 export * from './Label'
 export * from './Hint'
 export * from './Error'
 export * from './InfoPopover'
 
-export const Container = styled.div<Pick<FieldProps, 'disabled'>>`
+export const Container = styled.div<Pick<InputGroupProps, 'disabled'>>`
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
   color: ${({ theme }) => theme.color('gray100')};
 
   ${({ disabled }) =>
@@ -16,7 +21,7 @@ export const Container = styled.div<Pick<FieldProps, 'disabled'>>`
     `}
 `
 
-export const InputContainer = styled.div<Pick<FieldProps, 'error'>>`
+export const InputContainer = styled.div<Pick<InputGroupProps, 'error'>>`
   display: flex;
   flex-direction: row;
 

@@ -12,7 +12,7 @@ import {
   RadioField,
   Tabs,
   Text,
-  TextField,
+  TextInputGroup,
   TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
@@ -79,16 +79,6 @@ const Row = styled.div`
   flex-direction: row;
 
   ${({ theme }) => theme.spaceBetweenX(6)}
-`
-
-const StyledTextField = styled(TextField)`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 ${({ theme }) => theme.spacing(150)};
-
-  & *:last-child {
-    margin-top: auto;
-  }
 `
 
 const CreateButton = styled(Button).attrs({ fullWidth: true })``
@@ -431,7 +421,7 @@ const InstancesPage = () => {
         <StyledButton>Add an SSH key</StyledButton>
         <Heading>Finalize and create</Heading>
         <Row>
-          <StyledTextField
+          <TextInputGroup
             id="instance-name"
             label="Choose a name"
             hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
@@ -440,7 +430,7 @@ const InstancesPage = () => {
             required
             value={instanceName}
           />
-          <StyledTextField
+          <TextInputGroup
             id="hostname"
             label="Choose a hostname"
             hint="Choose a hostname for the instance. In the future this will be optional."
@@ -450,7 +440,7 @@ const InstancesPage = () => {
             value={hostname}
           />
         </Row>
-        <TextField
+        <TextInputGroup
           id="tags"
           label="Add tags"
           hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."

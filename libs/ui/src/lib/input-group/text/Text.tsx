@@ -1,10 +1,10 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { FieldProps } from '../field'
-import { Field } from '../field'
+import type { InputGroupProps } from '../group'
+import { InputGroup } from '../group'
 import { Input } from '../Input'
 
-export interface TextFieldProps extends Omit<FieldProps, 'children'> {
+export interface TextInputGroupProps extends Omit<InputGroupProps, 'children'> {
   /** The value the input should show, similar to `value` on `<input>` */
   value: string
   /** Placeholder string for the input */
@@ -17,7 +17,7 @@ export interface TextFieldProps extends Omit<FieldProps, 'children'> {
   children?: never
 }
 
-export const TextField: FC<TextFieldProps> = ({
+export const TextInputGroup: FC<TextInputGroupProps> = ({
   id,
   value,
   placeholder,
@@ -26,7 +26,7 @@ export const TextField: FC<TextFieldProps> = ({
   disabled,
   ...fieldProps
 }) => (
-  <Field id={id} disabled={disabled} {...fieldProps}>
+  <InputGroup id={id} disabled={disabled} {...fieldProps}>
     <Input
       id={id}
       type="text"
@@ -35,5 +35,5 @@ export const TextField: FC<TextFieldProps> = ({
       placeholder={placeholder}
       onChange={(e) => onChange && onChange(e.target.value)}
     />
-  </Field>
+  </InputGroup>
 )

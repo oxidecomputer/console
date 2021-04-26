@@ -1,15 +1,17 @@
 import React from 'react'
 import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
-import type { TextFieldProps } from '..'
-import { TextField } from '..'
+import type { TextInputGroupProps } from '..'
+import { TextInputGroup } from '..'
 import Icon from '../../../icon/Icon'
 
 export default {
   title: 'Components/Fields/Text Field',
-} as Meta<TextFieldProps>
+} as Meta<TextInputGroupProps>
 
-const Template: Story<TextFieldProps> = (args) => <TextField {...args} />
+const Template: Story<TextInputGroupProps> = (args) => (
+  <TextInputGroup {...args} />
+)
 
 export const Default = Template.bind({})
 Default.args = {

@@ -1,14 +1,14 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { TextFieldProps } from './TextField'
-import { Field } from '../field'
+import type { TextInputGroupProps } from './Text'
+import { InputGroup } from '../group'
 import { Input } from '../Input'
 
 // Extending `TextFieldProps` here as a way to distinguish this component from TextField
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface EmailFieldProps extends TextFieldProps {}
+export interface EmailInputGroupProps extends TextInputGroupProps {}
 
-export const EmailField: FC<EmailFieldProps> = ({
+export const EmailInputGroup: FC<EmailInputGroupProps> = ({
   id,
   value,
   placeholder,
@@ -17,7 +17,7 @@ export const EmailField: FC<EmailFieldProps> = ({
   ...fieldProps
 }) => {
   return (
-    <Field id={id} {...fieldProps}>
+    <InputGroup id={id} {...fieldProps}>
       <Input
         id={id}
         type="email"
@@ -26,6 +26,6 @@ export const EmailField: FC<EmailFieldProps> = ({
         autoComplete="email"
         onChange={(e) => onChange && onChange(e.target.value)}
       />
-    </Field>
+    </InputGroup>
   )
 }

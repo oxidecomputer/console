@@ -1,2 +1,2 @@
-export * from './EmailField'
-export * from './TextField'
+export * from './Email'
+export * from './Text'
