@@ -34,6 +34,8 @@ gcloud compute instances delete "$INSTANCE_NAME" --quiet \
 
 echo " Creating instance: ${INSTANCE_NAME}"
 
+sed -i "s/BRANCH_NAME/${BRANCH_NAME}/g" tools/gcp_instance_startup_script.sh
+
 # Retry command twice just in case there is a random failure.
 retry 2 gcloud compute instances create "$INSTANCE_NAME" \
 	--description="Machine automatically generated from branch ${BRANCH_NAME} of the oxidecomputer/console git repo." \
