@@ -35,10 +35,11 @@ const Title = styled(TextWithIcon).attrs({
 
 const Form = styled.form`
   margin-top: ${({ theme }) => theme.spacing(4)};
-  ${({ theme }) => theme.spaceBetweenY(4)}
+  margin-bottom: ${({ theme }) => theme.spacing(20)};
+  ${({ theme }) => theme.spaceBetweenY(8)}
 `
 
-const StyledText = styled(Text).attrs({
+const Heading = styled(Text).attrs({
   color: 'white',
   size: 'lg',
 })`
@@ -51,6 +52,16 @@ const StyledText = styled(Text).attrs({
   }
 `
 
+const Description = styled(Text).attrs({
+  color: 'gray300',
+  size: 'sm',
+})`
+  display: block;
+
+  margin-top: ${({ theme }) => theme.spacing(2)};
+  max-width: ${({ theme }) => theme.spacing(150)};
+`
+
 const StyledTabs = styled(Tabs)`
   margin-top: ${({ theme }) => theme.spacing(1)};
 `
@@ -60,6 +71,32 @@ const RadioFieldText = styled(Text).attrs({
   size: 'base',
 })`
   display: block;
+`
+
+const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+
+  ${({ theme }) => theme.spaceBetweenX(6)}
+`
+
+const StyledTextField = styled(TextField)`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 ${({ theme }) => theme.spacing(150)};
+
+  & *:last-child {
+    margin-top: auto;
+  }
+`
+
+const CreateButton = styled(Button).attrs({ fullWidth: true })``
+
+const FooterText = styled(Text).attrs({ size: 'xs' })`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(8)};
 `
 
 type Params = {
@@ -181,6 +218,8 @@ const INSTANCE_SIZES = [
   },
 ]
 
+const GB = 1024 * 1024 * 1024
+
 const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
@@ -193,8 +232,12 @@ const InstancesPage = () => {
 
   // form state
   const [instanceName, setInstanceName] = useState('')
+  const [hostname, setHostname] = useState('')
   const [imageField, setImageField] = useState('')
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
+  const [storageField, setStorageField] = useState('')
+  const [configurationField, setConfigurationField] = useState('')
+  const [tagsField, setTagsField] = useState('')
 
   const getParams = () => {
     // FIXME: Refactor once the backend API is more settled
@@ -204,10 +247,13 @@ const InstancesPage = () => {
 
     const params = {
       description: `An instance in project: ${projectName}`,
-      hostname: 'oxide.com',
-      memory: instance.memory,
+      hostname,
+      memory: instance.memory * GB,
       name: instanceName,
       ncpus: instance.ncpus,
+      storageField: storageField,
+      configurationField: configurationField,
+      tagsField: tagsField,
     }
     console.log('params', params)
     return params
@@ -269,7 +315,7 @@ const InstancesPage = () => {
         <Title>Create Instance</Title>
       </PageHeader>
       <Form>
-        <StyledText>Choose an image</StyledText>
+        <Heading>Choose an image</Heading>
         <StyledTabs
           label="Choose an image"
           tabs={['Distributions', 'Custom Images']}
@@ -303,7 +349,7 @@ const InstancesPage = () => {
             <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
           </RadioGroup>
         </StyledTabs>
-        <StyledText>Choose CPUs and RAM</StyledText>
+        <Heading>Choose CPUs and RAM</Heading>
         <StyledTabs
           label="Choose CPUs and RAM"
           tabs={[
@@ -342,20 +388,90 @@ const InstancesPage = () => {
             },
           ])}
         </StyledTabs>
-        <TextField
-          value={instanceName}
-          required
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInstanceName(e.target.value)
-          }
-          placeholder="db1"
+        <RadioGroup
+          legend="Add storage"
+          checked={storageField}
+          handleChange={setStorageField}
+          direction="fixed-row"
+          name="storage"
         >
-          Instance name
+          <RadioCardField value="100gb">100 GB</RadioCardField>
+          <RadioCardField value="200gb">200 GB</RadioCardField>
+          <RadioCardField value="500gb">500 GB</RadioCardField>
+          <RadioCardField value="1000gb">1,000 GB</RadioCardField>
+          <RadioCardField value="2000gb">2,000 GB</RadioCardField>
+          <RadioCardField value="custom">Custom</RadioCardField>
+        </RadioGroup>
+        <RadioGroup
+          legend="Choose configuration options"
+          checked={configurationField}
+          handleChange={setConfigurationField}
+          direction="row"
+          name="configuration-options"
+        >
+          <RadioField
+            value="auto"
+            hint="Some details about automatically formatting and mounting disks."
+          >
+            Automatically format and mount
+          </RadioField>
+          <RadioField
+            value="manual"
+            hint="Some details about manually formatting and mounting disks."
+          >
+            Manually format and mount
+          </RadioField>
+        </RadioGroup>
+        <Heading>Authentication</Heading>
+        <Description>
+          We don’t have an SSH key stored for you. Please add one. Adding an SSH
+          Key adds it to your user profile so any instances in any project that
+          you have access to will updated with this additional key. Your
+          existing keys will remain on all your instances.
+        </Description>
+        <StyledButton>Add an SSH key</StyledButton>
+        <Heading>Finalize and create</Heading>
+        <Row>
+          <StyledTextField
+            hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInstanceName(e.target.value)
+            }
+            placeholder="web1"
+            required
+            value={instanceName}
+          >
+            Choose a name
+          </StyledTextField>
+          <StyledTextField
+            hint="Choose a hostname for the instance. In the future this will be optional."
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setHostname(e.target.value)
+            }
+            placeholder="example.com"
+            required
+            value={hostname}
+          >
+            Choose a hostname
+          </StyledTextField>
+        </Row>
+        <TextField
+          hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setTagsField(e.target.value)
+          }
+          required
+          value={tagsField}
+        >
+          Add tags
         </TextField>
 
-        <Button onClick={onCreateClick} disabled={createInstance.pending}>
+        <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
           Create instance
-        </Button>
+        </CreateButton>
+        <FooterText>
+          Equivalent <a href="#">REST</a> or <a href="#">command line</a>
+        </FooterText>
       </Form>
     </>
   )

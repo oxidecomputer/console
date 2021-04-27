@@ -11,9 +11,8 @@
     "target": "es2015",
     "module": "commonjs",
     "esModuleInterop": true,
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "jsx": "react",
@@ -22,8 +21,8 @@
     "paths": {
       "@oxide/ui": ["libs/ui/src/index.ts"],
       "@oxide/theme": ["libs/theme/src/index.ts"],
-      "@oxide/api": ["libs/api/index.ts"]
+      "@oxide/api": ["libs/api/index.ts"],
+      "@oxide/api-mocks": ["libs/api-mocks/index.ts"]
     }
-  },
-  "exclude": ["node_modules", "tmp", "apps/web-console-e2e"]
+  }
 }

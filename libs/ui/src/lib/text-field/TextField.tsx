@@ -64,6 +64,7 @@ const OptionalText = styled(Text).attrs({ size: 'sm' })``
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
   display: block;
+  max-width: ${({ theme }) => theme.spacing(100)};
   padding-bottom: ${({ theme }) => theme.spacing(2)};
 
   color: ${({ theme }) => theme.color('gray300')};
