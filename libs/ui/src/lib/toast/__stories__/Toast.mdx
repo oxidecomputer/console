@@ -1,0 +1,46 @@
+import { Canvas, Story } from '@storybook/addon-docs/blocks'
+
+# Toasts
+
+Toasts are used to display system messages. The messages are short and straightforward. It may contain a dismiss button, and an action button depending on the situation. It might be helpful to think of toasts as a small, positioned alert.
+
+## Usage
+
+Toasts appear with an ease-in animation from the bottom of the viewport and stay fixed at its bottom-right corner.
+
+Users can exit the toast by clicking the “Dismiss” button. Toasts with action buttons are only dismissed when the user performs the action, clicks the dismiss button, or navigates to another page.
+
+### Type
+
+#### Default toast
+
+These toasts are used to display simple, non-interactive messages.
+
+<Canvas>
+  <Story id="components-toast--default" />
+</Canvas>
+
+#### Action toast
+
+These toasts are used to display message with an optional user action (for example, “Undo”).
+
+## Content
+
+While the content within a toast should be concise, it should also be specific. Because toasts have the ability to stack, ambiguous copy could lead to confusion. Ensure every toast specifies the object the action was related to.
+
+## Do’s and Don’ts
+
+Don’t use toasts (or any notifications) that dismiss on a timer for critical or emergency messages. Some users with disabilities need more time to read or interact with messages and timed toasts may not provide sufficient time.
+
+Users should be able to manage or limit noncritical notifications. This gives users the control to reduce the number of distractions or disruptions they receive, which is particularly helpful for users with cognitive limitations.
+
+## WCAG considerations
+
+Generally these messages should appear at the start or end of the DOM. If you place them elsewhere, they may confuse screen reader users as they navigate through the page.
+
+Avoid scrollbars. Content should be short enough to not need them.
+
+More reading:
+https://www.scottohara.me/blog/2019/07/08/a-toast-to-a11y-toasts.html
+https://adrianroselli.com/2020/01/defining-toast-messages.html
+https://adamsilver.io/blog/the-problem-with-snackbars-and-toast-messages/

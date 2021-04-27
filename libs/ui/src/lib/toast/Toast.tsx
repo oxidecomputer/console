@@ -50,33 +50,31 @@ const CloseWrapper = styled.div`
   flex: 0 0 auto;
 `
 
-export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => {
-  return (
-    <Wrapper>
-      {icon && (
-        <IconWrapper>
-          <Icon name={icon} color="green600" />
-        </IconWrapper>
-      )}
-      <Content>
-        <Text size="sm" weight={500} color="gray50">
-          {title}
+export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
+  <Wrapper>
+    {icon && (
+      <IconWrapper>
+        <Icon name={icon} color="green600" />
+      </IconWrapper>
+    )}
+    <Content>
+      <Text size="sm" weight={500} color="gray50">
+        {title}
+      </Text>
+      {content && (
+        <Text size="sm" weight={400} color="gray300">
+          {content}
         </Text>
-        {content && (
-          <Text size="sm" weight={400} color="gray300">
-            {content}
-          </Text>
-        )}
-      </Content>
-      <CloseWrapper>
-        <button
-          onClick={() => {
-            onClose()
-          }}
-        >
-          <Icon name="close" color="gray300" />
-        </button>
-      </CloseWrapper>
-    </Wrapper>
-  )
-}
+      )}
+    </Content>
+    <CloseWrapper>
+      <button
+        onClick={() => {
+          onClose()
+        }}
+      >
+        <Icon name="close" color="gray300" />
+      </button>
+    </CloseWrapper>
+  </Wrapper>
+)
