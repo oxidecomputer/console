@@ -1,3 +1,4 @@
+import type { UseQueryOptions } from 'react-query'
 import { useQuery } from 'react-query'
 
 import type { ApiResponse } from './__generated__'
@@ -15,11 +16,13 @@ type ApiClient<A> = OmitByValue<
 >
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-// prettier-ignore
-const getUseApi = 
-  <A extends ApiClient<A>>(api: A) => 
-  <M extends keyof ApiClient<A>>(method: M, params: Params<A[M]>) => 
-    useQuery<Result<A[M]>, Response>([method, params], () => api[method](params))
+const getUseApi = <A extends ApiClient<A>>(api: A) => <
+  M extends keyof ApiClient<A>
+>(
+  method: M,
+  params: Params<A[M]>,
+  options?: UseQueryOptions<unknown, Response, Result<A[M]>>
+) => useQuery([method, params], () => api[method](params), options)
 
 const basePath =
   process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
