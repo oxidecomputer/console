@@ -5,7 +5,7 @@ import { Toast } from './Toast'
 
 describe('Toast', () => {
   it('should render successfully', () => {
-    const { container } = render(<Toast />)
+    const { container } = render(<Toast title="Test" onClose={jest.fn()} />)
     expect(container).toBeTruthy()
   })
 })
