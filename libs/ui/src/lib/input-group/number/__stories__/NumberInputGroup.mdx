@@ -1,12 +1,8 @@
 <!-- NumberField.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { NumberField } from '../NumberField'
-import { Default, WithState } from './NumberField.stories'
 
-<Meta title="Components/Forms/NumberField" component={NumberField} />
-
-# NumberField
+# Number Field
 
 This is a controlled component.
 
@@ -23,15 +19,5 @@ Resources:
 - [CSS Tricks: Finger-friendly numerical inputs](https://css-tricks.com/finger-friendly-numerical-inputs-with-inputmode/)
 
 <Canvas>
-  <Story story={Default} />
-</Canvas>
-
-<ArgsTable of={NumberField} story="^" />
-
-## Stories
-
-### With State
-
-<Canvas>
-  <Story story={WithState} />
+  <Story id="components-forms-input-group-number--with-state" />
 </Canvas>
