@@ -8,7 +8,6 @@ import {
   Breadcrumbs,
   Button,
   Icon,
-  NumberField,
   PageHeader,
   RadioGroup,
   RadioField,
@@ -79,22 +78,14 @@ const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
 const Row = styled.div`
   display: flex;
   flex-direction: row;
+
+  ${({ theme }) => theme.spaceBetweenX(6)}
 `
 
-const StyledNumberField = styled(NumberField)`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 ${({ theme }) => theme.spacing(150)};
-
-  & *:last-child {
-    margin-top: auto;
-  }
-`
 const StyledTextField = styled(TextField)`
   display: flex;
   flex-direction: column;
   flex: 1 1 ${({ theme }) => theme.spacing(150)};
-  margin-left: ${({ theme }) => theme.spacing(6)};
 
   & *:last-child {
     margin-top: auto;
@@ -246,9 +237,7 @@ const InstancesPage = () => {
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
   const [storageField, setStorageField] = useState('')
   const [configurationField, setConfigurationField] = useState('')
-  const [numberField, setNumberField] = useState(0)
   const [tagsField, setTagsField] = useState('')
-  const [projectField, setProjectField] = useState('')
 
   const getParams = () => {
     // FIXME: Refactor once the backend API is more settled
@@ -264,9 +253,7 @@ const InstancesPage = () => {
       ncpus: instance.ncpus,
       storageField: storageField,
       configurationField: configurationField,
-      numberInstancesField: numberField,
       tagsField: tagsField,
-      projectField: projectField,
     }
     console.log('params', params)
     return params
@@ -445,15 +432,6 @@ const InstancesPage = () => {
         <StyledButton>Add an SSH key</StyledButton>
         <Heading>Finalize and create</Heading>
         <Row>
-          <StyledNumberField
-            handleChange={setNumberField}
-            hint="Choose the number of instances you’d like to create with this
-          configuration"
-            required
-            value={numberField}
-          >
-            Number of Instances
-          </StyledNumberField>
           <StyledTextField
             hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -486,16 +464,6 @@ const InstancesPage = () => {
           value={tagsField}
         >
           Add tags
-        </TextField>
-        <TextField
-          hint="Assign instance(s) to a project"
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setProjectField(e.target.value)
-          }
-          required
-          value={projectField}
-        >
-          Select project
         </TextField>
 
         <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
