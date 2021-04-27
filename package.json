@@ -27,11 +27,11 @@
     "react-dom": "^16.14.0",
     "react-is": "^16.13.1",
     "react-popper": "^2.2.5",
+    "react-query": "^3.13.12",
     "react-router-dom": "^5.2.0",
     "react-virtualized-auto-sizer": "^1.0.4",
     "react-window": "^1.8.6",
     "styled-components": "5.2.1",
-    "swr": "^0.5.4",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2"
   },
