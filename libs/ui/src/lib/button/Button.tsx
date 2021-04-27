@@ -38,6 +38,10 @@ export type ButtonProps = StyledComponentProps<
   Theme,
   {
     /**
+     * Should button take up the full width
+     */
+    fullWidth?: boolean
+    /**
      * Set the size of the button
      */
     size?: ButtonSize
@@ -200,6 +204,7 @@ const StyledButton = styled.button<ButtonProps>`
   justify-content: center;
   vertical-align: top;
 
+  ${({ fullWidth }) => fullWidth && `width: 100%;`};
   ${({ size }) => size && getSizeStyles(size)};
   ${({ variant }) => variant && getVariantStyles(variant)};
 
@@ -220,18 +225,24 @@ const StyledButton = styled.button<ButtonProps>`
 export const Button = forwardRef<
   HTMLButtonElement,
   PropsWithChildren<ButtonProps>
->(({ children, size = 'base', variant = 'solid', ...rest }, ref) => {
-  return (
-    <StyledButton
-      ref={ref}
-      type="button"
-      size={size}
-      variant={variant}
-      {...rest}
-    >
-      {children}
-    </StyledButton>
-  )
-})
+>(
+  (
+    { children, fullWidth = false, size = 'base', variant = 'solid', ...rest },
+    ref
+  ) => {
+    return (
+      <StyledButton
+        ref={ref}
+        type="button"
+        fullWidth={fullWidth}
+        size={size}
+        variant={variant}
+        {...rest}
+      >
+        {children}
+      </StyledButton>
+    )
+  }
+)
 
 export default Button

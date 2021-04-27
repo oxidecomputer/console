@@ -136,6 +136,7 @@ const StyledInput = styled.input`
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
   margin-top: ${({ theme }) => theme.spacing(1)};
+  max-width: ${({ theme }) => theme.spacing(100)};
 
   color: ${({ theme }) => theme.color('gray300')};
 `

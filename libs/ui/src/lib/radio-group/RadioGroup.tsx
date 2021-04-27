@@ -53,6 +53,7 @@ const StyledLegend = styled(Text).attrs({
 const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
   display: block;
   margin-top: ${({ theme }) => theme.spacing(3)};
+  max-width: ${({ theme }) => theme.spacing(200)}; /* 800px */
 `
 
 /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
