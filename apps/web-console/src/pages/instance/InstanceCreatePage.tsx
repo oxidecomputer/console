@@ -227,6 +227,8 @@ const INSTANCE_SIZES = [
   },
 ]
 
+const GB = 1024 * 1024 * 1024
+
 const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
@@ -257,7 +259,7 @@ const InstancesPage = () => {
     const params = {
       description: `An instance in project: ${projectName}`,
       hostname,
-      memory: instance.memory,
+      memory: instance.memory * GB,
       name: instanceName,
       ncpus: instance.ncpus,
       storageField: storageField,
