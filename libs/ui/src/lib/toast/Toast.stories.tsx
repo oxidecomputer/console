@@ -5,10 +5,14 @@ import { Toast } from './Toast'
 
 export default {
   component: Toast,
-  title: 'Toast',
+  title: 'Components/Toast',
 }
 
 const Template: Story<ToastProps> = (args) => <Toast {...args} />
 
 export const Default = Template.bind({})
-Default.args = {}
+Default.args = {
+  icon: 'checkO',
+  title: 'Success!',
+  content: '7 members have been added.',
+}
