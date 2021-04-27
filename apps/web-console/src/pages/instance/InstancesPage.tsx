@@ -1,16 +1,21 @@
 import React from 'react'
 import styled from 'styled-components'
-
 import { useParams, Link } from 'react-router-dom'
+import filesize from 'filesize'
 
 import { useApi } from '@oxide/api'
-import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: { name: 'instances' },
 })``
+
+const TableWrapper = styled.div`
+  height: 300px;
+  ${({ theme }) => theme.marginY(3)};
+`
 
 type Params = {
   projectName: string
@@ -20,9 +25,9 @@ const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data } = useApi('apiProjectInstancesGet', { projectName })
+  const { data: instances } = useApi('apiProjectInstancesGet', { projectName })
 
-  if (!data) return <div>loading</div>
+  if (!instances) return <div>loading</div>
 
   return (
     <>
@@ -30,16 +35,27 @@ const InstancesPage = () => {
       <PageHeader>
         <Title>Instances for Project: {projectName}</Title>
       </PageHeader>
-      <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
-        {data.items.map((item) => (
-          <li key={item.id}>
-            <Link to={`/projects/${projectName}/instances/${item.name}`}>
-              {item.name}
-            </Link>
-          </li>
-        ))}
-        {data.items.length === 0 && <p>No instances!</p>}
-      </ul>
+      <TableWrapper>
+        <Table
+          itemSize={() => 44}
+          columns={[
+            { Header: 'Name', accessor: 'name' },
+            { Header: 'CPU, RAM / Image', accessor: 'size' },
+            { Header: 'Status', accessor: 'runState' },
+            { Header: 'Created', accessor: 'created' },
+          ]}
+          data={instances.items.map((i) => ({
+            name: (
+              <Link to={`/projects/${projectName}/instances/${i.name}`}>
+                {i.name}
+              </Link>
+            ),
+            size: `${i.ncpus} vCPUs, ${filesize(i.memory)}`,
+            runState: i.runState,
+            created: i.timeCreated.toLocaleString(),
+          }))}
+        />
+      </TableWrapper>
       <Link
         style={{ marginTop: '1rem' }}
         to={`/projects/${projectName}/instances/new`}
