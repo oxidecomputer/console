@@ -13,6 +13,8 @@
   "plugins": [
     "@babel/plugin-transform-runtime",
     ["styled-components", { "pure": true }],
-    "@babel/plugin-proposal-class-properties"
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-react-jsx",
+    "babel-plugin-macros"
   ]
 }

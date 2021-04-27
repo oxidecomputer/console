@@ -24,6 +24,7 @@
       "@oxide/css-helpers": ["libs/css-helpers/index.ts"],
       "@oxide/api": ["libs/api/index.ts"],
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"]
-    }
+    },
+    "types": ["node", "jest"]
   }
 }
