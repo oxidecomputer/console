@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
@@ -21,10 +21,14 @@ const Wrapper = styled.div`
   display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  align-items: flex-start;
 
   padding: ${({ theme }) => theme.spacing(4)};
 
   background-color: ${({ theme }) => theme.color('gray800')};
+
+  // FIXME: figure out a better way to size this
+  width: 384px;
 
   ${({ theme }) => theme.spaceBetweenX(3)}
 `
@@ -35,19 +39,32 @@ const IconWrapper = styled.div`
   font-size: ${({ theme }) => theme.spacing(6)};
 `
 
-const Content = styled.div`
+const Content = styled.div<{ hasIcon: boolean }>`
   flex: 1;
 
   display: flex;
   flex-direction: column;
 
-  padding: ${({ theme }) => theme.spacing(0.5, 0)};
+  ${({ theme, hasIcon }) =>
+    hasIcon &&
+    css`
+      padding: ${theme.spacing(0.5, 0)};
+    `};
 
   ${({ theme }) => theme.spaceBetweenY(1)}
 `
 
-const CloseWrapper = styled.div`
+const ActionButton = styled.button`
   flex: 0 0 auto;
+  text-transform: uppercase;
+`
+
+const CloseButton = styled.button`
+  display: flex;
+  justify-content: center;
+
+  flex: 0 0 auto;
+  height: ${({ theme }) => theme.spacing(5)};
 `
 
 export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
@@ -57,7 +74,7 @@ export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
         <Icon name={icon} color="green600" />
       </IconWrapper>
     )}
-    <Content>
+    <Content hasIcon={!!icon}>
       <Text size="sm" weight={500} color="gray50">
         {title}
       </Text>
@@ -67,14 +84,60 @@ export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
         </Text>
       )}
     </Content>
-    <CloseWrapper>
-      <button
-        onClick={() => {
-          onClose()
-        }}
-      >
-        <Icon name="close" color="gray300" />
-      </button>
-    </CloseWrapper>
+    <CloseButton
+      onClick={() => {
+        onClose()
+      }}
+    >
+      <Icon name="close" color="gray300" />
+    </CloseButton>
+  </Wrapper>
+)
+
+export interface ActionToastProps extends ToastProps {
+  action: string
+  onAction: () => void
+}
+export const ActionToast: FC<ActionToastProps> = ({
+  icon,
+  title,
+  content,
+  onClose,
+
+  action,
+  onAction,
+}) => (
+  <Wrapper>
+    {icon && (
+      <IconWrapper>
+        <Icon name={icon} color="green600" />
+      </IconWrapper>
+    )}
+    <Content hasIcon={!!icon}>
+      <Text size="sm" weight={500} color="gray50">
+        {title}
+      </Text>
+      {content && (
+        <Text size="sm" weight={400} color="gray300">
+          {content}
+        </Text>
+      )}
+    </Content>
+    <ActionButton
+      onClick={() => {
+        onAction()
+      }}
+    >
+      <Text size="sm" weight={400} color="green600">
+        {action}
+      </Text>
+    </ActionButton>
+    <CloseButton
+      onClick={() => {
+        onClose()
+      }}
+    >
+      <Icon name="close" color="gray300" />
+    </CloseButton>
   </Wrapper>
 )
