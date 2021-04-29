@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { Color } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
@@ -39,15 +40,15 @@ const sizeMap: Record<
   Size,
   {
     textSize: TextSize
-    icons: Record<VariantWithIcon, { size: number; spacing: number }>
+    icons: Record<VariantWithIcon, { size: number; margin: number }>
     padding: Record<Variant, number[]>
   }
 > = {
   sm: {
     textSize: 'xxs',
     icons: {
-      notification: { size: 2, spacing: 1.25 },
-      closable: { size: 2, spacing: 1.25 },
+      notification: { size: 2, margin: 1.25 },
+      closable: { size: 2, margin: 1.25 },
     },
     padding: {
       base: [0.5, 1.25, 0.75],
@@ -58,8 +59,8 @@ const sizeMap: Record<
   base: {
     textSize: 'xs',
     icons: {
-      notification: { size: 2, spacing: 1.75 },
-      closable: { size: 3, spacing: 1.5 },
+      notification: { size: 2, margin: 1.75 },
+      closable: { size: 3, margin: 1.5 },
     },
     padding: {
       base: [1.5, 3],
@@ -70,8 +71,8 @@ const sizeMap: Record<
   xl: {
     textSize: 'sm',
     icons: {
-      notification: { size: 2, spacing: 2.25 },
-      closable: { size: 4, spacing: 2.75 },
+      notification: { size: 2, margin: 2.25 },
+      closable: { size: 4, margin: 2.75 },
     },
     padding: {
       base: [2.75, 4],
@@ -100,7 +101,7 @@ const StyledBadge = styled.span<{
   justify-content: center;
 
   background-color: ${({ theme, background }) => theme.color(background)};
-  padding: ${({ theme, padding }) => theme.spacing(...padding)};
+  padding: ${({ padding }) => spacing(...padding)};
 
   border-radius: 9999px;
 `
@@ -112,22 +113,22 @@ const BadgeText = styled(Text)<{ textColor: Color }>`
 `
 
 const StyledIcon = styled(Icon)<{ iconSize?: number }>`
-  ${({ theme, iconSize }) =>
+  ${({ iconSize }) =>
     iconSize &&
     css`
-      width: ${theme.spacing(iconSize)};
+      width: ${spacing(iconSize)};
     `}
 `
 
 const NotificationIcon = styled(StyledIcon).attrs({ name: 'dot' })<{
-  spacing: number
+  margin: number
 }>`
-  margin-right: ${({ theme, spacing }) => theme.spacing(spacing)};
+  margin-right: ${({ margin }) => spacing(margin)};
 `
 
 const StyledButton = styled.button<{
   size: number
-  spacing: number
+  margin: number
 }>`
   background: none;
   border: none;
@@ -138,8 +139,8 @@ const StyledButton = styled.button<{
   align-items: center;
   justify-content: center;
 
-  font-size: ${({ theme, size }) => theme.spacing(size)};
-  margin-left: ${({ theme, spacing }) => theme.spacing(spacing)};
+  font-size: ${({ size }) => spacing(size)};
+  margin-left: ${({ margin }) => spacing(margin)};
 `
 
 export const Badge: FC<BadgeProps> = ({
@@ -165,7 +166,7 @@ export const Badge: FC<BadgeProps> = ({
     >
       {variant === 'notification' && (
         <NotificationIcon
-          spacing={notification.spacing}
+          margin={notification.margin}
           iconSize={notification.size}
           color={text}
         />
@@ -176,7 +177,7 @@ export const Badge: FC<BadgeProps> = ({
       {variant === 'closable' && (
         <StyledButton
           size={closable.size}
-          spacing={closable.spacing}
+          margin={closable.margin}
           type="button"
           onClick={() => onClose && onClose()}
         >

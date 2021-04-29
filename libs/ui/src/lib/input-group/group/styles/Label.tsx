@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
@@ -14,7 +15,7 @@ const LabelContainer = styled.label`
   justify-content: space-between;
   align-items: baseline;
 
-  padding-bottom: ${({ theme }) => theme.spacing(1)};
+  padding-bottom: ${spacing(1)};
 `
 
 const LabelText = styled(Text)`

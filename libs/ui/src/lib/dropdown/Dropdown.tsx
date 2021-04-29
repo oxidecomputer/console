@@ -10,6 +10,7 @@ import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 import { visuallyHiddenCss } from '../VisuallyHidden'
+import { spacing } from '@oxide/css-helpers'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
@@ -63,15 +64,15 @@ const StyledButton = styled.button<ButtonProps>`
   flex-direction: row;
   justify-content: space-between;
 
-  margin-top: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => theme.spacing(2, 4)};
+  margin-top: ${spacing(1)};
+  padding: ${spacing(2, 4)};
   vertical-align: top;
   width: 100%;
 
   background-color: ${({ theme }) => theme.color('gray800')};
   border: none;
   color: ${({ theme }) => theme.color('gray50')};
-  font-size: ${({ theme }) => theme.spacing(4)};
+  font-size: ${spacing(4)};
 
   font-weight: ${({ hasPlaceholder }) => (hasPlaceholder ? 400 : 500)};
   line-height: 1.5;
@@ -90,7 +91,7 @@ const StyledIcon = styled(Icon).attrs({
   name: 'chevron',
   rotate: '270deg',
 })`
-  margin-left: ${({ theme }) => theme.spacing(5)};
+  margin-left: ${spacing(5)};
 `
 
 const StyledMenu = styled(motion.ul)`
@@ -101,12 +102,12 @@ const StyledMenu = styled(motion.ul)`
 
   overflow-y: auto;
   margin: 0;
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
   padding: 0;
 
   background-color: ${({ theme }) => theme.color('gray800')};
   box-shadow: ${({ theme }) =>
-    `${theme.spacing(0, 3, 6)} ${theme.color('black', 0.16)}`};
+    `${spacing(0, 3, 6)} ${theme.color('black', 0.16)}`};
 
   list-style: none;
 
@@ -120,19 +121,19 @@ const getOptionStyles = (size: SizeType) => {
   switch (size) {
     case 'lg':
       return css`
-        padding: ${({ theme }) => theme.spacing(2.5, 4)};
+        padding: ${spacing(2.5, 4)};
       `
     default:
     case 'sm':
       return css`
-        padding: ${({ theme }) => theme.spacing(1.5, 4)};
+        padding: ${spacing(1.5, 4)};
       `
   }
 }
 
 const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   color: ${({ theme }) => theme.color('gray200')};
-  font-size: ${({ theme }) => theme.spacing(3.5)};
+  font-size: ${spacing(3.5)};
   font-weight: 400;
   line-height: 1.5;
 
@@ -147,11 +148,11 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   }
 
   &:first-child {
-    margin-top: ${({ theme }) => theme.spacing(2)};
+    margin-top: ${spacing(2)};
   }
 
   &:last-child {
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
+    margin-bottom: ${spacing(2)};
   }
 
   ${({ size }) => getOptionStyles(size)};
@@ -161,7 +162,7 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
 
   color: ${({ theme }) => theme.color('gray300')};
 `

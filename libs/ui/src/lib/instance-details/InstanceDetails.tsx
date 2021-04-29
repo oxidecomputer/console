@@ -6,6 +6,7 @@ import type { ApiInstanceView } from '@oxide/api'
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
 import { Badge } from '../badge/Badge'
+import { spacing } from '@oxide/css-helpers'
 
 export interface InstanceDetailsProps {
   instance: ApiInstanceView
@@ -21,12 +22,12 @@ const Cell = styled.span`
 `
 
 const StyledIcon = styled(Icon)`
-  margin-left: ${({ theme }) => theme.spacing(1)};
-  margin-right: ${({ theme }) => theme.spacing(3)};
+  margin-left: ${spacing(1)};
+  margin-right: ${spacing(3)};
 `
 
 const StyledBadge = styled(Badge)`
-  margin-right: ${({ theme }) => theme.spacing(3)};
+  margin-right: ${spacing(3)};
 `
 
 export const InstanceDetails = ({ instance }: InstanceDetailsProps) => {

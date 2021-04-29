@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
@@ -10,7 +11,7 @@ const FieldControls = styled.div`
 
 const Control = styled.button`
   flex: 0 0 auto;
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+  padding: ${spacing(2, 3)};
 
   &:focus {
     outline: none;

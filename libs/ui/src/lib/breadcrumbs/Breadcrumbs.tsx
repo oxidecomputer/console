@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -26,7 +27,7 @@ const StyledListItem = styled.li`
     content: '/';
 
     display: inline-flex;
-    margin: 0 ${({ theme }) => theme.spacing(2)};
+    margin: 0 ${spacing(2)};
 
     color: ${({ theme }) => theme.color('yellow500')};
   }

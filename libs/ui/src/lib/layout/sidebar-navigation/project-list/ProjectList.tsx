@@ -9,6 +9,7 @@ import { defaultTheme as theme } from '@oxide/theme'
 import { Text } from '../../../text/Text'
 import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
+import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 export interface ProjectListProps {
   className?: string
@@ -21,17 +22,17 @@ const baseTextProps: Partial<TextProps> = {
 }
 
 const StyledProjectList = styled.section`
-  ${({ theme }) => theme.spaceBetweenY(1)}
+  ${spaceBetweenY(1)}
 `
 
 const rowStyles = css`
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
 `
 
 const Header = styled.header`
   ${rowStyles};
   text-transform: uppercase;
-  ${({ theme }) => theme.spaceBetweenX(2)}
+  ${spaceBetweenX(2)}
 `
 
 const HeaderText = styled(Text).attrs(baseTextProps)`
@@ -55,7 +56,7 @@ const List = styled.ul`
 
   text-transform: uppercase;
 
-  ${({ theme }) => theme.spaceBetweenY(1)}
+  ${spaceBetweenY(1)}
 `
 
 const ListItem = styled.li`
@@ -71,7 +72,7 @@ const ListItem = styled.li`
 const StyledLink = styled(NavLink)`
   color: ${({ theme }) => theme.color('gray400')};
   display: inline-flex;
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
   width: 100%;
 `
 
@@ -87,7 +88,7 @@ const Create = styled.footer`
 
   cursor: pointer;
 
-  ${({ theme }) => theme.spaceBetweenX(1)}
+  ${spaceBetweenX(1)}
 `
 
 const CreateText = styled(TextWithIcon).attrs({

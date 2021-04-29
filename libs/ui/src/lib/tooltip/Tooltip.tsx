@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 
 import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
+import { spacing } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'definition'
 export interface TooltipProps {
@@ -75,7 +76,7 @@ const TooltipContent = styled(Text).attrs({
   as: 'div',
   size: 'sm',
 })`
-  padding: ${({ theme }) => theme.spacing(1, 2)};
+  padding: ${spacing(1, 2)};
 
   background-color: ${({ theme }) => theme.color('gray800')};
   color: ${({ theme }) => theme.color('white')};

@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
@@ -48,11 +49,11 @@ const StyledButton = styled(Button).attrs({
           color: ${theme.color('green50')};
         `}
 
-  ${({ fullWidth, theme }) =>
+  ${({ fullWidth }) =>
     fullWidth &&
     css`
       flex: 1;
-      margin-right: ${theme.spacing(3)};
+      margin-right: ${spacing(3)};
 
       &:last-of-type {
         margin: 0;

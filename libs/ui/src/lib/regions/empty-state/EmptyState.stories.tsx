@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { EmptyState } from './EmptyState'
 import { Text } from '../../text/Text'
+import { spacing } from '@oxide/css-helpers'
 
 export default {
   component: EmptyState,
@@ -18,7 +19,7 @@ const Description = styled(Text).attrs({
   as: 'p',
   size: 'base',
 })`
-  margin-top: ${({ theme }) => theme.spacing(4)};
+  margin-top: ${spacing(4)};
 `
 
 export const Default = () => {

@@ -5,11 +5,12 @@ import styled, { css } from 'styled-components'
 
 import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
+import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 const BaseText = styled(Text).attrs({ size: 'sm' })``
 
 const Header = styled.header`
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
   text-transform: uppercase;
 `
 
@@ -24,13 +25,13 @@ const List = styled.ul`
   color: ${({ theme }) => theme.color('gray400')};
   text-transform: uppercase;
 
-  ${({ theme }) => theme.spaceBetweenY(1)}
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  ${spaceBetweenY(1)}
+  margin-top: ${spacing(1)};
 `
 
 const BaseLink = styled.a`
   color: ${({ theme }) => theme.color('gray400')};
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
 
   :hover {
     background-color: ${({ theme }) => theme.color('gray700')};
@@ -39,7 +40,7 @@ const BaseLink = styled.a`
 
 const ListItemLink = styled(BaseLink)`
   display: flex;
-  ${({ theme }) => theme.spaceBetweenX(2)}
+  ${spaceBetweenX(2)}
 `
 
 const glyphWidth = '1rem'

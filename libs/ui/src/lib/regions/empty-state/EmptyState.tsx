@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
@@ -33,7 +34,7 @@ const Decoration = styled.div<{ align?: string }>`
     }
   }};
 
-  max-width: ${({ theme }) => theme.spacing(44)};
+  max-width: ${spacing(44)};
   width: 100%;
   overflow: hidden;
 `
@@ -41,8 +42,8 @@ const Decoration = styled.div<{ align?: string }>`
 const Content = styled.div`
   z-index: 1;
   margin: 0 auto;
-  max-width: ${({ theme }) => theme.spacing(120)};
-  padding: ${({ theme }) => theme.spacing(6)};
+  max-width: ${spacing(120)};
+  padding: ${spacing(6)};
 `
 
 export const EmptyState: FC<EmptyStateProps> = ({ children }) => {

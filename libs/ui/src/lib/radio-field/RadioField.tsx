@@ -7,6 +7,7 @@ import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
 import { visuallyHiddenCss } from '../VisuallyHidden'
+import { spacing } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
@@ -46,10 +47,10 @@ const Wrapper = styled.div<{ variant: Variant }>`
   flex-direction: column;
   flex-wrap: nowrap;
 
-  ${({ variant, theme }) => {
+  ${({ variant }) => {
     if (variant === 'base') {
       return css`
-        padding-left: ${theme.spacing(INDENT)};
+        padding-left: ${spacing(INDENT)};
       `
     }
   }}
@@ -66,7 +67,7 @@ const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
   ${({ radioVariant, theme }) => {
     if (radioVariant === 'card') {
       return css`
-        padding: ${theme.spacing(2)} ${theme.spacing(4)};
+        padding: ${spacing(2)} ${spacing(4)};
         background-color: ${theme.color('darkGreen800')};
         border: 1px solid transparent;
 
@@ -79,23 +80,23 @@ const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
 `
 
 const IconWrapper = styled.span`
-  margin-right: ${({ theme }) => theme.spacing(INDENT - RADIO_WIDTH)};
-  margin-left: ${({ theme }) => theme.spacing(-1 * INDENT)};
+  margin-right: ${spacing(INDENT - RADIO_WIDTH)};
+  margin-left: ${spacing(-1 * INDENT)};
 `
 
 const EmptyRadio = styled(Icon)`
-  width: ${({ theme }) => theme.spacing(RADIO_WIDTH)};
+  width: ${spacing(RADIO_WIDTH)};
 `
 
 const FilledRadio = styled(Icon)`
-  width: ${({ theme }) => theme.spacing(RADIO_WIDTH)};
+  width: ${spacing(RADIO_WIDTH)};
 
   color: ${({ theme }) => theme.color('green500')};
 `
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
-  ${visuallyHiddenCss};
+  ${visuallyHiddenCss}
 
   &:checked + ${IconWrapper} {
     ${EmptyRadio} {
@@ -135,8 +136,8 @@ const StyledInput = styled.input`
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
-  margin-top: ${({ theme }) => theme.spacing(1)};
-  max-width: ${({ theme }) => theme.spacing(100)};
+  margin-top: ${spacing(1)};
+  max-width: ${spacing(100)};
 
   color: ${({ theme }) => theme.color('gray300')};
 `

@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
@@ -17,7 +18,7 @@ const Wrapper = styled.div`
   flex-direction: nowrap;
 
   ${StyledAvatar} {
-    margin-left: ${({ theme }) => theme.spacing(-2)};
+    margin-left: ${spacing(-2)};
     box-shadow: 0 0 0 2px ${({ theme }) => theme.color('gray900')};
   }
 `

@@ -4,6 +4,7 @@ import type { FC, ReactNode } from 'react'
 import styled, { css } from 'styled-components'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import { spacing } from '@oxide/css-helpers'
 
 import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
@@ -76,7 +77,7 @@ const Grid = styled.div`
   background-color: ${TABLE_BG};
   color: ${({ theme }) => theme.color('gray50')};
   font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: ${({ theme }) => theme.spacing(3.5)};
+  font-size: ${spacing(3.5)};
   font-weight: 400;
   line-height: ${1.25 / 0.875}; /* 1.25rem */
 `
@@ -102,13 +103,13 @@ const StyledCell = styled.div.withConfig({
   flex: 1 1 0;
   /* flex-basis: 0 will ignore the content of the cells and distribute all space */
 
-  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(6)};
+  padding: ${spacing(3)} ${spacing(6)};
 
-  ${({ arrange, width, theme }) => {
+  ${({ arrange, width }) => {
     if (width) {
       return css`
         padding: 0;
-        max-width: ${theme.spacing(width)};
+        max-width: ${spacing(width)};
       `
     }
     if (arrange === 'fill') {

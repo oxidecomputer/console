@@ -1,22 +1,11 @@
 import 'styled-components'
-import type {
-  FlattenInterpolation,
-  FlattenSimpleInterpolation,
-  ThemeProps,
-} from 'styled-components'
+import type { FlattenSimpleInterpolation } from 'styled-components'
 import type { Color, ColorPalette } from './colors'
-
-// Used as a basis for an CSS helper which relies on a base sizing unit.
-export type SizingMultiplier = number
 
 // Fonts
 export type Font = 'sans' | 'mono'
 
 // Helper functions
-export type SpacingHelper = (
-  size: SizingMultiplier
-) => FlattenInterpolation<ThemeProps<Theme>>
-
 export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
 export type ShadowHelper = (
   variant?: ShadowVariant
@@ -29,13 +18,6 @@ export interface Theme {
   fonts: {
     [key in Font]: string
   }
-  spacing: (...sizes: SizingMultiplier[]) => string
-  spaceBetweenX: SpacingHelper
-  spaceBetweenY: SpacingHelper
-  paddingX: SpacingHelper
-  paddingY: SpacingHelper
-  marginX: SpacingHelper
-  marginY: SpacingHelper
   shadow: ShadowHelper
 }
 

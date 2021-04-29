@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
+import { spacing } from '@oxide/css-helpers'
 
 const StyledGlobalNav = styled.div`
   align-items: center;
@@ -15,11 +16,11 @@ const StyledGlobalNav = styled.div`
 `
 
 const StyledIcon = styled(Icon)`
-  width: ${({ theme }) => theme.spacing(6)};
+  width: ${spacing(6)};
 `
 
 const Link = styled.a`
-  margin-left: ${({ theme }) => theme.spacing(8)};
+  margin-left: ${spacing(8)};
   display: inline-flex;
 `
 
@@ -34,9 +35,8 @@ const TickBar = styled.div`
     )}' d='M0 0H1.6V20H0V0Z'/%3E%3C/svg%3E%0A");`}
   background-position: center left;
   background-repeat: repeat-x;
-  background-size: ${({ theme }) => theme.spacing(4)}
-    ${({ theme }) => theme.spacing(5)};
-  height: ${({ theme }) => theme.spacing(5)};
+  background-size: ${spacing(4, 5)};
+  height: ${spacing(5)};
   width: 100%;
 `
 
@@ -45,7 +45,7 @@ const Button = styled.button.attrs({ type: 'button' })`
   border: none;
   color: ${({ theme }) => theme.themeColors.gray100};
   display: inline-flex;
-  margin-left: ${({ theme }) => theme.spacing(8)};
+  margin-left: ${spacing(8)};
   padding: 0;
 
   &:hover {
@@ -55,8 +55,8 @@ const Button = styled.button.attrs({ type: 'button' })`
 `
 
 const FeedbackButton = styled(Button)`
-  margin-left: ${({ theme }) => theme.spacing(10)};
-  margin-right: ${({ theme }) => theme.spacing(2)};
+  margin-left: ${spacing(10)};
+  margin-right: ${spacing(2)};
 `
 
 export const GlobalNav: FC = () => {
