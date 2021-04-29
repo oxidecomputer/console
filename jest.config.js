@@ -1,4 +1,3 @@
-const { writeFileSync } = require('fs')
 const { compilerOptions } = require('./tsconfig')
 
 const mapObj = (obj, kf, vf) =>
@@ -10,8 +9,6 @@ const libs = mapObj(
   (moduleName) => `^${moduleName}$`,
   (paths) => `<rootDir>/${paths[0]}`
 )
-
-writeFileSync('test.json', JSON.stringify(libs, null, 2))
 
 module.exports = {
   moduleNameMapper: {
