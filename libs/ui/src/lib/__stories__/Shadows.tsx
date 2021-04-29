@@ -1,24 +1,25 @@
-import type { ShadowVariant } from '@oxide/theme'
+import { color, marginY, shadow, spacing } from '@oxide/css-helpers'
+import type { ShadowVariant } from '@oxide/css-helpers'
 import React from 'react'
 import styled from 'styled-components'
 import Text from '../text/Text'
 
 const Wrapper = styled.div`
-  padding: ${({ theme }) => theme.spacing(4)};
-  background-color: ${({ theme }) => theme.color('gray700')};
+  padding: ${spacing(4)};
+  background-color: ${color('gray700')};
 `
 
 const ShadowBox = styled.div<{ shadow?: ShadowVariant }>`
   height: 100px;
   width: 100%;
 
-  border: 1px solid ${({ theme }) => theme.color('gray600')};
+  border: 1px solid ${color('gray600')};
   border-radius: 1em;
 
-  padding: ${({ theme }) => theme.spacing(4)};
-  ${({ theme }) => theme.marginY(4)};
+  padding: ${spacing(4)};
+  ${marginY(4)};
 
-  ${({ theme, shadow }) => theme.shadow(shadow)};
+  ${({ shadow: value }) => shadow(value)};
 `
 
 const shadowVariants = [
@@ -40,7 +41,7 @@ export const AllShadows = () => (
         </Text>
         <br />
         <Text size="base" color="gray100" font="mono">
-          {`\${({ theme }) => theme.shadow(${(v && `'${v}'`) || ''})}`}
+          {`\${shadow(${(v && `'${v}'`) || ''})}`}
         </Text>
         <ShadowBox key={v} shadow={v}></ShadowBox>
       </>
