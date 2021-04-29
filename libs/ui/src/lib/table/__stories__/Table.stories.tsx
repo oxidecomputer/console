@@ -1,11 +1,6 @@
 import React from 'react'
-import { Table } from './Table'
-import { Text } from '../text/Text'
-
-export default {
-  component: Table,
-  title: 'Components/Table',
-}
+import { Table } from '../Table'
+import { Text } from '../../text/Text'
 
 const sampleColumns = [
   { Header: 'name', accessor: 'name' },
@@ -71,6 +66,19 @@ export const Default = () => {
   )
 }
 
+export const DefaultWithControls = () => {
+  return (
+    <div style={{ height: '50vh' }}>
+      <Table
+        columns={sampleColumns}
+        data={sampleData}
+        itemSize={getItemSize}
+        showControls
+      />
+    </div>
+  )
+}
+
 export const SingleRow = () => {
   return (
     <div style={{ height: '109px' }}>
@@ -98,6 +106,39 @@ export const SingleRow = () => {
           },
         ]}
         itemSize={getItemSize}
+      />
+    </div>
+  )
+}
+
+export const SingleRowWithControls = () => {
+  return (
+    <div style={{ height: '165px' }}>
+      <Table
+        columns={sampleColumns}
+        data={[
+          {
+            name: `Single Row`,
+            status: (
+              <>
+                <Text font="mono">Running</Text>
+                <Text font="mono" size="sm">
+                  4d 6h
+                </Text>
+              </>
+            ),
+            created: (
+              <>
+                <Text font="mono">Yesterday</Text>
+                <Text font="mono" size="sm">
+                  2:30 PM
+                </Text>
+              </>
+            ),
+          },
+        ]}
+        itemSize={getItemSize}
+        showControls
       />
     </div>
   )
