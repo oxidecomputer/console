@@ -3,6 +3,7 @@ import type { SpacingHelper, SizingMultiplier, Theme } from '../types'
 import type { Color } from '../colors'
 import { colorDefinitions, colorPalette } from '../colors'
 import { breakpoint } from '../breakpoints'
+import { shadow } from '../shadows'
 
 // TODO: Move these functions to their own modules
 
@@ -90,4 +91,5 @@ export const baseTheme: Theme = {
   marginX,
   marginY,
   breakpoint,
+  shadow,
 }
