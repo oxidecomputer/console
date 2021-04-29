@@ -27,6 +27,11 @@ export type BreakpointHelper = (
   ...args: SimpleInterpolation[]
 ) => FlattenSimpleInterpolation
 
+export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
+export type ShadowHelper = (
+  variant?: ShadowVariant
+) => FlattenSimpleInterpolation
+
 // Our Theme type
 export interface Theme {
   themeColors: ColorPalette
@@ -42,6 +47,7 @@ export interface Theme {
   marginX: SpacingHelper
   marginY: SpacingHelper
   breakpoint: BreakpointHelper
+  shadow: ShadowHelper
 }
 
 // Extend styled-components with our Theme type
