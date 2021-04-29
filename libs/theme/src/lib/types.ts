@@ -1,9 +1,7 @@
 import 'styled-components'
 import type {
-  CSSObject,
   FlattenInterpolation,
   FlattenSimpleInterpolation,
-  SimpleInterpolation,
   ThemeProps,
 } from 'styled-components'
 import type { Color, ColorPalette } from './colors'
@@ -18,14 +16,6 @@ export type Font = 'sans' | 'mono'
 export type SpacingHelper = (
   size: SizingMultiplier
 ) => FlattenInterpolation<ThemeProps<Theme>>
-
-export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
-export type BreakpointHelper = (
-  breakpoint: Breakpoint
-) => (
-  first: CSSObject | TemplateStringsArray,
-  ...args: SimpleInterpolation[]
-) => FlattenSimpleInterpolation
 
 export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
 export type ShadowHelper = (
@@ -46,7 +36,6 @@ export interface Theme {
   paddingY: SpacingHelper
   marginX: SpacingHelper
   marginY: SpacingHelper
-  breakpoint: BreakpointHelper
   shadow: ShadowHelper
 }
 
