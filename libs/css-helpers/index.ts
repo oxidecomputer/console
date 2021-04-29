@@ -2,6 +2,7 @@ import { css } from 'styled-components'
 
 export * from './breakpoints'
 export * from './spacing'
+export * from './colors'
 
 /* Hide from sighted users, show to screen readers */
 export const visuallyHidden = css`

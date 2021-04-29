@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 import styled from 'styled-components'
 import { Text } from '../text/Text'
 import Sparkline from './sparkline.svg'
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 export interface CardProps {
   title: string
@@ -16,7 +16,7 @@ const StyledCard = styled.article``
 
 const Main = styled.main`
   padding: ${spacing(4)};
-  background: ${({ theme }) => theme.color('green800', 0.24)};
+  background: ${color('green800', 0.24)};
 `
 
 const Title = styled(Text).attrs({
@@ -75,7 +75,7 @@ const Chart = styled.section`
 `
 
 const Footer = styled.footer`
-  background: ${({ theme }) => theme.color('green800', 0.16)};
+  background: ${color('green800', 0.16)};
   padding: ${spacing(2)} ${spacing(4)};
   display: flex;
   flex-direction: row;

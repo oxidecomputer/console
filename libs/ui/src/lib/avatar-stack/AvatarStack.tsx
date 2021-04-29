@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 
   ${StyledAvatar} {
     margin-left: ${spacing(-2)};
-    box-shadow: 0 0 0 2px ${({ theme }) => theme.color('gray900')};
+    box-shadow: 0 0 0 2px ${color('gray900')};
   }
 `
 

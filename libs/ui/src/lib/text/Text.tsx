@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components'
-import type { Color, Font } from '@oxide/theme'
-import { spacing } from '@oxide/css-helpers'
+import type { Font } from '@oxide/theme'
+import type { Color } from '@oxide/css-helpers'
+import { spacing, color } from '@oxide/css-helpers'
 
 export const textSizes = [
   'xxs',
@@ -103,7 +104,7 @@ const getVariantStyles = (variant?: Variant) => {
     case 'title':
       return css`
         ${getSizeStyles('2xl')};
-        color: ${({ theme }) => theme.color('green500')};
+        color: ${color('green500')};
         font-family: ${({ theme }) => theme.fonts.mono};
         font-weight: 400;
         text-transform: uppercase;
@@ -142,10 +143,10 @@ export const Text = styled.span.withConfig({
     return !['color', 'size'].includes(prop) && defaultValidatorFn(prop)
   },
 })<TextProps>`
-  ${({ color, theme }) => {
-    if (color) {
+  ${({ color: textColor }) => {
+    if (textColor) {
       return css`
-        color: ${theme.color(color)};
+        color: ${color(textColor)};
       `
     }
     /* By default, color: inherit will be applied */

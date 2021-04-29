@@ -6,7 +6,7 @@ import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
-import { breakpoint, spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { breakpoint, color, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 interface ModalContainerProps {
   /**
@@ -31,7 +31,7 @@ export const Container = styled.div<ModalContainerProps>`
     flex: 0 0 auto;
     align-self: center;
     margin: 0 auto;
-    background: ${({ theme }) => theme.color('black')};
+    background: ${color('black')};
 
     width: 50vw;
   `};
@@ -59,7 +59,7 @@ const HeaderIcon = styled.span`
   display: inline-block;
   width: ${spacing(12)};
   height: ${spacing(12)};
-  background-color: ${({ theme }) => theme.color('green900')};
+  background-color: ${color('green900')};
   border-radius: 9999px;
 `
 const StyledIcon = styled(Icon)`

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { useApi } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
 import Wordmark from '../assets/wordmark.svg'
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
     'sidebar content';
   height: 100vh;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${color('gray800')};
 `
 
 const Sidebar = styled.div`
@@ -43,7 +43,7 @@ const Content = styled.main`
   overflow: auto;
   padding: ${spacing(2, 6)};
 
-  background-color: ${({ theme }) => theme.color('gray900')};
+  background-color: ${color('gray900')};
 `
 
 const GlobalNavContainer = styled.header`
@@ -51,7 +51,7 @@ const GlobalNavContainer = styled.header`
   grid-area: globalnav;
   padding: ${spacing(4, 6)};
 
-  background-color: ${({ theme }) => theme.color('gray900')};
+  background-color: ${color('gray900')};
 `
 
 const StyledProjectList = styled(ProjectList)`

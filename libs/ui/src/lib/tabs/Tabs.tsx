@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { spacing, color } from '@oxide/css-helpers'
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
@@ -40,13 +40,13 @@ const StyledButton = styled(Button).attrs({
   size: 'base',
   variant: 'ghost',
 })<{ fullWidth: boolean; isSelected: boolean }>`
-  ${({ isSelected, theme }) =>
+  ${({ isSelected }) =>
     isSelected
       ? css`
-          color: ${theme.color('green500')};
+          color: ${color('green500')};
         `
       : css`
-          color: ${theme.color('green50')};
+          color: ${color('green50')};
         `}
 
   ${({ fullWidth }) =>
@@ -63,7 +63,7 @@ const StyledButton = styled(Button).attrs({
   border-bottom: 1px solid currentColor;
 
   &:hover {
-    color: ${({ theme }) => theme.color('green500')};
+    color: ${color('green500')};
   }
 `
 

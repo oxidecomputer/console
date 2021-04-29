@@ -1,3 +1,4 @@
+import { color } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import { useLocation } from 'react-router-dom'
@@ -13,9 +14,9 @@ const Wrapper = styled.div`
   margin: 2rem;
   padding: 1rem;
 
-  background: ${({ theme }) => theme.color('white', 0.5)};
-  border: 1px solid ${({ theme }) => theme.color('white')};
-  color: ${({ theme }) => theme.color('black')};
+  background: ${color('white', 0.5)};
+  border: 1px solid ${color('white')};
+  color: ${color('black')};
 `
 
 // from https://reactrouter.com/web/example/query-parameters

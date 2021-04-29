@@ -1,5 +1,5 @@
-import { spacing } from '@oxide/css-helpers'
-import type { Color } from '@oxide/theme'
+import { color, spacing } from '@oxide/css-helpers'
+import type { Color } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
@@ -100,7 +100,7 @@ const StyledBadge = styled.span<{
   display: inline-flex;
   justify-content: center;
 
-  background-color: ${({ theme, background }) => theme.color(background)};
+  background-color: ${({ background }) => color(background)};
   padding: ${({ padding }) => spacing(...padding)};
 
   border-radius: 9999px;
@@ -108,7 +108,7 @@ const StyledBadge = styled.span<{
 
 const BadgeText = styled(Text)<{ textColor: Color }>`
   text-transform: uppercase;
-  color: ${({ theme, textColor }) => theme.color(textColor)};
+  color: ${({ textColor }) => color(textColor)};
   line-height: 1;
 `
 

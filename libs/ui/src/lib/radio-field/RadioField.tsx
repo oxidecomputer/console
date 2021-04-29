@@ -6,7 +6,7 @@ import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
-import { spacing, visuallyHidden } from '@oxide/css-helpers'
+import { spacing, visuallyHidden, color } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
@@ -61,17 +61,17 @@ const Label = styled.label`
 `
 
 const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
-  color: ${({ theme }) => theme.color('white')};
+  color: ${color('white')};
 
-  ${({ radioVariant, theme }) => {
+  ${({ radioVariant }) => {
     if (radioVariant === 'card') {
       return css`
         padding: ${spacing(2)} ${spacing(4)};
-        background-color: ${theme.color('darkGreen800')};
+        background-color: ${color('darkGreen800')};
         border: 1px solid transparent;
 
         &:hover {
-          background-color: ${theme.color('darkGreen900')};
+          background-color: ${color('darkGreen900')};
         }
       `
     }
@@ -90,7 +90,7 @@ const EmptyRadio = styled(Icon)`
 const FilledRadio = styled(Icon)`
   width: ${spacing(RADIO_WIDTH)};
 
-  color: ${({ theme }) => theme.color('green500')};
+  color: ${color('green500')};
 `
 
 const StyledInput = styled.input`
@@ -104,12 +104,12 @@ const StyledInput = styled.input`
   }
 
   &:checked + ${LabelText} {
-    background-color: ${({ theme }) => theme.color('darkGreen800')};
-    border-color: ${({ theme }) => theme.color('green500')};
-    box-shadow: 0px 1px 2px ${({ theme }) => theme.color('black', 0.05)};
+    background-color: ${color('darkGreen800')};
+    border-color: ${color('green500')};
+    box-shadow: 0px 1px 2px ${color('black', 0.05)};
 
     &:hover {
-      background-color: ${({ theme }) => theme.color('darkGreen900')};
+      background-color: ${color('darkGreen900')};
     }
   }
 
@@ -123,14 +123,14 @@ const StyledInput = styled.input`
     ${EmptyRadio}, ${FilledRadio} {
       outline: none;
       border-radius: 50%;
-      box-shadow: 0 0 0 1px ${({ theme }) => theme.color('green400')};
+      box-shadow: 0 0 0 1px ${color('green400')};
     }
   }
 
   &:focus + ${LabelText} {
     outline: none;
-    box-shadow: 0px 0px 0px 2px ${({ theme }) => theme.color('gray900')},
-      0px 0px 0px 3px ${({ theme }) => theme.color('green700')};
+    box-shadow: 0px 0px 0px 2px ${color('gray900')},
+      0px 0px 0px 3px ${color('green700')};
   }
 `
 
@@ -138,7 +138,7 @@ const HintText = styled(Text).attrs({ size: 'sm' })`
   margin-top: ${spacing(1)};
   max-width: ${spacing(100)};
 
-  color: ${({ theme }) => theme.color('gray300')};
+  color: ${color('gray300')};
 `
 
 export const RadioField: FC<RadioFieldProps> = ({

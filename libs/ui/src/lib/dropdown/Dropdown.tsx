@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
-import { spacing, visuallyHidden } from '@oxide/css-helpers'
+import { color, spacing, visuallyHidden } from '@oxide/css-helpers'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
@@ -68,20 +68,20 @@ const StyledButton = styled.button<ButtonProps>`
   vertical-align: top;
   width: 100%;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${color('gray800')};
   border: none;
-  color: ${({ theme }) => theme.color('gray50')};
+  color: ${color('gray50')};
   font-size: ${spacing(4)};
 
   font-weight: ${({ hasPlaceholder }) => (hasPlaceholder ? 400 : 500)};
   line-height: 1.5;
 
   &:hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 
   &:focus {
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
     outline: none;
   }
 `
@@ -104,14 +104,13 @@ const StyledMenu = styled(motion.ul)`
   margin-top: ${spacing(1)};
   padding: 0;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
-  box-shadow: ${({ theme }) =>
-    `${spacing(0, 3, 6)} ${theme.color('black', 0.16)}`};
+  background-color: ${color('gray800')};
+  box-shadow: ${spacing(0, 3, 6)} ${color('black', 0.16)};
 
   list-style: none;
 
   &:focus {
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
     outline: none;
   }
 `
@@ -131,19 +130,19 @@ const getOptionStyles = (size: SizeType) => {
 }
 
 const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
-  color: ${({ theme }) => theme.color('gray200')};
+  color: ${color('gray200')};
   font-size: ${spacing(3.5)};
   font-weight: 400;
   line-height: 1.5;
 
   &:hover,
   &:focus {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 
   &:focus {
     outline: none;
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
   }
 
   &:first-child {
@@ -155,15 +154,18 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
   }
 
   ${({ size }) => getOptionStyles(size)};
-  ${({ isHighlighted, theme }) =>
-    isHighlighted && `background-color: ${theme.color('gray700')};`};
+  ${({ isHighlighted }) =>
+    isHighlighted &&
+    css`
+      background-color: ${color('gray700')};
+    `};
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
   display: block;
   margin-top: ${spacing(1)};
 
-  color: ${({ theme }) => theme.color('gray300')};
+  color: ${color('gray300')};
 `
 
 const FRAMER_VARIANTS = {

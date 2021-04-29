@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
@@ -15,12 +15,12 @@ const Control = styled.button`
 
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.color('green500')};
-    box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color('green500')};
+    border-color: ${color('green500')};
+    box-shadow: inset 0 0 0 1px ${color('green500')};
   }
 
   &:not(:disabled):hover {
-    background-color: ${({ theme }) => theme.color('gray800')};
+    background-color: ${color('gray800')};
   }
 `
 

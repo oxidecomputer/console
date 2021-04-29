@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 const StyledGlobalNav = styled.div`
   align-items: center;
@@ -28,11 +28,10 @@ const StyledText = styled(Text).attrs({ size: 'sm' })`
   text-transform: uppercase;
 `
 
+const encodedFillColor = encodeURI(color('gray700'))
+
 const TickBar = styled.div`
-  ${({ theme }) =>
-    `background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20'%3E%3Cpath fill='${encodeURI(
-      theme.color('gray700')
-    )}' d='M0 0H1.6V20H0V0Z'/%3E%3C/svg%3E%0A");`}
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20'%3E%3Cpath fill='${encodedFillColor}' d='M0 0H1.6V20H0V0Z'/%3E%3C/svg%3E%0A");
   background-position: center left;
   background-repeat: repeat-x;
   background-size: ${spacing(4, 5)};

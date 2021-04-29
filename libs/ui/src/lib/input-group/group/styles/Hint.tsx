@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
@@ -8,7 +8,7 @@ const HintContainer = styled.div`
   flex: 1;
   padding-bottom: ${spacing(2)};
 
-  color: ${({ theme }) => theme.color('gray300')};
+  color: ${color('gray300')};
 `
 
 export const Hint: FC<{ id: string }> = ({ id, children }) => (

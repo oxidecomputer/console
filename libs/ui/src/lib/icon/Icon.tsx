@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import type { Color } from '@oxide/theme'
+import type { Color } from '@oxide/css-helpers'
 import type { IconComponentProps } from './IconComponent'
 import { IconComponent } from './IconComponent'
 

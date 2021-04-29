@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { colorPalette, colorGroups, colorNames } from '@oxide/theme'
-import type { Color } from '@oxide/theme'
+import type { Color } from '@oxide/css-helpers'
+import { colorPalette, colorGroups, colorNames } from '@oxide/css-helpers'
 import Text from '../text/Text'
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 interface ColorProps {
   name: Color
@@ -21,7 +21,7 @@ const ColorVisualizer = styled.div<Pick<ColorProps, 'value'>>`
   width: ${spacing(12)};
   height: ${spacing(12)};
   margin-right: ${spacing(3)};
-  border: 1px solid ${({ theme }) => theme.color('gray800')};
+  border: 1px solid ${color('gray800')};
 `
 const ColorInfo = styled(Text).attrs({ as: 'code' })`
   display: flex;

@@ -1,6 +1,6 @@
 import 'styled-components'
+import type { ColorPalette } from '@oxide/css-helpers'
 import type { FlattenSimpleInterpolation } from 'styled-components'
-import type { Color, ColorPalette } from './colors'
 
 // Fonts
 export type Font = 'sans' | 'mono'
@@ -14,7 +14,6 @@ export type ShadowHelper = (
 // Our Theme type
 export interface Theme {
   themeColors: ColorPalette
-  color: (name: Color, alpha?: number) => string
   fonts: {
     [key in Font]: string
   }

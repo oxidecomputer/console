@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
@@ -10,11 +10,11 @@ const StyledInput = styled.input`
 
   background-color: transparent;
   &:hover:not([disabled]) {
-    background-color: ${({ theme }) => theme.color('gray800')};
+    background-color: ${color('gray800')};
   }
 
   border: none;
-  color: ${({ theme }) => theme.color('gray100')};
+  color: ${color('gray100')};
   font-family: ${({ theme }) => theme.fonts.sans};
   font-size: ${spacing(3.5)};
   line-height: ${1.25 / 0.875};

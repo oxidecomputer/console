@@ -1,3 +1,4 @@
+import { color } from '@oxide/css-helpers'
 import styled, { css } from 'styled-components'
 import type { InputGroupProps } from '../types'
 
@@ -12,7 +13,7 @@ export const Container = styled.div<Pick<InputGroupProps, 'disabled'>>`
   display: flex;
   flex-direction: column;
 
-  color: ${({ theme }) => theme.color('gray100')};
+  color: ${color('gray100')};
 
   ${({ disabled }) =>
     disabled &&
@@ -25,20 +26,19 @@ export const InputContainer = styled.div<Pick<InputGroupProps, 'error'>>`
   display: flex;
   flex-direction: row;
 
-  background-color: ${({ theme }) => theme.color('gray700')};
+  background-color: ${color('gray700')};
   border: 1px solid transparent;
 
   :focus-within {
-    border-color: ${({ theme, error }) =>
-      theme.color(error ? 'red500' : 'green500')};
-    ${({ theme, error }) =>
+    border-color: ${({ error }) => color(error ? 'red500' : 'green500')};
+    ${({ error }) =>
       error
         ? css`
-            box-shadow: 0px 1px 2px ${theme.color('black', 0.05)},
+            box-shadow: 0px 1px 2px ${color('black', 0.05)},
               0px 0px 0px 1px #ef4444;
           `
         : css`
-            box-shadow: 0px 0px 0px 1px ${theme.color('green500')};
+            box-shadow: 0px 0px 0px 1px ${color('green500')};
           `}
   }
 
