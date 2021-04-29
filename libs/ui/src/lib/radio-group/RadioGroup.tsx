@@ -1,4 +1,4 @@
-import { spacing } from '@oxide/css-helpers'
+import { spacing, visuallyHidden } from '@oxide/css-helpers'
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
@@ -6,7 +6,6 @@ import styled, { css } from 'styled-components'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
 import { Text } from '../text/Text'
-import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
@@ -48,7 +47,7 @@ const StyledLegend = styled(Text).attrs({
 })<{ hideLegend: boolean }>`
   display: block;
 
-  ${({ hideLegend }) => hideLegend && visuallyHiddenCss};
+  ${({ hideLegend }) => hideLegend && visuallyHidden};
 `
 
 const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`

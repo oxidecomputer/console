@@ -6,8 +6,7 @@ import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
-import { visuallyHiddenCss } from '../VisuallyHidden'
-import { spacing } from '@oxide/css-helpers'
+import { spacing, visuallyHidden } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
@@ -96,7 +95,7 @@ const FilledRadio = styled(Icon)`
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
-  ${visuallyHiddenCss}
+  ${visuallyHidden}
 
   &:checked + ${IconWrapper} {
     ${EmptyRadio} {
