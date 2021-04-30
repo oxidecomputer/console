@@ -10,6 +10,7 @@ import InstancePage from '../pages/instance/InstancePage'
 import InstancesPage from '../pages/instance/InstancesPage'
 import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
 import ProjectPage from '../pages/projects/ProjectPage'
+import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
 import ProjectsPage from '../pages/projects/ProjectsPage'
 
 const App = () => {
@@ -24,7 +25,7 @@ const App = () => {
             <ProjectsPage />
           </Route>
           <Route path="/projects/new" exact>
-            <div>[CREATE PROJECT]</div>
+            <ProjectCreatePage />
           </Route>
           <Route path="/projects/:projectName/instances" exact>
             <InstancesPage />

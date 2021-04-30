@@ -82,8 +82,6 @@ const Row = styled.div`
   ${spaceBetweenX(6)}
 `
 
-const CreateButton = styled(Button).attrs({ fullWidth: true })``
-
 const FooterText = styled(Text).attrs({ size: 'xs' })`
   display: block;
   margin-top: ${spacing(8)};
@@ -214,7 +212,7 @@ const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
 
-const InstancesPage = () => {
+const InstanceCreatePage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const history = useHistory()
@@ -450,9 +448,13 @@ const InstancesPage = () => {
           value={tagsField}
         />
 
-        <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
+        <Button
+          fullWidth
+          onClick={onCreateClick}
+          disabled={createInstance.pending}
+        >
           Create instance
-        </CreateButton>
+        </Button>
         <FooterText>
           Equivalent <a href="#">REST</a> or <a href="#">command line</a>
         </FooterText>
@@ -461,4 +463,4 @@ const InstancesPage = () => {
   )
 }
 
-export default InstancesPage
+export default InstanceCreatePage
