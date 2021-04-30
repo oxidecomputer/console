@@ -12,7 +12,7 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import { useBreadcrumbs, useAsync } from '../../hooks'
-import { api } from '@oxide/api'
+import { api, useApiQuery } from '@oxide/api'
 import { Debug } from '../../components/Debug'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 
@@ -37,6 +37,11 @@ const Form = styled.form`
 const ProjectCreatePage = () => {
   const history = useHistory()
   const breadcrumbs = useBreadcrumbs()
+  const { refetch: refetchProjects } = useApiQuery(
+    'apiProjectsGet',
+    {},
+    { enabled: false }
+  )
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -53,9 +58,10 @@ const ProjectCreatePage = () => {
   // redirect on successful post
   useEffect(() => {
     if (createProject.data) {
+      refetchProjects()
       history.push(`/projects/${createProject.data.name}`)
     }
-  }, [createProject.data, createProject.data?.name, history])
+  }, [createProject.data, createProject.data?.name, history, refetchProjects])
 
   return (
     <>
