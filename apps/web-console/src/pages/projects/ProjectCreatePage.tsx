@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
@@ -11,8 +10,8 @@ import {
   TextInputGroup,
   TextWithIcon,
 } from '@oxide/ui'
-import { useBreadcrumbs, useAsync } from '../../hooks'
-import { api, useApiQuery } from '@oxide/api'
+import { useBreadcrumbs } from '../../hooks'
+import { useApiQuery, useApiMutation } from '@oxide/api'
 import { Debug } from '../../components/Debug'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 
@@ -37,31 +36,29 @@ const Form = styled.form`
 const ProjectCreatePage = () => {
   const history = useHistory()
   const breadcrumbs = useBreadcrumbs()
+
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+
   const { refetch: refetchProjects } = useApiQuery(
     'apiProjectsGet',
     {},
     { enabled: false }
   )
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-
-  const createProject = useAsync(() =>
-    api.apiProjectsPost({ apiProjectCreateParams: { name, description } })
-  )
-
-  const onCreateClick = async () => {
-    // TODO: validate client-side before attempting to POST
-    await createProject.run()
-  }
-
-  // redirect on successful post
-  useEffect(() => {
-    if (createProject.data) {
+  const createProject = useApiMutation('apiProjectsPost', {
+    onSuccess: (data) => {
       refetchProjects()
-      history.push(`/projects/${createProject.data.name}`)
-    }
-  }, [createProject.data, createProject.data?.name, history, refetchProjects])
+      history.push(`/projects/${data.name}`)
+    },
+  })
+
+  const onCreateClick = () => {
+    // TODO: validate client-side before attempting to POST
+    createProject.mutate({
+      apiProjectCreateParams: { name, description },
+    })
+  }
 
   return (
     <>
@@ -91,7 +88,7 @@ const ProjectCreatePage = () => {
         <Button
           fullWidth
           onClick={onCreateClick}
-          disabled={createProject.pending}
+          disabled={createProject.isLoading}
         >
           Create project
         </Button>

@@ -1,5 +1,5 @@
-import type { UseQueryOptions } from 'react-query'
-import { useQuery } from 'react-query'
+import type { UseMutationOptions, UseQueryOptions } from 'react-query'
+import { useQuery, useMutation } from 'react-query'
 
 import type { ApiResponse } from './__generated__'
 import { DefaultApi, Configuration } from './__generated__'
@@ -24,12 +24,20 @@ const getUseApiQuery = <A extends ApiClient<A>>(api: A) => <
   options?: UseQueryOptions<unknown, Response, Result<A[M]>>
 ) => useQuery([method, params], () => api[method](params), options)
 
+const getUseApiMutation = <A extends ApiClient<A>>(api: A) => <
+  M extends keyof ApiClient<A>
+>(
+  method: M,
+  options?: UseMutationOptions<Result<A[M]>, Response, Params<A[M]>>
+) => useMutation((params) => api[method](params), options)
+
 const basePath =
   process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
 const config = new Configuration({ basePath })
 
 export const api = new DefaultApi(config)
 export const useApiQuery = getUseApiQuery(api)
+export const useApiMutation = getUseApiMutation(api)
 
 export * from './__generated__/models'
 
