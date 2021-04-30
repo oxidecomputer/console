@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
+import { useQueryClient } from 'react-query'
 
 import {
   Breadcrumbs,
@@ -11,7 +12,7 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
-import { useApiQuery, useApiMutation } from '@oxide/api'
+import { useApiMutation } from '@oxide/api'
 import { Debug } from '../../components/Debug'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 
@@ -40,15 +41,20 @@ const ProjectCreatePage = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
-  const { refetch: refetchProjects } = useApiQuery(
-    'apiProjectsGet',
-    {},
-    { enabled: false }
-  )
+  const queryClient = useQueryClient()
 
   const createProject = useApiMutation('apiProjectsPost', {
     onSuccess: (data) => {
-      refetchProjects()
+      // this causes the list of projects in the sidebar to get refetched
+      // TODO: wrap this so API method name is typechecked
+      queryClient.invalidateQueries('apiProjectsGet')
+      // this saves the project fetch when the project page loads
+      // TODO: do we care?
+      // TODO: type constraints?
+      queryClient.setQueryData(
+        ['apiProjectsGetProject', { projectName: data.name }],
+        data
+      )
       history.push(`/projects/${data.name}`)
     },
   })
