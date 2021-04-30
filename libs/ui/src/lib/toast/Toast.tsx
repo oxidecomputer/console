@@ -1,3 +1,9 @@
+import {
+  color,
+  spaceBetweenX,
+  spaceBetweenY,
+  spacing,
+} from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
@@ -23,20 +29,20 @@ const Wrapper = styled.div`
   flex-wrap: nowrap;
   align-items: flex-start;
 
-  padding: ${({ theme }) => theme.spacing(4)};
+  padding: ${spacing(4)};
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${color('gray800')};
 
   // FIXME: figure out a better way to size this
   width: 384px;
 
-  ${({ theme }) => theme.spaceBetweenX(3)}
+  ${spaceBetweenX(3)}
 `
 
 const IconWrapper = styled.div`
   flex: 0 0 auto;
 
-  font-size: ${({ theme }) => theme.spacing(6)};
+  font-size: ${spacing(6)};
 `
 
 const Content = styled.div<{ hasIcon: boolean }>`
@@ -45,13 +51,13 @@ const Content = styled.div<{ hasIcon: boolean }>`
   display: flex;
   flex-direction: column;
 
-  ${({ theme, hasIcon }) =>
+  ${({ hasIcon }) =>
     hasIcon &&
     css`
-      padding: ${theme.spacing(0.5, 0)};
+      padding: ${spacing(0.5, 0)};
     `};
 
-  ${({ theme }) => theme.spaceBetweenY(1)}
+  ${spaceBetweenY(1)}
 `
 
 const ActionButton = styled.button`
@@ -64,7 +70,7 @@ const CloseButton = styled.button`
   justify-content: center;
 
   flex: 0 0 auto;
-  height: ${({ theme }) => theme.spacing(5)};
+  height: ${spacing(5)};
 `
 
 export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
