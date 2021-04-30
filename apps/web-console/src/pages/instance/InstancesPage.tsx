@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useParams, Link } from 'react-router-dom'
 import filesize from 'filesize'
 
-import { useApi } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 import { marginY } from '@oxide/css-helpers'
@@ -26,7 +26,9 @@ const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data: instances } = useApi('apiProjectInstancesGet', { projectName })
+  const { data: instances } = useApiQuery('apiProjectInstancesGet', {
+    projectName,
+  })
 
   if (!instances) return <div>loading</div>
 

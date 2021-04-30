@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { useApi } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
 import Wordmark from '../assets/wordmark.svg'
 import { color, spacing } from '@oxide/css-helpers'
@@ -63,7 +63,7 @@ const StyledOperationList = styled(OperationList)`
 `
 
 export default ({ children }: AppLayoutProps) => {
-  const { data: projects } = useApi('apiProjectsGet', {})
+  const { data: projects } = useApiQuery('apiProjectsGet', {})
 
   return (
     <Wrapper>

@@ -9,14 +9,14 @@ type Params<F> = F extends (p: infer P) => any ? P : never
 type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 // even though the api object has other properties on it, as far as
-// getUseApi is concerned it only has the fetcher functions
+// getUseApiQuery is concerned it only has the fetcher functions
 type ApiClient<A> = OmitByValue<
   PickByValue<A, (p: any) => Promise<any>>,
   (p: any) => Promise<ApiResponse<any>> // exclude "-Raw" fetchers
 >
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-const getUseApi = <A extends ApiClient<A>>(api: A) => <
+const getUseApiQuery = <A extends ApiClient<A>>(api: A) => <
   M extends keyof ApiClient<A>
 >(
   method: M,
@@ -29,7 +29,7 @@ const basePath =
 const config = new Configuration({ basePath })
 
 export const api = new DefaultApi(config)
-export const useApi = getUseApi(api)
+export const useApiQuery = getUseApiQuery(api)
 
 export * from './__generated__/models'
 

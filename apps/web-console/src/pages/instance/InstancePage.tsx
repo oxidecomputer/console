@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { useApi } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 
 import {
   Breadcrumbs,
@@ -75,10 +75,13 @@ const InstancePage = () => {
   const breadcrumbs = useBreadcrumbs()
   const { projectName, instanceName } = useParams<Params>()
 
-  const { data: instance, error } = useApi('apiProjectInstancesGetInstance', {
-    instanceName,
-    projectName,
-  })
+  const { data: instance, error } = useApiQuery(
+    'apiProjectInstancesGetInstance',
+    {
+      instanceName,
+      projectName,
+    }
+  )
 
   if (error) {
     if (error.status === 404) {

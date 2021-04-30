@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { useParams, Link } from 'react-router-dom'
 
-import { useApi } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 
@@ -20,10 +20,10 @@ const ProjectPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data: project } = useApi('apiProjectsGetProject', {
+  const { data: project } = useApiQuery('apiProjectsGetProject', {
     projectName,
   })
-  const { data: instances } = useApi('apiProjectInstancesGet', {
+  const { data: instances } = useApiQuery('apiProjectInstancesGet', {
     projectName,
   })
 
