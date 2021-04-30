@@ -17,7 +17,7 @@ import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
-  icon: { name: 'instances' },
+  icon: { name: 'project' },
 })`
   margin-top: ${spacing(1)};
 
@@ -65,7 +65,7 @@ const ProjectCreatePage = () => {
       <Debug>Post: {JSON.stringify(createProject)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>Create Instance</Title>
+        <Title>Create Project</Title>
       </PageHeader>
       <Form>
         <TextInputGroup
