@@ -5,41 +5,47 @@ import styled, { css } from 'styled-components'
 
 import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
+import {
+  color,
+  spaceBetweenX,
+  spaceBetweenY,
+  spacing,
+} from '@oxide/css-helpers'
 
 const BaseText = styled(Text).attrs({ size: 'sm' })``
 
 const Header = styled.header`
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
   text-transform: uppercase;
 `
 
 const HeaderText = styled(BaseText)`
-  color: ${({ theme }) => theme.color('green500')};
+  color: ${color('green500')};
 `
 
 const List = styled.ul`
   display: flex;
   flex-direction: column;
 
-  color: ${({ theme }) => theme.color('gray400')};
+  color: ${color('gray400')};
   text-transform: uppercase;
 
-  ${({ theme }) => theme.spaceBetweenY(1)}
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  ${spaceBetweenY(1)}
+  margin-top: ${spacing(1)};
 `
 
 const BaseLink = styled.a`
-  color: ${({ theme }) => theme.color('gray400')};
-  padding: ${({ theme }) => theme.spacing(1)};
+  color: ${color('gray400')};
+  padding: ${spacing(1)};
 
   :hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 `
 
 const ListItemLink = styled(BaseLink)`
   display: flex;
-  ${({ theme }) => theme.spaceBetweenX(2)}
+  ${spaceBetweenX(2)}
 `
 
 const glyphWidth = '1rem'
@@ -49,7 +55,7 @@ const ListSubItem = styled.li`
 
   ::before {
     content: '├';
-    color: ${({ theme }) => theme.color('yellow500')};
+    color: ${color('yellow500')};
     width: ${glyphWidth};
     display: inline-block;
   }
@@ -67,20 +73,20 @@ const SubItemLink = styled(BaseLink)`
 const TitleWithIcon = styled(TextWithIcon).attrs({
   text: { size: 'xs' },
 })<{ selected?: boolean }>`
-  ${({ selected, theme }) =>
+  ${({ selected }) =>
     selected &&
     css`
-      color: ${theme.color('gray50')};
+      color: ${color('gray50')};
     `}
 `
 
 const SubItemTitle = styled(BaseText).attrs({
   size: 'xxs',
 })<{ selected?: boolean }>`
-  ${({ selected, theme }) =>
+  ${({ selected }) =>
     selected &&
     css`
-      color: ${theme.color('gray50')};
+      color: ${color('gray50')};
     `}
 `
 

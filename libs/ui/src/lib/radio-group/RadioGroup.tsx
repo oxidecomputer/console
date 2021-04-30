@@ -1,3 +1,4 @@
+import { spacing, visuallyHidden } from '@oxide/css-helpers'
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
@@ -5,7 +6,6 @@ import styled, { css } from 'styled-components'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
 import { Text } from '../text/Text'
-import { visuallyHiddenCss } from '../VisuallyHidden'
 
 type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
@@ -47,24 +47,24 @@ const StyledLegend = styled(Text).attrs({
 })<{ hideLegend: boolean }>`
   display: block;
 
-  ${({ hideLegend }) => hideLegend && visuallyHiddenCss};
+  ${({ hideLegend }) => hideLegend && visuallyHidden};
 `
 
 const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing(3)};
-  max-width: ${({ theme }) => theme.spacing(200)}; /* 800px */
+  margin-top: ${spacing(3)};
+  max-width: ${spacing(200)}; /* 800px */
 `
 
 /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
-/* gap: ${({ theme }) => theme.spacing(5)}; */
+/* gap: ${spacing(5)}; */
 const columnStyles = css`
   flex-direction: column;
   flex-wrap: nowrap;
-  margin-top: ${({ theme }) => theme.spacing(5)};
+  margin-top: ${spacing(5)};
 
   & > * + * {
-    margin-top: ${({ theme }) => theme.spacing(5)};
+    margin-top: ${spacing(5)};
   }
 `
 const OFFSET = '3px'
@@ -73,13 +73,13 @@ const rowStyles = (shouldOverflow: boolean) => css`
   ${shouldOverflow
     ? `flex-wrap: nowrap; overflow-x: auto;`
     : `flex-wrap: wrap;`};
-  margin-top: ${({ theme }) => theme.spacing(3)};
+  margin-top: ${spacing(3)};
   padding-top: ${OFFSET};
   padding-left: ${OFFSET};
 
   & > * {
-    margin-right: ${({ theme }) => theme.spacing(5)};
-    margin-bottom: ${({ theme }) => theme.spacing(5)};
+    margin-right: ${spacing(5)};
+    margin-bottom: ${spacing(5)};
   }
 `
 

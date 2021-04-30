@@ -4,11 +4,16 @@ import styled, { css } from 'styled-components'
 import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
-import { defaultTheme as theme } from '@oxide/theme'
 
 import { Text } from '../../../text/Text'
 import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
+import {
+  color,
+  spaceBetweenX,
+  spaceBetweenY,
+  spacing,
+} from '@oxide/css-helpers'
 
 export interface ProjectListProps {
   className?: string
@@ -21,25 +26,25 @@ const baseTextProps: Partial<TextProps> = {
 }
 
 const StyledProjectList = styled.section`
-  ${({ theme }) => theme.spaceBetweenY(1)}
+  ${spaceBetweenY(1)}
 `
 
 const rowStyles = css`
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
 `
 
 const Header = styled.header`
   ${rowStyles};
   text-transform: uppercase;
-  ${({ theme }) => theme.spaceBetweenX(2)}
+  ${spaceBetweenX(2)}
 `
 
 const HeaderText = styled(Text).attrs(baseTextProps)`
-  color: ${({ theme }) => theme.color('green500')};
+  color: ${color('green500')};
 `
 
 const Count = styled(Text).attrs(baseTextProps)`
-  color: ${({ theme }) => theme.color('green300')};
+  color: ${color('green300')};
 `
 
 const List = styled.ul`
@@ -55,7 +60,7 @@ const List = styled.ul`
 
   text-transform: uppercase;
 
-  ${({ theme }) => theme.spaceBetweenY(1)}
+  ${spaceBetweenY(1)}
 `
 
 const ListItem = styled.li`
@@ -64,19 +69,19 @@ const ListItem = styled.li`
   width: 100%;
 
   :hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 `
 
 const StyledLink = styled(NavLink)`
-  color: ${({ theme }) => theme.color('gray400')};
+  color: ${color('gray400')};
   display: inline-flex;
-  padding: ${({ theme }) => theme.spacing(1)};
+  padding: ${spacing(1)};
   width: 100%;
 `
 
 const activeLink = {
-  color: theme.color('gray50'),
+  color: color('gray50'),
 }
 
 const Create = styled.footer`
@@ -87,7 +92,7 @@ const Create = styled.footer`
 
   cursor: pointer;
 
-  ${({ theme }) => theme.spaceBetweenX(1)}
+  ${spaceBetweenX(1)}
 `
 
 const CreateText = styled(TextWithIcon).attrs({

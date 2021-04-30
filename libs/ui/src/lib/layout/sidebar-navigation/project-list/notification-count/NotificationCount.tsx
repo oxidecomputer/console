@@ -1,3 +1,4 @@
+import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
@@ -13,8 +14,8 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
 
-  width: ${({ theme }) => theme.spacing(4)};
-  background-color: ${({ theme }) => theme.color('yellow500')};
+  width: ${spacing(4)};
+  background-color: ${color('yellow500')};
 
   border-radius: 50%;
 `
@@ -23,7 +24,7 @@ const Count = styled(Text).attrs({ size: 'xs' })`
   position: relative;
   bottom: 1px;
 
-  color: ${({ theme }) => theme.color('yellow900')};
+  color: ${color('yellow900')};
 `
 
 export const NotificationCount: FC<NotificationCountProps> = (

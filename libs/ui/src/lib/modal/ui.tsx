@@ -6,6 +6,7 @@ import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
+import { breakpoint, color, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 interface ModalContainerProps {
   /**
@@ -26,16 +27,16 @@ export const Container = styled.div<ModalContainerProps>`
 
   width: 100%;
 
-  ${({ theme }) => theme.breakpoint('sm')`
+  ${breakpoint('sm')`
     flex: 0 0 auto;
     align-self: center;
     margin: 0 auto;
-    background: ${theme.color('black')};
+    background: ${color('black')};
 
     width: 50vw;
   `};
 
-  ${({ theme, widthPercentage }) => theme.breakpoint('lg')`
+  ${({ widthPercentage }) => breakpoint('lg')`
     width: calc(100vw * ${widthPercentage}); 
   `}
 `
@@ -47,21 +48,22 @@ const StyledHeader = styled.header`
   flex-direction: column;
   justify-content: flex-start;
 
-  padding: ${({ theme }) => theme.spacing(6, 6, 0, 6)};
-  ${({ theme }) => theme.spaceBetweenY(4)}
+  padding: ${spacing(6, 6, 0, 6)};
+
+  ${spaceBetweenY(4)}
 `
 const IconContainer = styled.span`
   flex: 0 0 auto;
 `
 const HeaderIcon = styled.span`
   display: inline-block;
-  width: ${({ theme }) => theme.spacing(12)};
-  height: ${({ theme }) => theme.spacing(12)};
-  background-color: ${({ theme }) => theme.color('green900')};
+  width: ${spacing(12)};
+  height: ${spacing(12)};
+  background-color: ${color('green900')};
   border-radius: 9999px;
 `
 const StyledIcon = styled(Icon)`
-  font-size: ${({ theme }) => theme.spacing(12)};
+  font-size: ${spacing(12)};
 `
 interface HeaderProps {
   icon?: IconName
@@ -85,9 +87,9 @@ interface BodyProps {
 const StyledBody = styled(Text).attrs({ as: 'main', size: 'sm' })`
   flex: 1;
 
-  padding: ${({ theme }) => theme.spacing(4, 6, 6, 6)};
+  padding: ${spacing(4, 6, 6, 6)};
 
-  ${({ theme }) => theme.breakpoint('sm')`
+  ${breakpoint('sm')`
     flex: 0 0 auto; 
   `}
 `

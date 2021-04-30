@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
-import { visuallyHiddenCss } from '../VisuallyHidden'
+import { color, spacing, visuallyHidden } from '@oxide/css-helpers'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
@@ -41,7 +41,7 @@ const Wrapper = styled.div`
 
 /* Hide from sighted users, show to screen readers */
 const ScreenReaderLabel = styled.label`
-  ${visuallyHiddenCss};
+  ${visuallyHidden};
 `
 
 const Label = styled(Text).attrs({
@@ -63,25 +63,25 @@ const StyledButton = styled.button<ButtonProps>`
   flex-direction: row;
   justify-content: space-between;
 
-  margin-top: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => theme.spacing(2, 4)};
+  margin-top: ${spacing(1)};
+  padding: ${spacing(2, 4)};
   vertical-align: top;
   width: 100%;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
+  background-color: ${color('gray800')};
   border: none;
-  color: ${({ theme }) => theme.color('gray50')};
-  font-size: ${({ theme }) => theme.spacing(4)};
+  color: ${color('gray50')};
+  font-size: ${spacing(4)};
 
   font-weight: ${({ hasPlaceholder }) => (hasPlaceholder ? 400 : 500)};
   line-height: 1.5;
 
   &:hover {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 
   &:focus {
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
     outline: none;
   }
 `
@@ -90,7 +90,7 @@ const StyledIcon = styled(Icon).attrs({
   name: 'chevron',
   rotate: '270deg',
 })`
-  margin-left: ${({ theme }) => theme.spacing(5)};
+  margin-left: ${spacing(5)};
 `
 
 const StyledMenu = styled(motion.ul)`
@@ -101,17 +101,16 @@ const StyledMenu = styled(motion.ul)`
 
   overflow-y: auto;
   margin: 0;
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
   padding: 0;
 
-  background-color: ${({ theme }) => theme.color('gray800')};
-  box-shadow: ${({ theme }) =>
-    `${theme.spacing(0, 3, 6)} ${theme.color('black', 0.16)}`};
+  background-color: ${color('gray800')};
+  box-shadow: ${spacing(0, 3, 6)} ${color('black', 0.16)};
 
   list-style: none;
 
   &:focus {
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
     outline: none;
   }
 `
@@ -120,50 +119,53 @@ const getOptionStyles = (size: SizeType) => {
   switch (size) {
     case 'lg':
       return css`
-        padding: ${({ theme }) => theme.spacing(2.5, 4)};
+        padding: ${spacing(2.5, 4)};
       `
     default:
     case 'sm':
       return css`
-        padding: ${({ theme }) => theme.spacing(1.5, 4)};
+        padding: ${spacing(1.5, 4)};
       `
   }
 }
 
 const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
-  color: ${({ theme }) => theme.color('gray200')};
-  font-size: ${({ theme }) => theme.spacing(3.5)};
+  color: ${color('gray200')};
+  font-size: ${spacing(3.5)};
   font-weight: 400;
   line-height: 1.5;
 
   &:hover,
   &:focus {
-    background-color: ${({ theme }) => theme.color('gray700')};
+    background-color: ${color('gray700')};
   }
 
   &:focus {
     outline: none;
-    box-shadow: ${({ theme }) => `0 0 0 1px ${theme.color('green500')}`};
+    box-shadow: 0 0 0 1px ${color('green500')};
   }
 
   &:first-child {
-    margin-top: ${({ theme }) => theme.spacing(2)};
+    margin-top: ${spacing(2)};
   }
 
   &:last-child {
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
+    margin-bottom: ${spacing(2)};
   }
 
   ${({ size }) => getOptionStyles(size)};
-  ${({ isHighlighted, theme }) =>
-    isHighlighted && `background-color: ${theme.color('gray700')};`};
+  ${({ isHighlighted }) =>
+    isHighlighted &&
+    css`
+      background-color: ${color('gray700')};
+    `};
 `
 
 const HintText = styled(Text).attrs({ size: 'sm' })`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
 
-  color: ${({ theme }) => theme.color('gray300')};
+  color: ${color('gray300')};
 `
 
 const FRAMER_VARIANTS = {

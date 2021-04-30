@@ -1,3 +1,4 @@
+import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import styled from 'styled-components'
@@ -10,16 +11,16 @@ const FieldControls = styled.div`
 
 const Control = styled.button`
   flex: 0 0 auto;
-  padding: ${({ theme }) => `${theme.spacing(2)} ${theme.spacing(3)}`};
+  padding: ${spacing(2, 3)};
 
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.color('green500')};
-    box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color('green500')};
+    border-color: ${color('green500')};
+    box-shadow: inset 0 0 0 1px ${color('green500')};
   }
 
   &:not(:disabled):hover {
-    background-color: ${({ theme }) => theme.color('gray800')};
+    background-color: ${color('gray800')};
   }
 `
 

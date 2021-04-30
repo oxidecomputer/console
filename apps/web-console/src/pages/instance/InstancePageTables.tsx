@@ -3,10 +3,11 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Button, Table, Icon, Text } from '@oxide/ui'
+import { spacing } from '@oxide/css-helpers'
 
 const TableWrapper = styled.div`
   height: 176px;
-  margin-top: ${({ theme }) => theme.spacing(3)};
+  margin-top: ${spacing(3)};
 `
 
 const StyledTable = styled(Table)``
@@ -15,7 +16,7 @@ const StyledText = styled(Text).attrs({
   color: 'gray50',
   as: 'div',
 })`
-  margin-top: ${({ theme }) => theme.spacing(8)};
+  margin-top: ${spacing(8)};
 `
 
 const StyledButton = styled(Button).attrs({

@@ -6,6 +6,7 @@ import filesize from 'filesize'
 import { useApi } from '@oxide/api'
 import { Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
+import { marginY } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -14,7 +15,7 @@ const Title = styled(TextWithIcon).attrs({
 
 const TableWrapper = styled.div`
   height: 300px;
-  ${({ theme }) => theme.marginY(3)};
+  ${marginY(3)};
 `
 
 type Params = {

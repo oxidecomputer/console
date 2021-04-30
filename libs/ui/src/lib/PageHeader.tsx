@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import styled from 'styled-components'
 
 export const PageHeader = styled.header`
@@ -5,5 +6,5 @@ export const PageHeader = styled.header`
   display: flex;
   justify-content: space-between;
 
-  margin-top: ${({ theme }) => theme.spacing(2)};
+  margin-top: ${spacing(2)};
 `

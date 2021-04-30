@@ -19,23 +19,24 @@ import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useBreadcrumbs, useAsync } from '../../hooks'
 import { api } from '@oxide/api'
 import { Debug } from '../../components/Debug'
+import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: { name: 'instances' },
 })`
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
 
   ${Icon} {
-    font-size: ${({ theme }) => theme.spacing(8)};
-    margin-right: ${({ theme }) => theme.spacing(3)};
+    font-size: ${spacing(8)};
+    margin-right: ${spacing(3)};
   }
 `
 
 const Form = styled.form`
-  margin-top: ${({ theme }) => theme.spacing(4)};
-  margin-bottom: ${({ theme }) => theme.spacing(20)};
-  ${({ theme }) => theme.spaceBetweenY(8)}
+  margin-top: ${spacing(4)};
+  margin-bottom: ${spacing(20)};
+  ${spaceBetweenY(8)}
 `
 
 const Heading = styled(Text).attrs({
@@ -44,7 +45,7 @@ const Heading = styled(Text).attrs({
 })`
   display: block;
 
-  margin-top: ${({ theme }) => theme.spacing(8)};
+  margin-top: ${spacing(8)};
 
   &:first-child {
     margin-top: 0;
@@ -57,12 +58,12 @@ const Description = styled(Text).attrs({
 })`
   display: block;
 
-  margin-top: ${({ theme }) => theme.spacing(2)};
-  max-width: ${({ theme }) => theme.spacing(150)};
+  margin-top: ${spacing(2)};
+  max-width: ${spacing(150)};
 `
 
 const StyledTabs = styled(Tabs)`
-  margin-top: ${({ theme }) => theme.spacing(1)};
+  margin-top: ${spacing(1)};
 `
 
 const RadioFieldText = styled(Text).attrs({
@@ -78,14 +79,14 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
 
-  ${({ theme }) => theme.spaceBetweenX(6)}
+  ${spaceBetweenX(6)}
 `
 
 const CreateButton = styled(Button).attrs({ fullWidth: true })``
 
 const FooterText = styled(Text).attrs({ size: 'xs' })`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing(8)};
+  margin-top: ${spacing(8)};
 `
 
 type Params = {

@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 import type { StyledComponentProps } from 'styled-components'
 import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
+import { color, spacing } from '@oxide/css-helpers'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
 export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
@@ -54,19 +55,18 @@ export type ButtonProps = StyledComponentProps<
 >
 
 const getSizeStyles = (size: ButtonSize) => {
-  const getPadding = (x: number, y: number) => ({ theme }: { theme: Theme }) =>
-    `${theme.spacing(x)} ${theme.spacing(y)}`
+  const getPadding = (x: number, y: number) => `${spacing(x)} ${spacing(y)}`
 
   const buttonSize = sizes[size]
 
   if (buttonSize) {
     return css`
-      font-size: ${({ theme }) => theme.spacing(buttonSize.fontSize)};
+      font-size: ${spacing(buttonSize.fontSize)};
       line-height: ${buttonSize.lineHeight};
       padding: ${getPadding(buttonSize.padding[0], buttonSize.padding[1])};
 
       ${Icon} {
-        width: ${({ theme }) => theme.spacing(buttonSize.iconSize)};
+        width: ${spacing(buttonSize.iconSize)};
       }
     `
   }
@@ -79,7 +79,7 @@ const getVariantStyles = (variant: Variant) => {
     case 'subtle':
       return css`
         background-color: hsla(154, 50%, 50%, 0.16);
-        color: ${({ theme }) => theme.themeColors.green400};
+        color: ${color('green400')};
         border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]) {
@@ -88,8 +88,7 @@ const getVariantStyles = (variant: Variant) => {
 
         &:focus {
           border: solid 2px hsla(154, 63%, 56%, 0.16);
-          box-shadow:
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green400};,
+          box-shadow: inset 0 0 0 1px ${color('green400')},
             inset 0 0 0 1px hsla(154, 63%, 56%, 0.16);
         }
 
@@ -101,9 +100,8 @@ const getVariantStyles = (variant: Variant) => {
     case 'outline':
       return css`
         background-color: hsla(146, 51%, 64%, 0.16);
-        box-shadow: inset 0 0 0 1px ${({ theme }) =>
-          theme.themeColors.green500};
-        color: ${({ theme }) => theme.themeColors.green400};
+        box-shadow: inset 0 0 0 1px ${color('green500')};
+        color: ${color('green400')};
         border: solid 2px hsla(146, 51%, 64%, 0.16);
 
         &:hover:not(:disabled):not([disabled]) {
@@ -112,8 +110,7 @@ const getVariantStyles = (variant: Variant) => {
 
         &:focus {
           border: solid 2px hsla(146, 51%, 64%, 0.16);
-          box-shadow:
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+          box-shadow: inset 0 0 0 1px ${color('green300')},
             inset 0 0 0 1px hsla(146, 51%, 64%, 0.16);
         }
 
@@ -125,7 +122,7 @@ const getVariantStyles = (variant: Variant) => {
     case 'ghost':
       return css`
         background-color: transparent;
-        color: ${({ theme }) => theme.themeColors.green400};
+        color: ${color('green400')};
         border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]) {
@@ -136,8 +133,7 @@ const getVariantStyles = (variant: Variant) => {
           background-color: hsla(146, 51%, 64%, 0.16);
 
           border: solid 2px transparent;
-          box-shadow:
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+          box-shadow: inset 0 0 0 1px ${color('green300')},
             inset 0 0 0 1px transparent;
         }
 
@@ -148,17 +144,16 @@ const getVariantStyles = (variant: Variant) => {
       `
     case 'link':
       return css`
-        padding: ${({ theme }) => theme.spacing(1)};
+        padding: ${spacing(1)};
         background-color: transparent;
-        color: ${({ theme }) => theme.themeColors.green500};
+        color: ${color('green500')};
         border: solid 2px transparent;
 
         &:hover:not(:disabled):not([disabled]),
         &:focus {
           text-decoration: underline;
           border: solid 2px transparent;
-          box-shadow:
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green300};,
+          box-shadow: inset 0 0 0 1px ${color('green300')},
             inset 0 0 0 1px transparent;
         }
 
@@ -170,20 +165,19 @@ const getVariantStyles = (variant: Variant) => {
     case 'solid':
     default:
       return css`
-        background-color: ${({ theme }) => theme.themeColors.green600};
-        color: ${({ theme }) => theme.themeColors.green50};
-        border: solid 2px ${({ theme }) => theme.themeColors.green600};
+        background-color: ${color('green600')};
+        color: ${color('green50')};
+        border: solid 2px ${color('green600')};
 
         &:hover:not(:disabled):not([disabled]) {
-          background-color: ${({ theme }) => theme.themeColors.green700};
-          border: solid 2px ${({ theme }) => theme.themeColors.green700};
+          background-color: ${color('green700')};
+          border: solid 2px ${color('green700')};
         }
 
         &:focus {
-          border: solid 2px ${({ theme }) => theme.themeColors.green600};
-          box-shadow:
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.white};,
-            inset 0 0 0 1px ${({ theme }) => theme.themeColors.green600};
+          border: solid 2px ${color('green600')};
+          box-shadow: inset 0 0 0 1px ${color('white')},
+            inset 0 0 0 1px ${color('green600')};
         }
 
         &:disabled,
@@ -215,7 +209,7 @@ const StyledButton = styled.button<ButtonProps>`
 
   &:focus {
     outline-style: solid;
-    outline-color: transparent
+    outline-color: transparent;
     outline-width: 0;
     outline: 0;
   }

@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 
 import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
+import { spacing, color } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'definition'
 export interface TooltipProps {
@@ -37,7 +38,7 @@ const TooltipArrow = styled.div`
     content: '';
     transform: rotate(45deg);
     visibility: visible;
-    background-color: ${({ theme }) => theme.color('gray800')};
+    background-color: ${color('gray800')};
   }
 `
 
@@ -75,10 +76,10 @@ const TooltipContent = styled(Text).attrs({
   as: 'div',
   size: 'sm',
 })`
-  padding: ${({ theme }) => theme.spacing(1, 2)};
+  padding: ${spacing(1, 2)};
 
-  background-color: ${({ theme }) => theme.color('gray800')};
-  color: ${({ theme }) => theme.color('white')};
+  background-color: ${color('gray800')};
+  color: ${color('white')};
 `
 
 export const Tooltip: FC<TooltipProps> = ({

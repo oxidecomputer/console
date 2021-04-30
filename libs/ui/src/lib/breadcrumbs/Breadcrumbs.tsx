@@ -1,3 +1,4 @@
+import { color, spacing } from '@oxide/css-helpers'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -26,19 +27,19 @@ const StyledListItem = styled.li`
     content: '/';
 
     display: inline-flex;
-    margin: 0 ${({ theme }) => theme.spacing(2)};
+    margin: 0 ${spacing(2)};
 
-    color: ${({ theme }) => theme.color('yellow500')};
+    color: ${color('yellow500')};
   }
 `
 
 const StyledLink = styled(Link)`
   &:link,
   &:visited {
-    color: ${({ theme }) => theme.color('gray400')};
+    color: ${color('gray400')};
   }
   &:hover {
-    color: ${({ theme }) => theme.color('green500')};
+    color: ${color('green500')};
   }
 `
 

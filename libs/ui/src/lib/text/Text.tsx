@@ -1,5 +1,7 @@
 import styled, { css } from 'styled-components'
-import type { Color, Font } from '@oxide/theme'
+import type { Font } from '@oxide/theme'
+import type { Color } from '@oxide/css-helpers'
+import { spacing, color } from '@oxide/css-helpers'
 
 export const textSizes = [
   'xxs',
@@ -30,7 +32,7 @@ const getSizeStyles = (size?: TextSize) => {
       `
     case 'xs':
       return css`
-        font-size: ${({ theme }) => theme.spacing(3)}; /* 0.75rem */
+        font-size: ${spacing(3)}; /* 0.75rem */
         line-height: ${1 / 0.75}; /* 1rem */
       `
     case 'sm':
@@ -45,12 +47,12 @@ const getSizeStyles = (size?: TextSize) => {
       `
     case 'xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(5)}; /* 1.25rem */
+        font-size: ${spacing(5)}; /* 1.25rem */
         line-height: 1.4; /* 1.75rem */
       `
     case '2xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(6)}; /* 1.5rem */
+        font-size: ${spacing(6)}; /* 1.5rem */
         line-height: ${2 / 1.5}; /* 2rem */
       `
     case '3xl':
@@ -60,12 +62,12 @@ const getSizeStyles = (size?: TextSize) => {
       `
     case '4xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(9)}; /* 2.25rem */
+        font-size: ${spacing(9)}; /* 2.25rem */
         line-height: ${2.5 / 2.25}; /* 2.5rem */
       `
     case '5xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(9)}; /* 3rem */
+        font-size: ${spacing(9)}; /* 3rem */
         line-height: 1; /* 3rem */
       `
     case '6xl':
@@ -80,17 +82,17 @@ const getSizeStyles = (size?: TextSize) => {
       `
     case '8xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(24)}; /* 6rem */
+        font-size: ${spacing(24)}; /* 6rem */
         line-height: 1; /* 6rem */
       `
     case '9xl':
       return css`
-        font-size: ${({ theme }) => theme.spacing(32)}; /* 8rem */
+        font-size: ${spacing(32)}; /* 8rem */
         line-height: 1; /* 8rem */
       `
     case 'base':
       return css`
-        font-size: ${({ theme }) => theme.spacing(4)}; /* 1rem */
+        font-size: ${spacing(4)}; /* 1rem */
         line-height: 1.5; /* 1.5rem */
       `
   }
@@ -102,7 +104,7 @@ const getVariantStyles = (variant?: Variant) => {
     case 'title':
       return css`
         ${getSizeStyles('2xl')};
-        color: ${({ theme }) => theme.color('green500')};
+        color: ${color('green500')};
         font-family: ${({ theme }) => theme.fonts.mono};
         font-weight: 400;
         text-transform: uppercase;
@@ -141,10 +143,10 @@ export const Text = styled.span.withConfig({
     return !['color', 'size'].includes(prop) && defaultValidatorFn(prop)
   },
 })<TextProps>`
-  ${({ color, theme }) => {
-    if (color) {
+  ${({ color: textColor }) => {
+    if (textColor) {
       return css`
-        color: ${theme.color(color)};
+        color: ${color(textColor)};
       `
     }
     /* By default, color: inherit will be applied */

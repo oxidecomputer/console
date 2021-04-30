@@ -1,7 +1,12 @@
 import { css } from 'styled-components'
 
+export * from './breakpoints'
+export * from './colors'
+export * from './shadows'
+export * from './spacing'
+
 /* Hide from sighted users, show to screen readers */
-export const visuallyHiddenCss = css`
+export const visuallyHidden = css`
   position: absolute !important;
   overflow: hidden !important;
   width: 1px !important;

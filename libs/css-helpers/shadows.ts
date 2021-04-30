@@ -1,7 +1,8 @@
 import { css } from 'styled-components'
-import type { ShadowHelper } from './types'
 
-export const shadow: ShadowHelper = (variant) => {
+export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
+
+export const shadow = (variant?: ShadowVariant) => {
   if (!variant) {
     return css`
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);

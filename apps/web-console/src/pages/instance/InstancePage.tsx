@@ -17,6 +17,7 @@ import {
 
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
+import { spaceBetweenX, spacing } from '@oxide/css-helpers'
 
 const Wrapper = styled.div``
 
@@ -41,26 +42,26 @@ const Actions = styled.div`
   display: flex;
 
   ${PageAction} {
-    margin-left: ${({ theme }) => theme.spacing(3)};
+    margin-left: ${spacing(3)};
   }
 `
 
 const Metadata = styled.div`
-  margin-top: ${({ theme }) => theme.spacing(3)};
+  margin-top: ${spacing(3)};
 `
 
 const StyledTabs = styled(Tabs)`
-  margin-top: ${({ theme }) => theme.spacing(4)};
+  margin-top: ${spacing(4)};
 `
 
 const CardList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  ${({ theme }) => theme.spaceBetweenX(4)}
-  margin: -${({ theme }) => theme.spacing(2)};
+  ${spaceBetweenX(4)}
+  margin: -${spacing(2)};
 
   > * {
-    margin: ${({ theme }) => theme.spacing(2)};
+    margin: ${spacing(2)};
   }
 `
 const OverviewPanel = styled.div``

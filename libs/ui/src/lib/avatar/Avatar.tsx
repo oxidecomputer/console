@@ -1,3 +1,4 @@
+import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
@@ -52,10 +53,10 @@ const getSizeStyles = (size: AvatarSize) => {
   const avatarSize = sizeMap[size]
   if (avatarSize) {
     return css`
-      height: ${({ theme }) => theme.spacing(avatarSize.width)};
-      width: ${({ theme }) => theme.spacing(avatarSize.width)};
+      height: ${spacing(avatarSize.width)};
+      width: ${spacing(avatarSize.width)};
 
-      font-size: ${({ theme }) => theme.spacing(avatarSize.fontSize)};
+      font-size: ${spacing(avatarSize.fontSize)};
 
       ${StyledIcon} {
         position: absolute;
@@ -63,7 +64,7 @@ const getSizeStyles = (size: AvatarSize) => {
         right: 0;
         left: 0;
 
-        width: ${({ theme }) => theme.spacing(avatarSize.width)};
+        width: ${spacing(avatarSize.width)};
       }
     `
   }

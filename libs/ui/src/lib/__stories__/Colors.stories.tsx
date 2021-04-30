@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { colorPalette, colorGroups, colorNames } from '@oxide/theme'
-import type { Color } from '@oxide/theme'
+import type { Color } from '@oxide/css-helpers'
+import { colorPalette, colorGroups, colorNames } from '@oxide/css-helpers'
 import Text from '../text/Text'
+import { color, spacing } from '@oxide/css-helpers'
 
 interface ColorProps {
   name: Color
@@ -13,19 +14,19 @@ const ColorContainer = styled.div`
   display: flex;
   flex: 0 1 auto;
   align-items: stretch;
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
+  margin-bottom: ${spacing(4)};
 `
 const ColorVisualizer = styled.div<Pick<ColorProps, 'value'>>`
   background-color: ${({ value }) => value};
-  width: ${({ theme }) => theme.spacing(12)};
-  height: ${({ theme }) => theme.spacing(12)};
-  margin-right: ${({ theme }) => theme.spacing(3)};
-  border: 1px solid ${({ theme }) => theme.color('gray800')};
+  width: ${spacing(12)};
+  height: ${spacing(12)};
+  margin-right: ${spacing(3)};
+  border: 1px solid ${color('gray800')};
 `
 const ColorInfo = styled(Text).attrs({ as: 'code' })`
   display: flex;
   :first-of-type {
-    margin-bottom: ${({ theme }) => theme.spacing(3)};
+    margin-bottom: ${spacing(3)};
   }
 `
 
@@ -52,7 +53,7 @@ const ColorGroupContainer = styled.div<{ isSingleColor?: boolean }>`
 `
 const ColorGroupTitle = styled(Text).attrs({ as: 'h3', font: 'sans' })`
   text-transform: capitalize;
-  margin: ${({ theme }) => theme.spacing(4)} 0;
+  margin: ${spacing(4)} 0;
 `
 
 const ColorGroupComponent: React.FC<{

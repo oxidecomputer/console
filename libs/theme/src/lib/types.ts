@@ -1,53 +1,15 @@
 import 'styled-components'
-import type {
-  CSSObject,
-  FlattenInterpolation,
-  FlattenSimpleInterpolation,
-  SimpleInterpolation,
-  ThemeProps,
-} from 'styled-components'
-import type { Color, ColorPalette } from './colors'
-
-// Used as a basis for an CSS helper which relies on a base sizing unit.
-export type SizingMultiplier = number
+import type { ColorPalette } from '@oxide/css-helpers'
 
 // Fonts
 export type Font = 'sans' | 'mono'
 
-// Helper functions
-export type SpacingHelper = (
-  size: SizingMultiplier
-) => FlattenInterpolation<ThemeProps<Theme>>
-
-export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
-export type BreakpointHelper = (
-  breakpoint: Breakpoint
-) => (
-  first: CSSObject | TemplateStringsArray,
-  ...args: SimpleInterpolation[]
-) => FlattenSimpleInterpolation
-
-export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
-export type ShadowHelper = (
-  variant?: ShadowVariant
-) => FlattenSimpleInterpolation
-
 // Our Theme type
 export interface Theme {
   themeColors: ColorPalette
-  color: (name: Color, alpha?: number) => string
   fonts: {
     [key in Font]: string
   }
-  spacing: (...sizes: SizingMultiplier[]) => string
-  spaceBetweenX: SpacingHelper
-  spaceBetweenY: SpacingHelper
-  paddingX: SpacingHelper
-  paddingY: SpacingHelper
-  marginX: SpacingHelper
-  marginY: SpacingHelper
-  breakpoint: BreakpointHelper
-  shadow: ShadowHelper
 }
 
 // Extend styled-components with our Theme type
