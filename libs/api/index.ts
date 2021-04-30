@@ -35,7 +35,7 @@ const basePath =
   process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
 const config = new Configuration({ basePath })
 
-export const api = new DefaultApi(config)
+const api = new DefaultApi(config)
 export const useApiQuery = getUseApiQuery(api)
 export const useApiMutation = getUseApiMutation(api)
 
