@@ -47,7 +47,7 @@ const ProjectCreatePage = () => {
     onSuccess: (data) => {
       // this causes the list of projects in the sidebar to get refetched
       // TODO: wrap this so API method name is typechecked
-      queryClient.invalidateQueries('apiProjectsGet')
+      queryClient.invalidateQueries(['apiProjectsGet', {}], { exact: true })
       // this saves the project fetch when the project page loads
       // TODO: do we care?
       // TODO: type constraints?
