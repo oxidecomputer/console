@@ -1,7 +1,0 @@
-{
-  "^@oxide/ui$": "<rootDir>/libs/ui/src/index.ts",
-  "^@oxide/theme$": "<rootDir>/libs/theme/src/index.ts",
-  "^@oxide/css-helpers$": "<rootDir>/libs/css-helpers/index.ts",
-  "^@oxide/api$": "<rootDir>/libs/api/index.ts",
-  "^@oxide/api-mocks$": "<rootDir>/libs/api-mocks/index.ts"
-}
