@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
@@ -16,8 +15,8 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
-import { useBreadcrumbs, useAsync } from '../../hooks'
-import { api } from '@oxide/api'
+import { useBreadcrumbs } from '../../hooks'
+import { useApiMutation } from '@oxide/api'
 import { Debug } from '../../components/Debug'
 import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
 
@@ -81,8 +80,6 @@ const Row = styled.div`
 
   ${spaceBetweenX(6)}
 `
-
-const CreateButton = styled(Button).attrs({ fullWidth: true })``
 
 const FooterText = styled(Text).attrs({ size: 'xs' })`
   display: block;
@@ -214,7 +211,7 @@ const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
 
-const InstancesPage = () => {
+const InstanceCreatePage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const history = useHistory()
@@ -249,24 +246,19 @@ const InstancesPage = () => {
     return params
   }
 
-  const createInstance = useAsync(() =>
-    api.apiProjectInstancesPost({
+  const createInstance = useApiMutation('apiProjectInstancesPost', {
+    onSuccess: () => {
+      history.push(`/projects/${projectName}/instances`)
+    },
+  })
+
+  const onCreateClick = () => {
+    // TODO: validate client-side before attempting to POST
+    createInstance.mutate({
       projectName,
       apiInstanceCreateParams: getParams(),
     })
-  )
-
-  const onCreateClick = async () => {
-    // TODO: validate client-side before attempting to POST
-    await createInstance.run()
   }
-
-  // redirect on successful post
-  useEffect(() => {
-    if (createInstance.data) {
-      history.push(`/projects/${projectName}/instances`)
-    }
-  }, [createInstance.data, history, projectName])
 
   const renderLargeRadioFields = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
@@ -450,9 +442,13 @@ const InstancesPage = () => {
           value={tagsField}
         />
 
-        <CreateButton onClick={onCreateClick} disabled={createInstance.pending}>
+        <Button
+          fullWidth
+          onClick={onCreateClick}
+          disabled={createInstance.isLoading}
+        >
           Create instance
-        </CreateButton>
+        </Button>
         <FooterText>
           Equivalent <a href="#">REST</a> or <a href="#">command line</a>
         </FooterText>
@@ -461,4 +457,4 @@ const InstancesPage = () => {
   )
 }
 
-export default InstancesPage
+export default InstanceCreatePage
