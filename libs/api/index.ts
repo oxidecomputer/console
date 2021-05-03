@@ -35,25 +35,23 @@ const getUseApiMutation = <A extends ApiClient<A>>(api: A) => <
   options?: UseMutationOptions<Result<A[M]>, Response, Params<A[M]>>
 ) => useMutation((params) => api[method](params), options)
 
-const getUseInvalidateQueries = <A extends ApiClient<A>>() => () => {
+const getUseApiQueryClient = <A extends ApiClient<A>>() => () => {
   const queryClient = useQueryClient()
-  return <M extends keyof ApiClient<A>>(
-    method: M,
-    params: Params<A[M]>,
-    filters?: InvalidateQueryFilters
-  ) => {
-    queryClient.invalidateQueries([method, params], filters)
-  }
-}
-
-const getUseSetQueryData = <A extends ApiClient<A>>() => () => {
-  const queryClient = useQueryClient()
-  return <M extends keyof ApiClient<A>>(
-    method: M,
-    params: Params<A[M]>,
-    data: Result<A[M]>
-  ) => {
-    queryClient.setQueryData([method, params], data)
+  return {
+    invalidateQueries: <M extends keyof ApiClient<A>>(
+      method: M,
+      params: Params<A[M]>,
+      filters?: InvalidateQueryFilters
+    ) => {
+      queryClient.invalidateQueries([method, params], filters)
+    },
+    setQueryData: <M extends keyof ApiClient<A>>(
+      method: M,
+      params: Params<A[M]>,
+      data: Result<A[M]>
+    ) => {
+      queryClient.setQueryData([method, params], data)
+    },
   }
 }
 
@@ -64,8 +62,7 @@ const config = new Configuration({ basePath })
 const api = new DefaultApi(config)
 export const useApiQuery = getUseApiQuery(api)
 export const useApiMutation = getUseApiMutation(api)
-export const useInvalidateQueries = getUseInvalidateQueries<DefaultApi>()
-export const useSetQueryData = getUseSetQueryData<DefaultApi>()
+export const useApiQueryClient = getUseApiQueryClient<DefaultApi>()
 
 export * from './__generated__/models'
 

@@ -11,11 +11,7 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
-import {
-  useApiMutation,
-  useInvalidateQueries,
-  useSetQueryData,
-} from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Debug } from '../../components/Debug'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 
@@ -44,15 +40,18 @@ const ProjectCreatePage = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
-  const invalidateQueries = useInvalidateQueries()
-  const setQueryData = useSetQueryData()
+  const queryClient = useApiQueryClient()
 
   const createProject = useApiMutation('apiProjectsPost', {
     onSuccess: (data) => {
       // refetch list of projects in sidebar
-      invalidateQueries('apiProjectsGet', {})
+      queryClient.invalidateQueries('apiProjectsGet', {})
       // avoid the project fetch when the project page loads since we have the data
-      setQueryData('apiProjectsGetProject', { projectName: data.name }, data)
+      queryClient.setQueryData(
+        'apiProjectsGetProject',
+        { projectName: data.name },
+        data
+      )
       history.push(`/projects/${data.name}`)
     },
   })
