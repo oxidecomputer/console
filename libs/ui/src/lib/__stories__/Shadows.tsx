@@ -35,7 +35,7 @@ const shadowVariants = [
 export const AllShadows = () => (
   <Wrapper>
     {shadowVariants.map((v) => (
-      <>
+      <React.Fragment key={v || 'base'}>
         <Text size="lg" color="gray50" font="sans">
           {v || 'base'}
         </Text>
@@ -44,7 +44,7 @@ export const AllShadows = () => (
           {`\${shadow(${(v && `'${v}'`) || ''})}`}
         </Text>
         <ShadowBox key={v} shadow={v}></ShadowBox>
-      </>
+      </React.Fragment>
     ))}
   </Wrapper>
 )

@@ -1,5 +1,5 @@
 import { create } from '@storybook/theming'
-import { colorPalette } from '@oxide/theme'
+import { colorPalette } from '@oxide/css-helpers'
 
 // Storybook Theme Options:
 // https://github.com/storybookjs/storybook/blob/next/lib/theming/src/types.ts
