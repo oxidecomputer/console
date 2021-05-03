@@ -3,12 +3,8 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
-import {
-  colorPalette,
-  breakpoints,
-  defaultTheme,
-  GlobalStyle,
-} from '@oxide/theme'
+import { defaultTheme, GlobalStyle } from '@oxide/theme'
+import { breakpoints, colorPalette } from '@oxide/css-helpers'
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
 const DocsStyleOverrides = createGlobalStyle`
