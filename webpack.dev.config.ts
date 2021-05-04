@@ -10,6 +10,7 @@ const config = {
   },
   plugins: [...sharedConfig.plugins, new webpack.HotModuleReplacementPlugin()],
   devtool: 'inline-source-map',
+  target: 'web',
   devServer: {
     contentBase: path.join(__dirname, 'dist/apps/web-console'),
     historyApiFallback: true,
