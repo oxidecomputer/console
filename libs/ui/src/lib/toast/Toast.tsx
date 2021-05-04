@@ -1,5 +1,6 @@
 import {
   color,
+  shadow,
   spaceBetweenX,
   spaceBetweenY,
   spacing,
@@ -8,6 +9,7 @@ import type { FC } from 'react'
 import React from 'react'
 
 import styled, { css } from 'styled-components'
+import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
@@ -23,20 +25,31 @@ export interface ToastProps {
   children?: never
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ wide?: boolean }>`
   display: inline-flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-
-  padding: ${spacing(4)};
+  align-items: stretch;
 
   background-color: ${color('gray800')};
 
   // FIXME: figure out a better way to size this
-  width: 384px;
+  width: ${({ wide }) => (wide ? 448 : 384)}px;
+
+  ${shadow('lg')}
+`
+
+const Main = styled.div<{ withActions?: boolean }>`
+  flex: 1;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 
   ${spaceBetweenX(3)}
+
+  padding: ${({ withActions }) =>
+    withActions ? spacing(4, 0, 4, 4) : spacing(4)};
 `
 
 const IconWrapper = styled.div`
@@ -75,28 +88,30 @@ const CloseButton = styled.button`
 
 export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
   <Wrapper>
-    {icon && (
-      <IconWrapper>
-        <Icon name={icon} color="green600" />
-      </IconWrapper>
-    )}
-    <Content hasIcon={!!icon}>
-      <Text size="sm" weight={500} color="gray50">
-        {title}
-      </Text>
-      {content && (
-        <Text size="sm" weight={400} color="gray300">
-          {content}
-        </Text>
+    <Main>
+      {icon && (
+        <IconWrapper>
+          <Icon name={icon} color="green600" />
+        </IconWrapper>
       )}
-    </Content>
-    <CloseButton
-      onClick={() => {
-        onClose()
-      }}
-    >
-      <Icon name="close" color="gray300" />
-    </CloseButton>
+      <Content hasIcon={!!icon}>
+        <Text size="sm" weight={500} color="gray50">
+          {title}
+        </Text>
+        {content && (
+          <Text size="sm" weight={400} color="gray300">
+            {content}
+          </Text>
+        )}
+      </Content>
+      <CloseButton
+        onClick={() => {
+          onClose()
+        }}
+      >
+        <Icon name="close" color="gray300" />
+      </CloseButton>
+    </Main>
   </Wrapper>
 )
 
@@ -114,36 +129,128 @@ export const ActionToast: FC<ActionToastProps> = ({
   onAction,
 }) => (
   <Wrapper>
-    {icon && (
-      <IconWrapper>
-        <Icon name={icon} color="green600" />
-      </IconWrapper>
-    )}
-    <Content hasIcon={!!icon}>
-      <Text size="sm" weight={500} color="gray50">
-        {title}
-      </Text>
-      {content && (
-        <Text size="sm" weight={400} color="gray300">
-          {content}
-        </Text>
+    <Main>
+      {icon && (
+        <IconWrapper>
+          <Icon name={icon} color="green600" />
+        </IconWrapper>
       )}
-    </Content>
-    <ActionButton
-      onClick={() => {
-        onAction()
-      }}
-    >
-      <Text size="sm" weight={400} color="green600">
-        {action}
-      </Text>
-    </ActionButton>
-    <CloseButton
-      onClick={() => {
-        onClose()
-      }}
-    >
-      <Icon name="close" color="gray300" />
-    </CloseButton>
+      <Content hasIcon={!!icon}>
+        <Text size="sm" weight={500} color="gray50">
+          {title}
+        </Text>
+        {content && (
+          <Text size="sm" weight={400} color="gray300">
+            {content}
+          </Text>
+        )}
+      </Content>
+      <ActionButton
+        onClick={() => {
+          onAction()
+        }}
+      >
+        <Text size="sm" weight={400} color="green600">
+          {action}
+        </Text>
+      </ActionButton>
+      <CloseButton
+        onClick={() => {
+          onClose()
+        }}
+      >
+        <Icon name="close" color="gray300" />
+      </CloseButton>
+    </Main>
+  </Wrapper>
+)
+
+export interface ConfirmToastProps extends ToastProps {
+  confirm: string
+  cancel: string
+
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+const SplitActions = styled.div`
+  flex: 0 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  border-left: 1px solid ${color('gray300')};
+`
+
+const SplitActionContainer = styled.div`
+  flex: 1;
+
+  display: flex;
+
+  justify-content: stretch;
+  align-items: stretch;
+
+  :first-child {
+    border-bottom: 1px solid ${color('gray300')};
+  }
+`
+
+const SplitAction = styled(Button)`
+  flex: 1;
+`
+
+export const ConfirmToast: FC<ConfirmToastProps> = ({
+  icon,
+  title,
+  content,
+
+  confirm,
+  onConfirm,
+  cancel,
+  onCancel,
+}) => (
+  <Wrapper wide>
+    <Main>
+      {icon && (
+        <IconWrapper>
+          <Icon name={icon} color="green600" />
+        </IconWrapper>
+      )}
+
+      <Content hasIcon={!!icon}>
+        <Text size="sm" weight={500} color="gray50">
+          {title}
+        </Text>
+        {content && (
+          <Text size="sm" weight={400} color="gray300">
+            {content}
+          </Text>
+        )}
+      </Content>
+    </Main>
+
+    <SplitActions>
+      <SplitActionContainer>
+        <SplitAction
+          variant="ghost"
+          onClick={() => {
+            onConfirm()
+          }}
+        >
+          {confirm}
+        </SplitAction>
+      </SplitActionContainer>
+      <SplitActionContainer>
+        <SplitAction
+          variant="ghost"
+          onClick={() => {
+            onCancel()
+          }}
+        >
+          {cancel}
+        </SplitAction>
+      </SplitActionContainer>
+    </SplitActions>
   </Wrapper>
 )

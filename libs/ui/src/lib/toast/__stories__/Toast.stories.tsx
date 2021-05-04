@@ -1,9 +1,8 @@
 import React from 'react'
 import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
-import type { ActionToastProps, ToastProps } from '../Toast'
-import { ActionToast } from '../Toast'
-import { Toast } from '../Toast'
+import type { ActionToastProps, ConfirmToastProps, ToastProps } from '../Toast'
+import { ConfirmToast, ActionToast, Toast } from '../Toast'
 import mdx from './Toast.mdx'
 
 export default {
@@ -33,4 +32,19 @@ Action.args = {
   title: 'Project archived',
   action: 'Undo',
   onAction: action('onAction'),
+}
+
+const ConfirmToastTemplate: Story<ConfirmToastProps> = (args) => (
+  <ConfirmToast {...args} />
+)
+export const Confirm = ConfirmToastTemplate.bind({})
+Confirm.args = {
+  title: 'Receive notifications',
+  content: 'Notifications may include alerts, sounds, and badges.',
+
+  confirm: 'Allow',
+  onConfirm: action('onConfirm'),
+
+  cancel: "Don't Allow",
+  onCancel: action('onCancel'),
 }
