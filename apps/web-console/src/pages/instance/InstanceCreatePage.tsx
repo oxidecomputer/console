@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
@@ -252,7 +253,8 @@ const InstanceCreatePage = () => {
     },
   })
 
-  const onCreateClick = () => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
     // TODO: validate client-side before attempting to POST
     createInstance.mutate({
       projectName,
@@ -296,7 +298,7 @@ const InstanceCreatePage = () => {
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>
-      <Form>
+      <Form action="#" onSubmit={handleSubmit}>
         <Heading>Choose an image</Heading>
         <StyledTabs
           label="Choose an image"
@@ -442,11 +444,7 @@ const InstanceCreatePage = () => {
           value={tagsField}
         />
 
-        <Button
-          fullWidth
-          onClick={onCreateClick}
-          disabled={createInstance.isLoading}
-        >
+        <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
         <FooterText>
