@@ -7,4 +7,10 @@ export interface ToastContextValue {
   addConfirmToast: (props: ConfirmToastProps) => void
 }
 
-export const ToastContext = createContext<ToastContextValue | null>(null)
+/* eslint-disable @typescript-eslint/no-empty-function */
+export const ToastContext = createContext<ToastContextValue>({
+  addToast: () => {},
+  addActionToast: () => {},
+  addConfirmToast: () => {},
+})
+/* eslint-enable @typescript-eslint/no-empty-function */

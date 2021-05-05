@@ -47,6 +47,7 @@ type Actions =
   | AddConfirmToastAction
 
 const toastReducer = (state: ToastState, action: Actions): ToastState => {
+  console.log('reducer fired', state, action)
   switch (action.type) {
     case 'add_default_toast':
       return {
