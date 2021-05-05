@@ -2,7 +2,7 @@ import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
-import styled, { css } from 'styled-components'
+import { styled, css } from 'twin.macro'
 
 import type { IconProps } from '../icon/Icon'
 import { Icon } from '../icon/Icon'
@@ -139,7 +139,9 @@ const InitialsAvatar: React.FC<
   if (initials) {
     return (
       <Wrapper className={className} size={size} hasInitials>
-        <abbr title={name}>{initials}</abbr>
+        <abbr tw="no-underline!" title={name}>
+          {initials}
+        </abbr>
       </Wrapper>
     )
   }
