@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
@@ -68,7 +69,9 @@ export default ({ children }: AppLayoutProps) => {
   return (
     <Wrapper>
       <WordmarkWrapper>
-        <Wordmark />
+        <Link to="/">
+          <Wordmark />
+        </Link>
       </WordmarkWrapper>
       <Sidebar>
         {/* TODO: this causes pop-in when the request comes back */}
