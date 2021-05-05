@@ -248,7 +248,7 @@ export const ConfirmToast: FC<ConfirmToastProps> = ({
             onCancel()
           }}
         >
-          {cancel}
+          <Text color="gray300">{cancel}</Text>
         </SplitAction>
       </SplitActionContainer>
     </SplitActions>
