@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
@@ -56,11 +57,14 @@ const ProjectCreatePage = () => {
     },
   })
 
-  const onCreateClick = () => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
     // TODO: validate client-side before attempting to POST
-    createProject.mutate({
-      apiProjectCreateParams: { name, description },
-    })
+    if (!createProject.isLoading) {
+      createProject.mutate({
+        apiProjectCreateParams: { name, description },
+      })
+    }
   }
 
   return (
@@ -70,7 +74,7 @@ const ProjectCreatePage = () => {
       <PageHeader>
         <Title>Create Project</Title>
       </PageHeader>
-      <Form>
+      <Form action="#" onSubmit={handleSubmit}>
         <TextInputGroup
           id="project-name"
           label="Choose a name"
@@ -88,11 +92,7 @@ const ProjectCreatePage = () => {
           required
           value={description}
         />
-        <Button
-          fullWidth
-          onClick={onCreateClick}
-          disabled={createProject.isLoading}
-        >
+        <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
       </Form>
