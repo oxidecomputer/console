@@ -1,4 +1,4 @@
-import { Button, Text } from '@oxide/ui'
+import { Button } from '@oxide/ui'
 import type { FC } from 'react'
 import React from 'react'
 import { useToast } from '../hooks'
@@ -17,14 +17,7 @@ const ToastTestPage: FC = () => {
 
   return (
     <div>
-      <h2>
-        <Text size="lg" color="green500">
-          Default Toast
-        </Text>
-      </h2>
-      <Button onClick={() => handleDefaultToast()}>
-        Trigger default toast
-      </Button>
+      <Button onClick={handleDefaultToast}>Trigger default toast</Button>
     </div>
   )
 }
