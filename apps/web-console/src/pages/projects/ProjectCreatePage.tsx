@@ -60,9 +60,11 @@ const ProjectCreatePage = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     // TODO: validate client-side before attempting to POST
-    createProject.mutate({
-      apiProjectCreateParams: { name, description },
-    })
+    if (!createProject.isLoading) {
+      createProject.mutate({
+        apiProjectCreateParams: { name, description },
+      })
+    }
   }
 
   return (

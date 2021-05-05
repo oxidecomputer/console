@@ -256,10 +256,12 @@ const InstanceCreatePage = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     // TODO: validate client-side before attempting to POST
-    createInstance.mutate({
-      projectName,
-      apiInstanceCreateParams: getParams(),
-    })
+    if (!createInstance.isLoading) {
+      createInstance.mutate({
+        projectName,
+        apiInstanceCreateParams: getParams(),
+      })
+    }
   }
 
   const renderLargeRadioFields = (category: string) => {
