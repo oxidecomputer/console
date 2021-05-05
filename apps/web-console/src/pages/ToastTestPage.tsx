@@ -13,7 +13,7 @@ const ToastTestPage: FC = () => {
 
     addToast({
       title: `Default Toast #${counter}`,
-      // TODO: remove onClose somehow
+      // TODO: make `onClose` optional here
       onClose: () => setDefaultCloseCounter((v) => v + 1),
     })
   }
