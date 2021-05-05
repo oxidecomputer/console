@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import React, { useReducer } from 'react'
 import type { ToastContextValue } from '../context'
 import { ToastContext } from '../context'
-import { ToastStack } from './ToastStack'
+import { ToastStack, ToastAnimations } from './ToastStack'
 import { toastReducer, initialState } from './reducer'
 
 export const ToastProvider: FC = ({ children }) => {
@@ -16,6 +16,7 @@ export const ToastProvider: FC = ({ children }) => {
 
   return (
     <ToastContext.Provider value={contextValue}>
+      <ToastAnimations />
       {children}
       <ToastStack
         toasts={toasts}

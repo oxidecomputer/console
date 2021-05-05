@@ -1,11 +1,12 @@
 import type { FC } from 'react'
 import React from 'react'
 import type { Toast as ToastModel } from './types'
-import styled from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 import { Toast } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
-const Container = styled.div`
+const Container = styled(TransitionGroup)`
   position: fixed;
   z-index: 9999;
 
@@ -16,6 +17,30 @@ const Container = styled.div`
   flex-direction: column;
 `
 
+export const ToastAnimations = createGlobalStyle`
+  .toast-enter {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  .toast-enter-active {
+    transform: none;
+    opacity: 1;
+    transition: transform 600ms ease-in-out, opacity 600ms ease-in-out;
+  }
+
+  .toast-exit {
+    transform: none;
+    opacity: 1;
+  }
+
+  .toast-exit-active {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 600ms ease-in-out, opacity 600ms ease-in-out;
+  }
+`
+
 interface ToastStackProps {
   toasts: ToastModel[]
 
@@ -24,20 +49,23 @@ interface ToastStackProps {
 
 export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
   <Container tw="space-between-x-2">
-    {toasts.map((toast) => {
-      switch (toast.type) {
-        case 'default':
-          return (
-            <Toast
-              {...toast.props}
-              key={toast.id}
-              onClose={() => {
-                onRemoveToast(toast.id)
-                toast.props.onClose()
-              }}
-            />
-          )
-      }
-    })}
+    {toasts.map((toast) => (
+      <CSSTransition key={toast.id} timeout={600} classNames="toast">
+        {() => {
+          switch (toast.type) {
+            case 'default':
+              return (
+                <Toast
+                  {...toast.props}
+                  onClose={() => {
+                    onRemoveToast(toast.id)
+                    toast.props.onClose()
+                  }}
+                />
+              )
+          }
+        }}
+      </CSSTransition>
+    ))}
   </Container>
 )
