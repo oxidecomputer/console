@@ -8,7 +8,6 @@ const ToastTestPage: FC = () => {
   const [counter, setCounter] = useState(1)
 
   const handleDefaultToast = () => {
-    console.log('handleDefaultToast')
     setCounter(counter + 1)
 
     addToast({

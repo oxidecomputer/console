@@ -28,7 +28,14 @@ export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
       switch (toast.type) {
         case 'default':
           return (
-            <Toast {...toast.props} onClose={() => onRemoveToast(toast.id)} />
+            <Toast
+              {...toast.props}
+              key={toast.id}
+              onClose={() => {
+                onRemoveToast(toast.id)
+                toast.props.onClose()
+              }}
+            />
           )
       }
     })}
