@@ -26,9 +26,11 @@ const InstancesPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data: instances } = useApiQuery('apiProjectInstancesGet', {
-    projectName,
-  })
+  const { data: instances } = useApiQuery(
+    'apiProjectInstancesGet',
+    { projectName },
+    { refetchInterval: 5000 }
+  )
 
   if (!instances) return <div>loading</div>
 
