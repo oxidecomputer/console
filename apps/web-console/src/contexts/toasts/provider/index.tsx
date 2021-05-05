@@ -6,7 +6,7 @@ import { ToastStack } from './ToastStack'
 import { toastReducer, initialState } from './reducer'
 
 export const ToastProvider: FC = ({ children }) => {
-  const [{ toasts }, dispatch] = useReducer(toastReducer, initialState)
+  const [toasts, dispatch] = useReducer(toastReducer, initialState)
 
   const contextValue: ToastContextValue = {
     addToast: (props) => dispatch({ type: 'add_default_toast', props }),
@@ -17,7 +17,10 @@ export const ToastProvider: FC = ({ children }) => {
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      <ToastStack toasts={toasts} />
+      <ToastStack
+        toasts={toasts}
+        onRemoveToast={(id) => dispatch({ type: 'remove_toast', id })}
+      />
     </ToastContext.Provider>
   )
 }

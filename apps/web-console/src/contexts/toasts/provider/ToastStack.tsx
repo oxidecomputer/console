@@ -18,14 +18,18 @@ const Container = styled.div`
 
 interface ToastStackProps {
   toasts: ToastModel[]
+
+  onRemoveToast: (id: string) => void
 }
 
-export const ToastStack: FC<ToastStackProps> = ({ toasts }) => (
+export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
   <Container tw="space-between-x-2">
     {toasts.map((toast) => {
       switch (toast.type) {
         case 'default':
-          return <Toast {...toast.props} />
+          return (
+            <Toast {...toast.props} onClose={() => onRemoveToast(toast.id)} />
+          )
       }
     })}
   </Container>

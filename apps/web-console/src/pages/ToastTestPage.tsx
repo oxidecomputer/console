@@ -1,15 +1,18 @@
 import { Button } from '@oxide/ui'
 import type { FC } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 import { useToast } from '../hooks'
 
 const ToastTestPage: FC = () => {
   const { addToast } = useToast()
+  const [counter, setCounter] = useState(1)
 
   const handleDefaultToast = () => {
     console.log('handleDefaultToast')
+    setCounter(counter + 1)
+
     addToast({
-      title: 'Default Toast',
+      title: `Default Toast #${counter}`,
       // TODO: remove onClose somehow
       onClose: () => null,
     })

@@ -1,9 +1,12 @@
 import type { ActionToastProps, ConfirmToastProps, ToastProps } from '@oxide/ui'
 import type { Toast } from './types'
+import { v4 as uuid } from 'uuid'
 
-interface ToastState {
-  toasts: Toast[]
-}
+// STATE
+
+type ToastState = Toast[]
+
+// ACTIONS
 
 interface AddDefaultToastAction {
   type: 'add_default_toast'
@@ -20,38 +23,59 @@ interface AddConfirmToastAction {
   props: ConfirmToastProps
 }
 
+interface RemoveToastAction {
+  type: 'remove_toast'
+  id: string
+}
+
 type Actions =
   | AddDefaultToastAction
   | AddActionToastAction
   | AddConfirmToastAction
+  | RemoveToastAction
+
+// HELPERS
+
+const createToast = (type: Toast['type'], props: Toast['props']): Toast => {
+  switch (type) {
+    case 'default':
+      return { id: uuid(), type, props: props as ToastProps }
+
+    case 'action':
+      return { id: uuid(), type, props: props as ActionToastProps }
+
+    case 'confirm':
+      return { id: uuid(), type, props: props as ConfirmToastProps }
+  }
+}
+
+const appendToast = (toastState: ToastState, toast: Toast): ToastState => [
+  ...toastState,
+  toast,
+]
+
+const removeToast = (toastState: ToastState, id: string): ToastState =>
+  toastState.filter((toast) => toast.id !== id)
+
+// REDUCER
 
 export const toastReducer = (
   state: ToastState,
   action: Actions
 ): ToastState => {
-  console.log('reducer fired', state, action)
-  console.trace()
   switch (action.type) {
     case 'add_default_toast':
-      return {
-        ...state,
-        toasts: [...state.toasts, { type: 'default', props: action.props }],
-      }
+      return appendToast(state, createToast('default', action.props))
 
     case 'add_action_toast':
-      return {
-        ...state,
-        toasts: [...state.toasts, { type: 'action', props: action.props }],
-      }
+      return appendToast(state, createToast('action', action.props))
 
     case 'add_confirm_toast':
-      return {
-        ...state,
-        toasts: [...state.toasts, { type: 'confirm', props: action.props }],
-      }
+      return appendToast(state, createToast('confirm', action.props))
+
+    case 'remove_toast':
+      return removeToast(state, action.id)
   }
 }
 
-export const initialState: ToastState = {
-  toasts: [],
-}
+export const initialState: ToastState = []
