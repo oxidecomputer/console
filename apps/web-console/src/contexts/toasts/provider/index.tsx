@@ -9,9 +9,11 @@ export const ToastProvider: FC = ({ children }) => {
   const [toasts, dispatch] = useReducer(toastReducer, initialState)
 
   const contextValue: ToastContextValue = {
-    addToast: (props) => dispatch({ type: 'add_default_toast', props }),
-    addActionToast: (props) => dispatch({ type: 'add_action_toast', props }),
-    addConfirmToast: (props) => dispatch({ type: 'add_confirm_toast', props }),
+    addToast: (options) => dispatch({ type: 'add_default_toast', options }),
+    addActionToast: (options) =>
+      dispatch({ type: 'add_action_toast', options }),
+    addConfirmToast: (options) =>
+      dispatch({ type: 'add_confirm_toast', options }),
   }
 
   return (

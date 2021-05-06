@@ -1,16 +1,20 @@
-import type { ToastProps, ActionToastProps, ConfirmToastProps } from '@oxide/ui'
 import { createContext } from 'react'
+import type {
+  ActionToastOptions,
+  ConfirmToastOptions,
+  DefaultToastOptions,
+} from './types'
 
 export interface ToastContextValue {
-  addToast: (props: ToastProps) => void
-  addActionToast: (props: ActionToastProps) => void
-  addConfirmToast: (props: ConfirmToastProps) => void
+  addToast: (options: DefaultToastOptions) => void
+  addActionToast: (options: ActionToastOptions) => void
+  addConfirmToast: (options: ConfirmToastOptions) => void
 }
 
-/* eslint-disable @typescript-eslint/no-empty-function */
 export const ToastContext = createContext<ToastContextValue>({
+  /* eslint-disable @typescript-eslint/no-empty-function */
   addToast: () => {},
   addActionToast: () => {},
   addConfirmToast: () => {},
+  /* eslint-enable @typescript-eslint/no-empty-function */
 })
-/* eslint-enable @typescript-eslint/no-empty-function */

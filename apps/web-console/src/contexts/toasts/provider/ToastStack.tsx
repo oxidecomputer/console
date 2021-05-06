@@ -1,8 +1,8 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { Toast as ToastModel } from './types'
+import type { Toast as ToastModel } from '../types'
 import styled, { createGlobalStyle } from 'styled-components'
-import { Toast } from '@oxide/ui'
+import { ActionToast, Toast } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
@@ -56,10 +56,21 @@ export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
             case 'default':
               return (
                 <Toast
-                  {...toast.props}
+                  {...toast.options}
                   onClose={() => {
                     onRemoveToast(toast.id)
-                    toast.props.onClose()
+                    toast.options.onClose && toast.options.onClose()
+                  }}
+                />
+              )
+
+            case 'action':
+              return (
+                <ActionToast
+                  {...toast.options}
+                  onClose={() => {
+                    onRemoveToast(toast.id)
+                    toast.options.onClose && toast.options.onClose()
                   }}
                 />
               )

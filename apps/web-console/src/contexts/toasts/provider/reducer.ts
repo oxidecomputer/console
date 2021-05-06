@@ -1,5 +1,10 @@
 import type { ActionToastProps, ConfirmToastProps, ToastProps } from '@oxide/ui'
-import type { Toast } from './types'
+import type {
+  ActionToastOptions,
+  ConfirmToastOptions,
+  DefaultToastOptions,
+  Toast,
+} from '../types'
 import { v4 as uuid } from 'uuid'
 
 // STATE
@@ -10,17 +15,17 @@ type ToastState = Toast[]
 
 interface AddDefaultToastAction {
   type: 'add_default_toast'
-  props: ToastProps
+  options: DefaultToastOptions
 }
 
 interface AddActionToastAction {
   type: 'add_action_toast'
-  props: ActionToastProps
+  options: ActionToastOptions
 }
 
 interface AddConfirmToastAction {
   type: 'add_confirm_toast'
-  props: ConfirmToastProps
+  options: ConfirmToastOptions
 }
 
 interface RemoveToastAction {
@@ -36,16 +41,16 @@ type Actions =
 
 // HELPERS
 
-const createToast = (type: Toast['type'], props: Toast['props']): Toast => {
+const createToast = (type: Toast['type'], options: Toast['options']): Toast => {
   switch (type) {
     case 'default':
-      return { id: uuid(), type, props: props as ToastProps }
+      return { id: uuid(), type, options: options as ToastProps }
 
     case 'action':
-      return { id: uuid(), type, props: props as ActionToastProps }
+      return { id: uuid(), type, options: options as ActionToastProps }
 
     case 'confirm':
-      return { id: uuid(), type, props: props as ConfirmToastProps }
+      return { id: uuid(), type, options: options as ConfirmToastProps }
   }
 }
 
@@ -65,13 +70,13 @@ export const toastReducer = (
 ): ToastState => {
   switch (action.type) {
     case 'add_default_toast':
-      return appendToast(state, createToast('default', action.props))
+      return appendToast(state, createToast('default', action.options))
 
     case 'add_action_toast':
-      return appendToast(state, createToast('action', action.props))
+      return appendToast(state, createToast('action', action.options))
 
     case 'add_confirm_toast':
-      return appendToast(state, createToast('confirm', action.props))
+      return appendToast(state, createToast('confirm', action.options))
 
     case 'remove_toast':
       return removeToast(state, action.id)
