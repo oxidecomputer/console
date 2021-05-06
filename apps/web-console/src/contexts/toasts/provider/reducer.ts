@@ -1,4 +1,3 @@
-import type { ActionToastProps, ConfirmToastProps, ToastProps } from '@oxide/ui'
 import type {
   ActionToastOptions,
   ConfirmToastOptions,
@@ -41,16 +40,18 @@ type Actions =
 
 // HELPERS
 
-const createToast = (type: Toast['type'], options: Toast['options']): Toast => {
-  switch (type) {
-    case 'default':
-      return { id: uuid(), type, options: options as ToastProps }
+const createToast = (
+  action: AddDefaultToastAction | AddActionToastAction | AddConfirmToastAction
+): Toast => {
+  switch (action.type) {
+    case 'add_default_toast':
+      return { id: uuid(), type: 'default', options: action.options }
 
-    case 'action':
-      return { id: uuid(), type, options: options as ActionToastProps }
+    case 'add_action_toast':
+      return { id: uuid(), type: 'action', options: action.options }
 
-    case 'confirm':
-      return { id: uuid(), type, options: options as ConfirmToastProps }
+    case 'add_confirm_toast':
+      return { id: uuid(), type: 'confirm', options: action.options }
   }
 }
 
@@ -70,13 +71,9 @@ export const toastReducer = (
 ): ToastState => {
   switch (action.type) {
     case 'add_default_toast':
-      return appendToast(state, createToast('default', action.options))
-
     case 'add_action_toast':
-      return appendToast(state, createToast('action', action.options))
-
     case 'add_confirm_toast':
-      return appendToast(state, createToast('confirm', action.options))
+      return appendToast(state, createToast(action))
 
     case 'remove_toast':
       return removeToast(state, action.id)
