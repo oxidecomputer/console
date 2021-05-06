@@ -2,7 +2,7 @@ import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
-import tw, { styled, css } from 'twin.macro'
+import tw, { css, styled, theme } from 'twin.macro'
 
 import type { IconProps } from '../icon/Icon'
 import { Icon } from '../icon/Icon'
@@ -87,9 +87,7 @@ const Wrapper = styled.div<WrapperProps>`
   vertical-align: middle;
 
   background-color: ${(props) =>
-    props.isCircle
-      ? props.theme.themeColors.gray100
-      : props.theme.themeColors.gray500};
+    props.isCircle ? theme`colors.gray.100` : theme`colors.gray.500`};
   border-radius: ${(props) => (props.isCircle ? '50%' : '0')};
   ${tw`font-sans`}
   line-height: 1;

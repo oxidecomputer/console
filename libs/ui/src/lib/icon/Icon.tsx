@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { Color } from '@oxide/css-helpers'
+import { color as getColor } from '@oxide/css-helpers'
 import type { IconComponentProps } from './IconComponent'
 import { IconComponent } from './IconComponent'
 
@@ -31,8 +32,7 @@ export const Icon = styled(IconComponent).withConfig({
   height: auto;
   width: 1em; /* icon size is controlled by parent font-size */
 
-  fill: ${({ color, theme }) =>
-    color ? theme.themeColors[color] : 'currentColor'};
+  fill: ${({ color }) => (color ? getColor(color) : 'currentColor')};
 
   ${({ rotate }) => rotate && `transform: rotate(${rotate})`};
   ${({ align }) => {
