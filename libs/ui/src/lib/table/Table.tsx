@@ -76,7 +76,6 @@ const Grid = styled.div`
 
   background-color: ${TABLE_BG};
   color: ${color('gray50')};
-  font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${spacing(3.5)};
   font-weight: 400;
   line-height: ${1.25 / 0.875}; /* 1.25rem */

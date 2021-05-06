@@ -1,5 +1,4 @@
-import styled, { css } from 'styled-components'
-import type { Font } from '@oxide/theme'
+import tw, { styled, css } from 'twin.macro'
 import type { Color } from '@oxide/css-helpers'
 import { spacing, color } from '@oxide/css-helpers'
 
@@ -102,13 +101,7 @@ type Variant = 'base' | 'title'
 const getVariantStyles = (variant?: Variant) => {
   switch (variant) {
     case 'title':
-      return css`
-        ${getSizeStyles('2xl')};
-        color: ${color('green500')};
-        font-family: ${({ theme }) => theme.fonts.mono};
-        font-weight: 400;
-        text-transform: uppercase;
-      `
+      return tw`text-2xl text-green-500 font-mono font-normal uppercase`
     case 'base':
     default:
       return ``
@@ -119,10 +112,6 @@ export interface TextProps {
    * Set a color from theme, otherwise color will default to inherit
    */
   color?: Color
-  /**
-   * Set the font-family to be sans-serif or monospace
-   */
-  font?: Font
   /**
    * Set the size of the text
    */
@@ -156,17 +145,6 @@ export const Text = styled.span.withConfig({
     css`
       font-weight: ${weight};
     `};
-
-  ${({ font, theme }) => {
-    if (font) {
-      return css`
-        font-family: ${theme.fonts[font]};
-      `
-    }
-    return css`
-      font-family: inherit;
-    `
-  }}
 
   ${({ size }) => getSizeStyles(size)};
   ${({ variant }) => getVariantStyles(variant)};

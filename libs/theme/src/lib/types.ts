@@ -1,15 +1,9 @@
 import 'styled-components'
 import type { ColorPalette } from '@oxide/css-helpers'
 
-// Fonts
-export type Font = 'sans' | 'mono'
-
 // Our Theme type
 export interface Theme {
   themeColors: ColorPalette
-  fonts: {
-    [key in Font]: string
-  }
 }
 
 // Extend styled-components with our Theme type

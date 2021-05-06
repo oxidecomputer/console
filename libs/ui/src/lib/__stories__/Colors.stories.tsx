@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 import type { Color } from '@oxide/css-helpers'
 import { colorPalette, colorGroups, colorNames } from '@oxide/css-helpers'
 import Text from '../text/Text'
@@ -51,10 +51,8 @@ const ColorGroupContainer = styled.div<{ isSingleColor?: boolean }>`
   flex-direction: column;
   flex-wrap: wrap;
 `
-const ColorGroupTitle = styled(Text).attrs({ as: 'h3', font: 'sans' })`
-  text-transform: capitalize;
-  margin: ${spacing(4)} 0;
-`
+
+const ColorGroupTitle = tw.h3`capitalize my-4 font-sans`
 
 const ColorGroupComponent: React.FC<{
   group: string

@@ -1,7 +1,7 @@
 import { color, marginY, shadow, spacing } from '@oxide/css-helpers'
 import type { ShadowVariant } from '@oxide/css-helpers'
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import Text from '../text/Text'
 
 const Wrapper = styled.div`
@@ -36,11 +36,11 @@ export const AllShadows = () => (
   <Wrapper>
     {shadowVariants.map((v) => (
       <React.Fragment key={v || 'base'}>
-        <Text size="lg" color="gray50" font="sans">
+        <Text size="lg" color="gray50" tw="font-sans">
           {v || 'base'}
         </Text>
         <br />
-        <Text size="base" color="gray100" font="mono">
+        <Text size="base" color="gray100">
           {`\${shadow(${(v && `'${v}'`) || ''})}`}
         </Text>
         <ShadowBox key={v} shadow={v}></ShadowBox>
