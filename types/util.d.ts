@@ -7,3 +7,6 @@ type PickByValue<T, V> = {
 type OmitByValue<T, V> = {
   [K in keyof T as T[K] extends V ? never : K]: T[K]
 }
+
+// Make K optional on T
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>

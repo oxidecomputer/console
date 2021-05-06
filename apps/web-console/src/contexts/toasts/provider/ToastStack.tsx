@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import React from 'react'
 import type { Toast as ToastModel } from '../types'
 import styled, { createGlobalStyle } from 'styled-components'
-import { ActionToast, Toast } from '@oxide/ui'
+import { ActionToast, ConfirmToast, Toast } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
@@ -15,6 +15,7 @@ const Container = styled(TransitionGroup)`
 
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
 `
 
 export const ToastAnimations = createGlobalStyle`
@@ -68,9 +69,31 @@ export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
               return (
                 <ActionToast
                   {...toast.options}
+                  onAction={() => {
+                    onRemoveToast(toast.id)
+                    toast.options.onAction()
+                  }}
                   onClose={() => {
                     onRemoveToast(toast.id)
                     toast.options.onClose && toast.options.onClose()
+                  }}
+                />
+              )
+
+            case 'confirm':
+              return (
+                <ConfirmToast
+                  {...toast.options}
+                  onConfirm={() => {
+                    onRemoveToast(toast.id)
+                    toast.options.onConfirm()
+                  }}
+                  onCancel={() => {
+                    onRemoveToast(toast.id)
+                    toast.options.onCancel()
+                  }}
+                  onClose={() => {
+                    onRemoveToast(toast.id)
                   }}
                 />
               )

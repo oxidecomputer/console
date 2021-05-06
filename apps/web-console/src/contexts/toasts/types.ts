@@ -2,8 +2,6 @@ import type { ActionToastProps, ConfirmToastProps, ToastProps } from '@oxide/ui'
 
 export type Toast = DefaultToast | ActionToast | ConfirmToast
 
-type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
-
 export type DefaultToastOptions = Optional<ToastProps, 'onClose'>
 export interface DefaultToast {
   id: string
@@ -18,7 +16,7 @@ export interface ActionToast {
   options: ActionToastOptions
 }
 
-export type ConfirmToastOptions = Optional<ConfirmToastProps, 'onClose'>
+export type ConfirmToastOptions = Omit<ConfirmToastProps, 'onClose'>
 export interface ConfirmToast {
   id: string
   type: 'confirm'

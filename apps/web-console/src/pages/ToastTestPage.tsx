@@ -11,12 +11,23 @@ const useCounter = (initialValue: number): [number, () => void] => {
 }
 
 const ToastTestPage: FC = () => {
-  const { addToast, addActionToast } = useToast()
+  const { addToast, addActionToast, addConfirmToast } = useToast()
+
   const [counter, incrementCounter] = useCounter(1)
+
   const [defaultCloseCounter, incrementDefaultCloseCounter] = useCounter(0)
 
   const [actionCloseCounter, incrementActionCloseCounter] = useCounter(0)
   const [actionActionCounter, incrementActionActionCounter] = useCounter(0)
+
+  const [
+    confirmConfirmActionCounter,
+    incrementConfirmConfirmActionCounter,
+  ] = useCounter(0)
+  const [
+    confirmCancelActionCounter,
+    incrementConfirmCancelActionCounter,
+  ] = useCounter(0)
 
   const handleDefaultToast = () => {
     incrementCounter()
@@ -42,6 +53,22 @@ const ToastTestPage: FC = () => {
     })
   }
 
+  const handleConfirmToast = () => {
+    incrementCounter()
+
+    addConfirmToast({
+      title: `Confirm Toast #${counter}`,
+      content: 'Are you sure you want to do this?',
+      icon: 'warning',
+
+      confirm: 'Yes',
+      onConfirm: incrementConfirmConfirmActionCounter,
+
+      cancel: 'No',
+      onCancel: incrementConfirmCancelActionCounter,
+    })
+  }
+
   return (
     <div>
       <section style={{ marginBottom: '1rem' }}>
@@ -50,7 +77,7 @@ const ToastTestPage: FC = () => {
             Default Toast
           </Text>
         </h2>
-        <div>Default Toast Closed: {defaultCloseCounter} times</div>
+        <div>Toast Closed: {defaultCloseCounter} times</div>
         <br />
         <Button onClick={handleDefaultToast}>Trigger Default Toast</Button>
       </section>
@@ -60,10 +87,25 @@ const ToastTestPage: FC = () => {
             Action Toast
           </Text>
         </h2>
-        <div>Action Toast Closed: {actionCloseCounter} times</div>
-        <div>Action Toast Action clicked: {actionActionCounter} times</div>
+        <div>Toast Closed: {actionCloseCounter} times</div>
+        <div>Toast Action clicked: {actionActionCounter} times</div>
         <br />
         <Button onClick={handleActionToast}>Trigger Action Toast</Button>
+      </section>
+      <section style={{ marginBlock: '1rem' }}>
+        <h2>
+          <Text size="lg" color="green400">
+            Confirm Toast
+          </Text>
+        </h2>
+        <div>
+          Toast Confirm Action clicked: {confirmConfirmActionCounter} times
+        </div>
+        <div>
+          Toast Cancel Action clicked: {confirmCancelActionCounter} times
+        </div>
+        <br />
+        <Button onClick={handleConfirmToast}>Trigger Confirm Toast</Button>
       </section>
     </div>
   )
