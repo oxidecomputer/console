@@ -1,10 +1,3 @@
-import { spacing } from '@oxide/css-helpers'
-import styled from 'styled-components'
+import tw from 'twin.macro'
 
-export const PageHeader = styled.header`
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-
-  margin-top: ${spacing(2)};
-`
+export const PageHeader = tw.header`flex items-center justify-between mt-2`
