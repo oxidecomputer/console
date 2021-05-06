@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { useParams, useHistory } from 'react-router-dom'
 
 import {
@@ -16,10 +16,11 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
-import { useBreadcrumbs } from '../../hooks'
+import type { ApiError } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
-import { Debug } from '../../components/Debug'
 import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { useBreadcrumbs } from '../../hooks'
+import { getServerParseError } from '../../util/str'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -73,18 +74,11 @@ const RadioFieldText = styled(Text).attrs({
   display: block;
 `
 
-const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
 
   ${spaceBetweenX(6)}
-`
-
-const FooterText = styled(Text).attrs({ size: 'xs' })`
-  display: block;
-  margin-top: ${spacing(8)};
 `
 
 type Params = {
@@ -212,6 +206,16 @@ const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
 
+const getErrorMsg = (error: ApiError | null) => {
+  if (!error) return null
+  switch (error.data.error_code) {
+    case 'ObjectAlreadyExists':
+      return 'An instance with that name already exists in this project'
+    default:
+      return getServerParseError(error.data.message)
+  }
+}
+
 const InstanceCreatePage = () => {
   const breadcrumbs = useBreadcrumbs()
 
@@ -295,7 +299,6 @@ const InstanceCreatePage = () => {
 
   return (
     <>
-      <Debug>Post: {JSON.stringify(createInstance)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Instance</Title>
@@ -415,7 +418,7 @@ const InstanceCreatePage = () => {
           you have access to will updated with this additional key. Your
           existing keys will remain on all your instances.
         </Description>
-        <StyledButton>Add an SSH key</StyledButton>
+        <Button variant="subtle">Add an SSH key</Button>
         <Heading>Finalize and create</Heading>
         <Row>
           <TextInputGroup
@@ -449,9 +452,7 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <FooterText>
-          Equivalent <a href="#">REST</a> or <a href="#">command line</a>
-        </FooterText>
+        <div tw="text-red-500">{getErrorMsg(createInstance.error)}</div>
       </Form>
     </>
   )

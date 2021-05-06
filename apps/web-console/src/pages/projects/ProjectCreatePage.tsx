@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { useHistory } from 'react-router-dom'
 
 import {
@@ -11,10 +11,11 @@ import {
   TextInputGroup,
   TextWithIcon,
 } from '@oxide/ui'
-import { useBreadcrumbs } from '../../hooks'
+import type { ApiError } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Debug } from '../../components/Debug'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { useBreadcrumbs } from '../../hooks'
+import { getServerParseError } from '../../util/str'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -33,6 +34,16 @@ const Form = styled.form`
   margin-bottom: ${spacing(20)};
   ${spaceBetweenY(8)}
 `
+
+const getErrorMsg = (error: ApiError | null) => {
+  if (!error) return null
+  switch (error.data.error_code) {
+    case 'ObjectAlreadyExists':
+      return 'A project with that name already exists in this organization'
+    default:
+      return getServerParseError(error.data.message)
+  }
+}
 
 const ProjectCreatePage = () => {
   const history = useHistory()
@@ -69,7 +80,6 @@ const ProjectCreatePage = () => {
 
   return (
     <>
-      <Debug>Post: {JSON.stringify(createProject)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Project</Title>
@@ -95,6 +105,7 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
+        <div tw="text-red-500">{getErrorMsg(createProject.error)}</div>
       </Form>
     </>
   )
