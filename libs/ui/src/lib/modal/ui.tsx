@@ -1,12 +1,12 @@
 import type { FC, ReactElement, ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 import React from 'react'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
-import { breakpoint, color, spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { breakpoint, color, spacing } from '@oxide/css-helpers'
 
 interface ModalContainerProps {
   /**
@@ -50,7 +50,7 @@ const StyledHeader = styled.header`
 
   padding: ${spacing(6, 6, 0, 6)};
 
-  ${spaceBetweenY(4)}
+  ${tw`space-y-4`}
 `
 const IconContainer = styled.span`
   flex: 0 0 auto;

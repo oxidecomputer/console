@@ -1,14 +1,8 @@
-import {
-  color,
-  shadow,
-  spaceBetweenX,
-  spaceBetweenY,
-  spacing,
-} from '@oxide/css-helpers'
+import { color, shadow, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import tw, { css, styled } from 'twin.macro'
 import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
@@ -46,7 +40,7 @@ const Main = styled.div<{ withActions?: boolean }>`
   flex-wrap: nowrap;
   align-items: flex-start;
 
-  ${spaceBetweenX(3)}
+  ${tw`space-x-3`}
 
   padding: ${({ withActions }) =>
     withActions ? spacing(4, 0, 4, 4) : spacing(4)};
@@ -70,7 +64,7 @@ const Content = styled.div<{ hasIcon: boolean }>`
       padding: ${spacing(0.5, 0)};
     `};
 
-  ${spaceBetweenY(1)}
+  ${tw`space-y-1`}
 `
 
 const ActionButton = styled.button`

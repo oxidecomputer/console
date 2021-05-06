@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 import { useParams, useHistory } from 'react-router-dom'
 
 import {
@@ -19,7 +19,7 @@ import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 import { useApiMutation } from '@oxide/api'
 import { Debug } from '../../components/Debug'
-import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -31,12 +31,6 @@ const Title = styled(TextWithIcon).attrs({
     font-size: ${spacing(8)};
     margin-right: ${spacing(3)};
   }
-`
-
-const Form = styled.form`
-  margin-top: ${spacing(4)};
-  margin-bottom: ${spacing(20)};
-  ${spaceBetweenY(8)}
 `
 
 const Heading = styled(Text).attrs({
@@ -75,12 +69,7 @@ const RadioFieldText = styled(Text).attrs({
 
 const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  ${spaceBetweenX(6)}
-`
+const Row = tw.div`flex space-x-6`
 
 const FooterText = styled(Text).attrs({ size: 'xs' })`
   display: block;
@@ -300,7 +289,7 @@ const InstanceCreatePage = () => {
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>
-      <Form action="#" onSubmit={handleSubmit}>
+      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <Heading>Choose an image</Heading>
         <StyledTabs
           label="Choose an image"
@@ -452,7 +441,7 @@ const InstanceCreatePage = () => {
         <FooterText>
           Equivalent <a href="#">REST</a> or <a href="#">command line</a>
         </FooterText>
-      </Form>
+      </form>
     </>
   )
 }
