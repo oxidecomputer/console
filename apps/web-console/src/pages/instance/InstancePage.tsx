@@ -84,7 +84,7 @@ const InstancePage = () => {
   )
 
   if (error) {
-    if (error.status === 404) {
+    if (error.raw.status === 404) {
       return <div>Instance not found</div>
     } else {
       return <div>loading</div>

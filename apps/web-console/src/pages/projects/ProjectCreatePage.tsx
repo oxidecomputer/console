@@ -11,11 +11,10 @@ import {
   TextInputGroup,
   TextWithIcon,
 } from '@oxide/ui'
-import type { ApiError } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { spaceBetweenY, spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
-import { getServerParseError } from '../../util/str'
+import { getServerError } from '../../util/errors'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -35,14 +34,9 @@ const Form = styled.form`
   ${spaceBetweenY(8)}
 `
 
-const getErrorMsg = (error: ApiError | null) => {
-  if (!error) return null
-  switch (error.data.error_code) {
-    case 'ObjectAlreadyExists':
-      return 'A project with that name already exists in this organization'
-    default:
-      return getServerParseError(error.data.message)
-  }
+const ERROR_CODES = {
+  ObjectAlreadyExists:
+    'A project with that name already exists in this organization',
 }
 
 const ProjectCreatePage = () => {
@@ -105,7 +99,9 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
-        <div tw="text-red-500">{getErrorMsg(createProject.error)}</div>
+        <div tw="text-red-500">
+          {getServerError(createProject.error, ERROR_CODES)}
+        </div>
       </Form>
     </>
   )

@@ -16,11 +16,10 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
-import type { ApiError } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
-import { getServerParseError } from '../../util/str'
+import { getServerError } from '../../util/errors'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -206,14 +205,9 @@ const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
 
-const getErrorMsg = (error: ApiError | null) => {
-  if (!error) return null
-  switch (error.data.error_code) {
-    case 'ObjectAlreadyExists':
-      return 'An instance with that name already exists in this project'
-    default:
-      return getServerParseError(error.data.message)
-  }
+const ERROR_CODES = {
+  ObjectAlreadyExists:
+    'An instance with that name already exists in this project',
 }
 
 const InstanceCreatePage = () => {
@@ -452,7 +446,9 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <div tw="text-red-500">{getErrorMsg(createInstance.error)}</div>
+        <div tw="text-red-500">
+          {getServerError(createInstance.error, ERROR_CODES)}
+        </div>
       </Form>
     </>
   )
