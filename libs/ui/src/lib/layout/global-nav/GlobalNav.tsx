@@ -1,9 +1,8 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 
-import { Text } from '../../text/Text'
 import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
 import { color, spacing } from '@oxide/css-helpers'
@@ -24,10 +23,6 @@ const Link = styled.a`
   display: inline-flex;
 `
 
-const StyledText = styled(Text).attrs({ size: 'sm' })`
-  text-transform: uppercase;
-`
-
 const encodedFillColor = encodeURI(color('gray700'))
 
 const TickBar = styled.div`
@@ -42,14 +37,14 @@ const TickBar = styled.div`
 const Button = styled.button.attrs({ type: 'button' })`
   background-color: transparent;
   border: none;
-  color: ${({ theme }) => theme.themeColors.gray100};
+  ${tw`text-gray-100`}
   display: inline-flex;
   margin-left: ${spacing(8)};
   padding: 0;
 
   &:hover {
     background-color: transparent;
-    color: ${({ theme }) => theme.themeColors.green500};
+    ${tw`text-green-500`}
   }
 `
 
@@ -62,9 +57,7 @@ export const GlobalNav: FC = () => {
   return (
     <StyledGlobalNav>
       <TickBar />
-      <FeedbackButton>
-        <StyledText>Feedback?</StyledText>
-      </FeedbackButton>
+      <FeedbackButton tw="text-sm uppercase">Feedback?</FeedbackButton>
       <Button>
         <StyledIcon name="theme" />
       </Button>
