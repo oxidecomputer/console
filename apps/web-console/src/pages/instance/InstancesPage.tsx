@@ -1,22 +1,16 @@
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { useParams, Link } from 'react-router-dom'
 import filesize from 'filesize'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
+import { Button, Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
-import { marginY } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
   icon: { name: 'instances' },
 })``
-
-const TableWrapper = styled.div`
-  height: 300px;
-  ${marginY(3)};
-`
 
 type Params = {
   projectName: string
@@ -40,8 +34,9 @@ const InstancesPage = () => {
       <PageHeader>
         <Title>Instances for Project: {projectName}</Title>
       </PageHeader>
-      <TableWrapper>
+      {instances.items.length > 0 && (
         <Table
+          tw="h-80 my-3"
           itemSize={() => 44}
           columns={[
             { Header: 'Name', accessor: 'name' },
@@ -60,12 +55,10 @@ const InstancesPage = () => {
             created: i.timeCreated.toLocaleString(),
           }))}
         />
-      </TableWrapper>
-      <Link
-        style={{ marginTop: '1rem' }}
-        to={`/projects/${projectName}/instances/new`}
-      >
-        Create instance
+      )}
+      {instances.items.length === 0 && <div tw="mt-4">No instances yet!</div>}
+      <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
+        <Button>Create instance</Button>
       </Link>
     </>
   )
