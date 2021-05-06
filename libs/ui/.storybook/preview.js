@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { createGlobalStyle } from 'styled-components'
-import { GlobalStyle } from '@oxide/theme'
+import { GlobalStyle } from '@oxide/ui'
 import { breakpoints, colorPalette } from '@oxide/css-helpers'
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
