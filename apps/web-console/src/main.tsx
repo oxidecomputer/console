@@ -18,8 +18,8 @@ const queryClient = new QueryClient({
 
 ReactDOM.render(
   <React.StrictMode>
+    <GlobalStyle />
     <ToastProvider>
-      <GlobalStyle />
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
