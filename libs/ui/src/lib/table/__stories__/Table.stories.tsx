@@ -1,6 +1,5 @@
 import React from 'react'
 import { Table } from '../Table'
-import { Text } from '../../text/Text'
 
 const sampleColumns = [
   { Header: 'name', accessor: 'name' },
@@ -14,18 +13,14 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
       name: `Web ${index}`,
       status: (
         <>
-          <Text font="mono">Running</Text>
-          <Text font="mono" size="sm">
-            4d 6h
-          </Text>
+          <span>Running</span>
+          <span>4d 6h</span>
         </>
       ),
       created: (
         <>
-          <Text font="mono">Yesterday</Text>
-          <Text font="mono" size="sm">
-            2:30 PM
-          </Text>
+          <span>Yesterday</span>
+          <span>2:30 PM</span>
         </>
       ),
     }
@@ -34,18 +29,14 @@ const sampleData = new Array(1000).fill('').map((value, index) => {
     name: `Web ${index}`,
     status: (
       <>
-        <Text font="mono">Running</Text>
-        <Text font="mono" size="sm">
-          3 minutes ago
-        </Text>
+        <span>Running</span>
+        <span>3 minutes ago</span>
       </>
     ),
     created: (
       <>
-        <Text font="mono">Yesterday</Text>
-        <Text font="mono" size="sm">
-          11:30 PM
-        </Text>
+        <span>Yesterday</span>
+        <span>11:30 PM</span>
       </>
     ),
   }
@@ -89,18 +80,14 @@ export const SingleRow = () => {
             name: `Single Row`,
             status: (
               <>
-                <Text font="mono">Running</Text>
-                <Text font="mono" size="sm">
-                  4d 6h
-                </Text>
+                <span>Running</span>
+                <span>4d 6h</span>
               </>
             ),
             created: (
               <>
-                <Text font="mono">Yesterday</Text>
-                <Text font="mono" size="sm">
-                  2:30 PM
-                </Text>
+                <span>Yesterday</span>
+                <span>2:30 PM</span>
               </>
             ),
           },
@@ -121,18 +108,14 @@ export const SingleRowWithControls = () => {
             name: `Single Row`,
             status: (
               <>
-                <Text font="mono">Running</Text>
-                <Text font="mono" size="sm">
-                  4d 6h
-                </Text>
+                <span>Running</span>
+                <span>4d 6h</span>
               </>
             ),
             created: (
               <>
-                <Text font="mono">Yesterday</Text>
-                <Text font="mono" size="sm">
-                  2:30 PM
-                </Text>
+                <span>Yesterday</span>
+                <span>2:30 PM</span>
               </>
             ),
           },

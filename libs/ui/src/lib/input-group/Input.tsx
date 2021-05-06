@@ -3,7 +3,7 @@ import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 
 const StyledInput = styled.input`
   padding: ${spacing(2.25, 3)};
@@ -15,7 +15,7 @@ const StyledInput = styled.input`
 
   border: none;
   color: ${color('gray100')};
-  font-family: ${({ theme }) => theme.fonts.sans};
+  ${tw`font-sans`}
   font-size: ${spacing(3.5)};
   line-height: ${1.25 / 0.875};
 
