@@ -6,7 +6,7 @@ import './fonts.css'
 
 const CustomStyles = createGlobalStyle`
   body {
-    ${tw`box-border bg-gray-900 text-gray-300 font-mono font-normal`}
+    ${tw`box-border bg-blue-gray-900 text-gray-300 font-mono font-normal`}
   }
 
   // TW Preflight overrides w/ links to the lines they're overriding
