@@ -1,11 +1,10 @@
 import React from 'react'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
 import Wordmark from '../assets/wordmark.svg'
-import { color, spacing } from '@oxide/css-helpers'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -19,49 +18,15 @@ const Wrapper = styled.div`
     'logo globalnav'
     'sidebar content';
   height: 100vh;
-
-  background-color: ${color('gray800')};
 `
 
-const Sidebar = styled.div`
-  grid-area: sidebar;
-  margin-left: ${spacing(4)};
-  margin-right: ${spacing(4)};
-  margin-bottom: ${spacing(6)};
-  overflow: auto;
-`
+const Sidebar = tw.div`grid-area[sidebar] px-3 pb-6 overflow-auto bg-blue-gray-800`
 
-const WordmarkWrapper = styled.div`
-  align-items: center;
-  grid-area: logo;
-  display: flex;
-  height: ${spacing(14)};
-  padding-left: ${spacing(4)};
-`
+const WordmarkWrapper = tw.div`grid-area[logo] flex items-center h-14 pl-4 bg-blue-gray-800`
 
-const Content = styled.main`
-  grid-area: content;
-  overflow: auto;
-  padding: ${spacing(2, 6)};
+const Content = tw.main`grid-area[content] overflow-auto py-2 px-6`
 
-  background-color: ${color('gray900')};
-`
-
-const GlobalNavContainer = styled.header`
-  align-self: center;
-  grid-area: globalnav;
-  padding: ${spacing(4, 6)};
-
-  background-color: ${color('gray900')};
-`
-
-const StyledProjectList = styled(ProjectList)`
-  margin-top: ${spacing(1)};
-`
-
-const StyledOperationList = styled(OperationList)`
-  margin-top: ${spacing(6)};
-`
+const GlobalNavContainer = tw.header`grid-area[globalnav] py-4 px-6 self-center`
 
 export default ({ children }: AppLayoutProps) => {
   const { data: projects } = useApiQuery('apiProjectsGet', {})
@@ -75,8 +40,8 @@ export default ({ children }: AppLayoutProps) => {
       </WordmarkWrapper>
       <Sidebar>
         {/* TODO: this causes pop-in when the request comes back */}
-        <StyledProjectList projects={projects?.items || []} />
-        <StyledOperationList />
+        <ProjectList tw="mt-1" projects={projects?.items || []} />
+        <OperationList tw="mt-6" />
       </Sidebar>
       <GlobalNavContainer>
         <GlobalNav />
