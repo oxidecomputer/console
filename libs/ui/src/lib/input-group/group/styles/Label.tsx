@@ -1,5 +1,4 @@
 import { spacing } from '@oxide/css-helpers'
-import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
@@ -27,7 +26,7 @@ const LabelText = styled(Text)`
 
 type LabelProps = StyledComponentProps<
   'label',
-  Theme,
+  never,
   Pick<InputGroupProps, 'required'>,
   never
 >

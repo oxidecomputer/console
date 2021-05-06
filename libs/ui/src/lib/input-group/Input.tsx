@@ -1,5 +1,4 @@
 import { color, spacing } from '@oxide/css-helpers'
-import type { Theme } from '@oxide/theme'
 import type { FC } from 'react'
 import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
@@ -26,7 +25,7 @@ const StyledInput = styled.input`
 
 export type InputProps = StyledComponentProps<
   'input',
-  Theme,
+  never,
   {
     error?: boolean
     errorId?: string

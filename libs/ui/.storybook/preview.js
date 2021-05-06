@@ -2,8 +2,8 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
-import { ThemeProvider, createGlobalStyle } from 'styled-components'
-import { defaultTheme, GlobalStyle } from '@oxide/theme'
+import { createGlobalStyle } from 'styled-components'
+import { GlobalStyle } from '@oxide/theme'
 import { breakpoints, colorPalette } from '@oxide/css-helpers'
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
@@ -62,11 +62,9 @@ export const parameters = {
     // Default background does not apply to docs
     container: ({ children, context }) => (
       <DocsContainer context={context}>
-        <ThemeProvider theme={defaultTheme}>
-          <GlobalStyle />
-          <DocsStyleOverrides />
-          <Router>{children}</Router>
-        </ThemeProvider>
+        <GlobalStyle />
+        <DocsStyleOverrides />
+        <Router>{children}</Router>
       </DocsContainer>
     ),
     theme: darkUI,
@@ -93,11 +91,11 @@ export const parameters = {
 
 export const decorators = [
   (Story) => (
-    <ThemeProvider theme={defaultTheme}>
+    <>
       <GlobalStyle />
       <Router>
         <Story />
       </Router>
-    </ThemeProvider>
+    </>
   ),
 ]

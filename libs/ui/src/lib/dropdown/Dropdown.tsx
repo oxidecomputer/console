@@ -6,7 +6,6 @@ import styled, { css } from 'styled-components'
 import { useSelect } from 'downshift'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { Text } from '../text/Text'
 import { color, spacing, visuallyHidden } from '@oxide/css-helpers'
@@ -52,7 +51,7 @@ const Label = styled(Text).attrs({
 
 type ButtonProps = StyledComponentProps<
   'button',
-  Theme,
+  never,
   { hasPlaceholder: boolean },
   never
 >
