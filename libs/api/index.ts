@@ -26,11 +26,16 @@ export interface ApiError {
     request_id: string
     error_code: string | null
     message: string
-  }
+  } | null
 }
 
-const parseJsonAndRethrow = async (error: Response) =>
-  Promise.reject({ raw: error, data: await error.json() })
+// we need to rethrow so react-query knows the request in question is a
+// failure and uses the result to populate `error` rather than `data`
+const parseJsonAndRethrow = async (error: Response): Promise<ApiError> =>
+  error
+    .json()
+    .catch(() => null) // if json parse fails, data is null
+    .then((data) => Promise.reject({ raw: error, data }))
 
 const getUseApiQuery = <A extends ApiClient<A>>(api: A) => <
   M extends keyof ApiClient<A>

@@ -14,6 +14,6 @@ export const getServerError = (
   codeMap: Record<string, string> = {}
 ) => {
   if (!error) return null
-  const code = error.data.error_code
-  return (code && codeMap[code]) || getServerParseError(error.data.message)
+  const code = error.data?.error_code
+  return (code && codeMap[code]) || getServerParseError(error.data?.message)
 }
