@@ -7,6 +7,7 @@ import { useApiQuery } from '@oxide/api'
 import { Button, Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useBreadcrumbs } from '../../hooks'
+import { timeAgoAbbr } from '../../util/date'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -55,9 +56,12 @@ const InstancesPage = () => {
             runState: (
               <span>
                 <StatusBadge tw="mr-2" status={i.runState} />
-                <span tw="text-xs">
-                  {i.timeRunStateUpdated.toLocaleString()}
-                </span>
+                <abbr
+                  tw="text-xs no-underline!"
+                  title={i.timeRunStateUpdated.toLocaleString()}
+                >
+                  {timeAgoAbbr(i.timeRunStateUpdated)}
+                </abbr>
               </span>
             ),
             created: i.timeCreated.toLocaleString(),
