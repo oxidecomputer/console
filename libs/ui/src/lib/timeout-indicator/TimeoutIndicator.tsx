@@ -1,5 +1,6 @@
 import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
+import { useRef } from 'react'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
@@ -53,6 +54,7 @@ const calcTimeFraction = (passed: number, total: number) => {
   const rawTimeFraction = timeLeft / total
   return rawTimeFraction - (1 / total) * (1 - rawTimeFraction)
 }
+
 export interface TimeoutIndicatorProps {
   timeout: number
   onTimeoutEnd: () => void
@@ -67,13 +69,16 @@ export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
   const [strokeDasharray, setStrokeDasharray] = useState<number | null>(null)
   const [timePassed, setTimePassed] = useState(0)
 
+  const timer = useRef<NodeJS.Timeout | null>(null)
+
   useEffect(() => {
-    const timer = setInterval(() => {
+    timer.current = setInterval(() => {
       setTimePassed((t) => t + 1)
     }, 1000)
 
     return () => {
-      clearInterval(timer)
+      timer.current && clearInterval(timer.current)
+      timer.current = null
     }
   }, [])
 
@@ -84,8 +89,10 @@ export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
   }, [timePassed, timeout])
 
   useEffect(() => {
-    if (timePassed >= timeout) {
+    if (timePassed >= timeout && timer.current !== null) {
       onTimeoutEnd()
+      timer.current && clearInterval(timer.current)
+      timer.current = null
     }
   }, [onTimeoutEnd, timePassed, timeout])
 
