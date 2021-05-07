@@ -115,7 +115,7 @@ export const Toast: FC<ToastProps> = ({
         }}
       >
         {timeout !== undefined ? (
-          <TimeoutIndicator timeout={5} onTimeoutEnd={onClose}>
+          <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <Icon name="close" color="gray300" />
           </TimeoutIndicator>
         ) : (

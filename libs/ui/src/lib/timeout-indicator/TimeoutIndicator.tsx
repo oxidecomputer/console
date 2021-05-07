@@ -1,6 +1,6 @@
 import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 const TimerContainer = styled.div`
@@ -45,6 +45,14 @@ const TimerPathRemaining = styled.path`
   stroke: white;
 `
 
+// Caculated from radius of circle: 2πr, r = 45 (see `r` on `TimerPathElapsed`)
+const FULL_DASH_ARRAY = 283
+
+const calcTimeFraction = (passed: number, total: number) => {
+  const timeLeft = total - passed
+  const rawTimeFraction = timeLeft / total
+  return rawTimeFraction - (1 / total) * (1 - rawTimeFraction)
+}
 export interface TimeoutIndicatorProps {
   timeout: number
   onTimeoutEnd: () => void
@@ -59,38 +67,24 @@ export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
   const [strokeDasharray, setStrokeDasharray] = useState<number | null>(null)
   const [timePassed, setTimePassed] = useState(0)
 
-  const timerRef = useRef<NodeJS.Timeout>()
-
-  const calcTimeFraction = useCallback(
-    (passed: number) => {
-      const timeLeft = timeout - passed
-      const rawTimeFraction = timeLeft / timeout
-      return rawTimeFraction - (1 / timeout) * (1 - rawTimeFraction)
-    },
-    [timeout]
-  )
-
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimePassed((t) => {
-        const t_ = t + 1
-
-        setStrokeDasharray(Math.max(calcTimeFraction(t_) * 283, 0))
-
-        return t_
-      })
+    const timer = setInterval(() => {
+      setTimePassed((t) => t + 1)
     }, 1000)
 
     return () => {
-      timerRef.current && clearInterval(timerRef.current)
+      clearInterval(timer)
     }
-  }, [calcTimeFraction, onTimeoutEnd, timeout])
+  }, [])
+
+  useEffect(() => {
+    setStrokeDasharray(
+      Math.max(calcTimeFraction(timePassed, timeout) * FULL_DASH_ARRAY, 0)
+    )
+  }, [timePassed, timeout])
 
   useEffect(() => {
     if (timePassed >= timeout) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
       onTimeoutEnd()
     }
   }, [onTimeoutEnd, timePassed, timeout])
@@ -103,7 +97,7 @@ export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
           <TimerPathRemaining
             strokeDasharray={`${
               strokeDasharray !== null ? strokeDasharray.toFixed(0) : ''
-            } 283`}
+            } ${FULL_DASH_ARRAY}`}
             d="
             M 50, 50
             m -45, 0 
