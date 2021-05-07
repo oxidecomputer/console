@@ -16,6 +16,7 @@ const ToastTestPage: FC = () => {
   const [counter, incrementCounter] = useCounter(1)
 
   const [defaultCloseCounter, incrementDefaultCloseCounter] = useCounter(0)
+  const [shouldHaveTimeout, setShouldHaveTimout] = useState(false)
 
   const [actionCloseCounter, incrementActionCloseCounter] = useCounter(0)
   const [actionActionCounter, incrementActionActionCounter] = useCounter(0)
@@ -35,6 +36,8 @@ const ToastTestPage: FC = () => {
     addToast({
       title: `Default Toast #${counter}`,
       onClose: incrementDefaultCloseCounter,
+
+      timeout: shouldHaveTimeout ? 5 : undefined,
     })
   }
 
@@ -78,6 +81,15 @@ const ToastTestPage: FC = () => {
           </Text>
         </h2>
         <div>Toast Closed: {defaultCloseCounter} times</div>
+        <br />
+        <label>
+          Should have timeout?
+          <input
+            checked={shouldHaveTimeout}
+            onChange={(e) => setShouldHaveTimout(e.target.checked)}
+            type="checkbox"
+          />
+        </label>
         <br />
         <Button onClick={handleDefaultToast}>Trigger Default Toast</Button>
       </section>
