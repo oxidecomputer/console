@@ -49,6 +49,32 @@ const TimerPathRemaining = styled.path`
 // Caculated from radius of circle: 2πr, r = 45 (see `r` on `TimerPathElapsed`)
 const FULL_DASH_ARRAY = 283
 
+const useTimeout = (timeout: number, onDone: () => void) => {
+  const timer = useRef<NodeJS.Timeout | null>(null)
+  const [time, setTime] = useState(0)
+
+  useEffect(() => {
+    timer.current = setInterval(() => {
+      setTime((t) => t + 1)
+    }, 1000)
+
+    return () => {
+      timer.current && clearInterval(timer.current)
+      timer.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (time >= timeout && timer.current !== null) {
+      onDone()
+      clearInterval(timer.current)
+      timer.current = null
+    }
+  }, [onDone, time, timeout])
+
+  return time
+}
+
 const calcTimeFraction = (passed: number, total: number) => {
   const timeLeft = total - passed
   const rawTimeFraction = timeLeft / total
@@ -67,34 +93,13 @@ export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
   children,
 }) => {
   const [strokeDasharray, setStrokeDasharray] = useState<number | null>(null)
-  const [timePassed, setTimePassed] = useState(0)
-
-  const timer = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    timer.current = setInterval(() => {
-      setTimePassed((t) => t + 1)
-    }, 1000)
-
-    return () => {
-      timer.current && clearInterval(timer.current)
-      timer.current = null
-    }
-  }, [])
+  const timePassed = useTimeout(timeout, onTimeoutEnd)
 
   useEffect(() => {
     setStrokeDasharray(
       Math.max(calcTimeFraction(timePassed, timeout) * FULL_DASH_ARRAY, 0)
     )
   }, [timePassed, timeout])
-
-  useEffect(() => {
-    if (timePassed >= timeout && timer.current !== null) {
-      onTimeoutEnd()
-      timer.current && clearInterval(timer.current)
-      timer.current = null
-    }
-  }, [onTimeoutEnd, timePassed, timeout])
 
   return (
     <TimerContainer>
