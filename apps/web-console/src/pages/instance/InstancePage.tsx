@@ -96,7 +96,7 @@ const InstancePage = () => {
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>{instance.name}</Title>
+        <Title>{instance.name} [DEPLOY TEST]</Title>
         <Actions>
           <InstanceAction>
             <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
