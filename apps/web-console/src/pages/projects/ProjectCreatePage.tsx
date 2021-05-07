@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { useHistory } from 'react-router-dom'
 
 import {
