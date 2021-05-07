@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from 'styled-components'
 import { ActionToast, ConfirmToast, Toast } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import tw from 'twin.macro'
 
 const Container = styled(TransitionGroup)`
   position: fixed;
@@ -16,6 +17,8 @@ const Container = styled(TransitionGroup)`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+
+  ${tw`space-y-2`}
 `
 
 export const ToastAnimations = createGlobalStyle`
@@ -49,18 +52,19 @@ interface ToastStackProps {
 }
 
 export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
-  <Container tw="space-between-x-2">
+  <Container>
     {toasts.map((toast) => (
       <CSSTransition key={toast.id} timeout={600} classNames="toast">
         {() => {
-          switch (toast.type) {
+          const { options } = toast
+          switch (options.type) {
             case 'default':
               return (
                 <Toast
-                  {...toast.options}
+                  {...options}
                   onClose={() => {
                     onRemoveToast(toast.id)
-                    toast.options.onClose && toast.options.onClose()
+                    options.onClose && options.onClose()
                   }}
                 />
               )
@@ -68,14 +72,14 @@ export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
             case 'action':
               return (
                 <ActionToast
-                  {...toast.options}
+                  {...options}
                   onAction={() => {
                     onRemoveToast(toast.id)
-                    toast.options.onAction()
+                    options.onAction()
                   }}
                   onClose={() => {
                     onRemoveToast(toast.id)
-                    toast.options.onClose && toast.options.onClose()
+                    options.onClose && options.onClose()
                   }}
                 />
               )
@@ -83,14 +87,14 @@ export const ToastStack: FC<ToastStackProps> = ({ toasts, onRemoveToast }) => (
             case 'confirm':
               return (
                 <ConfirmToast
-                  {...toast.options}
+                  {...options}
                   onConfirm={() => {
                     onRemoveToast(toast.id)
-                    toast.options.onConfirm()
+                    options.onConfirm()
                   }}
                   onCancel={() => {
                     onRemoveToast(toast.id)
-                    toast.options.onCancel()
+                    options.onCancel()
                   }}
                   onClose={() => {
                     onRemoveToast(toast.id)

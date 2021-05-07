@@ -11,7 +11,7 @@ const useCounter = (initialValue: number): [number, () => void] => {
 }
 
 const ToastTestPage: FC = () => {
-  const { addToast, addActionToast, addConfirmToast } = useToast()
+  const { addToast } = useToast()
 
   const [counter, incrementCounter] = useCounter(1)
 
@@ -34,6 +34,8 @@ const ToastTestPage: FC = () => {
     incrementCounter()
 
     addToast({
+      type: 'default',
+
       title: `Default Toast #${counter}`,
       onClose: incrementDefaultCloseCounter,
 
@@ -44,7 +46,9 @@ const ToastTestPage: FC = () => {
   const handleActionToast = () => {
     incrementCounter()
 
-    addActionToast({
+    addToast({
+      type: 'action',
+
       title: `Action Toast #${counter}`,
       content: 'This is some test content',
       icon: 'checkO',
@@ -59,7 +63,9 @@ const ToastTestPage: FC = () => {
   const handleConfirmToast = () => {
     incrementCounter()
 
-    addConfirmToast({
+    addToast({
+      type: 'confirm',
+
       title: `Confirm Toast #${counter}`,
       content: 'Are you sure you want to do this?',
       icon: 'warning',

@@ -1,9 +1,4 @@
-import type {
-  ActionToastOptions,
-  ConfirmToastOptions,
-  DefaultToastOptions,
-  Toast,
-} from '../types'
+import type { Toast, ToastOptions } from '../types'
 import { v4 as uuid } from 'uuid'
 
 // STATE
@@ -12,19 +7,9 @@ type ToastState = Toast[]
 
 // ACTIONS
 
-interface AddDefaultToastAction {
-  type: 'add_default_toast'
-  options: DefaultToastOptions
-}
-
-interface AddActionToastAction {
-  type: 'add_action_toast'
-  options: ActionToastOptions
-}
-
-interface AddConfirmToastAction {
-  type: 'add_confirm_toast'
-  options: ConfirmToastOptions
+interface AddToastAction {
+  type: 'add_toast'
+  options: ToastOptions
 }
 
 interface RemoveToastAction {
@@ -32,28 +17,14 @@ interface RemoveToastAction {
   id: string
 }
 
-type Actions =
-  | AddDefaultToastAction
-  | AddActionToastAction
-  | AddConfirmToastAction
-  | RemoveToastAction
+type Actions = AddToastAction | RemoveToastAction
 
 // HELPERS
 
-const createToast = (
-  action: AddDefaultToastAction | AddActionToastAction | AddConfirmToastAction
-): Toast => {
-  switch (action.type) {
-    case 'add_default_toast':
-      return { id: uuid(), type: 'default', options: action.options }
-
-    case 'add_action_toast':
-      return { id: uuid(), type: 'action', options: action.options }
-
-    case 'add_confirm_toast':
-      return { id: uuid(), type: 'confirm', options: action.options }
-  }
-}
+const createToast = (options: ToastOptions): Toast => ({
+  id: uuid(),
+  options,
+})
 
 const appendToast = (toastState: ToastState, toast: Toast): ToastState => [
   ...toastState,
@@ -70,10 +41,8 @@ export const toastReducer = (
   action: Actions
 ): ToastState => {
   switch (action.type) {
-    case 'add_default_toast':
-    case 'add_action_toast':
-    case 'add_confirm_toast':
-      return appendToast(state, createToast(action))
+    case 'add_toast':
+      return appendToast(state, createToast(action.options))
 
     case 'remove_toast':
       return removeToast(state, action.id)

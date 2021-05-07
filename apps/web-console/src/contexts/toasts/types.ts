@@ -1,24 +1,21 @@
 import type { ActionToastProps, ConfirmToastProps, ToastProps } from '@oxide/ui'
 
-export type Toast = DefaultToast | ActionToast | ConfirmToast
+export type ToastOptions = DefaultOptions | ActionOptions | ConfirmOptions
 
-export type DefaultToastOptions = Optional<ToastProps, 'onClose'>
-export interface DefaultToast {
-  id: string
-  type: 'default'
-  options: DefaultToastOptions
-}
+export type DefaultOptions = { type: 'default' } & Optional<
+  ToastProps,
+  'onClose'
+>
+export type ActionOptions = { type: 'action' } & Optional<
+  ActionToastProps,
+  'onClose'
+>
+export type ConfirmOptions = { type: 'confirm' } & Omit<
+  ConfirmToastProps,
+  'onClose'
+>
 
-export type ActionToastOptions = Optional<ActionToastProps, 'onClose'>
-export interface ActionToast {
+export interface Toast {
   id: string
-  type: 'action'
-  options: ActionToastOptions
-}
-
-export type ConfirmToastOptions = Omit<ConfirmToastProps, 'onClose'>
-export interface ConfirmToast {
-  id: string
-  type: 'confirm'
-  options: ConfirmToastOptions
+  options: ToastOptions
 }
