@@ -1,6 +1,7 @@
 export * from './global-styles'
 
 export * from './lib/avatar/Avatar'
+export * from './lib/badge/Badge'
 export * from './lib/breadcrumbs/Breadcrumbs'
 export * from './lib/button/Button'
 export * from './lib/card/Card'
