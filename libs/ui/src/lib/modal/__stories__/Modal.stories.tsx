@@ -3,7 +3,7 @@ import type { DecoratorFn, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import type { AlertModalProps, ConfirmModalProps } from '../Modal'
 import { AlertModal, ConfirmModal } from '../Modal'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 const ModalContainer = styled.div`
   display: flex;

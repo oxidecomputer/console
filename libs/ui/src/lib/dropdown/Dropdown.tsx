@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import React from 'react'
 
 import type { StyledComponentProps } from 'styled-components'
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import { useSelect } from 'downshift'
 import { AnimatePresence, motion } from 'framer-motion'
 

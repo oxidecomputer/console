@@ -1,7 +1,7 @@
 import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import Icon from '../../../icon/Icon'
 import { Tooltip } from '../../../tooltip/Tooltip'
 

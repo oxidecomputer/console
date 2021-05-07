@@ -3,7 +3,7 @@ import type { Color } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import Icon from '../icon/Icon'
 import type { TextSize } from '../text/Text'
 import Text from '../text/Text'

@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 const Wrapper = styled.div`
   position: fixed;

@@ -10,7 +10,7 @@
 A given file needs to have a `twin.macro` import for the `tw` attr to work (i.e., in order for the babel macro to kick in). When you make the following change:
 
 ```diff
-- import styled, { css } from 'styled-components'
+- import { css, styled } from 'twin.macro'
 + import { styled, css } from 'twin.macro'
 ```
 

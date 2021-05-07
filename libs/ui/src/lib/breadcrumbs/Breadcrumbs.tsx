@@ -1,7 +1,7 @@
 import { color, spacing } from '@oxide/css-helpers'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 import { Text } from '../text/Text'
 

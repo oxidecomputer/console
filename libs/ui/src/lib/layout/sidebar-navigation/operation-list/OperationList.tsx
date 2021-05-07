@@ -1,16 +1,11 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import tw, { css, styled } from 'twin.macro'
 
 import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import {
-  color,
-  spaceBetweenX,
-  spaceBetweenY,
-  spacing,
-} from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 const BaseText = styled(Text).attrs({ size: 'sm' })``
 
@@ -23,16 +18,7 @@ const HeaderText = styled(BaseText)`
   color: ${color('green500')};
 `
 
-const List = styled.ul`
-  display: flex;
-  flex-direction: column;
-
-  color: ${color('gray400')};
-  text-transform: uppercase;
-
-  ${spaceBetweenY(1)}
-  margin-top: ${spacing(1)};
-`
+const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
 const BaseLink = styled.a`
   color: ${color('gray400')};
@@ -43,10 +29,7 @@ const BaseLink = styled.a`
   }
 `
 
-const ListItemLink = styled(BaseLink)`
-  display: flex;
-  ${spaceBetweenX(2)}
-`
+const ListItemLink = tw(BaseLink)`flex space-x-2`
 
 const glyphWidth = '1rem'
 

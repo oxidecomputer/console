@@ -2,7 +2,7 @@ import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import type { StyledComponentProps } from 'styled-components'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import Text from '../../../text/Text'
 import type { InputGroupProps } from '../types'
 

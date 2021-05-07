@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { Text } from '../text/Text'
 import Sparkline from './sparkline.svg'
 import { color, spacing } from '@oxide/css-helpers'

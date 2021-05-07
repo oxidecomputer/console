@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import { usePopper } from 'react-popper'
 import { v4 as uuid } from 'uuid'
 

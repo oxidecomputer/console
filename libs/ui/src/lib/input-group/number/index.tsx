@@ -4,7 +4,7 @@ import type { InputGroupProps } from '../group'
 import { InputGroup } from '../group'
 import { Input } from '../Input'
 import { Controls } from './Controls'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 const StyledInput = styled(Input)`
   appearance: textfield;
