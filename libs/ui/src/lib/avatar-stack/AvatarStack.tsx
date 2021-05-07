@@ -2,7 +2,7 @@ import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import type { AvatarSize, AvatarProps } from '../avatar/Avatar'
 import { Avatar } from '../avatar/Avatar'
 

@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import type { Color } from '@oxide/css-helpers'
 import { color as getColor } from '@oxide/css-helpers'
 import type { IconComponentProps } from './IconComponent'

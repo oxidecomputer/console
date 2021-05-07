@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import type { StyledComponentProps } from 'styled-components'
 import { Icon } from '../icon/Icon'
 import { color, spacing } from '@oxide/css-helpers'

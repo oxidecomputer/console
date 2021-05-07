@@ -2,7 +2,7 @@ import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 import EmptyStateLeft from '../../../assets/empty-state-left.svg'
 import EmptyStateRight from '../../../assets/empty-state-right.svg'

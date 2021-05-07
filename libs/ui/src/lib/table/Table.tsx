@@ -1,7 +1,7 @@
 import React, { createContext, forwardRef, useContext } from 'react'
 import type { FC, ReactNode } from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { spacing, color } from '@oxide/css-helpers'

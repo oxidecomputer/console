@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'

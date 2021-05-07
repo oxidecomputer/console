@@ -1,5 +1,5 @@
 import { color } from '@oxide/css-helpers'
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import type { InputGroupProps } from '../types'
 
 export * from './Label'

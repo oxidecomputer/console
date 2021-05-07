@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 import { Button, Table, Icon, Text } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'

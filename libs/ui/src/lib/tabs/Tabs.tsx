@@ -2,7 +2,7 @@ import { spacing, color } from '@oxide/css-helpers'
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
