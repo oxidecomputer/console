@@ -10,6 +10,7 @@ import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { color, spacing } from '@oxide/css-helpers'
 
 export interface ProjectListProps {
+  className?: string
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
 }
@@ -66,7 +67,7 @@ const CreateText = styled(TextWithIcon).attrs({
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
-    <section tw="space-y-1">
+    <section tw="space-y-1" className={props.className}>
       <header tw="p-1 space-x-2 uppercase text-sm">
         <span tw="text-green-500">Projects</span>
         <span tw="text-green-300">{props.projects.length}</span>
