@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { useHistory } from 'react-router-dom'
 
 import {
@@ -14,7 +14,7 @@ import {
 import { useBreadcrumbs } from '../../hooks'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Debug } from '../../components/Debug'
-import { spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -26,12 +26,6 @@ const Title = styled(TextWithIcon).attrs({
     font-size: ${spacing(8)};
     margin-right: ${spacing(3)};
   }
-`
-
-const Form = styled.form`
-  margin-top: ${spacing(4)};
-  margin-bottom: ${spacing(20)};
-  ${spaceBetweenY(8)}
 `
 
 const ProjectCreatePage = () => {
@@ -74,7 +68,7 @@ const ProjectCreatePage = () => {
       <PageHeader>
         <Title>Create Project</Title>
       </PageHeader>
-      <Form action="#" onSubmit={handleSubmit}>
+      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <TextInputGroup
           id="project-name"
           label="Choose a name"
@@ -95,7 +89,7 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
-      </Form>
+      </form>
     </>
   )
 }

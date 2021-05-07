@@ -1,7 +1,7 @@
-import { color, marginY, shadow, spacing } from '@oxide/css-helpers'
+import { color, shadow, spacing } from '@oxide/css-helpers'
 import type { ShadowVariant } from '@oxide/css-helpers'
 import React from 'react'
-import { styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import Text from '../text/Text'
 
 const Wrapper = styled.div`
@@ -16,8 +16,7 @@ const ShadowBox = styled.div<{ shadow?: ShadowVariant }>`
   border: 1px solid ${color('gray600')};
   border-radius: 1em;
 
-  padding: ${spacing(4)};
-  ${marginY(4)};
+  ${tw`p-4 my-4`};
 
   ${({ shadow: value }) => shadow(value)};
 `
