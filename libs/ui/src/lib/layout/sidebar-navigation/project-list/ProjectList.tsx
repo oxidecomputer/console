@@ -5,7 +5,6 @@ import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
 
-import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { color, spacing } from '@oxide/css-helpers'
 
@@ -74,9 +73,9 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
       </header>
       <List>
         {props.projects.map((p) => (
-          <ListItem key={p.id} tabIndex={0}>
+          <ListItem tw="text-xs" key={p.id} tabIndex={0}>
             <StyledLink to={`/projects/${p.name}`} activeStyle={activeLink}>
-              <Text size="xs">{p.name}</Text>
+              {p.name}
             </StyledLink>
           </ListItem>
         ))}

@@ -3,20 +3,15 @@ import React from 'react'
 
 import tw, { css, styled } from 'twin.macro'
 
-import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { color, spacing } from '@oxide/css-helpers'
-
-const BaseText = styled(Text).attrs({ size: 'sm' })``
 
 const Header = styled.header`
   padding: ${spacing(1)};
   text-transform: uppercase;
 `
 
-const HeaderText = styled(BaseText)`
-  color: ${color('green500')};
-`
+const HeaderText = tw.span`text-sm text-green-500`
 
 const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
@@ -63,15 +58,7 @@ const TitleWithIcon = styled(TextWithIcon).attrs({
     `}
 `
 
-const SubItemTitle = styled(BaseText).attrs({
-  size: 'xxs',
-})<{ selected?: boolean }>`
-  ${({ selected }) =>
-    selected &&
-    css`
-      color: ${color('gray50')};
-    `}
-`
+const SubItemTitle = tw.span`text-xxs`
 
 export interface OperationListProps {
   className?: string
@@ -92,7 +79,7 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
 
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'resources' }} selected={true}>
+            <TitleWithIcon icon={{ name: 'resources' }}>
               Resources
             </TitleWithIcon>
           </ListItemLink>
@@ -109,7 +96,7 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
             </ListSubItem>
             <ListSubItem>
               <SubItemLink href="#">
-                <SubItemTitle selected={true}>Images</SubItemTitle>
+                <SubItemTitle>Images</SubItemTitle>
               </SubItemLink>
             </ListSubItem>
             <ListSubItem>
