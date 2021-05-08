@@ -1,13 +1,12 @@
 import type { FC } from 'react'
 import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import { usePopper } from 'react-popper'
 import { v4 as uuid } from 'uuid'
 
-import { Text } from '../text/Text'
 import { KEYS } from '../keys-utils'
-import { spacing, color } from '@oxide/css-helpers'
+import { color } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'definition'
 export interface TooltipProps {
@@ -72,15 +71,7 @@ const TooltipContainer = styled.div<{ isOpen: boolean }>`
   }
 `
 
-const TooltipContent = styled(Text).attrs({
-  as: 'div',
-  size: 'sm',
-})`
-  padding: ${spacing(1, 2)};
-
-  background-color: ${color('gray800')};
-  color: ${color('white')};
-`
+const TooltipContent = tw.div`text-sm py-1 px-2 bg-gray-800 text-white`
 
 export const Tooltip: FC<TooltipProps> = ({
   children,

@@ -1,14 +1,9 @@
-import { spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
-import { styled } from 'twin.macro'
-import Text from '../../../text/Text'
+import 'twin.macro'
 
-const ErrorContainer = styled.div`
-  margin-top: ${spacing(2)};
-`
 export const ErrorMessage: FC<{ id: string }> = ({ id, children }) => (
-  <ErrorContainer id={id}>
-    <Text size="xs">{children}</Text>
-  </ErrorContainer>
+  <div id={id} tw="mt-2">
+    <span tw="text-xs">{children}</span>
+  </div>
 )

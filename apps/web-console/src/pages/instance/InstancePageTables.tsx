@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 
-import { Button, Table, Icon, Text } from '@oxide/ui'
+import { Button, Table, Icon } from '@oxide/ui'
 import { spacing } from '@oxide/css-helpers'
 
 const TableWrapper = styled.div`
@@ -10,14 +10,7 @@ const TableWrapper = styled.div`
   margin-top: ${spacing(3)};
 `
 
-const StyledTable = styled(Table)``
-
-const StyledText = styled(Text).attrs({
-  color: 'gray50',
-  as: 'div',
-})`
-  margin-top: ${spacing(8)};
-`
+const StyledText = tw.div`text-gray-50 mt-8`
 
 const StyledButton = styled(Button).attrs({
   size: 'sm',
@@ -112,14 +105,12 @@ export const InstancePageTables = ({
     return {
       name: (
         <>
-          <Text size="sm">{entry.name}</Text>
-          <Text size="xxs" color="gray400">
-            {entry.image}
-          </Text>
+          <span tw="text-sm">{entry.name}</span>
+          <span tw="text-xxs text-gray-400">{entry.image}</span>
         </>
       ),
       size: entry.size,
-      mode: <Text size="sm">{entry.mode}</Text>,
+      mode: <span tw="text-sm">{entry.mode}</span>,
       actions: (
         <StyledButton>
           <Icon name="more" />
@@ -131,14 +122,12 @@ export const InstancePageTables = ({
     return {
       name: (
         <>
-          <Text size="sm">{entry.name}</Text>
-          <Text size="xxs" color="gray400">
-            {entry.version}
-          </Text>
+          <span tw="text-sm">{entry.name}</span>
+          <span tw="text-xxs text-gray-400">{entry.version}</span>
         </>
       ),
       upstream: entry.upstream,
-      cve: <Text size="sm">{entry.cve}</Text>,
+      cve: <span tw="text-sm">{entry.cve}</span>,
       actions: (
         <StyledButton>
           <Icon name="more" />
@@ -150,7 +139,7 @@ export const InstancePageTables = ({
     <>
       <StyledText>Attached Disks</StyledText>
       <TableWrapper>
-        <StyledTable
+        <Table
           itemSize={() => 44}
           columns={[
             { Header: 'Name/Image', accessor: 'name', arrange: 'fill' },
@@ -163,7 +152,7 @@ export const InstancePageTables = ({
       </TableWrapper>
       <StyledText>Package Updates</StyledText>
       <TableWrapper>
-        <StyledTable
+        <Table
           itemSize={() => 44}
           columns={[
             { Header: 'Name/Version', accessor: 'name', arrange: 'fill' },
