@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 set -o pipefail
+set -x
 
 # Install tailscale at machine start, there is something they are saving on the
 # host that makes everything think its the same machine.
@@ -64,3 +65,4 @@ oxapi_demo instance_attach_disk prod-online db1 vault
 
 echo "\n==== API DATA POPULATED ====\n"
 
+set +x
