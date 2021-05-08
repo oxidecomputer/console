@@ -2,126 +2,56 @@ import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
-import { styled } from 'twin.macro'
-import { Text } from '../text/Text'
+import tw, { theme } from 'twin.macro'
 import Sparkline from './sparkline.svg'
-import { color, spacing } from '@oxide/css-helpers'
 
 export interface CardProps {
   title: string
   subtitle: string
 }
 
-const StyledCard = styled.article``
+const DataTable = tw.div`grid grid-cols-2 grid-rows-2 gap-x-6 text-sm uppercase`
 
-const Main = styled.main`
-  padding: ${spacing(4)};
-  background: ${color('green800', 0.24)};
-`
-
-const Title = styled(Text).attrs({
-  as: 'div',
-  color: 'green500',
-  size: 'lg',
-})`
-  text-transform: uppercase;
-`
-
-const Subtitle = styled(Text).attrs({
-  as: 'div',
-  color: 'green500',
-  size: 'sm',
-})``
-
-const Data = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  margin-top: ${spacing(6)};
-  margin-bottom: ${spacing(16)};
-`
-
-const DataTable = styled.div`
-  flex: 0 0 auto;
-
-  display: grid;
-  grid-template: 1fr 1fr / 1fr 1fr;
-  column-gap: ${spacing(6)};
-`
-
-const DataHeader = styled(Text).attrs({
-  color: 'green500',
-  size: 'sm',
-  role: 'columnheader',
-})`
-  text-transform: uppercase;
-`
-
-const MainDataValue = styled(Text).attrs({
-  color: 'gray50',
-  size: 'xl',
-  role: 'cell',
-})`
-  align-self: baseline;
-`
-
-const SecondaryDataValue = styled(MainDataValue).attrs({
-  size: 'sm',
-})``
-
-const Chart = styled.section`
-  flex: 1;
-  align-self: flex-end;
-`
-
-const Footer = styled.footer`
-  background: ${color('green800', 0.16)};
-  padding: ${spacing(2)} ${spacing(4)};
-  display: flex;
-  flex-direction: row;
-  justify-content: baseline;
-`
-
-const FooterText = styled(Text).attrs({
-  as: 'div',
-  color: 'green500',
-  size: 'xs',
-})`
-  margin-right: ${spacing(2)};
-`
+const dataValue = tw`text-gray-50 align-self[baseline]`
 
 export const Card: FC<CardProps> = (props) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <StyledCard>
-      <Main>
-        <Title>{props.title}</Title>
-        <Subtitle>{props.subtitle}</Subtitle>
-        <Data>
+    <article tw="text-green-500">
+      <main tw="p-4 bg-dark-green-800">
+        <div tw="text-lg uppercase">{props.title}</div>
+        <div tw="text-sm">{props.subtitle}</div>
+        <div tw="flex mt-6 mb-16">
           <DataTable
             role="table"
             aria-label={props.title}
             aria-describedby={tableId}
           >
-            <DataHeader id={tableId}>Heading</DataHeader>
-            <DataHeader>Data</DataHeader>
-            <MainDataValue>3</MainDataValue>
-            <SecondaryDataValue>3%</SecondaryDataValue>
+            <span id={tableId} role="columnheader">
+              Heading
+            </span>
+            <span role="columnheader">Data</span>
+            <div role="cell" css={dataValue} tw="text-xl">
+              3
+            </div>
+            <div role="cell" css={dataValue}>
+              3%
+            </div>
           </DataTable>
-          <Chart>
+          <section tw="self-end">
             <Sparkline
               style={{
-                stroke: '#48D597',
+                stroke: theme`colors.green.500`,
                 strokeOpacity: 0.8,
               }}
             />
-          </Chart>
-        </Data>
-      </Main>
-      <Footer>
-        <FooterText>Optional link</FooterText>
-      </Footer>
-    </StyledCard>
+          </section>
+        </div>
+      </main>
+      <footer tw="flex text-xs py-2 px-4 bg-dark-green-900 items-baseline">
+        Optional link
+      </footer>
+    </article>
   )
 }
