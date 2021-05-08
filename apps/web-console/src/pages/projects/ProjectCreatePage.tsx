@@ -12,7 +12,7 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
@@ -26,12 +26,6 @@ const Title = styled(TextWithIcon).attrs({
     font-size: ${spacing(8)};
     margin-right: ${spacing(3)};
   }
-`
-
-const Form = styled.form`
-  margin-top: ${spacing(4)};
-  margin-bottom: ${spacing(20)};
-  ${spaceBetweenY(8)}
 `
 
 const ERROR_CODES = {
@@ -78,7 +72,7 @@ const ProjectCreatePage = () => {
       <PageHeader>
         <Title>Create Project</Title>
       </PageHeader>
-      <Form action="#" onSubmit={handleSubmit}>
+      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <TextInputGroup
           id="project-name"
           label="Choose a name"
@@ -102,7 +96,7 @@ const ProjectCreatePage = () => {
         <div tw="text-red-500">
           {getServerError(createProject.error, ERROR_CODES)}
         </div>
-      </Form>
+      </form>
     </>
   )
 }

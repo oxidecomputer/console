@@ -1,51 +1,18 @@
 import type { FC } from 'react'
 import React from 'react'
-import styled, { css } from 'styled-components'
+import tw, { styled } from 'twin.macro'
 import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
 
-import { Text } from '../../../text/Text'
-import type { TextProps } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import {
-  color,
-  spaceBetweenX,
-  spaceBetweenY,
-  spacing,
-} from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 export interface ProjectListProps {
   className?: string
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
 }
-
-const baseTextProps: Partial<TextProps> = {
-  size: 'sm',
-}
-
-const StyledProjectList = styled.section`
-  ${spaceBetweenY(1)}
-`
-
-const rowStyles = css`
-  padding: ${spacing(1)};
-`
-
-const Header = styled.header`
-  ${rowStyles};
-  text-transform: uppercase;
-  ${spaceBetweenX(2)}
-`
-
-const HeaderText = styled(Text).attrs(baseTextProps)`
-  color: ${color('green500')};
-`
-
-const Count = styled(Text).attrs(baseTextProps)`
-  color: ${color('green300')};
-`
 
 const List = styled.ul`
   padding: 0;
@@ -55,16 +22,12 @@ const List = styled.ul`
   display: flex;
   flex-direction: column;
 
-  align-items: flex-start;
-  justify-content: center;
-
   text-transform: uppercase;
 
-  ${spaceBetweenY(1)}
+  ${tw`space-y-1`}
 `
 
 const ListItem = styled.li`
-  ${rowStyles};
   padding: 0;
   width: 100%;
 
@@ -85,14 +48,14 @@ const activeLink = {
 }
 
 const Create = styled.footer`
-  ${rowStyles};
+  padding: ${spacing(1)};
   display: flex;
   justify-content: flex-start;
   align-items: center;
 
   cursor: pointer;
 
-  ${spaceBetweenX(1)}
+  ${tw`space-x-1`}
 `
 
 const CreateText = styled(TextWithIcon).attrs({
@@ -103,16 +66,16 @@ const CreateText = styled(TextWithIcon).attrs({
 
 export const ProjectList: FC<ProjectListProps> = (props) => {
   return (
-    <StyledProjectList className={props.className}>
-      <Header>
-        <HeaderText>Projects</HeaderText>
-        <Count>{props.projects.length}</Count>
-      </Header>
+    <section tw="space-y-1" className={props.className}>
+      <header tw="p-1 space-x-2 uppercase text-sm">
+        <span tw="text-green-500">Projects</span>
+        <span tw="text-green-300">{props.projects.length}</span>
+      </header>
       <List>
         {props.projects.map((p) => (
-          <ListItem key={p.id} tabIndex={0}>
+          <ListItem tw="text-xs" key={p.id} tabIndex={0}>
             <StyledLink to={`/projects/${p.name}`} activeStyle={activeLink}>
-              <Text size="xs">{p.name}</Text>
+              {p.name}
             </StyledLink>
           </ListItem>
         ))}
@@ -122,6 +85,6 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
           <CreateText>Create a new project</CreateText>
         </Link>
       </Create>
-    </StyledProjectList>
+    </section>
   )
 }

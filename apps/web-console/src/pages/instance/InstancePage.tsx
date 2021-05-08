@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import tw, { styled } from 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
 
@@ -17,7 +17,7 @@ import {
 
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
-import { spaceBetweenX, spacing } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 
 const Wrapper = styled.div``
 
@@ -54,16 +54,10 @@ const StyledTabs = styled(Tabs)`
   margin-top: ${spacing(4)};
 `
 
-const CardList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  ${spaceBetweenX(4)}
-  margin: -${spacing(2)};
+const CardList = tw.div`flex flex-wrap space-x-4 -m-2`
 
-  > * {
-    margin: ${spacing(2)};
-  }
-`
+const StyledCard = tw(Card)`m-2`
+
 const OverviewPanel = styled.div``
 
 type Params = {
@@ -130,9 +124,9 @@ const InstancePage = () => {
         <OverviewPanel>
           <div>
             <CardList>
-              <Card title="Metrics" subtitle="Some status update" />
-              <Card title="Activity" subtitle="Some status update" />
-              <Card title="Access & IAM" subtitle="Some status update" />
+              <StyledCard title="Metrics" subtitle="Some status update" />
+              <StyledCard title="Activity" subtitle="Some status update" />
+              <StyledCard title="Access & IAM" subtitle="Some status update" />
             </CardList>
           </div>
           <InstancePageTables />

@@ -2,7 +2,6 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 import type { Color } from '@oxide/css-helpers'
 import { colorPalette, colorGroups, colorNames } from '@oxide/css-helpers'
-import Text from '../text/Text'
 import { color, spacing } from '@oxide/css-helpers'
 
 interface ColorProps {
@@ -23,7 +22,7 @@ const ColorVisualizer = styled.div<Pick<ColorProps, 'value'>>`
   margin-right: ${spacing(3)};
   border: 1px solid ${color('gray800')};
 `
-const ColorInfo = styled(Text).attrs({ as: 'code' })`
+const ColorInfo = styled.code`
   display: flex;
   :first-of-type {
     margin-bottom: ${spacing(3)};

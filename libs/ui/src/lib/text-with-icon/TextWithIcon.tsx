@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 
 import { Text } from '../text/Text'
 import type { TextProps } from '../text/Text'

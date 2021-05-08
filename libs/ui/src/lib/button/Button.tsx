@@ -1,9 +1,8 @@
 import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 import type { StyledComponentProps } from 'styled-components'
-import type { Theme } from '@oxide/theme'
 import { Icon } from '../icon/Icon'
 import { color, spacing } from '@oxide/css-helpers'
 
@@ -36,7 +35,7 @@ const sizes: Record<
 
 export type ButtonProps = StyledComponentProps<
   'button',
-  Theme,
+  never,
   {
     /**
      * Should button take up the full width

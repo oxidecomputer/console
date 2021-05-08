@@ -1,45 +1,11 @@
-import { spacing } from '@oxide/css-helpers'
-import type { Theme } from '@oxide/theme'
-import type { FC } from 'react'
 import React from 'react'
-import type { StyledComponentProps } from 'styled-components'
-import styled from 'styled-components'
-import Text from '../../../text/Text'
-import type { InputGroupProps } from '../types'
+import 'twin.macro'
 
-const LabelContainer = styled.label`
-  flex: 0 0 auto;
+type LabelProps = React.ComponentProps<'label'> & { required?: boolean }
 
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-
-  padding-bottom: ${spacing(1)};
-`
-
-const LabelText = styled(Text)`
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-`
-
-type LabelProps = StyledComponentProps<
-  'label',
-  Theme,
-  Pick<InputGroupProps, 'required'>,
-  never
->
-export const Label: FC<LabelProps> = ({
-  required,
-  children,
-  ...labelProps
-}) => (
-  <LabelContainer {...labelProps}>
-    <LabelText weight={500} size="base">
-      {children}
-    </LabelText>
-    {!required && <Text size="sm">Optional</Text>}
-  </LabelContainer>
+export const Label = ({ required, children, ...labelProps }: LabelProps) => (
+  <label {...labelProps} tw="flex items-baseline justify-between pb-2">
+    <span tw="flex items-baseline font-medium">{children}</span>
+    {!required && <span tw="text-sm">Optional</span>}
+  </label>
 )

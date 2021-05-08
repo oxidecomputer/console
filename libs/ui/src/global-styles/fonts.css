@@ -2,9 +2,9 @@
 /* Source: https://www.grillitype.com/typeface/gt-america */
 @font-face {
   font-family: 'GT America Mono';
-  src: url('../../assets/fonts/UNLICENSED-GT-America-Mono-Regular.otf')
+  src: url('../assets/fonts/UNLICENSED-GT-America-Mono-Regular.otf')
       format('opentype'),
-    url('../../assets/fonts/UNLICENSED-GT-America-Mono-Regular.ttf')
+    url('../assets/fonts/UNLICENSED-GT-America-Mono-Regular.ttf')
       format('truetype');
   font-weight: 400;
   font-style: normal;
@@ -12,9 +12,9 @@
 
 @font-face {
   font-family: 'GT America Mono';
-  src: url('../../assets/fonts/UNLICENSED-GT-America-Mono-Medium.otf')
+  src: url('../assets/fonts/UNLICENSED-GT-America-Mono-Medium.otf')
       format('opentype'),
-    url('../../assets/fonts/UNLICENSED-GT-America-Mono-Medium.ttf')
+    url('../assets/fonts/UNLICENSED-GT-America-Mono-Medium.ttf')
       format('truetype');
   font-weight: 500;
   font-style: normal;
@@ -22,7 +22,7 @@
 
 @font-face {
   font-family: 'GT America Mono';
-  src: url('../../assets/fonts/UNLICENSED-GT-America-Mono-Bold.ttf')
+  src: url('../assets/fonts/UNLICENSED-GT-America-Mono-Bold.ttf')
     format('truetype');
   font-weight: 600;
   font-style: normal;
@@ -32,63 +32,63 @@
 /* Source: https://fonts.google.com/specimen/Inter */
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Thin.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Thin.ttf') format('truetype');
   font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-ExtraLight.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-ExtraLight.ttf') format('truetype');
   font-weight: 200;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Light.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Regular.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Medium.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-SemiBold.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Bold.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-ExtraBold.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('../../assets/fonts/Inter-Black.ttf') format('truetype');
+  src: url('../assets/fonts/Inter-Black.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
 }

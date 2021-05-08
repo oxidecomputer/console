@@ -1,38 +1,19 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import tw, { css, styled } from 'twin.macro'
 
-import { Text } from '../../../text/Text'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import {
-  color,
-  spaceBetweenX,
-  spaceBetweenY,
-  spacing,
-} from '@oxide/css-helpers'
-
-const BaseText = styled(Text).attrs({ size: 'sm' })``
+import { color, spacing } from '@oxide/css-helpers'
 
 const Header = styled.header`
   padding: ${spacing(1)};
   text-transform: uppercase;
 `
 
-const HeaderText = styled(BaseText)`
-  color: ${color('green500')};
-`
+const HeaderText = tw.span`text-sm text-green-500`
 
-const List = styled.ul`
-  display: flex;
-  flex-direction: column;
-
-  color: ${color('gray400')};
-  text-transform: uppercase;
-
-  ${spaceBetweenY(1)}
-  margin-top: ${spacing(1)};
-`
+const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
 const BaseLink = styled.a`
   color: ${color('gray400')};
@@ -43,10 +24,7 @@ const BaseLink = styled.a`
   }
 `
 
-const ListItemLink = styled(BaseLink)`
-  display: flex;
-  ${spaceBetweenX(2)}
-`
+const ListItemLink = tw(BaseLink)`flex space-x-2`
 
 const glyphWidth = '1rem'
 
@@ -80,15 +58,7 @@ const TitleWithIcon = styled(TextWithIcon).attrs({
     `}
 `
 
-const SubItemTitle = styled(BaseText).attrs({
-  size: 'xxs',
-})<{ selected?: boolean }>`
-  ${({ selected }) =>
-    selected &&
-    css`
-      color: ${color('gray50')};
-    `}
-`
+const SubItemTitle = tw.span`text-xxs`
 
 export interface OperationListProps {
   className?: string
@@ -109,7 +79,7 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
 
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'resources' }} selected={true}>
+            <TitleWithIcon icon={{ name: 'resources' }}>
               Resources
             </TitleWithIcon>
           </ListItemLink>
@@ -126,7 +96,7 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
             </ListSubItem>
             <ListSubItem>
               <SubItemLink href="#">
-                <SubItemTitle selected={true}>Images</SubItemTitle>
+                <SubItemTitle>Images</SubItemTitle>
               </SubItemLink>
             </ListSubItem>
             <ListSubItem>

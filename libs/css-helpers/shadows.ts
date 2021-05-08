@@ -1,4 +1,4 @@
-import { css } from 'styled-components'
+import { css } from 'twin.macro'
 
 export type ShadowVariant = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner'
 

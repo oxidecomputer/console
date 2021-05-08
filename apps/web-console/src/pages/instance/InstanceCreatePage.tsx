@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import { styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import { useParams, useHistory } from 'react-router-dom'
 
 import {
@@ -17,7 +17,7 @@ import {
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { spaceBetweenX, spaceBetweenY, spacing } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
@@ -31,12 +31,6 @@ const Title = styled(TextWithIcon).attrs({
     font-size: ${spacing(8)};
     margin-right: ${spacing(3)};
   }
-`
-
-const Form = styled.form`
-  margin-top: ${spacing(4)};
-  margin-bottom: ${spacing(20)};
-  ${spaceBetweenY(8)}
 `
 
 const Heading = styled(Text).attrs({
@@ -73,12 +67,7 @@ const RadioFieldText = styled(Text).attrs({
   display: block;
 `
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  ${spaceBetweenX(6)}
-`
+const Row = tw.div`flex space-x-6`
 
 type Params = {
   projectName: string
@@ -297,7 +286,7 @@ const InstanceCreatePage = () => {
       <PageHeader>
         <Title>Create Instance</Title>
       </PageHeader>
-      <Form action="#" onSubmit={handleSubmit}>
+      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <Heading>Choose an image</Heading>
         <StyledTabs
           label="Choose an image"
@@ -449,7 +438,7 @@ const InstanceCreatePage = () => {
         <div tw="text-red-500">
           {getServerError(createInstance.error, ERROR_CODES)}
         </div>
-      </Form>
+      </form>
     </>
   )
 }

@@ -1,5 +1,5 @@
 import type { DefaultTheme, ThemedCssFunction } from 'styled-components'
-import { css } from 'styled-components'
+import { css } from 'twin.macro'
 
 export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
 export const breakpoints: Record<Breakpoint, number> = {

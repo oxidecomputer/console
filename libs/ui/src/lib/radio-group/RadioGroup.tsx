@@ -2,7 +2,7 @@ import { spacing, visuallyHidden } from '@oxide/css-helpers'
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
-import styled, { css } from 'styled-components'
+import { css, styled } from 'twin.macro'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
 import { Text } from '../text/Text'

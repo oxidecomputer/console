@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'twin.macro'
 import { EmptyState } from './EmptyState'
 import { Text } from '../../text/Text'
 import { spacing } from '@oxide/css-helpers'

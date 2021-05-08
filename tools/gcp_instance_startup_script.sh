@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 set -o pipefail
+set -x
 
 # Install tailscale at machine start, there is something they are saving on the
 # host that makes everything think its the same machine.
@@ -11,6 +12,7 @@ sudo apt install -y --no-install-recommends \
 # Start tailscale.
 export TAILSCALE_MACHINE_KEY=$(cat /etc/tailscale/machine_key | tr -d '[:space:]')
 tailscale up --authkey=${TAILSCALE_MACHINE_KEY}
+sleep 5
 
 # Get the IP of the instance.
 # This _should_ be the first column.
@@ -63,3 +65,4 @@ oxapi_demo instance_attach_disk prod-online db1 vault
 
 echo "\n==== API DATA POPULATED ====\n"
 
+set +x
