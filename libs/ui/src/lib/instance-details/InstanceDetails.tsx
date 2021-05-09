@@ -11,11 +11,8 @@ export interface InstanceDetailsProps {
 }
 
 const Cell = styled.span`
-  :before {
+  :not(:first-of-type):before {
     content: ' // ';
-  }
-  :first-child:before {
-    content: '';
   }
 `
 

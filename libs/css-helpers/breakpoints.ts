@@ -1,4 +1,4 @@
-import type { SimpleInterpolation } from 'styled-components'
+import type { CSSInterpolation } from '@emotion/serialize'
 import { css } from 'twin.macro'
 
 export type Breakpoint = 'xs' | 'sm' | 'lg' | 'xl' | '2xl'
@@ -11,7 +11,8 @@ export const breakpoints: Record<Breakpoint, number> = {
 }
 
 /**
- * This helper works simlarly to the `css` helper from `styled-components` however, it first takes a breakpoint and only applies the styles for that given breakpoint.
+ * This helper works simlarly to the `css`, but it takes a breakpoint and only
+ * applies the styles for that given breakpoint.
  *
  * ## Usage
  *
@@ -29,7 +30,7 @@ export const breakpoints: Record<Breakpoint, number> = {
  */
 export const breakpoint =
   (breakpoint: Breakpoint) =>
-  (first: TemplateStringsArray, ...args: SimpleInterpolation[]) =>
+  (first: TemplateStringsArray, ...args: CSSInterpolation[]) =>
     css`
       @media (min-width: ${breakpoints[breakpoint]}px) {
         ${css(first, ...args)}

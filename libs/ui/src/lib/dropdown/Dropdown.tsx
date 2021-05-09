@@ -113,7 +113,7 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
     box-shadow: 0 0 0 1px ${color('green500')};
   }
 
-  &:first-child {
+  &:first-of-type {
     margin-top: ${spacing(2)};
   }
 

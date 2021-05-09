@@ -1,11 +1,11 @@
 import React from 'react'
 import type { Toast as ToastModel } from './types'
-import { createGlobalStyle } from 'styled-components'
+import { Global } from '@emotion/react'
 import { ActionToast, ConfirmToast, Toast } from '@oxide/ui'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
-import 'twin.macro'
+import { css } from 'twin.macro'
 
-export const ToastAnimations = createGlobalStyle`
+const toastAnimations = css`
   .toast-enter {
     transform: translateY(100%);
     opacity: 0;
@@ -28,6 +28,8 @@ export const ToastAnimations = createGlobalStyle`
     transition: transform 600ms ease-in-out, opacity 600ms ease-in-out;
   }
 `
+
+export const ToastAnimations = () => <Global styles={toastAnimations} />
 
 interface ToastStackProps {
   toasts: ToastModel[]

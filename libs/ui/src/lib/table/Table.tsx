@@ -1,6 +1,7 @@
 import React, { createContext, forwardRef, useContext } from 'react'
 import type { FC, ReactNode } from 'react'
 
+import isPropValid from '@emotion/is-prop-valid'
 import tw, { css, styled } from 'twin.macro'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -23,7 +24,6 @@ export interface TableColumn {
 
 export type TableData = Record<string, ReactNode>[]
 export interface TableProps {
-  /** Allow styled-components to add custom styles */
   className?: string
   /**
    * Column headers to render. Header is the title of the column for the table. Accessor is the key on the data object.
@@ -86,10 +86,9 @@ const StyledRowGroup = styled.div`
 `
 
 /* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
-const StyledCell = styled.div.withConfig({
+const StyledCell = styled('div', {
   // Do not pass 'width' prop to the DOM
-  shouldForwardProp: (prop, defaultValidatorFn) =>
-    !['width'].includes(prop) && defaultValidatorFn(prop),
+  shouldForwardProp: (prop) => prop !== 'width' && isPropValid(prop),
 })<{ arrange?: 'fill' | 'none'; width?: number }>`
   display: flex;
   align-items: flex-start;
@@ -116,7 +115,7 @@ const StyledCell = styled.div.withConfig({
     }
   }};
 
-  &:not(:first-child) {
+  &:not(:first-of-type) {
     box-shadow: inset 1px 0 0 ${BORDER_COLOR};
   }
 `

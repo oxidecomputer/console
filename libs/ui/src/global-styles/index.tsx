@@ -1,10 +1,10 @@
 import React from 'react'
-import { createGlobalStyle } from 'styled-components'
-import tw, { GlobalStyles as BaseStyles } from 'twin.macro'
+import { Global } from '@emotion/react'
+import tw, { css, GlobalStyles as BaseStyles } from 'twin.macro'
 
 import './fonts.css'
 
-const CustomStyles = createGlobalStyle`
+const customStyles = css`
   body {
     ${tw`box-border bg-blue-gray-900 text-gray-300 font-mono font-normal`}
   }
@@ -31,10 +31,11 @@ const CustomStyles = createGlobalStyle`
   }
 
   // https://github.com/ben-rogerson/twin.macro/blob/16911c0/src/config/preflightStyles.js#L232
-  button, [role="button"] {
+  button,
+  [role='button'] {
     cursor: auto;
   }
-  
+
   // https://github.com/ben-rogerson/twin.macro/blob/16911c0/src/config/preflightStyles.js#L274-L284
   svg {
     display: inline;
@@ -45,6 +46,6 @@ const CustomStyles = createGlobalStyle`
 export const GlobalStyle = () => (
   <>
     <BaseStyles />
-    <CustomStyles />
+    <Global styles={customStyles} />
   </>
 )

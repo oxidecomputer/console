@@ -8,13 +8,28 @@
       }
     ],
     "@babel/preset-react",
-    "@babel/preset-typescript"
+    "@babel/preset-typescript",
+    "@emotion/babel-preset-css-prop"
   ],
   "plugins": [
+    "emotion",
     "@babel/plugin-transform-runtime",
-    ["styled-components", { "pure": true }],
     "@babel/plugin-proposal-class-properties",
-    "@babel/plugin-transform-react-jsx",
-    "babel-plugin-macros"
+    "babel-plugin-macros",
+    [
+      "@emotion/babel-plugin-jsx-pragmatic",
+      {
+        "export": "jsx",
+        "import": "__cssprop",
+        "module": "@emotion/react"
+      }
+    ],
+    [
+      "@babel/plugin-transform-react-jsx",
+      {
+        "pragma": "__cssprop",
+        "pragmaFrag": "React.Fragment"
+      }
+    ]
   ]
 }

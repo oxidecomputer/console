@@ -18,7 +18,7 @@ import { useApiMutation } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
-const Heading = tw.h2`text-white text-lg mt-8 first:mt-0`
+const Heading = tw.h2`text-white text-lg mt-8 first-of-type:mt-0`
 
 const Description = tw.p`text-gray-300 text-sm mt-2 max-w-prose`
 

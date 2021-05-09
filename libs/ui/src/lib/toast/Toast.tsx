@@ -107,7 +107,7 @@ export interface ConfirmToastProps extends BaseToastProps {
 
 const SplitActions = tw.div`flex flex-col border-l border-gray-300`
 
-const SplitActionContainer = tw.div`flex flex-1 first:(border-b border-gray-300)`
+const SplitActionContainer = tw.div`flex flex-1 first-of-type:(border-b border-gray-300)`
 
 export const ConfirmToast = ({
   icon,

@@ -8,7 +8,7 @@ export interface BreadcrumbsProps {
   data: Crumb[]
 }
 
-const Item = tw.li`inline-block not-first:before:(content['/'] mx-2 text-yellow-500)`
+const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-yellow-500)`
 
 const Link_ = tw(Link)`visited:text-gray-400 hover:text-green-500`
 

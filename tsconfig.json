@@ -15,7 +15,8 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "baseUrl": ".",
     "noEmit": true,
     "paths": {
