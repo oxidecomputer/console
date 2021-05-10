@@ -95,6 +95,7 @@ const StyledCell = styled.div.withConfig({
     !['width'].includes(prop) && defaultValidatorFn(prop),
 })<{ arrange?: 'fill' | 'none'; width?: number }>`
   display: flex;
+  align-items: flex-start;
   justify-content: center;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -298,11 +299,7 @@ export const Table = ({
       <Grid role="grid" aria-rowcount={count} className={className}>
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
-            <ListContext.Provider
-              value={{
-                columns: columns,
-              }}
-            >
+            <ListContext.Provider value={{ columns: columns }}>
               <VariableSizeList
                 innerElementType={InnerWrapper}
                 height={height}
