@@ -16,7 +16,7 @@ export const badgeColors = [
   'blue',
   'purple',
 ] as const
-type BadgeColor = typeof badgeColors[number]
+export type BadgeColor = typeof badgeColors[number]
 
 export const badgeSizes = ['sm', 'base', 'xl'] as const
 type Size = typeof badgeSizes[number]

@@ -5,7 +5,9 @@ import filesize from 'filesize'
 
 import { useApiQuery } from '@oxide/api'
 import { Button, Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
+import { StatusBadge } from '../../components/StatusBadge'
 import { useBreadcrumbs } from '../../hooks'
+import { timeAgoAbbr } from '../../util/date'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -51,7 +53,17 @@ const InstancesPage = () => {
               </Link>
             ),
             size: `${i.ncpus} vCPUs, ${filesize(i.memory)}`,
-            runState: i.runState,
+            runState: (
+              <span>
+                <StatusBadge tw="mr-2" status={i.runState} />
+                <abbr
+                  tw="text-xs no-underline!"
+                  title={i.timeRunStateUpdated.toLocaleString()}
+                >
+                  {timeAgoAbbr(i.timeRunStateUpdated)}
+                </abbr>
+              </span>
+            ),
             created: i.timeCreated.toLocaleString(),
           }))}
         />
