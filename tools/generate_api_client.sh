@@ -19,7 +19,7 @@ cd ../console
 openapi-generator generate -i omicron.json -o libs/api/__generated__ -g typescript-fetch \
   --additional-properties=typescriptThreePlus=true
 rm omicron.json
-yarn format > /dev/null 2>&1
+yarn fmt > /dev/null 2>&1
 
 cat > libs/api/__generated__/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md

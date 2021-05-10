@@ -36,13 +36,12 @@ Disabled.args = {
   value: 0,
 }
 
-const StateTemplate: Story<
-  Omit<NumberInputGroupProps, 'value' | 'onChange'>
-> = (args) => {
-  const [value, setValue] = useState(10)
+const StateTemplate: Story<Omit<NumberInputGroupProps, 'value' | 'onChange'>> =
+  (args) => {
+    const [value, setValue] = useState(10)
 
-  return <NumberInputGroup value={value} onChange={setValue} {...args} />
-}
+    return <NumberInputGroup value={value} onChange={setValue} {...args} />
+  }
 
 export const WithState = StateTemplate.bind({})
 WithState.args = {

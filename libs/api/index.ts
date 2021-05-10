@@ -37,49 +37,51 @@ const parseJsonAndRethrow = async (error: Response): Promise<ApiError> =>
     .catch(() => null) // if json parse fails, data is null
     .then((data) => Promise.reject({ raw: error, data }))
 
-const getUseApiQuery = <A extends ApiClient<A>>(api: A) => <
-  M extends keyof ApiClient<A>
->(
-  method: M,
-  params: Params<A[M]>,
-  options?: UseQueryOptions<unknown, ApiError, Result<A[M]>>
-) =>
-  useQuery(
-    [method, params],
-    () => api[method](params).catch(parseJsonAndRethrow),
-    options
-  )
+const getUseApiQuery =
+  <A extends ApiClient<A>>(api: A) =>
+  <M extends keyof ApiClient<A>>(
+    method: M,
+    params: Params<A[M]>,
+    options?: UseQueryOptions<unknown, ApiError, Result<A[M]>>
+  ) =>
+    useQuery(
+      [method, params],
+      () => api[method](params).catch(parseJsonAndRethrow),
+      options
+    )
 
-const getUseApiMutation = <A extends ApiClient<A>>(api: A) => <
-  M extends keyof ApiClient<A>
->(
-  method: M,
-  options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
-) =>
-  useMutation(
-    (params) => api[method](params).catch(parseJsonAndRethrow),
-    options
-  )
+const getUseApiMutation =
+  <A extends ApiClient<A>>(api: A) =>
+  <M extends keyof ApiClient<A>>(
+    method: M,
+    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+  ) =>
+    useMutation(
+      (params) => api[method](params).catch(parseJsonAndRethrow),
+      options
+    )
 
-const getUseApiQueryClient = <A extends ApiClient<A>>() => () => {
-  const queryClient = useQueryClient()
-  return {
-    invalidateQueries: <M extends keyof ApiClient<A>>(
-      method: M,
-      params: Params<A[M]>,
-      filters?: InvalidateQueryFilters
-    ) => {
-      queryClient.invalidateQueries([method, params], filters)
-    },
-    setQueryData: <M extends keyof ApiClient<A>>(
-      method: M,
-      params: Params<A[M]>,
-      data: Result<A[M]>
-    ) => {
-      queryClient.setQueryData([method, params], data)
-    },
+const getUseApiQueryClient =
+  <A extends ApiClient<A>>() =>
+  () => {
+    const queryClient = useQueryClient()
+    return {
+      invalidateQueries: <M extends keyof ApiClient<A>>(
+        method: M,
+        params: Params<A[M]>,
+        filters?: InvalidateQueryFilters
+      ) => {
+        queryClient.invalidateQueries([method, params], filters)
+      },
+      setQueryData: <M extends keyof ApiClient<A>>(
+        method: M,
+        params: Params<A[M]>,
+        data: Result<A[M]>
+      ) => {
+        queryClient.setQueryData([method, params], data)
+      },
+    }
   }
-}
 
 const basePath =
   process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'

@@ -138,35 +138,35 @@ export const Tabs: FC<TabsProps> = ({
     }
   }
 
-  const handleKeyup = (
-    index: number
-  ): EventHandler<KeyboardEvent<HTMLButtonElement>> => (event) => {
-    const { key } = event
+  const handleKeyup =
+    (index: number): EventHandler<KeyboardEvent<HTMLButtonElement>> =>
+    (event) => {
+      const { key } = event
 
-    switch (key) {
-      case KEYS.left:
-      case KEYS.right:
-        event.preventDefault()
-        // Either focus the next, previous, first, or last tab, depending on key pressed
-        if (DIRECTION[key]) {
-          // Modulus allows the end to circle to the beginning
-          const next = (index + DIRECTION[key]) % tabs.length
-          // Circle from beginning to end
-          if (next === -1) {
-            // focus the last item
-            setFocusTab(tabs.length - 1)
-          } else {
-            setFocusTab(next)
+      switch (key) {
+        case KEYS.left:
+        case KEYS.right:
+          event.preventDefault()
+          // Either focus the next, previous, first, or last tab, depending on key pressed
+          if (DIRECTION[key]) {
+            // Modulus allows the end to circle to the beginning
+            const next = (index + DIRECTION[key]) % tabs.length
+            // Circle from beginning to end
+            if (next === -1) {
+              // focus the last item
+              setFocusTab(tabs.length - 1)
+            } else {
+              setFocusTab(next)
+            }
           }
-        }
-        break
-      case KEYS.enter:
-      case KEYS.space:
-        // Activate current tab or tab with focus
-        setActiveTab(index)
-        break
+          break
+        case KEYS.enter:
+        case KEYS.space:
+          // Activate current tab or tab with focus
+          setActiveTab(index)
+          break
+      }
     }
-  }
 
   if (!tabs || !tabs.length) {
     return null

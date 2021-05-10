@@ -335,8 +335,7 @@ const InstanceCreatePage = () => {
           {renderTabPanels([
             {
               legend: 'Choose a general purpose instance',
-              hint:
-                'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+              hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
               children: renderLargeRadioFields('general'),
             },
             {

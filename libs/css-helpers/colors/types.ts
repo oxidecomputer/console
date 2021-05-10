@@ -10,16 +10,7 @@ export const colorGroups = [
 ] as const
 export type ColorGroup = typeof colorGroups[number]
 export const colorValues = [
-  50,
-  100,
-  200,
-  300,
-  400,
-  500,
-  600,
-  700,
-  800,
-  900,
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900,
 ] as const
 export type ColorValues = typeof colorValues[number]
 type MainColor = `${ColorGroup}${ColorValues}`

@@ -112,10 +112,10 @@ yarn plop page Instance resources
 
 ### Other useful commands
 
-| Command       | Description                                                      |
-| ------------- | ---------------------------------------------------------------- |
-| `yarn test`   | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`   |
-| `yarn lint`   | ESLint                                                           |
-| `yarn tsc`    | Check types                                                      |
-| `yarn ci`     | Lint, tests, and types                                           |
-| `yarn format` | Format everything. Rarely necessary thanks to editor integration |
+| Command     | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| `yarn test` | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`   |
+| `yarn lint` | ESLint                                                           |
+| `yarn tsc`  | Check types                                                      |
+| `yarn ci`   | Lint, tests, and types                                           |
+| `yarn fmt`  | Format everything. Rarely necessary thanks to editor integration |

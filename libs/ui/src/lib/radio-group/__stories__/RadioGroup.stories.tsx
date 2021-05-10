@@ -65,8 +65,7 @@ withInitialChecked.args = {
   checked: '100',
   direction: 'row',
   legend: 'Add a general purpose instance',
-  hint:
-    'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+  hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
   name: 'group2',
 }
 
@@ -74,8 +73,7 @@ export const withFixedRow = CardTemplate.bind({})
 withFixedRow.args = {
   direction: 'fixed-row',
   legend: 'Add a general purpose instance',
-  hint:
-    'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+  hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
   name: 'group3',
 }
 
