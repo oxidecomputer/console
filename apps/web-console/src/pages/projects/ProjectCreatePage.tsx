@@ -11,10 +11,10 @@ import {
   TextInputGroup,
   TextWithIcon,
 } from '@oxide/ui'
-import { useBreadcrumbs } from '../../hooks'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Debug } from '../../components/Debug'
 import { spacing } from '@oxide/css-helpers'
+import { useBreadcrumbs } from '../../hooks'
+import { getServerError } from '../../util/errors'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -27,6 +27,11 @@ const Title = styled(TextWithIcon).attrs({
     margin-right: ${spacing(3)};
   }
 `
+
+const ERROR_CODES = {
+  ObjectAlreadyExists:
+    'A project with that name already exists in this organization',
+}
 
 const ProjectCreatePage = () => {
   const history = useHistory()
@@ -63,7 +68,6 @@ const ProjectCreatePage = () => {
 
   return (
     <>
-      <Debug>Post: {JSON.stringify(createProject)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Project</Title>
@@ -89,6 +93,9 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
+        <div tw="text-red-500">
+          {getServerError(createProject.error, ERROR_CODES)}
+        </div>
       </form>
     </>
   )

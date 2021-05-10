@@ -16,10 +16,10 @@ import {
   TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
-import { useBreadcrumbs } from '../../hooks'
 import { useApiMutation } from '@oxide/api'
-import { Debug } from '../../components/Debug'
 import { spacing } from '@oxide/css-helpers'
+import { useBreadcrumbs } from '../../hooks'
+import { getServerError } from '../../util/errors'
 
 const Title = styled(TextWithIcon).attrs({
   text: { variant: 'title', as: 'h1' },
@@ -67,14 +67,7 @@ const RadioFieldText = styled(Text).attrs({
   display: block;
 `
 
-const StyledButton = styled(Button).attrs({ variant: 'subtle' })``
-
 const Row = tw.div`flex space-x-6`
-
-const FooterText = styled(Text).attrs({ size: 'xs' })`
-  display: block;
-  margin-top: ${spacing(8)};
-`
 
 type Params = {
   projectName: string
@@ -201,6 +194,11 @@ const RadioCardField = (props: RadioFieldProps) => {
   return <RadioField {...props} variant="card" />
 }
 
+const ERROR_CODES = {
+  ObjectAlreadyExists:
+    'An instance with that name already exists in this project',
+}
+
 const InstanceCreatePage = () => {
   const breadcrumbs = useBreadcrumbs()
 
@@ -284,7 +282,6 @@ const InstanceCreatePage = () => {
 
   return (
     <>
-      <Debug>Post: {JSON.stringify(createInstance)}</Debug>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <Title>Create Instance</Title>
@@ -404,7 +401,7 @@ const InstanceCreatePage = () => {
           you have access to will updated with this additional key. Your
           existing keys will remain on all your instances.
         </Description>
-        <StyledButton>Add an SSH key</StyledButton>
+        <Button variant="subtle">Add an SSH key</Button>
         <Heading>Finalize and create</Heading>
         <Row>
           <TextInputGroup
@@ -438,9 +435,9 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <FooterText>
-          Equivalent <a href="#">REST</a> or <a href="#">command line</a>
-        </FooterText>
+        <div tw="text-red-500">
+          {getServerError(createInstance.error, ERROR_CODES)}
+        </div>
       </form>
     </>
   )

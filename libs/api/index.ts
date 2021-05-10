@@ -20,20 +20,46 @@ type ApiClient<A> = OmitByValue<
 >
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+export interface ApiError {
+  raw: Response
+  data: {
+    request_id: string
+    error_code: string | null
+    message: string
+  } | null
+}
+
+// we need to rethrow so react-query knows the request in question is a
+// failure and uses the result to populate `error` rather than `data`
+const parseJsonAndRethrow = async (error: Response): Promise<ApiError> =>
+  error
+    .json()
+    .catch(() => null) // if json parse fails, data is null
+    .then((data) => Promise.reject({ raw: error, data }))
+
 const getUseApiQuery = <A extends ApiClient<A>>(api: A) => <
   M extends keyof ApiClient<A>
 >(
   method: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<unknown, Response, Result<A[M]>>
-) => useQuery([method, params], () => api[method](params), options)
+  options?: UseQueryOptions<unknown, ApiError, Result<A[M]>>
+) =>
+  useQuery(
+    [method, params],
+    () => api[method](params).catch(parseJsonAndRethrow),
+    options
+  )
 
 const getUseApiMutation = <A extends ApiClient<A>>(api: A) => <
   M extends keyof ApiClient<A>
 >(
   method: M,
-  options?: UseMutationOptions<Result<A[M]>, Response, Params<A[M]>>
-) => useMutation((params) => api[method](params), options)
+  options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+) =>
+  useMutation(
+    (params) => api[method](params).catch(parseJsonAndRethrow),
+    options
+  )
 
 const getUseApiQueryClient = <A extends ApiClient<A>>() => () => {
   const queryClient = useQueryClient()
