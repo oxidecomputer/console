@@ -1,50 +1,44 @@
-import { Button, Text } from '@oxide/ui'
-import type { FC } from 'react'
+import { Button } from '@oxide/ui'
 import React, { useState } from 'react'
 import { useToast } from '../hooks'
+import tw from 'twin.macro'
 
 const useCounter = (initialValue: number): [number, () => void] => {
   const [value, setValue] = useState(initialValue)
-  const increment = () => setValue((v) => v + 1)
-
-  return [value, increment]
+  return [value, () => setValue((v) => v + 1)]
 }
 
-const ToastTestPage: FC = () => {
-  const { addToast } = useToast()
+const Heading = tw.h2`mb-4 mt-8 text-lg text-green-400`
 
-  const [counter, incrementCounter] = useCounter(1)
+const ToastTestPage = () => {
+  const addToast = useToast()
 
-  const [defaultCloseCounter, incrementDefaultCloseCounter] = useCounter(0)
+  const [counter, incrCounter] = useCounter(1)
+
+  const [defaultCloseCounter, incrDefaultCloseCounter] = useCounter(0)
   const [shouldHaveTimeout, setShouldHaveTimout] = useState(false)
 
-  const [actionCloseCounter, incrementActionCloseCounter] = useCounter(0)
-  const [actionActionCounter, incrementActionActionCounter] = useCounter(0)
+  const [actionCloseCounter, incrActionCloseCounter] = useCounter(0)
+  const [actionCounter, incrActionCounter] = useCounter(0)
 
-  const [
-    confirmConfirmActionCounter,
-    incrementConfirmConfirmActionCounter,
-  ] = useCounter(0)
-  const [
-    confirmCancelActionCounter,
-    incrementConfirmCancelActionCounter,
-  ] = useCounter(0)
+  const [confirmConfirmCounter, incrConfirmConfirmCounter] = useCounter(0)
+  const [confirmCancelCounter, incrConfirmCancelCounter] = useCounter(0)
 
   const handleDefaultToast = () => {
-    incrementCounter()
+    incrCounter()
 
     addToast({
       type: 'default',
 
       title: `Default Toast #${counter}`,
-      onClose: incrementDefaultCloseCounter,
+      onClose: incrDefaultCloseCounter,
 
       timeout: shouldHaveTimeout ? 5 : undefined,
     })
   }
 
   const handleActionToast = () => {
-    incrementCounter()
+    incrCounter()
 
     addToast({
       type: 'action',
@@ -54,14 +48,14 @@ const ToastTestPage: FC = () => {
       icon: 'checkO',
 
       action: 'Undo',
-      onAction: incrementActionActionCounter,
+      onAction: incrActionCounter,
 
-      onClose: incrementActionCloseCounter,
+      onClose: incrActionCloseCounter,
     })
   }
 
   const handleConfirmToast = () => {
-    incrementCounter()
+    incrCounter()
 
     addToast({
       type: 'confirm',
@@ -71,59 +65,46 @@ const ToastTestPage: FC = () => {
       icon: 'warning',
 
       confirm: 'Yes',
-      onConfirm: incrementConfirmConfirmActionCounter,
+      onConfirm: incrConfirmConfirmCounter,
 
       cancel: 'No',
-      onCancel: incrementConfirmCancelActionCounter,
+      onCancel: incrConfirmCancelCounter,
     })
   }
 
   return (
     <div>
-      <section style={{ marginBottom: '1rem' }}>
-        <h2>
-          <Text size="lg" color="green400">
-            Default Toast
-          </Text>
-        </h2>
+      <section>
+        <Heading>Default Toast</Heading>
         <div>Toast Closed: {defaultCloseCounter} times</div>
-        <br />
-        <label>
+        <label tw="block">
           Should have timeout?
           <input
+            tw="ml-2"
             checked={shouldHaveTimeout}
             onChange={(e) => setShouldHaveTimout(e.target.checked)}
             type="checkbox"
           />
         </label>
-        <br />
-        <Button onClick={handleDefaultToast}>Trigger Default Toast</Button>
+        <Button tw="mt-4" onClick={handleDefaultToast}>
+          Trigger Default Toast
+        </Button>
       </section>
-      <section style={{ marginBlock: '1rem' }}>
-        <h2>
-          <Text size="lg" color="green400">
-            Action Toast
-          </Text>
-        </h2>
+      <section>
+        <Heading>Action Toast</Heading>
         <div>Toast Closed: {actionCloseCounter} times</div>
-        <div>Toast Action clicked: {actionActionCounter} times</div>
-        <br />
-        <Button onClick={handleActionToast}>Trigger Action Toast</Button>
+        <div>Toast Action clicked: {actionCounter} times</div>
+        <Button tw="mt-4" onClick={handleActionToast}>
+          Trigger Action Toast
+        </Button>
       </section>
-      <section style={{ marginBlock: '1rem' }}>
-        <h2>
-          <Text size="lg" color="green400">
-            Confirm Toast
-          </Text>
-        </h2>
-        <div>
-          Toast Confirm Action clicked: {confirmConfirmActionCounter} times
-        </div>
-        <div>
-          Toast Cancel Action clicked: {confirmCancelActionCounter} times
-        </div>
-        <br />
-        <Button onClick={handleConfirmToast}>Trigger Confirm Toast</Button>
+      <section>
+        <Heading>Confirm Toast</Heading>
+        <div>Toast Confirm Action clicked: {confirmConfirmCounter} times</div>
+        <div>Toast Cancel Action clicked: {confirmCancelCounter} times</div>
+        <Button tw="mt-4" onClick={handleConfirmToast}>
+          Trigger Confirm Toast
+        </Button>
       </section>
     </div>
   )

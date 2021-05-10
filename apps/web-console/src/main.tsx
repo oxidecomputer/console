@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { GlobalStyle } from '@oxide/ui'
 
 import App from './app/app'
-import { ToastProvider } from './contexts'
+import { ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({
   defaultOptions: {
