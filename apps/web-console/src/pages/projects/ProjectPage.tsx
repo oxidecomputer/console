@@ -1,16 +1,10 @@
 import React from 'react'
-import { styled } from 'twin.macro'
 
 import { useParams, Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
+import { Breadcrumbs, PageHeader, PageTitle } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'instances' },
-})``
 
 type Params = {
   projectName: string
@@ -33,7 +27,7 @@ const ProjectPage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>{project.name}</Title>
+        <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
         <li>ID: {project.id}</li>

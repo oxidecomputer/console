@@ -11,6 +11,7 @@ import {
   Icon,
   InstanceDetails,
   PageHeader,
+  PageTitle,
   Tabs,
   TextWithIcon,
 } from '@oxide/ui'
@@ -20,13 +21,6 @@ import { useBreadcrumbs } from '../../hooks'
 import { spacing } from '@oxide/css-helpers'
 
 const Wrapper = styled.div``
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'dashboard' },
-})`
-  text-transform: uppercase;
-`
 
 const InstanceAction = styled(Button).attrs({
   size: 'xs',
@@ -90,7 +84,7 @@ const InstancePage = () => {
     <Wrapper>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>{instance.name}</Title>
+        <PageTitle icon="resources">{instance.name}</PageTitle>
         <Actions>
           <InstanceAction>
             <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>

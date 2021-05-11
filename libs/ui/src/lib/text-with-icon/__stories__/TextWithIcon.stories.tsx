@@ -17,10 +17,3 @@ Default.args = {
   children: `Create new project`,
   icon: { name: 'plus' },
 }
-
-export const TitleVariant = Template.bind({})
-TitleVariant.args = {
-  children: `Project Name`,
-  icon: { name: 'project' },
-  text: { variant: 'title' },
-}

@@ -6,32 +6,19 @@ import { useParams, useHistory } from 'react-router-dom'
 import {
   Breadcrumbs,
   Button,
-  Icon,
   PageHeader,
+  PageTitle,
   RadioGroup,
   RadioField,
   Tabs,
   Text,
   TextInputGroup,
-  TextWithIcon,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'instances' },
-})`
-  margin-top: ${spacing(1)};
-
-  ${Icon} {
-    font-size: ${spacing(8)};
-    margin-right: ${spacing(3)};
-  }
-`
 
 const Heading = styled(Text).attrs({
   color: 'white',
@@ -284,7 +271,7 @@ const InstanceCreatePage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>Create Instance</Title>
+        <PageTitle icon="instances">Create Instance</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <Heading>Choose an image</Heading>

@@ -1,16 +1,11 @@
 import React from 'react'
-import { styled } from 'twin.macro'
+import 'twin.macro'
 
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
-import { Breadcrumbs, PageHeader, TextWithIcon } from '@oxide/ui'
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'instances' },
-})``
+import { Breadcrumbs, PageHeader, PageTitle } from '@oxide/ui'
 
 const ProjectsPage = () => {
   const breadcrumbs = useBreadcrumbs()
@@ -22,7 +17,7 @@ const ProjectsPage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>Projects</Title>
+        <PageTitle icon="projects">Projects</PageTitle>
       </PageHeader>
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
         {data.items.map((item) => (

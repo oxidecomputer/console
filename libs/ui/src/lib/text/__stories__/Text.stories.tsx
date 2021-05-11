@@ -77,16 +77,3 @@ WithRightIcon.args = {
   icon: { align: 'right', name: 'plus' },
   children: 'Create a new project',
 }
-
-export const TitleWithIcon = Template.bind({})
-TitleWithIcon.args = {
-  icon: { name: 'dashboard' },
-  variant: 'title',
-  children: 'Page title',
-}
-
-export const TitleVariant = Template.bind({})
-TitleVariant.args = {
-  variant: 'title',
-  children: 'Title Text Variant',
-}

@@ -1,18 +1,13 @@
 import React from 'react'
-import { styled } from 'twin.macro'
+import 'twin.macro'
 import { useParams, Link } from 'react-router-dom'
 import filesize from 'filesize'
 
 import { useApiQuery } from '@oxide/api'
-import { Button, Breadcrumbs, PageHeader, Table, TextWithIcon } from '@oxide/ui'
+import { Button, Breadcrumbs, PageHeader, PageTitle, Table } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useBreadcrumbs } from '../../hooks'
 import { timeAgoAbbr } from '../../util/date'
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'instances' },
-})``
 
 type Params = {
   projectName: string
@@ -34,7 +29,9 @@ const InstancesPage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>Instances for Project: {projectName}</Title>
+        <PageTitle icon="instances">
+          Instances for Project: {projectName}
+        </PageTitle>
       </PageHeader>
       {instances.items.length > 0 && (
         <Table

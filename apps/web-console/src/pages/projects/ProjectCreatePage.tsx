@@ -1,32 +1,18 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import { styled } from 'twin.macro'
+import 'twin.macro'
 import { useHistory } from 'react-router-dom'
 
 import {
   Breadcrumbs,
   Button,
-  Icon,
   PageHeader,
+  PageTitle,
   TextInputGroup,
-  TextWithIcon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
-
-const Title = styled(TextWithIcon).attrs({
-  text: { variant: 'title', as: 'h1' },
-  icon: { name: 'project' },
-})`
-  margin-top: ${spacing(1)};
-
-  ${Icon} {
-    font-size: ${spacing(8)};
-    margin-right: ${spacing(3)};
-  }
-`
 
 const ERROR_CODES = {
   ObjectAlreadyExists:
@@ -70,7 +56,7 @@ const ProjectCreatePage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <Title>Create Project</Title>
+        <PageTitle icon="project">Create Project</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
         <TextInputGroup
