@@ -1,97 +1,45 @@
-import { color, shadow, spacing } from '@oxide/css-helpers'
-import type { FC } from 'react'
 import React from 'react'
+import tw, { styled } from 'twin.macro'
 
-import tw, { css, styled } from 'twin.macro'
 import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
-import Text from '../text/Text'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
 interface BaseToastProps {
   title: string
   content?: string
-
   icon?: IconName
-
   onClose: () => void
-
-  children?: never
 }
 
 export interface ToastProps extends BaseToastProps {
   timeout?: number
 }
 
-const Wrapper = styled.div<{ wide?: boolean }>`
-  display: inline-flex;
-  flex-direction: row;
-  align-items: stretch;
+const Wrapper = tw.div`w-96 inline-flex items-stretch bg-gray-800 shadow-lg`
 
-  background-color: ${color('gray800')};
+const Main = tw.div`flex flex-1 items-start p-4 space-x-3`
 
-  // FIXME: figure out a better way to size this
-  width: ${({ wide }) => (wide ? 448 : 384)}px;
+const IconWrapper = tw.div`font-size[1.5rem]`
 
-  ${shadow('lg')}
-`
+const Content = styled.div<{ hasIcon: boolean }>(() => [
+  tw`flex flex-col flex-1 space-y-1`,
+  ({ hasIcon }) => hasIcon && tw`py-0.5`,
+])
 
-const Main = styled.div<{ withActions?: boolean }>`
-  flex: 1;
+const CloseButton = tw.button`flex flex-initial content-center h-5`
 
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-start;
+const TitleText = tw.span`text-sm font-medium text-gray-50`
+const BodyText = tw.span`text-sm text-gray-300`
 
-  ${tw`space-x-3`}
-
-  padding: ${({ withActions }) =>
-    withActions ? spacing(4, 0, 4, 4) : spacing(4)};
-`
-
-const IconWrapper = styled.div`
-  flex: 0 0 auto;
-
-  font-size: ${spacing(6)};
-`
-
-const Content = styled.div<{ hasIcon: boolean }>`
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  ${({ hasIcon }) =>
-    hasIcon &&
-    css`
-      padding: ${spacing(0.5, 0)};
-    `};
-
-  ${tw`space-y-1`}
-`
-
-const ActionButton = styled.button`
-  flex: 0 0 auto;
-  text-transform: uppercase;
-`
-
-const CloseButton = styled.button`
-  display: flex;
-  justify-content: center;
-
-  flex: 0 0 auto;
-  height: ${spacing(5)};
-`
-
-export const Toast: FC<ToastProps> = ({
+export const Toast = ({
   title,
   content,
   icon,
   onClose,
   timeout,
-}) => (
+}: ToastProps) => (
   <Wrapper>
     <Main>
       {icon && (
@@ -100,20 +48,10 @@ export const Toast: FC<ToastProps> = ({
         </IconWrapper>
       )}
       <Content hasIcon={!!icon}>
-        <Text size="sm" weight={500} color="gray50">
-          {title}
-        </Text>
-        {content && (
-          <Text size="sm" weight={400} color="gray300">
-            {content}
-          </Text>
-        )}
+        <TitleText>{title}</TitleText>
+        {content && <BodyText> {content}</BodyText>}
       </Content>
-      <CloseButton
-        onClick={() => {
-          onClose()
-        }}
-      >
+      <CloseButton onClick={() => onClose()}>
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <Icon name="close" color="gray300" />
@@ -130,15 +68,14 @@ export interface ActionToastProps extends BaseToastProps {
   action: string
   onAction: () => void
 }
-export const ActionToast: FC<ActionToastProps> = ({
+export const ActionToast = ({
   icon,
   title,
   content,
   onClose,
-
   action,
   onAction,
-}) => (
+}: ActionToastProps) => (
   <Wrapper>
     <Main>
       {icon && (
@@ -147,29 +84,13 @@ export const ActionToast: FC<ActionToastProps> = ({
         </IconWrapper>
       )}
       <Content hasIcon={!!icon}>
-        <Text size="sm" weight={500} color="gray50">
-          {title}
-        </Text>
-        {content && (
-          <Text size="sm" weight={400} color="gray300">
-            {content}
-          </Text>
-        )}
+        <TitleText>{title}</TitleText>
+        {content && <BodyText>{content}</BodyText>}
       </Content>
-      <ActionButton
-        onClick={() => {
-          onAction()
-        }}
-      >
-        <Text size="sm" weight={400} color="green600">
-          {action}
-        </Text>
-      </ActionButton>
-      <CloseButton
-        onClick={() => {
-          onClose()
-        }}
-      >
+      <button tw="uppercase text-sm text-green-600" onClick={() => onAction()}>
+        {action}
+      </button>
+      <CloseButton onClick={() => onClose()}>
         <Icon name="close" color="gray300" />
       </CloseButton>
     </Main>
@@ -184,44 +105,20 @@ export interface ConfirmToastProps extends BaseToastProps {
   onCancel: () => void
 }
 
-const SplitActions = styled.div`
-  flex: 0 0 auto;
+const SplitActions = tw.div`flex flex-col border-l border-gray-300`
 
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+const SplitActionContainer = tw.div`flex flex-1 first:(border-b border-gray-300)`
 
-  border-left: 1px solid ${color('gray300')};
-`
-
-const SplitActionContainer = styled.div`
-  flex: 1;
-
-  display: flex;
-
-  justify-content: stretch;
-  align-items: stretch;
-
-  :first-child {
-    border-bottom: 1px solid ${color('gray300')};
-  }
-`
-
-const SplitAction = styled(Button)`
-  flex: 1;
-`
-
-export const ConfirmToast: FC<ConfirmToastProps> = ({
+export const ConfirmToast = ({
   icon,
   title,
   content,
-
   confirm,
   onConfirm,
   cancel,
   onCancel,
-}) => (
-  <Wrapper wide>
+}: ConfirmToastProps) => (
+  <Wrapper tw="width[28rem]">
     <Main>
       {icon && (
         <IconWrapper>
@@ -230,37 +127,29 @@ export const ConfirmToast: FC<ConfirmToastProps> = ({
       )}
 
       <Content hasIcon={!!icon}>
-        <Text size="sm" weight={500} color="gray50">
-          {title}
-        </Text>
-        {content && (
-          <Text size="sm" weight={400} color="gray300">
-            {content}
-          </Text>
-        )}
+        <TitleText>{title}</TitleText>
+        {content && <BodyText>{content}</BodyText>}
       </Content>
     </Main>
 
     <SplitActions>
       <SplitActionContainer>
-        <SplitAction
+        <Button
+          tw="flex-1 text-green-600"
           variant="ghost"
-          onClick={() => {
-            onConfirm()
-          }}
+          onClick={() => onConfirm()}
         >
           {confirm}
-        </SplitAction>
+        </Button>
       </SplitActionContainer>
       <SplitActionContainer>
-        <SplitAction
+        <Button
+          tw="flex-1 text-gray-300"
           variant="ghost"
-          onClick={() => {
-            onCancel()
-          }}
+          onClick={() => onCancel()}
         >
-          <Text color="gray300">{cancel}</Text>
-        </SplitAction>
+          {cancel}
+        </Button>
       </SplitActionContainer>
     </SplitActions>
   </Wrapper>

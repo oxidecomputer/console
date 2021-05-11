@@ -2,7 +2,6 @@ import { css } from 'twin.macro'
 
 export * from './breakpoints'
 export * from './colors'
-export * from './shadows'
 export * from './spacing'
 
 /* Hide from sighted users, show to screen readers */
