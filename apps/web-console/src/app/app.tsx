@@ -12,6 +12,7 @@ import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
 import ProjectPage from '../pages/projects/ProjectPage'
 import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
 import ProjectsPage from '../pages/projects/ProjectsPage'
+import ToastTestPage from '../pages/ToastTestPage'
 
 const App = () => {
   return (
@@ -38,6 +39,9 @@ const App = () => {
           </Route>
           <Route path="/projects/:projectName">
             <ProjectPage />
+          </Route>
+          <Route path="/__debug/toasts">
+            <ToastTestPage />
           </Route>
         </Switch>
       </AppLayout>

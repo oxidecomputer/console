@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { GlobalStyle } from '@oxide/ui'
 
 import App from './app/app'
+import { ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,10 +19,12 @@ const queryClient = new QueryClient({
 ReactDOM.render(
   <React.StrictMode>
     <GlobalStyle />
-    <QueryClientProvider client={queryClient}>
-      <App />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ToastProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )

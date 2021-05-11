@@ -7,8 +7,9 @@ import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import Text from '../text/Text'
+import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
-export interface ToastProps {
+interface BaseToastProps {
   title: string
   content?: string
 
@@ -17,6 +18,10 @@ export interface ToastProps {
   onClose: () => void
 
   children?: never
+}
+
+export interface ToastProps extends BaseToastProps {
+  timeout?: number
 }
 
 const Wrapper = styled.div<{ wide?: boolean }>`
@@ -80,7 +85,13 @@ const CloseButton = styled.button`
   height: ${spacing(5)};
 `
 
-export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
+export const Toast: FC<ToastProps> = ({
+  title,
+  content,
+  icon,
+  onClose,
+  timeout,
+}) => (
   <Wrapper>
     <Main>
       {icon && (
@@ -103,13 +114,19 @@ export const Toast: FC<ToastProps> = ({ title, content, icon, onClose }) => (
           onClose()
         }}
       >
-        <Icon name="close" color="gray300" />
+        {timeout !== undefined ? (
+          <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
+            <Icon name="close" color="gray300" />
+          </TimeoutIndicator>
+        ) : (
+          <Icon name="close" color="gray300" />
+        )}
       </CloseButton>
     </Main>
   </Wrapper>
 )
 
-export interface ActionToastProps extends ToastProps {
+export interface ActionToastProps extends BaseToastProps {
   action: string
   onAction: () => void
 }
@@ -159,7 +176,7 @@ export const ActionToast: FC<ActionToastProps> = ({
   </Wrapper>
 )
 
-export interface ConfirmToastProps extends ToastProps {
+export interface ConfirmToastProps extends BaseToastProps {
   confirm: string
   cancel: string
 
