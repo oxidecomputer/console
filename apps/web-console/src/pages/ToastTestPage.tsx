@@ -33,7 +33,7 @@ const ToastTestPage = () => {
       title: `Default Toast #${counter}`,
       onClose: incrDefaultCloseCounter,
 
-      timeout: shouldHaveTimeout ? 5 : undefined,
+      timeout: shouldHaveTimeout ? 5000 : undefined,
     })
   }
 

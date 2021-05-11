@@ -13,6 +13,6 @@ const Template: Story<TimeoutIndicatorProps> = (args) => (
 )
 export const Primary = Template.bind({})
 Primary.args = {
-  timeout: 5,
+  timeout: 5000,
   onTimeoutEnd: action('onTimeoutEnd'),
 }

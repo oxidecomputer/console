@@ -1,14 +1,6 @@
-import { spacing } from '@oxide/css-helpers'
-import type { FC } from 'react'
 import { useRef } from 'react'
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-
-const TimerContainer = styled.div`
-  position: relative;
-  width: ${spacing(6)};
-  height: ${spacing(6)};
-`
+import { styled } from 'twin.macro'
 
 const TimerContent = styled.span`
   position: absolute;
@@ -22,20 +14,6 @@ const TimerContent = styled.span`
   justify-content: center;
 `
 
-const TimerSVG = styled.svg`
-  transform: scaleX(-1);
-`
-
-const TimerCircle = styled.g`
-  fill: none;
-  stroke: none;
-`
-
-const TimerPathElapsed = styled.circle`
-  stroke-width: 4px;
-  stroke: transparent;
-`
-
 const TimerPathRemaining = styled.path`
   stroke-width: 4px;
   stroke-linecap: round;
@@ -46,80 +24,62 @@ const TimerPathRemaining = styled.path`
   stroke: white;
 `
 
-// Caculated from radius of circle: 2πr, r = 45 (see `r` on `TimerPathElapsed`)
-const FULL_DASH_ARRAY = 283
-
-const useTimeout = (timeout: number, onDone: () => void) => {
-  const timer = useRef<NodeJS.Timeout | null>(null)
-  const [time, setTime] = useState(0)
+// use null delay to prevent the interval from firing
+const useInterval = (callback: () => void, delay: number | null) => {
+  const callbackRef = useRef<() => void>()
 
   useEffect(() => {
-    timer.current = setInterval(() => {
-      setTime((t) => t + 1)
-    }, 1000)
-
-    return () => {
-      timer.current && clearInterval(timer.current)
-      timer.current = null
-    }
-  }, [])
+    callbackRef.current = callback
+  }, [callback])
 
   useEffect(() => {
-    if (time >= timeout && timer.current !== null) {
-      onDone()
-      clearInterval(timer.current)
-      timer.current = null
+    if (delay !== null) {
+      const intervalId = setInterval(() => callbackRef.current?.(), delay)
+      return () => clearInterval(intervalId)
     }
-  }, [onDone, time, timeout])
-
-  return time
+  }, [delay])
 }
 
-const calcTimeFraction = (passed: number, total: number) => {
-  const timeLeft = total - passed
-  const rawTimeFraction = timeLeft / total
-  return rawTimeFraction - (1 / total) * (1 - rawTimeFraction)
-}
+// r = 45 (see `r` on TimerPathRemaining)
+const FULL_DASH = 2 * Math.PI * 45
 
 export interface TimeoutIndicatorProps {
   timeout: number
   onTimeoutEnd: () => void
+  children: React.ReactNode
 }
 
-export const TimeoutIndicator: FC<TimeoutIndicatorProps> = ({
+export const TimeoutIndicator = ({
   timeout,
   onTimeoutEnd,
-
   children,
-}) => {
-  const [strokeDasharray, setStrokeDasharray] = useState<number | null>(null)
-  const timePassed = useTimeout(timeout, onTimeoutEnd)
+}: TimeoutIndicatorProps) => {
+  const [timeElapsed, setTimeElapsed] = useState(0)
+  const timedOut = timeElapsed >= timeout
+  useInterval(() => setTimeElapsed((t) => t + 1000), timedOut ? null : 1000)
+
+  const timeLeftFraction = (timeout - timeElapsed) / timeout
+  const strokeDash = Math.max(Math.round(timeLeftFraction * FULL_DASH), 0)
 
   useEffect(() => {
-    setStrokeDasharray(
-      Math.max(calcTimeFraction(timePassed, timeout) * FULL_DASH_ARRAY, 0)
-    )
-  }, [timePassed, timeout])
+    timedOut && onTimeoutEnd()
+  }, [timedOut, onTimeoutEnd])
 
   return (
-    <TimerContainer>
-      <TimerSVG viewBox="0 0 100 100">
-        <TimerCircle>
-          <TimerPathElapsed cx="50" cy="50" r="45" />
+    <div tw="relative w-6 h-6">
+      <svg fill="none" viewBox="0 0 100 100">
+        <g>
           <TimerPathRemaining
-            strokeDasharray={`${
-              strokeDasharray !== null ? strokeDasharray.toFixed(0) : ''
-            } ${FULL_DASH_ARRAY}`}
+            strokeDasharray={`${strokeDash} ${FULL_DASH}`}
             d="
-            M 50, 50
-            m -45, 0 
-            a 45,45 0 1,0 90,0
-            a 45,45 0 1,0 -90,0
-          "
+              M 5, 50
+              a 45,45 0 1,1 90,0
+              a 45,45 0 1,1 -90,0
+            "
           />
-        </TimerCircle>
-      </TimerSVG>
+        </g>
+      </svg>
       <TimerContent>{children}</TimerContent>
-    </TimerContainer>
+    </div>
   )
 }
