@@ -1,27 +1,38 @@
 <!-- TextWithIcon.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Default } from './TextWithIcon.stories'
+import 'twin.macro'
 
-<Meta
-  title="Foundations/TextWithIcon"
-  argTypes={{
-    align: {
-      control: {
-        type: 'radio',
-        options: ['left', 'right'],
-      },
-    },
-    text: {
-      control: { type: 'object' },
-    },
-  }}
-/>
+import { TextWithIcon } from '../TextWithIcon'
+import { Icon } from '../../icon/Icon'
+
+<Meta title="Foundations/TextWithIcon" component={TextWithIcon} />
 
 # Text with Icon
 
-<Canvas>
-  <Story story={Default} />
-</Canvas>
+### Icon on right
 
-<ArgsTable of={Text} story="^" />
+<Story name="Icon on right">
+  <TextWithIcon>
+    Create new project
+    <Icon name="plus" />
+  </TextWithIcon>
+</Story>
+
+### Icon on left
+
+<Story name="Icon on left">
+  <TextWithIcon>
+    <Icon name="project" />
+    My project
+  </TextWithIcon>
+</Story>
+
+### Custom gap
+
+<Story name="Custom gap">
+  <TextWithIcon tw="gap-8">
+    Create new project
+    <Icon name="plus" />
+  </TextWithIcon>
+</Story>

@@ -4,6 +4,7 @@ import tw, { styled } from 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
 
+import type { IconName } from '@oxide/ui'
 import {
   Breadcrumbs,
   Button,
@@ -20,25 +21,22 @@ import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
 import { spacing } from '@oxide/css-helpers'
 
-const Wrapper = styled.div``
-
-const InstanceAction = styled(Button).attrs({
-  size: 'xs',
-  variant: 'ghost',
-})``
+const InstanceAction = (props: {
+  icon: IconName
+  children: React.ReactNode
+}) => (
+  <Button size="xs" variant="subtle">
+    <TextWithIcon>
+      <Icon name={props.icon} />
+      {props.children}
+    </TextWithIcon>
+  </Button>
+)
 
 const PageAction = styled(Button).attrs({
   size: 'xs',
   variant: 'outline',
 })``
-
-const Actions = styled.div`
-  display: flex;
-
-  ${PageAction} {
-    margin-left: ${spacing(3)};
-  }
-`
 
 const Metadata = styled.div`
   margin-top: ${spacing(3)};
@@ -51,8 +49,6 @@ const StyledTabs = styled(Tabs)`
 const CardList = tw.div`flex flex-wrap space-x-4 -m-2`
 
 const StyledCard = tw(Card)`m-2`
-
-const OverviewPanel = styled.div``
 
 type Params = {
   projectName: string
@@ -81,31 +77,21 @@ const InstancePage = () => {
   if (!instance) return <div>loading</div>
 
   return (
-    <Wrapper>
+    <div>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="resources">{instance.name}</PageTitle>
-        <Actions>
-          <InstanceAction>
-            <TextWithIcon icon={{ name: 'pen' }}>Edit</TextWithIcon>
-          </InstanceAction>
-          <InstanceAction>
-            <TextWithIcon icon={{ name: 'stopwatch' }}>Reset</TextWithIcon>
-          </InstanceAction>
-          <InstanceAction>
-            <TextWithIcon icon={{ name: 'playStopO' }}>Stop</TextWithIcon>
-          </InstanceAction>
-          <InstanceAction>
-            <TextWithIcon icon={{ name: 'playPauseO' }}>Suspend</TextWithIcon>
-          </InstanceAction>
-          <InstanceAction>
-            <TextWithIcon icon={{ name: 'trash' }}>Delete</TextWithIcon>
-          </InstanceAction>
-          <PageAction>SSH</PageAction>
+        <div tw="flex space-x-2">
+          <InstanceAction icon="pen">Edit</InstanceAction>
+          <InstanceAction icon="stopwatch">Reset</InstanceAction>
+          <InstanceAction icon="playStopO">Stop</InstanceAction>
+          <InstanceAction icon="playPauseO">Suspend</InstanceAction>
+          <InstanceAction icon="trash">Delete</InstanceAction>
+          <PageAction tw="ml-4!">SSH</PageAction>
           <PageAction>
             <Icon name="more" />
           </PageAction>
-        </Actions>
+        </div>
       </PageHeader>
       <Metadata>
         <InstanceDetails instance={instance} />
@@ -115,7 +101,7 @@ const InstancePage = () => {
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
-        <OverviewPanel>
+        <div>
           <div>
             <CardList>
               <StyledCard title="Metrics" subtitle="Some status update" />
@@ -124,13 +110,13 @@ const InstancePage = () => {
             </CardList>
           </div>
           <InstancePageTables />
-        </OverviewPanel>
+        </div>
         <div></div>
         <div></div>
         <div></div>
         <div></div>
       </StyledTabs>
-    </Wrapper>
+    </div>
   )
 }
 

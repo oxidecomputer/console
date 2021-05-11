@@ -1,8 +1,8 @@
-import type { FC } from 'react'
 import React from 'react'
 
-import tw, { css, styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 
+import { Icon } from '../../../icon/Icon'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { color, spacing } from '@oxide/css-helpers'
 
@@ -48,15 +48,10 @@ const SubItemLink = styled(BaseLink)`
   display: inline-block;
 `
 
-const TitleWithIcon = styled(TextWithIcon).attrs({
-  text: { size: 'xs' },
-})<{ selected?: boolean }>`
-  ${({ selected }) =>
-    selected &&
-    css`
-      color: ${color('gray50')};
-    `}
-`
+const TitleWithIcon = styled(TextWithIcon)<{ selected?: boolean }>(() => [
+  tw`text-xs`,
+  ({ selected }) => selected && tw`text-gray-50`,
+])
 
 const SubItemTitle = tw.span`text-xxs`
 
@@ -64,7 +59,7 @@ export interface OperationListProps {
   className?: string
 }
 
-export const OperationList: FC<OperationListProps> = ({ className }) => {
+export const OperationList = ({ className }: OperationListProps) => {
   return (
     <nav className={className}>
       <Header>
@@ -73,13 +68,17 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
       <List>
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'dashboard' }}>System</TitleWithIcon>
+            <TitleWithIcon>
+              <Icon name="dashboard" />
+              System
+            </TitleWithIcon>
           </ListItemLink>
         </li>
 
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'resources' }}>
+            <TitleWithIcon>
+              <Icon name="resources" />
               Resources
             </TitleWithIcon>
           </ListItemLink>
@@ -124,19 +123,25 @@ export const OperationList: FC<OperationListProps> = ({ className }) => {
 
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'organization' }}>
+            <TitleWithIcon>
+              <Icon name="organization" />
               Organizations
             </TitleWithIcon>
           </ListItemLink>
         </li>
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'projects' }}>Projects</TitleWithIcon>
+            <TitleWithIcon>
+              <Icon name="projects" />
+              Projects
+            </TitleWithIcon>
           </ListItemLink>
         </li>
         <li>
           <ListItemLink href="#">
-            <TitleWithIcon icon={{ name: 'users' }}>IAM</TitleWithIcon>
+            <TitleWithIcon>
+              <Icon name="users" /> IAM
+            </TitleWithIcon>
           </ListItemLink>
         </li>
       </List>

@@ -1,10 +1,10 @@
-import type { FC } from 'react'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
 
+import { Icon } from '../../../icon/Icon'
 import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
 import { color, spacing } from '@oxide/css-helpers'
 
@@ -47,24 +47,7 @@ const activeLink = {
   color: color('gray50'),
 }
 
-const Create = styled.footer`
-  padding: ${spacing(1)};
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  cursor: pointer;
-
-  ${tw`space-x-1`}
-`
-
-const CreateText = styled(TextWithIcon).attrs({
-  align: 'right',
-  icon: { name: 'plus', color: 'gray400' },
-  text: { color: 'gray400', size: 'xxs' },
-})``
-
-export const ProjectList: FC<ProjectListProps> = (props) => {
+export const ProjectList = (props: ProjectListProps) => {
   return (
     <section tw="space-y-1" className={props.className}>
       <header tw="p-1 space-x-2 uppercase text-sm">
@@ -80,11 +63,13 @@ export const ProjectList: FC<ProjectListProps> = (props) => {
           </ListItem>
         ))}
       </List>
-      <Create>
-        <Link to="/projects/new">
-          <CreateText>Create a new project</CreateText>
+      <footer tw="p-1 flex cursor-pointer">
+        <Link tw="text-xxs text-gray-400" to="/projects/new">
+          <TextWithIcon tw="gap-1">
+            Create a new project <Icon tw="text-sm" name="plus" />
+          </TextWithIcon>
         </Link>
-      </Create>
+      </footer>
     </section>
   )
 }
