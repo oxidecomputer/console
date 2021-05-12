@@ -88,7 +88,7 @@ const InstancePage = () => {
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
-        <div>
+        <div tw="mt-4">
           <div>
             <div tw="flex flex-wrap gap-4">
               <Card title="Metrics" subtitle="Some status update" />

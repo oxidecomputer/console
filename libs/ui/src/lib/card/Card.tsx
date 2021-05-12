@@ -49,7 +49,7 @@ export const Card: FC<CardProps> = (props) => {
           </section>
         </div>
       </main>
-      <footer tw="flex text-xs py-2 px-4 bg-dark-green-900 items-baseline">
+      <footer tw="flex text-xs py-2 px-4 bg-dark-green-900 items-baseline uppercase">
         Optional link
       </footer>
     </article>
