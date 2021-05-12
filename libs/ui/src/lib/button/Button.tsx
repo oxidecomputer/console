@@ -2,7 +2,6 @@ import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
 
 import { css, styled } from 'twin.macro'
-import { Icon } from '../icon/Icon'
 import { color, spacing } from '@oxide/css-helpers'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
@@ -49,7 +48,7 @@ const getSizeStyles = (size: ButtonSize) => {
       line-height: ${buttonSize.lineHeight};
       padding: ${getPadding(buttonSize.padding[0], buttonSize.padding[1])};
 
-      ${Icon} {
+      svg {
         width: ${spacing(buttonSize.iconSize)};
       }
     `

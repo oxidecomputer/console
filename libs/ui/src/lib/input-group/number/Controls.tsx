@@ -2,7 +2,7 @@ import { color, spacing } from '@oxide/css-helpers'
 import type { FC } from 'react'
 import React from 'react'
 import { styled } from 'twin.macro'
-import Icon from '../../icon/Icon'
+import { Icon } from '../../icon/Icon'
 
 const FieldControls = styled.div`
   display: flex;

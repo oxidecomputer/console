@@ -52,7 +52,7 @@ const getSizeStyles = (size: AvatarSize) => {
 
       font-size: ${spacing(avatarSize.fontSize)};
 
-      ${Icon} {
+      svg {
         position: absolute;
         top: 18%;
         right: 0;

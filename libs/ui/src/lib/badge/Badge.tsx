@@ -1,7 +1,7 @@
 import React from 'react'
 
 import tw from 'twin.macro'
-import Icon from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 
 export const badgeColors = [
   'gray',

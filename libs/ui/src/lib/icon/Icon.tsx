@@ -1,25 +1,49 @@
-import { styled } from 'twin.macro'
+import React from 'react'
+import { useMemo } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import 'twin.macro'
+
 import type { Color } from '@oxide/css-helpers'
 import { color as getColor } from '@oxide/css-helpers'
-import type { IconComponentProps } from './IconComponent'
-import { IconComponent } from './IconComponent'
+import type { IconName } from './icons'
+import { icons } from './icons'
 
-export interface IconProps extends IconComponentProps {
+export interface IconProps {
+  /**
+   * Name (which corresponds to the `<title>`) of the SVG
+   */
+  name: IconName
+
+  /**
+   * Props to pass directly to the SVG
+   */
+  svgProps?: React.SVGProps<SVGSVGElement> & {
+    title?: string
+    titleId?: string
+  }
   color?: Color
 }
 
-const propsToForward: PropertyKey[] = ['className', 'svgProps', 'name']
+export const Icon = ({ name, svgProps, color, ...props }: IconProps) => {
+  const Component = icons[name]
 
-export const Icon = styled(IconComponent, {
-  shouldForwardProp: (prop) => propsToForward.includes(prop),
-})<IconProps>`
-  align-self: center; /* displays correct height for Safari */
-  flex-shrink: 0;
+  const titleId = useMemo(() => uuidv4(), [])
+  let addSvgProps = { ...svgProps }
 
-  height: auto;
-  width: 1em; /* icon size is controlled by parent font-size */
+  // All icons should have a default <title> tag
+  // Generate a titleId here so that the `id` and corresponding `aria-labelledby`
+  // attributes are always unique
+  // TODO: Allow icon to have the equivalent of an empty alt="" tag
+  if (!addSvgProps.titleId) {
+    addSvgProps = { titleId: titleId, ...svgProps }
+  }
 
-  fill: ${({ color }) => (color ? getColor(color) : 'currentColor')};
-`
-
-export default Icon
+  return (
+    <Component
+      tw="items-center flex-shrink-0 h-auto width[1em]"
+      css={{ fill: color ? getColor(color) : 'currentColor' }}
+      {...addSvgProps}
+      {...props}
+    />
+  )
+}

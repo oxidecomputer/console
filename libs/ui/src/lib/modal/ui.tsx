@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 import Button from '../button/Button'
-import Icon from '../icon/Icon'
+import { Icon } from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import { breakpoint, color, spacing } from '@oxide/css-helpers'
 

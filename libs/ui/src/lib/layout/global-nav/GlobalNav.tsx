@@ -6,8 +6,6 @@ import tw, { styled, theme } from 'twin.macro'
 import { Icon } from '../../icon/Icon'
 import { Avatar } from '../../avatar/Avatar'
 
-const Link = tw.a`ml-8 inline-flex`
-
 const encodedFillColor = encodeURIComponent(theme`colors.gray.700`)
 
 const TickBar = styled.div`
@@ -18,7 +16,8 @@ const TickBar = styled.div`
   ${tw`h-5 w-full`}
 `
 
-const Icon_ = tw(Icon)`w-6`
+const Link = tw.a`ml-8 inline-flex`
+const Icon_ = tw(Icon)`w-6!`
 const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green-500`
 
 export const GlobalNav: FC = () => {

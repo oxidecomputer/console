@@ -3,7 +3,7 @@ import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import type { TextInputGroupProps } from '..'
 import { TextInputGroup } from '..'
-import Icon from '../../../icon/Icon'
+import { Icon } from '../../../icon/Icon'
 
 export default {
   title: 'Components/Forms/Input Group/Text Input Group',

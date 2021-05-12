@@ -2,7 +2,7 @@ import type { Meta, Story } from '@storybook/react'
 import React from 'react'
 import type { InputGroupProps } from '..'
 import { InputGroup, Input } from '..'
-import Icon from '../../icon/Icon'
+import { Icon } from '../../icon/Icon'
 
 export default {
   title: 'Components/Forms/Input Group/Custom Input Groups',
