@@ -1,7 +1,6 @@
 const path = require('path')
 
 const UI_ROOT_DIR = 'libs/ui/src/lib'
-const PAGES_ROOT_DIR = 'apps/web-console/src/pages'
 
 module.exports = (plop) => {
   plop.setGenerator('ui-component', {
@@ -63,37 +62,6 @@ module.exports = (plop) => {
           templateFile: 'plop-templates/component-stories.hbs',
           data: { dir },
           skip: () => !args.mdx && 'MDX skipped, using CSF',
-        },
-      ]
-    },
-  })
-
-  plop.setGenerator('page', {
-    description: 'Generate a Page component',
-    prompts: [
-      {
-        type: 'input',
-        name: 'name',
-        message: 'Page name? (minus the "Page")',
-      },
-      {
-        type: 'input',
-        name: 'subdir',
-        message: `Directory within ${PAGES_ROOT_DIR}? (leave blank for root)`,
-      },
-    ],
-    actions: (args) => {
-      const dir = path.join(PAGES_ROOT_DIR, args.subdir)
-      const hooksRelPath = path.relative(
-        path.join('./', args.subdir, 'Page.tsx'),
-        './hooks'
-      )
-      return [
-        {
-          type: 'add',
-          path: '{{dir}}/{{name}}Page.tsx',
-          templateFile: 'plop-templates/page.hbs',
-          data: { dir, hooksRelPath },
         },
       ]
     },
