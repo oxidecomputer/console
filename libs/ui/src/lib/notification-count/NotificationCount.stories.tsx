@@ -6,7 +6,7 @@ import { NotificationCount } from './NotificationCount'
 
 export default {
   component: NotificationCount,
-  title: 'Layout/Sidebar Navigation/Project List/Notification Count',
+  title: 'Components/Notification Count',
 }
 
 const Template: Story<NotificationCountProps> = (args) => (

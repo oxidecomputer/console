@@ -3,7 +3,9 @@ import tw, { styled } from 'twin.macro'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { GlobalNav, OperationList, ProjectList } from '@oxide/ui'
+import { GlobalNav } from '../components/global-nav/GlobalNav'
+import { ProjectList } from '../components/project-list/ProjectList'
+import { OperationList } from '../components/operation-list/OperationList'
 import Wordmark from '../assets/wordmark.svg'
 
 interface AppLayoutProps {

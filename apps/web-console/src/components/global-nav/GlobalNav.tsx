@@ -3,8 +3,7 @@ import React from 'react'
 
 import tw, { styled, theme } from 'twin.macro'
 
-import { Icon } from '../../icon/Icon'
-import { Avatar } from '../../avatar/Avatar'
+import { Avatar, Icon } from '@oxide/ui'
 
 const encodedFillColor = encodeURIComponent(theme`colors.gray.700`)
 

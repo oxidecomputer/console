@@ -1,7 +1,7 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 
-import { Icon } from '../../../icon/Icon'
+import { Icon } from '@oxide/ui'
 import { color, spacing, textWithIcon } from '@oxide/css-helpers'
 
 const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`

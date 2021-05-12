@@ -3,8 +3,7 @@ import { styled } from 'twin.macro'
 import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'
-import { Icon } from '../icon/Icon'
-import { Badge } from '../badge/Badge'
+import { Badge, Icon } from '@oxide/ui'
 
 export interface InstanceDetailsProps {
   instance: ApiInstanceView

@@ -10,13 +10,13 @@ import {
   Button,
   Card,
   Icon,
-  InstanceDetails,
   PageHeader,
   PageTitle,
   Tabs,
 } from '@oxide/ui'
 import { textWithIcon } from '@oxide/css-helpers'
 
+import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
 

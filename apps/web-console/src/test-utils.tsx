@@ -1,5 +1,6 @@
 import type { FC, ReactElement } from 'react'
 import React from 'react'
+import { BrowserRouter as Router } from 'react-router-dom'
 import type { RenderOptions } from '@testing-library/react'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -13,7 +14,9 @@ const queryClient = new QueryClient({
 })
 
 const Providers: FC = ({ children }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  <Router>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  </Router>
 )
 
 const customRender = (
