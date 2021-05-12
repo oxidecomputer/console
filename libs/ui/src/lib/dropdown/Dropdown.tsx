@@ -196,7 +196,7 @@ export const Dropdown: FC<DropdownProps> = ({
         {...ariaProps}
       >
         {renderButtonText}
-        <Icon name="chevron" rotate="270deg" tw="ml-5" />
+        <Icon name="chevron" tw="ml-5 transform -rotate-90" />
       </StyledButton>
       <AnimatePresence>
         {select.isOpen && (

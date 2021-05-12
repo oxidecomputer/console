@@ -1,6 +1,8 @@
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 import type { Story } from '@storybook/react'
+
+import { textWithIcon } from '@oxide/css-helpers'
 import { Button, buttonSizes, variants } from '../Button'
 import type { ButtonProps, ButtonSize, Variant } from '../Button'
 import { Icon } from '../../icon/Icon'
@@ -67,9 +69,10 @@ const withIcons = variants.reduce(
             ...Default.args,
             variant,
             size,
+            css: textWithIcon,
             children: (
               <>
-                <Icon name="pen" align="left" />
+                <Icon name="pen" />
                 Edit
               </>
             ),

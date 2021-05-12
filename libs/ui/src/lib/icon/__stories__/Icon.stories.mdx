@@ -5,7 +5,7 @@ import { colorPalette } from '@oxide/css-helpers'
 
 import { Icon } from '../Icon'
 import { icons } from '../icons'
-import { Default, Rotate, CustomTitle } from './Icon.stories'
+import { Default, CustomTitle, Rotate } from './Icon.stories'
 
 <Meta
   title="Foundations/Icon"
@@ -103,8 +103,12 @@ The `<Icon />` component takes two props.
 
 ### Rotate
 
+Icon rotation is handled through the `tw` prop: `tw="transform rotate-45"`.
+
 <Canvas>
-  <Story story={Rotate} />
+  <Story name="Rotate">
+    <Rotate />
+  </Story>
 </Canvas>
 
 ### Icon with custom Title tag
