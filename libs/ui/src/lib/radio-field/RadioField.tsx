@@ -1,12 +1,11 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
-import { Text } from '../text/Text'
 import { Icon } from '../icon/Icon'
-import { spacing, visuallyHidden, color } from '@oxide/css-helpers'
+import { spacing, color } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = StyledComponentProps<
@@ -60,22 +59,13 @@ const Label = styled.label`
   display: inline-flex;
 `
 
-const LabelText = styled(Text).attrs({ size: 'sm' })<{ radioVariant: Variant }>`
-  color: ${color('white')};
+const LabelText = styled.span<{ radioVariant: Variant }>`
+  ${tw`text-sm text-white`}
 
-  ${({ radioVariant }) => {
-    if (radioVariant === 'card') {
-      return css`
-        padding: ${spacing(2)} ${spacing(4)};
-        background-color: ${color('darkGreen800')};
-        border: 1px solid transparent;
-
-        &:hover {
-          background-color: ${color('darkGreen900')};
-        }
-      `
-    }
-  }}
+  ${({ radioVariant }) =>
+    radioVariant === 'card' &&
+    tw`py-2 px-4 bg-dark-green-800 border border-transparent hover:bg-dark-green-900`}
+ }
 `
 
 const IconWrapper = styled.span`
@@ -95,7 +85,7 @@ const FilledRadio = styled(Icon)`
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
-  ${visuallyHidden}
+  ${tw`sr-only!`}
 
   &:checked + ${IconWrapper} {
     ${EmptyRadio} {
@@ -134,12 +124,7 @@ const StyledInput = styled.input`
   }
 `
 
-const HintText = styled(Text).attrs({ size: 'sm' })`
-  margin-top: ${spacing(1)};
-  max-width: ${spacing(100)};
-
-  color: ${color('gray300')};
-`
+const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-300`
 
 export const RadioField: FC<RadioFieldProps> = ({
   checked,

@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import tw, { styled } from 'twin.macro'
+import tw from 'twin.macro'
 import { useParams, useHistory } from 'react-router-dom'
 
 import {
@@ -11,48 +11,20 @@ import {
   RadioGroup,
   RadioField,
   Tabs,
-  Text,
   TextInputGroup,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { spacing } from '@oxide/css-helpers'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
-const Heading = styled(Text).attrs({
-  color: 'white',
-  size: 'lg',
-})`
-  display: block;
+const Heading = tw.h2`text-white text-lg mt-8 first:mt-0`
 
-  margin-top: ${spacing(8)};
+const Description = tw.p`text-gray-300 text-sm mt-2 max-w-prose`
 
-  &:first-child {
-    margin-top: 0;
-  }
-`
+const StyledTabs = tw(Tabs)`mt-1`
 
-const Description = styled(Text).attrs({
-  color: 'gray300',
-  size: 'sm',
-})`
-  display: block;
-
-  margin-top: ${spacing(2)};
-  max-width: ${spacing(150)};
-`
-
-const StyledTabs = styled(Tabs)`
-  margin-top: ${spacing(1)};
-`
-
-const RadioFieldText = styled(Text).attrs({
-  color: 'green50',
-  size: 'base',
-})`
-  display: block;
-`
+const RadioFieldText = tw.div`text-green-50 text-base`
 
 const Row = tw.div`flex space-x-6`
 

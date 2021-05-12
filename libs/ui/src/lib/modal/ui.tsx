@@ -5,7 +5,6 @@ import tw, { styled } from 'twin.macro'
 import Button from '../button/Button'
 import Icon from '../icon/Icon'
 import type { IconName } from '../icon/icons'
-import Text from '../text/Text'
 import { breakpoint, color, spacing } from '@oxide/css-helpers'
 
 interface ModalContainerProps {
@@ -77,23 +76,17 @@ export const Header: FC<HeaderProps> = ({ icon, children }) => (
         </HeaderIcon>
       </IconContainer>
     )}
-    <Text color="green400">{children}</Text>
+    <span tw="text-green-400">{children}</span>
   </StyledHeader>
 )
 
 interface BodyProps {
   children: ReactNode
 }
-const StyledBody = styled(Text).attrs({ as: 'main', size: 'sm' })`
-  flex: 1;
 
-  padding: ${spacing(4, 6, 6, 6)};
-
-  ${breakpoint('sm')`
-    flex: 0 0 auto; 
-  `}
-`
-export const Body: FC = ({ children }) => <StyledBody>{children}</StyledBody>
+export const Body: FC = ({ children }) => (
+  <main tw="text-sm flex-auto p-6 pt-4">{children}</main>
+)
 
 const StyledActions = styled.footer`
   display: flex;

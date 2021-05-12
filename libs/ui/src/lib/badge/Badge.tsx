@@ -1,12 +1,9 @@
-import { color, spacing } from '@oxide/css-helpers'
-import type { Color } from '@oxide/css-helpers'
-import type { FC } from 'react'
+import { spacing } from '@oxide/css-helpers'
 import React from 'react'
 
-import { css, styled } from 'twin.macro'
+import type { TwStyle } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import Icon from '../icon/Icon'
-import type { TextSize } from '../text/Text'
-import Text from '../text/Text'
 
 export const badgeColors = [
   'gray',
@@ -34,18 +31,19 @@ export interface BadgeProps {
   className?: string
 
   onClose?: () => void
+  children: React.ReactNode
 }
 
 const sizeMap: Record<
   Size,
   {
-    textSize: TextSize
+    textSize: TwStyle
     icons: Record<VariantWithIcon, { size: number; margin: number }>
     padding: Record<Variant, number[]>
   }
 > = {
   sm: {
-    textSize: 'xxs',
+    textSize: tw`text-xxs`,
     icons: {
       notification: { size: 2, margin: 1.25 },
       closable: { size: 2, margin: 1.25 },
@@ -57,7 +55,7 @@ const sizeMap: Record<
     },
   },
   base: {
-    textSize: 'xs',
+    textSize: tw`text-xs`,
     icons: {
       notification: { size: 2, margin: 1.75 },
       closable: { size: 3, margin: 1.5 },
@@ -69,7 +67,7 @@ const sizeMap: Record<
     },
   },
   xl: {
-    textSize: 'sm',
+    textSize: tw`text-sm`,
     icons: {
       notification: { size: 2, margin: 2.25 },
       closable: { size: 4, margin: 2.75 },
@@ -82,17 +80,16 @@ const sizeMap: Record<
   },
 }
 
-const colorMap: Record<BadgeColor, { background: Color; text: Color }> = {
-  gray: { background: 'gray600', text: 'white' },
-  red: { background: 'darkBgRed', text: 'red500' },
-  yellow: { background: 'darkBgYellow', text: 'yellow500' },
-  green: { background: 'darkBgGreen', text: 'green500' },
-  blue: { background: 'darkBgBlue', text: 'blue500' },
-  purple: { background: 'darkBgPurple', text: 'purple400' },
+const colorMap = {
+  gray: { bgColor: tw`bg-gray-600`, textColor: tw`text-white` },
+  red: { bgColor: tw`bg-dark-red`, textColor: tw`text-red-500` },
+  yellow: { bgColor: tw`bg-dark-yellow`, textColor: tw`text-yellow-500` },
+  green: { bgColor: tw`bg-dark-green-800`, textColor: tw`text-green-500` },
+  blue: { bgColor: tw`bg-dark-blue`, textColor: tw`text-blue-500` },
+  purple: { bgColor: tw`bg-dark-purple`, textColor: tw`text-purple-400` },
 }
 
 const StyledBadge = styled.span<{
-  background: Color
   padding: number[]
 }>`
   position: relative;
@@ -100,17 +97,12 @@ const StyledBadge = styled.span<{
   display: inline-flex;
   justify-content: center;
 
-  background-color: ${({ background }) => color(background)};
   padding: ${({ padding }) => spacing(...padding)};
 
   border-radius: 9999px;
 `
 
-const BadgeText = styled(Text)<{ textColor: Color }>`
-  text-transform: uppercase;
-  color: ${({ textColor }) => color(textColor)};
-  line-height: 1;
-`
+const BadgeText = tw.span`uppercase line-height[1]!`
 
 const StyledIcon = styled(Icon)<{ iconSize?: number }>`
   ${({ iconSize }) =>
@@ -143,15 +135,15 @@ const StyledButton = styled.button<{
   margin-left: ${({ margin }) => spacing(margin)};
 `
 
-export const Badge: FC<BadgeProps> = ({
+export const Badge = ({
   className,
   children,
   color = 'gray',
   size = 'base',
   variant = 'base',
   onClose,
-}) => {
-  const { background, text } = colorMap[color]
+}: BadgeProps) => {
+  const { bgColor, textColor } = colorMap[color]
   const {
     textSize,
     icons: { notification, closable },
@@ -159,21 +151,15 @@ export const Badge: FC<BadgeProps> = ({
   } = sizeMap[size]
 
   return (
-    <StyledBadge
-      className={className}
-      background={background}
-      padding={padding[variant]}
-    >
+    <StyledBadge className={className} css={bgColor} padding={padding[variant]}>
       {variant === 'notification' && (
         <NotificationIcon
           margin={notification.margin}
           iconSize={notification.size}
-          color={text}
+          css={[textColor]}
         />
       )}
-      <BadgeText size={textSize} textColor={text}>
-        {children}
-      </BadgeText>
+      <BadgeText css={[textSize, textColor]}>{children}</BadgeText>
       {variant === 'closable' && (
         <StyledButton
           size={closable.size}
@@ -181,7 +167,7 @@ export const Badge: FC<BadgeProps> = ({
           type="button"
           onClick={() => onClose && onClose()}
         >
-          <StyledIcon color={text} name="close" />
+          <StyledIcon css={textColor} name="close" />
         </StyledButton>
       )}
     </StyledBadge>

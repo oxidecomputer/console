@@ -2,30 +2,23 @@ import type { FC } from 'react'
 import React from 'react'
 
 import type { StyledComponentProps } from 'styled-components'
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import { useSelect } from 'downshift'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { Icon } from '../icon/Icon'
-import { Text } from '../text/Text'
-import { color, spacing, visuallyHidden } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 type SizeType = 'sm' | 'lg'
 type OptionType = { value: string; label: string }
 export interface DropdownProps {
   defaultValue?: string
-  /**
-   * Additional text to associate with this specific field
-   */
   hint?: string | React.ReactNode
   /**
    * Required for accessibility. Description of the dropdown.
    */
   label: string
   options: OptionType[]
-  /**
-   * Text that initially appears in the Button when nothing is selected
-   */
   placeholder?: string
   /**
    * Whether to show label to sighted users
@@ -37,17 +30,6 @@ export interface DropdownProps {
 const Wrapper = styled.div`
   position: relative;
 `
-
-/* Hide from sighted users, show to screen readers */
-const ScreenReaderLabel = styled.label`
-  ${visuallyHidden};
-`
-
-const Label = styled(Text).attrs({
-  as: 'label',
-  color: 'white',
-  size: 'sm',
-})``
 
 type ButtonProps = StyledComponentProps<
   'button',
@@ -160,12 +142,7 @@ const StyledOption = styled.li<{ size: SizeType; isHighlighted: boolean }>`
     `};
 `
 
-const HintText = styled(Text).attrs({ size: 'sm' })`
-  display: block;
-  margin-top: ${spacing(1)};
-
-  color: ${color('gray300')};
-`
+const HintText = tw.div`text-sm mt-1 text-gray-300`
 
 const FRAMER_VARIANTS = {
   open: {
@@ -199,12 +176,6 @@ export const Dropdown: FC<DropdownProps> = ({
   const hintId = hint ? `${select.getLabelProps().labelId}-hint` : ``
   const ariaProps = hint ? { 'aria-describedby': hintId } : {}
 
-  const renderLabel = showLabel ? (
-    <Label {...select.getLabelProps()}>{label}</Label>
-  ) : (
-    <ScreenReaderLabel {...select.getLabelProps()}>{label}</ScreenReaderLabel>
-  )
-
   const renderButtonText = select.selectedItem
     ? itemToString(select.selectedItem)
     : placeholder
@@ -225,7 +196,12 @@ export const Dropdown: FC<DropdownProps> = ({
 
   return (
     <Wrapper>
-      {renderLabel}
+      <label
+        css={showLabel ? tw`text-white text-sm` : tw`sr-only`}
+        {...select.getLabelProps()}
+      >
+        {label}
+      </label>
       <StyledButton
         type="button"
         hasPlaceholder={!select.selectedItem}

@@ -3,7 +3,6 @@ import type { Story } from '@storybook/react'
 
 import type { RadioFieldProps } from '../RadioField'
 import { RadioField } from '../RadioField'
-import { Text } from '../../text/Text'
 
 const Template: Story<RadioFieldProps> = (args) => <RadioField {...args} />
 
@@ -60,9 +59,9 @@ suffixes.forEach((storySuffix, index) => {
     ...commonArgs,
     children: (
       <>
-        <Text>{index + 1} CPUs</Text>
+        <span>{index + 1} CPUs</span>
         <br />
-        <Text>{2 * (index + 2)} GB RAM</Text>
+        <span>{2 * (index + 2)} GB RAM</span>
       </>
     ),
     name: 'group1',

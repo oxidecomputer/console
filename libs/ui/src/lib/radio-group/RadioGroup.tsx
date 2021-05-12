@@ -1,11 +1,10 @@
-import { spacing, visuallyHidden } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
-import { Text } from '../text/Text'
 
 type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
@@ -40,21 +39,12 @@ export interface RadioGroupProps {
 
 const StyledFieldset = styled.fieldset``
 
-const StyledLegend = styled(Text).attrs({
-  as: 'legend',
-  color: 'white',
-  size: 'lg',
-})<{ hideLegend: boolean }>`
-  display: block;
+const StyledLegend = styled.legend<{ hideLegend: boolean }>(() => [
+  tw`text-white text-lg`,
+  ({ hideLegend }) => hideLegend && tw`sr-only`,
+])
 
-  ${({ hideLegend }) => hideLegend && visuallyHidden};
-`
-
-const HintText = styled(Text).attrs({ color: 'gray300', size: 'base' })`
-  display: block;
-  margin-top: ${spacing(3)};
-  max-width: ${spacing(200)}; /* 800px */
-`
+const HintText = tw.div`text-base text-gray-300 mt-3 max-w-3xl`
 
 /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
 /* gap: ${spacing(5)}; */
