@@ -4,7 +4,7 @@ import { EmptyState } from './EmptyState'
 
 export default {
   component: EmptyState,
-  title: 'Regions/EmptyState',
+  title: 'Components/EmptyState',
 }
 
 export const Default = () => {

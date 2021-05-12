@@ -10,8 +10,9 @@
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",
-    "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
-    "storybook:clean": "rm -rf node_modules/.cache && yarn storybook",
+    "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "storybook:prod": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
+    "clean": "rm -rf node_modules/.cache",
     "plop": "plop"
   },
   "private": true,
