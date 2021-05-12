@@ -38,9 +38,10 @@ export const Icon = ({ name, svgProps, color, ...props }: IconProps) => {
     addSvgProps = { titleId: titleId, ...svgProps }
   }
 
+  // h-full is for safari, which handles h-auto badly, unlike everyone else
   return (
     <Component
-      tw="items-center flex-shrink-0 h-auto width[1em]"
+      tw="h-full width[1em]"
       css={{ fill: color ? getColor(color) : 'currentColor' }}
       {...addSvgProps}
       {...props}
