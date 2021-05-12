@@ -30,12 +30,6 @@ const customStyles = css`
     opacity: 1;
   }
 
-  // https://github.com/ben-rogerson/twin.macro/blob/16911c0/src/config/preflightStyles.js#L232
-  button,
-  [role='button'] {
-    cursor: auto;
-  }
-
   // https://github.com/ben-rogerson/twin.macro/blob/16911c0/src/config/preflightStyles.js#L274-L284
   svg {
     display: inline;
