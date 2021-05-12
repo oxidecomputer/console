@@ -8,6 +8,7 @@ import Sparkline from './sparkline.svg'
 export interface CardProps {
   title: string
   subtitle: string
+  className?: string
 }
 
 const DataTable = tw.div`grid grid-cols-2 grid-rows-2 gap-x-6 text-sm uppercase`
@@ -18,7 +19,7 @@ export const Card: FC<CardProps> = (props) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <article tw="text-green-500">
+    <article tw="text-green-500" className={props.className}>
       <main tw="p-4 bg-dark-green-800">
         <div tw="text-lg uppercase">{props.title}</div>
         <div tw="text-sm">{props.subtitle}</div>
