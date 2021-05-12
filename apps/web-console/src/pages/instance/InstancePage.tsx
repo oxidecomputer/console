@@ -14,7 +14,6 @@ import {
   PageTitle,
   Tabs,
 } from '@oxide/ui'
-import { textWithIcon } from '@oxide/css-helpers'
 
 import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
 import { InstancePageTables } from './InstancePageTables'
@@ -24,8 +23,8 @@ const InstanceAction = (props: {
   icon: IconName
   children: React.ReactNode
 }) => (
-  <Button size="xs" variant="subtle" css={textWithIcon}>
-    <Icon name={props.icon} />
+  <Button size="xs" variant="subtle" tw="inline-flex">
+    <Icon name={props.icon} tw="mr-2" />
     {props.children}
   </Button>
 )

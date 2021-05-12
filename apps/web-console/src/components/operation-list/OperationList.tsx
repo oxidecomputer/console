@@ -2,7 +2,7 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 
 import { Icon } from '@oxide/ui'
-import { color, spacing, textWithIcon } from '@oxide/css-helpers'
+import { color, spacing } from '@oxide/css-helpers'
 
 const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
@@ -40,8 +40,7 @@ const SubItemLink = styled(BaseLink)`
 `
 
 const TitleWithIcon = styled.span<{ selected?: boolean }>(() => [
-  tw`text-xs`,
-  textWithIcon,
+  tw`text-xs inline-flex`,
   ({ selected }) => selected && tw`text-gray-50`,
 ])
 
@@ -59,7 +58,7 @@ export const OperationList = ({ className }: OperationListProps) => {
         <li>
           <ListItemLink href="#">
             <TitleWithIcon>
-              <Icon name="dashboard" />
+              <Icon name="dashboard" tw="mr-2" />
               System
             </TitleWithIcon>
           </ListItemLink>
@@ -68,7 +67,7 @@ export const OperationList = ({ className }: OperationListProps) => {
         <li>
           <ListItemLink href="#">
             <TitleWithIcon>
-              <Icon name="resources" />
+              <Icon name="resources" tw="mr-2" />
               Resources
             </TitleWithIcon>
           </ListItemLink>
@@ -114,7 +113,7 @@ export const OperationList = ({ className }: OperationListProps) => {
         <li>
           <ListItemLink href="#">
             <TitleWithIcon>
-              <Icon name="organization" />
+              <Icon name="organization" tw="mr-2" />
               Organizations
             </TitleWithIcon>
           </ListItemLink>
@@ -122,7 +121,7 @@ export const OperationList = ({ className }: OperationListProps) => {
         <li>
           <ListItemLink href="#">
             <TitleWithIcon>
-              <Icon name="projects" />
+              <Icon name="projects" tw="mr-2" />
               Projects
             </TitleWithIcon>
           </ListItemLink>
@@ -130,7 +129,7 @@ export const OperationList = ({ className }: OperationListProps) => {
         <li>
           <ListItemLink href="#">
             <TitleWithIcon>
-              <Icon name="users" /> IAM
+              <Icon name="users" tw="mr-2" /> IAM
             </TitleWithIcon>
           </ListItemLink>
         </li>
