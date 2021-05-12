@@ -5,14 +5,13 @@
   "scripts": {
     "start": "NODE_ENV=development webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.prod.config.ts",
-    "build:storybook": "rm -rf node_modules/.cache && build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
+    "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
     "ci": "yarn tsc && yarn lint && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",
     "storybook": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache && yarn storybook",
-    "typecheck": "tsc",
     "plop": "plop"
   },
   "private": true,
