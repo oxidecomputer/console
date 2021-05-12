@@ -2,7 +2,6 @@ import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
 
 import { css, styled } from 'twin.macro'
-import type { StyledComponentProps } from 'styled-components'
 import { Icon } from '../icon/Icon'
 import { color, spacing } from '@oxide/css-helpers'
 
@@ -33,25 +32,11 @@ const sizes: Record<
   xl: { iconSize: 6, fontSize: 4, lineHeight: 1.5, padding: [2.5, 6] }, // total height: 48px
 }
 
-export type ButtonProps = StyledComponentProps<
-  'button',
-  never,
-  {
-    /**
-     * Should button take up the full width
-     */
-    fullWidth?: boolean
-    /**
-     * Set the size of the button
-     */
-    size?: ButtonSize
-    /**
-     * Style variation or button styles
-     */
-    variant?: Variant
-  },
-  never
->
+export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
+  fullWidth?: boolean
+  size?: ButtonSize
+  variant?: Variant
+}
 
 const getSizeStyles = (size: ButtonSize) => {
   const getPadding = (x: number, y: number) => `${spacing(x)} ${spacing(y)}`

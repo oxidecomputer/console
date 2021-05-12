@@ -1,10 +1,10 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import tw, { styled } from 'twin.macro'
+import 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
 
-import type { IconName } from '@oxide/ui'
+import type { IconName, ButtonProps } from '@oxide/ui'
 import {
   Breadcrumbs,
   Button,
@@ -19,7 +19,6 @@ import {
 
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
-import { spacing } from '@oxide/css-helpers'
 
 const InstanceAction = (props: {
   icon: IconName
@@ -33,22 +32,7 @@ const InstanceAction = (props: {
   </Button>
 )
 
-const PageAction = styled(Button).attrs({
-  size: 'xs',
-  variant: 'outline',
-})``
-
-const Metadata = styled.div`
-  margin-top: ${spacing(3)};
-`
-
-const StyledTabs = styled(Tabs)`
-  margin-top: ${spacing(4)};
-`
-
-const CardList = tw.div`flex flex-wrap space-x-4 -m-2`
-
-const StyledCard = tw(Card)`m-2`
+const pageAction: ButtonProps = { size: 'xs', variant: 'outline' }
 
 type Params = {
   projectName: string
@@ -87,27 +71,30 @@ const InstancePage = () => {
           <InstanceAction icon="playStopO">Stop</InstanceAction>
           <InstanceAction icon="playPauseO">Suspend</InstanceAction>
           <InstanceAction icon="trash">Delete</InstanceAction>
-          <PageAction tw="ml-4!">SSH</PageAction>
-          <PageAction>
+          <Button {...pageAction} tw="ml-4!">
+            SSH
+          </Button>
+          <Button {...pageAction}>
             <Icon name="more" />
-          </PageAction>
+          </Button>
         </div>
       </PageHeader>
-      <Metadata>
+      <div tw="mt-3">
         <InstanceDetails instance={instance} />
-      </Metadata>
-      <StyledTabs
+      </div>
+      <Tabs
+        tw="mt-4"
         fullWidth
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
         <div>
           <div>
-            <CardList>
-              <StyledCard title="Metrics" subtitle="Some status update" />
-              <StyledCard title="Activity" subtitle="Some status update" />
-              <StyledCard title="Access & IAM" subtitle="Some status update" />
-            </CardList>
+            <div tw="flex flex-wrap gap-4">
+              <Card title="Metrics" subtitle="Some status update" />
+              <Card title="Activity" subtitle="Some status update" />
+              <Card title="Access & IAM" subtitle="Some status update" />
+            </div>
           </div>
           <InstancePageTables />
         </div>
@@ -115,7 +102,7 @@ const InstancePage = () => {
         <div></div>
         <div></div>
         <div></div>
-      </StyledTabs>
+      </Tabs>
     </div>
   )
 }
