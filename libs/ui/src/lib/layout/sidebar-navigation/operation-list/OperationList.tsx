@@ -1,17 +1,8 @@
 import React from 'react'
-
 import tw, { styled } from 'twin.macro'
 
 import { Icon } from '../../../icon/Icon'
-import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import { color, spacing } from '@oxide/css-helpers'
-
-const Header = styled.header`
-  padding: ${spacing(1)};
-  text-transform: uppercase;
-`
-
-const HeaderText = tw.span`text-sm text-green-500`
+import { color, spacing, textWithIcon } from '@oxide/css-helpers'
 
 const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
 
@@ -48,8 +39,9 @@ const SubItemLink = styled(BaseLink)`
   display: inline-block;
 `
 
-const TitleWithIcon = styled(TextWithIcon)<{ selected?: boolean }>(() => [
+const TitleWithIcon = styled.span<{ selected?: boolean }>(() => [
   tw`text-xs`,
+  textWithIcon,
   ({ selected }) => selected && tw`text-gray-50`,
 ])
 
@@ -62,9 +54,7 @@ export interface OperationListProps {
 export const OperationList = ({ className }: OperationListProps) => {
   return (
     <nav className={className}>
-      <Header>
-        <HeaderText>Operations</HeaderText>
-      </Header>
+      <header tw="p-1 uppercase text-sm text-green-500">Operations</header>
       <List>
         <li>
           <ListItemLink href="#">

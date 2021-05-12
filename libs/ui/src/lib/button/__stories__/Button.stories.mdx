@@ -3,7 +3,7 @@
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Button, buttonSizes, variants } from '../Button'
 import { Icon } from '../../icon/Icon'
-import { TextWithIcon } from '../../text-with-icon/TextWithIcon'
+import { textWithIcon } from '@oxide/css-helpers'
 import { Default, stories } from './Button.stories'
 
 <Meta
@@ -109,20 +109,16 @@ An affirmative action is something that takes the users further in their journey
       <Icon name="plus" align="right" />
     </Button>
   </Story>
-  <Story name="TextWithIcon left">
-    <Button>
-      <TextWithIcon>
-        <Icon name="pen" />
-        Edit
-      </TextWithIcon>
+  <Story name="text with icon left">
+    <Button css={textWithIcon}>
+      <Icon name="pen" />
+      Edit
     </Button>
   </Story>
-  <Story name="TextWithIcon right">
-    <Button>
-      <TextWithIcon>
-        Create new project
-        <Icon name="plus" />
-      </TextWithIcon>
+  <Story name="text with icon right">
+    <Button css={textWithIcon}>
+      Create new project
+      <Icon name="plus" />
     </Button>
   </Story>
 </Canvas>

@@ -14,8 +14,8 @@ import {
   PageHeader,
   PageTitle,
   Tabs,
-  TextWithIcon,
 } from '@oxide/ui'
+import { textWithIcon } from '@oxide/css-helpers'
 
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs } from '../../hooks'
@@ -24,11 +24,9 @@ const InstanceAction = (props: {
   icon: IconName
   children: React.ReactNode
 }) => (
-  <Button size="xs" variant="subtle">
-    <TextWithIcon>
-      <Icon name={props.icon} />
-      {props.children}
-    </TextWithIcon>
+  <Button size="xs" variant="subtle" css={textWithIcon}>
+    <Icon name={props.icon} />
+    {props.children}
   </Button>
 )
 

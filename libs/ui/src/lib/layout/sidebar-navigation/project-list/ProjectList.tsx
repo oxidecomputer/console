@@ -5,8 +5,7 @@ import { Link, NavLink } from 'react-router-dom'
 import type { ApiProjectView } from '@oxide/api'
 
 import { Icon } from '../../../icon/Icon'
-import { TextWithIcon } from '../../../text-with-icon/TextWithIcon'
-import { color, spacing } from '@oxide/css-helpers'
+import { color, spacing, textWithIcon } from '@oxide/css-helpers'
 
 export interface ProjectListProps {
   className?: string
@@ -65,9 +64,9 @@ export const ProjectList = (props: ProjectListProps) => {
       </List>
       <footer tw="p-1 flex">
         <Link tw="text-xxs text-gray-400" to="/projects/new">
-          <TextWithIcon tw="gap-1">
+          <span css={textWithIcon} tw="gap-1">
             Create a new project <Icon tw="text-sm" name="plus" />
-          </TextWithIcon>
+          </span>
         </Link>
       </footer>
     </section>
