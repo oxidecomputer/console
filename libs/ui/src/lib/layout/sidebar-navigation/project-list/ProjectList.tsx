@@ -63,7 +63,7 @@ export const ProjectList = (props: ProjectListProps) => {
           </ListItem>
         ))}
       </List>
-      <footer tw="p-1 flex cursor-pointer">
+      <footer tw="p-1 flex">
         <Link tw="text-xxs text-gray-400" to="/projects/new">
           <TextWithIcon tw="gap-1">
             Create a new project <Icon tw="text-sm" name="plus" />
