@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "webpack serve --config webpack.dev.config.ts",
+    "start": "NODE_ENV=development webpack serve --config webpack.dev.config.ts",
     "build": "webpack --config webpack.prod.config.ts",
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
     "ci": "yarn tsc && yarn lint && yarn test",
