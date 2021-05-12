@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import type { StyledComponentProps } from 'styled-components'
 import tw, { css, styled } from 'twin.macro'
 import { useSelect } from 'downshift'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -31,12 +30,7 @@ const Wrapper = styled.div`
   position: relative;
 `
 
-type ButtonProps = StyledComponentProps<
-  'button',
-  never,
-  { hasPlaceholder: boolean },
-  never
->
+type ButtonProps = React.ComponentProps<'button'> & { hasPlaceholder: boolean }
 
 const StyledButton = styled.button<ButtonProps>`
   align-items: center;

@@ -1,7 +1,5 @@
 import { color, spacing } from '@oxide/css-helpers'
-import type { FC } from 'react'
 import React from 'react'
-import type { StyledComponentProps } from 'styled-components'
 import tw, { styled } from 'twin.macro'
 
 const StyledInput = styled.input`
@@ -23,24 +21,19 @@ const StyledInput = styled.input`
   }
 `
 
-export type InputProps = StyledComponentProps<
-  'input',
-  never,
-  {
-    error?: boolean
-    errorId?: string
-    hintId?: string
-  },
-  never
->
+export type InputProps = React.ComponentPropsWithRef<'input'> & {
+  error?: boolean
+  errorId?: string
+  hintId?: string
+}
 
-export const Input: FC<InputProps> = ({
+export const Input = ({
   required,
   error,
   errorId,
   hintId,
   ...props
-}) => (
+}: InputProps) => (
   <StyledInput
     aria-describedby={errorId || hintId ? `${errorId} ${hintId}` : undefined}
     aria-invalid={error}

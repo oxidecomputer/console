@@ -2,38 +2,32 @@ import type { FC } from 'react'
 import React from 'react'
 
 import tw, { css, styled } from 'twin.macro'
-import type { DefaultTheme, StyledComponentProps } from 'styled-components'
 
 import { Icon } from '../icon/Icon'
 import { spacing, color } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
-export type RadioFieldProps = StyledComponentProps<
-  'input',
-  DefaultTheme,
-  {
-    /**
-     * RadioGroup will handle checked based on its value
-     */
-    checked?: boolean
-    onChange?: React.ChangeEventHandler
-    /**
-     * Additional text to associate with this specific field
-     */
-    hint?: string | React.ReactNode
-    /**
-     * RadioGroup will pass `name` to Radio fields.
-     */
-    name?: string
-    required?: boolean
-    /**
-     * The value is a useful way to handle controlled radio inputs
-     */
-    value: string
-    variant?: Variant
-  },
-  never
->
+export type RadioFieldProps = React.ComponentProps<'input'> & {
+  /**
+   * RadioGroup will handle checked based on its value
+   */
+  checked?: boolean
+  onChange?: React.ChangeEventHandler
+  /**
+   * Additional text to associate with this specific field
+   */
+  hint?: string | React.ReactNode
+  /**
+   * RadioGroup will pass `name` to Radio fields.
+   */
+  name?: string
+  required?: boolean
+  /**
+   * The value is a useful way to handle controlled radio inputs
+   */
+  value: string
+  variant?: Variant
+}
 
 const INDENT = 6
 const RADIO_WIDTH = 3.5
