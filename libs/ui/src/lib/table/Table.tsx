@@ -1,7 +1,7 @@
 import React, { createContext, forwardRef, useContext } from 'react'
 import type { FC, ReactNode } from 'react'
 
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { spacing, color } from '@oxide/css-helpers'
@@ -66,10 +66,7 @@ const Controls = styled.div`
   background-color: ${TABLE_BG};
 `
 
-const IconButton = styled(Button).attrs({ variant: 'ghost' })`
-  padding: ${spacing(4)};
-  color: ${color('gray400')};
-`
+const IconButton = tw(Button)`p-4 text-gray-400`
 
 const Grid = styled.div`
   height: 100%;
@@ -285,13 +282,13 @@ export const Table = ({
     <Wrapper>
       {showControls ? (
         <Controls>
-          <IconButton>
+          <IconButton variant="ghost">
             <Icon name="search" />
           </IconButton>
-          <IconButton>
+          <IconButton variant="ghost">
             <Icon name="filter" />
           </IconButton>
-          <IconButton>
+          <IconButton variant="ghost">
             <Icon name="viewCols" />
           </IconButton>
         </Controls>

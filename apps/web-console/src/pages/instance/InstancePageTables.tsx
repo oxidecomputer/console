@@ -1,23 +1,7 @@
 import React from 'react'
-
-import tw, { styled } from 'twin.macro'
+import 'twin.macro'
 
 import { Button, Table, Icon } from '@oxide/ui'
-import { spacing } from '@oxide/css-helpers'
-
-const TableWrapper = styled.div`
-  height: 176px;
-  margin-top: ${spacing(3)};
-`
-
-const StyledText = tw.div`text-gray-50 mt-8`
-
-const StyledButton = styled(Button).attrs({
-  size: 'sm',
-  variant: 'ghost',
-})`
-  width: 100%;
-`
 
 const DISKS_SAMPLE_DATA = [
   {
@@ -112,9 +96,9 @@ export const InstancePageTables = ({
       size: entry.size,
       mode: <span tw="text-sm">{entry.mode}</span>,
       actions: (
-        <StyledButton>
+        <Button size="sm" variant="ghost" tw="w-full">
           <Icon name="more" />
-        </StyledButton>
+        </Button>
       ),
     }
   })
@@ -129,16 +113,16 @@ export const InstancePageTables = ({
       upstream: entry.upstream,
       cve: <span tw="text-sm">{entry.cve}</span>,
       actions: (
-        <StyledButton>
+        <Button size="sm" variant="ghost" tw="w-full">
           <Icon name="more" />
-        </StyledButton>
+        </Button>
       ),
     }
   })
   return (
     <>
-      <StyledText>Attached Disks</StyledText>
-      <TableWrapper>
+      <span tw="text-gray-50 mt-8">Attached Disks</span>
+      <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}
           columns={[
@@ -149,9 +133,9 @@ export const InstancePageTables = ({
           ]}
           data={formatDiskData}
         />
-      </TableWrapper>
-      <StyledText>Package Updates</StyledText>
-      <TableWrapper>
+      </div>
+      <span tw="text-gray-50 mt-8">Package Updates</span>
+      <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}
           columns={[
@@ -162,7 +146,7 @@ export const InstancePageTables = ({
           ]}
           data={formatPackagesData}
         />
-      </TableWrapper>
+      </div>
     </>
   )
 }

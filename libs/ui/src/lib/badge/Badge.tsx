@@ -2,7 +2,7 @@ import { spacing } from '@oxide/css-helpers'
 import React from 'react'
 
 import type { TwStyle } from 'twin.macro'
-import tw, { css, styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import Icon from '../icon/Icon'
 
 export const badgeColors = [
@@ -105,16 +105,10 @@ const StyledBadge = styled.span<{
 const BadgeText = tw.span`uppercase line-height[1]!`
 
 const StyledIcon = styled(Icon)<{ iconSize?: number }>`
-  ${({ iconSize }) =>
-    iconSize &&
-    css`
-      width: ${spacing(iconSize)};
-    `}
+  ${({ iconSize }) => iconSize && `width: ${spacing(iconSize)};`}
 `
 
-const NotificationIcon = styled(StyledIcon).attrs({ name: 'dot' })<{
-  margin: number
-}>`
+const NotificationIcon = styled(StyledIcon)<{ margin: number }>`
   margin-right: ${({ margin }) => spacing(margin)};
 `
 
@@ -154,6 +148,7 @@ export const Badge = ({
     <StyledBadge className={className} css={bgColor} padding={padding[variant]}>
       {variant === 'notification' && (
         <NotificationIcon
+          name="dot"
           margin={notification.margin}
           iconSize={notification.size}
           css={[textColor]}

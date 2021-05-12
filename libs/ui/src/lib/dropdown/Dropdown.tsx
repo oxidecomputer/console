@@ -67,13 +67,6 @@ const StyledButton = styled.button<ButtonProps>`
   }
 `
 
-const StyledIcon = styled(Icon).attrs({
-  name: 'chevron',
-  rotate: '270deg',
-})`
-  margin-left: ${spacing(5)};
-`
-
 const StyledMenu = styled(motion.ul)`
   z-index: 1;
   position: absolute;
@@ -209,7 +202,7 @@ export const Dropdown: FC<DropdownProps> = ({
         {...ariaProps}
       >
         {renderButtonText}
-        <StyledIcon />
+        <Icon name="chevron" rotate="270deg" tw="ml-5" />
       </StyledButton>
       <AnimatePresence>
         {select.isOpen && (

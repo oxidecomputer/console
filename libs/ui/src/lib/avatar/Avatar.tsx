@@ -4,7 +4,6 @@ import React, { useMemo } from 'react'
 
 import tw, { css, styled, theme } from 'twin.macro'
 
-import type { IconProps } from '../icon/Icon'
 import { Icon } from '../icon/Icon'
 
 export const avatarSizes = ['2xl', 'xl', 'lg', 'base', 'sm', 'xs'] as const
@@ -44,11 +43,6 @@ type WrapperProps = Omit<AvatarProps, 'name' | 'isPerson'> & {
   hasInitials?: boolean
 }
 
-const StyledIcon = styled(Icon).attrs({
-  name: 'profile',
-  color: 'gray300',
-})<IconProps>``
-
 const getSizeStyles = (size: AvatarSize) => {
   const avatarSize = sizeMap[size]
   if (avatarSize) {
@@ -58,7 +52,7 @@ const getSizeStyles = (size: AvatarSize) => {
 
       font-size: ${spacing(avatarSize.fontSize)};
 
-      ${StyledIcon} {
+      ${Icon} {
         position: absolute;
         top: 18%;
         right: 0;
@@ -101,7 +95,7 @@ const IconAvatar: React.FC<
 > = ({ className, name, isPerson, size }) => {
   return (
     <Wrapper className={className} size={size} isCircle={isPerson}>
-      <StyledIcon svgProps={{ title: name }} />
+      <Icon name="profile" color="gray300" svgProps={{ title: name }} />
     </Wrapper>
   )
 }
@@ -151,8 +145,8 @@ const InitialsAvatar: React.FC<
 export const Avatar: FC<AvatarProps> = ({
   className,
   name,
-  isPerson,
-  size,
+  isPerson = false,
+  size = 'base',
   src,
 }) => {
   if (src) {
@@ -181,11 +175,6 @@ export const Avatar: FC<AvatarProps> = ({
       size={size}
     />
   )
-}
-
-Avatar.defaultProps = {
-  isPerson: false,
-  size: 'base',
 }
 
 export default Avatar

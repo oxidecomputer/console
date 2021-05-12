@@ -2,7 +2,7 @@ import { spacing, color } from '@oxide/css-helpers'
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
-import { css, styled } from 'twin.macro'
+import tw, { css, styled } from 'twin.macro'
 import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
@@ -36,18 +36,11 @@ const TabList = styled.div`
   flex-wrap: nowrap;
 `
 
-const StyledButton = styled(Button).attrs({
-  size: 'base',
-  variant: 'ghost',
-})<{ fullWidth: boolean; isSelected: boolean }>`
-  ${({ isSelected }) =>
-    isSelected
-      ? css`
-          color: ${color('green500')};
-        `
-      : css`
-          color: ${color('green50')};
-        `}
+const StyledButton = styled(Button)<{
+  fullWidth: boolean
+  isSelected: boolean
+}>`
+  ${({ isSelected }) => (isSelected ? tw`text-green-500` : tw`text-green-50`)}
 
   ${({ fullWidth }) =>
     fullWidth &&
@@ -178,6 +171,7 @@ export const Tabs: FC<TabsProps> = ({
     const id = ids[index]
     return (
       <StyledButton
+        variant="ghost"
         aria-controls={`panel-${id}`}
         aria-selected={isSelected}
         fullWidth={fullWidth}
