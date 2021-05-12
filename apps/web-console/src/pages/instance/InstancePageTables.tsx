@@ -121,7 +121,7 @@ export const InstancePageTables = ({
   })
   return (
     <>
-      <span tw="text-gray-50 mt-8">Attached Disks</span>
+      <h2 tw="text-gray-50 mt-8">Attached Disks</h2>
       <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}
@@ -134,7 +134,7 @@ export const InstancePageTables = ({
           data={formatDiskData}
         />
       </div>
-      <span tw="text-gray-50 mt-8">Package Updates</span>
+      <h2 tw="text-gray-50 mt-8">Package Updates</h2>
       <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}
