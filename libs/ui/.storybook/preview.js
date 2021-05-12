@@ -84,10 +84,15 @@ export const parameters = {
   },
 }
 
+// inserting the global style only in story mode is essential. otherwise, on
+// docs pages that might render 50 stories, we are inserting the entire global
+// style for every story instead of relying on the one copy we put in
+// DocsContainer above. The workaround prior to this fix was running Storybook
+// in production mode, which made debugging very difficult.
 export const decorators = [
-  (Story) => (
+  (Story, context) => (
     <>
-      <GlobalStyle />
+      {context.viewMode === 'story' && <GlobalStyle />}
       <Router>
         <Story />
       </Router>

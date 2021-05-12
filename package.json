@@ -11,8 +11,7 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
-    "storybook:prod": "NODE_ENV=production start-storybook --ci -c libs/ui/.storybook -p 4400",
-    "clean": "rm -rf node_modules/.cache",
+    "storybook:clean": "rm -rf node_modules/.cache",
     "plop": "plop"
   },
   "private": true,
