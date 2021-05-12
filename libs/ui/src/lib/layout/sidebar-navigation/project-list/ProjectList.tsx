@@ -1,49 +1,16 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw from 'twin.macro'
 import { Link, NavLink } from 'react-router-dom'
 
 import type { ApiProjectView } from '@oxide/api'
 
 import { Icon } from '../../../icon/Icon'
-import { color, spacing, textWithIcon } from '@oxide/css-helpers'
+import { textWithIcon } from '@oxide/css-helpers'
 
 export interface ProjectListProps {
   className?: string
   /** The list of projects to display in the list */
   projects: ApiProjectView[]
-}
-
-const List = styled.ul`
-  padding: 0;
-
-  list-style: none;
-
-  display: flex;
-  flex-direction: column;
-
-  text-transform: uppercase;
-
-  ${tw`space-y-1`}
-`
-
-const ListItem = styled.li`
-  padding: 0;
-  width: 100%;
-
-  :hover {
-    background-color: ${color('gray700')};
-  }
-`
-
-const StyledLink = styled(NavLink)`
-  color: ${color('gray400')};
-  display: inline-flex;
-  padding: ${spacing(1)};
-  width: 100%;
-`
-
-const activeLink = {
-  color: color('gray50'),
 }
 
 export const ProjectList = (props: ProjectListProps) => {
@@ -53,15 +20,19 @@ export const ProjectList = (props: ProjectListProps) => {
         <span tw="text-green-500">Projects</span>
         <span tw="text-green-300">{props.projects.length}</span>
       </header>
-      <List>
+      <ul tw="flex flex-col uppercase space-y-1">
         {props.projects.map((p) => (
-          <ListItem tw="text-xs" key={p.id} tabIndex={0}>
-            <StyledLink to={`/projects/${p.name}`} activeStyle={activeLink}>
+          <li tw="text-xs hover:bg-gray-700" key={p.id} tabIndex={0}>
+            <NavLink
+              tw="inline-flex w-full p-1 text-gray-400"
+              to={`/projects/${p.name}`}
+              activeStyle={tw`text-gray-50`}
+            >
               {p.name}
-            </StyledLink>
-          </ListItem>
+            </NavLink>
+          </li>
         ))}
-      </List>
+      </ul>
       <footer tw="p-1 flex">
         <Link tw="text-xxs text-gray-400" to="/projects/new">
           <span css={textWithIcon} tw="gap-1">
