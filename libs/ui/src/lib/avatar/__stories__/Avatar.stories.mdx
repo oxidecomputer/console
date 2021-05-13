@@ -8,7 +8,7 @@ import { Person, AvatarAlignment } from './Avatar.stories'
   title="Components/Avatar"
   component={Avatar}
   argTypes={{
-    isPerson: { control: { type: 'boolean' } },
+    round: { control: { type: 'boolean' } },
     size: {
       control: {
         type: 'select',
@@ -63,7 +63,7 @@ It is preferable that an avatar display an image. Images are personalized and ma
     <Avatar
       size={size}
       name="Cameron Howe"
-      isPerson
+      round
       src="http://placekitten.com/500/500"
     />
   ))}
@@ -73,12 +73,6 @@ It is preferable that an avatar display an image. Images are personalized and ma
 
 <Canvas>
   {avatarSizes.map((size) => (
-    <Avatar size={size} name="Cameron Howe" isPerson />
+    <Avatar size={size} name="Cameron Howe" round />
   ))}
-</Canvas>
-
-### Avatar Alignment
-
-<Canvas>
-  <Story story={AvatarAlignment} />
 </Canvas>

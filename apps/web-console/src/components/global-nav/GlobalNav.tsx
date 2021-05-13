@@ -39,7 +39,7 @@ export const GlobalNav: FC = () => {
         <Icon_ name="notifications" />
       </Button>
       <Button type="button">
-        <Avatar isPerson size="xs" name="Some User" />
+        <Avatar round size="xs" name="Some User" />
       </Button>
     </div>
   )

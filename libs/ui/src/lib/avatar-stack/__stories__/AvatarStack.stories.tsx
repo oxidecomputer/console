@@ -7,18 +7,18 @@ import { AvatarStack } from '../AvatarStack'
 const Template: Story<AvatarStackProps> = (args) => <AvatarStack {...args} />
 
 const AVATAR_DATA = [
-  { name: 'Haley Clark', isPerson: true },
-  { name: 'Cameron Howe', isPerson: true },
-  { name: 'Gordon Clark', isPerson: true },
+  { name: 'Haley Clark', round: true },
+  { name: 'Cameron Howe', round: true },
+  { name: 'Gordon Clark', round: true },
 ]
 
 const AVATAR_DATA_VARIETY = [
   {
     name: 'Haley Clark',
-    isPerson: true,
+    round: true,
     src: 'http://placekitten.com/100/100',
   },
-  { name: 'Cameron Howe', isPerson: true },
+  { name: 'Cameron Howe', round: true },
   { name: 'Maze War', src: 'http://placekitten.com/200/200' },
   { name: 'Colossal Cave Adventure' },
 ]
