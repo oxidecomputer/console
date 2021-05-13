@@ -3,7 +3,8 @@
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Button, buttonSizes, variants } from '../Button'
 import { Icon } from '../../icon/Icon'
-import { Default, stories } from './Button.stories'
+import { Default, penIcon } from './Button.stories'
+import 'twin.macro'
 
 <Meta
   title="Components/Button"
@@ -83,104 +84,24 @@ An affirmative action is something that takes the users further in their journey
 
 ## Stories
 
-### Button Sizes
-
-<Canvas>
-  <Story story={stories.sizes.xs} />
-  <Story story={stories.sizes.sm} />
-  <Story story={stories.sizes.base} />
-  <Story story={stories.sizes.lg} />
-  <Story story={stories.sizes.xl} />
-</Canvas>
-
-### Button Variants
-
-#### Solid
-
-<Canvas>
-  <Story story={stories.variants.solid_xs} />
-  <Story story={stories.variants.solid_sm} />
-  <Story story={stories.variants.solid_base} />
-  <Story story={stories.variants.solid_lg} />
-  <Story story={stories.variants.solid_xl} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.withIcons.icon_solid_xs} />
-  <Story story={stories.withIcons.icon_solid_sm} />
-  <Story story={stories.withIcons.icon_solid_base} />
-  <Story story={stories.withIcons.icon_solid_lg} />
-  <Story story={stories.withIcons.icon_solid_xl} />
-</Canvas>
-
-#### Subtle
-
-<Canvas>
-  <Story story={stories.variants.subtle_xs} />
-  <Story story={stories.variants.subtle_sm} />
-  <Story story={stories.variants.subtle_base} />
-  <Story story={stories.variants.subtle_lg} />
-  <Story story={stories.variants.subtle_xl} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.withIcons.icon_subtle_xs} />
-  <Story story={stories.withIcons.icon_subtle_sm} />
-  <Story story={stories.withIcons.icon_subtle_base} />
-  <Story story={stories.withIcons.icon_subtle_lg} />
-  <Story story={stories.withIcons.icon_subtle_xl} />
-</Canvas>
-
-#### Outline
-
-<Canvas>
-  <Story story={stories.variants.outline_xs} />
-  <Story story={stories.variants.outline_sm} />
-  <Story story={stories.variants.outline_base} />
-  <Story story={stories.variants.outline_lg} />
-  <Story story={stories.variants.outline_xl} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.withIcons.icon_outline_xs} />
-  <Story story={stories.withIcons.icon_outline_sm} />
-  <Story story={stories.withIcons.icon_outline_base} />
-  <Story story={stories.withIcons.icon_outline_lg} />
-  <Story story={stories.withIcons.icon_outline_xl} />
-</Canvas>
-
-#### Ghost
-
-<Canvas>
-  <Story story={stories.variants.ghost_xs} />
-  <Story story={stories.variants.ghost_sm} />
-  <Story story={stories.variants.ghost_base} />
-  <Story story={stories.variants.ghost_lg} />
-  <Story story={stories.variants.ghost_xl} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.withIcons.icon_ghost_xs} />
-  <Story story={stories.withIcons.icon_ghost_sm} />
-  <Story story={stories.withIcons.icon_ghost_base} />
-  <Story story={stories.withIcons.icon_ghost_lg} />
-  <Story story={stories.withIcons.icon_ghost_xl} />
-</Canvas>
-
-#### Link
-
-<Canvas>
-  <Story story={stories.variants.link_xs} />
-  <Story story={stories.variants.link_sm} />
-  <Story story={stories.variants.link_base} />
-  <Story story={stories.variants.link_lg} />
-  <Story story={stories.variants.link_xl} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.withIcons.icon_link_xs} />
-  <Story story={stories.withIcons.icon_link_sm} />
-  <Story story={stories.withIcons.icon_link_base} />
-  <Story story={stories.withIcons.icon_link_lg} />
-  <Story story={stories.withIcons.icon_link_xl} />
-</Canvas>
+<>
+  {variants.map((variant) => (
+    <>
+      <h3 style={{ textTransform: 'capitalize' }}>{variant}</h3>
+      <Canvas>
+        {buttonSizes.map((size) => (
+          <Button size={size} variant={variant}>
+            Button
+          </Button>
+        ))}
+      </Canvas>
+      <Canvas>
+        {buttonSizes.map((size) => (
+          <Button size={size} variant={variant}>
+            {penIcon} Edit
+          </Button>
+        ))}
+      </Canvas>
+    </>
+  ))}
+</>

@@ -3,8 +3,8 @@ import React from 'react'
 import type { Story } from '@storybook/react'
 import 'twin.macro'
 
-import { Button, buttonSizes, variants } from '../Button'
-import type { ButtonProps, ButtonSize, Variant } from '../Button'
+import { Button } from '../Button'
+import type { ButtonProps } from '../Button'
 import { Icon } from '../../icon/Icon'
 
 type ButtonStory = Story<PropsWithChildren<ButtonProps>>
@@ -19,74 +19,4 @@ Default.args = {
   variant: 'solid',
 }
 
-const sizes = buttonSizes.reduce(
-  (rest, size) => ({
-    ...rest,
-    [size]: (() => {
-      const Story = Template.bind({})
-      Story.storyName = size
-      Story.args = { ...Default.args, size }
-      return Story
-    })(),
-  }),
-  {} as Record<ButtonSize, Story<ButtonProps>>
-)
-
-type VariantSize = `${Variant}_${ButtonSize}`
-const variantSizes = variants.reduce(
-  (allVariants, variant) => ({
-    ...allVariants,
-    ...buttonSizes.reduce(
-      (allSizes, size) => ({
-        ...allSizes,
-        [`${variant}_${size}`]: (() => {
-          const Story = Template.bind({})
-          Story.storyName = `${variant} ${size}`
-          Story.args = {
-            ...Default.args,
-            variant,
-            size,
-          }
-          return Story
-        })(),
-      }),
-      {} as Record<VariantSize, Story<ButtonProps>>
-    ),
-  }),
-  {} as Record<Variant, Record<ButtonSize, Story<ButtonProps>>>
-)
-
-const withIcons = variants.reduce(
-  (allVariants, variant) => ({
-    ...allVariants,
-    ...buttonSizes.reduce(
-      (allSizes, size) => ({
-        ...allSizes,
-        [`icon_${variant}_${size}`]: (() => {
-          const Story = Template.bind({})
-          Story.storyName = `${variant} with icon ${size}`
-          Story.args = {
-            ...Default.args,
-            variant,
-            size,
-            children: (
-              <>
-                <Icon name="pen" tw="mr-2" />
-                Edit
-              </>
-            ),
-          }
-          return Story
-        })(),
-      }),
-      {} as Record<VariantSize, Story<ButtonProps>>
-    ),
-  }),
-  {} as Record<Variant, Record<ButtonSize, Story<ButtonProps>>>
-)
-
-export const stories = {
-  sizes,
-  variants: variantSizes,
-  withIcons: withIcons,
-}
+export const penIcon = <Icon name="pen" tw="mr-2" />

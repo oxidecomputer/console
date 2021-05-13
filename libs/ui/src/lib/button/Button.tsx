@@ -50,13 +50,13 @@ const variantStyle: Record<Variant, Array<TwStyle | SerializedStyles>> = {
     tw`
       text-green-400
       hover:not-disabled:(bg-dark-green-900)
-      focus:bg-dark-green-800
+      focus:bg-dark-green-800!
     `,
     focusRing(theme`colors.green.300`),
   ],
   link: [
     tw`
-      text-green-500 p-1
+      text-green-500 h-auto p-1  // note h-auto overriding size style
       hover:not-disabled:(underline)
     `,
     focusRing(theme`colors.green.400`),
