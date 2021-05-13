@@ -2,7 +2,7 @@
 
 import { Meta, ArgsTable, Story, Canvas } from '@storybook/addon-docs/blocks'
 import { stories } from './Badge.stories'
-import { Badge } from '../Badge'
+import { Badge, badgeColors, badgeSizes, badgeVariants } from '../Badge'
 
 <Meta
   title="Components/Badge"
@@ -20,7 +20,7 @@ import { Badge } from '../Badge'
 
 <ArgsTable of={Badge} story="^" />
 
-# Rationalle
+# Rationale
 
 Badges highlight metadata of objects, the kind of information that always needs some context and isn’t useful on its own. For example, they can be used to indicate an issue’s status, a member’s role, or if a branch is protected.
 
@@ -30,89 +30,19 @@ Showing metadata does not require the use of badges, you can just use plain icon
 
 ## Variants
 
-### `base`
-
-<Canvas>
-  <Story story={stories.sm_base_gray} />
-  <Story story={stories.sm_base_red} />
-  <Story story={stories.sm_base_yellow} />
-  <Story story={stories.sm_base_green} />
-  <Story story={stories.sm_base_blue} />
-  <Story story={stories.sm_base_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.base_gray} />
-  <Story story={stories.base_red} />
-  <Story story={stories.base_yellow} />
-  <Story story={stories.base_green} />
-  <Story story={stories.base_blue} />
-  <Story story={stories.base_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.xl_base_gray} />
-  <Story story={stories.xl_base_red} />
-  <Story story={stories.xl_base_yellow} />
-  <Story story={stories.xl_base_green} />
-  <Story story={stories.xl_base_blue} />
-  <Story story={stories.xl_base_purple} />
-</Canvas>
-
-### `notification`
-
-<Canvas>
-  <Story story={stories.sm_notification_gray} />
-  <Story story={stories.sm_notification_red} />
-  <Story story={stories.sm_notification_yellow} />
-  <Story story={stories.sm_notification_green} />
-  <Story story={stories.sm_notification_blue} />
-  <Story story={stories.sm_notification_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.notification_gray} />
-  <Story story={stories.notification_red} />
-  <Story story={stories.notification_yellow} />
-  <Story story={stories.notification_green} />
-  <Story story={stories.notification_blue} />
-  <Story story={stories.notification_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.xl_notification_gray} />
-  <Story story={stories.xl_notification_red} />
-  <Story story={stories.xl_notification_yellow} />
-  <Story story={stories.xl_notification_green} />
-  <Story story={stories.xl_notification_blue} />
-  <Story story={stories.xl_notification_purple} />
-</Canvas>
-
-### `closable`
-
-<Canvas>
-  <Story story={stories.sm_closable_gray} />
-  <Story story={stories.sm_closable_red} />
-  <Story story={stories.sm_closable_yellow} />
-  <Story story={stories.sm_closable_green} />
-  <Story story={stories.sm_closable_blue} />
-  <Story story={stories.sm_closable_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.closable_gray} />
-  <Story story={stories.closable_red} />
-  <Story story={stories.closable_yellow} />
-  <Story story={stories.closable_green} />
-  <Story story={stories.closable_blue} />
-  <Story story={stories.closable_purple} />
-</Canvas>
-
-<Canvas>
-  <Story story={stories.xl_closable_gray} />
-  <Story story={stories.xl_closable_red} />
-  <Story story={stories.xl_closable_yellow} />
-  <Story story={stories.xl_closable_green} />
-  <Story story={stories.xl_closable_blue} />
-  <Story story={stories.xl_closable_purple} />
-</Canvas>
+<>
+  {badgeVariants.map((variant) => (
+    <>
+      <h3>{variant}</h3>
+      {badgeSizes.map((size) => (
+        <Canvas>
+          {badgeColors.map((color) => (
+            <Badge variant={variant} color={color} size={size}>
+              Badge
+            </Badge>
+          ))}
+        </Canvas>
+      ))}
+    </>
+  ))}
+</>
