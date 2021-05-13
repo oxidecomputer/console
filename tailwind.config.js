@@ -6,6 +6,9 @@ module.exports = {
       fontSize: {
         xxs: ['.6875rem', '1rem'],
       },
+      opacity: {
+        64: '.64',
+      },
     },
     fontFamily: {
       sans: ['Inter', 'sans-serif'],
@@ -69,6 +72,7 @@ module.exports = {
       'dark-red': '#2e2429',
       'dark-yellow': '#323327',
       'dark-green': {
+        700: '#20463b', // TODO: picked hastily, revisit
         800: '#18342c',
         900: '#172524',
       },

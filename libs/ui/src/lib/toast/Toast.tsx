@@ -1,7 +1,7 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 
-import Button from '../button/Button'
+import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'

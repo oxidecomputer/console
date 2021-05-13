@@ -1,8 +1,7 @@
-import { spacing, color } from '@oxide/css-helpers'
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
-import tw, { css, styled } from 'twin.macro'
+import tw from 'twin.macro'
 import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
@@ -27,44 +26,6 @@ export interface TabsProps {
    */
   children: Array<React.ReactNode>
 }
-
-const Wrapper = styled.div``
-
-const TabList = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-`
-
-const StyledButton = styled(Button)<{
-  fullWidth: boolean
-  isSelected: boolean
-}>`
-  ${({ isSelected }) => (isSelected ? tw`text-green-500` : tw`text-green-50`)}
-
-  ${({ fullWidth }) =>
-    fullWidth &&
-    css`
-      flex: 1;
-      margin-right: ${spacing(3)};
-
-      &:last-of-type {
-        margin: 0;
-      }
-    `}
-
-  border-bottom: 1px solid currentColor;
-
-  &:hover {
-    color: ${color('green500')};
-  }
-`
-
-const Panel = styled.div<{ isVisible: boolean }>`
-  overflow: auto;
-
-  ${({ isVisible }) => (isVisible ? null : `display: none;`)};
-`
 
 // Add or subtract depending on key pressed
 const DIRECTION = {
@@ -170,13 +131,17 @@ export const Tabs: FC<TabsProps> = ({
     const addAriaProps = isSelected ? {} : { tabIndex: -1 }
     const id = ids[index]
     return (
-      <StyledButton
+      <Button
         variant="ghost"
+        css={[
+          tw`border-0 border-b border-current hover:text-green-500`,
+          isSelected ? tw`text-green-500` : tw`text-green-50`,
+          fullWidth && tw`flex-1 not-last-of-type:mr-3`,
+        ]}
         aria-controls={`panel-${id}`}
         aria-selected={isSelected}
         fullWidth={fullWidth}
         id={`button-${id}`}
-        isSelected={isSelected}
         key={`button-${id}`}
         onClick={handleClick(index)}
         onKeyDown={handleKeydown}
@@ -186,7 +151,7 @@ export const Tabs: FC<TabsProps> = ({
         {...addAriaProps}
       >
         {tab}
-      </StyledButton>
+      </Button>
     )
   })
 
@@ -198,23 +163,25 @@ export const Tabs: FC<TabsProps> = ({
     // button and panel are always linked
     const id = ids[index]
     return (
-      <Panel
+      <div
+        tw="overflow-auto"
+        css={!isVisible && tw`hidden`}
         key={`panel-${id}`}
         aria-hidden={!isVisible}
         aria-labelledby={`button-${id}`}
         id={`panel-${id}`}
-        isVisible={isVisible}
         role="tabpanel"
         tabIndex={0}
       >
         {renderPanel}
-      </Panel>
+      </div>
     )
   })
 
   return (
-    <Wrapper className={className}>
-      <TabList
+    <div className={className}>
+      <div
+        tw="flex"
         role="tablist"
         aria-label={label}
         onBlur={() => {
@@ -222,9 +189,9 @@ export const Tabs: FC<TabsProps> = ({
         }}
       >
         {renderTabs}
-      </TabList>
+      </div>
       {renderPanels}
-    </Wrapper>
+    </div>
   )
 }
 
