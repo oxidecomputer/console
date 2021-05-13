@@ -1,5 +1,5 @@
 import { create } from '@storybook/theming'
-import { colorPalette } from '@oxide/css-helpers'
+import { theme } from 'twin.macro'
 
 // Storybook Theme Options:
 // https://github.com/storybookjs/storybook/blob/next/lib/theming/src/types.ts
@@ -17,9 +17,9 @@ export const darkUI = create({
   brandUrl: 'https://console-ui-storybook.vercel.app/',
 
   // UI
-  appBg: colorPalette.gray900,
-  appContentBg: colorPalette.gray900,
-  appBorderColor: colorPalette.gray700,
+  appBg: theme`colors.blue-gray.900`,
+  appContentBg: theme`colors.blue-gray.900`,
+  appBorderColor: theme`colors.gray.700`,
   appBorderRadius: 4,
 
   // Typography
