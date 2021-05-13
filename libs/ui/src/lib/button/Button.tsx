@@ -6,7 +6,7 @@ import type { TwStyle } from 'twin.macro'
 import tw, { css, theme } from 'twin.macro'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
-export const variants = ['ghost', 'link', 'outline', 'solid', 'subtle'] as const
+export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]

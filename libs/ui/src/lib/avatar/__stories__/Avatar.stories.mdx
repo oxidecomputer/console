@@ -2,12 +2,7 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Avatar, AvatarProps, avatarSizes } from '../Avatar'
-import {
-  Person,
-  Organization,
-  stories,
-  AvatarAlignment,
-} from './Avatar.stories'
+import { Person, AvatarAlignment } from './Avatar.stories'
 
 <Meta
   title="Components/Avatar"
@@ -27,17 +22,6 @@ import {
 
 Avatars are used to represent a unique entity, be it a person, a team, an org, or a project.
 
-export const Template = (args) => <Avatar {...args} />
-
-export const PersonArgs = {
-  name: 'Cameron Howe',
-  isPerson: true,
-}
-
-export const OrgArgs = {
-  name: 'Colossal Cave Adventure',
-}
-
 <Canvas>
   <Story story={Person} />
 </Canvas>
@@ -55,41 +39,42 @@ It is preferable that an avatar display an image. Images are personalized and ma
 ### Organization with an image
 
 <Canvas>
-  <Story story={stories.organization_image_sm} />
-  <Story story={stories.organization_image_base} />
-  <Story story={stories.organization_image_lg} />
-  <Story story={stories.organization_image_xl} />
-  <Story story={stories.organization_image_2xl} />
+  {avatarSizes.map((size) => (
+    <Avatar
+      size={size}
+      name="Colossal Cave Adventure"
+      src="http://placekitten.com/500/500"
+    />
+  ))}
 </Canvas>
 
 ### Organization fallback
 
 <Canvas>
-  <Story story={stories.organization_fallback_sm} />
-  <Story story={stories.organization_fallback_base} />
-  <Story story={stories.organization_fallback_lg} />
-  <Story story={stories.organization_fallback_xl} />
-  <Story story={stories.organization_fallback_2xl} />
+  {avatarSizes.map((size) => (
+    <Avatar size={size} name="Colossal Cave Adventure" />
+  ))}
 </Canvas>
 
 ### Person with an image
 
 <Canvas>
-  <Story story={stories.person_image_sm} />
-  <Story story={stories.person_image_base} />
-  <Story story={stories.person_image_lg} />
-  <Story story={stories.person_image_xl} />
-  <Story story={stories.person_image_2xl} />
+  {avatarSizes.map((size) => (
+    <Avatar
+      size={size}
+      name="Cameron Howe"
+      isPerson
+      src="http://placekitten.com/500/500"
+    />
+  ))}
 </Canvas>
 
 ### Person fallback
 
 <Canvas>
-  <Story story={stories.person_fallback_sm} />
-  <Story story={stories.person_fallback_base} />
-  <Story story={stories.person_fallback_lg} />
-  <Story story={stories.person_fallback_xl} />
-  <Story story={stories.person_fallback_2xl} />
+  {avatarSizes.map((size) => (
+    <Avatar size={size} name="Cameron Howe" isPerson />
+  ))}
 </Canvas>
 
 ### Avatar Alignment

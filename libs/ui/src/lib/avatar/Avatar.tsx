@@ -6,7 +6,7 @@ import tw, { css, styled, theme } from 'twin.macro'
 
 import { Icon } from '../icon/Icon'
 
-export const avatarSizes = ['2xl', 'xl', 'lg', 'base', 'sm', 'xs'] as const
+export const avatarSizes = ['xs', 'sm', 'base', 'lg', 'xl', '2xl'] as const
 export type AvatarSize = typeof avatarSizes[number]
 
 const sizeMap: Record<AvatarSize, { width: number; fontSize: number }> = {
