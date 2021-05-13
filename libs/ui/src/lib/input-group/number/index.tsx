@@ -1,109 +1,82 @@
-import type { ChangeEvent, FC, FocusEvent } from 'react'
 import React, { useState, useEffect } from 'react'
+import 'twin.macro'
+
 import type { InputGroupProps } from '../group'
 import { InputGroup } from '../group'
 import { Input } from '../Input'
 import { Controls } from './Controls'
-import { styled } from 'twin.macro'
-
-const StyledInput = styled(Input)`
-  appearance: textfield;
-
-  ::-webkit-inner-spin-button,
-  ::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-`
-
-const useNumberInputGroup = (
-  value: number,
-  onChange: (newValue: number) => void
-) => {
-  const [internalValue, setInternalValue] = useState(value.toString())
-
-  useEffect(() => {
-    // using callback version here prevents this effect depending on the value of `internalValue`, which means this _only_ fires when `value` changes from outside
-    setInternalValue((internalValue) => {
-      // Convert what's currently into the text box into a number
-      const parsedInternalValue = parseFloat(internalValue)
-
-      // if the internal number is not the same as the value being passed in
-      if (parsedInternalValue !== value) {
-        // turn the value being passed into a string and store it in `internalValue`
-        return value.toString()
-      }
-
-      // Otherwise keep internalValue as is, this means the number representation and the string representation are equivalent
-      return internalValue
-    })
-  }, [value])
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // Always store what's typed
-    setInternalValue(e.target.value)
-
-    // try to convert it to a number
-    const number = parseFloat(e.target.value)
-    // if it's a valid number, send it out of the component,
-    if (!Number.isNaN(number)) {
-      onChange(number)
-    }
-    // Otherwise do nothing as the user is probably in the process of tying something in
-  }
-
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    // Try to parse the number
-    const number = parseFloat(e.target.value)
-
-    // if it is not a valid number
-    if (Number.isNaN(number)) {
-      // reset the input to the current value
-      setInternalValue(value.toString())
-    }
-  }
-
-  return { internalValue, handleChange, handleBlur }
-}
+import { KEYS } from '../../keys-utils'
 
 export interface NumberInputGroupProps extends InputGroupProps {
-  /** Value this field should display */
   value: number
-
-  /** Fires when the value entered in the textbox is a valid number, or when the field blurs. */
+  defaultValue?: number
   onChange: (value: number) => void
 }
 
-export const NumberInputGroup: FC<NumberInputGroupProps> = ({
+export const NumberInputGroup = ({
   value,
+  defaultValue = 0,
   onChange,
-
   disabled,
   ...fieldProps
-}) => {
-  const { internalValue, handleChange, handleBlur } = useNumberInputGroup(
-    value,
-    onChange
-  )
+}: NumberInputGroupProps) => {
+  const [internalValue, setInternalValue] = useState(value.toString())
 
-  const handleControls = (delta: number) => () => {
-    onChange(value + delta)
+  // whenever the canonical value changes from outside, update internalValue
+  useEffect(() => {
+    setInternalValue(value.toString())
+  }, [value])
+
+  // updating the other way is conditional on input being a number
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // filter out non-numeric input but allow empty field
+    if (/^\d*$/.test(e.target.value)) {
+      setInternalValue(e.target.value)
+
+      // only way this can be NaN is if it's empty, but better to be safe and
+      // and check for NaN instead of parse failure
+      const number = parseInt(e.target.value, 10)
+      if (!Number.isNaN(number)) {
+        onChange(number)
+      }
+    }
+  }
+
+  // since we filter out non-numeric input, the only time we need to reset to
+  // the default value is when the field is left empty
+  const handleBlur = () => {
+    if (internalValue.trim() === '') {
+      onChange(defaultValue)
+      setInternalValue(defaultValue.toString())
+    }
+  }
+
+  const incr = () => onChange(value + 1)
+  const decr = () => onChange(value - 1)
+
+  const keyMap = {
+    [KEYS.up]: incr,
+    [KEYS.down]: decr,
+  } as const
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key in keyMap) {
+      e.preventDefault()
+      keyMap[e.key as keyof typeof keyMap]() // `in` narrowing apparently insufficient
+    }
   }
 
   return (
     <InputGroup disabled={disabled} {...fieldProps}>
-      <StyledInput
-        type="number"
+      <Input
+        type="text"
         value={internalValue}
         onChange={handleChange}
         onBlur={handleBlur}
         disabled={disabled}
+        onKeyDown={handleKeyDown}
       />
-      <Controls
-        disabled={disabled}
-        onIncrement={handleControls(1)}
-        onDecrement={handleControls(-1)}
-      />
+      <Controls disabled={disabled} onIncrement={incr} onDecrement={decr} />
     </InputGroup>
   )
 }
