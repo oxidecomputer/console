@@ -1,17 +1,11 @@
 import type { Meta, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import React, { useState } from 'react'
-import type { NumberInputGroupProps } from '..'
-import { NumberInputGroup } from '..'
-import mdx from './NumberInputGroup.mdx'
+import type { NumberInputGroupProps } from '.'
+import { NumberInputGroup } from '.'
 
 export default {
   title: 'Components/Forms/Input Group/Number',
-  parameters: {
-    docs: {
-      page: mdx,
-    },
-  },
 } as Meta<NumberInputGroupProps>
 
 const Template: Story<NumberInputGroupProps> = (args) => (
@@ -38,7 +32,7 @@ Disabled.args = {
 
 const StateTemplate: Story<Omit<NumberInputGroupProps, 'value' | 'onChange'>> =
   (args) => {
-    const [value, setValue] = useState(10)
+    const [value, setValue] = useState(0)
 
     return <NumberInputGroup value={value} onChange={setValue} {...args} />
   }
@@ -46,6 +40,15 @@ const StateTemplate: Story<Omit<NumberInputGroupProps, 'value' | 'onChange'>> =
 export const WithState = StateTemplate.bind({})
 WithState.args = {
   id: 'number-input-group',
-  label: 'Number Input Group (with State)',
+  label: 'Number Input Group (with state)',
   required: false,
+}
+
+export const WithStateMaxMin = StateTemplate.bind({})
+WithStateMaxMin.args = {
+  id: 'number-input-group',
+  label: 'Number Input Group (with state, max, and min)',
+  required: false,
+  max: 10,
+  min: -10,
 }

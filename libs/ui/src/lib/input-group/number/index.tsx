@@ -11,6 +11,8 @@ export interface NumberInputGroupProps extends InputGroupProps {
   value: number
   defaultValue?: number
   onChange: (value: number) => void
+  min?: number
+  max?: number
 }
 
 export const NumberInputGroup = ({
@@ -18,6 +20,8 @@ export const NumberInputGroup = ({
   defaultValue = 0,
   onChange,
   disabled,
+  max,
+  min,
   ...fieldProps
 }: NumberInputGroupProps) => {
   const [internalValue, setInternalValue] = useState(value.toString())
@@ -51,8 +55,16 @@ export const NumberInputGroup = ({
     }
   }
 
-  const incr = () => onChange(value + 1)
-  const decr = () => onChange(value - 1)
+  const incr = () => {
+    if (typeof max === 'undefined' || value < max) {
+      onChange(value + 1)
+    }
+  }
+  const decr = () => {
+    if (typeof min === 'undefined' || value > min) {
+      onChange(value - 1)
+    }
+  }
 
   const keyMap = {
     [KEYS.up]: incr,
