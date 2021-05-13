@@ -1,8 +1,20 @@
 <!-- AvatarStack.stories.mdx -->
 
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks'
-import { Default, stories } from './AvatarStack.stories'
+import { Default } from './AvatarStack.stories'
 import { AvatarStack } from '../AvatarStack'
+import { avatarSizes } from '../../avatar/Avatar'
+
+export const AVATAR_DATA_VARIETY = [
+  {
+    name: 'Haley Clark',
+    round: true,
+    src: 'http://placekitten.com/100/100',
+  },
+  { name: 'Cameron Howe', round: true },
+  { name: 'Maze War', src: 'http://placekitten.com/200/200' },
+  { name: 'Colossal Cave Adventure' },
+]
 
 <Meta title="Components/AvatarStack" component={AvatarStack} />
 
@@ -19,9 +31,7 @@ import { AvatarStack } from '../AvatarStack'
 ### Sizes
 
 <Canvas>
-  <Story story={stories.xs} />
-  <Story story={stories.sm} />
-  <Story story={stories.base} />
-  <Story story={stories.lg} />
-  <Story story={stories.xl} />
+  {avatarSizes.map((size) => (
+    <AvatarStack size={size} key={size} data={AVATAR_DATA_VARIETY} />
+  ))}
 </Canvas>
