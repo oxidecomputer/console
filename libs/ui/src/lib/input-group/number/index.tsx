@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import 'twin.macro'
+import tw from 'twin.macro'
 
 import type { InputGroupProps } from '../group'
 import { InputGroup } from '../group'
 import { Input } from '../Input'
-import { Controls } from './Controls'
+import { Icon } from '../../icon/Icon'
 import { KEYS } from '../../keys-utils'
 
 export interface NumberInputGroupProps extends InputGroupProps {
@@ -14,6 +14,13 @@ export interface NumberInputGroupProps extends InputGroupProps {
   min?: number
   max?: number
 }
+
+const ctrl = tw`
+  py-2 px-3
+  disabled:(text-gray-400 hover:cursor-auto)
+  not-disabled:hover:bg-gray-800
+  focus:(outline-none shadow-ring-green-500)
+`
 
 export const NumberInputGroup = ({
   value,
@@ -55,16 +62,11 @@ export const NumberInputGroup = ({
     }
   }
 
-  const incr = () => {
-    if (typeof max === 'undefined' || value < max) {
-      onChange(value + 1)
-    }
-  }
-  const decr = () => {
-    if (typeof min === 'undefined' || value > min) {
-      onChange(value - 1)
-    }
-  }
+  const incrEnabled = !disabled && (typeof max === 'undefined' || value < max)
+  const incr = () => incrEnabled && onChange(value + 1)
+
+  const decrEnabled = !disabled && (typeof min === 'undefined' || value > min)
+  const decr = () => decrEnabled && onChange(value - 1)
 
   const keyMap = {
     [KEYS.up]: incr,
@@ -88,7 +90,14 @@ export const NumberInputGroup = ({
         disabled={disabled}
         onKeyDown={handleKeyDown}
       />
-      <Controls disabled={disabled} onIncrement={incr} onDecrement={decr} />
+      <div tw="flex">
+        <button type="button" css={ctrl} onClick={decr} disabled={!decrEnabled}>
+          <Icon name="minus" svgProps={{ title: 'Decrement' }} />
+        </button>
+        <button type="button" css={ctrl} onClick={incr} disabled={!incrEnabled}>
+          <Icon name="plus" svgProps={{ title: 'Increment' }} />
+        </button>
+      </div>
     </InputGroup>
   )
 }

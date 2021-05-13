@@ -1,9 +1,7 @@
-import type { SerializedStyles } from '@emotion/react'
 import type { PropsWithChildren } from 'react'
 import React, { forwardRef } from 'react'
-
 import type { TwStyle } from 'twin.macro'
-import tw, { css, theme } from 'twin.macro'
+import tw from 'twin.macro'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
 export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
@@ -19,56 +17,33 @@ const sizeStyle: Record<ButtonSize, TwStyle> = {
   xl: tw`h-12 px-6 text-base svg:w-6`,
 }
 
-const ring = (color: string) => css`
-  box-shadow: inset 0 0 0 1px ${color};
-`
-
-const focusRing = (color: string) => css`
-  &:focus {
-    ${ring(color)};
-  }
-`
-
-const variantStyle: Record<Variant, Array<TwStyle | SerializedStyles>> = {
-  subtle: [
-    tw`
-      bg-dark-green-800 text-green-400
-      hover:not-disabled:bg-dark-green-700
-    `,
-    focusRing(theme`colors.green.400`),
-  ],
-  outline: [
-    tw`
-      bg-dark-green-800 text-green-400
-      hover:not-disabled:bg-dark-green-900
-      focus:bg-dark-green-800
-    `,
-    focusRing(theme`colors.green.300`),
-    ring(theme`colors.green.500`),
-  ],
-  ghost: [
-    tw`
-      text-green-400
-      hover:not-disabled:(bg-dark-green-900)
-      focus:bg-dark-green-800!
-    `,
-    focusRing(theme`colors.green.300`),
-  ],
-  link: [
-    tw`
-      text-green-500 h-auto p-1  // note h-auto overriding size style
-      hover:not-disabled:(underline)
-    `,
-    focusRing(theme`colors.green.400`),
-  ],
-  solid: [
-    tw`
-      bg-green-600 text-green-50
-      hover:not-disabled:(bg-green-700 border-green-700)
-      disabled:opacity-64
-    `,
-    focusRing(theme`colors.white`),
-  ],
+const variantStyle: Record<Variant, TwStyle> = {
+  solid: tw`
+    bg-green-600 text-green-50
+    hover:not-disabled:(bg-green-700 border-green-700)
+    disabled:opacity-64
+    focus:shadow-ring-white
+  `,
+  subtle: tw`
+    bg-dark-green-800 text-green-400
+    hover:not-disabled:bg-dark-green-700
+    focus:shadow-ring-green-500
+  `,
+  outline: tw`
+    bg-dark-green-800 text-green-400 shadow-ring-green-500
+    hover:not-disabled:bg-dark-green-900
+    focus:(bg-dark-green-800 shadow-ring-green-300)
+  `,
+  ghost: tw`
+    text-green-400
+    hover:not-disabled:(bg-dark-green-900)
+    focus:(bg-dark-green-800! shadow-ring-green-500)
+  `,
+  link: tw`
+    text-green-500 h-auto p-1  // note h-auto overriding size style
+    hover:not-disabled:(underline)
+    focus:shadow-ring-green-500
+  `,
 }
 
 const baseStyle = tw`
