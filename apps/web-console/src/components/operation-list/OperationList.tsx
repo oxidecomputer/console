@@ -1,139 +1,64 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw from 'twin.macro'
 
+import type { IconName } from '@oxide/ui'
 import { Icon } from '@oxide/ui'
-import { color, spacing } from '@oxide/css-helpers'
 
-const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
-
-const BaseLink = styled.a`
-  color: ${color('gray400')};
-  padding: ${spacing(1)};
-
-  :hover {
-    background-color: ${color('gray700')};
-  }
-`
-
-const ListItemLink = tw(BaseLink)`flex space-x-2`
-
-const glyphWidth = '1rem'
-
-const ListSubItem = styled.li`
-  margin-left: 1.75rem;
-
-  ::before {
-    content: '├';
-    color: ${color('yellow500')};
-    width: ${glyphWidth};
-    display: inline-block;
-  }
-
-  :last-child::before {
-    content: '└';
-  }
-`
-
-const SubItemLink = styled(BaseLink)`
-  width: calc(100% - ${glyphWidth});
-  display: inline-block;
-`
-
-const TitleWithIcon = styled.span<{ selected?: boolean }>(() => [
-  tw`text-xs inline-flex`,
-  ({ selected }) => selected && tw`text-gray-50`,
-])
-
-const SubItemTitle = tw.span`text-xxs`
-
-export interface OperationListProps {
-  className?: string
+type ItemProps = {
+  label: string
+  href?: string
+  icon: IconName
+  children?: React.ReactNode
 }
 
-export const OperationList = ({ className }: OperationListProps) => {
-  return (
-    <nav className={className}>
-      <header tw="p-1 uppercase text-sm text-green-500">Operations</header>
-      <List>
-        <li>
-          <ListItemLink href="#">
-            <TitleWithIcon>
-              <Icon name="dashboard" tw="mr-2" />
-              System
-            </TitleWithIcon>
-          </ListItemLink>
-        </li>
+const itemLink = tw`flex items-center text-xs space-x-2 p-1 hover:bg-gray-700`
 
-        <li>
-          <ListItemLink href="#">
-            <TitleWithIcon>
-              <Icon name="resources" tw="mr-2" />
-              Resources
-            </TitleWithIcon>
-          </ListItemLink>
-          <List>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>Instances</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>VPCs</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>Images</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>Disks</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>Snapshots</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>Firewall Rules</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-            <ListSubItem>
-              <SubItemLink href="#">
-                <SubItemTitle>IP Addresses</SubItemTitle>
-              </SubItemLink>
-            </ListSubItem>
-          </List>
-        </li>
+const ListItem = ({ label, icon, href = '#', children }: ItemProps) => (
+  <li>
+    <a css={itemLink} href={href}>
+      <Icon name={icon} tw="mr-2" />
+      {label}
+    </a>
+    {children}
+  </li>
+)
 
-        <li>
-          <ListItemLink href="#">
-            <TitleWithIcon>
-              <Icon name="organization" tw="mr-2" />
-              Organizations
-            </TitleWithIcon>
-          </ListItemLink>
-        </li>
-        <li>
-          <ListItemLink href="#">
-            <TitleWithIcon>
-              <Icon name="projects" tw="mr-2" />
-              Projects
-            </TitleWithIcon>
-          </ListItemLink>
-        </li>
-        <li>
-          <ListItemLink href="#">
-            <TitleWithIcon>
-              <Icon name="users" tw="mr-2" /> IAM
-            </TitleWithIcon>
-          </ListItemLink>
-        </li>
-      </List>
-    </nav>
-  )
-}
+type SubItemProps = { href?: string; children: React.ReactNode }
+
+const subItem = tw`
+  ml-6 text-xxs
+  before:(content['├'] text-yellow-500 w-3.5 inline-block) 
+  last-of-type:before:content['└']
+`
+const subItemLink = tw`inline-block p-1 width[calc(100% - 0.875rem)] hover:bg-gray-700`
+
+const SubItem = ({ href = '#', children }: SubItemProps) => (
+  <li css={subItem}>
+    <a css={subItemLink} href={href}>
+      {children}
+    </a>
+  </li>
+)
+
+export const OperationList = (props: { className?: string }) => (
+  <nav tw="uppercase" className={props.className}>
+    <header tw="p-1 text-sm text-green-500">Operations</header>
+    <ul tw="mt-1 space-y-1 text-gray-400">
+      <ListItem label="System" icon="dashboard" />
+      <ListItem label="Resources" icon="resources">
+        <ul tw="mt-1 space-y-1">
+          <SubItem>Instances</SubItem>
+          <SubItem>VPCs</SubItem>
+          <SubItem>Images</SubItem>
+          <SubItem>Disks</SubItem>
+          <SubItem>Snapshots</SubItem>
+          <SubItem>Firewall Rules</SubItem>
+          <SubItem>IP Addresses</SubItem>
+        </ul>
+      </ListItem>
+      <ListItem label="Organizations" icon="organization" />
+      <ListItem label="Projects" icon="projects" />
+      <ListItem label="IAM" icon="users" />
+    </ul>
+  </nav>
+)
