@@ -11,7 +11,7 @@ import {
   TextInputGroup,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useBreadcrumbs } from '../../hooks'
+import { useBreadcrumbs, useToast } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
 const ERROR_CODES = {
@@ -27,6 +27,7 @@ const ProjectCreatePage = () => {
   const [description, setDescription] = useState('')
 
   const queryClient = useApiQueryClient()
+  const addToast = useToast()
 
   const createProject = useApiMutation('apiProjectsPost', {
     onSuccess: (data) => {
@@ -38,6 +39,13 @@ const ProjectCreatePage = () => {
         { projectName: data.name },
         data
       )
+      addToast({
+        type: 'default',
+        title: 'Success!',
+        content: 'Your project has been created.',
+        icon: 'checkO',
+        timeout: 5000,
+      })
       history.push(`/projects/${data.name}`)
     },
   })

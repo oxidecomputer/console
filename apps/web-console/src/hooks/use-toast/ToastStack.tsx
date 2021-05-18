@@ -7,14 +7,14 @@ import { css } from 'twin.macro'
 
 const toastAnimations = css`
   .toast-enter {
-    transform: translateY(100%);
+    transform: translateY(80%);
     opacity: 0;
   }
 
   .toast-enter-active {
     transform: none;
     opacity: 1;
-    transition: transform 600ms ease-in-out, opacity 600ms ease-in-out;
+    transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
   }
 
   .toast-exit {
@@ -23,9 +23,9 @@ const toastAnimations = css`
   }
 
   .toast-exit-active {
-    transform: translateX(100%);
+    transform: scale(95%, 95%);
     opacity: 0;
-    transition: transform 600ms ease-in-out, opacity 600ms ease-in-out;
+    transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
   }
 `
 
