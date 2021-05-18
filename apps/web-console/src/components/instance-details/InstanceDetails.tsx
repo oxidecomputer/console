@@ -3,7 +3,8 @@ import { styled } from 'twin.macro'
 import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'
-import { Badge, Icon } from '@oxide/ui'
+import { Icon } from '@oxide/ui'
+import { StatusBadge } from '../StatusBadge'
 
 export interface InstanceDetailsProps {
   instance: ApiInstanceView
@@ -17,9 +18,7 @@ const Cell = styled.span`
 
 export const InstanceDetails = ({ instance }: InstanceDetailsProps) => (
   <div tw="text-sm flex items-center">
-    <Badge tw="mr-3" variant="notification" color="green">
-      {instance.runState}
-    </Badge>
+    <StatusBadge tw="mr-3" status={instance.runState} />
     <span>
       <Cell>{instance.ncpus} vCPU</Cell>
       <Cell>{filesize(instance.memory)} RAM</Cell>
