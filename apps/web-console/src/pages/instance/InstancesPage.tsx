@@ -51,8 +51,8 @@ const InstancesPage = () => {
             ),
             size: `${i.ncpus} vCPUs, ${filesize(i.memory)}`,
             runState: (
-              <span>
-                <StatusBadge tw="mr-2" status={i.runState} />
+              <span tw="inline-flex">
+                <StatusBadge tw="mr-2" size="sm" status={i.runState} />
                 <abbr
                   tw="text-xs no-underline!"
                   title={i.timeRunStateUpdated.toLocaleString()}

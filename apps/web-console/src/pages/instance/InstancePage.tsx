@@ -45,7 +45,8 @@ const InstancePage = () => {
     {
       instanceName,
       projectName,
-    }
+    },
+    { refetchInterval: 5000 }
   )
 
   if (error) {
