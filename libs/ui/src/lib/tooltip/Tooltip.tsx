@@ -1,24 +1,20 @@
 import type { FC } from 'react'
 import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 
-import tw, { css, styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import { usePopper } from 'react-popper'
 import { v4 as uuid } from 'uuid'
 
 import { KEYS } from '../keys-utils'
-import { color } from '@oxide/css-helpers'
 
-type Variant = 'base' | 'definition'
 export interface TooltipProps {
   /** Required. Let screen readers know whether this is the primary label or an auxiliary description. */
   isPrimaryLabel: boolean
   children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
-  /** Pass your own onClick handler to the Tooltip trigger */
   onClick?: React.MouseEventHandler<HTMLButtonElement>
-  /** Change style of tooltip */
-  variant?: Variant
+  definition?: boolean
 }
 
 const ARROW_SIZE = 12
@@ -36,19 +32,8 @@ const TooltipArrow = styled.div`
   &:before {
     content: '';
     transform: rotate(45deg);
-    visibility: visible;
-    background-color: ${color('gray800')};
+    ${tw`visible bg-gray-800`}
   }
-`
-
-const TooltipButton = styled.button<{ variant: Variant }>`
-  ${({ variant }) => {
-    if (variant === 'definition') {
-      return css`
-        border-bottom: 1px dashed #fff;
-      `
-    }
-  }}
 `
 
 const TooltipContainer = styled.div<{ isOpen: boolean }>`
@@ -78,7 +63,7 @@ export const Tooltip: FC<TooltipProps> = ({
   content,
   isPrimaryLabel,
   onClick,
-  variant = 'base',
+  definition = false,
 }) => {
   const referenceElement = useRef(null)
   const popperElement = useRef(null)
@@ -139,7 +124,7 @@ export const Tooltip: FC<TooltipProps> = ({
 
   return (
     <>
-      <TooltipButton
+      <button
         type="button"
         ref={referenceElement}
         onClick={onClick}
@@ -147,11 +132,14 @@ export const Tooltip: FC<TooltipProps> = ({
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
-        variant={variant}
+        css={[
+          definition && tw`underline text-decoration-style[dashed]`,
+          isPrimaryLabel && tw`svg:pointer-events-none`,
+        ]}
         {...ariaProps}
       >
         {children}
-      </TooltipButton>
+      </button>
       <TooltipContainer
         ref={popperElement}
         role="tooltip"

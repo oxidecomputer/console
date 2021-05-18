@@ -14,11 +14,3 @@ Default.args = {
   content: 'Filter',
   onClick: (event) => console.log(event),
 }
-
-export const Definition = Template.bind({})
-Definition.args = {
-  isPrimaryLabel: false,
-  children: 'Definition tooltip',
-  content: 'A brief definition of the underlined word above.',
-  variant: 'definition',
-}

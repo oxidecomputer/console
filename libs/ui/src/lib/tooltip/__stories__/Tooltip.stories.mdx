@@ -2,7 +2,7 @@
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
 import { Tooltip } from '../Tooltip'
-import { Default, Definition } from './Tooltip.stories'
+import { Default } from './Tooltip.stories'
 
 <Meta title="Components/Tooltip" />
 
@@ -88,12 +88,20 @@ Definition tooltips are displayed on hover and focus.
 #### Definition
 
 <Canvas>
-  <Story story={Definition} />
+  <Story name="Definition">
+    <Tooltip
+      isPrimaryLabel
+      definition
+      content="A brief definition of the underlined word above."
+    >
+      Definition tooltip
+    </Tooltip>
+  </Story>
 </Canvas>
 
 <span>
   In practice, a tooltip could also be rendered inside of a Text element’s{' '}
-  <Tooltip content="Definition" variant="definition">
+  <Tooltip content="Definition" definition>
     contents
   </Tooltip>
   .
