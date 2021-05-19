@@ -4,7 +4,6 @@ import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { Global, css } from '@emotion/react'
 import { GlobalStyle } from '@oxide/ui'
-import { breakpoints } from '@oxide/css-helpers'
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
 const docsStyleOverrides = css`
@@ -66,21 +65,6 @@ export const parameters = {
   },
   options: {
     storySort: { method: 'alphabetical' },
-  },
-  viewport: {
-    viewports: Object.keys(breakpoints).reduce(
-      (obj, breakpoint) => ({
-        ...obj,
-        [breakpoint]: {
-          name: `${breakpoint} Breakpoint`,
-          styles: {
-            width: `${breakpoints[breakpoint]}px`,
-            height: '850px',
-          },
-        },
-      }),
-      {}
-    ),
   },
 }
 
