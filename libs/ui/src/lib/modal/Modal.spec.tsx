@@ -10,7 +10,6 @@ describe('Modal', () => {
         confirmText="Confirm"
         icon="check"
         title="Test"
-        onClose={jest.fn()}
         onConfirm={jest.fn()}
       >
         This is an alert!
