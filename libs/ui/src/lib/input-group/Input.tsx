@@ -3,6 +3,7 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 
 const StyledInput = styled.input`
+  flex: 1;
   padding: ${spacing(2.25, 3)};
 
   background-color: transparent;

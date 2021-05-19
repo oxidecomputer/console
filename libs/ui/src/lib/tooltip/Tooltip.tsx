@@ -132,10 +132,8 @@ export const Tooltip: FC<TooltipProps> = ({
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
-        css={[
-          definition && tw`underline text-decoration-style[dashed]`,
-          isPrimaryLabel && tw`svg:pointer-events-none`,
-        ]}
+        tw="svg:pointer-events-none"
+        css={definition && tw`underline text-decoration-style[dashed]`}
         {...ariaProps}
       >
         {children}

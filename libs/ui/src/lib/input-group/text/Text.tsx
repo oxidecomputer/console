@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
-import type { InputGroupProps } from '../group'
-import { InputGroup } from '../group'
+import type { InputGroupProps } from '../Group'
+import { InputGroup } from '../Group'
 import { Input } from '../Input'
 
 export interface TextInputGroupProps extends Omit<InputGroupProps, 'children'> {

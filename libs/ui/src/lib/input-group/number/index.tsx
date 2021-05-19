@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import tw from 'twin.macro'
 
-import type { InputGroupProps } from '../group'
-import { InputGroup } from '../group'
+import type { InputGroupProps } from '../Group'
+import { InputGroup } from '../Group'
 import { Input } from '../Input'
 import { Icon } from '../../icon/Icon'
 import { KEYS } from '../../keys-utils'

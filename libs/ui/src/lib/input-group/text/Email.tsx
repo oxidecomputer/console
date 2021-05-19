@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 import type { TextInputGroupProps } from './Text'
-import { InputGroup } from '../group'
+import { InputGroup } from '../Group'
 import { Input } from '../Input'
 
 // Extending `TextFieldProps` here as a way to distinguish this component from TextField
