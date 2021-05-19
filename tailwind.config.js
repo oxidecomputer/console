@@ -54,6 +54,7 @@ const colors = {
     700: '#36a071',
     800: '#2b805b',
     900: '#23684a',
+    black: '#001712',
   },
   'dark-red': '#2e2429',
   'dark-yellow': '#323327',
@@ -65,6 +66,7 @@ const colors = {
   'dark-blue': '#20293b',
   'dark-purple': '#27203c',
   'blue-gray': {
+    600: '#647578', // TODO: not a real thing, revisit
     800: '#1d2225',
     900: '#0e1518',
   },

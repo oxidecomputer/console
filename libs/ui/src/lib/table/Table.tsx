@@ -2,10 +2,10 @@ import React, { createContext, forwardRef, useContext } from 'react'
 import type { FC, ReactNode } from 'react'
 
 import isPropValid from '@emotion/is-prop-valid'
-import tw, { css, styled } from 'twin.macro'
+import tw, { css, styled, theme } from 'twin.macro'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { spacing, color } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 
 import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
@@ -36,7 +36,7 @@ export interface TableProps {
   /**
    * Row heights passed to the `itemSize` prop of [VariableSizeList](https://react-window.now.sh/#/examples/list/variable-size)
    */
-  itemSize: (index: number) => number
+  itemSize?: (index: number) => number
   /**
    * Show UI for controls. Since API is TBD, functionality is TBD
    */
@@ -46,44 +46,7 @@ export interface TableProps {
 // hsla(167, 100%, 5%, 0.92)
 
 const ROW_HEIGHT = 45
-const TABLE_BG = `hsla(167, 100%, 5%, 1)`
-const BORDER_COLOR = `hsla(209, 25%, 82%, 0.5)`
-const STICKY_BG = `hsla(165, 37.5%, 12.5%, 1)`
-
-const Wrapper = styled.div`
-  height: inherit;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-`
-
-const Controls = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-
-  background-color: ${TABLE_BG};
-`
-
-const IconButton = tw(Button)`p-4 text-gray-400`
-
-const Grid = styled.div`
-  height: 100%;
-
-  background-color: ${TABLE_BG};
-  color: ${color('gray50')};
-  font-size: ${spacing(3.5)};
-  font-weight: 400;
-  line-height: ${1.25 / 0.875}; /* 1.25rem */
-`
-
-const StyledRowGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  flex: 1 1 auto;
-`
+const BORDER_COLOR = theme`colors.blue-gray.600`
 
 /* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
 const StyledCell = styled('div', {
@@ -94,7 +57,6 @@ const StyledCell = styled('div', {
   align-items: flex-start;
   justify-content: center;
   flex-direction: column;
-  flex-wrap: nowrap;
 
   flex: 1 1 0;
   /* flex-basis: 0 will ignore the content of the cells and distribute all space */
@@ -122,11 +84,7 @@ const StyledCell = styled('div', {
 
 const rowStyles = css`
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-
   width: 100%;
-
   box-shadow: inset 0 -1px 0 ${BORDER_COLOR};
 `
 
@@ -140,20 +98,15 @@ interface BaseRowProps {
 
 const StyledStickyRow = styled.div<BaseRowProps>`
   ${rowStyles};
+  ${tw`w-full bg-dark-green-800 text-green-500 uppercase`}
 
   z-index: 2;
   position: sticky; /* sometimes the table peeks through at the top */
   top: ${(props) => props.index * ROW_HEIGHT}px;
   left: 0;
 
-  width: 100%;
-
-  background-color: ${STICKY_BG};
-  color: ${color('green500')};
-  text-transform: uppercase;
-
   ${StyledCell} {
-    background-color: ${color('green500', 0.16)};
+    ${tw`bg-dark-green-800`}
   }
 `
 
@@ -226,12 +179,17 @@ const InnerWrapper = forwardRef(
     const { columns } = useContext(ListContext)
     // role="rowgroup" is the WAI-ARIA mapping for the <tbody> element
     return (
-      <StyledRowGroup role="rowgroup" ref={ref} {...props}>
+      <div
+        tw="flex flex-col flex-wrap flex-auto"
+        role="rowgroup"
+        ref={ref}
+        {...props}
+      >
         {columns && columns.length ? (
           <StickyRow key={0} index={0} columns={columns} />
         ) : null}
         {children}
-      </StyledRowGroup>
+      </div>
     )
   }
 )
@@ -258,7 +216,7 @@ export const Table = ({
   className,
   columns,
   data,
-  itemSize,
+  itemSize = () => ROW_HEIGHT,
   showControls = false,
 }: TableProps) => {
   if (!columns || !columns.length) {
@@ -278,21 +236,26 @@ export const Table = ({
   // https://github.com/oxidecomputer/console/issues/66
 
   return (
-    <Wrapper>
-      {showControls ? (
-        <Controls>
-          <IconButton variant="ghost">
+    <div tw="height[inherit] flex flex-col">
+      {showControls && (
+        <div tw="flex justify-end bg-green-black">
+          <Button tw="text-gray-400" variant="ghost">
             <Icon name="search" />
-          </IconButton>
-          <IconButton variant="ghost">
+          </Button>
+          <Button tw="text-gray-400" variant="ghost">
             <Icon name="filter" />
-          </IconButton>
-          <IconButton variant="ghost">
+          </Button>
+          <Button tw="text-gray-400" variant="ghost">
             <Icon name="viewCols" />
-          </IconButton>
-        </Controls>
-      ) : null}
-      <Grid role="grid" aria-rowcount={count} className={className}>
+          </Button>
+        </div>
+      )}
+      <div
+        tw="h-full bg-green-black text-gray-50 text-sm"
+        role="grid"
+        aria-rowcount={count}
+        className={className}
+      >
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
             <ListContext.Provider value={{ columns: columns }}>
@@ -309,13 +272,9 @@ export const Table = ({
             </ListContext.Provider>
           )}
         </AutoSizer>
-      </Grid>
-    </Wrapper>
+      </div>
+    </div>
   )
-}
-
-Table.defaultProps = {
-  itemSize: () => ROW_HEIGHT,
 }
 
 export default Table
