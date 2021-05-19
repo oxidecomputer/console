@@ -12,7 +12,8 @@
     "fmt": "prettier --write .",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache",
-    "plop": "plop"
+    "plop": "plop",
+    "tar": "yarn build && cd dist/apps/web-console && tar cf ../../../console.tar . && cd -"
   },
   "private": true,
   "dependencies": {
