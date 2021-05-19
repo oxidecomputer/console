@@ -77,6 +77,26 @@ withFixedRow.args = {
   name: 'group3',
 }
 
+export const BaseWithState = () => {
+  const [value, setValue] = React.useState('100')
+  const handleChange = (value: string) => {
+    setValue(value)
+  }
+  return (
+    <RadioGroup
+      checked={value}
+      direction="column"
+      handleChange={handleChange}
+      legend="Add storage"
+      name="group4"
+    >
+      <RadioField value="50">50 GB</RadioField>
+      <RadioField value="100">100 GB</RadioField>
+      <RadioField value="200">200 GB</RadioField>
+    </RadioGroup>
+  )
+}
+
 export const WithState = () => {
   const [value, setValue] = React.useState('100')
   const handleChange = (value: string) => {

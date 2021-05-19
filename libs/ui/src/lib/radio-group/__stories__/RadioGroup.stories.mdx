@@ -5,6 +5,7 @@ import {
   Default,
   withInitialChecked,
   withFixedRow,
+  BaseWithState,
   WithState,
 } from './RadioGroup.stories'
 import { RadioGroup } from '../RadioGroup'
@@ -59,7 +60,13 @@ Selecting one option unselects all others.
   <Story story={withFixedRow} />
 </Canvas>
 
-### with state
+### base variant with state
+
+<Canvas>
+  <Story story={BaseWithState} />
+</Canvas>
+
+### card with state
 
 <Canvas>
   <Story story={WithState} />

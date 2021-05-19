@@ -50,7 +50,6 @@ const HintText = tw.div`text-base text-gray-300 mt-3 max-w-3xl`
 /* gap: ${spacing(5)}; */
 const columnStyles = css`
   flex-direction: column;
-  flex-wrap: nowrap;
   margin-top: ${spacing(5)};
 
   & > * + * {
@@ -60,9 +59,7 @@ const columnStyles = css`
 const OFFSET = '3px'
 const rowStyles = (shouldOverflow: boolean) => css`
   flex-direction: row;
-  ${shouldOverflow
-    ? `flex-wrap: nowrap; overflow-x: auto;`
-    : `flex-wrap: wrap;`};
+  ${shouldOverflow ? `overflow-x: auto;` : `flex-wrap: wrap;`};
   margin-top: ${spacing(3)};
   padding-top: ${OFFSET};
   padding-left: ${OFFSET};

@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import tw, { css, styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 
 import { Icon } from '../icon/Icon'
 import { spacing, color } from '@oxide/css-helpers'
@@ -29,29 +29,8 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
   variant?: Variant
 }
 
-const INDENT = 6
-const RADIO_WIDTH = 3.5
-
-const Wrapper = styled.div<{ variant: Variant }>`
-  flex-shrink: 0;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-
-  ${({ variant }) => {
-    if (variant === 'base') {
-      return css`
-        padding-left: ${spacing(INDENT)};
-      `
-    }
-  }}
-`
-
-const Label = styled.label`
-  align-items: center;
-  display: inline-flex;
-`
+const INDENT = 7
+const RADIO_WIDTH = 4
 
 const LabelText = styled.span<{ radioVariant: Variant }>`
   ${tw`text-sm text-white`}
@@ -142,8 +121,8 @@ export const RadioField: FC<RadioFieldProps> = ({
     ) : null
 
   return (
-    <Wrapper variant={variant}>
-      <Label>
+    <div tw="flex flex-col flex-shrink-0" css={variant === 'base' && tw`pl-6`}>
+      <label tw="items-center inline-flex">
         <StyledInput
           checked={checked}
           name={name}
@@ -155,8 +134,8 @@ export const RadioField: FC<RadioFieldProps> = ({
         />
         {renderIcons}
         <LabelText radioVariant={variant}>{children}</LabelText>
-      </Label>
+      </label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-    </Wrapper>
+    </div>
   )
 }
