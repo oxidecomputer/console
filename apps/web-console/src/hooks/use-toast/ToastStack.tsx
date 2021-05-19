@@ -39,7 +39,7 @@ interface ToastStackProps {
 export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => (
   <TransitionGroup tw="fixed z-50 bottom-4 right-4 space-y-2 flex flex-col items-end">
     {toasts.map(({ id, options }: ToastModel) => (
-      <CSSTransition key={id} timeout={600} classNames="toast">
+      <CSSTransition key={id} timeout={300} classNames="toast">
         {options.type === 'default' ? (
           <Toast
             {...options}
