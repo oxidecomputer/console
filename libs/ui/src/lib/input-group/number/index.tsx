@@ -62,10 +62,10 @@ export const NumberInputGroup = ({
     }
   }
 
-  const incrEnabled = !disabled && (typeof max === 'undefined' || value < max)
+  const incrEnabled = !disabled && (max === undefined || value < max)
   const incr = () => incrEnabled && onChange(value + 1)
 
-  const decrEnabled = !disabled && (typeof min === 'undefined' || value > min)
+  const decrEnabled = !disabled && (min === undefined || value > min)
   const decr = () => decrEnabled && onChange(value - 1)
 
   const keyMap = {
