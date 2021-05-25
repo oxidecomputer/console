@@ -20,7 +20,7 @@ const App = () => {
       <AppLayout>
         <Switch>
           <Route path="/" exact>
-            <Redirect to="/projects/prod-online/instances/db1" />
+            <Redirect to="/projects" />
           </Route>
           <Route path="/projects" exact>
             <ProjectsPage />
