@@ -45,7 +45,7 @@ jobs:
         run: yarn lint
 
       - name: Build
-        run: yarn build
+        run: API_URL=http://localhost/api yarn build
 
       - name: Test
         run: yarn test
