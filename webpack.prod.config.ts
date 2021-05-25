@@ -4,9 +4,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import sharedConfig from './webpack.shared.config'
 
 if (!process.env.API_URL) {
-  throw Error(
-    'API_URL cannot be undefined. You are probably attempting to run `yarn build` without it.'
-  )
+  throw 'API_URL cannot be undefined. You are probably attempting to run `yarn build` without setting the env var.'
 }
 
 const config = {
