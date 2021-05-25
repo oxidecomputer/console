@@ -1,10 +1,11 @@
 import React from 'react'
-
 import { useParams, Link } from 'react-router-dom'
+import 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, PageHeader, PageTitle } from '@oxide/ui'
+import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
+import { pluralize } from '../../util/str'
 
 type Params = {
   projectName: string
@@ -33,11 +34,14 @@ const ProjectPage = () => {
         <li>ID: {project.id}</li>
         <li>Description: {project.description}</li>
       </ul>
-      <p>
+      <Button variant="link">
         <Link to={`/projects/${projectName}/instances`}>
-          See {instances.items?.length || 0} Instances
+          See {pluralize('Instance', instances.items.length)}
         </Link>
-      </p>
+      </Button>
+      <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
+        <Button>Create instance</Button>
+      </Link>
     </>
   )
 }
