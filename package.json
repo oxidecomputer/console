@@ -13,7 +13,7 @@
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache",
     "plop": "plop",
-    "tar": "yarn build && cd dist/apps/web-console && tar cf ../../../console.tar . && cd -"
+    "tar": "API_URL=http://172.20.3.65/api yarn build && cd dist/apps/web-console && tar cf ../../../console.tar . && cd -"
   },
   "private": true,
   "dependencies": {
