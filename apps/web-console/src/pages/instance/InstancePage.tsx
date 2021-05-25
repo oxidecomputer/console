@@ -1,8 +1,8 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import 'twin.macro'
 
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, useApiMutation } from '@oxide/api'
 
 import type { IconName, ButtonProps } from '@oxide/ui'
 import {
@@ -17,13 +17,14 @@ import {
 
 import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
 import { InstancePageTables } from './InstancePageTables'
-import { useBreadcrumbs } from '../../hooks'
+import { useBreadcrumbs, useToast } from '../../hooks'
 
 const InstanceAction = (props: {
   icon: IconName
   children: React.ReactNode
+  onClick?: () => void
 }) => (
-  <Button size="xs" variant="subtle" tw="inline-flex">
+  <Button size="xs" variant="subtle" tw="inline-flex" onClick={props.onClick}>
     <Icon name={props.icon} tw="mr-2" />
     {props.children}
   </Button>
@@ -37,10 +38,16 @@ type Params = {
 }
 
 const InstancePage = () => {
+  const history = useHistory()
   const breadcrumbs = useBreadcrumbs()
+  const addToast = useToast()
   const { projectName, instanceName } = useParams<Params>()
 
-  const { data: instance, error } = useApiQuery(
+  const {
+    data: instance,
+    error,
+    refetch,
+  } = useApiQuery(
     'apiProjectInstancesGetInstance',
     {
       instanceName,
@@ -48,6 +55,28 @@ const InstancePage = () => {
     },
     { refetchInterval: 5000 }
   )
+
+  const stopInstance = useApiMutation('apiProjectInstancesInstanceStop', {
+    onSuccess: () => {
+      refetch()
+      addToast({
+        type: 'default',
+        title: `Instance '${instanceName}' stopped.`,
+        timeout: 5000,
+      })
+    },
+  })
+
+  const deleteInstance = useApiMutation('apiProjectInstancesDeleteInstance', {
+    onSuccess: () => {
+      addToast({
+        type: 'default',
+        title: `Instance '${instanceName}' deleted.`,
+        timeout: 5000,
+      })
+      history.push(`/projects/${projectName}/instances`)
+    },
+  })
 
   if (error) {
     if (error.raw.status === 404) {
@@ -58,6 +87,36 @@ const InstancePage = () => {
   }
   if (!instance) return <div>loading</div>
 
+  const handleStop = () => {
+    if (instance.runState === 'running') {
+      stopInstance.mutate({
+        instanceName: instance.name,
+        projectName,
+      })
+    } else {
+      addToast({
+        type: 'default',
+        title: 'Only a running instance can be stopped',
+        timeout: 5000,
+      })
+    }
+  }
+
+  const handleDelete = () => {
+    if (instance.runState === 'stopped') {
+      deleteInstance.mutate({
+        instanceName: instance.name,
+        projectName,
+      })
+    } else {
+      addToast({
+        type: 'default',
+        title: 'Only a stopped instance can be deleted',
+        timeout: 5000,
+      })
+    }
+  }
+
   return (
     <div>
       <Breadcrumbs data={breadcrumbs} />
@@ -66,9 +125,13 @@ const InstancePage = () => {
         <div tw="flex space-x-2">
           <InstanceAction icon="pen">Edit</InstanceAction>
           <InstanceAction icon="stopwatch">Reset</InstanceAction>
-          <InstanceAction icon="playStopO">Stop</InstanceAction>
+          <InstanceAction icon="playStopO" onClick={handleStop}>
+            Stop
+          </InstanceAction>
           <InstanceAction icon="playPauseO">Suspend</InstanceAction>
-          <InstanceAction icon="trash">Delete</InstanceAction>
+          <InstanceAction icon="trash" onClick={handleDelete}>
+            Delete
+          </InstanceAction>
           <Button {...pageAction} tw="ml-4!">
             SSH
           </Button>
