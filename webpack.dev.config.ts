@@ -5,9 +5,6 @@ import sharedConfig from './webpack.shared.config'
 const config = {
   ...sharedConfig,
   mode: 'development',
-  output: {
-    publicPath: '/',
-  },
   plugins: [...sharedConfig.plugins, new webpack.HotModuleReplacementPlugin()],
   devtool: 'inline-source-map',
   target: 'web',

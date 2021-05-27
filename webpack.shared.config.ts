@@ -1,5 +1,6 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
+import CopyPlugin from 'copy-webpack-plugin'
 
 export default {
   entry: './apps/web-console/src/main.tsx',
@@ -55,6 +56,9 @@ export default {
   plugins: [
     new HtmlWebpackPlugin({
       template: 'apps/web-console/src/index.html',
+    }),
+    new CopyPlugin({
+      patterns: [{ from: 'apps/web-console/static' }],
     }),
   ],
 }

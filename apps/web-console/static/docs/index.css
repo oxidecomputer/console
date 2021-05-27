@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.menu-content {
+  padding-top: 0.5rem;
+  border-right: 1px solid #eee;
+}
+
+.menu-content ul > li > label {
+  padding: 0.33rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  font-family: Inter, sans-serif;
+}
+
+.menu-content > div[role="search"] > svg {
+  left: 0.75rem;
+}
+
+.menu-content > div[role="search"] > input {
+  margin: 0 0.75rem 0 1rem;
+}
