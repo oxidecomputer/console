@@ -969,12 +969,7 @@
             "format": "uuid"
           }
         },
-        "required": [
-          "diskId",
-          "diskName",
-          "diskState",
-          "instanceId"
-        ]
+        "required": ["diskId", "diskName", "diskState", "instanceId"]
       },
       "ApiDiskCreateParams": {
         "description": "Create-time parameters for an [`ApiDisk`]",
@@ -995,23 +990,14 @@
             "format": "uuid"
           }
         },
-        "required": [
-          "description",
-          "name",
-          "size"
-        ]
+        "required": ["description", "name", "size"]
       },
       "ApiDiskState": {
         "description": "State of a Disk (primarily: attached or not)",
         "anyOf": [
           {
             "type": "string",
-            "enum": [
-              "creating",
-              "detached",
-              "destroyed",
-              "faulted"
-            ]
+            "enum": ["creating", "detached", "destroyed", "faulted"]
           },
           {
             "description": "Disk is being attached to the given Instance",
@@ -1022,9 +1008,7 @@
                 "format": "uuid"
               }
             },
-            "required": [
-              "attaching"
-            ],
+            "required": ["attaching"],
             "additionalProperties": false
           },
           {
@@ -1036,9 +1020,7 @@
                 "format": "uuid"
               }
             },
-            "required": [
-              "attached"
-            ],
+            "required": ["attached"],
             "additionalProperties": false
           },
           {
@@ -1050,9 +1032,7 @@
                 "format": "uuid"
               }
             },
-            "required": [
-              "detaching"
-            ],
+            "required": ["detaching"],
             "additionalProperties": false
           }
         ]
@@ -1129,9 +1109,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "ApiIdentityMetadata": {
         "description": "Identity-related metadata that's included in nearly all public API objects",
@@ -1160,13 +1138,7 @@
             "format": "date-time"
           }
         },
-        "required": [
-          "description",
-          "id",
-          "name",
-          "timeCreated",
-          "timeModified"
-        ]
+        "required": ["description", "id", "name", "timeCreated", "timeModified"]
       },
       "ApiInstanceCpuCount": {
         "description": "The number of CPUs in an Instance",
@@ -1194,13 +1166,7 @@
             "$ref": "#/components/schemas/ApiInstanceCpuCount"
           }
         },
-        "required": [
-          "description",
-          "hostname",
-          "memory",
-          "name",
-          "ncpus"
-        ]
+        "required": ["description", "hostname", "memory", "name", "ncpus"]
       },
       "ApiInstanceState": {
         "description": "Running state of an Instance (primarily: booted or stopped)\n\nThis typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle",
@@ -1295,9 +1261,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "ApiName": {
         "title": "A name used in the API",
@@ -1317,10 +1281,7 @@
             "$ref": "#/components/schemas/ApiName"
           }
         },
-        "required": [
-          "description",
-          "name"
-        ]
+        "required": ["description", "name"]
       },
       "ApiProjectUpdateParams": {
         "description": "Updateable properties of an [`ApiProject`]",
@@ -1361,13 +1322,7 @@
             "format": "date-time"
           }
         },
-        "required": [
-          "description",
-          "id",
-          "name",
-          "timeCreated",
-          "timeModified"
-        ]
+        "required": ["description", "id", "name", "timeCreated", "timeModified"]
       },
       "ApiProjectViewResultsPage": {
         "description": "A single page of results",
@@ -1385,9 +1340,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "ApiRackView": {
         "description": "Client view of an [`ApiRack`]",
@@ -1397,9 +1350,7 @@
             "$ref": "#/components/schemas/ApiIdentityMetadata"
           }
         },
-        "required": [
-          "identity"
-        ]
+        "required": ["identity"]
       },
       "ApiRackViewResultsPage": {
         "description": "A single page of results",
@@ -1417,9 +1368,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "ApiSledView": {
         "description": "Client view of an [`ApiSled`]",
@@ -1476,32 +1425,22 @@
             "type": "string"
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "ApiIdSortMode": {
         "description": "Supported set of sort modes for scanning by id only.\n\nCurrently, we only support scanning in ascending order.",
         "type": "string",
-        "enum": [
-          "id-ascending"
-        ]
+        "enum": ["id-ascending"]
       },
       "ApiNameOrIdSortMode": {
         "description": "Supported set of sort modes for scanning by name or id",
         "type": "string",
-        "enum": [
-          "name-ascending",
-          "name-descending",
-          "id-ascending"
-        ]
+        "enum": ["name-ascending", "name-descending", "id-ascending"]
       },
       "ApiNameSortMode": {
         "description": "Supported set of sort modes for scanning by name only\n\nCurrently, we only support scanning in ascending order.",
         "type": "string",
-        "enum": [
-          "name-ascending"
-        ]
+        "enum": ["name-ascending"]
       }
     }
   }

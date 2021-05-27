@@ -16,10 +16,10 @@ body {
   font-family: Inter, sans-serif;
 }
 
-.menu-content > div[role="search"] > svg {
+.menu-content > div[role='search'] > svg {
   left: 0.75rem;
 }
 
-.menu-content > div[role="search"] > input {
+.menu-content > div[role='search'] > input {
   margin: 0 0.75rem 0 1rem;
 }
