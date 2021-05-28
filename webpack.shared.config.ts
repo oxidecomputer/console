@@ -58,7 +58,13 @@ export default {
       template: 'apps/web-console/src/index.html',
     }),
     new CopyPlugin({
-      patterns: [{ from: 'apps/web-console/static' }],
+      patterns: [
+        { from: 'apps/web-console/static' },
+        {
+          from: 'libs/api/__generated__/nexus-openapi.json',
+          to: 'docs/nexus-openapi.json',
+        },
+      ],
     }),
   ],
 }
