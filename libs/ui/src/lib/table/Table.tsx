@@ -229,7 +229,7 @@ export const Table = ({
   }
   // Each row is absolutely positioned using a `top` offset
   // Make sure something takes up the 'space' of the first row
-  const itemData = [[], ...data]
+  const itemData = [{}, ...data]
   const count = itemData.length
 
   // TODO: Add keyboard controls
