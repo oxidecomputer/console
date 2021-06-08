@@ -13,6 +13,7 @@ const COLORS: Record<ApiInstanceState, BadgeColor> = {
   creating: 'yellow',
   starting: 'yellow',
   running: 'green',
+  rebooting: 'yellow',
   stopping: 'yellow',
   stopped: 'gray',
   repairing: 'blue',
