@@ -10,13 +10,13 @@ GEN_DIR='libs/api/__generated__'
 cd ../omicron
 git fetch --all
 git checkout "$API_VERSION"
+
+cargo run --bin=nexus -- omicron-nexus/examples/config.toml --openapi \
+  > ../console/$GEN_DIR/nexus-openapi.json
+
 cd ../console
 
-../omicron/target/debug/nexus ../omicron/omicron-nexus/examples/config.toml --openapi \
-  > $GEN_DIR/nexus-openapi.json
-
 # prereq: brew install openapi-generator
-
 openapi-generator generate -i $GEN_DIR/nexus-openapi.json \
   -o $GEN_DIR \
   -g typescript-fetch \

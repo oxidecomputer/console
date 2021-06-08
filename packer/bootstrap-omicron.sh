@@ -27,6 +27,6 @@ sudo docker run -d \
 	--name=sled-agent \
 	--hostname=sled-agent \
 	--net host \
-	--entrypoint=sled-agent \
+	--entrypoint=sled-agent-sim \
 	ghcr.io/oxidecomputer/omicron:"$API_VERSION" \
 		$(uuidgen) 0.0.0.0:12345 0.0.0.0:12221

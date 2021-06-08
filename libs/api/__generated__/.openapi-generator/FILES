@@ -1,6 +1,14 @@
 apis/DefaultApi.ts
 apis/index.ts
 index.ts
+models/ActionError.ts
+models/ActionErrorAnyOf.ts
+models/ActionErrorAnyOf1.ts
+models/ActionErrorAnyOf1ActionFailed.ts
+models/ActionErrorAnyOf2.ts
+models/ActionErrorAnyOf2DeserializeFailed.ts
+models/ActionErrorAnyOf3.ts
+models/ActionErrorAnyOf4.ts
 models/ApiDiskAttachment.ts
 models/ApiDiskCreateParams.ts
 models/ApiDiskState.ts
@@ -24,6 +32,12 @@ models/ApiProjectView.ts
 models/ApiProjectViewResultsPage.ts
 models/ApiRackView.ts
 models/ApiRackViewResultsPage.ts
+models/ApiSagaStateView.ts
+models/ApiSagaStateViewAnyOf.ts
+models/ApiSagaStateViewAnyOf1.ts
+models/ApiSagaStateViewAnyOf1Done.ts
+models/ApiSagaView.ts
+models/ApiSagaViewResultsPage.ts
 models/ApiSledView.ts
 models/ApiSledViewResultsPage.ts
 models/index.ts

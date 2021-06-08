@@ -25,6 +25,7 @@ export enum ApiInstanceState {
   Running = 'running',
   Stopping = 'stopping',
   Stopped = 'stopped',
+  Rebooting = 'rebooting',
   Repairing = 'repairing',
   Failed = 'failed',
   Destroyed = 'destroyed',

@@ -62,6 +62,12 @@ import {
   ApiRackViewResultsPage,
   ApiRackViewResultsPageFromJSON,
   ApiRackViewResultsPageToJSON,
+  ApiSagaView,
+  ApiSagaViewFromJSON,
+  ApiSagaViewToJSON,
+  ApiSagaViewResultsPage,
+  ApiSagaViewResultsPageFromJSON,
+  ApiSagaViewResultsPageToJSON,
   ApiSledView,
   ApiSledViewFromJSON,
   ApiSledViewToJSON,
@@ -193,6 +199,16 @@ export interface ApiProjectsPostRequest {
 export interface ApiProjectsPutProjectRequest {
   projectName: string
   apiProjectUpdateParams: ApiProjectUpdateParams
+}
+
+export interface ApiSagasGetRequest {
+  limit?: number
+  pageToken?: string
+  sortBy?: ApiIdSortMode
+}
+
+export interface ApiSagasGetSagaRequest {
+  sagaId: string
 }
 
 /**
@@ -1545,6 +1561,95 @@ export class DefaultApi extends runtime.BaseAPI {
     requestParameters: ApiProjectsPutProjectRequest
   ): Promise<ApiProjectView> {
     const response = await this.apiProjectsPutProjectRaw(requestParameters)
+    return await response.value()
+  }
+
+  /**
+   * List all sagas (for debugging)
+   */
+  async apiSagasGetRaw(
+    requestParameters: ApiSagasGetRequest
+  ): Promise<runtime.ApiResponse<ApiSagaViewResultsPage>> {
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/sagas`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    })
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ApiSagaViewResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List all sagas (for debugging)
+   */
+  async apiSagasGet(
+    requestParameters: ApiSagasGetRequest
+  ): Promise<ApiSagaViewResultsPage> {
+    const response = await this.apiSagasGetRaw(requestParameters)
+    return await response.value()
+  }
+
+  /**
+   * Fetch information about a single saga (for debugging)
+   */
+  async apiSagasGetSagaRaw(
+    requestParameters: ApiSagasGetSagaRequest
+  ): Promise<runtime.ApiResponse<ApiSagaView>> {
+    if (
+      requestParameters.sagaId === null ||
+      requestParameters.sagaId === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'sagaId',
+        'Required parameter requestParameters.sagaId was null or undefined when calling apiSagasGetSaga.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/sagas/{saga_id}`.replace(
+        `{${'saga_id'}}`,
+        encodeURIComponent(String(requestParameters.sagaId))
+      ),
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    })
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ApiSagaViewFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Fetch information about a single saga (for debugging)
+   */
+  async apiSagasGetSaga(
+    requestParameters: ApiSagasGetSagaRequest
+  ): Promise<ApiSagaView> {
+    const response = await this.apiSagasGetSagaRaw(requestParameters)
     return await response.value()
   }
 }
