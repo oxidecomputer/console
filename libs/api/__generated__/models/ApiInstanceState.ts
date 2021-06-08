@@ -12,46 +12,23 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime'
-import {
-  ApiInstanceStateAnyOf,
-  ApiInstanceStateAnyOfFromJSON,
-  ApiInstanceStateAnyOfFromJSONTyped,
-  ApiInstanceStateAnyOfToJSON,
-  ApiInstanceStateAnyOf1,
-  ApiInstanceStateAnyOf1FromJSON,
-  ApiInstanceStateAnyOf1FromJSONTyped,
-  ApiInstanceStateAnyOf1ToJSON,
-  ApiInstanceStateAnyOf1Stopping,
-  ApiInstanceStateAnyOf1StoppingFromJSON,
-  ApiInstanceStateAnyOf1StoppingFromJSONTyped,
-  ApiInstanceStateAnyOf1StoppingToJSON,
-  ApiInstanceStateAnyOf2,
-  ApiInstanceStateAnyOf2FromJSON,
-  ApiInstanceStateAnyOf2FromJSONTyped,
-  ApiInstanceStateAnyOf2ToJSON,
-} from './'
-
 /**
  * Running state of an Instance (primarily: booted or stopped)
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
  * @export
- * @interface ApiInstanceState
+ * @enum {string}
  */
-export interface ApiInstanceState {
-  /**
-   *
-   * @type {ApiInstanceStateAnyOf1Stopping}
-   * @memberof ApiInstanceState
-   */
-  stopping: ApiInstanceStateAnyOf1Stopping
-  /**
-   *
-   * @type {ApiInstanceStateAnyOf1Stopping}
-   * @memberof ApiInstanceState
-   */
-  stopped: ApiInstanceStateAnyOf1Stopping
+export enum ApiInstanceState {
+  Creating = 'creating',
+  Starting = 'starting',
+  Running = 'running',
+  Stopping = 'stopping',
+  Stopped = 'stopped',
+  Rebooting = 'rebooting',
+  Repairing = 'repairing',
+  Failed = 'failed',
+  Destroyed = 'destroyed',
 }
 
 export function ApiInstanceStateFromJSON(json: any): ApiInstanceState {
@@ -62,24 +39,9 @@ export function ApiInstanceStateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
 ): ApiInstanceState {
-  if (json === undefined || json === null) {
-    return json
-  }
-  return {
-    stopping: ApiInstanceStateAnyOf1StoppingFromJSON(json['stopping']),
-    stopped: ApiInstanceStateAnyOf1StoppingFromJSON(json['stopped']),
-  }
+  return json as ApiInstanceState
 }
 
 export function ApiInstanceStateToJSON(value?: ApiInstanceState | null): any {
-  if (value === undefined) {
-    return undefined
-  }
-  if (value === null) {
-    return null
-  }
-  return {
-    stopping: ApiInstanceStateAnyOf1StoppingToJSON(value.stopping),
-    stopped: ApiInstanceStateAnyOf1StoppingToJSON(value.stopped),
-  }
+  return value as any
 }

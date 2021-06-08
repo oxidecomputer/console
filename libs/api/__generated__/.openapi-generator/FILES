@@ -22,10 +22,6 @@ models/ApiIdSortMode.ts
 models/ApiIdentityMetadata.ts
 models/ApiInstanceCreateParams.ts
 models/ApiInstanceState.ts
-models/ApiInstanceStateAnyOf.ts
-models/ApiInstanceStateAnyOf1.ts
-models/ApiInstanceStateAnyOf1Stopping.ts
-models/ApiInstanceStateAnyOf2.ts
 models/ApiInstanceView.ts
 models/ApiInstanceViewResultsPage.ts
 models/ApiNameOrIdSortMode.ts
