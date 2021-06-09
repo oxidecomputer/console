@@ -21,7 +21,7 @@ const Label = ({ required, children, ...labelProps }: LabelProps) => (
 
 export const InfoPopover = (props: { children: React.ReactNode }) => (
   <Tooltip isPrimaryLabel={false} content={props.children}>
-    <Icon tw="w-5 margin[0 0.5625rem]" name="infoFilled" color="gray300" />
+    <Icon tw="text-gray-300 w-5 margin[0 0.5625rem]" name="infoFilled" />
   </Tooltip>
 )
 

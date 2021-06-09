@@ -4,6 +4,7 @@ import { action } from '@storybook/addon-actions'
 import type { TextInputGroupProps } from '..'
 import { TextInputGroup } from '..'
 import { Icon } from '../../../icon/Icon'
+import 'twin.macro'
 
 export default {
   title: 'Components/Forms/Input Group/Text Input Group',
@@ -63,7 +64,7 @@ CustomLabel.args = {
   label: (
     <>
       <div style={{ paddingRight: '.5rem' }}>
-        <Icon name="users" color="gray300" />
+        <Icon name="users" tw="text-gray-300" />
       </div>
       Custom Label
     </>

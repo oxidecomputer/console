@@ -49,7 +49,7 @@ export const Avatar = ({
       {initials}
     </abbr>
   ) : (
-    <Icon name="profile" color="gray300" svgProps={{ title: name }} />
+    <Icon name="profile" tw="text-gray-300" svgProps={{ title: name }} />
   )
 
   return (

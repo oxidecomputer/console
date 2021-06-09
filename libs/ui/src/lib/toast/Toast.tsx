@@ -44,7 +44,7 @@ export const Toast = ({
     <Main>
       {icon && (
         <IconWrapper>
-          <Icon name={icon} color="green600" />
+          <Icon name={icon} tw="text-green-600" />
         </IconWrapper>
       )}
       <Content hasIcon={!!icon}>
@@ -54,10 +54,10 @@ export const Toast = ({
       <CloseButton onClick={() => onClose()}>
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <Icon name="close" color="gray300" />
+            <Icon name="close" tw="text-gray-300" />
           </TimeoutIndicator>
         ) : (
-          <Icon name="close" color="gray300" />
+          <Icon name="close" tw="text-gray-300" />
         )}
       </CloseButton>
     </Main>
@@ -80,7 +80,7 @@ export const ActionToast = ({
     <Main>
       {icon && (
         <IconWrapper>
-          <Icon name={icon} color="green600" />
+          <Icon name={icon} tw="text-green-600" />
         </IconWrapper>
       )}
       <Content hasIcon={!!icon}>
@@ -91,7 +91,7 @@ export const ActionToast = ({
         {action}
       </button>
       <CloseButton onClick={() => onClose()}>
-        <Icon name="close" color="gray300" />
+        <Icon name="close" tw="text-gray-300" />
       </CloseButton>
     </Main>
   </Wrapper>
@@ -122,7 +122,7 @@ export const ConfirmToast = ({
     <Main>
       {icon && (
         <IconWrapper>
-          <Icon name={icon} color="green600" />
+          <Icon name={icon} tw="text-green-600" />
         </IconWrapper>
       )}
 

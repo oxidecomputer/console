@@ -3,8 +3,6 @@ import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import 'twin.macro'
 
-import type { Color } from '@oxide/css-helpers'
-import { color as getColor } from '@oxide/css-helpers'
 import type { IconName } from './icons'
 import { icons } from './icons'
 
@@ -21,10 +19,9 @@ export interface IconProps {
     title?: string
     titleId?: string
   }
-  color?: Color
 }
 
-export const Icon = ({ name, svgProps, color, ...props }: IconProps) => {
+export const Icon = ({ name, svgProps, ...props }: IconProps) => {
   const Component = icons[name]
 
   const titleId = useMemo(() => uuidv4(), [])
@@ -41,8 +38,7 @@ export const Icon = ({ name, svgProps, color, ...props }: IconProps) => {
   // h-full is for safari, which handles h-auto badly, unlike everyone else
   return (
     <Component
-      tw="h-full width[1em]"
-      css={{ fill: color ? getColor(color) : 'currentColor' }}
+      tw="h-full width[1em] fill-current"
       {...addSvgProps}
       {...props}
     />

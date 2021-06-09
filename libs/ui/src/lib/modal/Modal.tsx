@@ -35,7 +35,7 @@ const Body = tw.div`p-6 space-y-4 flex-1`
 
 const IconWrapper = (props: { icon: IconName }) => (
   <div tw="w-12 h-12 bg-green-900 rounded-full">
-    <Icon tw="w-12" name={props.icon} color="green500" />
+    <Icon tw="w-12 text-green-500" name={props.icon} />
   </div>
 )
 

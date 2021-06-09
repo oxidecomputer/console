@@ -17,12 +17,6 @@ import { Default, CustomTitle, Rotate } from './Icon.stories'
         options: Object.keys(icons),
       },
     },
-    color: {
-      control: {
-        type: 'select',
-        options: Object.keys(colorPalette),
-      },
-    },
     ref: { table: { disable: true } },
     theme: { table: { disable: true } },
     font: { table: { disable: true } },
@@ -33,7 +27,7 @@ import { Default, CustomTitle, Rotate } from './Icon.stories'
 
 # Icons
 
-Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS.
+Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS. With twin.macro this can be done with `tw="text-green-500"`.
 
 <Canvas>
   <Story story={Default} />
@@ -67,17 +61,6 @@ If, for some reason, you need to know the ID, you can pass one yourself:
 ```jsx
 /* Icon component will take care of creating the `titleId` for you */
 <Icon svgProps={{ title: 'Cameron Howe', titleId: 'avatar-cameron-howe' }} />
-```
-
-## Usage
-
-The `<Icon />` component takes two props.
-
-- `name` can be any of the names listed in the table below
-- `color` can be any of the available theme colors (e.g. `"green500"`) and will inherit the current color by default
-
-```tsx
-<Icon name="dashboard" color="green500" />
 ```
 
 ## All icons
