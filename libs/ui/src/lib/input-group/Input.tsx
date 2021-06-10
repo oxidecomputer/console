@@ -1,27 +1,12 @@
-import { color, spacing } from '@oxide/css-helpers'
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw from 'twin.macro'
 
-const StyledInput = styled.input`
-  flex: 1;
-  padding: ${spacing(2.25, 3)};
-
-  background-color: transparent;
-  &:hover:not([disabled]) {
-    background-color: ${color('gray800')};
-  }
-
-  border: none;
-  color: ${color('gray100')};
-  ${tw`font-sans`}
-  font-size: ${spacing(3.5)};
-  line-height: ${1.25 / 0.875};
-
-  &:focus {
-    outline: none;
-  }
+const StyledInput = tw.input`
+  flex-1 padding[0.5625rem .75rem]
+  text-sm font-sans text-gray-100 
+  bg-transparent border-none focus:outline-none
+  hover:not-disabled:bg-gray-800
 `
-
 export type InputProps = React.ComponentPropsWithRef<'input'> & {
   error?: boolean
   errorId?: string
