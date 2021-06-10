@@ -78,6 +78,12 @@ const InstancePage = () => {
     },
   })
 
+  const rebootInstance = useApiMutation('apiProjectInstancesInstanceReboot', {
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
   if (error) {
     if (error.raw.status === 404) {
       return <div>Instance not found</div>
@@ -117,6 +123,21 @@ const InstancePage = () => {
     }
   }
 
+  const handleReboot = () => {
+    if (instance.runState === 'running') {
+      rebootInstance.mutate({
+        instanceName: instance.name,
+        projectName,
+      })
+    } else {
+      addToast({
+        type: 'default',
+        title: 'Only a running instance can be rebooted',
+        timeout: 5000,
+      })
+    }
+  }
+
   return (
     <div>
       <Breadcrumbs data={breadcrumbs} />
@@ -124,7 +145,9 @@ const InstancePage = () => {
         <PageTitle icon="resources">{instance.name}</PageTitle>
         <div tw="flex space-x-2">
           <InstanceAction icon="pen">Edit</InstanceAction>
-          <InstanceAction icon="stopwatch">Reset</InstanceAction>
+          <InstanceAction icon="stopwatch" onClick={handleReboot}>
+            Reboot
+          </InstanceAction>
           <InstanceAction icon="playStopO" onClick={handleStop}>
             Stop
           </InstanceAction>
