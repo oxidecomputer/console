@@ -4,7 +4,6 @@ import React from 'react'
 import tw, { styled, theme } from 'twin.macro'
 
 import { Icon } from '../icon/Icon'
-import { spacing } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = React.ComponentProps<'input'> & {
@@ -29,18 +28,11 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
   variant?: Variant
 }
 
-const INDENT = 7
-const RADIO_WIDTH = 4
-
 const LabelText = styled.span(tw`text-sm text-white`)
 const cardLabel = tw`py-2 px-4 bg-dark-green-800 border border-transparent hover:bg-dark-green-900`
 
-const IconWrapper = styled.span`
-  margin-right: ${spacing(INDENT - RADIO_WIDTH)};
-  margin-left: ${spacing(-1 * INDENT)};
-`
-
-// width needs to be RADIO_WIDTH
+// indent = 7, width = 4, wrapper mr = 7 - 4 = 3
+const IconWrapper = styled.span(tw`mr-3 -ml-7`)
 const EmptyRadio = styled(Icon)(tw`w-4`)
 const FilledRadio = styled(Icon)(tw`w-4 text-green-500`)
 

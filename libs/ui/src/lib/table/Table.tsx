@@ -5,7 +5,6 @@ import isPropValid from '@emotion/is-prop-valid'
 import tw, { css, styled, theme } from 'twin.macro'
 import { VariableSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { spacing } from '@oxide/css-helpers'
 
 import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
@@ -61,13 +60,13 @@ const StyledCell = styled('div', {
   flex: 1 1 0;
   /* flex-basis: 0 will ignore the content of the cells and distribute all space */
 
-  padding: ${spacing(3)} ${spacing(6)};
+  ${tw`py-3 px-6`}
 
   ${({ arrange, width }) => {
     if (width) {
       return css`
         padding: 0;
-        max-width: ${spacing(width)};
+        max-width: ${width * 0.25}rem;
       `
     }
     if (arrange === 'fill') {

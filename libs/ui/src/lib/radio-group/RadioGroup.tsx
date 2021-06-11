@@ -1,4 +1,3 @@
-import { spacing } from '@oxide/css-helpers'
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
 
@@ -37,36 +36,16 @@ export interface RadioGroupProps {
   required?: boolean
 }
 
-const StyledFieldset = styled.fieldset``
-
-const StyledLegend = styled.legend<{ hideLegend: boolean }>(() => [
-  tw`text-white text-lg`,
-  ({ hideLegend }) => hideLegend && tw`sr-only`,
-])
-
 const HintText = tw.div`text-base text-gray-300 mt-3 max-w-3xl`
 
-/* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
-/* gap: ${spacing(5)}; */
-const columnStyles = css`
-  flex-direction: column;
-  margin-top: ${spacing(5)};
-
-  & > * + * {
-    margin-top: ${spacing(5)};
-  }
-`
 const OFFSET = '3px'
-const rowStyles = (shouldOverflow: boolean) => css`
-  flex-direction: row;
-  ${shouldOverflow ? `overflow-x: auto;` : `flex-wrap: wrap;`};
-  margin-top: ${spacing(3)};
+const rowStyles = css`
+  ${tw`mt-3`}
   padding-top: ${OFFSET};
   padding-left: ${OFFSET};
 
   & > * {
-    margin-right: ${spacing(5)};
-    margin-bottom: ${spacing(5)};
+    ${tw`mr-5 mb-5`}
   }
 `
 
@@ -76,13 +55,14 @@ const RadioFieldsWrapper = styled.div<{ direction: Direction }>`
 
   ${({ direction }) => {
     if (direction === 'column') {
-      return columnStyles
+      /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
+      return tw`flex-col mt-5 space-y-5`
     }
     if (direction === 'row') {
-      return rowStyles(false)
+      return [rowStyles, tw`flex-wrap`]
     }
     if (direction === 'fixed-row') {
-      return rowStyles(true)
+      return [rowStyles, tw`overflow-x-auto`]
     }
   }}
 `
@@ -106,13 +86,15 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   const hintId = `${name}-hint`
   const ariaProps = hint ? { 'aria-describedby': hintId, tabIndex: 0 } : null
   return (
-    <StyledFieldset {...ariaProps}>
-      <StyledLegend hideLegend={hideLegend}>{legend}</StyledLegend>
+    <fieldset {...ariaProps}>
+      <legend tw="text-white text-lg" css={hideLegend && tw`sr-only`}>
+        {legend}
+      </legend>
       {hint ? <HintText id={hintId}>{hint}</HintText> : null}
       <RadioFieldsWrapper direction={direction}>
         {React.Children.map(children, (radioField) => {
           const isChecked = checked === radioField.props.value
-          // Render cinontrolled inputs with checked state
+          // Render controlled inputs with checked state
           // Add name prop to group them semantically and add event listener
           return React.cloneElement(radioField, {
             name: name,
@@ -122,6 +104,6 @@ export const RadioGroup: FC<RadioGroupProps> = ({
           })
         })}
       </RadioFieldsWrapper>
-    </StyledFieldset>
+    </fieldset>
   )
 }
