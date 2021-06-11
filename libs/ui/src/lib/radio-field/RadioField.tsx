@@ -1,10 +1,10 @@
 import type { FC } from 'react'
 import React from 'react'
 
-import tw, { styled } from 'twin.macro'
+import tw, { styled, theme } from 'twin.macro'
 
 import { Icon } from '../icon/Icon'
-import { spacing, color } from '@oxide/css-helpers'
+import { spacing } from '@oxide/css-helpers'
 
 type Variant = 'base' | 'card'
 export type RadioFieldProps = React.ComponentProps<'input'> & {
@@ -32,29 +32,17 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
 const INDENT = 7
 const RADIO_WIDTH = 4
 
-const LabelText = styled.span<{ radioVariant: Variant }>`
-  ${tw`text-sm text-white`}
-
-  ${({ radioVariant }) =>
-    radioVariant === 'card' &&
-    tw`py-2 px-4 bg-dark-green-800 border border-transparent hover:bg-dark-green-900`}
- }
-`
+const LabelText = styled.span(tw`text-sm text-white`)
+const cardLabel = tw`py-2 px-4 bg-dark-green-800 border border-transparent hover:bg-dark-green-900`
 
 const IconWrapper = styled.span`
   margin-right: ${spacing(INDENT - RADIO_WIDTH)};
   margin-left: ${spacing(-1 * INDENT)};
 `
 
-const EmptyRadio = styled(Icon)`
-  width: ${spacing(RADIO_WIDTH)};
-`
-
-const FilledRadio = styled(Icon)`
-  width: ${spacing(RADIO_WIDTH)};
-
-  color: ${color('green500')};
-`
+// width needs to be RADIO_WIDTH
+const EmptyRadio = styled(Icon)(tw`w-4`)
+const FilledRadio = styled(Icon)(tw`w-4 text-green-500`)
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
@@ -67,13 +55,8 @@ const StyledInput = styled.input`
   }
 
   &:checked + ${LabelText} {
-    background-color: ${color('darkGreen800')};
-    border-color: ${color('green500')};
-    box-shadow: 0px 1px 2px ${color('black', 0.05)};
-
-    &:hover {
-      background-color: ${color('darkGreen900')};
-    }
+    ${tw`bg-dark-green-800 border-green-500 hover:bg-dark-green-900`}
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   }
 
   &:not(:checked) + ${IconWrapper} {
@@ -86,14 +69,14 @@ const StyledInput = styled.input`
     ${EmptyRadio}, ${FilledRadio} {
       outline: none;
       border-radius: 50%;
-      box-shadow: 0 0 0 1px ${color('green400')};
+      box-shadow: 0 0 0 1px ${theme`colors.green.400`};
     }
   }
 
   &:focus + ${LabelText} {
     outline: none;
-    box-shadow: 0px 0px 0px 2px ${color('gray900')},
-      0px 0px 0px 3px ${color('green700')};
+    box-shadow: 0px 0px 0px 2px ${theme`colors.blue-gray.900`},
+      0px 0px 0px 3px ${theme`colors.green.700`};
   }
 `
 
@@ -133,7 +116,7 @@ export const RadioField: FC<RadioFieldProps> = ({
           {...ariaProps}
         />
         {renderIcons}
-        <LabelText radioVariant={variant}>{children}</LabelText>
+        <LabelText css={variant === 'card' && cardLabel}>{children}</LabelText>
       </label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
     </div>
