@@ -16,6 +16,17 @@ run_in_pane() {
   tmux send-keys -t omicron-console:0."$1" "$2" C-m
 }
 
+PINNED_API_VERSION=$(awk '/API_VERSION/ {print $2}' ../console/.github/workflows/packer.yaml)
+CURRENT_API_VERSION=$(git rev-parse HEAD)
+
+if [ "$CURRENT_API_VERSION" != "$PINNED_API_VERSION" ]; then
+  echo -e "\nERROR: Omicron version pinned in console does not match HEAD\n" >&2
+  echo -e "  pinned:  $PINNED_API_VERSION" >&2
+  echo -e "  HEAD:    $CURRENT_API_VERSION\n" >&2
+  echo -e "Check out the pinned commit and try again.\n" >&2
+  exit 1
+fi
+
 tmux new -d -s omicron-console 
 tmux set -t omicron-console pane-border-status top
 tmux set -t omicron-console pane-border-style "bg=#BBBBBB fg=black"
