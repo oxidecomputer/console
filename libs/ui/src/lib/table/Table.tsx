@@ -1,5 +1,5 @@
 import React, { createContext, forwardRef, useContext } from 'react'
-import type { FC, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import isPropValid from '@emotion/is-prop-valid'
 import tw, { css, styled, theme } from 'twin.macro'
@@ -116,7 +116,7 @@ ListContext.displayName = 'ListContext'
 
 type StickyRowProps = BaseRowProps & Pick<TableProps, 'columns'>
 
-const StickyRow: FC<StickyRowProps> = ({ index, columns, ...props }) => {
+const StickyRow = ({ index, columns, ...props }: StickyRowProps) => {
   return (
     <StyledStickyRow
       role="row"
@@ -147,7 +147,7 @@ interface RowProps extends BaseRowProps {
   style?: React.CSSProperties
 }
 
-const Row: FC<RowProps> = ({ index, row, style, ...props }) => {
+const Row = ({ index, row, style, ...props }: RowProps) => {
   const { columns } = useContext(ListContext)
   return (
     <StyledRow role="row" aria-rowindex={index + 1} style={style} {...props}>
@@ -196,7 +196,7 @@ interface RowWrapperProps extends BaseRowProps {
   data: TableData
 }
 
-const RowWrapper: FC<RowWrapperProps> = ({ data, index, ...props }) => {
+const RowWrapper = ({ data, index, ...props }: RowWrapperProps) => {
   // react-window will only render & mount the rows that are visible in the viewport
   // (so this component is not guaranteed to always have access to `data[0]`)
   const isStickyHeader = index === 0

@@ -1,4 +1,3 @@
-import type { FC } from 'react'
 import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
@@ -15,7 +14,7 @@ const DataTable = tw.div`grid grid-cols-2 grid-rows-2 gap-x-6 text-sm uppercase`
 
 const dataValue = tw`text-gray-50 align-self[baseline]`
 
-export const Card: FC<CardProps> = (props) => {
+export const Card = (props: CardProps) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (

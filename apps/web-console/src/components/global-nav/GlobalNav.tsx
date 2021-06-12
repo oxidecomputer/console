@@ -1,4 +1,3 @@
-import type { FC } from 'react'
 import React from 'react'
 
 import tw, { styled, theme } from 'twin.macro'
@@ -19,7 +18,7 @@ const Link = tw.a`ml-8 inline-flex`
 const Icon_ = tw(Icon)`w-6!`
 const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green-500`
 
-export const GlobalNav: FC = () => {
+export const GlobalNav = () => {
   return (
     <div tw="flex items-center">
       <TickBar />

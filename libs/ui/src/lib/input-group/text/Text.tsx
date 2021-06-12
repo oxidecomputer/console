@@ -1,31 +1,22 @@
-import type { FC } from 'react'
 import React from 'react'
 import type { InputGroupProps } from '../Group'
 import { InputGroup } from '../Group'
 import { Input } from '../Input'
 
 export interface TextInputGroupProps extends Omit<InputGroupProps, 'children'> {
-  /** The value the input should show, similar to `value` on `<input>` */
   value: string
-  /** Placeholder string for the input */
   placeholder?: string
-
-  /** onChange handler for the field, automatically maps e.target.value from the event object */
   onChange: (value: string) => void
-
-  /** TextField should never have children */
-  children?: never
 }
 
-export const TextInputGroup: FC<TextInputGroupProps> = ({
+export const TextInputGroup = ({
   id,
   value,
   placeholder,
   onChange,
-
   disabled,
   ...fieldProps
-}) => (
+}: TextInputGroupProps) => (
   <InputGroup id={id} disabled={disabled} {...fieldProps}>
     <Input
       id={id}
