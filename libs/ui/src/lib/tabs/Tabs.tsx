@@ -58,7 +58,7 @@ export const Tabs: FC<TabsProps> = ({
     if (focusTab === null) return
 
     const ref = refs[focusTab]
-    if (ref && ref.current) {
+    if (ref?.current) {
       ref.current.focus()
     }
   }, [refs, focusTab])

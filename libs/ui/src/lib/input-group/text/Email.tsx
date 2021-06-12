@@ -24,7 +24,7 @@ export const EmailInputGroup: FC<EmailInputGroupProps> = ({
         value={value}
         placeholder={placeholder}
         autoComplete="email"
-        onChange={(e) => onChange && onChange(e.target.value)}
+        onChange={(e) => onChange?.(e.target.value)}
       />
     </InputGroup>
   )

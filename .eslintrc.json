@@ -22,20 +22,23 @@
       { "prefer": "type-imports" }
     ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       { "argsIgnorePattern": "^_" }
     ],
     "arrow-body-style": "off",
-    "eqeqeq": ["error", "always"],
+    "eqeqeq": "error",
+    "no-param-reassign": "error",
+    "no-return-assign": "error",
     "no-unused-vars": "off",
     "prefer-arrow-callback": "off",
     "prettier/prettier": "error",
+    "radix": "error",
     "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
     "react/display-name": "off",
-    "react/prop-types": "off",
-    "@typescript-eslint/no-empty-function": "off"
+    "react/prop-types": "off"
   },
   "ignorePatterns": ["dist/", "!.storybook"],
   "overrides": [

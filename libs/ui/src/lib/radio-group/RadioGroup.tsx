@@ -81,7 +81,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   // Set checked of each child based on state
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     event.stopPropagation()
-    handleChange && handleChange(event.target.value)
+    handleChange?.(event.target.value)
   }
   const hintId = `${name}-hint`
   const ariaProps = hint ? { 'aria-describedby': hintId, tabIndex: 0 } : null

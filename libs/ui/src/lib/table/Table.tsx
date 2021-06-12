@@ -151,24 +151,23 @@ const Row: FC<RowProps> = ({ index, row, style, ...props }) => {
   const { columns } = useContext(ListContext)
   return (
     <StyledRow role="row" aria-rowindex={index + 1} style={style} {...props}>
-      {columns &&
-        columns.map((col, columnIndex) => {
-          const currentCol = col.accessor
-          const currentCell = row[currentCol]
-          // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
-          // https://github.com/oxidecomputer/console/issues/66
-          return (
-            <StyledCell
-              key={`gridcell-${col.accessor}-${columnIndex}`}
-              role="gridcell"
-              aria-colindex={columnIndex + 1}
-              width={col.width}
-              arrange={col.arrange || 'none'}
-            >
-              {currentCell}
-            </StyledCell>
-          )
-        })}
+      {columns?.map((col, columnIndex) => {
+        const currentCol = col.accessor
+        const currentCell = row[currentCol]
+        // TODO: Keyboard focus should default to tabIndex='-1' and update to tabindex="0" when cell has focus
+        // https://github.com/oxidecomputer/console/issues/66
+        return (
+          <StyledCell
+            key={`gridcell-${col.accessor}-${columnIndex}`}
+            role="gridcell"
+            aria-colindex={columnIndex + 1}
+            width={col.width}
+            arrange={col.arrange || 'none'}
+          >
+            {currentCell}
+          </StyledCell>
+        )
+      })}
     </StyledRow>
   )
 }
@@ -184,7 +183,7 @@ const InnerWrapper = forwardRef(
         ref={ref}
         {...props}
       >
-        {columns && columns.length ? (
+        {columns?.length ? (
           <StickyRow key={0} index={0} columns={columns} />
         ) : null}
         {children}

@@ -33,7 +33,7 @@ export const TextInputGroup: FC<TextInputGroupProps> = ({
       value={value}
       disabled={disabled}
       placeholder={placeholder}
-      onChange={(e) => onChange && onChange(e.target.value)}
+      onChange={(e) => onChange?.(e.target.value)}
     />
   </InputGroup>
 )
