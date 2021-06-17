@@ -18,7 +18,7 @@ export const Card = (props: CardProps) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <article tw="text-green-500" className={props.className}>
+    <article tw="text-green-50" className={props.className}>
       <main tw="p-4 bg-dark-green-800">
         <div tw="text-lg uppercase">{props.title}</div>
         <div tw="text-sm">{props.subtitle}</div>
@@ -28,10 +28,12 @@ export const Card = (props: CardProps) => {
             aria-label={props.title}
             aria-describedby={tableId}
           >
-            <span id={tableId} role="columnheader">
+            <span id={tableId} role="columnheader" tw="text-green-500">
               Heading
             </span>
-            <span role="columnheader">Data</span>
+            <span role="columnheader" tw="text-green-500">
+              Data
+            </span>
             <div role="cell" css={dataValue} tw="text-xl">
               3
             </div>
