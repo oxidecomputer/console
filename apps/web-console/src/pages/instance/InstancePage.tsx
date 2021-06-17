@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import {
   Tabs,
@@ -26,6 +26,7 @@ import {
 import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
 import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs, useToast } from '../../hooks'
+import { useEffect } from 'react'
 
 const InstanceAction = (props: {
   icon: IconName
@@ -43,6 +44,7 @@ const pageAction: ButtonProps = { size: 'xs', variant: 'outline' }
 type Params = {
   projectName: string
   instanceName: string
+  tab: string
 }
 
 type TabButtonProps = { children: ReactNode }
@@ -62,11 +64,33 @@ const selectedTabStyle = css`
   }
 `
 
+const tabs = [
+  { label: 'Overview', path: '/' },
+  { label: 'Metrics', path: '/metrics' },
+  { label: 'Activity', path: '/activity' },
+  { label: 'Access & IAM', path: '/access' },
+  { label: 'Settings', path: '/settings' },
+]
+
+const getTabIndex = (slug: string) =>
+  tabs.findIndex((t) => t.path === `/${slug || ''}`)
+
 const InstancePage = () => {
   const history = useHistory()
   const breadcrumbs = useBreadcrumbs()
   const addToast = useToast()
-  const { projectName, instanceName } = useParams<Params>()
+  const { projectName, instanceName, tab } = useParams<Params>()
+  const [tabIndex, setTabIndex] = useState(getTabIndex(tab))
+
+  useEffect(() => {
+    setTabIndex(getTabIndex(tab))
+  }, [tab])
+
+  const onChangeTab = (i: number) => {
+    history.replace(
+      `/projects/${projectName}/instances/${instanceName}${tabs[i].path}`
+    )
+  }
 
   const {
     data: instance,
@@ -195,6 +219,8 @@ const InstancePage = () => {
         tw="mt-4"
         css={selectedTabStyle}
         keyboardActivation={TabsKeyboardActivation.Manual}
+        index={tabIndex}
+        onChange={onChangeTab}
       >
         <TabList tw="flex space-x-3">
           <TabButton>Overview</TabButton>
