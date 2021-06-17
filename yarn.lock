@@ -1657,6 +1657,22 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.9.2.tgz#adea7b6953cbb34651766b0548468e743c6a2353"
   integrity sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==
 
+"@reach/auto-id@0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@reach/auto-id/-/auto-id-0.15.0.tgz#f46afebfc140b2099b95c7aec1f049d167d3833d"
+  integrity sha512-iACaCcZeqAhDf4OOwJpmHHS/LaRj9z3Ip8JmlhpCrFWV2YOIiiZk42amlBZX6CKH66Md+eriYZQk3TyAjk6Oxg==
+  dependencies:
+    "@reach/utils" "0.15.0"
+    tslib "^2.1.0"
+
+"@reach/descendants@0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@reach/descendants/-/descendants-0.15.0.tgz#be55a9420a075bc130f3be6da6e7e47733e5b8a0"
+  integrity sha512-MGs+7sGjx07sm29Wc2d/Ya72qwatNVHofnYwwHMT6LImv99kE5TQMCgkMSDeRwqQxHURmcjb4I7Tab+ahvCGiw==
+  dependencies:
+    "@reach/utils" "0.15.0"
+    tslib "^2.1.0"
+
 "@reach/router@^1.3.4":
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/@reach/router/-/router-1.3.4.tgz#d2574b19370a70c80480ed91f3da840136d10f8c"
@@ -1666,6 +1682,25 @@
     invariant "^2.2.3"
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
+
+"@reach/tabs@^0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@reach/tabs/-/tabs-0.15.0.tgz#cb94ee9bdadf6d818e8bee43b8d8fea8e708b727"
+  integrity sha512-W3FZw0DMGChwIRDBZYCw66NdiGkyapYs6xjOqQV2Ph7DMaMQ0lYck5bn40EtVi3O5x+8cAKmV+ubbHVUh+WSig==
+  dependencies:
+    "@reach/auto-id" "0.15.0"
+    "@reach/descendants" "0.15.0"
+    "@reach/utils" "0.15.0"
+    prop-types "^15.7.2"
+    tslib "^2.1.0"
+
+"@reach/utils@0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.15.0.tgz#5b183d668f9bb900b2dec7a33c028a2a828d27b2"
+  integrity sha512-JHHN7T5ucFiuQbqkgv8ECbRWKfRiJxrO/xHR3fHf+f2C7mVs/KkJHhYtovS1iEapR4silygX9PY0+QUmHPOTYw==
+  dependencies:
+    tiny-warning "^1.0.3"
+    tslib "^2.1.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"

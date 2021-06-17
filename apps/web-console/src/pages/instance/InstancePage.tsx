@@ -1,6 +1,15 @@
+import type { ReactNode } from 'react'
 import React from 'react'
 import { useParams, useHistory } from 'react-router-dom'
-import 'twin.macro'
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  TabsKeyboardActivation,
+} from '@reach/tabs'
+import tw, { css } from 'twin.macro'
 
 import { useApiQuery, useApiMutation } from '@oxide/api'
 
@@ -12,7 +21,6 @@ import {
   Icon,
   PageHeader,
   PageTitle,
-  Tabs,
 } from '@oxide/ui'
 
 import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
@@ -36,6 +44,23 @@ type Params = {
   projectName: string
   instanceName: string
 }
+
+type TabButtonProps = { children: ReactNode }
+const TabButton = ({ children }: TabButtonProps) => (
+  <Tab
+    as={Button}
+    variant="ghost"
+    tw="flex-1 border-0 border-b border-current text-green-50 hover:text-green-500"
+  >
+    {children}
+  </Tab>
+)
+
+const selectedTabStyle = css`
+  [data-reach-tab][data-selected] {
+    ${tw`text-green-500`}
+  }
+`
 
 const InstancePage = () => {
   const history = useHistory()
@@ -168,12 +193,18 @@ const InstancePage = () => {
       </div>
       <Tabs
         tw="mt-4"
-        fullWidth
-        label="Instance Page"
-        tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
+        css={selectedTabStyle}
+        keyboardActivation={TabsKeyboardActivation.Manual}
       >
-        <div>
-          <div>
+        <TabList tw="flex space-x-3">
+          <TabButton>Overview</TabButton>
+          <TabButton>Metrics</TabButton>
+          <TabButton>Activity</TabButton>
+          <TabButton>Access &amp; IAM</TabButton>
+          <TabButton>Settings</TabButton>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
             <div tw="flex flex-wrap">
               <Card
                 tw="mt-4 mr-4"
@@ -191,13 +222,13 @@ const InstancePage = () => {
                 subtitle="Some status update"
               />
             </div>
-          </div>
-          <InstancePageTables />
-        </div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+            <InstancePageTables />
+          </TabPanel>
+          <TabPanel>Metrics</TabPanel>
+          <TabPanel>Activity</TabPanel>
+          <TabPanel>Access</TabPanel>
+          <TabPanel>Settings</TabPanel>
+        </TabPanels>
       </Tabs>
     </div>
   )
