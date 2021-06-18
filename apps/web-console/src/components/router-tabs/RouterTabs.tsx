@@ -59,7 +59,7 @@ export function RouterTabs(props: Props) {
   // trim trailing slashes
   const basePath = baseMatch.url.replace(/\/*$/g, '')
   const onChangeTab = (i: number) => {
-    history.replace(`${basePath}${props.tabs[i].path}`)
+    history.push(`${basePath}${props.tabs[i].path}`)
   }
   return (
     <Tabs
