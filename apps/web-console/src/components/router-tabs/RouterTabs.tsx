@@ -28,32 +28,26 @@ type Props = {
   className?: string
 }
 
-const getTabIndex = (tabs: TabData[], slug: string) => {
-  const index = tabs.findIndex((t) => t.path === `/${slug || ''}`)
-  // if nothing matches, default to 0
-  return index === -1 ? 0 : index
-}
-
-type Params = { tab: string }
-
 export function RouterTabs(props: Props) {
   const history = useHistory()
 
   const baseMatch = useRouteMatch()
-  const tabMatch = useRouteMatch<Params>(`${baseMatch.path}/:tab?`)
+  const tabMatch = useRouteMatch<{ tab: string }>(`${baseMatch.path}/:tab?`)
   const tab = tabMatch?.params.tab || ''
 
-  // trim trailing slashes
-  const basePath = baseMatch.url.replace(/\/*$/g, '')
+  let tabIndex = props.tabs.findIndex((t) => t.path === `/${tab}`)
+  tabIndex = tabIndex === -1 ? 0 : tabIndex // default 0 if no match
+
+  const baseUrl = baseMatch.url.replace(/\/*$/g, '') // trim trailing slashes
   const onChangeTab = (i: number) => {
-    history.push(`${basePath}${props.tabs[i].path}`)
+    history.push(`${baseUrl}${props.tabs[i].path}`)
   }
 
   return (
     <Tabs
       css={selectedTabStyle}
       keyboardActivation={TabsKeyboardActivation.Manual}
-      index={getTabIndex(props.tabs, tab)}
+      index={tabIndex}
       onChange={onChangeTab}
       className={props.className}
     >
