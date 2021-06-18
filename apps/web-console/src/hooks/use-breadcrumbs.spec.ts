@@ -28,6 +28,19 @@ describe('breadcrumbsForPath', () => {
     ])
   })
 
+  it('ignores trailing slashes and empty path segments', () => {
+    expect(breadcrumbsForPath('/projects/test-project/')).toEqual([
+      mazeWar,
+      { href: '/projects', label: 'projects' },
+      { label: 'test-project' },
+    ])
+    expect(breadcrumbsForPath('/projects///test-project')).toEqual([
+      mazeWar,
+      { href: '/projects', label: 'projects' },
+      { label: 'test-project' },
+    ])
+  })
+
   it('applies special labels for create pages', () => {
     expect(breadcrumbsForPath('/projects/new')).toEqual([
       mazeWar,

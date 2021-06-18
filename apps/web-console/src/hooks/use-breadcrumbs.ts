@@ -22,7 +22,13 @@ const getSpecialLabel = (pathSoFar: string): string | undefined =>
   specialLabels.find((sp) => sp.pred(pathSoFar))?.label
 
 export const breadcrumbsForPath = (path: string): Crumb[] => {
-  const pathParts = path === '/' ? [] : path.split('/').slice(1)
+  const pathParts =
+    path === '/'
+      ? []
+      : path
+          .split('/')
+          .slice(1)
+          .filter((p) => p.length > 0)
 
   const crumbFor = (pathPart: string, i: number): Crumb => {
     const pathSoFar = '/' + pathParts.slice(0, i + 1).join('/')
