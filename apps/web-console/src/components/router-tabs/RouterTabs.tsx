@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import {
   Tabs,
@@ -12,16 +12,7 @@ import tw, { css } from 'twin.macro'
 
 import { Button } from '@oxide/ui'
 
-type TabButtonProps = { children: ReactNode }
-const TabButton = ({ children }: TabButtonProps) => (
-  <Tab
-    as={Button}
-    variant="ghost"
-    tw="flex-1 border-0 border-b border-current text-green-50 hover:text-green-500"
-  >
-    {children}
-  </Tab>
-)
+const buttonStyle = tw`flex-1 border-0 border-b border-current text-green-50 hover:text-green-500`
 
 const selectedTabStyle = css`
   [data-reach-tab][data-selected] {
@@ -30,6 +21,7 @@ const selectedTabStyle = css`
 `
 
 type TabData = { label: string; path: string }
+
 type Props = {
   tabs: TabData[]
   children: ReactNode
@@ -45,33 +37,31 @@ const getTabIndex = (tabs: TabData[], slug: string) => {
 type Params = { tab: string }
 
 export function RouterTabs(props: Props) {
+  const history = useHistory()
+
   const baseMatch = useRouteMatch()
   const tabMatch = useRouteMatch<Params>(`${baseMatch.path}/:tab?`)
   const tab = tabMatch?.params.tab || ''
-
-  const history = useHistory()
-  const [tabIndex, setTabIndex] = useState(getTabIndex(props.tabs, tab))
-
-  useEffect(() => {
-    setTabIndex(getTabIndex(props.tabs, tab))
-  }, [props.tabs, tab])
 
   // trim trailing slashes
   const basePath = baseMatch.url.replace(/\/*$/g, '')
   const onChangeTab = (i: number) => {
     history.push(`${basePath}${props.tabs[i].path}`)
   }
+
   return (
     <Tabs
       css={selectedTabStyle}
       keyboardActivation={TabsKeyboardActivation.Manual}
-      index={tabIndex}
+      index={getTabIndex(props.tabs, tab)}
       onChange={onChangeTab}
       className={props.className}
     >
       <TabList tw="flex space-x-3">
         {props.tabs.map((t) => (
-          <TabButton key={t.label}>{t.label}</TabButton>
+          <Tab as={Button} key={t.label} variant="ghost" css={buttonStyle}>
+            {t.label}
+          </Tab>
         ))}
       </TabList>
       <TabPanels>{props.children}</TabPanels>
