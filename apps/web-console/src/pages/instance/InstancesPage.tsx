@@ -4,9 +4,8 @@ import { useParams, Link } from 'react-router-dom'
 import filesize from 'filesize'
 
 import { useApiQuery } from '@oxide/api'
-import { Button, Breadcrumbs, PageHeader, PageTitle, Table } from '@oxide/ui'
+import { Button, Table } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
-import { useBreadcrumbs } from '../../hooks'
 import { timeAgoAbbr } from '../../util/date'
 
 type Params = {
@@ -14,8 +13,6 @@ type Params = {
 }
 
 const InstancesPage = () => {
-  const breadcrumbs = useBreadcrumbs()
-
   const { projectName } = useParams<Params>()
   const { data: instances } = useApiQuery(
     'apiProjectInstancesGet',
@@ -27,12 +24,6 @@ const InstancesPage = () => {
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
-      <PageHeader>
-        <PageTitle icon="instances">
-          Instances for Project: {projectName}
-        </PageTitle>
-      </PageHeader>
       {instances.items.length > 0 && (
         <Table
           tw="h-80 my-3"

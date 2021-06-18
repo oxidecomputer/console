@@ -7,7 +7,6 @@ import {
   Switch,
 } from 'react-router-dom'
 import InstancePage from '../pages/instance/InstancePage'
-import InstancesPage from '../pages/instance/InstancesPage'
 import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
 import ProjectPage from '../pages/projects/ProjectPage'
 import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
@@ -27,9 +26,6 @@ const App = () => {
           </Route>
           <Route path="/projects/new" exact>
             <ProjectCreatePage />
-          </Route>
-          <Route path="/projects/:projectName/instances" exact>
-            <InstancesPage />
           </Route>
           <Route path="/projects/:projectName/instances/new" exact>
             <InstanceCreatePage />
