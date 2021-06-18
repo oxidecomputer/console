@@ -26,7 +26,7 @@ const InstancesPage = () => {
     <>
       {instances.items.length > 0 && (
         <Table
-          tw="h-80 my-3"
+          tw="h-80"
           itemSize={() => 44}
           columns={[
             { Header: 'Name', accessor: 'name' },

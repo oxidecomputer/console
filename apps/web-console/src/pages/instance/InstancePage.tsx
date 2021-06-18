@@ -178,21 +178,9 @@ const InstancePage = () => {
       <RouterTabs tw="mt-4" tabs={tabs}>
         <TabPanel>
           <div tw="flex flex-wrap">
-            <Card
-              tw="mt-4 mr-4"
-              title="Metrics"
-              subtitle="Some status update"
-            />
-            <Card
-              tw="mt-4 mr-4"
-              title="Activity"
-              subtitle="Some status update"
-            />
-            <Card
-              tw="mt-4"
-              title="Access & IAM"
-              subtitle="Some status update"
-            />
+            <Card tw="mr-4" title="Metrics" subtitle="Some status update" />
+            <Card tw="mr-4" title="Activity" subtitle="Some status update" />
+            <Card title="Access & IAM" subtitle="Some status update" />
           </div>
           <InstancePageTables />
         </TabPanel>

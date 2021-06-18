@@ -57,7 +57,7 @@ export function RouterTabs(props: Props) {
       onChange={onChangeTab}
       className={props.className}
     >
-      <TabList tw="flex space-x-3">
+      <TabList tw="flex space-x-3 mb-3">
         {props.tabs.map((t) => (
           <Tab as={Button} key={t.label} variant="ghost" css={buttonStyle}>
             {t.label}
