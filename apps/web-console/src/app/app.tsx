@@ -34,7 +34,7 @@ const App = () => {
           <Route path="/projects/:projectName/instances/new" exact>
             <InstanceCreatePage />
           </Route>
-          <Route path="/projects/:projectName/instances/:instanceName/:tab?">
+          <Route path="/projects/:projectName/instances/:instanceName">
             <InstancePage />
           </Route>
           <Route path="/projects/:projectName">
