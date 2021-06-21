@@ -65,7 +65,7 @@ const InstancesPage = () => {
           }))}
         />
       )}
-      {instances.items.length === 0 && <div tw="mt-4">No instances yet!</div>}
+      {instances.items.length === 0 && <div tw="mt-4">No instances yet</div>}
       <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
         <Button>Create instance</Button>
       </Link>

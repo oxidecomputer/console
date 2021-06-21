@@ -19,7 +19,7 @@ const ProjectsPage = () => {
       <PageHeader>
         <PageTitle icon="projects">Projects</PageTitle>
       </PageHeader>
-      {data.items.length === 0 && <div tw="mt-4">No projects yet!</div>}
+      {data.items.length === 0 && <div tw="mt-4">No projects yet</div>}
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
         {data.items.map((item) => (
           <li key={item.id}>
