@@ -41,13 +41,8 @@ const colors = {
     700: '#36a071',
     800: '#2b805b',
     900: '#23684a',
-    black: '#001712',
   },
-  'dark-green': {
-    700: '#20463b', // TODO: picked hastily, revisit
-    800: '#18342c',
-    900: '#172524',
-  },
+  TODO: '#FF0000',
 }
 
 module.exports = {

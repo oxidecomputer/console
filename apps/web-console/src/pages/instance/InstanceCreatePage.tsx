@@ -174,7 +174,7 @@ const InstanceCreatePage = () => {
   const [tagsField, setTagsField] = useState('')
 
   const getParams = () => {
-    // FIXME: Refactor once the backend API is more settled
+    // TODO: Refactor once the backend API is more settled
     const instance = INSTANCE_SIZES.find(
       (option) => option.id === instanceSizeValue
     ) || { memory: 0, ncpus: 0 }

@@ -18,11 +18,11 @@ export const Card = (props: CardProps) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <article tw="text-green-50" className={props.className}>
-      <main tw="p-4 bg-dark-green-800">
+    <article tw="text-green-50 bg-green-tint" className={props.className}>
+      <main tw="p-4">
         <div tw="text-lg uppercase">{props.title}</div>
         <div tw="text-sm">{props.subtitle}</div>
-        <div tw="flex mt-6 mb-16">
+        <div tw="flex my-6">
           <DataTable
             role="table"
             aria-label={props.title}
@@ -44,16 +44,13 @@ export const Card = (props: CardProps) => {
           <section tw="self-end">
             <Sparkline
               style={{
-                stroke: theme`colors.green`,
+                stroke: theme`colors.green.DEFAULT`,
                 strokeOpacity: 0.8,
               }}
             />
           </section>
         </div>
       </main>
-      <footer tw="flex text-xs py-2 px-4 bg-dark-green-900 items-baseline uppercase">
-        Optional link
-      </footer>
     </article>
   )
 }

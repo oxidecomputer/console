@@ -61,7 +61,7 @@ const colors = {
   gray: tw`bg-gray-600 text-white`,
   red: tw`bg-red-tint text-red`,
   yellow: tw`bg-yellow-tint text-yellow`,
-  green: tw`bg-dark-green-800 text-green`,
+  green: tw`bg-green-tint text-green`,
   blue: tw`bg-blue-tint text-blue`,
 }
 
