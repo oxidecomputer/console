@@ -45,7 +45,7 @@ export interface TableProps {
 // hsla(167, 100%, 5%, 0.92)
 
 const ROW_HEIGHT = 45
-const BORDER_COLOR = theme`colors.blue-gray.600`
+const BORDER_COLOR = theme`colors.grey.3`
 
 /* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
 const StyledCell = styled('div', {

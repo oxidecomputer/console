@@ -4,12 +4,13 @@ const colors = {
   transparent: 'transparent',
   current: 'currentColor',
   black: '#0B1418',
-  gray: {
-    ...twColors.gray,
+  gray: twColors.gray,
+  grey: {
     1: '#AAAFB1',
     2: '#969A9C',
     3: '#646A6D',
     4: '#30373B',
+    5: '#192125',
   },
   white: {
     DEFAULT: '#FFFFFF',
@@ -46,10 +47,6 @@ const colors = {
     700: '#20463b', // TODO: picked hastily, revisit
     800: '#18342c',
     900: '#172524',
-  },
-  'blue-gray': {
-    600: '#647578', // TODO: not a real thing, revisit
-    800: '#1d2225',
   },
 }
 
