@@ -67,7 +67,7 @@ const StyledInput = styled.input`
 
   &:focus + ${LabelText} {
     outline: none;
-    box-shadow: 0px 0px 0px 2px ${theme`colors.blue-gray.900`},
+    box-shadow: 0px 0px 0px 2px ${theme`colors.black`},
       0px 0px 0px 3px ${theme`colors.green.700`};
   }
 `

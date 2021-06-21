@@ -67,7 +67,7 @@ import { theme, css } from 'twin.macro'
 
 const CustomStyles = createGlobalStyle`
   .dark {
-    --bg-primary: ${theme`colors.blue-gray.900`};
+    --bg-primary: ${theme`colors.black`};
     --bg-secondary: ${theme`colors.blue-gray.800`};
   }
 `

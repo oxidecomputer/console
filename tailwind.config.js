@@ -50,7 +50,6 @@ const colors = {
   'blue-gray': {
     600: '#647578', // TODO: not a real thing, revisit
     800: '#1d2225',
-    900: '#0e1518',
   },
 }
 
