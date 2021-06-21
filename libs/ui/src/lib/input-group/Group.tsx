@@ -27,8 +27,8 @@ export const InfoPopover = (props: { children: React.ReactNode }) => (
 
 const focusStyle = css`
   &:focus-within {
-    ${tw`border-green-500`}
-    box-shadow: 0px 0px 0px 1px ${theme`colors.green.500`};
+    ${tw`border-green`}
+    box-shadow: 0px 0px 0px 1px ${theme`colors.green`};
   }
 `
 

@@ -97,7 +97,7 @@ interface BaseRowProps {
 
 const StyledStickyRow = styled.div<BaseRowProps>`
   ${rowStyles};
-  ${tw`w-full bg-dark-green-800 text-green-500 uppercase`}
+  ${tw`w-full bg-dark-green-800 text-green uppercase`}
 
   z-index: 2;
   position: sticky; /* sometimes the table peeks through at the top */

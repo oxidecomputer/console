@@ -14,7 +14,7 @@ export interface ProjectListProps {
 export const ProjectList = (props: ProjectListProps) => (
   <section tw="space-y-1" className={props.className}>
     <header tw="p-1 space-x-2 uppercase text-sm">
-      <span tw="text-green-500">Projects</span>
+      <span tw="text-green">Projects</span>
       <span tw="text-green-300">{props.projects.length}</span>
     </header>
     <ul tw="flex flex-col uppercase space-y-1">

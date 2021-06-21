@@ -34,7 +34,7 @@ const ListItemLink = styled(BaseLink)`
 `
 
 // mixins
-const titleText = tw`text-2xl text-green-500 uppercase`
+const titleText = tw`text-2xl text-green uppercase`
 
 // using mixins
 <span css={titleText}>Some text</span>
@@ -77,16 +77,16 @@ Only string literals can go inside the `tw` prop and `tw` tagged template. Use t
 
 ```js
 // good
-const color = active ? tw`text-green-500` : tw`text-white`
+const color = active ? tw`text-green` : tw`text-white`
 
-<span css={active ? tw`text-green-500` : tw`text-white`}>Some text</span>
+<span css={active ? tw`text-green` : tw`text-white`}>Some text</span>
 
 // ERROR
 const color = tw`text-${active ? 'green-500' : 'white'}`
 
 <span tw={tw`text-sm`}>Some text</span>
 
-<span tw={active ? tw`text-green-500` : tw`text-white`}>Some text</span>
+<span tw={active ? tw`text-green` : tw`text-white`}>Some text</span>
 ```
 
 ## Tailwind basics
@@ -99,8 +99,8 @@ There's very little to it and the [docs](https://tailwindcss.com/docs) are excel
 | `padding`          | `p` + `(t/r/b/l/x/y)` + number                |
 | `height/width`     | `h/w` + number, fraction, `full`, or `screen` |
 | `font-size`        | `text-sm`, `text-base`, `text-lg`             |
-| `color`            | `text-green-500`                              |
-| `background-color` | `bg-green-500`                                |
+| `color`            | `text-green`                                  |
+| `background-color` | `bg-green`                                    |
 | `display`          | `block`, `inline`, `flex`, `inline-flex`      |
 | `border`           | `border` + `border-green-800`                 |
-| `:hover`           | `hover:bg-green-500`                          |
+| `:hover`           | `hover:bg-green`                              |

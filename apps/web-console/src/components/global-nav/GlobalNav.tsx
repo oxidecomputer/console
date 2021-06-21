@@ -6,7 +6,7 @@ import { Avatar, Icon } from '@oxide/ui'
 
 const Link = tw.a`ml-8 inline-flex`
 const Icon_ = tw(Icon)`w-6!`
-const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green-500`
+const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green`
 
 export const GlobalNav = () => {
   return (
