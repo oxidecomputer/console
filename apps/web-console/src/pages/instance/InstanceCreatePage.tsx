@@ -393,7 +393,7 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <div tw="text-red-500">
+        <div tw="text-red">
           {getServerError(createInstance.error, ERROR_CODES)}
         </div>
       </form>

@@ -3,14 +3,7 @@ import React from 'react'
 import tw from 'twin.macro'
 import { Icon } from '../icon/Icon'
 
-export const badgeColors = [
-  'gray',
-  'red',
-  'yellow',
-  'green',
-  'blue',
-  'purple',
-] as const
+export const badgeColors = ['gray', 'red', 'yellow', 'green', 'blue'] as const
 export type BadgeColor = typeof badgeColors[number]
 
 export const badgeSizes = ['sm', 'base', 'xl'] as const
@@ -66,11 +59,10 @@ const closeIcon = {
 
 const colors = {
   gray: tw`bg-gray-600 text-white`,
-  red: tw`bg-dark-red text-red-500`,
-  yellow: tw`bg-dark-yellow text-yellow-500`,
+  red: tw`bg-red-tint text-red`,
+  yellow: tw`bg-yellow-tint text-yellow`,
   green: tw`bg-dark-green-800 text-green-500`,
-  blue: tw`bg-dark-blue text-blue-500`,
-  purple: tw`bg-dark-purple text-purple-400`,
+  blue: tw`bg-blue-tint text-blue`,
 }
 
 export const Badge = ({

@@ -27,7 +27,7 @@ type SubItemProps = { href?: string; children: React.ReactNode }
 
 const subItem = tw`
   ml-6 text-xxs
-  before:(content['├'] text-yellow-500 w-3.5 inline-block) 
+  before:(content['├'] text-yellow w-3.5 inline-block) 
   last-of-type:before:content['└']
 `
 const subItemLink = tw`inline-block p-1 width[calc(100% - 0.875rem)] hover:bg-gray-700`

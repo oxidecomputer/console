@@ -87,7 +87,7 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
-        <div tw="text-red-500">
+        <div tw="text-red">
           {getServerError(createProject.error, ERROR_CODES)}
         </div>
       </form>
