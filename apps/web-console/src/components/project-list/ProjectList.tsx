@@ -21,9 +21,9 @@ export const ProjectList = (props: ProjectListProps) => (
       {props.projects.map((p) => (
         <li tw="text-xs hover:bg-gray-700" key={p.id} tabIndex={0}>
           <NavLink
-            tw="inline-flex w-full p-1 text-gray-400"
+            tw="inline-flex w-full p-1"
             to={`/projects/${p.name}`}
-            activeStyle={tw`text-gray-50`}
+            activeStyle={tw`text-green`}
           >
             {p.name}
           </NavLink>
@@ -31,7 +31,7 @@ export const ProjectList = (props: ProjectListProps) => (
       ))}
     </ul>
     <footer tw="p-1 flex">
-      <Link tw="text-xxs text-gray-400 inline-flex" to="/projects/new">
+      <Link tw="text-xxs inline-flex" to="/projects/new">
         Create a new project
         <Icon tw="text-sm ml-1" name="plus" />
       </Link>

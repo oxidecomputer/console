@@ -19,7 +19,7 @@ export const darkUI = create({
   // UI
   appBg: theme`colors.black`,
   appContentBg: theme`colors.black`,
-  appBorderColor: theme`colors.gray.700`,
+  appBorderColor: theme`colors.grey.4`,
   appBorderRadius: 4,
 
   // Typography

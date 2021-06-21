@@ -22,7 +22,7 @@ const Wrapper = styled.div`
   height: 100vh;
 `
 
-const Sidebar = tw.div`grid-area[sidebar] px-3 pb-6 overflow-auto bg-grey-5`
+const Sidebar = tw.div`grid-area[sidebar] px-3 pb-6 overflow-auto text-grey-1 bg-grey-5`
 
 const WordmarkWrapper = tw.div`grid-area[logo] flex items-center h-14 pl-4 bg-grey-5`
 

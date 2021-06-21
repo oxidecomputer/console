@@ -237,13 +237,13 @@ export const Table = ({
     <div tw="height[inherit] flex flex-col">
       {showControls && (
         <div tw="flex justify-end bg-green-black">
-          <Button tw="text-gray-400" variant="ghost">
+          <Button tw="text-grey-1" variant="ghost">
             <Icon name="search" />
           </Button>
-          <Button tw="text-gray-400" variant="ghost">
+          <Button tw="text-grey-1" variant="ghost">
             <Icon name="filter" />
           </Button>
-          <Button tw="text-gray-400" variant="ghost">
+          <Button tw="text-grey-1" variant="ghost">
             <Icon name="viewCols" />
           </Button>
         </div>

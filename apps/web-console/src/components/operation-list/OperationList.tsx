@@ -43,7 +43,7 @@ const SubItem = ({ href = '#', children }: SubItemProps) => (
 export const OperationList = (props: { className?: string }) => (
   <nav tw="uppercase" className={props.className}>
     <header tw="p-1 text-sm text-green-500">Operations</header>
-    <ul tw="mt-1 space-y-1 text-gray-400">
+    <ul tw="mt-1 space-y-1">
       <ListItem label="System" icon="dashboard" />
       <ListItem label="Resources" icon="resources">
         <ul tw="mt-1 space-y-1">
