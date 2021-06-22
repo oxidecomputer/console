@@ -24,7 +24,7 @@ const Description = tw.p`text-gray-300 text-sm mt-2 max-w-prose`
 
 const StyledTabs = tw(Tabs)`mt-1`
 
-const RadioFieldText = tw.div`text-green-50 text-base`
+const RadioFieldText = tw.div`text-white text-base`
 
 const Row = tw.div`flex space-x-6`
 
@@ -174,7 +174,7 @@ const InstanceCreatePage = () => {
   const [tagsField, setTagsField] = useState('')
 
   const getParams = () => {
-    // FIXME: Refactor once the backend API is more settled
+    // TODO: Refactor once the backend API is more settled
     const instance = INSTANCE_SIZES.find(
       (option) => option.id === instanceSizeValue
     ) || { memory: 0, ncpus: 0 }
@@ -393,7 +393,7 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <div tw="text-red-500">
+        <div tw="text-red">
           {getServerError(createInstance.error, ERROR_CODES)}
         </div>
       </form>

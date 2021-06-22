@@ -90,7 +90,7 @@ export const InstancePageTables = ({
       name: (
         <>
           <span tw="text-sm">{entry.name}</span>
-          <span tw="text-xxs text-gray-400">{entry.image}</span>
+          <span tw="text-xxs text-grey-1">{entry.image}</span>
         </>
       ),
       size: entry.size,
@@ -107,7 +107,7 @@ export const InstancePageTables = ({
       name: (
         <>
           <span tw="text-sm">{entry.name}</span>
-          <span tw="text-xxs text-gray-400">{entry.version}</span>
+          <span tw="text-xxs text-grey-1">{entry.version}</span>
         </>
       ),
       upstream: entry.upstream,
@@ -121,7 +121,7 @@ export const InstancePageTables = ({
   })
   return (
     <>
-      <h2 tw="text-gray-50 mt-8">Attached Disks</h2>
+      <h2 tw="text-white mt-8">Attached Disks</h2>
       <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}
@@ -134,7 +134,7 @@ export const InstancePageTables = ({
           data={formatDiskData}
         />
       </div>
-      <h2 tw="text-gray-50 mt-8">Package Updates</h2>
+      <h2 tw="text-white mt-8">Package Updates</h2>
       <div tw="mt-3 h-44">
         <Table
           itemSize={() => 44}

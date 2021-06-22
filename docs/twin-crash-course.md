@@ -25,7 +25,7 @@ Most of this is from the [readme](https://github.com/ben-rogerson/twin.macro) bu
 <span tw="text-sm">Some text</span>
 
 // component with only TW classes
-const List = tw.ul`flex flex-col text-gray-400 uppercase space-y-1 mt-1`
+const List = tw.ul`flex flex-col text-grey-1 uppercase space-y-1 mt-1`
 
 // mixing Tailwind classes and CSS
 const ListItemLink = styled(BaseLink)`
@@ -34,7 +34,7 @@ const ListItemLink = styled(BaseLink)`
 `
 
 // mixins
-const titleText = tw`text-2xl text-green-500 uppercase`
+const titleText = tw`text-2xl text-green uppercase`
 
 // using mixins
 <span css={titleText}>Some text</span>
@@ -67,8 +67,8 @@ import { theme, css } from 'twin.macro'
 
 const CustomStyles = createGlobalStyle`
   .dark {
-    --bg-primary: ${theme`colors.blue-gray.900`};
-    --bg-secondary: ${theme`colors.blue-gray.800`};
+    --bg-primary: ${theme`colors.black`};
+    --bg-secondary: ${theme`colors.grey.5`};
   }
 `
 ```
@@ -77,16 +77,16 @@ Only string literals can go inside the `tw` prop and `tw` tagged template. Use t
 
 ```js
 // good
-const color = active ? tw`text-green-500` : tw`text-white`
+const color = active ? tw`text-green` : tw`text-white`
 
-<span css={active ? tw`text-green-500` : tw`text-white`}>Some text</span>
+<span css={active ? tw`text-green` : tw`text-white`}>Some text</span>
 
 // ERROR
 const color = tw`text-${active ? 'green-500' : 'white'}`
 
 <span tw={tw`text-sm`}>Some text</span>
 
-<span tw={active ? tw`text-green-500` : tw`text-white`}>Some text</span>
+<span tw={active ? tw`text-green` : tw`text-white`}>Some text</span>
 ```
 
 ## Tailwind basics
@@ -99,8 +99,8 @@ There's very little to it and the [docs](https://tailwindcss.com/docs) are excel
 | `padding`          | `p` + `(t/r/b/l/x/y)` + number                |
 | `height/width`     | `h/w` + number, fraction, `full`, or `screen` |
 | `font-size`        | `text-sm`, `text-base`, `text-lg`             |
-| `color`            | `text-green-500`                              |
-| `background-color` | `bg-green-500`                                |
+| `color`            | `text-green`                                  |
+| `background-color` | `bg-green`                                    |
 | `display`          | `block`, `inline`, `flex`, `inline-flex`      |
-| `border`           | `border` + `border-green-800`                 |
-| `:hover`           | `hover:bg-green-500`                          |
+| `border`           | `border` + `border-green`                     |
+| `:hover`           | `hover:bg-green`                              |

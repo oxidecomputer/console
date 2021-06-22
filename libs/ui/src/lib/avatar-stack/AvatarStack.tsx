@@ -14,7 +14,7 @@ export const AvatarStack = ({ data, size = 'base' }: AvatarStackProps) => (
     {data.map((avatarProps) => (
       <Avatar
         tw="-ml-2"
-        css={{ boxShadow: `0 0 0 2px ${theme`colors.blue-gray.900`}` }}
+        css={{ boxShadow: `0 0 0 2px ${theme`colors.black`}` }}
         key={`avatar-stack-${avatarProps.name}`}
         size={size}
         {...avatarProps}

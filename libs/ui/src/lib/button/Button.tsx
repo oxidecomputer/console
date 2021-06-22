@@ -19,28 +19,28 @@ const sizeStyle: Record<ButtonSize, TwStyle> = {
 
 const variantStyle: Record<Variant, TwStyle> = {
   solid: tw`
-    bg-green-600 text-green-50
-    hover:not-disabled:(bg-green-700 border-green-700)
+    bg-green-600 text-white
+    hover:not-disabled:(bg-TODO border-TODO)
     disabled:opacity-64
     focus:shadow-ring-white
   `,
   subtle: tw`
-    bg-dark-green-800 text-green-400
-    hover:not-disabled:bg-dark-green-700
+    bg-green-tint text-green-400
+    hover:not-disabled:bg-TODO
     focus:shadow-ring-green-500
   `,
   outline: tw`
-    bg-dark-green-800 text-green-400 shadow-ring-green-500
-    hover:not-disabled:bg-dark-green-900
-    focus:(bg-dark-green-800 shadow-ring-green-300)
+    bg-green-tint text-green-400 shadow-ring-green-500
+    hover:not-disabled:bg-TODO
+    focus:(bg-green-tint shadow-ring-green-300)
   `,
   ghost: tw`
     text-green-400
-    hover:not-disabled:(bg-dark-green-900)
-    focus:(bg-dark-green-800! shadow-ring-green-500)
+    hover:not-disabled:(bg-green-tint)
+    focus:(bg-green-tint! shadow-ring-green-500)
   `,
   link: tw`
-    text-green-500 h-auto p-1  // note h-auto overriding size style
+    text-green h-auto p-1  // note h-auto overriding size style
     hover:not-disabled:(underline)
     focus:shadow-ring-green-500
   `,

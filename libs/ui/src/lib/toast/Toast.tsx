@@ -30,7 +30,7 @@ const Content = styled.div<{ hasIcon: boolean }>(() => [
 
 const CloseButton = tw.button`flex flex-initial content-center h-5`
 
-const TitleText = tw.span`text-sm font-medium text-gray-50`
+const TitleText = tw.span`text-sm font-medium text-white`
 const BodyText = tw.span`text-sm text-gray-300`
 
 export const Toast = ({

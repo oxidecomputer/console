@@ -27,7 +27,7 @@ type SubItemProps = { href?: string; children: React.ReactNode }
 
 const subItem = tw`
   ml-6 text-xxs
-  before:(content['├'] text-yellow-500 w-3.5 inline-block) 
+  before:(content['├'] text-yellow w-3.5 inline-block) 
   last-of-type:before:content['└']
 `
 const subItemLink = tw`inline-block p-1 width[calc(100% - 0.875rem)] hover:bg-gray-700`
@@ -42,8 +42,8 @@ const SubItem = ({ href = '#', children }: SubItemProps) => (
 
 export const OperationList = (props: { className?: string }) => (
   <nav tw="uppercase" className={props.className}>
-    <header tw="p-1 text-sm text-green-500">Operations</header>
-    <ul tw="mt-1 space-y-1 text-gray-400">
+    <header tw="p-1 text-sm text-green">Operations</header>
+    <ul tw="mt-1 space-y-1">
       <ListItem label="System" icon="dashboard" />
       <ListItem label="Resources" icon="resources">
         <ul tw="mt-1 space-y-1">

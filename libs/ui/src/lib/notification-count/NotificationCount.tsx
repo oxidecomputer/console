@@ -8,8 +8,8 @@ export interface NotificationCountProps {
 }
 
 export const NotificationCount: FC<NotificationCountProps> = ({ count }) => (
-  <div tw="inline-flex justify-center px-1 bg-yellow-500 rounded-full">
-    <span tw="text-xs relative bottom-px text-yellow-900">{count}</span>
+  <div tw="inline-flex justify-center px-1 bg-yellow rounded-full">
+    <span tw="text-xs relative bottom-px text-yellow-tint">{count}</span>
   </div>
 )
 

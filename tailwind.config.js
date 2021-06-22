@@ -1,75 +1,55 @@
 const twColors = require('tailwindcss/colors')
 
+// TODO: gray 100-800 and green 300-900 are from the old color scheme, but it's
+// not worth going through and converting all uses of them to the new colors
+// because those uses will disappear with the new designs anyway
+
 const colors = {
   transparent: 'transparent',
   current: 'currentColor',
-  gray: twColors.gray,
-  white: twColors.white,
-  black: twColors.black,
-  purple: twColors.purple,
+  black: '#0B1418',
+  gray: {
+    100: twColors.gray[100],
+    200: twColors.gray[200],
+    300: twColors.gray[300],
+    500: twColors.gray[500],
+    700: twColors.gray[700],
+    800: twColors.gray[800],
+  },
+  grey: {
+    1: '#AAAFB1',
+    2: '#969A9C',
+    3: '#646A6D',
+    4: '#30373B',
+    5: '#192125',
+  },
+  white: {
+    DEFAULT: '#FFFFFF',
+    off: '#E7E7E8',
+  },
   red: {
-    50: '#fdf8f9',
-    100: '#fbf1f3',
-    200: '#f5dbe1',
-    300: '#efc6cf',
-    400: '#e49bab',
-    500: '#D87087',
-    600: '#c2657a',
-    700: '#a25465',
-    800: '#824351',
-    900: '#6a3742',
+    DEFAULT: '#E86886',
+    tint: '#2C2128',
   },
   yellow: {
-    50: '#fefdf8',
-    100: '#fdfaf1',
-    200: '#fbf4dd',
-    300: '#f9edc8',
-    400: '#f4df9f',
-    500: '#EFD176',
-    600: '#d7bc6a',
-    700: '#b39d59',
-    800: '#8f7d47',
-    900: '#75663a',
+    DEFAULT: '#F5CF65',
+    tint: '#2E3024',
   },
   blue: {
-    50: '#f9f9fe',
-    100: '#f2f4fe',
-    200: '#dfe3fc',
-    300: '#cbd2fa',
-    400: '#a4b1f6',
-    500: '#7D8FF2',
-    600: '#7181da',
-    700: '#5e6bb6',
-    800: '#4b5691',
-    900: '#3d4677',
+    DEFAULT: '#4969F6',
+    tint: '#142139',
   },
   green: {
-    50: '#f6fdfa',
-    100: '#edfbf5',
-    200: '#d1f5e5',
+    DEFAULT: '#48D597',
+    tint: '#14312B',
     300: '#b6eed5',
     400: '#7fe2b6',
     500: '#48D597',
     600: '#41c088',
     700: '#36a071',
-    800: '#2b805b',
     900: '#23684a',
-    black: '#001712',
   },
-  'dark-red': '#2e2429',
-  'dark-yellow': '#323327',
-  'dark-green': {
-    700: '#20463b', // TODO: picked hastily, revisit
-    800: '#18342c',
-    900: '#172524',
-  },
-  'dark-blue': '#20293b',
-  'dark-purple': '#27203c',
-  'blue-gray': {
-    600: '#647578', // TODO: not a real thing, revisit
-    800: '#1d2225',
-    900: '#0e1518',
-  },
+  TODO: '#FF0000',
 }
 
 module.exports = {

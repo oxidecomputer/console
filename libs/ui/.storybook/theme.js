@@ -17,9 +17,9 @@ export const darkUI = create({
   brandUrl: 'https://console-ui-storybook.vercel.app/',
 
   // UI
-  appBg: theme`colors.blue-gray.900`,
-  appContentBg: theme`colors.blue-gray.900`,
-  appBorderColor: theme`colors.gray.700`,
+  appBg: theme`colors.black`,
+  appContentBg: theme`colors.black`,
+  appBorderColor: theme`colors.grey.4`,
   appBorderRadius: 4,
 
   // Typography
