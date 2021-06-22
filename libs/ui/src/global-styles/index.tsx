@@ -2,6 +2,7 @@ import React from 'react'
 import { Global } from '@emotion/react'
 import tw, { css, GlobalStyles as BaseStyles } from 'twin.macro'
 
+import '@reach/tabs/styles.css'
 import './fonts.css'
 
 const customStyles = css`
