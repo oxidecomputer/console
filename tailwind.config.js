@@ -4,7 +4,15 @@ const colors = {
   transparent: 'transparent',
   current: 'currentColor',
   black: '#0B1418',
-  gray: twColors.gray,
+  gray: {
+    50: twColors.gray[50],
+    100: twColors.gray[100],
+    200: twColors.gray[200],
+    300: twColors.gray[300],
+    500: twColors.gray[500],
+    700: twColors.gray[700],
+    800: twColors.gray[800],
+  },
   grey: {
     1: '#AAAFB1',
     2: '#969A9C',
