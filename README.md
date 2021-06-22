@@ -1,4 +1,33 @@
-# Oxide - Console
+# Console
+
+Web client to the Oxide rack API.
+
+Tech: [TypeScript](https://www.typescriptlang.org/), [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com/overview)), [Webpack](https://webpack.js.org/), [Babel](https://babeljs.io/), [Emotion](https://emotion.sh), [Tailwind](https://tailwindcss.com/) (through [twin](https://github.com/ben-rogerson/twin.macro)). We use a TypeScript API wrapper [generated](tools/generate_api_client.sh) from the Nexus OpenAPI schema with [openapi-generator](https://openapi-generator.tech/). These choices are subject to change.
+
+## Relevant documents
+
+### RFDs
+
+- [RFD 4 User-Facing API](https://rfd.shared.oxide.computer/rfd/0004)
+- [RFD 43 Identity and Access Management (IAM)](https://rfd.shared.oxide.computer/rfd/0043)
+- [RFD 44 Hierarchy and API for User Management and Organizations](https://rfd.shared.oxide.computer/rfd/0044)
+- [RFD 155 Console Route Tree](https://rfd.shared.oxide.computer/rfd/0155)
+- [RFD 156 API Requirements for Console Prototype](https://rfd.shared.oxide.computer/rfd/0156)
+- [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
+- [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
+
+### Figma
+
+- [Component Library](https://www.figma.com/file/D5ukCJbedrlGkUIh0E6QtX/Component-Library)
+- [Applied UI Exploration](https://www.figma.com/file/UDMGwny0LIyMUI9d35XVGl/Applied-UI-Exploration)
+- [Console Prototype v2 (old)](https://www.figma.com/file/Z4cn380qKc7cqT91YNrbgn/Console-Prototype-v2)
+- [Oxide Design System (old)](https://www.figma.com/file/EUf6YnFJx0AKE8GGYDAoRO/Oxide-Design-System)
+
+## Try it out
+
+The console is deployed to GCP with its own copy of Nexus for testing purposes. The underlying systems are simulated, so while you can create "instances" (CockroachDB rows representing instances), they are not actually instantiated as running VMs. [Set up Tailscale](https://github.com/oxidecomputer/meta/blob/master/general/vpn.md) and go to https://console-git-main.internal.oxide.computer to see the main branch. PRs are also deployed to `console-git-<branch_name>.internal.oxide.computer`.
+
+## Development
 
 ### Install dependencies
 

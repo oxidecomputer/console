@@ -43,3 +43,4 @@ export const GlobalStyle = () => (
     <Global styles={customStyles} />
   </>
 )
+grey
