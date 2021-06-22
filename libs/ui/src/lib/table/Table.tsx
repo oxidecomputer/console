@@ -249,7 +249,7 @@ export const Table = ({
         </div>
       )}
       <div
-        tw="h-full text-gray-50 text-sm"
+        tw="h-full text-white text-sm"
         role="grid"
         aria-rowcount={count}
         className={className}

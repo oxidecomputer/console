@@ -8,9 +8,9 @@ export interface BreadcrumbsProps {
   data: Crumb[]
 }
 
-const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-yellow)`
+const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-grey-4)`
 
-const Link_ = tw(Link)`text-grey-2 visited:text-grey-2 hover:text-green`
+const Link_ = tw(Link)`text-grey-1 visited:text-grey-1 hover:text-green`
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data }) => (
   <ol tw="text-sm uppercase">

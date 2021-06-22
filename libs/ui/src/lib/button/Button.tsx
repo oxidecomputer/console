@@ -19,7 +19,7 @@ const sizeStyle: Record<ButtonSize, TwStyle> = {
 
 const variantStyle: Record<Variant, TwStyle> = {
   solid: tw`
-    bg-green-600 text-green-50
+    bg-green-600 text-white
     hover:not-disabled:(bg-TODO border-TODO)
     disabled:opacity-64
     focus:shadow-ring-white

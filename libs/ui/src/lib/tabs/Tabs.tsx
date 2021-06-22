@@ -135,7 +135,7 @@ export const Tabs: FC<TabsProps> = ({
         variant="ghost"
         css={[
           tw`border-0 border-b border-current hover:text-green`,
-          isSelected ? tw`text-green` : tw`text-green-50`,
+          isSelected ? tw`text-green` : tw`text-white`,
           fullWidth && tw`flex-1 not-last-of-type:mr-3`,
         ]}
         aria-controls={`panel-${id}`}

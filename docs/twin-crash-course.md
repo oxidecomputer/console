@@ -102,5 +102,5 @@ There's very little to it and the [docs](https://tailwindcss.com/docs) are excel
 | `color`            | `text-green`                                  |
 | `background-color` | `bg-green`                                    |
 | `display`          | `block`, `inline`, `flex`, `inline-flex`      |
-| `border`           | `border` + `border-green-800`                 |
+| `border`           | `border` + `border-green`                     |
 | `:hover`           | `hover:bg-green`                              |

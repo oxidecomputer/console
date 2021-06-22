@@ -1,11 +1,14 @@
 const twColors = require('tailwindcss/colors')
 
+// TODO: gray 100-800 and green 300-900 are from the old color scheme, but it's
+// not worth going through and converting all uses of them to the new colors
+// because those uses will disappear with the new designs anyway
+
 const colors = {
   transparent: 'transparent',
   current: 'currentColor',
   black: '#0B1418',
   gray: {
-    50: twColors.gray[50],
     100: twColors.gray[100],
     200: twColors.gray[200],
     300: twColors.gray[300],
@@ -39,15 +42,11 @@ const colors = {
   green: {
     DEFAULT: '#48D597',
     tint: '#14312B',
-    50: '#f6fdfa',
-    100: '#edfbf5',
-    200: '#d1f5e5',
     300: '#b6eed5',
     400: '#7fe2b6',
     500: '#48D597',
     600: '#41c088',
     700: '#36a071',
-    800: '#2b805b',
     900: '#23684a',
   },
   TODO: '#FF0000',

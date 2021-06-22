@@ -12,13 +12,13 @@ export interface CardProps {
 
 const DataTable = tw.div`grid grid-cols-2 grid-rows-2 gap-x-6 text-sm uppercase`
 
-const dataValue = tw`text-gray-50 align-self[baseline]`
+const dataValue = tw`text-white align-self[baseline]`
 
 export const Card = (props: CardProps) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <article tw="text-green-50 bg-green-tint" className={props.className}>
+    <article tw="text-white bg-green-tint" className={props.className}>
       <main tw="p-4">
         <div tw="text-lg uppercase">{props.title}</div>
         <div tw="text-sm">{props.subtitle}</div>

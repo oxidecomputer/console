@@ -101,7 +101,7 @@ export const Dropdown: FC<DropdownProps> = ({
       </label>
       <button
         tw="flex items-center justify-between mt-1 py-2 px-4 w-full
-            text-base text-gray-50 bg-gray-800 hover:bg-gray-700"
+            text-base text-white bg-gray-800 hover:bg-gray-700"
         css={focusRing}
         type="button"
         {...select.getToggleButtonProps()}
