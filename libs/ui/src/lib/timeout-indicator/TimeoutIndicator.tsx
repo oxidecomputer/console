@@ -1,6 +1,7 @@
-import { useRef } from 'react'
 import React, { useEffect, useState } from 'react'
 import { styled } from 'twin.macro'
+
+import useInterval from '../hooks/use-interval'
 
 const TimerContent = styled.span`
   position: absolute;
@@ -23,22 +24,6 @@ const TimerPathRemaining = styled.path`
   fill-rule: nonzero;
   stroke: white;
 `
-
-// use null delay to prevent the interval from firing
-const useInterval = (callback: () => void, delay: number | null) => {
-  const callbackRef = useRef<() => void>()
-
-  useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
-
-  useEffect(() => {
-    if (delay !== null) {
-      const intervalId = setInterval(() => callbackRef.current?.(), delay)
-      return () => clearInterval(intervalId)
-    }
-  }, [delay])
-}
 
 // r = 45 (see `r` on TimerPathRemaining)
 const FULL_DASH = 2 * Math.PI * 45
