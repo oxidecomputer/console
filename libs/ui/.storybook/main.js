@@ -7,7 +7,7 @@ module.exports = {
   },
   stories: [
     '../src/lib/**/__stories__/*.stories.mdx',
-    '../src/lib/**/!(__stories__/)*.stories.@(ts|tsx)',
+    '../src/lib/**/!(__stories__/)*.stories.@(ts|tsx|mdx)',
   ],
   addons: [
     '@storybook/addon-essentials',
