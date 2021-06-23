@@ -1,12 +1,10 @@
 import path from 'path'
-import webpack from 'webpack'
 import sharedConfig from './webpack.shared.config'
 
 const config = {
   ...sharedConfig,
   mode: 'development',
-  plugins: [...sharedConfig.plugins, new webpack.HotModuleReplacementPlugin()],
-  devtool: 'inline-source-map',
+  devtool: 'eval-source-map',
   target: 'web',
   devServer: {
     contentBase: path.join(__dirname, 'dist/apps/web-console'),
