@@ -12,11 +12,7 @@ export default {
       },
       {
         test: /\.(ttf|otf)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-          },
-        ],
+        use: ['file-loader'],
       },
       {
         test: /\.(ts|js)x?$/i,
@@ -65,6 +61,10 @@ export default {
           to: 'docs/nexus-openapi.json',
         },
       ],
-    }),
+      // HACK: bug introduced in webpack 5.37, not sure what's going on but most
+      // likely there's a problem with the types on this plugin. other plugins
+      // are fine
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }) as any,
   ],
 }
