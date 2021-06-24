@@ -32,8 +32,8 @@ const colors = {
     tint: '#2C2128',
   },
   yellow: {
-    DEFAULT: '#F5CF65',
-    tint: '#2E3024',
+    500: '#F5CF65',
+    900: '#3A3927',
   },
   blue: {
     DEFAULT: '#4969F6',
