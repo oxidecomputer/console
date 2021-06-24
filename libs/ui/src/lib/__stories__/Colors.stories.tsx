@@ -19,7 +19,7 @@ const groups = Object.entries(colorConfig).filter(
 const Color = ({ name, value }: ColorProps) => (
   <div key={name} tw="flex mb-4">
     <div
-      tw="w-12 h-12 mr-3 border border-gray-800"
+      tw="w-12 h-12 mr-3 border border-grey-400"
       css={{ backgroundColor: value }}
     />
     <div tw="flex flex-col">

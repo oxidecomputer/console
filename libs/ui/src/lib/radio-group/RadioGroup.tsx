@@ -36,7 +36,7 @@ export interface RadioGroupProps {
   required?: boolean
 }
 
-const HintText = tw.div`text-base text-gray-300 mt-3 max-w-3xl`
+const HintText = tw.div`text-base text-grey-50 mt-3 max-w-3xl`
 
 const OFFSET = '3px'
 const rowStyles = css`

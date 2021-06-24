@@ -18,7 +18,7 @@ export const Card = (props: CardProps) => {
   const tableId = useMemo(() => uuid(), [])
 
   return (
-    <article tw="text-white bg-green-tint" className={props.className}>
+    <article tw="text-white bg-green-900" className={props.className}>
       <main tw="p-4">
         <div tw="text-lg uppercase">{props.title}</div>
         <div tw="text-sm">{props.subtitle}</div>

@@ -29,7 +29,7 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
 }
 
 const LabelText = styled.span(tw`text-sm text-white`)
-const cardLabel = tw`py-2 px-4 bg-green-tint border border-transparent hover:bg-TODO`
+const cardLabel = tw`py-2 px-4 bg-green-900 border border-transparent hover:bg-TODO`
 
 // indent = 7, width = 4, wrapper mr = 7 - 4 = 3
 const IconWrapper = styled.span(tw`mr-3 -ml-7`)
@@ -47,7 +47,7 @@ const StyledInput = styled.input`
   }
 
   &:checked + ${LabelText} {
-    ${tw`bg-green-tint border-green-500 hover:bg-TODO`}
+    ${tw`bg-green-900 border-green-500 hover:bg-TODO`}
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   }
 
@@ -72,7 +72,7 @@ const StyledInput = styled.input`
   }
 `
 
-const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-300`
+const HintText = tw.span`text-sm mt-1 max-w-prose text-grey-50`
 
 export const RadioField: FC<RadioFieldProps> = ({
   checked,

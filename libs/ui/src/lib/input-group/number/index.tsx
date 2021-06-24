@@ -18,7 +18,7 @@ export interface NumberInputGroupProps extends InputGroupProps {
 const ctrl = tw`
   py-2 px-3
   disabled:(text-grey-100 hover:cursor-auto)
-  not-disabled:hover:bg-gray-800
+  not-disabled:hover:bg-grey-400
   focus:(outline-none shadow-ring-green-500)
 `
 
