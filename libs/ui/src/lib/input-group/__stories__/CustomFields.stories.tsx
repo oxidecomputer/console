@@ -12,7 +12,7 @@ export default {
 const Template: Story<InputGroupProps> = (args) => (
   <InputGroup {...args}>
     <div style={{ padding: '0 0.5rem', alignSelf: 'center' }}>
-      <Icon name="info" tw="text-grey-50" />
+      <Icon name="info" tw="text-gray-50" />
     </div>
     <Input />
   </InputGroup>

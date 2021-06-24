@@ -17,7 +17,7 @@ export interface ToastProps extends BaseToastProps {
   timeout?: number
 }
 
-const Wrapper = tw.div`w-96 inline-flex items-stretch bg-grey-400 shadow-lg`
+const Wrapper = tw.div`w-96 inline-flex items-stretch bg-gray-400 shadow-lg`
 
 const Main = tw.div`flex flex-1 items-start p-4 space-x-3`
 
@@ -31,7 +31,7 @@ const Content = styled.div<{ hasIcon: boolean }>(() => [
 const CloseButton = tw.button`flex flex-initial content-center h-5`
 
 const TitleText = tw.span`text-sm font-medium text-white`
-const BodyText = tw.span`text-sm text-grey-50`
+const BodyText = tw.span`text-sm text-gray-50`
 
 export const Toast = ({
   title,
@@ -54,10 +54,10 @@ export const Toast = ({
       <CloseButton onClick={() => onClose()}>
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <Icon name="close" tw="text-grey-50" />
+            <Icon name="close" tw="text-gray-50" />
           </TimeoutIndicator>
         ) : (
-          <Icon name="close" tw="text-grey-50" />
+          <Icon name="close" tw="text-gray-50" />
         )}
       </CloseButton>
     </Main>
@@ -91,7 +91,7 @@ export const ActionToast = ({
         {action}
       </button>
       <CloseButton onClick={() => onClose()}>
-        <Icon name="close" tw="text-grey-50" />
+        <Icon name="close" tw="text-gray-50" />
       </CloseButton>
     </Main>
   </Wrapper>
@@ -105,9 +105,9 @@ export interface ConfirmToastProps extends BaseToastProps {
   onCancel: () => void
 }
 
-const SplitActions = tw.div`flex flex-col border-l border-grey-50`
+const SplitActions = tw.div`flex flex-col border-l border-gray-50`
 
-const SplitActionContainer = tw.div`flex flex-1 first-of-type:(border-b border-grey-50)`
+const SplitActionContainer = tw.div`flex flex-1 first-of-type:(border-b border-gray-50)`
 
 export const ConfirmToast = ({
   icon,
@@ -144,7 +144,7 @@ export const ConfirmToast = ({
       </SplitActionContainer>
       <SplitActionContainer>
         <Button
-          tw="flex-1 text-grey-50"
+          tw="flex-1 text-gray-50"
           variant="ghost"
           onClick={() => onCancel()}
         >

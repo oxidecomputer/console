@@ -72,7 +72,7 @@ const StyledInput = styled.input`
   }
 `
 
-const HintText = tw.span`text-sm mt-1 max-w-prose text-grey-50`
+const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-50`
 
 export const RadioField: FC<RadioFieldProps> = ({
   checked,

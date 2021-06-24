@@ -49,7 +49,7 @@ export const Avatar = ({
       {initials}
     </abbr>
   ) : (
-    <Icon name="profile" tw="text-grey-100" svgProps={{ title: name }} />
+    <Icon name="profile" tw="text-gray-100" svgProps={{ title: name }} />
   )
 
   return (
@@ -57,7 +57,7 @@ export const Avatar = ({
       tw="font-sans relative overflow-hidden uppercase svg:(absolute top[18%] right-0 left-0)"
       css={[
         sizeStyles[size],
-        round ? tw`bg-grey-50 rounded-full` : tw`bg-grey-300`,
+        round ? tw`bg-gray-50 rounded-full` : tw`bg-gray-300`,
         showInitials && tw`inline-flex items-center justify-center`,
       ]}
       className={className}

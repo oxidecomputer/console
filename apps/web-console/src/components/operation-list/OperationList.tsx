@@ -11,7 +11,7 @@ type ItemProps = {
   children?: React.ReactNode
 }
 
-const itemLink = tw`flex items-center text-xs space-x-2 p-1 hover:bg-grey-400`
+const itemLink = tw`flex items-center text-xs space-x-2 p-1 hover:bg-gray-400`
 
 const ListItem = ({ label, icon, href = '#', children }: ItemProps) => (
   <li>
@@ -30,7 +30,7 @@ const subItem = tw`
   before:(content['├'] text-yellow-500 w-3.5 inline-block) 
   last-of-type:before:content['└']
 `
-const subItemLink = tw`inline-block p-1 width[calc(100% - 0.875rem)] hover:bg-grey-400`
+const subItemLink = tw`inline-block p-1 width[calc(100% - 0.875rem)] hover:bg-gray-400`
 
 const SubItem = ({ href = '#', children }: SubItemProps) => (
   <li css={subItem}>

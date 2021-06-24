@@ -32,7 +32,7 @@ const TooltipArrow = styled.div`
   &:before {
     content: '';
     transform: rotate(45deg);
-    ${tw`visible bg-grey-400`}
+    ${tw`visible bg-gray-400`}
   }
 `
 
@@ -56,7 +56,7 @@ const TooltipContainer = styled.div<{ isOpen: boolean }>`
   }
 `
 
-const TooltipContent = tw.div`text-sm py-1 px-2 bg-grey-400 text-white`
+const TooltipContent = tw.div`text-sm py-1 px-2 bg-gray-400 text-white`
 
 export const Tooltip: FC<TooltipProps> = ({
   children,

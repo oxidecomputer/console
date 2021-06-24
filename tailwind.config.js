@@ -3,7 +3,7 @@ const colors = {
   current: 'currentColor',
   black: '#0B1418',
   white: '#FFFFFF',
-  grey: {
+  gray: {
     50: '#E7E7E8',
     100: '#AAAFB1',
     200: '#969A9C',
