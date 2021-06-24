@@ -28,8 +28,6 @@ const colors = {
     900: '#142139',
   },
   green: {
-    300: '#b6eed5', // TODO: remove, not in design v2
-    400: '#7fe2b6', // TODO: remove, not in design v2
     500: '#48D597',
     600: '#3CAE7E',
     700: '#2F8865',
@@ -50,8 +48,8 @@ module.exports = {
       },
       boxShadow: {
         'ring-white': `inset 0 0 0 1px ${colors.white}`,
-        'ring-green-300': `inset 0 0 0 1px ${colors.green[300]}`,
         'ring-green-500': `inset 0 0 0 1px ${colors.green[500]}`,
+        'ring-TODO': `inset 0 0 0 1px ${colors.TODO}`,
       },
     },
     fontFamily: {

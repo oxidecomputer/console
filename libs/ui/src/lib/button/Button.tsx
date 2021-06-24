@@ -25,17 +25,17 @@ const variantStyle: Record<Variant, TwStyle> = {
     focus:shadow-ring-white
   `,
   subtle: tw`
-    bg-green-900 text-green-400
+    bg-green-900 text-green-500
     hover:not-disabled:bg-TODO
     focus:shadow-ring-green-500
   `,
   outline: tw`
-    bg-green-900 text-green-400 shadow-ring-green-500
+    bg-green-900 text-green-500 shadow-ring-green-500
     hover:not-disabled:bg-TODO
-    focus:(bg-green-900 shadow-ring-green-300)
+    focus:(bg-green-900 shadow-ring-TODO)
   `,
   ghost: tw`
-    text-green-400
+    text-green-500
     hover:not-disabled:(bg-green-900)
     focus:(bg-green-900! shadow-ring-green-500)
   `,

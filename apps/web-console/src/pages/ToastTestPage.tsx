@@ -8,7 +8,7 @@ const useCounter = (initialValue: number): [number, () => void] => {
   return [value, () => setValue((v) => v + 1)]
 }
 
-const Heading = tw.h2`mb-4 mt-8 text-lg text-green-400`
+const Heading = tw.h2`mb-4 mt-8 text-lg text-green-500`
 
 const ToastTestPage = () => {
   const addToast = useToast()

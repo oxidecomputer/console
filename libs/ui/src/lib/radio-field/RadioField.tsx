@@ -61,7 +61,7 @@ const StyledInput = styled.input`
     ${EmptyRadio}, ${FilledRadio} {
       outline: none;
       border-radius: 50%;
-      box-shadow: 0 0 0 1px ${theme`colors.green.400`};
+      box-shadow: 0 0 0 1px ${theme`colors.green.500`};
     }
   }
 
