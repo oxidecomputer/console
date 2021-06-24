@@ -3,7 +3,7 @@ import React, { useState, createContext, useContext } from 'react'
 import { v4 as uuid } from 'uuid'
 
 import type { Toast } from './types'
-import { ToastStack, ToastAnimations } from './ToastStack'
+import { ToastStack } from './ToastStack'
 
 type AddToast = (options: Toast['options']) => void
 
@@ -24,7 +24,6 @@ export const ToastProvider: FC = ({ children }) => {
 
   return (
     <ToastContext.Provider value={addToast}>
-      <ToastAnimations />
       {children}
       <ToastStack toasts={toasts} onRemoveToast={removeToast} />
     </ToastContext.Provider>
