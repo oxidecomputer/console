@@ -33,9 +33,9 @@ const focusStyle = css`
 `
 
 const errorStyle = css`
-  ${tw`border-red`}
+  ${tw`border-red-500`}
   &:focus-within {
-    box-shadow: 0px 0px 0px 1px ${theme`colors.red.DEFAULT`};
+    box-shadow: 0px 0px 0px 1px ${theme`colors.red.500`};
   }
 `
 
