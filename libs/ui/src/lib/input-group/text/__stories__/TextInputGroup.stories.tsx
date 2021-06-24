@@ -64,7 +64,7 @@ CustomLabel.args = {
   label: (
     <>
       <div style={{ paddingRight: '.5rem' }}>
-        <Icon name="users" tw="text-gray-300" />
+        <Icon name="users" tw="text-gray-50" />
       </div>
       Custom Label
     </>

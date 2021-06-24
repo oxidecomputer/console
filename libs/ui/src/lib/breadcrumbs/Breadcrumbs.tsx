@@ -8,9 +8,9 @@ export interface BreadcrumbsProps {
   data: Crumb[]
 }
 
-const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-grey-4)`
+const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-gray-400)`
 
-const Link_ = tw(Link)`text-grey-1 visited:text-grey-1 hover:text-green`
+const Link_ = tw(Link)`text-gray-100 visited:text-gray-100 hover:text-green-500`
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data }) => (
   <ol tw="text-sm uppercase">
@@ -19,7 +19,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data }) => (
         {href ? (
           <Link_ to={href}>{label}</Link_>
         ) : (
-          <span tw="text-white-off">{label}</span>
+          <span tw="text-gray-50">{label}</span>
         )}
       </Item>
     ))}

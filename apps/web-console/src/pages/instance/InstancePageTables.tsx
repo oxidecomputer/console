@@ -90,7 +90,7 @@ export const InstancePageTables = ({
       name: (
         <>
           <span tw="text-sm">{entry.name}</span>
-          <span tw="text-xxs text-grey-1">{entry.image}</span>
+          <span tw="text-xxs text-gray-100">{entry.image}</span>
         </>
       ),
       size: entry.size,
@@ -107,7 +107,7 @@ export const InstancePageTables = ({
       name: (
         <>
           <span tw="text-sm">{entry.name}</span>
-          <span tw="text-xxs text-grey-1">{entry.version}</span>
+          <span tw="text-xxs text-gray-100">{entry.version}</span>
         </>
       ),
       upstream: entry.upstream,

@@ -45,7 +45,7 @@ export interface TableProps {
 // hsla(167, 100%, 5%, 0.92)
 
 const ROW_HEIGHT = 45
-const BORDER_COLOR = theme`colors.grey.3`
+const BORDER_COLOR = theme`colors.gray.300`
 
 /* TODO: Table cells have the ability to be greedy with size or be restricted based on the content inside */
 const StyledCell = styled('div', {
@@ -97,7 +97,7 @@ interface BaseRowProps {
 
 const StyledStickyRow = styled.div<BaseRowProps>`
   ${rowStyles};
-  ${tw`w-full bg-green-tint text-green uppercase`}
+  ${tw`w-full bg-green-900 text-green-500 uppercase`}
 
   z-index: 2;
   position: sticky; /* sometimes the table peeks through at the top */
@@ -105,7 +105,7 @@ const StyledStickyRow = styled.div<BaseRowProps>`
   left: 0;
 
   ${StyledCell} {
-    ${tw`bg-green-tint`}
+    ${tw`bg-green-900`}
   }
 `
 
@@ -237,13 +237,13 @@ export const Table = ({
     <div tw="height[inherit] flex flex-col">
       {showControls && (
         <div tw="flex justify-end">
-          <Button tw="text-grey-1" variant="ghost">
+          <Button tw="text-gray-100" variant="ghost">
             <Icon name="search" />
           </Button>
-          <Button tw="text-grey-1" variant="ghost">
+          <Button tw="text-gray-100" variant="ghost">
             <Icon name="filter" />
           </Button>
-          <Button tw="text-grey-1" variant="ghost">
+          <Button tw="text-gray-100" variant="ghost">
             <Icon name="viewCols" />
           </Button>
         </div>

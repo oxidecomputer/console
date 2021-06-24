@@ -29,12 +29,12 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
 }
 
 const LabelText = styled.span(tw`text-sm text-white`)
-const cardLabel = tw`py-2 px-4 bg-green-tint border border-transparent hover:bg-TODO`
+const cardLabel = tw`py-2 px-4 bg-green-900 border border-transparent hover:bg-TODO`
 
 // indent = 7, width = 4, wrapper mr = 7 - 4 = 3
 const IconWrapper = styled.span(tw`mr-3 -ml-7`)
 const EmptyRadio = styled(Icon)(tw`w-4`)
-const FilledRadio = styled(Icon)(tw`w-4 text-green`)
+const FilledRadio = styled(Icon)(tw`w-4 text-green-500`)
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
@@ -47,7 +47,7 @@ const StyledInput = styled.input`
   }
 
   &:checked + ${LabelText} {
-    ${tw`bg-green-tint border-green hover:bg-TODO`}
+    ${tw`bg-green-900 border-green-500 hover:bg-TODO`}
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   }
 
@@ -61,7 +61,7 @@ const StyledInput = styled.input`
     ${EmptyRadio}, ${FilledRadio} {
       outline: none;
       border-radius: 50%;
-      box-shadow: 0 0 0 1px ${theme`colors.green.400`};
+      box-shadow: 0 0 0 1px ${theme`colors.green.500`};
     }
   }
 
@@ -72,7 +72,7 @@ const StyledInput = styled.input`
   }
 `
 
-const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-300`
+const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-50`
 
 export const RadioField: FC<RadioFieldProps> = ({
   checked,

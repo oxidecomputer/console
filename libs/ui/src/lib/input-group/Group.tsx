@@ -6,7 +6,7 @@ import { Tooltip } from '../tooltip/Tooltip'
 
 type HintProps = { id: string; children: React.ReactNode }
 const Hint = ({ id, children }: HintProps) => (
-  <div id={id} tw="flex-1 pb-2 text-gray-300 text-sm font-medium">
+  <div id={id} tw="flex-1 pb-2 text-gray-50 text-sm font-medium">
     {children}
   </div>
 )
@@ -21,21 +21,21 @@ const Label = ({ required, children, ...labelProps }: LabelProps) => (
 
 export const InfoPopover = (props: { children: React.ReactNode }) => (
   <Tooltip isPrimaryLabel={false} content={props.children}>
-    <Icon tw="text-gray-300 w-5 margin[0 0.5625rem]" name="infoFilled" />
+    <Icon tw="text-gray-50 w-5 margin[0 0.5625rem]" name="infoFilled" />
   </Tooltip>
 )
 
 const focusStyle = css`
   &:focus-within {
-    ${tw`border-green`}
-    box-shadow: 0px 0px 0px 1px ${theme`colors.green.DEFAULT`};
+    ${tw`border-green-500`}
+    box-shadow: 0px 0px 0px 1px ${theme`colors.green.500`};
   }
 `
 
 const errorStyle = css`
-  ${tw`border-red`}
+  ${tw`border-red-500`}
   &:focus-within {
-    box-shadow: 0px 0px 0px 1px ${theme`colors.red.DEFAULT`};
+    box-shadow: 0px 0px 0px 1px ${theme`colors.red.500`};
   }
 `
 
@@ -69,7 +69,7 @@ export const InputGroup = ({
 
   return (
     <div
-      tw="flex flex-col text-gray-100 flex-1"
+      tw="flex flex-col text-gray-50 flex-1"
       css={disabled && tw`opacity-40`}
     >
       <Label required={required} htmlFor={id}>
@@ -77,7 +77,7 @@ export const InputGroup = ({
       </Label>
       {hint && <Hint id={hintId}>{hint}</Hint>}
       <div
-        tw="flex bg-gray-700 border border-transparent"
+        tw="flex bg-gray-400 border border-transparent"
         css={error ? errorStyle : focusStyle}
       >
         {children}

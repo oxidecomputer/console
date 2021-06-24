@@ -15,7 +15,7 @@ export default ({ className }: Props) => {
   }, 150)
 
   return (
-    <span tw="font-mono text-green" className={className}>
+    <span tw="font-mono text-green-500" className={className}>
       {FRAMES[index]}
     </span>
   )

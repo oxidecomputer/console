@@ -28,11 +28,11 @@ export interface DropdownProps {
 const focusRing = css`
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 1px ${theme`colors.green.DEFAULT`};
+    box-shadow: 0 0 0 1px ${theme`colors.green.500`};
   }
 `
 
-const HintText = tw.div`text-sm mt-1 text-gray-300`
+const HintText = tw.div`text-sm mt-1 text-gray-50`
 
 const FRAMER_VARIANTS = {
   open: {
@@ -76,14 +76,14 @@ export const Dropdown: FC<DropdownProps> = ({
     const highlighted = select.highlightedIndex === index
     return (
       <li
-        tw="py-2 px-4 text-sm text-gray-200 hocus:bg-gray-700"
+        tw="py-2 px-4 text-sm text-gray-50 hocus:bg-gray-400"
         key={option.value}
         value={option.value}
         {...select.getItemProps({ item: option, index })}
         css={[
           focusRing,
           size === 'lg' && tw`py-2.5`,
-          highlighted && tw`bg-gray-700`,
+          highlighted && tw`bg-gray-400`,
         ]}
       >
         {option.label}
@@ -101,7 +101,7 @@ export const Dropdown: FC<DropdownProps> = ({
       </label>
       <button
         tw="flex items-center justify-between mt-1 py-2 px-4 w-full
-            text-base text-white bg-gray-800 hover:bg-gray-700"
+            text-base text-white bg-gray-400 hover:bg-gray-400"
         css={focusRing}
         type="button"
         {...select.getToggleButtonProps()}
@@ -113,7 +113,7 @@ export const Dropdown: FC<DropdownProps> = ({
       <AnimatePresence>
         {select.isOpen && (
           <motion.ul
-            tw="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-800"
+            tw="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-400"
             css={focusRing}
             variants={FRAMER_VARIANTS}
             initial={'closed'}

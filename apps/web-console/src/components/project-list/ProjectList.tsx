@@ -14,16 +14,15 @@ export interface ProjectListProps {
 export const ProjectList = (props: ProjectListProps) => (
   <section tw="space-y-1" className={props.className}>
     <header tw="p-1 space-x-2 uppercase text-sm">
-      <span tw="text-green">Projects</span>
-      <span tw="text-green-300">{props.projects.length}</span>
+      <span tw="text-green-500">Projects</span>
     </header>
     <ul tw="flex flex-col uppercase space-y-1">
       {props.projects.map((p) => (
-        <li tw="text-xs hover:bg-gray-700" key={p.id} tabIndex={0}>
+        <li tw="text-xs hover:bg-gray-400" key={p.id} tabIndex={0}>
           <NavLink
             tw="inline-flex w-full p-1"
             to={`/projects/${p.name}`}
-            activeStyle={tw`text-green`}
+            activeStyle={tw`text-green-500`}
           >
             {p.name}
           </NavLink>
