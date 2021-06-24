@@ -8,6 +8,7 @@ const colors = {
   transparent: 'transparent',
   current: 'currentColor',
   black: '#0B1418',
+  white: '#FFFFFF',
   gray: {
     100: twColors.gray[100],
     200: twColors.gray[200],
@@ -17,15 +18,12 @@ const colors = {
     800: twColors.gray[800],
   },
   grey: {
-    1: '#AAAFB1',
-    2: '#969A9C',
-    3: '#646A6D',
-    4: '#30373B',
-    5: '#192125',
-  },
-  white: {
-    DEFAULT: '#FFFFFF',
-    off: '#E7E7E8',
+    50: '#E7E7E8',
+    100: '#AAAFB1',
+    200: '#969A9C',
+    300: '#646A6D',
+    400: '#30373B',
+    500: '#192125',
   },
   red: {
     500: '#E86886',
@@ -44,7 +42,6 @@ const colors = {
     tint: '#142139',
   },
   green: {
-    DEFAULT: '#48D597',
     tint: '#14312B',
     300: '#b6eed5',
     400: '#7fe2b6',

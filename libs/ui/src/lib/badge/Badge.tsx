@@ -58,10 +58,10 @@ const closeIcon = {
 }
 
 const colors = {
-  gray: tw`bg-grey-4 text-white`,
+  gray: tw`bg-grey-400 text-white`,
   red: tw`bg-red-900 text-red-500`,
   yellow: tw`bg-yellow-900 text-yellow-500`,
-  green: tw`bg-green-tint text-green`,
+  green: tw`bg-green-tint text-green-500`,
   blue: tw`bg-blue-tint text-blue`,
 }
 

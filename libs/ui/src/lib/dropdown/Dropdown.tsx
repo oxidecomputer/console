@@ -28,7 +28,7 @@ export interface DropdownProps {
 const focusRing = css`
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 1px ${theme`colors.green.DEFAULT`};
+    box-shadow: 0 0 0 1px ${theme`colors.green.500`};
   }
 `
 

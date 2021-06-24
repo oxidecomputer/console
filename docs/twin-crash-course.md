@@ -25,7 +25,7 @@ Most of this is from the [readme](https://github.com/ben-rogerson/twin.macro) bu
 <span tw="text-sm">Some text</span>
 
 // component with only TW classes
-const List = tw.ul`flex flex-col text-grey-1 uppercase space-y-1 mt-1`
+const List = tw.ul`flex flex-col text-grey-100 uppercase space-y-1 mt-1`
 
 // mixing Tailwind classes and CSS
 const ListItemLink = styled(BaseLink)`
@@ -68,7 +68,7 @@ import { theme, css } from 'twin.macro'
 const CustomStyles = createGlobalStyle`
   .dark {
     --bg-primary: ${theme`colors.black`};
-    --bg-secondary: ${theme`colors.grey.5`};
+    --bg-secondary: ${theme`colors.grey.500`};
   }
 `
 ```

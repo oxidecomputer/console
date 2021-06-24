@@ -34,7 +34,7 @@ const cardLabel = tw`py-2 px-4 bg-green-tint border border-transparent hover:bg-
 // indent = 7, width = 4, wrapper mr = 7 - 4 = 3
 const IconWrapper = styled.span(tw`mr-3 -ml-7`)
 const EmptyRadio = styled(Icon)(tw`w-4`)
-const FilledRadio = styled(Icon)(tw`w-4 text-green`)
+const FilledRadio = styled(Icon)(tw`w-4 text-green-500`)
 
 const StyledInput = styled.input`
   /* Hide from sighted users, show to screen readers */
@@ -47,7 +47,7 @@ const StyledInput = styled.input`
   }
 
   &:checked + ${LabelText} {
-    ${tw`bg-green-tint border-green hover:bg-TODO`}
+    ${tw`bg-green-tint border-green-500 hover:bg-TODO`}
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   }
 

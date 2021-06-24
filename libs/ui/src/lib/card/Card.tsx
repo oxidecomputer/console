@@ -28,10 +28,10 @@ export const Card = (props: CardProps) => {
             aria-label={props.title}
             aria-describedby={tableId}
           >
-            <span id={tableId} role="columnheader" tw="text-green">
+            <span id={tableId} role="columnheader" tw="text-green-500">
               Heading
             </span>
-            <span role="columnheader" tw="text-green">
+            <span role="columnheader" tw="text-green-500">
               Data
             </span>
             <div role="cell" css={dataValue} tw="text-xl">
@@ -44,7 +44,7 @@ export const Card = (props: CardProps) => {
           <section tw="self-end">
             <Sparkline
               style={{
-                stroke: theme`colors.green.DEFAULT`,
+                stroke: theme`colors.green.500`,
                 strokeOpacity: 0.8,
               }}
             />

@@ -35,7 +35,7 @@ const Body = tw.div`p-6 space-y-4 flex-1`
 
 const IconWrapper = (props: { icon: IconName }) => (
   <div tw="w-12 h-12 bg-green-900 rounded-full">
-    <Icon tw="w-12 text-green" name={props.icon} />
+    <Icon tw="w-12 text-green-500" name={props.icon} />
   </div>
 )
 
@@ -52,7 +52,7 @@ export const AlertModal = (props: AlertModalProps) => (
   <Container tw="lg:w-1/4">
     <Body>
       {props.icon && <IconWrapper icon={props.icon} />}
-      <header tw="text-green">{props.title}</header>
+      <header tw="text-green-500">{props.title}</header>
       <p tw="text-sm">{props.children}</p>
     </Body>
     <footer tw="flex">
@@ -72,7 +72,7 @@ export const ConfirmModal = (props: ConfirmModalProps) => (
   <Container tw="lg:w-1/3">
     <Body>
       {props.icon && <IconWrapper icon={props.icon} />}
-      <header tw="text-green">{props.title}</header>
+      <header tw="text-green-500">{props.title}</header>
       <p tw="text-sm">{props.children}</p>
     </Body>
     <footer tw="flex">

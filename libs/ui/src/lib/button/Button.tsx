@@ -40,7 +40,7 @@ const variantStyle: Record<Variant, TwStyle> = {
     focus:(bg-green-tint! shadow-ring-green-500)
   `,
   link: tw`
-    text-green h-auto p-1  // note h-auto overriding size style
+    text-green-500 h-auto p-1  // note h-auto overriding size style
     hover:not-disabled:(underline)
     focus:shadow-ring-green-500
   `,

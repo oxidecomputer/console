@@ -4,7 +4,7 @@ import tw from 'twin.macro'
 
 import { Avatar } from '@oxide/ui'
 
-const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green`
+const Button = tw.button`inline-flex ml-8 p-0 text-gray-100 hover:text-green-500`
 
 export const GlobalNav = () => {
   return (
