@@ -28,6 +28,7 @@ const customStyles = css`
   input::placeholder,
   textarea::placeholder {
     opacity: 1;
+    ${tw`text-gray-200`}
   }
 
   // https://github.com/ben-rogerson/twin.macro/blob/16911c0/src/config/preflightStyles.js#L274-L284
