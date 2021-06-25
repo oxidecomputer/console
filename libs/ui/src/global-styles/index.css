@@ -12,6 +12,11 @@
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
   html {
     line-height: 1;
+  }
+
+  /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
+  input::placeholder,
+  textarea::placeholder {
     color: theme('colors.gray.200');
   }
 

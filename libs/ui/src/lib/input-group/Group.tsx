@@ -6,15 +6,18 @@ import { Tooltip } from '../tooltip/Tooltip'
 
 type HintProps = { id: string; children: React.ReactNode }
 const Hint = ({ id, children }: HintProps) => (
-  <div id={id} tw="flex-1 pb-2 text-gray-50 text-sm font-medium">
+  <div id={id} tw="flex-1 pb-2 text-gray-50 text-sm font-sans font-light">
     {children}
   </div>
 )
 
 type LabelProps = React.ComponentProps<'label'> & { required?: boolean }
 const Label = ({ required, children, ...labelProps }: LabelProps) => (
-  <label {...labelProps} tw="flex items-baseline justify-between pb-2">
-    <span tw="flex items-baseline font-medium">{children}</span>
+  <label
+    {...labelProps}
+    tw="flex items-baseline font-sans font-light justify-between pb-2"
+  >
+    <span tw="flex items-baseline text-lg">{children}</span>
     {!required && <span tw="text-sm">Optional</span>}
   </label>
 )

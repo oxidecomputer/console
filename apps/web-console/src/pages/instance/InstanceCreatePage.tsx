@@ -18,7 +18,7 @@ import { useApiMutation } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
-const Heading = tw.h2`text-white text-lg mt-8 first-of-type:mt-0`
+const Heading = tw.h2`text-white text-lg mt-8 font-sans font-light first-of-type:mt-0`
 
 const Description = tw.p`text-gray-50 text-sm mt-2 max-w-prose`
 
@@ -357,7 +357,7 @@ const InstanceCreatePage = () => {
         </Description>
         <Button variant="dim">Add an SSH key</Button>
         <Heading>Finalize and create</Heading>
-        <div className="mt-1">
+        <div className="flex space-x-6">
           <TextInputGroup
             id="instance-name"
             label="Choose a name"
