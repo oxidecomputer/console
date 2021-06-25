@@ -5,4 +5,4 @@ import Spinner from '../Spinner'
 
 export const Default = () => <Spinner />
 
-export const Styled = () => <Spinner tw="text-yellow text-5xl" />
+export const Styled = () => <Spinner tw="text-yellow-500 text-5xl" />

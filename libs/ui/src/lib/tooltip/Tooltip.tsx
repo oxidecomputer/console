@@ -1,10 +1,11 @@
 import type { FC } from 'react'
 import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import cn from 'classnames'
 
-import tw, { styled } from 'twin.macro'
 import { usePopper } from 'react-popper'
 import { v4 as uuid } from 'uuid'
 
+import './tooltip.css'
 import { KEYS } from '../../util/keys'
 
 export interface TooltipProps {
@@ -18,45 +19,6 @@ export interface TooltipProps {
 }
 
 const ARROW_SIZE = 12
-
-const TooltipArrow = styled.div`
-  visibility: hidden;
-
-  &,
-  &:before {
-    position: absolute;
-    height: ${ARROW_SIZE}px;
-    width: ${ARROW_SIZE}px;
-  }
-
-  &:before {
-    content: '';
-    transform: rotate(45deg);
-    ${tw`visible bg-gray-400`}
-  }
-`
-
-const TooltipContainer = styled.div<{ isOpen: boolean }>`
-  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
-
-  &[data-popper-placement^='top'] > ${TooltipArrow} {
-    bottom: ${ARROW_SIZE * -0.5}px;
-  }
-
-  &[data-popper-placement^='right'] > ${TooltipArrow} {
-    left: ${ARROW_SIZE * -0.5}px;
-  }
-
-  &[data-popper-placement^='bottom'] > ${TooltipArrow} {
-    top: ${ARROW_SIZE * -0.5}px;
-  }
-
-  &[data-popper-placement^='left'] > ${TooltipArrow} {
-    right: ${ARROW_SIZE * -0.5}px;
-  }
-`
-
-const TooltipContent = tw.div`text-sm py-1 px-2 bg-gray-400 text-white`
 
 export const Tooltip: FC<TooltipProps> = ({
   children,
@@ -132,23 +94,26 @@ export const Tooltip: FC<TooltipProps> = ({
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
-        tw="svg:pointer-events-none"
-        css={definition && tw`underline text-decoration-style[dashed]`}
+        className={cn('svg:pointer-events-none', {
+          'dashed-underline': definition,
+        })}
         {...ariaProps}
       >
         {children}
       </button>
-      <TooltipContainer
+      <div
+        className={cn('TooltipContainer', isOpen ? 'block' : 'hidden')}
         ref={popperElement}
         role="tooltip"
         id={popperId}
-        isOpen={isOpen}
         style={styles.popper}
         {...attributes.popper}
       >
-        <TooltipContent>{content}</TooltipContent>
-        <TooltipArrow ref={arrowElement} style={styles.arrow} />
-      </TooltipContainer>
+        <div className="text-sm py-1 px-2 bg-gray-400 text-white">
+          {content}
+        </div>
+        <div className="TooltipArrow" ref={arrowElement} style={styles.arrow} />
+      </div>
     </>
   )
 }

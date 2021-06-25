@@ -1,0 +1,40 @@
+.TooltipArrow {
+  visibility: hidden;
+
+  &,
+  &:before {
+    position: absolute;
+    height: 12px;
+    width: 12px;
+  }
+
+  &:before {
+    content: '';
+    transform: rotate(45deg);
+    visibility: visible;
+    @apply bg-gray-400;
+  }
+}
+
+.TooltipContainer {
+  &[data-popper-placement^='top'] > .TooltipArrow {
+    bottom: -6px;
+  }
+
+  &[data-popper-placement^='right'] > .TooltipArrow {
+    left: -6px;
+  }
+
+  &[data-popper-placement^='bottom'] > .TooltipArrow {
+    top: -6px;
+  }
+
+  &[data-popper-placement^='left'] > .TooltipArrow {
+    right: -6px;
+  }
+}
+
+.dashed-underline {
+  text-decoration: underline;
+  text-decoration-style: dashed;
+}
