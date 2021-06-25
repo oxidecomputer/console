@@ -18,29 +18,23 @@ const sizeStyle: Record<ButtonSize, TwStyle> = {
 }
 
 const variantStyle: Record<Variant, TwStyle> = {
-  solid: tw`
-    bg-green-500 text-black
-    hover:not-disabled:(bg-green-600 border-green-600)
-    disabled:opacity-64
-  `,
+  solid: tw`bg-green-500 text-black hover:bg-green-600 disabled:bg-gray-200`,
   dim: tw`
-    bg-green-900 text-green-500
-    hover:not-disabled:bg-green-950
+    bg-green-900 text-green-500 hover:bg-green-950
+    disabled:text-green-700 disabled:bg-green-900
   `,
   ghost: tw`
-    text-white border-green-500
-    hover:not-disabled:(bg-green-900)
+    text-white border-green-500 hover:bg-green-900 
+    disabled:border-green-700 disabled:bg-black disabled:text-gray-100
   `,
-  link: tw`
-    text-green-500 h-auto p-1  // note h-auto overriding size style
-    hover:not-disabled:(underline)
-  `,
+  // note h-auto overriding size style
+  link: tw`text-green-500 h-auto leading-5 px-0.5 hover:underline`,
 }
 
 const baseStyle = tw`
   border border-transparent rounded-px uppercase
   inline-flex items-center justify-center align-top
-  disabled:(cursor-not-allowed opacity-40)
+  disabled:cursor-not-allowed
   focus:ring-2 focus:ring-green-700
 `
 
