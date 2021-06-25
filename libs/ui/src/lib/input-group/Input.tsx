@@ -5,7 +5,6 @@ const StyledInput = tw.input`
   flex-1 padding[0.5625rem .75rem]
   text-sm font-sans text-gray-50 
   bg-transparent border-none focus:outline-none
-  hover:not-disabled:bg-gray-400
 `
 export type InputProps = React.ComponentPropsWithRef<'input'> & {
   error?: boolean
