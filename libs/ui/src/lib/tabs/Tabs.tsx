@@ -5,7 +5,7 @@ import tw from 'twin.macro'
 import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
-import { KEYS } from '../keys-utils'
+import { KEYS } from '../../util/keys'
 
 export interface TabsProps {
   className?: string

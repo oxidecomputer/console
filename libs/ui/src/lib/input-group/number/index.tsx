@@ -5,7 +5,7 @@ import type { InputGroupProps } from '../Group'
 import { InputGroup } from '../Group'
 import { Input } from '../Input'
 import { Icon } from '../../icon/Icon'
-import { KEYS } from '../../keys-utils'
+import { KEYS } from '../../../util/keys'
 
 export interface NumberInputGroupProps extends InputGroupProps {
   value: number

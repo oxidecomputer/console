@@ -5,7 +5,7 @@ import tw, { styled } from 'twin.macro'
 import { usePopper } from 'react-popper'
 import { v4 as uuid } from 'uuid'
 
-import { KEYS } from '../keys-utils'
+import { KEYS } from '../../util/keys'
 
 export interface TooltipProps {
   /** Required. Let screen readers know whether this is the primary label or an auxiliary description. */
