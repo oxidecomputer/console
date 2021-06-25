@@ -54,10 +54,8 @@ module.exports = {
       opacity: {
         64: '.64',
       },
-      boxShadow: {
-        'ring-white': `inset 0 0 0 1px ${colors.white}`,
-        'ring-green-500': `inset 0 0 0 1px ${colors.green[500]}`,
-        'ring-TODO': `inset 0 0 0 1px ${colors.TODO}`,
+      borderRadius: {
+        px: '1px',
       },
     },
     fontFamily: {

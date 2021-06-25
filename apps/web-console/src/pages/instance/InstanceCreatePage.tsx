@@ -359,7 +359,7 @@ const InstanceCreatePage = () => {
           you have access to will updated with this additional key. Your
           existing keys will remain on all your instances.
         </Description>
-        <Button variant="subtle">Add an SSH key</Button>
+        <Button variant="dim">Add an SSH key</Button>
         <Heading>Finalize and create</Heading>
         <Row>
           <TextInputGroup

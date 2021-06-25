@@ -18,7 +18,7 @@ const ActionButton = ({ primary, children, onClick }: ActionProps) => {
     if (primary) buttonRef.current?.focus()
   }, [primary])
 
-  const variant = primary ? 'solid' : 'subtle'
+  const variant = primary ? 'solid' : 'dim'
   return (
     <Button tw="flex-1" variant={variant} onClick={onClick} ref={buttonRef}>
       {children}

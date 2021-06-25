@@ -96,7 +96,7 @@ export const InstancePageTables = ({
       size: entry.size,
       mode: <span tw="text-sm">{entry.mode}</span>,
       actions: (
-        <Button size="sm" variant="ghost" tw="w-full">
+        <Button size="sm" variant="link" tw="w-full">
           <Icon name="more" />
         </Button>
       ),
@@ -113,7 +113,7 @@ export const InstancePageTables = ({
       upstream: entry.upstream,
       cve: <span tw="text-sm">{entry.cve}</span>,
       actions: (
-        <Button size="sm" variant="ghost" tw="w-full">
+        <Button size="sm" variant="link" tw="w-full">
           <Icon name="more" />
         </Button>
       ),

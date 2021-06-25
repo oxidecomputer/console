@@ -19,7 +19,7 @@ const ctrl = tw`
   py-2 px-3
   disabled:(text-gray-100 hover:cursor-auto)
   not-disabled:hover:bg-gray-400
-  focus:(outline-none shadow-ring-green-500)
+  focus:(outline-none ring-1 ring-green-500 ring-inset)
 `
 
 export const NumberInputGroup = ({

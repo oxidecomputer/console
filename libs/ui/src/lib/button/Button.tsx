@@ -4,7 +4,7 @@ import type { TwStyle } from 'twin.macro'
 import tw from 'twin.macro'
 
 export const buttonSizes = ['xs', 'sm', 'base', 'lg', 'xl'] as const
-export const variants = ['solid', 'subtle', 'outline', 'ghost', 'link'] as const
+export const variants = ['solid', 'dim', 'ghost', 'link'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
@@ -22,34 +22,26 @@ const variantStyle: Record<Variant, TwStyle> = {
     bg-green-500 text-black
     hover:not-disabled:(bg-green-600 border-green-600)
     disabled:opacity-64
-    focus:shadow-ring-white
   `,
-  subtle: tw`
+  dim: tw`
     bg-green-900 text-green-500
     hover:not-disabled:bg-green-950
-    focus:shadow-ring-green-500
-  `,
-  outline: tw`
-    bg-green-900 text-green-500 shadow-ring-green-500
-    hover:not-disabled:bg-TODO
-    focus:(bg-green-900 shadow-ring-TODO)
   `,
   ghost: tw`
-    text-green-500
+    text-white border-green-500
     hover:not-disabled:(bg-green-900)
-    focus:(bg-green-900! shadow-ring-green-500)
   `,
   link: tw`
     text-green-500 h-auto p-1  // note h-auto overriding size style
     hover:not-disabled:(underline)
-    focus:shadow-ring-green-500
   `,
 }
 
 const baseStyle = tw`
-  border-2 border-transparent rounded-none uppercase
+  border border-transparent rounded-px uppercase
   inline-flex items-center justify-center align-top
-  disabled:(cursor-not-allowed opacity-40) focus:outline-none
+  disabled:(cursor-not-allowed opacity-40)
+  focus:ring-2 focus:ring-green-700
 `
 
 export type ButtonProps = React.ComponentPropsWithRef<'button'> & {

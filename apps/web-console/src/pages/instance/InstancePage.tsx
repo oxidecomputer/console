@@ -24,13 +24,13 @@ const InstanceAction = (props: {
   children: React.ReactNode
   onClick?: () => void
 }) => (
-  <Button size="xs" variant="subtle" tw="inline-flex" onClick={props.onClick}>
+  <Button size="xs" variant="dim" tw="inline-flex" onClick={props.onClick}>
     <Icon name={props.icon} tw="mr-2" />
     {props.children}
   </Button>
 )
 
-const pageAction: ButtonProps = { size: 'xs', variant: 'outline' }
+const pageAction: ButtonProps = { size: 'xs', variant: 'dim' }
 
 type Params = {
   projectName: string
