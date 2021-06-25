@@ -1,9 +1,11 @@
 import type { FC, ReactElement, ChangeEventHandler } from 'react'
 import React from 'react'
+import cn from 'classnames'
 
-import tw, { css, styled } from 'twin.macro'
+import './RadioGroup.css'
 
 import type { RadioFieldProps } from '../radio-field/RadioField'
+import { classed } from '../../util/classed'
 
 type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
@@ -36,36 +38,7 @@ export interface RadioGroupProps {
   required?: boolean
 }
 
-const HintText = tw.div`text-base text-gray-100 font-sans font-light mt-3 max-w-3xl`
-
-const OFFSET = '3px'
-const rowStyles = css`
-  ${tw`mt-3`}
-  padding-top: ${OFFSET};
-  padding-left: ${OFFSET};
-
-  & > * {
-    ${tw`mr-5 mb-5`}
-  }
-`
-
-const RadioFieldsWrapper = styled.div<{ direction: Direction }>`
-  display: flex;
-  justify-content: flex-start;
-
-  ${({ direction }) => {
-    if (direction === 'column') {
-      /* Once Safari supports `gap` with flex layouts, this can be replaced with `gap` */
-      return tw`flex-col mt-5 space-y-5`
-    }
-    if (direction === 'row') {
-      return [rowStyles, tw`flex-wrap`]
-    }
-    if (direction === 'fixed-row') {
-      return [rowStyles, tw`overflow-x-auto`]
-    }
-  }}
-`
+const HintText = classed.div`text-base text-gray-100 font-sans font-light mt-3 max-w-3xl`
 
 export const RadioGroup: FC<RadioGroupProps> = ({
   checked,
@@ -87,11 +60,11 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   const ariaProps = hint ? { 'aria-describedby': hintId, tabIndex: 0 } : null
   return (
     <fieldset {...ariaProps}>
-      <legend tw="text-white text-lg" css={hideLegend && tw`sr-only`}>
+      <legend className={cn('text-white text-lg', hideLegend && 'sr-only')}>
         {legend}
       </legend>
-      {hint ? <HintText id={hintId}>{hint}</HintText> : null}
-      <RadioFieldsWrapper direction={direction}>
+      {hint && <HintText id={hintId}>{hint}</HintText>}
+      <div className={`RadioGroup-${direction}`}>
         {React.Children.map(children, (radioField) => {
           const isChecked = checked === radioField.props.value
           // Render controlled inputs with checked state
@@ -103,7 +76,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
             required: required,
           })
         })}
-      </RadioFieldsWrapper>
+      </div>
     </fieldset>
   )
 }
