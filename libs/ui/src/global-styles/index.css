@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply box-border bg-black text-gray-50 font-mono font-normal;
+  }
+
+  /* TW Preflight overrides w/ links to the lines they're overriding */
+
+  /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
+  html {
+    line-height: 1;
+    color: theme('colors.gray.200');
+  }
+
+  /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L224 */
+  svg {
+    display: inline;
+    vertical-align: baseline;
+  }
+}

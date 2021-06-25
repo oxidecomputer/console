@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
 import { Global, css } from '@emotion/react'
-import { GlobalStyle } from '@oxide/ui'
+import '@oxide/ui' // simple way to import CSS
 
 // Bug: https://github.com/storybookjs/storybook/issues/14029
 const docsStyleOverrides = css`
@@ -56,7 +56,6 @@ export const parameters = {
     // Default background does not apply to docs
     container: ({ children, context }) => (
       <DocsContainer context={context}>
-        <GlobalStyle />
         <Global styles={docsStyleOverrides} />
         <Router>{children}</Router>
       </DocsContainer>
@@ -68,18 +67,10 @@ export const parameters = {
   },
 }
 
-// inserting the global style only in story mode is essential. otherwise, on
-// docs pages that might render 50 stories, we are inserting the entire global
-// style for every story instead of relying on the one copy we put in
-// DocsContainer above. The workaround prior to this fix was running Storybook
-// in production mode, which made debugging very difficult.
 export const decorators = [
-  (Story, context) => (
-    <>
-      {context.viewMode === 'story' && <GlobalStyle />}
-      <Router>
-        <Story />
-      </Router>
-    </>
+  (Story) => (
+    <Router>
+      <Story />
+    </Router>
   ),
 ]

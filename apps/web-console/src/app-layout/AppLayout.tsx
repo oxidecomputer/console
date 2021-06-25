@@ -1,5 +1,5 @@
+import type { ReactNode } from 'react'
 import React from 'react'
-import tw, { styled } from 'twin.macro'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
@@ -8,47 +8,25 @@ import { ProjectList } from '../components/project-list/ProjectList'
 import { OperationList } from '../components/operation-list/OperationList'
 import Wordmark from '../assets/wordmark.svg'
 
-interface AppLayoutProps {
-  children: React.ReactNode
-}
-
-const Wrapper = styled.div`
-  display: grid;
-  grid-template-columns: 14rem auto;
-  grid-template-rows: 3.5rem auto;
-  grid-template-areas:
-    'logo globalnav'
-    'sidebar content';
-  height: 100vh;
-`
-
-const Sidebar = tw.div`grid-area[sidebar] px-3 pb-6 overflow-auto text-gray-100 bg-gray-500`
-
-const WordmarkWrapper = tw.div`grid-area[logo] flex items-center h-14 pl-4 bg-gray-500`
-
-const Content = tw.main`grid-area[content] overflow-auto py-2 px-6`
-
-const GlobalNavContainer = tw.header`grid-area[globalnav] py-4 px-6 self-center`
-
-export default ({ children }: AppLayoutProps) => {
+export default (props: { children: ReactNode }) => {
   const { data: projects } = useApiQuery('apiProjectsGet', {})
 
   return (
-    <Wrapper>
-      <WordmarkWrapper>
+    <div className="grid h-screen grid-cols-[14rem,auto] grid-rows-[3.5rem,auto]">
+      <div className="flex items-center pl-4 bg-gray-500">
         <Link to="/">
           <Wordmark />
         </Link>
-      </WordmarkWrapper>
-      <Sidebar>
-        {/* TODO: this causes pop-in when the request comes back */}
-        <ProjectList tw="mt-1" projects={projects?.items || []} />
-        <OperationList tw="mt-6" />
-      </Sidebar>
-      <GlobalNavContainer>
+      </div>
+      <header className="py-4 px-6 self-center">
         <GlobalNav />
-      </GlobalNavContainer>
-      <Content>{children}</Content>
-    </Wrapper>
+      </header>
+      <div className="px-3 pb-6 overflow-auto text-gray-100 bg-gray-500">
+        {/* TODO: this causes pop-in when the request comes back */}
+        <ProjectList className="mt-1" projects={projects?.items || []} />
+        <OperationList className="mt-6" />
+      </div>
+      <main className="overflow-auto py-2 px-6">{props.children}</main>
+    </div>
   )
 }

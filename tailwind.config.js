@@ -38,6 +38,12 @@ const colors = {
 }
 
 module.exports = {
+  mode: 'jit',
+  purge: [
+    './libs/ui/src/**/*.{ts,tsx}',
+    './apps/web-console/src/**/*.{ts,tsx}',
+  ],
+  darkMode: false,
   theme: {
     extend: {
       fontSize: {

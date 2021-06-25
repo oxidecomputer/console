@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import 'twin.macro'
+import cn from 'classnames'
 
 import type { IconName } from './icons'
 import { icons } from './icons'
@@ -19,9 +19,11 @@ export interface IconProps {
     title?: string
     titleId?: string
   }
+
+  className?: string
 }
 
-export const Icon = ({ name, svgProps, ...props }: IconProps) => {
+export const Icon = ({ name, svgProps, className, ...props }: IconProps) => {
   const Component = icons[name]
 
   const titleId = useMemo(() => uuidv4(), [])
@@ -38,7 +40,7 @@ export const Icon = ({ name, svgProps, ...props }: IconProps) => {
   // h-full is for safari, which handles h-auto badly, unlike everyone else
   return (
     <Component
-      tw="h-full width[1em] fill-current"
+      className={cn('h-full w-[1em] fill-current', className)}
       {...addSvgProps}
       {...props}
     />

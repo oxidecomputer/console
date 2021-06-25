@@ -15,7 +15,7 @@ module.exports = async ({ config }) => {
   // And copied the part of the solution that made it work
 
   const svgRule = config.module.rules.find((rule) =>
-    rule.test.toString().startsWith('/\\.(svg|ico')
+    rule.test?.toString().startsWith('/\\.(svg|ico')
   )
   svgRule.test =
     /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|ttf|woff|woff2|cur|ani|pdf)(\?.*)?$/

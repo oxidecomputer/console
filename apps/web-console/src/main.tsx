@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import { GlobalStyle } from '@oxide/ui'
 
 import App from './app/app'
 import { ToastProvider } from './hooks'
@@ -18,7 +17,6 @@ const queryClient = new QueryClient({
 
 ReactDOM.render(
   <React.StrictMode>
-    <GlobalStyle />
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
         <App />
