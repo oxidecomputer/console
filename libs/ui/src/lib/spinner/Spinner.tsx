@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import 'twin.macro'
+import cn from 'classnames'
 
 import useInterval from '../hooks/use-interval'
 
@@ -15,7 +15,7 @@ export default ({ className }: Props) => {
   }, 150)
 
   return (
-    <span tw="font-mono text-green-500" className={className}>
+    <span className={cn('font-mono text-green-500', className)}>
       {FRAMES[index]}
     </span>
   )
