@@ -17,3 +17,5 @@ export * from './lib/table/Table'
 export * from './lib/tabs/Tabs'
 export * from './lib/tooltip/Tooltip'
 export * from './lib/toast/Toast'
+
+export * from './util/classed'
