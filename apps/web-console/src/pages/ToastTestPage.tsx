@@ -1,14 +1,13 @@
-import { Button } from '@oxide/ui'
+import { Button, classed } from '@oxide/ui'
 import React, { useState } from 'react'
 import { useToast } from '../hooks'
-import tw from 'twin.macro'
 
 const useCounter = (initialValue: number): [number, () => void] => {
   const [value, setValue] = useState(initialValue)
   return [value, () => setValue((v) => v + 1)]
 }
 
-const Heading = tw.h2`mb-4 mt-8 text-lg text-green-500`
+const Heading = classed.h2`mb-4 mt-8 text-lg text-green-500`
 
 const ToastTestPage = () => {
   const addToast = useToast()
@@ -77,16 +76,16 @@ const ToastTestPage = () => {
       <section>
         <Heading>Default Toast</Heading>
         <div>Toast Closed: {defaultCloseCounter} times</div>
-        <label tw="block">
+        <label className="block">
           Should have timeout?
           <input
-            tw="ml-2"
+            className="ml-2"
             checked={shouldHaveTimeout}
             onChange={(e) => setShouldHaveTimout(e.target.checked)}
             type="checkbox"
           />
         </label>
-        <Button tw="mt-4" onClick={handleDefaultToast}>
+        <Button className="mt-4" onClick={handleDefaultToast}>
           Trigger Default Toast
         </Button>
       </section>
@@ -94,7 +93,7 @@ const ToastTestPage = () => {
         <Heading>Action Toast</Heading>
         <div>Toast Closed: {actionCloseCounter} times</div>
         <div>Toast Action clicked: {actionCounter} times</div>
-        <Button tw="mt-4" onClick={handleActionToast}>
+        <Button className="mt-4" onClick={handleActionToast}>
           Trigger Action Toast
         </Button>
       </section>
@@ -102,7 +101,7 @@ const ToastTestPage = () => {
         <Heading>Confirm Toast</Heading>
         <div>Toast Confirm Action clicked: {confirmConfirmCounter} times</div>
         <div>Toast Cancel Action clicked: {confirmCancelCounter} times</div>
-        <Button tw="mt-4" onClick={handleConfirmToast}>
+        <Button className="mt-4" onClick={handleConfirmToast}>
           Trigger Confirm Toast
         </Button>
       </section>
