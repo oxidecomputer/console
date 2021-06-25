@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
-import type { TwStyle } from 'twin.macro'
-import tw from 'twin.macro'
+import cn from 'classnames'
 
 import { Icon } from '../icon/Icon'
 
@@ -15,13 +14,13 @@ export interface AvatarProps {
   className?: string
 }
 
-const sizeStyles: Record<AvatarSize, TwStyle> = {
-  xs: tw`w-6 h-6 text-xs svg:w-6`,
-  sm: tw`w-8 h-8 text-sm svg:w-8`,
-  base: tw`w-10 h-10 text-base svg:w-10`,
-  lg: tw`w-12 h-12 text-lg svg:w-12`,
-  xl: tw`w-14 h-14 text-xl svg:w-14`,
-  '2xl': tw`w-16 h-16 text-2xl svg:w-16`,
+const sizeStyles: Record<AvatarSize, string> = {
+  xs: 'w-6 h-6 text-xs svg:w-6',
+  sm: 'w-8 h-8 text-sm svg:w-8',
+  base: 'w-10 h-10 text-base svg:w-10',
+  lg: 'w-12 h-12 text-lg svg:w-12',
+  xl: 'w-14 h-14 text-xl svg:w-14',
+  '2xl': 'w-16 h-16 text-2xl svg:w-16',
 }
 
 const getInitials = (name: string) =>
@@ -45,22 +44,26 @@ export const Avatar = ({
   const avatar = src ? (
     <img src={src} alt={name} />
   ) : showInitials ? (
-    <abbr tw="no-underline!" title={name}>
+    <abbr className="no-underline!" title={name}>
       {initials}
     </abbr>
   ) : (
-    <Icon name="profile" tw="text-gray-100" svgProps={{ title: name }} />
+    <Icon
+      name="profile"
+      className="text-gray-100 absolute top-[18%] right-0 left-0"
+      svgProps={{ title: name }}
+    />
   )
 
   return (
     <div
-      tw="font-sans relative overflow-hidden uppercase svg:(absolute top[18%] right-0 left-0)"
-      css={[
+      className={cn(
+        'font-sans relative overflow-hidden uppercase',
         sizeStyles[size],
-        round ? tw`bg-gray-50 rounded-full` : tw`bg-gray-300`,
-        showInitials && tw`inline-flex items-center justify-center`,
-      ]}
-      className={className}
+        round ? 'bg-gray-50 rounded-full' : 'bg-gray-300',
+        showInitials && 'inline-flex items-center justify-center',
+        className
+      )}
     >
       {avatar}
     </div>
