@@ -1,29 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { styled } from 'twin.macro'
 
 import useInterval from '../hooks/use-interval'
-
-const TimerContent = styled.span`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const TimerPathRemaining = styled.path`
-  stroke-width: 4px;
-  stroke-linecap: round;
-  transform: rotate(90deg);
-  transform-origin: center;
-  transition: 1s linear all;
-  fill-rule: nonzero;
-  stroke: white;
-`
+import './TimeoutIndicator.css'
 
 // r = 45 (see `r` on TimerPathRemaining)
 const FULL_DASH = 2 * Math.PI * 45
@@ -51,10 +29,11 @@ export const TimeoutIndicator = ({
   }, [timedOut, onTimeoutEnd])
 
   return (
-    <div tw="relative w-6 h-6">
+    <div className="TimeoutIndicator relative w-6 h-6">
       <svg fill="none" viewBox="0 0 100 100">
         <g>
-          <TimerPathRemaining
+          <path
+            className="remaining"
             strokeDasharray={`${strokeDash} ${FULL_DASH}`}
             d="
               M 5, 50
@@ -64,7 +43,7 @@ export const TimeoutIndicator = ({
           />
         </g>
       </svg>
-      <TimerContent>{children}</TimerContent>
+      <span className="content">{children}</span>
     </div>
   )
 }
