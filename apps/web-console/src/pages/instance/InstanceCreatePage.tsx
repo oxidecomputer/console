@@ -24,10 +24,6 @@ const Description = tw.p`text-gray-50 text-sm mt-2 max-w-prose`
 
 const StyledTabs = tw(Tabs)`mt-1`
 
-const RadioFieldText = tw.div`text-white text-base`
-
-const Row = tw.div`flex space-x-6`
-
 type Params = {
   projectName: string
 }
@@ -214,8 +210,8 @@ const InstanceCreatePage = () => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
         <RadioField key={option.id} value={option.id} variant="card">
-          <RadioFieldText>{option.ncpus} CPUs</RadioFieldText>
-          <RadioFieldText>{option.memory} GB RAM</RadioFieldText>
+          <div>{option.ncpus} CPUs</div>
+          <div>{option.memory} GB RAM</div>
         </RadioField>
       )
     )
@@ -361,7 +357,7 @@ const InstanceCreatePage = () => {
         </Description>
         <Button variant="dim">Add an SSH key</Button>
         <Heading>Finalize and create</Heading>
-        <Row>
+        <div className="mt-1">
           <TextInputGroup
             id="instance-name"
             label="Choose a name"
@@ -380,7 +376,7 @@ const InstanceCreatePage = () => {
             required
             value={hostname}
           />
-        </Row>
+        </div>
         <TextInputGroup
           id="tags"
           label="Add tags"

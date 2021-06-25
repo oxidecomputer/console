@@ -1,8 +1,8 @@
 import type { FC } from 'react'
 import React from 'react'
+import cn from 'classnames'
 
-import tw, { styled, theme } from 'twin.macro'
-
+import { classed } from '../../util/classed'
 import { Icon } from '../icon/Icon'
 
 type Variant = 'base' | 'card'
@@ -15,7 +15,7 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
   /**
    * Additional text to associate with this specific field
    */
-  hint?: string | React.ReactNode
+  hint?: React.ReactNode
   /**
    * RadioGroup will pass `name` to Radio fields.
    */
@@ -28,51 +28,27 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
   variant?: Variant
 }
 
-const LabelText = styled.span(tw`text-sm text-white`)
-const cardLabel = tw`py-2 px-4 bg-green-900 border border-transparent hover:bg-TODO`
-
-// indent = 7, width = 4, wrapper mr = 7 - 4 = 3
-const IconWrapper = styled.span(tw`mr-3 -ml-7`)
-const EmptyRadio = styled(Icon)(tw`w-4`)
-const FilledRadio = styled(Icon)(tw`w-4 text-green-500`)
-
-const StyledInput = styled.input`
-  /* Hide from sighted users, show to screen readers */
-  ${tw`sr-only!`}
-
-  &:checked + ${IconWrapper} {
-    ${EmptyRadio} {
-      display: none;
-    }
-  }
-
-  &:checked + ${LabelText} {
-    ${tw`bg-green-900 border-green-500 hover:bg-TODO`}
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  &:not(:checked) + ${IconWrapper} {
-    ${FilledRadio} {
-      display: none;
-    }
-  }
-
-  &:focus + ${IconWrapper} {
-    ${EmptyRadio}, ${FilledRadio} {
-      outline: none;
-      border-radius: 50%;
-      box-shadow: 0 0 0 1px ${theme`colors.green.500`};
-    }
-  }
-
-  &:focus + ${LabelText} {
-    outline: none;
-    box-shadow: 0px 0px 0px 2px ${theme`colors.black`},
-      0px 0px 0px 3px ${theme`colors.green.700`};
-  }
+const cardLabel = `
+  py-2 px-4 bg-gray-500 border rounded-px border-gray-400 hover:text-green-500 
+  peer-focus:ring-2 peer-focus:ring-green-700
+  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:text-green-500
 `
 
-const HintText = tw.span`text-sm mt-1 max-w-prose text-gray-50`
+const HintText = classed.span`text-sm mt-1 max-w-prose text-gray-50`
+
+// TODO: correct focus styling
+const radioIcons = (
+  <>
+    <Icon
+      name="radioE"
+      className="w-5 mr-2 -ml-7 inline peer-focus:text-green-500 peer-checked:hidden"
+    />
+    <Icon
+      name="radioF"
+      className="w-5 mr-2 -ml-7 text-green-500 hidden peer-checked:inline"
+    />
+  </>
+)
 
 export const RadioField: FC<RadioFieldProps> = ({
   checked,
@@ -87,18 +63,16 @@ export const RadioField: FC<RadioFieldProps> = ({
   const hintId = hint ? `${value}-hint` : ``
   const ariaProps = hint ? { 'aria-describedby': hintId } : {}
 
-  const renderIcons =
-    variant === 'base' ? (
-      <IconWrapper>
-        <EmptyRadio name="radioE" />
-        <FilledRadio name="radioF" />
-      </IconWrapper>
-    ) : null
-
   return (
-    <div tw="flex flex-col flex-shrink-0" css={variant === 'base' && tw`pl-6`}>
-      <label tw="items-center inline-flex">
-        <StyledInput
+    <div
+      className={cn(
+        'flex flex-col flex-shrink-0',
+        variant === 'base' && 'pl-6'
+      )}
+    >
+      <label className="items-center inline-flex">
+        <input
+          className="peer sr-only"
           checked={checked}
           name={name}
           onChange={onChange}
@@ -107,8 +81,10 @@ export const RadioField: FC<RadioFieldProps> = ({
           value={value}
           {...ariaProps}
         />
-        {renderIcons}
-        <LabelText css={variant === 'card' && cardLabel}>{children}</LabelText>
+        {variant === 'base' && radioIcons}
+        <span className={cn('text-sm', variant === 'card' && cardLabel)}>
+          {children}
+        </span>
       </label>
       {hint && <HintText id={hintId}>{hint}</HintText>}
     </div>
