@@ -32,8 +32,6 @@ const focusRing = css`
   }
 `
 
-const HintText = tw.div`text-sm mt-1 text-gray-50`
-
 const FRAMER_VARIANTS = {
   open: {
     opacity: 1,
@@ -127,7 +125,11 @@ export const Dropdown: FC<DropdownProps> = ({
       </AnimatePresence>
       {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
       <div tabIndex={0} />
-      {hint && <HintText id={hintId}>{hint}</HintText>}
+      {hint && (
+        <div id={hintId} className="text-sm mt-1 text-gray-50">
+          {hint}
+        </div>
+      )}
     </div>
   )
 }
