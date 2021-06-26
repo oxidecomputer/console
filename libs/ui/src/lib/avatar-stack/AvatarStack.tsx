@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { theme } from 'twin.macro'
 import type { AvatarSize, AvatarProps } from '../avatar/Avatar'
 import { Avatar } from '../avatar/Avatar'
 
@@ -10,11 +9,10 @@ export interface AvatarStackProps {
 }
 
 export const AvatarStack = ({ data, size = 'base' }: AvatarStackProps) => (
-  <div tw="flex">
+  <div className="flex">
     {data.map((avatarProps) => (
       <Avatar
-        tw="-ml-2"
-        css={{ boxShadow: `0 0 0 2px ${theme`colors.black`}` }}
+        className="-ml-2 ring-2 ring-black"
         key={`avatar-stack-${avatarProps.name}`}
         size={size}
         {...avatarProps}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import tw from 'twin.macro'
 
 import type { InputGroupProps } from '../Group'
 import { InputGroup } from '../Group'
@@ -15,11 +14,10 @@ export interface NumberInputGroupProps extends InputGroupProps {
   max?: number
 }
 
-const ctrl = tw`
-  py-2 px-3
-  disabled:(text-gray-100 hover:cursor-auto)
-  not-disabled:hover:bg-gray-400
-  focus:(outline-none ring-1 ring-green-500 ring-inset)
+const ctrl = `
+  py-2 px-3 hover:bg-gray-400
+  disabled:text-gray-200 disabled:cursor-auto disabled:bg-transparent
+  focus:outline-none focus:ring-1 focus:ring-green-600 focus:ring-inset
 `
 
 export const NumberInputGroup = ({
@@ -90,11 +88,21 @@ export const NumberInputGroup = ({
         disabled={disabled}
         onKeyDown={handleKeyDown}
       />
-      <div tw="flex">
-        <button type="button" css={ctrl} onClick={decr} disabled={!decrEnabled}>
+      <div className="flex">
+        <button
+          type="button"
+          className={ctrl}
+          onClick={decr}
+          disabled={!decrEnabled}
+        >
           <Icon name="minus" svgProps={{ title: 'Decrement' }} />
         </button>
-        <button type="button" css={ctrl} onClick={incr} disabled={!incrEnabled}>
+        <button
+          type="button"
+          className={ctrl}
+          onClick={incr}
+          disabled={!incrEnabled}
+        >
           <Icon name="plus" svgProps={{ title: 'Increment' }} />
         </button>
       </div>

@@ -1,9 +1,9 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import tw from 'twin.macro'
 import { useParams, useHistory } from 'react-router-dom'
 
 import {
+  classed,
   Breadcrumbs,
   Button,
   PageHeader,
@@ -18,11 +18,9 @@ import { useApiMutation } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
-const Heading = tw.h2`text-white text-lg mt-8 font-sans font-light first-of-type:mt-0`
+const Heading = classed.h2`text-white text-lg mt-8 font-sans font-light first-of-type:mt-0`
 
-const Description = tw.p`text-gray-50 text-sm mt-2 max-w-prose`
-
-const StyledTabs = tw(Tabs)`mt-1`
+const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
 
 type Params = {
   projectName: string
@@ -241,9 +239,10 @@ const InstanceCreatePage = () => {
       <PageHeader>
         <PageTitle icon="instances">Create Instance</PageTitle>
       </PageHeader>
-      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
+      <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <Heading>Choose an image</Heading>
-        <StyledTabs
+        <Tabs
+          className="mt-1"
           label="Choose an image"
           tabs={['Distributions', 'Custom Images']}
         >
@@ -275,9 +274,10 @@ const InstanceCreatePage = () => {
             <RadioCardField value="custom-debian">Custom Debian</RadioCardField>
             <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
           </RadioGroup>
-        </StyledTabs>
+        </Tabs>
         <Heading>Choose CPUs and RAM</Heading>
-        <StyledTabs
+        <Tabs
+          className="mt-1"
           label="Choose CPUs and RAM"
           tabs={[
             'General purpose',
@@ -313,7 +313,7 @@ const InstanceCreatePage = () => {
               children: renderLargeRadioFields('custom'),
             },
           ])}
-        </StyledTabs>
+        </Tabs>
         <RadioGroup
           legend="Add storage"
           checked={storageField}
@@ -389,7 +389,7 @@ const InstanceCreatePage = () => {
         <Button type="submit" fullWidth disabled={createInstance.isLoading}>
           Create instance
         </Button>
-        <div tw="text-red-500">
+        <div className="text-red-500">
           {getServerError(createInstance.error, ERROR_CODES)}
         </div>
       </form>

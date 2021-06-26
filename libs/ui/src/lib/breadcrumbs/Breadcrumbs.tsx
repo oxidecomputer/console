@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import tw from 'twin.macro'
 
 export type Crumb = { href?: string; label: string }
 
@@ -8,20 +7,22 @@ export interface BreadcrumbsProps {
   data: Crumb[]
 }
 
-const Item = tw.li`inline-block not-first-of-type:before:(content['/'] mx-2 text-gray-400)`
-
-const Link_ = tw(Link)`text-gray-100 visited:text-gray-100 hover:text-green-500`
-
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ data }) => (
-  <ol tw="text-sm uppercase">
+export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
+  <ol className="text-sm uppercase">
     {data.map(({ href, label }) => (
-      <Item key={`${href}-${label}`}>
+      <li
+        className="inline-block first-of-type:before:content-none 
+                   before:content-['/'] before:mx-2 before:text-gray-400"
+        key={`${href}-${label}`}
+      >
         {href ? (
-          <Link_ to={href}>{label}</Link_>
+          <Link to={href} className="text-gray-100  hover:text-green-500">
+            {label}
+          </Link>
         ) : (
           <span tw="text-gray-50">{label}</span>
         )}
-      </Item>
+      </li>
     ))}
   </ol>
 )

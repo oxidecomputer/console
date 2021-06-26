@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react'
-import tw from 'twin.macro'
 
 import type { IconName } from '../icon/icons'
 import { Icon } from '../icon/Icon'
 import { Button } from '../button/Button'
+import { classed } from '../../util/classed'
 
 interface ActionProps {
   primary?: boolean
@@ -20,22 +20,27 @@ const ActionButton = ({ primary, children, onClick }: ActionProps) => {
 
   const variant = primary ? 'solid' : 'dim'
   return (
-    <Button tw="flex-1" variant={variant} onClick={onClick} ref={buttonRef}>
+    <Button
+      className="flex-1"
+      variant={variant}
+      onClick={onClick}
+      ref={buttonRef}
+    >
       {children}
     </Button>
   )
 }
 
-const Container = tw.div`
+const Container = classed.div`
   flex flex-col w-full bg-black
-  sm:(self-center mx-auto width[50vw])
+  sm:self-center sm:mx-auto w-[50vw]
 `
 
-const Body = tw.div`p-6 space-y-4 flex-1`
+const Body = classed.div`p-6 space-y-4 flex-1`
 
 const IconWrapper = (props: { icon: IconName }) => (
-  <div tw="w-12 h-12 bg-green-900 rounded-full">
-    <Icon tw="w-12 text-green-500" name={props.icon} />
+  <div className="w-12 h-12 bg-green-900 rounded-full">
+    <Icon className="w-12 text-green-500" name={props.icon} />
   </div>
 )
 
@@ -49,13 +54,13 @@ export type AlertModalProps = {
 }
 
 export const AlertModal = (props: AlertModalProps) => (
-  <Container tw="lg:w-1/4">
+  <Container className="lg:w-1/4">
     <Body>
       {props.icon && <IconWrapper icon={props.icon} />}
-      <header tw="text-green-500">{props.title}</header>
-      <p tw="text-sm">{props.children}</p>
+      <header className="text-green-500">{props.title}</header>
+      <p className="text-sm">{props.children}</p>
     </Body>
-    <footer tw="flex">
+    <footer className="flex">
       <ActionButton primary onClick={props.onConfirm}>
         {props.confirmText}
       </ActionButton>
@@ -69,13 +74,13 @@ export type ConfirmModalProps = AlertModalProps & {
 }
 
 export const ConfirmModal = (props: ConfirmModalProps) => (
-  <Container tw="lg:w-1/3">
+  <Container className="lg:w-1/3">
     <Body>
       {props.icon && <IconWrapper icon={props.icon} />}
-      <header tw="text-green-500">{props.title}</header>
-      <p tw="text-sm">{props.children}</p>
+      <header className="text-green-500">{props.title}</header>
+      <p className="text-sm">{props.children}</p>
     </Body>
-    <footer tw="flex">
+    <footer className="flex">
       <ActionButton onClick={props.onCancel}>{props.cancelText}</ActionButton>
       <ActionButton primary onClick={props.onConfirm}>
         {props.confirmText}

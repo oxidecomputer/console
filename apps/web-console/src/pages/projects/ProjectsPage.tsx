@@ -1,5 +1,4 @@
 import React from 'react'
-import 'twin.macro'
 
 import { Link } from 'react-router-dom'
 
@@ -19,8 +18,8 @@ const ProjectsPage = () => {
       <PageHeader>
         <PageTitle icon="projects">Projects</PageTitle>
       </PageHeader>
-      {data.items.length === 0 && <div tw="mt-4">No projects yet</div>}
-      <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
+      {data.items.length === 0 && <div className="mt-4">No projects yet</div>}
+      <ul className="list-disc m-4">
         {data.items.map((item) => (
           <li key={item.id}>
             <Link to={`/projects/${item.name}`}>{item.name}</Link>
