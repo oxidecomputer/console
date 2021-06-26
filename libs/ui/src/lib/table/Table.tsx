@@ -84,7 +84,7 @@ const StyledCell = styled('div', {
 const rowStyles = css`
   display: flex;
   width: 100%;
-  box-shadow: inset 0 -1px 0 ${BORDER_COLOR};
+  border-bottom: 1px solid ${BORDER_COLOR};
 `
 
 const StyledRow = styled.div`

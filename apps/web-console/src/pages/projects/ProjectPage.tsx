@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
+import { Breadcrumbs, Button, PageHeader, PageTitle, Table2 } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 import { pluralize } from '../../util/str'
 
@@ -30,7 +30,9 @@ const ProjectPage = () => {
       <PageHeader>
         <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>
-      <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
+
+      <Table2 className="mt-4" />
+      {/* <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
         <li>ID: {project.id}</li>
         <li>Description: {project.description}</li>
       </ul>
@@ -41,7 +43,7 @@ const ProjectPage = () => {
       </Button>
       <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
         <Button>Create instance</Button>
-      </Link>
+      </Link> */}
     </>
   )
 }
