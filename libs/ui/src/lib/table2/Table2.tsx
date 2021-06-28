@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTable } from 'react-table'
+import { useTable, useRowSelect } from 'react-table'
 import cn from 'classnames'
 
 import { Avatar } from '../avatar/Avatar'
@@ -70,10 +70,54 @@ const COLUMNS = [
 // TODO: turns out rounded corners on a table requires border-collapse separate,
 // which requires further shenanigans to get the borders to behave
 
+type CheckboxProps = {
+  children?: React.ReactNode
+  indeterminate: boolean
+}
+
+const IndeterminateCheckbox = React.forwardRef(
+  (
+    { indeterminate, ...rest }: CheckboxProps,
+    ref: React.Ref<HTMLInputElement>
+  ) => {
+    const defaultRef = React.useRef<HTMLInputElement>()
+    const resolvedRef = ref || defaultRef
+
+    React.useEffect(() => {
+      resolvedRef.current.indeterminate = indeterminate
+    }, [resolvedRef, indeterminate])
+
+    return (
+      <>
+        <input type="checkbox" ref={resolvedRef} {...rest} />
+      </>
+    )
+  }
+)
+const selectionCol = {
+  id: 'selection',
+  // The header can use the table's getToggleAllRowsSelectedProps method
+  // to render a checkbox
+  Header: ({ getToggleAllRowsSelectedProps }) => (
+    <div>
+      <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+    </div>
+  ),
+  // The cell can use the individual row's getToggleRowSelectedProps method
+  // to the render a checkbox
+  Cell: ({ row }) => (
+    <div className="text-center">
+      <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+    </div>
+  ),
+}
+
 export const Table2 = ({ className }: Props) => {
   const columns = React.useMemo(() => COLUMNS, [])
   const data = React.useMemo(() => users, [])
-  const table = useTable({ columns, data })
+  const table = useTable({ columns, data }, useRowSelect, (hooks) => {
+    hooks.visibleColumns.push((columns) => [selectionCol, ...columns])
+  })
   return (
     <table
       className={cn('w-full border border-gray-400 text-xs', className)}
