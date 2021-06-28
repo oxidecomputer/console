@@ -1,11 +1,14 @@
 import React from 'react'
+import type { Row } from 'react-table'
 import { useTable, useRowSelect } from 'react-table'
 import cn from 'classnames'
+import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import { Avatar } from '../avatar/Avatar'
 import { Icon } from '../icon/Icon'
 import type { User } from './fake-data'
 import { users } from './fake-data'
+import './menu-button.css'
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
@@ -94,6 +97,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
 )
+
 const selectionCol = {
   id: 'selection',
   // The header can use the table's getToggleAllRowsSelectedProps method
@@ -105,10 +109,32 @@ const selectionCol = {
   ),
   // The cell can use the individual row's getToggleRowSelectedProps method
   // to the render a checkbox
-  Cell: ({ row }) => (
+  Cell: ({ row }: { row: Row<User> }) => (
     <div className="text-center">
       <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
     </div>
+  ),
+}
+
+const menuCol = {
+  id: 'menu',
+  Cell: ({ row }: { row: Row<User> }) => (
+    <Menu>
+      <MenuButton>
+        <Icon name="more" className="text-base text-gray-200 mr-4" />
+      </MenuButton>
+      <MenuList className="TableControls">
+        <MenuItem onSelect={() => console.log(row.values.name)}>
+          Delete
+        </MenuItem>
+        <MenuItem onSelect={() => console.log(row.values.name)}>
+          Interpret
+        </MenuItem>
+        <MenuItem onSelect={() => console.log(row.values.name)}>
+          Astonish
+        </MenuItem>
+      </MenuList>
+    </Menu>
   ),
 }
 
@@ -116,7 +142,7 @@ export const Table2 = ({ className }: Props) => {
   const columns = React.useMemo(() => COLUMNS, [])
   const data = React.useMemo(() => users, [])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [selectionCol, ...columns])
+    hooks.visibleColumns.push((columns) => [selectionCol, ...columns, menuCol])
   })
   return (
     <table
