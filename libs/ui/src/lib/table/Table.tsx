@@ -172,8 +172,8 @@ const Row = ({ index, row, style, ...props }: RowProps) => {
   )
 }
 
-const InnerWrapper = forwardRef(
-  ({ children, ...props }, ref: React.Ref<HTMLDivElement>) => {
+const InnerWrapper = forwardRef<HTMLDivElement>(
+  ({ children, ...props }, ref) => {
     const { columns } = useContext(ListContext)
     // role="rowgroup" is the WAI-ARIA mapping for the <tbody> element
     return (

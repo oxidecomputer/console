@@ -48,10 +48,7 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
 
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
-export const Button = forwardRef<
-  HTMLButtonElement,
-  PropsWithChildren<ButtonProps>
->(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,

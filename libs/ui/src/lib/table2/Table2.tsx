@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Row } from 'react-table'
+import type { Row, TableInstance } from 'react-table'
 import { useTable, useRowSelect } from 'react-table'
 import cn from 'classnames'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
@@ -21,7 +21,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 )
 
 const NameCell = ({ value }: { value: string }) => (
-  <div className="flex items-center h-[60px]">
+  <div className="flex items-center">
     <Avatar round size="xs" name={value} className="inline-block" />
     <span className="ml-3 text-sm font-sans font-light">{value}</span>
   </div>
@@ -73,42 +73,33 @@ const COLUMNS = [
 // TODO: turns out rounded corners on a table requires border-collapse separate,
 // which requires further shenanigans to get the borders to behave
 
-type CheckboxProps = {
-  children?: React.ReactNode
-  indeterminate: boolean
-}
+const IndeterminateCheckbox = React.forwardRef<
+  HTMLInputElement,
+  { indeterminate?: boolean }
+>(({ indeterminate, ...rest }, outerRef) => {
+  // null, not blank (undefined), otherwise TS is mad when ref passed to input
+  const defaultRef = React.useRef<HTMLInputElement>(null)
+  const ref = outerRef || defaultRef
 
-const IndeterminateCheckbox = React.forwardRef(
-  (
-    { indeterminate, ...rest }: CheckboxProps,
-    ref: React.Ref<HTMLInputElement>
-  ) => {
-    const defaultRef = React.useRef<HTMLInputElement>()
-    const resolvedRef = ref || defaultRef
+  React.useEffect(() => {
+    // TODO: this makes types pass by basically ignoring callback refs. see more
+    // sophisticated approach here:
+    // https://github.com/tannerlinsley/react-table/discussions/1989#discussioncomment-1488
+    if (typeof ref !== 'function' && ref?.current) {
+      ref.current.indeterminate = indeterminate ?? false
+    }
+  }, [ref, indeterminate])
 
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
-
-    return (
-      <>
-        <input type="checkbox" ref={resolvedRef} {...rest} />
-      </>
-    )
-  }
-)
+  return <input type="checkbox" ref={ref} {...rest} />
+})
 
 const selectionCol = {
   id: 'selection',
-  // The header can use the table's getToggleAllRowsSelectedProps method
-  // to render a checkbox
-  Header: ({ getToggleAllRowsSelectedProps }) => (
+  Header: (props: TableInstance<User>) => (
     <div>
-      <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+      <IndeterminateCheckbox {...props.getToggleAllRowsSelectedProps()} />
     </div>
   ),
-  // The cell can use the individual row's getToggleRowSelectedProps method
-  // to the render a checkbox
   Cell: ({ row }: { row: Row<User> }) => (
     <div className="text-center">
       <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
