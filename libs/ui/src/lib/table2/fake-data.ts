@@ -1,3 +1,14 @@
+export type User = {
+  name: string
+  lastAccessed: string
+  access: {
+    read: boolean
+    modify: boolean
+    create: boolean
+    admin: boolean
+  }
+}
+
 const makeRM = (name: string) => ({
   name,
   lastAccessed: 'Never',
