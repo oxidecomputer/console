@@ -1,5 +1,4 @@
 import React from 'react'
-import 'twin.macro'
 import { useParams, Link } from 'react-router-dom'
 import { useTable, useRowSelect } from 'react-table'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
@@ -7,9 +6,10 @@ import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Icon, selectCol, Table2 } from '@oxide/ui'
+import { Button, Icon, selectCol, Table2 } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { timeAgoAbbr } from '../../util/date'
+import { usePagination } from '../../hooks'
 
 const COLUMNS = [
   {
@@ -44,10 +44,10 @@ const COLUMNS = [
     }: {
       value: Pick<ApiInstanceView, 'runState' | 'timeRunStateUpdated'>
     }) => (
-      <span tw="inline-flex">
-        <StatusBadge tw="mr-2" size="sm" status={value.runState} />
+      <span className="inline-flex">
+        <StatusBadge className="mr-2" size="sm" status={value.runState} />
         <abbr
-          tw="text-xs no-underline!"
+          className="text-xs !no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}
         >
           {timeAgoAbbr(value.timeRunStateUpdated)}
@@ -79,11 +79,13 @@ const menuCol = {
 }
 
 export const InstancesTable = () => {
+  const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
+
   const { projectName } = useParams<{ projectName: string }>()
   const { data: instances } = useApiQuery(
     'apiProjectInstancesGet',
-    { projectName },
-    { refetchInterval: 5000 }
+    { projectName, pageToken: currentPage, limit: 2 },
+    { refetchInterval: 5000, keepPreviousData: true }
   )
 
   const columns = React.useMemo(() => COLUMNS, [])
@@ -94,10 +96,27 @@ export const InstancesTable = () => {
 
   if (!instances) return <div>loading</div>
 
+  // hasPrev check is there because the API doesn't leave off nextPage when
+  // we're on the last page, so there's an empty page at the end we want to show
+  // (until this is fixed)
+  if (instances.items.length === 0 && !hasPrev) {
+    return <div className="mt-4">No instances yet</div>
+  }
+
   return (
     <>
-      {instances.items.length > 0 && <Table2 className="mt-4" table={table} />}
-      {instances.items.length === 0 && <div tw="mt-4">No instances yet</div>}
+      <Table2 className="mt-4" table={table} />
+      <div className="mt-4 space-x-4">
+        <Button onClick={goToPrevPage} disabled={!hasPrev}>
+          <Icon name="arrow" className="transform rotate-180" />
+        </Button>
+        <Button
+          onClick={() => instances.nextPage && goToNextPage(instances.nextPage)}
+          disabled={!instances.nextPage}
+        >
+          <Icon name="arrow" />
+        </Button>
+      </div>
     </>
   )
 }
