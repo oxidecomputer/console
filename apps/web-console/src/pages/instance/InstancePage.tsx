@@ -74,7 +74,7 @@ const InstancePage = () => {
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
-      history.push(`/projects/${projectName}/instances`)
+      history.push(`/projects/${projectName}`)
     },
   })
 

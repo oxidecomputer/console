@@ -3,15 +3,17 @@ import type { TableInstance } from 'react-table'
 import cn from 'classnames'
 import './menu-button.css'
 
-type Props<D extends Record<string, unknown>> = {
+// TODO: These shouldn't be object, but Record<string, unknown> isn't compatible
+// with, e.g., ApiInstanceView
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Props<D extends object> = {
   className?: string
   table: TableInstance<D>
 }
 
-export const Table2 = <D extends Record<string, unknown>>({
-  className,
-  table,
-}: Props<D>) => (
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const Table2 = <D extends object>({ className, table }: Props<D>) => (
   <table
     // TODO: turns out rounded corners on a table requires border-collapse separate,
     // which requires further shenanigans to get the borders to behave
