@@ -10,6 +10,7 @@ import InstancePage from '../pages/instance/InstancePage'
 import InstancesPage from '../pages/instance/InstancesPage'
 import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
 import ProjectPage from '../pages/projects/ProjectPage'
+import ProjectAccessPage from '../pages/projects/ProjectAccessPage'
 import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
 import ProjectsPage from '../pages/projects/ProjectsPage'
 import ToastTestPage from '../pages/ToastTestPage'
@@ -30,6 +31,9 @@ const App = () => {
           </Route>
           <Route path="/projects/:projectName/instances" exact>
             <InstancesPage />
+          </Route>
+          <Route path="/projects/:projectName/access" exact>
+            <ProjectAccessPage />
           </Route>
           <Route path="/projects/:projectName/instances/new" exact>
             <InstanceCreatePage />

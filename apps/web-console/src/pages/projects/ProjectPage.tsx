@@ -30,6 +30,7 @@ const ProjectPage = () => {
       <PageHeader>
         <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>
+
       <ul css={{ listStyleType: 'disc', margin: '1rem' }}>
         <li>ID: {project.id}</li>
         <li>Description: {project.description}</li>
@@ -42,6 +43,9 @@ const ProjectPage = () => {
       <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
         <Button>Create instance</Button>
       </Link>
+      <Button tw="block mt-4" variant="ghost">
+        <Link to={`/projects/${projectName}/access`}>Access &amp; IAM</Link>
+      </Button>
     </>
   )
 }

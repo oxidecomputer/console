@@ -30,6 +30,9 @@ export const classed = {
   ol: make('ol'),
   p: make('p'),
   span: make('span'),
+  td: make('td'),
+  th: make('th'),
+  tr: make('tr'),
 } as const
 
 // result: classed.button`text-green-500 uppercase` returns a component with those classes
