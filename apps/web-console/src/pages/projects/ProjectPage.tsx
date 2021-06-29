@@ -1,6 +1,5 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
-import 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
 import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
@@ -29,12 +28,14 @@ const ProjectPage = () => {
       </PageHeader>
 
       <InstancesTable />
-      <Link tw="block mt-4" to={`/projects/${projectName}/instances/new`}>
-        <Button>Create instance</Button>
-      </Link>
-      <Link className="block mt-4" to={`/projects/${projectName}/access`}>
-        <Button variant="ghost">Access &amp; IAM</Button>
-      </Link>
+      <div className="mt-4 space-x-4">
+        <Link to={`/projects/${projectName}/instances/new`}>
+          <Button>Create instance</Button>
+        </Link>
+        <Link to={`/projects/${projectName}/access`}>
+          <Button variant="ghost">Access &amp; IAM</Button>
+        </Link>
+      </div>
     </>
   )
 }
