@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import 'twin.macro'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, Button, PageHeader, PageTitle, Table2 } from '@oxide/ui'
+import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 import { pluralize } from '../../util/str'
 
