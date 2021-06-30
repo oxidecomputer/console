@@ -12,7 +12,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { Button, Icon, selectCol, Table2 } from '@oxide/ui'
+import { Button, classed, Icon, selectCol, Table2 } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { timeAgoAbbr } from '../../util/date'
 import { usePagination, useToast } from '../../hooks'
@@ -149,13 +149,17 @@ const menuCol = {
   },
 }
 
+const PAGE_SIZE = 3
+
+const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text-gray-300 disabled:cursor-default`
+
 export const InstancesTable = () => {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
 
   const { projectName } = useParams<{ projectName: string }>()
   const { data: instances } = useApiQuery(
     'apiProjectInstancesGet',
-    { projectName, pageToken: currentPage, limit: 3 },
+    { projectName, pageToken: currentPage, limit: PAGE_SIZE },
     { refetchInterval: 5000, keepPreviousData: true }
   )
 
@@ -177,16 +181,23 @@ export const InstancesTable = () => {
   return (
     <>
       <Table2 className="mt-4" table={table} />
-      <div className="mt-4 space-x-4">
-        <Button onClick={goToPrevPage} disabled={!hasPrev}>
-          <Icon name="arrow" className="transform rotate-180" />
-        </Button>
-        <Button
-          onClick={() => instances.nextPage && goToNextPage(instances.nextPage)}
-          disabled={!instances.nextPage}
-        >
-          <Icon name="arrow" />
-        </Button>
+      <div className="mt-4 space-x-4 flex justify-between">
+        <span className="text-xs uppercase text-gray-200">
+          Rows per page: {PAGE_SIZE}
+        </span>
+        <span className="space-x-3 text-lg">
+          <PageButton onClick={goToPrevPage} disabled={!hasPrev}>
+            &#9664;
+          </PageButton>
+          <PageButton
+            onClick={() =>
+              instances.nextPage && goToNextPage(instances.nextPage)
+            }
+            disabled={!instances.nextPage}
+          >
+            &#9654;
+          </PageButton>
+        </span>
       </div>
     </>
   )

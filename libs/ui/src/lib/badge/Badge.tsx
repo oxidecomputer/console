@@ -62,7 +62,7 @@ const colors = {
   red: 'bg-red-500 text-black',
   yellow: 'bg-yellow-500 text-black',
   green: 'bg-green-500 text-black',
-  blue: 'bg-blue-500 text-black',
+  blue: 'bg-blue-500 text-gray-50',
 }
 
 export const Badge = ({
