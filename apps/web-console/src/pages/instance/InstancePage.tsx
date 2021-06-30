@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import 'twin.macro'
 
-import { useApiQuery, useApiMutation } from '@oxide/api'
+import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
 import type { IconName, ButtonProps } from '@oxide/ui'
 import {
@@ -94,7 +94,7 @@ const InstancePage = () => {
   if (!instance) return <div>loading</div>
 
   const handleStop = () => {
-    if (instance.runState === 'running') {
+    if (instanceCan.stop(instance)) {
       stopInstance.mutate({
         instanceName: instance.name,
         projectName,
@@ -109,7 +109,7 @@ const InstancePage = () => {
   }
 
   const handleDelete = () => {
-    if (instance.runState === 'stopped') {
+    if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
         instanceName: instance.name,
         projectName,
@@ -124,7 +124,7 @@ const InstancePage = () => {
   }
 
   const handleReboot = () => {
-    if (instance.runState === 'running') {
+    if (instanceCan.reboot(instance)) {
       rebootInstance.mutate({
         instanceName: instance.name,
         projectName,

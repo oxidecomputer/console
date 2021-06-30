@@ -93,6 +93,7 @@ export const useApiMutation = getUseApiMutation(api)
 export const useApiQueryClient = getUseApiQueryClient<DefaultApi>()
 
 export * from './__generated__/models'
+export * from './instance-can'
 
 /* 
 1. what's up with [method, params]?

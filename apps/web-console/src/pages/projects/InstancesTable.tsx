@@ -1,29 +1,39 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
+import type { Row } from 'react-table'
 import { useTable, useRowSelect } from 'react-table'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import {
+  instanceCan,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import { Button, Icon, selectCol, Table2 } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { timeAgoAbbr } from '../../util/date'
-import { usePagination } from '../../hooks'
+import { usePagination, useToast } from '../../hooks'
 
 const COLUMNS = [
   {
     accessor: 'name' as const,
     Header: () => <div className="text-left">Name</div>,
-    Cell: ({ value }: { value: string }) => (
-      <Link
-        className="text-green-500"
-        // TODO: template in projectName
-        to={`/projects/prod-online/instances/${value}`}
-      >
-        {value}
-      </Link>
-    ),
+    Cell: ({ value }: { value: string }) => {
+      // TODO: is it weird to pull directly from params here and in the menu
+      // column? seems easier than passing it in somehow
+      const { projectName } = useParams<{ projectName: string }>()
+      return (
+        <Link
+          className="text-green-500"
+          to={`/projects/${projectName}/instances/${value}`}
+        >
+          {value}
+        </Link>
+      )
+    },
   },
   {
     accessor: (i: ApiInstanceView) => ({ ncpus: i.ncpus, memory: i.memory }),
@@ -64,18 +74,79 @@ const COLUMNS = [
 
 const menuCol = {
   id: 'menu',
-  Cell: () => (
-    <Menu>
-      <MenuButton>
-        <Icon name="more" className="text-base text-gray-200 mr-4" />
-      </MenuButton>
-      <MenuList className="TableControls">
-        <MenuItem onSelect={() => {}}>Delete</MenuItem>
-        <MenuItem onSelect={() => {}}>Interpret</MenuItem>
-        <MenuItem onSelect={() => {}}>Astonish</MenuItem>
-      </MenuList>
-    </Menu>
-  ),
+  Cell: ({ row }: { row: Row<ApiInstanceView> }) => {
+    const addToast = useToast()
+    const queryClient = useApiQueryClient()
+    const refetch = () =>
+      queryClient.invalidateQueries('apiProjectInstancesGet', { projectName })
+
+    const instance = row.original
+    const instanceName = instance.name
+    const { projectName } = useParams<{ projectName: string }>()
+
+    // TODO: if there are lots of places we use the same set of instance
+    // actions, consider wrapping them up in a useInstanceActions hook. One
+    // reason not to do that would be if the success callbacks need to be
+    // different at each callsite. The resulting API would be worse than calling
+    // the hooks individually
+    const stopInstance = useApiMutation('apiProjectInstancesInstanceStop', {
+      onSuccess: () => {
+        refetch()
+        addToast({
+          type: 'default',
+          title: `Instance '${instanceName}' stopped.`,
+          timeout: 5000,
+        })
+      },
+    })
+
+    const rebootInstance = useApiMutation('apiProjectInstancesInstanceReboot', {
+      onSuccess: refetch,
+    })
+
+    const deleteInstance = useApiMutation('apiProjectInstancesDeleteInstance', {
+      onSuccess: () => {
+        refetch()
+        addToast({
+          type: 'default',
+          title: `Instance '${instanceName}' deleted.`,
+          timeout: 5000,
+        })
+      },
+    })
+
+    return (
+      <Menu>
+        <MenuButton>
+          <Icon name="more" className="text-base text-gray-200 mr-4" />
+        </MenuButton>
+        <MenuList className="TableControls">
+          <MenuItem
+            onSelect={() => stopInstance.mutate({ instanceName, projectName })}
+            disabled={!instanceCan.stop(instance)}
+          >
+            Stop
+          </MenuItem>
+          <MenuItem
+            onSelect={() =>
+              rebootInstance.mutate({ instanceName, projectName })
+            }
+            disabled={!instanceCan.reboot(instance)}
+          >
+            Reboot
+          </MenuItem>
+          <MenuItem
+            onSelect={() =>
+              deleteInstance.mutate({ instanceName, projectName })
+            }
+            disabled={!instanceCan.delete(instance)}
+          >
+            Delete
+          </MenuItem>
+        </MenuList>
+      </Menu>
+    )
+  },
 }
 
 export const InstancesTable = () => {
@@ -84,7 +155,7 @@ export const InstancesTable = () => {
   const { projectName } = useParams<{ projectName: string }>()
   const { data: instances } = useApiQuery(
     'apiProjectInstancesGet',
-    { projectName, pageToken: currentPage, limit: 2 },
+    { projectName, pageToken: currentPage, limit: 3 },
     { refetchInterval: 5000, keepPreviousData: true }
   )
 
