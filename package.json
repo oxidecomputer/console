@@ -17,7 +17,6 @@
   "dependencies": {
     "@emotion/babel-plugin-jsx-pragmatic": "^0.1.5",
     "@emotion/babel-preset-css-prop": "^11.2.0",
-    "@emotion/is-prop-valid": "^1.1.0",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
     "@popperjs/core": "^2.9.2",
@@ -38,8 +37,6 @@
     "react-router-dom": "^5.2.0",
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.1",
-    "react-virtualized-auto-sizer": "^1.0.4",
-    "react-window": "^1.8.6",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2"
   },
@@ -73,8 +70,6 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/react-table": "^7.7.1",
     "@types/react-transition-group": "^4.4.1",
-    "@types/react-virtualized-auto-sizer": "^1.0.0",
-    "@types/react-window": "^1.8.2",
     "@types/uuid": "^8.3.0",
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^3.11.2",

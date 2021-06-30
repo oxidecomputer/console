@@ -16,7 +16,6 @@ import {
 } from '@oxide/ui'
 
 import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
-import { InstancePageTables } from './InstancePageTables'
 import { useBreadcrumbs, useToast } from '../../hooks'
 
 const InstanceAction = (props: {
@@ -192,7 +191,6 @@ const InstancePage = () => {
               />
             </div>
           </div>
-          <InstancePageTables />
         </div>
         <div></div>
         <div></div>
