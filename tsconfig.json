@@ -1,31 +1,31 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
-    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "declaration": false,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "incremental": true,
-    "target": "es2015",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "lib": ["es2019", "dom"],
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
-    "baseUrl": ".",
+    "lib": ["es2019", "dom"],
+    "module": "commonjs",
+    "moduleResolution": "node",
     "noEmit": true,
+    "outDir": "dist",
     "paths": {
-      "@oxide/ui": ["libs/ui/src/index.ts"],
       "@oxide/api": ["libs/api/index.ts"],
-      "@oxide/api-mocks": ["libs/api-mocks/index.ts"]
+      "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
+      "@oxide/ui": ["libs/ui/src/index.ts"]
     },
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2015",
     "types": ["node", "jest"]
   }
 }
