@@ -10,7 +10,6 @@
     "importHelpers": true,
     "incremental": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
     "lib": ["es2019", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",

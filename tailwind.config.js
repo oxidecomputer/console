@@ -36,7 +36,6 @@ const colors = {
     900: '#173B31',
     950: '#112725',
   },
-  TODO: '#FF0000',
 }
 
 module.exports = {

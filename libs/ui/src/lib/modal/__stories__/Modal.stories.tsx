@@ -3,19 +3,11 @@ import type { DecoratorFn, Story } from '@storybook/react'
 import { action } from '@storybook/addon-actions'
 import type { AlertModalProps, ConfirmModalProps } from '../Modal'
 import { AlertModal, ConfirmModal } from '../Modal'
-import { styled } from 'twin.macro'
 
-const ModalContainer = styled.div`
-  display: flex;
-
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-`
 export const decorators: DecoratorFn[] = [
-  (Story) => <ModalContainer>{Story()}</ModalContainer>,
+  (Story) => (
+    <div className="flex absolute top-0 bottom-0 right-0 left-0">{Story()}</div>
+  ),
 ]
 
 const ConfirmTemplate: Story<ConfirmModalProps> = (args) => (

@@ -26,7 +26,7 @@ import { Default, CustomTitle, Rotate } from './Icon.stories'
 
 # Icons
 
-Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS. With twin.macro this can be done with `tw="text-green"`.
+Icons are rendered as inline SVGS using the [SVGR loader](https://react-svgr.com/docs/getting-started/). Rendering them inline means their `fill` color can be changed via CSS.
 
 <Canvas>
   <Story story={Default} />
@@ -85,11 +85,11 @@ If, for some reason, you need to know the ID, you can pass one yourself:
 
 ### Rotate
 
-Icon rotation is handled through the `tw` prop: `tw="transform rotate-45"`.
+Icon rotation is handled through regular styling: `className="transform rotate-45"`.
 
 <Canvas>
   <Story name="Rotate">
-    <Rotate />
+    <Icon name="chevron" className="transform rotate-45" />
   </Story>
 </Canvas>
 
