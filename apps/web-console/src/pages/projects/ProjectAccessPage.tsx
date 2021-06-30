@@ -10,7 +10,7 @@ import {
   PageHeader,
   PageTitle,
   selectCol,
-  Table2,
+  Table,
 } from '@oxide/ui'
 import { useBreadcrumbs } from '../../hooks'
 import type { User } from './mock-users'
@@ -112,7 +112,7 @@ const ProjectPage = () => {
         <PageTitle icon="users">Access &amp; IAM</PageTitle>
       </PageHeader>
 
-      <Table2 className="mt-4" table={table} />
+      <Table className="mt-4" table={table} />
     </>
   )
 }

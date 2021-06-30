@@ -12,7 +12,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, Icon, selectCol, Table2 } from '@oxide/ui'
+import { classed, Icon, selectCol, Table } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { timeAgoAbbr } from '../../util/date'
 import { usePagination, useToast } from '../../hooks'
@@ -180,7 +180,7 @@ export const InstancesTable = () => {
 
   return (
     <>
-      <Table2 className="mt-4" table={table} />
+      <Table className="mt-4" table={table} />
       <div className="mt-4 flex justify-between text-gray-100">
         <span className="text-xs uppercase">Rows per page: {PAGE_SIZE}</span>
         <span className="space-x-3 text-lg leading-none">

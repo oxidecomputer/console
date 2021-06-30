@@ -13,7 +13,7 @@ type Props<D extends object> = {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const Table2 = <D extends object>({ className, table }: Props<D>) => (
+export const Table = <D extends object>({ className, table }: Props<D>) => (
   <table
     // TODO: turns out rounded corners on a table requires border-collapse separate,
     // which requires further shenanigans to get the borders to behave
