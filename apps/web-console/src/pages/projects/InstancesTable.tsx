@@ -12,7 +12,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { Button, classed, Icon, selectCol, Table2 } from '@oxide/ui'
+import { classed, Icon, selectCol, Table2 } from '@oxide/ui'
 import { StatusBadge } from '../../components/StatusBadge'
 import { timeAgoAbbr } from '../../util/date'
 import { usePagination, useToast } from '../../hooks'
@@ -151,7 +151,7 @@ const menuCol = {
 
 const PAGE_SIZE = 3
 
-const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text-gray-300 disabled:cursor-default`
+const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text-gray-200 disabled:cursor-default`
 
 export const InstancesTable = () => {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
@@ -181,21 +181,26 @@ export const InstancesTable = () => {
   return (
     <>
       <Table2 className="mt-4" table={table} />
-      <div className="mt-4 space-x-4 flex justify-between">
-        <span className="text-xs uppercase text-gray-200">
-          Rows per page: {PAGE_SIZE}
-        </span>
-        <span className="space-x-3 text-lg">
-          <PageButton onClick={goToPrevPage} disabled={!hasPrev}>
-            &#9664;
+      <div className="mt-4 flex justify-between text-gray-100">
+        <span className="text-xs uppercase">Rows per page: {PAGE_SIZE}</span>
+        <span className="space-x-3 text-lg leading-none">
+          <PageButton
+            onClick={goToPrevPage}
+            disabled={!hasPrev}
+            aria-label="Previous"
+          >
+            {/* filled triangle left, outline triangle left */}
+            {hasPrev ? '\u25C0' : '\u25C1'}
           </PageButton>
           <PageButton
             onClick={() =>
               instances.nextPage && goToNextPage(instances.nextPage)
             }
             disabled={!instances.nextPage}
+            aria-label="Next"
           >
-            &#9654;
+            {/* filled triangle right, outline triangle right */}
+            {instances.nextPage ? '\u25B6' : '\u25B7'}
           </PageButton>
         </span>
       </div>
