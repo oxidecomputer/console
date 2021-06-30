@@ -22,12 +22,7 @@ const COLORS: Record<ApiInstanceState, BadgeColor> = {
 }
 
 export const StatusBadge = ({ status, className, size }: Props) => (
-  <Badge
-    color={COLORS[status]}
-    variant="notification"
-    size={size}
-    className={className}
-  >
+  <Badge color={COLORS[status]} size={size} className={className}>
     {status}
   </Badge>
 )

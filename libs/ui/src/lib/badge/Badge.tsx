@@ -22,14 +22,14 @@ export interface BadgeProps {
 }
 
 const wrapper = {
-  sm: 'h-4 text-xxs',
+  sm: 'h-4 text-xs',
   base: 'h-6 text-xs',
   xl: 'h-8 text-sm',
 }
 
 const text = {
   sm: {
-    base: 'm-[5px]',
+    base: 'mx-[3px] mb-px',
     closable: 'ml-2 mr-1.5',
     notification: 'mx-1.5',
   },
@@ -58,11 +58,11 @@ const closeIcon = {
 }
 
 const colors = {
-  gray: 'bg-gray-400 text-white',
-  red: 'bg-red-900 text-red-500',
-  yellow: 'bg-yellow-900 text-yellow-500',
-  green: 'bg-green-900 text-green-500',
-  blue: 'bg-blue-900 text-blue-500',
+  gray: 'bg-gray-400 text-gray-50',
+  red: 'bg-red-500 text-black',
+  yellow: 'bg-yellow-500 text-black',
+  green: 'bg-green-500 text-black',
+  blue: 'bg-blue-500 text-black',
 }
 
 export const Badge = ({
@@ -75,7 +75,7 @@ export const Badge = ({
 }: BadgeProps) => (
   <span
     className={cn(
-      'inline-flex items-center rounded-full uppercase',
+      'inline-flex items-center rounded-px uppercase',
       colors[color],
       wrapper[size],
       className
