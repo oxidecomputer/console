@@ -1,5 +1,4 @@
 import { create } from '@storybook/theming'
-import { theme } from 'twin.macro'
 
 // Storybook Theme Options:
 // https://github.com/storybookjs/storybook/blob/next/lib/theming/src/types.ts
@@ -17,9 +16,9 @@ export const darkUI = create({
   brandUrl: 'https://console-ui-storybook.vercel.app/',
 
   // UI
-  appBg: theme`colors.black`,
-  appContentBg: theme`colors.black`,
-  appBorderColor: theme`colors.gray.400`,
+  appBg: '#0B1418',
+  appContentBg: '#0B1418',
+  appBorderColor: '#30373B',
   appBorderRadius: 4,
 
   // Typography

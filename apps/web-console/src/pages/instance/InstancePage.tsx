@@ -1,6 +1,5 @@
 import React from 'react'
 import { useParams, useHistory } from 'react-router-dom'
-import 'twin.macro'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
@@ -23,8 +22,13 @@ const InstanceAction = (props: {
   children: React.ReactNode
   onClick?: () => void
 }) => (
-  <Button size="xs" variant="dim" tw="inline-flex" onClick={props.onClick}>
-    <Icon name={props.icon} tw="mr-2" />
+  <Button
+    size="xs"
+    variant="dim"
+    className="inline-flex"
+    onClick={props.onClick}
+  >
+    <Icon name={props.icon} className="mr-2" />
     {props.children}
   </Button>
 )
@@ -142,7 +146,7 @@ const InstancePage = () => {
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="resources">{instance.name}</PageTitle>
-        <div tw="flex space-x-2">
+        <div className="flex space-x-2">
           <InstanceAction icon="pen">Edit</InstanceAction>
           <InstanceAction icon="stopwatch" onClick={handleReboot}>
             Reboot
@@ -154,7 +158,7 @@ const InstancePage = () => {
           <InstanceAction icon="trash" onClick={handleDelete}>
             Delete
           </InstanceAction>
-          <Button {...pageAction} tw="ml-4!">
+          <Button {...pageAction} className="!ml-4">
             SSH
           </Button>
           <Button {...pageAction}>
@@ -162,30 +166,30 @@ const InstancePage = () => {
           </Button>
         </div>
       </PageHeader>
-      <div tw="mt-3">
+      <div className="mt-3">
         <InstanceDetails instance={instance} />
       </div>
       <Tabs
-        tw="mt-4"
+        className="mt-4"
         fullWidth
         label="Instance Page"
         tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
       >
         <div>
           <div>
-            <div tw="flex flex-wrap">
+            <div className="flex flex-wrap">
               <Card
-                tw="mt-4 mr-4"
+                className="mt-4 mr-4"
                 title="Metrics"
                 subtitle="Some status update"
               />
               <Card
-                tw="mt-4 mr-4"
+                className="mt-4 mr-4"
                 title="Activity"
                 subtitle="Some status update"
               />
               <Card
-                tw="mt-4"
+                className="mt-4"
                 title="Access & IAM"
                 subtitle="Some status update"
               />

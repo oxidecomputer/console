@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
+import cn from 'classnames'
 
-import tw, { css, theme } from 'twin.macro'
 import { useSelect } from 'downshift'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -24,13 +24,6 @@ export interface DropdownProps {
   showLabel?: boolean
   size?: SizeType
 }
-
-const focusRing = css`
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 1px ${theme`colors.green.500`};
-  }
-`
 
 const FRAMER_VARIANTS = {
   open: {
@@ -74,15 +67,14 @@ export const Dropdown: FC<DropdownProps> = ({
     const highlighted = select.highlightedIndex === index
     return (
       <li
-        tw="py-2 px-4 text-sm text-gray-50 hocus:bg-gray-400"
+        className={cn(
+          'py-2 px-4 text-sm text-gray-50 hover:bg-gray-400 focus:bg-gray-400 focus:ring-1 focus:ring-green-500',
+          size === 'lg' && 'py-2.5',
+          highlighted && 'bg-gray-400'
+        )}
         key={option.value}
         value={option.value}
         {...select.getItemProps({ item: option, index })}
-        css={[
-          focusRing,
-          size === 'lg' && tw`py-2.5`,
-          highlighted && tw`bg-gray-400`,
-        ]}
       >
         {option.label}
       </li>
@@ -90,29 +82,28 @@ export const Dropdown: FC<DropdownProps> = ({
   })
 
   return (
-    <div tw="relative">
+    <div className="relative">
       <label
-        css={showLabel ? tw`text-white text-sm` : tw`sr-only`}
+        className={showLabel ? 'text-white text-sm' : 'sr-only'}
         {...select.getLabelProps()}
       >
         {label}
       </label>
       <button
-        tw="flex items-center justify-between mt-1 py-2 px-4 w-full
-            text-base text-white bg-gray-400 hover:bg-gray-400"
-        css={focusRing}
+        className={`flex items-center justify-between mt-1 py-2 px-4 w-full
+          text-base text-white bg-gray-400 hover:bg-gray-400
+          focus:ring-1 focus:ring-green-500`}
         type="button"
         {...select.getToggleButtonProps()}
         {...ariaProps}
       >
         {renderButtonText}
-        <Icon name="chevron" tw="ml-5 transform -rotate-90" />
+        <Icon name="chevron" className="ml-5 transform -rotate-90" />
       </button>
       <AnimatePresence>
         {select.isOpen && (
           <motion.ul
-            tw="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-400"
-            css={focusRing}
+            className="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
             variants={FRAMER_VARIANTS}
             initial={'closed'}
             animate={'open'}

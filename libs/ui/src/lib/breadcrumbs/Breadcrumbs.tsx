@@ -20,7 +20,7 @@ export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
             {label}
           </Link>
         ) : (
-          <span tw="text-gray-50">{label}</span>
+          <span className="text-gray-50">{label}</span>
         )}
       </li>
     ))}

@@ -1,11 +1,11 @@
 import type { KeyboardEvent, FC, EventHandler } from 'react'
 import React, { useState, useEffect, useMemo, createRef } from 'react'
 
-import tw from 'twin.macro'
 import { v4 as uuid } from 'uuid'
 
 import { Button } from '../button/Button'
 import { KEYS } from '../../util/keys'
+import cn from 'classnames'
 
 export interface TabsProps {
   className?: string
@@ -133,11 +133,11 @@ export const Tabs: FC<TabsProps> = ({
     return (
       <Button
         variant="ghost"
-        css={[
-          tw`border-0 border-b border-current hover:text-green-500`,
-          isSelected ? tw`text-green-500` : tw`text-white`,
-          fullWidth && tw`flex-1 not-last-of-type:mr-3`,
-        ]}
+        className={cn(
+          'border-0 border-b border-current hover:text-green-500',
+          isSelected ? '!text-green-500' : '!text-white',
+          fullWidth && 'flex-1'
+        )}
         aria-controls={`panel-${id}`}
         aria-selected={isSelected}
         fullWidth={fullWidth}
@@ -164,8 +164,7 @@ export const Tabs: FC<TabsProps> = ({
     const id = ids[index]
     return (
       <div
-        tw="overflow-auto"
-        css={!isVisible && tw`hidden`}
+        className={cn('overflow-auto', !isVisible && 'hidden')}
         key={`panel-${id}`}
         aria-hidden={!isVisible}
         aria-labelledby={`button-${id}`}
@@ -181,7 +180,7 @@ export const Tabs: FC<TabsProps> = ({
   return (
     <div className={className}>
       <div
-        tw="flex"
+        className={cn('flex', fullWidth && 'space-x-3')}
         role="tablist"
         aria-label={label}
         onBlur={() => {

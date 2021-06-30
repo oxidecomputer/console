@@ -1,6 +1,5 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import 'twin.macro'
 import { useHistory } from 'react-router-dom'
 
 import {
@@ -66,7 +65,7 @@ const ProjectCreatePage = () => {
       <PageHeader>
         <PageTitle icon="project">Create Project</PageTitle>
       </PageHeader>
-      <form action="#" onSubmit={handleSubmit} tw="mt-4 mb-20 space-y-8">
+      <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <TextInputGroup
           id="project-name"
           label="Choose a name"
@@ -87,7 +86,7 @@ const ProjectCreatePage = () => {
         <Button type="submit" fullWidth disabled={createProject.isLoading}>
           Create project
         </Button>
-        <div tw="text-red-500">
+        <div className="text-red-500">
           {getServerError(createProject.error, ERROR_CODES)}
         </div>
       </form>

@@ -44,7 +44,7 @@ export const Avatar = ({
   const avatar = src ? (
     <img src={src} alt={name} />
   ) : showInitials ? (
-    <abbr className="no-underline!" title={name}>
+    <abbr className="!no-underline" title={name}>
       {initials}
     </abbr>
   ) : (

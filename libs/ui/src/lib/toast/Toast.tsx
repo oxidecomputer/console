@@ -109,7 +109,7 @@ export interface ConfirmToastProps extends BaseToastProps {
 
 const SplitActions = classed.div`flex flex-col border-l border-gray-50`
 
-const SplitActionContainer = classed.div`flex flex-1 first-of-type:(border-b border-gray-50)`
+const SplitActionContainer = classed.div`flex flex-1 first-of-type:border-b first-of-type:border-gray-50`
 
 export const ConfirmToast = ({
   icon,
