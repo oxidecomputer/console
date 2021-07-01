@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 
 import { v4 as uuid } from 'uuid'
-import Sparkline from './sparkline.svg'
+import { ReactComponent as Sparkline } from './sparkline.svg'
 import cn from 'classnames'
 
 export interface CardProps {
