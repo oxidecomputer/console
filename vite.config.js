@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import svgr from 'vite-plugin-svgr'
 
-const root = process.cwd()
-
 // https://vitejs.dev/config/
 export default defineConfig({
   // TODO: add titleProp: true when svgr plugin supports it
@@ -11,10 +9,19 @@ export default defineConfig({
   plugins: [reactRefresh(), svgr()],
   resolve: {
     alias: {
-      '@oxide/ui': `${root}/libs/ui/src`,
-      '@oxide/css-helpers': `${root}/libs/css-helpers`,
-      '@oxide/api': `${root}/libs/api`,
-      '@oxide/api-mocks': `${root}/libs/api-mocks`,
+      '@oxide/ui': `${__dirname}/libs/ui/src`,
+      '@oxide/css-helpers': `${__dirname}/libs/css-helpers`,
+      '@oxide/api': `${__dirname}/libs/api`,
+      '@oxide/api-mocks': `${__dirname}/libs/api-mocks`,
+    },
+  },
+  server: {
+    port: 4000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:12220',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
   },
 })

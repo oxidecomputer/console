@@ -39,6 +39,8 @@ module.exports = async ({ config }) => {
             svgo: false,
           },
         },
+        // necessary for `import { ReactComponent }` (vite plugin default) to work
+        'url-loader',
       ],
     }
   )
