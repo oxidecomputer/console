@@ -4,6 +4,9 @@ import svgr from 'vite-plugin-svgr'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    sourcemap: 'inline',
+  },
   // TODO: add titleProp: true when svgr plugin supports it
   // https://github.com/pd4d10/vite-plugin-svgr/blob/83b07cb/src/index.ts#L6
   plugins: [reactRefresh(), svgr()],
