@@ -2,7 +2,7 @@
 
 Web client to the Oxide rack API.
 
-Tech: [TypeScript](https://www.typescriptlang.org/), [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com/overview)), [Webpack](https://webpack.js.org/), [Babel](https://babeljs.io/), [Emotion](https://emotion.sh), [Tailwind](https://tailwindcss.com/) (through [twin](https://github.com/ben-rogerson/twin.macro)). We use a TypeScript API wrapper [generated](tools/generate_api_client.sh) from the Nexus OpenAPI schema with [openapi-generator](https://openapi-generator.tech/). These choices are subject to change.
+Tech: [TypeScript](https://www.typescriptlang.org/), [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com)), [Webpack](https://webpack.js.org/), [Babel](https://babeljs.io/), [Tailwind](https://tailwindcss.com/). We use a TypeScript API wrapper [generated](tools/generate_api_client.sh) from the Nexus OpenAPI schema with [openapi-generator](https://openapi-generator.tech/).
 
 ## Relevant documents
 
