@@ -153,7 +153,7 @@ const PAGE_SIZE = 3
 
 const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text-gray-200 disabled:cursor-default`
 
-export const InstancesTable = () => {
+export const InstancesTable = ({ className }: { className?: string }) => {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
 
   const { projectName } = useParams<{ projectName: string }>()
@@ -175,12 +175,12 @@ export const InstancesTable = () => {
   // we're on the last page, so there's an empty page at the end we want to show
   // (until this is fixed)
   if (instances.items.length === 0 && !hasPrev) {
-    return <div className="mt-4">No instances yet</div>
+    return <div className={className}>No instances yet</div>
   }
 
   return (
-    <>
-      <Table className="mt-4" table={table} />
+    <div className={className}>
+      <Table table={table} />
       <div className="mt-4 flex justify-between text-gray-100">
         <span className="text-xs uppercase">Rows per page: {PAGE_SIZE}</span>
         <span className="space-x-3 text-lg leading-none">
@@ -204,6 +204,6 @@ export const InstancesTable = () => {
           </PageButton>
         </span>
       </div>
-    </>
+    </div>
   )
 }

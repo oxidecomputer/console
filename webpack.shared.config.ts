@@ -10,7 +10,7 @@ export default {
         use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
-        test: /\.(ttf|otf)$/i,
+        test: /\.(ttf|otf|woff|woff2)$/i,
         use: ['file-loader'],
       },
       {

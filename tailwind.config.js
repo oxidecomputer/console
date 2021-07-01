@@ -58,6 +58,7 @@ module.exports = {
       },
     },
     fontFamily: {
+      display: ['Haas Grot Disp Web', 'sans-serif'],
       sans: ['Inter', 'sans-serif'],
       mono: ['GT America Mono', 'monospace'],
     },
