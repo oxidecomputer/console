@@ -4,12 +4,15 @@ import svgr from '@svgr/core'
 import esbuild from 'esbuild'
 import fs from 'fs'
 
-const svgrPlugin = () => ({
+// based loosely on existing plugin: https://github.com/pd4d10/vite-plugin-svgr/
+// ours is shorter, supports passing svgr options, and allows `import Arrow`
+// instead of `import { ReactComponent as Arrow }`
+const svgrPlugin = (svgrOptions) => ({
   name: 'vite:svgr',
   async transform(_, id) {
     if (id.endsWith('.svg')) {
       const svg = fs.readFileSync(id, 'utf8')
-      const component = svgr.sync(svg)
+      const component = svgr.sync(svg, svgrOptions)
       const res = esbuild.transformSync(component, { loader: 'jsx' })
       return { code: res.code, map: null /* TODO */ }
     }
@@ -40,9 +43,7 @@ export default ({ mode }) => {
     define: {
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
     },
-    // TODO: add titleProp: true when svgr plugin supports it
-    // https://github.com/pd4d10/vite-plugin-svgr/blob/83b07cb/src/index.ts#L6
-    plugins: [reactRefresh(), svgrPlugin()],
+    plugins: [reactRefresh(), svgrPlugin({ titleProp: true })],
     resolve: {
       alias: {
         '@oxide/ui': resolve(__dirname, 'libs/ui/src'),
