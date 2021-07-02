@@ -27,8 +27,8 @@ const ProjectPage = () => {
         <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>
 
-      <InstancesTable />
-      <div className="mt-4 space-x-4">
+      <InstancesTable className="mb-12" />
+      <div className="space-x-4">
         <Link to={`/projects/${projectName}/instances/new`}>
           <Button>Create instance</Button>
         </Link>

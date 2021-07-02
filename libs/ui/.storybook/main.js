@@ -1,5 +1,4 @@
 const tsBaseConfig = require('../../../tsconfig.json')
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
   core: {
@@ -35,13 +34,5 @@ module.exports = {
         paths: tsBaseConfig.compilerOptions.paths,
       },
     },
-  },
-  managerWebpack: async (config) => {
-    const resolvePlugins = config.resolve.plugins || []
-    resolvePlugins.push(
-      new TsconfigPathsPlugin({ configFile: './tsconfig.json' })
-    )
-    config.resolve.plugins = resolvePlugins
-    return config
   },
 }
