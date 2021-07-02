@@ -4,7 +4,7 @@ import type { IconName } from './icon/icons'
 import { Icon } from './icon/Icon'
 import { classed } from '../util/classed'
 
-export const PageHeader = classed.header`flex items-center justify-between mt-3`
+export const PageHeader = classed.header`flex items-center justify-between mt-3 mb-10`
 
 interface Props {
   icon: IconName
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const PageTitle = ({ icon, children }: Props) => (
-  <h1 className="inline-flex text-4xl text-green-500 font-display tracking-wider font-light mb-10">
+  <h1 className="inline-flex text-4xl text-green-500 font-display tracking-wider font-light">
     <Icon className="!w-8 mr-3" name={icon} />
     {children}
   </h1>

@@ -46,3 +46,5 @@ export const Card = (props: CardProps) => {
     </article>
   )
 }
+
+export const SparklineSVG = Sparkline
