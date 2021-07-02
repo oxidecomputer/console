@@ -2,8 +2,8 @@ import type { FC } from 'react'
 import React from 'react'
 import cn from 'classnames'
 
-import { ReactComponent as EmptyStateLeft } from '../../assets/empty-state-left.svg'
-import { ReactComponent as EmptyStateRight } from '../../assets/empty-state-right.svg'
+import EmptyStateLeft from '../../assets/empty-state-left.svg'
+import EmptyStateRight from '../../assets/empty-state-right.svg'
 
 const decoration = 'z-0 absolute w-full max-w-[11rem] overflow-hidden'
 

@@ -6069,6 +6069,11 @@ es6-shim@^0.35.5:
   resolved "https://registry.yarnpkg.com/es6-shim/-/es6-shim-0.35.6.tgz#d10578301a83af2de58b9eadb7c2c9945f7388a0"
   integrity sha512-EmTr31wppcaIAgblChZiuN/l9Y7DPyw8Xtbg7fIVngn6zMW+IEBJDJngeKC3x6wr0V/vcA2wqeFnaw1bFJbDdA==
 
+esbuild@^0.12.14:
+  version "0.12.14"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.14.tgz#43157dbd0b36d939247d4eb4909a4886ac40f82e"
+  integrity sha512-z8p+6FGiplR7a3pPonXREbm+8IeXjBGvDpVidZmGB/AJMsJSfGCU+n7KOMCazA9AwvagadRWBhiKorC0w9WJvw==
+
 esbuild@^0.12.8:
   version "0.12.13"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.13.tgz#666e1e6c50dbde40c02824cc60296574ebd588c5"
@@ -12746,13 +12751,6 @@ vfile@^4.0.0:
     is-buffer "^2.0.0"
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
-
-vite-plugin-svgr@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/vite-plugin-svgr/-/vite-plugin-svgr-0.3.0.tgz#c81ac7541df98d361249f9ac06b901ae22744a1b"
-  integrity sha512-C3g+lbn0dsSL+QERO+WGXYv3qdc0Fwa4MC+Lk6hGM7wlvRXU7C1kzITjFkO+Zai8Cymrt+5uZYHJhxiQ96shtw==
-  dependencies:
-    "@svgr/core" "^5.5.0"
 
 vite@^2.3.3:
   version "2.3.8"

@@ -1,6 +1,20 @@
 import { resolve } from 'path'
 import reactRefresh from '@vitejs/plugin-react-refresh'
-import svgr from 'vite-plugin-svgr'
+import svgr from '@svgr/core'
+import esbuild from 'esbuild'
+import fs from 'fs'
+
+const svgrPlugin = () => ({
+  name: 'vite:svgr',
+  async transform(_, id) {
+    if (id.endsWith('.svg')) {
+      const svg = fs.readFileSync(id, 'utf8')
+      const component = svgr.sync(svg)
+      const res = esbuild.transformSync(component, { loader: 'jsx' })
+      return { code: res.code, map: null /* TODO */ }
+    }
+  },
+})
 
 // see https://vitejs.dev/config/
 
@@ -28,7 +42,7 @@ export default ({ mode }) => {
     },
     // TODO: add titleProp: true when svgr plugin supports it
     // https://github.com/pd4d10/vite-plugin-svgr/blob/83b07cb/src/index.ts#L6
-    plugins: [reactRefresh(), svgr()],
+    plugins: [reactRefresh(), svgrPlugin()],
     resolve: {
       alias: {
         '@oxide/ui': resolve(__dirname, 'libs/ui/src'),

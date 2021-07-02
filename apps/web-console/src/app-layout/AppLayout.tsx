@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { GlobalNav } from '../components/global-nav/GlobalNav'
 import { ProjectList } from '../components/project-list/ProjectList'
 import { OperationList } from '../components/operation-list/OperationList'
-import { ReactComponent as Wordmark } from '../assets/wordmark.svg'
+import Wordmark from '../assets/wordmark.svg'
 
 export default (props: { children: ReactNode }) => {
   const { data: projects } = useApiQuery('apiProjectsGet', {})
