@@ -32,7 +32,6 @@ export default ({ mode }) => {
     resolve: {
       alias: {
         '@oxide/ui': resolve(__dirname, 'libs/ui/src'),
-        '@oxide/css-helpers': resolve(__dirname, 'libs/css-helpers'),
         '@oxide/api': resolve(__dirname, 'libs/api'),
         '@oxide/api-mocks': resolve(__dirname, 'libs/api-mocks'),
       },
