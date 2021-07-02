@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import svgr from 'vite-plugin-svgr'
 
@@ -11,8 +12,16 @@ export default ({ mode }) => {
   }
 
   return {
+    root: './apps/web-console',
     build: {
+      outDir: resolve(__dirname, 'dist'),
       sourcemap: 'inline',
+      rollupOptions: {
+        input: {
+          main: resolve(__dirname, 'apps/web-console/index.html'),
+          docs: resolve(__dirname, 'apps/web-console/docs/index.html'),
+        },
+      },
     },
     define: {
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
@@ -22,10 +31,10 @@ export default ({ mode }) => {
     plugins: [reactRefresh(), svgr()],
     resolve: {
       alias: {
-        '@oxide/ui': `${__dirname}/libs/ui/src`,
-        '@oxide/css-helpers': `${__dirname}/libs/css-helpers`,
-        '@oxide/api': `${__dirname}/libs/api`,
-        '@oxide/api-mocks': `${__dirname}/libs/api-mocks`,
+        '@oxide/ui': resolve(__dirname, 'libs/ui/src'),
+        '@oxide/css-helpers': resolve(__dirname, 'libs/css-helpers'),
+        '@oxide/api': resolve(__dirname, 'libs/api'),
+        '@oxide/api-mocks': resolve(__dirname, 'libs/api-mocks'),
       },
     },
     server: {

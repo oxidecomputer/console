@@ -6,18 +6,19 @@ set -e # exit if anything fails
 # and it has been built with `cargo build`
 API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
+DOCS_DIR='apps/web-console/docs'
 
 cd ../omicron
 git fetch --all
 git checkout "$API_VERSION"
 
 cargo run --bin=nexus -- omicron-nexus/examples/config.toml --openapi \
-  > ../console/$GEN_DIR/nexus-openapi.json
+  > ../console/$DOCS_DIR/nexus-openapi.json
 
 cd ../console
 
 # prereq: brew install openapi-generator
-openapi-generator generate -i $GEN_DIR/nexus-openapi.json \
+openapi-generator generate -i $DOCS_DIR/nexus-openapi.json \
   -o $GEN_DIR \
   -g typescript-fetch \
   --additional-properties=typescriptThreePlus=true
