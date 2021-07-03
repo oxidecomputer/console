@@ -32,6 +32,7 @@ export default ({ mode }) => {
     root: './apps/web-console',
     build: {
       outDir: resolve(__dirname, 'dist'),
+      emptyOutDir: true,
       sourcemap: 'inline',
       rollupOptions: {
         input: {
