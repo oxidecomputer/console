@@ -12,7 +12,7 @@ export interface InstanceDetailsProps {
 const Cell = classed.span`before:content-['//'] before:mx-2 first:before:content-none`
 
 export const InstanceDetails = ({ instance }: InstanceDetailsProps) => (
-  <div className="text-sm flex items-center">
+  <div className="text-sm font-mono flex items-center">
     <StatusBadge className="mr-3" status={instance.runState} />
     <span>
       <Cell>{instance.ncpus} vCPU</Cell>

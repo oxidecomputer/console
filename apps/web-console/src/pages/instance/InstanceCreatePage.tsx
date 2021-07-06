@@ -18,7 +18,7 @@ import { useApiMutation } from '@oxide/api'
 import { useBreadcrumbs } from '../../hooks'
 import { getServerError } from '../../util/errors'
 
-const Heading = classed.h2`text-white text-lg mt-8 font-sans font-light first-of-type:mt-0`
+const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
 
 const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
 
@@ -237,7 +237,7 @@ const InstanceCreatePage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <PageTitle icon="instances">Create Instance</PageTitle>
+        <PageTitle icon="instances">Create a new instance</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <Heading>Choose an image</Heading>

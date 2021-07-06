@@ -63,7 +63,7 @@ const ProjectCreatePage = () => {
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
-        <PageTitle icon="project">Create Project</PageTitle>
+        <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <TextInputGroup

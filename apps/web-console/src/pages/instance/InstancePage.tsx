@@ -177,22 +177,10 @@ const InstancePage = () => {
       >
         <div>
           <div>
-            <div className="flex flex-wrap">
-              <Card
-                className="mt-4 mr-4"
-                title="Metrics"
-                subtitle="Some status update"
-              />
-              <Card
-                className="mt-4 mr-4"
-                title="Activity"
-                subtitle="Some status update"
-              />
-              <Card
-                className="mt-4"
-                title="Access & IAM"
-                subtitle="Some status update"
-              />
+            <div className="flex flex-wrap mt-4 gap-4">
+              <Card title="Metrics" subtitle="Some status update" />
+              <Card title="Activity" subtitle="Some status update" />
+              <Card title="Access & IAM" subtitle="Some status update" />
             </div>
           </div>
         </div>

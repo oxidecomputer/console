@@ -134,8 +134,8 @@ export const Tabs: FC<TabsProps> = ({
       <Button
         variant="ghost"
         className={cn(
-          'border-0 border-b border-current hover:text-green-500',
-          isSelected ? '!text-green-500' : '!text-white',
+          'border-0 border-b border-current hover:!text-green-500',
+          isSelected ? '!text-green-500' : '!text-gray-200',
           fullWidth && 'flex-1'
         )}
         aria-controls={`panel-${id}`}

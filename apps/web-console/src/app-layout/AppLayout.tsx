@@ -21,10 +21,11 @@ export default (props: { children: ReactNode }) => {
       <header className="py-4 px-6 self-center">
         <GlobalNav />
       </header>
-      <div className="px-3 pb-6 overflow-auto text-gray-100 bg-gray-500">
+      <div className="pb-6 overflow-auto bg-gray-500">
         {/* TODO: this causes pop-in when the request comes back */}
-        <ProjectList className="mt-1" projects={projects?.items || []} />
-        <OperationList className="mt-6" />
+        <ProjectList className="mt-4 px-3" projects={projects?.items || []} />
+        <hr className="border-gray-400 mt-6" />
+        <OperationList className="mt-6 px-3" />
       </div>
       <main className="overflow-auto py-2 px-6">{props.children}</main>
     </div>

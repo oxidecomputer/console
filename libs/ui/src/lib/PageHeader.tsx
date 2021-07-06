@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const PageTitle = ({ icon, children }: Props) => (
-  <h1 className="inline-flex text-green-500 text-display-2xl">
+  <h1 className="inline-flex items-center text-green-500 text-display-2xl">
     <Icon className="!w-8 mr-3" name={icon} />
     {children}
   </h1>
