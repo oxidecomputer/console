@@ -55,10 +55,7 @@ const ProjectsPage = () => {
           >
             <section className="p-4">
               <header className="mb-12">
-                <Link
-                  to={`/projects/${item.name}`}
-                  className="font-display font-light tracking-wide text-2xl"
-                >
+                <Link to={`/projects/${item.name}`} className="font-display-xl">
                   {item.name}
                 </Link>
               </header>

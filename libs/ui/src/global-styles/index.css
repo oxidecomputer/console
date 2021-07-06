@@ -26,3 +26,20 @@
     vertical-align: baseline;
   }
 }
+
+@layer utilities {
+  .font-display-lg {
+    @apply font-display tracking-wider font-light;
+    font-size: 1.25rem;
+  }
+
+  .font-display-xl {
+    @apply font-display tracking-wider font-light;
+    font-size: 1.625rem;
+  }
+
+  .font-display-2xl {
+    @apply font-display tracking-wider font-light;
+    font-size: 2.625rem;
+  }
+}
