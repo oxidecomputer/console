@@ -4,14 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-black text-gray-50 font-normal;
-  }
-
-  /* TW Preflight overrides w/ links to the lines they're overriding */
-
-  /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
-  html {
-    line-height: 1;
+    @apply bg-black text-gray-50;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
@@ -29,17 +22,17 @@
 
 @layer utilities {
   .text-display-lg {
-    @apply font-display tracking-wider font-light;
+    @apply font-display tracking-wider font-light leading-none;
     font-size: 1.25rem;
   }
 
   .text-display-xl {
-    @apply font-display tracking-wider font-light;
+    @apply font-display tracking-wider font-light leading-none;
     font-size: 1.625rem;
   }
 
   .text-display-2xl {
-    @apply font-display tracking-wider font-light;
+    @apply font-display tracking-wider font-light leading-none;
     font-size: 2.625rem;
   }
 }

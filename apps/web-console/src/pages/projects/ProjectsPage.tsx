@@ -38,10 +38,10 @@ const ProjectsPage = () => {
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="projects">Projects</PageTitle>
-        <div>
+        <div className="flex items-center">
           {/* TODO: this is supposed to be a link */}
           <Button variant="ghost">New Project</Button>
-          <button className="p-3">
+          <button className="p-3 flex items-center">
             <Icon name="more" className="text-base text-green-500 mr-4" />
           </button>
         </div>

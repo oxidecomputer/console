@@ -17,7 +17,7 @@ export const Table = <D extends object>({ className, table }: Props<D>) => (
   <table
     // TODO: turns out rounded corners on a table requires border-collapse separate,
     // which requires further shenanigans to get the borders to behave
-    className={cn('w-full border border-gray-400 text-xs', className)}
+    className={cn('w-full border border-gray-400 text-xs font-mono', className)}
     {...table.getTableProps()}
   >
     <thead className="h-[40px] bg-gray-500 border-b border-gray-400">

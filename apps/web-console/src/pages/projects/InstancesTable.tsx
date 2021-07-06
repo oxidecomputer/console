@@ -181,7 +181,7 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <Table table={table} />
-      <div className="mt-4 flex justify-between text-gray-100">
+      <div className="mt-4 flex justify-between font-mono text-gray-100">
         <span className="text-xs uppercase">Rows per page: {PAGE_SIZE}</span>
         <span className="space-x-3 text-lg leading-none">
           <PageButton
