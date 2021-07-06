@@ -95,15 +95,6 @@
 
 @font-face {
   font-family: 'Haas Grot Disp Web';
-  src: url('../assets/fonts/NeueHaasGrotDisp-55Roman-Web.woff2') format('woff2'),
-    url('../assets/fonts/NeueHaasGrotDisp-55Roman-Web.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-stretch: normal;
-}
-
-@font-face {
-  font-family: 'Haas Grot Disp Web';
   src: url('../assets/fonts/NeueHaasGrotDisp-45Light-Web.woff2') format('woff2'),
     url('../assets/fonts/NeueHaasGrotDisp-45Light-Web.woff') format('woff');
   font-weight: 400;
