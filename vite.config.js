@@ -53,6 +53,9 @@ export default ({ mode }) => {
       },
     },
     server: {
+      fs: {
+        strict: true,
+      },
       port: 4000,
       proxy: {
         '/api': {
