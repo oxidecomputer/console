@@ -8,7 +8,7 @@ export interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
-  <ol className="text-xs font-mono uppercase tracking-wider mb-6">
+  <ol className="text-xs font-mono uppercase mb-6">
     {data.map(({ href, label }) => (
       <li
         className="inline-block first-of-type:before:content-none 

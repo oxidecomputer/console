@@ -24,10 +24,10 @@ const ListItem = ({ label, icon, href = '#', children }: ItemProps) => (
 
 export const OperationList = (props: { className?: string }) => (
   <nav className={props.className}>
-    <header className="p-1 text-xs text-green-500 uppercase font-mono tracking-wider">
+    <header className="p-1 text-xs text-green-500 uppercase font-mono">
       Operations
     </header>
-    <ul className="mt-2 space-y-1 text-sm tracking-wide text-gray-100">
+    <ul className="mt-2 space-y-1 text-sm text-gray-100">
       <ListItem label="System" icon="dashboard" />
       <ListItem label="Resources" icon="resources" />
       <ListItem label="Organizations" icon="organization" />

@@ -75,7 +75,7 @@ export const Badge = ({
 }: BadgeProps) => (
   <span
     className={cn(
-      'inline-flex items-center rounded-px uppercase font-mono tracking-wider',
+      'inline-flex items-center rounded-px uppercase font-mono',
       colors[color],
       wrapper[size],
       className

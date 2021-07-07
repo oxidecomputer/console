@@ -15,7 +15,7 @@ import {
 
 const Metric = (props: { label: string; value: string }) => (
   <div>
-    <div className="text-gray-200 text-xs font-mono tracking-wider uppercase mb-4">
+    <div className="text-gray-200 text-xs font-mono uppercase mb-4">
       {props.label}
     </div>
     <div className="flex no-wrap">

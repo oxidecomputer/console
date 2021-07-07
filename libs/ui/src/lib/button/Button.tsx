@@ -33,7 +33,7 @@ const variantStyle: Record<Variant, string> = {
 }
 
 const baseStyle = `
-  border rounded-px uppercase font-mono tracking-wide
+  border rounded-px uppercase font-mono
   inline-flex items-center justify-center align-top
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-green-700

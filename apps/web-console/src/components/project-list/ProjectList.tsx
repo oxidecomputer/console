@@ -13,7 +13,7 @@ export interface ProjectListProps {
 
 export const ProjectList = (props: ProjectListProps) => (
   <section className={cn('space-y-2', props.className)}>
-    <header className="p-1 space-x-2 uppercase text-xs font-mono tracking-wider text-green-500">
+    <header className="p-1 space-x-2 uppercase text-xs font-mono text-green-500">
       Projects
     </header>
     <ul className="flex flex-col space-y-1 text-gray-200">
@@ -31,7 +31,7 @@ export const ProjectList = (props: ProjectListProps) => (
     </ul>
     <footer className="p-1 flex">
       <Link
-        className="text-xs inline-flex uppercase text-gray-100 font-mono tracking-wider"
+        className="text-xs inline-flex uppercase text-gray-100 font-mono"
         to="/projects/new"
       >
         <Icon className="text-sm mr-1" name="plus" />

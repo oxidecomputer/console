@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-black text-gray-50;
+    @apply bg-black text-gray-50 font-sans;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
@@ -21,18 +21,32 @@
 }
 
 @layer utilities {
+  .font-mono {
+    letter-spacing: 0.04em;
+  }
+
+  .font-sans {
+    letter-spacing: 0.02em;
+  }
+
   .text-display-lg {
-    @apply font-display tracking-wider font-light leading-none;
+    @apply font-display font-light;
     font-size: 1.25rem;
+    letter-spacing: 0.04em;
+    line-height: 1;
   }
 
   .text-display-xl {
-    @apply font-display tracking-wider font-light leading-none;
+    @apply font-display font-light;
     font-size: 1.625rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
   }
 
   .text-display-2xl {
-    @apply font-display tracking-wider font-light leading-none;
+    @apply font-display font-light;
     font-size: 2.625rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
   }
 }
