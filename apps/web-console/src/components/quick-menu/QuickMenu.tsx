@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 import { Dialog } from '@reach/dialog'
 import {
   Combobox,
@@ -16,7 +16,37 @@ import { useKey } from '../../hooks'
 // TODO: things reach combobox doesn't seem to let me do
 // (see cmd+k menu on tailwindcss.com for example)
 // - start with popover open
-// - always have an element highlights so enter always takes you somewhere
+// - auto-highlight first option (https://github.com/reach/reach-ui/issues/766)
+
+// TODO: shouldn't show a given link when you're already on that page. values
+// will have to have more structure, like some kind of showWhen function
+const globalPaths: Record<string, string> = {
+  'Create project': '/projects/new',
+}
+
+const projectPaths: Record<string, (s: string) => string> = {
+  'Create instance': (projectName) => `/projects/${projectName}/instances/new`,
+  'Project instances': (projectName) => `/projects/${projectName}/instances`,
+}
+
+function useProjectName(): string | null {
+  const match = useRouteMatch<{ projectName: string }>('/projects/:projectName')
+  return match && match.params.projectName !== 'new'
+    ? match.params.projectName
+    : null
+}
+
+// not in use yet but this is how it will work
+// eslint-disable-next-line
+function useInstanceName(): string | null {
+  const match = useRouteMatch<{
+    projectName: string
+    instanceName: string
+  }>('/projects/:projectName/instances/:instanceName')
+  return match && match.params.instanceName !== 'new'
+    ? match.params.instanceName
+    : null
+}
 
 export default () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -32,13 +62,28 @@ export default () => {
   }
 
   const { data: projects } = useApiQuery('apiProjectsGet', {})
-  const values = projects?.items.map((p) => p.name) || []
+  const projectNames = projects?.items.map((p) => p.name) || []
+  let values = [...projectNames, ...Object.keys(globalPaths)]
+
+  // if in context of a particular project, include project-specific paths
+  const projectName = useProjectName()
+  if (projectName) {
+    // TODO: add list of instances
+    values = [...Object.keys(projectPaths), ...values]
+  }
 
   const history = useHistory()
   const goToProject = (value: string) => {
-    history.push(`/projects/${value}`)
+    let path = ''
+    if (projectName && value in projectPaths) {
+      path = projectPaths[value](projectName)
+    } else {
+      path = globalPaths[value] || `/projects/${value}`
+    }
+    history.push(path)
     reset()
   }
+
   return (
     <Dialog
       className="QuickMenu !bg-gray-500 !p-4 !w-1/3 !mt-[20vh] border border-gray-400 rounded-px"

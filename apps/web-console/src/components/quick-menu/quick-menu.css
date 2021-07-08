@@ -7,6 +7,7 @@
   & [data-user-value] {
     text-decoration: underline;
   }
+
   /* the unmatching segments */
   & [data-suggested-value] {
     @apply font-light;
