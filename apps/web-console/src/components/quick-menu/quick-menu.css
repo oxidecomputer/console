@@ -1,0 +1,14 @@
+.QuickMenu {
+  & [data-reach-combobox-option][data-highlighted] {
+    @apply bg-gray-500 !border-green-500;
+  }
+
+  /* the matching segments of text */
+  & [data-user-value] {
+    text-decoration: underline;
+  }
+  /* the unmatching segments */
+  & [data-suggested-value] {
+    @apply font-light;
+  }
+}

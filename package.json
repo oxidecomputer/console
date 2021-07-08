@@ -18,6 +18,7 @@
   "private": true,
   "dependencies": {
     "@popperjs/core": "^2.9.2",
+    "@reach/combobox": "^0.15.2",
     "@reach/dialog": "^0.15.2",
     "@reach/menu-button": "^0.15.2",
     "classnames": "^2.3.1",

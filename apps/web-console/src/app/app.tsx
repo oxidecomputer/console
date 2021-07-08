@@ -13,7 +13,7 @@ import ProjectAccessPage from '../pages/projects/ProjectAccessPage'
 import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
 import ProjectsPage from '../pages/projects/ProjectsPage'
 import ToastTestPage from '../pages/ToastTestPage'
-import QuickMenu from '../components/QuickMenu'
+import QuickMenu from '../components/quick-menu/QuickMenu'
 
 const App = () => {
   return (
