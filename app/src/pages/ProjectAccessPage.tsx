@@ -15,8 +15,8 @@ import {
   Table,
 } from '@oxide/ui'
 import { useBreadcrumbs } from '../hooks'
-import type { User } from './mock-users'
-import { users } from './mock-users'
+import type { User } from '@oxide/api-mocks'
+import { users } from '@oxide/api-mocks'
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
