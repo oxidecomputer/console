@@ -27,6 +27,7 @@ const globalPaths: Record<string, string> = {
 const projectPaths: Record<string, (s: string) => string> = {
   'Create instance': (projectName) => `/projects/${projectName}/instances/new`,
   'Project instances': (projectName) => `/projects/${projectName}/instances`,
+  'Project access': (projectName) => `/projects/${projectName}/access`,
 }
 
 function useProjectName(): string | null {

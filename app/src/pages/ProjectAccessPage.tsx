@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { Row } from 'react-table'
 import { useTable, useRowSelect } from 'react-table'
+import { Dialog } from '@reach/dialog'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import {
   Avatar,
   Breadcrumbs,
+  Button,
   Icon,
   PageHeader,
   PageTitle,
@@ -105,6 +107,9 @@ const ProjectPage = () => {
     hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
   })
 
+  const [modalIsOpen, setModalIsOpen] = useState(false)
+  const closeModal = () => setModalIsOpen(false)
+
   return (
     <>
       <Breadcrumbs data={breadcrumbs} />
@@ -112,6 +117,50 @@ const ProjectPage = () => {
         <PageTitle icon="users">Access &amp; IAM</PageTitle>
       </PageHeader>
 
+      <Dialog
+        className="absolute right-0 top-0 bottom-0 !bg-gray-500 !w-[32rem] !p-0 !m-0 border-l border-gray-400 rounded-px flex flex-col justify-between"
+        isOpen={modalIsOpen}
+        onDismiss={closeModal}
+        aria-label="Add user"
+      >
+        {/* this div is so we can use justify-between to get the footer to sit at the bottom */}
+        <div>
+          <div className="p-8">
+            <div className="flex justify-between mt-2 mb-14">
+              <h2 className="text-display-xl">Manage project access</h2>
+              <Button variant="link" onClick={closeModal}>
+                <Icon name="close" />
+              </Button>
+            </div>
+            <h3 className="font-medium">Choose members</h3>
+            <h3 className="font-medium">Select roles</h3>
+          </div>
+          <hr className="border-gray-400" />
+          <div className="p-8">
+            <h3 className="font-medium">Relevant docs</h3>
+          </div>
+        </div>
+        <footer className="p-6 border-t border-gray-400 flex justify-end">
+          {/* TODO: not supposed to be a ghost button */}
+          <Button variant="ghost" className="mr-2.5" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button>Update access</Button>
+        </footer>
+      </Dialog>
+
+      <div className="flex justify-end">
+        {/* TODO: not supposed to be dim buttons */}
+        <Button variant="dim">
+          <Icon name="search" />
+        </Button>
+        <Button variant="dim">
+          <Icon name="filter" />
+        </Button>
+        <Button onClick={() => setModalIsOpen(true)}>
+          Add <Icon name="plus" className="!w-4 ml-1" />
+        </Button>
+      </div>
       <Table className="mt-4" table={table} />
     </>
   )
