@@ -17,7 +17,6 @@ import { useKey } from '../hooks'
 // (see cmd+k menu on tailwindcss.com for example)
 // - start with popover open
 // - auto-highlight first option (https://github.com/reach/reach-ui/issues/766)
-// - don't want the value in the input to update as you cycle through options
 
 // TODO: shouldn't show a given link when you're already on that page. values
 // will have to have more structure, like some kind of showWhen function
@@ -95,6 +94,7 @@ export default () => {
     >
       <Combobox aria-label="Quick actions" onSelect={goToProject}>
         <ComboboxInput
+          autocomplete={false}
           className="mousetrap !bg-gray-500 border-none focus:outline-none"
           value={input}
           onChange={(e) => setInput(e.target.value)}
