@@ -9,7 +9,7 @@ import { OperationList } from './OperationList'
 import Wordmark from '../assets/wordmark.svg'
 
 export default (props: { children: ReactNode }) => {
-  const { data: projects } = useApiQuery('apiProjectsGet', {})
+  const { data: projects } = useApiQuery('projectsGet', {})
 
   return (
     <div className="grid h-screen grid-cols-[14rem,auto] grid-rows-[3.5rem,auto]">

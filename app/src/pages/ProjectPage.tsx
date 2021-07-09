@@ -14,7 +14,7 @@ const ProjectPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
   const { projectName } = useParams<Params>()
-  const { data: project } = useApiQuery('apiProjectsGetProject', {
+  const { data: project } = useApiQuery('projectsGetProject', {
     projectName,
   })
 

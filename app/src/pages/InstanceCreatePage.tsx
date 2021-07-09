@@ -187,7 +187,7 @@ const InstanceCreatePage = () => {
     return params
   }
 
-  const createInstance = useApiMutation('apiProjectInstancesPost', {
+  const createInstance = useApiMutation('projectInstancesPost', {
     onSuccess: () => {
       history.push(`/projects/${projectName}`)
     },

@@ -29,7 +29,7 @@ const Metric = (props: { label: string; value: string }) => (
 
 const ProjectsPage = () => {
   const breadcrumbs = useBreadcrumbs()
-  const { data } = useApiQuery('apiProjectsGet', {})
+  const { data } = useApiQuery('projectsGet', {})
 
   if (!data) return <div>loading</div>
 

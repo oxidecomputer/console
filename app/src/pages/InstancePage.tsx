@@ -51,7 +51,7 @@ const InstancePage = () => {
     error,
     refetch,
   } = useApiQuery(
-    'apiProjectInstancesGetInstance',
+    'projectInstancesGetInstance',
     {
       instanceName,
       projectName,
@@ -59,7 +59,7 @@ const InstancePage = () => {
     { refetchInterval: 5000 }
   )
 
-  const stopInstance = useApiMutation('apiProjectInstancesInstanceStop', {
+  const stopInstance = useApiMutation('projectInstancesInstanceStop', {
     onSuccess: () => {
       refetch()
       addToast({
@@ -70,7 +70,7 @@ const InstancePage = () => {
     },
   })
 
-  const deleteInstance = useApiMutation('apiProjectInstancesDeleteInstance', {
+  const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
     onSuccess: () => {
       addToast({
         type: 'default',
@@ -81,7 +81,7 @@ const InstancePage = () => {
     },
   })
 
-  const rebootInstance = useApiMutation('apiProjectInstancesInstanceReboot', {
+  const rebootInstance = useApiMutation('projectInstancesInstanceReboot', {
     onSuccess: () => {
       refetch()
     },

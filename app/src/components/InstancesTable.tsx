@@ -78,7 +78,7 @@ const menuCol = {
     const addToast = useToast()
     const queryClient = useApiQueryClient()
     const refetch = () =>
-      queryClient.invalidateQueries('apiProjectInstancesGet', { projectName })
+      queryClient.invalidateQueries('projectInstancesGet', { projectName })
 
     const instance = row.original
     const instanceName = instance.name
@@ -89,7 +89,7 @@ const menuCol = {
     // reason not to do that would be if the success callbacks need to be
     // different at each callsite. The resulting API would be worse than calling
     // the hooks individually
-    const stopInstance = useApiMutation('apiProjectInstancesInstanceStop', {
+    const stopInstance = useApiMutation('projectInstancesInstanceStop', {
       onSuccess: () => {
         refetch()
         addToast({
@@ -100,11 +100,11 @@ const menuCol = {
       },
     })
 
-    const rebootInstance = useApiMutation('apiProjectInstancesInstanceReboot', {
+    const rebootInstance = useApiMutation('projectInstancesInstanceReboot', {
       onSuccess: refetch,
     })
 
-    const deleteInstance = useApiMutation('apiProjectInstancesDeleteInstance', {
+    const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
       onSuccess: () => {
         refetch()
         addToast({
@@ -158,7 +158,7 @@ export const InstancesTable = ({ className }: { className?: string }) => {
 
   const { projectName } = useParams<{ projectName: string }>()
   const { data: instances } = useApiQuery(
-    'apiProjectInstancesGet',
+    'projectInstancesGet',
     { projectName, pageToken: currentPage, limit: PAGE_SIZE },
     { refetchInterval: 5000, keepPreviousData: true }
   )
