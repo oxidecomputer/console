@@ -6,7 +6,7 @@ set -e # exit if anything fails
 # and it has been built with `cargo build`
 API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
-DOCS_DIR='apps/web-console/docs'
+DOCS_DIR='app/docs'
 
 cd ../omicron
 git fetch --all

@@ -29,15 +29,15 @@ export default ({ mode }) => {
   }
 
   return {
-    root: './apps/web-console',
+    root: './app',
     build: {
       outDir: resolve(__dirname, 'dist'),
       emptyOutDir: true,
       sourcemap: 'inline',
       rollupOptions: {
         input: {
-          main: resolve(__dirname, 'apps/web-console/index.html'),
-          docs: resolve(__dirname, 'apps/web-console/docs/index.html'),
+          main: resolve(__dirname, 'app/index.html'),
+          docs: resolve(__dirname, 'app/docs/index.html'),
         },
       },
     },
