@@ -40,7 +40,6 @@ export default ({ mode }) => {
           docs: resolve(__dirname, 'app/docs/index.html'),
         },
       },
-      minify: false,
     },
     define: {
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
