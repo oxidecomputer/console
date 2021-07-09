@@ -1,19 +1,21 @@
 import React from 'react'
-import AppLayout from '../app-layout/AppLayout'
 import {
   BrowserRouter as Router,
   Redirect,
   Route,
   Switch,
 } from 'react-router-dom'
-import InstancePage from '../pages/instance/InstancePage'
-import InstanceCreatePage from '../pages/instance/InstanceCreatePage'
-import ProjectPage from '../pages/projects/ProjectPage'
-import ProjectAccessPage from '../pages/projects/ProjectAccessPage'
-import ProjectCreatePage from '../pages/projects/ProjectCreatePage'
-import ProjectsPage from '../pages/projects/ProjectsPage'
-import ToastTestPage from '../pages/ToastTestPage'
-import QuickMenu from '../components/quick-menu/QuickMenu'
+
+import InstancePage from './pages/InstancePage'
+import InstanceCreatePage from './pages/InstanceCreatePage'
+import ProjectPage from './pages/ProjectPage'
+import ProjectAccessPage from './pages/ProjectAccessPage'
+import ProjectCreatePage from './pages/ProjectCreatePage'
+import ProjectsPage from './pages/ProjectsPage'
+import ToastTestPage from './pages/ToastTestPage'
+
+import AppLayout from './components/AppLayout'
+import QuickMenu from './components/QuickMenu'
 
 const App = () => {
   return (

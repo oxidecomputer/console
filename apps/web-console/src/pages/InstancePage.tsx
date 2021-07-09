@@ -14,8 +14,8 @@ import {
   Tabs,
 } from '@oxide/ui'
 
-import { InstanceDetails } from '../../components/instance-details/InstanceDetails'
-import { useBreadcrumbs, useToast } from '../../hooks'
+import { InstanceDetails } from '../components/InstanceDetails'
+import { useBreadcrumbs, useToast } from '../hooks'
 
 const InstanceAction = (props: {
   icon: IconName

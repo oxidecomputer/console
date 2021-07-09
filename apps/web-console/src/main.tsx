@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
-import App from './app/app'
+import App from './app'
 import { ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({

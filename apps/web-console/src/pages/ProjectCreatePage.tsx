@@ -10,8 +10,8 @@ import {
   TextInputGroup,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useBreadcrumbs, useToast } from '../../hooks'
-import { getServerError } from '../../util/errors'
+import { useBreadcrumbs, useToast } from '../hooks'
+import { getServerError } from '../util/errors'
 
 const ERROR_CODES = {
   ObjectAlreadyExists:

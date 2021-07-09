@@ -12,7 +12,7 @@ import {
   selectCol,
   Table,
 } from '@oxide/ui'
-import { useBreadcrumbs } from '../../hooks'
+import { useBreadcrumbs } from '../hooks'
 import type { User } from './mock-users'
 import { users } from './mock-users'
 

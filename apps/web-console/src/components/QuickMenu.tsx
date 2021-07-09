@@ -11,7 +11,7 @@ import {
 
 import { useApiQuery } from '@oxide/api'
 import './quick-menu.css'
-import { useKey } from '../../hooks'
+import { useKey } from '../hooks'
 
 // TODO: things reach combobox doesn't seem to let me do
 // (see cmd+k menu on tailwindcss.com for example)

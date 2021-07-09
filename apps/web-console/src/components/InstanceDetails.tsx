@@ -3,7 +3,7 @@ import filesize from 'filesize'
 
 import type { ApiInstanceView } from '@oxide/api'
 import { Icon, classed } from '@oxide/ui'
-import { StatusBadge } from '../StatusBadge'
+import { StatusBadge } from './StatusBadge'
 
 export interface InstanceDetailsProps {
   instance: ApiInstanceView

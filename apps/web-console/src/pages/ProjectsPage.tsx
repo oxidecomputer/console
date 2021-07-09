@@ -3,7 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { useBreadcrumbs } from '../../hooks'
+import { useBreadcrumbs } from '../hooks'
 import {
   Breadcrumbs,
   Button,

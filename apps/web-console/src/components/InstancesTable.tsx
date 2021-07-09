@@ -13,9 +13,9 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import { classed, Icon, selectCol, Table } from '@oxide/ui'
-import { StatusBadge } from '../../components/StatusBadge'
-import { timeAgoAbbr } from '../../util/date'
-import { usePagination, useToast } from '../../hooks'
+import { StatusBadge } from './StatusBadge'
+import { timeAgoAbbr } from '../util/date'
+import { usePagination, useToast } from '../hooks'
 
 const COLUMNS = [
   {

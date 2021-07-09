@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '../test-utils'
+import { render } from './test-utils'
 import fetchMock from 'fetch-mock'
 
 import { projects } from '@oxide/api-mocks'

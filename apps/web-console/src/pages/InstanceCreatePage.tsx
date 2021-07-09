@@ -15,8 +15,8 @@ import {
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { useBreadcrumbs } from '../../hooks'
-import { getServerError } from '../../util/errors'
+import { useBreadcrumbs } from '../hooks'
+import { getServerError } from '../util/errors'
 
 const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
 

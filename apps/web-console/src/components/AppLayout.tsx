@@ -3,9 +3,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { GlobalNav } from '../components/global-nav/GlobalNav'
-import { ProjectList } from '../components/project-list/ProjectList'
-import { OperationList } from '../components/operation-list/OperationList'
+import { GlobalNav } from './GlobalNav'
+import { ProjectList } from './ProjectList'
+import { OperationList } from './OperationList'
 import Wordmark from '../assets/wordmark.svg'
 
 export default (props: { children: ReactNode }) => {
@@ -23,6 +23,8 @@ export default (props: { children: ReactNode }) => {
       </header>
       <div className="pb-6 overflow-auto bg-gray-500">
         {/* TODO: this causes pop-in when the request comes back */}
+
+        {/* move projects fetch inside project list, why is it here */}
         <ProjectList className="mt-4 px-3" projects={projects?.items || []} />
         <hr className="border-gray-400 mt-6" />
         <OperationList className="mt-6 px-3" />

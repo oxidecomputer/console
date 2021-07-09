@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
-import { InstancesTable } from './InstancesTable'
-import { useBreadcrumbs } from '../../hooks'
+import { InstancesTable } from '../components/InstancesTable'
+import { useBreadcrumbs } from '../hooks'
 
 type Params = {
   projectName: string
