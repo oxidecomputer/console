@@ -3,6 +3,6 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "firsttris.vscode-jest-runner",
-    "lightyen.tailwindcss-intellisense-twin"
+    "bradlc.vscode-tailwindcss"
   ]
 }
