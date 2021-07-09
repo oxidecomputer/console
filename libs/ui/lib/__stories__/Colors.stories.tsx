@@ -1,6 +1,6 @@
 import React from 'react'
 // @ts-ignore
-import twConfig from '../../../../../tailwind.config'
+import twConfig from '../../../../tailwind.config'
 
 interface ColorProps {
   name?: string

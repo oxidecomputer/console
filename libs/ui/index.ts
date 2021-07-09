@@ -1,6 +1,6 @@
 export type { IconName } from './lib/icon/icons'
 
-import './global-styles'
+import './styles'
 
 export * from './lib/avatar/Avatar'
 export * from './lib/badge/Badge'

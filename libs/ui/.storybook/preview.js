@@ -2,7 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { darkUI } from './theme'
-import '@oxide/ui' // simple way to import CSS
+import '../styles'
 import './docs-style-overrides.css'
 
 // Global Parameters

@@ -47,7 +47,7 @@ export default ({ mode }) => {
     plugins: [reactRefresh(), svgrPlugin({ titleProp: true })],
     resolve: {
       alias: {
-        '@oxide/ui': resolve(__dirname, 'libs/ui/src'),
+        '@oxide/ui': resolve(__dirname, 'libs/ui'),
         '@oxide/api': resolve(__dirname, 'libs/api'),
         '@oxide/api-mocks': resolve(__dirname, 'libs/api-mocks'),
       },
