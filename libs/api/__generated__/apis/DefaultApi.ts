@@ -76,138 +76,138 @@ import {
   ApiSledViewResultsPageToJSON,
 } from '../models'
 
-export interface ApiHardwareRacksGetRequest {
+export interface HardwareRacksGetRequest {
   limit?: number
   pageToken?: string
   sortBy?: ApiIdSortMode
 }
 
-export interface ApiHardwareRacksGetRackRequest {
+export interface HardwareRacksGetRackRequest {
   rackId: string
 }
 
-export interface ApiHardwareSledsGetRequest {
+export interface HardwareSledsGetRequest {
   limit?: number
   pageToken?: string
   sortBy?: ApiIdSortMode
 }
 
-export interface ApiHardwareSledsGetSledRequest {
+export interface HardwareSledsGetSledRequest {
   sledId: string
 }
 
-export interface ApiInstanceDisksDeleteDiskRequest {
+export interface InstanceDisksDeleteDiskRequest {
   diskName: string
   instanceName: string
   projectName: string
 }
 
-export interface ApiInstanceDisksGetRequest {
+export interface InstanceDisksGetRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiInstanceDisksGetDiskRequest {
+export interface InstanceDisksGetDiskRequest {
   diskName: string
   instanceName: string
   projectName: string
 }
 
-export interface ApiInstanceDisksPutDiskRequest {
+export interface InstanceDisksPutDiskRequest {
   diskName: string
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectDisksDeleteDiskRequest {
+export interface ProjectDisksDeleteDiskRequest {
   diskName: string
   projectName: string
 }
 
-export interface ApiProjectDisksGetRequest {
+export interface ProjectDisksGetRequest {
   projectName: string
   limit?: number
   pageToken?: string
   sortBy?: ApiNameSortMode
 }
 
-export interface ApiProjectDisksGetDiskRequest {
+export interface ProjectDisksGetDiskRequest {
   diskName: string
   projectName: string
 }
 
-export interface ApiProjectDisksPostRequest {
+export interface ProjectDisksPostRequest {
   projectName: string
   apiDiskCreateParams: ApiDiskCreateParams
 }
 
-export interface ApiProjectInstancesDeleteInstanceRequest {
+export interface ProjectInstancesDeleteInstanceRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectInstancesGetRequest {
+export interface ProjectInstancesGetRequest {
   projectName: string
   limit?: number
   pageToken?: string
   sortBy?: ApiNameSortMode
 }
 
-export interface ApiProjectInstancesGetInstanceRequest {
+export interface ProjectInstancesGetInstanceRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectInstancesInstanceRebootRequest {
+export interface ProjectInstancesInstanceRebootRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectInstancesInstanceStartRequest {
+export interface ProjectInstancesInstanceStartRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectInstancesInstanceStopRequest {
+export interface ProjectInstancesInstanceStopRequest {
   instanceName: string
   projectName: string
 }
 
-export interface ApiProjectInstancesPostRequest {
+export interface ProjectInstancesPostRequest {
   projectName: string
   apiInstanceCreateParams: ApiInstanceCreateParams
 }
 
-export interface ApiProjectsDeleteProjectRequest {
+export interface ProjectsDeleteProjectRequest {
   projectName: string
 }
 
-export interface ApiProjectsGetRequest {
+export interface ProjectsGetRequest {
   limit?: number
   pageToken?: string
   sortBy?: ApiNameOrIdSortMode
 }
 
-export interface ApiProjectsGetProjectRequest {
+export interface ProjectsGetProjectRequest {
   projectName: string
 }
 
-export interface ApiProjectsPostRequest {
+export interface ProjectsPostRequest {
   apiProjectCreateParams: ApiProjectCreateParams
 }
 
-export interface ApiProjectsPutProjectRequest {
+export interface ProjectsPutProjectRequest {
   projectName: string
   apiProjectUpdateParams: ApiProjectUpdateParams
 }
 
-export interface ApiSagasGetRequest {
+export interface SagasGetRequest {
   limit?: number
   pageToken?: string
   sortBy?: ApiIdSortMode
 }
 
-export interface ApiSagasGetSagaRequest {
+export interface SagasGetSagaRequest {
   sagaId: string
 }
 
@@ -218,8 +218,8 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List racks in the system.
    */
-  async apiHardwareRacksGetRaw(
-    requestParameters: ApiHardwareRacksGetRequest
+  async hardwareRacksGetRaw(
+    requestParameters: HardwareRacksGetRequest
   ): Promise<runtime.ApiResponse<ApiRackViewResultsPage>> {
     const queryParameters: any = {}
 
@@ -252,18 +252,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List racks in the system.
    */
-  async apiHardwareRacksGet(
-    requestParameters: ApiHardwareRacksGetRequest
+  async hardwareRacksGet(
+    requestParameters: HardwareRacksGetRequest
   ): Promise<ApiRackViewResultsPage> {
-    const response = await this.apiHardwareRacksGetRaw(requestParameters)
+    const response = await this.hardwareRacksGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch information about a particular rack.
    */
-  async apiHardwareRacksGetRackRaw(
-    requestParameters: ApiHardwareRacksGetRackRequest
+  async hardwareRacksGetRackRaw(
+    requestParameters: HardwareRacksGetRackRequest
   ): Promise<runtime.ApiResponse<ApiRackView>> {
     if (
       requestParameters.rackId === null ||
@@ -271,7 +271,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'rackId',
-        'Required parameter requestParameters.rackId was null or undefined when calling apiHardwareRacksGetRack.'
+        'Required parameter requestParameters.rackId was null or undefined when calling hardwareRacksGetRack.'
       )
     }
 
@@ -297,18 +297,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch information about a particular rack.
    */
-  async apiHardwareRacksGetRack(
-    requestParameters: ApiHardwareRacksGetRackRequest
+  async hardwareRacksGetRack(
+    requestParameters: HardwareRacksGetRackRequest
   ): Promise<ApiRackView> {
-    const response = await this.apiHardwareRacksGetRackRaw(requestParameters)
+    const response = await this.hardwareRacksGetRackRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * List sleds in the system.
    */
-  async apiHardwareSledsGetRaw(
-    requestParameters: ApiHardwareSledsGetRequest
+  async hardwareSledsGetRaw(
+    requestParameters: HardwareSledsGetRequest
   ): Promise<runtime.ApiResponse<ApiSledViewResultsPage>> {
     const queryParameters: any = {}
 
@@ -341,18 +341,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List sleds in the system.
    */
-  async apiHardwareSledsGet(
-    requestParameters: ApiHardwareSledsGetRequest
+  async hardwareSledsGet(
+    requestParameters: HardwareSledsGetRequest
   ): Promise<ApiSledViewResultsPage> {
-    const response = await this.apiHardwareSledsGetRaw(requestParameters)
+    const response = await this.hardwareSledsGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch information about a sled in the system.
    */
-  async apiHardwareSledsGetSledRaw(
-    requestParameters: ApiHardwareSledsGetSledRequest
+  async hardwareSledsGetSledRaw(
+    requestParameters: HardwareSledsGetSledRequest
   ): Promise<runtime.ApiResponse<ApiSledView>> {
     if (
       requestParameters.sledId === null ||
@@ -360,7 +360,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'sledId',
-        'Required parameter requestParameters.sledId was null or undefined when calling apiHardwareSledsGetSled.'
+        'Required parameter requestParameters.sledId was null or undefined when calling hardwareSledsGetSled.'
       )
     }
 
@@ -386,18 +386,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch information about a sled in the system.
    */
-  async apiHardwareSledsGetSled(
-    requestParameters: ApiHardwareSledsGetSledRequest
+  async hardwareSledsGetSled(
+    requestParameters: HardwareSledsGetSledRequest
   ): Promise<ApiSledView> {
-    const response = await this.apiHardwareSledsGetSledRaw(requestParameters)
+    const response = await this.hardwareSledsGetSledRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Detach a disk from this instance.
    */
-  async apiInstanceDisksDeleteDiskRaw(
-    requestParameters: ApiInstanceDisksDeleteDiskRequest
+  async instanceDisksDeleteDiskRaw(
+    requestParameters: InstanceDisksDeleteDiskRequest
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.diskName === null ||
@@ -405,7 +405,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'diskName',
-        'Required parameter requestParameters.diskName was null or undefined when calling apiInstanceDisksDeleteDisk.'
+        'Required parameter requestParameters.diskName was null or undefined when calling instanceDisksDeleteDisk.'
       )
     }
 
@@ -415,7 +415,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiInstanceDisksDeleteDisk.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling instanceDisksDeleteDisk.'
       )
     }
 
@@ -425,7 +425,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiInstanceDisksDeleteDisk.'
+        'Required parameter requestParameters.projectName was null or undefined when calling instanceDisksDeleteDisk.'
       )
     }
 
@@ -458,17 +458,17 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Detach a disk from this instance.
    */
-  async apiInstanceDisksDeleteDisk(
-    requestParameters: ApiInstanceDisksDeleteDiskRequest
+  async instanceDisksDeleteDisk(
+    requestParameters: InstanceDisksDeleteDiskRequest
   ): Promise<void> {
-    await this.apiInstanceDisksDeleteDiskRaw(requestParameters)
+    await this.instanceDisksDeleteDiskRaw(requestParameters)
   }
 
   /**
    * List disks attached to this instance.
    */
-  async apiInstanceDisksGetRaw(
-    requestParameters: ApiInstanceDisksGetRequest
+  async instanceDisksGetRaw(
+    requestParameters: InstanceDisksGetRequest
   ): Promise<runtime.ApiResponse<Array<ApiDiskAttachment>>> {
     if (
       requestParameters.instanceName === null ||
@@ -476,7 +476,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiInstanceDisksGet.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling instanceDisksGet.'
       )
     }
 
@@ -486,7 +486,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiInstanceDisksGet.'
+        'Required parameter requestParameters.projectName was null or undefined when calling instanceDisksGet.'
       )
     }
 
@@ -517,18 +517,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List disks attached to this instance.
    */
-  async apiInstanceDisksGet(
-    requestParameters: ApiInstanceDisksGetRequest
+  async instanceDisksGet(
+    requestParameters: InstanceDisksGetRequest
   ): Promise<Array<ApiDiskAttachment>> {
-    const response = await this.apiInstanceDisksGetRaw(requestParameters)
+    const response = await this.instanceDisksGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch a description of the attachment of this disk to this instance.
    */
-  async apiInstanceDisksGetDiskRaw(
-    requestParameters: ApiInstanceDisksGetDiskRequest
+  async instanceDisksGetDiskRaw(
+    requestParameters: InstanceDisksGetDiskRequest
   ): Promise<runtime.ApiResponse<ApiDiskAttachment>> {
     if (
       requestParameters.diskName === null ||
@@ -536,7 +536,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'diskName',
-        'Required parameter requestParameters.diskName was null or undefined when calling apiInstanceDisksGetDisk.'
+        'Required parameter requestParameters.diskName was null or undefined when calling instanceDisksGetDisk.'
       )
     }
 
@@ -546,7 +546,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiInstanceDisksGetDisk.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling instanceDisksGetDisk.'
       )
     }
 
@@ -556,7 +556,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiInstanceDisksGetDisk.'
+        'Required parameter requestParameters.projectName was null or undefined when calling instanceDisksGetDisk.'
       )
     }
 
@@ -591,18 +591,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch a description of the attachment of this disk to this instance.
    */
-  async apiInstanceDisksGetDisk(
-    requestParameters: ApiInstanceDisksGetDiskRequest
+  async instanceDisksGetDisk(
+    requestParameters: InstanceDisksGetDiskRequest
   ): Promise<ApiDiskAttachment> {
-    const response = await this.apiInstanceDisksGetDiskRaw(requestParameters)
+    const response = await this.instanceDisksGetDiskRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Attach a disk to this instance.
    */
-  async apiInstanceDisksPutDiskRaw(
-    requestParameters: ApiInstanceDisksPutDiskRequest
+  async instanceDisksPutDiskRaw(
+    requestParameters: InstanceDisksPutDiskRequest
   ): Promise<runtime.ApiResponse<ApiDiskAttachment>> {
     if (
       requestParameters.diskName === null ||
@@ -610,7 +610,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'diskName',
-        'Required parameter requestParameters.diskName was null or undefined when calling apiInstanceDisksPutDisk.'
+        'Required parameter requestParameters.diskName was null or undefined when calling instanceDisksPutDisk.'
       )
     }
 
@@ -620,7 +620,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiInstanceDisksPutDisk.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling instanceDisksPutDisk.'
       )
     }
 
@@ -630,7 +630,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiInstanceDisksPutDisk.'
+        'Required parameter requestParameters.projectName was null or undefined when calling instanceDisksPutDisk.'
       )
     }
 
@@ -665,18 +665,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Attach a disk to this instance.
    */
-  async apiInstanceDisksPutDisk(
-    requestParameters: ApiInstanceDisksPutDiskRequest
+  async instanceDisksPutDisk(
+    requestParameters: InstanceDisksPutDiskRequest
   ): Promise<ApiDiskAttachment> {
-    const response = await this.apiInstanceDisksPutDiskRaw(requestParameters)
+    const response = await this.instanceDisksPutDiskRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Delete a disk from a project.
    */
-  async apiProjectDisksDeleteDiskRaw(
-    requestParameters: ApiProjectDisksDeleteDiskRequest
+  async projectDisksDeleteDiskRaw(
+    requestParameters: ProjectDisksDeleteDiskRequest
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.diskName === null ||
@@ -684,7 +684,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'diskName',
-        'Required parameter requestParameters.diskName was null or undefined when calling apiProjectDisksDeleteDisk.'
+        'Required parameter requestParameters.diskName was null or undefined when calling projectDisksDeleteDisk.'
       )
     }
 
@@ -694,7 +694,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectDisksDeleteDisk.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectDisksDeleteDisk.'
       )
     }
 
@@ -723,17 +723,17 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Delete a disk from a project.
    */
-  async apiProjectDisksDeleteDisk(
-    requestParameters: ApiProjectDisksDeleteDiskRequest
+  async projectDisksDeleteDisk(
+    requestParameters: ProjectDisksDeleteDiskRequest
   ): Promise<void> {
-    await this.apiProjectDisksDeleteDiskRaw(requestParameters)
+    await this.projectDisksDeleteDiskRaw(requestParameters)
   }
 
   /**
    * List disks in a project.
    */
-  async apiProjectDisksGetRaw(
-    requestParameters: ApiProjectDisksGetRequest
+  async projectDisksGetRaw(
+    requestParameters: ProjectDisksGetRequest
   ): Promise<runtime.ApiResponse<ApiDiskViewResultsPage>> {
     if (
       requestParameters.projectName === null ||
@@ -741,7 +741,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectDisksGet.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectDisksGet.'
       )
     }
 
@@ -779,18 +779,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List disks in a project.
    */
-  async apiProjectDisksGet(
-    requestParameters: ApiProjectDisksGetRequest
+  async projectDisksGet(
+    requestParameters: ProjectDisksGetRequest
   ): Promise<ApiDiskViewResultsPage> {
-    const response = await this.apiProjectDisksGetRaw(requestParameters)
+    const response = await this.projectDisksGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch a single disk in a project.
    */
-  async apiProjectDisksGetDiskRaw(
-    requestParameters: ApiProjectDisksGetDiskRequest
+  async projectDisksGetDiskRaw(
+    requestParameters: ProjectDisksGetDiskRequest
   ): Promise<runtime.ApiResponse<ApiDiskView>> {
     if (
       requestParameters.diskName === null ||
@@ -798,7 +798,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'diskName',
-        'Required parameter requestParameters.diskName was null or undefined when calling apiProjectDisksGetDisk.'
+        'Required parameter requestParameters.diskName was null or undefined when calling projectDisksGetDisk.'
       )
     }
 
@@ -808,7 +808,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectDisksGetDisk.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectDisksGetDisk.'
       )
     }
 
@@ -839,18 +839,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch a single disk in a project.
    */
-  async apiProjectDisksGetDisk(
-    requestParameters: ApiProjectDisksGetDiskRequest
+  async projectDisksGetDisk(
+    requestParameters: ProjectDisksGetDiskRequest
   ): Promise<ApiDiskView> {
-    const response = await this.apiProjectDisksGetDiskRaw(requestParameters)
+    const response = await this.projectDisksGetDiskRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Create a disk in a project.  * TODO-correctness See note about instance create.  This should be async.
    */
-  async apiProjectDisksPostRaw(
-    requestParameters: ApiProjectDisksPostRequest
+  async projectDisksPostRaw(
+    requestParameters: ProjectDisksPostRequest
   ): Promise<runtime.ApiResponse<ApiDiskView>> {
     if (
       requestParameters.projectName === null ||
@@ -858,7 +858,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectDisksPost.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectDisksPost.'
       )
     }
 
@@ -867,8 +867,8 @@ export class DefaultApi extends runtime.BaseAPI {
       requestParameters.apiDiskCreateParams === undefined
     ) {
       throw new runtime.RequiredError(
-        'apiDiskCreateParams',
-        'Required parameter requestParameters.apiDiskCreateParams was null or undefined when calling apiProjectDisksPost.'
+        'DiskCreateParams',
+        'Required parameter requestParameters.apiDiskCreateParams was null or undefined when calling projectDisksPost.'
       )
     }
 
@@ -897,18 +897,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Create a disk in a project.  * TODO-correctness See note about instance create.  This should be async.
    */
-  async apiProjectDisksPost(
-    requestParameters: ApiProjectDisksPostRequest
+  async projectDisksPost(
+    requestParameters: ProjectDisksPostRequest
   ): Promise<ApiDiskView> {
-    const response = await this.apiProjectDisksPostRaw(requestParameters)
+    const response = await this.projectDisksPostRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Delete an instance from a project.
    */
-  async apiProjectInstancesDeleteInstanceRaw(
-    requestParameters: ApiProjectInstancesDeleteInstanceRequest
+  async projectInstancesDeleteInstanceRaw(
+    requestParameters: ProjectInstancesDeleteInstanceRequest
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.instanceName === null ||
@@ -916,7 +916,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiProjectInstancesDeleteInstance.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling projectInstancesDeleteInstance.'
       )
     }
 
@@ -926,7 +926,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesDeleteInstance.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesDeleteInstance.'
       )
     }
 
@@ -955,17 +955,17 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Delete an instance from a project.
    */
-  async apiProjectInstancesDeleteInstance(
-    requestParameters: ApiProjectInstancesDeleteInstanceRequest
+  async projectInstancesDeleteInstance(
+    requestParameters: ProjectInstancesDeleteInstanceRequest
   ): Promise<void> {
-    await this.apiProjectInstancesDeleteInstanceRaw(requestParameters)
+    await this.projectInstancesDeleteInstanceRaw(requestParameters)
   }
 
   /**
    * List instances in a project.
    */
-  async apiProjectInstancesGetRaw(
-    requestParameters: ApiProjectInstancesGetRequest
+  async projectInstancesGetRaw(
+    requestParameters: ProjectInstancesGetRequest
   ): Promise<runtime.ApiResponse<ApiInstanceViewResultsPage>> {
     if (
       requestParameters.projectName === null ||
@@ -973,7 +973,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesGet.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesGet.'
       )
     }
 
@@ -1011,18 +1011,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List instances in a project.
    */
-  async apiProjectInstancesGet(
-    requestParameters: ApiProjectInstancesGetRequest
+  async projectInstancesGet(
+    requestParameters: ProjectInstancesGetRequest
   ): Promise<ApiInstanceViewResultsPage> {
-    const response = await this.apiProjectInstancesGetRaw(requestParameters)
+    const response = await this.projectInstancesGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Get an instance in a project.
    */
-  async apiProjectInstancesGetInstanceRaw(
-    requestParameters: ApiProjectInstancesGetInstanceRequest
+  async projectInstancesGetInstanceRaw(
+    requestParameters: ProjectInstancesGetInstanceRequest
   ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
@@ -1030,7 +1030,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiProjectInstancesGetInstance.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling projectInstancesGetInstance.'
       )
     }
 
@@ -1040,7 +1040,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesGetInstance.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesGetInstance.'
       )
     }
 
@@ -1071,10 +1071,10 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Get an instance in a project.
    */
-  async apiProjectInstancesGetInstance(
-    requestParameters: ApiProjectInstancesGetInstanceRequest
+  async projectInstancesGetInstance(
+    requestParameters: ProjectInstancesGetInstanceRequest
   ): Promise<ApiInstanceView> {
-    const response = await this.apiProjectInstancesGetInstanceRaw(
+    const response = await this.projectInstancesGetInstanceRaw(
       requestParameters
     )
     return await response.value()
@@ -1083,8 +1083,8 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Reboot an instance.
    */
-  async apiProjectInstancesInstanceRebootRaw(
-    requestParameters: ApiProjectInstancesInstanceRebootRequest
+  async projectInstancesInstanceRebootRaw(
+    requestParameters: ProjectInstancesInstanceRebootRequest
   ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
@@ -1092,7 +1092,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiProjectInstancesInstanceReboot.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling projectInstancesInstanceReboot.'
       )
     }
 
@@ -1102,7 +1102,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesInstanceReboot.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesInstanceReboot.'
       )
     }
 
@@ -1133,10 +1133,10 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Reboot an instance.
    */
-  async apiProjectInstancesInstanceReboot(
-    requestParameters: ApiProjectInstancesInstanceRebootRequest
+  async projectInstancesInstanceReboot(
+    requestParameters: ProjectInstancesInstanceRebootRequest
   ): Promise<ApiInstanceView> {
-    const response = await this.apiProjectInstancesInstanceRebootRaw(
+    const response = await this.projectInstancesInstanceRebootRaw(
       requestParameters
     )
     return await response.value()
@@ -1145,8 +1145,8 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Boot an instance.
    */
-  async apiProjectInstancesInstanceStartRaw(
-    requestParameters: ApiProjectInstancesInstanceStartRequest
+  async projectInstancesInstanceStartRaw(
+    requestParameters: ProjectInstancesInstanceStartRequest
   ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
@@ -1154,7 +1154,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiProjectInstancesInstanceStart.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling projectInstancesInstanceStart.'
       )
     }
 
@@ -1164,7 +1164,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesInstanceStart.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesInstanceStart.'
       )
     }
 
@@ -1195,10 +1195,10 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Boot an instance.
    */
-  async apiProjectInstancesInstanceStart(
-    requestParameters: ApiProjectInstancesInstanceStartRequest
+  async projectInstancesInstanceStart(
+    requestParameters: ProjectInstancesInstanceStartRequest
   ): Promise<ApiInstanceView> {
-    const response = await this.apiProjectInstancesInstanceStartRaw(
+    const response = await this.projectInstancesInstanceStartRaw(
       requestParameters
     )
     return await response.value()
@@ -1207,8 +1207,8 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Halt an instance.
    */
-  async apiProjectInstancesInstanceStopRaw(
-    requestParameters: ApiProjectInstancesInstanceStopRequest
+  async projectInstancesInstanceStopRaw(
+    requestParameters: ProjectInstancesInstanceStopRequest
   ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.instanceName === null ||
@@ -1216,7 +1216,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'instanceName',
-        'Required parameter requestParameters.instanceName was null or undefined when calling apiProjectInstancesInstanceStop.'
+        'Required parameter requestParameters.instanceName was null or undefined when calling projectInstancesInstanceStop.'
       )
     }
 
@@ -1226,7 +1226,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesInstanceStop.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesInstanceStop.'
       )
     }
 
@@ -1257,10 +1257,10 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Halt an instance.
    */
-  async apiProjectInstancesInstanceStop(
-    requestParameters: ApiProjectInstancesInstanceStopRequest
+  async projectInstancesInstanceStop(
+    requestParameters: ProjectInstancesInstanceStopRequest
   ): Promise<ApiInstanceView> {
-    const response = await this.apiProjectInstancesInstanceStopRaw(
+    const response = await this.projectInstancesInstanceStopRaw(
       requestParameters
     )
     return await response.value()
@@ -1269,8 +1269,8 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Create an instance in a project.  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it\'s just not booted yet.  Maybe the boot operation is what\'s a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a \"reboot\" operation would return a 202 Accepted because there\'s no actual resource created?
    */
-  async apiProjectInstancesPostRaw(
-    requestParameters: ApiProjectInstancesPostRequest
+  async projectInstancesPostRaw(
+    requestParameters: ProjectInstancesPostRequest
   ): Promise<runtime.ApiResponse<ApiInstanceView>> {
     if (
       requestParameters.projectName === null ||
@@ -1278,7 +1278,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectInstancesPost.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectInstancesPost.'
       )
     }
 
@@ -1287,8 +1287,8 @@ export class DefaultApi extends runtime.BaseAPI {
       requestParameters.apiInstanceCreateParams === undefined
     ) {
       throw new runtime.RequiredError(
-        'apiInstanceCreateParams',
-        'Required parameter requestParameters.apiInstanceCreateParams was null or undefined when calling apiProjectInstancesPost.'
+        'InstanceCreateParams',
+        'Required parameter requestParameters.apiInstanceCreateParams was null or undefined when calling projectInstancesPost.'
       )
     }
 
@@ -1319,18 +1319,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Create an instance in a project.  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it\'s just not booted yet.  Maybe the boot operation is what\'s a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a \"reboot\" operation would return a 202 Accepted because there\'s no actual resource created?
    */
-  async apiProjectInstancesPost(
-    requestParameters: ApiProjectInstancesPostRequest
+  async projectInstancesPost(
+    requestParameters: ProjectInstancesPostRequest
   ): Promise<ApiInstanceView> {
-    const response = await this.apiProjectInstancesPostRaw(requestParameters)
+    const response = await this.projectInstancesPostRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Delete a specific project.
    */
-  async apiProjectsDeleteProjectRaw(
-    requestParameters: ApiProjectsDeleteProjectRequest
+  async projectsDeleteProjectRaw(
+    requestParameters: ProjectsDeleteProjectRequest
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.projectName === null ||
@@ -1338,7 +1338,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectsDeleteProject.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectsDeleteProject.'
       )
     }
 
@@ -1362,17 +1362,17 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Delete a specific project.
    */
-  async apiProjectsDeleteProject(
-    requestParameters: ApiProjectsDeleteProjectRequest
+  async projectsDeleteProject(
+    requestParameters: ProjectsDeleteProjectRequest
   ): Promise<void> {
-    await this.apiProjectsDeleteProjectRaw(requestParameters)
+    await this.projectsDeleteProjectRaw(requestParameters)
   }
 
   /**
    * List all projects.
    */
-  async apiProjectsGetRaw(
-    requestParameters: ApiProjectsGetRequest
+  async projectsGetRaw(
+    requestParameters: ProjectsGetRequest
   ): Promise<runtime.ApiResponse<ApiProjectViewResultsPage>> {
     const queryParameters: any = {}
 
@@ -1405,18 +1405,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List all projects.
    */
-  async apiProjectsGet(
-    requestParameters: ApiProjectsGetRequest
+  async projectsGet(
+    requestParameters: ProjectsGetRequest
   ): Promise<ApiProjectViewResultsPage> {
-    const response = await this.apiProjectsGetRaw(requestParameters)
+    const response = await this.projectsGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch a specific project
    */
-  async apiProjectsGetProjectRaw(
-    requestParameters: ApiProjectsGetProjectRequest
+  async projectsGetProjectRaw(
+    requestParameters: ProjectsGetProjectRequest
   ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.projectName === null ||
@@ -1424,7 +1424,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectsGetProject.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectsGetProject.'
       )
     }
 
@@ -1450,26 +1450,26 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch a specific project
    */
-  async apiProjectsGetProject(
-    requestParameters: ApiProjectsGetProjectRequest
+  async projectsGetProject(
+    requestParameters: ProjectsGetProjectRequest
   ): Promise<ApiProjectView> {
-    const response = await this.apiProjectsGetProjectRaw(requestParameters)
+    const response = await this.projectsGetProjectRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Create a new project.
    */
-  async apiProjectsPostRaw(
-    requestParameters: ApiProjectsPostRequest
+  async projectsPostRaw(
+    requestParameters: ProjectsPostRequest
   ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.apiProjectCreateParams === null ||
       requestParameters.apiProjectCreateParams === undefined
     ) {
       throw new runtime.RequiredError(
-        'apiProjectCreateParams',
-        'Required parameter requestParameters.apiProjectCreateParams was null or undefined when calling apiProjectsPost.'
+        'ProjectCreateParams',
+        'Required parameter requestParameters.apiProjectCreateParams was null or undefined when calling projectsPost.'
       )
     }
 
@@ -1497,18 +1497,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Create a new project.
    */
-  async apiProjectsPost(
-    requestParameters: ApiProjectsPostRequest
+  async projectsPost(
+    requestParameters: ProjectsPostRequest
   ): Promise<ApiProjectView> {
-    const response = await this.apiProjectsPostRaw(requestParameters)
+    const response = await this.projectsPostRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
    */
-  async apiProjectsPutProjectRaw(
-    requestParameters: ApiProjectsPutProjectRequest
+  async projectsPutProjectRaw(
+    requestParameters: ProjectsPutProjectRequest
   ): Promise<runtime.ApiResponse<ApiProjectView>> {
     if (
       requestParameters.projectName === null ||
@@ -1516,7 +1516,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling apiProjectsPutProject.'
+        'Required parameter requestParameters.projectName was null or undefined when calling projectsPutProject.'
       )
     }
 
@@ -1525,8 +1525,8 @@ export class DefaultApi extends runtime.BaseAPI {
       requestParameters.apiProjectUpdateParams === undefined
     ) {
       throw new runtime.RequiredError(
-        'apiProjectUpdateParams',
-        'Required parameter requestParameters.apiProjectUpdateParams was null or undefined when calling apiProjectsPutProject.'
+        'ProjectUpdateParams',
+        'Required parameter requestParameters.apiProjectUpdateParams was null or undefined when calling projectsPutProject.'
       )
     }
 
@@ -1557,18 +1557,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
    */
-  async apiProjectsPutProject(
-    requestParameters: ApiProjectsPutProjectRequest
+  async projectsPutProject(
+    requestParameters: ProjectsPutProjectRequest
   ): Promise<ApiProjectView> {
-    const response = await this.apiProjectsPutProjectRaw(requestParameters)
+    const response = await this.projectsPutProjectRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * List all sagas (for debugging)
    */
-  async apiSagasGetRaw(
-    requestParameters: ApiSagasGetRequest
+  async sagasGetRaw(
+    requestParameters: SagasGetRequest
   ): Promise<runtime.ApiResponse<ApiSagaViewResultsPage>> {
     const queryParameters: any = {}
 
@@ -1601,18 +1601,18 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List all sagas (for debugging)
    */
-  async apiSagasGet(
-    requestParameters: ApiSagasGetRequest
+  async sagasGet(
+    requestParameters: SagasGetRequest
   ): Promise<ApiSagaViewResultsPage> {
-    const response = await this.apiSagasGetRaw(requestParameters)
+    const response = await this.sagasGetRaw(requestParameters)
     return await response.value()
   }
 
   /**
    * Fetch information about a single saga (for debugging)
    */
-  async apiSagasGetSagaRaw(
-    requestParameters: ApiSagasGetSagaRequest
+  async sagasGetSagaRaw(
+    requestParameters: SagasGetSagaRequest
   ): Promise<runtime.ApiResponse<ApiSagaView>> {
     if (
       requestParameters.sagaId === null ||
@@ -1620,7 +1620,7 @@ export class DefaultApi extends runtime.BaseAPI {
     ) {
       throw new runtime.RequiredError(
         'sagaId',
-        'Required parameter requestParameters.sagaId was null or undefined when calling apiSagasGetSaga.'
+        'Required parameter requestParameters.sagaId was null or undefined when calling sagasGetSaga.'
       )
     }
 
@@ -1646,10 +1646,10 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch information about a single saga (for debugging)
    */
-  async apiSagasGetSaga(
-    requestParameters: ApiSagasGetSagaRequest
+  async sagasGetSaga(
+    requestParameters: SagasGetSagaRequest
   ): Promise<ApiSagaView> {
-    const response = await this.apiSagasGetSagaRaw(requestParameters)
+    const response = await this.sagasGetSagaRaw(requestParameters)
     return await response.value()
   }
 }

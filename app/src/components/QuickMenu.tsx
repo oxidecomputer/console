@@ -62,7 +62,7 @@ export default () => {
     setInput('')
   }
 
-  const { data: projects } = useApiQuery('apiProjectsGet', {})
+  const { data: projects } = useApiQuery('projectsGet', {})
   const projectNames = projects?.items.map((p) => p.name) || []
   let values = [...projectNames, ...Object.keys(globalPaths)]
 

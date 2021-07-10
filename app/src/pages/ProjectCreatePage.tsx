@@ -28,13 +28,13 @@ const ProjectCreatePage = () => {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createProject = useApiMutation('apiProjectsPost', {
+  const createProject = useApiMutation('projectsPost', {
     onSuccess: (data) => {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('apiProjectsGet', {})
+      queryClient.invalidateQueries('projectsGet', {})
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'apiProjectsGetProject',
+        'projectsGetProject',
         { projectName: data.name },
         data
       )
