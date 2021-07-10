@@ -40,7 +40,7 @@ const colors = {
 
 module.exports = {
   mode: 'jit',
-  purge: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/src/**/*.{ts,tsx}'],
+  purge: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
   darkMode: false,
   theme: {
     extend: {
