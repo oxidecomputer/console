@@ -16,7 +16,7 @@ export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
         key={`${href}-${label}`}
       >
         {href ? (
-          <Link to={href} className="text-gray-100  hover:text-green-500">
+          <Link to={href} className="text-gray-100 hover:text-green-500">
             {label}
           </Link>
         ) : (

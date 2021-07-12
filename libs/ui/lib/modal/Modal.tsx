@@ -33,7 +33,7 @@ const ActionButton = ({ primary, children, onClick }: ActionProps) => {
 
 const Container = classed.div`
   flex flex-col w-full bg-black
-  sm:self-center sm:mx-auto w-[50vw]
+  sm:self-center sm:mx-auto sm:w-[50vw]
 `
 
 const Body = classed.div`p-6 space-y-4 flex-1`

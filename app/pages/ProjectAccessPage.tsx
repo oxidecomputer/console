@@ -118,7 +118,7 @@ const ProjectPage = () => {
       </PageHeader>
 
       <Dialog
-        className="absolute right-0 top-0 bottom-0 !bg-gray-500 !w-[32rem] !p-0 !m-0 border-l border-gray-400 rounded-px flex flex-col justify-between"
+        className="absolute right-0 top-0 bottom-0 !bg-gray-500 !w-[32rem] !p-0 !m-0 border-l border-gray-400 flex flex-col justify-between"
         isOpen={modalIsOpen}
         onDismiss={closeModal}
         aria-label="Add user"
