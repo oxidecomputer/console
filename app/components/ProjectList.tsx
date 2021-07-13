@@ -18,7 +18,7 @@ export const ProjectList = (props: ProjectListProps) => (
     </header>
     <ul className="flex flex-col space-y-1 text-gray-200">
       {props.projects.map((p) => (
-        <li className="text-sm hover:bg-gray-400" key={p.id} tabIndex={0}>
+        <li className="text-sm hover:bg-gray-400" key={p.id}>
           <NavLink
             className="inline-flex w-full p-1"
             to={`/projects/${p.name}`}

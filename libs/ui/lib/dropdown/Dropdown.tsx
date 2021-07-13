@@ -94,8 +94,6 @@ export const Dropdown: FC<DropdownProps> = ({
           {renderOptions}
         </ul>
       )}
-      {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
-      <div tabIndex={0} />
       {hint && (
         <div id={hintId} className="text-sm mt-1 text-gray-50">
           {hint}
