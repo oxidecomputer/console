@@ -1,0 +1,23 @@
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { MultiSelect } from './MultiSelect'
+const SAMPLE_OPTIONS = [
+  { value: 'de', label: 'Devon Edwards' },
+  { value: 'rm', label: 'Randall Miles' },
+  { value: 'cj', label: 'Connie Jones' },
+  { value: 'eb', label: 'Esther Black' },
+  { value: 'sf', label: 'Shane Flores' },
+  { value: 'dh', label: 'Darrell Howard' },
+  { value: 'jp', label: 'Jacob Pena' },
+  { value: 'nm', label: 'Nathan Mckinney' },
+  { value: 'br', label: 'Bessie Robertson' },
+]
+
+<Meta title="Components/MultiSelect" />
+
+# MultiSelect
+
+<Canvas>
+  <Story name="Default">
+    <MultiSelect label="Pick tags" items={SAMPLE_OPTIONS} />
+  </Story>
+</Canvas>
