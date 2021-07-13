@@ -26,6 +26,11 @@
 }
 
 @layer utilities {
+  .dashed-underline {
+    text-decoration: underline;
+    text-decoration-style: dashed;
+  }
+
   .font-mono {
     letter-spacing: 0.04em;
   }

@@ -33,8 +33,3 @@
     right: -6px;
   }
 }
-
-.dashed-underline {
-  text-decoration: underline;
-  text-decoration-style: dashed;
-}
