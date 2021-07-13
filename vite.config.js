@@ -4,6 +4,11 @@ import svgr from '@svgr/core'
 import esbuild from 'esbuild'
 import fs from 'fs'
 
+import tsConfig from './tsconfig.json'
+
+const mapValues = (obj, f) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, f(v)]))
+
 // based loosely on existing plugin: https://github.com/pd4d10/vite-plugin-svgr/
 // ours is shorter, supports passing svgr options, and allows `import Arrow`
 // instead of `import { ReactComponent as Arrow }`
@@ -46,11 +51,10 @@ export default ({ mode }) => {
     },
     plugins: [reactRefresh(), svgrPlugin({ titleProp: true })],
     resolve: {
-      alias: {
-        '@oxide/ui': resolve(__dirname, 'libs/ui'),
-        '@oxide/api': resolve(__dirname, 'libs/api'),
-        '@oxide/api-mocks': resolve(__dirname, 'libs/api-mocks'),
-      },
+      // turn relative paths from tsconfig into absolute paths
+      alias: mapValues(tsConfig.compilerOptions.paths, (p) =>
+        resolve(__dirname, p[0])
+      ),
     },
     server: {
       fs: {
