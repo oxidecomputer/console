@@ -6,63 +6,60 @@ import { Icon } from '../icon/Icon'
 export const badgeColors = ['gray', 'red', 'yellow', 'green', 'blue'] as const
 export type BadgeColor = typeof badgeColors[number]
 
-export const badgeSizes = ['sm', 'base', 'xl'] as const
+export const badgeSizes = ['sm', 'base'] as const
 type Size = typeof badgeSizes[number]
 
-export const badgeVariants = ['base', 'notification', 'closable'] as const
-type Variant = 'base' | 'notification' | 'closable'
+export const badgeVariants = ['base', 'dim', 'ghost'] as const
+type Variant = typeof badgeVariants[number]
 
 export interface BadgeProps {
   color?: BadgeColor
   size?: Size
-  variant?: Variant
   className?: string
+  // close X is shown if onClose is present
   onClose?: () => void
   children: React.ReactNode
+  variant?: Variant
 }
 
-const wrapper = {
-  sm: 'h-4 text-xs',
-  base: 'h-6 text-xs',
-  xl: 'h-8 text-sm',
+const textBase: Record<Size, string> = {
+  sm: 'mx-[3px] mb-px',
+  base: 'mx-2.5',
 }
 
-const text = {
-  sm: {
-    base: 'mx-[3px] mb-px',
-    closable: 'ml-2 mr-1.5',
-    notification: 'mx-1.5',
-  },
-  base: {
-    base: 'mx-3',
-    closable: 'ml-3 mr-1.5',
-    notification: 'mr-3 ml-1.5',
-  },
-  xl: {
-    base: 'mx-4',
-    closable: 'ml-4 mr-2',
-    notification: 'ml-2 mr-4',
-  },
+const textClosable: Record<Size, string> = {
+  sm: 'ml-1.5 mr-1 mb-px',
+  base: 'ml-2.5 mr-1.5',
 }
 
-const notificationIcon = {
-  sm: '!w-2 ml-1.5',
-  base: '!w-2 ml-[7px]',
-  xl: '!w-2 ml-3',
-}
-
-const closeIcon = {
+const closeIcon: Record<Size, string> = {
   sm: '!w-[9px] mr-1.5',
   base: '!w-3 mr-2',
-  xl: '!w-4 mr-3',
 }
 
-const colors = {
-  gray: 'bg-gray-400 text-gray-50',
-  red: 'bg-red-500 text-black',
-  yellow: 'bg-yellow-500 text-black',
-  green: 'bg-green-500 text-black',
-  blue: 'bg-blue-500 text-gray-50',
+const colors: Record<Variant, Record<BadgeColor, string>> = {
+  base: {
+    blue: 'bg-blue-500 text-gray-50',
+    gray: 'bg-gray-400 text-gray-50',
+    green: 'bg-green-500 text-black',
+    red: 'bg-red-500 text-black',
+    yellow: 'bg-yellow-500 text-black',
+  },
+  dim: {
+    // blue and gray have no dim versions, use base colors
+    blue: 'bg-blue-500 text-gray-50',
+    gray: 'bg-gray-400 text-gray-50',
+    green: 'bg-green-900 text-green-500',
+    red: 'bg-red-900 text-red-500',
+    yellow: 'bg-yellow-900 text-yellow-500',
+  },
+  ghost: {
+    blue: 'border border-blue-500 text-blue-500 bg-transparent',
+    gray: 'border border-gray-400 text-white bg-transparent',
+    green: 'border border-green-500 text-green-500 bg-transparent',
+    red: 'border border-red-500 text-red-500 bg-transparent',
+    yellow: 'border border-yellow-500 text-yellow-500 bg-transparent',
+  },
 }
 
 export const Badge = ({
@@ -70,25 +67,25 @@ export const Badge = ({
   children,
   color = 'gray',
   size = 'base',
-  variant = 'base',
   onClose,
-}: BadgeProps) => (
-  <span
-    className={cn(
-      'inline-flex items-center rounded-px uppercase font-mono',
-      colors[color],
-      wrapper[size],
-      className
-    )}
-  >
-    {variant === 'notification' && (
-      <Icon className={notificationIcon[size]} name="dot" />
-    )}
-    <span className={text[size][variant]}>{children}</span>
-    {variant === 'closable' && (
-      <button type="button" className="flex cursor-pointer" onClick={onClose}>
-        <Icon name="close" className={closeIcon[size]} />
-      </button>
-    )}
-  </span>
-)
+  variant = 'base',
+}: BadgeProps) => {
+  const textStyle = onClose ? textClosable : textBase
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-px uppercase font-mono text-xs',
+        size === 'sm' ? 'h-4' : 'h-6',
+        colors[variant][color],
+        className
+      )}
+    >
+      <span className={textStyle[size]}>{children}</span>
+      {onClose && (
+        <button type="button" className="flex cursor-pointer" onClick={onClose}>
+          <Icon name="close" className={closeIcon[size]} />
+        </button>
+      )}
+    </span>
+  )
+}

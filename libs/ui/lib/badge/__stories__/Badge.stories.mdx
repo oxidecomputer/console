@@ -28,16 +28,42 @@ Showing metadata does not require the use of badges, you can just use plain icon
 
 # Stories
 
-## Variants
+## Base
+
+Note that blue and gray have no dim versions.
 
 <>
   {badgeVariants.map((variant) => (
     <>
-      <h3>{variant}</h3>
+      <h3>Variant: {variant}</h3>
       {badgeSizes.map((size) => (
         <Canvas>
           {badgeColors.map((color) => (
-            <Badge variant={variant} color={color} size={size}>
+            <Badge color={color} size={size} variant={variant}>
+              Badge
+            </Badge>
+          ))}
+        </Canvas>
+      ))}
+    </>
+  ))}
+</>
+
+## Closable
+
+<>
+  {badgeVariants.map((variant) => (
+    <>
+      <h3>Variant: {variant}</h3>
+      {badgeSizes.map((size) => (
+        <Canvas>
+          {badgeColors.map((color) => (
+            <Badge
+              color={color}
+              size={size}
+              variant={variant}
+              onClose={() => alert('close clicked!')}
+            >
               Badge
             </Badge>
           ))}
