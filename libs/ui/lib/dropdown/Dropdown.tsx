@@ -3,7 +3,6 @@ import React from 'react'
 import cn from 'classnames'
 
 import { useSelect } from 'downshift'
-import { AnimatePresence, motion } from 'framer-motion'
 
 import { Icon } from '../icon/Icon'
 
@@ -23,19 +22,6 @@ export interface DropdownProps {
    */
   showLabel?: boolean
   size?: SizeType
-}
-
-const FRAMER_VARIANTS = {
-  open: {
-    opacity: 1,
-    scale: 1,
-    transition: { ease: 'easeOut', duration: 0.1 },
-  },
-  closed: {
-    opacity: 0,
-    scale: 0.95,
-    transition: { ease: 'easeIn', duration: 0.075 },
-  },
 }
 
 export const Dropdown: FC<DropdownProps> = ({
@@ -100,20 +86,14 @@ export const Dropdown: FC<DropdownProps> = ({
         {renderButtonText}
         <Icon name="chevron" className="ml-5 transform -rotate-90" />
       </button>
-      <AnimatePresence>
-        {select.isOpen && (
-          <motion.ul
-            className="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
-            variants={FRAMER_VARIANTS}
-            initial={'closed'}
-            animate={'open'}
-            exit={'closed'}
-            {...select.getMenuProps()}
-          >
-            {renderOptions}
-          </motion.ul>
-        )}
-      </AnimatePresence>
+      {select.isOpen && (
+        <ul
+          className="z-10 py-2 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
+          {...select.getMenuProps()}
+        >
+          {renderOptions}
+        </ul>
+      )}
       {/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
       <div tabIndex={0} />
       {hint && (
