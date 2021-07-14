@@ -8,6 +8,7 @@ import {
   ComboboxList,
   ComboboxOption,
 } from '@reach/combobox'
+import { matchSorter } from 'match-sorter'
 
 import { useApiQuery } from '@oxide/api'
 import './quick-menu.css'
@@ -64,7 +65,7 @@ export default () => {
 
   const { data: projects } = useApiQuery('projectsGet', {})
   const projectNames = projects?.items.map((p) => p.name) || []
-  let values = [...projectNames, ...Object.keys(globalPaths)]
+  let values: string[] = [...projectNames, ...Object.keys(globalPaths)]
 
   // if in context of a particular project, include project-specific paths
   const projectName = useProjectName()
@@ -85,6 +86,9 @@ export default () => {
     reset()
   }
 
+  const matches = matchSorter(values, input)
+  const showResults = input.trim().length > 0 && matches.length > 0
+
   return (
     <Dialog
       className="QuickMenu !bg-gray-500 !p-4 !w-1/3 !mt-[20vh] border border-gray-400 rounded-px"
@@ -98,24 +102,27 @@ export default () => {
           className="mousetrap !bg-gray-500 border-none focus:outline-none"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          placeholder="Find anything..."
         />
-        <hr className="my-4" />
-        <ComboboxPopover
-          portal={false}
-          className="!bg-transparent !border-none"
-        >
-          <ComboboxList className="space-y-2">
-            {values
-              .filter((v) => new RegExp(input, 'gi').test(v))
-              .map((v) => (
-                <ComboboxOption
-                  className="bg-gray-500 hover:!border-green-500 hover:!bg-gray-500 rounded-px !p-4 text-display-lg border border-gray-400"
-                  key={v}
-                  value={v}
-                />
-              ))}
-          </ComboboxList>
-        </ComboboxPopover>
+        {showResults && (
+          <>
+            <hr className="my-4 border-gray-300" />
+            <ComboboxPopover
+              portal={false}
+              className="!bg-transparent !border-none"
+            >
+              <ComboboxList className="space-y-2">
+                {matches.map((v) => (
+                  <ComboboxOption
+                    className="bg-gray-500 hover:!border-green-500 hover:!bg-gray-500 rounded-px !p-4 text-display-lg border border-gray-400"
+                    key={v}
+                    value={v}
+                  />
+                ))}
+              </ComboboxList>
+            </ComboboxPopover>
+          </>
+        )}
       </Combobox>
     </Dialog>
   )

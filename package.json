@@ -26,6 +26,7 @@
     "date-fns": "^2.21.2",
     "downshift": "^6.1.2",
     "filesize": "^6.3.0",
+    "match-sorter": "^6.3.0",
     "mousetrap": "^1.6.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
