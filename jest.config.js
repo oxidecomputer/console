@@ -12,8 +12,9 @@ const libs = mapObj(
 
 module.exports = {
   moduleNameMapper: {
-    '\\.(svg)$': '<rootDir>/__mocks__/svgMock.tsx',
+    '\\.(svg)$': '<rootDir>/jest/mocks/svgMock.tsx',
     '\\.(css|less)$': 'identity-obj-proxy',
     ...libs,
   },
+  setupFilesAfterEnv: ['<rootDir>/jest/setup.ts'],
 }
