@@ -1,5 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
+import Alert from '@reach/alert'
 
 import { Icon } from '../icon/Icon'
 import type { IconName } from '../icon/icons'
@@ -30,10 +31,7 @@ export const Toast = ({
   timeout,
   variant = 'success',
 }: ToastProps) => (
-  <div
-    className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}
-    role="status"
-  >
+  <Alert className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}>
     {/* HACK: leading < 1 to get rid of space below icon */}
     <div className="text-2xl leading-[0.5]">
       <Icon name={icon} />
@@ -53,5 +51,5 @@ export const Toast = ({
         )}
       </button>
     </div>
-  </div>
+  </Alert>
 )
