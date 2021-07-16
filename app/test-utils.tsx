@@ -1,7 +1,6 @@
 import type { FC, ReactElement } from 'react'
 import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
-import type { RenderOptions } from '@testing-library/react'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import type { FetchMockStatic } from 'fetch-mock'
@@ -20,10 +19,7 @@ const Providers: FC = ({ children }) => (
   </Router>
 )
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'queries'>
-) => render(ui, { wrapper: Providers, ...options })
+const customRender = (ui: ReactElement) => render(ui, { wrapper: Providers })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const lastBody = (mock: FetchMockStatic): any =>

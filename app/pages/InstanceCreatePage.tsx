@@ -152,11 +152,8 @@ const ERROR_CODES = {
     'An instance with that name already exists in this project',
 }
 
-const InstanceCreatePage = () => {
-  const breadcrumbs = useBreadcrumbs()
-
+export function InstanceCreateForm({ projectName }: { projectName: string }) {
   const history = useHistory()
-  const { projectName } = useParams<Params>()
 
   // form state
   const [instanceName, setInstanceName] = useState('')
@@ -173,7 +170,7 @@ const InstanceCreatePage = () => {
       (option) => option.id === instanceSizeValue
     ) || { memory: 0, ncpus: 0 }
 
-    const params = {
+    return {
       description: `An instance in project: ${projectName}`,
       hostname,
       memory: instance.memory * GB,
@@ -183,8 +180,6 @@ const InstanceCreatePage = () => {
       configurationField: configurationField,
       tagsField: tagsField,
     }
-    console.log('params', params)
-    return params
   }
 
   const createInstance = useApiMutation('projectInstancesPost', {
@@ -234,165 +229,174 @@ const InstanceCreatePage = () => {
     ))
 
   return (
+    <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
+      <Heading>Choose an image</Heading>
+      <Tabs
+        className="mt-1"
+        label="Choose an image"
+        tabs={['Distributions', 'Custom Images']}
+      >
+        <RadioGroup
+          hideLegend
+          legend="Choose a distribution"
+          checked={imageField}
+          handleChange={setImageField}
+          direction="fixed-row"
+          name="distributions"
+        >
+          <RadioCardField value="centos">CentOS</RadioCardField>
+          <RadioCardField value="debian">Debian</RadioCardField>
+          <RadioCardField value="fedora">Fedora</RadioCardField>
+          <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
+          <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
+          <RadioCardField value="windows1">Windows</RadioCardField>
+          <RadioCardField value="windows2">Windows</RadioCardField>
+        </RadioGroup>
+        <RadioGroup
+          hideLegend
+          legend="Choose a custom image"
+          checked={imageField}
+          handleChange={setImageField}
+          direction="fixed-row"
+          name="custom-image"
+        >
+          <RadioCardField value="custom-centos">Custom CentOS</RadioCardField>
+          <RadioCardField value="custom-debian">Custom Debian</RadioCardField>
+          <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
+        </RadioGroup>
+      </Tabs>
+      <Heading>Choose CPUs and RAM</Heading>
+      <Tabs
+        className="mt-1"
+        label="Choose CPUs and RAM"
+        tabs={[
+          'General purpose',
+          'CPU-Optimized',
+          'Memory-Optimized',
+          'Storage-Optimized',
+          'Custom',
+        ]}
+      >
+        {renderTabPanels([
+          {
+            legend: 'Choose a general purpose instance',
+            hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+            children: renderLargeRadioFields('general'),
+          },
+          {
+            legend: 'Choose a CPU optimized instance',
+            children: renderLargeRadioFields('cpuOptimized'),
+          },
+          {
+            legend: 'Choose a Memory optimized instance',
+            hint: 'Memory optimized instances provide a good balance of...',
+            children: renderLargeRadioFields('memoryOptimized'),
+          },
+          {
+            legend: 'Choose a Storage optimized instance',
+            hint: 'Storage optimized instances provide a good balance of...',
+            children: renderLargeRadioFields('storageOptimized'),
+          },
+          {
+            legend: 'Choose a custom instance',
+            hint: 'Custom instances...',
+            children: renderLargeRadioFields('custom'),
+          },
+        ])}
+      </Tabs>
+      <RadioGroup
+        legend="Add storage"
+        checked={storageField}
+        handleChange={setStorageField}
+        direction="fixed-row"
+        name="storage"
+      >
+        <RadioCardField value="100gb">100 GB</RadioCardField>
+        <RadioCardField value="200gb">200 GB</RadioCardField>
+        <RadioCardField value="500gb">500 GB</RadioCardField>
+        <RadioCardField value="1000gb">1,000 GB</RadioCardField>
+        <RadioCardField value="2000gb">2,000 GB</RadioCardField>
+        <RadioCardField value="custom">Custom</RadioCardField>
+      </RadioGroup>
+      <RadioGroup
+        legend="Choose configuration options"
+        checked={configurationField}
+        handleChange={setConfigurationField}
+        direction="row"
+        name="configuration-options"
+      >
+        <RadioField
+          value="auto"
+          hint="Some details about automatically formatting and mounting disks."
+        >
+          Automatically format and mount
+        </RadioField>
+        <RadioField
+          value="manual"
+          hint="Some details about manually formatting and mounting disks."
+        >
+          Manually format and mount
+        </RadioField>
+      </RadioGroup>
+      <Heading>Authentication</Heading>
+      <Description>
+        We don’t have an SSH key stored for you. Please add one. Adding an SSH
+        Key adds it to your user profile so any instances in any project that
+        you have access to will updated with this additional key. Your existing
+        keys will remain on all your instances.
+      </Description>
+      <Button variant="dim">Add an SSH key</Button>
+      <Heading>Finalize and create</Heading>
+      <div className="flex space-x-6">
+        <TextInputGroup
+          id="instance-name"
+          label="Choose a name"
+          hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
+          onChange={setInstanceName}
+          placeholder="web1"
+          required
+          value={instanceName}
+        />
+        <TextInputGroup
+          id="hostname"
+          label="Choose a hostname"
+          hint="Choose a hostname for the instance. In the future this will be optional."
+          onChange={setHostname}
+          placeholder="example.com"
+          required
+          value={hostname}
+        />
+      </div>
+      <TextInputGroup
+        id="tags"
+        label="Add tags"
+        hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
+        onChange={setTagsField}
+        required
+        value={tagsField}
+      />
+
+      <Button type="submit" fullWidth disabled={createInstance.isLoading}>
+        Create instance
+      </Button>
+      <div className="text-red-500">
+        {getServerError(createInstance.error, ERROR_CODES)}
+      </div>
+    </form>
+  )
+}
+
+const InstanceCreatePage = () => {
+  const breadcrumbs = useBreadcrumbs()
+  const { projectName } = useParams<Params>()
+
+  return (
     <>
       <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="instances">Create a new instance</PageTitle>
       </PageHeader>
-      <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
-        <Heading>Choose an image</Heading>
-        <Tabs
-          className="mt-1"
-          label="Choose an image"
-          tabs={['Distributions', 'Custom Images']}
-        >
-          <RadioGroup
-            hideLegend
-            legend="Choose a distribution"
-            checked={imageField}
-            handleChange={setImageField}
-            direction="fixed-row"
-            name="distributions"
-          >
-            <RadioCardField value="centos">CentOS</RadioCardField>
-            <RadioCardField value="debian">Debian</RadioCardField>
-            <RadioCardField value="fedora">Fedora</RadioCardField>
-            <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
-            <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
-            <RadioCardField value="windows1">Windows</RadioCardField>
-            <RadioCardField value="windows2">Windows</RadioCardField>
-          </RadioGroup>
-          <RadioGroup
-            hideLegend
-            legend="Choose a custom image"
-            checked={imageField}
-            handleChange={setImageField}
-            direction="fixed-row"
-            name="custom-image"
-          >
-            <RadioCardField value="custom-centos">Custom CentOS</RadioCardField>
-            <RadioCardField value="custom-debian">Custom Debian</RadioCardField>
-            <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
-          </RadioGroup>
-        </Tabs>
-        <Heading>Choose CPUs and RAM</Heading>
-        <Tabs
-          className="mt-1"
-          label="Choose CPUs and RAM"
-          tabs={[
-            'General purpose',
-            'CPU-Optimized',
-            'Memory-Optimized',
-            'Storage-Optimized',
-            'Custom',
-          ]}
-        >
-          {renderTabPanels([
-            {
-              legend: 'Choose a general purpose instance',
-              hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
-              children: renderLargeRadioFields('general'),
-            },
-            {
-              legend: 'Choose a CPU optimized instance',
-              children: renderLargeRadioFields('cpuOptimized'),
-            },
-            {
-              legend: 'Choose a Memory optimized instance',
-              hint: 'Memory optimized instances provide a good balance of...',
-              children: renderLargeRadioFields('memoryOptimized'),
-            },
-            {
-              legend: 'Choose a Storage optimized instance',
-              hint: 'Storage optimized instances provide a good balance of...',
-              children: renderLargeRadioFields('storageOptimized'),
-            },
-            {
-              legend: 'Choose a custom instance',
-              hint: 'Custom instances...',
-              children: renderLargeRadioFields('custom'),
-            },
-          ])}
-        </Tabs>
-        <RadioGroup
-          legend="Add storage"
-          checked={storageField}
-          handleChange={setStorageField}
-          direction="fixed-row"
-          name="storage"
-        >
-          <RadioCardField value="100gb">100 GB</RadioCardField>
-          <RadioCardField value="200gb">200 GB</RadioCardField>
-          <RadioCardField value="500gb">500 GB</RadioCardField>
-          <RadioCardField value="1000gb">1,000 GB</RadioCardField>
-          <RadioCardField value="2000gb">2,000 GB</RadioCardField>
-          <RadioCardField value="custom">Custom</RadioCardField>
-        </RadioGroup>
-        <RadioGroup
-          legend="Choose configuration options"
-          checked={configurationField}
-          handleChange={setConfigurationField}
-          direction="row"
-          name="configuration-options"
-        >
-          <RadioField
-            value="auto"
-            hint="Some details about automatically formatting and mounting disks."
-          >
-            Automatically format and mount
-          </RadioField>
-          <RadioField
-            value="manual"
-            hint="Some details about manually formatting and mounting disks."
-          >
-            Manually format and mount
-          </RadioField>
-        </RadioGroup>
-        <Heading>Authentication</Heading>
-        <Description>
-          We don’t have an SSH key stored for you. Please add one. Adding an SSH
-          Key adds it to your user profile so any instances in any project that
-          you have access to will updated with this additional key. Your
-          existing keys will remain on all your instances.
-        </Description>
-        <Button variant="dim">Add an SSH key</Button>
-        <Heading>Finalize and create</Heading>
-        <div className="flex space-x-6">
-          <TextInputGroup
-            id="instance-name"
-            label="Choose a name"
-            hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
-            onChange={setInstanceName}
-            placeholder="web1"
-            required
-            value={instanceName}
-          />
-          <TextInputGroup
-            id="hostname"
-            label="Choose a hostname"
-            hint="Choose a hostname for the instance. In the future this will be optional."
-            onChange={setHostname}
-            placeholder="example.com"
-            required
-            value={hostname}
-          />
-        </div>
-        <TextInputGroup
-          id="tags"
-          label="Add tags"
-          hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
-          onChange={setTagsField}
-          required
-          value={tagsField}
-        />
-
-        <Button type="submit" fullWidth disabled={createInstance.isLoading}>
-          Create instance
-        </Button>
-        <div className="text-red-500">
-          {getServerError(createInstance.error, ERROR_CODES)}
-        </div>
-      </form>
+      <InstanceCreateForm projectName={projectName} />
     </>
   )
 }
