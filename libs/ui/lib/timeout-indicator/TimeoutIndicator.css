@@ -18,6 +18,6 @@
     transform-origin: center;
     transition: 1s linear all;
     fill-rule: nonzero;
-    stroke: white;
+    stroke: currentColor;
   }
 }

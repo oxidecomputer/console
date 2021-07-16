@@ -93,7 +93,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          type: 'default',
+          icon: 'checkO',
           title: `Instance '${instanceName}' stopped.`,
           timeout: 5000,
         })
@@ -108,7 +108,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          type: 'default',
+          icon: 'checkO',
           title: `Instance '${instanceName}' deleted.`,
           timeout: 5000,
         })

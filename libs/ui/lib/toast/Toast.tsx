@@ -1,36 +1,26 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
 import type { IconName } from '../icon/icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
-import { classed } from '../../util/classed'
 
-interface BaseToastProps {
+type Variant = 'success' | 'error' | 'info'
+
+export interface ToastProps {
   title: string
   content?: string
-  icon?: IconName
+  icon: IconName
   onClose: () => void
-}
-
-export interface ToastProps extends BaseToastProps {
+  variant?: Variant
   timeout?: number
 }
 
-const Wrapper = classed.div`w-96 inline-flex items-stretch bg-gray-400 shadow-lg`
-
-const Main = classed.div`flex flex-1 items-start p-4 space-x-3`
-
-const IconWrapper = classed.div`text-2xl leading-none`
-
-const contentStyle = (hasIcon: boolean) =>
-  cn('flex flex-col flex-1 space-y-1', hasIcon && 'py-0.5')
-
-const CloseButton = classed.button`flex flex-initial content-center h-5`
-
-const TitleText = classed.span`text-sm font-medium text-white`
-const BodyText = classed.span`text-sm text-gray-50`
+const color: Record<Variant, string> = {
+  success: 'bg-green-900 text-green-500',
+  error: 'bg-red-900 text-red-500',
+  info: 'bg-yellow-900 text-yellow-500',
+}
 
 export const Toast = ({
   title,
@@ -38,121 +28,30 @@ export const Toast = ({
   icon,
   onClose,
   timeout,
+  variant = 'success',
 }: ToastProps) => (
-  <Wrapper>
-    <Main>
-      {icon && (
-        <IconWrapper>
-          <Icon name={icon} className="text-green-600" />
-        </IconWrapper>
-      )}
-      <div className={contentStyle(!!icon)}>
-        <TitleText>{title}</TitleText>
-        {content && <BodyText> {content}</BodyText>}
-      </div>
-      <CloseButton onClick={() => onClose()}>
+  <div
+    className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}
+    role="status"
+  >
+    {/* HACK: leading < 1 to get rid of space below icon */}
+    <div className="text-2xl leading-[0.5]">
+      <Icon name={icon} />
+    </div>
+    <div className="flex-1">
+      <div>{title}</div>
+      <div className="font-light">{content}</div>
+    </div>
+    <div>
+      <button type="button" onClick={() => onClose()} className="mt-0.5">
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <Icon name="close" className="text-gray-50" />
+            <Icon name="close" />
           </TimeoutIndicator>
         ) : (
-          <Icon name="close" className="text-gray-50" />
+          <Icon name="close" />
         )}
-      </CloseButton>
-    </Main>
-  </Wrapper>
-)
-
-export interface ActionToastProps extends BaseToastProps {
-  action: string
-  onAction: () => void
-}
-export const ActionToast = ({
-  icon,
-  title,
-  content,
-  onClose,
-  action,
-  onAction,
-}: ActionToastProps) => (
-  <Wrapper>
-    <Main>
-      {icon && (
-        <IconWrapper>
-          <Icon name={icon} className="text-green-600" />
-        </IconWrapper>
-      )}
-      <div className={contentStyle(!!icon)}>
-        <TitleText>{title}</TitleText>
-        {content && <BodyText>{content}</BodyText>}
-      </div>
-      <button
-        className="uppercase text-sm text-green-600"
-        onClick={() => onAction()}
-      >
-        {action}
       </button>
-      <CloseButton onClick={() => onClose()}>
-        <Icon name="close" className="text-gray-50" />
-      </CloseButton>
-    </Main>
-  </Wrapper>
-)
-
-export interface ConfirmToastProps extends BaseToastProps {
-  confirm: string
-  cancel: string
-
-  onConfirm: () => void
-  onCancel: () => void
-}
-
-const SplitActions = classed.div`flex flex-col border-l border-gray-50`
-
-const SplitActionContainer = classed.div`flex flex-1 first-of-type:border-b first-of-type:border-gray-50`
-
-export const ConfirmToast = ({
-  icon,
-  title,
-  content,
-  confirm,
-  onConfirm,
-  cancel,
-  onCancel,
-}: ConfirmToastProps) => (
-  <Wrapper className="w-[28rem]">
-    <Main>
-      {icon && (
-        <IconWrapper>
-          <Icon name={icon} className="text-green-600" />
-        </IconWrapper>
-      )}
-
-      <div className={contentStyle(!!icon)}>
-        <TitleText>{title}</TitleText>
-        {content && <BodyText>{content}</BodyText>}
-      </div>
-    </Main>
-
-    <SplitActions>
-      <SplitActionContainer>
-        <Button
-          className="flex-1 text-green-600"
-          variant="ghost"
-          onClick={() => onConfirm()}
-        >
-          {confirm}
-        </Button>
-      </SplitActionContainer>
-      <SplitActionContainer>
-        <Button
-          className="flex-1 text-gray-50"
-          variant="ghost"
-          onClick={() => onCancel()}
-        >
-          {cancel}
-        </Button>
-      </SplitActionContainer>
-    </SplitActions>
-  </Wrapper>
+    </div>
+  </div>
 )

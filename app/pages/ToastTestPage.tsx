@@ -17,57 +17,17 @@ const ToastTestPage = () => {
   const [defaultCloseCounter, incrDefaultCloseCounter] = useCounter(0)
   const [shouldHaveTimeout, setShouldHaveTimout] = useState(false)
 
-  const [actionCloseCounter, incrActionCloseCounter] = useCounter(0)
-  const [actionCounter, incrActionCounter] = useCounter(0)
-
-  const [confirmConfirmCounter, incrConfirmConfirmCounter] = useCounter(0)
-  const [confirmCancelCounter, incrConfirmCancelCounter] = useCounter(0)
-
   const handleDefaultToast = () => {
     incrCounter()
 
     addToast({
-      type: 'default',
+      variant: 'success',
 
       title: `Default Toast #${counter}`,
+      icon: 'checkO',
       onClose: incrDefaultCloseCounter,
 
       timeout: shouldHaveTimeout ? 5000 : undefined,
-    })
-  }
-
-  const handleActionToast = () => {
-    incrCounter()
-
-    addToast({
-      type: 'action',
-
-      title: `Action Toast #${counter}`,
-      content: 'This is some test content',
-      icon: 'checkO',
-
-      action: 'Undo',
-      onAction: incrActionCounter,
-
-      onClose: incrActionCloseCounter,
-    })
-  }
-
-  const handleConfirmToast = () => {
-    incrCounter()
-
-    addToast({
-      type: 'confirm',
-
-      title: `Confirm Toast #${counter}`,
-      content: 'Are you sure you want to do this?',
-      icon: 'warning',
-
-      confirm: 'Yes',
-      onConfirm: incrConfirmConfirmCounter,
-
-      cancel: 'No',
-      onCancel: incrConfirmCancelCounter,
     })
   }
 
@@ -87,22 +47,6 @@ const ToastTestPage = () => {
         </label>
         <Button className="mt-4" onClick={handleDefaultToast}>
           Trigger Default Toast
-        </Button>
-      </section>
-      <section>
-        <Heading>Action Toast</Heading>
-        <div>Toast Closed: {actionCloseCounter} times</div>
-        <div>Toast Action clicked: {actionCounter} times</div>
-        <Button className="mt-4" onClick={handleActionToast}>
-          Trigger Action Toast
-        </Button>
-      </section>
-      <section>
-        <Heading>Confirm Toast</Heading>
-        <div>Toast Confirm Action clicked: {confirmConfirmCounter} times</div>
-        <div>Toast Cancel Action clicked: {confirmCancelCounter} times</div>
-        <Button className="mt-4" onClick={handleConfirmToast}>
-          Trigger Confirm Toast
         </Button>
       </section>
     </div>

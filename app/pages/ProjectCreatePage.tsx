@@ -39,7 +39,6 @@ const ProjectCreatePage = () => {
         data
       )
       addToast({
-        type: 'default',
         title: 'Success!',
         content: 'Your project has been created.',
         icon: 'checkO',

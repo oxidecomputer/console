@@ -1,4 +1,7 @@
-import { Canvas, Story } from '@storybook/addon-docs/blocks'
+import { Canvas, Meta, Story } from '@storybook/addon-docs/blocks'
+import { Default } from './Toast.stories.tsx'
+
+<Meta title="Components/Toast" />
 
 # Toasts
 
@@ -10,30 +13,8 @@ Toasts appear with an ease-in animation from the bottom of the viewport and stay
 
 Users can exit the toast by clicking the “Dismiss” button. Toasts with action buttons are only dismissed when the user performs the action, clicks the dismiss button, or navigates to another page.
 
-### Type
-
-#### Default toast
-
-These toasts are used to display simple, non-interactive messages.
-
 <Canvas>
-  <Story id="components-toast--default" />
-</Canvas>
-
-#### Action toast
-
-These toasts are used to display message with an optional user action (for example, “Undo”).
-
-<Canvas>
-  <Story id="components-toast--action" />
-</Canvas>
-
-#### Confirm toast
-
-These toasts are used to display a message with a required user action, either "Yes" (`onConfirm`) or "No" (`onCancel`). This variant has no close button.
-
-<Canvas>
-  <Story id="components-toast--confirm" />
+  <Story story={Default} />
 </Canvas>
 
 ## Content

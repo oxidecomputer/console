@@ -61,7 +61,7 @@ const InstancePage = () => {
     onSuccess: () => {
       refetch()
       addToast({
-        type: 'default',
+        icon: 'checkO',
         title: `Instance '${instanceName}' stopped.`,
         timeout: 5000,
       })
@@ -71,7 +71,7 @@ const InstancePage = () => {
   const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
     onSuccess: () => {
       addToast({
-        type: 'default',
+        icon: 'checkO',
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
@@ -102,7 +102,8 @@ const InstancePage = () => {
       })
     } else {
       addToast({
-        type: 'default',
+        variant: 'info',
+        icon: 'danger',
         title: 'Only a running instance can be stopped',
         timeout: 5000,
       })
@@ -117,7 +118,7 @@ const InstancePage = () => {
       })
     } else {
       addToast({
-        type: 'default',
+        icon: 'checkO',
         title: 'Only a stopped instance can be deleted',
         timeout: 5000,
       })
@@ -132,7 +133,7 @@ const InstancePage = () => {
       })
     } else {
       addToast({
-        type: 'default',
+        icon: 'checkO',
         title: 'Only a running instance can be rebooted',
         timeout: 5000,
       })
