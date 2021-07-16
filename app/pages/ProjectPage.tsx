@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, Button, PageHeader, PageTitle } from '@oxide/ui'
+import { Breadcrumbs, buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
 import { InstancesTable } from '../components/InstancesTable'
 import { useBreadcrumbs } from '../hooks'
 
@@ -29,11 +29,17 @@ const ProjectPage = () => {
 
       <InstancesTable className="mb-12" />
       <div className="space-x-4">
-        <Link to={`/projects/${projectName}/instances/new`}>
-          <Button>Create instance</Button>
+        <Link
+          to={`/projects/${projectName}/instances/new`}
+          className={buttonStyle()}
+        >
+          Create instance
         </Link>
-        <Link to={`/projects/${projectName}/access`}>
-          <Button variant="ghost">Access &amp; IAM</Button>
+        <Link
+          to={`/projects/${projectName}/access`}
+          className={buttonStyle({ variant: 'ghost' })}
+        >
+          Access &amp; IAM
         </Link>
       </div>
     </>

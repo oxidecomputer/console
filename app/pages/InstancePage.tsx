@@ -3,7 +3,7 @@ import { useParams, useHistory } from 'react-router-dom'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
-import type { IconName, ButtonProps } from '@oxide/ui'
+import type { IconName } from '@oxide/ui'
 import {
   Breadcrumbs,
   Button,
@@ -32,8 +32,6 @@ const InstanceAction = (props: {
     {props.children}
   </Button>
 )
-
-const pageAction: ButtonProps = { size: 'xs', variant: 'dim' }
 
 type Params = {
   projectName: string
@@ -158,10 +156,10 @@ const InstancePage = () => {
           <InstanceAction icon="trash" onClick={handleDelete}>
             Delete
           </InstanceAction>
-          <Button {...pageAction} className="!ml-4">
+          <Button size="xs" variant="dim" className="!ml-4">
             SSH
           </Button>
-          <Button {...pageAction}>
+          <Button size="xs" variant="dim">
             <Icon name="more" />
           </Button>
         </div>
