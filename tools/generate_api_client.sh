@@ -22,7 +22,7 @@ openapi-generator generate -i $DOCS_DIR/nexus-openapi.json \
   -o $GEN_DIR \
   -g typescript-fetch \
   --additional-properties=typescriptThreePlus=true
-yarn fmt > /dev/null 2>&1
+yarn fmt --loglevel error
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
