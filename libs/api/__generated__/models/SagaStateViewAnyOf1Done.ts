@@ -23,39 +23,39 @@ import {
 /**
  *
  * @export
- * @interface ApiSagaStateViewAnyOf1Done
+ * @interface SagaStateViewAnyOf1Done
  */
-export interface ApiSagaStateViewAnyOf1Done {
+export interface SagaStateViewAnyOf1Done {
   /**
    *
    * @type {ActionError}
-   * @memberof ApiSagaStateViewAnyOf1Done
+   * @memberof SagaStateViewAnyOf1Done
    */
   errorInfo?: ActionError
   /**
    *
    * @type {string}
-   * @memberof ApiSagaStateViewAnyOf1Done
+   * @memberof SagaStateViewAnyOf1Done
    */
   errorNodeName?: string
   /**
    *
    * @type {boolean}
-   * @memberof ApiSagaStateViewAnyOf1Done
+   * @memberof SagaStateViewAnyOf1Done
    */
   failed: boolean
 }
 
-export function ApiSagaStateViewAnyOf1DoneFromJSON(
+export function SagaStateViewAnyOf1DoneFromJSON(
   json: any
-): ApiSagaStateViewAnyOf1Done {
-  return ApiSagaStateViewAnyOf1DoneFromJSONTyped(json, false)
+): SagaStateViewAnyOf1Done {
+  return SagaStateViewAnyOf1DoneFromJSONTyped(json, false)
 }
 
-export function ApiSagaStateViewAnyOf1DoneFromJSONTyped(
+export function SagaStateViewAnyOf1DoneFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiSagaStateViewAnyOf1Done {
+): SagaStateViewAnyOf1Done {
   if (json === undefined || json === null) {
     return json
   }
@@ -70,8 +70,8 @@ export function ApiSagaStateViewAnyOf1DoneFromJSONTyped(
   }
 }
 
-export function ApiSagaStateViewAnyOf1DoneToJSON(
-  value?: ApiSagaStateViewAnyOf1Done | null
+export function SagaStateViewAnyOf1DoneToJSON(
+  value?: SagaStateViewAnyOf1Done | null
 ): any {
   if (value === undefined) {
     return undefined

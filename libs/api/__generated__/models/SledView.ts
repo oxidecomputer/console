@@ -14,57 +14,57 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Client view of an [`ApiSled`]
+ * Client view of an [`Sled`]
  * @export
- * @interface ApiSledView
+ * @interface SledView
  */
-export interface ApiSledView {
+export interface SledView {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   description: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   name: string
   /**
    *
    * @type {string}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   serviceAddress: string
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof ApiSledView
+   * @memberof SledView
    */
   timeModified: Date
 }
 
-export function ApiSledViewFromJSON(json: any): ApiSledView {
-  return ApiSledViewFromJSONTyped(json, false)
+export function SledViewFromJSON(json: any): SledView {
+  return SledViewFromJSONTyped(json, false)
 }
 
-export function ApiSledViewFromJSONTyped(
+export function SledViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiSledView {
+): SledView {
   if (json === undefined || json === null) {
     return json
   }
@@ -78,7 +78,7 @@ export function ApiSledViewFromJSONTyped(
   }
 }
 
-export function ApiSledViewToJSON(value?: ApiSledView | null): any {
+export function SledViewToJSON(value?: SledView | null): any {
   if (value === undefined) {
     return undefined
   }

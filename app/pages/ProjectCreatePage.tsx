@@ -52,9 +52,7 @@ const ProjectCreatePage = () => {
     e.preventDefault()
     // TODO: validate client-side before attempting to POST
     if (!createProject.isLoading) {
-      createProject.mutate({
-        apiProjectCreateParams: { name, description },
-      })
+      createProject.mutate({ projectCreateParams: { name, description } })
     }
   }
 

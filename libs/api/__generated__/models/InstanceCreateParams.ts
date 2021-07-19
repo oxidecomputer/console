@@ -14,21 +14,21 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for an [`ApiInstance`]
+ * Create-time parameters for an [`Instance`]
  * @export
- * @interface ApiInstanceCreateParams
+ * @interface InstanceCreateParams
  */
-export interface ApiInstanceCreateParams {
+export interface InstanceCreateParams {
   /**
    *
    * @type {string}
-   * @memberof ApiInstanceCreateParams
+   * @memberof InstanceCreateParams
    */
   description: string
   /**
    *
    * @type {string}
-   * @memberof ApiInstanceCreateParams
+   * @memberof InstanceCreateParams
    */
   hostname: string
   /**
@@ -36,33 +36,31 @@ export interface ApiInstanceCreateParams {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof ApiInstanceCreateParams
+   * @memberof InstanceCreateParams
    */
   memory: number
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiInstanceCreateParams
+   * @memberof InstanceCreateParams
    */
   name: string
   /**
    * The number of CPUs in an Instance
    * @type {number}
-   * @memberof ApiInstanceCreateParams
+   * @memberof InstanceCreateParams
    */
   ncpus: number
 }
 
-export function ApiInstanceCreateParamsFromJSON(
-  json: any
-): ApiInstanceCreateParams {
-  return ApiInstanceCreateParamsFromJSONTyped(json, false)
+export function InstanceCreateParamsFromJSON(json: any): InstanceCreateParams {
+  return InstanceCreateParamsFromJSONTyped(json, false)
 }
 
-export function ApiInstanceCreateParamsFromJSONTyped(
+export function InstanceCreateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiInstanceCreateParams {
+): InstanceCreateParams {
   if (json === undefined || json === null) {
     return json
   }
@@ -75,8 +73,8 @@ export function ApiInstanceCreateParamsFromJSONTyped(
   }
 }
 
-export function ApiInstanceCreateParamsToJSON(
-  value?: ApiInstanceCreateParams | null
+export function InstanceCreateParamsToJSON(
+  value?: InstanceCreateParams | null
 ): any {
   if (value === undefined) {
     return undefined

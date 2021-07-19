@@ -14,46 +14,44 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for an [`ApiProject`]
+ * Updateable properties of an [`Project`]
  * @export
- * @interface ApiProjectCreateParams
+ * @interface ProjectUpdateParams
  */
-export interface ApiProjectCreateParams {
+export interface ProjectUpdateParams {
   /**
    *
    * @type {string}
-   * @memberof ApiProjectCreateParams
+   * @memberof ProjectUpdateParams
    */
-  description: string
+  description?: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiProjectCreateParams
+   * @memberof ProjectUpdateParams
    */
-  name: string
+  name?: string
 }
 
-export function ApiProjectCreateParamsFromJSON(
-  json: any
-): ApiProjectCreateParams {
-  return ApiProjectCreateParamsFromJSONTyped(json, false)
+export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
+  return ProjectUpdateParamsFromJSONTyped(json, false)
 }
 
-export function ApiProjectCreateParamsFromJSONTyped(
+export function ProjectUpdateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiProjectCreateParams {
+): ProjectUpdateParams {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    description: json['description'],
-    name: json['name'],
+    description: !exists(json, 'description') ? undefined : json['description'],
+    name: !exists(json, 'name') ? undefined : json['name'],
   }
 }
 
-export function ApiProjectCreateParamsToJSON(
-  value?: ApiProjectCreateParams | null
+export function ProjectUpdateParamsToJSON(
+  value?: ProjectUpdateParams | null
 ): any {
   if (value === undefined) {
     return undefined

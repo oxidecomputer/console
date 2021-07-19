@@ -14,21 +14,21 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for an [`ApiDisk`]
+ * Create-time parameters for an [`Disk`]
  * @export
- * @interface ApiDiskCreateParams
+ * @interface DiskCreateParams
  */
-export interface ApiDiskCreateParams {
+export interface DiskCreateParams {
   /**
    *
    * @type {string}
-   * @memberof ApiDiskCreateParams
+   * @memberof DiskCreateParams
    */
   description: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiDiskCreateParams
+   * @memberof DiskCreateParams
    */
   name: string
   /**
@@ -36,25 +36,25 @@ export interface ApiDiskCreateParams {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof ApiDiskCreateParams
+   * @memberof DiskCreateParams
    */
   size: number
   /**
    * id for snapshot from which the Disk should be created, if any
    * @type {string}
-   * @memberof ApiDiskCreateParams
+   * @memberof DiskCreateParams
    */
   snapshotId?: string
 }
 
-export function ApiDiskCreateParamsFromJSON(json: any): ApiDiskCreateParams {
-  return ApiDiskCreateParamsFromJSONTyped(json, false)
+export function DiskCreateParamsFromJSON(json: any): DiskCreateParams {
+  return DiskCreateParamsFromJSONTyped(json, false)
 }
 
-export function ApiDiskCreateParamsFromJSONTyped(
+export function DiskCreateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskCreateParams {
+): DiskCreateParams {
   if (json === undefined || json === null) {
     return json
   }
@@ -66,9 +66,7 @@ export function ApiDiskCreateParamsFromJSONTyped(
   }
 }
 
-export function ApiDiskCreateParamsToJSON(
-  value?: ApiDiskCreateParams | null
-): any {
+export function DiskCreateParamsToJSON(value?: DiskCreateParams | null): any {
   if (value === undefined) {
     return undefined
   }

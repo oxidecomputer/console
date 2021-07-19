@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiInstanceView,
-  ApiInstanceViewFromJSON,
-  ApiInstanceViewFromJSONTyped,
-  ApiInstanceViewToJSON,
+  InstanceView,
+  InstanceViewFromJSON,
+  InstanceViewFromJSONTyped,
+  InstanceViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiInstanceViewResultsPage
+ * @interface InstanceViewResultsPage
  */
-export interface ApiInstanceViewResultsPage {
+export interface InstanceViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiInstanceView>}
-   * @memberof ApiInstanceViewResultsPage
+   * @type {Array<InstanceView>}
+   * @memberof InstanceViewResultsPage
    */
-  items: Array<ApiInstanceView>
+  items: Array<InstanceView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiInstanceViewResultsPage
+   * @memberof InstanceViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiInstanceViewResultsPageFromJSON(
+export function InstanceViewResultsPageFromJSON(
   json: any
-): ApiInstanceViewResultsPage {
-  return ApiInstanceViewResultsPageFromJSONTyped(json, false)
+): InstanceViewResultsPage {
+  return InstanceViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiInstanceViewResultsPageFromJSONTyped(
+export function InstanceViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiInstanceViewResultsPage {
+): InstanceViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiInstanceViewFromJSON),
+    items: (json['items'] as Array<any>).map(InstanceViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiInstanceViewResultsPageToJSON(
-  value?: ApiInstanceViewResultsPage | null
+export function InstanceViewResultsPageToJSON(
+  value?: InstanceViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ApiInstanceViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiInstanceViewToJSON),
+    items: (value.items as Array<any>).map(InstanceViewToJSON),
     next_page: value.nextPage,
   }
 }

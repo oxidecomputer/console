@@ -4,7 +4,7 @@ import cn from 'classnames'
 import './menu-button.css'
 
 // TODO: These shouldn't be object, but Record<string, unknown> isn't compatible
-// with, e.g., ApiInstanceView
+// with, e.g., InstanceView
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type Props<D extends object> = {

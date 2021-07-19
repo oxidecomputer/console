@@ -1,7 +1,7 @@
-import type { ApiInstanceView } from '@oxide/api'
-import { ApiInstanceState } from '@oxide/api'
+import type { InstanceView } from '@oxide/api'
+import { InstanceState } from '@oxide/api'
 
-export const instance: ApiInstanceView = {
+export const instance: InstanceView = {
   ncpus: 7,
   memory: 1024 * 1024 * 256,
   name: 'db1',
@@ -9,7 +9,7 @@ export const instance: ApiInstanceView = {
   id: 'abc123',
   hostname: 'oxide.com',
   projectId: 'def456',
-  runState: ApiInstanceState.Running,
+  runState: InstanceState.Running,
   timeCreated: new Date(),
   timeModified: new Date(),
   timeRunStateUpdated: new Date(),

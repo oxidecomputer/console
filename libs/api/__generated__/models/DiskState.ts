@@ -14,58 +14,58 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiDiskStateAnyOf,
-  ApiDiskStateAnyOfFromJSON,
-  ApiDiskStateAnyOfFromJSONTyped,
-  ApiDiskStateAnyOfToJSON,
-  ApiDiskStateAnyOf1,
-  ApiDiskStateAnyOf1FromJSON,
-  ApiDiskStateAnyOf1FromJSONTyped,
-  ApiDiskStateAnyOf1ToJSON,
-  ApiDiskStateAnyOf2,
-  ApiDiskStateAnyOf2FromJSON,
-  ApiDiskStateAnyOf2FromJSONTyped,
-  ApiDiskStateAnyOf2ToJSON,
-  ApiDiskStateAnyOf3,
-  ApiDiskStateAnyOf3FromJSON,
-  ApiDiskStateAnyOf3FromJSONTyped,
-  ApiDiskStateAnyOf3ToJSON,
+  DiskStateAnyOf,
+  DiskStateAnyOfFromJSON,
+  DiskStateAnyOfFromJSONTyped,
+  DiskStateAnyOfToJSON,
+  DiskStateAnyOf1,
+  DiskStateAnyOf1FromJSON,
+  DiskStateAnyOf1FromJSONTyped,
+  DiskStateAnyOf1ToJSON,
+  DiskStateAnyOf2,
+  DiskStateAnyOf2FromJSON,
+  DiskStateAnyOf2FromJSONTyped,
+  DiskStateAnyOf2ToJSON,
+  DiskStateAnyOf3,
+  DiskStateAnyOf3FromJSON,
+  DiskStateAnyOf3FromJSONTyped,
+  DiskStateAnyOf3ToJSON,
 } from './'
 
 /**
  * State of a Disk (primarily: attached or not)
  * @export
- * @interface ApiDiskState
+ * @interface DiskState
  */
-export interface ApiDiskState {
+export interface DiskState {
   /**
    *
    * @type {string}
-   * @memberof ApiDiskState
+   * @memberof DiskState
    */
   attaching: string
   /**
    *
    * @type {string}
-   * @memberof ApiDiskState
+   * @memberof DiskState
    */
   attached: string
   /**
    *
    * @type {string}
-   * @memberof ApiDiskState
+   * @memberof DiskState
    */
   detaching: string
 }
 
-export function ApiDiskStateFromJSON(json: any): ApiDiskState {
-  return ApiDiskStateFromJSONTyped(json, false)
+export function DiskStateFromJSON(json: any): DiskState {
+  return DiskStateFromJSONTyped(json, false)
 }
 
-export function ApiDiskStateFromJSONTyped(
+export function DiskStateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskState {
+): DiskState {
   if (json === undefined || json === null) {
     return json
   }
@@ -76,7 +76,7 @@ export function ApiDiskStateFromJSONTyped(
   }
 }
 
-export function ApiDiskStateToJSON(value?: ApiDiskState | null): any {
+export function DiskStateToJSON(value?: DiskState | null): any {
   if (value === undefined) {
     return undefined
   }

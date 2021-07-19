@@ -14,34 +14,34 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiInstanceState,
-  ApiInstanceStateFromJSON,
-  ApiInstanceStateFromJSONTyped,
-  ApiInstanceStateToJSON,
+  InstanceState,
+  InstanceStateFromJSON,
+  InstanceStateFromJSONTyped,
+  InstanceStateToJSON,
 } from './'
 
 /**
- * Client view of an [`ApiInstance`]
+ * Client view of an [`Instance`]
  * @export
- * @interface ApiInstanceView
+ * @interface InstanceView
  */
-export interface ApiInstanceView {
+export interface InstanceView {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   description: string
   /**
    * RFC1035-compliant hostname for the Instance.
    * @type {string}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   hostname: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   id: string
   /**
@@ -49,61 +49,61 @@ export interface ApiInstanceView {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   memory: number
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   name: string
   /**
    * The number of CPUs in an Instance
    * @type {number}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   ncpus: number
   /**
    * id for the project containing this Instance
    * @type {string}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   projectId: string
   /**
    *
-   * @type {ApiInstanceState}
-   * @memberof ApiInstanceView
+   * @type {InstanceState}
+   * @memberof InstanceView
    */
-  runState: ApiInstanceState
+  runState: InstanceState
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   timeModified: Date
   /**
    *
    * @type {Date}
-   * @memberof ApiInstanceView
+   * @memberof InstanceView
    */
   timeRunStateUpdated: Date
 }
 
-export function ApiInstanceViewFromJSON(json: any): ApiInstanceView {
-  return ApiInstanceViewFromJSONTyped(json, false)
+export function InstanceViewFromJSON(json: any): InstanceView {
+  return InstanceViewFromJSONTyped(json, false)
 }
 
-export function ApiInstanceViewFromJSONTyped(
+export function InstanceViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiInstanceView {
+): InstanceView {
   if (json === undefined || json === null) {
     return json
   }
@@ -115,14 +115,14 @@ export function ApiInstanceViewFromJSONTyped(
     name: json['name'],
     ncpus: json['ncpus'],
     projectId: json['projectId'],
-    runState: ApiInstanceStateFromJSON(json['runState']),
+    runState: InstanceStateFromJSON(json['runState']),
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
     timeRunStateUpdated: new Date(json['timeRunStateUpdated']),
   }
 }
 
-export function ApiInstanceViewToJSON(value?: ApiInstanceView | null): any {
+export function InstanceViewToJSON(value?: InstanceView | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -137,7 +137,7 @@ export function ApiInstanceViewToJSON(value?: ApiInstanceView | null): any {
     name: value.name,
     ncpus: value.ncpus,
     projectId: value.projectId,
-    runState: ApiInstanceStateToJSON(value.runState),
+    runState: InstanceStateToJSON(value.runState),
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
     timeRunStateUpdated: value.timeRunStateUpdated.toISOString(),

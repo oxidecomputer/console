@@ -14,51 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Client view of an [`ApiProject`]
+ * Client view of an [`Project`]
  * @export
- * @interface ApiProjectView
+ * @interface ProjectView
  */
-export interface ApiProjectView {
+export interface ProjectView {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof ApiProjectView
+   * @memberof ProjectView
    */
   description: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof ApiProjectView
+   * @memberof ProjectView
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiProjectView
+   * @memberof ProjectView
    */
   name: string
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof ApiProjectView
+   * @memberof ProjectView
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof ApiProjectView
+   * @memberof ProjectView
    */
   timeModified: Date
 }
 
-export function ApiProjectViewFromJSON(json: any): ApiProjectView {
-  return ApiProjectViewFromJSONTyped(json, false)
+export function ProjectViewFromJSON(json: any): ProjectView {
+  return ProjectViewFromJSONTyped(json, false)
 }
 
-export function ApiProjectViewFromJSONTyped(
+export function ProjectViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiProjectView {
+): ProjectView {
   if (json === undefined || json === null) {
     return json
   }
@@ -71,7 +71,7 @@ export function ApiProjectViewFromJSONTyped(
   }
 }
 
-export function ApiProjectViewToJSON(value?: ApiProjectView | null): any {
+export function ProjectViewToJSON(value?: ProjectView | null): any {
   if (value === undefined) {
     return undefined
   }

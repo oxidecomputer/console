@@ -192,10 +192,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     e.preventDefault()
     // TODO: validate client-side before attempting to POST
     if (!createInstance.isLoading) {
-      createInstance.mutate({
-        projectName,
-        apiInstanceCreateParams: getParams(),
-      })
+      createInstance.mutate({ projectName, instanceCreateParams: getParams() })
     }
   }
 

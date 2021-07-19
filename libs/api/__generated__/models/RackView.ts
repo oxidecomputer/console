@@ -14,43 +14,43 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiIdentityMetadata,
-  ApiIdentityMetadataFromJSON,
-  ApiIdentityMetadataFromJSONTyped,
-  ApiIdentityMetadataToJSON,
+  IdentityMetadata,
+  IdentityMetadataFromJSON,
+  IdentityMetadataFromJSONTyped,
+  IdentityMetadataToJSON,
 } from './'
 
 /**
- * Client view of an [`ApiRack`]
+ * Client view of an [`Rack`]
  * @export
- * @interface ApiRackView
+ * @interface RackView
  */
-export interface ApiRackView {
+export interface RackView {
   /**
    *
-   * @type {ApiIdentityMetadata}
-   * @memberof ApiRackView
+   * @type {IdentityMetadata}
+   * @memberof RackView
    */
-  identity: ApiIdentityMetadata
+  identity: IdentityMetadata
 }
 
-export function ApiRackViewFromJSON(json: any): ApiRackView {
-  return ApiRackViewFromJSONTyped(json, false)
+export function RackViewFromJSON(json: any): RackView {
+  return RackViewFromJSONTyped(json, false)
 }
 
-export function ApiRackViewFromJSONTyped(
+export function RackViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiRackView {
+): RackView {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    identity: ApiIdentityMetadataFromJSON(json['identity']),
+    identity: IdentityMetadataFromJSON(json['identity']),
   }
 }
 
-export function ApiRackViewToJSON(value?: ApiRackView | null): any {
+export function RackViewToJSON(value?: RackView | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -58,6 +58,6 @@ export function ApiRackViewToJSON(value?: ApiRackView | null): any {
     return null
   }
   return {
-    identity: ApiIdentityMetadataToJSON(value.identity),
+    identity: IdentityMetadataToJSON(value.identity),
   }
 }

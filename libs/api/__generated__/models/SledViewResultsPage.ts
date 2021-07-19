@@ -14,53 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiProjectView,
-  ApiProjectViewFromJSON,
-  ApiProjectViewFromJSONTyped,
-  ApiProjectViewToJSON,
+  SledView,
+  SledViewFromJSON,
+  SledViewFromJSONTyped,
+  SledViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiProjectViewResultsPage
+ * @interface SledViewResultsPage
  */
-export interface ApiProjectViewResultsPage {
+export interface SledViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiProjectView>}
-   * @memberof ApiProjectViewResultsPage
+   * @type {Array<SledView>}
+   * @memberof SledViewResultsPage
    */
-  items: Array<ApiProjectView>
+  items: Array<SledView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiProjectViewResultsPage
+   * @memberof SledViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiProjectViewResultsPageFromJSON(
-  json: any
-): ApiProjectViewResultsPage {
-  return ApiProjectViewResultsPageFromJSONTyped(json, false)
+export function SledViewResultsPageFromJSON(json: any): SledViewResultsPage {
+  return SledViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiProjectViewResultsPageFromJSONTyped(
+export function SledViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiProjectViewResultsPage {
+): SledViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiProjectViewFromJSON),
+    items: (json['items'] as Array<any>).map(SledViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiProjectViewResultsPageToJSON(
-  value?: ApiProjectViewResultsPage | null
+export function SledViewResultsPageToJSON(
+  value?: SledViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +67,7 @@ export function ApiProjectViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiProjectViewToJSON),
+    items: (value.items as Array<any>).map(SledViewToJSON),
     next_page: value.nextPage,
   }
 }

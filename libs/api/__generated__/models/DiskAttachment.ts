@@ -14,64 +14,64 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiDiskState,
-  ApiDiskStateFromJSON,
-  ApiDiskStateFromJSONTyped,
-  ApiDiskStateToJSON,
+  DiskState,
+  DiskStateFromJSON,
+  DiskStateFromJSONTyped,
+  DiskStateToJSON,
 } from './'
 
 /**
  * Describes a Disk's attachment to an Instance
  * @export
- * @interface ApiDiskAttachment
+ * @interface DiskAttachment
  */
-export interface ApiDiskAttachment {
+export interface DiskAttachment {
   /**
    *
    * @type {string}
-   * @memberof ApiDiskAttachment
+   * @memberof DiskAttachment
    */
   diskId: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiDiskAttachment
+   * @memberof DiskAttachment
    */
   diskName: string
   /**
    *
-   * @type {ApiDiskState}
-   * @memberof ApiDiskAttachment
+   * @type {DiskState}
+   * @memberof DiskAttachment
    */
-  diskState: ApiDiskState
+  diskState: DiskState
   /**
    *
    * @type {string}
-   * @memberof ApiDiskAttachment
+   * @memberof DiskAttachment
    */
   instanceId: string
 }
 
-export function ApiDiskAttachmentFromJSON(json: any): ApiDiskAttachment {
-  return ApiDiskAttachmentFromJSONTyped(json, false)
+export function DiskAttachmentFromJSON(json: any): DiskAttachment {
+  return DiskAttachmentFromJSONTyped(json, false)
 }
 
-export function ApiDiskAttachmentFromJSONTyped(
+export function DiskAttachmentFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskAttachment {
+): DiskAttachment {
   if (json === undefined || json === null) {
     return json
   }
   return {
     diskId: json['diskId'],
     diskName: json['diskName'],
-    diskState: ApiDiskStateFromJSON(json['diskState']),
+    diskState: DiskStateFromJSON(json['diskState']),
     instanceId: json['instanceId'],
   }
 }
 
-export function ApiDiskAttachmentToJSON(value?: ApiDiskAttachment | null): any {
+export function DiskAttachmentToJSON(value?: DiskAttachment | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -81,7 +81,7 @@ export function ApiDiskAttachmentToJSON(value?: ApiDiskAttachment | null): any {
   return {
     diskId: value.diskId,
     diskName: value.diskName,
-    diskState: ApiDiskStateToJSON(value.diskState),
+    diskState: DiskStateToJSON(value.diskState),
     instanceId: value.instanceId,
   }
 }

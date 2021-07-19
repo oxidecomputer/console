@@ -17,25 +17,23 @@
  * @export
  * @enum {string}
  */
-export enum ApiNameOrIdSortMode {
+export enum NameOrIdSortMode {
   NameAscending = 'name-ascending',
   NameDescending = 'name-descending',
   IdAscending = 'id-ascending',
 }
 
-export function ApiNameOrIdSortModeFromJSON(json: any): ApiNameOrIdSortMode {
-  return ApiNameOrIdSortModeFromJSONTyped(json, false)
+export function NameOrIdSortModeFromJSON(json: any): NameOrIdSortMode {
+  return NameOrIdSortModeFromJSONTyped(json, false)
 }
 
-export function ApiNameOrIdSortModeFromJSONTyped(
+export function NameOrIdSortModeFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiNameOrIdSortMode {
-  return json as ApiNameOrIdSortMode
+): NameOrIdSortMode {
+  return json as NameOrIdSortMode
 }
 
-export function ApiNameOrIdSortModeToJSON(
-  value?: ApiNameOrIdSortMode | null
-): any {
+export function NameOrIdSortModeToJSON(value?: NameOrIdSortMode | null): any {
   return value as any
 }
