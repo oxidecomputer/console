@@ -1803,6 +1803,14 @@
     "@reach/utils" "0.15.2"
     tslib "^2.3.0"
 
+"@reach/auto-id@0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@reach/auto-id/-/auto-id-0.15.3.tgz#23b6ae8de3bf7520044c95a85c992ae46cdcef9c"
+  integrity sha512-lbLUI9mrn74qVis141ib0Rsyhgk+gzUMtpplRmjy06cUWDFZyiBATNWMUxN5T+0fU4tpfgcjkAuPeTCCGThKtQ==
+  dependencies:
+    "@reach/utils" "0.15.3"
+    tslib "^2.3.0"
+
 "@reach/combobox@^0.15.2":
   version "0.15.2"
   resolved "https://registry.yarnpkg.com/@reach/combobox/-/combobox-0.15.2.tgz#a85bd6269477b882bf98dda8973512271083fdfd"
@@ -1822,6 +1830,14 @@
   integrity sha512-GdQXWVpscss89MOhWh+sL4TnIn0qX1y+Te3wE72aKQrz/QCR69JFEW4wftovmF7rFm4/kDZcp14lMy512U6VlA==
   dependencies:
     "@reach/utils" "0.15.2"
+    tslib "^2.3.0"
+
+"@reach/descendants@0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@reach/descendants/-/descendants-0.15.3.tgz#818522e54a66e3e577970e25aa7226645e22aabc"
+  integrity sha512-vuCBG7Uru6IEJ2wvTd7L2xumbYzv2UYBduZ0E1FEABqyUo78eTIZbRcwIN73IxMcivjWipBPlcLLkpFtJKMPew==
+  dependencies:
+    "@reach/utils" "0.15.3"
     tslib "^2.3.0"
 
 "@reach/dialog@^0.15.2":
@@ -1893,6 +1909,17 @@
     invariant "^2.2.3"
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
+
+"@reach/tabs@^0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@reach/tabs/-/tabs-0.15.3.tgz#6b0497d12f72dfc0992a8caafe8d8aeb7c8ece77"
+  integrity sha512-x+RToVrhywIp3YFqBVmPiscKKnr+29vwo2H3GGZMFeXOMaZz7d941cSbx7o2So2jXEtLhuTuMc9Nak/sVtV8Hg==
+  dependencies:
+    "@reach/auto-id" "0.15.3"
+    "@reach/descendants" "0.15.3"
+    "@reach/utils" "0.15.3"
+    prop-types "^15.7.2"
+    tslib "^2.3.0"
 
 "@reach/utils@0.15.2":
   version "0.15.2"

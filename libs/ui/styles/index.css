@@ -2,6 +2,10 @@
 @import '@reach/combobox/styles.css';
 @import '@reach/dialog/styles.css';
 @import '@reach/menu-button/styles.css';
+@import '@reach/tabs/styles.css';
+
+/* the tabs component is just @reach/tabs plus custom CSS */
+@import '../lib/tabs/Tabs.css';
 
 @tailwind base;
 @tailwind components;

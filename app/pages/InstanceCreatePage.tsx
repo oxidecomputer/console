@@ -1,16 +1,17 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 
 import {
   classed,
+  Badge,
   Breadcrumbs,
   Button,
   PageHeader,
   PageTitle,
   RadioGroup,
   RadioField,
-  Tabs,
   TextInputGroup,
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
@@ -211,95 +212,113 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     data: Array<Pick<RadioGroupProps, 'legend' | 'hint' | 'children'>>
   ) =>
     data.map((group, index) => (
-      <RadioGroup
-        checked={instanceSizeValue}
-        direction="fixed-row"
-        handleChange={setInstanceSizeValue}
-        hideLegend
-        hint={group.hint}
-        key={`distributions-${index}`}
-        legend={group.legend}
-        name={`distributions-${index}`}
-      >
-        {group.children}
-      </RadioGroup>
+      <TabPanel key={`distributions-${index}`}>
+        <RadioGroup
+          checked={instanceSizeValue}
+          direction="fixed-row"
+          handleChange={setInstanceSizeValue}
+          hideLegend
+          hint={group.hint}
+          legend={group.legend}
+          name={`distributions-${index}`}
+        >
+          {group.children}
+        </RadioGroup>
+      </TabPanel>
     ))
 
   return (
     <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
       <Heading>Choose an image</Heading>
-      <Tabs
-        className="mt-1"
-        label="Choose an image"
-        tabs={['Distributions', 'Custom Images']}
-      >
-        <RadioGroup
-          hideLegend
-          legend="Choose a distribution"
-          checked={imageField}
-          handleChange={setImageField}
-          direction="fixed-row"
-          name="distributions"
-        >
-          <RadioCardField value="centos">CentOS</RadioCardField>
-          <RadioCardField value="debian">Debian</RadioCardField>
-          <RadioCardField value="fedora">Fedora</RadioCardField>
-          <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
-          <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
-          <RadioCardField value="windows1">Windows</RadioCardField>
-          <RadioCardField value="windows2">Windows</RadioCardField>
-        </RadioGroup>
-        <RadioGroup
-          hideLegend
-          legend="Choose a custom image"
-          checked={imageField}
-          handleChange={setImageField}
-          direction="fixed-row"
-          name="custom-image"
-        >
-          <RadioCardField value="custom-centos">Custom CentOS</RadioCardField>
-          <RadioCardField value="custom-debian">Custom Debian</RadioCardField>
-          <RadioCardField value="custom-fedora">Custom Fedora</RadioCardField>
-        </RadioGroup>
+      <Tabs className="mt-1">
+        <TabList aria-label="Choose an image">
+          <Tab>Distributions</Tab>
+          <Tab>Custom Images</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <RadioGroup
+              hideLegend
+              legend="Choose a distribution"
+              checked={imageField}
+              handleChange={setImageField}
+              direction="fixed-row"
+              name="distributions"
+            >
+              <RadioCardField value="centos">CentOS</RadioCardField>
+              <RadioCardField value="debian">Debian</RadioCardField>
+              <RadioCardField value="fedora">Fedora</RadioCardField>
+              <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
+              <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
+              <RadioCardField value="windows1">Windows</RadioCardField>
+              <RadioCardField value="windows2">Windows</RadioCardField>
+            </RadioGroup>
+          </TabPanel>
+          <TabPanel>
+            <RadioGroup
+              hideLegend
+              legend="Choose a custom image"
+              checked={imageField}
+              handleChange={setImageField}
+              direction="fixed-row"
+              name="custom-image"
+            >
+              <RadioCardField value="custom-centos">
+                Custom CentOS
+              </RadioCardField>
+              <RadioCardField value="custom-debian">
+                Custom Debian
+              </RadioCardField>
+              <RadioCardField value="custom-fedora">
+                Custom Fedora
+              </RadioCardField>
+            </RadioGroup>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
       <Heading>Choose CPUs and RAM</Heading>
-      <Tabs
-        className="mt-1"
-        label="Choose CPUs and RAM"
-        tabs={[
-          'General purpose',
-          'CPU-Optimized',
-          'Memory-Optimized',
-          'Storage-Optimized',
-          'Custom',
-        ]}
-      >
-        {renderTabPanels([
-          {
-            legend: 'Choose a general purpose instance',
-            hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
-            children: renderLargeRadioFields('general'),
-          },
-          {
-            legend: 'Choose a CPU optimized instance',
-            children: renderLargeRadioFields('cpuOptimized'),
-          },
-          {
-            legend: 'Choose a Memory optimized instance',
-            hint: 'Memory optimized instances provide a good balance of...',
-            children: renderLargeRadioFields('memoryOptimized'),
-          },
-          {
-            legend: 'Choose a Storage optimized instance',
-            hint: 'Storage optimized instances provide a good balance of...',
-            children: renderLargeRadioFields('storageOptimized'),
-          },
-          {
-            legend: 'Choose a custom instance',
-            hint: 'Custom instances...',
-            children: renderLargeRadioFields('custom'),
-          },
-        ])}
+      <Tabs className="mt-1">
+        <TabList aria-label="Choose CPUs and RAM">
+          <Tab>General purpose</Tab>
+          <Tab>CPU-optimized</Tab>
+          <Tab>Memory-optimized</Tab>
+          <Tab>Storage-optimized</Tab>
+          <Tab>
+            Custom{' '}
+            <Badge size="sm" variant="dim" color="green">
+              New
+            </Badge>
+          </Tab>
+        </TabList>
+        <TabPanels>
+          {renderTabPanels([
+            {
+              legend: 'Choose a general purpose instance',
+              hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
+              children: renderLargeRadioFields('general'),
+            },
+            {
+              legend: 'Choose a CPU optimized instance',
+              hint: 'CPU optimized instances provide a good balance of...',
+              children: renderLargeRadioFields('cpuOptimized'),
+            },
+            {
+              legend: 'Choose a Memory optimized instance',
+              hint: 'Memory optimized instances provide a good balance of...',
+              children: renderLargeRadioFields('memoryOptimized'),
+            },
+            {
+              legend: 'Choose a Storage optimized instance',
+              hint: 'Storage optimized instances provide a good balance of...',
+              children: renderLargeRadioFields('storageOptimized'),
+            },
+            {
+              legend: 'Choose a custom instance',
+              hint: 'Custom instances...',
+              children: renderLargeRadioFields('custom'),
+            },
+          ])}
+        </TabPanels>
       </Tabs>
       <RadioGroup
         legend="Add storage"

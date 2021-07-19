@@ -1,0 +1,20 @@
+[data-reach-tabs] {
+}
+
+[data-reach-tab-list] {
+  @apply space-x-2.5 mb-3;
+}
+
+[data-reach-tab-panels] {
+}
+
+[data-reach-tab] {
+  @apply font-mono uppercase text-xs font-light text-gray-200 border-gray-200 px-2 py-2.5;
+}
+
+[data-reach-tab][data-selected] {
+  @apply text-green-500 border-green-500;
+}
+
+[data-reach-tab-panel] {
+}

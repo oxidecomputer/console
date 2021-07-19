@@ -1,5 +1,6 @@
 import React from 'react'
 import { useParams, useHistory } from 'react-router-dom'
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
@@ -11,7 +12,6 @@ import {
   Icon,
   PageHeader,
   PageTitle,
-  Tabs,
 } from '@oxide/ui'
 
 import { InstanceDetails } from '../components/InstanceDetails'
@@ -168,25 +168,23 @@ const InstancePage = () => {
       <div className="mt-3">
         <InstanceDetails instance={instance} />
       </div>
-      <Tabs
-        className="mt-4"
-        fullWidth
-        label="Instance Page"
-        tabs={['Overview', 'Metrics', 'Activity', 'Access & IAM', 'Settings']}
-      >
-        <div>
-          <div>
+      <Tabs className="mt-4">
+        <TabList aria-label="Instance Page">
+          <Tab className="flex-1">Overview</Tab>
+          <Tab className="flex-1">Metrics</Tab>
+          <Tab className="flex-1">Activity</Tab>
+          <Tab className="flex-1">Access &amp; IAM</Tab>
+          <Tab className="flex-1">Settings</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
             <div className="flex flex-wrap mt-4 gap-4">
               <Card title="Metrics" subtitle="Some status update" />
               <Card title="Activity" subtitle="Some status update" />
               <Card title="Access & IAM" subtitle="Some status update" />
             </div>
-          </div>
-        </div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
     </div>
   )

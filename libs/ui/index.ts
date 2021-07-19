@@ -17,7 +17,6 @@ export * from './lib/radio-field/RadioField'
 export * from './lib/radio-group/RadioGroup'
 export * from './lib/table/Table'
 export * from './lib/table/select-col'
-export * from './lib/tabs/Tabs'
 export * from './lib/tooltip/Tooltip'
 export * from './lib/toast/Toast'
 
