@@ -13,39 +13,51 @@
  */
 
 import { exists, mapValues } from '../runtime'
+import {
+  SagaStateView,
+  SagaStateViewFromJSON,
+  SagaStateViewFromJSONTyped,
+  SagaStateViewToJSON,
+} from './'
+
 /**
- * Disk is being attached to the given Instance
+ *
  * @export
- * @interface ApiDiskStateAnyOf1
+ * @interface SagaView
  */
-export interface ApiDiskStateAnyOf1 {
+export interface SagaView {
   /**
    *
    * @type {string}
-   * @memberof ApiDiskStateAnyOf1
+   * @memberof SagaView
    */
-  attaching: string
+  id: string
+  /**
+   *
+   * @type {SagaStateView}
+   * @memberof SagaView
+   */
+  state: SagaStateView
 }
 
-export function ApiDiskStateAnyOf1FromJSON(json: any): ApiDiskStateAnyOf1 {
-  return ApiDiskStateAnyOf1FromJSONTyped(json, false)
+export function SagaViewFromJSON(json: any): SagaView {
+  return SagaViewFromJSONTyped(json, false)
 }
 
-export function ApiDiskStateAnyOf1FromJSONTyped(
+export function SagaViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskStateAnyOf1 {
+): SagaView {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    attaching: json['attaching'],
+    id: json['id'],
+    state: SagaStateViewFromJSON(json['state']),
   }
 }
 
-export function ApiDiskStateAnyOf1ToJSON(
-  value?: ApiDiskStateAnyOf1 | null
-): any {
+export function SagaViewToJSON(value?: SagaView | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -53,6 +65,7 @@ export function ApiDiskStateAnyOf1ToJSON(
     return null
   }
   return {
-    attaching: value.attaching,
+    id: value.id,
+    state: SagaStateViewToJSON(value.state),
   }
 }

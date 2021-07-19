@@ -14,53 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiRackView,
-  ApiRackViewFromJSON,
-  ApiRackViewFromJSONTyped,
-  ApiRackViewToJSON,
+  ProjectView,
+  ProjectViewFromJSON,
+  ProjectViewFromJSONTyped,
+  ProjectViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiRackViewResultsPage
+ * @interface ProjectViewResultsPage
  */
-export interface ApiRackViewResultsPage {
+export interface ProjectViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiRackView>}
-   * @memberof ApiRackViewResultsPage
+   * @type {Array<ProjectView>}
+   * @memberof ProjectViewResultsPage
    */
-  items: Array<ApiRackView>
+  items: Array<ProjectView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiRackViewResultsPage
+   * @memberof ProjectViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiRackViewResultsPageFromJSON(
+export function ProjectViewResultsPageFromJSON(
   json: any
-): ApiRackViewResultsPage {
-  return ApiRackViewResultsPageFromJSONTyped(json, false)
+): ProjectViewResultsPage {
+  return ProjectViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiRackViewResultsPageFromJSONTyped(
+export function ProjectViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiRackViewResultsPage {
+): ProjectViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiRackViewFromJSON),
+    items: (json['items'] as Array<any>).map(ProjectViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiRackViewResultsPageToJSON(
-  value?: ApiRackViewResultsPage | null
+export function ProjectViewResultsPageToJSON(
+  value?: ProjectViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +69,7 @@ export function ApiRackViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiRackViewToJSON),
+    items: (value.items as Array<any>).map(ProjectViewToJSON),
     next_page: value.nextPage,
   }
 }

@@ -14,46 +14,46 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiDiskState,
-  ApiDiskStateFromJSON,
-  ApiDiskStateFromJSONTyped,
-  ApiDiskStateToJSON,
+  DiskState,
+  DiskStateFromJSON,
+  DiskStateFromJSONTyped,
+  DiskStateToJSON,
 } from './'
 
 /**
- * Client view of an [`ApiDisk`]
+ * Client view of an [`Disk`]
  * @export
- * @interface ApiDiskView
+ * @interface DiskView
  */
-export interface ApiDiskView {
+export interface DiskView {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   description: string
   /**
    *
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   devicePath: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   name: string
   /**
    *
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   projectId: string
   /**
@@ -61,43 +61,43 @@ export interface ApiDiskView {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   size: number
   /**
    *
    * @type {string}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   snapshotId?: string
   /**
    *
-   * @type {ApiDiskState}
-   * @memberof ApiDiskView
+   * @type {DiskState}
+   * @memberof DiskView
    */
-  state: ApiDiskState
+  state: DiskState
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof ApiDiskView
+   * @memberof DiskView
    */
   timeModified: Date
 }
 
-export function ApiDiskViewFromJSON(json: any): ApiDiskView {
-  return ApiDiskViewFromJSONTyped(json, false)
+export function DiskViewFromJSON(json: any): DiskView {
+  return DiskViewFromJSONTyped(json, false)
 }
 
-export function ApiDiskViewFromJSONTyped(
+export function DiskViewFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskView {
+): DiskView {
   if (json === undefined || json === null) {
     return json
   }
@@ -109,13 +109,13 @@ export function ApiDiskViewFromJSONTyped(
     projectId: json['projectId'],
     size: json['size'],
     snapshotId: !exists(json, 'snapshotId') ? undefined : json['snapshotId'],
-    state: ApiDiskStateFromJSON(json['state']),
+    state: DiskStateFromJSON(json['state']),
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
   }
 }
 
-export function ApiDiskViewToJSON(value?: ApiDiskView | null): any {
+export function DiskViewToJSON(value?: DiskView | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -130,7 +130,7 @@ export function ApiDiskViewToJSON(value?: ApiDiskView | null): any {
     projectId: value.projectId,
     size: value.size,
     snapshotId: value.snapshotId,
-    state: ApiDiskStateToJSON(value.state),
+    state: DiskStateToJSON(value.state),
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
   }

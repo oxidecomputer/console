@@ -19,7 +19,7 @@
  * @export
  * @enum {string}
  */
-export enum ApiInstanceState {
+export enum InstanceState {
   Creating = 'creating',
   Starting = 'starting',
   Running = 'running',
@@ -31,17 +31,17 @@ export enum ApiInstanceState {
   Destroyed = 'destroyed',
 }
 
-export function ApiInstanceStateFromJSON(json: any): ApiInstanceState {
-  return ApiInstanceStateFromJSONTyped(json, false)
+export function InstanceStateFromJSON(json: any): InstanceState {
+  return InstanceStateFromJSONTyped(json, false)
 }
 
-export function ApiInstanceStateFromJSONTyped(
+export function InstanceStateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiInstanceState {
-  return json as ApiInstanceState
+): InstanceState {
+  return json as InstanceState
 }
 
-export function ApiInstanceStateToJSON(value?: ApiInstanceState | null): any {
+export function InstanceStateToJSON(value?: InstanceState | null): any {
   return value as any
 }

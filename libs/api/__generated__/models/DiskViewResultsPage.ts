@@ -14,53 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiSagaView,
-  ApiSagaViewFromJSON,
-  ApiSagaViewFromJSONTyped,
-  ApiSagaViewToJSON,
+  DiskView,
+  DiskViewFromJSON,
+  DiskViewFromJSONTyped,
+  DiskViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiSagaViewResultsPage
+ * @interface DiskViewResultsPage
  */
-export interface ApiSagaViewResultsPage {
+export interface DiskViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiSagaView>}
-   * @memberof ApiSagaViewResultsPage
+   * @type {Array<DiskView>}
+   * @memberof DiskViewResultsPage
    */
-  items: Array<ApiSagaView>
+  items: Array<DiskView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiSagaViewResultsPage
+   * @memberof DiskViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiSagaViewResultsPageFromJSON(
-  json: any
-): ApiSagaViewResultsPage {
-  return ApiSagaViewResultsPageFromJSONTyped(json, false)
+export function DiskViewResultsPageFromJSON(json: any): DiskViewResultsPage {
+  return DiskViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiSagaViewResultsPageFromJSONTyped(
+export function DiskViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiSagaViewResultsPage {
+): DiskViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiSagaViewFromJSON),
+    items: (json['items'] as Array<any>).map(DiskViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiSagaViewResultsPageToJSON(
-  value?: ApiSagaViewResultsPage | null
+export function DiskViewResultsPageToJSON(
+  value?: DiskViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +67,7 @@ export function ApiSagaViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiSagaViewToJSON),
+    items: (value.items as Array<any>).map(DiskViewToJSON),
     next_page: value.nextPage,
   }
 }

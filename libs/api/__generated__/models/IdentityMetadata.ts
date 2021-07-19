@@ -16,49 +16,49 @@ import { exists, mapValues } from '../runtime'
 /**
  * Identity-related metadata that's included in nearly all public API objects
  * @export
- * @interface ApiIdentityMetadata
+ * @interface IdentityMetadata
  */
-export interface ApiIdentityMetadata {
+export interface IdentityMetadata {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof ApiIdentityMetadata
+   * @memberof IdentityMetadata
    */
   description: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof ApiIdentityMetadata
+   * @memberof IdentityMetadata
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ApiIdentityMetadata
+   * @memberof IdentityMetadata
    */
   name: string
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof ApiIdentityMetadata
+   * @memberof IdentityMetadata
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof ApiIdentityMetadata
+   * @memberof IdentityMetadata
    */
   timeModified: Date
 }
 
-export function ApiIdentityMetadataFromJSON(json: any): ApiIdentityMetadata {
-  return ApiIdentityMetadataFromJSONTyped(json, false)
+export function IdentityMetadataFromJSON(json: any): IdentityMetadata {
+  return IdentityMetadataFromJSONTyped(json, false)
 }
 
-export function ApiIdentityMetadataFromJSONTyped(
+export function IdentityMetadataFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiIdentityMetadata {
+): IdentityMetadata {
   if (json === undefined || json === null) {
     return json
   }
@@ -71,9 +71,7 @@ export function ApiIdentityMetadataFromJSONTyped(
   }
 }
 
-export function ApiIdentityMetadataToJSON(
-  value?: ApiIdentityMetadata | null
-): any {
+export function IdentityMetadataToJSON(value?: IdentityMetadata | null): any {
   if (value === undefined) {
     return undefined
   }

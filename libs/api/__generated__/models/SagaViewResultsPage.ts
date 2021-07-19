@@ -14,53 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiSledView,
-  ApiSledViewFromJSON,
-  ApiSledViewFromJSONTyped,
-  ApiSledViewToJSON,
+  SagaView,
+  SagaViewFromJSON,
+  SagaViewFromJSONTyped,
+  SagaViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiSledViewResultsPage
+ * @interface SagaViewResultsPage
  */
-export interface ApiSledViewResultsPage {
+export interface SagaViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiSledView>}
-   * @memberof ApiSledViewResultsPage
+   * @type {Array<SagaView>}
+   * @memberof SagaViewResultsPage
    */
-  items: Array<ApiSledView>
+  items: Array<SagaView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiSledViewResultsPage
+   * @memberof SagaViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiSledViewResultsPageFromJSON(
-  json: any
-): ApiSledViewResultsPage {
-  return ApiSledViewResultsPageFromJSONTyped(json, false)
+export function SagaViewResultsPageFromJSON(json: any): SagaViewResultsPage {
+  return SagaViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiSledViewResultsPageFromJSONTyped(
+export function SagaViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiSledViewResultsPage {
+): SagaViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiSledViewFromJSON),
+    items: (json['items'] as Array<any>).map(SagaViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiSledViewResultsPageToJSON(
-  value?: ApiSledViewResultsPage | null
+export function SagaViewResultsPageToJSON(
+  value?: SagaViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +67,7 @@ export function ApiSledViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiSledViewToJSON),
+    items: (value.items as Array<any>).map(SagaViewToJSON),
     next_page: value.nextPage,
   }
 }

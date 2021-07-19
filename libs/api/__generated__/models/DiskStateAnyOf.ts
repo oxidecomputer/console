@@ -13,27 +13,28 @@
  */
 
 /**
- * Supported set of sort modes for scanning by name only
  *
- * Currently, we only support scanning in ascending order.
  * @export
  * @enum {string}
  */
-export enum ApiNameSortMode {
-  NameAscending = 'name-ascending',
+export enum DiskStateAnyOf {
+  Creating = 'creating',
+  Detached = 'detached',
+  Destroyed = 'destroyed',
+  Faulted = 'faulted',
 }
 
-export function ApiNameSortModeFromJSON(json: any): ApiNameSortMode {
-  return ApiNameSortModeFromJSONTyped(json, false)
+export function DiskStateAnyOfFromJSON(json: any): DiskStateAnyOf {
+  return DiskStateAnyOfFromJSONTyped(json, false)
 }
 
-export function ApiNameSortModeFromJSONTyped(
+export function DiskStateAnyOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiNameSortMode {
-  return json as ApiNameSortMode
+): DiskStateAnyOf {
+  return json as DiskStateAnyOf
 }
 
-export function ApiNameSortModeToJSON(value?: ApiNameSortMode | null): any {
+export function DiskStateAnyOfToJSON(value?: DiskStateAnyOf | null): any {
   return value as any
 }

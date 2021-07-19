@@ -14,38 +14,36 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk is attached to the given Instance
+ * Disk is being detached from the given Instance
  * @export
- * @interface ApiDiskStateAnyOf2
+ * @interface DiskStateAnyOf3
  */
-export interface ApiDiskStateAnyOf2 {
+export interface DiskStateAnyOf3 {
   /**
    *
    * @type {string}
-   * @memberof ApiDiskStateAnyOf2
+   * @memberof DiskStateAnyOf3
    */
-  attached: string
+  detaching: string
 }
 
-export function ApiDiskStateAnyOf2FromJSON(json: any): ApiDiskStateAnyOf2 {
-  return ApiDiskStateAnyOf2FromJSONTyped(json, false)
+export function DiskStateAnyOf3FromJSON(json: any): DiskStateAnyOf3 {
+  return DiskStateAnyOf3FromJSONTyped(json, false)
 }
 
-export function ApiDiskStateAnyOf2FromJSONTyped(
+export function DiskStateAnyOf3FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskStateAnyOf2 {
+): DiskStateAnyOf3 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    attached: json['attached'],
+    detaching: json['detaching'],
   }
 }
 
-export function ApiDiskStateAnyOf2ToJSON(
-  value?: ApiDiskStateAnyOf2 | null
-): any {
+export function DiskStateAnyOf3ToJSON(value?: DiskStateAnyOf3 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -53,6 +51,6 @@ export function ApiDiskStateAnyOf2ToJSON(
     return null
   }
   return {
-    attached: value.attached,
+    detaching: value.detaching,
   }
 }

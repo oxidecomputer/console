@@ -14,53 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  ApiDiskView,
-  ApiDiskViewFromJSON,
-  ApiDiskViewFromJSONTyped,
-  ApiDiskViewToJSON,
+  RackView,
+  RackViewFromJSON,
+  RackViewFromJSONTyped,
+  RackViewToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ApiDiskViewResultsPage
+ * @interface RackViewResultsPage
  */
-export interface ApiDiskViewResultsPage {
+export interface RackViewResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ApiDiskView>}
-   * @memberof ApiDiskViewResultsPage
+   * @type {Array<RackView>}
+   * @memberof RackViewResultsPage
    */
-  items: Array<ApiDiskView>
+  items: Array<RackView>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ApiDiskViewResultsPage
+   * @memberof RackViewResultsPage
    */
   nextPage?: string
 }
 
-export function ApiDiskViewResultsPageFromJSON(
-  json: any
-): ApiDiskViewResultsPage {
-  return ApiDiskViewResultsPageFromJSONTyped(json, false)
+export function RackViewResultsPageFromJSON(json: any): RackViewResultsPage {
+  return RackViewResultsPageFromJSONTyped(json, false)
 }
 
-export function ApiDiskViewResultsPageFromJSONTyped(
+export function RackViewResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiDiskViewResultsPage {
+): RackViewResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ApiDiskViewFromJSON),
+    items: (json['items'] as Array<any>).map(RackViewFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ApiDiskViewResultsPageToJSON(
-  value?: ApiDiskViewResultsPage | null
+export function RackViewResultsPageToJSON(
+  value?: RackViewResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -69,7 +67,7 @@ export function ApiDiskViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ApiDiskViewToJSON),
+    items: (value.items as Array<any>).map(RackViewToJSON),
     next_page: value.nextPage,
   }
 }
