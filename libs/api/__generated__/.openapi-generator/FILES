@@ -9,7 +9,6 @@ models/ActionErrorAnyOf2.ts
 models/ActionErrorAnyOf2DeserializeFailed.ts
 models/ActionErrorAnyOf3.ts
 models/ActionErrorAnyOf4.ts
-models/ApiIdSortMode.ts
 models/DiskAttachment.ts
 models/DiskCreateParams.ts
 models/DiskState.ts
@@ -19,6 +18,7 @@ models/DiskStateAnyOf2.ts
 models/DiskStateAnyOf3.ts
 models/DiskView.ts
 models/DiskViewResultsPage.ts
+models/IdSortMode.ts
 models/IdentityMetadata.ts
 models/InstanceCreateParams.ts
 models/InstanceState.ts

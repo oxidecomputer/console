@@ -14,9 +14,6 @@
 
 import * as runtime from '../runtime'
 import {
-  ApiIdSortMode,
-  ApiIdSortModeFromJSON,
-  ApiIdSortModeToJSON,
   DiskAttachment,
   DiskAttachmentFromJSON,
   DiskAttachmentToJSON,
@@ -29,6 +26,9 @@ import {
   DiskViewResultsPage,
   DiskViewResultsPageFromJSON,
   DiskViewResultsPageToJSON,
+  IdSortMode,
+  IdSortModeFromJSON,
+  IdSortModeToJSON,
   InstanceCreateParams,
   InstanceCreateParamsFromJSON,
   InstanceCreateParamsToJSON,
@@ -79,7 +79,7 @@ import {
 export interface HardwareRacksGetRequest {
   limit?: number
   pageToken?: string
-  sortBy?: ApiIdSortMode
+  sortBy?: IdSortMode
 }
 
 export interface HardwareRacksGetRackRequest {
@@ -89,7 +89,7 @@ export interface HardwareRacksGetRackRequest {
 export interface HardwareSledsGetRequest {
   limit?: number
   pageToken?: string
-  sortBy?: ApiIdSortMode
+  sortBy?: IdSortMode
 }
 
 export interface HardwareSledsGetSledRequest {
@@ -204,7 +204,7 @@ export interface ProjectsPutProjectRequest {
 export interface SagasGetRequest {
   limit?: number
   pageToken?: string
-  sortBy?: ApiIdSortMode
+  sortBy?: IdSortMode
 }
 
 export interface SagasGetSagaRequest {

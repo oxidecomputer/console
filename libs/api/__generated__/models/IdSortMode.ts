@@ -19,21 +19,21 @@
  * @export
  * @enum {string}
  */
-export enum ApiIdSortMode {
+export enum IdSortMode {
   IdAscending = 'id-ascending',
 }
 
-export function ApiIdSortModeFromJSON(json: any): ApiIdSortMode {
-  return ApiIdSortModeFromJSONTyped(json, false)
+export function IdSortModeFromJSON(json: any): IdSortMode {
+  return IdSortModeFromJSONTyped(json, false)
 }
 
-export function ApiIdSortModeFromJSONTyped(
+export function IdSortModeFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ApiIdSortMode {
-  return json as ApiIdSortMode
+): IdSortMode {
+  return json as IdSortMode
 }
 
-export function ApiIdSortModeToJSON(value?: ApiIdSortMode | null): any {
+export function IdSortModeToJSON(value?: IdSortMode | null): any {
   return value as any
 }
