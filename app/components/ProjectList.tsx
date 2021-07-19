@@ -2,13 +2,13 @@ import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import cn from 'classnames'
 
-import type { ApiProjectView } from '@oxide/api'
+import type { ProjectView } from '@oxide/api'
 
 import { Icon } from '@oxide/ui'
 
 export interface ProjectListProps {
   className?: string
-  projects: ApiProjectView[]
+  projects: ProjectView[]
 }
 
 export const ProjectList = (props: ProjectListProps) => (
