@@ -24,7 +24,6 @@
     "@reach/menu-button": "^0.15.2",
     "@reach/tabs": "^0.15.3",
     "classnames": "^2.3.1",
-    "core-js": "^3.11.0",
     "date-fns": "^2.21.2",
     "downshift": "^6.1.2",
     "filesize": "^6.3.0",
