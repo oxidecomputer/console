@@ -50,7 +50,7 @@ export const Avatar = ({
   ) : (
     <Icon
       name="profile"
-      className="text-gray-100 absolute top-[18%] right-0 left-0"
+      className="text-gray-100 text-4xl absolute top-[12%] right-0 left-0"
       svgProps={{ title: name }}
     />
   )
