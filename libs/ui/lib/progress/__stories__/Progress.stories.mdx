@@ -1,0 +1,56 @@
+import { Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
+import { Progress } from '../Progress'
+import { Button } from '../../button/Button'
+
+export const ProgressAnim = () => {
+  const [value, setValue] = React.useState(10)
+  return (
+    <div>
+      <Progress
+        value={value}
+        transitionTime={150}
+        aria-label="Progress bar animation demo"
+        className="mb-4"
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => setValue(Math.random() * 100)}
+      >
+        Random value
+      </Button>
+    </div>
+  )
+}
+
+<Meta title="Components/Progress" />
+
+# Progress Bar
+
+By default it's full width.
+
+<Canvas>
+  <Story name="Default">
+    <Progress value={75} />
+  </Story>
+</Canvas>
+
+## Constrained width
+
+Width can be constrained by putting the progress bar in a width-constrained container or giving the component a width directly.
+
+<Canvas>
+  <Story name="Set width">
+    <Progress value={75} className="w-20" />
+  </Story>
+</Canvas>
+
+## Animation
+
+Set `transitionTime` prop to put a transition on the width of the bar.
+
+<Canvas>
+  <Story name="Animation">
+    <ProgressAnim />
+  </Story>
+</Canvas>
