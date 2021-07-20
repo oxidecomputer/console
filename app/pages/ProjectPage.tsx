@@ -6,14 +6,10 @@ import { Breadcrumbs, buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
 import { InstancesTable } from '../components/InstancesTable'
 import { useBreadcrumbs } from '../hooks'
 
-type Params = {
-  projectName: string
-}
-
 const ProjectPage = () => {
   const breadcrumbs = useBreadcrumbs()
 
-  const { projectName } = useParams<Params>()
+  const { projectName } = useParams()
   const { data: project } = useApiQuery('projectsGetProject', {
     projectName,
   })

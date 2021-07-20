@@ -13,13 +13,23 @@ const queryClient = new QueryClient({
   },
 })
 
-const Providers: FC = ({ children }) => (
-  <Router>
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  </Router>
-)
+const customRender = (ui: ReactElement) =>
+  render(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    ),
+  })
 
-const customRender = (ui: ReactElement) => render(ui, { wrapper: Providers })
+export const renderWithRouter = (ui: ReactElement) =>
+  render(ui, {
+    wrapper: ({ children }) => (
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </Router>
+    ),
+  })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const lastBody = (mock: FetchMockStatic): any =>

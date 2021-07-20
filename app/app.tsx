@@ -1,9 +1,9 @@
 import React from 'react'
 import {
   BrowserRouter as Router,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
+  Routes,
 } from 'react-router-dom'
 
 import InstancePage from './pages/InstancePage'
@@ -22,20 +22,20 @@ const App = () => {
     <Router>
       <QuickMenu />
       <AppLayout>
-        <Switch>
-          <Route path="/" exact>
-            <Redirect to="/projects" />
+        <Routes>
+          <Route path="/">
+            <Navigate to="/projects" />
           </Route>
-          <Route path="/projects" exact>
+          <Route path="/projects">
             <ProjectsPage />
           </Route>
-          <Route path="/projects/new" exact>
+          <Route path="/projects/new">
             <ProjectCreatePage />
           </Route>
-          <Route path="/projects/:projectName/access" exact>
+          <Route path="/projects/:projectName/access">
             <ProjectAccessPage />
           </Route>
-          <Route path="/projects/:projectName/instances/new" exact>
+          <Route path="/projects/:projectName/instances/new">
             <InstanceCreatePage />
           </Route>
           <Route path="/projects/:projectName/instances/:instanceName">
@@ -47,7 +47,7 @@ const App = () => {
           <Route path="/__debug/toasts">
             <ToastTestPage />
           </Route>
-        </Switch>
+        </Routes>
       </AppLayout>
     </Router>
   )

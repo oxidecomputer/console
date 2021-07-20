@@ -24,7 +24,7 @@ const COLUMNS = [
     Cell: ({ value }: { value: string }) => {
       // TODO: is it weird to pull directly from params here and in the menu
       // column? seems easier than passing it in somehow
-      const { projectName } = useParams<{ projectName: string }>()
+      const { projectName } = useParams()
       return (
         <Link
           className="text-green-500"
@@ -82,7 +82,7 @@ const menuCol = {
 
     const instance = row.original
     const instanceName = instance.name
-    const { projectName } = useParams<{ projectName: string }>()
+    const { projectName } = useParams()
 
     // TODO: if there are lots of places we use the same set of instance
     // actions, consider wrapping them up in a useInstanceActions hook. One
@@ -156,7 +156,7 @@ const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text
 export const InstancesTable = ({ className }: { className?: string }) => {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
 
-  const { projectName } = useParams<{ projectName: string }>()
+  const { projectName } = useParams()
   const { data: instances } = useApiQuery(
     'projectInstancesGet',
     { projectName, pageToken: currentPage, limit: PAGE_SIZE },

@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import {
   Breadcrumbs,
@@ -19,7 +19,7 @@ const ERROR_CODES = {
 }
 
 const ProjectCreatePage = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const breadcrumbs = useBreadcrumbs()
 
   const [name, setName] = useState('')
@@ -44,7 +44,7 @@ const ProjectCreatePage = () => {
         icon: 'checkO',
         timeout: 5000,
       })
-      history.push(`/projects/${data.name}`)
+      navigate(`/projects/${data.name}`)
     },
   })
 

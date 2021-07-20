@@ -1,5 +1,11 @@
 import React from 'react'
-import { fireEvent, lastBody, render, screen, waitFor } from '../../test-utils'
+import {
+  fireEvent,
+  lastBody,
+  renderWithRouter,
+  screen,
+  waitFor,
+} from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
 import { project, instance } from '@oxide/api-mocks'
@@ -13,7 +19,7 @@ const postUrl = `/api/projects/${project.name}/instances`
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
-    render(<InstanceCreateForm projectName={project.name} />)
+    renderWithRouter(<InstanceCreateForm projectName={project.name} />)
   })
 
   afterEach(() => {
