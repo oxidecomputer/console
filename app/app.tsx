@@ -17,30 +17,27 @@ import ToastTestPage from './pages/ToastTestPage'
 import AppLayout from './components/AppLayout'
 import QuickMenu from './components/QuickMenu'
 
-const App = () => {
-  return (
-    <Router>
-      <QuickMenu />
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/projects" />} />
-          <Route path="projects">
-            <Route path="/" element={<ProjectsPage />} />
-            <Route path="new" element={<ProjectCreatePage />} />
-            <Route path=":projectName">
-              <Route path="/" element={<ProjectPage />} />
-              <Route path="access" element={<ProjectAccessPage />} />
-              <Route path="instances">
-                <Route path="new" element={<InstanceCreatePage />} />
-                <Route path=":instanceName" element={<InstancePage />} />
-              </Route>
-            </Route>
+const App = () => (
+  <Router>
+    <QuickMenu />
+    <Routes>
+      <Route path="/" element={<Navigate to="/projects" />} />
+      <Route path="projects" element={<AppLayout />}>
+        <Route path="/" element={<ProjectsPage />} />
+        <Route path="new" element={<ProjectCreatePage />} />
+        <Route path=":projectName">
+          <Route path="/" element={<ProjectPage />} />
+          <Route path="access" element={<ProjectAccessPage />} />
+          <Route path="instances">
+            <Route path="/" element={<ProjectPage />} />
+            <Route path="new" element={<InstanceCreatePage />} />
+            <Route path=":instanceName" element={<InstancePage />} />
           </Route>
-          <Route path="__debug/toasts" element={<ToastTestPage />} />
-        </Routes>
-      </AppLayout>
-    </Router>
-  )
-}
+        </Route>
+      </Route>
+      <Route path="__debug/toasts" element={<ToastTestPage />} />
+    </Routes>
+  </Router>
+)
 
 export default App
