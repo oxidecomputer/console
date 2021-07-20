@@ -1,4 +1,3 @@
-import type { FC, ReactElement } from 'react'
 import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { render } from '@testing-library/react'
@@ -13,14 +12,14 @@ const queryClient = new QueryClient({
   },
 })
 
-const customRender = (ui: ReactElement) =>
+const customRender = (ui: React.ReactElement) =>
   render(ui, {
     wrapper: ({ children }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     ),
   })
 
-export const renderWithRouter = (ui: ReactElement) =>
+export const renderWithRouter = (ui: React.ReactElement) =>
   render(ui, {
     wrapper: ({ children }) => (
       <Router>

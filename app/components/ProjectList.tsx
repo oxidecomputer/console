@@ -23,6 +23,7 @@ export const ProjectList = (props: ProjectListProps) => (
             className="inline-flex w-full p-1"
             to={`/projects/${p.name}`}
             activeClassName="text-white"
+            end
           >
             {p.name}
           </NavLink>
