@@ -17,9 +17,9 @@ export const ProjectList = (props: ProjectListProps) => {
       <header className="p-1 space-x-2 uppercase text-xs font-mono text-green-500">
         Projects
       </header>
-      <ul className="flex flex-col space-y-1 text-gray-200">
+      <ul className="space-y-0.5 text-gray-200 font-light text-sm">
         {projects?.items.map((p) => (
-          <li className="text-sm hover:bg-gray-400" key={p.id}>
+          <li className="hover:bg-gray-400" key={p.id}>
             <NavLink
               className="inline-flex w-full p-1"
               to={`/projects/${p.name}`}

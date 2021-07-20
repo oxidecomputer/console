@@ -14,18 +14,21 @@ import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
 
-import AppLayout from './components/AppLayout'
+import AppLayout from './layouts/AppLayout'
+import ProjectLayout from './layouts/ProjectLayout'
 import QuickMenu from './components/QuickMenu'
 
 const App = () => (
   <Router>
     <QuickMenu />
     <Routes>
-      <Route path="/" element={<Navigate to="/projects" />} />
-      <Route path="projects" element={<AppLayout />}>
-        <Route path="/" element={<ProjectsPage />} />
+      <Route path="/" element={<Navigate to="/projects" replace={true} />} />
+      <Route path="projects">
+        <Route path="/" element={<AppLayout />}>
+          <ProjectsPage />
+        </Route>
         <Route path="new" element={<ProjectCreatePage />} />
-        <Route path=":projectName">
+        <Route path=":projectName" element={<ProjectLayout />}>
           <Route path="/" element={<ProjectPage />} />
           <Route path="access" element={<ProjectAccessPage />} />
           <Route path="instances">

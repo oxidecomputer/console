@@ -1,9 +1,8 @@
 import React from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
-import { GlobalNav } from './GlobalNav'
-import { ProjectList } from './ProjectList'
-import { OperationList } from './OperationList'
+import { GlobalNav } from '../components/GlobalNav'
+import { ProjectList } from '../components/ProjectList'
 import Wordmark from '../assets/wordmark.svg'
 
 export default () => (
@@ -18,8 +17,6 @@ export default () => (
     </header>
     <div className="pb-6 overflow-auto bg-gray-500">
       <ProjectList className="mt-4 px-3" />
-      <hr className="border-gray-400 mt-6" />
-      <OperationList className="mt-6 px-3" />
     </div>
     <main className="overflow-auto py-2 px-6">
       <Outlet />
