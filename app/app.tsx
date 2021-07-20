@@ -1,9 +1,9 @@
 import React from 'react'
 import {
   BrowserRouter as Router,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
+  Routes,
 } from 'react-router-dom'
 
 import InstancePage from './pages/InstancePage'
@@ -17,40 +17,27 @@ import ToastTestPage from './pages/ToastTestPage'
 import AppLayout from './components/AppLayout'
 import QuickMenu from './components/QuickMenu'
 
-const App = () => {
-  return (
-    <Router>
-      <QuickMenu />
-      <AppLayout>
-        <Switch>
-          <Route path="/" exact>
-            <Redirect to="/projects" />
+const App = () => (
+  <Router>
+    <QuickMenu />
+    <Routes>
+      <Route path="/" element={<Navigate to="/projects" />} />
+      <Route path="projects" element={<AppLayout />}>
+        <Route path="/" element={<ProjectsPage />} />
+        <Route path="new" element={<ProjectCreatePage />} />
+        <Route path=":projectName">
+          <Route path="/" element={<ProjectPage />} />
+          <Route path="access" element={<ProjectAccessPage />} />
+          <Route path="instances">
+            <Route path="/" element={<ProjectPage />} />
+            <Route path="new" element={<InstanceCreatePage />} />
+            <Route path=":instanceName" element={<InstancePage />} />
           </Route>
-          <Route path="/projects" exact>
-            <ProjectsPage />
-          </Route>
-          <Route path="/projects/new" exact>
-            <ProjectCreatePage />
-          </Route>
-          <Route path="/projects/:projectName/access" exact>
-            <ProjectAccessPage />
-          </Route>
-          <Route path="/projects/:projectName/instances/new" exact>
-            <InstanceCreatePage />
-          </Route>
-          <Route path="/projects/:projectName/instances/:instanceName">
-            <InstancePage />
-          </Route>
-          <Route path="/projects/:projectName">
-            <ProjectPage />
-          </Route>
-          <Route path="/__debug/toasts">
-            <ToastTestPage />
-          </Route>
-        </Switch>
-      </AppLayout>
-    </Router>
-  )
-}
+        </Route>
+      </Route>
+      <Route path="__debug/toasts" element={<ToastTestPage />} />
+    </Routes>
+  </Router>
+)
 
 export default App

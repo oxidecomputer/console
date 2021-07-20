@@ -1,5 +1,11 @@
 import React from 'react'
-import { fireEvent, lastBody, render, screen, waitFor } from '../../test-utils'
+import {
+  fireEvent,
+  lastBody,
+  renderWithRouter,
+  screen,
+  waitFor,
+} from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
 import { project } from '@oxide/api-mocks'
@@ -11,7 +17,7 @@ const submitButton = () =>
 
 describe('ProjectCreatePage', () => {
   beforeEach(() => {
-    render(<ProjectCreatePage />)
+    renderWithRouter(<ProjectCreatePage />)
   })
 
   afterEach(() => {

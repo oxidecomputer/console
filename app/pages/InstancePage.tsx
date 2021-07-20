@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
@@ -33,16 +33,11 @@ const InstanceAction = (props: {
   </Button>
 )
 
-type Params = {
-  projectName: string
-  instanceName: string
-}
-
 const InstancePage = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const breadcrumbs = useBreadcrumbs()
   const addToast = useToast()
-  const { projectName, instanceName } = useParams<Params>()
+  const { projectName, instanceName } = useParams()
 
   const {
     data: instance,
@@ -75,7 +70,7 @@ const InstancePage = () => {
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
-      history.push(`/projects/${projectName}`)
+      navigate(`/projects/${projectName}`)
     },
   })
 

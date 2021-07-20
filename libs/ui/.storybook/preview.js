@@ -11,9 +11,7 @@ export const parameters = {
   docs: {
     // Default background does not apply to docs
     container: ({ children, context }) => (
-      <DocsContainer context={context}>
-        <Router>{children}</Router>
-      </DocsContainer>
+      <DocsContainer context={context}>{children}</DocsContainer>
     ),
     theme: darkUI,
   },

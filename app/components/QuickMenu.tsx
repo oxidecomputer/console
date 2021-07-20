@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { useNavigate, useMatch } from 'react-router-dom'
 import { Dialog } from '@reach/dialog'
 import {
   Combobox,
@@ -32,7 +32,7 @@ const projectPaths: Record<string, (s: string) => string> = {
 }
 
 function useProjectName(): string | null {
-  const match = useRouteMatch<{ projectName: string }>('/projects/:projectName')
+  const match = useMatch('/projects/:projectName')
   return match && match.params.projectName !== 'new'
     ? match.params.projectName
     : null
@@ -41,10 +41,7 @@ function useProjectName(): string | null {
 // not in use yet but this is how it will work
 // eslint-disable-next-line
 function useInstanceName(): string | null {
-  const match = useRouteMatch<{
-    projectName: string
-    instanceName: string
-  }>('/projects/:projectName/instances/:instanceName')
+  const match = useMatch('/projects/:projectName/instances/:instanceName')
   return match && match.params.instanceName !== 'new'
     ? match.params.instanceName
     : null
@@ -74,7 +71,7 @@ export default () => {
     values = [...Object.keys(projectPaths), ...values]
   }
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const goToProject = (value: string) => {
     let path = ''
     if (projectName && value in projectPaths) {
@@ -82,7 +79,7 @@ export default () => {
     } else {
       path = globalPaths[value] || `/projects/${value}`
     }
-    history.push(path)
+    navigate(path)
     reset()
   }
 

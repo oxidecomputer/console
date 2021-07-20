@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import React, { useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 
 import {
@@ -22,10 +22,6 @@ import { getServerError } from '../util/errors'
 const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
 
 const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
-
-type Params = {
-  projectName: string
-}
 
 // This data structure is completely made up for the purposes of demonstration
 // only. It is not meant to reflect any opinions on how the backend API endpoint
@@ -154,7 +150,7 @@ const ERROR_CODES = {
 }
 
 export function InstanceCreateForm({ projectName }: { projectName: string }) {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   // form state
   const [instanceName, setInstanceName] = useState('')
@@ -185,7 +181,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
   const createInstance = useApiMutation('projectInstancesPost', {
     onSuccess: () => {
-      history.push(`/projects/${projectName}`)
+      navigate(`/projects/${projectName}`)
     },
   })
 
@@ -404,7 +400,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
 const InstanceCreatePage = () => {
   const breadcrumbs = useBreadcrumbs()
-  const { projectName } = useParams<Params>()
+  const { projectName } = useParams()
 
   return (
     <>
