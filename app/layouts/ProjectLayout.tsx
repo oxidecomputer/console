@@ -7,7 +7,7 @@ import { OperationList } from '../components/OperationList'
 export default () => {
   const { projectName } = useParams()
   return (
-    <div className="grid h-screen grid-cols-[14rem,auto] grid-rows-[4rem,auto]">
+    <div className="grid h-screen grid-cols-[14rem,auto] grid-rows-[4.5rem,auto]">
       <div className="p-5 bg-gray-500 text-green-500 flex items-center">
         <Link to="/">
           <span className="mr-4" style={{ fontSize: '.625rem' }}>
