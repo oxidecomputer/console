@@ -1,12 +1,11 @@
 import React from 'react'
-
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { useBreadcrumbs } from '../hooks'
 import {
   Breadcrumbs,
-  Button,
+  buttonStyle,
   Icon,
   PageHeader,
   PageTitle,
@@ -39,8 +38,12 @@ const ProjectsPage = () => {
       <PageHeader>
         <PageTitle icon="projects">Projects</PageTitle>
         <div className="flex items-center">
-          {/* TODO: this is supposed to be a link */}
-          <Button variant="ghost">New Project</Button>
+          <Link
+            to="/projects/new"
+            className={buttonStyle({ variant: 'ghost' })}
+          >
+            New Project
+          </Link>
           <button className="p-3 flex items-center">
             <Icon name="more" className="text-base text-green-500 mr-4" />
           </button>
