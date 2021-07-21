@@ -158,7 +158,7 @@ const ProjectPage = () => {
           <Icon name="filter" />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>
-          Add <Icon name="plus" className="!w-4 ml-1" />
+          Add <Icon name="plus" className="text-sm ml-1" />
         </Button>
       </div>
       <Table className="mt-4" table={table} />

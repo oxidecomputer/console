@@ -40,7 +40,7 @@ export const Icon = ({ name, svgProps, className, ...props }: IconProps) => {
   // h-full is for safari, which handles h-auto badly, unlike everyone else
   return (
     <Component
-      className={cn('h-[1em] w-[1em] fill-current', className)}
+      className={cn('h-[1.25em] w-[1.25em] fill-current', className)}
       {...addSvgProps}
       {...props}
     />

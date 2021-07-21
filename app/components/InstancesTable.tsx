@@ -118,7 +118,7 @@ const menuCol = {
     return (
       <Menu>
         <MenuButton>
-          <Icon name="more" className="text-base text-gray-200 mr-4" />
+          <Icon name="more" className="text-sm text-gray-200 mr-4" />
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem

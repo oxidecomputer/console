@@ -33,7 +33,7 @@ export const Toast = ({
 }: ToastProps) => (
   <Alert className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}>
     {/* HACK: leading < 1 to get rid of space below icon */}
-    <div className="text-2xl leading-[0.5]">
+    <div className="text-lg leading-[0.5]">
       <Icon name={icon} />
     </div>
     <div className="flex-1">
