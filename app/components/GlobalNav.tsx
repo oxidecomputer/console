@@ -6,7 +6,7 @@ export const GlobalNav = () => {
   return (
     <div className="w-full flex items-center justify-end">
       <button type="button">
-        <Avatar round size="sm" name="Some User" />
+        <Avatar round name="Jessie Frazelle" />
       </button>
     </div>
   )

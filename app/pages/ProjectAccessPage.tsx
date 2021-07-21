@@ -30,7 +30,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 
 const NameCell = ({ value }: { value: string }) => (
   <div className="flex items-center">
-    <Avatar round size="xs" name={value} className="inline-block" />
+    <Avatar round size="sm" name={value} className="inline-block" />
     <span className="ml-3 text-sm font-sans font-light">{value}</span>
   </div>
 )

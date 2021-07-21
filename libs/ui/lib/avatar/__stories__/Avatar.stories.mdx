@@ -1,7 +1,7 @@
 <!-- Avatar.stories.mdx -->
 
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs/blocks'
-import { Avatar, AvatarProps, avatarSizes } from '../Avatar'
+import { Avatar, AvatarProps, avatarSizes, avatarColors } from '../Avatar'
 import { Person, AvatarAlignment } from './Avatar.stories'
 
 <Meta
@@ -28,51 +28,49 @@ Avatars are used to represent a unique entity, be it a person, a team, an org, o
 
 <ArgsTable of={Avatar} story="^" />
 
-## Design
-
-Avatars representing **persons** use a circular shape and avatars representing **a group or a project** use a square shape. They come in a variety of sizes. The size of an avatar varies depending upon the element it resides in as well as the size of the viewport.
-
-It is preferable that an avatar display an image. Images are personalized and make good use of the ability of the human brain to recognize faces. Project and org avatars contain a fallback in the case an image is not provided. This fallback will display the first letter(s) of the project or org name. Personal avatars have a Gravatar fallback which contains either a configured image or a randomly generated image.
-
-## Stories
-
-### Organization with an image
+## Round
 
 <Canvas>
-  {avatarSizes.map((size) => (
-    <Avatar
-      size={size}
-      name="Colossal Cave Adventure"
-      src="http://placekitten.com/500/500"
-    />
-  ))}
+  <div className="flex gap-8">
+    <div className="flex flex-col gap-4">
+      {avatarSizes.map((size) => (
+        <Avatar
+          size={size}
+          name="Colossal Cave Adventure"
+          src="http://placekitten.com/500/500"
+          round
+        />
+      ))}
+    </div>
+    {avatarColors.map((color) => (
+      <div className="flex flex-col gap-4">
+        {avatarSizes.map((size) => (
+          <Avatar size={size} name="Cameron Howe" color={color} round />
+        ))}
+      </div>
+    ))}
+  </div>
 </Canvas>
 
-### Organization fallback
+## Square
 
 <Canvas>
-  {avatarSizes.map((size) => (
-    <Avatar size={size} name="Colossal Cave Adventure" />
-  ))}
-</Canvas>
-
-### Person with an image
-
-<Canvas>
-  {avatarSizes.map((size) => (
-    <Avatar
-      size={size}
-      name="Cameron Howe"
-      round
-      src="http://placekitten.com/500/500"
-    />
-  ))}
-</Canvas>
-
-### Person fallback
-
-<Canvas>
-  {avatarSizes.map((size) => (
-    <Avatar size={size} name="Cameron Howe" round />
-  ))}
+  <div className="flex gap-8">
+    <div className="flex flex-col gap-4">
+      {avatarSizes.map((size) => (
+        <Avatar
+          size={size}
+          name="Colossal Cave Adventure"
+          src="http://placekitten.com/500/500"
+        />
+      ))}
+    </div>
+    {avatarColors.map((color) => (
+      <div className="flex flex-col gap-4">
+        {avatarSizes.map((size) => (
+          <Avatar size={size} name="Cameron Howe" color={color} />
+        ))}
+      </div>
+    ))}
+  </div>
 </Canvas>
