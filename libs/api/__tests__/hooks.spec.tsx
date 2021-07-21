@@ -8,6 +8,10 @@ import { Response } from 'node-fetch'
 import { project, projects } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
+// because useApiQuery and useApiMutation are almost entirely typed wrappers
+// around React Query's useQuery and useMutation, these tests are mostly about
+// testing the one bit of real logic in there: error parsing
+
 // make a whole new query client for every test. it was acting weird
 const wrapper = () => {
   const queryClient = new QueryClient({
@@ -38,8 +42,6 @@ describe('useApiQuery', () => {
   it('has correct initial state', () => {
     const { result } = renderGetProjects()
 
-    // we're not really trying to test library function useQuery here, but
-    // we do want to make sure it's hooked up correctly
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
     expect(result.current.isLoading).toBeTruthy()
