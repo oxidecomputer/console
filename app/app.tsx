@@ -23,22 +23,23 @@ const App = () => (
     <QuickMenu />
     <Routes>
       <Route path="/" element={<Navigate to="/projects" replace={true} />} />
-      <Route path="projects">
-        <Route path="/" element={<AppLayout />}>
-          <ProjectsPage />
-        </Route>
+      <Route path="projects" element={<AppLayout />}>
+        {/* separate from project detail pages because of the different layout */}
+        <Route path="/" element={<ProjectsPage />} />
         <Route path="new" element={<ProjectCreatePage />} />
-        <Route path=":projectName" element={<ProjectLayout />}>
+      </Route>
+      <Route path="/projects/:projectName" element={<ProjectLayout />}>
+        <Route element={<ProjectPage />} />
+        <Route path="access" element={<ProjectAccessPage />} />
+        <Route path="instances">
           <Route path="/" element={<ProjectPage />} />
-          <Route path="access" element={<ProjectAccessPage />} />
-          <Route path="instances">
-            <Route path="/" element={<ProjectPage />} />
-            <Route path="new" element={<InstanceCreatePage />} />
-            <Route path=":instanceName" element={<InstancePage />} />
-          </Route>
+          <Route path="new" element={<InstanceCreatePage />} />
+          <Route path=":instanceName" element={<InstancePage />} />
         </Route>
       </Route>
-      <Route path="__debug/toasts" element={<ToastTestPage />} />
+      <Route path="__debug" element={<AppLayout />}>
+        <Route path="toasts" element={<ToastTestPage />} />
+      </Route>
     </Routes>
   </Router>
 )
