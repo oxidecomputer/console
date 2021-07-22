@@ -12,16 +12,22 @@ import {
   SparklineSVG,
 } from '@oxide/ui'
 
-const Metric = (props: { label: string; value: string }) => (
-  <div>
+type MetricProps = {
+  label: string
+  value: string
+  className?: string
+}
+
+const Metric = ({ label, value, className }: MetricProps) => (
+  <div className={className}>
     <div className="text-gray-200 text-xs font-mono uppercase mb-4">
-      {props.label}
+      {label}
     </div>
-    <div className="flex no-wrap">
-      <span className="text-lg font-display font-light mr-4">
-        {props.value}
-      </span>
-      <SparklineSVG className="stroke-current text-green-500" />
+    <div className="flex">
+      <div className="text-display-lg mr-4">{value}</div>
+      <div>
+        <SparklineSVG className="stroke-current text-green-500 w-full" />
+      </div>
     </div>
   </div>
 )
@@ -62,11 +68,19 @@ const ProjectsPage = () => {
                   {item.name}
                 </Link>
               </header>
-              <div className="flex mb-8 space-x-16">
+              <div className="flex mb-8 space-x-8 lg:space-x-12">
                 <Metric label="CPU" value="3%" />
-                <Metric label="Storage" value="20%" />
                 <Metric label="Memory" value="13%" />
-                <Metric label="Network" value="5%" />
+                <Metric
+                  label="Storage"
+                  value="20%"
+                  className="hidden md:block"
+                />
+                <Metric
+                  label="Network"
+                  value="5%"
+                  className="hidden lg:block"
+                />
               </div>
             </section>
             <footer className="p-4 border-t border-gray-400 text-xs">
