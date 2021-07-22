@@ -6,11 +6,7 @@ import { useApiQuery } from '@oxide/api'
 
 import { Icon } from '@oxide/ui'
 
-export interface ProjectListProps {
-  className?: string
-}
-
-export const ProjectList = (props: ProjectListProps) => {
+export const ProjectList = (props: { className?: string }) => {
   const { data: projects } = useApiQuery('projectsGet', {})
   return (
     <section className={cn('space-y-2', props.className)}>

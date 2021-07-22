@@ -1,8 +1,21 @@
 import React from 'react'
-import { Link, Outlet, useParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useParams } from 'react-router-dom'
 
+import { Icon } from '@oxide/ui'
 import { GlobalNav } from '../components/GlobalNav'
-import { OperationList } from '../components/OperationList'
+
+const NavLinkItem = (props: { to: string; children: React.ReactNode }) => (
+  <li>
+    <NavLink
+      to={props.to}
+      className="flex items-center space-x-2 p-1 hover:bg-gray-400 svg:mr-3"
+      activeClassName="text-white"
+      end
+    >
+      {props.children}
+    </NavLink>
+  </li>
+)
 
 export default () => {
   const { projectName } = useParams()
@@ -27,7 +40,34 @@ export default () => {
           <div className="text-sm font-light">{projectName}</div>
         </div>
         <hr className="border-gray-400 mt-8" />
-        <OperationList className="mt-6 px-3" />
+        <nav className="mt-8 px-3">
+          <ul className="space-y-0.5 text-sm text-gray-100 font-light">
+            <NavLinkItem to="">
+              <Icon name="dashboard" /> Overview
+            </NavLinkItem>
+            <NavLinkItem to="instances">
+              <Icon name="instances" /> Instances
+            </NavLinkItem>
+            <NavLinkItem to="networking">
+              <Icon name="networking" /> Networking
+            </NavLinkItem>
+            <NavLinkItem to="storage">
+              <Icon name="storage" /> Storage
+            </NavLinkItem>
+            <NavLinkItem to="metrics">
+              <Icon name="stopwatch" /> Metrics
+            </NavLinkItem>
+            <NavLinkItem to="audit">
+              <Icon name="file" /> Audit log
+            </NavLinkItem>
+            <NavLinkItem to="access">
+              <Icon name="users" /> Access &amp; IAM
+            </NavLinkItem>
+            <NavLinkItem to="settings">
+              <Icon name="pen" /> Settings
+            </NavLinkItem>
+          </ul>
+        </nav>
       </div>
       <main className="overflow-auto py-2 px-6">
         <Outlet />
