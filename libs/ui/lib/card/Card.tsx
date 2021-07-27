@@ -16,7 +16,7 @@ export const Card = (props: CardProps) => {
   return (
     <article
       className={cn(
-        'text-white border border-gray-400 rounded-px',
+        'text-white border border-gray-400 rounded',
         props.className
       )}
     >

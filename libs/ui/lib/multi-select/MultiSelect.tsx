@@ -74,7 +74,7 @@ export const MultiSelect = ({
       <button
         type="button"
         className={`flex items-center justify-between mt-1 py-2 px-4 w-full
-          text-base text-white border border-gray-400 rounded-px
+          text-base text-white border border-gray-400 rounded
           focus:ring-1 focus:ring-green-500`}
         aria-describedby={hintId}
         {...select.getToggleButtonProps(ms.getDropdownProps())}

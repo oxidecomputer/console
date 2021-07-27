@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       borderRadius: {
-        px: '1px',
+        DEFAULT: '.0625rem',
       },
     },
     fontFamily: {

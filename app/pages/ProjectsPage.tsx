@@ -60,7 +60,7 @@ const ProjectsPage = () => {
         {data.items.map((item) => (
           <article
             key={item.id}
-            className="w-full border border-gray-400 rounded-px"
+            className="w-full border border-gray-400 rounded"
           >
             <section className="p-4">
               <header className="mb-12">

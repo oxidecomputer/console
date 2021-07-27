@@ -60,7 +60,7 @@ export const InputGroup = ({
       {hint && <Hint id={hintId}>{hint}</Hint>}
       <div
         className={cn(
-          'flex border border-gray-400 rounded-px',
+          'flex border border-gray-400 rounded',
           'focus-within:border-green-500 hover:focus-within:border-green-500',
           error && '!border-red-500',
           !disabled && 'hover:border-gray-300'

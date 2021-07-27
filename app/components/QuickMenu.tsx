@@ -88,7 +88,7 @@ export default () => {
 
   return (
     <Dialog
-      className="QuickMenu !bg-gray-500 !p-4 !w-1/3 !mt-[20vh] border border-gray-400 rounded-px"
+      className="QuickMenu !bg-gray-500 !p-4 !w-1/3 !mt-[20vh] border border-gray-400 rounded"
       isOpen={isOpen}
       onDismiss={reset}
       aria-label="Quick actions"
@@ -111,7 +111,7 @@ export default () => {
               <ComboboxList className="space-y-2">
                 {matches.map((v) => (
                   <ComboboxOption
-                    className="bg-gray-500 hover:!border-green-500 hover:!bg-gray-500 rounded-px !p-4 text-display-lg border border-gray-400"
+                    className="bg-gray-500 hover:!border-green-500 hover:!bg-gray-500 rounded !p-4 text-display-lg border border-gray-400"
                     key={v}
                     value={v}
                   />

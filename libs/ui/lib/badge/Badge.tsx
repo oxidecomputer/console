@@ -74,7 +74,7 @@ export const Badge = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-px uppercase font-mono text-xs',
+        'inline-flex items-center rounded uppercase font-mono text-xs',
         size === 'sm' ? 'h-4' : 'h-6',
         colors[variant][color],
         className

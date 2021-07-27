@@ -29,7 +29,7 @@ export type RadioFieldProps = React.ComponentProps<'input'> & {
 }
 
 const cardLabel = `
-  py-2 px-4 bg-gray-500 border rounded-px border-gray-400 hover:text-green-500 
+  py-2 px-4 bg-gray-500 border rounded border-gray-400 hover:text-green-500 
   peer-focus:ring-2 peer-focus:ring-green-700
   peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:text-green-500
 `

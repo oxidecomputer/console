@@ -1,5 +1,5 @@
 .TableControls[data-reach-menu-list] {
-  @apply p-0 bg-gray-500 border border-green-700 rounded-px;
+  @apply p-0 bg-gray-500 border border-green-700 rounded;
 
   & [data-reach-menu-item] {
     @apply font-sans text-left px-4 py-2;
