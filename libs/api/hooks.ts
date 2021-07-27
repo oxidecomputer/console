@@ -42,7 +42,7 @@ export const getUseApiQuery =
   <M extends keyof ApiClient<A>>(
     method: M,
     params: Params<A[M]>,
-    options?: UseQueryOptions<unknown, ApiError, Result<A[M]>>
+    options?: UseQueryOptions<Result<A[M]>, ApiError>
   ) =>
     useQuery(
       [method, params],
