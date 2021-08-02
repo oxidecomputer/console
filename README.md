@@ -1,31 +1,26 @@
 # Console
 
-Web client to the Oxide rack API.
+Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omicron).
 
-Tech: [TypeScript](https://www.typescriptlang.org/), [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com)), [Webpack](https://webpack.js.org/), [Babel](https://babeljs.io/), [Tailwind](https://tailwindcss.com/). We use a TypeScript API wrapper [generated](tools/generate_api_client.sh) from the Nexus OpenAPI schema with [openapi-generator](https://openapi-generator.tech/).
+## Tech
 
-## Relevant documents
+- [TypeScript](https://www.typescriptlang.org/)
+- [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
+- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Tailwind](https://tailwindcss.com/)
+- [OpenAPI Generator](https://openapi-generator.tech/) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
+- [Vite](https://vitejs.dev/)
+- [Storybook](https://storybook.js.org/) (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
 
-### RFDs
+## Directory structure
 
-- [RFD 4 User-Facing API](https://rfd.shared.oxide.computer/rfd/0004)
-- [RFD 43 Identity and Access Management (IAM)](https://rfd.shared.oxide.computer/rfd/0043)
-- [RFD 44 Hierarchy and API for User Management and Organizations](https://rfd.shared.oxide.computer/rfd/0044)
-- [RFD 155 Console Route Tree](https://rfd.shared.oxide.computer/rfd/0155)
-- [RFD 156 API Requirements for Console Prototype](https://rfd.shared.oxide.computer/rfd/0156)
-- [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
-- [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
+The app is in [`app`](app). You can see the route structure in [`app/app.tsx`](app/app.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live (and the Storybook definition) and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
 
-### Figma
+## Try it
 
-- [Component Library](https://www.figma.com/file/D5ukCJbedrlGkUIh0E6QtX/Component-Library)
-- [Applied UI Exploration](https://www.figma.com/file/UDMGwny0LIyMUI9d35XVGl/Applied-UI-Exploration)
-- [Console Prototype v2 (old)](https://www.figma.com/file/Z4cn380qKc7cqT91YNrbgn/Console-Prototype-v2)
-- [Oxide Design System (old)](https://www.figma.com/file/EUf6YnFJx0AKE8GGYDAoRO/Oxide-Design-System)
+The console is automatically deployed to GCP for testing purposes. It uses the real API, but the underlying systems are simulated as in local dev, so, e.g., while you can create "instances" (CockroachDB rows representing instances), they are not instantiated as running VMs. [Set up Tailscale](https://github.com/oxidecomputer/meta/blob/master/general/vpn.md) and go to https://console-git-main.internal.oxide.computer to see the main branch. PRs are deployed to `console-git-<branch_name>.internal.oxide.computer`.
 
-## Try it out
-
-The console is deployed to GCP with its own copy of Nexus for testing purposes. The underlying systems are simulated, so while you can create "instances" (CockroachDB rows representing instances), they are not actually instantiated as running VMs. [Set up Tailscale](https://github.com/oxidecomputer/meta/blob/master/general/vpn.md) and go to https://console-git-main.internal.oxide.computer to see the main branch. PRs are also deployed to `console-git-<branch_name>.internal.oxide.computer`.
+The deployed instance includes a very barebones API docs page powered by [Redoc](https://github.com/Redocly/redoc). See it [here](https://console-git-main.internal.oxide.computer/docs/).
 
 ## Development
 
@@ -45,7 +40,7 @@ This will start the storybook for the `ui` component library and start it on `ht
 
 ### Run dev server
 
-Run `yarn start` and navigate to http://localhost:4000/. The app will automatically reload if you change code.
+Run `yarn start` and navigate to http://localhost:4000/. The app will automatically reload if you change code. In order for this to work, you need to run the API as well.
 
 ### Run API
 
@@ -107,7 +102,7 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 </details>
 
-### Other useful commands
+### Useful commands
 
 | Command     | Description                                                      |
 | ----------- | ---------------------------------------------------------------- |
@@ -116,3 +111,21 @@ Using the script is strongly recommended, but if you really don't want to, make 
 | `yarn tsc`  | Check types                                                      |
 | `yarn ci`   | Lint, tests, and types                                           |
 | `yarn fmt`  | Format everything. Rarely necessary thanks to editor integration |
+
+## Relevant documents
+
+### RFDs
+
+- [RFD 4 User-Facing API](https://rfd.shared.oxide.computer/rfd/0004)
+- [RFD 43 Identity and Access Management (IAM)](https://rfd.shared.oxide.computer/rfd/0043)
+- [RFD 44 Hierarchy and API for User Management and Organizations](https://rfd.shared.oxide.computer/rfd/0044)
+- [RFD 156 API Requirements for Console Prototype](https://rfd.shared.oxide.computer/rfd/0156)
+- [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
+- [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
+
+### Figma
+
+- [Component Library](https://www.figma.com/file/D5ukCJbedrlGkUIh0E6QtX/Component-Library)
+- [Applied UI Exploration](https://www.figma.com/file/UDMGwny0LIyMUI9d35XVGl/Applied-UI-Exploration)
+- [Console Prototype v2 (old)](https://www.figma.com/file/Z4cn380qKc7cqT91YNrbgn/Console-Prototype-v2)
+- [Oxide Design System (old)](https://www.figma.com/file/EUf6YnFJx0AKE8GGYDAoRO/Oxide-Design-System)
