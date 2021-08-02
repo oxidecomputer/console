@@ -33,8 +33,7 @@ import MinusIcon from '../../assets/minus.svg'
 import MoreIcon from '../../assets/more.svg'
 import NetworkingIcon from '../../assets/networking.svg'
 import NotificationsIcon from '../../assets/notifications.svg'
-import OrganizationIcon from '../../assets/org.svg'
-import OrganizationsIcon from '../../assets/organizations.svg'
+import OrgsIcon from '../../assets/organizations.svg'
 import PenIcon from '../../assets/pen.svg'
 import PlayOIcon from '../../assets/play-button-o.svg'
 import PlayPauseOIcon from '../../assets/play-pause-o.svg'
@@ -102,8 +101,7 @@ export const icons = {
   more: MoreIcon,
   networking: NetworkingIcon,
   notifications: NotificationsIcon,
-  organization: OrganizationIcon,
-  organizations: OrganizationsIcon,
+  orgs: OrgsIcon,
   pen: PenIcon,
   playO: PlayOIcon,
   playPauseO: PlayPauseOIcon,
