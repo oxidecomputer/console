@@ -9,7 +9,7 @@ const NavLinkItem = (props: { to: string; children: React.ReactNode }) => (
     <NavLink
       to={props.to}
       className="flex items-center space-x-2 p-1 hover:bg-gray-400 svg:mr-3"
-      activeClassName="text-white"
+      activeClassName="text-white svg:text-green-500"
       end
     >
       {props.children}
