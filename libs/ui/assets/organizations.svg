@@ -1,6 +1,7 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="12.6667" y="4.66666" width="4.71405" height="4.71405" transform="rotate(45 12.6667 4.66666)" fill="#48D597"/>
-<rect x="8" y="9.33334" width="4.71405" height="4.71405" transform="rotate(45 8 9.33334)" fill="#48D597"/>
-<rect x="8" width="4.71405" height="4.71405" transform="rotate(45 8 0)" fill="#48D597"/>
-<rect x="3.33331" y="4.66666" width="4.71405" height="4.71405" transform="rotate(45 3.33331 4.66666)" fill="#48D597"/>
+<svg role="img" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<title>Organizations</title>
+<rect x="12.6667" y="4.66666" width="4.71405" height="4.71405" transform="rotate(45 12.6667 4.66666)" />
+<rect x="8" y="9.33334" width="4.71405" height="4.71405" transform="rotate(45 8 9.33334)" />
+<rect x="8" width="4.71405" height="4.71405" transform="rotate(45 8 0)" />
+<rect x="3.33331" y="4.66666" width="4.71405" height="4.71405" transform="rotate(45 3.33331 4.66666)" />
 </svg>
