@@ -1,6 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
-  <title>Dashboard</title>
-  <path fill-rule="evenodd"
-    d="M16 11a3 3 0 100-6 3 3 0 000 6zm-5 5a3 3 0 11-6 0 3 3 0 016 0zm5 3a3 3 0 100-6 3 3 0 000 6zm8 0a3 3 0 100-6 3 3 0 000 6zm3-11a3 3 0 11-6 0 3 3 0 016 0zM8 11a3 3 0 100-6 3 3 0 000 6zm11 13a3 3 0 11-6 0 3 3 0 016 0zm5 3a3 3 0 100-6 3 3 0 000 6zm-13-3a3 3 0 11-6 0 3 3 0 016 0z"
-    clip-rule="evenodd" />
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M7 1H1V9H7V1ZM15 1H9V5H15V1ZM1 11H7V15H1V11ZM15 7H9V15H15V7Z" fill="#48D597"/>
 </svg>

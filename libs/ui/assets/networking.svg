@@ -1,5 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
-  <title>Networking</title>
-  <path fill-rule="evenodd" d="M15 7H7v8h8V7zm10 0h-8v8h8V7zm-8 10h8v8h-8v-8zm-5 0h-2v5h5v-2h-3v-3z"
-    clip-rule="evenodd" />
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M7 1H1V7H7V1ZM15 1H9V7H15V1ZM9 9H15V15H9V9ZM4 9H2V12V14H4H7V12H4V9Z" fill="#48D597"/>
 </svg>
