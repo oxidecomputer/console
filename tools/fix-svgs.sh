@@ -2,7 +2,7 @@
 
 # couldn't figure out how to get Figma to do this at export time, so we just do
 # it ourselves. this is to be run manually on svgs when we import them. this is
-# not not part of any automated process
+# not part of any automated process
 
 # assume svgs without <title> need to be processed
 for i in `grep -L "<title>" libs/ui/assets/*.svg`; do
