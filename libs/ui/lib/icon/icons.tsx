@@ -1,5 +1,7 @@
+import AccessIcon from '../../assets/access.svg'
 import ArrowIcon from '../../assets/arrow.svg'
 import BookmarkIcon from '../../assets/bookmark.svg'
+import ChatIcon from '../../assets/chat.svg'
 import CheckDashIcon from '../../assets/check-d.svg'
 import CheckEmptyIcon from '../../assets/check-e.svg'
 import CheckIcon from '../../assets/check.svg'
@@ -14,10 +16,11 @@ import CpuIcon from '../../assets/cpu.svg'
 import DangerFilledIcon from '../../assets/danger-filled.svg'
 import DangerIcon from '../../assets/danger.svg'
 import DashboardIcon from '../../assets/dashboard.svg'
+import DocumentIcon from '../../assets/document.svg'
 import DotIcon from '../../assets/dot.svg'
 import ExternalIcon from '../../assets/external.svg'
-import FileIcon from '../../assets/file.svg'
 import FilterIcon from '../../assets/filter.svg'
+import FolderIcon from '../../assets/folder.svg'
 import InfoFilledIcon from '../../assets/info-filled.svg'
 import InfoIcon from '../../assets/info.svg'
 import InstanceIcon from '../../assets/instance.svg'
@@ -25,11 +28,12 @@ import InstancesIcon from '../../assets/instances.svg'
 import ListIcon from '../../assets/list.svg'
 import MemoryIcon from '../../assets/memory.svg'
 import MessageIcon from '../../assets/message.svg'
+import MetricsIcon from '../../assets/metrics.svg'
 import MinusIcon from '../../assets/minus.svg'
 import MoreIcon from '../../assets/more.svg'
 import NetworkingIcon from '../../assets/networking.svg'
 import NotificationsIcon from '../../assets/notifications.svg'
-import OrganizationIcon from '../../assets/org.svg'
+import OrgsIcon from '../../assets/organizations.svg'
 import PenIcon from '../../assets/pen.svg'
 import PlayOIcon from '../../assets/play-button-o.svg'
 import PlayPauseOIcon from '../../assets/play-pause-o.svg'
@@ -45,10 +49,14 @@ import RackIcon from '../../assets/rack.svg'
 import RadioEIcon from '../../assets/radio-e.svg'
 import RadioFIcon from '../../assets/radio-f.svg'
 import ResourcesIcon from '../../assets/resources.svg'
+import ResizeIcon from '../../assets/resize.svg'
 import SearchIcon from '../../assets/search.svg'
+import SettingsIcon from '../../assets/settings.svg'
 import StopwatchIcon from '../../assets/stopwatch.svg'
 import StorageIcon from '../../assets/storage.svg'
 import SupportIcon from '../../assets/support.svg'
+import TagsIcon from '../../assets/tags.svg'
+import TerminalIcon from '../../assets/terminal.svg'
 import ThemeIcon from '../../assets/theme.svg'
 import TrashIcon from '../../assets/trash.svg'
 import UserIcon from '../../assets/user.svg'
@@ -58,8 +66,10 @@ import WarningFilledIcon from '../../assets/warning-filled.svg'
 import WarningIcon from '../../assets/warning.svg'
 
 export const icons = {
+  access: AccessIcon,
   arrow: ArrowIcon,
   bookmark: BookmarkIcon,
+  chat: ChatIcon,
   check: CheckIcon,
   checkDash: CheckDashIcon,
   checkEmpty: CheckEmptyIcon,
@@ -74,10 +84,11 @@ export const icons = {
   danger: DangerIcon,
   dangerFilled: DangerFilledIcon,
   dashboard: DashboardIcon,
+  document: DocumentIcon,
   dot: DotIcon,
   external: ExternalIcon,
-  file: FileIcon,
   filter: FilterIcon,
+  folder: FolderIcon,
   info: InfoIcon,
   infoFilled: InfoFilledIcon,
   instance: InstanceIcon,
@@ -85,11 +96,12 @@ export const icons = {
   list: ListIcon,
   memory: MemoryIcon,
   message: MessageIcon,
+  metrics: MetricsIcon,
   minus: MinusIcon,
   more: MoreIcon,
   networking: NetworkingIcon,
   notifications: NotificationsIcon,
-  organization: OrganizationIcon,
+  orgs: OrgsIcon,
   pen: PenIcon,
   playO: PlayOIcon,
   playPauseO: PlayPauseOIcon,
@@ -104,11 +116,15 @@ export const icons = {
   rack: RackIcon,
   radioE: RadioEIcon,
   radioF: RadioFIcon,
+  resize: ResizeIcon,
   resources: ResourcesIcon,
   search: SearchIcon,
+  settings: SettingsIcon,
   stopwatch: StopwatchIcon,
   storage: StorageIcon,
   support: SupportIcon,
+  tags: TagsIcon,
+  terminal: TerminalIcon,
   theme: ThemeIcon,
   trash: TrashIcon,
   user: UserIcon,

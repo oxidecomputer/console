@@ -8,8 +8,8 @@ const NavLinkItem = (props: { to: string; children: React.ReactNode }) => (
   <li>
     <NavLink
       to={props.to}
-      className="flex items-center space-x-2 p-1 hover:bg-gray-400 svg:mr-3"
-      activeClassName="text-white"
+      className="flex items-center space-x-2 p-1 hover:bg-gray-400 svg:mr-3 svg:text-gray-300"
+      activeClassName="text-white svg:!text-green-500"
       end
     >
       {props.children}
@@ -55,16 +55,16 @@ export default () => {
               <Icon name="storage" /> Storage
             </NavLinkItem>
             <NavLinkItem to="metrics">
-              <Icon name="stopwatch" /> Metrics
+              <Icon name="metrics" /> Metrics
             </NavLinkItem>
             <NavLinkItem to="audit">
-              <Icon name="file" /> Audit log
+              <Icon name="document" /> Audit log
             </NavLinkItem>
             <NavLinkItem to="access">
-              <Icon name="users" /> Access &amp; IAM
+              <Icon name="access" /> Access &amp; IAM
             </NavLinkItem>
             <NavLinkItem to="settings">
-              <Icon name="pen" /> Settings
+              <Icon name="settings" /> Settings
             </NavLinkItem>
           </ul>
         </nav>
