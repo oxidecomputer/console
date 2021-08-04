@@ -30,12 +30,17 @@ const App = () => (
       </Route>
       <Route path="/projects/:projectName" element={<ProjectLayout />}>
         <Route element={<ProjectPage />} />
-        <Route path="access" element={<ProjectAccessPage />} />
         <Route path="instances">
           <Route path="/" element={<ProjectPage />} />
           <Route path="new" element={<InstanceCreatePage />} />
           <Route path=":instanceName" element={<InstancePage />} />
         </Route>
+        <Route path="networking" />
+        <Route path="storage" />
+        <Route path="metrics" />
+        <Route path="audit" />
+        <Route path="access" element={<ProjectAccessPage />} />
+        <Route path="settings" />
       </Route>
       <Route path="__debug" element={<AppLayout />}>
         <Route path="toasts" element={<ToastTestPage />} />
