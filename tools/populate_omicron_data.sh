@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -e
+set -o errexit
+set -o pipefail
+set -o xtrace
 
 # generally you don't want to run this manually. it's meant to be used by
 # start_api.sh. if you do run it manually, note that it's meant to be run

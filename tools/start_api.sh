@@ -1,9 +1,12 @@
 #!/bin/bash
 
+set -o errexit
+set -o pipefail
+
 # this script assumes it's being run from inside the omicron repo and the console
 # repo shares the same parent directory
 
-read -r -d '' UTILS <<'EOF'
+read -r -d '' UTILS <<'EOF' || true
 wait_for_up() {
   while ! echo exit | nc localhost "$1"; do sleep 0.1; done
 }

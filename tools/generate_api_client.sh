@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -e # exit if anything fails
+set -o errexit # exit if anything fails
+set -o pipefail
+set -o xtrace
 
 # assumes omicron is in the same dir as as the console repo 
 # and it has been built with `cargo build`
