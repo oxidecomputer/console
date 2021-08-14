@@ -13,53 +13,46 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  DiskView,
-  DiskViewFromJSON,
-  DiskViewFromJSONTyped,
-  DiskViewToJSON,
-} from './'
+import { Saga, SagaFromJSON, SagaFromJSONTyped, SagaToJSON } from './'
 
 /**
  * A single page of results
  * @export
- * @interface DiskViewResultsPage
+ * @interface SagaResultsPage
  */
-export interface DiskViewResultsPage {
+export interface SagaResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<DiskView>}
-   * @memberof DiskViewResultsPage
+   * @type {Array<Saga>}
+   * @memberof SagaResultsPage
    */
-  items: Array<DiskView>
+  items: Array<Saga>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof DiskViewResultsPage
+   * @memberof SagaResultsPage
    */
   nextPage?: string
 }
 
-export function DiskViewResultsPageFromJSON(json: any): DiskViewResultsPage {
-  return DiskViewResultsPageFromJSONTyped(json, false)
+export function SagaResultsPageFromJSON(json: any): SagaResultsPage {
+  return SagaResultsPageFromJSONTyped(json, false)
 }
 
-export function DiskViewResultsPageFromJSONTyped(
+export function SagaResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskViewResultsPage {
+): SagaResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(DiskViewFromJSON),
+    items: (json['items'] as Array<any>).map(SagaFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function DiskViewResultsPageToJSON(
-  value?: DiskViewResultsPage | null
-): any {
+export function SagaResultsPageToJSON(value?: SagaResultsPage | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -67,7 +60,7 @@ export function DiskViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(DiskViewToJSON),
+    items: (value.items as Array<any>).map(SagaToJSON),
     next_page: value.nextPage,
   }
 }

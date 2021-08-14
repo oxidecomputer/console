@@ -13,55 +13,46 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  InstanceView,
-  InstanceViewFromJSON,
-  InstanceViewFromJSONTyped,
-  InstanceViewToJSON,
-} from './'
+import { Rack, RackFromJSON, RackFromJSONTyped, RackToJSON } from './'
 
 /**
  * A single page of results
  * @export
- * @interface InstanceViewResultsPage
+ * @interface RackResultsPage
  */
-export interface InstanceViewResultsPage {
+export interface RackResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<InstanceView>}
-   * @memberof InstanceViewResultsPage
+   * @type {Array<Rack>}
+   * @memberof RackResultsPage
    */
-  items: Array<InstanceView>
+  items: Array<Rack>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof InstanceViewResultsPage
+   * @memberof RackResultsPage
    */
   nextPage?: string
 }
 
-export function InstanceViewResultsPageFromJSON(
-  json: any
-): InstanceViewResultsPage {
-  return InstanceViewResultsPageFromJSONTyped(json, false)
+export function RackResultsPageFromJSON(json: any): RackResultsPage {
+  return RackResultsPageFromJSONTyped(json, false)
 }
 
-export function InstanceViewResultsPageFromJSONTyped(
+export function RackResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): InstanceViewResultsPage {
+): RackResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(InstanceViewFromJSON),
+    items: (json['items'] as Array<any>).map(RackFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function InstanceViewResultsPageToJSON(
-  value?: InstanceViewResultsPage | null
-): any {
+export function RackResultsPageToJSON(value?: RackResultsPage | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -69,7 +60,7 @@ export function InstanceViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(InstanceViewToJSON),
+    items: (value.items as Array<any>).map(RackToJSON),
     next_page: value.nextPage,
   }
 }

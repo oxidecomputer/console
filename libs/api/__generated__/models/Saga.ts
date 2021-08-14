@@ -14,50 +14,50 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  SagaStateView,
-  SagaStateViewFromJSON,
-  SagaStateViewFromJSONTyped,
-  SagaStateViewToJSON,
+  SagaState,
+  SagaStateFromJSON,
+  SagaStateFromJSONTyped,
+  SagaStateToJSON,
 } from './'
 
 /**
  *
  * @export
- * @interface SagaView
+ * @interface Saga
  */
-export interface SagaView {
+export interface Saga {
   /**
    *
    * @type {string}
-   * @memberof SagaView
+   * @memberof Saga
    */
   id: string
   /**
    *
-   * @type {SagaStateView}
-   * @memberof SagaView
+   * @type {SagaState}
+   * @memberof Saga
    */
-  state: SagaStateView
+  state: SagaState
 }
 
-export function SagaViewFromJSON(json: any): SagaView {
-  return SagaViewFromJSONTyped(json, false)
+export function SagaFromJSON(json: any): Saga {
+  return SagaFromJSONTyped(json, false)
 }
 
-export function SagaViewFromJSONTyped(
+export function SagaFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaView {
+): Saga {
   if (json === undefined || json === null) {
     return json
   }
   return {
     id: json['id'],
-    state: SagaStateViewFromJSON(json['state']),
+    state: SagaStateFromJSON(json['state']),
   }
 }
 
-export function SagaViewToJSON(value?: SagaView | null): any {
+export function SagaToJSON(value?: Saga | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -66,6 +66,6 @@ export function SagaViewToJSON(value?: SagaView | null): any {
   }
   return {
     id: value.id,
-    state: SagaStateViewToJSON(value.state),
+    state: SagaStateToJSON(value.state),
   }
 }

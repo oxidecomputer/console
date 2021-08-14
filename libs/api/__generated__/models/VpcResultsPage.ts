@@ -13,55 +13,46 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  ProjectView,
-  ProjectViewFromJSON,
-  ProjectViewFromJSONTyped,
-  ProjectViewToJSON,
-} from './'
+import { Vpc, VpcFromJSON, VpcFromJSONTyped, VpcToJSON } from './'
 
 /**
  * A single page of results
  * @export
- * @interface ProjectViewResultsPage
+ * @interface VpcResultsPage
  */
-export interface ProjectViewResultsPage {
+export interface VpcResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<ProjectView>}
-   * @memberof ProjectViewResultsPage
+   * @type {Array<Vpc>}
+   * @memberof VpcResultsPage
    */
-  items: Array<ProjectView>
+  items: Array<Vpc>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof ProjectViewResultsPage
+   * @memberof VpcResultsPage
    */
   nextPage?: string
 }
 
-export function ProjectViewResultsPageFromJSON(
-  json: any
-): ProjectViewResultsPage {
-  return ProjectViewResultsPageFromJSONTyped(json, false)
+export function VpcResultsPageFromJSON(json: any): VpcResultsPage {
+  return VpcResultsPageFromJSONTyped(json, false)
 }
 
-export function ProjectViewResultsPageFromJSONTyped(
+export function VpcResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectViewResultsPage {
+): VpcResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(ProjectViewFromJSON),
+    items: (json['items'] as Array<any>).map(VpcFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function ProjectViewResultsPageToJSON(
-  value?: ProjectViewResultsPage | null
-): any {
+export function VpcResultsPageToJSON(value?: VpcResultsPage | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -69,7 +60,7 @@ export function ProjectViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(ProjectViewToJSON),
+    items: (value.items as Array<any>).map(VpcToJSON),
     next_page: value.nextPage,
   }
 }

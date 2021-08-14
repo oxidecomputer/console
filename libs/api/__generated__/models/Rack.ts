@@ -23,25 +23,25 @@ import {
 /**
  * Client view of an [`Rack`]
  * @export
- * @interface RackView
+ * @interface Rack
  */
-export interface RackView {
+export interface Rack {
   /**
    *
    * @type {IdentityMetadata}
-   * @memberof RackView
+   * @memberof Rack
    */
   identity: IdentityMetadata
 }
 
-export function RackViewFromJSON(json: any): RackView {
-  return RackViewFromJSONTyped(json, false)
+export function RackFromJSON(json: any): Rack {
+  return RackFromJSONTyped(json, false)
 }
 
-export function RackViewFromJSONTyped(
+export function RackFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): RackView {
+): Rack {
   if (json === undefined || json === null) {
     return json
   }
@@ -50,7 +50,7 @@ export function RackViewFromJSONTyped(
   }
 }
 
-export function RackViewToJSON(value?: RackView | null): any {
+export function RackToJSON(value?: Rack | null): any {
   if (value === undefined) {
     return undefined
   }

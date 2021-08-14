@@ -14,64 +14,50 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Client view of an [`Project`]
+ * Create-time parameters for a [`Vpc`]
  * @export
- * @interface ProjectView
+ * @interface VpcCreateParams
  */
-export interface ProjectView {
+export interface VpcCreateParams {
   /**
-   * human-readable free-form text about a resource
+   *
    * @type {string}
-   * @memberof ProjectView
+   * @memberof VpcCreateParams
    */
   description: string
   /**
-   * unique, immutable, system-controlled identifier for each resource
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ProjectView
+   * @memberof VpcCreateParams
    */
-  id: string
+  dnsName: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ProjectView
+   * @memberof VpcCreateParams
    */
   name: string
-  /**
-   * timestamp when this resource was created
-   * @type {Date}
-   * @memberof ProjectView
-   */
-  timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   * @type {Date}
-   * @memberof ProjectView
-   */
-  timeModified: Date
 }
 
-export function ProjectViewFromJSON(json: any): ProjectView {
-  return ProjectViewFromJSONTyped(json, false)
+export function VpcCreateParamsFromJSON(json: any): VpcCreateParams {
+  return VpcCreateParamsFromJSONTyped(json, false)
 }
 
-export function ProjectViewFromJSONTyped(
+export function VpcCreateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectView {
+): VpcCreateParams {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: json['description'],
-    id: json['id'],
+    dnsName: json['dnsName'],
     name: json['name'],
-    timeCreated: new Date(json['timeCreated']),
-    timeModified: new Date(json['timeModified']),
   }
 }
 
-export function ProjectViewToJSON(value?: ProjectView | null): any {
+export function VpcCreateParamsToJSON(value?: VpcCreateParams | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -80,9 +66,7 @@ export function ProjectViewToJSON(value?: ProjectView | null): any {
   }
   return {
     description: value.description,
-    id: value.id,
+    dnsName: value.dnsName,
     name: value.name,
-    timeCreated: value.timeCreated.toISOString(),
-    timeModified: value.timeModified.toISOString(),
   }
 }
