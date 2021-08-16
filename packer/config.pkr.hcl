@@ -92,7 +92,7 @@ EOF
 source "googlecompute" "oxide-console-base" {
     project_id = "oxide-console"
     // FROM: https://console.cloud.google.com/compute/images
-    source_image = "debian-10-buster-v20210316"
+    source_image = "debian-10-buster-v20210721"
     ssh_username = "packer"
     zone = "us-central1-a"
 }
