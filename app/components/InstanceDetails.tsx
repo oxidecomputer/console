@@ -1,12 +1,12 @@
 import React from 'react'
 import filesize from 'filesize'
 
-import type { InstanceView } from '@oxide/api'
+import type { Instance } from '@oxide/api'
 import { Icon, classed } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 
 export interface InstanceDetailsProps {
-  instance: InstanceView
+  instance: Instance
 }
 
 const Cell = classed.span`before:content-['//'] before:mx-2 first:before:content-none`

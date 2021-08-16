@@ -14,66 +14,78 @@
 
 import * as runtime from '../runtime'
 import {
+  Disk,
+  DiskFromJSON,
+  DiskToJSON,
   DiskAttachment,
   DiskAttachmentFromJSON,
   DiskAttachmentToJSON,
   DiskCreateParams,
   DiskCreateParamsFromJSON,
   DiskCreateParamsToJSON,
-  DiskView,
-  DiskViewFromJSON,
-  DiskViewToJSON,
-  DiskViewResultsPage,
-  DiskViewResultsPageFromJSON,
-  DiskViewResultsPageToJSON,
+  DiskResultsPage,
+  DiskResultsPageFromJSON,
+  DiskResultsPageToJSON,
   IdSortMode,
   IdSortModeFromJSON,
   IdSortModeToJSON,
+  Instance,
+  InstanceFromJSON,
+  InstanceToJSON,
   InstanceCreateParams,
   InstanceCreateParamsFromJSON,
   InstanceCreateParamsToJSON,
-  InstanceView,
-  InstanceViewFromJSON,
-  InstanceViewToJSON,
-  InstanceViewResultsPage,
-  InstanceViewResultsPageFromJSON,
-  InstanceViewResultsPageToJSON,
+  InstanceResultsPage,
+  InstanceResultsPageFromJSON,
+  InstanceResultsPageToJSON,
   NameOrIdSortMode,
   NameOrIdSortModeFromJSON,
   NameOrIdSortModeToJSON,
   NameSortMode,
   NameSortModeFromJSON,
   NameSortModeToJSON,
+  Project,
+  ProjectFromJSON,
+  ProjectToJSON,
   ProjectCreateParams,
   ProjectCreateParamsFromJSON,
   ProjectCreateParamsToJSON,
+  ProjectResultsPage,
+  ProjectResultsPageFromJSON,
+  ProjectResultsPageToJSON,
   ProjectUpdateParams,
   ProjectUpdateParamsFromJSON,
   ProjectUpdateParamsToJSON,
-  ProjectView,
-  ProjectViewFromJSON,
-  ProjectViewToJSON,
-  ProjectViewResultsPage,
-  ProjectViewResultsPageFromJSON,
-  ProjectViewResultsPageToJSON,
-  RackView,
-  RackViewFromJSON,
-  RackViewToJSON,
-  RackViewResultsPage,
-  RackViewResultsPageFromJSON,
-  RackViewResultsPageToJSON,
-  SagaView,
-  SagaViewFromJSON,
-  SagaViewToJSON,
-  SagaViewResultsPage,
-  SagaViewResultsPageFromJSON,
-  SagaViewResultsPageToJSON,
-  SledView,
-  SledViewFromJSON,
-  SledViewToJSON,
-  SledViewResultsPage,
-  SledViewResultsPageFromJSON,
-  SledViewResultsPageToJSON,
+  Rack,
+  RackFromJSON,
+  RackToJSON,
+  RackResultsPage,
+  RackResultsPageFromJSON,
+  RackResultsPageToJSON,
+  Saga,
+  SagaFromJSON,
+  SagaToJSON,
+  SagaResultsPage,
+  SagaResultsPageFromJSON,
+  SagaResultsPageToJSON,
+  Sled,
+  SledFromJSON,
+  SledToJSON,
+  SledResultsPage,
+  SledResultsPageFromJSON,
+  SledResultsPageToJSON,
+  Vpc,
+  VpcFromJSON,
+  VpcToJSON,
+  VpcCreateParams,
+  VpcCreateParamsFromJSON,
+  VpcCreateParamsToJSON,
+  VpcResultsPage,
+  VpcResultsPageFromJSON,
+  VpcResultsPageToJSON,
+  VpcUpdateParams,
+  VpcUpdateParamsFromJSON,
+  VpcUpdateParamsToJSON,
 } from '../models'
 
 export interface HardwareRacksGetRequest {
@@ -178,6 +190,34 @@ export interface ProjectInstancesPostRequest {
   instanceCreateParams: InstanceCreateParams
 }
 
+export interface ProjectVpcsDeleteVpcRequest {
+  projectName: string
+  vpcName: string
+}
+
+export interface ProjectVpcsGetRequest {
+  projectName: string
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface ProjectVpcsGetVpcRequest {
+  projectName: string
+  vpcName: string
+}
+
+export interface ProjectVpcsPostRequest {
+  projectName: string
+  vpcCreateParams: VpcCreateParams
+}
+
+export interface ProjectVpcsPutVpcRequest {
+  projectName: string
+  vpcName: string
+  vpcUpdateParams: VpcUpdateParams
+}
+
 export interface ProjectsDeleteProjectRequest {
   projectName: string
 }
@@ -220,7 +260,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareRacksGetRaw(
     requestParameters: HardwareRacksGetRequest
-  ): Promise<runtime.ApiResponse<RackViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<RackResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -245,7 +285,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RackViewResultsPageFromJSON(jsonValue)
+      RackResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -254,7 +294,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareRacksGet(
     requestParameters: HardwareRacksGetRequest
-  ): Promise<RackViewResultsPage> {
+  ): Promise<RackResultsPage> {
     const response = await this.hardwareRacksGetRaw(requestParameters)
     return await response.value()
   }
@@ -264,7 +304,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareRacksGetRackRaw(
     requestParameters: HardwareRacksGetRackRequest
-  ): Promise<runtime.ApiResponse<RackView>> {
+  ): Promise<runtime.ApiResponse<Rack>> {
     if (
       requestParameters.rackId === null ||
       requestParameters.rackId === undefined
@@ -290,7 +330,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RackViewFromJSON(jsonValue)
+      RackFromJSON(jsonValue)
     )
   }
 
@@ -299,7 +339,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareRacksGetRack(
     requestParameters: HardwareRacksGetRackRequest
-  ): Promise<RackView> {
+  ): Promise<Rack> {
     const response = await this.hardwareRacksGetRackRaw(requestParameters)
     return await response.value()
   }
@@ -309,7 +349,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareSledsGetRaw(
     requestParameters: HardwareSledsGetRequest
-  ): Promise<runtime.ApiResponse<SledViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<SledResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -334,7 +374,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      SledViewResultsPageFromJSON(jsonValue)
+      SledResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -343,7 +383,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareSledsGet(
     requestParameters: HardwareSledsGetRequest
-  ): Promise<SledViewResultsPage> {
+  ): Promise<SledResultsPage> {
     const response = await this.hardwareSledsGetRaw(requestParameters)
     return await response.value()
   }
@@ -353,7 +393,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareSledsGetSledRaw(
     requestParameters: HardwareSledsGetSledRequest
-  ): Promise<runtime.ApiResponse<SledView>> {
+  ): Promise<runtime.ApiResponse<Sled>> {
     if (
       requestParameters.sledId === null ||
       requestParameters.sledId === undefined
@@ -379,7 +419,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      SledViewFromJSON(jsonValue)
+      SledFromJSON(jsonValue)
     )
   }
 
@@ -388,7 +428,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async hardwareSledsGetSled(
     requestParameters: HardwareSledsGetSledRequest
-  ): Promise<SledView> {
+  ): Promise<Sled> {
     const response = await this.hardwareSledsGetSledRaw(requestParameters)
     return await response.value()
   }
@@ -734,7 +774,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksGetRaw(
     requestParameters: ProjectDisksGetRequest
-  ): Promise<runtime.ApiResponse<DiskViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<DiskResultsPage>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -772,7 +812,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      DiskViewResultsPageFromJSON(jsonValue)
+      DiskResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -781,7 +821,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksGet(
     requestParameters: ProjectDisksGetRequest
-  ): Promise<DiskViewResultsPage> {
+  ): Promise<DiskResultsPage> {
     const response = await this.projectDisksGetRaw(requestParameters)
     return await response.value()
   }
@@ -791,7 +831,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksGetDiskRaw(
     requestParameters: ProjectDisksGetDiskRequest
-  ): Promise<runtime.ApiResponse<DiskView>> {
+  ): Promise<runtime.ApiResponse<Disk>> {
     if (
       requestParameters.diskName === null ||
       requestParameters.diskName === undefined
@@ -832,7 +872,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      DiskViewFromJSON(jsonValue)
+      DiskFromJSON(jsonValue)
     )
   }
 
@@ -841,7 +881,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksGetDisk(
     requestParameters: ProjectDisksGetDiskRequest
-  ): Promise<DiskView> {
+  ): Promise<Disk> {
     const response = await this.projectDisksGetDiskRaw(requestParameters)
     return await response.value()
   }
@@ -851,7 +891,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksPostRaw(
     requestParameters: ProjectDisksPostRequest
-  ): Promise<runtime.ApiResponse<DiskView>> {
+  ): Promise<runtime.ApiResponse<Disk>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -890,7 +930,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      DiskViewFromJSON(jsonValue)
+      DiskFromJSON(jsonValue)
     )
   }
 
@@ -899,7 +939,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectDisksPost(
     requestParameters: ProjectDisksPostRequest
-  ): Promise<DiskView> {
+  ): Promise<Disk> {
     const response = await this.projectDisksPostRaw(requestParameters)
     return await response.value()
   }
@@ -966,7 +1006,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesGetRaw(
     requestParameters: ProjectInstancesGetRequest
-  ): Promise<runtime.ApiResponse<InstanceViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<InstanceResultsPage>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1004,7 +1044,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewResultsPageFromJSON(jsonValue)
+      InstanceResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -1013,7 +1053,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesGet(
     requestParameters: ProjectInstancesGetRequest
-  ): Promise<InstanceViewResultsPage> {
+  ): Promise<InstanceResultsPage> {
     const response = await this.projectInstancesGetRaw(requestParameters)
     return await response.value()
   }
@@ -1023,7 +1063,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesGetInstanceRaw(
     requestParameters: ProjectInstancesGetInstanceRequest
-  ): Promise<runtime.ApiResponse<InstanceView>> {
+  ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1064,7 +1104,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewFromJSON(jsonValue)
+      InstanceFromJSON(jsonValue)
     )
   }
 
@@ -1073,7 +1113,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesGetInstance(
     requestParameters: ProjectInstancesGetInstanceRequest
-  ): Promise<InstanceView> {
+  ): Promise<Instance> {
     const response = await this.projectInstancesGetInstanceRaw(
       requestParameters
     )
@@ -1085,7 +1125,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceRebootRaw(
     requestParameters: ProjectInstancesInstanceRebootRequest
-  ): Promise<runtime.ApiResponse<InstanceView>> {
+  ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1126,7 +1166,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewFromJSON(jsonValue)
+      InstanceFromJSON(jsonValue)
     )
   }
 
@@ -1135,7 +1175,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceReboot(
     requestParameters: ProjectInstancesInstanceRebootRequest
-  ): Promise<InstanceView> {
+  ): Promise<Instance> {
     const response = await this.projectInstancesInstanceRebootRaw(
       requestParameters
     )
@@ -1147,7 +1187,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceStartRaw(
     requestParameters: ProjectInstancesInstanceStartRequest
-  ): Promise<runtime.ApiResponse<InstanceView>> {
+  ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1188,7 +1228,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewFromJSON(jsonValue)
+      InstanceFromJSON(jsonValue)
     )
   }
 
@@ -1197,7 +1237,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceStart(
     requestParameters: ProjectInstancesInstanceStartRequest
-  ): Promise<InstanceView> {
+  ): Promise<Instance> {
     const response = await this.projectInstancesInstanceStartRaw(
       requestParameters
     )
@@ -1209,7 +1249,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceStopRaw(
     requestParameters: ProjectInstancesInstanceStopRequest
-  ): Promise<runtime.ApiResponse<InstanceView>> {
+  ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
       requestParameters.instanceName === undefined
@@ -1250,7 +1290,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewFromJSON(jsonValue)
+      InstanceFromJSON(jsonValue)
     )
   }
 
@@ -1259,7 +1299,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesInstanceStop(
     requestParameters: ProjectInstancesInstanceStopRequest
-  ): Promise<InstanceView> {
+  ): Promise<Instance> {
     const response = await this.projectInstancesInstanceStopRaw(
       requestParameters
     )
@@ -1271,7 +1311,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesPostRaw(
     requestParameters: ProjectInstancesPostRequest
-  ): Promise<runtime.ApiResponse<InstanceView>> {
+  ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1310,7 +1350,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      InstanceViewFromJSON(jsonValue)
+      InstanceFromJSON(jsonValue)
     )
   }
 
@@ -1319,9 +1359,311 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectInstancesPost(
     requestParameters: ProjectInstancesPostRequest
-  ): Promise<InstanceView> {
+  ): Promise<Instance> {
     const response = await this.projectInstancesPostRaw(requestParameters)
     return await response.value()
+  }
+
+  /**
+   * Delete a vpc from a project.
+   */
+  async projectVpcsDeleteVpcRaw(
+    requestParameters: ProjectVpcsDeleteVpcRequest
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling projectVpcsDeleteVpc.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling projectVpcsDeleteVpc.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/projects/{project_name}/vpcs/{vpc_name}`
+        .replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        )
+        .replace(
+          `{${'vpc_name'}}`,
+          encodeURIComponent(String(requestParameters.vpcName))
+        ),
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    })
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a vpc from a project.
+   */
+  async projectVpcsDeleteVpc(
+    requestParameters: ProjectVpcsDeleteVpcRequest
+  ): Promise<void> {
+    await this.projectVpcsDeleteVpcRaw(requestParameters)
+  }
+
+  /**
+   * List VPCs in a project.
+   */
+  async projectVpcsGetRaw(
+    requestParameters: ProjectVpcsGetRequest
+  ): Promise<runtime.ApiResponse<VpcResultsPage>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling projectVpcsGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/projects/{project_name}/vpcs`.replace(
+        `{${'project_name'}}`,
+        encodeURIComponent(String(requestParameters.projectName))
+      ),
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    })
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List VPCs in a project.
+   */
+  async projectVpcsGet(
+    requestParameters: ProjectVpcsGetRequest
+  ): Promise<VpcResultsPage> {
+    const response = await this.projectVpcsGetRaw(requestParameters)
+    return await response.value()
+  }
+
+  /**
+   * Get a VPC in a project.
+   */
+  async projectVpcsGetVpcRaw(
+    requestParameters: ProjectVpcsGetVpcRequest
+  ): Promise<runtime.ApiResponse<Vpc>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling projectVpcsGetVpc.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling projectVpcsGetVpc.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/projects/{project_name}/vpcs/{vpc_name}`
+        .replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        )
+        .replace(
+          `{${'vpc_name'}}`,
+          encodeURIComponent(String(requestParameters.vpcName))
+        ),
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    })
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Get a VPC in a project.
+   */
+  async projectVpcsGetVpc(
+    requestParameters: ProjectVpcsGetVpcRequest
+  ): Promise<Vpc> {
+    const response = await this.projectVpcsGetVpcRaw(requestParameters)
+    return await response.value()
+  }
+
+  /**
+   * Create a VPC in a project.
+   */
+  async projectVpcsPostRaw(
+    requestParameters: ProjectVpcsPostRequest
+  ): Promise<runtime.ApiResponse<Vpc>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling projectVpcsPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcCreateParams === null ||
+      requestParameters.vpcCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcCreateParams',
+        'Required parameter requestParameters.vpcCreateParams was null or undefined when calling projectVpcsPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request({
+      path: `/projects/{project_name}/vpcs`.replace(
+        `{${'project_name'}}`,
+        encodeURIComponent(String(requestParameters.projectName))
+      ),
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: VpcCreateParamsToJSON(requestParameters.vpcCreateParams),
+    })
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a VPC in a project.
+   */
+  async projectVpcsPost(
+    requestParameters: ProjectVpcsPostRequest
+  ): Promise<Vpc> {
+    const response = await this.projectVpcsPostRaw(requestParameters)
+    return await response.value()
+  }
+
+  /**
+   * Update a VPC.
+   */
+  async projectVpcsPutVpcRaw(
+    requestParameters: ProjectVpcsPutVpcRequest
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling projectVpcsPutVpc.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling projectVpcsPutVpc.'
+      )
+    }
+
+    if (
+      requestParameters.vpcUpdateParams === null ||
+      requestParameters.vpcUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcUpdateParams',
+        'Required parameter requestParameters.vpcUpdateParams was null or undefined when calling projectVpcsPutVpc.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request({
+      path: `/projects/{project_name}/vpcs/{vpc_name}`
+        .replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        )
+        .replace(
+          `{${'vpc_name'}}`,
+          encodeURIComponent(String(requestParameters.vpcName))
+        ),
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: VpcUpdateParamsToJSON(requestParameters.vpcUpdateParams),
+    })
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Update a VPC.
+   */
+  async projectVpcsPutVpc(
+    requestParameters: ProjectVpcsPutVpcRequest
+  ): Promise<void> {
+    await this.projectVpcsPutVpcRaw(requestParameters)
   }
 
   /**
@@ -1371,7 +1713,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsGetRaw(
     requestParameters: ProjectsGetRequest
-  ): Promise<runtime.ApiResponse<ProjectViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<ProjectResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -1396,7 +1738,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectViewResultsPageFromJSON(jsonValue)
+      ProjectResultsPageFromJSON(jsonValue)
     )
   }
 
@@ -1405,7 +1747,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsGet(
     requestParameters: ProjectsGetRequest
-  ): Promise<ProjectViewResultsPage> {
+  ): Promise<ProjectResultsPage> {
     const response = await this.projectsGetRaw(requestParameters)
     return await response.value()
   }
@@ -1415,7 +1757,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsGetProjectRaw(
     requestParameters: ProjectsGetProjectRequest
-  ): Promise<runtime.ApiResponse<ProjectView>> {
+  ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1441,7 +1783,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectViewFromJSON(jsonValue)
+      ProjectFromJSON(jsonValue)
     )
   }
 
@@ -1450,7 +1792,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsGetProject(
     requestParameters: ProjectsGetProjectRequest
-  ): Promise<ProjectView> {
+  ): Promise<Project> {
     const response = await this.projectsGetProjectRaw(requestParameters)
     return await response.value()
   }
@@ -1460,7 +1802,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsPostRaw(
     requestParameters: ProjectsPostRequest
-  ): Promise<runtime.ApiResponse<ProjectView>> {
+  ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectCreateParams === null ||
       requestParameters.projectCreateParams === undefined
@@ -1486,16 +1828,14 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectViewFromJSON(jsonValue)
+      ProjectFromJSON(jsonValue)
     )
   }
 
   /**
    * Create a new project.
    */
-  async projectsPost(
-    requestParameters: ProjectsPostRequest
-  ): Promise<ProjectView> {
+  async projectsPost(requestParameters: ProjectsPostRequest): Promise<Project> {
     const response = await this.projectsPostRaw(requestParameters)
     return await response.value()
   }
@@ -1505,7 +1845,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsPutProjectRaw(
     requestParameters: ProjectsPutProjectRequest
-  ): Promise<runtime.ApiResponse<ProjectView>> {
+  ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1544,7 +1884,7 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectViewFromJSON(jsonValue)
+      ProjectFromJSON(jsonValue)
     )
   }
 
@@ -1553,7 +1893,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async projectsPutProject(
     requestParameters: ProjectsPutProjectRequest
-  ): Promise<ProjectView> {
+  ): Promise<Project> {
     const response = await this.projectsPutProjectRaw(requestParameters)
     return await response.value()
   }
@@ -1563,7 +1903,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async sagasGetRaw(
     requestParameters: SagasGetRequest
-  ): Promise<runtime.ApiResponse<SagaViewResultsPage>> {
+  ): Promise<runtime.ApiResponse<SagaResultsPage>> {
     const queryParameters: any = {}
 
     if (requestParameters.limit !== undefined) {
@@ -1588,16 +1928,14 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      SagaViewResultsPageFromJSON(jsonValue)
+      SagaResultsPageFromJSON(jsonValue)
     )
   }
 
   /**
    * List all sagas (for debugging)
    */
-  async sagasGet(
-    requestParameters: SagasGetRequest
-  ): Promise<SagaViewResultsPage> {
+  async sagasGet(requestParameters: SagasGetRequest): Promise<SagaResultsPage> {
     const response = await this.sagasGetRaw(requestParameters)
     return await response.value()
   }
@@ -1607,7 +1945,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async sagasGetSagaRaw(
     requestParameters: SagasGetSagaRequest
-  ): Promise<runtime.ApiResponse<SagaView>> {
+  ): Promise<runtime.ApiResponse<Saga>> {
     if (
       requestParameters.sagaId === null ||
       requestParameters.sagaId === undefined
@@ -1633,16 +1971,14 @@ export class DefaultApi extends runtime.BaseAPI {
     })
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      SagaViewFromJSON(jsonValue)
+      SagaFromJSON(jsonValue)
     )
   }
 
   /**
    * Fetch information about a single saga (for debugging)
    */
-  async sagasGetSaga(
-    requestParameters: SagasGetSagaRequest
-  ): Promise<SagaView> {
+  async sagasGetSaga(requestParameters: SagasGetSagaRequest): Promise<Saga> {
     const response = await this.sagasGetSagaRaw(requestParameters)
     return await response.value()
   }

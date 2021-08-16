@@ -14,45 +14,43 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  SagaStateViewAnyOf1Done,
-  SagaStateViewAnyOf1DoneFromJSON,
-  SagaStateViewAnyOf1DoneFromJSONTyped,
-  SagaStateViewAnyOf1DoneToJSON,
+  SagaStateAnyOf1Done,
+  SagaStateAnyOf1DoneFromJSON,
+  SagaStateAnyOf1DoneFromJSONTyped,
+  SagaStateAnyOf1DoneToJSON,
 } from './'
 
 /**
  *
  * @export
- * @interface SagaStateViewAnyOf1
+ * @interface SagaStateAnyOf1
  */
-export interface SagaStateViewAnyOf1 {
+export interface SagaStateAnyOf1 {
   /**
    *
-   * @type {SagaStateViewAnyOf1Done}
-   * @memberof SagaStateViewAnyOf1
+   * @type {SagaStateAnyOf1Done}
+   * @memberof SagaStateAnyOf1
    */
-  done: SagaStateViewAnyOf1Done
+  done: SagaStateAnyOf1Done
 }
 
-export function SagaStateViewAnyOf1FromJSON(json: any): SagaStateViewAnyOf1 {
-  return SagaStateViewAnyOf1FromJSONTyped(json, false)
+export function SagaStateAnyOf1FromJSON(json: any): SagaStateAnyOf1 {
+  return SagaStateAnyOf1FromJSONTyped(json, false)
 }
 
-export function SagaStateViewAnyOf1FromJSONTyped(
+export function SagaStateAnyOf1FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaStateViewAnyOf1 {
+): SagaStateAnyOf1 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    done: SagaStateViewAnyOf1DoneFromJSON(json['done']),
+    done: SagaStateAnyOf1DoneFromJSON(json['done']),
   }
 }
 
-export function SagaStateViewAnyOf1ToJSON(
-  value?: SagaStateViewAnyOf1 | null
-): any {
+export function SagaStateAnyOf1ToJSON(value?: SagaStateAnyOf1 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -60,6 +58,6 @@ export function SagaStateViewAnyOf1ToJSON(
     return null
   }
   return {
-    done: SagaStateViewAnyOf1DoneToJSON(value.done),
+    done: SagaStateAnyOf1DoneToJSON(value.done),
   }
 }

@@ -14,51 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  RackView,
-  RackViewFromJSON,
-  RackViewFromJSONTyped,
-  RackViewToJSON,
+  Instance,
+  InstanceFromJSON,
+  InstanceFromJSONTyped,
+  InstanceToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface RackViewResultsPage
+ * @interface InstanceResultsPage
  */
-export interface RackViewResultsPage {
+export interface InstanceResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<RackView>}
-   * @memberof RackViewResultsPage
+   * @type {Array<Instance>}
+   * @memberof InstanceResultsPage
    */
-  items: Array<RackView>
+  items: Array<Instance>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof RackViewResultsPage
+   * @memberof InstanceResultsPage
    */
   nextPage?: string
 }
 
-export function RackViewResultsPageFromJSON(json: any): RackViewResultsPage {
-  return RackViewResultsPageFromJSONTyped(json, false)
+export function InstanceResultsPageFromJSON(json: any): InstanceResultsPage {
+  return InstanceResultsPageFromJSONTyped(json, false)
 }
 
-export function RackViewResultsPageFromJSONTyped(
+export function InstanceResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): RackViewResultsPage {
+): InstanceResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(RackViewFromJSON),
+    items: (json['items'] as Array<any>).map(InstanceFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function RackViewResultsPageToJSON(
-  value?: RackViewResultsPage | null
+export function InstanceResultsPageToJSON(
+  value?: InstanceResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -67,7 +67,7 @@ export function RackViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(RackViewToJSON),
+    items: (value.items as Array<any>).map(InstanceToJSON),
     next_page: value.nextPage,
   }
 }

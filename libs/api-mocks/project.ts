@@ -1,6 +1,6 @@
-import type { ProjectView, ProjectViewResultsPage } from '@oxide/api'
+import type { Project, ProjectResultsPage } from '@oxide/api'
 
-export const project: ProjectView = {
+export const project: Project = {
   id: 'mock-project-uuid',
   name: 'mock-project',
   description: 'a fake project',
@@ -8,4 +8,4 @@ export const project: ProjectView = {
   timeModified: new Date(2021, 0, 2),
 }
 
-export const projects: ProjectViewResultsPage = { items: [project] }
+export const projects: ProjectResultsPage = { items: [project] }

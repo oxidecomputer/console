@@ -50,7 +50,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RackViewResultsPage"
+                  "$ref": "#/components/schemas/RackResultsPage"
                 }
               }
             }
@@ -82,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RackView"
+                  "$ref": "#/components/schemas/Rack"
                 }
               }
             }
@@ -130,7 +130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SledViewResultsPage"
+                  "$ref": "#/components/schemas/SledResultsPage"
                 }
               }
             }
@@ -162,7 +162,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SledView"
+                  "$ref": "#/components/schemas/Sled"
                 }
               }
             }
@@ -210,7 +210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectViewResultsPage"
+                  "$ref": "#/components/schemas/ProjectResultsPage"
                 }
               }
             }
@@ -237,7 +237,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectView"
+                  "$ref": "#/components/schemas/Project"
                 }
               }
             }
@@ -266,7 +266,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectView"
+                  "$ref": "#/components/schemas/Project"
                 }
               }
             }
@@ -303,7 +303,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectView"
+                  "$ref": "#/components/schemas/Project"
                 }
               }
             }
@@ -380,7 +380,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DiskViewResultsPage"
+                  "$ref": "#/components/schemas/DiskResultsPage"
                 }
               }
             }
@@ -418,7 +418,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DiskView"
+                  "$ref": "#/components/schemas/Disk"
                 }
               }
             }
@@ -456,7 +456,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DiskView"
+                  "$ref": "#/components/schemas/Disk"
                 }
               }
             }
@@ -542,7 +542,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceViewResultsPage"
+                  "$ref": "#/components/schemas/InstanceResultsPage"
                 }
               }
             }
@@ -580,7 +580,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceView"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
@@ -618,7 +618,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceView"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
@@ -857,7 +857,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceView"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
@@ -895,7 +895,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceView"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
@@ -933,10 +933,211 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceView"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/projects/{project_name}/vpcs": {
+      "get": {
+        "description": "List VPCs in a project.",
+        "operationId": "project_vpcs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of items returned by a single call",
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 1
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "page_token",
+            "schema": {
+              "description": "Token returned by previous call to retreive the subsequent page",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "$ref": "#/components/schemas/NameSortMode"
+            },
+            "style": "form"
+          },
+          {
+            "in": "path",
+            "name": "project_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VpcResultsPage"
+                }
+              }
+            }
+          }
+        },
+        "x-dropshot-pagination": true
+      },
+      "post": {
+        "description": "Create a VPC in a project.",
+        "operationId": "project_vpcs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VpcCreateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "successful creation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vpc"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{project_name}/vpcs/{vpc_name}": {
+      "get": {
+        "description": "Get a VPC in a project.",
+        "operationId": "project_vpcs_get_vpc",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          },
+          {
+            "in": "path",
+            "name": "vpc_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vpc"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update a VPC.",
+        "operationId": "project_vpcs_put_vpc",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          },
+          {
+            "in": "path",
+            "name": "vpc_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VpcUpdateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a vpc from a project.",
+        "operationId": "project_vpcs_delete_vpc",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          },
+          {
+            "in": "path",
+            "name": "vpc_name",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful deletion"
           }
         }
       }
@@ -981,7 +1182,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SagaViewResultsPage"
+                  "$ref": "#/components/schemas/SagaResultsPage"
                 }
               }
             }
@@ -1012,7 +1213,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SagaView"
+                  "$ref": "#/components/schemas/Saga"
                 }
               }
             }
@@ -1104,94 +1305,7 @@
         "format": "uint64",
         "minimum": 0
       },
-      "DiskAttachment": {
-        "description": "Describes a Disk's attachment to an Instance",
-        "type": "object",
-        "properties": {
-          "diskId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "diskName": {
-            "$ref": "#/components/schemas/Name"
-          },
-          "diskState": {
-            "$ref": "#/components/schemas/DiskState"
-          },
-          "instanceId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": ["diskId", "diskName", "diskState", "instanceId"]
-      },
-      "DiskCreateParams": {
-        "description": "Create-time parameters for an [`Disk`]",
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "name": {
-            "$ref": "#/components/schemas/Name"
-          },
-          "size": {
-            "$ref": "#/components/schemas/ByteCount"
-          },
-          "snapshotId": {
-            "description": "id for snapshot from which the Disk should be created, if any",
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": ["description", "name", "size"]
-      },
-      "DiskState": {
-        "description": "State of a Disk (primarily: attached or not)",
-        "anyOf": [
-          {
-            "type": "string",
-            "enum": ["creating", "detached", "destroyed", "faulted"]
-          },
-          {
-            "description": "Disk is being attached to the given Instance",
-            "type": "object",
-            "properties": {
-              "attaching": {
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            "required": ["attaching"],
-            "additionalProperties": false
-          },
-          {
-            "description": "Disk is attached to the given Instance",
-            "type": "object",
-            "properties": {
-              "attached": {
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            "required": ["attached"],
-            "additionalProperties": false
-          },
-          {
-            "description": "Disk is being detached from the given Instance",
-            "type": "object",
-            "properties": {
-              "detaching": {
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            "required": ["detaching"],
-            "additionalProperties": false
-          }
-        ]
-      },
-      "DiskView": {
+      "Disk": {
         "description": "Client view of an [`Disk`]",
         "type": "object",
         "properties": {
@@ -1247,7 +1361,49 @@
           "timeModified"
         ]
       },
-      "DiskViewResultsPage": {
+      "DiskAttachment": {
+        "description": "Describes a Disk's attachment to an Instance",
+        "type": "object",
+        "properties": {
+          "diskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "diskName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "diskState": {
+            "$ref": "#/components/schemas/DiskState"
+          },
+          "instanceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["diskId", "diskName", "diskState", "instanceId"]
+      },
+      "DiskCreateParams": {
+        "description": "Create-time parameters for an [`Disk`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ByteCount"
+          },
+          "snapshotId": {
+            "description": "id for snapshot from which the Disk should be created, if any",
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["description", "name", "size"]
+      },
+      "DiskResultsPage": {
         "description": "A single page of results",
         "type": "object",
         "properties": {
@@ -1255,7 +1411,7 @@
             "description": "list of items on this page of results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DiskView"
+              "$ref": "#/components/schemas/Disk"
             }
           },
           "next_page": {
@@ -1264,6 +1420,51 @@
           }
         },
         "required": ["items"]
+      },
+      "DiskState": {
+        "description": "State of a Disk (primarily: attached or not)",
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": ["creating", "detached", "destroyed", "faulted"]
+          },
+          {
+            "description": "Disk is being attached to the given Instance",
+            "type": "object",
+            "properties": {
+              "attaching": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": ["attaching"],
+            "additionalProperties": false
+          },
+          {
+            "description": "Disk is attached to the given Instance",
+            "type": "object",
+            "properties": {
+              "attached": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": ["attached"],
+            "additionalProperties": false
+          },
+          {
+            "description": "Disk is being detached from the given Instance",
+            "type": "object",
+            "properties": {
+              "detaching": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": ["detaching"],
+            "additionalProperties": false
+          }
+        ]
       },
       "IdentityMetadata": {
         "description": "Identity-related metadata that's included in nearly all public API objects",
@@ -1294,50 +1495,7 @@
         },
         "required": ["description", "id", "name", "timeCreated", "timeModified"]
       },
-      "InstanceCpuCount": {
-        "description": "The number of CPUs in an Instance",
-        "type": "integer",
-        "format": "uint16",
-        "minimum": 0
-      },
-      "InstanceCreateParams": {
-        "description": "Create-time parameters for an [`Instance`]",
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "hostname": {
-            "type": "string"
-          },
-          "memory": {
-            "$ref": "#/components/schemas/ByteCount"
-          },
-          "name": {
-            "$ref": "#/components/schemas/Name"
-          },
-          "ncpus": {
-            "$ref": "#/components/schemas/InstanceCpuCount"
-          }
-        },
-        "required": ["description", "hostname", "memory", "name", "ncpus"]
-      },
-      "InstanceState": {
-        "description": "Running state of an Instance (primarily: booted or stopped)\n\nThis typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle",
-        "type": "string",
-        "enum": [
-          "creating",
-          "starting",
-          "running",
-          "stopping",
-          "stopped",
-          "rebooting",
-          "repairing",
-          "failed",
-          "destroyed"
-        ]
-      },
-      "InstanceView": {
+      "Instance": {
         "description": "Client view of an [`Instance`]",
         "type": "object",
         "properties": {
@@ -1400,7 +1558,35 @@
           "timeRunStateUpdated"
         ]
       },
-      "InstanceViewResultsPage": {
+      "InstanceCpuCount": {
+        "description": "The number of CPUs in an Instance",
+        "type": "integer",
+        "format": "uint16",
+        "minimum": 0
+      },
+      "InstanceCreateParams": {
+        "description": "Create-time parameters for an [`Instance`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/ByteCount"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "ncpus": {
+            "$ref": "#/components/schemas/InstanceCpuCount"
+          }
+        },
+        "required": ["description", "hostname", "memory", "name", "ncpus"]
+      },
+      "InstanceResultsPage": {
         "description": "A single page of results",
         "type": "object",
         "properties": {
@@ -1408,7 +1594,7 @@
             "description": "list of items on this page of results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InstanceView"
+              "$ref": "#/components/schemas/Instance"
             }
           },
           "next_page": {
@@ -1418,6 +1604,35 @@
         },
         "required": ["items"]
       },
+      "InstanceState": {
+        "description": "Running state of an Instance (primarily: booted or stopped)\n\nThis typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle",
+        "type": "string",
+        "enum": [
+          "creating",
+          "starting",
+          "running",
+          "stopping",
+          "stopped",
+          "rebooting",
+          "repairing",
+          "failed",
+          "destroyed"
+        ]
+      },
+      "Ipv4Net": {
+        "title": "An IPv4 subnet",
+        "description": "An IPv4 subnet, including prefix and subnet mask",
+        "type": "string",
+        "pattern": "^(10\\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]\\.){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$^(172\\.16\\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])\\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$^(192\\.168\\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])\\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$",
+        "maxLength": 18
+      },
+      "Ipv6Net": {
+        "title": "An IPv6 subnet",
+        "description": "An IPv6 subnet, including prefix and subnet mask",
+        "type": "string",
+        "pattern": "^(fd|FD)00:((([0-8a-fA-F]{1,4}\\:){6}[0-8a-fA-F]{1,4})|(([0-8a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$",
+        "maxLength": 43
+      },
       "Name": {
         "title": "A name used in the API",
         "description": "Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.",
@@ -1425,32 +1640,7 @@
         "pattern": "[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])",
         "maxLength": 63
       },
-      "ProjectCreateParams": {
-        "description": "Create-time parameters for an [`Project`]",
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "name": {
-            "$ref": "#/components/schemas/Name"
-          }
-        },
-        "required": ["description", "name"]
-      },
-      "ProjectUpdateParams": {
-        "description": "Updateable properties of an [`Project`]",
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "name": {
-            "$ref": "#/components/schemas/Name"
-          }
-        }
-      },
-      "ProjectView": {
+      "Project": {
         "description": "Client view of an [`Project`]",
         "type": "object",
         "properties": {
@@ -1479,7 +1669,20 @@
         },
         "required": ["description", "id", "name", "timeCreated", "timeModified"]
       },
-      "ProjectViewResultsPage": {
+      "ProjectCreateParams": {
+        "description": "Create-time parameters for an [`Project`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          }
+        },
+        "required": ["description", "name"]
+      },
+      "ProjectResultsPage": {
         "description": "A single page of results",
         "type": "object",
         "properties": {
@@ -1487,7 +1690,7 @@
             "description": "list of items on this page of results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProjectView"
+              "$ref": "#/components/schemas/Project"
             }
           },
           "next_page": {
@@ -1497,7 +1700,19 @@
         },
         "required": ["items"]
       },
-      "RackView": {
+      "ProjectUpdateParams": {
+        "description": "Updateable properties of an [`Project`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          }
+        }
+      },
+      "Rack": {
         "description": "Client view of an [`Rack`]",
         "type": "object",
         "properties": {
@@ -1507,7 +1722,7 @@
         },
         "required": ["identity"]
       },
-      "RackViewResultsPage": {
+      "RackResultsPage": {
         "description": "A single page of results",
         "type": "object",
         "properties": {
@@ -1515,7 +1730,7 @@
             "description": "list of items on this page of results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RackView"
+              "$ref": "#/components/schemas/Rack"
             }
           },
           "next_page": {
@@ -1525,7 +1740,38 @@
         },
         "required": ["items"]
       },
-      "SagaStateView": {
+      "Saga": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SagaState"
+          }
+        },
+        "required": ["id", "state"]
+      },
+      "SagaResultsPage": {
+        "description": "A single page of results",
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "list of items on this page of results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Saga"
+            }
+          },
+          "next_page": {
+            "description": "token used to fetch the next page of results (if any)",
+            "type": "string"
+          }
+        },
+        "required": ["items"]
+      },
+      "SagaState": {
         "anyOf": [
           {
             "type": "string",
@@ -1555,38 +1801,7 @@
           }
         ]
       },
-      "SagaView": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "state": {
-            "$ref": "#/components/schemas/SagaStateView"
-          }
-        },
-        "required": ["id", "state"]
-      },
-      "SagaViewResultsPage": {
-        "description": "A single page of results",
-        "type": "object",
-        "properties": {
-          "items": {
-            "description": "list of items on this page of results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SagaView"
-            }
-          },
-          "next_page": {
-            "description": "token used to fetch the next page of results (if any)",
-            "type": "string"
-          }
-        },
-        "required": ["items"]
-      },
-      "SledView": {
+      "Sled": {
         "description": "Client view of an [`Sled`]",
         "type": "object",
         "properties": {
@@ -1625,7 +1840,7 @@
           "timeModified"
         ]
       },
-      "SledViewResultsPage": {
+      "SledResultsPage": {
         "description": "A single page of results",
         "type": "object",
         "properties": {
@@ -1633,7 +1848,7 @@
             "description": "list of items on this page of results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SledView"
+              "$ref": "#/components/schemas/Sled"
             }
           },
           "next_page": {
@@ -1642,6 +1857,128 @@
           }
         },
         "required": ["items"]
+      },
+      "Vpc": {
+        "description": "Identity-related metadata that's included in nearly all public API objects",
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
+          "dnsName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "projectId": {
+            "description": "id for the project containing this VPC",
+            "type": "string",
+            "format": "uuid"
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
+          },
+          "vpcSubnets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VpcSubnet"
+            }
+          }
+        },
+        "required": [
+          "description",
+          "dnsName",
+          "id",
+          "name",
+          "projectId",
+          "timeCreated",
+          "timeModified",
+          "vpcSubnets"
+        ]
+      },
+      "VpcCreateParams": {
+        "description": "Create-time parameters for a [`Vpc`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "dnsName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          }
+        },
+        "required": ["description", "dnsName", "name"]
+      },
+      "VpcResultsPage": {
+        "description": "A single page of results",
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "list of items on this page of results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vpc"
+            }
+          },
+          "next_page": {
+            "description": "token used to fetch the next page of results (if any)",
+            "type": "string"
+          }
+        },
+        "required": ["items"]
+      },
+      "VpcSubnet": {
+        "description": "A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.",
+        "type": "object",
+        "properties": {
+          "identity": {
+            "$ref": "#/components/schemas/IdentityMetadata"
+          },
+          "ipv4_block": {
+            "$ref": "#/components/schemas/Ipv4Net"
+          },
+          "ipv6_block": {
+            "$ref": "#/components/schemas/Ipv6Net"
+          },
+          "vpc_id": {
+            "description": "The VPC to which the subnet belongs.",
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["identity", "vpc_id"]
+      },
+      "VpcUpdateParams": {
+        "description": "Updateable properties of a [`Vpc`]",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "dnsName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          }
+        }
       },
       "IdSortMode": {
         "description": "Supported set of sort modes for scanning by id only.\n\nCurrently, we only support scanning in ascending order.",

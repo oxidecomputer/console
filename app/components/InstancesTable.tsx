@@ -5,7 +5,7 @@ import { useTable, useRowSelect } from 'react-table'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 import filesize from 'filesize'
 
-import type { InstanceView } from '@oxide/api'
+import type { Instance } from '@oxide/api'
 import {
   instanceCan,
   useApiMutation,
@@ -36,14 +36,14 @@ const COLUMNS = [
     },
   },
   {
-    accessor: (i: InstanceView) => ({ ncpus: i.ncpus, memory: i.memory }),
+    accessor: (i: Instance) => ({ ncpus: i.ncpus, memory: i.memory }),
     id: 'resources',
     Header: () => <div className="text-left">CPU / RAM</div>,
-    Cell: ({ value }: { value: Pick<InstanceView, 'ncpus' | 'memory'> }) =>
+    Cell: ({ value }: { value: Pick<Instance, 'ncpus' | 'memory'> }) =>
       `${value.ncpus} vCPU, ${filesize(value.memory)}`,
   },
   {
-    accessor: (i: InstanceView) => ({
+    accessor: (i: Instance) => ({
       runState: i.runState,
       timeRunStateUpdated: i.timeRunStateUpdated,
     }),
@@ -52,7 +52,7 @@ const COLUMNS = [
     Cell: ({
       value,
     }: {
-      value: Pick<InstanceView, 'runState' | 'timeRunStateUpdated'>
+      value: Pick<Instance, 'runState' | 'timeRunStateUpdated'>
     }) => (
       <span className="inline-flex">
         <StatusBadge className="mr-2" size="sm" status={value.runState} />
@@ -74,7 +74,7 @@ const COLUMNS = [
 
 const menuCol = {
   id: 'menu',
-  Cell: ({ row }: { row: Row<InstanceView> }) => {
+  Cell: ({ row }: { row: Row<Instance> }) => {
     const addToast = useToast()
     const queryClient = useApiQueryClient()
     const refetch = () =>

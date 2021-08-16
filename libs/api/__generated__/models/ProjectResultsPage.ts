@@ -14,51 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  SagaView,
-  SagaViewFromJSON,
-  SagaViewFromJSONTyped,
-  SagaViewToJSON,
+  Project,
+  ProjectFromJSON,
+  ProjectFromJSONTyped,
+  ProjectToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface SagaViewResultsPage
+ * @interface ProjectResultsPage
  */
-export interface SagaViewResultsPage {
+export interface ProjectResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<SagaView>}
-   * @memberof SagaViewResultsPage
+   * @type {Array<Project>}
+   * @memberof ProjectResultsPage
    */
-  items: Array<SagaView>
+  items: Array<Project>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof SagaViewResultsPage
+   * @memberof ProjectResultsPage
    */
   nextPage?: string
 }
 
-export function SagaViewResultsPageFromJSON(json: any): SagaViewResultsPage {
-  return SagaViewResultsPageFromJSONTyped(json, false)
+export function ProjectResultsPageFromJSON(json: any): ProjectResultsPage {
+  return ProjectResultsPageFromJSONTyped(json, false)
 }
 
-export function SagaViewResultsPageFromJSONTyped(
+export function ProjectResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaViewResultsPage {
+): ProjectResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(SagaViewFromJSON),
+    items: (json['items'] as Array<any>).map(ProjectFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function SagaViewResultsPageToJSON(
-  value?: SagaViewResultsPage | null
+export function ProjectResultsPageToJSON(
+  value?: ProjectResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -67,7 +67,7 @@ export function SagaViewResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(SagaViewToJSON),
+    items: (value.items as Array<any>).map(ProjectToJSON),
     next_page: value.nextPage,
   }
 }

@@ -13,109 +13,72 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  DiskState,
-  DiskStateFromJSON,
-  DiskStateFromJSONTyped,
-  DiskStateToJSON,
-} from './'
-
 /**
- * Client view of an [`Disk`]
+ * Client view of an [`Sled`]
  * @export
- * @interface DiskView
+ * @interface Sled
  */
-export interface DiskView {
+export interface Sled {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof DiskView
+   * @memberof Sled
    */
   description: string
   /**
-   *
-   * @type {string}
-   * @memberof DiskView
-   */
-  devicePath: string
-  /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof DiskView
+   * @memberof Sled
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof DiskView
+   * @memberof Sled
    */
   name: string
   /**
    *
    * @type {string}
-   * @memberof DiskView
+   * @memberof Sled
    */
-  projectId: string
-  /**
-   * A count of bytes, typically used either for memory or storage capacity
-   *
-   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
-   * @type {number}
-   * @memberof DiskView
-   */
-  size: number
-  /**
-   *
-   * @type {string}
-   * @memberof DiskView
-   */
-  snapshotId?: string
-  /**
-   *
-   * @type {DiskState}
-   * @memberof DiskView
-   */
-  state: DiskState
+  serviceAddress: string
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof DiskView
+   * @memberof Sled
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof DiskView
+   * @memberof Sled
    */
   timeModified: Date
 }
 
-export function DiskViewFromJSON(json: any): DiskView {
-  return DiskViewFromJSONTyped(json, false)
+export function SledFromJSON(json: any): Sled {
+  return SledFromJSONTyped(json, false)
 }
 
-export function DiskViewFromJSONTyped(
+export function SledFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskView {
+): Sled {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: json['description'],
-    devicePath: json['devicePath'],
     id: json['id'],
     name: json['name'],
-    projectId: json['projectId'],
-    size: json['size'],
-    snapshotId: !exists(json, 'snapshotId') ? undefined : json['snapshotId'],
-    state: DiskStateFromJSON(json['state']),
+    serviceAddress: json['serviceAddress'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
   }
 }
 
-export function DiskViewToJSON(value?: DiskView | null): any {
+export function SledToJSON(value?: Sled | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -124,13 +87,9 @@ export function DiskViewToJSON(value?: DiskView | null): any {
   }
   return {
     description: value.description,
-    devicePath: value.devicePath,
     id: value.id,
     name: value.name,
-    projectId: value.projectId,
-    size: value.size,
-    snapshotId: value.snapshotId,
-    state: DiskStateToJSON(value.state),
+    serviceAddress: value.serviceAddress,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
   }

@@ -23,25 +23,25 @@ import {
 /**
  * Client view of an [`Instance`]
  * @export
- * @interface InstanceView
+ * @interface Instance
  */
-export interface InstanceView {
+export interface Instance {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   description: string
   /**
    * RFC1035-compliant hostname for the Instance.
    * @type {string}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   hostname: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   id: string
   /**
@@ -49,61 +49,61 @@ export interface InstanceView {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   memory: number
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   name: string
   /**
    * The number of CPUs in an Instance
    * @type {number}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   ncpus: number
   /**
    * id for the project containing this Instance
    * @type {string}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   projectId: string
   /**
    *
    * @type {InstanceState}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   runState: InstanceState
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   timeModified: Date
   /**
    *
    * @type {Date}
-   * @memberof InstanceView
+   * @memberof Instance
    */
   timeRunStateUpdated: Date
 }
 
-export function InstanceViewFromJSON(json: any): InstanceView {
-  return InstanceViewFromJSONTyped(json, false)
+export function InstanceFromJSON(json: any): Instance {
+  return InstanceFromJSONTyped(json, false)
 }
 
-export function InstanceViewFromJSONTyped(
+export function InstanceFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): InstanceView {
+): Instance {
   if (json === undefined || json === null) {
     return json
   }
@@ -122,7 +122,7 @@ export function InstanceViewFromJSONTyped(
   }
 }
 
-export function InstanceViewToJSON(value?: InstanceView | null): any {
+export function InstanceToJSON(value?: Instance | null): any {
   if (value === undefined) {
     return undefined
   }

@@ -13,72 +13,90 @@
  */
 
 import { exists, mapValues } from '../runtime'
+import {
+  VpcSubnet,
+  VpcSubnetFromJSON,
+  VpcSubnetFromJSONTyped,
+  VpcSubnetToJSON,
+} from './'
+
 /**
- * Client view of an [`Sled`]
+ * Identity-related metadata that's included in nearly all public API objects
  * @export
- * @interface SledView
+ * @interface Vpc
  */
-export interface SledView {
+export interface Vpc {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof SledView
+   * @memberof Vpc
    */
   description: string
   /**
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * @type {string}
+   * @memberof Vpc
+   */
+  dnsName: string
+  /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof SledView
+   * @memberof Vpc
    */
   id: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof SledView
+   * @memberof Vpc
    */
   name: string
   /**
-   *
+   * id for the project containing this VPC
    * @type {string}
-   * @memberof SledView
+   * @memberof Vpc
    */
-  serviceAddress: string
+  projectId: string
   /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof SledView
+   * @memberof Vpc
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof SledView
+   * @memberof Vpc
    */
   timeModified: Date
+  /**
+   *
+   * @type {Array<VpcSubnet>}
+   * @memberof Vpc
+   */
+  vpcSubnets: Array<VpcSubnet>
 }
 
-export function SledViewFromJSON(json: any): SledView {
-  return SledViewFromJSONTyped(json, false)
+export function VpcFromJSON(json: any): Vpc {
+  return VpcFromJSONTyped(json, false)
 }
 
-export function SledViewFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean
-): SledView {
+export function VpcFromJSONTyped(json: any, ignoreDiscriminator: boolean): Vpc {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: json['description'],
+    dnsName: json['dnsName'],
     id: json['id'],
     name: json['name'],
-    serviceAddress: json['serviceAddress'],
+    projectId: json['projectId'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
+    vpcSubnets: (json['vpcSubnets'] as Array<any>).map(VpcSubnetFromJSON),
   }
 }
 
-export function SledViewToJSON(value?: SledView | null): any {
+export function VpcToJSON(value?: Vpc | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -87,10 +105,12 @@ export function SledViewToJSON(value?: SledView | null): any {
   }
   return {
     description: value.description,
+    dnsName: value.dnsName,
     id: value.id,
     name: value.name,
-    serviceAddress: value.serviceAddress,
+    projectId: value.projectId,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
+    vpcSubnets: (value.vpcSubnets as Array<any>).map(VpcSubnetToJSON),
   }
 }

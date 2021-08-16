@@ -17,23 +17,21 @@
  * @export
  * @enum {string}
  */
-export enum SagaStateViewAnyOf {
+export enum SagaStateAnyOf {
   Running = 'running',
 }
 
-export function SagaStateViewAnyOfFromJSON(json: any): SagaStateViewAnyOf {
-  return SagaStateViewAnyOfFromJSONTyped(json, false)
+export function SagaStateAnyOfFromJSON(json: any): SagaStateAnyOf {
+  return SagaStateAnyOfFromJSONTyped(json, false)
 }
 
-export function SagaStateViewAnyOfFromJSONTyped(
+export function SagaStateAnyOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaStateViewAnyOf {
-  return json as SagaStateViewAnyOf
+): SagaStateAnyOf {
+  return json as SagaStateAnyOf
 }
 
-export function SagaStateViewAnyOfToJSON(
-  value?: SagaStateViewAnyOf | null
-): any {
+export function SagaStateAnyOfToJSON(value?: SagaStateAnyOf | null): any {
   return value as any
 }
