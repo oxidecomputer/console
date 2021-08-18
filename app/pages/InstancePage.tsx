@@ -43,14 +43,7 @@ const InstancePage = () => {
     data: instance,
     error,
     refetch,
-  } = useApiQuery(
-    'projectInstancesGetInstance',
-    {
-      instanceName,
-      projectName,
-    },
-    { refetchInterval: 5000 }
-  )
+  } = useApiQuery('projectInstancesGetInstance', { instanceName, projectName })
 
   const stopInstance = useApiMutation('projectInstancesInstanceStop', {
     onSuccess: () => {

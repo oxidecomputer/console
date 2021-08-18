@@ -15,6 +15,7 @@ import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
 
 import AppLayout from './layouts/AppLayout'
+import InstanceLayout from './layouts/InstanceLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import QuickMenu from './components/QuickMenu'
 
@@ -28,12 +29,17 @@ const App = () => (
         <Route path="/" element={<ProjectsPage />} />
         <Route path="new" element={<ProjectCreatePage />} />
       </Route>
+      <Route
+        path="/projects/:projectName/instances/:instanceName"
+        element={<InstanceLayout />}
+      >
+        <Route path="/" element={<InstancePage />} />
+      </Route>
       <Route path="/projects/:projectName" element={<ProjectLayout />}>
         <Route element={<ProjectPage />} />
         <Route path="instances">
           <Route path="/" element={<ProjectPage />} />
           <Route path="new" element={<InstanceCreatePage />} />
-          <Route path=":instanceName" element={<InstancePage />} />
         </Route>
         <Route path="networking" />
         <Route path="storage" />
