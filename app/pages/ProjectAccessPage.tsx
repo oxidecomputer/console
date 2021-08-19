@@ -6,7 +6,6 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import {
   Avatar,
-  Breadcrumbs,
   Button,
   Icon,
   PageHeader,
@@ -14,7 +13,6 @@ import {
   selectCol,
   Table,
 } from '@oxide/ui'
-import { useBreadcrumbs } from '../hooks'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
 
@@ -100,7 +98,6 @@ const menuCol = {
 }
 
 const ProjectPage = () => {
-  const breadcrumbs = useBreadcrumbs()
   const columns = React.useMemo(() => COLUMNS, [])
   const data = React.useMemo(() => users, [])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
@@ -112,7 +109,6 @@ const ProjectPage = () => {
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="users">Access &amp; IAM</PageTitle>
       </PageHeader>

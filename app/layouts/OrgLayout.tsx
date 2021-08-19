@@ -6,6 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Icon } from '@oxide/ui'
 
 import { Main, PageContainer, Sidebar } from './helpers'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const ProjectList = (props: { className?: string }) => {
   const { data: projects } = useApiQuery('projectsGet', {})
@@ -47,6 +48,7 @@ const OrgLayout = () => (
       <ProjectList className="mt-14 px-3" />
     </Sidebar>
     <Main>
+      <Breadcrumbs />
       <Outlet />
     </Main>
   </PageContainer>

@@ -2,15 +2,9 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  Breadcrumbs,
-  Button,
-  PageHeader,
-  PageTitle,
-  TextInputGroup,
-} from '@oxide/ui'
+import { Button, PageHeader, PageTitle, TextInputGroup } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useBreadcrumbs, useToast } from '../hooks'
+import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
 
 const ERROR_CODES = {
@@ -20,7 +14,6 @@ const ERROR_CODES = {
 
 const ProjectCreatePage = () => {
   const navigate = useNavigate()
-  const breadcrumbs = useBreadcrumbs()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -58,7 +51,6 @@ const ProjectCreatePage = () => {
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>

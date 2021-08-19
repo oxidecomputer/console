@@ -11,6 +11,7 @@ import {
   Picker,
   Sidebar,
 } from './helpers'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const InstanceLayout = () => {
   const { instanceName } = useParams()
@@ -26,7 +27,7 @@ const InstanceLayout = () => {
           <NavLinkItem to="metrics">
             <Icon name="metrics" /> Metrics
           </NavLinkItem>
-          <NavLinkItem to="audit">
+          <NavLinkItem to="activity">
             <Icon name="document" /> Activity
           </NavLinkItem>
           <NavLinkItem to="access">
@@ -47,6 +48,7 @@ const InstanceLayout = () => {
         </NavList>
       </Sidebar>
       <Main>
+        <Breadcrumbs />
         <Outlet />
       </Main>
     </PageContainer>

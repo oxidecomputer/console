@@ -11,6 +11,7 @@ import {
   Picker,
   Sidebar,
 } from './helpers'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const ProjectLayout = () => {
   const { projectName } = useParams()
@@ -47,6 +48,7 @@ const ProjectLayout = () => {
         </NavList>
       </Sidebar>
       <Main>
+        <Breadcrumbs />
         <Outlet />
       </Main>
     </PageContainer>
