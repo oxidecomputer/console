@@ -18,41 +18,44 @@ import OrgLayout from './layouts/OrgLayout'
 import InstanceLayout from './layouts/InstanceLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import QuickMenu from './components/QuickMenu'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 const App = () => (
-  <Router>
-    <QuickMenu />
-    <Routes>
-      <Route path="/" element={<Navigate to="/projects" replace={true} />} />
-      <Route path="projects" element={<OrgLayout />}>
-        {/* separate from project detail pages because of the different layout */}
-        <Route path="/" element={<ProjectsPage />} />
-        <Route path="new" element={<ProjectCreatePage />} />
-      </Route>
-      <Route
-        path="/projects/:projectName/instances/:instanceName"
-        element={<InstanceLayout />}
-      >
-        <Route path="/" element={<InstancePage />} />
-      </Route>
-      <Route path="/projects/:projectName" element={<ProjectLayout />}>
-        <Route element={<ProjectPage />} />
-        <Route path="instances">
-          <Route path="/" element={<ProjectPage />} />
-          <Route path="new" element={<InstanceCreatePage />} />
+  <ErrorBoundary>
+    <Router>
+      <QuickMenu />
+      <Routes>
+        <Route path="/" element={<Navigate to="/projects" replace={true} />} />
+        <Route path="projects" element={<OrgLayout />}>
+          {/* separate from project detail pages because of the different layout */}
+          <Route path="/" element={<ProjectsPage />} />
+          <Route path="new" element={<ProjectCreatePage />} />
         </Route>
-        <Route path="networking" />
-        <Route path="storage" />
-        <Route path="metrics" />
-        <Route path="audit" />
-        <Route path="access" element={<ProjectAccessPage />} />
-        <Route path="settings" />
-      </Route>
-      <Route path="__debug" element={<OrgLayout />}>
-        <Route path="toasts" element={<ToastTestPage />} />
-      </Route>
-    </Routes>
-  </Router>
+        <Route
+          path="/projects/:projectName/instances/:instanceName"
+          element={<InstanceLayout />}
+        >
+          <Route path="/" element={<InstancePage />} />
+        </Route>
+        <Route path="/projects/:projectName" element={<ProjectLayout />}>
+          <Route element={<ProjectPage />} />
+          <Route path="instances">
+            <Route path="/" element={<ProjectPage />} />
+            <Route path="new" element={<InstanceCreatePage />} />
+          </Route>
+          <Route path="networking" />
+          <Route path="storage" />
+          <Route path="metrics" />
+          <Route path="audit" />
+          <Route path="access" element={<ProjectAccessPage />} />
+          <Route path="settings" />
+        </Route>
+        <Route path="__debug" element={<OrgLayout />}>
+          <Route path="toasts" element={<ToastTestPage />} />
+        </Route>
+      </Routes>
+    </Router>
+  </ErrorBoundary>
 )
 
 export default App
