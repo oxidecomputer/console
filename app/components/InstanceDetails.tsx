@@ -1,5 +1,6 @@
 import React from 'react'
 import filesize from 'filesize'
+import cn from 'classnames'
 
 import type { Instance } from '@oxide/api'
 import { classed } from '@oxide/ui'
@@ -7,6 +8,7 @@ import { StatusBadge } from './StatusBadge'
 
 export interface InstanceDetailsProps {
   instance: Instance
+  className?: string
 }
 
 const Sep = classed.span`before:content-['/'] before:mx-2 before:text-gray-400`
@@ -16,8 +18,11 @@ const Sep = classed.span`before:content-['/'] before:mx-2 before:text-gray-400`
 // they're fine
 const Space = () => <span style={{ fontSize: 0 }}>&nbsp;</span>
 
-export const InstanceDetails = ({ instance }: InstanceDetailsProps) => (
-  <div className="text-xs font-mono flex items-center">
+export const InstanceDetails = ({
+  instance,
+  className,
+}: InstanceDetailsProps) => (
+  <div className={cn('text-xs font-mono flex items-center', className)}>
     <span>{instance.ncpus} vCPU</span>
     <Sep />
     <Space />
@@ -28,7 +33,9 @@ export const InstanceDetails = ({ instance }: InstanceDetailsProps) => (
     <Space />
     <span className="mr-6">Debian 9.12</span>
     <Space />
-    <span>{instance.hostname}</span>
+    {/* TODO: when API logic for fallback hostname is correct, this should
+    just be hostname */}
+    <span>{instance.hostname || instance.name}.inst</span>
     <Sep />
     <Space />
     <span className="mr-6">10.10.16.7</span>

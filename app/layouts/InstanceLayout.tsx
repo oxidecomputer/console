@@ -12,6 +12,7 @@ import {
   Sidebar,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { InstancePageHeader } from '../components/InstancePageHeader'
 
 const InstanceLayout = () => {
   const { instanceName } = useParams()
@@ -49,6 +50,7 @@ const InstanceLayout = () => {
       </Sidebar>
       <Main>
         <Breadcrumbs />
+        <InstancePageHeader />
         <Outlet />
       </Main>
     </PageContainer>

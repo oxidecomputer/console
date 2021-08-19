@@ -6,7 +6,6 @@ import {
   Routes,
 } from 'react-router-dom'
 
-import InstancePage from './pages/InstancePage'
 import InstanceCreatePage from './pages/InstanceCreatePage'
 import ProjectPage from './pages/ProjectPage'
 import ProjectAccessPage from './pages/ProjectAccessPage'
@@ -35,7 +34,14 @@ const App = () => (
           path="/projects/:projectName/instances/:instanceName"
           element={<InstanceLayout />}
         >
-          <Route path="/" element={<InstancePage />} />
+          <Route path="/" />
+          <Route path="metrics" />
+          <Route path="activity" />
+          <Route path="access" />
+          <Route path="resize" />
+          <Route path="networking" />
+          <Route path="storage" />
+          <Route path="tags" />
         </Route>
         <Route path="/projects/:projectName" element={<ProjectLayout />}>
           <Route element={<ProjectPage />} />

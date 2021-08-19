@@ -6,10 +6,10 @@ import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
 import { Icon, PageHeader, PageTitle } from '@oxide/ui'
 
-import { InstanceDetails } from '../components/InstanceDetails'
+import { InstanceDetails } from './InstanceDetails'
 import { useToast } from '../hooks'
 
-const InstancePage = () => {
+export const InstancePageHeader = () => {
   const navigate = useNavigate()
   const addToast = useToast()
   const { projectName, instanceName } = useParams()
@@ -105,7 +105,7 @@ const InstancePage = () => {
   }
 
   return (
-    <div>
+    <>
       <PageHeader>
         <PageTitle icon="resources">{instance.name}</PageTitle>
         <div className="flex space-x-7 text-gray-300">
@@ -143,11 +143,7 @@ const InstancePage = () => {
           </Menu>
         </div>
       </PageHeader>
-      <div className="mt-3">
-        <InstanceDetails instance={instance} />
-      </div>
-    </div>
+      <InstanceDetails instance={instance} className="mt-3" />
+    </>
   )
 }
-
-export default InstancePage
