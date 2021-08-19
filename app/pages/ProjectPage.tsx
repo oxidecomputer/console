@@ -19,7 +19,7 @@ const ProjectPage = () => {
         <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>
 
-      <InstancesTable className="mb-12" />
+      <InstancesTable className="my-12" />
       <div className="space-x-4">
         <Link
           to={`/projects/${projectName}/instances/new`}

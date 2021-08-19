@@ -32,7 +32,7 @@ const ProjectsPage = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader className="mb-10">
         <PageTitle icon="projects">Projects</PageTitle>
         <div className="flex items-center">
           <Link
@@ -46,7 +46,7 @@ const ProjectsPage = () => {
           </button>
         </div>
       </PageHeader>
-      {data.items.length === 0 && <div className="mt-4">No projects yet</div>}
+      {data.items.length === 0 && <div>No projects yet</div>}
       <div className="space-y-4">
         {data.items.map((item) => (
           <article
