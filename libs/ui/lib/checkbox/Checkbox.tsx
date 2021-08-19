@@ -4,7 +4,6 @@ import CheckIcon from '../../assets/check.svg'
 import { classed } from '../../util/classed'
 
 type InputProps = {
-  id: string
   indeterminate?: boolean
   label?: string | React.ReactFragment
 } & React.ComponentProps<'input'>
@@ -16,7 +15,7 @@ const Check = () => (
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-green-500`
 
 const inputStyle = `
-  appearance-none border border-gray-300 h-4 w-4 rounded absolute outline-none
+  appearance-none border border-gray-300 h-4 w-4 rounded absolute left-0 outline-none
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-green-700
   hover:bg-gray-400
