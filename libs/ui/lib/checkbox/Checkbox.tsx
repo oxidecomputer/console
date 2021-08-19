@@ -40,7 +40,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, InputProps>(
     // once the custom one is in
 
     const baseStyle = `
-      appearance-none border border-gray-300 h-4 w-4 rounded absolute
+      appearance-none border border-gray-300 h-4 w-4 rounded absolute outline-none
       disabled:cursor-not-allowed
       focus:ring-2 focus:ring-green-700
       hover:bg-gray-400

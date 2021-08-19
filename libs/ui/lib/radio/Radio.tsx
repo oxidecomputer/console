@@ -23,7 +23,7 @@ export const Radio = React.forwardRef<HTMLInputElement, InputProps>(
     const ref = outerRef || defaultRef
 
     const baseStyle = `
-      appearance-none border border-gray-300 h-4 w-4 rounded-full absolute
+      appearance-none border border-gray-300 h-4 w-4 rounded-full absolute outline-none
       disabled:cursor-not-allowed
       focus:ring-2 focus:ring-green-700
       hover:bg-gray-400
