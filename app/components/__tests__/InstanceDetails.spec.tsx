@@ -1,7 +1,7 @@
 import React from 'react'
-import { render } from '../test-utils'
+import { render } from '../../test-utils'
 
-import { InstanceDetails } from './InstanceDetails'
+import { InstanceDetails } from '../InstanceDetails'
 
 import { instance } from '@oxide/api-mocks'
 

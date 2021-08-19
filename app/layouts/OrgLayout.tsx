@@ -5,8 +5,8 @@ import cn from 'classnames'
 import { useApiQuery } from '@oxide/api'
 import { Icon } from '@oxide/ui'
 
-import { GlobalNav } from '../components/GlobalNav'
-import Wordmark from '../assets/wordmark.svg'
+import { Main, PageContainer, Sidebar } from './helpers'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const ProjectList = (props: { className?: string }) => {
   const { data: projects } = useApiQuery('projectsGet', {})
@@ -42,21 +42,16 @@ const ProjectList = (props: { className?: string }) => {
   )
 }
 
-export default () => (
-  <div className="grid h-screen grid-cols-[14rem,auto] grid-rows-[4.5rem,auto]">
-    <div className="flex items-center pl-4 bg-gray-500 leading-none">
-      <Link to="/">
-        <Wordmark />
-      </Link>
-    </div>
-    <header className="py-4 px-6 self-center">
-      <GlobalNav />
-    </header>
-    <div className="pb-6 overflow-auto bg-gray-500">
-      <ProjectList className="mt-4 px-3" />
-    </div>
-    <main className="overflow-auto py-2 px-6">
+const OrgLayout = () => (
+  <PageContainer>
+    <Sidebar>
+      <ProjectList className="mt-14 px-3" />
+    </Sidebar>
+    <Main>
+      <Breadcrumbs />
       <Outlet />
-    </main>
-  </div>
+    </Main>
+  </PageContainer>
 )
+
+export default OrgLayout

@@ -12,7 +12,7 @@ interface Props {
 
 export const PageTitle = ({ children }: Props) => (
   <h1 className="inline-flex items-center text-green-500 text-display-2xl">
-    <span className="border-l border-b border-green-500 w-10 h-2.5 mr-4" />
+    <span className="border-l border-b border-gray-300 w-10 h-2.5 mr-4" />
     {children}
   </h1>
 )

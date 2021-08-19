@@ -6,7 +6,6 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 import {
   classed,
   Badge,
-  Breadcrumbs,
   Button,
   PageHeader,
   PageTitle,
@@ -16,7 +15,6 @@ import {
 } from '@oxide/ui'
 import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { useBreadcrumbs } from '../hooks'
 import { getServerError } from '../util/errors'
 
 const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
@@ -399,12 +397,10 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 }
 
 const InstanceCreatePage = () => {
-  const breadcrumbs = useBreadcrumbs()
   const { projectName } = useParams()
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="instances">Create a new instance</PageTitle>
       </PageHeader>

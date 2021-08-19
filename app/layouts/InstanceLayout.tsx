@@ -13,19 +13,28 @@ import {
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 
-const ProjectLayout = () => {
-  const { projectName } = useParams()
+const InstanceLayout = () => {
+  const { instanceName } = useParams()
   return (
     <PageContainer>
       <Sidebar>
-        <Picker category="Project" resource={projectName} />
+        <Picker category="Instance" resource={instanceName} />
         <Divider />
         <NavList>
           <NavLinkItem to="">
             <Icon name="dashboard" /> Overview
           </NavLinkItem>
-          <NavLinkItem to="instances">
-            <Icon name="instances" /> Instances
+          <NavLinkItem to="metrics">
+            <Icon name="metrics" /> Metrics
+          </NavLinkItem>
+          <NavLinkItem to="activity">
+            <Icon name="document" /> Activity
+          </NavLinkItem>
+          <NavLinkItem to="access">
+            <Icon name="access" /> Access &amp; IAM
+          </NavLinkItem>
+          <NavLinkItem to="resize">
+            <Icon name="resize" /> Resize
           </NavLinkItem>
           <NavLinkItem to="networking">
             <Icon name="networking" /> Networking
@@ -33,17 +42,8 @@ const ProjectLayout = () => {
           <NavLinkItem to="storage">
             <Icon name="storage" /> Storage
           </NavLinkItem>
-          <NavLinkItem to="metrics">
-            <Icon name="metrics" /> Metrics
-          </NavLinkItem>
-          <NavLinkItem to="audit">
-            <Icon name="document" /> Audit log
-          </NavLinkItem>
-          <NavLinkItem to="access">
-            <Icon name="access" /> Access &amp; IAM
-          </NavLinkItem>
-          <NavLinkItem to="settings">
-            <Icon name="settings" /> Settings
+          <NavLinkItem to="tags">
+            <Icon name="tags" /> Tags
           </NavLinkItem>
         </NavList>
       </Sidebar>
@@ -55,4 +55,5 @@ const ProjectLayout = () => {
   )
 }
 
-export default ProjectLayout
+// hot reload doesn't work with `export default () => ...` ???
+export default InstanceLayout

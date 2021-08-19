@@ -2,13 +2,10 @@ import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Breadcrumbs, buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
+import { buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
 import { InstancesTable } from '../components/InstancesTable'
-import { useBreadcrumbs } from '../hooks'
 
 const ProjectPage = () => {
-  const breadcrumbs = useBreadcrumbs()
-
   const { projectName } = useParams()
   const { data: project } = useApiQuery('projectsGetProject', {
     projectName,
@@ -18,7 +15,6 @@ const ProjectPage = () => {
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="project">{project.name}</PageTitle>
       </PageHeader>

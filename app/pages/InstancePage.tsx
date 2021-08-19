@@ -5,17 +5,10 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
 import type { IconName } from '@oxide/ui'
-import {
-  Breadcrumbs,
-  Button,
-  Card,
-  Icon,
-  PageHeader,
-  PageTitle,
-} from '@oxide/ui'
+import { Button, Card, Icon, PageHeader, PageTitle } from '@oxide/ui'
 
 import { InstanceDetails } from '../components/InstanceDetails'
-import { useBreadcrumbs, useToast } from '../hooks'
+import { useToast } from '../hooks'
 
 const InstanceAction = (props: {
   icon: IconName
@@ -35,7 +28,6 @@ const InstanceAction = (props: {
 
 const InstancePage = () => {
   const navigate = useNavigate()
-  const breadcrumbs = useBreadcrumbs()
   const addToast = useToast()
   const { projectName, instanceName } = useParams()
 
@@ -43,14 +35,7 @@ const InstancePage = () => {
     data: instance,
     error,
     refetch,
-  } = useApiQuery(
-    'projectInstancesGetInstance',
-    {
-      instanceName,
-      projectName,
-    },
-    { refetchInterval: 5000 }
-  )
+  } = useApiQuery('projectInstancesGetInstance', { instanceName, projectName })
 
   const stopInstance = useApiMutation('projectInstancesInstanceStop', {
     onSuccess: () => {
@@ -137,7 +122,6 @@ const InstancePage = () => {
 
   return (
     <div>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="resources">{instance.name}</PageTitle>
         <div className="flex space-x-2">

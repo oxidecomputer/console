@@ -2,9 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { useBreadcrumbs } from '../hooks'
 import {
-  Breadcrumbs,
   buttonStyle,
   Icon,
   PageHeader,
@@ -33,14 +31,12 @@ const Metric = ({ label, value, className }: MetricProps) => (
 )
 
 const ProjectsPage = () => {
-  const breadcrumbs = useBreadcrumbs()
   const { data } = useApiQuery('projectsGet', {})
 
   if (!data) return <div>loading</div>
 
   return (
     <>
-      <Breadcrumbs data={breadcrumbs} />
       <PageHeader>
         <PageTitle icon="projects">Projects</PageTitle>
         <div className="flex items-center">
