@@ -24,3 +24,6 @@ Checked.args = { checked: true, indeterminate: false, label: 'Label' }
 
 export const Indeterminate: Story<Props> = Template.bind({})
 Indeterminate.args = { checked: false, indeterminate: true, label: 'Label' }
+
+export const NoLabel: Story<Props> = Template.bind({})
+NoLabel.args = { checked: false, indeterminate: false }
