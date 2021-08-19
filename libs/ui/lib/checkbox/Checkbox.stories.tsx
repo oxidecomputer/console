@@ -8,6 +8,7 @@ export default {
   argTypes: {
     checked: { control: 'boolean' },
     indeterminate: { control: 'boolean' },
+    label: { control: 'text' },
   },
 }
 
@@ -16,10 +17,10 @@ type Props = React.ComponentProps<typeof Checkbox>
 const Template: Story<Props> = (args) => <Checkbox {...args} />
 
 export const Unchecked: Story<Props> = Template.bind({})
-Unchecked.args = { checked: false, indeterminate: false }
+Unchecked.args = { checked: false, indeterminate: false, label: 'Label' }
 
 export const Checked: Story<Props> = Template.bind({})
-Checked.args = { checked: true, indeterminate: false }
+Checked.args = { checked: true, indeterminate: false, label: 'Label' }
 
 export const Indeterminate: Story<Props> = Template.bind({})
-Indeterminate.args = { checked: false, indeterminate: true }
+Indeterminate.args = { checked: false, indeterminate: true, label: 'Label' }
