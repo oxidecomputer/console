@@ -21,6 +21,7 @@ import DotIcon from '../../assets/dot.svg'
 import ExternalIcon from '../../assets/external.svg'
 import FilterIcon from '../../assets/filter.svg'
 import FolderIcon from '../../assets/folder.svg'
+import HourglassIcon from '../../assets/hourglass.svg'
 import InfoFilledIcon from '../../assets/info-filled.svg'
 import InfoIcon from '../../assets/info.svg'
 import InstanceIcon from '../../assets/instance.svg'
@@ -89,6 +90,7 @@ export const icons = {
   external: ExternalIcon,
   filter: FilterIcon,
   folder: FolderIcon,
+  hourglass: HourglassIcon,
   info: InfoIcon,
   infoFilled: InfoFilledIcon,
   instance: InstanceIcon,

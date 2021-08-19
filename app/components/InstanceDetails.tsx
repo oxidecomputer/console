@@ -2,28 +2,37 @@ import React from 'react'
 import filesize from 'filesize'
 
 import type { Instance } from '@oxide/api'
-import { Icon, classed } from '@oxide/ui'
+import { classed } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 
 export interface InstanceDetailsProps {
   instance: Instance
 }
 
-const Cell = classed.span`before:content-['//'] before:mx-2 first:before:content-none`
+const Sep = classed.span`before:content-['/'] before:mx-2 before:text-gray-400`
+
+// fun hack to include spaces if you highlight and copy the line of details. if
+// you paste in a rich text editor they'll be tiny, but in a normal text editor
+// they're fine
+const Space = () => <span style={{ fontSize: 0 }}>&nbsp;</span>
 
 export const InstanceDetails = ({ instance }: InstanceDetailsProps) => (
-  <div className="text-sm font-mono flex items-center">
-    <StatusBadge className="mr-3" status={instance.runState} />
-    <span>
-      <Cell>{instance.ncpus} vCPU</Cell>
-      <Cell>{filesize(instance.memory)} RAM</Cell>
-      <Cell className="uppercase">100 GB Disk</Cell>
-      <Cell>Debian 9.12 x64</Cell>
-      <Cell>
-        {instance.hostname}
-        <Icon className="ml-1 mr-3" name="copy" />
-        10.10.16.7
-      </Cell>
-    </span>
+  <div className="text-xs font-mono flex items-center">
+    <span>{instance.ncpus} vCPU</span>
+    <Sep />
+    <Space />
+    <span>{filesize(instance.memory)} RAM</span>
+    <Sep />
+    <Space />
+    <span className="mr-6">100 GB SSD</span>
+    <Space />
+    <span className="mr-6">Debian 9.12</span>
+    <Space />
+    <span>{instance.hostname}</span>
+    <Sep />
+    <Space />
+    <span className="mr-6">10.10.16.7</span>
+    <Space />
+    <StatusBadge status={instance.runState} size="sm" />
   </div>
 )

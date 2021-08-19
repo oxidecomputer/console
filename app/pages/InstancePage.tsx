@@ -1,30 +1,13 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
+import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
-import type { IconName } from '@oxide/ui'
-import { Button, Card, Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { Icon, PageHeader, PageTitle } from '@oxide/ui'
 
 import { InstanceDetails } from '../components/InstanceDetails'
 import { useToast } from '../hooks'
-
-const InstanceAction = (props: {
-  icon: IconName
-  children: React.ReactNode
-  onClick?: () => void
-}) => (
-  <Button
-    size="xs"
-    variant="dim"
-    className="inline-flex"
-    onClick={props.onClick}
-  >
-    <Icon name={props.icon} className="mr-2" />
-    {props.children}
-  </Button>
-)
 
 const InstancePage = () => {
   const navigate = useNavigate()
@@ -90,6 +73,7 @@ const InstancePage = () => {
     }
   }
 
+  // TODO: confirm delete modal
   const handleDelete = () => {
     if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
@@ -124,47 +108,44 @@ const InstancePage = () => {
     <div>
       <PageHeader>
         <PageTitle icon="resources">{instance.name}</PageTitle>
-        <div className="flex space-x-2">
-          <InstanceAction icon="pen">Edit</InstanceAction>
-          <InstanceAction icon="stopwatch" onClick={handleReboot}>
-            Reboot
-          </InstanceAction>
-          <InstanceAction icon="playStopO" onClick={handleStop}>
-            Stop
-          </InstanceAction>
-          <InstanceAction icon="playPauseO">Suspend</InstanceAction>
-          <InstanceAction icon="trash" onClick={handleDelete}>
-            Delete
-          </InstanceAction>
-          <Button size="xs" variant="dim" className="!ml-4">
-            SSH
-          </Button>
-          <Button size="xs" variant="dim">
-            <Icon name="more" />
-          </Button>
+        <div className="flex space-x-7 text-gray-300">
+          {/* TODO: hook up delete */}
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={!instanceCan.delete(instance)}
+          >
+            <Icon name="trash" />
+          </button>
+          {/* TODO: fix icon size */}
+          <button type="button">
+            <Icon name="hourglass" />
+          </button>
+          {/* TODO: add start action */}
+          <Menu>
+            <MenuButton>
+              <Icon name="more" className="text-sm text-gray-200 mr-4" />
+            </MenuButton>
+            <MenuList className="TableControls">
+              <MenuItem
+                onSelect={handleStop}
+                disabled={!instanceCan.stop(instance)}
+              >
+                Stop
+              </MenuItem>
+              <MenuItem
+                onSelect={handleReboot}
+                disabled={!instanceCan.reboot(instance)}
+              >
+                Reboot
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </div>
       </PageHeader>
       <div className="mt-3">
         <InstanceDetails instance={instance} />
       </div>
-      <Tabs className="mt-4">
-        <TabList aria-label="Instance Page">
-          <Tab className="flex-1">Overview</Tab>
-          <Tab className="flex-1">Metrics</Tab>
-          <Tab className="flex-1">Activity</Tab>
-          <Tab className="flex-1">Access &amp; IAM</Tab>
-          <Tab className="flex-1">Settings</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <div className="flex flex-wrap mt-4 gap-4">
-              <Card title="Metrics" subtitle="Some status update" />
-              <Card title="Activity" subtitle="Some status update" />
-              <Card title="Access & IAM" subtitle="Some status update" />
-            </div>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
     </div>
   )
 }

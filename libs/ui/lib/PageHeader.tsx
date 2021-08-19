@@ -3,7 +3,7 @@ import React from 'react'
 import type { IconName } from './icon/icons'
 import { classed } from '../util/classed'
 
-export const PageHeader = classed.header`flex items-center justify-between mt-2.5 mb-10`
+export const PageHeader = classed.header`flex items-center justify-between mt-2.5 mb-4`
 
 interface Props {
   icon: IconName
