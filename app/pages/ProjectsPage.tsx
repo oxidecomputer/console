@@ -2,13 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import {
-  buttonStyle,
-  Icon,
-  PageHeader,
-  PageTitle,
-  SparklineSVG,
-} from '@oxide/ui'
+import { buttonStyle, Icon, PageHeader, PageTitle } from '@oxide/ui'
+import SparklineSVG from '../assets/sparkline.svg'
 
 type MetricProps = {
   label: string
