@@ -16,11 +16,11 @@ const baseStyle = `
   checked:bg-green-900 checked:border-green-500 hover:checked:bg-green-950
 `
 
-export const Radio = ({ label, ...rest }: Props) => (
+export const Radio = ({ label, ...inputProps }: Props) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
-      <input className={baseStyle} type="radio" {...rest} />
-      {rest.checked && <Dot />}
+      <input className={baseStyle} type="radio" {...inputProps} />
+      {inputProps.checked && <Dot />}
     </span>
 
     <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">

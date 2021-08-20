@@ -26,7 +26,7 @@ const inputStyle = `
 // TODO: we may end up wanting to call this IndeterminateCheckbox (ew) if
 // we need to distinguish it from one without that state. or not
 export const Checkbox = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ indeterminate, label, ...rest }, outerRef) => {
+  ({ indeterminate, label, ...inputProps }, outerRef) => {
     // null, not blank (undefined), otherwise TS is mad when ref passed to input
     const defaultRef = React.useRef<HTMLInputElement>(null)
     const ref = outerRef || defaultRef
@@ -49,8 +49,13 @@ export const Checkbox = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <label className="inline-flex items-center">
         <span className="h-4 w-4 relative">
-          <input className={inputStyle} type="checkbox" ref={ref} {...rest} />
-          {rest.checked && !indeterminate && <Check />}
+          <input
+            className={inputStyle}
+            type="checkbox"
+            ref={ref}
+            {...inputProps}
+          />
+          {inputProps.checked && !indeterminate && <Check />}
           {indeterminate && <Indeterminate />}
         </span>
 
