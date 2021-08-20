@@ -54,6 +54,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, InputProps>(
           {indeterminate && <Indeterminate />}
         </span>
 
+        {/* TODO: if no label, we may not want to wrap the whole input in <label> */}
         {label && (
           <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
             {label}
