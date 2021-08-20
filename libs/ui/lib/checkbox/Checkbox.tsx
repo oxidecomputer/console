@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import CheckIcon from '../../assets/check.svg'
 import { classed } from '../../util/classed'
@@ -23,39 +23,40 @@ type Props = {
   label?: React.ReactNode
 } & React.ComponentProps<'input'>
 
-export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => {
+// this makes the native input work with indeterminate. you can't pass
+// indeterminate as a prop; it has to be set on a ref, which is then passed to
+// the input. more elaborate examples using forwardRef to allow passing ref from
+// outside: https://github.com/tannerlinsley/react-table/discussions/1989
+function useIndeterminateRef(indeterminate: boolean | undefined) {
   // null, not blank (undefined), otherwise TS is mad when ref passed to input
   const ref = React.useRef<HTMLInputElement>(null)
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (ref.current) {
       ref.current.indeterminate = indeterminate ?? false
     }
   }, [ref, indeterminate])
 
-  // the above makes the native input work with indeterminate. you can't pass
-  // indeterminate as a prop; it has to be set on a ref, which is then passed to
-  // the input. see more elaborate examples here using forwardRef to allow
-  // passing ref from outside:
-  // https://github.com/tannerlinsley/react-table/discussions/1989
-
-  return (
-    <label className="inline-flex items-center">
-      <span className="h-4 w-4 relative">
-        <input
-          className={inputStyle}
-          type="checkbox"
-          ref={ref}
-          {...inputProps}
-        />
-        {inputProps.checked && !indeterminate && <Check />}
-        {indeterminate && <Indeterminate />}
-      </span>
-
-      {label && (
-        <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
-          {label}
-        </span>
-      )}
-    </label>
-  )
+  return ref
 }
+
+export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => (
+  <label className="inline-flex items-center">
+    <span className="h-4 w-4 relative">
+      <input
+        className={inputStyle}
+        type="checkbox"
+        ref={useIndeterminateRef(indeterminate)}
+        {...inputProps}
+      />
+      {inputProps.checked && !indeterminate && <Check />}
+      {indeterminate && <Indeterminate />}
+    </span>
+
+    {label && (
+      <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
+        {label}
+      </span>
+    )}
+  </label>
+)
