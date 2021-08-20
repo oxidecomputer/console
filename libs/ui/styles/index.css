@@ -6,6 +6,7 @@
 
 /* the tabs component is just @reach/tabs plus custom CSS */
 @import '../lib/tabs/Tabs.css';
+@import './side-modal.css';
 
 @tailwind base;
 @tailwind components;
