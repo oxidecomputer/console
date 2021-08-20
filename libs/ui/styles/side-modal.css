@@ -1,0 +1,21 @@
+/* The side modal is just a set of styles on @reach/dialog and children. 
+ *
+ * Usage:
+ *   Have a body and a footer. Don't forget to put either aria-label or
+ *   aria-labelledby on Dialog (see https://reach.tech/dialog/#labeling).
+ */
+
+[data-reach-dialog-content].SideModal {
+  @apply absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 
+    flex flex-col justify-between
+    bg-gray-500 border-l border-gray-400;
+
+  & .modal-body {
+    max-height: calc(100vw - 5rem);
+    overflow-y: auto;
+  }
+
+  & .modal-footer {
+    @apply flex h-20 p-6 border-t border-gray-400 items-center justify-end;
+  }
+}
