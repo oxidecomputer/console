@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import CheckIcon from '../../assets/check.svg'
 import { classed } from '../../util/classed'
@@ -23,22 +23,11 @@ type Props = {
   label?: React.ReactNode
 } & React.ComponentProps<'input'>
 
-// this makes the native input work with indeterminate. you can't pass
-// indeterminate as a prop; it has to be set on a ref, which is then passed to
-// the input. more elaborate examples using forwardRef to allow passing ref from
-// outside: https://github.com/tannerlinsley/react-table/discussions/1989
-function useIndeterminateRef(indeterminate: boolean | undefined) {
-  // null, not blank (undefined), otherwise TS is mad when ref passed to input
-  const ref = React.useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.indeterminate = indeterminate ?? false
-    }
-  }, [ref, indeterminate])
-
-  return ref
-}
+// ref function is from: https://davidwalsh.name/react-indeterminate. this makes
+// the native input work with indeterminate. you can't pass indeterminate as a
+// prop; it has to be set directly on the element through a ref. more elaborate
+// examples using forwardRef to allow passing ref from outside:
+// https://github.com/tannerlinsley/react-table/discussions/1989
 
 export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => (
   <label className="inline-flex items-center">
@@ -46,7 +35,7 @@ export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => (
       <input
         className={inputStyle}
         type="checkbox"
-        ref={useIndeterminateRef(indeterminate)}
+        ref={(el) => el && (el.indeterminate = !!indeterminate)}
         {...inputProps}
       />
       {inputProps.checked && !indeterminate && <Check />}
