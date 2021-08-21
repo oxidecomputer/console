@@ -1,0 +1,15 @@
+import React from 'react'
+import type { Story } from '@storybook/react'
+import { {{ name }} } from './{{ name }}'
+
+export default {
+  component: {{ name }},
+  title: 'Components/{{ name }}',
+}
+
+type Props = React.ComponentProps<typeof {{ name }}>
+
+const Template: Story<Props> = (args) => <{{ name }} {...args} />
+
+export const Default = Template.bind({})
+Default.args = {}
