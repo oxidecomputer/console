@@ -1,23 +1,15 @@
-import type { FC, ReactElement, ChangeEventHandler } from 'react'
+import type { FC, ChangeEventHandler } from 'react'
 import React from 'react'
 import cn from 'classnames'
 
-import './RadioGroup.css'
-
-import type { RadioFieldProps } from '../radio-field/RadioField'
 import { classed } from '../../util/classed'
 
-type Direction = 'fixed-row' | 'row' | 'column'
 export interface RadioGroupProps {
   /**
    * The currently selected or checked Radio button
    */
   checked: string
-  children: Array<ReactElement<RadioFieldProps>>
-  /**
-   * Set direction or layout of radio buttons. Defaults to column.
-   */
-  direction?: Direction
+  children: React.ReactElement[]
   handleChange: (value: string) => void
   /**
    * Hide legend from sighted users.
@@ -43,7 +35,6 @@ const HintText = classed.div`text-base text-gray-100 font-sans font-light mt-3 m
 export const RadioGroup: FC<RadioGroupProps> = ({
   checked,
   children,
-  direction = 'column',
   handleChange,
   hint,
   hideLegend = false,
@@ -64,7 +55,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
         {legend}
       </legend>
       {hint && <HintText id={hintId}>{hint}</HintText>}
-      <div className={`RadioGroup-${direction}`}>
+      <div className="flex flex-wrap gap-5 justify-start mt-3 pt-[3px] pl-[3px]">
         {React.Children.map(children, (radioField) => {
           const isChecked = checked === radioField.props.value
           // Render controlled inputs with checked state

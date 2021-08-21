@@ -4,7 +4,6 @@ import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs'
 import {
   Default,
   withInitialChecked,
-  withFixedRow,
   BaseWithState,
   WithState,
 } from './RadioGroup.stories'
@@ -12,7 +11,7 @@ import { RadioGroup } from '../RadioGroup'
 import { RadioField } from '../../radio-field/RadioField'
 
 <Meta
-  title="Components/Forms/RadioGroup"
+  title="Components/RadioGroup"
   component={RadioGroup}
   argTypes={{
     hideLegend: { control: { type: 'boolean' } },
@@ -52,18 +51,6 @@ Selecting one option unselects all others.
 
 <Canvas>
   <Story story={withInitialChecked} />
-</Canvas>
-
-### with fixed row
-
-<Canvas>
-  <Story story={withFixedRow} />
-</Canvas>
-
-### base variant with state
-
-<Canvas>
-  <Story story={BaseWithState} />
 </Canvas>
 
 ### card with state

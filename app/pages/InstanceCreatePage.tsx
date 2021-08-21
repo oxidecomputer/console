@@ -13,7 +13,7 @@ import {
   RadioField,
   TextInputGroup,
 } from '@oxide/ui'
-import type { RadioFieldProps, RadioGroupProps } from '@oxide/ui'
+import type { RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
@@ -23,10 +23,6 @@ const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-ligh
 const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
 
 const GB = 1024 * 1024 * 1024
-
-const RadioCardField = (props: RadioFieldProps) => {
-  return <RadioField {...props} variant="card" />
-}
 
 const ERROR_CODES = {
   ObjectAlreadyExists:
@@ -80,7 +76,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
   const renderLargeRadioFields = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
-        <RadioField key={option.id} value={option.id} variant="card">
+        <RadioField key={option.id} value={option.id}>
           <div>{option.ncpus} CPUs</div>
           <div>{option.memory} GB RAM</div>
         </RadioField>
@@ -95,7 +91,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <TabPanel key={`distributions-${index}`}>
         <RadioGroup
           checked={instanceSizeValue}
-          direction="fixed-row"
           handleChange={setInstanceSizeValue}
           hideLegend
           hint={group.hint}
@@ -122,16 +117,15 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               legend="Choose a distribution"
               checked={imageField}
               handleChange={setImageField}
-              direction="fixed-row"
               name="distributions"
             >
-              <RadioCardField value="centos">CentOS</RadioCardField>
-              <RadioCardField value="debian">Debian</RadioCardField>
-              <RadioCardField value="fedora">Fedora</RadioCardField>
-              <RadioCardField value="freeBsd">FreeBSD</RadioCardField>
-              <RadioCardField value="ubuntu">Ubuntu</RadioCardField>
-              <RadioCardField value="windows1">Windows</RadioCardField>
-              <RadioCardField value="windows2">Windows</RadioCardField>
+              <RadioField value="centos">CentOS</RadioField>
+              <RadioField value="debian">Debian</RadioField>
+              <RadioField value="fedora">Fedora</RadioField>
+              <RadioField value="freeBsd">FreeBSD</RadioField>
+              <RadioField value="ubuntu">Ubuntu</RadioField>
+              <RadioField value="windows1">Windows</RadioField>
+              <RadioField value="windows2">Windows</RadioField>
             </RadioGroup>
           </TabPanel>
           <TabPanel>
@@ -140,18 +134,11 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               legend="Choose a custom image"
               checked={imageField}
               handleChange={setImageField}
-              direction="fixed-row"
               name="custom-image"
             >
-              <RadioCardField value="custom-centos">
-                Custom CentOS
-              </RadioCardField>
-              <RadioCardField value="custom-debian">
-                Custom Debian
-              </RadioCardField>
-              <RadioCardField value="custom-fedora">
-                Custom Fedora
-              </RadioCardField>
+              <RadioField value="custom-centos">Custom CentOS</RadioField>
+              <RadioField value="custom-debian">Custom Debian</RadioField>
+              <RadioField value="custom-fedora">Custom Fedora</RadioField>
             </RadioGroup>
           </TabPanel>
         </TabPanels>
@@ -200,39 +187,28 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           ])}
         </TabPanels>
       </Tabs>
+      <Heading>Boot disk storage</Heading>
       <RadioGroup
         legend="Add storage"
         checked={storageField}
         handleChange={setStorageField}
-        direction="fixed-row"
         name="storage"
       >
-        <RadioCardField value="100gb">100 GB</RadioCardField>
-        <RadioCardField value="200gb">200 GB</RadioCardField>
-        <RadioCardField value="500gb">500 GB</RadioCardField>
-        <RadioCardField value="1000gb">1,000 GB</RadioCardField>
-        <RadioCardField value="2000gb">2,000 GB</RadioCardField>
-        <RadioCardField value="custom">Custom</RadioCardField>
+        <RadioField value="100gb">100 GB</RadioField>
+        <RadioField value="200gb">200 GB</RadioField>
+        <RadioField value="500gb">500 GB</RadioField>
+        <RadioField value="1000gb">1,000 GB</RadioField>
+        <RadioField value="2000gb">2,000 GB</RadioField>
+        <RadioField value="custom">Custom</RadioField>
       </RadioGroup>
       <RadioGroup
         legend="Choose configuration options"
         checked={configurationField}
         handleChange={setConfigurationField}
-        direction="row"
         name="configuration-options"
       >
-        <RadioField
-          value="auto"
-          hint="Some details about automatically formatting and mounting disks."
-        >
-          Automatically format and mount
-        </RadioField>
-        <RadioField
-          value="manual"
-          hint="Some details about manually formatting and mounting disks."
-        >
-          Manually format and mount
-        </RadioField>
+        <RadioField value="auto">Automatically format and mount</RadioField>
+        <RadioField value="manual">Manually format and mount</RadioField>
       </RadioGroup>
       <Heading>Authentication</Heading>
       <Description>
