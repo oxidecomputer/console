@@ -8,7 +8,7 @@ export interface RadioGroupProps {
   /**
    * The currently selected or checked Radio button
    */
-  checked: string
+  value: string
   children: React.ReactElement[]
   handleChange: (value: string) => void
   /**
@@ -33,7 +33,7 @@ export interface RadioGroupProps {
 const HintText = classed.div`text-base text-gray-100 font-sans font-light mt-3 max-w-3xl`
 
 export const RadioGroup: FC<RadioGroupProps> = ({
-  checked,
+  value,
   children,
   handleChange,
   hint,
@@ -57,7 +57,7 @@ export const RadioGroup: FC<RadioGroupProps> = ({
       {hint && <HintText id={hintId}>{hint}</HintText>}
       <div className="flex flex-wrap gap-5 justify-start mt-3 pt-[3px] pl-[3px]">
         {React.Children.map(children, (radioField) => {
-          const isChecked = checked === radioField.props.value
+          const isChecked = value === radioField.props.value
           // Render controlled inputs with checked state
           // Add name prop to group them semantically and add event listener
           return React.cloneElement(radioField, {

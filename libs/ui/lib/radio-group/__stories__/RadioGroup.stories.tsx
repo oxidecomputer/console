@@ -35,7 +35,7 @@ Default.args = {
 
 export const withInitialChecked = CardTemplate.bind({})
 withInitialChecked.args = {
-  checked: '100',
+  value: '100',
   legend: 'Add a general purpose instance',
   hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
   name: 'group2',
@@ -48,7 +48,7 @@ export const WithState = () => {
   }
   return (
     <RadioGroup
-      checked={value}
+      value={value}
       handleChange={handleChange}
       legend="Add storage"
       name="group4"

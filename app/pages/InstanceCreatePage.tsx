@@ -90,7 +90,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     data.map((group, index) => (
       <TabPanel key={`distributions-${index}`}>
         <RadioGroup
-          checked={instanceSizeValue}
+          value={instanceSizeValue}
           handleChange={setInstanceSizeValue}
           hideLegend
           hint={group.hint}
@@ -115,7 +115,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             <RadioGroup
               hideLegend
               legend="Choose a distribution"
-              checked={imageField}
+              value={imageField}
               handleChange={setImageField}
               name="distributions"
             >
@@ -132,7 +132,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             <RadioGroup
               hideLegend
               legend="Choose a custom image"
-              checked={imageField}
+              value={imageField}
               handleChange={setImageField}
               name="custom-image"
             >
@@ -190,7 +190,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <Heading>Boot disk storage</Heading>
       <RadioGroup
         legend="Add storage"
-        checked={storageField}
+        value={storageField}
         handleChange={setStorageField}
         name="storage"
       >
@@ -203,7 +203,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       </RadioGroup>
       <RadioGroup
         legend="Choose configuration options"
-        checked={configurationField}
+        value={configurationField}
         handleChange={setConfigurationField}
         name="configuration-options"
       >
