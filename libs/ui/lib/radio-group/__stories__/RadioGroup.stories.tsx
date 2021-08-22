@@ -3,27 +3,27 @@ import type { Story } from '@storybook/react'
 
 import type { RadioGroupProps } from '../RadioGroup'
 import { RadioGroup } from '../RadioGroup'
-import { RadioField } from '../../radio-field/RadioField'
+import { RadioCard } from '../../radio-card/RadioCard'
 
 const Template: Story<RadioGroupProps> = (args) => (
   <RadioGroup {...args}>
-    <RadioField value="notify">Comments</RadioField>
-    <RadioField value="do-not-notify">Nothing</RadioField>
+    <RadioCard value="notify">Comments</RadioCard>
+    <RadioCard value="do-not-notify">Nothing</RadioCard>
   </RadioGroup>
 )
 
 const CardTemplate: Story<RadioGroupProps> = (args) => (
   <RadioGroup {...args}>
-    <RadioField value="50">50 GB</RadioField>
-    <RadioField value="100">100 GB</RadioField>
-    <RadioField value="200">200 GB</RadioField>
-    <RadioField value="300">300 GB</RadioField>
-    <RadioField value="400">400 GB</RadioField>
-    <RadioField value="500">500 GB</RadioField>
-    <RadioField value="600">600 GB</RadioField>
-    <RadioField value="700">700 GB</RadioField>
-    <RadioField value="800">800 GB</RadioField>
-    <RadioField value="900">900 GB</RadioField>
+    <RadioCard value="50">50 GB</RadioCard>
+    <RadioCard value="100">100 GB</RadioCard>
+    <RadioCard value="200">200 GB</RadioCard>
+    <RadioCard value="300">300 GB</RadioCard>
+    <RadioCard value="400">400 GB</RadioCard>
+    <RadioCard value="500">500 GB</RadioCard>
+    <RadioCard value="600">600 GB</RadioCard>
+    <RadioCard value="700">700 GB</RadioCard>
+    <RadioCard value="800">800 GB</RadioCard>
+    <RadioCard value="900">900 GB</RadioCard>
   </RadioGroup>
 )
 
@@ -53,16 +53,16 @@ export const WithState = () => {
       legend="Add storage"
       name="group4"
     >
-      <RadioField value="50">50 GB</RadioField>
-      <RadioField value="100">100 GB</RadioField>
-      <RadioField value="200">200 GB</RadioField>
-      <RadioField value="300">300 GB</RadioField>
-      <RadioField value="400">400 GB</RadioField>
-      <RadioField value="500">500 GB</RadioField>
-      <RadioField value="600">600 GB</RadioField>
-      <RadioField value="700">700 GB</RadioField>
-      <RadioField value="800">800 GB</RadioField>
-      <RadioField value="900">900 GB</RadioField>
+      <RadioCard value="50">50 GB</RadioCard>
+      <RadioCard value="100">100 GB</RadioCard>
+      <RadioCard value="200">200 GB</RadioCard>
+      <RadioCard value="300">300 GB</RadioCard>
+      <RadioCard value="400">400 GB</RadioCard>
+      <RadioCard value="500">500 GB</RadioCard>
+      <RadioCard value="600">600 GB</RadioCard>
+      <RadioCard value="700">700 GB</RadioCard>
+      <RadioCard value="800">800 GB</RadioCard>
+      <RadioCard value="900">900 GB</RadioCard>
     </RadioGroup>
   )
 }

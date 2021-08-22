@@ -8,7 +8,7 @@ const labelStyles = `
 
 type Props = React.ComponentProps<'input'>
 
-export const RadioField = ({ children, ...inputProps }: Props) => (
+export const RadioCard = ({ children, ...inputProps }: Props) => (
   <label className="items-center inline-flex">
     <input className="peer sr-only" type="radio" {...inputProps} />
     <span className={labelStyles}>{children}</span>

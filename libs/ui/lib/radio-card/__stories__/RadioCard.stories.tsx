@@ -1,11 +1,11 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
 
-import { RadioField } from '../RadioField'
+import { RadioCard } from '../RadioCard'
 
-type RadioFieldProps = React.ComponentProps<typeof RadioField>
+type RadioCardProps = React.ComponentProps<typeof RadioCard>
 
-const Template: Story<RadioFieldProps> = (args) => <RadioField {...args} />
+const Template: Story<RadioCardProps> = (args) => <RadioCard {...args} />
 
 export const Default = Template.bind({})
 Default.args = {

@@ -10,7 +10,7 @@ import {
   PageHeader,
   PageTitle,
   RadioGroup,
-  RadioField,
+  RadioCard,
   TextInputGroup,
 } from '@oxide/ui'
 import type { RadioGroupProps } from '@oxide/ui'
@@ -73,13 +73,13 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     }
   }
 
-  const renderLargeRadioFields = (category: string) => {
+  const renderLargeRadioCards = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
-        <RadioField key={option.id} value={option.id}>
+        <RadioCard key={option.id} value={option.id}>
           <div>{option.ncpus} CPUs</div>
           <div>{option.memory} GB RAM</div>
-        </RadioField>
+        </RadioCard>
       )
     )
   }
@@ -119,13 +119,13 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               handleChange={setImageField}
               name="distributions"
             >
-              <RadioField value="centos">CentOS</RadioField>
-              <RadioField value="debian">Debian</RadioField>
-              <RadioField value="fedora">Fedora</RadioField>
-              <RadioField value="freeBsd">FreeBSD</RadioField>
-              <RadioField value="ubuntu">Ubuntu</RadioField>
-              <RadioField value="windows1">Windows</RadioField>
-              <RadioField value="windows2">Windows</RadioField>
+              <RadioCard value="centos">CentOS</RadioCard>
+              <RadioCard value="debian">Debian</RadioCard>
+              <RadioCard value="fedora">Fedora</RadioCard>
+              <RadioCard value="freeBsd">FreeBSD</RadioCard>
+              <RadioCard value="ubuntu">Ubuntu</RadioCard>
+              <RadioCard value="windows1">Windows</RadioCard>
+              <RadioCard value="windows2">Windows</RadioCard>
             </RadioGroup>
           </TabPanel>
           <TabPanel>
@@ -136,9 +136,9 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               handleChange={setImageField}
               name="custom-image"
             >
-              <RadioField value="custom-centos">Custom CentOS</RadioField>
-              <RadioField value="custom-debian">Custom Debian</RadioField>
-              <RadioField value="custom-fedora">Custom Fedora</RadioField>
+              <RadioCard value="custom-centos">Custom CentOS</RadioCard>
+              <RadioCard value="custom-debian">Custom Debian</RadioCard>
+              <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
             </RadioGroup>
           </TabPanel>
         </TabPanels>
@@ -162,27 +162,27 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             {
               legend: 'Choose a general purpose instance',
               hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
-              children: renderLargeRadioFields('general'),
+              children: renderLargeRadioCards('general'),
             },
             {
               legend: 'Choose a CPU optimized instance',
               hint: 'CPU optimized instances provide a good balance of...',
-              children: renderLargeRadioFields('cpuOptimized'),
+              children: renderLargeRadioCards('cpuOptimized'),
             },
             {
               legend: 'Choose a Memory optimized instance',
               hint: 'Memory optimized instances provide a good balance of...',
-              children: renderLargeRadioFields('memoryOptimized'),
+              children: renderLargeRadioCards('memoryOptimized'),
             },
             {
               legend: 'Choose a Storage optimized instance',
               hint: 'Storage optimized instances provide a good balance of...',
-              children: renderLargeRadioFields('storageOptimized'),
+              children: renderLargeRadioCards('storageOptimized'),
             },
             {
               legend: 'Choose a custom instance',
               hint: 'Custom instances...',
-              children: renderLargeRadioFields('custom'),
+              children: renderLargeRadioCards('custom'),
             },
           ])}
         </TabPanels>
@@ -194,12 +194,12 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         handleChange={setStorageField}
         name="storage"
       >
-        <RadioField value="100gb">100 GB</RadioField>
-        <RadioField value="200gb">200 GB</RadioField>
-        <RadioField value="500gb">500 GB</RadioField>
-        <RadioField value="1000gb">1,000 GB</RadioField>
-        <RadioField value="2000gb">2,000 GB</RadioField>
-        <RadioField value="custom">Custom</RadioField>
+        <RadioCard value="100gb">100 GB</RadioCard>
+        <RadioCard value="200gb">200 GB</RadioCard>
+        <RadioCard value="500gb">500 GB</RadioCard>
+        <RadioCard value="1000gb">1,000 GB</RadioCard>
+        <RadioCard value="2000gb">2,000 GB</RadioCard>
+        <RadioCard value="custom">Custom</RadioCard>
       </RadioGroup>
       <RadioGroup
         legend="Choose configuration options"
@@ -207,8 +207,8 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         handleChange={setConfigurationField}
         name="configuration-options"
       >
-        <RadioField value="auto">Automatically format and mount</RadioField>
-        <RadioField value="manual">Manually format and mount</RadioField>
+        <RadioCard value="auto">Automatically format and mount</RadioCard>
+        <RadioCard value="manual">Manually format and mount</RadioCard>
       </RadioGroup>
       <Heading>Authentication</Heading>
       <Description>
