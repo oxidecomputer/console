@@ -1,12 +1,5 @@
-<!-- RadioGroup.stories.mdx -->
-
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs'
-import {
-  Default,
-  withInitialChecked,
-  BaseWithState,
-  WithState,
-} from './RadioGroup.stories'
+import { Default, DefaultWithState, CardsWithState } from './RadioGroup.stories'
 import { RadioGroup } from '../RadioGroup'
 import { RadioCard } from '../../radio-card/RadioCard'
 
@@ -47,14 +40,14 @@ Selecting one option unselects all others.
 
 ## Stories
 
-### with initially checked option
+### Card with state
 
 <Canvas>
-  <Story story={withInitialChecked} />
+  <Story story={DefaultWithState} />
 </Canvas>
 
-### card with state
+### Card with state
 
 <Canvas>
-  <Story story={WithState} />
+  <Story story={CardsWithState} />
 </Canvas>

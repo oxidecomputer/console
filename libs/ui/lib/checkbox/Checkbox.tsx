@@ -20,7 +20,7 @@ const inputStyle = `
 
 type Props = {
   indeterminate?: boolean
-  label?: React.ReactNode
+  children?: React.ReactNode
 } & React.ComponentProps<'input'>
 
 // ref function is from: https://davidwalsh.name/react-indeterminate. this makes
@@ -29,7 +29,7 @@ type Props = {
 // examples using forwardRef to allow passing ref from outside:
 // https://github.com/tannerlinsley/react-table/discussions/1989
 
-export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => (
+export const Checkbox = ({ indeterminate, children, ...inputProps }: Props) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
       <input
@@ -42,9 +42,9 @@ export const Checkbox = ({ indeterminate, label, ...inputProps }: Props) => (
       {indeterminate && <Indeterminate />}
     </span>
 
-    {label && (
+    {children && (
       <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
-        {label}
+        {children}
       </span>
     )}
   </label>

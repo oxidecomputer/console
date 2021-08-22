@@ -16,7 +16,7 @@ type Props = React.ComponentProps<typeof Radio>
 const Template: Story<Props> = (args) => <Radio {...args} />
 
 export const Unchecked: Story<Props> = Template.bind({})
-Unchecked.args = { checked: false, label: 'Label' }
+Unchecked.args = { checked: false, children: 'Label' }
 
 export const Checked: Story<Props> = Template.bind({})
-Checked.args = { checked: true, label: 'Label' }
+Checked.args = { checked: true, children: 'Label' }
