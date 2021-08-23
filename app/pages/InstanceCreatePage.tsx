@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
+import cn from 'classnames'
 
 import {
   classed,
@@ -9,6 +10,7 @@ import {
   Button,
   PageHeader,
   PageTitle,
+  RadioGroupHint,
   RadioGroup,
   RadioCard,
   TabListLine,
@@ -18,6 +20,7 @@ import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
 
+const headingStyle = 'text-white text-display-xl font-sans font-light'
 const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
 
 const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
@@ -38,7 +41,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
   const [imageField, setImageField] = useState('')
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
   const [storageField, setStorageField] = useState('')
-  const [configurationField, setConfigurationField] = useState('')
   const [tagsField, setTagsField] = useState('')
 
   const getParams = () => {
@@ -54,7 +56,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       name: instanceName,
       ncpus: instance.ncpus,
       storageField: storageField,
-      configurationField: configurationField,
       tagsField: tagsField,
     }
   }
@@ -96,34 +97,35 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         </TabListLine>
         <TabPanels>
           <TabPanel>
-            <RadioGroup
-              hideLegend
-              legend="Choose a distribution"
-              value={imageField}
-              onChange={(e) => setImageField(e.target.value)}
-              name="distributions"
-            >
-              <RadioCard value="centos">CentOS</RadioCard>
-              <RadioCard value="debian">Debian</RadioCard>
-              <RadioCard value="fedora">Fedora</RadioCard>
-              <RadioCard value="freeBsd">FreeBSD</RadioCard>
-              <RadioCard value="ubuntu">Ubuntu</RadioCard>
-              <RadioCard value="windows1">Windows</RadioCard>
-              <RadioCard value="windows2">Windows</RadioCard>
-            </RadioGroup>
+            <fieldset>
+              <legend className="sr-only">Choose a pre-built image</legend>
+              <RadioGroup
+                value={imageField}
+                onChange={(e) => setImageField(e.target.value)}
+                name="distributions"
+              >
+                <RadioCard value="centos">CentOS</RadioCard>
+                <RadioCard value="debian">Debian</RadioCard>
+                <RadioCard value="fedora">Fedora</RadioCard>
+                <RadioCard value="freeBsd">FreeBSD</RadioCard>
+                <RadioCard value="ubuntu">Ubuntu</RadioCard>
+                <RadioCard value="windows">Windows</RadioCard>
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
           <TabPanel>
-            <RadioGroup
-              hideLegend
-              legend="Choose a custom image"
-              value={imageField}
-              onChange={(e) => setImageField(e.target.value)}
-              name="custom-image"
-            >
-              <RadioCard value="custom-centos">Custom CentOS</RadioCard>
-              <RadioCard value="custom-debian">Custom Debian</RadioCard>
-              <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
-            </RadioGroup>
+            <fieldset>
+              <legend className="sr-only">Choose a custom image</legend>
+              <RadioGroup
+                value={imageField}
+                onChange={(e) => setImageField(e.target.value)}
+                name="custom-image"
+              >
+                <RadioCard value="custom-centos">Custom CentOS</RadioCard>
+                <RadioCard value="custom-debian">Custom Debian</RadioCard>
+                <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -144,78 +146,96 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         </TabListLine>
         <TabPanels>
           <TabPanel>
-            <RadioGroup
-              value={instanceSizeValue}
-              onChange={(e) => setInstanceSizeValue(e.target.value)}
-              hideLegend
-              hint="General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases."
-              legend="Choose a general purpose instance"
-              name="instance-type-general"
-            >
-              {renderLargeRadioCards('general')}
-            </RadioGroup>
+            <fieldset aria-describedby="general-instance-hint">
+              <legend className="sr-only">
+                Choose a general purpose instance
+              </legend>
+              <RadioGroupHint id="general-instance-hint">
+                General purpose instances provide a good balance of CPU, memory,
+                and high performance storage; well suited for a wide range of
+                use cases.
+              </RadioGroupHint>
+              <RadioGroup
+                value={instanceSizeValue}
+                onChange={(e) => setInstanceSizeValue(e.target.value)}
+                name="instance-type-general"
+                className="mt-8" // TODO: find the logic behind this ad hoc spacing
+              >
+                {renderLargeRadioCards('general')}
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
           <TabPanel>
-            <RadioGroup
-              value={instanceSizeValue}
-              onChange={(e) => setInstanceSizeValue(e.target.value)}
-              hideLegend
-              hint="CPU optimized instances provide a good balance of..."
-              legend="Choose a CPU-optimized instance"
-              name="instance-type-cpu"
-            >
-              {renderLargeRadioCards('cpuOptimized')}
-            </RadioGroup>
+            <fieldset aria-describedby="cpu-instance-hint">
+              <legend className="sr-only">
+                Choose a CPU-optimized instance
+              </legend>
+              <RadioGroupHint id="cpu-instance-hint">
+                CPU optimized instances provide a good balance of...
+              </RadioGroupHint>
+              <RadioGroup
+                value={instanceSizeValue}
+                onChange={(e) => setInstanceSizeValue(e.target.value)}
+                name="instance-type-cpu"
+                className="mt-8"
+              >
+                {renderLargeRadioCards('cpuOptimized')}
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
           <TabPanel>
-            <RadioGroup
-              value={instanceSizeValue}
-              onChange={(e) => setInstanceSizeValue(e.target.value)}
-              hideLegend
-              hint="Memory optimized instances provide a good balance of..."
-              legend="Choose a memory-optimized instance"
-              name="instance-type-memory"
-            >
-              {renderLargeRadioCards('memoryOptimized')}
-            </RadioGroup>
+            <fieldset aria-describedby="memory-instance-hint">
+              <legend className="sr-only">
+                Choose a memory-optimized instance
+              </legend>
+              <RadioGroupHint id="memory-instance-hint">
+                Memory optimized instances provide a good balance of...
+              </RadioGroupHint>
+              <RadioGroup
+                value={instanceSizeValue}
+                onChange={(e) => setInstanceSizeValue(e.target.value)}
+                name="instance-type-memory"
+                className="mt-8"
+              >
+                {renderLargeRadioCards('memoryOptimized')}
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
           <TabPanel>
-            <RadioGroup
-              value={instanceSizeValue}
-              onChange={(e) => setInstanceSizeValue(e.target.value)}
-              hideLegend
-              hint="Custom instances..."
-              legend="Choose a custom instance"
-              name="instance-type-custom"
-            >
-              {renderLargeRadioCards('custom')}
-            </RadioGroup>
+            <fieldset aria-describedby="custom-instance-hint">
+              <legend className="sr-only">Choose a custom instance</legend>
+              <RadioGroupHint id="custom-instance-hint">
+                Custom instances...
+              </RadioGroupHint>
+              <RadioGroup
+                value={instanceSizeValue}
+                onChange={(e) => setInstanceSizeValue(e.target.value)}
+                name="instance-type-custom"
+                className="mt-8"
+              >
+                {renderLargeRadioCards('custom')}
+              </RadioGroup>
+            </fieldset>
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <Heading>Boot disk storage</Heading>
-      <RadioGroup
-        legend="Add storage"
-        value={storageField}
-        onChange={(e) => setStorageField(e.target.value)}
-        name="storage"
-      >
-        <RadioCard value="100gb">100 GB</RadioCard>
-        <RadioCard value="200gb">200 GB</RadioCard>
-        <RadioCard value="500gb">500 GB</RadioCard>
-        <RadioCard value="1000gb">1,000 GB</RadioCard>
-        <RadioCard value="2000gb">2,000 GB</RadioCard>
-        <RadioCard value="custom">Custom</RadioCard>
-      </RadioGroup>
-      <RadioGroup
-        legend="Choose configuration options"
-        value={configurationField}
-        onChange={(e) => setConfigurationField(e.target.value)}
-        name="configuration-options"
-      >
-        <RadioCard value="auto">Automatically format and mount</RadioCard>
-        <RadioCard value="manual">Manually format and mount</RadioCard>
-      </RadioGroup>
+      <fieldset>
+        <legend className={cn(headingStyle, 'mt-8 mb-8')}>
+          Boot disk storage
+        </legend>
+        <RadioGroup
+          value={storageField}
+          onChange={(e) => setStorageField(e.target.value)}
+          name="storage"
+        >
+          <RadioCard value="100gb">100 GB</RadioCard>
+          <RadioCard value="200gb">200 GB</RadioCard>
+          <RadioCard value="500gb">500 GB</RadioCard>
+          <RadioCard value="1000gb">1,000 GB</RadioCard>
+          <RadioCard value="2000gb">2,000 GB</RadioCard>
+          <RadioCard value="custom">Custom</RadioCard>
+        </RadioGroup>
+      </fieldset>
       <Heading>Authentication</Heading>
       <Description>
         We don’t have an SSH key stored for you. Please add one. Adding an SSH

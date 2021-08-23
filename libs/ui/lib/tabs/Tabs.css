@@ -2,14 +2,16 @@
 }
 
 [data-reach-tab-list] {
-  @apply space-x-2.5 mb-3;
+  @apply space-x-2.5 mb-8;
 }
 
 [data-reach-tab-panels] {
 }
 
 [data-reach-tab] {
-  @apply font-mono uppercase text-xs font-light text-gray-200 border-gray-200 px-2 py-2.5;
+  @apply font-mono uppercase text-xs font-light px-2 py-2.5 rounded
+    text-gray-200 border-gray-200
+    focus:ring-2 focus:ring-green-700 focus:outline-none;
 }
 
 [data-reach-tab][data-selected] {
