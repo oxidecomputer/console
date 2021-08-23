@@ -40,7 +40,6 @@ const baseStyle = `
 `
 
 type ButtonStyleProps = {
-  fullWidth?: boolean
   size?: ButtonSize
   variant?: Variant
 }
@@ -49,18 +48,17 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> &
   ButtonStyleProps
 
 export const buttonStyle = ({
-  fullWidth = false,
   size = 'base',
   variant = 'solid',
 }: ButtonStyleProps = {}) =>
-  cn(baseStyle, sizeStyle[size], variantStyle[variant], fullWidth && 'w-full')
+  cn(baseStyle, sizeStyle[size], variantStyle[variant])
 
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, fullWidth, size, variant, className, ...rest }, ref) => (
+  ({ children, size, variant, className, ...rest }, ref) => (
     <button
-      className={cn(buttonStyle({ fullWidth, size, variant }), className)}
+      className={cn(buttonStyle({ size, variant }), className)}
       ref={ref}
       type="button"
       {...rest}

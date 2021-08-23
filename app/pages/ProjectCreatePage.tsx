@@ -72,7 +72,12 @@ const ProjectCreatePage = () => {
           required
           value={description}
         />
-        <Button type="submit" fullWidth disabled={createProject.isLoading}>
+        <Button
+          type="submit"
+          variant="dim"
+          className="w-[30rem]"
+          disabled={createProject.isLoading}
+        >
           Create project
         </Button>
         <div className="text-red-500">

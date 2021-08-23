@@ -1,4 +1,5 @@
 import React from 'react'
+import cn from 'classnames'
 
 const labelStyles = `
   text-sm py-2 px-4 bg-gray-500 border rounded border-gray-400 
@@ -8,8 +9,8 @@ const labelStyles = `
 
 type Props = React.ComponentProps<'input'>
 
-export const RadioCard = ({ children, ...inputProps }: Props) => (
-  <label className="items-center inline-flex">
+export const RadioCard = ({ children, className, ...inputProps }: Props) => (
+  <label className={cn('items-center inline-flex font-mono', className)}>
     <input className="peer sr-only" type="radio" {...inputProps} />
     <span className={labelStyles}>{children}</span>
   </label>

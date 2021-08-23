@@ -37,6 +37,7 @@ export interface InputGroupProps {
    */
   info?: React.ReactNode
   children: React.ReactNode
+  className?: string
 }
 
 export const InputGroup = ({
@@ -48,12 +49,13 @@ export const InputGroup = ({
   label,
   info,
   children,
+  className,
 }: InputGroupProps) => {
   const errorId = error ? `${id}-validation-hint` : ''
   const hintId = hint ? `${id}-hint` : ''
 
   return (
-    <div className="flex flex-col text-gray-50 flex-1">
+    <div className={cn('flex flex-col text-gray-50 flex-1', className)}>
       <Label required={required} htmlFor={id}>
         {label}
       </Label>

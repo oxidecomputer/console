@@ -20,10 +20,12 @@ import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
 
+// TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
-const Heading = classed.h2`text-white text-display-xl !mt-16 font-sans font-light first-of-type:mt-0`
+const Heading = classed.h2`text-white text-display-xl mt-16 mb-8 font-sans font-light`
 
-const Description = classed.p`text-gray-50 text-sm mt-2 max-w-prose`
+// TODO: need to fix page container if we want these to go all the way across
+const Divider = () => <hr className="my-16 border-gray-400" />
 
 const GB = 1024 * 1024 * 1024
 
@@ -86,7 +88,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
   }
 
   return (
-    <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
+    <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20">
       <Heading>Choose an image</Heading>
       <Tabs className="mt-1">
         <TabListLine>
@@ -129,6 +131,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           </TabPanel>
         </TabPanels>
       </Tabs>
+      <Divider />
       <Heading>Choose CPUs and RAM</Heading>
       <Tabs className="mt-1">
         <TabListLine>
@@ -219,31 +222,43 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <fieldset>
-        <legend className={cn(headingStyle, 'mt-8 mb-8')}>
-          Boot disk storage
-        </legend>
-        <RadioGroup
-          value={storageField}
-          onChange={(e) => setStorageField(e.target.value)}
-          name="storage"
-        >
-          <RadioCard value="100gb">100 GB</RadioCard>
-          <RadioCard value="200gb">200 GB</RadioCard>
-          <RadioCard value="500gb">500 GB</RadioCard>
-          <RadioCard value="1000gb">1,000 GB</RadioCard>
-          <RadioCard value="2000gb">2,000 GB</RadioCard>
-          <RadioCard value="custom">Custom</RadioCard>
-        </RadioGroup>
-      </fieldset>
-      <Heading>Authentication</Heading>
-      <Description>
-        We don’t have an SSH key stored for you. Please add one. Adding an SSH
-        Key adds it to your user profile so any instances in any project that
-        you have access to will updated with this additional key. Your existing
-        keys will remain on all your instances.
-      </Description>
-      <Button variant="dim">Add an SSH key</Button>
+      <div className="flex mt-20">
+        <fieldset>
+          <legend className={cn(headingStyle, 'mb-8')}>
+            Boot disk storage
+          </legend>
+          <RadioGroup
+            value={storageField}
+            onChange={(e) => setStorageField(e.target.value)}
+            name="storage"
+          >
+            <RadioCard value="100gb">100 GB</RadioCard>
+            <RadioCard value="200gb">200 GB</RadioCard>
+            <RadioCard value="500gb">500 GB</RadioCard>
+            <RadioCard value="1000gb">1,000 GB</RadioCard>
+            <RadioCard value="2000gb">2,000 GB</RadioCard>
+            <RadioCard value="custom">Custom</RadioCard>
+          </RadioGroup>
+        </fieldset>
+
+        <div className="ml-20 min-w-[24rem]">
+          <h2 className={cn(headingStyle, 'mb-8')}>Additional volumes</h2>
+          <Button variant="dim" className="w-full mb-3">
+            Add new disk
+          </Button>
+          <Button variant="dim" className="w-full">
+            Add existing disk
+          </Button>
+        </div>
+      </div>
+      <Divider />
+      <Heading>Networking</Heading>
+      <Button variant="dim" className="w-[30rem]">
+        Add network interface
+      </Button>
+
+      <Divider />
+
       <Heading>Finalize and create</Heading>
       <div className="flex space-x-6">
         <TextInputGroup
@@ -272,9 +287,14 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         onChange={setTagsField}
         required
         value={tagsField}
+        className="mt-8"
       />
-
-      <Button type="submit" fullWidth disabled={createInstance.isLoading}>
+      <Button
+        type="submit"
+        className="w-[30rem] mt-16"
+        disabled={createInstance.isLoading}
+        variant="dim"
+      >
         Create instance
       </Button>
       <div className="text-red-500">
