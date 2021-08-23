@@ -33,13 +33,6 @@ export const INSTANCE_SIZES = [
     ncpus: 8,
   },
   {
-    category: 'general',
-    id: 'general-2xl',
-    memory: 40,
-    ncpus: 10,
-  },
-
-  {
     category: 'cpuOptimized',
     id: 'cpuOptimized-xs',
     memory: 3,
@@ -74,24 +67,6 @@ export const INSTANCE_SIZES = [
     id: 'memoryOptimized-med',
     memory: 17,
     ncpus: 5,
-  },
-  {
-    category: 'storageOptimized',
-    id: 'storageOptimized-xs',
-    memory: 1,
-    ncpus: 1,
-  },
-  {
-    category: 'storageOptimized',
-    id: 'storageOptimized-sm',
-    memory: 3,
-    ncpus: 1,
-  },
-  {
-    category: 'storageOptimized',
-    id: 'storageOptimized-med',
-    memory: 15,
-    ncpus: 3,
   },
   {
     category: 'custom',

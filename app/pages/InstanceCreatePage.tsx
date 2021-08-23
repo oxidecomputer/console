@@ -11,9 +11,9 @@ import {
   PageTitle,
   RadioGroup,
   RadioCard,
+  TabListLine,
   TextInputGroup,
 } from '@oxide/ui'
-import type { RadioGroupProps } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
@@ -84,32 +84,16 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     )
   }
 
-  const renderTabPanels = (
-    data: Array<Pick<RadioGroupProps, 'legend' | 'hint' | 'children'>>
-  ) =>
-    data.map((group, index) => (
-      <TabPanel key={`distributions-${index}`}>
-        <RadioGroup
-          value={instanceSizeValue}
-          handleChange={setInstanceSizeValue}
-          hideLegend
-          hint={group.hint}
-          legend={group.legend}
-          name={`distributions-${index}`}
-        >
-          {group.children}
-        </RadioGroup>
-      </TabPanel>
-    ))
-
   return (
     <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
       <Heading>Choose an image</Heading>
       <Tabs className="mt-1">
-        <TabList aria-label="Choose an image">
-          <Tab>Distributions</Tab>
-          <Tab>Custom Images</Tab>
-        </TabList>
+        <TabListLine>
+          <TabList aria-label="Choose an image">
+            <Tab>Distributions</Tab>
+            <Tab>Custom Images</Tab>
+          </TabList>
+        </TabListLine>
         <TabPanels>
           <TabPanel>
             <RadioGroup
@@ -145,46 +129,68 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       </Tabs>
       <Heading>Choose CPUs and RAM</Heading>
       <Tabs className="mt-1">
-        <TabList aria-label="Choose CPUs and RAM">
-          <Tab>General purpose</Tab>
-          <Tab>CPU-optimized</Tab>
-          <Tab>Memory-optimized</Tab>
-          <Tab>Storage-optimized</Tab>
-          <Tab>
-            Custom{' '}
-            <Badge size="sm" variant="dim" color="green">
-              New
-            </Badge>
-          </Tab>
-        </TabList>
+        <TabListLine>
+          <TabList aria-label="Choose CPUs and RAM">
+            <Tab>General purpose</Tab>
+            <Tab>CPU-optimized</Tab>
+            <Tab>Memory-optimized</Tab>
+            <Tab>
+              Custom{' '}
+              <Badge size="sm" variant="dim" color="green">
+                New
+              </Badge>
+            </Tab>
+          </TabList>
+        </TabListLine>
         <TabPanels>
-          {renderTabPanels([
-            {
-              legend: 'Choose a general purpose instance',
-              hint: 'General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases.',
-              children: renderLargeRadioCards('general'),
-            },
-            {
-              legend: 'Choose a CPU optimized instance',
-              hint: 'CPU optimized instances provide a good balance of...',
-              children: renderLargeRadioCards('cpuOptimized'),
-            },
-            {
-              legend: 'Choose a Memory optimized instance',
-              hint: 'Memory optimized instances provide a good balance of...',
-              children: renderLargeRadioCards('memoryOptimized'),
-            },
-            {
-              legend: 'Choose a Storage optimized instance',
-              hint: 'Storage optimized instances provide a good balance of...',
-              children: renderLargeRadioCards('storageOptimized'),
-            },
-            {
-              legend: 'Choose a custom instance',
-              hint: 'Custom instances...',
-              children: renderLargeRadioCards('custom'),
-            },
-          ])}
+          <TabPanel>
+            <RadioGroup
+              value={instanceSizeValue}
+              handleChange={setInstanceSizeValue}
+              hideLegend
+              hint="General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases."
+              legend="Choose a general purpose instance"
+              name="instance-type-general"
+            >
+              {renderLargeRadioCards('general')}
+            </RadioGroup>
+          </TabPanel>
+          <TabPanel>
+            <RadioGroup
+              value={instanceSizeValue}
+              handleChange={setInstanceSizeValue}
+              hideLegend
+              hint="CPU optimized instances provide a good balance of..."
+              legend="Choose a CPU-optimized instance"
+              name="instance-type-cpu"
+            >
+              {renderLargeRadioCards('cpuOptimized')}
+            </RadioGroup>
+          </TabPanel>
+          <TabPanel>
+            <RadioGroup
+              value={instanceSizeValue}
+              handleChange={setInstanceSizeValue}
+              hideLegend
+              hint="Memory optimized instances provide a good balance of..."
+              legend="Choose a memory-optimized instance"
+              name="instance-type-memory"
+            >
+              {renderLargeRadioCards('memoryOptimized')}
+            </RadioGroup>
+          </TabPanel>
+          <TabPanel>
+            <RadioGroup
+              value={instanceSizeValue}
+              handleChange={setInstanceSizeValue}
+              hideLegend
+              hint="Custom instances..."
+              legend="Choose a custom instance"
+              name="instance-type-custom"
+            >
+              {renderLargeRadioCards('custom')}
+            </RadioGroup>
+          </TabPanel>
         </TabPanels>
       </Tabs>
       <Heading>Boot disk storage</Heading>
