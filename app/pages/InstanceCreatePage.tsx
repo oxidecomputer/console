@@ -100,7 +100,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               hideLegend
               legend="Choose a distribution"
               value={imageField}
-              handleChange={setImageField}
+              onChange={(e) => setImageField(e.target.value)}
               name="distributions"
             >
               <RadioCard value="centos">CentOS</RadioCard>
@@ -117,7 +117,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               hideLegend
               legend="Choose a custom image"
               value={imageField}
-              handleChange={setImageField}
+              onChange={(e) => setImageField(e.target.value)}
               name="custom-image"
             >
               <RadioCard value="custom-centos">Custom CentOS</RadioCard>
@@ -146,7 +146,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           <TabPanel>
             <RadioGroup
               value={instanceSizeValue}
-              handleChange={setInstanceSizeValue}
+              onChange={(e) => setInstanceSizeValue(e.target.value)}
               hideLegend
               hint="General purpose instances provide a good balance of CPU, memory, and high performance storage; well suited for a wide range of use cases."
               legend="Choose a general purpose instance"
@@ -158,7 +158,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           <TabPanel>
             <RadioGroup
               value={instanceSizeValue}
-              handleChange={setInstanceSizeValue}
+              onChange={(e) => setInstanceSizeValue(e.target.value)}
               hideLegend
               hint="CPU optimized instances provide a good balance of..."
               legend="Choose a CPU-optimized instance"
@@ -170,7 +170,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           <TabPanel>
             <RadioGroup
               value={instanceSizeValue}
-              handleChange={setInstanceSizeValue}
+              onChange={(e) => setInstanceSizeValue(e.target.value)}
               hideLegend
               hint="Memory optimized instances provide a good balance of..."
               legend="Choose a memory-optimized instance"
@@ -182,7 +182,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           <TabPanel>
             <RadioGroup
               value={instanceSizeValue}
-              handleChange={setInstanceSizeValue}
+              onChange={(e) => setInstanceSizeValue(e.target.value)}
               hideLegend
               hint="Custom instances..."
               legend="Choose a custom instance"
@@ -197,7 +197,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <RadioGroup
         legend="Add storage"
         value={storageField}
-        handleChange={setStorageField}
+        onChange={(e) => setStorageField(e.target.value)}
         name="storage"
       >
         <RadioCard value="100gb">100 GB</RadioCard>
@@ -210,7 +210,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <RadioGroup
         legend="Choose configuration options"
         value={configurationField}
-        handleChange={setConfigurationField}
+        onChange={(e) => setConfigurationField(e.target.value)}
         name="configuration-options"
       >
         <RadioCard value="auto">Automatically format and mount</RadioCard>

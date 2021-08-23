@@ -1,4 +1,4 @@
-import type { FC, ChangeEventHandler } from 'react'
+import type { FC, ChangeEvent } from 'react'
 import React from 'react'
 import cn from 'classnames'
 
@@ -10,7 +10,7 @@ export interface RadioGroupProps {
    */
   value: string
   children: React.ReactElement[]
-  handleChange: (value: string) => void
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
   /**
    * Hide legend from sighted users.
    */
@@ -36,7 +36,7 @@ const HintText = classed.div`text-base text-gray-100 font-sans font-light mt-3 m
 export const RadioGroup: FC<RadioGroupProps> = ({
   value,
   children,
-  handleChange,
+  onChange,
   hint,
   hideLegend = false,
   legend,
@@ -44,11 +44,6 @@ export const RadioGroup: FC<RadioGroupProps> = ({
   required = false,
   column = false,
 }) => {
-  // Set checked of each child based on state
-  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    event.stopPropagation()
-    handleChange?.(event.target.value)
-  }
   const hintId = `${name}-hint`
   const ariaProps = hint ? { 'aria-describedby': hintId, tabIndex: 0 } : null
   return (
@@ -65,10 +60,10 @@ export const RadioGroup: FC<RadioGroupProps> = ({
       >
         {React.Children.map(children, (radioField) =>
           React.cloneElement(radioField, {
-            name: name,
+            name,
             checked: radioField.props.value === value,
-            onChange: onChange,
-            required: required,
+            onChange,
+            required,
           })
         )}
       </div>

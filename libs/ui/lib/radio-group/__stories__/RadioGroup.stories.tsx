@@ -30,13 +30,10 @@ Cards.args = {
 
 export const DefaultWithState = () => {
   const [value, setValue] = React.useState('100')
-  const handleChange = (value: string) => {
-    setValue(value)
-  }
   return (
     <RadioGroup
       value={value}
-      handleChange={handleChange}
+      onChange={(e) => setValue(e.target.value)}
       legend="Add storage"
       hint="This is some hint text about storage"
       name="group4"
@@ -55,13 +52,10 @@ export const DefaultWithState = () => {
 
 export const CardsWithState = () => {
   const [value, setValue] = React.useState('100')
-  const handleChange = (value: string) => {
-    setValue(value)
-  }
   return (
     <RadioGroup
       value={value}
-      handleChange={handleChange}
+      onChange={(e) => setValue(e.target.value)}
       legend="Add storage"
       hint="This is some hint text about storage"
       name="group4"
