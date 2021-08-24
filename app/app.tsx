@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 
 import InstanceCreatePage from './pages/instances/create'
+import InstanceStorage from './pages/instances/Storage'
 import ProjectPage from './pages/ProjectPage'
 import ProjectAccessPage from './pages/ProjectAccessPage'
 import ProjectCreatePage from './pages/ProjectCreatePage'
@@ -59,7 +60,7 @@ const App = () => (
           <Route path="access" />
           <Route path="resize" />
           <Route path="networking" />
-          <Route path="storage" />
+          <Route path="storage" element={<InstanceStorage />} />
           <Route path="tags" />
         </Route>
 
