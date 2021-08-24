@@ -23,8 +23,6 @@ export const Radio = ({ children, ...inputProps }: Props) => (
       {inputProps.checked && <Dot />}
     </span>
 
-    <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
-      {children}
-    </span>
+    <span className="text-xs uppercase font-mono ml-2.5">{children}</span>
   </label>
 )

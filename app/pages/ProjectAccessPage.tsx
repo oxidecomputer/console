@@ -3,7 +3,6 @@ import type { Row } from 'react-table'
 import { useTable, useRowSelect } from 'react-table'
 import { Dialog } from '@reach/dialog'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
-import { v4 as uuid } from 'uuid'
 
 import {
   Avatar,
@@ -108,8 +107,6 @@ const ProjectPage = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const closeModal = () => setModalIsOpen(false)
 
-  const modalTitleId = React.useMemo(() => uuid(), [])
-
   return (
     <>
       <PageHeader>
@@ -120,12 +117,12 @@ const ProjectPage = () => {
         className="SideModal"
         isOpen={modalIsOpen}
         onDismiss={closeModal}
-        aria-labelledby={modalTitleId}
+        aria-labelledby="access-modal-title"
       >
         <div className="modal-body">
           <div className="p-8">
             <div className="flex justify-between mt-2 mb-14">
-              <h2 className="text-display-xl" id={modalTitleId}>
+              <h2 className="text-display-xl" id="access-modal-title">
                 Manage project access
               </h2>
               <Button variant="link" onClick={closeModal}>
@@ -133,25 +130,7 @@ const ProjectPage = () => {
               </Button>
             </div>
             <h3 className="font-medium">Choose members</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
             <h3 className="font-medium">Select roles</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
           </div>
           <hr className="border-gray-400" />
           <div className="p-8">

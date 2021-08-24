@@ -6,7 +6,7 @@ import {
   Routes,
 } from 'react-router-dom'
 
-import InstanceCreatePage from './pages/InstanceCreatePage'
+import InstanceCreatePage from './pages/instance-create'
 import ProjectPage from './pages/ProjectPage'
 import ProjectAccessPage from './pages/ProjectAccessPage'
 import ProjectCreatePage from './pages/ProjectCreatePage'

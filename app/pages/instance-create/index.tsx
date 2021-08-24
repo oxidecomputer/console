@@ -17,8 +17,9 @@ import {
   TextInputGroup,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { getServerError } from '../util/errors'
+import { getServerError } from '../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
+import { NewDiskModal } from './disk-modals'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
@@ -44,6 +45,11 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
   const [instanceSizeValue, setInstanceSizeValue] = useState('')
   const [storageField, setStorageField] = useState('')
   const [tagsField, setTagsField] = useState('')
+
+  // modals
+  const [showNewDiskModal, setShowNewDiskModal] = useState(false)
+  const openNewDiskModal = () => setShowNewDiskModal(true)
+  const closeNewDiskModal = () => setShowNewDiskModal(false)
 
   const getParams = () => {
     // TODO: Refactor once the backend API is more settled
@@ -243,9 +249,17 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
         <div className="ml-20 min-w-[24rem]">
           <h2 className={cn(headingStyle, 'mb-8')}>Additional volumes</h2>
-          <Button variant="dim" className="w-full mb-3">
+          <Button
+            variant="dim"
+            className="w-full mb-3"
+            onClick={openNewDiskModal}
+          >
             Add new disk
           </Button>
+          <NewDiskModal
+            isOpen={showNewDiskModal}
+            onDismiss={closeNewDiskModal}
+          />
           <Button variant="dim" className="w-full">
             Add existing disk
           </Button>
