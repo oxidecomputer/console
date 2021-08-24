@@ -17,7 +17,7 @@ import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useToast } from '../hooks'
 
-const COLUMNS = [
+const columns = [
   {
     accessor: 'name' as const,
     Header: () => <div className="text-left">Name</div>,
@@ -163,7 +163,6 @@ export const InstancesTable = ({ className }: { className?: string }) => {
     { refetchInterval: 5000, keepPreviousData: true }
   )
 
-  const columns = React.useMemo(() => COLUMNS, [])
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])

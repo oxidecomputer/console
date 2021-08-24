@@ -9,25 +9,30 @@ import './menu-button.css'
 // eslint-disable-next-line @typescript-eslint/ban-types
 type Props<D extends object> = {
   className?: string
+  rowClassName?: string // TODO: decide whether this is the worst idea ever or best
   table: TableInstance<D>
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const Table = <D extends object>({ className, table }: Props<D>) => (
+export const Table = <D extends object>({
+  className,
+  rowClassName,
+  table,
+}: Props<D>) => (
   <table
     // TODO: turns out rounded corners on a table requires border-collapse separate,
     // which requires further shenanigans to get the borders to behave
     className={cn('w-full border border-gray-400 text-xs font-mono', className)}
     {...table.getTableProps()}
   >
-    <thead className="h-[40px] bg-gray-500 border-b border-gray-400">
+    <thead className="h-[40px] text-gray-100 bg-gray-500 border-b border-gray-400">
       {table.headerGroups.map((headerGroup) => (
         // headerGroupProps has the key on it
         // eslint-disable-next-line react/jsx-key
         <tr {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((column) => (
             <th
-              className="font-light uppercase"
+              className={cn('font-light uppercase', column.className)}
               {...column.getHeaderProps()}
               key={column.id}
             >
@@ -43,7 +48,10 @@ export const Table = <D extends object>({ className, table }: Props<D>) => (
         return (
           <tr
             {...row.getRowProps()}
-            className="border-b border-gray-400 last-of-type:border-none h-[60px]"
+            className={cn(
+              'border-b border-gray-400 last-of-type:border-none h-[60px]',
+              rowClassName
+            )}
             key={row.id}
           >
             {row.cells.map((cell) => (

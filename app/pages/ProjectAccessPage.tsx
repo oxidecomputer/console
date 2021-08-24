@@ -33,7 +33,7 @@ const NameCell = ({ value }: { value: string }) => (
   </div>
 )
 
-const COLUMNS = [
+const columns = [
   // TS doesn't like string accessors unless they're `as const`. Nested string
   // accessors don't even work with `as const`, which is why they're functions
   {
@@ -98,9 +98,7 @@ const menuCol = {
 }
 
 const ProjectPage = () => {
-  const columns = React.useMemo(() => COLUMNS, [])
-  const data = React.useMemo(() => users, [])
-  const table = useTable({ columns, data }, useRowSelect, (hooks) => {
+  const table = useTable({ columns, data: users }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
   })
 

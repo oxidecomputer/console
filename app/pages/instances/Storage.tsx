@@ -6,31 +6,36 @@ import type { DiskAttachment } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button, Table } from '@oxide/ui'
 
-const COLUMNS = [
+const columns = [
   {
     accessor: 'diskName' as const,
-    // TODO: there has to be a better way to do this left padding
-    Header: () => <div className="text-left ml-4">Name</div>,
-    Cell: ({ value }: { value: string }) => <div className="ml-4">{value}</div>,
+    // TODO: there might be a better way to add this margin to both
+    Header: () => <div className="text-left mx-4">Name</div>,
+    Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
   },
   {
     accessor: (_d: DiskAttachment) => '50', // TODO: real data
     id: 'size',
-    Header: () => (
-      <div className="text-left">
-        Size <span className="!normal-case">(GiB)</span>
-      </div>
+    Header: (
+      <>
+        Size <span className="normal-case">(GiB)</span>
+      </>
     ),
+    // width needs to be on the th itself to succesfully constrain the size
+    className: 'text-left w-32',
   },
   {
     accessor: (_d: DiskAttachment) => 'Read/Write', // TODO: real data
     id: 'mode',
-    Header: () => <div className="text-left">Mode</div>,
+    Header: 'Mode',
+    Cell: ({ value }: { value: string }) => (
+      <span className="uppercase">{value}</span>
+    ),
+    className: 'text-left w-48',
   },
 ]
 
 function Storage() {
-  const columns = React.useMemo(() => COLUMNS, [])
   const { projectName, instanceName } = useParams()
   const { data } = useApiQuery('instanceDisksGet', {
     projectName,
@@ -51,12 +56,14 @@ function Storage() {
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
-      <Table table={bootDiskTable} />
+      <Table table={bootDiskTable} rowClassName="!h-10" />
       <h2 className="text-display-lg mt-12 mb-4">Other disks</h2>
-      <Table table={otherDisksTable} />
+      <Table table={otherDisksTable} rowClassName="!h-10" />
       <div className="mt-4">
-        <Button>Create new disk</Button>
-        <Button className="ml-3">Attach existing disk</Button>
+        <Button size="sm">Create new disk</Button>
+        <Button size="sm" className="ml-3">
+          Attach existing disk
+        </Button>
       </div>
     </div>
   )
