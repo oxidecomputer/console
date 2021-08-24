@@ -9,7 +9,9 @@ import { Button, Table } from '@oxide/ui'
 const COLUMNS = [
   {
     accessor: 'diskName' as const,
-    Header: () => <div className="text-left">Name</div>,
+    // TODO: there has to be a better way to do this left padding
+    Header: () => <div className="text-left ml-4">Name</div>,
+    Cell: ({ value }: { value: string }) => <div className="ml-4">{value}</div>,
   },
   {
     accessor: (_d: DiskAttachment) => '50', // TODO: real data
@@ -47,7 +49,6 @@ function Storage() {
     <div className="mt-16">
       <h2 className="text-display-lg mb-4">Boot disk</h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-      {/* TODO: left padding on leftmost column */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} />
