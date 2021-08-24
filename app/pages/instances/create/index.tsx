@@ -17,7 +17,7 @@ import {
   TextInputGroup,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { getServerError } from '../../util/errors'
+import { getServerError } from '../../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './disk-modals'
 
