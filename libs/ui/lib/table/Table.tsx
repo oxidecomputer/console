@@ -49,7 +49,7 @@ export const Table = <D extends object>({
           <tr
             {...row.getRowProps()}
             className={cn(
-              'border-b border-gray-400 last-of-type:border-none h-[60px]',
+              'border-b border-gray-500 last-of-type:border-none h-[60px]',
               rowClassName
             )}
             key={row.id}
