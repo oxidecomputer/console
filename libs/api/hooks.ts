@@ -39,7 +39,7 @@ const parseJsonAndRethrow = async (error: Response): Promise<ApiError> =>
 
 export const getUseApiQuery =
   <A extends ApiClient<A>>(api: A) =>
-  <M extends keyof ApiClient<A>>(
+  <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
     options?: UseQueryOptions<Result<A[M]>, ApiError>
@@ -52,7 +52,7 @@ export const getUseApiQuery =
 
 export const getUseApiMutation =
   <A extends ApiClient<A>>(api: A) =>
-  <M extends keyof ApiClient<A>>(
+  <M extends keyof A>(
     method: M,
     options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
   ) =>
@@ -66,14 +66,14 @@ export const getUseApiQueryClient =
   () => {
     const queryClient = useQueryClient()
     return {
-      invalidateQueries: <M extends keyof ApiClient<A>>(
+      invalidateQueries: <M extends keyof A>(
         method: M,
         params: Params<A[M]>,
         filters?: InvalidateQueryFilters
       ) => {
         queryClient.invalidateQueries([method, params], filters)
       },
-      setQueryData: <M extends keyof ApiClient<A>>(
+      setQueryData: <M extends keyof A>(
         method: M,
         params: Params<A[M]>,
         data: Result<A[M]>
