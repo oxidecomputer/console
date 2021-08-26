@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
-import { InstancesTable } from '../components/InstancesTable'
+import { InstancesTable } from '../../components/InstancesTable'
 
 const ProjectPage = () => {
   const { projectName } = useParams()

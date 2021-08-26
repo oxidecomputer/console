@@ -8,8 +8,9 @@ import {
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
-import ProjectPage from './pages/ProjectPage'
-import ProjectAccessPage from './pages/ProjectAccessPage'
+import ProjectPage from './pages/project'
+import ProjectAccessPage from './pages/project/Access'
+import ProjectStoragePage from './pages/project/storage'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
@@ -42,7 +43,7 @@ const App = () => (
             <Route path="new" element={<InstanceCreatePage />} />
           </Route>
           <Route path="networking" />
-          <Route path="storage" />
+          <Route path="storage" element={<ProjectStoragePage />} />
           <Route path="metrics" />
           <Route path="audit" />
           <Route path="access" element={<ProjectAccessPage />} />
