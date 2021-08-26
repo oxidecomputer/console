@@ -22,6 +22,10 @@ set -o xtrace
 ./tools/oxapi_demo disk_create_demo prod-online grafana-state
 ./tools/oxapi_demo disk_create_demo prod-online vault
 
+# leave unattached
+./tools/oxapi_demo disk_create_demo prod-online vol1
+./tools/oxapi_demo disk_create_demo prod-online vol2
+
 ./tools/oxapi_demo instance_attach_disk prod-online db1 nginx
 ./tools/oxapi_demo instance_attach_disk prod-online db1 grafana
 ./tools/oxapi_demo instance_attach_disk prod-online db1 grafana-state

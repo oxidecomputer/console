@@ -19,7 +19,8 @@ import {
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
-import { NewDiskModal } from './disk-modals'
+import { NewDiskModal } from './new-disk-modal'
+import { ExistingDiskModal } from './existing-disk-modal'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
@@ -48,8 +49,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
   // modals
   const [showNewDiskModal, setShowNewDiskModal] = useState(false)
-  const openNewDiskModal = () => setShowNewDiskModal(true)
-  const closeNewDiskModal = () => setShowNewDiskModal(false)
+  const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
 
   const getParams = () => {
     // TODO: Refactor once the backend API is more settled
@@ -252,17 +252,25 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           <Button
             variant="dim"
             className="w-full mb-3"
-            onClick={openNewDiskModal}
+            onClick={() => setShowNewDiskModal(true)}
           >
             Add new disk
           </Button>
           <NewDiskModal
             isOpen={showNewDiskModal}
-            onDismiss={closeNewDiskModal}
+            onDismiss={() => setShowNewDiskModal(false)}
           />
-          <Button variant="dim" className="w-full">
+          <Button
+            variant="dim"
+            className="w-full"
+            onClick={() => setShowExistingDiskModal(true)}
+          >
             Add existing disk
           </Button>
+          <ExistingDiskModal
+            isOpen={showExistingDiskModal}
+            onDismiss={() => setShowExistingDiskModal(false)}
+          />
         </div>
       </div>
       <Divider />
