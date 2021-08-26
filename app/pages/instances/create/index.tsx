@@ -21,6 +21,7 @@ import { getServerError } from '../../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './new-disk-modal'
 import { ExistingDiskModal } from './existing-disk-modal'
+import { NetworkModal } from './network-modal'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
@@ -50,6 +51,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
   // modals
   const [showNewDiskModal, setShowNewDiskModal] = useState(false)
   const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
+  const [showNetworkModal, setShowNetworkModal] = useState(false)
 
   const getParams = () => {
     // TODO: Refactor once the backend API is more settled
@@ -275,9 +277,17 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       </div>
       <Divider />
       <Heading>Networking</Heading>
-      <Button variant="dim" className="w-[30rem]">
+      <Button
+        variant="dim"
+        className="w-[30rem]"
+        onClick={() => setShowNetworkModal(true)}
+      >
         Add network interface
       </Button>
+      <NetworkModal
+        isOpen={showNetworkModal}
+        onDismiss={() => setShowNetworkModal(false)}
+      />
 
       <Divider />
 

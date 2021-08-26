@@ -21,6 +21,7 @@ export interface DropdownProps {
    * Whether to show label to sighted users
    */
   showLabel?: boolean
+  className?: string
 }
 
 export const Dropdown: FC<DropdownProps> = ({
@@ -30,6 +31,7 @@ export const Dropdown: FC<DropdownProps> = ({
   items,
   placeholder,
   showLabel = true,
+  className,
 }) => {
   const itemToString = (item: Item | null) => (item ? item.label : '')
   const select = useSelect({
@@ -40,7 +42,7 @@ export const Dropdown: FC<DropdownProps> = ({
   const hintId = hint ? `${select.getLabelProps().id}-hint` : null
 
   return (
-    <div className="relative">
+    <div className={cn('relative', className)}>
       <label
         className={showLabel ? 'text-white text-sm' : 'sr-only'}
         {...select.getLabelProps()}
