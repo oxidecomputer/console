@@ -58,6 +58,10 @@ oxapi_demo disk_create_demo prod-online grafana
 oxapi_demo disk_create_demo prod-online grafana-state
 oxapi_demo disk_create_demo prod-online vault
 
+# leave unattached
+oxapi_demo disk_create_demo prod-online vol1
+oxapi_demo disk_create_demo prod-online vol2
+
 oxapi_demo instance_attach_disk prod-online db1 nginx
 oxapi_demo instance_attach_disk prod-online db1 grafana
 oxapi_demo instance_attach_disk prod-online db1 grafana-state
