@@ -30,11 +30,11 @@ export function NetworkModal({ isOpen, onDismiss }: Props) {
           </div>
           <div className="space-y-6">
             {/* TODO: tearing up Dropdown into bits will let us fix button alignment */}
-            <div className="flex">
+            <div className="flex items-end">
               <Dropdown label="VPC" items={[]} className="flex-1 mr-2" />
               <Button>Create</Button>
             </div>
-            <div className="flex">
+            <div className="flex items-end">
               <Dropdown label="VPC subnet" items={[]} className="flex-1 mr-2" />
               <Button>Create</Button>
             </div>
