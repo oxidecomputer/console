@@ -7,5 +7,6 @@
   "[typescriptreact]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" },
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": true,
-  "eslint.format.enable": true
+  "eslint.format.enable": true,
+  "tailwindCSS.experimental.classRegex": ["classed.[a-z]+`([^`]*)`"]
 }
