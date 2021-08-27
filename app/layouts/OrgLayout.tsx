@@ -5,7 +5,7 @@ import cn from 'classnames'
 import { useApiQuery } from '@oxide/api'
 import { Icon } from '@oxide/ui'
 
-import { Main, PageContainer, Sidebar } from './helpers'
+import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const ProjectList = (props: { className?: string }) => {
@@ -47,10 +47,10 @@ const OrgLayout = () => (
     <Sidebar>
       <ProjectList className="mt-14 px-3" />
     </Sidebar>
-    <Main>
+    <ContentPane>
       <Breadcrumbs />
       <Outlet />
-    </Main>
+    </ContentPane>
   </PageContainer>
 )
 

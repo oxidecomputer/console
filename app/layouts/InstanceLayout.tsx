@@ -3,13 +3,13 @@ import { Outlet, useParams } from 'react-router-dom'
 
 import { Icon } from '@oxide/ui'
 import {
-  Divider,
-  Main,
+  ContentPane,
   NavLinkItem,
   NavList,
   PageContainer,
   Picker,
   Sidebar,
+  SidebarDivider,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { InstancePageHeader } from '../components/InstancePageHeader'
@@ -20,7 +20,7 @@ const InstanceLayout = () => {
     <PageContainer>
       <Sidebar>
         <Picker category="Instance" resource={instanceName} />
-        <Divider />
+        <SidebarDivider />
         <NavList>
           <NavLinkItem to="">
             <Icon name="dashboard" /> Overview
@@ -48,11 +48,11 @@ const InstanceLayout = () => {
           </NavLinkItem>
         </NavList>
       </Sidebar>
-      <Main>
+      <ContentPane>
         <Breadcrumbs />
         <InstancePageHeader />
         <Outlet />
-      </Main>
+      </ContentPane>
     </PageContainer>
   )
 }

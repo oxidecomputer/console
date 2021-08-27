@@ -5,8 +5,8 @@ import { classed } from '@oxide/ui'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[14rem,auto]`
 export const Sidebar = classed.div`pb-6 pt-1 overflow-auto bg-gray-500`
-export const Main = classed.main`overflow-auto pt-20 pb-2 px-10`
-export const Divider = classed.hr`border-gray-400 mt-8`
+export const ContentPane = classed.div`overflow-auto pt-20 pb-2 px-10`
+export const SidebarDivider = classed.hr`border-gray-400 mt-8`
 
 const Back = (props: { to: string }) => (
   <div className="mb-6 bg-gray-500 text-green-500 flex items-center">
