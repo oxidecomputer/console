@@ -19,4 +19,7 @@
 }
 
 [data-reach-tab-panel] {
+  /* why tab panel is focusable: https://github.com/reach/reach-ui/issues/490 */
+  /* TODO: this is ugly but usable */
+  @apply rounded focus:ring-2 focus:ring-green-700 focus:outline-none;
 }
