@@ -38,7 +38,7 @@ export default ({ mode }) => {
     build: {
       outDir: resolve(__dirname, 'dist'),
       emptyOutDir: true,
-      sourcemap: 'inline',
+      sourcemap: true,
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'app/index.html'),
