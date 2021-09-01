@@ -18,73 +18,61 @@ import {
   SagaErrorInfoFromJSON,
   SagaErrorInfoFromJSONTyped,
   SagaErrorInfoToJSON,
-  SagaStateAnyOf,
-  SagaStateAnyOfFromJSON,
-  SagaStateAnyOfFromJSONTyped,
-  SagaStateAnyOfToJSON,
-  SagaStateAnyOf1,
-  SagaStateAnyOf1FromJSON,
-  SagaStateAnyOf1FromJSONTyped,
-  SagaStateAnyOf1ToJSON,
-  SagaStateAnyOf2,
-  SagaStateAnyOf2FromJSON,
-  SagaStateAnyOf2FromJSONTyped,
-  SagaStateAnyOf2ToJSON,
 } from './'
 
 /**
  *
  * @export
- * @interface SagaState
+ * @interface SagaStateAnyOf2
  */
-export interface SagaState {
-  /**
-   *
-   * @type {string}
-   * @memberof SagaState
-   */
-  state: SagaStateStateEnum
+export interface SagaStateAnyOf2 {
   /**
    *
    * @type {SagaErrorInfo}
-   * @memberof SagaState
+   * @memberof SagaStateAnyOf2
    */
   errorInfo: SagaErrorInfo
   /**
    *
    * @type {string}
-   * @memberof SagaState
+   * @memberof SagaStateAnyOf2
    */
   errorNodeName: string
+  /**
+   *
+   * @type {string}
+   * @memberof SagaStateAnyOf2
+   */
+  state: SagaStateAnyOf2StateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum SagaStateStateEnum {
+export enum SagaStateAnyOf2StateEnum {
   Failed = 'failed',
 }
 
-export function SagaStateFromJSON(json: any): SagaState {
-  return SagaStateFromJSONTyped(json, false)
+export function SagaStateAnyOf2FromJSON(json: any): SagaStateAnyOf2 {
+  return SagaStateAnyOf2FromJSONTyped(json, false)
 }
 
-export function SagaStateFromJSONTyped(
+export function SagaStateAnyOf2FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaState {
+): SagaStateAnyOf2 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    state: json['state'],
     errorInfo: SagaErrorInfoFromJSON(json['error_info']),
     errorNodeName: json['error_node_name'],
+    state: json['state'],
   }
 }
 
-export function SagaStateToJSON(value?: SagaState | null): any {
+export function SagaStateAnyOf2ToJSON(value?: SagaStateAnyOf2 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -92,8 +80,8 @@ export function SagaStateToJSON(value?: SagaState | null): any {
     return null
   }
   return {
-    state: value.state,
     error_info: SagaErrorInfoToJSON(value.errorInfo),
     error_node_name: value.errorNodeName,
+    state: value.state,
   }
 }

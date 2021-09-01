@@ -16,8 +16,16 @@ type Props = {
 type DeletionRule = 'keep' | 'delete'
 type Mode = 'read-write' | 'read-only'
 
-const isUnattached = ({ state }: Disk) =>
-  !state.attached && !state.attaching && !state.detaching
+const isUnattached = ({ state }: Disk) => {
+  // HACK: the DiskState types are all messed up, so here we work around that
+  // by casting the state to a string, which we know it is
+  const stateStr = state.state as string
+  return (
+    stateStr !== 'attached' &&
+    stateStr !== 'attaching' &&
+    stateStr !== 'detaching'
+  )
+}
 
 export function ExistingDiskModal({ isOpen, onDismiss }: Props) {
   const { projectName } = useParams()

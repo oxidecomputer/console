@@ -12,12 +12,26 @@
  * Do not edit the class manually.
  */
 
+import { exists, mapValues } from '../runtime'
 /**
  *
  * @export
+ * @interface SagaStateAnyOf
+ */
+export interface SagaStateAnyOf {
+  /**
+   *
+   * @type {string}
+   * @memberof SagaStateAnyOf
+   */
+  state: SagaStateAnyOfStateEnum
+}
+
+/**
+ * @export
  * @enum {string}
  */
-export enum SagaStateAnyOf {
+export enum SagaStateAnyOfStateEnum {
   Running = 'running',
 }
 
@@ -29,9 +43,22 @@ export function SagaStateAnyOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
 ): SagaStateAnyOf {
-  return json as SagaStateAnyOf
+  if (json === undefined || json === null) {
+    return json
+  }
+  return {
+    state: json['state'],
+  }
 }
 
 export function SagaStateAnyOfToJSON(value?: SagaStateAnyOf | null): any {
-  return value as any
+  if (value === undefined) {
+    return undefined
+  }
+  if (value === null) {
+    return null
+  }
+  return {
+    state: value.state,
+  }
 }

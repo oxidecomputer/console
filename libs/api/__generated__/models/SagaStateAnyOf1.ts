@@ -13,13 +13,6 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  SagaStateAnyOf1Done,
-  SagaStateAnyOf1DoneFromJSON,
-  SagaStateAnyOf1DoneFromJSONTyped,
-  SagaStateAnyOf1DoneToJSON,
-} from './'
-
 /**
  *
  * @export
@@ -28,10 +21,18 @@ import {
 export interface SagaStateAnyOf1 {
   /**
    *
-   * @type {SagaStateAnyOf1Done}
+   * @type {string}
    * @memberof SagaStateAnyOf1
    */
-  done: SagaStateAnyOf1Done
+  state: SagaStateAnyOf1StateEnum
+}
+
+/**
+ * @export
+ * @enum {string}
+ */
+export enum SagaStateAnyOf1StateEnum {
+  Succeeded = 'succeeded',
 }
 
 export function SagaStateAnyOf1FromJSON(json: any): SagaStateAnyOf1 {
@@ -46,7 +47,7 @@ export function SagaStateAnyOf1FromJSONTyped(
     return json
   }
   return {
-    done: SagaStateAnyOf1DoneFromJSON(json['done']),
+    state: json['state'],
   }
 }
 
@@ -58,6 +59,6 @@ export function SagaStateAnyOf1ToJSON(value?: SagaStateAnyOf1 | null): any {
     return null
   }
   return {
-    done: SagaStateAnyOf1DoneToJSON(value.done),
+    state: value.state,
   }
 }
