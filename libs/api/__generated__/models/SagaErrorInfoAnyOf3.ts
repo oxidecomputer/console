@@ -14,51 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk is attached to the given Instance
+ *
  * @export
- * @interface DiskStateAnyOf3
+ * @interface SagaErrorInfoAnyOf3
  */
-export interface DiskStateAnyOf3 {
+export interface SagaErrorInfoAnyOf3 {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf3
+   * @memberof SagaErrorInfoAnyOf3
    */
-  instance: string
+  error: SagaErrorInfoAnyOf3ErrorEnum
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf3
+   * @memberof SagaErrorInfoAnyOf3
    */
-  state: DiskStateAnyOf3StateEnum
+  message: string
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf3StateEnum {
-  Attached = 'attached',
+export enum SagaErrorInfoAnyOf3ErrorEnum {
+  SerializeFailed = 'serializeFailed',
 }
 
-export function DiskStateAnyOf3FromJSON(json: any): DiskStateAnyOf3 {
-  return DiskStateAnyOf3FromJSONTyped(json, false)
+export function SagaErrorInfoAnyOf3FromJSON(json: any): SagaErrorInfoAnyOf3 {
+  return SagaErrorInfoAnyOf3FromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf3FromJSONTyped(
+export function SagaErrorInfoAnyOf3FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf3 {
+): SagaErrorInfoAnyOf3 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    instance: json['instance'],
-    state: json['state'],
+    error: json['error'],
+    message: json['message'],
   }
 }
 
-export function DiskStateAnyOf3ToJSON(value?: DiskStateAnyOf3 | null): any {
+export function SagaErrorInfoAnyOf3ToJSON(
+  value?: SagaErrorInfoAnyOf3 | null
+): any {
   if (value === undefined) {
     return undefined
   }
@@ -66,7 +68,7 @@ export function DiskStateAnyOf3ToJSON(value?: DiskStateAnyOf3 | null): any {
     return null
   }
   return {
-    instance: value.instance,
-    state: value.state,
+    error: value.error,
+    message: value.message,
   }
 }

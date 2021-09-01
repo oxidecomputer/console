@@ -12,16 +12,27 @@
  * Do not edit the class manually.
  */
 
+import { exists, mapValues } from '../runtime'
 /**
- *
+ * Disk is being initialized
+ * @export
+ * @interface DiskStateAnyOf
+ */
+export interface DiskStateAnyOf {
+  /**
+   *
+   * @type {string}
+   * @memberof DiskStateAnyOf
+   */
+  state: DiskStateAnyOfStateEnum
+}
+
+/**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf {
+export enum DiskStateAnyOfStateEnum {
   Creating = 'creating',
-  Detached = 'detached',
-  Destroyed = 'destroyed',
-  Faulted = 'faulted',
 }
 
 export function DiskStateAnyOfFromJSON(json: any): DiskStateAnyOf {
@@ -32,9 +43,22 @@ export function DiskStateAnyOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
 ): DiskStateAnyOf {
-  return json as DiskStateAnyOf
+  if (json === undefined || json === null) {
+    return json
+  }
+  return {
+    state: json['state'],
+  }
 }
 
 export function DiskStateAnyOfToJSON(value?: DiskStateAnyOf | null): any {
-  return value as any
+  if (value === undefined) {
+    return undefined
+  }
+  if (value === null) {
+    return null
+  }
+  return {
+    state: value.state,
+  }
 }

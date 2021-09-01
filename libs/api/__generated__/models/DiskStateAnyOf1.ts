@@ -14,7 +14,7 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk is being attached to the given Instance
+ * Disk is ready but detached from any Instance
  * @export
  * @interface DiskStateAnyOf1
  */
@@ -24,7 +24,15 @@ export interface DiskStateAnyOf1 {
    * @type {string}
    * @memberof DiskStateAnyOf1
    */
-  attaching: string
+  state: DiskStateAnyOf1StateEnum
+}
+
+/**
+ * @export
+ * @enum {string}
+ */
+export enum DiskStateAnyOf1StateEnum {
+  Detached = 'detached',
 }
 
 export function DiskStateAnyOf1FromJSON(json: any): DiskStateAnyOf1 {
@@ -39,7 +47,7 @@ export function DiskStateAnyOf1FromJSONTyped(
     return json
   }
   return {
-    attaching: json['attaching'],
+    state: json['state'],
   }
 }
 
@@ -51,6 +59,6 @@ export function DiskStateAnyOf1ToJSON(value?: DiskStateAnyOf1 | null): any {
     return null
   }
   return {
-    attaching: value.attaching,
+    state: value.state,
   }
 }

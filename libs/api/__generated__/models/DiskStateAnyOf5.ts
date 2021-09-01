@@ -14,40 +14,44 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- *
+ * Disk has been destroyed
  * @export
- * @interface ActionErrorAnyOf2DeserializeFailed
+ * @interface DiskStateAnyOf5
  */
-export interface ActionErrorAnyOf2DeserializeFailed {
+export interface DiskStateAnyOf5 {
   /**
    *
    * @type {string}
-   * @memberof ActionErrorAnyOf2DeserializeFailed
+   * @memberof DiskStateAnyOf5
    */
-  message: string
+  state: DiskStateAnyOf5StateEnum
 }
 
-export function ActionErrorAnyOf2DeserializeFailedFromJSON(
-  json: any
-): ActionErrorAnyOf2DeserializeFailed {
-  return ActionErrorAnyOf2DeserializeFailedFromJSONTyped(json, false)
+/**
+ * @export
+ * @enum {string}
+ */
+export enum DiskStateAnyOf5StateEnum {
+  Destroyed = 'destroyed',
 }
 
-export function ActionErrorAnyOf2DeserializeFailedFromJSONTyped(
+export function DiskStateAnyOf5FromJSON(json: any): DiskStateAnyOf5 {
+  return DiskStateAnyOf5FromJSONTyped(json, false)
+}
+
+export function DiskStateAnyOf5FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ActionErrorAnyOf2DeserializeFailed {
+): DiskStateAnyOf5 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    message: json['message'],
+    state: json['state'],
   }
 }
 
-export function ActionErrorAnyOf2DeserializeFailedToJSON(
-  value?: ActionErrorAnyOf2DeserializeFailed | null
-): any {
+export function DiskStateAnyOf5ToJSON(value?: DiskStateAnyOf5 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -55,6 +59,6 @@ export function ActionErrorAnyOf2DeserializeFailedToJSON(
     return null
   }
   return {
-    message: value.message,
+    state: value.state,
   }
 }

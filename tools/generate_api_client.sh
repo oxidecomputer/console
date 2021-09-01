@@ -18,6 +18,8 @@ cargo run --bin=nexus -- omicron-nexus/examples/config.toml --openapi \
   > ../console/$DOCS_DIR/nexus-openapi.json
 
 cd ../console
+rm -rf "$GEN_DIR/apis"
+rm -rf "$GEN_DIR/models"
 
 # prereq: brew install openapi-generator
 openapi-generator generate -i $DOCS_DIR/nexus-openapi.json \

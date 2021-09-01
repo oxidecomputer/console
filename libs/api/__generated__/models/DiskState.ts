@@ -30,6 +30,18 @@ import {
   DiskStateAnyOf3FromJSON,
   DiskStateAnyOf3FromJSONTyped,
   DiskStateAnyOf3ToJSON,
+  DiskStateAnyOf4,
+  DiskStateAnyOf4FromJSON,
+  DiskStateAnyOf4FromJSONTyped,
+  DiskStateAnyOf4ToJSON,
+  DiskStateAnyOf5,
+  DiskStateAnyOf5FromJSON,
+  DiskStateAnyOf5FromJSONTyped,
+  DiskStateAnyOf5ToJSON,
+  DiskStateAnyOf6,
+  DiskStateAnyOf6FromJSON,
+  DiskStateAnyOf6FromJSONTyped,
+  DiskStateAnyOf6ToJSON,
 } from './'
 
 /**
@@ -43,19 +55,21 @@ export interface DiskState {
    * @type {string}
    * @memberof DiskState
    */
-  attaching: string
+  state: DiskStateStateEnum
   /**
    *
    * @type {string}
    * @memberof DiskState
    */
-  attached: string
-  /**
-   *
-   * @type {string}
-   * @memberof DiskState
-   */
-  detaching: string
+  instance: string
+}
+
+/**
+ * @export
+ * @enum {string}
+ */
+export enum DiskStateStateEnum {
+  Faulted = 'faulted',
 }
 
 export function DiskStateFromJSON(json: any): DiskState {
@@ -70,9 +84,8 @@ export function DiskStateFromJSONTyped(
     return json
   }
   return {
-    attaching: json['attaching'],
-    attached: json['attached'],
-    detaching: json['detaching'],
+    state: json['state'],
+    instance: json['instance'],
   }
 }
 
@@ -84,8 +97,7 @@ export function DiskStateToJSON(value?: DiskState | null): any {
     return null
   }
   return {
-    attaching: value.attaching,
-    attached: value.attached,
-    detaching: value.detaching,
+    state: value.state,
+    instance: value.instance,
   }
 }
