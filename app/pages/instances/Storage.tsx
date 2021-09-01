@@ -14,7 +14,7 @@ const columns = [
     Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
   },
   {
-    accessor: (_d: DiskAttachment) => '50', // TODO: real data
+    accessor: (_d: DiskAttachment) => '<size>', // TODO: real data
     id: 'size',
     Header: (
       <>
@@ -25,12 +25,12 @@ const columns = [
     className: 'text-left w-32',
   },
   {
-    accessor: (_d: DiskAttachment) => 'Read/Write', // TODO: real data
+    accessor: (_d: DiskAttachment) => '<mode>', // TODO: real data
     id: 'mode',
     Header: 'Mode',
-    Cell: ({ value }: { value: string }) => (
-      <span className="uppercase">{value}</span>
-    ),
+    // Cell: ({ value }: { value: string }) => (
+    //   <span className="uppercase">{value}</span>
+    // ),
     className: 'text-left w-48',
   },
 ]

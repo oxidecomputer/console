@@ -29,16 +29,16 @@ export const InstanceDetails = ({
     <span>{filesize(instance.memory)} RAM</span>
     <Sep />
     <Space />
-    <span className="mr-6">100 GB SSD</span>
+    <span className="mr-6">&lt;size&gt; GB SSD</span>
     <Space />
-    <span className="mr-6">Debian 9.12</span>
+    <span className="mr-6">&lt;image info&gt;</span>
     <Space />
     {/* TODO: when API logic for fallback hostname is correct, this should
     just be hostname */}
-    <span>{instance.hostname || instance.name}.inst</span>
+    <span>&lt;hostname&gt;</span>
     <Sep />
     <Space />
-    <span className="mr-6">10.10.16.7</span>
+    <span className="mr-6">&lt;IP address&gt;</span>
     <Space />
     <StatusBadge status={instance.runState} size="sm" />
   </div>
