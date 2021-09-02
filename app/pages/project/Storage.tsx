@@ -20,7 +20,11 @@ const columns = [
 
 export default function ProjectStorage() {
   const { projectName } = useParams()
-  const { data } = useApiQuery('projectDisksGet', { projectName })
+  const { data } = useApiQuery(
+    'projectDisksGet',
+    { projectName },
+    { refetchInterval: 5000 }
+  )
 
   const disks = data?.items || []
 

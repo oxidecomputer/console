@@ -37,10 +37,11 @@ const columns = [
 
 function Storage() {
   const { projectName, instanceName } = useParams()
-  const { data } = useApiQuery('instanceDisksGet', {
-    projectName,
-    instanceName,
-  })
+  const { data } = useApiQuery(
+    'instanceDisksGet',
+    { projectName, instanceName },
+    { refetchInterval: 5000 }
+  )
 
   const bootDisks = data?.slice(0, 1) || []
   const otherDisks = data?.slice(1) || []

@@ -18,7 +18,11 @@ export const InstancePageHeader = () => {
     data: instance,
     error,
     refetch,
-  } = useApiQuery('projectInstancesGetInstance', { instanceName, projectName })
+  } = useApiQuery(
+    'projectInstancesGetInstance',
+    { instanceName, projectName },
+    { refetchInterval: 5000 }
+  )
 
   const stopInstance = useApiMutation('projectInstancesInstanceStop', {
     onSuccess: () => {

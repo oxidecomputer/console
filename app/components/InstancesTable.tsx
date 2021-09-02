@@ -149,7 +149,7 @@ const menuCol = {
   },
 }
 
-const PAGE_SIZE = 3
+const PAGE_SIZE = 10
 
 const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text-gray-200 disabled:cursor-default`
 
