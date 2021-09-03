@@ -8,13 +8,16 @@ import {
   classed,
   Badge,
   Button,
+  inputStyle,
+  InputBorder,
+  InputHint,
+  InputLabel,
   PageHeader,
   PageTitle,
   RadioGroupHint,
   RadioGroup,
   RadioCard,
   TabListLine,
-  TextInputGroup,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -292,32 +295,61 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <Divider />
 
       <Heading>Finalize and create</Heading>
-      <div className="flex space-x-6">
-        <TextInputGroup
-          id="instance-name"
-          label="Choose a name"
-          hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
-          onChange={setInstanceName}
-          placeholder="web1"
-          value={instanceName}
-        />
-        <TextInputGroup
-          id="hostname"
-          label="Choose a hostname"
-          hint="Choose a hostname for the instance. In the future this will be optional."
-          onChange={setHostname}
-          placeholder="example.com"
-          value={hostname}
-        />
+      <div>
+        <InputLabel htmlFor="instance-name">Choose a name</InputLabel>
+        <InputHint>
+          Choose an identifying name you will remember. Names may contain
+          alphanumeric characters, dashes, and periods.
+        </InputHint>
+        <InputBorder>
+          <input
+            type="text"
+            id="instance-name"
+            name="instance-name"
+            onChange={(e) => setInstanceName(e.target.value)}
+            placeholder="web1"
+            value={instanceName}
+            className={inputStyle}
+          />
+        </InputBorder>
       </div>
-      <TextInputGroup
-        id="tags"
-        label="Add tags"
-        hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
-        onChange={setTagsField}
-        value={tagsField}
-        className="mt-8"
-      />
+      <div className="mt-8">
+        <InputLabel htmlFor="hostname">Choose a hostname</InputLabel>
+        <InputHint>
+          Optional. If left blank, we will use the instance name.
+        </InputHint>
+        <InputBorder>
+          <input
+            type="text"
+            id="hostname"
+            name="hostname"
+            onChange={(e) => setHostname(e.target.value)}
+            placeholder="example.com"
+            value={hostname}
+            className={inputStyle}
+          />
+        </InputBorder>
+      </div>
+
+      {/* this is going to be a tag multiselect, not a text input */}
+      <div className="mt-8">
+        <InputLabel htmlFor="tags">Add tags</InputLabel>
+        <InputHint>
+          Use tags to organize and relate resources. Tags may contain letters,
+          numbers, colons, dashes, and underscores.
+        </InputHint>
+        <InputBorder>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            onChange={(e) => setTagsField(e.target.value)}
+            value={tagsField}
+            className={inputStyle}
+          />
+        </InputBorder>
+      </div>
+
       <Button
         type="submit"
         className="w-[30rem] mt-16"
