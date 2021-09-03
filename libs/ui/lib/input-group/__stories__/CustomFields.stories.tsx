@@ -19,7 +19,6 @@ const Template: Story<InputGroupProps> = (args) => (
 export const Default = Template.bind({})
 Default.args = {
   label: 'Custom Field',
-  required: false,
   hint: '',
   error: '',
 }

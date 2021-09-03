@@ -299,7 +299,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
           onChange={setInstanceName}
           placeholder="web1"
-          required
           value={instanceName}
         />
         <TextInputGroup
@@ -308,7 +307,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           hint="Choose a hostname for the instance. In the future this will be optional."
           onChange={setHostname}
           placeholder="example.com"
-          required
           value={hostname}
         />
       </div>
@@ -317,7 +315,6 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         label="Add tags"
         hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
         onChange={setTagsField}
-        required
         value={tagsField}
         className="mt-8"
       />

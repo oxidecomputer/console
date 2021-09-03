@@ -5,21 +5,19 @@ import { classed } from '../../util/classed'
 
 const Hint = classed.div`flex-1 pb-2 text-gray-50 text-sm font-sans font-light`
 
-type LabelProps = React.ComponentProps<'label'> & { required?: boolean }
-const Label = ({ required, children, ...labelProps }: LabelProps) => (
+type LabelProps = React.ComponentProps<'label'>
+const Label = ({ children, ...labelProps }: LabelProps) => (
   <label
     {...labelProps}
     className="flex items-baseline font-sans font-light justify-between pb-2"
   >
     <span className="flex items-baseline text-lg">{children}</span>
-    {!required && <span className="text-sm">Optional</span>}
   </label>
 )
 
 export interface InputGroupProps {
   id: string
   disabled?: boolean
-  required?: boolean
   label: string | React.ReactFragment
   error?: string
   hint?: React.ReactNode
@@ -33,7 +31,6 @@ export interface InputGroupProps {
 
 export const InputGroup = ({
   id,
-  required,
   disabled,
   error,
   hint,
@@ -46,9 +43,7 @@ export const InputGroup = ({
 
   return (
     <div className={cn('flex flex-col text-gray-50 flex-1', className)}>
-      <Label required={required} htmlFor={id}>
-        {label}
-      </Label>
+      <Label htmlFor={id}>{label}</Label>
       {hint && <Hint id={hintId}>{hint}</Hint>}
       <div
         className={cn(

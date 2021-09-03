@@ -16,7 +16,6 @@ export const Default = Template.bind({})
 Default.args = {
   id: 'number-input-group',
   label: 'Number Input Group',
-  required: false,
   value: 10,
   onChange: action('onChange'),
 }
@@ -25,7 +24,6 @@ export const Disabled = Template.bind({})
 Disabled.args = {
   id: 'number-input-group',
   label: 'Number Input Group (disabled)',
-  required: false,
   disabled: true,
   value: 0,
 }
@@ -41,14 +39,12 @@ export const WithState = StateTemplate.bind({})
 WithState.args = {
   id: 'number-input-group',
   label: 'Number Input Group (with state)',
-  required: false,
 }
 
 export const WithStateMaxMin = StateTemplate.bind({})
 WithStateMaxMin.args = {
   id: 'number-input-group',
   label: 'Number Input Group (with state, max, and min)',
-  required: false,
   max: 10,
   min: -10,
 }

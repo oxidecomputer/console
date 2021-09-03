@@ -24,6 +24,8 @@ export const Input = ({
     )}
     aria-describedby={errorId || hintId ? `${errorId} ${hintId}` : undefined}
     aria-invalid={error}
+    // TODO: not clear this is needed in addition to `required`. MDN says "for backward compatibility"
+    // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-required_attribute
     aria-required={required}
     required={required}
     {...props}

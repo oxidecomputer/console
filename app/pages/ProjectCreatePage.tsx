@@ -60,7 +60,6 @@ const ProjectCreatePage = () => {
           label="Choose a name"
           onChange={setName}
           placeholder="Enter name"
-          required
           value={name}
         />
         <TextInputGroup
@@ -69,7 +68,6 @@ const ProjectCreatePage = () => {
           hint="What is unique about your project?"
           onChange={setDescription}
           placeholder="A project"
-          required
           value={description}
         />
         <Button
