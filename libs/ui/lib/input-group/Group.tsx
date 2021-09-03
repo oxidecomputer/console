@@ -1,8 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { Icon } from '../icon/Icon'
-import { Tooltip } from '../tooltip/Tooltip'
 import { classed } from '../../util/classed'
 
 const Hint = classed.div`flex-1 pb-2 text-gray-50 text-sm font-sans font-light`
@@ -18,12 +16,6 @@ const Label = ({ required, children, ...labelProps }: LabelProps) => (
   </label>
 )
 
-export const InfoPopover = (props: { children: React.ReactNode }) => (
-  <Tooltip isPrimaryLabel={false} content={props.children}>
-    <Icon className="text-gray-50 w-5 my-0 mx-[0.5625rem]" name="infoFilled" />
-  </Tooltip>
-)
-
 export interface InputGroupProps {
   id: string
   disabled?: boolean
@@ -35,7 +27,6 @@ export interface InputGroupProps {
    * Additional text to show in a popover inside the text field.
    * Should not be requried to understand the use of the field
    */
-  info?: React.ReactNode
   children: React.ReactNode
   className?: string
 }
@@ -47,7 +38,6 @@ export const InputGroup = ({
   error,
   hint,
   label,
-  info,
   children,
   className,
 }: InputGroupProps) => {
@@ -69,7 +59,6 @@ export const InputGroup = ({
         )}
       >
         {children}
-        {info && <InfoPopover>{info}</InfoPopover>}
       </div>
       {error && (
         <div id={errorId} className="mt-2 text-xs">

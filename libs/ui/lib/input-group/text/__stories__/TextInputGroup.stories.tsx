@@ -18,7 +18,6 @@ Default.args = {
   id: 'default',
   label: 'Default',
   placeholder: 'placeholder',
-  info: '',
   error: '',
 }
 
@@ -48,13 +47,6 @@ WithHint.args = {
   id: 'with-hint',
   label: 'Text Field with Hint',
   hint: 'This is a hint about the text field',
-}
-
-export const WithInfo = Template.bind({})
-WithInfo.args = {
-  id: 'with-info',
-  label: 'Text Field with extra info',
-  info: 'Hello, World!',
 }
 
 export const CustomLabel = Template.bind({})
