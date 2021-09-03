@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { formatDistanceToNowStrict } from 'date-fns'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, Icon, PageHeader, PageTitle } from '@oxide/ui'
@@ -75,7 +76,11 @@ const ProjectsPage = () => {
               </div>
             </section>
             <footer className="p-4 border-t border-gray-400 text-xs">
-              <span className="uppercase">12 weeks ago</span>
+              <span className="uppercase">
+                {formatDistanceToNowStrict(item.timeCreated, {
+                  addSuffix: true,
+                })}
+              </span>
             </footer>
           </article>
         ))}
