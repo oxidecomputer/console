@@ -297,7 +297,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <Heading>Finalize and create</Heading>
       <div>
         <InputLabel htmlFor="instance-name">Choose a name</InputLabel>
-        <InputHint>
+        <InputHint id="instance-name-hint">
           Choose an identifying name you will remember. Names may contain
           alphanumeric characters, dashes, and periods.
         </InputHint>
@@ -306,6 +306,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             type="text"
             id="instance-name"
             name="instance-name"
+            aria-describedby="instance-name-hint"
             onChange={(e) => setInstanceName(e.target.value)}
             placeholder="web1"
             value={instanceName}
@@ -315,7 +316,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       </div>
       <div className="mt-8">
         <InputLabel htmlFor="hostname">Choose a hostname</InputLabel>
-        <InputHint>
+        <InputHint id="hostname-hint">
           Optional. If left blank, we will use the instance name.
         </InputHint>
         <InputBorder>
@@ -323,6 +324,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             type="text"
             id="hostname"
             name="hostname"
+            aria-describedby="hostname-hint"
             onChange={(e) => setHostname(e.target.value)}
             placeholder="example.com"
             value={hostname}
@@ -334,7 +336,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       {/* this is going to be a tag multiselect, not a text input */}
       <div className="mt-8">
         <InputLabel htmlFor="tags">Add tags</InputLabel>
-        <InputHint>
+        <InputHint id="tags-hint">
           Use tags to organize and relate resources. Tags may contain letters,
           numbers, colons, dashes, and underscores.
         </InputHint>
@@ -343,6 +345,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             type="text"
             id="tags"
             name="tags"
+            aria-describedby="tags-hint"
             onChange={(e) => setTagsField(e.target.value)}
             value={tagsField}
             className={inputStyle}

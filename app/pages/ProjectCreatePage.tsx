@@ -81,12 +81,15 @@ const ProjectCreatePage = () => {
           <InputLabel htmlFor="project-description">
             Choose a description
           </InputLabel>
-          <InputHint>What is unique about your project?</InputHint>
+          <InputHint id="description-hint">
+            What is unique about your project?
+          </InputHint>
           <InputBorder>
             <input
               type="text"
               id="project-description"
               name="project-description"
+              aria-describedby="description-hint"
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A project"
               value={description}
