@@ -2,15 +2,7 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  Button,
-  inputStyle,
-  InputBorder,
-  InputHint,
-  InputLabel,
-  PageHeader,
-  PageTitle,
-} from '@oxide/ui'
+import { Button, InputBorder, PageHeader, PageTitle } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -64,7 +56,9 @@ const ProjectCreatePage = () => {
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <div>
-          <InputLabel htmlFor="project-name">Choose a name</InputLabel>
+          <label className="input-label" htmlFor="project-name">
+            Choose a name
+          </label>
           <InputBorder>
             <input
               type="text"
@@ -73,17 +67,17 @@ const ProjectCreatePage = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter name"
               value={name}
-              className={inputStyle}
+              className="text-input"
             />
           </InputBorder>
         </div>
         <div>
-          <InputLabel htmlFor="project-description">
+          <label className="input-label" htmlFor="project-description">
             Choose a description
-          </InputLabel>
-          <InputHint id="description-hint">
+          </label>
+          <div className="input-hint" id="description-hint">
             What is unique about your project?
-          </InputHint>
+          </div>
           <InputBorder>
             <input
               type="text"
@@ -93,7 +87,7 @@ const ProjectCreatePage = () => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A project"
               value={description}
-              className={inputStyle}
+              className="text-input"
             />
           </InputBorder>
         </div>

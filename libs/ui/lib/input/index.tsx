@@ -1,17 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { classed } from '../../util/classed'
-
-export const inputStyle = `
-  flex-1 py-[0.5625rem] px-3
-  text-sm font-sans text-gray-50 
-  bg-transparent border-none focus:outline-none
-`
-
-export const InputHint = classed.div`flex-1 pb-2 text-gray-50 text-sm font-sans font-light`
-
-export const InputLabel = classed.label`text-lg flex items-baseline font-sans font-light justify-between pb-2`
+import './input.css'
 
 type InputBorderProps = {
   error?: string

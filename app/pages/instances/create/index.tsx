@@ -8,10 +8,7 @@ import {
   classed,
   Badge,
   Button,
-  inputStyle,
   InputBorder,
-  InputHint,
-  InputLabel,
   PageHeader,
   PageTitle,
   RadioGroupHint,
@@ -296,11 +293,13 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
       <Heading>Finalize and create</Heading>
       <div>
-        <InputLabel htmlFor="instance-name">Choose a name</InputLabel>
-        <InputHint id="instance-name-hint">
+        <label className="input-label" htmlFor="instance-name">
+          Choose a name
+        </label>
+        <div className="input-hint" id="instance-name-hint">
           Choose an identifying name you will remember. Names may contain
           alphanumeric characters, dashes, and periods.
-        </InputHint>
+        </div>
         <InputBorder>
           <input
             type="text"
@@ -310,15 +309,17 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             onChange={(e) => setInstanceName(e.target.value)}
             placeholder="web1"
             value={instanceName}
-            className={inputStyle}
+            className="text-input"
           />
         </InputBorder>
       </div>
       <div className="mt-8">
-        <InputLabel htmlFor="hostname">Choose a hostname</InputLabel>
-        <InputHint id="hostname-hint">
+        <label className="input-label" htmlFor="hostname">
+          Choose a hostname
+        </label>
+        <div className="input-hint" id="hostname-hint">
           Optional. If left blank, we will use the instance name.
-        </InputHint>
+        </div>
         <InputBorder>
           <input
             type="text"
@@ -328,18 +329,20 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             onChange={(e) => setHostname(e.target.value)}
             placeholder="example.com"
             value={hostname}
-            className={inputStyle}
+            className="text-input"
           />
         </InputBorder>
       </div>
 
       {/* this is going to be a tag multiselect, not a text input */}
       <div className="mt-8">
-        <InputLabel htmlFor="tags">Add tags</InputLabel>
-        <InputHint id="tags-hint">
+        <label className="input-label" htmlFor="tags">
+          Add tags
+        </label>
+        <div className="input-hint" id="tags-hint">
           Use tags to organize and relate resources. Tags may contain letters,
           numbers, colons, dashes, and underscores.
-        </InputHint>
+        </div>
         <InputBorder>
           <input
             type="text"
@@ -348,7 +351,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             aria-describedby="tags-hint"
             onChange={(e) => setTagsField(e.target.value)}
             value={tagsField}
-            className={inputStyle}
+            className="text-input"
           />
         </InputBorder>
       </div>

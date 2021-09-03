@@ -1,0 +1,13 @@
+.text-input {
+  @apply py-[0.5625rem] px-3
+    text-sm font-sans text-gray-50 
+    bg-transparent border-none focus:outline-none;
+}
+
+.input-hint {
+  @apply text-sm font-sans font-light mb-2 text-gray-50;
+}
+
+.input-label {
+  @apply block text-lg font-sans font-light mb-2;
+}

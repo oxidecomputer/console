@@ -27,7 +27,6 @@ export const classed = {
   hr: make('hr'),
   header: make('header'),
   input: make('input'),
-  label: make('label'),
   li: make('li'),
   main: make('main'),
   ol: make('ol'),
