@@ -2,7 +2,15 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, PageHeader, PageTitle, TextInputGroup } from '@oxide/ui'
+import {
+  Button,
+  inputStyle,
+  InputBorder,
+  InputHint,
+  InputLabel,
+  PageHeader,
+  PageTitle,
+} from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -55,21 +63,37 @@ const ProjectCreatePage = () => {
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
-        <TextInputGroup
-          id="project-name"
-          label="Choose a name"
-          onChange={setName}
-          placeholder="Enter name"
-          value={name}
-        />
-        <TextInputGroup
-          id="project-description"
-          label="Choose a description"
-          hint="What is unique about your project?"
-          onChange={setDescription}
-          placeholder="A project"
-          value={description}
-        />
+        <div>
+          <InputLabel htmlFor="project-name">Choose a name</InputLabel>
+          <InputBorder>
+            <input
+              type="text"
+              id="project-name"
+              name="project-name"
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter name"
+              value={name}
+              className={inputStyle}
+            />
+          </InputBorder>
+        </div>
+        <div>
+          <InputLabel htmlFor="project-description">
+            Choose a description
+          </InputLabel>
+          <InputHint>What is unique about your project?</InputHint>
+          <InputBorder>
+            <input
+              type="text"
+              id="project-description"
+              name="project-description"
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="A project"
+              value={description}
+              className={inputStyle}
+            />
+          </InputBorder>
+        </div>
         <Button
           type="submit"
           variant="dim"

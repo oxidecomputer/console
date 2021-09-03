@@ -7,6 +7,12 @@ export type InputProps = React.ComponentPropsWithRef<'input'> & {
   hintId?: string
 }
 
+export const inputStyle = `
+  flex-1 py-[0.5625rem] px-3
+  text-sm font-sans text-gray-50 
+  bg-transparent border-none focus:outline-none
+`
+
 export const Input = ({
   required,
   error,
@@ -16,13 +22,8 @@ export const Input = ({
   ...props
 }: InputProps) => (
   <input
-    className={cn(
-      `flex-1 py-[0.5625rem] px-3
-      text-sm font-sans text-gray-50 
-      bg-transparent border-none focus:outline-none`,
-      className
-    )}
-    aria-describedby={errorId || hintId ? `${errorId} ${hintId}` : undefined}
+    className={cn(inputStyle, className)}
+    aria-describedby={cn(errorId, hintId) || undefined}
     aria-invalid={error}
     // TODO: not clear this is needed in addition to `required`. MDN says "for backward compatibility"
     // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-required_attribute

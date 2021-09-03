@@ -4,16 +4,10 @@ import cn from 'classnames'
 import { classed } from '../../util/classed'
 
 const Hint = classed.div`flex-1 pb-2 text-gray-50 text-sm font-sans font-light`
+export const InputHint = Hint
 
-type LabelProps = React.ComponentProps<'label'>
-const Label = ({ children, ...labelProps }: LabelProps) => (
-  <label
-    {...labelProps}
-    className="flex items-baseline font-sans font-light justify-between pb-2"
-  >
-    <span className="flex items-baseline text-lg">{children}</span>
-  </label>
-)
+const Label = classed.label`text-lg flex items-baseline font-sans font-light justify-between pb-2`
+export const InputLabel = Label
 
 export interface InputGroupProps {
   id: string
@@ -63,3 +57,29 @@ export const InputGroup = ({
     </div>
   )
 }
+
+type InputBorderProps = {
+  error?: string
+  disabled?: boolean
+  className?: string
+  children: React.ReactNode
+}
+
+export const InputBorder = ({
+  error,
+  disabled,
+  className,
+  children,
+}: InputBorderProps) => (
+  <div
+    className={cn(
+      'flex border border-gray-400 rounded',
+      'focus-within:border-green-500 hover:focus-within:border-green-500',
+      error && '!border-red-500',
+      !disabled && 'hover:border-gray-300',
+      className
+    )}
+  >
+    {children}
+  </div>
+)
