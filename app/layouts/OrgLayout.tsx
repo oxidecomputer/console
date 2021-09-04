@@ -21,7 +21,6 @@ const ProjectList = (props: { className?: string }) => {
             <NavLink
               className="inline-flex w-full p-1"
               to={`/projects/${p.name}`}
-              activeClassName="text-white"
               end
             >
               {p.name}

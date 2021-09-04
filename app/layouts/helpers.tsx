@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 
 import { classed } from '@oxide/ui'
+import cn from 'classnames'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[14rem,auto]`
 export const Sidebar = classed.div`pb-6 pt-1 overflow-auto bg-gray-500`
@@ -46,8 +47,12 @@ export const NavLinkItem = (props: {
   <li>
     <NavLink
       to={props.to}
-      className="flex items-center p-1 hover:bg-gray-400 svg:mr-2 svg:text-gray-300"
-      activeClassName="text-white svg:!text-green-500"
+      className={({ isActive }) =>
+        cn(
+          'flex items-center p-1 hover:bg-gray-400 svg:mr-2 svg:text-gray-300',
+          { 'text-white svg:!text-green-500': isActive }
+        )
+      }
       end
     >
       {props.children}

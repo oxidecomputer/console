@@ -28,20 +28,20 @@ const App = () => (
     <Router>
       <QuickMenu />
       <Routes>
-        <Route path="/" element={<Navigate to="/projects" replace={true} />} />
+        <Route index element={<Navigate to="/projects" replace={true} />} />
 
         {/* ORG */}
         <Route path="projects" element={<OrgLayout />}>
           {/* separate from project detail pages because of the different layout */}
-          <Route path="/" element={<ProjectsPage />} />
+          <Route index element={<ProjectsPage />} />
           <Route path="new" element={<ProjectCreatePage />} />
         </Route>
 
         {/* PROJECT */}
-        <Route path="/projects/:projectName" element={<ProjectLayout />}>
-          <Route element={<ProjectPage />} />
+        <Route path="projects/:projectName" element={<ProjectLayout />}>
+          <Route index element={<ProjectPage />} />
           <Route path="instances">
-            <Route path="/" element={<ProjectPage />} />
+            <Route index element={<ProjectPage />} />
             <Route path="new" element={<InstanceCreatePage />} />
           </Route>
           <Route path="networking" />
@@ -54,10 +54,10 @@ const App = () => (
 
         {/* INSTANCE */}
         <Route
-          path="/projects/:projectName/instances/:instanceName"
+          path="projects/:projectName/instances/:instanceName"
           element={<InstanceLayout />}
         >
-          <Route path="/" />
+          <Route index />
           <Route path="metrics" />
           <Route path="activity" />
           <Route path="access" />
