@@ -3,19 +3,21 @@ import cn from 'classnames'
 
 import './input.css'
 
-type InputBorderProps = {
+// this is a text field, don't let the caller pass in a type
+type InputProps = Omit<React.ComponentProps<'input'>, 'type'>
+
+type TextFieldProps = InputProps & {
   error?: string
   disabled?: boolean
   className?: string
-  children: React.ReactNode
 }
 
-export const InputBorder = ({
+export const TextField = ({
   error,
   disabled,
   className,
-  children,
-}: InputBorderProps) => (
+  ...inputProps
+}: TextFieldProps) => (
   <div
     className={cn(
       'flex border border-gray-400 rounded',
@@ -25,6 +27,13 @@ export const InputBorder = ({
       className
     )}
   >
-    {children}
+    <input
+      type="text"
+      className={`
+        py-[0.5625rem] px-3 w-full
+        text-sm font-sans text-gray-50 
+        bg-transparent border-none focus:outline-none`}
+      {...inputProps}
+    />
   </div>
 )

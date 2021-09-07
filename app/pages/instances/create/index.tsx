@@ -8,13 +8,13 @@ import {
   classed,
   Badge,
   Button,
-  InputBorder,
   PageHeader,
   PageTitle,
   RadioGroupHint,
   RadioGroup,
   RadioCard,
   TabListLine,
+  TextField,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -300,18 +300,14 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           Choose an identifying name you will remember. Names may contain
           alphanumeric characters, dashes, and periods.
         </div>
-        <InputBorder>
-          <input
-            type="text"
-            id="instance-name"
-            name="instance-name"
-            aria-describedby="instance-name-hint"
-            onChange={(e) => setInstanceName(e.target.value)}
-            placeholder="web1"
-            value={instanceName}
-            className="text-input"
-          />
-        </InputBorder>
+        <TextField
+          id="instance-name"
+          name="instance-name"
+          aria-describedby="instance-name-hint"
+          onChange={(e) => setInstanceName(e.target.value)}
+          placeholder="web1"
+          value={instanceName}
+        />
       </div>
       <div className="mt-8">
         <label className="input-label" htmlFor="hostname">
@@ -320,18 +316,14 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         <div className="input-hint" id="hostname-hint">
           Optional. If left blank, we will use the instance name.
         </div>
-        <InputBorder>
-          <input
-            type="text"
-            id="hostname"
-            name="hostname"
-            aria-describedby="hostname-hint"
-            onChange={(e) => setHostname(e.target.value)}
-            placeholder="example.com"
-            value={hostname}
-            className="text-input"
-          />
-        </InputBorder>
+        <TextField
+          id="hostname"
+          name="hostname"
+          aria-describedby="hostname-hint"
+          onChange={(e) => setHostname(e.target.value)}
+          placeholder="example.com"
+          value={hostname}
+        />
       </div>
 
       {/* this is going to be a tag multiselect, not a text input */}
@@ -343,17 +335,13 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           Use tags to organize and relate resources. Tags may contain letters,
           numbers, colons, dashes, and underscores.
         </div>
-        <InputBorder>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            aria-describedby="tags-hint"
-            onChange={(e) => setTagsField(e.target.value)}
-            value={tagsField}
-            className="text-input"
-          />
-        </InputBorder>
+        <TextField
+          id="tags"
+          name="tags"
+          aria-describedby="tags-hint"
+          onChange={(e) => setTagsField(e.target.value)}
+          value={tagsField}
+        />
       </div>
 
       <Button

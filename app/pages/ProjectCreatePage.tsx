@@ -2,7 +2,7 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, InputBorder, PageHeader, PageTitle } from '@oxide/ui'
+import { Button, PageHeader, PageTitle, TextField } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -59,17 +59,13 @@ const ProjectCreatePage = () => {
           <label className="input-label" htmlFor="project-name">
             Choose a name
           </label>
-          <InputBorder>
-            <input
-              type="text"
-              id="project-name"
-              name="project-name"
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter name"
-              value={name}
-              className="text-input"
-            />
-          </InputBorder>
+          <TextField
+            id="project-name"
+            name="project-name"
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter name"
+            value={name}
+          />
         </div>
         <div>
           <label className="input-label" htmlFor="project-description">
@@ -78,18 +74,14 @@ const ProjectCreatePage = () => {
           <div className="input-hint" id="description-hint">
             What is unique about your project?
           </div>
-          <InputBorder>
-            <input
-              type="text"
-              id="project-description"
-              name="project-description"
-              aria-describedby="description-hint"
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="A project"
-              value={description}
-              className="text-input"
-            />
-          </InputBorder>
+          <TextField
+            id="project-description"
+            name="project-description"
+            aria-describedby="description-hint"
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="A project"
+            value={description}
+          />
         </div>
         <Button
           type="submit"
