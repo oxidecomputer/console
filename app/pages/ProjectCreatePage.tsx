@@ -2,7 +2,14 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, PageHeader, PageTitle, TextField } from '@oxide/ui'
+import {
+  Button,
+  PageHeader,
+  PageTitle,
+  TextField,
+  TextFieldHint,
+  TextFieldLabel,
+} from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -56,9 +63,7 @@ const ProjectCreatePage = () => {
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <div>
-          <label className="input-label" htmlFor="project-name">
-            Choose a name
-          </label>
+          <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
           <TextField
             id="project-name"
             name="project-name"
@@ -68,12 +73,12 @@ const ProjectCreatePage = () => {
           />
         </div>
         <div>
-          <label className="input-label" htmlFor="project-description">
+          <TextFieldLabel htmlFor="project-description">
             Choose a description
-          </label>
-          <div className="input-hint" id="description-hint">
+          </TextFieldLabel>
+          <TextFieldHint id="description-hint">
             What is unique about your project?
-          </div>
+          </TextFieldHint>
           <TextField
             id="project-description"
             name="project-description"

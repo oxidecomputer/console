@@ -1,7 +1,0 @@
-.input-hint {
-  @apply text-sm font-sans font-light mb-2 text-gray-50;
-}
-
-.input-label {
-  @apply block text-lg font-sans font-light mb-2;
-}

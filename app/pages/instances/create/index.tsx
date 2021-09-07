@@ -15,6 +15,8 @@ import {
   RadioCard,
   TabListLine,
   TextField,
+  TextFieldHint,
+  TextFieldLabel,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -293,13 +295,11 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
       <Heading>Finalize and create</Heading>
       <div>
-        <label className="input-label" htmlFor="instance-name">
-          Choose a name
-        </label>
-        <div className="input-hint" id="instance-name-hint">
+        <TextFieldLabel htmlFor="instance-name">Choose a name</TextFieldLabel>
+        <TextFieldHint id="instance-name-hint">
           Choose an identifying name you will remember. Names may contain
           alphanumeric characters, dashes, and periods.
-        </div>
+        </TextFieldHint>
         <TextField
           id="instance-name"
           name="instance-name"
@@ -310,12 +310,10 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
         />
       </div>
       <div className="mt-8">
-        <label className="input-label" htmlFor="hostname">
-          Choose a hostname
-        </label>
-        <div className="input-hint" id="hostname-hint">
+        <TextFieldLabel htmlFor="hostname">Choose a hostname</TextFieldLabel>
+        <TextFieldHint id="hostname-hint">
           Optional. If left blank, we will use the instance name.
-        </div>
+        </TextFieldHint>
         <TextField
           id="hostname"
           name="hostname"
@@ -328,13 +326,11 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
       {/* this is going to be a tag multiselect, not a text input */}
       <div className="mt-8">
-        <label className="input-label" htmlFor="tags">
-          Add tags
-        </label>
-        <div className="input-hint" id="tags-hint">
+        <TextFieldLabel htmlFor="tags">Add tags</TextFieldLabel>
+        <TextFieldHint id="tags-hint">
           Use tags to organize and relate resources. Tags may contain letters,
           numbers, colons, dashes, and underscores.
-        </div>
+        </TextFieldHint>
         <TextField
           id="tags"
           name="tags"

@@ -1,7 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 
-import './input.css'
+import { classed } from '../../util/classed'
 
 // this is a text field, don't let the caller pass in a type
 type InputProps = Omit<React.ComponentProps<'input'>, 'type'>
@@ -37,3 +37,21 @@ export const TextField = ({
     />
   </div>
 )
+
+type HintProps = {
+  // ID required as a reminder to pass aria-describedby on TextField
+  id: string
+  children: React.ReactNode
+  className?: string
+}
+
+export const TextFieldHint = ({ id, children, className }: HintProps) => (
+  <div
+    id={id}
+    className={cn('text-sm font-sans font-light mb-2 text-gray-50', className)}
+  >
+    {children}
+  </div>
+)
+
+export const TextFieldLabel = classed.label`block text-lg font-sans font-light mb-2`
