@@ -1,5 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
+import { Field } from 'formik'
 
 const labelStyles = `
   text-sm py-2 px-4 bg-gray-500 border rounded border-gray-400 
@@ -11,7 +12,7 @@ type Props = React.ComponentProps<'input'>
 
 export const RadioCard = ({ children, className, ...inputProps }: Props) => (
   <label className={cn('items-center inline-flex font-mono', className)}>
-    <input className="peer sr-only" type="radio" {...inputProps} />
+    <Field className="peer sr-only" type="radio" {...inputProps} />
     <span className={labelStyles}>{children}</span>
   </label>
 )

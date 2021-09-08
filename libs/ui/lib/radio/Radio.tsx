@@ -1,4 +1,5 @@
 import React from 'react'
+import { Field } from 'formik'
 
 import { classed } from '../../util/classed'
 
@@ -19,7 +20,7 @@ const baseStyle = `
 export const Radio = ({ children, ...inputProps }: Props) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
-      <input className={baseStyle} type="radio" {...inputProps} />
+      <Field className={baseStyle} type="radio" {...inputProps} />
       {inputProps.checked && <Dot />}
     </span>
 

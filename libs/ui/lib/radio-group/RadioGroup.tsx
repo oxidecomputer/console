@@ -42,7 +42,6 @@
  *   https://www.a11yproject.com/posts/2021-01-28-how-to-use-the-tabindex-attribute/#making-non-interactive-elements-focusable
  */
 
-import type { ChangeEvent } from 'react'
 import React from 'react'
 import cn from 'classnames'
 
@@ -53,8 +52,6 @@ export const RadioGroupHint = classed.p`text-base text-gray-100 font-sans font-l
 type Props = {
   // gets passed to all the radios. this is what defines them as a group
   name: string
-  value: string
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void
   children: React.ReactElement[]
   // gets passed to all the radios (technically only needs to be on one)
   required?: boolean
@@ -63,21 +60,23 @@ type Props = {
   className?: string
 }
 
-export const RadioGroup = (props: Props) => (
+export const RadioGroup = ({
+  name,
+  children,
+  required,
+  column,
+  className,
+}: Props) => (
   <div
     className={cn(
       'flex',
-      props.column ? 'flex-col space-y-2' : 'flex-wrap gap-5',
-      props.className
+      column ? 'flex-col space-y-2' : 'flex-wrap gap-5',
+      className
     )}
+    role="radiogroup"
   >
-    {React.Children.map(props.children, (radio) =>
-      React.cloneElement(radio, {
-        name: props.name,
-        checked: radio.props.value === props.value,
-        onChange: props.onChange,
-        required: props.required,
-      })
+    {React.Children.map(children, (radio) =>
+      React.cloneElement(radio, { name, required })
     )}
   </div>
 )
