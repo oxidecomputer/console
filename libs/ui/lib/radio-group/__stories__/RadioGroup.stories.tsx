@@ -10,7 +10,7 @@ type Props = React.ComponentProps<typeof RadioGroup>
 
 export const Default: Story<Props> = (args) => (
   <Formik initialValues={{ group1: 'notify' }} onSubmit={() => {}}>
-    <RadioGroup column {...args}>
+    <RadioGroup {...args}>
       <Radio value="notify">Comments</Radio>
       <Radio value="do-not-notify">Nothing</Radio>
     </RadioGroup>
