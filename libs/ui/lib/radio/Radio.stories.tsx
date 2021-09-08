@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
+import { Formik } from 'formik'
 import { Radio } from './Radio'
 
 export default {
@@ -13,7 +14,11 @@ export default {
 
 type Props = React.ComponentProps<typeof Radio>
 
-const Template: Story<Props> = (args) => <Radio {...args} />
+const Template: Story<Props> = (args) => (
+  <Formik initialValues={{}} onSubmit={() => {}}>
+    <Radio {...args} />
+  </Formik>
+)
 
 export const Unchecked: Story<Props> = Template.bind({})
 Unchecked.args = { checked: false, children: 'Label' }

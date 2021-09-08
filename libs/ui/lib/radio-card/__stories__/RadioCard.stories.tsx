@@ -1,12 +1,16 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
+import { Formik } from 'formik'
 
 import { RadioCard } from '../RadioCard'
 
 type RadioCardProps = React.ComponentProps<typeof RadioCard>
 
-const Template: Story<RadioCardProps> = (args) => <RadioCard {...args} />
-
+const Template: Story<RadioCardProps> = (args) => (
+  <Formik initialValues={{}} onSubmit={() => {}}>
+    <RadioCard {...args} />
+  </Formik>
+)
 export const Default = Template.bind({})
 Default.args = {
   children: 'Automatically format and mount',
