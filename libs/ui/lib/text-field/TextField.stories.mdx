@@ -1,5 +1,10 @@
 import { Canvas, Story, Meta } from '@storybook/addon-docs'
-import { TextField, TextFieldHint, TextFieldLabel } from './TextField'
+import {
+  TextField,
+  TextFieldError,
+  TextFieldHint,
+  TextFieldLabel,
+} from './TextField'
 
 <Meta title="Components/TextField" />
 
@@ -56,16 +61,32 @@ Note use of `aria-describedby` to link hint text to `TextField`.
 
 ## With error
 
-TODO: helper for displaying error text.
-
 <Canvas withSource="open">
   <Story name="With error">
-    <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
-    <TextField
-      id="project-name"
-      name="project-name"
-      placeholder="Enter name"
-      error
-    />
+    <div className="mb-4">
+      <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+      <TextField
+        id="project-name"
+        name="project-name"
+        placeholder="Enter name"
+        error
+        aria-describedby="project-name-error"
+      />
+      <TextFieldError>Must start with a letter</TextFieldError>
+    </div>
+    <div>
+      <TextFieldLabel htmlFor="project-description">
+        Choose a description
+      </TextFieldLabel>
+      <TextFieldHint id="description-hint">
+        What is unique about your project?
+      </TextFieldHint>
+      <TextField
+        id="project-description"
+        name="project-description"
+        aria-describedby="description-hint"
+        placeholder="A project"
+      />
+    </div>
   </Story>
 </Canvas>
