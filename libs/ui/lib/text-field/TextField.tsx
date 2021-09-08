@@ -7,7 +7,8 @@ import { classed } from '../../util/classed'
 type InputProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 type TextFieldProps = InputProps & {
-  error?: string
+  // used to style the wrapper, also to put aria-invalid on the input
+  error?: boolean
   disabled?: boolean
   className?: string
 }
@@ -33,6 +34,7 @@ export const TextField = ({
         py-[0.5625rem] px-3 w-full
         text-sm font-sans text-gray-50 
         bg-transparent border-none focus:outline-none`}
+      aria-invalid={error}
       {...inputProps}
     />
   </div>
@@ -45,6 +47,9 @@ type HintProps = {
   className?: string
 }
 
+/**
+ * Pass id here and include that ID in aria-describedby on the TextField
+ */
 export const TextFieldHint = ({ id, children, className }: HintProps) => (
   <div
     id={id}
@@ -54,4 +59,10 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
   </div>
 )
 
+/**
+ * Be sure to either use `htmlFor={textFieldId}` on the label (preferred) or an
+ * ID on the label and `aria-labelledby={labelId}` on the TextField.
+ */
 export const TextFieldLabel = classed.label`block text-lg font-sans font-light mb-2`
+
+// TODO: add component for field-level error text
