@@ -1,6 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 import { Alert } from '@reach/alert'
+import { Field } from 'formik'
 
 import { classed } from '../../util/classed'
 
@@ -29,7 +30,7 @@ export const TextField = ({
       className
     )}
   >
-    <input
+    <Field
       type="text"
       className={`
         py-[0.5625rem] px-3 w-full

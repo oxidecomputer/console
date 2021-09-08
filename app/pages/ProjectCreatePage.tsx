@@ -1,6 +1,6 @@
-import type { FormEvent } from 'react'
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Formik, Form } from 'formik'
 
 import {
   Button,
@@ -21,9 +21,6 @@ const ERROR_CODES = {
 
 const ProjectCreatePage = () => {
   const navigate = useNavigate()
-
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -48,58 +45,60 @@ const ProjectCreatePage = () => {
     },
   })
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    // TODO: validate client-side before attempting to POST
-    if (!createProject.isLoading) {
-      createProject.mutate({ projectCreateParams: { name, description } })
-    }
-  }
-
   return (
     <>
       <PageHeader>
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
-      <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
-        <div>
-          <TextFieldLabel htmlFor="project_name">Choose a name</TextFieldLabel>
-          <TextField
-            id="project_name"
-            name="project_name"
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter name"
-            value={name}
-          />
-        </div>
-        <div>
-          <TextFieldLabel htmlFor="project_description">
-            Choose a description
-          </TextFieldLabel>
-          <TextFieldHint id="description-hint">
-            What is unique about your project?
-          </TextFieldHint>
-          <TextField
-            id="project_description"
-            name="project_description"
-            aria-describedby="description-hint"
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="A project"
-            value={description}
-          />
-        </div>
-        <Button
-          type="submit"
-          variant="dim"
-          className="w-[30rem]"
-          disabled={createProject.isLoading}
-        >
-          Create project
-        </Button>
-        <div className="text-red-500">
-          {getServerError(createProject.error, ERROR_CODES)}
-        </div>
-      </form>
+      <Formik
+        initialValues={{ project_name: '', project_description: '' }}
+        onSubmit={({ project_name, project_description }) => {
+          createProject.mutate({
+            projectCreateParams: {
+              name: project_name,
+              description: project_description,
+            },
+          })
+        }}
+      >
+        <Form className="space-y-8">
+          <div>
+            <TextFieldLabel htmlFor="project_name">
+              Choose a name
+            </TextFieldLabel>
+            <TextField
+              id="project_name"
+              name="project_name"
+              placeholder="Enter name"
+            />
+          </div>
+          <div>
+            <TextFieldLabel htmlFor="project_description">
+              Choose a description
+            </TextFieldLabel>
+            <TextFieldHint id="description-hint">
+              What is unique about your project?
+            </TextFieldHint>
+            <TextField
+              id="project_description"
+              name="project_description"
+              aria-describedby="description-hint"
+              placeholder="A project"
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="dim"
+            className="w-[30rem]"
+            disabled={createProject.isLoading}
+          >
+            Create project
+          </Button>
+          <div className="text-red-500">
+            {getServerError(createProject.error, ERROR_CODES)}
+          </div>
+        </Form>
+      </Formik>
     </>
   )
 }
