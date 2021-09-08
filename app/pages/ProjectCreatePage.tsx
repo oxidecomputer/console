@@ -63,25 +63,25 @@ const ProjectCreatePage = () => {
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
         <div>
-          <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+          <TextFieldLabel htmlFor="project_name">Choose a name</TextFieldLabel>
           <TextField
-            id="project-name"
-            name="project-name"
+            id="project_name"
+            name="project_name"
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter name"
             value={name}
           />
         </div>
         <div>
-          <TextFieldLabel htmlFor="project-description">
+          <TextFieldLabel htmlFor="project_description">
             Choose a description
           </TextFieldLabel>
           <TextFieldHint id="description-hint">
             What is unique about your project?
           </TextFieldHint>
           <TextField
-            id="project-description"
-            name="project-description"
+            id="project_description"
+            name="project_description"
             aria-describedby="description-hint"
             onChange={(e) => setDescription(e.target.value)}
             placeholder="A project"
