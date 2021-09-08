@@ -2,7 +2,14 @@ import type { FormEvent } from 'react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, PageHeader, PageTitle, TextInputGroup } from '@oxide/ui'
+import {
+  Button,
+  PageHeader,
+  PageTitle,
+  TextField,
+  TextFieldHint,
+  TextFieldLabel,
+} from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -55,23 +62,32 @@ const ProjectCreatePage = () => {
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
       <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
-        <TextInputGroup
-          id="project-name"
-          label="Choose a name"
-          onChange={setName}
-          placeholder="Enter name"
-          required
-          value={name}
-        />
-        <TextInputGroup
-          id="project-description"
-          label="Choose a description"
-          hint="What is unique about your project?"
-          onChange={setDescription}
-          placeholder="A project"
-          required
-          value={description}
-        />
+        <div>
+          <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+          <TextField
+            id="project-name"
+            name="project-name"
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter name"
+            value={name}
+          />
+        </div>
+        <div>
+          <TextFieldLabel htmlFor="project-description">
+            Choose a description
+          </TextFieldLabel>
+          <TextFieldHint id="description-hint">
+            What is unique about your project?
+          </TextFieldHint>
+          <TextField
+            id="project-description"
+            name="project-description"
+            aria-describedby="description-hint"
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="A project"
+            value={description}
+          />
+        </div>
         <Button
           type="submit"
           variant="dim"

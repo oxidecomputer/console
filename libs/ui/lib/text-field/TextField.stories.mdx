@@ -1,0 +1,92 @@
+import { Canvas, Story, Meta } from '@storybook/addon-docs'
+import {
+  TextField,
+  TextFieldError,
+  TextFieldHint,
+  TextFieldLabel,
+} from './TextField'
+
+<Meta title="Components/TextField" />
+
+# TextField
+
+## No hint
+
+Note use of `htmlFor` on label to link it to the `TextField`.
+
+<Canvas withSource="open">
+  <Story name="No hint">
+    <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+    <TextField id="project-name" name="project-name" placeholder="Enter name" />
+  </Story>
+</Canvas>
+
+## Any element can be a label
+
+Use `aria-labelledby` to use a non-`<label>` element as a label.
+
+<Canvas withSource="open">
+  <Story name="Alt label">
+    <h2 id="project-name-label" className="text-display-xl mb-4">
+      Choose a name
+    </h2>
+    <TextField
+      aria-labelledby="project-name-label"
+      name="project-name"
+      placeholder="Enter name"
+    />
+  </Story>
+</Canvas>
+
+## With hint
+
+Note use of `aria-describedby` to link hint text to `TextField`.
+
+<Canvas withSource="open">
+  <Story name="With hint">
+    <TextFieldLabel htmlFor="project-description">
+      Choose a description
+    </TextFieldLabel>
+    <TextFieldHint id="description-hint">
+      What is unique about your project?
+    </TextFieldHint>
+    <TextField
+      id="project-description"
+      name="project-description"
+      aria-describedby="description-hint"
+      placeholder="A project"
+    />
+  </Story>
+</Canvas>
+
+## With error
+
+<Canvas withSource="open">
+  <Story name="With error">
+    <div className="mb-4">
+      <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+      <TextField
+        id="project-name"
+        name="project-name"
+        placeholder="Enter name"
+        error
+        aria-describedby="project-name-error"
+      />
+      <TextFieldError>Must start with a letter</TextFieldError>
+    </div>
+    <div>
+      <TextFieldLabel htmlFor="project-description">
+        Choose a description
+      </TextFieldLabel>
+      <TextFieldHint id="description-hint">
+        What is unique about your project?
+      </TextFieldHint>
+      <TextField
+        id="project-description"
+        name="project-description"
+        aria-describedby="description-hint"
+        placeholder="A project"
+      />
+    </div>
+  </Story>
+</Canvas>

@@ -14,7 +14,9 @@ import {
   RadioGroup,
   RadioCard,
   TabListLine,
-  TextInputGroup,
+  TextField,
+  TextFieldHint,
+  TextFieldLabel,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -292,35 +294,52 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       <Divider />
 
       <Heading>Finalize and create</Heading>
-      <div className="flex space-x-6">
-        <TextInputGroup
+      <div>
+        <TextFieldLabel htmlFor="instance-name">Choose a name</TextFieldLabel>
+        <TextFieldHint id="instance-name-hint">
+          Choose an identifying name you will remember. Names may contain
+          alphanumeric characters, dashes, and periods.
+        </TextFieldHint>
+        <TextField
           id="instance-name"
-          label="Choose a name"
-          hint="Choose an identifying name you will remember. Names may contain alphanumeric characters, dashes, and periods."
-          onChange={setInstanceName}
+          name="instance-name"
+          aria-describedby="instance-name-hint"
+          onChange={(e) => setInstanceName(e.target.value)}
           placeholder="web1"
-          required
           value={instanceName}
         />
-        <TextInputGroup
+      </div>
+      <div className="mt-8">
+        <TextFieldLabel htmlFor="hostname">Choose a hostname</TextFieldLabel>
+        <TextFieldHint id="hostname-hint">
+          Optional. If left blank, we will use the instance name.
+        </TextFieldHint>
+        <TextField
           id="hostname"
-          label="Choose a hostname"
-          hint="Choose a hostname for the instance. In the future this will be optional."
-          onChange={setHostname}
+          name="hostname"
+          aria-describedby="hostname-hint"
+          onChange={(e) => setHostname(e.target.value)}
           placeholder="example.com"
-          required
           value={hostname}
         />
       </div>
-      <TextInputGroup
-        id="tags"
-        label="Add tags"
-        hint="Use tags to organize and relate resources. Tags may contain letters, numbers, colons, dashes, and underscores."
-        onChange={setTagsField}
-        required
-        value={tagsField}
-        className="mt-8"
-      />
+
+      {/* this is going to be a tag multiselect, not a text input */}
+      <div className="mt-8">
+        <TextFieldLabel htmlFor="tags">Add tags</TextFieldLabel>
+        <TextFieldHint id="tags-hint">
+          Use tags to organize and relate resources. Tags may contain letters,
+          numbers, colons, dashes, and underscores.
+        </TextFieldHint>
+        <TextField
+          id="tags"
+          name="tags"
+          aria-describedby="tags-hint"
+          onChange={(e) => setTagsField(e.target.value)}
+          value={tagsField}
+        />
+      </div>
+
       <Button
         type="submit"
         className="w-[30rem] mt-16"
