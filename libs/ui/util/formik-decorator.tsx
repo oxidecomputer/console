@@ -9,7 +9,9 @@
  *
  *   StoryComponent.decorators = [FormikDecorator()]
  *
- * Pass an argument to set initialValues: FormikDecorator({ name: 'Neo' })
+ * Pass an argument to set initialValues: FormikDecorator({ name: 'Neo' }). If
+ * you want to pass other props to Formik, just use <Formik> directly in the
+ * story definition
  */
 
 import React from 'react'

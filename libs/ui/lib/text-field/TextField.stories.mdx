@@ -69,30 +69,39 @@ Note use of `aria-describedby` to link hint text to `TextField`.
 
 <Canvas withSource="open">
   <Story name="With error">
-    <div className="mb-4">
-      <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
-      <TextField
-        id="project-name"
-        name="project-name"
-        placeholder="Enter name"
-        error
-        aria-describedby="project-name-error"
-      />
-      <TextFieldError>Must start with a letter</TextFieldError>
-    </div>
-    <div>
-      <TextFieldLabel htmlFor="project-description">
-        Choose a description
-      </TextFieldLabel>
-      <TextFieldHint id="description-hint">
-        What is unique about your project?
-      </TextFieldHint>
-      <TextField
-        id="project-description"
-        name="project-description"
-        aria-describedby="description-hint"
-        placeholder="A project"
-      />
-    </div>
+    <Formik
+      onSubmit={() => {}}
+      initialValues={{ 'project-name': '-abc' }}
+      initialErrors={{ 'project-name': 'Must start with a letter' }}
+      initialTouched={{ 'project-name': true }}
+    >
+      <Form>
+        <div className="mb-4">
+          <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+          <TextField
+            id="project-name"
+            name="project-name"
+            placeholder="Enter name"
+            error
+            aria-describedby="project-name-error"
+          />
+          <TextFieldError name="project-name" />
+        </div>
+        <div>
+          <TextFieldLabel htmlFor="project-description">
+            Choose a description
+          </TextFieldLabel>
+          <TextFieldHint id="description-hint">
+            What is unique about your project?
+          </TextFieldHint>
+          <TextField
+            id="project-description"
+            name="project-description"
+            aria-describedby="description-hint"
+            placeholder="A project"
+          />
+        </div>
+      </Form>
+    </Formik>
   </Story>
 </Canvas>

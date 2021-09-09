@@ -7,12 +7,14 @@ import {
   PageHeader,
   PageTitle,
   TextField,
+  TextFieldError,
   TextFieldHint,
   TextFieldLabel,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
+import { validateName } from '../util/validate'
 
 const ERROR_CODES = {
   ObjectAlreadyExists:
@@ -61,8 +63,8 @@ const ProjectCreatePage = () => {
           })
         }}
       >
-        <Form className="space-y-8">
-          <div>
+        <Form>
+          <div className="mb-4">
             <TextFieldLabel htmlFor="project_name">
               Choose a name
             </TextFieldLabel>
@@ -70,9 +72,11 @@ const ProjectCreatePage = () => {
               id="project_name"
               name="project_name"
               placeholder="Enter name"
+              validate={validateName}
             />
+            <TextFieldError name="project_name" />
           </div>
-          <div>
+          <div className="mb-8">
             <TextFieldLabel htmlFor="project_description">
               Choose a description
             </TextFieldLabel>
