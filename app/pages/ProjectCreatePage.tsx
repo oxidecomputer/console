@@ -53,41 +53,38 @@ const ProjectCreatePage = () => {
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
       <Formik
-        initialValues={{ project_name: '', project_description: '' }}
-        onSubmit={({ project_name, project_description }) => {
-          createProject.mutate({
-            projectCreateParams: {
-              name: project_name,
-              description: project_description,
-            },
-          })
+        initialValues={{ name: '', description: '' }}
+        onSubmit={({ name, description }) => {
+          createProject.mutate({ projectCreateParams: { name, description } })
         }}
       >
         <Form>
           <div className="mb-4">
-            <TextFieldLabel htmlFor="project_name">
+            <TextFieldLabel htmlFor="project-name">
               Choose a name
             </TextFieldLabel>
             <TextField
-              id="project_name"
-              name="project_name"
+              id="project-name"
+              name="name"
               placeholder="Enter name"
               validate={validateName}
+              autoComplete="off"
             />
-            <TextFieldError name="project_name" />
+            <TextFieldError name="name" />
           </div>
           <div className="mb-8">
-            <TextFieldLabel htmlFor="project_description">
+            <TextFieldLabel htmlFor="project-description">
               Choose a description
             </TextFieldLabel>
             <TextFieldHint id="description-hint">
               What is unique about your project?
             </TextFieldHint>
             <TextField
-              id="project_description"
-              name="project_description"
+              id="project-description"
+              name="description"
               aria-describedby="description-hint"
               placeholder="A project"
+              autoComplete="off"
             />
           </div>
           <Button
