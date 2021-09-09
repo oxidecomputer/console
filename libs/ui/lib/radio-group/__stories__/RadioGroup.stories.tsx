@@ -1,53 +1,40 @@
 import React from 'react'
-import type { Story } from '@storybook/react'
-import { Formik } from 'formik'
 
+import { FormikDecorator } from '../../../util/formik-decorator'
 import { RadioGroup } from '../RadioGroup'
 import { RadioCard } from '../../radio-card/RadioCard'
 import { Radio } from '../../radio/Radio'
 
-type Props = React.ComponentProps<typeof RadioGroup>
-
-export const Default: Story<Props> = (args) => (
-  <Formik initialValues={{ group1: 'notify' }} onSubmit={() => {}}>
-    <RadioGroup {...args}>
-      <Radio value="notify">Comments</Radio>
-      <Radio value="do-not-notify">Nothing</Radio>
-    </RadioGroup>
-  </Formik>
+export const Default = () => (
+  <RadioGroup name="group1">
+    <Radio value="notify">Comments</Radio>
+    <Radio value="do-not-notify">Nothing</Radio>
+  </RadioGroup>
 )
-Default.args = {
-  name: 'group1',
-}
+Default.decorators = [FormikDecorator({ group1: 'notify' })]
 
 export const DefaultColumn = () => (
-  <Formik initialValues={{ group3: '100' }} onSubmit={() => {}}>
-    <form>
-      <RadioGroup name="group3" column>
-        <Radio value="50">50 GB</Radio>
-        <Radio value="100">100 GB</Radio>
-        <Radio value="200">200 GB</Radio>
-        <Radio value="300">300 GB</Radio>
-        <Radio value="400">400 GB</Radio>
-        <Radio value="500">500 GB</Radio>
-        <Radio value="600">600 GB</Radio>
-      </RadioGroup>
-    </form>
-  </Formik>
+  <RadioGroup name="group2" column>
+    <Radio value="50">50 GB</Radio>
+    <Radio value="100">100 GB</Radio>
+    <Radio value="200">200 GB</Radio>
+    <Radio value="300">300 GB</Radio>
+    <Radio value="400">400 GB</Radio>
+    <Radio value="500">500 GB</Radio>
+    <Radio value="600">600 GB</Radio>
+  </RadioGroup>
 )
+DefaultColumn.decorators = [FormikDecorator({ group2: '100' })]
 
 export const Cards = () => (
-  <Formik initialValues={{ group4: '100' }} onSubmit={() => {}}>
-    <form>
-      <RadioGroup name="group4">
-        <RadioCard value="50">50 GB</RadioCard>
-        <RadioCard value="100">100 GB</RadioCard>
-        <RadioCard value="200">200 GB</RadioCard>
-        <RadioCard value="300">300 GB</RadioCard>
-        <RadioCard value="400">400 GB</RadioCard>
-        <RadioCard value="500">500 GB</RadioCard>
-        <RadioCard value="600">600 GB</RadioCard>
-      </RadioGroup>
-    </form>
-  </Formik>
+  <RadioGroup name="group3">
+    <RadioCard value="50">50 GB</RadioCard>
+    <RadioCard value="100">100 GB</RadioCard>
+    <RadioCard value="200">200 GB</RadioCard>
+    <RadioCard value="300">300 GB</RadioCard>
+    <RadioCard value="400">400 GB</RadioCard>
+    <RadioCard value="500">500 GB</RadioCard>
+    <RadioCard value="600">600 GB</RadioCard>
+  </RadioGroup>
 )
+Cards.decorators = [FormikDecorator({ group3: '100' })]

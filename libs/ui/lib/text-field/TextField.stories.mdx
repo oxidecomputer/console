@@ -1,4 +1,6 @@
 import { Canvas, Story, Meta } from '@storybook/addon-docs'
+import { Formik, Form } from 'formik'
+import { FormikDecorator } from '../../util/formik-decorator'
 import {
   TextField,
   TextFieldError,
@@ -6,7 +8,11 @@ import {
   TextFieldLabel,
 } from './TextField'
 
-<Meta title="Components/TextField" />
+<Meta
+  title="Components/TextField"
+  component={TextField}
+  decorators={[FormikDecorator()]}
+/>
 
 # TextField
 
