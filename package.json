@@ -94,7 +94,7 @@
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
     "postcss-nesting": "^8.0.1",
-    "prettier": "2.3.0",
+    "prettier": "2.4.0",
     "rollup": "^2.52.7",
     "tailwindcss": "^2.2.0",
     "ts-node": "^9.1.1",
