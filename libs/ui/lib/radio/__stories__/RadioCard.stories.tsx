@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
 
-import { RadioCard } from '../RadioCard'
+import { RadioCard } from '../Radio'
 
 type RadioCardProps = React.ComponentProps<typeof RadioCard>
 
@@ -38,4 +38,11 @@ export const TwoLinesDefault = Template.bind({})
 TwoLinesDefault.args = {
   children: twoLines,
   value: 'default',
+}
+
+export const Disabled = Template.bind({})
+Disabled.args = {
+  children: 'Automatically format and mount',
+  value: 'default',
+  disabled: true,
 }

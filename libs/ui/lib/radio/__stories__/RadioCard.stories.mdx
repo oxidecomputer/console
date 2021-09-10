@@ -1,11 +1,13 @@
 import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs'
+import { FormikDecorator } from '../../../util/formik-decorator'
 import {
   Checked,
   Default,
+  Disabled,
   TwoLinesChecked,
   TwoLinesDefault,
 } from './RadioCard.stories'
-import { RadioCard } from '../RadioCard'
+import { RadioCard } from '../Radio'
 
 <Meta
   title="Components/RadioCard"
@@ -13,6 +15,7 @@ import { RadioCard } from '../RadioCard'
   argTypes={{
     checked: { control: { type: 'boolean' } },
   }}
+  decorators={[FormikDecorator()]}
 />
 
 # RadioCard
@@ -55,4 +58,10 @@ Selecting one option unselects all others.
 <Canvas>
   <Story story={TwoLinesDefault} />
   <Story story={TwoLinesChecked} />
+</Canvas>
+
+### Disabled
+
+<Canvas>
+  <Story story={Disabled} />
 </Canvas>

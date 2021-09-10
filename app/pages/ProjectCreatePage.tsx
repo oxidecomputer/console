@@ -1,18 +1,20 @@
-import type { FormEvent } from 'react'
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Formik, Form } from 'formik'
 
 import {
   Button,
   PageHeader,
   PageTitle,
   TextField,
+  TextFieldError,
   TextFieldHint,
   TextFieldLabel,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
 import { getServerError } from '../util/errors'
+import { validateName } from '../util/validate'
 
 const ERROR_CODES = {
   ObjectAlreadyExists:
@@ -21,9 +23,6 @@ const ERROR_CODES = {
 
 const ProjectCreatePage = () => {
   const navigate = useNavigate()
-
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -48,58 +47,59 @@ const ProjectCreatePage = () => {
     },
   })
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    // TODO: validate client-side before attempting to POST
-    if (!createProject.isLoading) {
-      createProject.mutate({ projectCreateParams: { name, description } })
-    }
-  }
-
   return (
     <>
       <PageHeader>
         <PageTitle icon="project">Create a new project</PageTitle>
       </PageHeader>
-      <form action="#" onSubmit={handleSubmit} className="mt-4 mb-20 space-y-8">
-        <div>
-          <TextFieldLabel htmlFor="project_name">Choose a name</TextFieldLabel>
-          <TextField
-            id="project_name"
-            name="project_name"
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter name"
-            value={name}
-          />
-        </div>
-        <div>
-          <TextFieldLabel htmlFor="project_description">
-            Choose a description
-          </TextFieldLabel>
-          <TextFieldHint id="description-hint">
-            What is unique about your project?
-          </TextFieldHint>
-          <TextField
-            id="project_description"
-            name="project_description"
-            aria-describedby="description-hint"
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="A project"
-            value={description}
-          />
-        </div>
-        <Button
-          type="submit"
-          variant="dim"
-          className="w-[30rem]"
-          disabled={createProject.isLoading}
-        >
-          Create project
-        </Button>
-        <div className="text-red-500">
-          {getServerError(createProject.error, ERROR_CODES)}
-        </div>
-      </form>
+      <Formik
+        initialValues={{ name: '', description: '' }}
+        onSubmit={({ name, description }) => {
+          createProject.mutate({ projectCreateParams: { name, description } })
+        }}
+      >
+        <Form>
+          <div className="mb-4">
+            <TextFieldLabel htmlFor="project-name">
+              Choose a name
+            </TextFieldLabel>
+            <TextField
+              id="project-name"
+              name="name"
+              placeholder="Enter name"
+              validate={validateName}
+              autoComplete="off"
+            />
+            <TextFieldError name="name" />
+          </div>
+          <div className="mb-8">
+            <TextFieldLabel htmlFor="project-description">
+              Choose a description
+            </TextFieldLabel>
+            <TextFieldHint id="description-hint">
+              What is unique about your project?
+            </TextFieldHint>
+            <TextField
+              id="project-description"
+              name="description"
+              aria-describedby="description-hint"
+              placeholder="A project"
+              autoComplete="off"
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="dim"
+            className="w-[30rem]"
+            disabled={createProject.isLoading}
+          >
+            Create project
+          </Button>
+          <div className="text-red-500">
+            {getServerError(createProject.error, ERROR_CODES)}
+          </div>
+        </Form>
+      </Formik>
     </>
   )
 }

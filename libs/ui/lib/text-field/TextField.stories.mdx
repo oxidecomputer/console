@@ -1,4 +1,6 @@
 import { Canvas, Story, Meta } from '@storybook/addon-docs'
+import { Formik, Form } from 'formik'
+import { FormikDecorator } from '../../util/formik-decorator'
 import {
   TextField,
   TextFieldError,
@@ -6,7 +8,11 @@ import {
   TextFieldLabel,
 } from './TextField'
 
-<Meta title="Components/TextField" />
+<Meta
+  title="Components/TextField"
+  component={TextField}
+  decorators={[FormikDecorator()]}
+/>
 
 # TextField
 
@@ -63,30 +69,55 @@ Note use of `aria-describedby` to link hint text to `TextField`.
 
 <Canvas withSource="open">
   <Story name="With error">
-    <div className="mb-4">
-      <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
-      <TextField
-        id="project-name"
-        name="project-name"
-        placeholder="Enter name"
-        error
-        aria-describedby="project-name-error"
-      />
-      <TextFieldError>Must start with a letter</TextFieldError>
-    </div>
-    <div>
-      <TextFieldLabel htmlFor="project-description">
-        Choose a description
-      </TextFieldLabel>
-      <TextFieldHint id="description-hint">
-        What is unique about your project?
-      </TextFieldHint>
-      <TextField
-        id="project-description"
-        name="project-description"
-        aria-describedby="description-hint"
-        placeholder="A project"
-      />
-    </div>
+    <Formik
+      onSubmit={() => {}}
+      initialValues={{ 'project-name': '-abc' }}
+      initialErrors={{ 'project-name': 'Must start with a letter' }}
+      initialTouched={{ 'project-name': true }}
+    >
+      <Form>
+        <div className="mb-4">
+          <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+          <TextField
+            id="project-name"
+            name="project-name"
+            placeholder="Enter name"
+            error
+            aria-describedby="project-name-error"
+          />
+          <TextFieldError name="project-name" />
+        </div>
+        <div>
+          <TextFieldLabel htmlFor="project-description">
+            Choose a description
+          </TextFieldLabel>
+          <TextFieldHint id="description-hint">
+            What is unique about your project?
+          </TextFieldHint>
+          <TextField
+            id="project-description"
+            name="project-description"
+            aria-describedby="description-hint"
+            placeholder="A project"
+          />
+        </div>
+      </Form>
+    </Formik>
+  </Story>
+</Canvas>
+
+## Disabled
+
+Note use of `htmlFor` on label to link it to the `TextField`.
+
+<Canvas withSource="open">
+  <Story name="Disabled">
+    <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+    <TextField
+      id="project-name"
+      name="project-name"
+      placeholder="Enter name"
+      disabled
+    />
   </Story>
 </Canvas>

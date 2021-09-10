@@ -15,9 +15,15 @@ import ProjectCreatePage from '../ProjectCreatePage'
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create project' })
 
+function enterName(value: string) {
+  const nameInput = screen.getByLabelText('Choose a name')
+  fireEvent.change(nameInput, { target: { value } })
+}
+
 describe('ProjectCreatePage', () => {
   beforeEach(() => {
     renderWithRouter(<ProjectCreatePage />)
+    enterName('valid-name')
   })
 
   afterEach(() => {
@@ -51,6 +57,13 @@ describe('ProjectCreatePage', () => {
     )
   })
 
+  it('shows field-level validation error and does not POST', async () => {
+    enterName('Invalid-name')
+    fireEvent.click(submitButton())
+
+    await screen.findByText('Must start with a lower-case letter')
+  })
+
   it('shows generic message for unknown server error', async () => {
     fetchMock.post('/api/projects', { status: 400 })
 
@@ -62,13 +75,10 @@ describe('ProjectCreatePage', () => {
   it('posts form on submit', async () => {
     const mock = fetchMock.post('/api/projects', { status: 201 })
 
-    const nameInput = screen.getByLabelText('Choose a name')
-    fireEvent.change(nameInput, { target: { value: 'new-project' } })
-
     fireEvent.click(submitButton())
 
     await waitFor(() =>
-      expect(lastBody(mock)).toEqual({ name: 'new-project', description: '' })
+      expect(lastBody(mock)).toEqual({ name: 'valid-name', description: '' })
     )
   })
 

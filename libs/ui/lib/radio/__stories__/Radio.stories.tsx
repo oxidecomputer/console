@@ -1,14 +1,16 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
-import { Radio } from './Radio'
+import { FormikDecorator } from '../../../util/formik-decorator'
+import { Radio } from '../Radio'
 
 export default {
   component: Radio,
   title: 'Components/Radio',
   argTypes: {
     checked: { control: 'boolean' },
-    label: { control: 'text' },
+    children: { control: 'text' },
   },
+  decorators: [FormikDecorator()],
 }
 
 type Props = React.ComponentProps<typeof Radio>
@@ -20,3 +22,6 @@ Unchecked.args = { checked: false, children: 'Label' }
 
 export const Checked: Story<Props> = Template.bind({})
 Checked.args = { checked: true, children: 'Label' }
+
+export const Disabled: Story<Props> = Template.bind({})
+Disabled.args = { checked: false, children: 'Label', disabled: true }
