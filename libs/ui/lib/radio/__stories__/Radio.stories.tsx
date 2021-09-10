@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
-import { FormikDecorator } from '../../util/formik-decorator'
-import { Radio } from './Radio'
+import { FormikDecorator } from '../../../util/formik-decorator'
+import { Radio } from '../Radio'
 
 export default {
   component: Radio,

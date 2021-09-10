@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Story } from '@storybook/react'
 
-import { RadioCard } from '../RadioCard'
+import { RadioCard } from '../Radio'
 
 type RadioCardProps = React.ComponentProps<typeof RadioCard>
 

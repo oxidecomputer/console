@@ -1,4 +1,13 @@
+/**
+ * Radio and RadioCard components with identical props APIs.
+ *
+ * Usage: just like a plain input, except that you should not pass name
+ * explicitly. Instead rely on the parent RadioGroup to do that. The other
+ * difference is that label content is handled through children.
+ */
+
 import React from 'react'
+import cn from 'classnames'
 import { Field } from 'formik'
 
 // input type is fixed to "radio"
@@ -13,11 +22,6 @@ const fieldStyles = `
   disabled:hover:bg-transparent
 `
 
-/**
- * Usage: just like a plain input, except that you should not pass name
- * explicitly. Instead rely on the parent RadioGroup to do that. The other
- * difference is that label content is handled through children.
- */
 export const Radio = ({ children, ...inputProps }: Props) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
@@ -27,5 +31,19 @@ export const Radio = ({ children, ...inputProps }: Props) => (
     </span>
 
     <span className="text-xs uppercase font-mono ml-2.5">{children}</span>
+  </label>
+)
+
+const cardLabelStyles = `
+  text-sm py-2 px-4 bg-gray-500 border rounded border-gray-400 
+  hover:text-green-500 peer-focus:ring-2 peer-focus:ring-green-700
+  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:text-green-500
+  peer-disabled:hover:text-gray-100 peer-disabled:text-gray-100
+`
+
+export const RadioCard = ({ children, className, ...inputProps }: Props) => (
+  <label className={cn('items-center inline-flex font-mono', className)}>
+    <Field className="peer sr-only" type="radio" {...inputProps} />
+    <span className={cardLabelStyles}>{children}</span>
   </label>
 )
