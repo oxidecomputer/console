@@ -105,3 +105,19 @@ Note use of `aria-describedby` to link hint text to `TextField`.
     </Formik>
   </Story>
 </Canvas>
+
+## Disabled
+
+Note use of `htmlFor` on label to link it to the `TextField`.
+
+<Canvas withSource="open">
+  <Story name="Disabled">
+    <TextFieldLabel htmlFor="project-name">Choose a name</TextFieldLabel>
+    <TextField
+      id="project-name"
+      name="project-name"
+      placeholder="Enter name"
+      disabled
+    />
+  </Story>
+</Canvas>

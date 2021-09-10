@@ -39,3 +39,10 @@ TwoLinesDefault.args = {
   children: twoLines,
   value: 'default',
 }
+
+export const Disabled = Template.bind({})
+Disabled.args = {
+  children: 'Automatically format and mount',
+  value: 'default',
+  disabled: true,
+}

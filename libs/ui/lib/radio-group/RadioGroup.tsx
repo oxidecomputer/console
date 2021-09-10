@@ -1,13 +1,11 @@
 /**
- * Give a list of radios the same `name` and set `checked` props of the
- * individual radios based on the group-level value. A radio is checked if its
- * value matches the group-level value.
+ * Give a list of radios the same `name`, `disabled`, and `required` props.
  *
  * Usage:
  *
  *   <fieldset>
  *     <legend>Pick a foot</legend>
- *     <RadioGroup column>
+ *     <RadioGroup column name="foot">
  *       <Radio value="left">Left</radio>
  *       <Radio value="right">Right</radio>
  *     </RadioGroup>
@@ -18,7 +16,7 @@
  *   <fieldset aria-describedby="foot-hint">
  *     <legend>Pick a foot</legend>
  *     <p id="foot-hint">Don't think about it too hard</p>
- *     <RadioGroup column>
+ *     <RadioGroup column name="foot">
  *       <Radio value="left">Left</radio>
  *       <Radio value="right">Right</radio>
  *     </RadioGroup>
@@ -55,6 +53,8 @@ type Props = {
   children: React.ReactElement[]
   // gets passed to all the radios (technically only needs to be on one)
   required?: boolean
+  // gets passed to all the radios
+  disabled?: boolean
   // For vertical layout of regular Radios. Leave it off for RadioCards.
   column?: boolean
   className?: string
@@ -64,6 +64,7 @@ export const RadioGroup = ({
   name,
   children,
   required,
+  disabled,
   column,
   className,
 }: Props) => (
@@ -76,7 +77,7 @@ export const RadioGroup = ({
     role="radiogroup"
   >
     {React.Children.map(children, (radio) =>
-      React.cloneElement(radio, { name, required })
+      React.cloneElement(radio, { name, required, disabled })
     )}
   </div>
 )

@@ -22,3 +22,6 @@ Unchecked.args = { checked: false, children: 'Label' }
 
 export const Checked: Story<Props> = Template.bind({})
 Checked.args = { checked: true, children: 'Label' }
+
+export const Disabled: Story<Props> = Template.bind({})
+Disabled.args = { checked: false, children: 'Label', disabled: true }

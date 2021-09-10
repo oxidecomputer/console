@@ -21,7 +21,6 @@ type TextFieldProps = Omit<React.ComponentProps<'input'>, 'type'> & {
 
 export const TextField = ({
   error,
-  disabled,
   className,
   ...fieldProps
 }: TextFieldProps) => (
@@ -30,7 +29,7 @@ export const TextField = ({
       'flex border border-gray-400 rounded',
       'focus-within:border-green-500 hover:focus-within:border-green-500',
       error && '!border-red-500',
-      !disabled && 'hover:border-gray-300',
+      !fieldProps.disabled && 'hover:border-gray-300',
       className
     )}
   >

@@ -38,3 +38,16 @@ export const Cards = () => (
   </RadioGroup>
 )
 Cards.decorators = [FormikDecorator({ group3: '100' })]
+
+export const Disabled = () => (
+  <RadioGroup name="group4" column disabled>
+    <Radio value="50">50 GB</Radio>
+    <Radio value="100">100 GB</Radio>
+    <Radio value="200">200 GB</Radio>
+    <Radio value="300">300 GB</Radio>
+    <Radio value="400">400 GB</Radio>
+    <Radio value="500">500 GB</Radio>
+    <Radio value="600">600 GB</Radio>
+  </RadioGroup>
+)
+Disabled.decorators = [FormikDecorator()]

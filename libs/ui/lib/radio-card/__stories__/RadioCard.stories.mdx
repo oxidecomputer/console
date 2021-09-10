@@ -3,6 +3,7 @@ import { FormikDecorator } from '../../../util/formik-decorator'
 import {
   Checked,
   Default,
+  Disabled,
   TwoLinesChecked,
   TwoLinesDefault,
 } from './RadioCard.stories'
@@ -57,4 +58,10 @@ Selecting one option unselects all others.
 <Canvas>
   <Story story={TwoLinesDefault} />
   <Story story={TwoLinesChecked} />
+</Canvas>
+
+### Disabled
+
+<Canvas>
+  <Story story={Disabled} />
 </Canvas>
