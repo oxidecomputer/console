@@ -1,10 +1,11 @@
 import React from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 
 import { Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { useParams } from '../hooks'
 
 import { InstanceDetails } from './InstanceDetails'
 import { useToast } from '../hooks'
@@ -12,7 +13,7 @@ import { useToast } from '../hooks'
 export const InstancePageHeader = () => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const { projectName, instanceName } = useParams()
+  const { projectName, instanceName } = useParams('projectName', 'instanceName')
 
   const {
     data: instance,
