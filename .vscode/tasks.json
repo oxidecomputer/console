@@ -1,0 +1,125 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "[helper] Start CockroachDB",
+      "detail": "Do not use",
+      "type": "shell",
+      "command": "cargo run --bin=omicron-dev -- db-run --no-populate",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "owner": "external",
+        "background": {
+          "activeOnStart": false,
+          "beginsPattern": "omicron-dev: will run this to start CockroachDB",
+          "endsPattern": "CockroachDB listening at: postgresql:\\/\\/root@127.0.0.1:32221\\/omicron\\?sslmode=disable"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/../omicron"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Stop CockroachDB",
+      "type": "shell",
+      "command": "cockroach quit --insecure --url postgresql://127.0.0.1:32221",
+      "problemMatcher": []
+    },
+    {
+      "label": "[helper] Populate Nexus DB",
+      "detail": "Do not use",
+      "type": "shell",
+      "command": "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221",
+      "options": {
+        "cwd": "${workspaceFolder}/../omicron"
+      },
+      "dependsOn": ["[helper] Start CockroachDB"]
+    },
+    {
+      "label": "Start Nexus",
+      "type": "shell",
+      "detail": "Run the Nexus dev server",
+      "dependsOn": ["[helper] Populate Nexus DB"],
+      "command": "cargo run --bin=nexus -- omicron-nexus/examples/config.toml",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": false,
+          "beginsPattern": "Running",
+          "endsPattern": "INFO listening"
+        }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/../omicron"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Start Console",
+      "detail": "Start the console in development mode",
+      "type": "shell",
+      "command": "yarn start",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": false,
+          "beginsPattern": "dev server running at",
+          "endsPattern": "ready in"
+        }
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Start Console With Nexus",
+      "dependsOn": ["Start Nexus", "Start Console"],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "problemMatcher": []
+    }
+  ]
+}
