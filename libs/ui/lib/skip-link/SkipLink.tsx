@@ -26,6 +26,10 @@ export const SkipLink = ({
       id={id}
       href={`#${target}`}
       className={cn(skipLinkStyles, 'focus:top-0')}
+      onClick={(e) => {
+        e.preventDefault()
+        window.location.hash = target
+      }}
     >
       {text}
     </a>
