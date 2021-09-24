@@ -1,7 +1,7 @@
 import React from 'react'
 import { Outlet, useParams } from 'react-router-dom'
 
-import { Icon } from '@oxide/ui'
+import { Icon, SkipLinkTarget } from '@oxide/ui'
 import {
   ContentPane,
   NavLinkItem,
@@ -49,6 +49,7 @@ const ProjectLayout = () => {
       </Sidebar>
       <ContentPane>
         <Breadcrumbs />
+        <SkipLinkTarget />
         <Outlet />
       </ContentPane>
     </PageContainer>
