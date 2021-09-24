@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 const skipLinkStyles = `
     absolute -top-10 z-10 p-1
@@ -21,16 +21,12 @@ export const SkipLink = ({
   target = 'content',
   text = 'Skip to content',
 }: SkipLinkProps) => {
-  const [href, setHref] = useState(`${location.pathname}#${target}`)
-
-  useEffect(() => {
-    const listener = () => setHref(`${location.pathname}#${target}`)
-    window.addEventListener('popstate', listener)
-    return () => window.removeEventListener('popstate', listener)
-  }, [target])
-
   return (
-    <a id={id} href={href} className={cn(skipLinkStyles, 'focus:top-0')}>
+    <a
+      id={id}
+      href={`#${target}`}
+      className={cn(skipLinkStyles, 'focus:top-0')}
+    >
       {text}
     </a>
   )
