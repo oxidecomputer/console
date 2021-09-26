@@ -1,5 +1,6 @@
-import cn from 'classnames'
+import type { PropsWithChildren } from 'react'
 import React from 'react'
+import cn from 'classnames'
 
 const skipLinkStyles = `
     absolute -top-10 z-10 p-1
@@ -10,16 +11,14 @@ const skipLinkStyles = `
     transition-all motion-reduce:transform-none
 `
 
-interface SkipLinkProps {
+type SkipLinkProps = PropsWithChildren<{
   id: string
   target?: string
-  text?: string
-}
-
+}>
 export const SkipLink = ({
   id,
   target = 'content',
-  text = 'Skip to content',
+  children = 'Skip to content',
 }: SkipLinkProps) => {
   return (
     <a
@@ -27,7 +26,7 @@ export const SkipLink = ({
       href={`#${target}`}
       className={cn(skipLinkStyles, 'focus:top-0')}
     >
-      {text}
+      {children}
     </a>
   )
 }
