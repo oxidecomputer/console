@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import cn from 'classnames'
 
 import { useApiQuery } from '@oxide/api'
-import { Icon } from '@oxide/ui'
+import { Icon, SkipLinkTarget } from '@oxide/ui'
 
 import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -49,6 +49,7 @@ const OrgLayout = () => (
     </Sidebar>
     <ContentPane>
       <Breadcrumbs />
+      <SkipLinkTarget />
       <Outlet />
     </ContentPane>
   </PageContainer>
