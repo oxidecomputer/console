@@ -14,44 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk is unavailable
+ * Disk is being attached to the given Instance
  * @export
- * @interface DiskStateAnyOf6
+ * @interface DiskStateOneOf2
  */
-export interface DiskStateAnyOf6 {
+export interface DiskStateOneOf2 {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf6
+   * @memberof DiskStateOneOf2
    */
-  state: DiskStateAnyOf6StateEnum
+  instance: string
+  /**
+   *
+   * @type {string}
+   * @memberof DiskStateOneOf2
+   */
+  state: DiskStateOneOf2StateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf6StateEnum {
-  Faulted = 'faulted',
+export enum DiskStateOneOf2StateEnum {
+  Attaching = 'attaching',
 }
 
-export function DiskStateAnyOf6FromJSON(json: any): DiskStateAnyOf6 {
-  return DiskStateAnyOf6FromJSONTyped(json, false)
+export function DiskStateOneOf2FromJSON(json: any): DiskStateOneOf2 {
+  return DiskStateOneOf2FromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf6FromJSONTyped(
+export function DiskStateOneOf2FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf6 {
+): DiskStateOneOf2 {
   if (json === undefined || json === null) {
     return json
   }
   return {
+    instance: json['instance'],
     state: json['state'],
   }
 }
 
-export function DiskStateAnyOf6ToJSON(value?: DiskStateAnyOf6 | null): any {
+export function DiskStateOneOf2ToJSON(value?: DiskStateOneOf2 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -59,6 +66,7 @@ export function DiskStateAnyOf6ToJSON(value?: DiskStateAnyOf6 | null): any {
     return null
   }
   return {
+    instance: value.instance,
     state: value.state,
   }
 }

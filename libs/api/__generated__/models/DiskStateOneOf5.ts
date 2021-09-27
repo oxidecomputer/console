@@ -14,53 +14,44 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- *
+ * Disk has been destroyed
  * @export
- * @interface SagaErrorInfoAnyOf
+ * @interface DiskStateOneOf5
  */
-export interface SagaErrorInfoAnyOf {
+export interface DiskStateOneOf5 {
   /**
    *
    * @type {string}
-   * @memberof SagaErrorInfoAnyOf
+   * @memberof DiskStateOneOf5
    */
-  error: SagaErrorInfoAnyOfErrorEnum
-  /**
-   *
-   * @type {any}
-   * @memberof SagaErrorInfoAnyOf
-   */
-  sourceError: any | null
+  state: DiskStateOneOf5StateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum SagaErrorInfoAnyOfErrorEnum {
-  ActionFailed = 'actionFailed',
+export enum DiskStateOneOf5StateEnum {
+  Destroyed = 'destroyed',
 }
 
-export function SagaErrorInfoAnyOfFromJSON(json: any): SagaErrorInfoAnyOf {
-  return SagaErrorInfoAnyOfFromJSONTyped(json, false)
+export function DiskStateOneOf5FromJSON(json: any): DiskStateOneOf5 {
+  return DiskStateOneOf5FromJSONTyped(json, false)
 }
 
-export function SagaErrorInfoAnyOfFromJSONTyped(
+export function DiskStateOneOf5FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaErrorInfoAnyOf {
+): DiskStateOneOf5 {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    error: json['error'],
-    sourceError: json['source_error'],
+    state: json['state'],
   }
 }
 
-export function SagaErrorInfoAnyOfToJSON(
-  value?: SagaErrorInfoAnyOf | null
-): any {
+export function DiskStateOneOf5ToJSON(value?: DiskStateOneOf5 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -68,7 +59,6 @@ export function SagaErrorInfoAnyOfToJSON(
     return null
   }
   return {
-    error: value.error,
-    source_error: value.sourceError,
+    state: value.state,
   }
 }

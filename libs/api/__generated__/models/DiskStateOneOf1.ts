@@ -16,33 +16,33 @@ import { exists, mapValues } from '../runtime'
 /**
  * Disk is ready but detached from any Instance
  * @export
- * @interface DiskStateAnyOf1
+ * @interface DiskStateOneOf1
  */
-export interface DiskStateAnyOf1 {
+export interface DiskStateOneOf1 {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf1
+   * @memberof DiskStateOneOf1
    */
-  state: DiskStateAnyOf1StateEnum
+  state: DiskStateOneOf1StateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf1StateEnum {
+export enum DiskStateOneOf1StateEnum {
   Detached = 'detached',
 }
 
-export function DiskStateAnyOf1FromJSON(json: any): DiskStateAnyOf1 {
-  return DiskStateAnyOf1FromJSONTyped(json, false)
+export function DiskStateOneOf1FromJSON(json: any): DiskStateOneOf1 {
+  return DiskStateOneOf1FromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf1FromJSONTyped(
+export function DiskStateOneOf1FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf1 {
+): DiskStateOneOf1 {
   if (json === undefined || json === null) {
     return json
   }
@@ -51,7 +51,7 @@ export function DiskStateAnyOf1FromJSONTyped(
   }
 }
 
-export function DiskStateAnyOf1ToJSON(value?: DiskStateAnyOf1 | null): any {
+export function DiskStateOneOf1ToJSON(value?: DiskStateOneOf1 | null): any {
   if (value === undefined) {
     return undefined
   }

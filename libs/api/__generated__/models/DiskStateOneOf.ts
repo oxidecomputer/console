@@ -14,35 +14,35 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk has been destroyed
+ * Disk is being initialized
  * @export
- * @interface DiskStateAnyOf5
+ * @interface DiskStateOneOf
  */
-export interface DiskStateAnyOf5 {
+export interface DiskStateOneOf {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf5
+   * @memberof DiskStateOneOf
    */
-  state: DiskStateAnyOf5StateEnum
+  state: DiskStateOneOfStateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf5StateEnum {
-  Destroyed = 'destroyed',
+export enum DiskStateOneOfStateEnum {
+  Creating = 'creating',
 }
 
-export function DiskStateAnyOf5FromJSON(json: any): DiskStateAnyOf5 {
-  return DiskStateAnyOf5FromJSONTyped(json, false)
+export function DiskStateOneOfFromJSON(json: any): DiskStateOneOf {
+  return DiskStateOneOfFromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf5FromJSONTyped(
+export function DiskStateOneOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf5 {
+): DiskStateOneOf {
   if (json === undefined || json === null) {
     return json
   }
@@ -51,7 +51,7 @@ export function DiskStateAnyOf5FromJSONTyped(
   }
 }
 
-export function DiskStateAnyOf5ToJSON(value?: DiskStateAnyOf5 | null): any {
+export function DiskStateOneOfToJSON(value?: DiskStateOneOf | null): any {
   if (value === undefined) {
     return undefined
   }

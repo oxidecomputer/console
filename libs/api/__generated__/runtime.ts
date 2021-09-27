@@ -49,8 +49,11 @@ export class BaseAPI {
     return this.withMiddleware<T>(...middlewares)
   }
 
-  protected async request(context: RequestOpts): Promise<Response> {
-    const { url, init } = this.createFetchParams(context)
+  protected async request(
+    context: RequestOpts,
+    initOverrides?: RequestInit
+  ): Promise<Response> {
+    const { url, init } = this.createFetchParams(context, initOverrides)
     const response = await this.fetchApi(url, init)
     if (response.status >= 200 && response.status < 300) {
       return response
@@ -58,7 +61,7 @@ export class BaseAPI {
     throw response
   }
 
-  private createFetchParams(context: RequestOpts) {
+  private createFetchParams(context: RequestOpts, initOverrides?: RequestInit) {
     let url = this.configuration.basePath + context.path
     if (
       context.query !== undefined &&
@@ -86,6 +89,7 @@ export class BaseAPI {
       headers: headers,
       body,
       credentials: this.configuration.credentials,
+      ...initOverrides,
     }
     return { url, init }
   }
@@ -101,7 +105,7 @@ export class BaseAPI {
           })) || fetchParams
       }
     }
-    let response = await this.configuration.fetchApi(
+    let response = await (this.configuration.fetchApi || fetch)(
       fetchParams.url,
       fetchParams.init
     )
@@ -110,8 +114,8 @@ export class BaseAPI {
         response =
           (await middleware.post({
             fetch: this.fetchApi,
-            url,
-            init,
+            url: fetchParams.url,
+            init: fetchParams.init,
             response: response.clone(),
           })) || response
       }
@@ -155,7 +159,10 @@ export interface ConfigurationParameters {
   username?: string // parameter for basic security
   password?: string // parameter for basic security
   apiKey?: string | ((name: string) => string) // parameter for apiKey security
-  accessToken?: string | ((name?: string, scopes?: string[]) => string) // parameter for oauth2 security
+  accessToken?:
+    | string
+    | Promise<string>
+    | ((name?: string, scopes?: string[]) => string | Promise<string>) // parameter for oauth2 security
   headers?: HTTPHeaders //header params we want to use on every request
   credentials?: RequestCredentials //value for the credentials param we want to use on each request
 }
@@ -170,7 +177,7 @@ export class Configuration {
   }
 
   get fetchApi(): FetchAPI {
-    return this.configuration.fetchApi || window.fetch.bind(window)
+    return this.configuration.fetchApi
   }
 
   get middleware(): Middleware[] {
@@ -197,10 +204,14 @@ export class Configuration {
     return undefined
   }
 
-  get accessToken(): ((name: string, scopes?: string[]) => string) | undefined {
+  get accessToken():
+    | ((name?: string, scopes?: string[]) => string | Promise<string>)
+    | undefined {
     const accessToken = this.configuration.accessToken
     if (accessToken) {
-      return typeof accessToken === 'function' ? accessToken : () => accessToken
+      return typeof accessToken === 'function'
+        ? accessToken
+        : async () => accessToken
     }
     return undefined
   }

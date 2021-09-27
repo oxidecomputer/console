@@ -12,65 +12,43 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime'
 import {
-  DiskStateAnyOf,
-  DiskStateAnyOfFromJSON,
-  DiskStateAnyOfFromJSONTyped,
-  DiskStateAnyOfToJSON,
-  DiskStateAnyOf1,
-  DiskStateAnyOf1FromJSON,
-  DiskStateAnyOf1FromJSONTyped,
-  DiskStateAnyOf1ToJSON,
-  DiskStateAnyOf2,
-  DiskStateAnyOf2FromJSON,
-  DiskStateAnyOf2FromJSONTyped,
-  DiskStateAnyOf2ToJSON,
-  DiskStateAnyOf3,
-  DiskStateAnyOf3FromJSON,
-  DiskStateAnyOf3FromJSONTyped,
-  DiskStateAnyOf3ToJSON,
-  DiskStateAnyOf4,
-  DiskStateAnyOf4FromJSON,
-  DiskStateAnyOf4FromJSONTyped,
-  DiskStateAnyOf4ToJSON,
-  DiskStateAnyOf5,
-  DiskStateAnyOf5FromJSON,
-  DiskStateAnyOf5FromJSONTyped,
-  DiskStateAnyOf5ToJSON,
-  DiskStateAnyOf6,
-  DiskStateAnyOf6FromJSON,
-  DiskStateAnyOf6FromJSONTyped,
-  DiskStateAnyOf6ToJSON,
+  DiskStateOneOf,
+  DiskStateOneOf1,
+  DiskStateOneOf2,
+  DiskStateOneOf3,
+  DiskStateOneOf4,
+  DiskStateOneOf5,
+  DiskStateOneOf6,
+  DiskStateOneOfFromJSONTyped,
+  DiskStateOneOfToJSON,
+  DiskStateOneOf1FromJSONTyped,
+  DiskStateOneOf1ToJSON,
+  DiskStateOneOf2FromJSONTyped,
+  DiskStateOneOf2ToJSON,
+  DiskStateOneOf3FromJSONTyped,
+  DiskStateOneOf3ToJSON,
+  DiskStateOneOf4FromJSONTyped,
+  DiskStateOneOf4ToJSON,
+  DiskStateOneOf5FromJSONTyped,
+  DiskStateOneOf5ToJSON,
+  DiskStateOneOf6FromJSONTyped,
+  DiskStateOneOf6ToJSON,
 } from './'
 
 /**
+ * @type DiskState
  * State of a Disk (primarily: attached or not)
  * @export
- * @interface DiskState
  */
-export interface DiskState {
-  /**
-   *
-   * @type {string}
-   * @memberof DiskState
-   */
-  state: DiskStateStateEnum
-  /**
-   *
-   * @type {string}
-   * @memberof DiskState
-   */
-  instance: string
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateStateEnum {
-  Faulted = 'faulted',
-}
+export type DiskState =
+  | DiskStateOneOf
+  | DiskStateOneOf1
+  | DiskStateOneOf2
+  | DiskStateOneOf3
+  | DiskStateOneOf4
+  | DiskStateOneOf5
+  | DiskStateOneOf6
 
 export function DiskStateFromJSON(json: any): DiskState {
   return DiskStateFromJSONTyped(json, false)
@@ -84,8 +62,13 @@ export function DiskStateFromJSONTyped(
     return json
   }
   return {
-    state: json['state'],
-    instance: json['instance'],
+    ...DiskStateOneOfFromJSONTyped(json, true),
+    ...DiskStateOneOf1FromJSONTyped(json, true),
+    ...DiskStateOneOf2FromJSONTyped(json, true),
+    ...DiskStateOneOf3FromJSONTyped(json, true),
+    ...DiskStateOneOf4FromJSONTyped(json, true),
+    ...DiskStateOneOf5FromJSONTyped(json, true),
+    ...DiskStateOneOf6FromJSONTyped(json, true),
   }
 }
 
@@ -97,7 +80,12 @@ export function DiskStateToJSON(value?: DiskState | null): any {
     return null
   }
   return {
-    state: value.state,
-    instance: value.instance,
+    ...DiskStateOneOfToJSON(value),
+    ...DiskStateOneOf1ToJSON(value),
+    ...DiskStateOneOf2ToJSON(value),
+    ...DiskStateOneOf3ToJSON(value),
+    ...DiskStateOneOf4ToJSON(value),
+    ...DiskStateOneOf5ToJSON(value),
+    ...DiskStateOneOf6ToJSON(value),
   }
 }

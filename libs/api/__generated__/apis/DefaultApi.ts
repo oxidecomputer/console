@@ -83,6 +83,18 @@ import {
   VpcResultsPage,
   VpcResultsPageFromJSON,
   VpcResultsPageToJSON,
+  VpcSubnet,
+  VpcSubnetFromJSON,
+  VpcSubnetToJSON,
+  VpcSubnetCreateParams,
+  VpcSubnetCreateParamsFromJSON,
+  VpcSubnetCreateParamsToJSON,
+  VpcSubnetResultsPage,
+  VpcSubnetResultsPageFromJSON,
+  VpcSubnetResultsPageToJSON,
+  VpcSubnetUpdateParams,
+  VpcSubnetUpdateParamsFromJSON,
+  VpcSubnetUpdateParamsToJSON,
   VpcUpdateParams,
   VpcUpdateParamsFromJSON,
   VpcUpdateParamsToJSON,
@@ -251,6 +263,39 @@ export interface SagasGetSagaRequest {
   sagaId: string
 }
 
+export interface VpcSubnetsDeleteSubnetRequest {
+  projectName: string
+  subnetName: string
+  vpcName: string
+}
+
+export interface VpcSubnetsGetRequest {
+  projectName: string
+  vpcName: string
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface VpcSubnetsGetSubnetRequest {
+  projectName: string
+  subnetName: string
+  vpcName: string
+}
+
+export interface VpcSubnetsPostRequest {
+  projectName: string
+  vpcName: string
+  vpcSubnetCreateParams: VpcSubnetCreateParams
+}
+
+export interface VpcSubnetsPutSubnetRequest {
+  projectName: string
+  subnetName: string
+  vpcName: string
+  vpcSubnetUpdateParams: VpcSubnetUpdateParams
+}
+
 /**
  *
  */
@@ -259,7 +304,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * List racks in the system.
    */
   async hardwareRacksGetRaw(
-    requestParameters: HardwareRacksGetRequest
+    requestParameters: HardwareRacksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<RackResultsPage>> {
     const queryParameters: any = {}
 
@@ -277,12 +323,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/hardware/racks`,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/hardware/racks`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RackResultsPageFromJSON(jsonValue)
@@ -293,9 +342,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List racks in the system.
    */
   async hardwareRacksGet(
-    requestParameters: HardwareRacksGetRequest
+    requestParameters: HardwareRacksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<RackResultsPage> {
-    const response = await this.hardwareRacksGetRaw(requestParameters)
+    const response = await this.hardwareRacksGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -303,7 +356,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch information about a particular rack.
    */
   async hardwareRacksGetRackRaw(
-    requestParameters: HardwareRacksGetRackRequest
+    requestParameters: HardwareRacksGetRackRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Rack>> {
     if (
       requestParameters.rackId === null ||
@@ -319,15 +373,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/hardware/racks/{rack_id}`.replace(
-        `{${'rack_id'}}`,
-        encodeURIComponent(String(requestParameters.rackId))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/hardware/racks/{rack_id}`.replace(
+          `{${'rack_id'}}`,
+          encodeURIComponent(String(requestParameters.rackId))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RackFromJSON(jsonValue)
@@ -338,9 +395,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch information about a particular rack.
    */
   async hardwareRacksGetRack(
-    requestParameters: HardwareRacksGetRackRequest
+    requestParameters: HardwareRacksGetRackRequest,
+    initOverrides?: RequestInit
   ): Promise<Rack> {
-    const response = await this.hardwareRacksGetRackRaw(requestParameters)
+    const response = await this.hardwareRacksGetRackRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -348,7 +409,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * List sleds in the system.
    */
   async hardwareSledsGetRaw(
-    requestParameters: HardwareSledsGetRequest
+    requestParameters: HardwareSledsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<SledResultsPage>> {
     const queryParameters: any = {}
 
@@ -366,12 +428,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/hardware/sleds`,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/hardware/sleds`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       SledResultsPageFromJSON(jsonValue)
@@ -382,9 +447,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List sleds in the system.
    */
   async hardwareSledsGet(
-    requestParameters: HardwareSledsGetRequest
+    requestParameters: HardwareSledsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<SledResultsPage> {
-    const response = await this.hardwareSledsGetRaw(requestParameters)
+    const response = await this.hardwareSledsGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -392,7 +461,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch information about a sled in the system.
    */
   async hardwareSledsGetSledRaw(
-    requestParameters: HardwareSledsGetSledRequest
+    requestParameters: HardwareSledsGetSledRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Sled>> {
     if (
       requestParameters.sledId === null ||
@@ -408,15 +478,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/hardware/sleds/{sled_id}`.replace(
-        `{${'sled_id'}}`,
-        encodeURIComponent(String(requestParameters.sledId))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/hardware/sleds/{sled_id}`.replace(
+          `{${'sled_id'}}`,
+          encodeURIComponent(String(requestParameters.sledId))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       SledFromJSON(jsonValue)
@@ -427,9 +500,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch information about a sled in the system.
    */
   async hardwareSledsGetSled(
-    requestParameters: HardwareSledsGetSledRequest
+    requestParameters: HardwareSledsGetSledRequest,
+    initOverrides?: RequestInit
   ): Promise<Sled> {
-    const response = await this.hardwareSledsGetSledRaw(requestParameters)
+    const response = await this.hardwareSledsGetSledRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -437,7 +514,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Detach a disk from this instance.
    */
   async instanceDisksDeleteDiskRaw(
-    requestParameters: InstanceDisksDeleteDiskRequest
+    requestParameters: InstanceDisksDeleteDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.diskName === null ||
@@ -473,24 +551,27 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
-        .replace(
-          `{${'disk_name'}}`,
-          encodeURIComponent(String(requestParameters.diskName))
-        )
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+          .replace(
+            `{${'disk_name'}}`,
+            encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -499,16 +580,18 @@ export class DefaultApi extends runtime.BaseAPI {
    * Detach a disk from this instance.
    */
   async instanceDisksDeleteDisk(
-    requestParameters: InstanceDisksDeleteDiskRequest
+    requestParameters: InstanceDisksDeleteDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.instanceDisksDeleteDiskRaw(requestParameters)
+    await this.instanceDisksDeleteDiskRaw(requestParameters, initOverrides)
   }
 
   /**
    * List disks attached to this instance.
    */
   async instanceDisksGetRaw(
-    requestParameters: InstanceDisksGetRequest
+    requestParameters: InstanceDisksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Array<DiskAttachment>>> {
     if (
       requestParameters.instanceName === null ||
@@ -534,20 +617,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/disks`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/disks`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(DiskAttachmentFromJSON)
@@ -558,9 +644,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List disks attached to this instance.
    */
   async instanceDisksGet(
-    requestParameters: InstanceDisksGetRequest
+    requestParameters: InstanceDisksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<Array<DiskAttachment>> {
-    const response = await this.instanceDisksGetRaw(requestParameters)
+    const response = await this.instanceDisksGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -568,7 +658,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a description of the attachment of this disk to this instance.
    */
   async instanceDisksGetDiskRaw(
-    requestParameters: InstanceDisksGetDiskRequest
+    requestParameters: InstanceDisksGetDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<DiskAttachment>> {
     if (
       requestParameters.diskName === null ||
@@ -604,24 +695,27 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
-        .replace(
-          `{${'disk_name'}}`,
-          encodeURIComponent(String(requestParameters.diskName))
-        )
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+          .replace(
+            `{${'disk_name'}}`,
+            encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       DiskAttachmentFromJSON(jsonValue)
@@ -632,9 +726,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a description of the attachment of this disk to this instance.
    */
   async instanceDisksGetDisk(
-    requestParameters: InstanceDisksGetDiskRequest
+    requestParameters: InstanceDisksGetDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<DiskAttachment> {
-    const response = await this.instanceDisksGetDiskRaw(requestParameters)
+    const response = await this.instanceDisksGetDiskRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -642,7 +740,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Attach a disk to this instance.
    */
   async instanceDisksPutDiskRaw(
-    requestParameters: InstanceDisksPutDiskRequest
+    requestParameters: InstanceDisksPutDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<DiskAttachment>> {
     if (
       requestParameters.diskName === null ||
@@ -678,24 +777,27 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
-        .replace(
-          `{${'disk_name'}}`,
-          encodeURIComponent(String(requestParameters.diskName))
-        )
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'PUT',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+          .replace(
+            `{${'disk_name'}}`,
+            encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       DiskAttachmentFromJSON(jsonValue)
@@ -706,9 +808,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Attach a disk to this instance.
    */
   async instanceDisksPutDisk(
-    requestParameters: InstanceDisksPutDiskRequest
+    requestParameters: InstanceDisksPutDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<DiskAttachment> {
-    const response = await this.instanceDisksPutDiskRaw(requestParameters)
+    const response = await this.instanceDisksPutDiskRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -716,7 +822,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete a disk from a project.
    */
   async projectDisksDeleteDiskRaw(
-    requestParameters: ProjectDisksDeleteDiskRequest
+    requestParameters: ProjectDisksDeleteDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.diskName === null ||
@@ -742,20 +849,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/disks/{disk_name}`
-        .replace(
-          `{${'disk_name'}}`,
-          encodeURIComponent(String(requestParameters.diskName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/disks/{disk_name}`
+          .replace(
+            `{${'disk_name'}}`,
+            encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -764,16 +874,18 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete a disk from a project.
    */
   async projectDisksDeleteDisk(
-    requestParameters: ProjectDisksDeleteDiskRequest
+    requestParameters: ProjectDisksDeleteDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.projectDisksDeleteDiskRaw(requestParameters)
+    await this.projectDisksDeleteDiskRaw(requestParameters, initOverrides)
   }
 
   /**
    * List disks in a project.
    */
   async projectDisksGetRaw(
-    requestParameters: ProjectDisksGetRequest
+    requestParameters: ProjectDisksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<DiskResultsPage>> {
     if (
       requestParameters.projectName === null ||
@@ -801,15 +913,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/disks`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/disks`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       DiskResultsPageFromJSON(jsonValue)
@@ -820,9 +935,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List disks in a project.
    */
   async projectDisksGet(
-    requestParameters: ProjectDisksGetRequest
+    requestParameters: ProjectDisksGetRequest,
+    initOverrides?: RequestInit
   ): Promise<DiskResultsPage> {
-    const response = await this.projectDisksGetRaw(requestParameters)
+    const response = await this.projectDisksGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -830,7 +949,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a single disk in a project.
    */
   async projectDisksGetDiskRaw(
-    requestParameters: ProjectDisksGetDiskRequest
+    requestParameters: ProjectDisksGetDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Disk>> {
     if (
       requestParameters.diskName === null ||
@@ -856,20 +976,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/disks/{disk_name}`
-        .replace(
-          `{${'disk_name'}}`,
-          encodeURIComponent(String(requestParameters.diskName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/disks/{disk_name}`
+          .replace(
+            `{${'disk_name'}}`,
+            encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       DiskFromJSON(jsonValue)
@@ -880,9 +1003,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a single disk in a project.
    */
   async projectDisksGetDisk(
-    requestParameters: ProjectDisksGetDiskRequest
+    requestParameters: ProjectDisksGetDiskRequest,
+    initOverrides?: RequestInit
   ): Promise<Disk> {
-    const response = await this.projectDisksGetDiskRaw(requestParameters)
+    const response = await this.projectDisksGetDiskRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -890,7 +1017,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create a disk in a project.  * TODO-correctness See note about instance create.  This should be async.
    */
   async projectDisksPostRaw(
-    requestParameters: ProjectDisksPostRequest
+    requestParameters: ProjectDisksPostRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Disk>> {
     if (
       requestParameters.projectName === null ||
@@ -918,16 +1046,19 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects/{project_name}/disks`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: DiskCreateParamsToJSON(requestParameters.diskCreateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/disks`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: DiskCreateParamsToJSON(requestParameters.diskCreateParams),
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       DiskFromJSON(jsonValue)
@@ -938,9 +1069,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create a disk in a project.  * TODO-correctness See note about instance create.  This should be async.
    */
   async projectDisksPost(
-    requestParameters: ProjectDisksPostRequest
+    requestParameters: ProjectDisksPostRequest,
+    initOverrides?: RequestInit
   ): Promise<Disk> {
-    const response = await this.projectDisksPostRaw(requestParameters)
+    const response = await this.projectDisksPostRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -948,7 +1083,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete an instance from a project.
    */
   async projectInstancesDeleteInstanceRaw(
-    requestParameters: ProjectInstancesDeleteInstanceRequest
+    requestParameters: ProjectInstancesDeleteInstanceRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.instanceName === null ||
@@ -974,20 +1110,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -996,16 +1135,21 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete an instance from a project.
    */
   async projectInstancesDeleteInstance(
-    requestParameters: ProjectInstancesDeleteInstanceRequest
+    requestParameters: ProjectInstancesDeleteInstanceRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.projectInstancesDeleteInstanceRaw(requestParameters)
+    await this.projectInstancesDeleteInstanceRaw(
+      requestParameters,
+      initOverrides
+    )
   }
 
   /**
    * List instances in a project.
    */
   async projectInstancesGetRaw(
-    requestParameters: ProjectInstancesGetRequest
+    requestParameters: ProjectInstancesGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<InstanceResultsPage>> {
     if (
       requestParameters.projectName === null ||
@@ -1033,15 +1177,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceResultsPageFromJSON(jsonValue)
@@ -1052,9 +1199,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List instances in a project.
    */
   async projectInstancesGet(
-    requestParameters: ProjectInstancesGetRequest
+    requestParameters: ProjectInstancesGetRequest,
+    initOverrides?: RequestInit
   ): Promise<InstanceResultsPage> {
-    const response = await this.projectInstancesGetRaw(requestParameters)
+    const response = await this.projectInstancesGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1062,7 +1213,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Get an instance in a project.
    */
   async projectInstancesGetInstanceRaw(
-    requestParameters: ProjectInstancesGetInstanceRequest
+    requestParameters: ProjectInstancesGetInstanceRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
@@ -1088,20 +1240,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceFromJSON(jsonValue)
@@ -1112,10 +1267,12 @@ export class DefaultApi extends runtime.BaseAPI {
    * Get an instance in a project.
    */
   async projectInstancesGetInstance(
-    requestParameters: ProjectInstancesGetInstanceRequest
+    requestParameters: ProjectInstancesGetInstanceRequest,
+    initOverrides?: RequestInit
   ): Promise<Instance> {
     const response = await this.projectInstancesGetInstanceRaw(
-      requestParameters
+      requestParameters,
+      initOverrides
     )
     return await response.value()
   }
@@ -1124,7 +1281,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Reboot an instance.
    */
   async projectInstancesInstanceRebootRaw(
-    requestParameters: ProjectInstancesInstanceRebootRequest
+    requestParameters: ProjectInstancesInstanceRebootRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
@@ -1150,20 +1308,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/reboot`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/reboot`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceFromJSON(jsonValue)
@@ -1174,10 +1335,12 @@ export class DefaultApi extends runtime.BaseAPI {
    * Reboot an instance.
    */
   async projectInstancesInstanceReboot(
-    requestParameters: ProjectInstancesInstanceRebootRequest
+    requestParameters: ProjectInstancesInstanceRebootRequest,
+    initOverrides?: RequestInit
   ): Promise<Instance> {
     const response = await this.projectInstancesInstanceRebootRaw(
-      requestParameters
+      requestParameters,
+      initOverrides
     )
     return await response.value()
   }
@@ -1186,7 +1349,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Boot an instance.
    */
   async projectInstancesInstanceStartRaw(
-    requestParameters: ProjectInstancesInstanceStartRequest
+    requestParameters: ProjectInstancesInstanceStartRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
@@ -1212,20 +1376,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/start`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/start`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceFromJSON(jsonValue)
@@ -1236,10 +1403,12 @@ export class DefaultApi extends runtime.BaseAPI {
    * Boot an instance.
    */
   async projectInstancesInstanceStart(
-    requestParameters: ProjectInstancesInstanceStartRequest
+    requestParameters: ProjectInstancesInstanceStartRequest,
+    initOverrides?: RequestInit
   ): Promise<Instance> {
     const response = await this.projectInstancesInstanceStartRaw(
-      requestParameters
+      requestParameters,
+      initOverrides
     )
     return await response.value()
   }
@@ -1248,7 +1417,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Halt an instance.
    */
   async projectInstancesInstanceStopRaw(
-    requestParameters: ProjectInstancesInstanceStopRequest
+    requestParameters: ProjectInstancesInstanceStopRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.instanceName === null ||
@@ -1274,20 +1444,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances/{instance_name}/stop`
-        .replace(
-          `{${'instance_name'}}`,
-          encodeURIComponent(String(requestParameters.instanceName))
-        )
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances/{instance_name}/stop`
+          .replace(
+            `{${'instance_name'}}`,
+            encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceFromJSON(jsonValue)
@@ -1298,10 +1471,12 @@ export class DefaultApi extends runtime.BaseAPI {
    * Halt an instance.
    */
   async projectInstancesInstanceStop(
-    requestParameters: ProjectInstancesInstanceStopRequest
+    requestParameters: ProjectInstancesInstanceStopRequest,
+    initOverrides?: RequestInit
   ): Promise<Instance> {
     const response = await this.projectInstancesInstanceStopRaw(
-      requestParameters
+      requestParameters,
+      initOverrides
     )
     return await response.value()
   }
@@ -1310,7 +1485,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create an instance in a project.  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it\'s just not booted yet.  Maybe the boot operation is what\'s a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a \"reboot\" operation would return a 202 Accepted because there\'s no actual resource created?
    */
   async projectInstancesPostRaw(
-    requestParameters: ProjectInstancesPostRequest
+    requestParameters: ProjectInstancesPostRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
       requestParameters.projectName === null ||
@@ -1338,16 +1514,21 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects/{project_name}/instances`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: InstanceCreateParamsToJSON(requestParameters.instanceCreateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/instances`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: InstanceCreateParamsToJSON(
+          requestParameters.instanceCreateParams
+        ),
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       InstanceFromJSON(jsonValue)
@@ -1358,9 +1539,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create an instance in a project.  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it\'s just not booted yet.  Maybe the boot operation is what\'s a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a \"reboot\" operation would return a 202 Accepted because there\'s no actual resource created?
    */
   async projectInstancesPost(
-    requestParameters: ProjectInstancesPostRequest
+    requestParameters: ProjectInstancesPostRequest,
+    initOverrides?: RequestInit
   ): Promise<Instance> {
-    const response = await this.projectInstancesPostRaw(requestParameters)
+    const response = await this.projectInstancesPostRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1368,7 +1553,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete a vpc from a project.
    */
   async projectVpcsDeleteVpcRaw(
-    requestParameters: ProjectVpcsDeleteVpcRequest
+    requestParameters: ProjectVpcsDeleteVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.projectName === null ||
@@ -1394,20 +1580,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/vpcs/{vpc_name}`
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        )
-        .replace(
-          `{${'vpc_name'}}`,
-          encodeURIComponent(String(requestParameters.vpcName))
-        ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -1416,16 +1605,18 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete a vpc from a project.
    */
   async projectVpcsDeleteVpc(
-    requestParameters: ProjectVpcsDeleteVpcRequest
+    requestParameters: ProjectVpcsDeleteVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.projectVpcsDeleteVpcRaw(requestParameters)
+    await this.projectVpcsDeleteVpcRaw(requestParameters, initOverrides)
   }
 
   /**
    * List VPCs in a project.
    */
   async projectVpcsGetRaw(
-    requestParameters: ProjectVpcsGetRequest
+    requestParameters: ProjectVpcsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<VpcResultsPage>> {
     if (
       requestParameters.projectName === null ||
@@ -1453,15 +1644,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/vpcs`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       VpcResultsPageFromJSON(jsonValue)
@@ -1472,9 +1666,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * List VPCs in a project.
    */
   async projectVpcsGet(
-    requestParameters: ProjectVpcsGetRequest
+    requestParameters: ProjectVpcsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<VpcResultsPage> {
-    const response = await this.projectVpcsGetRaw(requestParameters)
+    const response = await this.projectVpcsGetRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1482,7 +1680,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Get a VPC in a project.
    */
   async projectVpcsGetVpcRaw(
-    requestParameters: ProjectVpcsGetVpcRequest
+    requestParameters: ProjectVpcsGetVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Vpc>> {
     if (
       requestParameters.projectName === null ||
@@ -1508,20 +1707,23 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}/vpcs/{vpc_name}`
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        )
-        .replace(
-          `{${'vpc_name'}}`,
-          encodeURIComponent(String(requestParameters.vpcName))
-        ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       VpcFromJSON(jsonValue)
@@ -1532,9 +1734,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Get a VPC in a project.
    */
   async projectVpcsGetVpc(
-    requestParameters: ProjectVpcsGetVpcRequest
+    requestParameters: ProjectVpcsGetVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<Vpc> {
-    const response = await this.projectVpcsGetVpcRaw(requestParameters)
+    const response = await this.projectVpcsGetVpcRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1542,7 +1748,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create a VPC in a project.
    */
   async projectVpcsPostRaw(
-    requestParameters: ProjectVpcsPostRequest
+    requestParameters: ProjectVpcsPostRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Vpc>> {
     if (
       requestParameters.projectName === null ||
@@ -1570,16 +1777,19 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects/{project_name}/vpcs`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: VpcCreateParamsToJSON(requestParameters.vpcCreateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcCreateParamsToJSON(requestParameters.vpcCreateParams),
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       VpcFromJSON(jsonValue)
@@ -1590,9 +1800,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create a VPC in a project.
    */
   async projectVpcsPost(
-    requestParameters: ProjectVpcsPostRequest
+    requestParameters: ProjectVpcsPostRequest,
+    initOverrides?: RequestInit
   ): Promise<Vpc> {
-    const response = await this.projectVpcsPostRaw(requestParameters)
+    const response = await this.projectVpcsPostRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1600,7 +1814,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Update a VPC.
    */
   async projectVpcsPutVpcRaw(
-    requestParameters: ProjectVpcsPutVpcRequest
+    requestParameters: ProjectVpcsPutVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.projectName === null ||
@@ -1638,21 +1853,24 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects/{project_name}/vpcs/{vpc_name}`
-        .replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        )
-        .replace(
-          `{${'vpc_name'}}`,
-          encodeURIComponent(String(requestParameters.vpcName))
-        ),
-      method: 'PUT',
-      headers: headerParameters,
-      query: queryParameters,
-      body: VpcUpdateParamsToJSON(requestParameters.vpcUpdateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcUpdateParamsToJSON(requestParameters.vpcUpdateParams),
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -1661,16 +1879,18 @@ export class DefaultApi extends runtime.BaseAPI {
    * Update a VPC.
    */
   async projectVpcsPutVpc(
-    requestParameters: ProjectVpcsPutVpcRequest
+    requestParameters: ProjectVpcsPutVpcRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.projectVpcsPutVpcRaw(requestParameters)
+    await this.projectVpcsPutVpcRaw(requestParameters, initOverrides)
   }
 
   /**
    * Delete a specific project.
    */
   async projectsDeleteProjectRaw(
-    requestParameters: ProjectsDeleteProjectRequest
+    requestParameters: ProjectsDeleteProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
       requestParameters.projectName === null ||
@@ -1686,15 +1906,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.VoidApiResponse(response)
   }
@@ -1703,16 +1926,18 @@ export class DefaultApi extends runtime.BaseAPI {
    * Delete a specific project.
    */
   async projectsDeleteProject(
-    requestParameters: ProjectsDeleteProjectRequest
+    requestParameters: ProjectsDeleteProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<void> {
-    await this.projectsDeleteProjectRaw(requestParameters)
+    await this.projectsDeleteProjectRaw(requestParameters, initOverrides)
   }
 
   /**
    * List all projects.
    */
   async projectsGetRaw(
-    requestParameters: ProjectsGetRequest
+    requestParameters: ProjectsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<ProjectResultsPage>> {
     const queryParameters: any = {}
 
@@ -1730,12 +1955,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects`,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ProjectResultsPageFromJSON(jsonValue)
@@ -1746,9 +1974,10 @@ export class DefaultApi extends runtime.BaseAPI {
    * List all projects.
    */
   async projectsGet(
-    requestParameters: ProjectsGetRequest
+    requestParameters: ProjectsGetRequest,
+    initOverrides?: RequestInit
   ): Promise<ProjectResultsPage> {
-    const response = await this.projectsGetRaw(requestParameters)
+    const response = await this.projectsGetRaw(requestParameters, initOverrides)
     return await response.value()
   }
 
@@ -1756,7 +1985,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a specific project
    */
   async projectsGetProjectRaw(
-    requestParameters: ProjectsGetProjectRequest
+    requestParameters: ProjectsGetProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectName === null ||
@@ -1772,15 +2002,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/projects/{project_name}`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ProjectFromJSON(jsonValue)
@@ -1791,9 +2024,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch a specific project
    */
   async projectsGetProject(
-    requestParameters: ProjectsGetProjectRequest
+    requestParameters: ProjectsGetProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<Project> {
-    const response = await this.projectsGetProjectRaw(requestParameters)
+    const response = await this.projectsGetProjectRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1801,7 +2038,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Create a new project.
    */
   async projectsPostRaw(
-    requestParameters: ProjectsPostRequest
+    requestParameters: ProjectsPostRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectCreateParams === null ||
@@ -1819,13 +2057,16 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects`,
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: ProjectCreateParamsToJSON(requestParameters.projectCreateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects`,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ProjectCreateParamsToJSON(requestParameters.projectCreateParams),
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ProjectFromJSON(jsonValue)
@@ -1835,8 +2076,14 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Create a new project.
    */
-  async projectsPost(requestParameters: ProjectsPostRequest): Promise<Project> {
-    const response = await this.projectsPostRaw(requestParameters)
+  async projectsPost(
+    requestParameters: ProjectsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<Project> {
+    const response = await this.projectsPostRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1844,7 +2091,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
    */
   async projectsPutProjectRaw(
-    requestParameters: ProjectsPutProjectRequest
+    requestParameters: ProjectsPutProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Project>> {
     if (
       requestParameters.projectName === null ||
@@ -1872,16 +2120,19 @@ export class DefaultApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json'
 
-    const response = await this.request({
-      path: `/projects/{project_name}`.replace(
-        `{${'project_name'}}`,
-        encodeURIComponent(String(requestParameters.projectName))
-      ),
-      method: 'PUT',
-      headers: headerParameters,
-      query: queryParameters,
-      body: ProjectUpdateParamsToJSON(requestParameters.projectUpdateParams),
-    })
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}`.replace(
+          `{${'project_name'}}`,
+          encodeURIComponent(String(requestParameters.projectName))
+        ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ProjectUpdateParamsToJSON(requestParameters.projectUpdateParams),
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ProjectFromJSON(jsonValue)
@@ -1892,9 +2143,13 @@ export class DefaultApi extends runtime.BaseAPI {
    * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
    */
   async projectsPutProject(
-    requestParameters: ProjectsPutProjectRequest
+    requestParameters: ProjectsPutProjectRequest,
+    initOverrides?: RequestInit
   ): Promise<Project> {
-    const response = await this.projectsPutProjectRaw(requestParameters)
+    const response = await this.projectsPutProjectRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
   }
 
@@ -1902,7 +2157,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * List all sagas (for debugging)
    */
   async sagasGetRaw(
-    requestParameters: SagasGetRequest
+    requestParameters: SagasGetRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<SagaResultsPage>> {
     const queryParameters: any = {}
 
@@ -1920,12 +2176,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/sagas`,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/sagas`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       SagaResultsPageFromJSON(jsonValue)
@@ -1935,8 +2194,11 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * List all sagas (for debugging)
    */
-  async sagasGet(requestParameters: SagasGetRequest): Promise<SagaResultsPage> {
-    const response = await this.sagasGetRaw(requestParameters)
+  async sagasGet(
+    requestParameters: SagasGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<SagaResultsPage> {
+    const response = await this.sagasGetRaw(requestParameters, initOverrides)
     return await response.value()
   }
 
@@ -1944,7 +2206,8 @@ export class DefaultApi extends runtime.BaseAPI {
    * Fetch information about a single saga (for debugging)
    */
   async sagasGetSagaRaw(
-    requestParameters: SagasGetSagaRequest
+    requestParameters: SagasGetSagaRequest,
+    initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Saga>> {
     if (
       requestParameters.sagaId === null ||
@@ -1960,15 +2223,18 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {}
 
-    const response = await this.request({
-      path: `/sagas/{saga_id}`.replace(
-        `{${'saga_id'}}`,
-        encodeURIComponent(String(requestParameters.sagaId))
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    })
+    const response = await this.request(
+      {
+        path: `/sagas/{saga_id}`.replace(
+          `{${'saga_id'}}`,
+          encodeURIComponent(String(requestParameters.sagaId))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       SagaFromJSON(jsonValue)
@@ -1978,8 +2244,426 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * Fetch information about a single saga (for debugging)
    */
-  async sagasGetSaga(requestParameters: SagasGetSagaRequest): Promise<Saga> {
-    const response = await this.sagasGetSagaRaw(requestParameters)
+  async sagasGetSaga(
+    requestParameters: SagasGetSagaRequest,
+    initOverrides?: RequestInit
+  ): Promise<Saga> {
+    const response = await this.sagasGetSagaRaw(
+      requestParameters,
+      initOverrides
+    )
     return await response.value()
+  }
+
+  /**
+   * Delete a subnet from a VPC.
+   */
+  async vpcSubnetsDeleteSubnetRaw(
+    requestParameters: VpcSubnetsDeleteSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcSubnetsDeleteSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.subnetName === null ||
+      requestParameters.subnetName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'subnetName',
+        'Required parameter requestParameters.subnetName was null or undefined when calling vpcSubnetsDeleteSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcSubnetsDeleteSubnet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'subnet_name'}}`,
+            encodeURIComponent(String(requestParameters.subnetName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a subnet from a VPC.
+   */
+  async vpcSubnetsDeleteSubnet(
+    requestParameters: VpcSubnetsDeleteSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.vpcSubnetsDeleteSubnetRaw(requestParameters, initOverrides)
+  }
+
+  /**
+   * List subnets in a VPC.
+   */
+  async vpcSubnetsGetRaw(
+    requestParameters: VpcSubnetsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcSubnetResultsPage>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcSubnetsGet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcSubnetsGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcSubnetResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List subnets in a VPC.
+   */
+  async vpcSubnetsGet(
+    requestParameters: VpcSubnetsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcSubnetResultsPage> {
+    const response = await this.vpcSubnetsGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Get subnet in a VPC.
+   */
+  async vpcSubnetsGetSubnetRaw(
+    requestParameters: VpcSubnetsGetSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcSubnet>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcSubnetsGetSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.subnetName === null ||
+      requestParameters.subnetName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'subnetName',
+        'Required parameter requestParameters.subnetName was null or undefined when calling vpcSubnetsGetSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcSubnetsGetSubnet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'subnet_name'}}`,
+            encodeURIComponent(String(requestParameters.subnetName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcSubnetFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Get subnet in a VPC.
+   */
+  async vpcSubnetsGetSubnet(
+    requestParameters: VpcSubnetsGetSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcSubnet> {
+    const response = await this.vpcSubnetsGetSubnetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Create a subnet in a VPC.
+   */
+  async vpcSubnetsPostRaw(
+    requestParameters: VpcSubnetsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcSubnet>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcSubnetsPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcSubnetsPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcSubnetCreateParams === null ||
+      requestParameters.vpcSubnetCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcSubnetCreateParams',
+        'Required parameter requestParameters.vpcSubnetCreateParams was null or undefined when calling vpcSubnetsPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcSubnetCreateParamsToJSON(
+          requestParameters.vpcSubnetCreateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcSubnetFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a subnet in a VPC.
+   */
+  async vpcSubnetsPost(
+    requestParameters: VpcSubnetsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcSubnet> {
+    const response = await this.vpcSubnetsPostRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Update a VPC Subnet.
+   */
+  async vpcSubnetsPutSubnetRaw(
+    requestParameters: VpcSubnetsPutSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcSubnetsPutSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.subnetName === null ||
+      requestParameters.subnetName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'subnetName',
+        'Required parameter requestParameters.subnetName was null or undefined when calling vpcSubnetsPutSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcSubnetsPutSubnet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcSubnetUpdateParams === null ||
+      requestParameters.vpcSubnetUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcSubnetUpdateParams',
+        'Required parameter requestParameters.vpcSubnetUpdateParams was null or undefined when calling vpcSubnetsPutSubnet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'subnet_name'}}`,
+            encodeURIComponent(String(requestParameters.subnetName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcSubnetUpdateParamsToJSON(
+          requestParameters.vpcSubnetUpdateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Update a VPC Subnet.
+   */
+  async vpcSubnetsPutSubnet(
+    requestParameters: VpcSubnetsPutSubnetRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.vpcSubnetsPutSubnetRaw(requestParameters, initOverrides)
   }
 }

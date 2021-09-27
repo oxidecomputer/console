@@ -16,39 +16,39 @@ import { exists, mapValues } from '../runtime'
 /**
  * Disk is being detached from the given Instance
  * @export
- * @interface DiskStateAnyOf4
+ * @interface DiskStateOneOf4
  */
-export interface DiskStateAnyOf4 {
+export interface DiskStateOneOf4 {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf4
+   * @memberof DiskStateOneOf4
    */
   instance: string
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf4
+   * @memberof DiskStateOneOf4
    */
-  state: DiskStateAnyOf4StateEnum
+  state: DiskStateOneOf4StateEnum
 }
 
 /**
  * @export
  * @enum {string}
  */
-export enum DiskStateAnyOf4StateEnum {
+export enum DiskStateOneOf4StateEnum {
   Detaching = 'detaching',
 }
 
-export function DiskStateAnyOf4FromJSON(json: any): DiskStateAnyOf4 {
-  return DiskStateAnyOf4FromJSONTyped(json, false)
+export function DiskStateOneOf4FromJSON(json: any): DiskStateOneOf4 {
+  return DiskStateOneOf4FromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf4FromJSONTyped(
+export function DiskStateOneOf4FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf4 {
+): DiskStateOneOf4 {
   if (json === undefined || json === null) {
     return json
   }
@@ -58,7 +58,7 @@ export function DiskStateAnyOf4FromJSONTyped(
   }
 }
 
-export function DiskStateAnyOf4ToJSON(value?: DiskStateAnyOf4 | null): any {
+export function DiskStateOneOf4ToJSON(value?: DiskStateOneOf4 | null): any {
   if (value === undefined) {
     return undefined
   }
