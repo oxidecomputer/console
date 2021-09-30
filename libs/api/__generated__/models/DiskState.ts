@@ -80,12 +80,12 @@ export function DiskStateToJSON(value?: DiskState | null): any {
     return null
   }
   return {
-    ...DiskStateOneOfToJSON(value),
-    ...DiskStateOneOf1ToJSON(value),
-    ...DiskStateOneOf2ToJSON(value),
-    ...DiskStateOneOf3ToJSON(value),
-    ...DiskStateOneOf4ToJSON(value),
-    ...DiskStateOneOf5ToJSON(value),
-    ...DiskStateOneOf6ToJSON(value),
+    ...DiskStateOneOfToJSON(value as any),
+    ...DiskStateOneOf1ToJSON(value as any),
+    ...DiskStateOneOf2ToJSON(value as any),
+    ...DiskStateOneOf3ToJSON(value as any),
+    ...DiskStateOneOf4ToJSON(value as any),
+    ...DiskStateOneOf5ToJSON(value as any),
+    ...DiskStateOneOf6ToJSON(value as any),
   }
 }

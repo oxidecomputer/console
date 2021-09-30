@@ -30,15 +30,7 @@ export interface DiskStateOneOf3 {
    * @type {string}
    * @memberof DiskStateOneOf3
    */
-  state: DiskStateOneOf3StateEnum
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateOneOf3StateEnum {
-  Attached = 'attached',
+  state: 'attached'
 }
 
 export function DiskStateOneOf3FromJSON(json: any): DiskStateOneOf3 {

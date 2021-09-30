@@ -24,15 +24,7 @@ export interface DiskStateOneOf5 {
    * @type {string}
    * @memberof DiskStateOneOf5
    */
-  state: DiskStateOneOf5StateEnum
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateOneOf5StateEnum {
-  Destroyed = 'destroyed',
+  state: 'destroyed'
 }
 
 export function DiskStateOneOf5FromJSON(json: any): DiskStateOneOf5 {

@@ -24,15 +24,7 @@ export interface DiskStateOneOf {
    * @type {string}
    * @memberof DiskStateOneOf
    */
-  state: DiskStateOneOfStateEnum
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateOneOfStateEnum {
-  Creating = 'creating',
+  state: 'creating'
 }
 
 export function DiskStateOneOfFromJSON(json: any): DiskStateOneOf {
