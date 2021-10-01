@@ -9,7 +9,6 @@
 export default function transformer(file, api) {
   const j = api.jscodeshift
   const source = j(file.source)
-  let returnStatement
 
   if (!file.path.endsWith('runtime.ts')) return
 
