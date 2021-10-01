@@ -1,4 +1,8 @@
 /**
+ * This codemod flattens the disk states referenced from
+ * `libs/api/__generated__/models/DiskState.ts` to ensure they result
+ * in a discriminable union instead of a union of single member enums
+ *
  * @param {import('jscodeshift').FileInfo} file
  * @param {import('jscodeshift').API} api
  */
