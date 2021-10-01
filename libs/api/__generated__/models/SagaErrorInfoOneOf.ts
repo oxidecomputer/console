@@ -16,39 +16,31 @@ import { exists, mapValues } from '../runtime'
 /**
  *
  * @export
- * @interface SagaErrorInfoAnyOf
+ * @interface SagaErrorInfoOneOf
  */
-export interface SagaErrorInfoAnyOf {
+export interface SagaErrorInfoOneOf {
   /**
    *
    * @type {string}
-   * @memberof SagaErrorInfoAnyOf
+   * @memberof SagaErrorInfoOneOf
    */
-  error: SagaErrorInfoAnyOfErrorEnum
+  error: 'actionFailed'
   /**
    *
    * @type {any}
-   * @memberof SagaErrorInfoAnyOf
+   * @memberof SagaErrorInfoOneOf
    */
   sourceError: any | null
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoAnyOfErrorEnum {
-  ActionFailed = 'actionFailed',
+export function SagaErrorInfoOneOfFromJSON(json: any): SagaErrorInfoOneOf {
+  return SagaErrorInfoOneOfFromJSONTyped(json, false)
 }
 
-export function SagaErrorInfoAnyOfFromJSON(json: any): SagaErrorInfoAnyOf {
-  return SagaErrorInfoAnyOfFromJSONTyped(json, false)
-}
-
-export function SagaErrorInfoAnyOfFromJSONTyped(
+export function SagaErrorInfoOneOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaErrorInfoAnyOf {
+): SagaErrorInfoOneOf {
   if (json === undefined || json === null) {
     return json
   }
@@ -58,8 +50,8 @@ export function SagaErrorInfoAnyOfFromJSONTyped(
   }
 }
 
-export function SagaErrorInfoAnyOfToJSON(
-  value?: SagaErrorInfoAnyOf | null
+export function SagaErrorInfoOneOfToJSON(
+  value?: SagaErrorInfoOneOf | null
 ): any {
   if (value === undefined) {
     return undefined

@@ -13,13 +13,6 @@
  */
 
 import { exists, mapValues } from '../runtime'
-import {
-  VpcSubnet,
-  VpcSubnetFromJSON,
-  VpcSubnetFromJSONTyped,
-  VpcSubnetToJSON,
-} from './'
-
 /**
  * Identity-related metadata that's included in nearly all public API objects
  * @export
@@ -68,12 +61,6 @@ export interface Vpc {
    * @memberof Vpc
    */
   timeModified: Date
-  /**
-   *
-   * @type {Array<VpcSubnet>}
-   * @memberof Vpc
-   */
-  vpcSubnets: Array<VpcSubnet>
 }
 
 export function VpcFromJSON(json: any): Vpc {
@@ -92,7 +79,6 @@ export function VpcFromJSONTyped(json: any, ignoreDiscriminator: boolean): Vpc {
     projectId: json['projectId'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
-    vpcSubnets: (json['vpcSubnets'] as Array<any>).map(VpcSubnetFromJSON),
   }
 }
 
@@ -111,6 +97,5 @@ export function VpcToJSON(value?: Vpc | null): any {
     projectId: value.projectId,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
-    vpcSubnets: (value.vpcSubnets as Array<any>).map(VpcSubnetToJSON),
   }
 }

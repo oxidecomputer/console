@@ -14,51 +14,36 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk is attached to the given Instance
+ * Disk is being initialized
  * @export
- * @interface DiskStateAnyOf3
+ * @interface DiskStateOneOf
  */
-export interface DiskStateAnyOf3 {
+export interface DiskStateOneOf {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf3
+   * @memberof DiskStateOneOf
    */
-  instance: string
-  /**
-   *
-   * @type {string}
-   * @memberof DiskStateAnyOf3
-   */
-  state: DiskStateAnyOf3StateEnum
+  state: 'creating'
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateAnyOf3StateEnum {
-  Attached = 'attached',
+export function DiskStateOneOfFromJSON(json: any): DiskStateOneOf {
+  return DiskStateOneOfFromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf3FromJSON(json: any): DiskStateAnyOf3 {
-  return DiskStateAnyOf3FromJSONTyped(json, false)
-}
-
-export function DiskStateAnyOf3FromJSONTyped(
+export function DiskStateOneOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf3 {
+): DiskStateOneOf {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    instance: json['instance'],
     state: json['state'],
   }
 }
 
-export function DiskStateAnyOf3ToJSON(value?: DiskStateAnyOf3 | null): any {
+export function DiskStateOneOfToJSON(value?: DiskStateOneOf | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -66,7 +51,6 @@ export function DiskStateAnyOf3ToJSON(value?: DiskStateAnyOf3 | null): any {
     return null
   }
   return {
-    instance: value.instance,
     state: value.state,
   }
 }

@@ -16,39 +16,31 @@ import { exists, mapValues } from '../runtime'
 /**
  *
  * @export
- * @interface SagaErrorInfoAnyOf1
+ * @interface SagaErrorInfoOneOf4
  */
-export interface SagaErrorInfoAnyOf1 {
+export interface SagaErrorInfoOneOf4 {
   /**
    *
    * @type {string}
-   * @memberof SagaErrorInfoAnyOf1
+   * @memberof SagaErrorInfoOneOf4
    */
-  error: SagaErrorInfoAnyOf1ErrorEnum
+  error: 'subsagaCreateFailed'
   /**
    *
    * @type {string}
-   * @memberof SagaErrorInfoAnyOf1
+   * @memberof SagaErrorInfoOneOf4
    */
   message: string
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoAnyOf1ErrorEnum {
-  DeserializeFailed = 'deserializeFailed',
+export function SagaErrorInfoOneOf4FromJSON(json: any): SagaErrorInfoOneOf4 {
+  return SagaErrorInfoOneOf4FromJSONTyped(json, false)
 }
 
-export function SagaErrorInfoAnyOf1FromJSON(json: any): SagaErrorInfoAnyOf1 {
-  return SagaErrorInfoAnyOf1FromJSONTyped(json, false)
-}
-
-export function SagaErrorInfoAnyOf1FromJSONTyped(
+export function SagaErrorInfoOneOf4FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaErrorInfoAnyOf1 {
+): SagaErrorInfoOneOf4 {
   if (json === undefined || json === null) {
     return json
   }
@@ -58,8 +50,8 @@ export function SagaErrorInfoAnyOf1FromJSONTyped(
   }
 }
 
-export function SagaErrorInfoAnyOf1ToJSON(
-  value?: SagaErrorInfoAnyOf1 | null
+export function SagaErrorInfoOneOf4ToJSON(
+  value?: SagaErrorInfoOneOf4 | null
 ): any {
   if (value === undefined) {
     return undefined

@@ -14,35 +14,27 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Disk has been destroyed
+ *
  * @export
- * @interface DiskStateAnyOf5
+ * @interface SagaStateOneOf
  */
-export interface DiskStateAnyOf5 {
+export interface SagaStateOneOf {
   /**
    *
    * @type {string}
-   * @memberof DiskStateAnyOf5
+   * @memberof SagaStateOneOf
    */
-  state: DiskStateAnyOf5StateEnum
+  state: 'running'
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum DiskStateAnyOf5StateEnum {
-  Destroyed = 'destroyed',
+export function SagaStateOneOfFromJSON(json: any): SagaStateOneOf {
+  return SagaStateOneOfFromJSONTyped(json, false)
 }
 
-export function DiskStateAnyOf5FromJSON(json: any): DiskStateAnyOf5 {
-  return DiskStateAnyOf5FromJSONTyped(json, false)
-}
-
-export function DiskStateAnyOf5FromJSONTyped(
+export function SagaStateOneOfFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskStateAnyOf5 {
+): SagaStateOneOf {
   if (json === undefined || json === null) {
     return json
   }
@@ -51,7 +43,7 @@ export function DiskStateAnyOf5FromJSONTyped(
   }
 }
 
-export function DiskStateAnyOf5ToJSON(value?: DiskStateAnyOf5 | null): any {
+export function SagaStateOneOfToJSON(value?: SagaStateOneOf | null): any {
   if (value === undefined) {
     return undefined
   }

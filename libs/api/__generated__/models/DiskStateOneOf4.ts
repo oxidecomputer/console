@@ -14,44 +14,43 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- *
+ * Disk is being detached from the given Instance
  * @export
- * @interface SagaStateAnyOf1
+ * @interface DiskStateOneOf4
  */
-export interface SagaStateAnyOf1 {
+export interface DiskStateOneOf4 {
   /**
    *
    * @type {string}
-   * @memberof SagaStateAnyOf1
+   * @memberof DiskStateOneOf4
    */
-  state: SagaStateAnyOf1StateEnum
+  instance: string
+  /**
+   *
+   * @type {string}
+   * @memberof DiskStateOneOf4
+   */
+  state: 'detaching'
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum SagaStateAnyOf1StateEnum {
-  Succeeded = 'succeeded',
+export function DiskStateOneOf4FromJSON(json: any): DiskStateOneOf4 {
+  return DiskStateOneOf4FromJSONTyped(json, false)
 }
 
-export function SagaStateAnyOf1FromJSON(json: any): SagaStateAnyOf1 {
-  return SagaStateAnyOf1FromJSONTyped(json, false)
-}
-
-export function SagaStateAnyOf1FromJSONTyped(
+export function DiskStateOneOf4FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaStateAnyOf1 {
+): DiskStateOneOf4 {
   if (json === undefined || json === null) {
     return json
   }
   return {
+    instance: json['instance'],
     state: json['state'],
   }
 }
 
-export function SagaStateAnyOf1ToJSON(value?: SagaStateAnyOf1 | null): any {
+export function DiskStateOneOf4ToJSON(value?: DiskStateOneOf4 | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -59,6 +58,7 @@ export function SagaStateAnyOf1ToJSON(value?: SagaStateAnyOf1 | null): any {
     return null
   }
   return {
+    instance: value.instance,
     state: value.state,
   }
 }

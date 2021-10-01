@@ -23,45 +23,37 @@ import {
 /**
  *
  * @export
- * @interface SagaStateAnyOf2
+ * @interface SagaStateOneOf2
  */
-export interface SagaStateAnyOf2 {
+export interface SagaStateOneOf2 {
   /**
    *
    * @type {SagaErrorInfo}
-   * @memberof SagaStateAnyOf2
+   * @memberof SagaStateOneOf2
    */
   errorInfo: SagaErrorInfo
   /**
    *
    * @type {string}
-   * @memberof SagaStateAnyOf2
+   * @memberof SagaStateOneOf2
    */
   errorNodeName: string
   /**
    *
    * @type {string}
-   * @memberof SagaStateAnyOf2
+   * @memberof SagaStateOneOf2
    */
-  state: SagaStateAnyOf2StateEnum
+  state: 'failed'
 }
 
-/**
- * @export
- * @enum {string}
- */
-export enum SagaStateAnyOf2StateEnum {
-  Failed = 'failed',
+export function SagaStateOneOf2FromJSON(json: any): SagaStateOneOf2 {
+  return SagaStateOneOf2FromJSONTyped(json, false)
 }
 
-export function SagaStateAnyOf2FromJSON(json: any): SagaStateAnyOf2 {
-  return SagaStateAnyOf2FromJSONTyped(json, false)
-}
-
-export function SagaStateAnyOf2FromJSONTyped(
+export function SagaStateOneOf2FromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): SagaStateAnyOf2 {
+): SagaStateOneOf2 {
   if (json === undefined || json === null) {
     return json
   }
@@ -72,7 +64,7 @@ export function SagaStateAnyOf2FromJSONTyped(
   }
 }
 
-export function SagaStateAnyOf2ToJSON(value?: SagaStateAnyOf2 | null): any {
+export function SagaStateOneOf2ToJSON(value?: SagaStateOneOf2 | null): any {
   if (value === undefined) {
     return undefined
   }

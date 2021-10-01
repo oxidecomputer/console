@@ -9,6 +9,7 @@ set -o xtrace
 API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
 DOCS_DIR='app/docs'
+CODEMOD_DIR="codemods"
 
 cd ../omicron
 git fetch --all
@@ -25,7 +26,12 @@ rm -rf "$GEN_DIR/models"
 openapi-generator generate -i $DOCS_DIR/nexus-openapi.json \
   -o $GEN_DIR \
   -g typescript-fetch \
-  --additional-properties=typescriptThreePlus=true
+  -p typescriptThreePlus=true
+
+for file in $CODEMOD_DIR/*.api.js; do
+    npx jscodeshift -t $file --extensions=ts,tsx --parser=tsx './libs/api'
+done
+
 yarn fmt --loglevel error
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
