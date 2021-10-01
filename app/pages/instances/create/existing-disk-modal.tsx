@@ -15,8 +15,6 @@ type Props = {
 }
 
 const isUnattached = ({ state }: Disk) => {
-  // HACK: the DiskState types are all messed up, so here we work around that
-  // by casting the state to a string, which we know it is
   const stateStr = state.state
   return (
     stateStr !== 'attached' &&
