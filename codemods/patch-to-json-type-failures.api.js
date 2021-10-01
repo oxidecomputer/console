@@ -10,8 +10,8 @@ const ToJSONFunctionFilter = (funcDeclaration) => {
 }
 
 /**
- * This codemod patches type failures in the generated `DiskStateToJSON`
- * function of libs/api/__generated__/models/DiskState.ts
+ * This codemod patches type failures in the generated functions like
+ * `DiskStateToJSON` of `libs/api/__generated__/models/DiskState.ts`
  *
  * @param {import('jscodeshift').FileInfo} file
  * @param {import('jscodeshift').API} api
