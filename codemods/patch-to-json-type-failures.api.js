@@ -18,7 +18,6 @@ const ToJSONFunctionFilter = (funcDeclaration) => {
  */
 export default function transformer(file, api) {
   const j = api.jscodeshift
-
   const source = j(file.source)
   const dir = path.dirname(file.path)
   const filename = path.basename(file.path, '.ts')

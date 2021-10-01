@@ -177,7 +177,7 @@ export class Configuration {
   }
 
   get fetchApi(): FetchAPI {
-    return this.configuration.fetchApi
+    return this.configuration.fetchApi || fetch
   }
 
   get middleware(): Middleware[] {
