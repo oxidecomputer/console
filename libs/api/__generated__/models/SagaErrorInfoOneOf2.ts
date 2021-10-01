@@ -24,15 +24,7 @@ export interface SagaErrorInfoOneOf2 {
    * @type {string}
    * @memberof SagaErrorInfoOneOf2
    */
-  error: SagaErrorInfoOneOf2ErrorEnum
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoOneOf2ErrorEnum {
-  InjectedError = 'injectedError',
+  error: 'injectedError'
 }
 
 export function SagaErrorInfoOneOf2FromJSON(json: any): SagaErrorInfoOneOf2 {

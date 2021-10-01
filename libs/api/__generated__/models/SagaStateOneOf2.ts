@@ -43,15 +43,7 @@ export interface SagaStateOneOf2 {
    * @type {string}
    * @memberof SagaStateOneOf2
    */
-  state: SagaStateOneOf2StateEnum
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaStateOneOf2StateEnum {
-  Failed = 'failed',
+  state: 'failed'
 }
 
 export function SagaStateOneOf2FromJSON(json: any): SagaStateOneOf2 {

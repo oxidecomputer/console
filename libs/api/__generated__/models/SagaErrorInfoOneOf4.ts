@@ -24,21 +24,13 @@ export interface SagaErrorInfoOneOf4 {
    * @type {string}
    * @memberof SagaErrorInfoOneOf4
    */
-  error: SagaErrorInfoOneOf4ErrorEnum
+  error: 'subsagaCreateFailed'
   /**
    *
    * @type {string}
    * @memberof SagaErrorInfoOneOf4
    */
   message: string
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoOneOf4ErrorEnum {
-  SubsagaCreateFailed = 'subsagaCreateFailed',
 }
 
 export function SagaErrorInfoOneOf4FromJSON(json: any): SagaErrorInfoOneOf4 {

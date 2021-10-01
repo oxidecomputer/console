@@ -6,16 +6,13 @@
  * @param {import('jscodeshift').FileInfo} file
  * @param {import('jscodeshift').API} api
  */
-const transformer = (file, api) => {
+export default function transformer(file, api) {
   const j = api.jscodeshift
   const source = j(file.source)
   let stateName = ''
   let enumName = ''
 
-  if (
-    file.path.includes('__generated__') &&
-    file.path.includes('DiskStateOneOf')
-  ) {
+  if (file.path.includes('__generated__') && file.path.includes('OneOf')) {
     source
       .find(j.ExportNamedDeclaration, {
         declaration: { type: 'TSEnumDeclaration' },
@@ -35,5 +32,3 @@ const transformer = (file, api) => {
       .toSource()
   }
 }
-
-export default transformer

@@ -57,8 +57,8 @@ export function SagaStateToJSON(value?: SagaState | null): any {
     return null
   }
   return {
-    ...SagaStateOneOfToJSON(value),
-    ...SagaStateOneOf1ToJSON(value),
-    ...SagaStateOneOf2ToJSON(value),
+    ...SagaStateOneOfToJSON(value as any),
+    ...SagaStateOneOf1ToJSON(value as any),
+    ...SagaStateOneOf2ToJSON(value as any),
   }
 }

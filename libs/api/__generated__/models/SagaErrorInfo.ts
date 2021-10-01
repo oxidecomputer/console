@@ -70,10 +70,10 @@ export function SagaErrorInfoToJSON(value?: SagaErrorInfo | null): any {
     return null
   }
   return {
-    ...SagaErrorInfoOneOfToJSON(value),
-    ...SagaErrorInfoOneOf1ToJSON(value),
-    ...SagaErrorInfoOneOf2ToJSON(value),
-    ...SagaErrorInfoOneOf3ToJSON(value),
-    ...SagaErrorInfoOneOf4ToJSON(value),
+    ...SagaErrorInfoOneOfToJSON(value as any),
+    ...SagaErrorInfoOneOf1ToJSON(value as any),
+    ...SagaErrorInfoOneOf2ToJSON(value as any),
+    ...SagaErrorInfoOneOf3ToJSON(value as any),
+    ...SagaErrorInfoOneOf4ToJSON(value as any),
   }
 }

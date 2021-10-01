@@ -24,21 +24,13 @@ export interface SagaErrorInfoOneOf1 {
    * @type {string}
    * @memberof SagaErrorInfoOneOf1
    */
-  error: SagaErrorInfoOneOf1ErrorEnum
+  error: 'deserializeFailed'
   /**
    *
    * @type {string}
    * @memberof SagaErrorInfoOneOf1
    */
   message: string
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoOneOf1ErrorEnum {
-  DeserializeFailed = 'deserializeFailed',
 }
 
 export function SagaErrorInfoOneOf1FromJSON(json: any): SagaErrorInfoOneOf1 {
