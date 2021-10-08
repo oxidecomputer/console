@@ -198,6 +198,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             </TabPanel>
           </TabPanels>
         </Tabs>
+        <Divider />
         <div className="flex mt-20">
           <fieldset>
             <legend className={cn(headingStyle, 'mb-8')}>
