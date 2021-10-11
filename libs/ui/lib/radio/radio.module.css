@@ -1,0 +1,35 @@
+.children {
+  @apply py-2 px-4;
+}
+
+.children > * {
+  @apply py-2 px-4 -mx-4 border-gray-400;
+}
+
+.children > *:first-child {
+  @apply -mt-2;
+}
+
+.children > *:last-child {
+  @apply -mb-2;
+}
+
+.children:hover > * {
+  @apply border-green-500;
+}
+
+.children :global(.unit) {
+  @apply text-gray-200 p-0 m-0;
+}
+
+.children:hover :global(.unit) {
+  @apply text-green-600;
+}
+
+*:checked + .children :global(.unit) {
+  @apply text-green-600;
+}
+
+*:checked + .children > * {
+  @apply border-green-500;
+}
