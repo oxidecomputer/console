@@ -24,7 +24,7 @@ const fieldStyles = `
 `
 
 export const Radio = ({ children, ...inputProps }: Props) => (
-  <label className="0x-radio inline-flex items-center">
+  <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
       <Field className={fieldStyles} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
