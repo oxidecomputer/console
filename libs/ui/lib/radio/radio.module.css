@@ -26,10 +26,10 @@
   @apply text-green-600;
 }
 
-*:checked + .children :global(.unit) {
+*:checked ~ .children :global(.unit) {
   @apply text-green-600;
 }
 
-*:checked + .children > * {
+*:checked ~ .children > * {
   @apply border-green-500;
 }
