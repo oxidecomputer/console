@@ -14,16 +14,8 @@
   @apply -mb-2;
 }
 
-.children:hover > * {
-  @apply border-green-500;
-}
-
 .children :global(.unit) {
   @apply text-gray-200 p-0 m-0;
-}
-
-.children:hover :global(.unit) {
-  @apply text-green-600;
 }
 
 *:checked ~ .children :global(.unit) {
