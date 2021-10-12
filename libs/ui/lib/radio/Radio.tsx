@@ -9,7 +9,7 @@
 import React from 'react'
 import cn from 'classnames'
 import { Field } from 'formik'
-import styles from './radio.module.css'
+import { radioCardContents } from './radio.module.css'
 
 // input type is fixed to "radio"
 type Props = Omit<React.ComponentProps<'input'>, 'type'>
@@ -47,7 +47,7 @@ const cardLabelStyles = `
 export const RadioCard = ({ children, className, ...inputProps }: Props) => (
   <label className={cn('items-center inline-flex font-mono', className)}>
     <Field className="peer sr-only" type="radio" {...inputProps} />
-    <span className={cn(styles.children, cardLabelStyles, 'divide-y')}>
+    <span className={cn(radioCardContents, cardLabelStyles, 'divide-y')}>
       {children}
     </span>
   </label>

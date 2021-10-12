@@ -35,6 +35,11 @@ export default ({ mode }) => {
 
   return {
     root: './app',
+    css: {
+      modules: {
+        localsConvention: 'camelCaseOnly',
+      },
+    },
     build: {
       outDir: resolve(__dirname, 'dist'),
       emptyOutDir: true,

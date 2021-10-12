@@ -25,7 +25,6 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2015",
-    "types": ["node", "jest"],
-    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+    "types": ["node", "jest"]
   }
 }
