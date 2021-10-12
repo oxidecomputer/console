@@ -15,7 +15,6 @@ export default function transformer(file, api) {
   return source
     .find(j.ClassMethod, { key: { name: 'fetchApi' } })
     .find(j.ReturnStatement)
-    .find(j.ReturnStatement)
     .replaceWith((r) =>
       j.returnStatement(
         j.logicalExpression('||', r.value.argument, j.identifier('fetch'))

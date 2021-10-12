@@ -15,8 +15,7 @@ cd ../omicron
 git fetch --all
 git checkout "$API_VERSION"
 
-cargo run --bin=nexus -- omicron-nexus/examples/config.toml --openapi \
-  > ../console/$DOCS_DIR/nexus-openapi.json
+cp openapi/nexus.json ../console/$DOCS_DIR/nexus-openapi.json
 
 cd ../console
 rm -rf "$GEN_DIR/apis"
