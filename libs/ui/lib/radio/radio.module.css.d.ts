@@ -1,4 +1,2 @@
-declare const styles: {
-  readonly radioCardContents: string
-}
-export = styles
+export const __esModule: true
+export const radioCardContents: string
