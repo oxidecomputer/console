@@ -46,6 +46,7 @@ const cardLabelStyles = `
   children:py-2 children:px-4 children:-mx-4 children:border-gray-400
   children:first:-mt-2 children:last:-mb-2
   peer-checked:children:border-green-500
+  cursor-pointer peer-disabled:cursor-default
 `
 
 export function RadioCard({ children, className, ...inputProps }: Props) {
@@ -59,5 +60,5 @@ export function RadioCard({ children, className, ...inputProps }: Props) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="opacity-60 important:p-0 important:m-0">{children}</span>
+  <span className="opacity-60 !p-0 !m-0">{children}</span>
 )
