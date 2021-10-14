@@ -59,5 +59,5 @@ export function RadioCard({ children, className, ...inputProps }: Props) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="opacity-60 p-0! m-0!">{children}</span>
+  <span className="opacity-60 important:p-0 important:m-0">{children}</span>
 )

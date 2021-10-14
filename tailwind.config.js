@@ -74,10 +74,12 @@ module.exports = {
       })
     }),
     childrenPlugin,
-    plugin(({ addVariant }) => {
-      addVariant('important', ({ container }) => {
+    plugin(({ addVariant, e }) => {
+      addVariant('important', ({ modifySelectors, separator, container }) => {
+        modifySelectors(
+          ({ className }) => `.${e(`important${separator}${className}`)}`
+        )
         container.walkRules((rule) => {
-          rule.selector = `.${rule.selector.slice(1)}\\!`
           rule.walkDecls((decl) => {
             decl.important = true
           })
