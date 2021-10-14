@@ -46,6 +46,7 @@ const cardLabelStyles = `
   children:py-2 children:px-4 children:-mx-4 children:border-gray-400
   children:first:-mt-2 children:last:-mb-2
   peer-checked:children:border-green-500
+  cursor-pointer peer-disabled:cursor-default
 `
 
 export function RadioCard({ children, className, ...inputProps }: Props) {
