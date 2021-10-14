@@ -99,6 +99,7 @@
     "prettier": "2.4.0",
     "rollup": "^2.52.7",
     "tailwindcss": "^2.2.0",
+    "tailwindcss-children": "^2.1.0",
     "ts-node": "^9.1.1",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "typescript": "~4.4.2",

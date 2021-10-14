@@ -1,5 +1,13 @@
-const plugin = require('tailwindcss/plugin')
+// @ts-check
 
+/** @type {import('tailwindcss/lib/util/createPlugin').default} */
+// @ts-ignore
+const plugin = require('tailwindcss/plugin')
+const defaultConfig = require('tailwindcss/defaultConfig')
+
+const childrenPlugin = require('tailwindcss-children')
+
+/** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   mode: 'jit',
   purge: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
@@ -65,5 +73,23 @@ module.exports = {
         )
       })
     }),
+    childrenPlugin,
+    plugin(({ addVariant, e }) => {
+      addVariant('important', ({ modifySelectors, separator, container }) => {
+        modifySelectors(
+          ({ className }) => `.${e(`important${separator}${className}`)}`
+        )
+        container.walkRules((rule) => {
+          rule.walkDecls((decl) => {
+            decl.important = true
+          })
+        })
+      })
+    }),
   ],
+  /**
+   * TODO: This isn't respected, need an upstream fix.
+   * @see https://github.com/tailwindlabs/tailwindcss/issues/3949
+   */
+  variantOrder: ['children', ...defaultConfig.variantOrder, 'svg', 'important'],
 }

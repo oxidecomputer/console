@@ -57,8 +57,12 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
         <RadioCard key={option.id} value={option.id}>
-          <div>{option.ncpus} CPUs</div>
-          <div>{option.memory} GB RAM</div>
+          <div>
+            {option.ncpus} <RadioCard.Unit>CPUs</RadioCard.Unit>
+          </div>
+          <div>
+            {option.memory} <RadioCard.Unit>GB RAM</RadioCard.Unit>
+          </div>
         </RadioCard>
       )
     )
@@ -205,11 +209,21 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               Boot disk storage
             </legend>
             <RadioGroup name="storage">
-              <RadioCard value="100gb">100 GB</RadioCard>
-              <RadioCard value="200gb">200 GB</RadioCard>
-              <RadioCard value="500gb">500 GB</RadioCard>
-              <RadioCard value="1000gb">1,000 GB</RadioCard>
-              <RadioCard value="2000gb">2,000 GB</RadioCard>
+              <RadioCard value="100gb">
+                100 <RadioCard.Unit>GB</RadioCard.Unit>
+              </RadioCard>
+              <RadioCard value="200gb">
+                200 <RadioCard.Unit>GB</RadioCard.Unit>
+              </RadioCard>
+              <RadioCard value="500gb">
+                500 <RadioCard.Unit>GB</RadioCard.Unit>
+              </RadioCard>
+              <RadioCard value="1000gb">
+                1,000 <RadioCard.Unit>GB</RadioCard.Unit>
+              </RadioCard>
+              <RadioCard value="2000gb">
+                2,000 <RadioCard.Unit>GB</RadioCard.Unit>
+              </RadioCard>
               <RadioCard value="custom">Custom</RadioCard>
             </RadioGroup>
           </fieldset>
