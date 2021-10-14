@@ -6,10 +6,10 @@
  * difference is that label content is handled through children.
  */
 
+import type { PropsWithChildren } from 'react'
 import React from 'react'
 import cn from 'classnames'
 import { Field } from 'formik'
-import { radioCardContents } from './radio.module.css'
 
 // input type is fixed to "radio"
 type Props = Omit<React.ComponentProps<'input'>, 'type'>
@@ -36,19 +36,27 @@ export const Radio = ({ children, ...inputProps }: Props) => (
 )
 
 const cardLabelStyles = `
-  text-sm border rounded border-gray-400 
+  py-2 px-4 text-sm border rounded border-gray-400 
   bg-gray-500 hover:bg-gray-550
   peer-focus:ring-2 peer-focus:ring-green-700
-  peer-checked:bg-green-900 peer-checked:hover:bg-green-950 peer-checked:border-green-500 peer-checked:text-green-500
+  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:hover:bg-green-950 peer-checked:border-green-500 peer-checked:text-green-500
   peer-disabled:hover:text-gray-100 peer-disabled:text-gray-100 peer-disabled:hover:border-gray-400 
   peer-disabled:hover:bg-gray-500
+  children:py-2 children:px-4 children:-mx-4 children:border-gray-400
+  children:first:-mt-2 children:last:-mb-2
+  peer-checked:children:border-green-500
 `
 
-export const RadioCard = ({ children, className, ...inputProps }: Props) => (
-  <label className={cn('items-center inline-flex font-mono', className)}>
-    <Field className="peer sr-only" type="radio" {...inputProps} />
-    <span className={cn(radioCardContents, cardLabelStyles, 'divide-y')}>
-      {children}
-    </span>
-  </label>
+export function RadioCard({ children, className, ...inputProps }: Props) {
+  return (
+    <label className={cn('items-center inline-flex font-mono', className)}>
+      <Field className="peer sr-only" type="radio" {...inputProps} />
+      <span className={cn(cardLabelStyles, 'divide-y')}>{children}</span>
+    </label>
+  )
+}
+
+// TODO: Remove importants after tailwind variantOrder bug fixed
+RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
+  <span className="opacity-60 p-0! m-0!">{children}</span>
 )

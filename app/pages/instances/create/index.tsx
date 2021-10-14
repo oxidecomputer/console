@@ -58,10 +58,10 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
       (option) => (
         <RadioCard key={option.id} value={option.id}>
           <div>
-            {option.ncpus} <span className="unit">CPUs</span>
+            {option.ncpus} <RadioCard.Unit>CPUs</RadioCard.Unit>
           </div>
           <div>
-            {option.memory} <span className="unit">GB RAM</span>
+            {option.memory} <RadioCard.Unit>GB RAM</RadioCard.Unit>
           </div>
         </RadioCard>
       )
@@ -210,19 +210,19 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             </legend>
             <RadioGroup name="storage">
               <RadioCard value="100gb">
-                100 <span className="unit">GB</span>
+                100 <RadioCard.Unit>GB</RadioCard.Unit>
               </RadioCard>
               <RadioCard value="200gb">
-                200 <span className="unit">GB</span>
+                200 <RadioCard.Unit>GB</RadioCard.Unit>
               </RadioCard>
               <RadioCard value="500gb">
-                500 <span className="unit">GB</span>
+                500 <RadioCard.Unit>GB</RadioCard.Unit>
               </RadioCard>
               <RadioCard value="1000gb">
-                1,000 <span className="unit">GB</span>
+                1,000 <RadioCard.Unit>GB</RadioCard.Unit>
               </RadioCard>
               <RadioCard value="2000gb">
-                2,000 <span className="unit">GB</span>
+                2,000 <RadioCard.Unit>GB</RadioCard.Unit>
               </RadioCard>
               <RadioCard value="custom">Custom</RadioCard>
             </RadioGroup>
