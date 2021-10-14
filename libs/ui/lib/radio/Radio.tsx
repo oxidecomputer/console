@@ -36,12 +36,13 @@ export const Radio = ({ children, ...inputProps }: Props) => (
 )
 
 const cardLabelStyles = `
-  py-2 px-4 text-sm border rounded border-gray-400 
-  bg-gray-500 hover:bg-gray-550
+  py-2 px-4 text-sm border rounded border-gray-400 bg-gray-500 hover:bg-gray-550
   peer-focus:ring-2 peer-focus:ring-green-700
-  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:hover:bg-green-950 peer-checked:border-green-500 peer-checked:text-green-500
+  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:hover:bg-green-950 
+  peer-checked:border-green-500 peer-checked:text-green-500
   peer-disabled:hover:text-gray-100 peer-disabled:text-gray-100 peer-disabled:hover:border-gray-400 
   peer-disabled:hover:bg-gray-500
+
   children:py-2 children:px-4 children:-mx-4 children:border-gray-400
   children:first:-mt-2 children:last:-mb-2
   peer-checked:children:border-green-500
