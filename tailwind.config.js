@@ -74,22 +74,10 @@ module.exports = {
       })
     }),
     childrenPlugin,
-    plugin(({ addVariant, e }) => {
-      addVariant('important', ({ modifySelectors, separator, container }) => {
-        modifySelectors(
-          ({ className }) => `.${e(`important${separator}${className}`)}`
-        )
-        container.walkRules((rule) => {
-          rule.walkDecls((decl) => {
-            decl.important = true
-          })
-        })
-      })
-    }),
   ],
   /**
    * TODO: This isn't respected, need an upstream fix.
    * @see https://github.com/tailwindlabs/tailwindcss/issues/3949
    */
-  variantOrder: ['children', ...defaultConfig.variantOrder, 'svg', 'important'],
+  variantOrder: ['children', ...defaultConfig.variantOrder, 'svg'],
 }
