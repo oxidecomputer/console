@@ -31,9 +31,11 @@ const projectPaths: Record<string, (s: string) => string> = {
   'Project access': (projectName) => `/projects/${projectName}/access`,
 }
 
+// can't use useParams because QuickMenu is not rendered inside the route tree, so
+// it does not have access to the current route
 function useProjectName(): string | null {
   const match = useMatch('/projects/:projectName')
-  return match && match.params.projectName !== 'new'
+  return match?.params.projectName && match.params.projectName !== 'new'
     ? match.params.projectName
     : null
 }
@@ -42,7 +44,7 @@ function useProjectName(): string | null {
 // eslint-disable-next-line
 function useInstanceName(): string | null {
   const match = useMatch('/projects/:projectName/instances/:instanceName')
-  return match && match.params.instanceName !== 'new'
+  return match?.params.instanceName && match.params.instanceName !== 'new'
     ? match.params.instanceName
     : null
 }
