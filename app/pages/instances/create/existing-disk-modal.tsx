@@ -5,13 +5,13 @@ import { Formik, Form } from 'formik'
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button, Dropdown, Icon, Radio, RadioGroup } from '@oxide/ui'
-import { useParams } from '../../../hooks'
 
 const headingStyle = 'font-medium mt-6 mb-3'
 
 type Props = {
   isOpen: boolean
   onDismiss: () => void
+  projectName: string
 }
 
 const isUnattached = ({ state }: Disk) => {
@@ -23,8 +23,8 @@ const isUnattached = ({ state }: Disk) => {
   )
 }
 
-export function ExistingDiskModal({ isOpen, onDismiss }: Props) {
-  const { projectName } = useParams('projectName')
+export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
+  // TODO: maybe wait to fetch until you open the modal
   const { data } = useApiQuery('projectDisksGet', { projectName })
   const disks = (data?.items || [])
     .filter(isUnattached)

@@ -15,10 +15,13 @@ import { InstanceCreateForm } from '../instances/create'
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
 
-const postUrl = `/api/projects/${project.name}/instances`
+const instancesUrl = `/api/projects/${project.name}/instances`
+const disksUrl = `/api/projects/${project.name}/disks`
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
+    // existing disk modal fetches disks on render even if it's not visible
+    fetchMock.get(disksUrl, 200)
     renderWithRouter(<InstanceCreateForm projectName={project.name} />)
   })
 
@@ -27,21 +30,21 @@ describe('InstanceCreateForm', () => {
   })
 
   it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(postUrl, { status: 201 })
+    const mock = fetchMock.post(instancesUrl, 201)
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
 
     fireEvent.click(submit)
 
-    expect(mock.called()).toBeFalsy()
+    expect(mock.called(instancesUrl)).toBeFalsy()
     await waitFor(() => expect(submit).toBeDisabled())
     expect(mock.done()).toBeTruthy()
     expect(submit).not.toBeDisabled()
   })
 
   it('shows specific message for known server error code', async () => {
-    fetchMock.post(postUrl, {
+    fetchMock.post(instancesUrl, {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
     })
@@ -54,7 +57,7 @@ describe('InstanceCreateForm', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post(postUrl, { status: 400 })
+    fetchMock.post(instancesUrl, 400)
 
     fireEvent.click(submitButton())
 
@@ -62,7 +65,7 @@ describe('InstanceCreateForm', () => {
   })
 
   it('posts form on submit', async () => {
-    const mock = fetchMock.post(postUrl, { status: 201 })
+    const mock = fetchMock.post(instancesUrl, 201)
 
     fireEvent.change(screen.getByLabelText('Choose a name'), {
       target: { value: 'new-instance' },
@@ -82,14 +85,14 @@ describe('InstanceCreateForm', () => {
   })
 
   it('navigates to project page on success', async () => {
-    const mock = fetchMock.post(postUrl, { status: 201, body: instance })
+    const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
 
     const projectPath = `/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())
 
-    await waitFor(() => expect(mock.called()).toBeTruthy())
+    await waitFor(() => expect(mock.called(instancesUrl)).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
     await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
   })

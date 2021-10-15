@@ -238,6 +238,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             <ExistingDiskModal
               isOpen={showExistingDiskModal}
               onDismiss={() => setShowExistingDiskModal(false)}
+              projectName={projectName}
             />
           </div>
         </div>
