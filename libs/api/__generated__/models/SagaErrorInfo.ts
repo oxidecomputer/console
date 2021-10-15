@@ -12,63 +12,35 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime'
 import {
-  SagaErrorInfoAnyOf,
-  SagaErrorInfoAnyOfFromJSON,
-  SagaErrorInfoAnyOfFromJSONTyped,
-  SagaErrorInfoAnyOfToJSON,
-  SagaErrorInfoAnyOf1,
-  SagaErrorInfoAnyOf1FromJSON,
-  SagaErrorInfoAnyOf1FromJSONTyped,
-  SagaErrorInfoAnyOf1ToJSON,
-  SagaErrorInfoAnyOf2,
-  SagaErrorInfoAnyOf2FromJSON,
-  SagaErrorInfoAnyOf2FromJSONTyped,
-  SagaErrorInfoAnyOf2ToJSON,
-  SagaErrorInfoAnyOf3,
-  SagaErrorInfoAnyOf3FromJSON,
-  SagaErrorInfoAnyOf3FromJSONTyped,
-  SagaErrorInfoAnyOf3ToJSON,
-  SagaErrorInfoAnyOf4,
-  SagaErrorInfoAnyOf4FromJSON,
-  SagaErrorInfoAnyOf4FromJSONTyped,
-  SagaErrorInfoAnyOf4ToJSON,
+  SagaErrorInfoOneOf,
+  SagaErrorInfoOneOf1,
+  SagaErrorInfoOneOf2,
+  SagaErrorInfoOneOf3,
+  SagaErrorInfoOneOf4,
+  SagaErrorInfoOneOfFromJSONTyped,
+  SagaErrorInfoOneOfToJSON,
+  SagaErrorInfoOneOf1FromJSONTyped,
+  SagaErrorInfoOneOf1ToJSON,
+  SagaErrorInfoOneOf2FromJSONTyped,
+  SagaErrorInfoOneOf2ToJSON,
+  SagaErrorInfoOneOf3FromJSONTyped,
+  SagaErrorInfoOneOf3ToJSON,
+  SagaErrorInfoOneOf4FromJSONTyped,
+  SagaErrorInfoOneOf4ToJSON,
 } from './'
 
 /**
+ * @type SagaErrorInfo
  *
  * @export
- * @interface SagaErrorInfo
  */
-export interface SagaErrorInfo {
-  /**
-   *
-   * @type {string}
-   * @memberof SagaErrorInfo
-   */
-  error: SagaErrorInfoErrorEnum
-  /**
-   *
-   * @type {any}
-   * @memberof SagaErrorInfo
-   */
-  sourceError: any | null
-  /**
-   *
-   * @type {string}
-   * @memberof SagaErrorInfo
-   */
-  message: string
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaErrorInfoErrorEnum {
-  SubsagaCreateFailed = 'subsagaCreateFailed',
-}
+export type SagaErrorInfo =
+  | SagaErrorInfoOneOf
+  | SagaErrorInfoOneOf1
+  | SagaErrorInfoOneOf2
+  | SagaErrorInfoOneOf3
+  | SagaErrorInfoOneOf4
 
 export function SagaErrorInfoFromJSON(json: any): SagaErrorInfo {
   return SagaErrorInfoFromJSONTyped(json, false)
@@ -82,9 +54,11 @@ export function SagaErrorInfoFromJSONTyped(
     return json
   }
   return {
-    error: json['error'],
-    sourceError: json['source_error'],
-    message: json['message'],
+    ...SagaErrorInfoOneOfFromJSONTyped(json, true),
+    ...SagaErrorInfoOneOf1FromJSONTyped(json, true),
+    ...SagaErrorInfoOneOf2FromJSONTyped(json, true),
+    ...SagaErrorInfoOneOf3FromJSONTyped(json, true),
+    ...SagaErrorInfoOneOf4FromJSONTyped(json, true),
   }
 }
 
@@ -96,8 +70,10 @@ export function SagaErrorInfoToJSON(value?: SagaErrorInfo | null): any {
     return null
   }
   return {
-    error: value.error,
-    source_error: value.sourceError,
-    message: value.message,
+    ...SagaErrorInfoOneOfToJSON(value as any),
+    ...SagaErrorInfoOneOf1ToJSON(value as any),
+    ...SagaErrorInfoOneOf2ToJSON(value as any),
+    ...SagaErrorInfoOneOf3ToJSON(value as any),
+    ...SagaErrorInfoOneOf4ToJSON(value as any),
   }
 }

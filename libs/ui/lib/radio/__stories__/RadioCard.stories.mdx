@@ -1,0 +1,67 @@
+import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs'
+import { FormikDecorator } from '../../../util/formik-decorator'
+import {
+  Checked,
+  Default,
+  Disabled,
+  TwoLinesChecked,
+  TwoLinesDefault,
+} from './RadioCard.stories'
+import { RadioCard } from '../Radio'
+
+<Meta
+  title="Components/RadioCard"
+  component={RadioCard}
+  argTypes={{
+    checked: { control: { type: 'boolean' } },
+  }}
+  decorators={[FormikDecorator()]}
+/>
+
+# RadioCard
+
+<Canvas>
+  <Story story={Default} />
+</Canvas>
+
+<ArgsTable of={RadioCard} story="^" />
+
+## Design
+
+A radio input typically represents a single option in a group of related choices. Each radio input is boolean and only one can be selected at a time.
+
+### Usage
+
+One radio input should be selected as the default choice by using the `checked` attribute.
+
+#### Labels and Help/Hint text
+
+Radio input labels are set in regular font weight, positioned to the right of the element, and should be as short as possible.
+
+Help/hint text can be added below the radio input label or as a paragraph below the group.
+
+#### Interaction
+
+Users are able to select an option with click/tap on the radio button or its label.
+Selecting one option unselects all others.
+
+## Stories
+
+### Checked
+
+<Canvas>
+  <Story story={Checked} />
+</Canvas>
+
+### Two Lines
+
+<Canvas>
+  <Story story={TwoLinesDefault} />
+  <Story story={TwoLinesChecked} />
+</Canvas>
+
+### Disabled
+
+<Canvas>
+  <Story story={Disabled} />
+</Canvas>

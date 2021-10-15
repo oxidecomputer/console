@@ -4,28 +4,29 @@ set -o errexit # exit if anything fails
 set -o pipefail
 set -o xtrace
 
-# assumes omicron is in the same dir as as the console repo 
-# and it has been built with `cargo build`
 API_VERSION=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
-DOCS_DIR='app/docs'
+SPEC_FILE='app/docs/nexus-openapi.json'
+CODEMOD_DIR="codemods"
 
-cd ../omicron
-git fetch --all
-git checkout "$API_VERSION"
+# assumes omicron is in the same dir as as the console repo 
+git -C '../omicron' fetch --all
+git -C '../omicron' checkout "$API_VERSION"
 
-cargo run --bin=nexus -- omicron-nexus/examples/config.toml --openapi \
-  > ../console/$DOCS_DIR/nexus-openapi.json
+cp ../omicron/openapi/nexus.json $SPEC_FILE
 
-cd ../console
-rm -rf "$GEN_DIR/apis"
-rm -rf "$GEN_DIR/models"
+rm -rf "$GEN_DIR/apis" "$GEN_DIR/models"
 
 # prereq: brew install openapi-generator
-openapi-generator generate -i $DOCS_DIR/nexus-openapi.json \
+openapi-generator generate -i $SPEC_FILE \
   -o $GEN_DIR \
   -g typescript-fetch \
-  --additional-properties=typescriptThreePlus=true
+  -p typescriptThreePlus=true
+
+for file in $CODEMOD_DIR/*.api.js; do
+    npx jscodeshift -t $file --extensions=ts,tsx --parser=tsx './libs/api'
+done
+
 yarn fmt --loglevel error
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF

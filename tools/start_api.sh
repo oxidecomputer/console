@@ -47,7 +47,7 @@ run_in_pane 1 "$UTILS"
 run_in_pane 1 "set_pane_title nexus"
 run_in_pane 1 "wait_for_up 32221"
 run_in_pane 1 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221"
-run_in_pane 1 "cargo run --bin=nexus -- omicron-nexus/examples/config.toml"
+run_in_pane 1 "cargo run --bin=nexus -- nexus/examples/config.toml"
 
 run_in_pane 2 "$UTILS"
 run_in_pane 2 "set_pane_title sled-agent-sim"

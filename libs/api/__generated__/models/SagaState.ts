@@ -12,59 +12,24 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime'
 import {
-  SagaErrorInfo,
-  SagaErrorInfoFromJSON,
-  SagaErrorInfoFromJSONTyped,
-  SagaErrorInfoToJSON,
-  SagaStateAnyOf,
-  SagaStateAnyOfFromJSON,
-  SagaStateAnyOfFromJSONTyped,
-  SagaStateAnyOfToJSON,
-  SagaStateAnyOf1,
-  SagaStateAnyOf1FromJSON,
-  SagaStateAnyOf1FromJSONTyped,
-  SagaStateAnyOf1ToJSON,
-  SagaStateAnyOf2,
-  SagaStateAnyOf2FromJSON,
-  SagaStateAnyOf2FromJSONTyped,
-  SagaStateAnyOf2ToJSON,
+  SagaStateOneOf,
+  SagaStateOneOf1,
+  SagaStateOneOf2,
+  SagaStateOneOfFromJSONTyped,
+  SagaStateOneOfToJSON,
+  SagaStateOneOf1FromJSONTyped,
+  SagaStateOneOf1ToJSON,
+  SagaStateOneOf2FromJSONTyped,
+  SagaStateOneOf2ToJSON,
 } from './'
 
 /**
+ * @type SagaState
  *
  * @export
- * @interface SagaState
  */
-export interface SagaState {
-  /**
-   *
-   * @type {string}
-   * @memberof SagaState
-   */
-  state: SagaStateStateEnum
-  /**
-   *
-   * @type {SagaErrorInfo}
-   * @memberof SagaState
-   */
-  errorInfo: SagaErrorInfo
-  /**
-   *
-   * @type {string}
-   * @memberof SagaState
-   */
-  errorNodeName: string
-}
-
-/**
- * @export
- * @enum {string}
- */
-export enum SagaStateStateEnum {
-  Failed = 'failed',
-}
+export type SagaState = SagaStateOneOf | SagaStateOneOf1 | SagaStateOneOf2
 
 export function SagaStateFromJSON(json: any): SagaState {
   return SagaStateFromJSONTyped(json, false)
@@ -78,9 +43,9 @@ export function SagaStateFromJSONTyped(
     return json
   }
   return {
-    state: json['state'],
-    errorInfo: SagaErrorInfoFromJSON(json['error_info']),
-    errorNodeName: json['error_node_name'],
+    ...SagaStateOneOfFromJSONTyped(json, true),
+    ...SagaStateOneOf1FromJSONTyped(json, true),
+    ...SagaStateOneOf2FromJSONTyped(json, true),
   }
 }
 
@@ -92,8 +57,8 @@ export function SagaStateToJSON(value?: SagaState | null): any {
     return null
   }
   return {
-    state: value.state,
-    error_info: SagaErrorInfoToJSON(value.errorInfo),
-    error_node_name: value.errorNodeName,
+    ...SagaStateOneOfToJSON(value as any),
+    ...SagaStateOneOf1ToJSON(value as any),
+    ...SagaStateOneOf2ToJSON(value as any),
   }
 }
