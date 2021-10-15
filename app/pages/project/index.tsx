@@ -1,12 +1,13 @@
 import React from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
 import { InstancesTable } from '../../components/InstancesTable'
+import { useParams } from '../../hooks'
 
 const ProjectPage = () => {
-  const { projectName } = useParams()
+  const { projectName } = useParams('projectName')
   const { data: project } = useApiQuery('projectsGetProject', {
     projectName,
   })

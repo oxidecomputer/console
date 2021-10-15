@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
-
 import { Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { useParams } from '../hooks'
 
+import { useParams, useToast } from '../hooks'
 import { InstanceDetails } from './InstanceDetails'
-import { useToast } from '../hooks'
 
 export const InstancePageHeader = () => {
   const navigate = useNavigate()

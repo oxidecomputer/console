@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@reach/tabs'
 import cn from 'classnames'
 import { Formik, Form } from 'formik'
@@ -24,6 +24,7 @@ import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './new-disk-modal'
 import { ExistingDiskModal } from './existing-disk-modal'
 import { NetworkModal } from './network-modal'
+import { useParams } from '../../../hooks'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
@@ -310,7 +311,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 }
 
 const InstanceCreatePage = () => {
-  const { projectName } = useParams()
+  const { projectName } = useParams('projectName')
 
   return (
     <>

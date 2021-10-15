@@ -1,9 +1,9 @@
 import React from 'react'
-import { useParams } from 'react-router'
 import { useTable } from 'react-table'
 
 import { useApiQuery } from '@oxide/api'
 import { Table } from '@oxide/ui'
+import { useParams } from '../../hooks'
 
 const columns = [
   {
@@ -19,7 +19,7 @@ const columns = [
 ]
 
 export default function ProjectStorage() {
-  const { projectName } = useParams()
+  const { projectName } = useParams('projectName')
   const { data } = useApiQuery(
     'projectDisksGet',
     { projectName },

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { Icon, SkipLinkTarget } from '@oxide/ui'
 import {
@@ -12,9 +12,10 @@ import {
   SidebarDivider,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { useParams } from '../hooks'
 
 const ProjectLayout = () => {
-  const { projectName } = useParams()
+  const { projectName } = useParams('projectName')
   return (
     <PageContainer>
       <Sidebar>

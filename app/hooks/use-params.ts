@@ -11,7 +11,9 @@ export function useParams<K extends string>(
   ...paramNames: K[]
 ): Record<K, string> {
   const params = _useParams()
-  if (process.env.NODE_ENV !== 'production') {
+  // exclude both test and production
+  // TODO: don't exclude test, that seems bad?
+  if (process.env.NODE_ENV === 'development') {
     for (const k of paramNames) {
       invariant(
         k in params,
