@@ -1,12 +1,12 @@
-import type { PropsWithChildren } from 'react'
 import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
 import { Icon } from '../icon/Icon'
 import { pluckType } from '../../util/children'
+import type { ChildrenProp } from '../../util/children'
 
-interface SideModalProps extends PropsWithChildren<DialogProps> {
+interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
   title: string
 }
@@ -51,11 +51,11 @@ export function SideModal({
   )
 }
 
-SideModal.Section = ({ children }: PropsWithChildren<unknown>) => (
+SideModal.Section = ({ children }: ChildrenProp) => (
   <div className="p-8 space-y-6 border-gray-400">{children}</div>
 )
 
-SideModal.Docs = ({ children }: PropsWithChildren<unknown>) => (
+SideModal.Docs = ({ children }: ChildrenProp) => (
   <SideModal.Section>
     <div>
       <h3 className="font-medium">Relevant docs</h3>
@@ -68,7 +68,7 @@ SideModal.Docs = ({ children }: PropsWithChildren<unknown>) => (
   </SideModal.Section>
 )
 
-SideModal.Footer = ({ children }: PropsWithChildren<unknown>) => (
+SideModal.Footer = ({ children }: ChildrenProp) => (
   <footer className="flex h-20 p-6 border-t border-gray-400 items-center justify-end">
     {children}
   </footer>
