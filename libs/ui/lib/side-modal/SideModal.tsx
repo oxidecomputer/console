@@ -19,7 +19,8 @@ export function SideModal({
   ...dialogProps
 }: SideModalProps) {
   const childArray = React.Children.toArray(children)
-  const Footer = pluckType(childArray, SideModal.Footer)
+  const footer = pluckType(childArray, SideModal.Footer)
+  const titleId = `${id}-title`
 
   return (
     <Dialog
@@ -27,7 +28,7 @@ export function SideModal({
       onDismiss={onDismiss}
       {...dialogProps}
       className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-gray-500 border-l border-gray-400"
-      aria-labelledby={`${id}-title`}
+      aria-labelledby={titleId}
     >
       <div
         style={{ maxHeight: 'calc(100vw - 5rem)' }}
@@ -35,7 +36,7 @@ export function SideModal({
       >
         {/* Title */}
         <div className="flex justify-between mt-2 mb-8 p-6">
-          <h2 className="text-display-xl" id={`${id}-title`}>
+          <h2 className="text-display-xl" id={titleId}>
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>
@@ -45,7 +46,7 @@ export function SideModal({
         {/* Body */}
         <div className="divide-y">{childArray}</div>
       </div>
-      {Footer}
+      {footer}
     </Dialog>
   )
 }
