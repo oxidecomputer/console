@@ -1,5 +1,4 @@
 import React from 'react'
-import { useParams } from 'react-router'
 import { Dialog } from '@reach/dialog'
 import { Formik, Form } from 'formik'
 
@@ -12,6 +11,7 @@ const headingStyle = 'font-medium mt-6 mb-3'
 type Props = {
   isOpen: boolean
   onDismiss: () => void
+  projectName: string
 }
 
 const isUnattached = ({ state }: Disk) => {
@@ -23,8 +23,8 @@ const isUnattached = ({ state }: Disk) => {
   )
 }
 
-export function ExistingDiskModal({ isOpen, onDismiss }: Props) {
-  const { projectName } = useParams()
+export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
+  // TODO: maybe wait to fetch until you open the modal
   const { data } = useApiQuery('projectDisksGet', { projectName })
   const disks = (data?.items || [])
     .filter(isUnattached)

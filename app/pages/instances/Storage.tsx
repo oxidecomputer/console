@@ -1,10 +1,10 @@
 import React from 'react'
-import { useParams } from 'react-router'
 import { useTable } from 'react-table'
 
 import type { DiskAttachment } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button, Table } from '@oxide/ui'
+import { useParams } from '../../hooks'
 
 const columns = [
   {
@@ -36,7 +36,7 @@ const columns = [
 ]
 
 function Storage() {
-  const { projectName, instanceName } = useParams()
+  const { projectName, instanceName } = useParams('projectName', 'instanceName')
   const { data } = useApiQuery(
     'instanceDisksGet',
     { projectName, instanceName },

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { Icon, SkipLinkTarget } from '@oxide/ui'
 import {
@@ -13,9 +13,10 @@ import {
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { InstancePageHeader } from '../components/InstancePageHeader'
+import { useParams } from '../hooks'
 
 const InstanceLayout = () => {
-  const { instanceName } = useParams()
+  const { instanceName } = useParams('instanceName')
   return (
     <PageContainer>
       <Sidebar>
