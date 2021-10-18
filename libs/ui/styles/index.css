@@ -4,8 +4,6 @@
 @import '@reach/menu-button/styles.css';
 @import '@reach/tabs/styles.css';
 
-@import './side-modal.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
