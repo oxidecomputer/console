@@ -1,4 +1,4 @@
-<svg   viewBox="0 0 16 16"  xmlns="http://www.w3.org/2000/svg">
-<title>Email</title>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M7.99998 7L1.59998 3H14.4L7.99998 7ZM0 13V4L8 9L16 4V13H0Z" />
+<svg role="img" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <title>Email</title>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.99998 7L1.59998 3H14.4L7.99998 7ZM0 13V4L8 9L16 4V13H0Z" />
 </svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
   <title>Stopwatch</title>
   <path d="M25.109 3L29 6.891l-1.945 1.946-3.892-3.891L25.11 3zM17.131 11.323H14.38v5.503h2.751v-5.503z" />
   <path fill-rule="evenodd"
