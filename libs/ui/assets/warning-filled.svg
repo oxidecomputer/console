@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
   <title>Warning</title>
   <path fill-rule="evenodd" d="M2 29L16 3l14 26H2zm15.4-18h-2.8v11h2.8V11zm0 13h-2.8v3h2.8v-3z" clip-rule="evenodd" />
 </svg>
