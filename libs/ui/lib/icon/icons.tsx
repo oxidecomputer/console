@@ -16,6 +16,7 @@ import CpuIcon from '../../assets/cpu.svg'
 import DangerFilledIcon from '../../assets/danger-filled.svg'
 import DangerIcon from '../../assets/danger.svg'
 import DashboardIcon from '../../assets/dashboard.svg'
+import DeleteIcon from '../../assets/delete.svg'
 import DocumentIcon from '../../assets/document.svg'
 import DotIcon from '../../assets/dot.svg'
 import ExternalIcon from '../../assets/external.svg'
@@ -59,7 +60,6 @@ import SupportIcon from '../../assets/support.svg'
 import TagsIcon from '../../assets/tags.svg'
 import TerminalIcon from '../../assets/terminal.svg'
 import ThemeIcon from '../../assets/theme.svg'
-import TrashIcon from '../../assets/trash.svg'
 import UserIcon from '../../assets/user.svg'
 import UsersIcon from '../../assets/users.svg'
 import ViewColsIcon from '../../assets/view-cols.svg'
@@ -85,6 +85,7 @@ export const icons = {
   danger: DangerIcon,
   dangerFilled: DangerFilledIcon,
   dashboard: DashboardIcon,
+  delete: DeleteIcon,
   document: DocumentIcon,
   dot: DotIcon,
   external: ExternalIcon,
@@ -128,7 +129,6 @@ export const icons = {
   tags: TagsIcon,
   terminal: TerminalIcon,
   theme: ThemeIcon,
-  trash: TrashIcon,
   user: UserIcon,
   users: UsersIcon,
   viewCols: ViewColsIcon,

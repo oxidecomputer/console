@@ -118,7 +118,7 @@ export const InstancePageHeader = () => {
             onClick={handleDelete}
             disabled={!instanceCan.delete(instance)}
           >
-            <Icon name="trash" />
+            <Icon name="delete" />
           </button>
           {/* TODO: fix icon size */}
           <button type="button">
