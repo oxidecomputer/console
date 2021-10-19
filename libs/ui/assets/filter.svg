@@ -1,4 +1,3 @@
-<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
-  <title>Filter</title>
-  <path d="M4 7h24v3H4V7zM7 12h18v3H7v-3zM10 17h13v3H10v-3zM12 22h8v3h-8v-3z" />
+<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M0 1H12V3H0V1ZM2 5H10V7H2V5ZM8 9H4V11H8V9Z" />
 </svg>

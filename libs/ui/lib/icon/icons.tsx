@@ -19,6 +19,7 @@ import DashboardIcon from '../../assets/dashboard.svg'
 import DeleteIcon from '../../assets/delete.svg'
 import DocumentIcon from '../../assets/document.svg'
 import DotIcon from '../../assets/dot.svg'
+import EditIcon from '../../assets/edit.svg'
 import ExternalIcon from '../../assets/external.svg'
 import FilterIcon from '../../assets/filter.svg'
 import FolderIcon from '../../assets/folder.svg'
@@ -36,7 +37,6 @@ import MoreIcon from '../../assets/more.svg'
 import NetworkingIcon from '../../assets/networking.svg'
 import NotificationsIcon from '../../assets/notifications.svg'
 import OrgsIcon from '../../assets/organizations.svg'
-import PenIcon from '../../assets/pen.svg'
 import PlayOIcon from '../../assets/play-button-o.svg'
 import PlayPauseOIcon from '../../assets/play-pause-o.svg'
 import PlayStopOIcon from '../../assets/play-stop-o.svg'
@@ -88,6 +88,7 @@ export const icons = {
   delete: DeleteIcon,
   document: DocumentIcon,
   dot: DotIcon,
+  edit: EditIcon,
   external: ExternalIcon,
   filter: FilterIcon,
   folder: FolderIcon,
@@ -105,7 +106,6 @@ export const icons = {
   networking: NetworkingIcon,
   notifications: NotificationsIcon,
   orgs: OrgsIcon,
-  pen: PenIcon,
   playO: PlayOIcon,
   playPauseO: PlayPauseOIcon,
   playStopO: PlayStopOIcon,
