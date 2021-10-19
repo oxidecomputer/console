@@ -16,8 +16,10 @@ import CpuIcon from '../../assets/cpu.svg'
 import DangerFilledIcon from '../../assets/danger-filled.svg'
 import DangerIcon from '../../assets/danger.svg'
 import DashboardIcon from '../../assets/dashboard.svg'
+import DeleteIcon from '../../assets/delete.svg'
 import DocumentIcon from '../../assets/document.svg'
 import DotIcon from '../../assets/dot.svg'
+import EditIcon from '../../assets/edit.svg'
 import ExternalIcon from '../../assets/external.svg'
 import FilterIcon from '../../assets/filter.svg'
 import FolderIcon from '../../assets/folder.svg'
@@ -35,7 +37,6 @@ import MoreIcon from '../../assets/more.svg'
 import NetworkingIcon from '../../assets/networking.svg'
 import NotificationsIcon from '../../assets/notifications.svg'
 import OrgsIcon from '../../assets/organizations.svg'
-import PenIcon from '../../assets/pen.svg'
 import PlayOIcon from '../../assets/play-button-o.svg'
 import PlayPauseOIcon from '../../assets/play-pause-o.svg'
 import PlayStopOIcon from '../../assets/play-stop-o.svg'
@@ -59,7 +60,6 @@ import SupportIcon from '../../assets/support.svg'
 import TagsIcon from '../../assets/tags.svg'
 import TerminalIcon from '../../assets/terminal.svg'
 import ThemeIcon from '../../assets/theme.svg'
-import TrashIcon from '../../assets/trash.svg'
 import UserIcon from '../../assets/user.svg'
 import UsersIcon from '../../assets/users.svg'
 import ViewColsIcon from '../../assets/view-cols.svg'
@@ -85,8 +85,10 @@ export const icons = {
   danger: DangerIcon,
   dangerFilled: DangerFilledIcon,
   dashboard: DashboardIcon,
+  delete: DeleteIcon,
   document: DocumentIcon,
   dot: DotIcon,
+  edit: EditIcon,
   external: ExternalIcon,
   filter: FilterIcon,
   folder: FolderIcon,
@@ -104,7 +106,6 @@ export const icons = {
   networking: NetworkingIcon,
   notifications: NotificationsIcon,
   orgs: OrgsIcon,
-  pen: PenIcon,
   playO: PlayOIcon,
   playPauseO: PlayPauseOIcon,
   playStopO: PlayStopOIcon,
@@ -128,7 +129,6 @@ export const icons = {
   tags: TagsIcon,
   terminal: TerminalIcon,
   theme: ThemeIcon,
-  trash: TrashIcon,
   user: UserIcon,
   users: UsersIcon,
   viewCols: ViewColsIcon,

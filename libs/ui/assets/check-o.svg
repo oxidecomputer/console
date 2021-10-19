@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
   <title>Checked</title>
   <path d="M13.923 21.098L8.91 16.084l1.671-1.671 3.343 3.342 6.685-6.685 1.672 1.671-8.357 8.357z" />
   <path fill-rule="evenodd"

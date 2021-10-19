@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" >
   <title>User</title>
   <path fill-rule="evenodd" d="M20 9a4 4 0 11-8 0 4 4 0 018 0zm-9 18V15h10v12H11z" clip-rule="evenodd" />
 </svg>

@@ -1,4 +1,5 @@
-<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img">
-<title>Dot</title>
-  <path fill-rule="evenodd" d="M4 16C4 9.373 9.373 4 16 4s12 5.373 12 12-5.373 12-12 12S4 22.627 4 16z" clip-rule="evenodd"/>
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Dot</title>
+  <path fill-rule="evenodd" d="M4 16C4 9.373 9.373 4 16 4s12 5.373 12 12-5.373 12-12 12S4 22.627 4 16z"
+    clip-rule="evenodd" />
 </svg>
