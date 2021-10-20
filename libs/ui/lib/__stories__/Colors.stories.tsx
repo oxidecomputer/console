@@ -21,7 +21,7 @@ const Color = ({ name, value }: ColorProps) => (
   <div key={name} className="flex mb-4">
     <div
       className="w-12 h-12 mr-3 border border-gray-400"
-      css={{ backgroundColor: value }}
+      style={{ backgroundColor: value }}
     />
     <div className="flex flex-col">
       {name && <code className="mb-3">{name}</code>}
@@ -36,7 +36,7 @@ export const AllColors: React.FC = () => (
       <div
         key={group}
         className="flex flex-col flex-wrap"
-        css={{ flex: colors.length === 1 ? '1 1 100%' : '0 0 25%' }}
+        style={{ flex: colors.length === 1 ? '1 1 100%' : '0 0 25%' }}
       >
         <h3 className="my-4 font-sans font-medium text-lg">{group}</h3>
         {typeof colors === 'string' ? (

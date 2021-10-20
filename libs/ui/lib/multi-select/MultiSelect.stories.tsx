@@ -1,5 +1,9 @@
-import { ArgsTable, Canvas, Story, Meta } from '@storybook/addon-docs'
 import { MultiSelect } from './MultiSelect'
+
+export default {
+  component: MultiSelect,
+}
+
 const SAMPLE_OPTIONS = [
   { value: 'de', label: 'Devon Edwards' },
   { value: 'rm', label: 'Randall Miles' },
@@ -12,12 +16,8 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-<Meta title="Components/MultiSelect" />
-
-# MultiSelect
-
-<Canvas>
-  <Story name="Default">
-    <MultiSelect label="Pick tags" items={SAMPLE_OPTIONS} />
-  </Story>
-</Canvas>
+export const Default = {
+  args: {
+    items: SAMPLE_OPTIONS,
+  },
+}

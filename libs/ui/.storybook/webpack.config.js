@@ -9,8 +9,13 @@ module.exports = async ({ config }) => {
   resolvePlugins.push(
     new TsconfigPathsPlugin({ configFile: './tsconfig.json' })
   )
+  config.resolve.extensions.push('.mdx')
   config.resolve.plugins = resolvePlugins
 
+  config.resolve.fallback = {
+    ...(config.resolve.fallback || {}),
+    path: require.resolve('path-browserify'),
+  }
   // Found this here: https://github.com/nrwl/nx/issues/2859
   // And copied the part of the solution that made it work
 
