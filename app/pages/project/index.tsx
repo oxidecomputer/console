@@ -17,7 +17,7 @@ const ProjectPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="project">{project.name}</PageTitle>
+        <PageTitle icon="folder">{project.name}</PageTitle>
       </PageHeader>
 
       <InstancesTable className="my-12" />
