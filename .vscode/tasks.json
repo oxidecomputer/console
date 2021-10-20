@@ -59,7 +59,7 @@
       "type": "shell",
       "detail": "Run the Nexus dev server",
       "dependsOn": ["[helper] Populate Nexus DB"],
-      "command": "cargo run --bin=nexus -- omicron-nexus/examples/config.toml",
+      "command": "cargo run --bin=nexus -- nexus/examples/config.toml",
       "isBackground": true,
       "problemMatcher": {
         "pattern": [
