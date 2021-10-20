@@ -61,7 +61,7 @@ module.exports = {
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
       compilerOptions: {
         allowSyntheticDefaultImports: false,
-        esModuleInterop: true,
+        esModuleInterop: false,
         paths: tsBaseConfig.compilerOptions.paths,
       },
     },
