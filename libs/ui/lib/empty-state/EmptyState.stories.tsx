@@ -3,7 +3,6 @@ import { EmptyState } from './EmptyState'
 
 export default {
   component: EmptyState,
-  title: 'Components/EmptyState',
 }
 
 export const Default = () => {

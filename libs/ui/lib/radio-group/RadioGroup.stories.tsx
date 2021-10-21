@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { FormikDecorator } from '../../../util/formik-decorator'
-import { RadioGroup } from '../RadioGroup'
-import { Radio, RadioCard } from '../../radio/Radio'
+import { FormikDecorator } from '../../util/formik-decorator'
+import { RadioGroup } from './RadioGroup'
+import { Radio, RadioCard } from '../radio/Radio'
 
 export const Default = () => (
   <RadioGroup name="group1">
