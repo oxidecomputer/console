@@ -1,7 +1,21 @@
-import { Button } from './Button'
+import { Button, buttonSizes, variants } from './Button'
 
 export default {
   component: Button,
+  argTypes: {
+    size: {
+      control: {
+        type: 'select',
+        options: buttonSizes,
+      },
+    },
+    variant: {
+      control: {
+        type: 'select',
+        options: variants,
+      },
+    },
+  },
 }
 
 export const Default = {
