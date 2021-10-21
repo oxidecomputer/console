@@ -1,7 +1,14 @@
+// @ts-check
+
+/**
+ * @typedef { import("plop").NodePlopAPI } Plop
+ */
+
 const path = require('path')
 
 const UI_ROOT_DIR = 'libs/ui/lib'
 
+/** @type {(plop: Plop) => void} */
 module.exports = (plop) => {
   plop.setGenerator('stories', {
     description: 'Generate a React component, a test file, and a story',

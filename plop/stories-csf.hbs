@@ -1,15 +1,11 @@
-import React from 'react'
-import type { Story } from '@storybook/react'
 import { {{ name }} } from './{{ name }}'
+import type { {{ name }}Props } from './{{ name }}'
+import type { StoryObj } from '@storybook/react'
 
 export default {
   component: {{ name }},
-  title: 'Components/{{ name }}',
+} as StoryObj<{{ name }}Props>
+
+export const Default: StoryObj<{{ name }}Props> = {
+  args: {  },
 }
-
-type Props = React.ComponentProps<typeof {{ name }}>
-
-const Template: Story<Props> = (args) => <{{ name }} {...args} />
-
-export const Default = Template.bind({})
-Default.args = {}
