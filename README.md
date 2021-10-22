@@ -111,6 +111,7 @@ Using the script is strongly recommended, but if you really don't want to, make 
 | `yarn tsc`  | Check types                                                      |
 | `yarn ci`   | Lint, tests, and types                                           |
 | `yarn fmt`  | Format everything. Rarely necessary thanks to editor integration |
+| `yarn gen`  | Generate components, stories, tests, etc                         |
 
 ## Relevant documents
 
