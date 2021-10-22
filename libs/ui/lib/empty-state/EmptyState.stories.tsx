@@ -1,11 +1,13 @@
+import type { ComponentProps } from 'react'
 import React from 'react'
 import { EmptyState } from './EmptyState'
-import type { EmptyStateProps } from './EmptyState'
 import type { StoryObj } from '@storybook/react'
+
+type Story = StoryObj<ComponentProps<typeof EmptyState>>
 
 export default {
   component: EmptyState,
-} as StoryObj<EmptyStateProps>
+} as Story
 
 export const Default = () => {
   const props = {

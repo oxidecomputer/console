@@ -1,7 +1,9 @@
 import { FormikDecorator } from '../../util/formik-decorator'
 import { Radio } from './Radio'
-import type { RadioProps } from './Radio'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Radio>>
 
 export default {
   component: Radio,
@@ -10,19 +12,19 @@ export default {
     children: { control: 'text' },
   },
   decorators: [FormikDecorator()],
-} as StoryObj<RadioProps>
+} as Story
 
-export const Unchecked: StoryObj<RadioProps> = {
+export const Unchecked: Story = {
   args: {
     checked: false,
     children: 'Label',
   },
 }
 
-export const Checked: StoryObj<RadioProps> = {
+export const Checked: Story = {
   args: { checked: true, children: 'Label' },
 }
 
-export const Disabled: StoryObj<RadioProps> = {
+export const Disabled: Story = {
   args: { checked: false, children: 'Label', disabled: true },
 }

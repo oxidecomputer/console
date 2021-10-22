@@ -1,6 +1,8 @@
 import { Button, buttonSizes, variants } from './Button'
-import type { ButtonProps } from './Button'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Button>>
 
 export default {
   component: Button,
@@ -18,9 +20,9 @@ export default {
       },
     },
   },
-} as StoryObj<ButtonProps>
+} as Story
 
-export const Default: StoryObj<ButtonProps> = {
+export const Default: Story = {
   args: {
     children: 'Button',
     disabled: false,

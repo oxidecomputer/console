@@ -1,13 +1,15 @@
 import { Icon } from './Icon'
-import type { IconProps } from './Icon'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
 
-export default { component: Icon } as StoryObj<IconProps>
+type Story = StoryObj<ComponentProps<typeof Icon>>
 
-export const Default: StoryObj<IconProps> = {
+export default { component: Icon } as Story
+
+export const Default: Story = {
   args: { name: 'bookmark' },
 }
 
-export const CustomTitle: StoryObj<IconProps> = {
+export const CustomTitle: Story = {
   args: { svgProps: { title: 'Cameron Howe' }, name: 'profile' },
 }
