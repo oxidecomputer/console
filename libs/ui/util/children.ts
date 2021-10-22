@@ -17,9 +17,9 @@ export const pluck = (
   return childIndex !== -1 ? children.splice(childIndex, 1)[0] : null
 }
 
-export const pluckType = (
+export const pluckType = <P>(
   children: ChildArray,
-  componentType: ComponentType<unknown>
+  componentType: ComponentType<P>
 ) => {
   return pluck(
     children,
