@@ -23,13 +23,13 @@ export const pluckType = <P extends Record<string, unknown>>(
   componentType: ComponentType<P>
 ) => pluck(children, (child) => (child as ReactElement)?.type === componentType)
 
-interface MaybeWrapProps<C extends ReactNode> {
-  when: boolean
+interface WrapProps<C extends ReactNode> {
+  when: unknown
   with: ReactElement
   children: C
 }
 
-export const MaybeWrap = <C extends ReactNode>(props: MaybeWrapProps<C>) =>
+export const Wrap = <C extends ReactNode>(props: WrapProps<C>) =>
   props.when ? (
     React.cloneElement(props.with, [], props.children)
   ) : (
