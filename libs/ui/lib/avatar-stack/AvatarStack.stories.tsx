@@ -1,10 +1,12 @@
 import { AvatarStack } from './AvatarStack'
-import type { AvatarStackProps } from './AvatarStack'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof AvatarStack>>
 
 export default {
   component: AvatarStack,
-} as StoryObj<AvatarStackProps>
+} as Story
 
 const AVATAR_DATA = [
   { name: 'Haley Clark', round: true },
@@ -12,6 +14,6 @@ const AVATAR_DATA = [
   { name: 'Gordon Clark', round: true },
 ]
 
-export const Default: StoryObj<AvatarStackProps> = {
+export const Default: Story = {
   args: { data: AVATAR_DATA },
 }

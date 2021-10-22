@@ -1,12 +1,16 @@
+import type { ComponentProps } from 'react'
 import React from 'react'
 
 import { FormikDecorator } from '../../util/formik-decorator'
 import { RadioGroup } from './RadioGroup'
 import { Radio, RadioCard } from '../radio/Radio'
+import type { StoryObj } from '@storybook/react'
+
+type Story = StoryObj<ComponentProps<typeof RadioGroup>>
 
 export default {
   component: RadioGroup,
-}
+} as Story
 
 export const Default = () => (
   <RadioGroup name="group1">

@@ -1,6 +1,8 @@
 import { Breadcrumbs } from './Breadcrumbs'
-import type { BreadcrumbsProps } from './Breadcrumbs'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Breadcrumbs>>
 
 // Follow https://github.com/storybookjs/storybook/issues/12078
 // for allowing better controls for objects
@@ -11,9 +13,9 @@ export default {
       control: { type: 'object' },
     },
   },
-} as StoryObj<BreadcrumbsProps>
+} as Story
 
-export const Default: StoryObj<BreadcrumbsProps> = {
+export const Default: Story = {
   args: {
     data: [
       { href: '/', label: 'Home' },

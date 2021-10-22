@@ -1,12 +1,14 @@
 import { Badge } from './Badge'
-import type { BadgeProps } from './Badge'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Badge>>
 
 export default {
   component: Badge,
-} as StoryObj<BadgeProps>
+} as Story
 
-export const Default: StoryObj<BadgeProps> = {
+export const Default: Story = {
   args: {
     children: 'Badge',
   },

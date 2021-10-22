@@ -1,9 +1,11 @@
 import { Progress } from './Progress'
-import type { ProgressProps } from './Progress'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Progress>>
 
 export default {
   component: Progress,
-} as StoryObj<ProgressProps>
+} as Story
 
-export const Default: StoryObj<ProgressProps> = {}
+export const Default: Story = {}

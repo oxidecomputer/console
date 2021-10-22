@@ -1,9 +1,11 @@
 import { Spinner } from './Spinner'
-import type { SpinnerProps } from './Spinner'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Spinner>>
 
 export default {
   component: Spinner,
-} as StoryObj<SpinnerProps>
+} as Story
 
-export const Default: StoryObj<SpinnerProps> = {}
+export const Default: Story = {}

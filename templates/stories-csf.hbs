@@ -1,11 +1,13 @@
 import { {{ name }} } from './{{ name }}'
-import type { {{ name }}Props } from './{{ name }}'
+import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+
+type Story = StoryObj<ComponentProps<typeof {{ name }}>>
 
 export default {
   component: {{ name }},
-} as StoryObj<{{ name }}Props>
+} as Story 
 
-export const Default: StoryObj<{{ name }}Props> = {
+export const Default: Story = {
   args: {  },
 }

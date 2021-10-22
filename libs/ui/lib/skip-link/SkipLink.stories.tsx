@@ -1,9 +1,11 @@
 import { SkipLink } from './SkipLink'
-import type { SkipLinkProps } from './SkipLink'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof SkipLink>>
 
 export default {
   component: SkipLink,
-} as StoryObj<SkipLinkProps>
+} as Story
 
-export const Default: StoryObj<SkipLinkProps> = {}
+export const Default: Story = {}

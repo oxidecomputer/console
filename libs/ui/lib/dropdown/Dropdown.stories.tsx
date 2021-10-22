@@ -1,10 +1,12 @@
 import { Dropdown } from './Dropdown'
-import type { DropdownProps } from './Dropdown'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+type Story = StoryObj<ComponentProps<typeof Dropdown>>
 
 export default {
   component: Dropdown,
-} as StoryObj<DropdownProps>
+} as Story
 
 const SAMPLE_OPTIONS = [
   { value: 'de', label: 'Devon Edwards' },
@@ -18,14 +20,14 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-export const Default: StoryObj<DropdownProps> = {
+export const Default: Story = {
   args: {
     label: 'Choose an Operator',
     items: SAMPLE_OPTIONS,
   },
 }
 
-export const HideLabel: StoryObj<DropdownProps> = {
+export const HideLabel: Story = {
   args: {
     showLabel: false,
     label: 'Choose an Operator',
@@ -33,7 +35,7 @@ export const HideLabel: StoryObj<DropdownProps> = {
   },
 }
 
-export const WithDefaultValue: StoryObj<DropdownProps> = {
+export const WithDefaultValue: Story = {
   args: {
     defaultValue: 'de',
     label: 'Choose an Operator',
@@ -41,7 +43,7 @@ export const WithDefaultValue: StoryObj<DropdownProps> = {
   },
 }
 
-export const WithHint: StoryObj<DropdownProps> = {
+export const WithHint: Story = {
   args: {
     showLabel: false,
     label: 'Choose an Operator',
