@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ElementType, PropsWithChildren } from 'react'
-import { Wrap } from 'libs/ui/util/children'
+import { Wrap } from '../../util/children'
 import { Icon, Tooltip } from '@oxide/ui'
 
 type FieldTitleProps<T extends ElementType> = (
