@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTable } from 'react-table'
 import { Table } from './Table'
+import type { FC, ReactElement } from 'react'
 import type { TableProps } from './Table'
 import type { StoryObj } from '@storybook/react'
 
@@ -30,11 +31,11 @@ const columns = [
   },
 ]
 
-const TableProvider = ({ children }: any) => {
+const TableProvider: FC = ({ children }) => {
   const table = useTable({ columns, data })
   return React.Children.map(children, (child) =>
-    React.cloneElement(child, { table })
-  )
+    React.cloneElement(child as ReactElement, { table })
+  ) as unknown as ReactElement
 }
 
 export default {
