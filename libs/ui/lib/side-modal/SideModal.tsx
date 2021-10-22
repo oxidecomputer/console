@@ -6,7 +6,7 @@ import { Icon } from '../icon/Icon'
 import { pluckType } from '../../util/children'
 import type { ChildrenProp } from '../../util/children'
 
-interface SideModalProps extends DialogProps, ChildrenProp {
+export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
   title: string
 }

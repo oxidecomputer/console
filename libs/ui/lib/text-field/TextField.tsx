@@ -11,7 +11,7 @@ import { classed } from '../../util/classed'
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate. Omit `type` because this is always a text field.
-type TextFieldProps = Omit<React.ComponentProps<'input'>, 'type'> & {
+export type TextFieldProps = Omit<React.ComponentProps<'input'>, 'type'> & {
   validate?: FieldValidator
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean

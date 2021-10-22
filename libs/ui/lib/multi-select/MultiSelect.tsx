@@ -8,7 +8,7 @@ import { Icon } from '../icon/Icon'
 
 type Item = { value: string; label: string }
 
-interface Props {
+export interface MultiSelectProps {
   hint?: string | React.ReactNode
   /**
    * Required for accessibility. Description of the dropdown.
@@ -30,7 +30,7 @@ export const MultiSelect = ({
   items,
   placeholder,
   showLabel = true,
-}: Props) => {
+}: MultiSelectProps) => {
   const ms = useMultipleSelection<Item>()
   const select = useSelect({
     items,

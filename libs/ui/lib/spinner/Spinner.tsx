@@ -5,9 +5,9 @@ import useInterval from '../hooks/use-interval'
 
 const FRAMES = ['|', '/', '—', '\\']
 
-type Props = { className?: string }
+export type SpinnerProps = { className?: string }
 
-export default ({ className }: Props) => {
+export const Spinner = ({ className }: SpinnerProps) => {
   const [index, setIndex] = useState(0)
 
   useInterval(() => {

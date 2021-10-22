@@ -18,7 +18,7 @@ const inputStyle = `
   indeterminate:bg-green-900 indeterminate:border-green-500 hover:indeterminate:bg-green-950
 `
 
-type Props = {
+export type CheckboxProps = {
   indeterminate?: boolean
   children?: React.ReactNode
 } & React.ComponentProps<'input'>
@@ -29,7 +29,11 @@ type Props = {
 // examples using forwardRef to allow passing ref from outside:
 // https://github.com/tannerlinsley/react-table/discussions/1989
 
-export const Checkbox = ({ indeterminate, children, ...inputProps }: Props) => (
+export const Checkbox = ({
+  indeterminate,
+  children,
+  ...inputProps
+}: CheckboxProps) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
       <input

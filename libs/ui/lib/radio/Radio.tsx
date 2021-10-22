@@ -12,7 +12,7 @@ import cn from 'classnames'
 import { Field } from 'formik'
 
 // input type is fixed to "radio"
-type Props = Omit<React.ComponentProps<'input'>, 'type'>
+export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 const fieldStyles = `
   peer appearance-none absolute outline-none
@@ -23,7 +23,7 @@ const fieldStyles = `
   disabled:hover:bg-transparent
 `
 
-export const Radio = ({ children, ...inputProps }: Props) => (
+export const Radio = ({ children, ...inputProps }: RadioProps) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
       <Field className={fieldStyles} type="radio" {...inputProps} />
@@ -49,7 +49,7 @@ const cardLabelStyles = `
   cursor-pointer peer-disabled:cursor-default
 `
 
-export function RadioCard({ children, className, ...inputProps }: Props) {
+export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   return (
     <label className={cn('items-center inline-flex font-mono', className)}>
       <Field className="peer sr-only" type="radio" {...inputProps} />

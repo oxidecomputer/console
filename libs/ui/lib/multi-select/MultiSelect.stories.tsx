@@ -1,8 +1,10 @@
 import { MultiSelect } from './MultiSelect'
+import type { MultiSelectProps } from './MultiSelect'
+import type { StoryObj } from '@storybook/react'
 
 export default {
   component: MultiSelect,
-}
+} as StoryObj<MultiSelectProps>
 
 const SAMPLE_OPTIONS = [
   { value: 'de', label: 'Devon Edwards' },
@@ -16,7 +18,7 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-export const Default = {
+export const Default: StoryObj<MultiSelectProps> = {
   args: {
     items: SAMPLE_OPTIONS,
   },

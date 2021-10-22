@@ -7,7 +7,7 @@ import './menu-button.css'
 // with, e.g., Instance
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type Props<D extends object> = {
+export type TableProps<D extends object> = {
   className?: string
   rowClassName?: string // TODO: decide whether this is the worst idea ever or best
   table: TableInstance<D>
@@ -18,7 +18,7 @@ export const Table = <D extends object>({
   className,
   rowClassName,
   table,
-}: Props<D>) => (
+}: TableProps<D>) => (
   <table
     // TODO: turns out rounded corners on a table requires border-collapse separate,
     // which requires further shenanigans to get the borders to behave

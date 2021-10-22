@@ -47,7 +47,7 @@ import { classed } from '../../util/classed'
 
 export const RadioGroupHint = classed.p`text-base text-gray-100 font-sans font-light max-w-3xl`
 
-type Props = {
+export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group
   name: string
   children: React.ReactElement[]
@@ -67,7 +67,7 @@ export const RadioGroup = ({
   disabled,
   column,
   className,
-}: Props) => (
+}: RadioGroupProps) => (
   <div
     className={cn(
       'flex',
