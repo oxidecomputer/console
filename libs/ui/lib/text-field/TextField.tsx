@@ -4,8 +4,6 @@ import { Alert } from '@reach/alert'
 import type { FieldValidator } from 'formik'
 import { ErrorMessage, Field } from 'formik'
 
-import { classed } from '../../util/classed'
-
 // would prefer to refer directly to the props of Field and pass them all
 // through, but couldn't get it to work. FieldAttributes<string> is closest but
 // it makes a bunch of props required that should be optional. Instead we simply
@@ -51,12 +49,6 @@ type HintProps = {
   children: React.ReactNode
   className?: string
 }
-
-/**
- * Be sure to either use `htmlFor={textFieldId}` on the label (preferred) or an
- * ID on the label and `aria-labelledby={labelId}` on the TextField.
- */
-export const TextFieldLabel = classed.label`block text-lg font-sans font-light mb-2`
 
 /**
  * Pass id here and include that ID in aria-describedby on the TextField

@@ -1,3 +1,4 @@
+import React from 'react'
 import type {
   ComponentType,
   ReactChildren,
@@ -17,12 +18,20 @@ export const pluck = (
   return childIndex !== -1 ? children.splice(childIndex, 1)[0] : null
 }
 
-export const pluckType = <P>(
+export const pluckType = <P extends Record<string, unknown>>(
   children: ChildArray,
   componentType: ComponentType<P>
-) => {
-  return pluck(
-    children,
-    (child) => (child as ReactElement)?.type === componentType
-  )
+) => pluck(children, (child) => (child as ReactElement)?.type === componentType)
+
+interface MaybeWrapProps<C extends ReactNode> {
+  when: boolean
+  with: ReactElement
+  children: C
 }
+
+export const MaybeWrap = <C extends ReactNode>(props: MaybeWrapProps<C>) =>
+  props.when ? (
+    React.cloneElement(props.with, [], props.children)
+  ) : (
+    <>{props.children}</>
+  )

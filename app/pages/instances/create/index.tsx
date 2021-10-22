@@ -16,8 +16,8 @@ import {
   TabListLine,
   TextField,
   TextFieldHint,
-  TextFieldLabel,
   Instances24Icon,
+  FieldTitle,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -275,7 +275,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
         <Heading>Finalize and create</Heading>
         <div>
-          <TextFieldLabel htmlFor="instance-name">Choose a name</TextFieldLabel>
+          <FieldTitle htmlFor="instance-name">Choose a name</FieldTitle>
           <TextFieldHint id="instance-name-hint">
             Choose an identifying name you will remember. Names may contain
             alphanumeric characters, dashes, and periods.
@@ -288,7 +288,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           />
         </div>
         <div className="mt-8">
-          <TextFieldLabel htmlFor="hostname">Choose a hostname</TextFieldLabel>
+          <FieldTitle htmlFor="hostname">Choose a hostname</FieldTitle>
           <TextFieldHint id="hostname-hint">
             Optional. If left blank, we will use the instance name.
           </TextFieldHint>
@@ -302,7 +302,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
         {/* this is going to be a tag multiselect, not a text input */}
         <div className="mt-8">
-          <TextFieldLabel htmlFor="tags">Add tags</TextFieldLabel>
+          <FieldTitle htmlFor="tags">Add tags</FieldTitle>
           <TextFieldHint id="tags-hint">
             Use tags to organize and relate resources. Tags may contain letters,
             numbers, colons, dashes, and underscores.
