@@ -1,4 +1,6 @@
 import { Checkbox } from './Checkbox'
+import type { CheckboxProps } from './Checkbox'
+import type { StoryObj } from '@storybook/react'
 
 export default {
   component: Checkbox,
@@ -7,17 +9,17 @@ export default {
     indeterminate: { control: 'boolean' },
     children: { control: 'text' },
   },
-}
+} as StoryObj<CheckboxProps>
 
-export const Unchecked = {
+export const Unchecked: StoryObj<CheckboxProps> = {
   args: { checked: false, indeterminate: false, children: 'Label' },
 }
-export const Checked = {
+export const Checked: StoryObj<CheckboxProps> = {
   args: { checked: true, indeterminate: false, children: 'Label' },
 }
-export const Indeterminate = {
+export const Indeterminate: StoryObj<CheckboxProps> = {
   args: { checked: false, indeterminate: true, children: 'Label' },
 }
-export const NoLabel = {
+export const NoLabel: StoryObj<CheckboxProps> = {
   args: { checked: false, indeterminate: false },
 }

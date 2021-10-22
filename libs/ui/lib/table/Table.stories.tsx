@@ -1,6 +1,10 @@
 import React from 'react'
 import { useTable } from 'react-table'
 import { Table } from './Table'
+import type { TableProps } from './Table'
+import type { StoryObj } from '@storybook/react'
+
+type Props = TableProps<Record<string, unknown>>
 
 const data = [
   {
@@ -35,11 +39,11 @@ const TableProvider = ({ children }: any) => {
 
 export default {
   component: Table,
-  render: (args: any) => (
+  render: (args) => (
     <TableProvider>
       <Table {...args} />
     </TableProvider>
   ),
-}
+} as StoryObj<Props>
 
-export const Default = {}
+export const Default: StoryObj<Props> = {}

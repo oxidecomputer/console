@@ -4,7 +4,7 @@ import cn from 'classnames'
 import type { AriaLabel } from '../../util/aria'
 import { ariaLabel } from '../../util/aria'
 
-type Props = {
+export type ProgressProps = {
   value: number // always out of 100
   className?: string
   transitionTime?: number // time in ms
@@ -12,7 +12,7 @@ type Props = {
 
 // https://w3c.github.io/aria-practices/#range_related_properties_progressbar_role
 
-export const Progress = (props: Props) => (
+export const Progress = (props: ProgressProps) => (
   <div
     role="progressbar"
     className={cn('bg-green-900 h-1.5 rounded', props.className)}

@@ -1,5 +1,6 @@
-import type { Meta } from '@storybook/react'
 import { Breadcrumbs } from './Breadcrumbs'
+import type { BreadcrumbsProps } from './Breadcrumbs'
+import type { StoryObj } from '@storybook/react'
 
 // Follow https://github.com/storybookjs/storybook/issues/12078
 // for allowing better controls for objects
@@ -10,9 +11,9 @@ export default {
       control: { type: 'object' },
     },
   },
-} as Meta
+} as StoryObj<BreadcrumbsProps>
 
-export const Default = {
+export const Default: StoryObj<BreadcrumbsProps> = {
   args: {
     data: [
       { href: '/', label: 'Home' },

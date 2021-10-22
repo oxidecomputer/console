@@ -11,7 +11,7 @@ const skipLinkStyles = `
     transition-all motion-reduce:transform-none
 `
 
-type SkipLinkProps = PropsWithChildren<{
+export type SkipLinkProps = PropsWithChildren<{
   id: string
   target?: string
 }>
