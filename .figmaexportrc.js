@@ -36,7 +36,6 @@ module.exports = {
               return {
                 typescript: true,
                 titleProp: true,
-                prettier: true,
                 svgProps: {
                   role: 'img',
                 },
