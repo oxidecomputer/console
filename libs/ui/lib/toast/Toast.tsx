@@ -1,17 +1,17 @@
+import type { ReactElement } from 'react'
 import React from 'react'
 import cn from 'classnames'
 import Alert from '@reach/alert'
 
-import { Icon } from '../icon/Icon'
-import type { IconName } from '../icon/icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
+import { CloseSmallIcon } from '../icons'
 
 type Variant = 'success' | 'error' | 'info'
 
 export interface ToastProps {
   title: string
   content?: string
-  icon: IconName
+  icon: ReactElement
   onClose: () => void
   variant?: Variant
   timeout?: number
@@ -33,9 +33,7 @@ export const Toast = ({
 }: ToastProps) => (
   <Alert className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}>
     {/* HACK: leading < 1 to get rid of space below icon */}
-    <div className="text-lg leading-[0.5]">
-      <Icon name={icon} />
-    </div>
+    <div className="text-lg leading-[0.5]">{icon}</div>
     <div className="flex-1">
       <div>{title}</div>
       <div className="font-light">{content}</div>
@@ -44,10 +42,10 @@ export const Toast = ({
       <button type="button" onClick={() => onClose()} className="mt-0.5">
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <Icon name="close" />
+            <CloseSmallIcon title="Close" />
           </TimeoutIndicator>
         ) : (
-          <Icon name="close" />
+          <CloseSmallIcon title="Close" />
         )}
       </button>
     </div>

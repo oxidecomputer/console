@@ -10,6 +10,7 @@ import {
   TextFieldError,
   TextFieldHint,
   TextFieldLabel,
+  FolderLargeIcon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
@@ -50,7 +51,9 @@ const ProjectCreatePage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="project">Create a new project</PageTitle>
+        <PageTitle icon={<FolderLargeIcon title="Projects" />}>
+          Create a new project
+        </PageTitle>
       </PageHeader>
       <Formik
         initialValues={{ name: '', description: '' }}

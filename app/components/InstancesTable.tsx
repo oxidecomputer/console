@@ -12,7 +12,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, Icon, selectCol, Table } from '@oxide/ui'
+import { classed, selectCol, Table, MoreSmallIcon } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -118,7 +118,7 @@ const menuCol = {
     return (
       <Menu>
         <MenuButton>
-          <Icon name="more" className="text-sm text-gray-200 mr-4" />
+          <MoreSmallIcon title="More" className="text-gray-200 mr-4" />
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem

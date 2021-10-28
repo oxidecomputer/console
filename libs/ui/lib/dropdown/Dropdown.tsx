@@ -4,7 +4,7 @@ import cn from 'classnames'
 
 import { useSelect } from 'downshift'
 
-import { Icon } from '../icon/Icon'
+import { DirectionDownIcon } from '../icons'
 
 type Item = { value: string; label: string }
 
@@ -60,7 +60,7 @@ export const Dropdown: FC<DropdownProps> = ({
         {select.selectedItem
           ? itemToString(select.selectedItem)
           : placeholder || label}
-        <Icon name="chevron" className="ml-5 transform -rotate-90" />
+        <DirectionDownIcon className="ml-5" />
       </button>
       <ul
         className="z-10 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"

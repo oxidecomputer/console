@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { buttonStyle, PageHeader, PageTitle } from '@oxide/ui'
+import { buttonStyle, PageHeader, PageTitle, FolderLargeIcon } from '@oxide/ui'
 import { InstancesTable } from '../../components/InstancesTable'
 import { useParams } from '../../hooks'
 
@@ -17,7 +17,9 @@ const ProjectPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="folder">{project.name}</PageTitle>
+        <PageTitle icon={<FolderLargeIcon title="Project" />}>
+          {project.name}
+        </PageTitle>
       </PageHeader>
 
       <InstancesTable className="my-12" />

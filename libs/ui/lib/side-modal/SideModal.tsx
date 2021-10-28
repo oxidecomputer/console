@@ -2,9 +2,9 @@ import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
-import { Icon } from '../icon/Icon'
 import { pluckType } from '../../util/children'
 import type { ChildrenProp } from '../../util/children'
+import { CloseSmallIcon } from '../icons'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -40,7 +40,7 @@ export function SideModal({
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>
-            <Icon name="close" />
+            <CloseSmallIcon title="Close" />
           </Button>
         </div>
         {/* Body */}

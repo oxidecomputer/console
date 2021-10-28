@@ -1,5 +1,3 @@
-export type { IconName } from './lib/icon/icons'
-
 import './styles/index.css'
 
 export * from './lib/avatar/Avatar'
@@ -8,7 +6,7 @@ export * from './lib/breadcrumbs/Breadcrumbs'
 export * from './lib/button/Button'
 export * from './lib/checkbox/Checkbox'
 export * from './lib/dropdown/Dropdown'
-export * from './lib/icon/Icon'
+export * from './lib/icons'
 export * from './lib/text-field/TextField'
 export * from './lib/multi-select/MultiSelect'
 export * from './lib/PageHeader'

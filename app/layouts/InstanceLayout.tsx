@@ -1,7 +1,17 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { Icon, SkipLinkTarget } from '@oxide/ui'
+import {
+  SkipLinkTarget,
+  AccessMediumIcon,
+  DashboardMediumIcon,
+  DocumentMediumIcon,
+  MetricsMediumIcon,
+  NetworkingMediumIcon,
+  ResizeMediumIcon,
+  StorageMediumIcon,
+  TagsMediumIcon,
+} from '@oxide/ui'
 import {
   ContentPane,
   NavLinkItem,
@@ -24,28 +34,28 @@ const InstanceLayout = () => {
         <SidebarDivider />
         <NavList>
           <NavLinkItem to="">
-            <Icon name="dashboard" /> Overview
+            <DashboardMediumIcon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="metrics">
-            <Icon name="metrics" /> Metrics
+            <MetricsMediumIcon title="Metrics" /> Metrics
           </NavLinkItem>
           <NavLinkItem to="activity">
-            <Icon name="document" /> Activity
+            <DocumentMediumIcon title="Activity" /> Activity
           </NavLinkItem>
           <NavLinkItem to="access">
-            <Icon name="access" /> Access &amp; IAM
+            <AccessMediumIcon title="Access" /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="resize">
-            <Icon name="resize" /> Resize
+            <ResizeMediumIcon title="Resize" /> Resize
           </NavLinkItem>
           <NavLinkItem to="networking">
-            <Icon name="networking" /> Networking
+            <NetworkingMediumIcon title="Networking" /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
-            <Icon name="storage" /> Storage
+            <StorageMediumIcon title="Storage" /> Storage
           </NavLinkItem>
           <NavLinkItem to="tags">
-            <Icon name="tags" /> Tags
+            <TagsMediumIcon title="tags" /> Tags
           </NavLinkItem>
         </NavList>
       </Sidebar>
