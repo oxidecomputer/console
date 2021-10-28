@@ -13,7 +13,6 @@ function InstancesMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function InstancesMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6 3V1h9v9h-2V3H6zM1 15V5h10v10H1z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

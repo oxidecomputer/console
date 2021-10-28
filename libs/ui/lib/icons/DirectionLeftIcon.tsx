@@ -13,14 +13,13 @@ function DirectionLeftIcon({
     <svg
       width={12}
       height={12}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <path d="M2 6l8 4V2L2 6z" fill="#48D597" />
+      <path d="M2 6l8 4V2L2 6z" fill="currentColor" />
     </svg>
   )
 }

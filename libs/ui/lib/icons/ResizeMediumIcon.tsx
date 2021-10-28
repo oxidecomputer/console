@@ -13,7 +13,6 @@ function ResizeMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function ResizeMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M11 0v2h3v3h2V0h-5zM0 11h2v3h3v2H0v-5zm4-7h8v8H4V4z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

@@ -13,7 +13,6 @@ function LockSmallIcon({
     <svg
       width={12}
       height={12}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function LockSmallIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4 5h4V4a2 2 0 10-4 0v1zM2 5H1v7h10V5h-1V4a4 4 0 10-8 0v1z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

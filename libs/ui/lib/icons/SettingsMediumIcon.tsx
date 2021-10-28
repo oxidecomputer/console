@@ -13,7 +13,6 @@ function SettingsMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function SettingsMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M8 0L1 4v8l7 4 7-4V4L8 0zm0 12a4 4 0 100-8 4 4 0 000 8z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

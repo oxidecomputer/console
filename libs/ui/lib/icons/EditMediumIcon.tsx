@@ -13,7 +13,6 @@ function EditMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function EditMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 16v-4l9-9 4 4-9 9H0zM14 6l2-2-4-4-2 2 4 4z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

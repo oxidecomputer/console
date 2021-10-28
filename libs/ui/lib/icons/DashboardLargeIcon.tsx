@@ -13,7 +13,6 @@ function DashboardLargeIcon({
     <svg
       width={24}
       height={24}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function DashboardLargeIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M11 2H2v12h9V2zm11 0h-9v6h9V2zM2 16h9v6H2v-6zm20-6h-9v12h9V10z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

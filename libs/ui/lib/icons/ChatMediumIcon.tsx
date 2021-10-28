@@ -13,7 +13,6 @@ function ChatMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function ChatMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 2h16v9H5l-3 3v-3H0V2z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

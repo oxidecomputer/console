@@ -13,7 +13,6 @@ function OpenLinkSmallIcon({
     <svg
       width={12}
       height={12}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function OpenLinkSmallIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M2 1h3.02l.99.99.01.01H2v8h8V5.98l.01.01.99.99V11H1V1h1zm8 3L8 2 7 1h4v4l-1-1z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

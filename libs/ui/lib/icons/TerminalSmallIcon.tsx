@@ -13,7 +13,6 @@ function TerminalSmallIcon({
     <svg
       width={10}
       height={10}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function TerminalSmallIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10 1H0v8h10V1zM1 7V5.75L3.667 4.5 1 3.25V2l4 1.875v1.25L1 7zm4 0h4v1H5V7z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

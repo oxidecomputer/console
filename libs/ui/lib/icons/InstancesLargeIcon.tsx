@@ -13,7 +13,6 @@ function InstancesLargeIcon({
     <svg
       width={24}
       height={24}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function InstancesLargeIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M7 5V2h15v15h-3V5H7zM2 7h15v15H2V7z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

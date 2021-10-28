@@ -13,14 +13,13 @@ function LinkLargeIcon({
     <svg
       width={24}
       height={24}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <g fill="#48D597">
+      <g fill="currentColor">
         <path d="M5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
         <path
           fillRule="evenodd"

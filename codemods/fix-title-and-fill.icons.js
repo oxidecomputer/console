@@ -13,6 +13,18 @@ export default function transformer(file, api) {
 
   if (!file.path.endsWith('.tsx')) return
 
+  // Remove fill=none
+  source
+    .find(j.JSXAttribute, { name: { name: 'fill' }, value: { value: 'none' } })
+    .replaceWith()
+
+  // Replace other fill w/ fill="currentColor"
+  source
+    .find(j.JSXAttribute, { name: { name: 'fill' } })
+    .find(j.Literal)
+    .replaceWith(j.literal('currentColor'))
+
+  // Add default title
   return source
     .find(j.FunctionDeclaration)
     .find(j.ObjectPattern)

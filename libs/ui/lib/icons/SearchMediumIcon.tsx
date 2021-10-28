@@ -13,7 +13,6 @@ function SearchMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function SearchMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M11 7a4 4 0 11-8 0 4 4 0 018 0zm-.524 4.89a6 6 0 111.414-1.414l2.817 2.817-1.414 1.414-2.816-2.816z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )

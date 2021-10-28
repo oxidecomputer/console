@@ -13,7 +13,6 @@ function FolderMediumIcon({
     <svg
       width={16}
       height={16}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -24,7 +23,7 @@ function FolderMediumIcon({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M1 2h8.273v1.91H1V2zm0 3h14v9H1V5z"
-        fill="#48D597"
+        fill="currentColor"
       />
     </svg>
   )
