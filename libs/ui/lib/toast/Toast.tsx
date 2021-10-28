@@ -31,15 +31,19 @@ export const Toast = ({
   timeout,
   variant = 'success',
 }: ToastProps) => (
-  <Alert className={cn('w-96 p-4 flex text-base space-x-2', color[variant])}>
-    {/* HACK: leading < 1 to get rid of space below icon */}
-    <div className="text-lg leading-[0.5]">{icon}</div>
+  <Alert
+    className={cn(
+      'w-96 p-4 flex items-center text-base space-x-2',
+      color[variant]
+    )}
+  >
+    {icon}
     <div className="flex-1">
       <div>{title}</div>
       <div className="font-light">{content}</div>
     </div>
     <div>
-      <button type="button" onClick={() => onClose()} className="mt-0.5">
+      <button type="button" onClick={() => onClose()} className="flex">
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <CloseSmallIcon />

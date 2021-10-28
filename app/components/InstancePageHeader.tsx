@@ -12,6 +12,8 @@ import {
   InstancesLargeIcon,
   CheckmarkRoundelSmallIcon,
   WarningSmallIcon,
+  SuccessAlertIcon,
+  CommentAlertIcon,
 } from '@oxide/ui'
 
 import { useParams, useToast } from '../hooks'
@@ -36,7 +38,7 @@ export const InstancePageHeader = () => {
     onSuccess: () => {
       refetch()
       addToast({
-        icon: <CheckmarkRoundelSmallIcon title="Success" />,
+        icon: <SuccessAlertIcon />,
         title: `Instance '${instanceName}' stopped.`,
         timeout: 5000,
       })
@@ -46,7 +48,7 @@ export const InstancePageHeader = () => {
   const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
     onSuccess: () => {
       addToast({
-        icon: <CheckmarkRoundelSmallIcon title="Success" />,
+        icon: <SuccessAlertIcon />,
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
@@ -78,7 +80,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon />,
+        icon: <CommentAlertIcon />,
         title: 'Only a running instance can be stopped',
         timeout: 5000,
       })
@@ -95,7 +97,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon />,
+        icon: <CommentAlertIcon />,
         title: 'Only a stopped instance can be deleted',
         timeout: 5000,
       })
@@ -111,7 +113,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon />,
+        icon: <CommentAlertIcon />,
         title: 'Only a running instance can be rebooted',
         timeout: 5000,
       })

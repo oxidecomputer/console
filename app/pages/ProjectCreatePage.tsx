@@ -40,7 +40,7 @@ const ProjectCreatePage = () => {
         data
       )
       addToast({
-        icon: <CheckmarkRoundelSmallIcon title="Success" />,
+        icon: <SuccessAlertIcon />,
         title: 'Success!',
         content: 'Your project has been created.',
         timeout: 5000,

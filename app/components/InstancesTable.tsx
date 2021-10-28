@@ -17,7 +17,7 @@ import {
   selectCol,
   Table,
   MoreSmallIcon,
-  CheckmarkRoundelSmallIcon,
+  SuccessAlertIcon,
 } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
@@ -99,7 +99,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: <CheckmarkRoundelSmallIcon title="Success" />,
+          icon: <SuccessAlertIcon />,
           title: `Instance '${instanceName}' stopped.`,
           timeout: 5000,
         })
@@ -114,7 +114,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: <CheckmarkRoundelSmallIcon title="Success" />,
+          icon: <SuccessAlertIcon />,
           title: `Instance '${instanceName}' deleted.`,
           timeout: 5000,
         })
