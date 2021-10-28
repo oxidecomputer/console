@@ -4,8 +4,8 @@ interface SVGRProps {
   titleId?: string
 }
 
-function CloseExtraSmallIcon({
-  title = 'CloseExtra',
+function CloseTinyIcon({
+  title = 'Close',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
@@ -28,4 +28,4 @@ function CloseExtraSmallIcon({
   )
 }
 
-export default CloseExtraSmallIcon
+export default CloseTinyIcon
