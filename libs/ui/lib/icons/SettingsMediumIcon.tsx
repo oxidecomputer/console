@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function SettingsMediumIcon({
-  title,
+  title = 'Settings',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

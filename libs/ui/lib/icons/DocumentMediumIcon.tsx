@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function DocumentMediumIcon({
-  title,
+  title = 'Document',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

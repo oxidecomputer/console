@@ -1,5 +1,7 @@
+import path from 'path'
+
 /**
- * This codemod marks svg titles as required for
+ * This codemod adds a default title to the svg exports
  * accessibility purposes
  *
  * @param {import('jscodeshift').FileInfo} file
@@ -12,9 +14,17 @@ export default function transformer(file, api) {
   if (!file.path.endsWith('.tsx')) return
 
   return source
-    .find(j.TSPropertySignature, { key: { name: 'title' } })
-    .forEach((p) => {
-      p.value.optional = false
-    })
+    .find(j.FunctionDeclaration)
+    .find(j.ObjectPattern)
+    .find(j.Identifier, { name: 'title' })
+    .filter((p) => p.name === 'value')
+    .replaceWith((r) =>
+      j.assignmentPattern(
+        r.value,
+        j.literal(
+          path.basename(file.path, '.tsx').replace(/(.*)[A-Z]\w+Icon/, '$1')
+        )
+      )
+    )
     .toSource()
 }

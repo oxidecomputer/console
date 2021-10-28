@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function SelectArrowsMiscIcon({
-  title,
+  title = 'SelectArrows',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

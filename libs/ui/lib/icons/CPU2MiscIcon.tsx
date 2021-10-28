@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function CPU2MiscIcon({
-  title,
+  title = 'CPU2',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

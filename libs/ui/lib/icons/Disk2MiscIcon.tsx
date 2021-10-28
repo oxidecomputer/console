@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function Disk2MiscIcon({
-  title,
+  title = 'Disk2',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

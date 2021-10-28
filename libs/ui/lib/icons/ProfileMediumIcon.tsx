@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function ProfileMediumIcon({
-  title,
+  title = 'Profile',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

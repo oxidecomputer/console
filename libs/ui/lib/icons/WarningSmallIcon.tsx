@@ -1,11 +1,11 @@
 import * as React from 'react'
 interface SVGRProps {
-  title: string
+  title?: string
   titleId?: string
 }
 
 function WarningSmallIcon({
-  title,
+  title = 'Warning',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
