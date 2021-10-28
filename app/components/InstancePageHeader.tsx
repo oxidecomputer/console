@@ -10,8 +10,6 @@ import {
   HourglassMediumIcon,
   MoreMiscIcon,
   InstancesLargeIcon,
-  CheckmarkRoundelSmallIcon,
-  WarningSmallIcon,
   SuccessAlertIcon,
   CommentAlertIcon,
 } from '@oxide/ui'
