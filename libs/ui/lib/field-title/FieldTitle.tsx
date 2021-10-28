@@ -37,7 +37,7 @@ export const FieldTitle = <T extends ElementType = 'label'>({
       </Component>
       {tip && (
         <Tooltip isPrimaryLabel={false} content={tip}>
-          <Info8Icon className="text-green-900" />
+          <Info8Icon />
         </Tooltip>
       )}
     </Wrap>
