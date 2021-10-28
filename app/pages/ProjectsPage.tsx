@@ -3,7 +3,13 @@ import { Link } from 'react-router-dom'
 import { formatDistanceToNowStrict } from 'date-fns'
 
 import { useApiQuery } from '@oxide/api'
-import { buttonStyle, Icon, PageHeader, PageTitle } from '@oxide/ui'
+import {
+  buttonStyle,
+  PageHeader,
+  PageTitle,
+  Folder24Icon,
+  MoreMiscIcon,
+} from '@oxide/ui'
 import SparklineSVG from '../assets/sparkline.svg'
 
 type MetricProps = {
@@ -34,7 +40,7 @@ const ProjectsPage = () => {
   return (
     <>
       <PageHeader className="mb-10">
-        <PageTitle icon="projects">Projects</PageTitle>
+        <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">
           <Link
             to="/projects/new"
@@ -43,7 +49,7 @@ const ProjectsPage = () => {
             New Project
           </Link>
           <button className="p-3 flex items-center">
-            <Icon name="more" className="text-base text-green-500 mr-4" />
+            <MoreMiscIcon className="mr-4" />
           </button>
         </div>
       </PageHeader>

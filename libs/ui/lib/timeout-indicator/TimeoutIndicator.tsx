@@ -30,7 +30,7 @@ export const TimeoutIndicator = ({
 
   return (
     <div className="TimeoutIndicator relative w-6 h-6">
-      <svg fill="none" viewBox="0 0 100 100">
+      <svg fill="none" viewBox="-2 -2 100 100">
         <g>
           <path
             className="remaining"

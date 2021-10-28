@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 import React from 'react'
 import { Tooltip } from './Tooltip'
 import type { StoryObj } from '@storybook/react'
-import { Icon } from '../icon/Icon'
+import { Filter12Icon } from '../icons'
 
 type Story = StoryObj<ComponentProps<typeof Tooltip>>
 
@@ -13,7 +13,7 @@ export default {
 export const Default: Story = {
   args: {
     isPrimaryLabel: true,
-    children: <Icon name="filter" />,
+    children: <Filter12Icon />,
     content: 'Filter',
     onClick: (event: unknown) => console.log(event),
   },

@@ -10,6 +10,8 @@ import {
   TextFieldError,
   TextFieldHint,
   TextFieldLabel,
+  Folder24Icon,
+  Success16Icon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
@@ -38,9 +40,9 @@ const ProjectCreatePage = () => {
         data
       )
       addToast({
+        icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
-        icon: 'checkO',
         timeout: 5000,
       })
       navigate(`/projects/${data.name}`)
@@ -50,7 +52,9 @@ const ProjectCreatePage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="project">Create a new project</PageTitle>
+        <PageTitle icon={<Folder24Icon title="Projects" />}>
+          Create a new project
+        </PageTitle>
       </PageHeader>
       <Formik
         initialValues={{ name: '', description: '' }}

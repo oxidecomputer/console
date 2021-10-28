@@ -1,4 +1,4 @@
-import { Button, classed } from '@oxide/ui'
+import { Button, classed, Comment16Icon, Success16Icon } from '@oxide/ui'
 import React, { useState } from 'react'
 import { useToast } from '../hooks'
 
@@ -24,9 +24,18 @@ const ToastTestPage = () => {
       variant: 'success',
 
       title: `Default Toast #${counter}`,
-      icon: 'checkO',
+      icon: <Success16Icon />,
       onClose: incrDefaultCloseCounter,
 
+      timeout: shouldHaveTimeout ? 5000 : undefined,
+    })
+  }
+
+  const handleInfoToast = () => {
+    addToast({
+      variant: 'info',
+      title: 'Some info here',
+      icon: <Comment16Icon />,
       timeout: shouldHaveTimeout ? 5000 : undefined,
     })
   }
@@ -47,6 +56,9 @@ const ToastTestPage = () => {
         </label>
         <Button className="mt-4" onClick={handleDefaultToast}>
           Trigger Default Toast
+        </Button>
+        <Button className="mt-4 ml-2" onClick={handleInfoToast}>
+          Trigger Info Toast
         </Button>
       </section>
     </div>

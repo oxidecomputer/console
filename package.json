@@ -14,7 +14,9 @@
     "gen": "plop",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache",
-    "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui"
+    "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
+    "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
+    "jscodeshift": "node node_modules/.bin/jscodeshift"
   },
   "private": true,
   "dependencies": {
@@ -53,6 +55,9 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
     "@babel/runtime": "^7.13.10",
+    "@figma-export/cli": "^3.5.0",
+    "@figma-export/output-components-as-svgr": "^3.4.0",
+    "@figma-export/transform-svg-with-svgo": "^3.5.0",
     "@storybook/addon-docs": "^6.4.0-beta.16",
     "@storybook/addon-essentials": "^6.4.0-beta.16",
     "@storybook/addon-links": "^6.4.0-beta.16",
@@ -94,6 +99,7 @@
     "fetch-mock": "^9.11.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
+    "jscodeshift": "^0.13.0",
     "node-fetch": "^2.6.1",
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
@@ -109,9 +115,6 @@
     "url-loader": "^3.0.0",
     "vite": "^2.5.0",
     "webpack": "^5.40.0"
-  },
-  "optionalDependencies": {
-    "jscodeshift": "^0.13.0"
   },
   "resolutions": {
     "**/trim": "^1.0.0"

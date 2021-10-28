@@ -1,7 +1,17 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { Icon, SkipLinkTarget } from '@oxide/ui'
+import {
+  SkipLinkTarget,
+  Access16Icon,
+  Dashboard16Icon,
+  Document16Icon,
+  Instances16Icon,
+  Metrics16Icon,
+  Networking16Icon,
+  Settings16Icon,
+  Storage16Icon,
+} from '@oxide/ui'
 import {
   ContentPane,
   NavLinkItem,
@@ -23,28 +33,28 @@ const ProjectLayout = () => {
         <SidebarDivider />
         <NavList>
           <NavLinkItem to="">
-            <Icon name="dashboard" /> Overview
+            <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="instances">
-            <Icon name="instances" /> Instances
+            <Instances16Icon /> Instances
           </NavLinkItem>
           <NavLinkItem to="networking">
-            <Icon name="networking" /> Networking
+            <Networking16Icon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
-            <Icon name="storage" /> Storage
+            <Storage16Icon /> Storage
           </NavLinkItem>
           <NavLinkItem to="metrics">
-            <Icon name="metrics" /> Metrics
+            <Metrics16Icon /> Metrics
           </NavLinkItem>
           <NavLinkItem to="audit">
-            <Icon name="document" /> Audit log
+            <Document16Icon title="Audit Log" /> Audit log
           </NavLinkItem>
           <NavLinkItem to="access">
-            <Icon name="access" /> Access &amp; IAM
+            <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="settings">
-            <Icon name="settings" /> Settings
+            <Settings16Icon /> Settings
           </NavLinkItem>
         </NavList>
       </Sidebar>

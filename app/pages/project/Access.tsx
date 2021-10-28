@@ -7,11 +7,18 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 import {
   Avatar,
   Button,
-  Icon,
   PageHeader,
   PageTitle,
   selectCol,
   Table,
+  Add12Icon,
+  Success12Icon,
+  Close12Icon,
+  Filter12Icon,
+  MoreMiscIcon,
+  Person24Icon,
+  Search16Icon,
+  Unauthorized12Icon,
 } from '@oxide/ui'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
@@ -19,9 +26,9 @@ import { users } from '@oxide/api-mocks'
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
     {value ? (
-      <Icon name="check" className="text-green-500 !w-6" />
+      <Success12Icon title="Permitted" />
     ) : (
-      <Icon name="prohibited" className="text-red-500 !w-4" />
+      <Unauthorized12Icon title="Prohibited" />
     )}
   </div>
 )
@@ -80,7 +87,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <Icon name="more" className="text-base text-gray-200 mr-4" />
+        <MoreMiscIcon className="text-gray-200 mr-4" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
@@ -108,7 +115,9 @@ const ProjectPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="users">Access &amp; IAM</PageTitle>
+        <PageTitle icon={<Person24Icon title="Access & IAM" />}>
+          Access &amp; IAM
+        </PageTitle>
       </PageHeader>
 
       <Dialog
@@ -124,7 +133,7 @@ const ProjectPage = () => {
                 Manage project access
               </h2>
               <Button variant="link" onClick={closeModal}>
-                <Icon name="close" />
+                <Close12Icon />
               </Button>
             </div>
             <h3 className="font-medium">Choose members</h3>
@@ -147,13 +156,13 @@ const ProjectPage = () => {
       <div className="flex justify-end">
         {/* TODO: not supposed to be dim buttons */}
         <Button variant="dim">
-          <Icon name="search" />
+          <Search16Icon />
         </Button>
         <Button variant="dim">
-          <Icon name="filter" />
+          <Filter12Icon />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>
-          Add <Icon name="plus" className="text-sm ml-1" />
+          Add <Add12Icon className="ml-2" />
         </Button>
       </div>
       <Table className="mt-4" table={table} />

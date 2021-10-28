@@ -17,6 +17,7 @@ import {
   TextField,
   TextFieldHint,
   TextFieldLabel,
+  Instances24Icon,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../util/errors'
@@ -331,7 +332,9 @@ const InstanceCreatePage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="instances">Create a new instance</PageTitle>
+        <PageTitle icon={<Instances24Icon title="Instances" />}>
+          Create a new instance
+        </PageTitle>
       </PageHeader>
       <InstanceCreateForm projectName={projectName} />
     </>

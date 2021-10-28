@@ -3,7 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
 import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
-import { Icon, PageHeader, PageTitle } from '@oxide/ui'
+import {
+  PageHeader,
+  PageTitle,
+  Delete16Icon,
+  Hourglass16Icon,
+  MoreMiscIcon,
+  Instances24Icon,
+  Success16Icon,
+  Comment16Icon,
+} from '@oxide/ui'
 
 import { useParams, useToast } from '../hooks'
 import { InstanceDetails } from './InstanceDetails'
@@ -27,7 +36,7 @@ export const InstancePageHeader = () => {
     onSuccess: () => {
       refetch()
       addToast({
-        icon: 'checkO',
+        icon: <Success16Icon />,
         title: `Instance '${instanceName}' stopped.`,
         timeout: 5000,
       })
@@ -37,7 +46,7 @@ export const InstancePageHeader = () => {
   const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
     onSuccess: () => {
       addToast({
-        icon: 'checkO',
+        icon: <Success16Icon />,
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
@@ -69,7 +78,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: 'danger',
+        icon: <Comment16Icon />,
         title: 'Only a running instance can be stopped',
         timeout: 5000,
       })
@@ -85,7 +94,8 @@ export const InstancePageHeader = () => {
       })
     } else {
       addToast({
-        icon: 'checkO',
+        variant: 'info',
+        icon: <Comment16Icon />,
         title: 'Only a stopped instance can be deleted',
         timeout: 5000,
       })
@@ -100,7 +110,8 @@ export const InstancePageHeader = () => {
       })
     } else {
       addToast({
-        icon: 'checkO',
+        variant: 'info',
+        icon: <Comment16Icon />,
         title: 'Only a running instance can be rebooted',
         timeout: 5000,
       })
@@ -110,7 +121,7 @@ export const InstancePageHeader = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon="resources">{instance.name}</PageTitle>
+        <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="flex space-x-7 text-gray-300">
           {/* TODO: hook up delete */}
           <button
@@ -118,16 +129,15 @@ export const InstancePageHeader = () => {
             onClick={handleDelete}
             disabled={!instanceCan.delete(instance)}
           >
-            <Icon name="delete" />
+            <Delete16Icon />
           </button>
-          {/* TODO: fix icon size */}
           <button type="button">
-            <Icon name="hourglass" />
+            <Hourglass16Icon title="load" />
           </button>
           {/* TODO: add start action */}
           <Menu>
             <MenuButton>
-              <Icon name="more" className="text-sm text-gray-200 mr-4" />
+              <MoreMiscIcon className="text-sm text-gray-200 mr-4" />
             </MenuButton>
             <MenuList className="TableControls">
               <MenuItem
