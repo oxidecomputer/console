@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function CPU2MiscIcon({
-  title = 'CPU2',
+  title = 'CPU',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

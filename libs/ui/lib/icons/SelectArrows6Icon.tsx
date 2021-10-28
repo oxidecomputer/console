@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function SelectArrows6Icon({
-  title = 'Select',
+  title = 'SelectArrows',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

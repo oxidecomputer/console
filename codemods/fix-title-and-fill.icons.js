@@ -13,6 +13,10 @@ export default function transformer(file, api) {
 
   if (!file.path.endsWith('.tsx')) return
 
+  const iconName = path
+    .basename(file.path, '.tsx')
+    .replace(/([A-Za-z]+)[A-Z0-9]\w*Icon/, '$1')
+
   // Remove fill=none
   source
     .find(j.JSXAttribute, { name: { name: 'fill' }, value: { value: 'none' } })
@@ -30,13 +34,6 @@ export default function transformer(file, api) {
     .find(j.ObjectPattern)
     .find(j.Identifier, { name: 'title' })
     .filter((p) => p.name === 'value')
-    .replaceWith((r) =>
-      j.assignmentPattern(
-        r.value,
-        j.literal(
-          path.basename(file.path, '.tsx').replace(/(.*)[A-Z0-9]\w+Icon/, '$1')
-        )
-      )
-    )
+    .replaceWith((r) => j.assignmentPattern(r.value, j.literal(iconName)))
     .toSource()
 }

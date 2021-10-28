@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Disk2MiscIcon({
-  title = 'Disk2',
+  title = 'Disk',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function RAM2MiscIcon({
-  title = 'RAM2',
+  title = 'RAM',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

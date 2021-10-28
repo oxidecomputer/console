@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Close8Icon({
-  title = '',
+  title = 'Close',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

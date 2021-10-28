@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Info8Icon({
-  title = '',
+  title = 'Info',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
