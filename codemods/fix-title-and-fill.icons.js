@@ -22,11 +22,16 @@ export default function transformer(file, api) {
     .find(j.JSXAttribute, { name: { name: 'fill' }, value: { value: 'none' } })
     .replaceWith()
 
-  // Replace other fill w/ fill="currentColor"
-  source
+  // Replace other fill w/ fill="currentColor" if there's a single fill
+  // If there's more than one fill it's a multicolored icon and likely
+  // means it just needs to be left alone.
+  const fillReferences = source
     .find(j.JSXAttribute, { name: { name: 'fill' } })
     .find(j.Literal)
-    .replaceWith(j.literal('currentColor'))
+
+  if (fillReferences.length === 1) {
+    fillReferences.replaceWith(j.literal('currentColor'))
+  }
 
   // Add default title
   return source

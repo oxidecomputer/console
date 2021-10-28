@@ -9,9 +9,9 @@ import {
   TextField,
   TextFieldError,
   TextFieldHint,
-  TextFieldLabel,
   Folder24Icon,
   Success16Icon,
+  FieldTitle,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
@@ -64,9 +64,7 @@ const ProjectCreatePage = () => {
       >
         <Form>
           <div className="mb-4">
-            <TextFieldLabel htmlFor="project-name">
-              Choose a name
-            </TextFieldLabel>
+            <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
             <TextField
               id="project-name"
               name="name"
@@ -77,9 +75,9 @@ const ProjectCreatePage = () => {
             <TextFieldError name="name" />
           </div>
           <div className="mb-8">
-            <TextFieldLabel htmlFor="project-description">
+            <FieldTitle htmlFor="project-description">
               Choose a description
-            </TextFieldLabel>
+            </FieldTitle>
             <TextFieldHint id="description-hint">
               What is unique about your project?
             </TextFieldHint>

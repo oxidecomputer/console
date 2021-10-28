@@ -17,12 +17,7 @@ export const pluck = (
   return childIndex !== -1 ? children.splice(childIndex, 1)[0] : null
 }
 
-export const pluckType = <P>(
+export const pluckType = <P extends Record<string, unknown>>(
   children: ChildArray,
   componentType: ComponentType<P>
-) => {
-  return pluck(
-    children,
-    (child) => (child as ReactElement)?.type === componentType
-  )
-}
+) => pluck(children, (child) => (child as ReactElement)?.type === componentType)

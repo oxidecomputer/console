@@ -3,9 +3,14 @@ import { Formik, Form } from 'formik'
 
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, Dropdown, Radio, RadioGroup, SideModal } from '@oxide/ui'
-
-const headingStyle = 'font-medium mt-6 mb-3'
+import {
+  Button,
+  Dropdown,
+  FieldTitle,
+  Radio,
+  RadioGroup,
+  SideModal,
+} from '@oxide/ui'
 
 type Props = {
   isOpen: boolean
@@ -41,7 +46,10 @@ export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
           initialValues={{ mode: '', 'deletion-rule': '' }}
           onSubmit={() => {}}
         >
-          <Form id="add-existing-disk-form">
+          <Form
+            id="add-existing-disk-form"
+            className="space-y-6 children:space-y-0.5"
+          >
             {/* <h3 className={headingStyle}>Disk</h3> */}
             <Dropdown
               label="Disk"
@@ -49,14 +57,14 @@ export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
               items={disks}
             />
             <fieldset>
-              <legend className={headingStyle}>Mode</legend>
+              <FieldTitle as="legend">Mode</FieldTitle>
               <RadioGroup name="mode" column>
                 <Radio value="read-write">Read/Write</Radio>
                 <Radio value="read-only">Read only</Radio>
               </RadioGroup>
             </fieldset>
             <fieldset>
-              <legend className={headingStyle}>Deletion rule</legend>
+              <FieldTitle as="legend">Deletion Rule</FieldTitle>
               <RadioGroup name="deletion-rule" column>
                 <Radio value="keep">Keep disk</Radio>
                 <Radio value="delete">Delete disk</Radio>
@@ -65,6 +73,10 @@ export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
           </Form>
         </Formik>
       </SideModal.Section>
+      <SideModal.Docs>
+        <a href="#/">Deletion rules</a>
+        <a href="#/">Disk naming</a>
+      </SideModal.Docs>
       <SideModal.Footer>
         {/* TODO: not supposed to be a ghost button */}
         <Button
