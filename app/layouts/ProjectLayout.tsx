@@ -36,16 +36,16 @@ const ProjectLayout = () => {
             <DashboardMediumIcon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="instances">
-            <InstancesMediumIcon title="Instances" /> Instances
+            <InstancesMediumIcon /> Instances
           </NavLinkItem>
           <NavLinkItem to="networking">
-            <NetworkingMediumIcon title="Networking" /> Networking
+            <NetworkingMediumIcon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
-            <StorageMediumIcon title="Storage" /> Storage
+            <StorageMediumIcon /> Storage
           </NavLinkItem>
           <NavLinkItem to="metrics">
-            <MetricsMediumIcon title="Metrics" /> Metrics
+            <MetricsMediumIcon /> Metrics
           </NavLinkItem>
           <NavLinkItem to="audit">
             <DocumentMediumIcon title="Audit Log" /> Audit log
@@ -54,7 +54,7 @@ const ProjectLayout = () => {
             <AccessMediumIcon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="settings">
-            <SettingsMediumIcon title="Settings" /> Settings
+            <SettingsMediumIcon /> Settings
           </NavLinkItem>
         </NavList>
       </Sidebar>

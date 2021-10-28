@@ -87,7 +87,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <MoreMiscIcon title="more" className="text-gray-200 mr-4" />
+        <MoreMiscIcon className="text-gray-200 mr-4" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
@@ -156,13 +156,13 @@ const ProjectPage = () => {
       <div className="flex justify-end">
         {/* TODO: not supposed to be dim buttons */}
         <Button variant="dim">
-          <SearchMediumIcon title="Search" />
+          <SearchMediumIcon />
         </Button>
         <Button variant="dim">
           <FilterSmallIcon />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>
-          Add <AddSmallIcon title="Add" />
+          Add <AddSmallIcon />
         </Button>
       </div>
       <Table className="mt-4" table={table} />

@@ -124,7 +124,7 @@ const menuCol = {
     return (
       <Menu>
         <MenuButton>
-          <MoreSmallIcon title="More" className="text-gray-200 mr-4" />
+          <MoreSmallIcon className="text-gray-200 mr-4" />
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem

@@ -40,7 +40,7 @@ export function SideModal({
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>
-            <CloseSmallIcon title="Close" />
+            <CloseSmallIcon  />
           </Button>
         </div>
         {/* Body */}

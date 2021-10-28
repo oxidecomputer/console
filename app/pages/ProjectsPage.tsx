@@ -51,7 +51,7 @@ const ProjectsPage = () => {
             New Project
           </Link>
           <button className="p-3 flex items-center">
-            <MoreMiscIcon title="More" className="mr-4" />
+            <MoreMiscIcon  className="mr-4" />
           </button>
         </div>
       </PageHeader>

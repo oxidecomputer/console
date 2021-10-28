@@ -78,7 +78,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon title="Warning" />,
+        icon: <WarningSmallIcon />,
         title: 'Only a running instance can be stopped',
         timeout: 5000,
       })
@@ -95,7 +95,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon title="Warning" />,
+        icon: <WarningSmallIcon />,
         title: 'Only a stopped instance can be deleted',
         timeout: 5000,
       })
@@ -111,7 +111,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <WarningSmallIcon title="Warning" />,
+        icon: <WarningSmallIcon />,
         title: 'Only a running instance can be rebooted',
         timeout: 5000,
       })
@@ -121,9 +121,7 @@ export const InstancePageHeader = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<InstancesLargeIcon title="Instance" />}>
-          {instance.name}
-        </PageTitle>
+        <PageTitle icon={<InstancesLargeIcon />}>{instance.name}</PageTitle>
         <div className="flex space-x-7 text-gray-300">
           {/* TODO: hook up delete */}
           <button
@@ -131,7 +129,7 @@ export const InstancePageHeader = () => {
             onClick={handleDelete}
             disabled={!instanceCan.delete(instance)}
           >
-            <DeleteMediumIcon title="delete" />
+            <DeleteMediumIcon />
           </button>
           <button type="button">
             <HourglassMediumIcon title="load" />
@@ -139,10 +137,7 @@ export const InstancePageHeader = () => {
           {/* TODO: add start action */}
           <Menu>
             <MenuButton>
-              <MoreMiscIcon
-                title="more"
-                className="text-sm text-gray-200 mr-4"
-              />
+              <MoreMiscIcon className="text-sm text-gray-200 mr-4" />
             </MenuButton>
             <MenuList className="TableControls">
               <MenuItem

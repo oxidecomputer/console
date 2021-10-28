@@ -42,10 +42,10 @@ export const Toast = ({
       <button type="button" onClick={() => onClose()} className="mt-0.5">
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <CloseSmallIcon title="Close" />
+            <CloseSmallIcon />
           </TimeoutIndicator>
         ) : (
-          <CloseSmallIcon title="Close" />
+          <CloseSmallIcon />
         )}
       </button>
     </div>

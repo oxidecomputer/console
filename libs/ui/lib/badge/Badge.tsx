@@ -83,7 +83,7 @@ export const Badge = ({
       <span className={textStyle[size]}>{children}</span>
       {onClose && (
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
-          <CloseSmallIcon title="Close" className={closeIcon[size]} />
+          <CloseSmallIcon  className={closeIcon[size]} />
         </button>
       )}
     </span>

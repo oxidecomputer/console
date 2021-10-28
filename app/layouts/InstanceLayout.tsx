@@ -37,25 +37,25 @@ const InstanceLayout = () => {
             <DashboardMediumIcon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="metrics">
-            <MetricsMediumIcon title="Metrics" /> Metrics
+            <MetricsMediumIcon /> Metrics
           </NavLinkItem>
           <NavLinkItem to="activity">
             <DocumentMediumIcon title="Activity" /> Activity
           </NavLinkItem>
           <NavLinkItem to="access">
-            <AccessMediumIcon title="Access" /> Access &amp; IAM
+            <AccessMediumIcon /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="resize">
-            <ResizeMediumIcon title="Resize" /> Resize
+            <ResizeMediumIcon /> Resize
           </NavLinkItem>
           <NavLinkItem to="networking">
-            <NetworkingMediumIcon title="Networking" /> Networking
+            <NetworkingMediumIcon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
-            <StorageMediumIcon title="Storage" /> Storage
+            <StorageMediumIcon /> Storage
           </NavLinkItem>
           <NavLinkItem to="tags">
-            <TagsMediumIcon title="tags" /> Tags
+            <TagsMediumIcon /> Tags
           </NavLinkItem>
         </NavList>
       </Sidebar>
