@@ -1,6 +1,0 @@
-export { default as UbuntuIcon } from './UbuntuIcon'
-export { default as DebianIcon } from './DebianIcon'
-export { default as FreeBSDIcon } from './FreeBSDIcon'
-export { default as FedoraIcon } from './FedoraIcon'
-export { default as CentOSIcon } from './CentOSIcon'
-export { default as WindowsIcon } from './WindowsIcon'

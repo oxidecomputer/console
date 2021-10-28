@@ -1,6 +1,6 @@
 // @ts-check
 
-const { pascalCase, camelCase } = require('@figma-export/utils')
+const { pascalCase } = require('@figma-export/utils')
 
 /** @type {(str: string) => string} */
 const toTrainCase = (str) => {
@@ -29,8 +29,9 @@ module.exports = {
           require('@figma-export/output-components-as-svgr')({
             output: './libs/ui/lib/icons',
             getFileExtension: () => '.tsx',
-            getDirname: ({ dirname }) => toTrainCase(camelCase(dirname)),
-            getComponentName: ({ basename }) => `${pascalCase(basename)}Icon`,
+            getDirname: () => '',
+            getComponentName: ({ componentName }) =>
+              pascalCase(componentName.split('/').reverse().join('') + 'Icon'),
             getSvgrConfig: () => {
               return {
                 typescript: true,
