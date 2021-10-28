@@ -20,7 +20,7 @@ for file in $ICONS_DIR/*.js $ICONS_DIR/**/*.js; do
 done
 
 for file in $CODEMOD_DIR/*.icons.js; do
-    npx jscodeshift -t $file --extensions=ts,tsx --parser=tsx $ICONS_DIR
+    yarn jscodeshift -t $file --extensions=ts,tsx --parser=tsx $ICONS_DIR
 done
 
 yarn fmt

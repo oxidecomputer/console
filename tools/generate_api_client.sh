@@ -24,7 +24,7 @@ openapi-generator generate -i $SPEC_FILE \
   -p typescriptThreePlus=true
 
 for file in $CODEMOD_DIR/*.api.js; do
-    npx jscodeshift -t $file --extensions=ts,tsx --parser=tsx './libs/api'
+    yarn jscodeshift -t $file --extensions=ts,tsx --parser=tsx './libs/api'
 done
 
 yarn fmt --loglevel error
