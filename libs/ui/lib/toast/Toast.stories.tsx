@@ -1,3 +1,4 @@
+import React from 'react'
 import { action } from '@storybook/addon-actions'
 import { Toast } from './Toast'
 import type { StoryObj } from '@storybook/react'
