@@ -33,7 +33,7 @@ const ProjectList = (props: { className?: string }) => {
           className="text-xs inline-flex uppercase text-gray-100 font-mono"
           to="/projects/new"
         >
-          <AddSmallIcon title="Add a project" className="mr-1" />
+          <AddSmallIcon title="Add a project" className="mr-1.5 mt-0.5" />
           New project
         </Link>
       </footer>

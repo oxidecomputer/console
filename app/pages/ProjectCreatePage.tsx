@@ -11,7 +11,7 @@ import {
   TextFieldHint,
   TextFieldLabel,
   FolderLargeIcon,
-  CheckmarkRoundelSmallIcon,
+  SuccessAlertIcon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
