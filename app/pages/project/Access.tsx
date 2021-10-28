@@ -162,7 +162,7 @@ const ProjectPage = () => {
           <FilterSmallIcon />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>
-          Add <AddSmallIcon />
+          Add <AddSmallIcon className="ml-2" />
         </Button>
       </div>
       <Table className="mt-4" table={table} />

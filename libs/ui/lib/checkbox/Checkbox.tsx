@@ -1,10 +1,10 @@
+import { CheckmarkSmallIcon } from '@oxide/ui'
 import React from 'react'
 
-import CheckIcon from '../../assets/check.svg'
 import { classed } from '../../util/classed'
 
 const Check = () => (
-  <CheckIcon className="absolute w-2.5 h-2 left-[3px] top-1 fill-current text-green-500" />
+  <CheckmarkSmallIcon className="absolute w-2.5 h-2 left-[3px] top-1 fill-current text-green-500" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-green-500`
