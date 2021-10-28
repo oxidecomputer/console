@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Error16Icon({
-  title = '',
+  title = 'Error',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

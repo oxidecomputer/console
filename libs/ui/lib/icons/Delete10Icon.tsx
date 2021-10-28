@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Delete10Icon({
-  title = '',
+  title = 'Delete',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

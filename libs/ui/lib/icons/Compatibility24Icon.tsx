@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Compatibility24Icon({
-  title = '',
+  title = 'Compatibility',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Star24Icon({
-  title = '',
+  title = 'Star',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

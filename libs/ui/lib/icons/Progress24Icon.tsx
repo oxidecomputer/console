@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Progress24Icon({
-  title = '',
+  title = 'Progress',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

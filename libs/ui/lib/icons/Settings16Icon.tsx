@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Settings16Icon({
-  title = '',
+  title = 'Settings',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

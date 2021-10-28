@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Document24Icon({
-  title = '',
+  title = 'Document',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Racks24Icon({
-  title = '',
+  title = 'Racks',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

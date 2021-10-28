@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Wireless24Icon({
-  title = '',
+  title = 'Wireless',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

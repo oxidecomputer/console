@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Checkmark12Icon({
-  title = '',
+  title = 'Checkmark',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Disabled12Icon({
-  title = '',
+  title = 'Disabled',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

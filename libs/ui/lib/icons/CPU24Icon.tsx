@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function CPU24Icon({
-  title = 'CP',
+  title = 'CPU',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

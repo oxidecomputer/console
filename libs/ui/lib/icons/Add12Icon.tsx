@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Add12Icon({
-  title = '',
+  title = 'Add',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

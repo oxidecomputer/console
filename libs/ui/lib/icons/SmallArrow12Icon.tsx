@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function SmallArrow12Icon({
-  title = 'Small',
+  title = 'SmallArrow',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

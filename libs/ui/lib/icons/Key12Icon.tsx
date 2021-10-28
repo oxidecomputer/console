@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Key12Icon({
-  title = '',
+  title = 'Key',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

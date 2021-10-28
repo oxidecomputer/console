@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Filter12Icon({
-  title = '',
+  title = 'Filter',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

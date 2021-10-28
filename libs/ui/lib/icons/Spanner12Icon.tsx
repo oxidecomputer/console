@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Spanner12Icon({
-  title = '',
+  title = 'Spanner',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Terminal24Icon({
-  title = '',
+  title = 'Terminal',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

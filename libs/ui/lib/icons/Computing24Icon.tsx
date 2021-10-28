@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Computing24Icon({
-  title = '',
+  title = 'Computing',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

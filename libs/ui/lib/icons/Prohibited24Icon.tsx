@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Prohibited24Icon({
-  title = '',
+  title = 'Prohibited',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

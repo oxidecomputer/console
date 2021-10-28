@@ -34,7 +34,7 @@ export default function transformer(file, api) {
       j.assignmentPattern(
         r.value,
         j.literal(
-          path.basename(file.path, '.tsx').replace(/(.*)[A-Z]\w+Icon/, '$1')
+          path.basename(file.path, '.tsx').replace(/(.*)[A-Z0-9]\w+Icon/, '$1')
         )
       )
     )

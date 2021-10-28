@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Storage16Icon({
-  title = '',
+  title = 'Storage',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

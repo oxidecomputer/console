@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Dashboard16Icon({
-  title = '',
+  title = 'Dashboard',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

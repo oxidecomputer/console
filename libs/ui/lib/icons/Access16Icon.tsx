@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Access16Icon({
-  title = '',
+  title = 'Access',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Group16Icon({
-  title = '',
+  title = 'Group',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

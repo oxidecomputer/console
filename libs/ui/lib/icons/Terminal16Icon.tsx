@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Terminal16Icon({
-  title = '',
+  title = 'Terminal',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

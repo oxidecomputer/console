@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Metrics16Icon({
-  title = '',
+  title = 'Metrics',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

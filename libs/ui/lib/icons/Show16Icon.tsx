@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Show16Icon({
-  title = '',
+  title = 'Show',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Networking24Icon({
-  title = '',
+  title = 'Networking',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

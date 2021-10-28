@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Comment16Icon({
-  title = '',
+  title = 'Comment',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

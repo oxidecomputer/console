@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Chat24Icon({
-  title = '',
+  title = 'Chat',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

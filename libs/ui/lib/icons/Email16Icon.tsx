@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Email16Icon({
-  title = '',
+  title = 'Email',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

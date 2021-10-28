@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Hide16Icon({
-  title = '',
+  title = 'Hide',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function OpenLink12Icon({
-  title = 'Open',
+  title = 'OpenLink',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

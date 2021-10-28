@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Lock12Icon({
-  title = '',
+  title = 'Lock',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

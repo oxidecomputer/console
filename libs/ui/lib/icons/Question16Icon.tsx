@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Question16Icon({
-  title = '',
+  title = 'Question',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Success12Icon({
-  title = '',
+  title = 'Success',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

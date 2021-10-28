@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Warning12Icon({
-  title = '',
+  title = 'Warning',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

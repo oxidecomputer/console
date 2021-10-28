@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Edit16Icon({
-  title = '',
+  title = 'Edit',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

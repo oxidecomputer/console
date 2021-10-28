@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Folder16Icon({
-  title = '',
+  title = 'Folder',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

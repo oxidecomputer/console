@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Contrast24Icon({
-  title = '',
+  title = 'Contrast',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Resize16Icon({
-  title = '',
+  title = 'Resize',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

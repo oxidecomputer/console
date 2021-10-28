@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Notification16Icon({
-  title = '',
+  title = 'Notification',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Search16Icon({
-  title = '',
+  title = 'Search',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

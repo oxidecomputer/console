@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Time24Icon({
-  title = '',
+  title = 'Time',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function More24Icon({
-  title = '',
+  title = 'More',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

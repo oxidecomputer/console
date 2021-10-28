@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Pin24Icon({
-  title = '',
+  title = 'Pin',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {

@@ -5,7 +5,7 @@ interface SVGRProps {
 }
 
 function Hourglass16Icon({
-  title = '',
+  title = 'Hourglass',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
