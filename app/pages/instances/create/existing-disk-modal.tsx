@@ -12,8 +12,6 @@ import {
   SideModal,
 } from '@oxide/ui'
 
-const headingStyle = 'font-medium mt-6 mb-3'
-
 type Props = {
   isOpen: boolean
   onDismiss: () => void
