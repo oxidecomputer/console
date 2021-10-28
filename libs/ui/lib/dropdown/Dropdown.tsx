@@ -60,7 +60,7 @@ export const Dropdown: FC<DropdownProps> = ({
         {select.selectedItem
           ? itemToString(select.selectedItem)
           : placeholder || label}
-        <DirectionDownIcon className="ml-5" />
+        <DirectionDownIcon title="Select" className="ml-5" />
       </button>
       <ul
         className="z-10 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
