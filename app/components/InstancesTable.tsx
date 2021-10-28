@@ -12,7 +12,13 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, selectCol, Table, MoreSmallIcon } from '@oxide/ui'
+import {
+  classed,
+  selectCol,
+  Table,
+  MoreSmallIcon,
+  CheckmarkRoundelSmallIcon,
+} from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -93,7 +99,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: 'checkO',
+          icon: <CheckmarkRoundelSmallIcon title="Success" />,
           title: `Instance '${instanceName}' stopped.`,
           timeout: 5000,
         })
@@ -108,7 +114,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: 'checkO',
+          icon: <CheckmarkRoundelSmallIcon title="Success" />,
           title: `Instance '${instanceName}' deleted.`,
           timeout: 5000,
         })

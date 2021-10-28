@@ -11,6 +11,7 @@ import {
   TextFieldHint,
   TextFieldLabel,
   FolderLargeIcon,
+  CheckmarkRoundelSmallIcon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
@@ -39,9 +40,9 @@ const ProjectCreatePage = () => {
         data
       )
       addToast({
+        icon: <CheckmarkRoundelSmallIcon title="Success" />,
         title: 'Success!',
         content: 'Your project has been created.',
-        icon: 'checkO',
         timeout: 5000,
       })
       navigate(`/projects/${data.name}`)

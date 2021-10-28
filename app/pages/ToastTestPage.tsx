@@ -1,4 +1,4 @@
-import { Button, classed } from '@oxide/ui'
+import { Button, CheckmarkRoundelSmallIcon, classed } from '@oxide/ui'
 import React, { useState } from 'react'
 import { useToast } from '../hooks'
 
@@ -24,7 +24,7 @@ const ToastTestPage = () => {
       variant: 'success',
 
       title: `Default Toast #${counter}`,
-      icon: 'checkO',
+      icon: <CheckmarkRoundelSmallIcon title="Success" />,
       onClose: incrDefaultCloseCounter,
 
       timeout: shouldHaveTimeout ? 5000 : undefined,
