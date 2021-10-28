@@ -11,14 +11,14 @@ import {
   PageTitle,
   selectCol,
   Table,
-  AddSmallIcon,
-  CheckmarkRoundelSmallIcon,
-  CloseSmallIcon,
-  FilterSmallIcon,
+  Add12Icon,
+  Success12Icon,
+  Close12Icon,
+  Filter12Icon,
   MoreMiscIcon,
-  PersonLargeIcon,
-  SearchMediumIcon,
-  UnauthorizedSmallIcon,
+  Person24Icon,
+  Search16Icon,
+  Unauthorized12Icon,
 } from '@oxide/ui'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
@@ -26,9 +26,9 @@ import { users } from '@oxide/api-mocks'
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
     {value ? (
-      <CheckmarkRoundelSmallIcon title="Permitted" />
+      <Success12Icon title="Permitted" />
     ) : (
-      <UnauthorizedSmallIcon title="Prohibited" />
+      <Unauthorized12Icon title="Prohibited" />
     )}
   </div>
 )
@@ -115,7 +115,7 @@ const ProjectPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<PersonLargeIcon title="Access & IAM" />}>
+        <PageTitle icon={<Person24Icon title="Access & IAM" />}>
           Access &amp; IAM
         </PageTitle>
       </PageHeader>
@@ -133,7 +133,7 @@ const ProjectPage = () => {
                 Manage project access
               </h2>
               <Button variant="link" onClick={closeModal}>
-                <CloseSmallIcon />
+                <Close12Icon />
               </Button>
             </div>
             <h3 className="font-medium">Choose members</h3>
@@ -156,13 +156,13 @@ const ProjectPage = () => {
       <div className="flex justify-end">
         {/* TODO: not supposed to be dim buttons */}
         <Button variant="dim">
-          <SearchMediumIcon />
+          <Search16Icon />
         </Button>
         <Button variant="dim">
-          <FilterSmallIcon />
+          <Filter12Icon />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>
-          Add <AddSmallIcon className="ml-2" />
+          Add <Add12Icon className="ml-2" />
         </Button>
       </div>
       <Table className="mt-4" table={table} />

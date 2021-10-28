@@ -12,13 +12,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import {
-  classed,
-  selectCol,
-  Table,
-  MoreSmallIcon,
-  SuccessAlertIcon,
-} from '@oxide/ui'
+import { classed, selectCol, Table, More12Icon, Success16Icon } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -99,7 +93,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: <SuccessAlertIcon />,
+          icon: <Success16Icon />,
           title: `Instance '${instanceName}' stopped.`,
           timeout: 5000,
         })
@@ -114,7 +108,7 @@ const menuCol = {
       onSuccess: () => {
         refetch()
         addToast({
-          icon: <SuccessAlertIcon />,
+          icon: <Success16Icon />,
           title: `Instance '${instanceName}' deleted.`,
           timeout: 5000,
         })
@@ -124,7 +118,7 @@ const menuCol = {
     return (
       <Menu>
         <MenuButton>
-          <MoreSmallIcon className="text-gray-200 mr-4" />
+          <More12Icon className="text-gray-200 mr-4" />
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem

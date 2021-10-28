@@ -6,12 +6,12 @@ import { instanceCan, useApiQuery, useApiMutation } from '@oxide/api'
 import {
   PageHeader,
   PageTitle,
-  DeleteMediumIcon,
-  HourglassMediumIcon,
+  Delete16Icon,
+  Hourglass16Icon,
   MoreMiscIcon,
-  InstancesLargeIcon,
-  SuccessAlertIcon,
-  CommentAlertIcon,
+  Instances24Icon,
+  Success16Icon,
+  Comment16Icon,
 } from '@oxide/ui'
 
 import { useParams, useToast } from '../hooks'
@@ -36,7 +36,7 @@ export const InstancePageHeader = () => {
     onSuccess: () => {
       refetch()
       addToast({
-        icon: <SuccessAlertIcon />,
+        icon: <Success16Icon />,
         title: `Instance '${instanceName}' stopped.`,
         timeout: 5000,
       })
@@ -46,7 +46,7 @@ export const InstancePageHeader = () => {
   const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
     onSuccess: () => {
       addToast({
-        icon: <SuccessAlertIcon />,
+        icon: <Success16Icon />,
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
@@ -78,7 +78,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <CommentAlertIcon />,
+        icon: <Comment16Icon />,
         title: 'Only a running instance can be stopped',
         timeout: 5000,
       })
@@ -95,7 +95,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <CommentAlertIcon />,
+        icon: <Comment16Icon />,
         title: 'Only a stopped instance can be deleted',
         timeout: 5000,
       })
@@ -111,7 +111,7 @@ export const InstancePageHeader = () => {
     } else {
       addToast({
         variant: 'info',
-        icon: <CommentAlertIcon />,
+        icon: <Comment16Icon />,
         title: 'Only a running instance can be rebooted',
         timeout: 5000,
       })
@@ -121,7 +121,7 @@ export const InstancePageHeader = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<InstancesLargeIcon />}>{instance.name}</PageTitle>
+        <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="flex space-x-7 text-gray-300">
           {/* TODO: hook up delete */}
           <button
@@ -129,10 +129,10 @@ export const InstancePageHeader = () => {
             onClick={handleDelete}
             disabled={!instanceCan.delete(instance)}
           >
-            <DeleteMediumIcon />
+            <Delete16Icon />
           </button>
           <button type="button">
-            <HourglassMediumIcon title="load" />
+            <Hourglass16Icon title="load" />
           </button>
           {/* TODO: add start action */}
           <Menu>

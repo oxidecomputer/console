@@ -4,7 +4,7 @@ import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
 import { pluckType } from '../../util/children'
 import type { ChildrenProp } from '../../util/children'
-import { CloseSmallIcon } from '../icons'
+import { Close12Icon } from '../icons'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -40,7 +40,7 @@ export function SideModal({
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>
-            <CloseSmallIcon />
+            <Close12Icon />
           </Button>
         </div>
         {/* Body */}

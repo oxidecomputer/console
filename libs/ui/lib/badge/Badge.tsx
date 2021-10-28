@@ -1,7 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { CloseSmallIcon } from '../icons'
+import { Close12Icon } from '../icons'
 
 export const badgeColors = ['gray', 'red', 'yellow', 'green', 'blue'] as const
 export type BadgeColor = typeof badgeColors[number]
@@ -83,7 +83,7 @@ export const Badge = ({
       <span className={textStyle[size]}>{children}</span>
       {onClose && (
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
-          <CloseSmallIcon className={closeIcon[size]} />
+          <Close12Icon className={closeIcon[size]} />
         </button>
       )}
     </span>

@@ -4,7 +4,7 @@ import cn from 'classnames'
 import Alert from '@reach/alert'
 
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
-import { CloseSmallIcon } from '../icons'
+import { Close12Icon } from '../icons'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -46,10 +46,10 @@ export const Toast = ({
       <button type="button" onClick={() => onClose()} className="flex">
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <CloseSmallIcon />
+            <Close12Icon />
           </TimeoutIndicator>
         ) : (
-          <CloseSmallIcon />
+          <Close12Icon />
         )}
       </button>
     </div>

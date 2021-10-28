@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import cn from 'classnames'
 
 import { useApiQuery } from '@oxide/api'
-import { SkipLinkTarget, AddSmallIcon } from '@oxide/ui'
+import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
 import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -33,7 +33,7 @@ const ProjectList = (props: { className?: string }) => {
           className="text-xs inline-flex uppercase text-gray-100 font-mono"
           to="/projects/new"
         >
-          <AddSmallIcon title="Add a project" className="mr-1.5 mt-0.5" />
+          <Add12Icon title="Add a project" className="mr-1.5 mt-0.5" />
           New project
         </Link>
       </footer>

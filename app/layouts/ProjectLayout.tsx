@@ -3,14 +3,14 @@ import { Outlet } from 'react-router-dom'
 
 import {
   SkipLinkTarget,
-  AccessMediumIcon,
-  DashboardMediumIcon,
-  DocumentMediumIcon,
-  InstancesMediumIcon,
-  MetricsMediumIcon,
-  NetworkingMediumIcon,
-  SettingsMediumIcon,
-  StorageMediumIcon,
+  Access16Icon,
+  Dashboard16Icon,
+  Document16Icon,
+  Instances16Icon,
+  Metrics16Icon,
+  Networking16Icon,
+  Settings16Icon,
+  Storage16Icon,
 } from '@oxide/ui'
 import {
   ContentPane,
@@ -33,28 +33,28 @@ const ProjectLayout = () => {
         <SidebarDivider />
         <NavList>
           <NavLinkItem to="">
-            <DashboardMediumIcon title="Overview" /> Overview
+            <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="instances">
-            <InstancesMediumIcon /> Instances
+            <Instances16Icon /> Instances
           </NavLinkItem>
           <NavLinkItem to="networking">
-            <NetworkingMediumIcon /> Networking
+            <Networking16Icon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
-            <StorageMediumIcon /> Storage
+            <Storage16Icon /> Storage
           </NavLinkItem>
           <NavLinkItem to="metrics">
-            <MetricsMediumIcon /> Metrics
+            <Metrics16Icon /> Metrics
           </NavLinkItem>
           <NavLinkItem to="audit">
-            <DocumentMediumIcon title="Audit Log" /> Audit log
+            <Document16Icon title="Audit Log" /> Audit log
           </NavLinkItem>
           <NavLinkItem to="access">
-            <AccessMediumIcon title="Access & IAM" /> Access &amp; IAM
+            <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="settings">
-            <SettingsMediumIcon /> Settings
+            <Settings16Icon /> Settings
           </NavLinkItem>
         </NavList>
       </Sidebar>

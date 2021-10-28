@@ -7,7 +7,7 @@ import {
   buttonStyle,
   PageHeader,
   PageTitle,
-  FolderLargeIcon,
+  Folder24Icon,
   MoreMiscIcon,
 } from '@oxide/ui'
 import SparklineSVG from '../assets/sparkline.svg'
@@ -40,9 +40,7 @@ const ProjectsPage = () => {
   return (
     <>
       <PageHeader className="mb-10">
-        <PageTitle icon={<FolderLargeIcon title="Projects" />}>
-          Projects
-        </PageTitle>
+        <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">
           <Link
             to="/projects/new"

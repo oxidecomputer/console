@@ -10,8 +10,8 @@ import {
   TextFieldError,
   TextFieldHint,
   TextFieldLabel,
-  FolderLargeIcon,
-  SuccessAlertIcon,
+  Folder24Icon,
+  Success16Icon,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from '../hooks'
@@ -40,7 +40,7 @@ const ProjectCreatePage = () => {
         data
       )
       addToast({
-        icon: <SuccessAlertIcon />,
+        icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
         timeout: 5000,
@@ -52,7 +52,7 @@ const ProjectCreatePage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<FolderLargeIcon title="Projects" />}>
+        <PageTitle icon={<Folder24Icon title="Projects" />}>
           Create a new project
         </PageTitle>
       </PageHeader>
