@@ -24,13 +24,23 @@ export function NewDiskModal({ isOpen, onDismiss }: Props) {
       onDismiss={onDismiss}
     >
       <SideModal.Section>
-        <Formik initialValues={{ 'deletion-rule': '' }} onSubmit={() => {}}>
-          <Form id="new-disk-form">
+        <Formik
+          initialValues={{
+            name: '',
+            description: '',
+            size: '',
+            type: '',
+            'source-type': '',
+            'deletion-rule': '',
+          }}
+          onSubmit={() => {}}
+        >
+          <Form id="new-disk-form" className="space-y-6 children:space-y-0.5">
             <div>
               <FieldTitle htmlFor="new-disk-name" tip="The name of the disk">
                 Name
               </FieldTitle>
-              <TextField id="new-disk-name" />
+              <TextField id="new-disk-name" name="name" />
             </div>
             <div>
               <FieldTitle
@@ -39,17 +49,17 @@ export function NewDiskModal({ isOpen, onDismiss }: Props) {
               >
                 Description
               </FieldTitle>
-              <TextField id="new-disk-description" />
+              <TextField id="new-disk-description" name="description" />
             </div>
             <div>
-              <FieldTitle htmlFor="new-disk-description">Type</FieldTitle>
-              <TextField id="new-disk-description" />
+              <FieldTitle htmlFor="new-disk-type">Type</FieldTitle>
+              <TextField id="new-disk-type" name="type" />
             </div>
             <div>
-              <FieldTitle htmlFor="new-disk-description">
+              <FieldTitle htmlFor="new-disk-source-type">
                 Source type
               </FieldTitle>
-              <TextField id="new-disk-description" />
+              <TextField id="new-disk-source-type" name="source-type" />
             </div>
             <fieldset>
               <FieldTitle as="legend">Deletion rule</FieldTitle>
@@ -60,7 +70,7 @@ export function NewDiskModal({ isOpen, onDismiss }: Props) {
             </fieldset>
             <div>
               <FieldTitle htmlFor="new-disk-size">Size (GiB)</FieldTitle>
-              <TextField id="new-disk-size" />
+              <TextField id="new-disk-size" name="size" />
             </div>
             <fieldset>
               <FieldTitle as="legend">Configuration options</FieldTitle>

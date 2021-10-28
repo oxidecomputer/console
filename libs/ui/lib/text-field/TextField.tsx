@@ -38,6 +38,7 @@ export const TextField = ({
         text-sm font-sans text-gray-50 
         bg-transparent border-none focus:outline-none`}
       aria-invalid={error}
+      placeholder=""
       {...fieldProps}
     />
   </div>
