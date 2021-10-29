@@ -1,6 +1,5 @@
 import type {
   ComponentType,
-  ReactChild,
   ReactChildren,
   ReactElement,
   ReactNode,

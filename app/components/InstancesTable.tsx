@@ -55,7 +55,7 @@ const columns = [
       value: Pick<Instance, 'runState' | 'timeRunStateUpdated'>
     }) => (
       <span className="inline-flex">
-        <StatusBadge className="mr-2" size="sm" status={value.runState} />
+        <StatusBadge className="mr-2" status={value.runState} />
         <abbr
           className="text-xs !no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}

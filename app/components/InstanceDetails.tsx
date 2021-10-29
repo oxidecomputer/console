@@ -40,6 +40,6 @@ export const InstanceDetails = ({
     <Space />
     <span className="mr-6">&lt;IP address&gt;</span>
     <Space />
-    <StatusBadge status={instance.runState} size="sm" />
+    <StatusBadge status={instance.runState} />
   </div>
 )

@@ -15,7 +15,7 @@ export default {
 export const All = () => {
   return (
     <div className="flex flex-wrap">
-      {Object.entries(badgeColors).flatMap(([variant, colors], index) => (
+      {Object.entries(badgeColors).flatMap(([variant, colors]) => (
         <Section title={variant}>
           {Object.keys(colors).map((color) => (
             <div key={`${variant}-${color}`}>
