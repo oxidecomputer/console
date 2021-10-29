@@ -1,0 +1,3 @@
+.meta-table > *:nth-child(2) {
+  @apply !border-0;
+}
