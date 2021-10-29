@@ -5,7 +5,7 @@ import { renderHook, act } from '@testing-library/react-hooks'
 import fetchMock from 'fetch-mock'
 import { Response } from 'node-fetch'
 
-import { project, projects } from '@oxide/api-mocks'
+import { org, orgs } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -24,14 +24,14 @@ const wrapper = () => {
   }
 }
 
-const renderGetProjects = () =>
-  renderHook(() => useApiQuery('projectsGet', {}), wrapper())
+const renderGetOrgs = () =>
+  renderHook(() => useApiQuery('organizationsGet', {}), wrapper())
 
-const renderCreateProject = () =>
-  renderHook(() => useApiMutation('projectsPost', {}), wrapper())
+const renderCreateOrg = () =>
+  renderHook(() => useApiMutation('organizationsPost', {}), wrapper())
 
 const createParams = {
-  projectCreateParams: { name: 'abc', description: '' },
+  organizationCreateParams: { name: 'abc', description: '' },
 }
 
 afterEach(() => {
@@ -40,7 +40,7 @@ afterEach(() => {
 
 describe('useApiQuery', () => {
   it('has correct initial state', () => {
-    const { result } = renderGetProjects()
+    const { result } = renderGetOrgs()
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
@@ -50,9 +50,9 @@ describe('useApiQuery', () => {
   describe('on error response', () => {
     it('passes through raw response', async () => {
       const response = new Response('Not found', { status: 404 })
-      fetchMock.get('/api/projects', response)
+      fetchMock.get('/api/organizations', response)
 
-      const { result } = renderGetProjects()
+      const { result } = renderGetOrgs()
 
       await waitFor(() => expect(result.current.error?.raw).toEqual(response))
     })
@@ -60,18 +60,18 @@ describe('useApiQuery', () => {
     it('parses error json if possible', async () => {
       const error = { abc: 'xyz' }
       const response = new Response(JSON.stringify(error), { status: 404 })
-      fetchMock.get('/api/projects', response)
+      fetchMock.get('/api/organizations', response)
 
-      const { result } = renderGetProjects()
+      const { result } = renderGetOrgs()
 
       await waitFor(() => expect(result.current.error?.data).toEqual(error))
     })
 
     it('sets error.data to null if error body is not json', async () => {
       const response = new Response('not json', { status: 404 })
-      fetchMock.get('/api/projects', response)
+      fetchMock.get('/api/organizations', response)
 
-      const { result } = renderGetProjects()
+      const { result } = renderGetOrgs()
 
       await waitFor(() => {
         expect(result.current.error).toBeTruthy()
@@ -82,19 +82,19 @@ describe('useApiQuery', () => {
 
   describe('on success response', () => {
     it('returns data', async () => {
-      const response = new Response(JSON.stringify(projects), { status: 200 })
-      fetchMock.get('/api/projects', response)
+      const response = new Response(JSON.stringify(orgs), { status: 200 })
+      fetchMock.get('/api/organizations', response)
 
-      const { result } = renderGetProjects()
+      const { result } = renderGetOrgs()
 
-      await waitFor(() => expect(result.current.data).toEqual(projects))
+      await waitFor(() => expect(result.current.data).toEqual(orgs))
     })
   })
 })
 
 describe('useApiMutation', () => {
   it('has correct initial state', () => {
-    const { result } = renderCreateProject()
+    const { result } = renderCreateOrg()
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
@@ -104,9 +104,9 @@ describe('useApiMutation', () => {
   describe('on error response', () => {
     it('passes through raw response', async () => {
       const response = new Response('Bad request', { status: 400 })
-      fetchMock.post('/api/projects', response)
+      fetchMock.post('/api/organizations', response)
 
-      const { result } = renderCreateProject()
+      const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => expect(result.current.error?.raw).toEqual(response))
@@ -115,9 +115,9 @@ describe('useApiMutation', () => {
     it('parses error json if possible', async () => {
       const error = { abc: 'xyz' }
       const response = new Response(JSON.stringify(error), { status: 400 })
-      fetchMock.post('/api/projects', response)
+      fetchMock.post('/api/organizations', response)
 
-      const { result } = renderCreateProject()
+      const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => expect(result.current.error?.data).toEqual(error))
@@ -125,9 +125,9 @@ describe('useApiMutation', () => {
 
     it('sets error.data to null if error body is not json', async () => {
       const response = new Response('not json', { status: 404 })
-      fetchMock.post('/api/projects', response)
+      fetchMock.post('/api/organizations', response)
 
-      const { result } = renderCreateProject()
+      const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {
@@ -139,13 +139,13 @@ describe('useApiMutation', () => {
 
   describe('on success response', () => {
     it('returns data', async () => {
-      const response = new Response(JSON.stringify(project), { status: 201 })
-      fetchMock.post('/api/projects', response)
+      const response = new Response(JSON.stringify(org), { status: 201 })
+      fetchMock.post('/api/organizations', response)
 
-      const { result } = renderCreateProject()
+      const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
-      await waitFor(() => expect(result.current.data).toEqual(project))
+      await waitFor(() => expect(result.current.data).toEqual(org))
     })
   })
 })
