@@ -1,5 +1,5 @@
-import type { ComponentProps } from 'react'
 import React from 'react'
+import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
 import type { TagVariant, TagColor } from './Tag'
 import { Tag, tagColors } from './Tag'

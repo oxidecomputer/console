@@ -2,6 +2,10 @@ import { capitalize } from 'app/util/str'
 import type { ReactNode } from 'react'
 import React from 'react'
 
+/**
+ * This is a utility component that helps prettify sections of stories when there are a lot of
+ * component variations to show.
+ */
 export const Section = ({
   title,
   children,
