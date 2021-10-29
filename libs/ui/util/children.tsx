@@ -31,10 +31,8 @@ export const isOneOf = (
   children: ReactNode,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   components: ComponentType<any>[]
-) =>
-  !React.Children.map(
-    children,
-    (child) =>
-      child &&
-      components.includes((child as ReactElement)?.type as ComponentType)
-  )?.some((typeMatch) => !typeMatch)
+) => {
+  const childIsOneOf = (child: ReactNode) =>
+    components.includes((child as ReactElement)?.type as ComponentType)
+  return React.Children.toArray(children).every(childIsOneOf)
+}
