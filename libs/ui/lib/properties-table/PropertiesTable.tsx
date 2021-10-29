@@ -4,23 +4,23 @@ import { invariant } from 'app/util/invariant'
 import { isOneOf } from 'libs/ui/util/children'
 import { Badge } from '@oxide/ui'
 import cn from 'classnames'
-import './meta-table.css'
+import './properties-table.css'
 
-export interface MetaTableProps {
+export interface PropertiesTableProps {
   className?: string
   children: ReactNode
 }
 
-export function MetaTable({ className, children }: MetaTableProps) {
+export function PropertiesTable({ className, children }: PropertiesTableProps) {
   invariant(
-    isOneOf(children, [MetaTable.Row]),
-    'MetaTable can only have MetaTable.Row as a child'
+    isOneOf(children, [PropertiesTable.Row]),
+    'PropertiesTable can only have PropertiesTable.Row as a child'
   )
   return (
     <div
       className={cn(
         className,
-        'meta-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500'
+        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500'
       )}
       style={{
         gridTemplateColumns: 'minmax(min-content, 1fr) 3fr',
@@ -31,11 +31,11 @@ export function MetaTable({ className, children }: MetaTableProps) {
   )
 }
 
-interface MetaTableRowProps {
+interface PropertiesTableRowProps {
   label: string
   children: ReactNode
 }
-MetaTable.Row = ({ label, children }: MetaTableRowProps) => (
+PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
     <span>
       <Badge variant="ghost">{label}</Badge>
