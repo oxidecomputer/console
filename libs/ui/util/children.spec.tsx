@@ -1,5 +1,5 @@
 import React from 'react'
-import { pluckType } from './children'
+import { isOneOf, pluckType } from './children'
 
 const TestA = () => (
   <div>
@@ -26,5 +26,21 @@ describe('pluckType', () => {
     const plucked = pluckType(childArray, TestA)
     expect(plucked).toEqual(null)
     expect(childArray).toEqual([])
+  })
+})
+
+describe('isOneOf', () => {
+  it('Should return true if all children specified', () => {
+    const testA = <TestA />
+    const testB = <TestB />
+    const childArray = [testA, testB]
+    expect(isOneOf(childArray, [TestA, TestB])).toBe(true)
+  })
+
+  it('Should return false if unexpected child passed', () => {
+    const testA = <TestA />
+    const testB = <TestB />
+    const childArray = [testA, testB, 'uh-oh']
+    expect(isOneOf(childArray, [TestA, TestB])).toBe(false)
   })
 })
