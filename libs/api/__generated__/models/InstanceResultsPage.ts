@@ -37,7 +37,7 @@ export interface InstanceResultsPage {
    * @type {string}
    * @memberof InstanceResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function InstanceResultsPageFromJSON(json: any): InstanceResultsPage {

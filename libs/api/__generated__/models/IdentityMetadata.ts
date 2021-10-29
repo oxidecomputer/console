@@ -32,7 +32,7 @@ export interface IdentityMetadata {
    */
   id: string
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * unique, mutable, user-controlled identifier for each resource
    * @type {string}
    * @memberof IdentityMetadata
    */

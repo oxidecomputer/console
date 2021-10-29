@@ -21,6 +21,10 @@ models/InstanceResultsPage.ts
 models/InstanceState.ts
 models/NameOrIdSortMode.ts
 models/NameSortMode.ts
+models/Organization.ts
+models/OrganizationCreateParams.ts
+models/OrganizationResultsPage.ts
+models/OrganizationUpdateParams.ts
 models/Project.ts
 models/ProjectCreateParams.ts
 models/ProjectResultsPage.ts
@@ -44,6 +48,10 @@ models/SledResultsPage.ts
 models/Vpc.ts
 models/VpcCreateParams.ts
 models/VpcResultsPage.ts
+models/VpcRouter.ts
+models/VpcRouterCreateParams.ts
+models/VpcRouterResultsPage.ts
+models/VpcRouterUpdateParams.ts
 models/VpcSubnet.ts
 models/VpcSubnetCreateParams.ts
 models/VpcSubnetResultsPage.ts

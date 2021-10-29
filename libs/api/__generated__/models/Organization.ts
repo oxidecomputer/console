@@ -14,57 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Client view of an [`Sled`]
+ * Client view of an [`Organization`]
  * @export
- * @interface Sled
+ * @interface Organization
  */
-export interface Sled {
+export interface Organization {
   /**
    * human-readable free-form text about a resource
    * @type {string}
-   * @memberof Sled
+   * @memberof Organization
    */
   description: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    * @type {string}
-   * @memberof Sled
+   * @memberof Organization
    */
   id: string
   /**
    * unique, mutable, user-controlled identifier for each resource
    * @type {string}
-   * @memberof Sled
+   * @memberof Organization
    */
   name: string
   /**
-   *
-   * @type {string}
-   * @memberof Sled
-   */
-  serviceAddress: string
-  /**
    * timestamp when this resource was created
    * @type {Date}
-   * @memberof Sled
+   * @memberof Organization
    */
   timeCreated: Date
   /**
    * timestamp when this resource was last modified
    * @type {Date}
-   * @memberof Sled
+   * @memberof Organization
    */
   timeModified: Date
 }
 
-export function SledFromJSON(json: any): Sled {
-  return SledFromJSONTyped(json, false)
+export function OrganizationFromJSON(json: any): Organization {
+  return OrganizationFromJSONTyped(json, false)
 }
 
-export function SledFromJSONTyped(
+export function OrganizationFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): Sled {
+): Organization {
   if (json === undefined || json === null) {
     return json
   }
@@ -72,13 +66,12 @@ export function SledFromJSONTyped(
     description: json['description'],
     id: json['id'],
     name: json['name'],
-    serviceAddress: json['serviceAddress'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
   }
 }
 
-export function SledToJSON(value?: Sled | null): any {
+export function OrganizationToJSON(value?: Organization | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -89,7 +82,6 @@ export function SledToJSON(value?: Sled | null): any {
     description: value.description,
     id: value.id,
     name: value.name,
-    serviceAddress: value.serviceAddress,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
   }

@@ -32,7 +32,7 @@ export interface SagaResultsPage {
    * @type {string}
    * @memberof SagaResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function SagaResultsPageFromJSON(json: any): SagaResultsPage {

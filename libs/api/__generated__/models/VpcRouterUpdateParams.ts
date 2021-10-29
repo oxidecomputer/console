@@ -14,33 +14,35 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of an [`Project`]
+ * Updateable properties of a [`VpcRouter`]
  * @export
- * @interface ProjectUpdateParams
+ * @interface VpcRouterUpdateParams
  */
-export interface ProjectUpdateParams {
+export interface VpcRouterUpdateParams {
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof VpcRouterUpdateParams
    */
   description?: string | null
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof VpcRouterUpdateParams
    */
   name?: string | null
 }
 
-export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
-  return ProjectUpdateParamsFromJSONTyped(json, false)
+export function VpcRouterUpdateParamsFromJSON(
+  json: any
+): VpcRouterUpdateParams {
+  return VpcRouterUpdateParamsFromJSONTyped(json, false)
 }
 
-export function ProjectUpdateParamsFromJSONTyped(
+export function VpcRouterUpdateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectUpdateParams {
+): VpcRouterUpdateParams {
   if (json === undefined || json === null) {
     return json
   }
@@ -50,8 +52,8 @@ export function ProjectUpdateParamsFromJSONTyped(
   }
 }
 
-export function ProjectUpdateParamsToJSON(
-  value?: ProjectUpdateParams | null
+export function VpcRouterUpdateParamsToJSON(
+  value?: VpcRouterUpdateParams | null
 ): any {
   if (value === undefined) {
     return undefined

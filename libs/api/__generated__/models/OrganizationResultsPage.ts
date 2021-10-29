@@ -14,51 +14,53 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  VpcSubnet,
-  VpcSubnetFromJSON,
-  VpcSubnetFromJSONTyped,
-  VpcSubnetToJSON,
+  Organization,
+  OrganizationFromJSON,
+  OrganizationFromJSONTyped,
+  OrganizationToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface VpcSubnetResultsPage
+ * @interface OrganizationResultsPage
  */
-export interface VpcSubnetResultsPage {
+export interface OrganizationResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<VpcSubnet>}
-   * @memberof VpcSubnetResultsPage
+   * @type {Array<Organization>}
+   * @memberof OrganizationResultsPage
    */
-  items: Array<VpcSubnet>
+  items: Array<Organization>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof VpcSubnetResultsPage
+   * @memberof OrganizationResultsPage
    */
   nextPage?: string | null
 }
 
-export function VpcSubnetResultsPageFromJSON(json: any): VpcSubnetResultsPage {
-  return VpcSubnetResultsPageFromJSONTyped(json, false)
+export function OrganizationResultsPageFromJSON(
+  json: any
+): OrganizationResultsPage {
+  return OrganizationResultsPageFromJSONTyped(json, false)
 }
 
-export function VpcSubnetResultsPageFromJSONTyped(
+export function OrganizationResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcSubnetResultsPage {
+): OrganizationResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(VpcSubnetFromJSON),
+    items: (json['items'] as Array<any>).map(OrganizationFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function VpcSubnetResultsPageToJSON(
-  value?: VpcSubnetResultsPage | null
+export function OrganizationResultsPageToJSON(
+  value?: OrganizationResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -67,7 +69,7 @@ export function VpcSubnetResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(VpcSubnetToJSON),
+    items: (value.items as Array<any>).map(OrganizationToJSON),
     next_page: value.nextPage,
   }
 }

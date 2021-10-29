@@ -14,51 +14,51 @@
 
 import { exists, mapValues } from '../runtime'
 import {
-  VpcSubnet,
-  VpcSubnetFromJSON,
-  VpcSubnetFromJSONTyped,
-  VpcSubnetToJSON,
+  VpcRouter,
+  VpcRouterFromJSON,
+  VpcRouterFromJSONTyped,
+  VpcRouterToJSON,
 } from './'
 
 /**
  * A single page of results
  * @export
- * @interface VpcSubnetResultsPage
+ * @interface VpcRouterResultsPage
  */
-export interface VpcSubnetResultsPage {
+export interface VpcRouterResultsPage {
   /**
    * list of items on this page of results
-   * @type {Array<VpcSubnet>}
-   * @memberof VpcSubnetResultsPage
+   * @type {Array<VpcRouter>}
+   * @memberof VpcRouterResultsPage
    */
-  items: Array<VpcSubnet>
+  items: Array<VpcRouter>
   /**
    * token used to fetch the next page of results (if any)
    * @type {string}
-   * @memberof VpcSubnetResultsPage
+   * @memberof VpcRouterResultsPage
    */
   nextPage?: string | null
 }
 
-export function VpcSubnetResultsPageFromJSON(json: any): VpcSubnetResultsPage {
-  return VpcSubnetResultsPageFromJSONTyped(json, false)
+export function VpcRouterResultsPageFromJSON(json: any): VpcRouterResultsPage {
+  return VpcRouterResultsPageFromJSONTyped(json, false)
 }
 
-export function VpcSubnetResultsPageFromJSONTyped(
+export function VpcRouterResultsPageFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcSubnetResultsPage {
+): VpcRouterResultsPage {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    items: (json['items'] as Array<any>).map(VpcSubnetFromJSON),
+    items: (json['items'] as Array<any>).map(VpcRouterFromJSON),
     nextPage: !exists(json, 'next_page') ? undefined : json['next_page'],
   }
 }
 
-export function VpcSubnetResultsPageToJSON(
-  value?: VpcSubnetResultsPage | null
+export function VpcRouterResultsPageToJSON(
+  value?: VpcRouterResultsPage | null
 ): any {
   if (value === undefined) {
     return undefined
@@ -67,7 +67,7 @@ export function VpcSubnetResultsPageToJSON(
     return null
   }
   return {
-    items: (value.items as Array<any>).map(VpcSubnetToJSON),
+    items: (value.items as Array<any>).map(VpcRouterToJSON),
     next_page: value.nextPage,
   }
 }
