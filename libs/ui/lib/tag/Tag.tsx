@@ -1,6 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
-import { Close8Icon } from '../icons'
+import { Close8Icon, Close12Icon } from '../icons'
 
 export type TagColor = 'green' | 'red' | 'yellow' | 'gray'
 export type TagVariant = 'solid' | 'dim'
@@ -51,13 +51,21 @@ export const Tag = ({
       <span>{children}</span>
       {onClose && (
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
-          <Close8Icon
-            className={cn(
-              variant === 'solid' ? 'text-black' : 'text-green-500',
-              !narrow && 'mt-[1px]',
-              'ml-1'
-            )}
-          />
+          {narrow ? (
+            <Close8Icon
+              className={cn(
+                variant === 'solid' ? 'text-black' : 'text-green-500',
+                'ml-1'
+              )}
+            />
+          ) : (
+            <Close12Icon
+              className={cn(
+                variant === 'solid' ? 'text-black' : 'text-green-500',
+                'ml-1'
+              )}
+            />
+          )}
         </button>
       )}
     </span>
