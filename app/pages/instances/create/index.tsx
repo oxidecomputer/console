@@ -142,7 +142,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
               <Tab>Memory-optimized</Tab>
               <Tab>
                 Custom{' '}
-                <Badge size="sm" variant="dim" color="green">
+                <Badge variant="dim" color="green">
                   New
                 </Badge>
               </Tab>

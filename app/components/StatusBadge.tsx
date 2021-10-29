@@ -1,13 +1,13 @@
 import React from 'react'
 
-import type { BadgeColor, BadgeProps } from '@oxide/ui'
+import type { BadgeColor } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
 import type { InstanceState } from '@oxide/api'
 
 type Props = {
   status: InstanceState
   className?: string
-} & Pick<BadgeProps, 'size'>
+}
 
 const COLORS: Record<InstanceState, BadgeColor> = {
   creating: 'yellow',
@@ -15,14 +15,14 @@ const COLORS: Record<InstanceState, BadgeColor> = {
   running: 'green',
   rebooting: 'yellow',
   stopping: 'yellow',
-  stopped: 'gray',
+  stopped: 'lightGray',
   repairing: 'blue',
   failed: 'red',
-  destroyed: 'gray',
+  destroyed: 'darkGray',
 }
 
-export const StatusBadge = ({ status, className, size }: Props) => (
-  <Badge color={COLORS[status]} size={size} className={className}>
+export const StatusBadge = ({ status, className }: Props) => (
+  <Badge color={COLORS[status]} className={className}>
     {status}
   </Badge>
 )
