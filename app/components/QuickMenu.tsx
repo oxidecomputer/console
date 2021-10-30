@@ -62,7 +62,9 @@ export default () => {
     setInput('')
   }
 
-  const { data: projects } = useApiQuery('projectsGet', {})
+  const { data: projects } = useApiQuery('organizationProjectsGet', {
+    organizationName: 'maze-war',
+  })
   const projectNames = projects?.items.map((p) => p.name) || []
   let values: string[] = [...projectNames, ...Object.keys(globalPaths)]
 

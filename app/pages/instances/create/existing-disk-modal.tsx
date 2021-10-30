@@ -29,7 +29,10 @@ const isUnattached = ({ state }: Disk) => {
 
 export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
   // TODO: maybe wait to fetch until you open the modal
-  const { data } = useApiQuery('projectDisksGet', { projectName })
+  const { data } = useApiQuery('projectDisksGet', {
+    organizationName: 'maze-war',
+    projectName,
+  })
   const disks = (data?.items || [])
     .filter(isUnattached)
     .map((d) => ({ value: d.id, label: d.name }))

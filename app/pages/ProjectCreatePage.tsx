@@ -29,14 +29,16 @@ const ProjectCreatePage = () => {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createProject = useApiMutation('projectsPost', {
+  const createProject = useApiMutation('organizationProjectsPost', {
     onSuccess: (data) => {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectsGet', {})
+      queryClient.invalidateQueries('organizationProjectsGet', {
+        organizationName: 'maze-war',
+      })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'projectsGetProject',
-        { projectName: data.name },
+        'organizationProjectsGetProject',
+        { organizationName: 'maze-war', projectName: data.name },
         data
       )
       addToast({
@@ -59,7 +61,10 @@ const ProjectCreatePage = () => {
       <Formik
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
-          createProject.mutate({ projectCreateParams: { name, description } })
+          createProject.mutate({
+            organizationName: 'maze-war',
+            projectCreateParams: { name, description },
+          })
         }}
       >
         <Form>

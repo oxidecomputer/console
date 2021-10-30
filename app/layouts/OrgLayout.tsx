@@ -9,7 +9,9 @@ import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 
 const ProjectList = (props: { className?: string }) => {
-  const { data: projects } = useApiQuery('projectsGet', {})
+  const { data: projects } = useApiQuery('organizationProjectsGet', {
+    organizationName: 'maze-war',
+  })
   return (
     <section className={cn('space-y-2', props.className)}>
       <header className="p-1 space-x-2 uppercase text-xs font-mono text-green-500">

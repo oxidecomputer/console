@@ -39,7 +39,7 @@ function Storage() {
   const { projectName, instanceName } = useParams('projectName', 'instanceName')
   const { data } = useApiQuery(
     'instanceDisksGet',
-    { projectName, instanceName },
+    { organizationName: 'maze-war', projectName, instanceName },
     { refetchInterval: 5000 }
   )
 

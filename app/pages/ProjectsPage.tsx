@@ -33,7 +33,9 @@ const Metric = ({ label, value, className }: MetricProps) => (
 )
 
 const ProjectsPage = () => {
-  const { data } = useApiQuery('projectsGet', {})
+  const { data } = useApiQuery('organizationProjectsGet', {
+    organizationName: 'maze-war',
+  })
 
   if (!data) return <div>loading</div>
 
