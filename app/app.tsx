@@ -28,43 +28,48 @@ const App = () => (
     <Router>
       <QuickMenu />
       <Routes>
-        <Route index element={<Navigate to="/projects" replace={true} />} />
-
-        {/* ORG */}
-        <Route path="projects" element={<OrgLayout />}>
-          {/* separate from project detail pages because of the different layout */}
-          <Route index element={<ProjectsPage />} />
-          <Route path="new" element={<ProjectCreatePage />} />
-        </Route>
-
-        {/* PROJECT */}
-        <Route path="projects/:projectName" element={<ProjectLayout />}>
-          <Route index element={<ProjectPage />} />
-          <Route path="instances">
-            <Route index element={<ProjectPage />} />
-            <Route path="new" element={<InstanceCreatePage />} />
-          </Route>
-          <Route path="networking" />
-          <Route path="storage" element={<ProjectStoragePage />} />
-          <Route path="metrics" />
-          <Route path="audit" />
-          <Route path="access" element={<ProjectAccessPage />} />
-          <Route path="settings" />
-        </Route>
-
-        {/* INSTANCE */}
         <Route
-          path="projects/:projectName/instances/:instanceName"
-          element={<InstanceLayout />}
-        >
-          <Route index />
-          <Route path="metrics" />
-          <Route path="activity" />
-          <Route path="access" />
-          <Route path="resize" />
-          <Route path="networking" />
-          <Route path="storage" element={<InstanceStorage />} />
-          <Route path="tags" />
+          index
+          element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
+        />
+
+        <Route path="/orgs/:orgName">
+          {/* ORG */}
+          <Route path="projects" element={<OrgLayout />}>
+            {/* separate from project detail pages because of the different layout */}
+            <Route index element={<ProjectsPage />} />
+            <Route path="new" element={<ProjectCreatePage />} />
+          </Route>
+
+          {/* PROJECT */}
+          <Route path="projects/:projectName" element={<ProjectLayout />}>
+            <Route index element={<ProjectPage />} />
+            <Route path="instances">
+              <Route index element={<ProjectPage />} />
+              <Route path="new" element={<InstanceCreatePage />} />
+            </Route>
+            <Route path="networking" />
+            <Route path="storage" element={<ProjectStoragePage />} />
+            <Route path="metrics" />
+            <Route path="audit" />
+            <Route path="access" element={<ProjectAccessPage />} />
+            <Route path="settings" />
+          </Route>
+
+          {/* INSTANCE */}
+          <Route
+            path="projects/:projectName/instances/:instanceName"
+            element={<InstanceLayout />}
+          >
+            <Route index />
+            <Route path="metrics" />
+            <Route path="activity" />
+            <Route path="access" />
+            <Route path="resize" />
+            <Route path="networking" />
+            <Route path="storage" element={<InstanceStorage />} />
+            <Route path="tags" />
+          </Route>
         </Route>
 
         <Route path="__debug" element={<OrgLayout />}>
