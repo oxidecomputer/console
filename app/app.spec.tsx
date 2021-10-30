@@ -12,7 +12,7 @@ describe('App', () => {
   })
 
   it('should render successfully', async () => {
-    fetchMock.get('/api/projects', projects)
+    fetchMock.get('/api/organizations/maze-war/projects', projects)
     const { findAllByText } = render(<App />)
     await findAllByText(projects.items[0].name)
   })
