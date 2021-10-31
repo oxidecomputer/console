@@ -23,12 +23,8 @@ const ERROR_CODES = {
     'A project with that name already exists in this organization',
 }
 
-// TODO
 // exists primarily so we can test it without worrying about route params
-// export const ProjectCreateForm = ({ orgName }: { orgName: string }) => {}
-
-const ProjectCreatePage = () => {
-  const { orgName } = useParams('orgName')
+export function ProjectCreateForm({ orgName }: { orgName: string }) {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
@@ -55,7 +51,61 @@ const ProjectCreatePage = () => {
       navigate(`/orgs/${orgName}/projects/${data.name}`)
     },
   })
+  return (
+    <Formik
+      initialValues={{ name: '', description: '' }}
+      onSubmit={({ name, description }) => {
+        createProject.mutate({
+          organizationName: orgName,
+          projectCreateParams: { name, description },
+        })
+      }}
+    >
+      <Form>
+        <div className="mb-4">
+          <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
+          <TextField
+            id="project-name"
+            name="name"
+            placeholder="Enter name"
+            validate={validateName}
+            autoComplete="off"
+          />
+          <TextFieldError name="name" />
+        </div>
+        <div className="mb-8">
+          <FieldTitle htmlFor="project-description">
+            Choose a description
+          </FieldTitle>
+          <TextFieldHint id="description-hint">
+            What is unique about your project?
+          </TextFieldHint>
+          <TextField
+            id="project-description"
+            name="description"
+            aria-describedby="description-hint"
+            placeholder="A project"
+            autoComplete="off"
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="dim"
+          className="w-[30rem]"
+          disabled={createProject.isLoading}
+        >
+          Create project
+        </Button>
+        <div className="text-red-500">
+          {getServerError(createProject.error, ERROR_CODES)}
+        </div>
+      </Form>
+    </Formik>
+  )
+}
 
+export default function ProjectCreatePage() {
+  const { orgName } = useParams('orgName')
   return (
     <>
       <PageHeader>
@@ -63,57 +113,7 @@ const ProjectCreatePage = () => {
           Create a new project
         </PageTitle>
       </PageHeader>
-      <Formik
-        initialValues={{ name: '', description: '' }}
-        onSubmit={({ name, description }) => {
-          createProject.mutate({
-            organizationName: orgName,
-            projectCreateParams: { name, description },
-          })
-        }}
-      >
-        <Form>
-          <div className="mb-4">
-            <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
-            <TextField
-              id="project-name"
-              name="name"
-              placeholder="Enter name"
-              validate={validateName}
-              autoComplete="off"
-            />
-            <TextFieldError name="name" />
-          </div>
-          <div className="mb-8">
-            <FieldTitle htmlFor="project-description">
-              Choose a description
-            </FieldTitle>
-            <TextFieldHint id="description-hint">
-              What is unique about your project?
-            </TextFieldHint>
-            <TextField
-              id="project-description"
-              name="description"
-              aria-describedby="description-hint"
-              placeholder="A project"
-              autoComplete="off"
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="dim"
-            className="w-[30rem]"
-            disabled={createProject.isLoading}
-          >
-            Create project
-          </Button>
-          <div className="text-red-500">
-            {getServerError(createProject.error, ERROR_CODES)}
-          </div>
-        </Form>
-      </Formik>
+      <ProjectCreateForm orgName={orgName} />
     </>
   )
 }
-
-export default ProjectCreatePage
