@@ -21,7 +21,6 @@ import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
 
-import QuickMenu from './components/QuickMenu'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { SkipLink } from '@oxide/ui'
 
@@ -29,7 +28,6 @@ const App = () => (
   <ErrorBoundary>
     <SkipLink id="skip-nav" />
     <Router>
-      <QuickMenu />
       <Routes>
         <Route
           index
