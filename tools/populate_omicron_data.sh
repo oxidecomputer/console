@@ -9,6 +9,8 @@ set -o xtrace
 # from inside the omicron repo and it assumes nexus and sled agent are running
 
 ./tools/oxapi_demo organization_create_demo maze-war
+./tools/oxapi_demo organization_create_demo enron
+./tools/oxapi_demo organization_create_demo theranos
 
 ./tools/oxapi_demo project_create_demo maze-war prod-online
 ./tools/oxapi_demo project_create_demo maze-war release-infrastructure 

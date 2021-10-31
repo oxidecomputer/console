@@ -8,11 +8,11 @@ import {
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
-import { project } from '@oxide/api-mocks'
+import { org, project } from '@oxide/api-mocks'
 
-import ProjectCreatePage from '../ProjectCreatePage'
+import { ProjectCreateForm } from '../ProjectCreatePage'
 
-const projectsUrl = '/api/organizations/maze-war/projects'
+const projectsUrl = `/api/organizations/${org.name}/projects`
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create project' })
@@ -22,9 +22,9 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
-describe('ProjectCreatePage', () => {
+describe('ProjectCreateForm', () => {
   beforeEach(() => {
-    renderWithRouter(<ProjectCreatePage />)
+    renderWithRouter(<ProjectCreateForm orgName={org.name} />)
     enterName('valid-name')
   })
 
@@ -90,7 +90,7 @@ describe('ProjectCreatePage', () => {
       body: project,
     })
 
-    const projectPath = `/projects/${project.name}`
+    const projectPath = `/orgs/${org.name}/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

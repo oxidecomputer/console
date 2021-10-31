@@ -41,7 +41,15 @@ const ERROR_CODES = {
     'An instance with that name already exists in this project',
 }
 
-export function InstanceCreateForm({ projectName }: { projectName: string }) {
+type InstanceCreateFormProps = {
+  orgName: string
+  projectName: string
+}
+
+export function InstanceCreateForm({
+  orgName,
+  projectName,
+}: InstanceCreateFormProps) {
   const navigate = useNavigate()
 
   // modals
@@ -51,7 +59,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 
   const createInstance = useApiMutation('projectInstancesPost', {
     onSuccess: () => {
-      navigate(`/projects/${projectName}`)
+      navigate(`/orgs/${orgName}/projects/${projectName}`)
     },
   })
 
@@ -85,7 +93,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           ) || { memory: 0, ncpus: 0 }
 
           createInstance.mutate({
-            organizationName: 'maze-war',
+            organizationName: orgName,
             projectName,
             instanceCreateParams: {
               name: values['instance-name'],
@@ -254,6 +262,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
             <ExistingDiskModal
               isOpen={showExistingDiskModal}
               onDismiss={() => setShowExistingDiskModal(false)}
+              orgName={orgName}
               projectName={projectName}
             />
           </div>
@@ -328,7 +337,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
 }
 
 const InstanceCreatePage = () => {
-  const { projectName } = useParams('projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
 
   return (
     <>
@@ -337,7 +346,7 @@ const InstanceCreatePage = () => {
           Create a new instance
         </PageTitle>
       </PageHeader>
-      <InstanceCreateForm projectName={projectName} />
+      <InstanceCreateForm orgName={orgName} projectName={projectName} />
     </>
   )
 }

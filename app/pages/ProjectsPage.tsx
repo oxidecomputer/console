@@ -11,6 +11,7 @@ import {
   MoreMiscIcon,
 } from '@oxide/ui'
 import SparklineSVG from '../assets/sparkline.svg'
+import { useParams } from '../hooks'
 
 type MetricProps = {
   label: string
@@ -33,8 +34,9 @@ const Metric = ({ label, value, className }: MetricProps) => (
 )
 
 const ProjectsPage = () => {
+  const { orgName } = useParams('orgName')
   const { data } = useApiQuery('organizationProjectsGet', {
-    organizationName: 'maze-war',
+    organizationName: orgName,
   })
 
   if (!data) return <div>loading</div>
@@ -45,7 +47,7 @@ const ProjectsPage = () => {
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">
           <Link
-            to="/projects/new"
+            to={`/orgs/${orgName}/projects/new`}
             className={buttonStyle({ variant: 'ghost' })}
           >
             New Project
@@ -64,7 +66,10 @@ const ProjectsPage = () => {
           >
             <section className="p-4">
               <header className="mb-12">
-                <Link to={`/projects/${item.name}`} className="text-display-xl">
+                <Link
+                  to={`/orgs/${orgName}/projects/${item.name}`}
+                  className="text-display-xl"
+                >
                   {item.name}
                 </Link>
               </header>

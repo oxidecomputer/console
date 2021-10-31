@@ -25,11 +25,15 @@ import { Breadcrumbs } from '../components/Breadcrumbs'
 import { useParams } from '../hooks'
 
 const ProjectLayout = () => {
-  const { projectName } = useParams('projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   return (
     <PageContainer>
       <Sidebar>
-        <Picker category="Project" resource={projectName} />
+        <Picker
+          category="Project"
+          resource={projectName}
+          backTo={`/orgs/${orgName}`}
+        />
         <SidebarDivider />
         <NavList>
           <NavLinkItem to="">

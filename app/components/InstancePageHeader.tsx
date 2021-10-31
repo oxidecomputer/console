@@ -20,7 +20,11 @@ import { InstanceDetails } from './InstanceDetails'
 export const InstancePageHeader = () => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const { projectName, instanceName } = useParams('projectName', 'instanceName')
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
 
   const {
     data: instance,
@@ -28,7 +32,7 @@ export const InstancePageHeader = () => {
     refetch,
   } = useApiQuery(
     'projectInstancesGetInstance',
-    { organizationName: 'maze-war', projectName, instanceName },
+    { organizationName: orgName, projectName, instanceName },
     { refetchInterval: 5000 }
   )
 
@@ -50,7 +54,7 @@ export const InstancePageHeader = () => {
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
-      navigate(`/projects/${projectName}`)
+      navigate(`/orgs/${orgName}/projects/${projectName}`)
     },
   })
 
@@ -72,7 +76,7 @@ export const InstancePageHeader = () => {
   const handleStop = () => {
     if (instanceCan.stop(instance)) {
       stopInstance.mutate({
-        organizationName: 'maze-war',
+        organizationName: orgName,
         projectName,
         instanceName: instance.name,
       })
@@ -90,7 +94,7 @@ export const InstancePageHeader = () => {
   const handleDelete = () => {
     if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
-        organizationName: 'maze-war',
+        organizationName: orgName,
         projectName,
         instanceName: instance.name,
       })
@@ -107,7 +111,7 @@ export const InstancePageHeader = () => {
   const handleReboot = () => {
     if (instanceCan.reboot(instance)) {
       rebootInstance.mutate({
-        organizationName: 'maze-war',
+        organizationName: orgName,
         projectName,
         instanceName: instance.name,
       })

@@ -14,7 +14,7 @@ import {
   FieldTitle,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useToast } from '../hooks'
+import { useParams, useToast } from '../hooks'
 import { getServerError } from '../util/errors'
 import { validateName } from '../util/validate'
 
@@ -23,7 +23,8 @@ const ERROR_CODES = {
     'A project with that name already exists in this organization',
 }
 
-const ProjectCreatePage = () => {
+// exists primarily so we can test it without worrying about route params
+export function ProjectCreateForm({ orgName }: { orgName: string }) {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
@@ -33,12 +34,12 @@ const ProjectCreatePage = () => {
     onSuccess: (data) => {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('organizationProjectsGet', {
-        organizationName: 'maze-war',
+        organizationName: orgName,
       })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'organizationProjectsGetProject',
-        { organizationName: 'maze-war', projectName: data.name },
+        { organizationName: orgName, projectName: data.name },
         data
       )
       addToast({
@@ -47,10 +48,64 @@ const ProjectCreatePage = () => {
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      navigate(`/projects/${data.name}`)
+      navigate(`/orgs/${orgName}/projects/${data.name}`)
     },
   })
+  return (
+    <Formik
+      initialValues={{ name: '', description: '' }}
+      onSubmit={({ name, description }) => {
+        createProject.mutate({
+          organizationName: orgName,
+          projectCreateParams: { name, description },
+        })
+      }}
+    >
+      <Form>
+        <div className="mb-4">
+          <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
+          <TextField
+            id="project-name"
+            name="name"
+            placeholder="Enter name"
+            validate={validateName}
+            autoComplete="off"
+          />
+          <TextFieldError name="name" />
+        </div>
+        <div className="mb-8">
+          <FieldTitle htmlFor="project-description">
+            Choose a description
+          </FieldTitle>
+          <TextFieldHint id="description-hint">
+            What is unique about your project?
+          </TextFieldHint>
+          <TextField
+            id="project-description"
+            name="description"
+            aria-describedby="description-hint"
+            placeholder="A project"
+            autoComplete="off"
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="dim"
+          className="w-[30rem]"
+          disabled={createProject.isLoading}
+        >
+          Create project
+        </Button>
+        <div className="text-red-500">
+          {getServerError(createProject.error, ERROR_CODES)}
+        </div>
+      </Form>
+    </Formik>
+  )
+}
 
+export default function ProjectCreatePage() {
+  const { orgName } = useParams('orgName')
   return (
     <>
       <PageHeader>
@@ -58,57 +113,7 @@ const ProjectCreatePage = () => {
           Create a new project
         </PageTitle>
       </PageHeader>
-      <Formik
-        initialValues={{ name: '', description: '' }}
-        onSubmit={({ name, description }) => {
-          createProject.mutate({
-            organizationName: 'maze-war',
-            projectCreateParams: { name, description },
-          })
-        }}
-      >
-        <Form>
-          <div className="mb-4">
-            <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
-            <TextField
-              id="project-name"
-              name="name"
-              placeholder="Enter name"
-              validate={validateName}
-              autoComplete="off"
-            />
-            <TextFieldError name="name" />
-          </div>
-          <div className="mb-8">
-            <FieldTitle htmlFor="project-description">
-              Choose a description
-            </FieldTitle>
-            <TextFieldHint id="description-hint">
-              What is unique about your project?
-            </TextFieldHint>
-            <TextField
-              id="project-description"
-              name="description"
-              aria-describedby="description-hint"
-              placeholder="A project"
-              autoComplete="off"
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="dim"
-            className="w-[30rem]"
-            disabled={createProject.isLoading}
-          >
-            Create project
-          </Button>
-          <div className="text-red-500">
-            {getServerError(createProject.error, ERROR_CODES)}
-          </div>
-        </Form>
-      </Formik>
+      <ProjectCreateForm orgName={orgName} />
     </>
   )
 }
-
-export default ProjectCreatePage

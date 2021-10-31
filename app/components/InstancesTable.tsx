@@ -24,11 +24,11 @@ const columns = [
     Cell: ({ value }: { value: string }) => {
       // TODO: is it weird to pull directly from params here and in the menu
       // column? seems easier than passing it in somehow
-      const { projectName } = useParams('projectName')
+      const { orgName, projectName } = useParams('orgName', 'projectName')
       return (
         <Link
           className="text-green-500"
-          to={`/projects/${projectName}/instances/${value}`}
+          to={`/orgs/${orgName}/projects/${projectName}/instances/${value}`}
         >
           {value}
         </Link>
@@ -75,17 +75,17 @@ const columns = [
 const menuCol = {
   id: 'menu',
   Cell: ({ row }: { row: Row<Instance> }) => {
+    const instance = row.original
+    const instanceName = instance.name
+    const { orgName, projectName } = useParams('orgName', 'projectName')
+
     const addToast = useToast()
     const queryClient = useApiQueryClient()
     const refetch = () =>
       queryClient.invalidateQueries('projectInstancesGet', {
-        organizationName: 'maze-war',
+        organizationName: orgName,
         projectName,
       })
-
-    const instance = row.original
-    const instanceName = instance.name
-    const { projectName } = useParams('projectName')
 
     // TODO: if there are lots of places we use the same set of instance
     // actions, consider wrapping them up in a useInstanceActions hook. One
@@ -118,6 +118,12 @@ const menuCol = {
       },
     })
 
+    const instanceLookup = {
+      organizationName: orgName,
+      projectName,
+      instanceName,
+    }
+
     return (
       <Menu>
         <MenuButton>
@@ -125,37 +131,19 @@ const menuCol = {
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem
-            onSelect={() =>
-              stopInstance.mutate({
-                organizationName: 'maze-war',
-                projectName,
-                instanceName,
-              })
-            }
+            onSelect={() => stopInstance.mutate(instanceLookup)}
             disabled={!instanceCan.stop(instance)}
           >
             Stop
           </MenuItem>
           <MenuItem
-            onSelect={() =>
-              rebootInstance.mutate({
-                organizationName: 'maze-war',
-                projectName,
-                instanceName,
-              })
-            }
+            onSelect={() => rebootInstance.mutate(instanceLookup)}
             disabled={!instanceCan.reboot(instance)}
           >
             Reboot
           </MenuItem>
           <MenuItem
-            onSelect={() =>
-              deleteInstance.mutate({
-                organizationName: 'maze-war',
-                projectName,
-                instanceName,
-              })
-            }
+            onSelect={() => deleteInstance.mutate(instanceLookup)}
             disabled={!instanceCan.delete(instance)}
           >
             Delete
@@ -173,11 +161,11 @@ const PageButton = classed.button`text-gray-100 hover:text-gray-50 disabled:text
 export const InstancesTable = ({ className }: { className?: string }) => {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
 
-  const { projectName } = useParams('projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   const { data: instances } = useApiQuery(
     'projectInstancesGet',
     {
-      organizationName: 'maze-war',
+      organizationName: orgName,
       projectName,
       pageToken: currentPage,
       limit: PAGE_SIZE,

@@ -26,11 +26,19 @@ import { InstancePageHeader } from '../components/InstancePageHeader'
 import { useParams } from '../hooks'
 
 const InstanceLayout = () => {
-  const { instanceName } = useParams('instanceName')
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
   return (
     <PageContainer>
       <Sidebar>
-        <Picker category="Instance" resource={instanceName} />
+        <Picker
+          category="Instance"
+          resource={instanceName}
+          backTo={`/orgs/${orgName}/projects/${projectName}`}
+        />
         <SidebarDivider />
         <NavList>
           <NavLinkItem to="">

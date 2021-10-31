@@ -21,10 +21,14 @@ const Back = (props: { to: string }) => (
 )
 
 // TODO: this is not actually a picker yet, it just says what you're on
-export const Picker = (props: { category: string; resource: string }) => (
+export const Picker = (props: {
+  category: string
+  resource: string
+  backTo: string
+}) => (
   <div className="px-5 my-4">
     {/* TODO: obviously this is not the right `to` */}
-    <Back to="/" />
+    <Back to={props.backTo} />
     <div className="uppercase text-xs font-mono font-light text-green-500">
       {props.category}
     </div>
