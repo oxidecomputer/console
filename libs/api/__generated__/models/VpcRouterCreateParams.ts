@@ -14,44 +14,46 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of an [`Project`]
+ * Create-time parameters for a [`VpcRouter`]
  * @export
- * @interface ProjectUpdateParams
+ * @interface VpcRouterCreateParams
  */
-export interface ProjectUpdateParams {
+export interface VpcRouterCreateParams {
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof VpcRouterCreateParams
    */
-  description?: string | null
+  description: string
   /**
-   *
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof VpcRouterCreateParams
    */
-  name?: string | null
+  name: string
 }
 
-export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
-  return ProjectUpdateParamsFromJSONTyped(json, false)
+export function VpcRouterCreateParamsFromJSON(
+  json: any
+): VpcRouterCreateParams {
+  return VpcRouterCreateParamsFromJSONTyped(json, false)
 }
 
-export function ProjectUpdateParamsFromJSONTyped(
+export function VpcRouterCreateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectUpdateParams {
+): VpcRouterCreateParams {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    description: !exists(json, 'description') ? undefined : json['description'],
-    name: !exists(json, 'name') ? undefined : json['name'],
+    description: json['description'],
+    name: json['name'],
   }
 }
 
-export function ProjectUpdateParamsToJSON(
-  value?: ProjectUpdateParams | null
+export function VpcRouterCreateParamsToJSON(
+  value?: VpcRouterCreateParams | null
 ): any {
   if (value === undefined) {
     return undefined

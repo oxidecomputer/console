@@ -37,7 +37,7 @@ export interface ProjectResultsPage {
    * @type {string}
    * @memberof ProjectResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function ProjectResultsPageFromJSON(json: any): ProjectResultsPage {

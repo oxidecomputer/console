@@ -12,6 +12,8 @@ import { project } from '@oxide/api-mocks'
 
 import ProjectCreatePage from '../ProjectCreatePage'
 
+const projectsUrl = '/api/organizations/maze-war/projects'
+
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create project' })
 
@@ -31,7 +33,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post('/api/projects', { status: 201 })
+    const mock = fetchMock.post(projectsUrl, { status: 201 })
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
@@ -45,7 +47,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows specific message for known server error code', async () => {
-    fetchMock.post('/api/projects', {
+    fetchMock.post(projectsUrl, {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
     })
@@ -65,7 +67,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post('/api/projects', { status: 400 })
+    fetchMock.post(projectsUrl, { status: 400 })
 
     fireEvent.click(submitButton())
 
@@ -73,7 +75,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('posts form on submit', async () => {
-    const mock = fetchMock.post('/api/projects', { status: 201 })
+    const mock = fetchMock.post(projectsUrl, { status: 201 })
 
     fireEvent.click(submitButton())
 
@@ -83,7 +85,10 @@ describe('ProjectCreatePage', () => {
   })
 
   it('navigates to project page on success', async () => {
-    const mock = fetchMock.post('/api/projects', { status: 201, body: project })
+    const mock = fetchMock.post(projectsUrl, {
+      status: 201,
+      body: project,
+    })
 
     const projectPath = `/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)

@@ -15,8 +15,8 @@ import { InstanceCreateForm } from '../instances/create'
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
 
-const instancesUrl = `/api/projects/${project.name}/instances`
-const disksUrl = `/api/projects/${project.name}/disks`
+const instancesUrl = `/api/organizations/maze-war/projects/${project.name}/instances`
+const disksUrl = `/api/organizations/maze-war/projects/${project.name}/disks`
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {

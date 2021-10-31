@@ -85,6 +85,7 @@ export function InstanceCreateForm({ projectName }: { projectName: string }) {
           ) || { memory: 0, ncpus: 0 }
 
           createInstance.mutate({
+            organizationName: 'maze-war',
             projectName,
             instanceCreateParams: {
               name: values['instance-name'],

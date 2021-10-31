@@ -26,7 +26,7 @@ export interface Vpc {
    */
   description: string
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * The name used for the VPC in DNS.
    * @type {string}
    * @memberof Vpc
    */
@@ -38,7 +38,7 @@ export interface Vpc {
    */
   id: string
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * unique, mutable, user-controlled identifier for each resource
    * @type {string}
    * @memberof Vpc
    */

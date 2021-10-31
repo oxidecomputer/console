@@ -45,21 +45,19 @@ export interface Instance {
    */
   id: string
   /**
-   * A count of bytes, typically used either for memory or storage capacity
-   *
-   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
+   * memory allocated for this Instance
    * @type {number}
    * @memberof Instance
    */
   memory: number
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * unique, mutable, user-controlled identifier for each resource
    * @type {string}
    * @memberof Instance
    */
   name: string
   /**
-   * The number of CPUs in an Instance
+   * number of CPUs allocated for this Instance
    * @type {number}
    * @memberof Instance
    */

@@ -32,7 +32,7 @@ export interface RackResultsPage {
    * @type {string}
    * @memberof RackResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function RackResultsPageFromJSON(json: any): RackResultsPage {

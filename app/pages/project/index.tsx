@@ -8,7 +8,8 @@ import { useParams } from '../../hooks'
 
 const ProjectPage = () => {
   const { projectName } = useParams('projectName')
-  const { data: project } = useApiQuery('projectsGetProject', {
+  const { data: project } = useApiQuery('organizationProjectsGetProject', {
+    organizationName: 'maze-war',
     projectName,
   })
 

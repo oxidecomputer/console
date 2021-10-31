@@ -14,44 +14,46 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of an [`Project`]
+ * Create-time parameters for an [`Organization`]
  * @export
- * @interface ProjectUpdateParams
+ * @interface OrganizationCreateParams
  */
-export interface ProjectUpdateParams {
+export interface OrganizationCreateParams {
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof OrganizationCreateParams
    */
-  description?: string | null
+  description: string
   /**
-   *
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof OrganizationCreateParams
    */
-  name?: string | null
+  name: string
 }
 
-export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
-  return ProjectUpdateParamsFromJSONTyped(json, false)
+export function OrganizationCreateParamsFromJSON(
+  json: any
+): OrganizationCreateParams {
+  return OrganizationCreateParamsFromJSONTyped(json, false)
 }
 
-export function ProjectUpdateParamsFromJSONTyped(
+export function OrganizationCreateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectUpdateParams {
+): OrganizationCreateParams {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    description: !exists(json, 'description') ? undefined : json['description'],
-    name: !exists(json, 'name') ? undefined : json['name'],
+    description: json['description'],
+    name: json['name'],
   }
 }
 
-export function ProjectUpdateParamsToJSON(
-  value?: ProjectUpdateParams | null
+export function OrganizationCreateParamsToJSON(
+  value?: OrganizationCreateParams | null
 ): any {
   if (value === undefined) {
     return undefined

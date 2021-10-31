@@ -6,6 +6,7 @@ export const project: Project = {
   description: 'a fake project',
   timeCreated: new Date(2021, 0, 1),
   timeModified: new Date(2021, 0, 2),
+  organizationId: 'org-id',
 }
 
 export const projects: ProjectResultsPage = { items: [project] }

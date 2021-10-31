@@ -22,7 +22,7 @@ export default function ProjectStorage() {
   const { projectName } = useParams('projectName')
   const { data } = useApiQuery(
     'projectDisksGet',
-    { projectName },
+    { organizationName: 'maze-war', projectName },
     { refetchInterval: 5000 }
   )
 

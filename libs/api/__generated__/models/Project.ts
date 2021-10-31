@@ -32,11 +32,17 @@ export interface Project {
    */
   id: string
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * unique, mutable, user-controlled identifier for each resource
    * @type {string}
    * @memberof Project
    */
   name: string
+  /**
+   *
+   * @type {string}
+   * @memberof Project
+   */
+  organizationId: string
   /**
    * timestamp when this resource was created
    * @type {Date}
@@ -66,6 +72,7 @@ export function ProjectFromJSONTyped(
     description: json['description'],
     id: json['id'],
     name: json['name'],
+    organizationId: json['organizationId'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
   }
@@ -82,6 +89,7 @@ export function ProjectToJSON(value?: Project | null): any {
     description: value.description,
     id: value.id,
     name: value.name,
+    organizationId: value.organizationId,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
   }

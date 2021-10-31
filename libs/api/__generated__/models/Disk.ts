@@ -45,7 +45,7 @@ export interface Disk {
    */
   id: string
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * unique, mutable, user-controlled identifier for each resource
    * @type {string}
    * @memberof Disk
    */
@@ -69,7 +69,7 @@ export interface Disk {
    * @type {string}
    * @memberof Disk
    */
-  snapshotId?: string
+  snapshotId?: string | null
   /**
    *
    * @type {DiskState}

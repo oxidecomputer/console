@@ -24,19 +24,19 @@ export interface VpcUpdateParams {
    * @type {string}
    * @memberof VpcUpdateParams
    */
-  description?: string
+  description?: string | null
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   *
    * @type {string}
    * @memberof VpcUpdateParams
    */
-  dnsName?: string
+  dnsName?: string | null
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   *
    * @type {string}
    * @memberof VpcUpdateParams
    */
-  name?: string
+  name?: string | null
 }
 
 export function VpcUpdateParamsFromJSON(json: any): VpcUpdateParams {

@@ -44,6 +44,18 @@ import {
   NameSortMode,
   NameSortModeFromJSON,
   NameSortModeToJSON,
+  Organization,
+  OrganizationFromJSON,
+  OrganizationToJSON,
+  OrganizationCreateParams,
+  OrganizationCreateParamsFromJSON,
+  OrganizationCreateParamsToJSON,
+  OrganizationResultsPage,
+  OrganizationResultsPageFromJSON,
+  OrganizationResultsPageToJSON,
+  OrganizationUpdateParams,
+  OrganizationUpdateParamsFromJSON,
+  OrganizationUpdateParamsToJSON,
   Project,
   ProjectFromJSON,
   ProjectToJSON,
@@ -83,6 +95,18 @@ import {
   VpcResultsPage,
   VpcResultsPageFromJSON,
   VpcResultsPageToJSON,
+  VpcRouter,
+  VpcRouterFromJSON,
+  VpcRouterToJSON,
+  VpcRouterCreateParams,
+  VpcRouterCreateParamsFromJSON,
+  VpcRouterCreateParamsToJSON,
+  VpcRouterResultsPage,
+  VpcRouterResultsPageFromJSON,
+  VpcRouterResultsPageToJSON,
+  VpcRouterUpdateParams,
+  VpcRouterUpdateParamsFromJSON,
+  VpcRouterUpdateParamsToJSON,
   VpcSubnet,
   VpcSubnetFromJSON,
   VpcSubnetToJSON,
@@ -101,8 +125,8 @@ import {
 } from '../models'
 
 export interface HardwareRacksGetRequest {
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: IdSortMode
 }
 
@@ -111,8 +135,8 @@ export interface HardwareRacksGetRackRequest {
 }
 
 export interface HardwareSledsGetRequest {
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: IdSortMode
 }
 
@@ -123,139 +147,187 @@ export interface HardwareSledsGetSledRequest {
 export interface InstanceDisksDeleteDiskRequest {
   diskName: string
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface InstanceDisksGetRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface InstanceDisksGetDiskRequest {
   diskName: string
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface InstanceDisksPutDiskRequest {
   diskName: string
   instanceName: string
+  organizationName: string
   projectName: string
+}
+
+export interface OrganizationProjectsDeleteProjectRequest {
+  organizationName: string
+  projectName: string
+}
+
+export interface OrganizationProjectsGetRequest {
+  organizationName: string
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface OrganizationProjectsGetProjectRequest {
+  organizationName: string
+  projectName: string
+}
+
+export interface OrganizationProjectsPostRequest {
+  organizationName: string
+  projectCreateParams: ProjectCreateParams
+}
+
+export interface OrganizationProjectsPutProjectRequest {
+  organizationName: string
+  projectName: string
+  projectUpdateParams: ProjectUpdateParams
+}
+
+export interface OrganizationsDeleteOrganizationRequest {
+  organizationName: string
+}
+
+export interface OrganizationsGetRequest {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface OrganizationsGetOrganizationRequest {
+  organizationName: string
+}
+
+export interface OrganizationsPostRequest {
+  organizationCreateParams: OrganizationCreateParams
+}
+
+export interface OrganizationsPutOrganizationRequest {
+  organizationName: string
+  organizationUpdateParams: OrganizationUpdateParams
 }
 
 export interface ProjectDisksDeleteDiskRequest {
   diskName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectDisksGetRequest {
+  organizationName: string
   projectName: string
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: NameSortMode
 }
 
 export interface ProjectDisksGetDiskRequest {
   diskName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectDisksPostRequest {
+  organizationName: string
   projectName: string
   diskCreateParams: DiskCreateParams
 }
 
 export interface ProjectInstancesDeleteInstanceRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectInstancesGetRequest {
+  organizationName: string
   projectName: string
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: NameSortMode
 }
 
 export interface ProjectInstancesGetInstanceRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectInstancesInstanceRebootRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectInstancesInstanceStartRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectInstancesInstanceStopRequest {
   instanceName: string
+  organizationName: string
   projectName: string
 }
 
 export interface ProjectInstancesPostRequest {
+  organizationName: string
   projectName: string
   instanceCreateParams: InstanceCreateParams
 }
 
 export interface ProjectVpcsDeleteVpcRequest {
+  organizationName: string
   projectName: string
   vpcName: string
 }
 
 export interface ProjectVpcsGetRequest {
+  organizationName: string
   projectName: string
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: NameSortMode
 }
 
 export interface ProjectVpcsGetVpcRequest {
+  organizationName: string
   projectName: string
   vpcName: string
 }
 
 export interface ProjectVpcsPostRequest {
+  organizationName: string
   projectName: string
   vpcCreateParams: VpcCreateParams
 }
 
 export interface ProjectVpcsPutVpcRequest {
+  organizationName: string
   projectName: string
   vpcName: string
   vpcUpdateParams: VpcUpdateParams
 }
 
-export interface ProjectsDeleteProjectRequest {
-  projectName: string
-}
-
-export interface ProjectsGetRequest {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface ProjectsGetProjectRequest {
-  projectName: string
-}
-
-export interface ProjectsPostRequest {
-  projectCreateParams: ProjectCreateParams
-}
-
-export interface ProjectsPutProjectRequest {
-  projectName: string
-  projectUpdateParams: ProjectUpdateParams
-}
-
 export interface SagasGetRequest {
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: IdSortMode
 }
 
@@ -263,33 +335,76 @@ export interface SagasGetSagaRequest {
   sagaId: string
 }
 
+export interface VpcRoutersDeleteRouterRequest {
+  organizationName: string
+  projectName: string
+  routerName: string
+  vpcName: string
+}
+
+export interface VpcRoutersGetRequest {
+  organizationName: string
+  projectName: string
+  vpcName: string
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameSortMode
+}
+
+export interface VpcRoutersGetRouterRequest {
+  organizationName: string
+  projectName: string
+  routerName: string
+  vpcName: string
+}
+
+export interface VpcRoutersPostRequest {
+  organizationName: string
+  projectName: string
+  vpcName: string
+  vpcRouterCreateParams: VpcRouterCreateParams
+}
+
+export interface VpcRoutersPutRouterRequest {
+  organizationName: string
+  projectName: string
+  routerName: string
+  vpcName: string
+  vpcRouterUpdateParams: VpcRouterUpdateParams
+}
+
 export interface VpcSubnetsDeleteSubnetRequest {
+  organizationName: string
   projectName: string
   subnetName: string
   vpcName: string
 }
 
 export interface VpcSubnetsGetRequest {
+  organizationName: string
   projectName: string
   vpcName: string
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
   sortBy?: NameSortMode
 }
 
 export interface VpcSubnetsGetSubnetRequest {
+  organizationName: string
   projectName: string
   subnetName: string
   vpcName: string
 }
 
 export interface VpcSubnetsPostRequest {
+  organizationName: string
   projectName: string
   vpcName: string
   vpcSubnetCreateParams: VpcSubnetCreateParams
 }
 
 export interface VpcSubnetsPutSubnetRequest {
+  organizationName: string
   projectName: string
   subnetName: string
   vpcName: string
@@ -538,6 +653,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling instanceDisksDeleteDisk.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -553,7 +678,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
           .replace(
             `{${'disk_name'}}`,
             encodeURIComponent(String(requestParameters.diskName))
@@ -561,6 +686,10 @@ export class DefaultApi extends runtime.BaseAPI {
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -604,6 +733,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling instanceDisksGet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -619,10 +758,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/disks`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -682,6 +825,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling instanceDisksGetDisk.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -697,7 +850,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
           .replace(
             `{${'disk_name'}}`,
             encodeURIComponent(String(requestParameters.diskName))
@@ -705,6 +858,10 @@ export class DefaultApi extends runtime.BaseAPI {
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -764,6 +921,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling instanceDisksPutDisk.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -779,7 +946,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}`
           .replace(
             `{${'disk_name'}}`,
             encodeURIComponent(String(requestParameters.diskName))
@@ -787,6 +954,10 @@ export class DefaultApi extends runtime.BaseAPI {
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -819,6 +990,629 @@ export class DefaultApi extends runtime.BaseAPI {
   }
 
   /**
+   * Delete a specific project.
+   */
+  async organizationProjectsDeleteProjectRaw(
+    requestParameters: OrganizationProjectsDeleteProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationProjectsDeleteProject.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling organizationProjectsDeleteProject.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a specific project.
+   */
+  async organizationProjectsDeleteProject(
+    requestParameters: OrganizationProjectsDeleteProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.organizationProjectsDeleteProjectRaw(
+      requestParameters,
+      initOverrides
+    )
+  }
+
+  /**
+   * List all projects.
+   */
+  async organizationProjectsGetRaw(
+    requestParameters: OrganizationProjectsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<ProjectResultsPage>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationProjectsGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects`.replace(
+          `{${'organization_name'}}`,
+          encodeURIComponent(String(requestParameters.organizationName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ProjectResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List all projects.
+   */
+  async organizationProjectsGet(
+    requestParameters: OrganizationProjectsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<ProjectResultsPage> {
+    const response = await this.organizationProjectsGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Fetch a specific project
+   */
+  async organizationProjectsGetProjectRaw(
+    requestParameters: OrganizationProjectsGetProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Project>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationProjectsGetProject.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling organizationProjectsGetProject.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ProjectFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Fetch a specific project
+   */
+  async organizationProjectsGetProject(
+    requestParameters: OrganizationProjectsGetProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<Project> {
+    const response = await this.organizationProjectsGetProjectRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Create a new project.
+   */
+  async organizationProjectsPostRaw(
+    requestParameters: OrganizationProjectsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Project>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationProjectsPost.'
+      )
+    }
+
+    if (
+      requestParameters.projectCreateParams === null ||
+      requestParameters.projectCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectCreateParams',
+        'Required parameter requestParameters.projectCreateParams was null or undefined when calling organizationProjectsPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects`.replace(
+          `{${'organization_name'}}`,
+          encodeURIComponent(String(requestParameters.organizationName))
+        ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ProjectCreateParamsToJSON(requestParameters.projectCreateParams),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ProjectFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a new project.
+   */
+  async organizationProjectsPost(
+    requestParameters: OrganizationProjectsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<Project> {
+    const response = await this.organizationProjectsPostRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
+   */
+  async organizationProjectsPutProjectRaw(
+    requestParameters: OrganizationProjectsPutProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Project>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationProjectsPutProject.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling organizationProjectsPutProject.'
+      )
+    }
+
+    if (
+      requestParameters.projectUpdateParams === null ||
+      requestParameters.projectUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectUpdateParams',
+        'Required parameter requestParameters.projectUpdateParams was null or undefined when calling organizationProjectsPutProject.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ProjectUpdateParamsToJSON(requestParameters.projectUpdateParams),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ProjectFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
+   */
+  async organizationProjectsPutProject(
+    requestParameters: OrganizationProjectsPutProjectRequest,
+    initOverrides?: RequestInit
+  ): Promise<Project> {
+    const response = await this.organizationProjectsPutProjectRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Delete a specific organization.
+   */
+  async organizationsDeleteOrganizationRaw(
+    requestParameters: OrganizationsDeleteOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationsDeleteOrganization.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}`.replace(
+          `{${'organization_name'}}`,
+          encodeURIComponent(String(requestParameters.organizationName))
+        ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a specific organization.
+   */
+  async organizationsDeleteOrganization(
+    requestParameters: OrganizationsDeleteOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.organizationsDeleteOrganizationRaw(
+      requestParameters,
+      initOverrides
+    )
+  }
+
+  /**
+   * List all organizations.
+   */
+  async organizationsGetRaw(
+    requestParameters: OrganizationsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<OrganizationResultsPage>> {
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      OrganizationResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List all organizations.
+   */
+  async organizationsGet(
+    requestParameters: OrganizationsGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<OrganizationResultsPage> {
+    const response = await this.organizationsGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Fetch a specific organization
+   */
+  async organizationsGetOrganizationRaw(
+    requestParameters: OrganizationsGetOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Organization>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationsGetOrganization.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}`.replace(
+          `{${'organization_name'}}`,
+          encodeURIComponent(String(requestParameters.organizationName))
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      OrganizationFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Fetch a specific organization
+   */
+  async organizationsGetOrganization(
+    requestParameters: OrganizationsGetOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<Organization> {
+    const response = await this.organizationsGetOrganizationRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Create a new organization.
+   */
+  async organizationsPostRaw(
+    requestParameters: OrganizationsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Organization>> {
+    if (
+      requestParameters.organizationCreateParams === null ||
+      requestParameters.organizationCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationCreateParams',
+        'Required parameter requestParameters.organizationCreateParams was null or undefined when calling organizationsPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations`,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: OrganizationCreateParamsToJSON(
+          requestParameters.organizationCreateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      OrganizationFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a new organization.
+   */
+  async organizationsPost(
+    requestParameters: OrganizationsPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<Organization> {
+    const response = await this.organizationsPostRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Update a specific organization.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
+   */
+  async organizationsPutOrganizationRaw(
+    requestParameters: OrganizationsPutOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<Organization>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling organizationsPutOrganization.'
+      )
+    }
+
+    if (
+      requestParameters.organizationUpdateParams === null ||
+      requestParameters.organizationUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationUpdateParams',
+        'Required parameter requestParameters.organizationUpdateParams was null or undefined when calling organizationsPutOrganization.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}`.replace(
+          `{${'organization_name'}}`,
+          encodeURIComponent(String(requestParameters.organizationName))
+        ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: OrganizationUpdateParamsToJSON(
+          requestParameters.organizationUpdateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      OrganizationFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Update a specific organization.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
+   */
+  async organizationsPutOrganization(
+    requestParameters: OrganizationsPutOrganizationRequest,
+    initOverrides?: RequestInit
+  ): Promise<Organization> {
+    const response = await this.organizationsPutOrganizationRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
    * Delete a disk from a project.
    */
   async projectDisksDeleteDiskRaw(
@@ -832,6 +1626,16 @@ export class DefaultApi extends runtime.BaseAPI {
       throw new runtime.RequiredError(
         'diskName',
         'Required parameter requestParameters.diskName was null or undefined when calling projectDisksDeleteDisk.'
+      )
+    }
+
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectDisksDeleteDisk.'
       )
     }
 
@@ -851,10 +1655,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/disks/{disk_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}`
           .replace(
             `{${'disk_name'}}`,
             encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -888,6 +1696,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<DiskResultsPage>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectDisksGet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -915,10 +1733,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/disks`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/disks`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -963,6 +1786,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectDisksGetDisk.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -978,10 +1811,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/disks/{disk_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}`
           .replace(
             `{${'disk_name'}}`,
             encodeURIComponent(String(requestParameters.diskName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1021,6 +1858,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Disk>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectDisksPost.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1048,10 +1895,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/disks`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/disks`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -1097,6 +1949,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesDeleteInstance.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1112,10 +1974,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1152,6 +2018,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<InstanceResultsPage>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesGet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1179,10 +2055,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/instances`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1227,6 +2108,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesGetInstance.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1242,10 +2133,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1295,6 +2190,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesInstanceReboot.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1310,10 +2215,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/reboot`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/reboot`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1363,6 +2272,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesInstanceStart.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1378,10 +2297,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/start`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/start`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1431,6 +2354,16 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesInstanceStop.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1446,10 +2379,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances/{instance_name}/stop`
+        path: `/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/stop`
           .replace(
             `{${'instance_name'}}`,
             encodeURIComponent(String(requestParameters.instanceName))
+          )
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
           )
           .replace(
             `{${'project_name'}}`,
@@ -1489,6 +2426,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Instance>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectInstancesPost.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1516,10 +2463,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/instances`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/instances`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -1557,6 +2509,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectVpcsDeleteVpc.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1582,7 +2544,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -1619,6 +2585,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<VpcResultsPage>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectVpcsGet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1646,10 +2622,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1684,6 +2665,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Vpc>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectVpcsGetVpc.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1709,7 +2700,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -1752,6 +2747,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Vpc>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectVpcsPost.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -1779,10 +2784,15 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -1817,6 +2827,16 @@ export class DefaultApi extends runtime.BaseAPI {
     requestParameters: ProjectVpcsPutVpcRequest,
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling projectVpcsPutVpc.'
+      )
+    }
+
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -1855,7 +2875,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -1883,274 +2907,6 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<void> {
     await this.projectVpcsPutVpcRaw(requestParameters, initOverrides)
-  }
-
-  /**
-   * Delete a specific project.
-   */
-  async projectsDeleteProjectRaw(
-    requestParameters: ProjectsDeleteProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<runtime.ApiResponse<void>> {
-    if (
-      requestParameters.projectName === null ||
-      requestParameters.projectName === undefined
-    ) {
-      throw new runtime.RequiredError(
-        'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling projectsDeleteProject.'
-      )
-    }
-
-    const queryParameters: any = {}
-
-    const headerParameters: runtime.HTTPHeaders = {}
-
-    const response = await this.request(
-      {
-        path: `/projects/{project_name}`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides
-    )
-
-    return new runtime.VoidApiResponse(response)
-  }
-
-  /**
-   * Delete a specific project.
-   */
-  async projectsDeleteProject(
-    requestParameters: ProjectsDeleteProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<void> {
-    await this.projectsDeleteProjectRaw(requestParameters, initOverrides)
-  }
-
-  /**
-   * List all projects.
-   */
-  async projectsGetRaw(
-    requestParameters: ProjectsGetRequest,
-    initOverrides?: RequestInit
-  ): Promise<runtime.ApiResponse<ProjectResultsPage>> {
-    const queryParameters: any = {}
-
-    if (requestParameters.limit !== undefined) {
-      queryParameters['limit'] = requestParameters.limit
-    }
-
-    if (requestParameters.pageToken !== undefined) {
-      queryParameters['page_token'] = requestParameters.pageToken
-    }
-
-    if (requestParameters.sortBy !== undefined) {
-      queryParameters['sort_by'] = requestParameters.sortBy
-    }
-
-    const headerParameters: runtime.HTTPHeaders = {}
-
-    const response = await this.request(
-      {
-        path: `/projects`,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides
-    )
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectResultsPageFromJSON(jsonValue)
-    )
-  }
-
-  /**
-   * List all projects.
-   */
-  async projectsGet(
-    requestParameters: ProjectsGetRequest,
-    initOverrides?: RequestInit
-  ): Promise<ProjectResultsPage> {
-    const response = await this.projectsGetRaw(requestParameters, initOverrides)
-    return await response.value()
-  }
-
-  /**
-   * Fetch a specific project
-   */
-  async projectsGetProjectRaw(
-    requestParameters: ProjectsGetProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<runtime.ApiResponse<Project>> {
-    if (
-      requestParameters.projectName === null ||
-      requestParameters.projectName === undefined
-    ) {
-      throw new runtime.RequiredError(
-        'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling projectsGetProject.'
-      )
-    }
-
-    const queryParameters: any = {}
-
-    const headerParameters: runtime.HTTPHeaders = {}
-
-    const response = await this.request(
-      {
-        path: `/projects/{project_name}`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides
-    )
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectFromJSON(jsonValue)
-    )
-  }
-
-  /**
-   * Fetch a specific project
-   */
-  async projectsGetProject(
-    requestParameters: ProjectsGetProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<Project> {
-    const response = await this.projectsGetProjectRaw(
-      requestParameters,
-      initOverrides
-    )
-    return await response.value()
-  }
-
-  /**
-   * Create a new project.
-   */
-  async projectsPostRaw(
-    requestParameters: ProjectsPostRequest,
-    initOverrides?: RequestInit
-  ): Promise<runtime.ApiResponse<Project>> {
-    if (
-      requestParameters.projectCreateParams === null ||
-      requestParameters.projectCreateParams === undefined
-    ) {
-      throw new runtime.RequiredError(
-        'projectCreateParams',
-        'Required parameter requestParameters.projectCreateParams was null or undefined when calling projectsPost.'
-      )
-    }
-
-    const queryParameters: any = {}
-
-    const headerParameters: runtime.HTTPHeaders = {}
-
-    headerParameters['Content-Type'] = 'application/json'
-
-    const response = await this.request(
-      {
-        path: `/projects`,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: ProjectCreateParamsToJSON(requestParameters.projectCreateParams),
-      },
-      initOverrides
-    )
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectFromJSON(jsonValue)
-    )
-  }
-
-  /**
-   * Create a new project.
-   */
-  async projectsPost(
-    requestParameters: ProjectsPostRequest,
-    initOverrides?: RequestInit
-  ): Promise<Project> {
-    const response = await this.projectsPostRaw(
-      requestParameters,
-      initOverrides
-    )
-    return await response.value()
-  }
-
-  /**
-   * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
-   */
-  async projectsPutProjectRaw(
-    requestParameters: ProjectsPutProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<runtime.ApiResponse<Project>> {
-    if (
-      requestParameters.projectName === null ||
-      requestParameters.projectName === undefined
-    ) {
-      throw new runtime.RequiredError(
-        'projectName',
-        'Required parameter requestParameters.projectName was null or undefined when calling projectsPutProject.'
-      )
-    }
-
-    if (
-      requestParameters.projectUpdateParams === null ||
-      requestParameters.projectUpdateParams === undefined
-    ) {
-      throw new runtime.RequiredError(
-        'projectUpdateParams',
-        'Required parameter requestParameters.projectUpdateParams was null or undefined when calling projectsPutProject.'
-      )
-    }
-
-    const queryParameters: any = {}
-
-    const headerParameters: runtime.HTTPHeaders = {}
-
-    headerParameters['Content-Type'] = 'application/json'
-
-    const response = await this.request(
-      {
-        path: `/projects/{project_name}`.replace(
-          `{${'project_name'}}`,
-          encodeURIComponent(String(requestParameters.projectName))
-        ),
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: ProjectUpdateParamsToJSON(requestParameters.projectUpdateParams),
-      },
-      initOverrides
-    )
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ProjectFromJSON(jsonValue)
-    )
-  }
-
-  /**
-   * Update a specific project.  * TODO-correctness: Is it valid for PUT to accept application/json that\'s a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., \"application/json-patch\")?  We should see what other APIs do.
-   */
-  async projectsPutProject(
-    requestParameters: ProjectsPutProjectRequest,
-    initOverrides?: RequestInit
-  ): Promise<Project> {
-    const response = await this.projectsPutProjectRaw(
-      requestParameters,
-      initOverrides
-    )
-    return await response.value()
   }
 
   /**
@@ -2256,12 +3012,504 @@ export class DefaultApi extends runtime.BaseAPI {
   }
 
   /**
+   * Delete a router from its VPC
+   */
+  async vpcRoutersDeleteRouterRaw(
+    requestParameters: VpcRoutersDeleteRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcRoutersDeleteRouter.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcRoutersDeleteRouter.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling vpcRoutersDeleteRouter.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcRoutersDeleteRouter.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a router from its VPC
+   */
+  async vpcRoutersDeleteRouter(
+    requestParameters: VpcRoutersDeleteRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.vpcRoutersDeleteRouterRaw(requestParameters, initOverrides)
+  }
+
+  /**
+   * List VPC Custom and System Routers
+   */
+  async vpcRoutersGetRaw(
+    requestParameters: VpcRoutersGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcRouterResultsPage>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcRoutersGet.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcRoutersGet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcRoutersGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcRouterResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List VPC Custom and System Routers
+   */
+  async vpcRoutersGet(
+    requestParameters: VpcRoutersGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcRouterResultsPage> {
+    const response = await this.vpcRoutersGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Get a VPC Router
+   */
+  async vpcRoutersGetRouterRaw(
+    requestParameters: VpcRoutersGetRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcRouter>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcRoutersGetRouter.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcRoutersGetRouter.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling vpcRoutersGetRouter.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcRoutersGetRouter.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcRouterFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Get a VPC Router
+   */
+  async vpcRoutersGetRouter(
+    requestParameters: VpcRoutersGetRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcRouter> {
+    const response = await this.vpcRoutersGetRouterRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Create a VPC Router
+   */
+  async vpcRoutersPostRaw(
+    requestParameters: VpcRoutersPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcRouter>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcRoutersPost.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcRoutersPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcRoutersPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcRouterCreateParams === null ||
+      requestParameters.vpcRouterCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcRouterCreateParams',
+        'Required parameter requestParameters.vpcRouterCreateParams was null or undefined when calling vpcRoutersPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcRouterCreateParamsToJSON(
+          requestParameters.vpcRouterCreateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcRouterFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a VPC Router
+   */
+  async vpcRoutersPost(
+    requestParameters: VpcRoutersPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcRouter> {
+    const response = await this.vpcRoutersPostRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Update a VPC Router
+   */
+  async vpcRoutersPutRouterRaw(
+    requestParameters: VpcRoutersPutRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcRoutersPutRouter.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcRoutersPutRouter.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling vpcRoutersPutRouter.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcRoutersPutRouter.'
+      )
+    }
+
+    if (
+      requestParameters.vpcRouterUpdateParams === null ||
+      requestParameters.vpcRouterUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcRouterUpdateParams',
+        'Required parameter requestParameters.vpcRouterUpdateParams was null or undefined when calling vpcRoutersPutRouter.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: VpcRouterUpdateParamsToJSON(
+          requestParameters.vpcRouterUpdateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Update a VPC Router
+   */
+  async vpcRoutersPutRouter(
+    requestParameters: VpcRoutersPutRouterRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.vpcRoutersPutRouterRaw(requestParameters, initOverrides)
+  }
+
+  /**
    * Delete a subnet from a VPC.
    */
   async vpcSubnetsDeleteSubnetRaw(
     requestParameters: VpcSubnetsDeleteSubnetRequest,
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcSubnetsDeleteSubnet.'
+      )
+    }
+
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -2298,7 +3546,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -2339,6 +3591,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<VpcSubnetResultsPage>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcSubnetsGet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -2376,7 +3638,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -2419,6 +3685,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<VpcSubnet>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcSubnetsGetSubnet.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -2454,7 +3730,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -2501,6 +3781,16 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<VpcSubnet>> {
     if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcSubnetsPost.'
+      )
+    }
+
+    if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
     ) {
@@ -2538,7 +3828,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))
@@ -2583,6 +3877,16 @@ export class DefaultApi extends runtime.BaseAPI {
     requestParameters: VpcSubnetsPutSubnetRequest,
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcSubnetsPutSubnet.'
+      )
+    }
+
     if (
       requestParameters.projectName === null ||
       requestParameters.projectName === undefined
@@ -2631,7 +3935,11 @@ export class DefaultApi extends runtime.BaseAPI {
 
     const response = await this.request(
       {
-        path: `/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
           .replace(
             `{${'project_name'}}`,
             encodeURIComponent(String(requestParameters.projectName))

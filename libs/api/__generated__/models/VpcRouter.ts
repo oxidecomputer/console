@@ -21,57 +21,43 @@ import {
 } from './'
 
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
+ * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  * @export
- * @interface VpcSubnet
+ * @interface VpcRouter
  */
-export interface VpcSubnet {
+export interface VpcRouter {
   /**
    * common identifying metadata
    * @type {IdentityMetadata}
-   * @memberof VpcSubnet
+   * @memberof VpcRouter
    */
   identity: IdentityMetadata
   /**
-   * The IPv4 subnet CIDR block.
+   * The VPC to which the router belongs.
    * @type {string}
-   * @memberof VpcSubnet
-   */
-  ipv4Block?: string | null
-  /**
-   * The IPv6 subnet CIDR block.
-   * @type {string}
-   * @memberof VpcSubnet
-   */
-  ipv6Block?: string | null
-  /**
-   * The VPC to which the subnet belongs.
-   * @type {string}
-   * @memberof VpcSubnet
+   * @memberof VpcRouter
    */
   vpcId: string
 }
 
-export function VpcSubnetFromJSON(json: any): VpcSubnet {
-  return VpcSubnetFromJSONTyped(json, false)
+export function VpcRouterFromJSON(json: any): VpcRouter {
+  return VpcRouterFromJSONTyped(json, false)
 }
 
-export function VpcSubnetFromJSONTyped(
+export function VpcRouterFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcSubnet {
+): VpcRouter {
   if (json === undefined || json === null) {
     return json
   }
   return {
     identity: IdentityMetadataFromJSON(json['identity']),
-    ipv4Block: !exists(json, 'ipv4_block') ? undefined : json['ipv4_block'],
-    ipv6Block: !exists(json, 'ipv6_block') ? undefined : json['ipv6_block'],
     vpcId: json['vpc_id'],
   }
 }
 
-export function VpcSubnetToJSON(value?: VpcSubnet | null): any {
+export function VpcRouterToJSON(value?: VpcRouter | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -80,8 +66,6 @@ export function VpcSubnetToJSON(value?: VpcSubnet | null): any {
   }
   return {
     identity: IdentityMetadataToJSON(value.identity),
-    ipv4_block: value.ipv4Block,
-    ipv6_block: value.ipv6Block,
     vpc_id: value.vpcId,
   }
 }

@@ -28,7 +28,7 @@ export const InstancePageHeader = () => {
     refetch,
   } = useApiQuery(
     'projectInstancesGetInstance',
-    { instanceName, projectName },
+    { organizationName: 'maze-war', projectName, instanceName },
     { refetchInterval: 5000 }
   )
 
@@ -72,8 +72,9 @@ export const InstancePageHeader = () => {
   const handleStop = () => {
     if (instanceCan.stop(instance)) {
       stopInstance.mutate({
-        instanceName: instance.name,
+        organizationName: 'maze-war',
         projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({
@@ -89,8 +90,9 @@ export const InstancePageHeader = () => {
   const handleDelete = () => {
     if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
-        instanceName: instance.name,
+        organizationName: 'maze-war',
         projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({
@@ -105,8 +107,9 @@ export const InstancePageHeader = () => {
   const handleReboot = () => {
     if (instanceCan.reboot(instance)) {
       rebootInstance.mutate({
-        instanceName: instance.name,
+        organizationName: 'maze-war',
         projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({

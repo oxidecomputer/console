@@ -14,33 +14,35 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of an [`Project`]
+ * Updateable properties of an [`Organization`]
  * @export
- * @interface ProjectUpdateParams
+ * @interface OrganizationUpdateParams
  */
-export interface ProjectUpdateParams {
+export interface OrganizationUpdateParams {
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof OrganizationUpdateParams
    */
   description?: string | null
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof OrganizationUpdateParams
    */
   name?: string | null
 }
 
-export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
-  return ProjectUpdateParamsFromJSONTyped(json, false)
+export function OrganizationUpdateParamsFromJSON(
+  json: any
+): OrganizationUpdateParams {
+  return OrganizationUpdateParamsFromJSONTyped(json, false)
 }
 
-export function ProjectUpdateParamsFromJSONTyped(
+export function OrganizationUpdateParamsFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectUpdateParams {
+): OrganizationUpdateParams {
   if (json === undefined || json === null) {
     return json
   }
@@ -50,8 +52,8 @@ export function ProjectUpdateParamsFromJSONTyped(
   }
 }
 
-export function ProjectUpdateParamsToJSON(
-  value?: ProjectUpdateParams | null
+export function OrganizationUpdateParamsToJSON(
+  value?: OrganizationUpdateParams | null
 ): any {
   if (value === undefined) {
     return undefined

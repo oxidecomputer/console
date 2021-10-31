@@ -78,7 +78,10 @@ const menuCol = {
     const addToast = useToast()
     const queryClient = useApiQueryClient()
     const refetch = () =>
-      queryClient.invalidateQueries('projectInstancesGet', { projectName })
+      queryClient.invalidateQueries('projectInstancesGet', {
+        organizationName: 'maze-war',
+        projectName,
+      })
 
     const instance = row.original
     const instanceName = instance.name
@@ -122,14 +125,24 @@ const menuCol = {
         </MenuButton>
         <MenuList className="TableControls">
           <MenuItem
-            onSelect={() => stopInstance.mutate({ instanceName, projectName })}
+            onSelect={() =>
+              stopInstance.mutate({
+                organizationName: 'maze-war',
+                projectName,
+                instanceName,
+              })
+            }
             disabled={!instanceCan.stop(instance)}
           >
             Stop
           </MenuItem>
           <MenuItem
             onSelect={() =>
-              rebootInstance.mutate({ instanceName, projectName })
+              rebootInstance.mutate({
+                organizationName: 'maze-war',
+                projectName,
+                instanceName,
+              })
             }
             disabled={!instanceCan.reboot(instance)}
           >
@@ -137,7 +150,11 @@ const menuCol = {
           </MenuItem>
           <MenuItem
             onSelect={() =>
-              deleteInstance.mutate({ instanceName, projectName })
+              deleteInstance.mutate({
+                organizationName: 'maze-war',
+                projectName,
+                instanceName,
+              })
             }
             disabled={!instanceCan.delete(instance)}
           >
@@ -159,7 +176,12 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   const { projectName } = useParams('projectName')
   const { data: instances } = useApiQuery(
     'projectInstancesGet',
-    { projectName, pageToken: currentPage, limit: PAGE_SIZE },
+    {
+      organizationName: 'maze-war',
+      projectName,
+      pageToken: currentPage,
+      limit: PAGE_SIZE,
+    },
     { refetchInterval: 5000, keepPreviousData: true }
   )
 

@@ -26,17 +26,17 @@ export interface VpcSubnetCreateParams {
    */
   description: string
   /**
-   * An IPv4 subnet, including prefix and subnet mask
+   *
    * @type {string}
    * @memberof VpcSubnetCreateParams
    */
-  ipv4Block?: string
+  ipv4Block?: string | null
   /**
-   * An IPv6 subnet, including prefix and subnet mask
+   *
    * @type {string}
    * @memberof VpcSubnetCreateParams
    */
-  ipv6Block?: string
+  ipv6Block?: string | null
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}

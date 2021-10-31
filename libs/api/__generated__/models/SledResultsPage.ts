@@ -32,7 +32,7 @@ export interface SledResultsPage {
    * @type {string}
    * @memberof SledResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function SledResultsPageFromJSON(json: any): SledResultsPage {

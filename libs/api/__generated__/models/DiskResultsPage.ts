@@ -32,7 +32,7 @@ export interface DiskResultsPage {
    * @type {string}
    * @memberof DiskResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function DiskResultsPageFromJSON(json: any): DiskResultsPage {

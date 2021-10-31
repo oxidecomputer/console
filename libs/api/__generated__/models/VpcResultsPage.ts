@@ -32,7 +32,7 @@ export interface VpcResultsPage {
    * @type {string}
    * @memberof VpcResultsPage
    */
-  nextPage?: string
+  nextPage?: string | null
 }
 
 export function VpcResultsPageFromJSON(json: any): VpcResultsPage {
