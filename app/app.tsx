@@ -8,6 +8,7 @@ import {
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
+import OrgPage from './pages/OrgPage'
 import ProjectPage from './pages/project'
 import ProjectAccessPage from './pages/project/Access'
 import ProjectStoragePage from './pages/project/Storage'
@@ -15,9 +16,11 @@ import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
 
+import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
-import InstanceLayout from './layouts/InstanceLayout'
 import ProjectLayout from './layouts/ProjectLayout'
+import InstanceLayout from './layouts/InstanceLayout'
+
 import QuickMenu from './components/QuickMenu'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { SkipLink } from '@oxide/ui'
@@ -32,6 +35,10 @@ const App = () => (
           index
           element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
         />
+
+        <Route path="/orgs/:orgName" element={<RootLayout />}>
+          <Route index element={<OrgPage />} />
+        </Route>
 
         <Route path="/orgs/:orgName">
           {/* ORG */}
@@ -72,7 +79,7 @@ const App = () => (
           </Route>
         </Route>
 
-        <Route path="__debug" element={<OrgLayout />}>
+        <Route path="__debug" element={<RootLayout />}>
           <Route path="toasts" element={<ToastTestPage />} />
         </Route>
       </Routes>
