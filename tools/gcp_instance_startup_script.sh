@@ -45,6 +45,8 @@ docker run -d \
 # After we turn on cockroach and get rid of the in-memory store this can
 # be moved to part of the packer build to save time.
 oxapi_demo organization_create_demo maze-war
+oxapi_demo organization_create_demo enron
+oxapi_demo organization_create_demo theranos 
 
 oxapi_demo project_create_demo maze-war prod-online
 oxapi_demo project_create_demo maze-war release-infrastructure 
