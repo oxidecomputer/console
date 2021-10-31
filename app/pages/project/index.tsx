@@ -7,9 +7,9 @@ import { InstancesTable } from '../../components/InstancesTable'
 import { useParams } from '../../hooks'
 
 const ProjectPage = () => {
-  const { projectName } = useParams('projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   const { data: project } = useApiQuery('organizationProjectsGetProject', {
-    organizationName: 'maze-war',
+    organizationName: orgName,
     projectName,
   })
 
@@ -26,13 +26,13 @@ const ProjectPage = () => {
       <InstancesTable className="my-12" />
       <div className="space-x-4">
         <Link
-          to={`/projects/${projectName}/instances/new`}
+          to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
           className={buttonStyle()}
         >
           Create instance
         </Link>
         <Link
-          to={`/projects/${projectName}/access`}
+          to={`/orgs/${orgName}/projects/${projectName}/access`}
           className={buttonStyle({ variant: 'ghost' })}
         >
           Access &amp; IAM

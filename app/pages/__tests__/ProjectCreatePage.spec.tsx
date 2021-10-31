@@ -8,7 +8,7 @@ import {
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
-import { project } from '@oxide/api-mocks'
+import { org, project } from '@oxide/api-mocks'
 
 import ProjectCreatePage from '../ProjectCreatePage'
 
@@ -90,7 +90,7 @@ describe('ProjectCreatePage', () => {
       body: project,
     })
 
-    const projectPath = `/projects/${project.name}`
+    const projectPath = `/orgs/${org.name}/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

@@ -14,7 +14,7 @@ import {
   FieldTitle,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useToast } from '../hooks'
+import { useParams, useToast } from '../hooks'
 import { getServerError } from '../util/errors'
 import { validateName } from '../util/validate'
 
@@ -23,7 +23,12 @@ const ERROR_CODES = {
     'A project with that name already exists in this organization',
 }
 
+// TODO
+// exists primarily so we can test it without worrying about route params
+export const ProjectCreateForm = ({ orgName }: { orgName: string }) => {}
+
 const ProjectCreatePage = () => {
+  const { orgName } = useParams('orgName')
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
@@ -33,12 +38,12 @@ const ProjectCreatePage = () => {
     onSuccess: (data) => {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('organizationProjectsGet', {
-        organizationName: 'maze-war',
+        organizationName: orgName,
       })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'organizationProjectsGetProject',
-        { organizationName: 'maze-war', projectName: data.name },
+        { organizationName: orgName, projectName: data.name },
         data
       )
       addToast({
@@ -47,7 +52,7 @@ const ProjectCreatePage = () => {
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      navigate(`/projects/${data.name}`)
+      navigate(`/orgs/${orgName}/projects/${data.name}`)
     },
   })
 
@@ -62,7 +67,7 @@ const ProjectCreatePage = () => {
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
           createProject.mutate({
-            organizationName: 'maze-war',
+            organizationName: orgName,
             projectCreateParams: { name, description },
           })
         }}

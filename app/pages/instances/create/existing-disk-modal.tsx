@@ -15,6 +15,7 @@ import {
 type Props = {
   isOpen: boolean
   onDismiss: () => void
+  orgName: string
   projectName: string
 }
 
@@ -27,10 +28,15 @@ const isUnattached = ({ state }: Disk) => {
   )
 }
 
-export function ExistingDiskModal({ isOpen, onDismiss, projectName }: Props) {
+export function ExistingDiskModal({
+  isOpen,
+  onDismiss,
+  orgName,
+  projectName,
+}: Props) {
   // TODO: maybe wait to fetch until you open the modal
   const { data } = useApiQuery('projectDisksGet', {
-    organizationName: 'maze-war',
+    organizationName: orgName,
     projectName,
   })
   const disks = (data?.items || [])

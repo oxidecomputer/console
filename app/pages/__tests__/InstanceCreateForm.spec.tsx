@@ -8,21 +8,23 @@ import {
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
-import { project, instance } from '@oxide/api-mocks'
+import { org, project, instance } from '@oxide/api-mocks'
 
 import { InstanceCreateForm } from '../instances/create'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
 
-const instancesUrl = `/api/organizations/maze-war/projects/${project.name}/instances`
-const disksUrl = `/api/organizations/maze-war/projects/${project.name}/disks`
+const instancesUrl = `/api/organizations/${org.name}/projects/${project.name}/instances`
+const disksUrl = `/api/organizations/${org.name}/projects/${project.name}/disks`
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
     // existing disk modal fetches disks on render even if it's not visible
     fetchMock.get(disksUrl, 200)
-    renderWithRouter(<InstanceCreateForm projectName={project.name} />)
+    renderWithRouter(
+      <InstanceCreateForm orgName={org.name} projectName={project.name} />
+    )
   })
 
   afterEach(() => {
@@ -87,7 +89,7 @@ describe('InstanceCreateForm', () => {
   it('navigates to project page on success', async () => {
     const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
 
-    const projectPath = `/projects/${project.name}`
+    const projectPath = `/orgs/${org.name}/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

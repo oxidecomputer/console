@@ -19,10 +19,10 @@ const columns = [
 ]
 
 export default function ProjectStorage() {
-  const { projectName } = useParams('projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   const { data } = useApiQuery(
     'projectDisksGet',
-    { organizationName: 'maze-war', projectName },
+    { organizationName: orgName, projectName },
     { refetchInterval: 5000 }
   )
 

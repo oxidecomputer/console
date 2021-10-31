@@ -35,7 +35,7 @@ const ProjectList = (props: { className?: string }) => {
       <footer className="p-1 flex">
         <Link
           className="text-xs inline-flex uppercase text-gray-100 font-mono"
-          to="/projects/new"
+          to={`/orgs/${orgName}/projects/new`}
         >
           <Add12Icon title="Add a project" className="mr-1.5 mt-0.5" />
           New project

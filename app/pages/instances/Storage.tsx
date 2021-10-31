@@ -36,10 +36,14 @@ const columns = [
 ]
 
 function Storage() {
-  const { projectName, instanceName } = useParams('projectName', 'instanceName')
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
   const { data } = useApiQuery(
     'instanceDisksGet',
-    { organizationName: 'maze-war', projectName, instanceName },
+    { organizationName: orgName, projectName, instanceName },
     { refetchInterval: 5000 }
   )
 

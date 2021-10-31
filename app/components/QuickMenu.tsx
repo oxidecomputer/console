@@ -21,20 +21,30 @@ import { useKey } from '../hooks'
 
 // TODO: shouldn't show a given link when you're already on that page. values
 // will have to have more structure, like some kind of showWhen function
-const globalPaths: Record<string, string> = {
-  'Create project': '/projects/new',
+const orgPaths: Record<string, (o: string) => string> = {
+  'Create project': (orgName) => `/orgs/${orgName}/projects/new`,
 }
 
-const projectPaths: Record<string, (s: string) => string> = {
-  'Create instance': (projectName) => `/projects/${projectName}/instances/new`,
-  'Project instances': (projectName) => `/projects/${projectName}/instances`,
-  'Project access': (projectName) => `/projects/${projectName}/access`,
+const projectPaths: Record<string, (o: string, p: string) => string> = {
+  'Create instance': (orgName, projectName) =>
+    `/orgs/${orgName}/projects/${projectName}/instances/new`,
+  'Project instances': (orgName, projectName) =>
+    `/orgs/${orgName}/projects/${projectName}/instances`,
+  'Project access': (orgName, projectName) =>
+    `/orgs/${orgName}/projects/${projectName}/access`,
 }
 
 // can't use useParams because QuickMenu is not rendered inside the route tree, so
 // it does not have access to the current route
+function useOrgName(): string | null {
+  const match = useMatch('/orgs/:orgName')
+  return match?.params.orgName && match.params.orgName !== 'new'
+    ? match.params.orgName
+    : null
+}
+
 function useProjectName(): string | null {
-  const match = useMatch('/projects/:projectName')
+  const match = useMatch('/orgs/:orgName/projects/:projectName')
   return match?.params.projectName && match.params.projectName !== 'new'
     ? match.params.projectName
     : null
@@ -43,7 +53,9 @@ function useProjectName(): string | null {
 // not in use yet but this is how it will work
 // eslint-disable-next-line
 function useInstanceName(): string | null {
-  const match = useMatch('/projects/:projectName/instances/:instanceName')
+  const match = useMatch(
+    '/orgs/:orgName/projects/:projectName/instances/:instanceName'
+  )
   return match?.params.instanceName && match.params.instanceName !== 'new'
     ? match.params.instanceName
     : null
@@ -62,11 +74,19 @@ export default () => {
     setInput('')
   }
 
+  // TODO: this whole thing is a mess. don't fix it, rewrite it
   const { data: projects } = useApiQuery('organizationProjectsGet', {
     organizationName: 'maze-war',
   })
   const projectNames = projects?.items.map((p) => p.name) || []
-  let values: string[] = [...projectNames, ...Object.keys(globalPaths)]
+  let values: string[] = [...projectNames]
+
+  // if in context of a particular org, include org-specific paths
+  const orgName = useOrgName()
+  if (orgName) {
+    // TODO: add list of instances
+    values = [...Object.keys(orgPaths), ...values]
+  }
 
   // if in context of a particular project, include project-specific paths
   const projectName = useProjectName()
@@ -78,10 +98,12 @@ export default () => {
   const navigate = useNavigate()
   const goToProject = (value: string) => {
     let path = ''
-    if (projectName && value in projectPaths) {
-      path = projectPaths[value](projectName)
-    } else {
-      path = globalPaths[value] || `/projects/${value}`
+    if (orgName) {
+      if (projectName && value in projectPaths) {
+        path = projectPaths[value](orgName, projectName)
+      } else {
+        path = orgPaths[value](orgName) || `/orgs/${orgName}/projects/${value}`
+      }
     }
     navigate(path)
     reset()
