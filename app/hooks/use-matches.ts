@@ -5,8 +5,6 @@ import { matchRoutes, useLocation } from 'react-router'
 import type { Crumb } from '../app'
 import { routes } from '../app'
 
-console.log('use-matches', routes)
-
 type CustomRouteObject = RouteObject & {
   crumb?: Crumb
 }
@@ -50,8 +48,6 @@ export function createRoutesFromChildren(
 }
 
 // do this outside useMatches so it only happens once at pageload
-const routeConfig = createRoutesFromChildren(routes)
-
 type CustomMatch = RouteMatch & {
   route: CustomRouteObject
 }
@@ -78,5 +74,9 @@ type CustomMatch = RouteMatch & {
  * ]
  * ```
  */
-export const useMatches = () =>
-  matchRoutes(routeConfig, useLocation()) as CustomMatch[] | null
+export const useMatches = (): CustomMatch[] | null => {
+  // this needs to be in here instead of outside at top level to avoid a
+  // circular dependency issue. it complains that routes is not initialized yet
+  const routeConfig = React.useMemo(() => createRoutesFromChildren(routes), [])
+  return matchRoutes(routeConfig, useLocation())
+}
