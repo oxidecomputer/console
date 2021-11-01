@@ -5,12 +5,7 @@ import type {
   RouteObject,
   RouteProps as RRRouteProps,
 } from 'react-router'
-import {
-  BrowserRouter as Router,
-  Navigate,
-  Route as RRRoute,
-  Routes,
-} from 'react-router-dom'
+import { Navigate, Route as RRRoute, Routes } from 'react-router-dom'
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
@@ -26,9 +21,6 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
-
-import { ErrorBoundary } from './components/ErrorBoundary'
-import { SkipLink } from '@oxide/ui'
 
 // function arm lets us make labels that depend on route params
 type Crumb = string | ((m: RouteMatch) => string)
@@ -199,12 +191,3 @@ function createRoutesFromChildren(
 
 /** React Router route config in object form. Used by useMatches. */
 export const routeConfig = createRoutesFromChildren(routes)
-
-const App = () => (
-  <ErrorBoundary>
-    <SkipLink id="skip-nav" />
-    <Router>{routes}</Router>
-  </ErrorBoundary>
-)
-
-export default App

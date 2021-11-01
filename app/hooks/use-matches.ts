@@ -1,8 +1,8 @@
 import type { RouteMatch } from 'react-router'
 import { matchRoutes, useLocation } from 'react-router'
 
-import type { CustomRouteObject } from '../app'
-import { routeConfig } from '../app'
+import type { CustomRouteObject } from '../routes'
+import { routeConfig } from '../routes'
 
 type CustomMatch = RouteMatch & {
   route: CustomRouteObject
