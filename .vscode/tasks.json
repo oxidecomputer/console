@@ -2,10 +2,17 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "[helper] Start CockroachDB",
-      "detail": "Do not use",
+      "label": "Switch Omicron to Pinned Version",
+      "detail": "Checks out the pinned version as specified in packer.yaml",
+      "type": "shell",
+      "command": "tools/checkout_pinned_omicron.sh"
+    },
+    {
+      "label": "Start CockroachDB",
+      "detail": "Starts a CockRoachDB instance",
       "type": "shell",
       "command": "cargo run --bin=omicron-dev -- db-run --no-populate",
+      "dependsOn": "Stop CockroachDB",
       "isBackground": true,
       "problemMatcher": {
         "pattern": [
@@ -41,24 +48,25 @@
     {
       "label": "Stop CockroachDB",
       "type": "shell",
-      "command": "cockroach quit --insecure --url postgresql://127.0.0.1:32221",
+      "command": "cockroach quit --insecure --url postgresql://127.0.0.1:32221  || true # Ignore Errors, may not be running",
       "problemMatcher": []
     },
     {
-      "label": "[helper] Populate Nexus DB",
+      "label": "Populate Nexus DB",
       "detail": "Do not use",
       "type": "shell",
       "command": "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221",
       "options": {
         "cwd": "${workspaceFolder}/../omicron"
       },
-      "dependsOn": ["[helper] Start CockroachDB"]
+      "dependsOn": ["Start CockroachDB"]
     },
     {
       "label": "Start Nexus",
       "type": "shell",
       "detail": "Run the Nexus dev server",
-      "dependsOn": ["[helper] Populate Nexus DB"],
+      "dependsOrder": "sequence",
+      "dependsOn": ["Switch Omicron to Pinned Version", "Populate Nexus DB"],
       "command": "cargo run --bin=nexus -- nexus/examples/config.toml",
       "isBackground": true,
       "problemMatcher": {
@@ -86,8 +94,8 @@
     {
       "label": "Start Console",
       "detail": "Start the console in development mode",
-      "type": "shell",
-      "command": "yarn start",
+      "type": "npm",
+      "script": "start",
       "isBackground": true,
       "problemMatcher": {
         "pattern": [
@@ -120,6 +128,14 @@
         "instanceLimit": 1
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Start Storybook",
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "type": "npm",
+      "script": "storybook"
     }
   ]
 }
