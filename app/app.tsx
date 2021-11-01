@@ -41,54 +41,87 @@ export const routes = (
       element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
     />
 
-    <Route path="/orgs/:orgName" element={<RootLayout />}>
-      <Route index element={<OrgPage />} />
-    </Route>
-
-    <Route path="/orgs/:orgName" crumb="Orgs">
-      {/* ORG */}
-      <Route path="projects" element={<OrgLayout />} crumb="Projects">
-        {/* separate from project detail pages because of the different layout */}
-        <Route index element={<ProjectsPage />} />
-        <Route
-          path="new"
-          element={<ProjectCreatePage />}
-          crumb="Create project"
-        />
-      </Route>
-
-      {/* PROJECT */}
-      <Route path="projects/:projectName" element={<ProjectLayout />}>
-        <Route index element={<ProjectPage />} />
-        <Route path="instances">
-          <Route index element={<ProjectPage />} />
-          <Route
-            path="new"
-            element={<InstanceCreatePage />}
-            crumb="Create instance"
-          />
-        </Route>
-        <Route path="networking" />
-        <Route path="storage" element={<ProjectStoragePage />} />
-        <Route path="metrics" />
-        <Route path="audit" />
-        <Route path="access" element={<ProjectAccessPage />} />
-        <Route path="settings" />
-      </Route>
-
-      {/* INSTANCE */}
+    <Route path="orgs" crumb="Orgs">
       <Route
-        path="projects/:projectName/instances/:instanceName"
-        element={<InstanceLayout />}
+        path=":orgName"
+        element={<RootLayout />}
+        crumb={(m: RouteMatch) => m.params.orgName!}
       >
-        <Route index />
-        <Route path="metrics" />
-        <Route path="activity" />
-        <Route path="access" />
-        <Route path="resize" />
-        <Route path="networking" />
-        <Route path="storage" element={<InstanceStorage />} />
-        <Route path="tags" />
+        <Route index element={<OrgPage />} />
+      </Route>
+
+      <Route path=":orgName" crumb={(m: RouteMatch) => m.params.orgName!}>
+        <Route path="projects" crumb="Projects">
+          {/* ORG */}
+          <Route element={<OrgLayout />}>
+            <Route index element={<ProjectsPage />} />
+            <Route
+              path="new"
+              element={<ProjectCreatePage />}
+              crumb="Create project"
+            />
+          </Route>
+
+          {/* PROJECT */}
+          <Route
+            path=":projectName"
+            element={<ProjectLayout />}
+            crumb={(m: RouteMatch) => m.params.projectName!}
+          >
+            <Route index element={<ProjectPage />} />
+            <Route path="instances">
+              <Route index element={<ProjectPage />} />
+              <Route
+                path="new"
+                element={<InstanceCreatePage />}
+                crumb="Create instance"
+              />
+            </Route>
+            <Route path="networking" crumb="Networking" />
+            <Route
+              path="storage"
+              element={<ProjectStoragePage />}
+              crumb="Storage"
+            />
+            <Route path="metrics" crumb="Metrics" />
+            <Route path="audit" crumb="Audit" />
+            <Route
+              path="access"
+              element={<ProjectAccessPage />}
+              crumb="Access & IAM"
+            />
+            <Route path="settings" crumb="Settings" />
+          </Route>
+
+          {/* INSTANCE */}
+          <Route
+            path=":projectName"
+            crumb={(m: RouteMatch) => m.params.projectName!}
+          >
+            <Route path="instances" crumb="Instances">
+              <Route
+                path=":instanceName"
+                // layout has to be here instead of one up because it handles
+                // the breadcrumbs, which need instanceName to be defined
+                element={<InstanceLayout />}
+                crumb={(m: RouteMatch) => m.params.instanceName!}
+              >
+                <Route index />
+                <Route path="metrics" crumb="Metrics" />
+                <Route path="activity" crumb="Activity" />
+                <Route path="access" crumb="Access" />
+                <Route path="resize" crumb="Resize" />
+                <Route path="networking" crumb="Networking" />
+                <Route
+                  path="storage"
+                  element={<InstanceStorage />}
+                  crumb="Storage"
+                />
+                <Route path="tags" crumb="Tags" />
+              </Route>
+            </Route>
+          </Route>
+        </Route>
       </Route>
     </Route>
 
