@@ -26,14 +26,33 @@ import InstanceLayout from './layouts/InstanceLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { SkipLink } from '@oxide/ui'
 
+// function arm lets us make labels that depend on route params
 export type Crumb = string | ((m: RouteMatch) => string)
 
 type RouteProps = RRRouteProps & {
   crumb?: Crumb
 }
 
+/** Custom `<Route>` that accepts whatever props we want. */
 const Route = (props: RouteProps) => <RRRoute {...props} />
 
+/*
+ * We are doing something a little unorthodox with the route config here. We
+ * realized that tagging nodes in the route tree with arbitrary data is very
+ * powerful. It lets us handle breadcrumbs in a very straightforward way. Every
+ * chunk of route that we want to be represented in the breadcrumbs gets a
+ * `crumb` prop. Then, in order to get the breadcrumbs for a route, all we need
+ * to do is find the path down the tree to the current route, and each node
+ * becomes a crumb, where the `crumb` prop gives the label, and the path for
+ * that node gives the path.
+ *
+ * The config ends up being a bit more complicated that it would otherwise be
+ * because, e.g., we have to do `orgs` and `:orgName` separately in order to get
+ * a crumb for each; `orgs/:orgName` would otherwise be ok.
+ */
+
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/** React Router route config in JSX form */
 export const routes = (
   <Routes>
     <Route
@@ -41,7 +60,7 @@ export const routes = (
       element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
     />
 
-    <Route path="orgs" crumb="Orgs">
+    <Route path="orgs">
       <Route
         path=":orgName"
         element={<RootLayout />}
@@ -130,6 +149,7 @@ export const routes = (
     </Route>
   </Routes>
 )
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 const App = () => (
   <ErrorBoundary>

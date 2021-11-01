@@ -9,8 +9,12 @@ type CustomRouteObject = RouteObject & {
   crumb?: Crumb
 }
 
+type CustomMatch = RouteMatch & {
+  route: CustomRouteObject
+}
+
 /**
- * Turn JSX route config info object config
+ * Turn JSX route config info object config.
  *
  * Copied from React Router with one modification: use a custom RouteObject type
  * in order to be able to put `crumb` prop directly on the <Route> elements
@@ -47,11 +51,6 @@ export function createRoutesFromChildren(
   return routes
 }
 
-// do this outside useMatches so it only happens once at pageload
-type CustomMatch = RouteMatch & {
-  route: CustomRouteObject
-}
-
 /**
  * For the current location, return the path down the route config. For example,
  * if the route config is
@@ -75,8 +74,10 @@ type CustomMatch = RouteMatch & {
  * ```
  */
 export const useMatches = (): CustomMatch[] | null => {
-  // this needs to be in here instead of outside at top level to avoid a
-  // circular dependency issue. it complains that routes is not initialized yet
+  // This needs to be in here instead of outside at top level to avoid a
+  // circular dependency issue. it complains that `routes` is not initialized
+  // yet. If we want to avoid doing this on every component mount, we can put
+  // the route config object on a top-level Context instead.
   const routeConfig = React.useMemo(() => createRoutesFromChildren(routes), [])
   return matchRoutes(routeConfig, useLocation())
 }
