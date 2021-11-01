@@ -4,7 +4,7 @@ import { matchRoutes, useLocation } from 'react-router'
 import type { CustomRouteObject } from '../routes'
 import { routeConfig } from '../routes'
 
-type CustomMatch = RouteMatch & {
+export type CustomMatch = RouteMatch & {
   route: CustomRouteObject
 }
 

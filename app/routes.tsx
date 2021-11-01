@@ -52,6 +52,11 @@ const Route = (props: RouteProps) => <RRRoute {...props} />
  */
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+const orgCrumb = (m: RouteMatch) => m.params.orgName!
+const projectCrumb = (m: RouteMatch) => m.params.projectName!
+const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
+
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
@@ -61,15 +66,11 @@ export const routes = (
     />
 
     <Route path="orgs">
-      <Route
-        path=":orgName"
-        element={<RootLayout />}
-        crumb={(m: RouteMatch) => m.params.orgName!}
-      >
+      <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
         <Route index element={<OrgPage />} />
       </Route>
 
-      <Route path=":orgName" crumb={(m: RouteMatch) => m.params.orgName!}>
+      <Route path=":orgName" crumb={orgCrumb}>
         <Route path="projects" crumb="Projects">
           {/* ORG */}
           <Route element={<OrgLayout />}>
@@ -85,7 +86,7 @@ export const routes = (
           <Route
             path=":projectName"
             element={<ProjectLayout />}
-            crumb={(m: RouteMatch) => m.params.projectName!}
+            crumb={projectCrumb}
           >
             <Route index element={<ProjectPage />} />
             <Route path="instances">
@@ -113,17 +114,14 @@ export const routes = (
           </Route>
 
           {/* INSTANCE */}
-          <Route
-            path=":projectName"
-            crumb={(m: RouteMatch) => m.params.projectName!}
-          >
+          <Route path=":projectName" crumb={projectCrumb}>
             <Route path="instances" crumb="Instances">
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
                 element={<InstanceLayout />}
-                crumb={(m: RouteMatch) => m.params.instanceName!}
+                crumb={instanceCrumb}
               >
                 <Route index />
                 <Route path="metrics" crumb="Metrics" />
@@ -149,7 +147,6 @@ export const routes = (
     </Route>
   </Routes>
 )
-/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 /**
  * Turn JSX route config info object config.
