@@ -7,11 +7,9 @@ export function Breadcrumbs() {
   const matches = (useMatches() || []).filter((m) => m.route.crumb)
   const crumbs = matches.map((m, i) => ({
     label:
-      typeof m.route.crumb === 'function'
-        ? m.route.crumb(m)
-        : typeof m.route.crumb === 'string'
-        ? m.route.crumb
-        : 'WHOOPS', // FIX ME lol
+      // at this point we've already filtered out all falsy crumbs
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      typeof m.route.crumb === 'function' ? m.route.crumb(m) : m.route.crumb!,
     // last one is the page we're on, so no link
     href: i < matches.length - 1 ? m.pathname : undefined,
   }))
