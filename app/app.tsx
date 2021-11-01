@@ -1,6 +1,10 @@
 import React from 'react'
 
-import type { RouteMatch, RouteProps as RRRouteProps } from 'react-router'
+import type {
+  RouteMatch,
+  RouteObject,
+  RouteProps as RRRouteProps,
+} from 'react-router'
 import {
   BrowserRouter as Router,
   Navigate,
@@ -27,9 +31,13 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { SkipLink } from '@oxide/ui'
 
 // function arm lets us make labels that depend on route params
-export type Crumb = string | ((m: RouteMatch) => string)
+type Crumb = string | ((m: RouteMatch) => string)
 
 type RouteProps = RRRouteProps & {
+  crumb?: Crumb
+}
+
+export type CustomRouteObject = RouteObject & {
   crumb?: Crumb
 }
 
@@ -150,6 +158,47 @@ export const routes = (
   </Routes>
 )
 /* eslint-enable @typescript-eslint/no-non-null-assertion */
+
+/**
+ * Turn JSX route config info object config.
+ *
+ * Copied from React Router with one modification: use a custom RouteObject type
+ * in order to be able to put `crumb` prop directly on the <Route> elements
+ * https://github.com/remix-run/react-router/blob/174fb105ee/packages/react-router/index.tsx#L685
+ * */
+function createRoutesFromChildren(
+  children: React.ReactNode
+): CustomRouteObject[] {
+  const routes: CustomRouteObject[] = []
+
+  React.Children.forEach(children, (element) => {
+    if (!React.isValidElement(element)) {
+      // Ignore non-elements. This allows people to more easily inline
+      // conditionals in their route config.
+      return
+    }
+
+    if (element.type === React.Fragment) {
+      // Transparently support React.Fragment and its children.
+      routes.push(...createRoutesFromChildren(element.props.children))
+      return
+    }
+
+    // only real difference from the original: allow arbitrary props
+    const route: CustomRouteObject = { ...element.props }
+
+    if (element.props.children) {
+      route.children = createRoutesFromChildren(element.props.children)
+    }
+
+    routes.push(route)
+  })
+
+  return routes
+}
+
+/** React Router route config in object form. Used by useMatches. */
+export const routeConfig = createRoutesFromChildren(routes)
 
 const App = () => (
   <ErrorBoundary>
