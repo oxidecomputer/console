@@ -1,18 +1,11 @@
 import React from 'react'
-import { Route as RRRoute } from 'react-router'
-import type {
-  RouteMatch,
-  RouteObject,
-  RouteProps as RRRouteProps,
-} from 'react-router'
+import type { RouteMatch, RouteObject } from 'react-router'
+import { matchRoutes, useLocation } from 'react-router'
 
-type Crumb = string | ((m: RouteMatch) => string)
+import type { Crumb } from '../app'
+import { routes } from '../app'
 
-type RouteProps = RRRouteProps & {
-  crumb?: Crumb
-}
-
-export const Route = (props: RouteProps) => <RRRoute {...props} />
+console.log('use-matches', routes)
 
 type CustomRouteObject = RouteObject & {
   crumb?: Crumb
@@ -55,3 +48,35 @@ export function createRoutesFromChildren(
 
   return routes
 }
+
+// do this outside useMatches so it only happens once at pageload
+const routeConfig = createRoutesFromChildren(routes)
+
+type CustomMatch = RouteMatch & {
+  route: CustomRouteObject
+}
+
+/**
+ * For the current location, return the path down the route config. For example,
+ * if the route config is
+ *
+ * ```
+ * <Route path="orgs">
+ *   <Route path="projects">
+ *     <Route path="new" />
+ *   </Route
+ * </Route
+ * ```
+ *
+ * when you're on /orgs/projects/new, useMatches will give something like
+ *
+ * ```
+ * [
+ *   { pathname: '/orgs', ... },
+ *   { pathname: '/orgs/projects', ... },
+ *   { pathname: '/orgs/projects/new', ... },
+ * ]
+ * ```
+ */
+export const useMatches = () =>
+  matchRoutes(routeConfig, useLocation()) as CustomMatch[] | null

@@ -1,7 +1,12 @@
 import React from 'react'
-import { BrowserRouter as Router, Navigate, Routes } from 'react-router-dom'
 
-import { Route } from './custom-route'
+import type { RouteMatch, RouteProps as RRRouteProps } from 'react-router'
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route as RRRoute,
+  Routes,
+} from 'react-router-dom'
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
@@ -21,6 +26,14 @@ import InstanceLayout from './layouts/InstanceLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { SkipLink } from '@oxide/ui'
 
+export type Crumb = string | ((m: RouteMatch) => string)
+
+type RouteProps = RRRouteProps & {
+  crumb?: Crumb
+}
+
+const Route = (props: RouteProps) => <RRRoute {...props} />
+
 export const routes = (
   <Routes>
     <Route
@@ -32,9 +45,9 @@ export const routes = (
       <Route index element={<OrgPage />} />
     </Route>
 
-    <Route path="/orgs/:orgName">
+    <Route path="/orgs/:orgName" crumb="Orgs">
       {/* ORG */}
-      <Route path="projects" element={<OrgLayout />}>
+      <Route path="projects" element={<OrgLayout />} crumb="Projects">
         {/* separate from project detail pages because of the different layout */}
         <Route index element={<ProjectsPage />} />
         <Route

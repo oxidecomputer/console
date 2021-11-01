@@ -1,52 +1,22 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
 
-import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
-
-type SpecialLabel = {
-  pred: (p: string) => boolean
-  label: string
-}
-
-const specialLabels: SpecialLabel[] = [
-  {
-    pred: (path) => path.endsWith('/instances/new'),
-    label: 'Create instance',
-  },
-  {
-    pred: (path) => path.endsWith('/projects/new'),
-    label: 'Create project',
-  },
-]
-
-const getSpecialLabel = (pathSoFar: string): string | undefined =>
-  specialLabels.find((sp) => sp.pred(pathSoFar))?.label
-
-export const breadcrumbsForPath = (path: string): Crumb[] => {
-  const pathParts =
-    path === '/'
-      ? []
-      : path
-          .split('/')
-          .slice(1)
-          .filter((p) => p.length > 0)
-
-  const crumbFor = (pathPart: string, i: number): Crumb => {
-    const pathSoFar = '/' + pathParts.slice(0, i + 1).join('/')
-    const isLastCrumb = i === pathParts.length - 1
-
-    return {
-      label: getSpecialLabel(pathSoFar) || pathPart,
-      href: isLastCrumb ? undefined : pathSoFar,
-    }
-  }
-
-  return [{ href: '/', label: 'Maze War' }, ...pathParts.map(crumbFor)]
-}
+import { useMatches } from '../hooks/use-matches'
 
 export function Breadcrumbs() {
-  const location = useLocation()
-  const breadcrumbs = breadcrumbsForPath(location.pathname)
-  return <BreadcrumbsPure data={breadcrumbs} />
+  const matches = (useMatches() || []).filter((m) => m.route.crumb)
+  let crumbs = matches.map((m, i) => ({
+    label:
+      typeof m.route.crumb === 'function'
+        ? m.route.crumb(m)
+        : typeof m.route.crumb === 'string'
+        ? m.route.crumb
+        : 'WHOOPS', // FIX ME lol
+    // last one is the page we're on, so no link
+    href: i < matches.length - 1 ? m.pathname : undefined,
+  }))
+  // for now just hard code in the root one
+  crumbs = [{ label: 'Maze War', href: '/' }, ...crumbs]
+  console.log({ matches, crumbs })
+  return <BreadcrumbsPure data={crumbs} />
 }
