@@ -1,52 +1,23 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
 
 import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
+import type { CustomMatch } from '../hooks/use-matches'
+import { useMatches } from '../hooks/use-matches'
 
-type SpecialLabel = {
-  pred: (p: string) => boolean
-  label: string
-}
-
-const specialLabels: SpecialLabel[] = [
-  {
-    pred: (path) => path.endsWith('/instances/new'),
-    label: 'Create instance',
-  },
-  {
-    pred: (path) => path.endsWith('/projects/new'),
-    label: 'Create project',
-  },
-]
-
-const getSpecialLabel = (pathSoFar: string): string | undefined =>
-  specialLabels.find((sp) => sp.pred(pathSoFar))?.label
-
-export const breadcrumbsForPath = (path: string): Crumb[] => {
-  const pathParts =
-    path === '/'
-      ? []
-      : path
-          .split('/')
-          .slice(1)
-          .filter((p) => p.length > 0)
-
-  const crumbFor = (pathPart: string, i: number): Crumb => {
-    const pathSoFar = '/' + pathParts.slice(0, i + 1).join('/')
-    const isLastCrumb = i === pathParts.length - 1
-
-    return {
-      label: getSpecialLabel(pathSoFar) || pathPart,
-      href: isLastCrumb ? undefined : pathSoFar,
-    }
-  }
-
-  return [{ href: '/', label: 'Maze War' }, ...pathParts.map(crumbFor)]
+export function matchesToCrumbs(matches: CustomMatch[]): Crumb[] {
+  const filtered = matches.filter((m) => m.route.crumb)
+  return filtered.map((m, i) => ({
+    label:
+      // at this point we've already filtered out all falsy crumbs
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      typeof m.route.crumb === 'function' ? m.route.crumb(m) : m.route.crumb!,
+    // last one is the page we're on, so no link
+    href: i < filtered.length - 1 ? m.pathname : undefined,
+  }))
 }
 
 export function Breadcrumbs() {
-  const location = useLocation()
-  const breadcrumbs = breadcrumbsForPath(location.pathname)
-  return <BreadcrumbsPure data={breadcrumbs} />
+  const matches = useMatches() || []
+  return <BreadcrumbsPure data={matchesToCrumbs(matches)} />
 }

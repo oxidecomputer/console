@@ -1,8 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { BrowserRouter as Router } from 'react-router-dom'
 
-import App from './app'
+import { SkipLink } from '@oxide/ui'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { routes } from './routes'
 import { ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({
@@ -18,7 +21,10 @@ ReactDOM.render(
   <React.StrictMode>
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <ErrorBoundary>
+          <SkipLink id="skip-nav" />
+          <Router>{routes}</Router>
+        </ErrorBoundary>
       </QueryClientProvider>
     </ToastProvider>
   </React.StrictMode>,
