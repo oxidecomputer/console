@@ -8,7 +8,15 @@ import {
 const basePath =
   process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
 
-const config = new Configuration({ basePath })
+const config = new Configuration({
+  basePath,
+  headers: {
+    // privileged test user
+    // we're going to use this both locally and on gcp for now
+    // TODO: make configurable through env vars?
+    'oxide-authn-spoof': '001de000-05e4-0000-0000-000000004007',
+  },
+})
 const api = new DefaultApi(config)
 
 export const useApiQuery = getUseApiQuery(api)
