@@ -50,6 +50,12 @@ export interface Vpc {
    */
   projectId: string
   /**
+   * id for the system router where subnet default routes are registered
+   * @type {string}
+   * @memberof Vpc
+   */
+  systemRouterId: string
+  /**
    * timestamp when this resource was created
    * @type {Date}
    * @memberof Vpc
@@ -77,6 +83,7 @@ export function VpcFromJSONTyped(json: any, ignoreDiscriminator: boolean): Vpc {
     id: json['id'],
     name: json['name'],
     projectId: json['projectId'],
+    systemRouterId: json['systemRouterId'],
     timeCreated: new Date(json['timeCreated']),
     timeModified: new Date(json['timeModified']),
   }
@@ -95,6 +102,7 @@ export function VpcToJSON(value?: Vpc | null): any {
     id: value.id,
     name: value.name,
     projectId: value.projectId,
+    systemRouterId: value.systemRouterId,
     timeCreated: value.timeCreated.toISOString(),
     timeModified: value.timeModified.toISOString(),
   }

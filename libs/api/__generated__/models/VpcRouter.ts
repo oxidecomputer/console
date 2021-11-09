@@ -18,6 +18,10 @@ import {
   IdentityMetadataFromJSON,
   IdentityMetadataFromJSONTyped,
   IdentityMetadataToJSON,
+  VpcRouterKind,
+  VpcRouterKindFromJSON,
+  VpcRouterKindFromJSONTyped,
+  VpcRouterKindToJSON,
 } from './'
 
 /**
@@ -32,6 +36,12 @@ export interface VpcRouter {
    * @memberof VpcRouter
    */
   identity: IdentityMetadata
+  /**
+   *
+   * @type {VpcRouterKind}
+   * @memberof VpcRouter
+   */
+  kind: VpcRouterKind
   /**
    * The VPC to which the router belongs.
    * @type {string}
@@ -53,6 +63,7 @@ export function VpcRouterFromJSONTyped(
   }
   return {
     identity: IdentityMetadataFromJSON(json['identity']),
+    kind: VpcRouterKindFromJSON(json['kind']),
     vpcId: json['vpc_id'],
   }
 }
@@ -66,6 +77,7 @@ export function VpcRouterToJSON(value?: VpcRouter | null): any {
   }
   return {
     identity: IdentityMetadataToJSON(value.identity),
+    kind: VpcRouterKindToJSON(value.kind),
     vpc_id: value.vpcId,
   }
 }
