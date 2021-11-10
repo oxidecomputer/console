@@ -50,6 +50,7 @@ models/VpcCreateParams.ts
 models/VpcResultsPage.ts
 models/VpcRouter.ts
 models/VpcRouterCreateParams.ts
+models/VpcRouterKind.ts
 models/VpcRouterResultsPage.ts
 models/VpcRouterUpdateParams.ts
 models/VpcSubnet.ts

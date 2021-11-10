@@ -14,6 +14,7 @@ git -C '../omicron' fetch --all
 git -C '../omicron' checkout "$API_VERSION"
 
 cp ../omicron/openapi/nexus.json $SPEC_FILE
+cp ../omicron/tools/oxapi_demo packer/oxapi_demo
 
 rm -rf "$GEN_DIR/apis" "$GEN_DIR/models"
 

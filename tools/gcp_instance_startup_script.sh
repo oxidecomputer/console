@@ -41,6 +41,8 @@ docker run -d \
 	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
 	ghcr.io/oxidecomputer/console:BRANCH_NAME
 
+export OXAPI_URL='http://0.0.0.0:8888'  # used by oxapi_demo
+
 # Populate API data.
 # After we turn on cockroach and get rid of the in-memory store this can
 # be moved to part of the packer build to save time.

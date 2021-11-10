@@ -3079,6 +3079,11 @@
             "type": "string",
             "format": "uuid"
           },
+          "systemRouterId": {
+            "description": "id for the system router where subnet default routes are registered",
+            "type": "string",
+            "format": "uuid"
+          },
           "timeCreated": {
             "description": "timestamp when this resource was created",
             "type": "string",
@@ -3096,6 +3101,7 @@
           "id",
           "name",
           "projectId",
+          "systemRouterId",
           "timeCreated",
           "timeModified"
         ]
@@ -3147,13 +3153,16 @@
               }
             ]
           },
+          "kind": {
+            "$ref": "#/components/schemas/VpcRouterKind"
+          },
           "vpc_id": {
             "description": "The VPC to which the router belongs.",
             "type": "string",
             "format": "uuid"
           }
         },
-        "required": ["identity", "vpc_id"]
+        "required": ["identity", "kind", "vpc_id"]
       },
       "VpcRouterCreateParams": {
         "description": "Create-time parameters for a [`VpcRouter`]",
@@ -3167,6 +3176,10 @@
           }
         },
         "required": ["description", "name"]
+      },
+      "VpcRouterKind": {
+        "type": "string",
+        "enum": ["system", "custom"]
       },
       "VpcRouterResultsPage": {
         "description": "A single page of results",
