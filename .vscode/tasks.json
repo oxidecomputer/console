@@ -48,14 +48,14 @@
     {
       "label": "Stop CockroachDB",
       "type": "shell",
-      "command": "cockroach quit --insecure --url postgresql://127.0.0.1:32221  || true # Ignore Errors, may not be running",
+      "command": "cockroach quit --insecure --url \"postgresql://127.0.0.1:32221/omicron?sslmode=disable\" || true # Ignore Errors, may not be running",
       "problemMatcher": []
     },
     {
       "label": "Populate Nexus DB",
       "detail": "Do not use",
       "type": "shell",
-      "command": "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron",
+      "command": "cargo run --bin=omicron-dev -- db-populate --database-url \"postgresql://root@127.0.0.1:32221/omicron?sslmode=disable\"",
       "options": {
         "cwd": "${workspaceFolder}/../omicron"
       },
