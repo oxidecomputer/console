@@ -46,7 +46,7 @@ run_in_pane 0 "cargo run --bin=omicron-dev -- db-run --no-populate"
 run_in_pane 1 "$UTILS"
 run_in_pane 1 "set_pane_title nexus"
 run_in_pane 1 "wait_for_up 32221"
-run_in_pane 1 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221"
+run_in_pane 1 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron"
 run_in_pane 1 "cargo run --bin=nexus -- nexus/examples/config.toml"
 
 run_in_pane 2 "$UTILS"
