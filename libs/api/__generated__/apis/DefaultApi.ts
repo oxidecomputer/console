@@ -74,6 +74,18 @@ import {
   RackResultsPage,
   RackResultsPageFromJSON,
   RackResultsPageToJSON,
+  RouterRoute,
+  RouterRouteFromJSON,
+  RouterRouteToJSON,
+  RouterRouteCreateParams,
+  RouterRouteCreateParamsFromJSON,
+  RouterRouteCreateParamsToJSON,
+  RouterRouteResultsPage,
+  RouterRouteResultsPageFromJSON,
+  RouterRouteResultsPageToJSON,
+  RouterRouteUpdateParams,
+  RouterRouteUpdateParamsFromJSON,
+  RouterRouteUpdateParamsToJSON,
   Saga,
   SagaFromJSON,
   SagaToJSON,
@@ -323,6 +335,49 @@ export interface ProjectVpcsPutVpcRequest {
   projectName: string
   vpcName: string
   vpcUpdateParams: VpcUpdateParams
+}
+
+export interface RoutersRoutesDeleteRouteRequest {
+  organizationName: string
+  projectName: string
+  routeName: string
+  routerName: string
+  vpcName: string
+}
+
+export interface RoutersRoutesGetRequest {
+  organizationName: string
+  projectName: string
+  routerName: string
+  vpcName: string
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameSortMode
+}
+
+export interface RoutersRoutesGetRouteRequest {
+  organizationName: string
+  projectName: string
+  routeName: string
+  routerName: string
+  vpcName: string
+}
+
+export interface RoutersRoutesPostRequest {
+  organizationName: string
+  projectName: string
+  routerName: string
+  vpcName: string
+  routerRouteCreateParams: RouterRouteCreateParams
+}
+
+export interface RoutersRoutesPutRouteRequest {
+  organizationName: string
+  projectName: string
+  routeName: string
+  routerName: string
+  vpcName: string
+  routerRouteUpdateParams: RouterRouteUpdateParams
 }
 
 export interface SagasGetRequest {
@@ -2907,6 +2962,558 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<void> {
     await this.projectVpcsPutVpcRaw(requestParameters, initOverrides)
+  }
+
+  /**
+   * Delete a route from its router
+   */
+  async routersRoutesDeleteRouteRaw(
+    requestParameters: RoutersRoutesDeleteRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling routersRoutesDeleteRoute.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling routersRoutesDeleteRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routeName === null ||
+      requestParameters.routeName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routeName',
+        'Required parameter requestParameters.routeName was null or undefined when calling routersRoutesDeleteRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling routersRoutesDeleteRoute.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling routersRoutesDeleteRoute.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'route_name'}}`,
+            encodeURIComponent(String(requestParameters.routeName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Delete a route from its router
+   */
+  async routersRoutesDeleteRoute(
+    requestParameters: RoutersRoutesDeleteRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.routersRoutesDeleteRouteRaw(requestParameters, initOverrides)
+  }
+
+  /**
+   * List a Router\'s routes
+   */
+  async routersRoutesGetRaw(
+    requestParameters: RoutersRoutesGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<RouterRouteResultsPage>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling routersRoutesGet.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling routersRoutesGet.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling routersRoutesGet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling routersRoutesGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RouterRouteResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List a Router\'s routes
+   */
+  async routersRoutesGet(
+    requestParameters: RoutersRoutesGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<RouterRouteResultsPage> {
+    const response = await this.routersRoutesGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Get a VPC Router route
+   */
+  async routersRoutesGetRouteRaw(
+    requestParameters: RoutersRoutesGetRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<RouterRoute>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling routersRoutesGetRoute.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling routersRoutesGetRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routeName === null ||
+      requestParameters.routeName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routeName',
+        'Required parameter requestParameters.routeName was null or undefined when calling routersRoutesGetRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling routersRoutesGetRoute.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling routersRoutesGetRoute.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'route_name'}}`,
+            encodeURIComponent(String(requestParameters.routeName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RouterRouteFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Get a VPC Router route
+   */
+  async routersRoutesGetRoute(
+    requestParameters: RoutersRoutesGetRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<RouterRoute> {
+    const response = await this.routersRoutesGetRouteRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Create a VPC Router
+   */
+  async routersRoutesPostRaw(
+    requestParameters: RoutersRoutesPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<RouterRoute>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling routersRoutesPost.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling routersRoutesPost.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling routersRoutesPost.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling routersRoutesPost.'
+      )
+    }
+
+    if (
+      requestParameters.routerRouteCreateParams === null ||
+      requestParameters.routerRouteCreateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerRouteCreateParams',
+        'Required parameter requestParameters.routerRouteCreateParams was null or undefined when calling routersRoutesPost.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: RouterRouteCreateParamsToJSON(
+          requestParameters.routerRouteCreateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RouterRouteFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * Create a VPC Router
+   */
+  async routersRoutesPost(
+    requestParameters: RoutersRoutesPostRequest,
+    initOverrides?: RequestInit
+  ): Promise<RouterRoute> {
+    const response = await this.routersRoutesPostRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Update a Router route
+   */
+  async routersRoutesPutRouteRaw(
+    requestParameters: RoutersRoutesPutRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routeName === null ||
+      requestParameters.routeName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routeName',
+        'Required parameter requestParameters.routeName was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routerName === null ||
+      requestParameters.routerName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerName',
+        'Required parameter requestParameters.routerName was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    if (
+      requestParameters.routerRouteUpdateParams === null ||
+      requestParameters.routerRouteUpdateParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'routerRouteUpdateParams',
+        'Required parameter requestParameters.routerRouteUpdateParams was null or undefined when calling routersRoutesPutRoute.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'route_name'}}`,
+            encodeURIComponent(String(requestParameters.routeName))
+          )
+          .replace(
+            `{${'router_name'}}`,
+            encodeURIComponent(String(requestParameters.routerName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: RouterRouteUpdateParamsToJSON(
+          requestParameters.routerRouteUpdateParams
+        ),
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   * Update a Router route
+   */
+  async routersRoutesPutRoute(
+    requestParameters: RoutersRoutesPutRouteRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.routersRoutesPutRouteRaw(requestParameters, initOverrides)
   }
 
   /**
