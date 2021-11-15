@@ -119,5 +119,8 @@
   "resolutions": {
     "**/trim": "^1.0.0"
   },
-  "browserslist": "defaults"
+  "browserslist": [
+    "defaults",
+    "not IE 11"
+  ]
 }
