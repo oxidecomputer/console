@@ -2,10 +2,10 @@ import React from 'react'
 
 import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
-import type { CustomMatch } from '../hooks/use-matches'
 import { useMatches } from '../hooks/use-matches'
+import type { RouteMatch } from 'react-router'
 
-export function matchesToCrumbs(matches: CustomMatch[]): Crumb[] {
+export function matchesToCrumbs(matches: RouteMatch[]): Crumb[] {
   const filtered = matches.filter((m) => m.route.crumb)
   return filtered.map((m, i) => ({
     label:

@@ -1,6 +1,7 @@
 import type {
   RouteProps as OriginalRouteProps,
   RouteObject as OriginalRouteObject,
+  RouteMatch as OriginalRouteMatch,
 } from 'react-router'
 
 declare module 'react-router' {
@@ -10,6 +11,9 @@ declare module 'react-router' {
   }
   export interface RouteObject extends OriginalRouteObject {
     crumb?: Crumb
+  }
+  export type RouteMatch = OriginalRouteMatch & {
+    route: RouteObject
   }
   export function Route(props: RouteProps): React.ReactElement | null
 }

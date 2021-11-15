@@ -1,11 +1,7 @@
-import type { RouteMatch, RouteObject } from 'react-router'
+import type { RouteMatch } from 'react-router'
 import { matchRoutes, useLocation } from 'react-router'
 
 import { routeConfig } from '../routes'
-
-export type CustomMatch = RouteMatch & {
-  route: RouteObject
-}
 
 /**
  * For the current location, return the path down the route config. For example,
@@ -29,5 +25,5 @@ export type CustomMatch = RouteMatch & {
  * ]
  * ```
  */
-export const useMatches = (): CustomMatch[] | null =>
+export const useMatches = (): RouteMatch[] | null =>
   matchRoutes(routeConfig, useLocation())
