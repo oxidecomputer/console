@@ -45,7 +45,11 @@
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.1",
     "tslib": "^2.0.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "victory-area": "^36.2.0",
+    "victory-chart": "^36.2.0",
+    "victory-core": "^36.2.0",
+    "victory-line": "^36.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
