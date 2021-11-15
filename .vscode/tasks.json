@@ -55,7 +55,7 @@
       "label": "Populate Nexus DB",
       "detail": "Do not use",
       "type": "shell",
-      "command": "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221",
+      "command": "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron",
       "options": {
         "cwd": "${workspaceFolder}/../omicron"
       },
