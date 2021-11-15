@@ -9,6 +9,7 @@ import { Navigate, Route as RRRoute, Routes } from 'react-router-dom'
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
+import InstanceMetrics from './pages/instances/Metrics'
 import OrgPage from './pages/OrgPage'
 import ProjectPage from './pages/project'
 import ProjectAccessPage from './pages/project/Access'
@@ -124,7 +125,11 @@ export const routes = (
                 crumb={instanceCrumb}
               >
                 <Route index />
-                <Route path="metrics" crumb="Metrics" />
+                <Route
+                  path="metrics"
+                  crumb="Metrics"
+                  element={<InstanceMetrics />}
+                />
                 <Route path="activity" crumb="Activity" />
                 <Route path="access" crumb="Access" />
                 <Route path="resize" crumb="Resize" />
