@@ -1,11 +1,10 @@
-import type { RouteMatch } from 'react-router'
+import type { RouteMatch, RouteObject } from 'react-router'
 import { matchRoutes, useLocation } from 'react-router'
 
-import type { CustomRouteObject } from '../routes'
 import { routeConfig } from '../routes'
 
 export type CustomMatch = RouteMatch & {
-  route: CustomRouteObject
+  route: RouteObject
 }
 
 /**

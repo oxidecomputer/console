@@ -18,13 +18,6 @@ import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
 
-// function arm lets us make labels that depend on route params
-type Crumb = string | ((m: RouteMatch) => string)
-
-export type CustomRouteObject = RouteObject & {
-  crumb?: Crumb
-}
-
 /*
  * We are doing something a little unorthodox with the route config here. We
  * realized that tagging nodes in the route tree with arbitrary data is very
@@ -38,6 +31,9 @@ export type CustomRouteObject = RouteObject & {
  * The config ends up being a bit more complicated that it would otherwise be
  * because, e.g., we have to do `orgs` and `:orgName` separately in order to get
  * a crumb for each; `orgs/:orgName` would otherwise be ok.
+ *
+ * Note that `crumb` is defined via patched react-router types in
+ * `types/react-router.d.ts`
  */
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -144,10 +140,8 @@ export const routes = (
  * in order to be able to put `crumb` prop directly on the <Route> elements
  * https://github.com/remix-run/react-router/blob/174fb105ee/packages/react-router/index.tsx#L685
  * */
-function createRoutesFromChildren(
-  children: React.ReactNode
-): CustomRouteObject[] {
-  const routes: CustomRouteObject[] = []
+function createRoutesFromChildren(children: React.ReactNode): RouteObject[] {
+  const routes: RouteObject[] = []
 
   React.Children.forEach(children, (element) => {
     if (!React.isValidElement(element)) {
@@ -163,7 +157,7 @@ function createRoutesFromChildren(
     }
 
     // only real difference from the original: allow arbitrary props
-    const route: CustomRouteObject = { ...element.props }
+    const route: RouteObject = { ...element.props }
 
     if (element.props.children) {
       route.children = createRoutesFromChildren(element.props.children)
