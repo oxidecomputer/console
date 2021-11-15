@@ -2,8 +2,7 @@ import React, { useMemo, useCallback } from 'react'
 import { AreaClosed, Line, Bar } from '@visx/shape'
 import type { AppleStock } from '@visx/mock-data/lib/mocks/appleStock'
 import appleStock from '@visx/mock-data/lib/mocks/appleStock'
-import { curveMonotoneX } from '@visx/curve'
-import { GridRows, GridColumns } from '@visx/grid'
+import { GridRows } from '@visx/grid'
 import { scaleTime, scaleLinear } from '@visx/scale'
 import {
   withTooltip,
@@ -13,13 +12,12 @@ import {
 } from '@visx/tooltip'
 import type { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip'
 import { localPoint } from '@visx/event'
-import { LinearGradient } from '@visx/gradient'
 import { max, extent, bisector } from 'd3-array'
 import { formatISO } from 'date-fns'
 
 type TooltipData = AppleStock
 
-const stock = appleStock.slice(800)
+const stock = appleStock.slice(10)
 export const background = '#3b6978'
 export const background2 = '#204051'
 export const accentColor = '#edffea'
@@ -121,33 +119,13 @@ const Chart = withTooltip<AreaProps, TooltipData>(
             fill="url(#area-background-gradient)"
             rx={14}
           />
-          <LinearGradient
-            id="area-background-gradient"
-            from={background}
-            to={background2}
-          />
-          <LinearGradient
-            id="area-gradient"
-            from={accentColor}
-            to={accentColor}
-            toOpacity={0.1}
-          />
           <GridRows
             left={margin.left}
             scale={stockValueScale}
             width={innerWidth}
-            strokeDasharray="1,3"
+            strokeDasharray="3,3"
             stroke={accentColor}
-            strokeOpacity={0}
-            pointerEvents="none"
-          />
-          <GridColumns
-            top={margin.top}
-            scale={dateScale}
-            height={innerHeight}
-            strokeDasharray="1,3"
-            stroke={accentColor}
-            strokeOpacity={0.2}
+            strokeOpacity={1}
             pointerEvents="none"
           />
           <AreaClosed<AppleStock>
@@ -156,9 +134,8 @@ const Chart = withTooltip<AreaProps, TooltipData>(
             y={(d) => stockValueScale(getStockValue(d)) ?? 0}
             yScale={stockValueScale}
             strokeWidth={1}
-            stroke="url(#area-gradient)"
-            fill="url(#area-gradient)"
-            curve={curveMonotoneX}
+            stroke="#2F8865"
+            fill="#112725"
           />
           <Bar
             x={margin.left}
