@@ -1,11 +1,7 @@
 import React from 'react'
 
-import type {
-  RouteMatch,
-  RouteObject,
-  RouteProps as RRRouteProps,
-} from 'react-router'
-import { Navigate, Route as RRRoute, Routes } from 'react-router-dom'
+import type { RouteMatch, RouteObject } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
@@ -25,16 +21,9 @@ import InstanceLayout from './layouts/InstanceLayout'
 // function arm lets us make labels that depend on route params
 type Crumb = string | ((m: RouteMatch) => string)
 
-type RouteProps = RRRouteProps & {
-  crumb?: Crumb
-}
-
 export type CustomRouteObject = RouteObject & {
   crumb?: Crumb
 }
-
-/** Custom `<Route>` that accepts whatever props we want. */
-const Route = (props: RouteProps) => <RRRoute {...props} />
 
 /*
  * We are doing something a little unorthodox with the route config here. We
