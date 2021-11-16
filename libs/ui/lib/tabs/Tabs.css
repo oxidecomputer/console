@@ -2,7 +2,7 @@
 }
 
 [data-reach-tab-list] {
-  @apply space-x-2.5 mb-8;
+  @apply space-x-2.5 mb-8 bg-transparent;
 }
 
 [data-reach-tab-panels] {
@@ -16,6 +16,10 @@
 
 [data-reach-tab][data-selected] {
   @apply text-green-500 border-green-500;
+}
+
+[data-reach-tab][data-selected] > span {
+  @apply bg-green-950;
 }
 
 [data-reach-tab-panel] {
