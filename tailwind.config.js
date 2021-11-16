@@ -3,9 +3,6 @@
 /** @type {import('tailwindcss/lib/util/createPlugin').default} */
 // @ts-ignore
 const plugin = require('tailwindcss/plugin')
-const defaultConfig = require('tailwindcss/defaultConfig')
-
-const childrenPlugin = require('tailwindcss-children')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
@@ -75,11 +72,6 @@ module.exports = {
     // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
     // on an SVG that's an immediate child of the element
     plugin(({ addVariant }) => addVariant('svg', '& > svg')),
-    childrenPlugin,
+    plugin(({ addVariant }) => addVariant('children', '& > *')),
   ],
-  /**
-   * TODO: This isn't respected, need an upstream fix.
-   * @see https://github.com/tailwindlabs/tailwindcss/issues/3949
-   */
-  variantOrder: ['children', ...defaultConfig.variantOrder, 'svg'],
 }
