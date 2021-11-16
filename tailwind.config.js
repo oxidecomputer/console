@@ -9,9 +9,7 @@ const childrenPlugin = require('tailwindcss-children')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
-  mode: 'jit',
-  purge: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
-  darkMode: false,
+  content: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
   theme: {
     extend: {
       borderRadius: {
