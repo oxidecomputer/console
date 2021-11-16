@@ -74,13 +74,7 @@ module.exports = {
   plugins: [
     // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
     // on an SVG that's an immediate child of the element
-    plugin(function ({ addVariant, e }) {
-      addVariant('svg', ({ modifySelectors, separator }) => {
-        modifySelectors(
-          ({ className }) => `.${e(`svg${separator}${className}`)} > svg`
-        )
-      })
-    }),
+    plugin(({ addVariant }) => addVariant('svg', '& > svg')),
     childrenPlugin,
   ],
   /**
