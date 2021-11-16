@@ -1,22 +1,72 @@
 import React from 'react'
-import cn from 'classnames'
+
+import type { TabListProps as RListProps } from '@reach/tabs'
+import {
+  Tabs as RTabs,
+  TabList as RList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from '@reach/tabs'
 
 // the tabs component is just @reach/tabs plus custom CSS
 import './Tabs.css'
+import type { ChildrenProp } from '../../util/children'
+import { pluckType } from '../../util/children'
+import { Badge } from '../badge/Badge'
 
-// Add the pretty line filling out the rest of the space next to the tabs.
-// Unfortunately the line needs to be outside TabList because "TabList should
-// only render Tabs". This is the most straightforward way to add a line in a
-// way that's reusable and doesn't mess up the calling code. props could be
-// normal ReactNode but for now let's require that there's exactly one child.
-// This is only meant to wrap TabList.
-export const TabListLine = (props: {
-  children: React.ReactElement
+interface TabsProps {
+  children: React.ReactNode
   className?: string
-}) => (
-  <div className={cn('flex', props.className)}>
-    {props.children}
-    {/* bottom margin must match that of [data-reach-tab-list] */}
-    <div className="border-b border-gray-400 flex-1 ml-2.5 mb-8" />
-  </div>
-)
+}
+export function Tabs({ children, ...props }: TabsProps) {
+  const childArray = React.Children.toArray(children)
+  const list = pluckType(childArray, Tabs.List)
+  const views = pluckType(childArray, Tabs.Views)
+  return (
+    <RTabs {...props}>
+      {list}
+      {views}
+    </RTabs>
+  )
+}
+
+Tabs.List = ({ children, ...props }: RListProps) => {
+  const after =
+    'after:block after:border-b after:w-full after:border-gray-400 after:ml-2.5'
+  return (
+    <RList className={`${after}`} {...props}>
+      {children}
+    </RList>
+  )
+}
+
+export interface TabLabelProps extends ChildrenProp {
+  badge?: string
+}
+Tabs.Label = ({ badge, children }: TabLabelProps) => {
+  return (
+    <Tab className="whitespace-nowrap min-w-max">
+      {children}
+      {badge && (
+        <Badge
+          className="ml-2 pb-0.3 text-current"
+          color="darkGray"
+          variant="dim"
+        >
+          {badge}
+        </Badge>
+      )}
+    </Tab>
+  )
+}
+
+Tabs.Views = ({ children }: ChildrenProp) => {
+  return (
+    <TabPanels>
+      {React.Children.map(children, (child) => (
+        <TabPanel>{child}</TabPanel>
+      ))}
+    </TabPanels>
+  )
+}
