@@ -1,10 +1,28 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 
 import type { RouteMatch, RouteObject } from 'react-router'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
+// Needs to take import callback (as opposed to taking the path and passing it
+// to import()) because Rollup doesn't find the file properly otherwise. I tried
+// to follow the rules for dynamic import specified here but it didn't work:
+//
+// https://github.com/rollup/plugins/tree/02fb349d/packages/dynamic-import-vars#limitations
+// Rules imply () => import(`./{path}.tsx`) should work
+function lazyLoad(importFunc: () => Promise<{ default: React.ComponentType }>) {
+  const Inner = React.lazy(importFunc)
+  return () => (
+    // TODO: nicer fallback
+    <Suspense fallback="loading">
+      <Inner />
+    </Suspense>
+  )
+}
+
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
+// Recharts is 350 KB
+const InstanceMetrics = lazyLoad(() => import('./pages/instances/Metrics'))
 import OrgPage from './pages/OrgPage'
 import ProjectPage from './pages/project'
 import ProjectAccessPage from './pages/project/Access'
@@ -109,7 +127,11 @@ export const routes = (
                 crumb={instanceCrumb}
               >
                 <Route index />
-                <Route path="metrics" crumb="Metrics" />
+                <Route
+                  path="metrics"
+                  crumb="Metrics"
+                  element={<InstanceMetrics />}
+                />
                 <Route path="activity" crumb="Activity" />
                 <Route path="access" crumb="Access" />
                 <Route path="resize" crumb="Resize" />
