@@ -27,7 +27,7 @@ const Metric = ({ label, value, className }: MetricProps) => (
     <div className="flex">
       <div className="text-display-lg mr-4">{value}</div>
       <div>
-        <SparklineSVG className="stroke-current text-green-500 w-full" />
+        <SparklineSVG className="stroke-green-500 w-full" />
       </div>
     </div>
   </div>
