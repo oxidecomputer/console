@@ -1,5 +1,10 @@
 import React from 'react'
-import { isOneOf, pluckType } from './children'
+import {
+  flattenChildren,
+  isOneOf,
+  pluckAllOfType,
+  pluckFirstOfType,
+} from './children'
 
 const TestA = () => (
   <div>
@@ -11,20 +16,103 @@ const TestB = () => (
     <span>Test B </span>
   </div>
 )
-describe('pluckType', () => {
+
+describe('flattenChildren', () => {
+  it('should not alter children without fragments', () => {
+    // A fake representation of what would return from component.props.children
+    const children = (
+      <div>
+        <TestA />
+        <TestB />
+      </div>
+    )
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
+      Array [
+        <div>
+          <TestA />
+          <TestB />
+        </div>,
+      ]
+    `)
+  })
+
+  it('should unwrap children from fragments', () => {
+    const children = (
+      <>
+        <TestA />
+        <TestB />
+      </>
+    )
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
+      Array [
+        <TestA />,
+        <TestB />,
+      ]
+    `)
+  })
+  it('should unwrap children deeply nested in fragments', () => {
+    const children = (
+      <>
+        <>
+          <TestA />
+          <TestB />
+        </>
+        <>{'hello'}</>
+      </>
+    )
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
+    Array [
+      <TestA />,
+      <TestB />,
+      "hello",
+    ]
+  `)
+  })
+})
+
+describe('pluckFirstOfType', () => {
   it('Should remove a component of a given type from its children', () => {
     const testA = <TestA />
     const testB = <TestB />
     const childArray = [testA, testB, 'hello']
-    const plucked = pluckType(childArray, TestA)
+    const plucked = pluckFirstOfType(childArray, TestA)
     expect(plucked).toEqual(testA)
     expect(childArray).toEqual([testB, 'hello'])
   })
 
   it('Should not fail when children empty', () => {
     const childArray: JSX.Element[] = []
-    const plucked = pluckType(childArray, TestA)
+    const plucked = pluckFirstOfType(childArray, TestA)
     expect(plucked).toEqual(null)
+    expect(childArray).toEqual([])
+  })
+})
+
+describe('pluckAllOfType', () => {
+  it('should return and remove all components of a given set of children', () => {
+    const testA = <TestA />
+    const testB = <TestB />
+    const childArray = [testA, testB, testA, 'hello']
+    const plucked = pluckAllOfType(childArray, TestA)
+    expect(plucked).toEqual([testA, testA])
+    expect(childArray).toEqual([testB, 'hello'])
+  })
+
+  it('should return empty array when there are no matches', () => {
+    const testA = <TestA />
+    const childArray = [testA, 'test', testA, 'hello']
+    const plucked = pluckAllOfType(childArray, TestB)
+    expect(plucked).toEqual([])
+    expect(childArray).toEqual([testA, 'test', testA, 'hello'])
+  })
+
+  it('should not fail when children is empty', () => {
+    const childArray: JSX.Element[] = []
+    const plucked = pluckAllOfType(childArray, TestA)
+    expect(plucked).toEqual([])
     expect(childArray).toEqual([])
   })
 })

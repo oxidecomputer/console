@@ -2,7 +2,7 @@ import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
-import { pluckType } from '../../util/children'
+import { pluckFirstOfType } from '../../util/children'
 import type { ChildrenProp } from '../../util/children'
 import { Close12Icon } from '../icons'
 
@@ -19,7 +19,7 @@ export function SideModal({
   ...dialogProps
 }: SideModalProps) {
   const childArray = React.Children.toArray(children)
-  const footer = pluckType(childArray, SideModal.Footer)
+  const footer = pluckFirstOfType(childArray, SideModal.Footer)
   const titleId = `${id}-title`
 
   return (
