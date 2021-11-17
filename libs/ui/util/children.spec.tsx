@@ -1,19 +1,10 @@
 import React from 'react'
-import format, { plugins } from 'pretty-format'
 import {
   flattenChildren,
   isOneOf,
   pluckAllOfType,
   pluckFirstOfType,
 } from './children'
-
-/**
- * Prints out a simplified JSX representation of a provided component
- *
- * Uses `pretty-format` which is provided as a part of Jest.
- * */
-const serialize = (el: React.ReactNode) =>
-  format(el, { plugins: [plugins.ReactElement], printFunctionName: false })
 
 const TestA = () => (
   <div>
@@ -35,16 +26,15 @@ describe('flattenChildren', () => {
         <TestB />
       </div>
     )
-    const flattened = serialize(flattenChildren(children))
-    expect(flattened).toEqual(
-      serialize([
-        // eslint-disable-next-line react/jsx-key
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
+      Array [
         <div>
           <TestA />
           <TestB />
         </div>,
-      ])
-    )
+      ]
+    `)
   })
 
   it('should unwrap children from fragments', () => {
@@ -54,15 +44,13 @@ describe('flattenChildren', () => {
         <TestB />
       </>
     )
-    const flattened = serialize(flattenChildren(children))
-    // eslint-disable-next-line react/jsx-key
-    expect(flattened).toEqual(serialize([<TestA />, <TestB />]))
-    expect(flattened).not.toEqual([
-      <>
-        <TestA />
-        <TestB />
-      </>,
-    ])
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
+      Array [
+        <TestA />,
+        <TestB />,
+      ]
+    `)
   })
 })
 
@@ -76,20 +64,14 @@ it('should unwrap children wrapped deeply in fragments', () => {
       <>{'hello'}</>
     </>
   )
-  const flattened = serialize(flattenChildren(children))
-  // eslint-disable-next-line react/jsx-key
-  expect(flattened).toEqual(serialize([<TestA />, <TestB />, 'hello']))
-  expect(flattened).not.toEqual(
-    serialize([
-      <>
-        <>
-          <TestA />
-          <TestB />
-        </>
-        <>{'hello'}</>
-      </>,
-    ])
-  )
+  const flattened = flattenChildren(children)
+  expect(flattened).toMatchInlineSnapshot(`
+    Array [
+      <TestA />,
+      <TestB />,
+      "hello",
+    ]
+  `)
 })
 
 describe('pluckType', () => {
