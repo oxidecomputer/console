@@ -52,26 +52,25 @@ describe('flattenChildren', () => {
       ]
     `)
   })
-})
-
-it('should unwrap children deeply nested in fragments', () => {
-  const children = (
-    <>
+  it('should unwrap children deeply nested in fragments', () => {
+    const children = (
       <>
-        <TestA />
-        <TestB />
+        <>
+          <TestA />
+          <TestB />
+        </>
+        <>{'hello'}</>
       </>
-      <>{'hello'}</>
-    </>
-  )
-  const flattened = flattenChildren(children)
-  expect(flattened).toMatchInlineSnapshot(`
+    )
+    const flattened = flattenChildren(children)
+    expect(flattened).toMatchInlineSnapshot(`
     Array [
       <TestA />,
       <TestB />,
       "hello",
     ]
   `)
+  })
 })
 
 describe('pluckFirstOfType', () => {
