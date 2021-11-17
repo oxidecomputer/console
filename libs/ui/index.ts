@@ -23,3 +23,4 @@ export * from './lib/tooltip/Tooltip'
 export * from './lib/toast/Toast'
 
 export * from './util/classed'
+export * from './util/invariant'
