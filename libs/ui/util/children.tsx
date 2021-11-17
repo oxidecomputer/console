@@ -61,8 +61,8 @@ export const pluckAllOfType = <P,>(
   const result: Component<P>[] = []
   for (let i = children.length - 1; i >= 0; --i) {
     if ((children[i] as ReactElement)?.type === componentType) {
-      result.push(children.splice(i, 1)[0] as Component<P>)
+      result.unshift(children.splice(i, 1)[0] as Component<P>)
     }
   }
-  return result.reverse()
+  return result
 }
