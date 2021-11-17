@@ -2,8 +2,8 @@ import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
-import { pluckFirstOfType } from '@oxide/util'
-import type { ChildrenProp } from '@oxide/util'
+import { pluckFirstOfType } from '../../util/children'
+import type { ChildrenProp } from '../../util/children'
 import { Close12Icon } from '../icons'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {

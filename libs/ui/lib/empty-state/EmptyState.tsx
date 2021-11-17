@@ -4,7 +4,7 @@ import cn from 'classnames'
 
 import EmptyStateLeft from '../../assets/empty-state-left.svg'
 import EmptyStateRight from '../../assets/empty-state-right.svg'
-import type { ChildrenProp } from '@oxide/util'
+import type { ChildrenProp } from '../../util/children'
 
 const decoration = 'z-0 absolute w-full max-w-[11rem] overflow-hidden'
 
