@@ -1,4 +1,4 @@
-import { capitalize } from 'app/util/str'
+import { capitalize } from '@oxide/util'
 import type { ReactNode } from 'react'
 import React from 'react'
 import cn from 'classnames'
