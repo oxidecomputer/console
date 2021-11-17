@@ -1,72 +1,78 @@
 import React from 'react'
 
-import type { TabListProps as RListProps } from '@reach/tabs'
+import type {
+  TabProps as RTabProps,
+  TabsProps as RTabsProps,
+  TabListProps as RTabListProps,
+  TabPanelsProps as RTabPanelsProps,
+  TabPanelProps as RTabPanelProps,
+} from '@reach/tabs'
 import {
   Tabs as RTabs,
-  TabList as RList,
-  Tab,
-  TabPanels,
-  TabPanel,
+  TabList as RTabList,
+  Tab as RTab,
+  TabPanels as RTabPanels,
+  TabPanel as RTabPanel,
 } from '@reach/tabs'
+
+import cn from 'classnames'
 
 // the tabs component is just @reach/tabs plus custom CSS
 import './Tabs.css'
-import type { ChildrenProp } from '../../util/children'
-import { pluckType } from '../../util/children'
-import { Badge } from '../badge/Badge'
+import { flattenChildren, pluckType } from '../../util/children'
+import { invariant } from '../../util/invariant'
 
-interface TabsProps {
-  children: React.ReactNode
-  className?: string
-}
-export function Tabs({ children, ...props }: TabsProps) {
-  const childArray = React.Children.toArray(children)
-  const list = pluckType(childArray, Tabs.List)
-  const views = pluckType(childArray, Tabs.Views)
+export interface TabsProps extends ElementType<'div', RTabsProps> {}
+
+export function Tabs({ children, className, ...props }: TabsProps) {
+  // Validate at dev time that tabs and panels are correct and in the right order
+  invariant(
+    (() => {
+      const childArray = flattenChildren(children)
+      const tabs = flattenChildren(
+        pluckType(childArray, Tab.List)?.props.children
+      ) as React.ReactElement[]
+      const panels = flattenChildren(
+        pluckType(childArray, Tab.Panels)?.props.children
+      ) as React.ReactElement[]
+
+      return tabs
+        .map((tab, i) => tab.props.id === panels[i].props['for'])
+        .every(Boolean)
+    })(),
+    'Missing tab or tabs out of order'
+  )
+
   return (
-    <RTabs {...props}>
-      {list}
-      {views}
+    <RTabs as="div" className={cn(className)} {...props}>
+      {children}
     </RTabs>
   )
 }
 
-Tabs.List = ({ children, ...props }: RListProps) => {
+export interface TabProps extends ElementType<'a', RTabProps> {
+  id: string
+}
+export function Tab({ className, ...props }: TabProps) {
+  return <RTab as="a" className={cn('!no-underline', className)} {...props} />
+}
+
+export interface TabListProps extends ElementType<'div', RTabListProps> {}
+Tab.List = (props: TabListProps) => {
   const after =
     'after:block after:border-b after:w-full after:border-gray-400 after:ml-2.5'
-  return (
-    <RList className={`${after}`} {...props}>
-      {children}
-    </RList>
-  )
+  return <RTabList as="div" className={after} {...props} />
 }
 
-export interface TabLabelProps extends ChildrenProp {
-  badge?: string
-}
-Tabs.Label = ({ badge, children }: TabLabelProps) => {
-  return (
-    <Tab className="whitespace-nowrap min-w-max">
-      {children}
-      {badge && (
-        <Badge
-          className="ml-2 pb-0.3 text-current"
-          color="darkGray"
-          variant="dim"
-        >
-          {badge}
-        </Badge>
-      )}
-    </Tab>
-  )
+export interface TabPanelsProps extends ElementType<'div', RTabPanelsProps> {}
+Tab.Panels = (props: TabPanelsProps) => {
+  return <RTabPanels as="div" {...props} />
 }
 
-Tabs.Views = ({ children }: ChildrenProp) => {
-  return (
-    <TabPanels>
-      {React.Children.map(children, (child) => (
-        <TabPanel>{child}</TabPanel>
-      ))}
-    </TabPanels>
-  )
+export interface TabPanelProps extends RTabPanelProps {
+  /** The `id` of the tab which this is a label for */
+  for: string
 }
+Tab.Panel = ({ ['for']: id, ...props }: TabPanelProps) => (
+  <RTabPanel id={`${id}-panel`} {...props} />
+)

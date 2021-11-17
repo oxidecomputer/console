@@ -11,14 +11,22 @@
 [data-reach-tab] {
   @apply font-mono uppercase text-xs font-light px-2 py-2.5 rounded
     text-gray-200 border-gray-200
-    focus:ring-2 focus:ring-green-700 focus:outline-none;
+    focus:ring-2 focus:ring-green-700 focus:outline-none space-x-2 whitespace-nowrap h-10;
 }
 
 [data-reach-tab][data-selected] {
   @apply text-green-500 border-green-500;
 }
 
-[data-reach-tab][data-selected] > span {
+[data-reach-tab] > .ox-badge {
+  @apply text-current -mt-1 select-none;
+}
+
+[data-reach-tab]:not([data-selected]) > .ox-badge {
+  @apply bg-gray-500;
+}
+
+[data-reach-tab][data-selected] > .ox-badge {
   @apply bg-green-950;
 }
 
