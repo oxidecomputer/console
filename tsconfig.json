@@ -18,7 +18,8 @@
     "paths": {
       "@oxide/api": ["libs/api/index.ts"],
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
-      "@oxide/ui": ["libs/ui/index.ts"]
+      "@oxide/ui": ["libs/ui/index.ts"],
+      "@oxide/util": ["libs/util/index.ts"]
     },
     "rootDir": ".",
     "skipLibCheck": true,

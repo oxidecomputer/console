@@ -1,6 +1,6 @@
 import type { ApiError } from '@oxide/api'
 
-import { capitalize } from './str'
+import { capitalize } from '@oxide/util'
 
 const errorRegex = /^unable to parse body: (.+) at line \d+ column \d+$/
 
