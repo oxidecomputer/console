@@ -1,5 +1,5 @@
 import { useParams as _useParams } from 'react-router'
-import { invariant } from '../util/invariant'
+import { invariant } from '@oxide/ui'
 
 /**
  * Wrapper for React Router's `useParams` that throws (in dev) if any of the
