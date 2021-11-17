@@ -2,6 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
@@ -15,10 +16,10 @@
     "noEmit": true,
     "outDir": "dist",
     "paths": {
-      "@oxide/api": ["./libs/api/index.ts"],
-      "@oxide/api-mocks": ["./libs/api-mocks/index.ts"],
-      "@oxide/ui": ["./libs/ui/index.ts"],
-      "@oxide/util": ["./libs/util/index.ts"]
+      "@oxide/api": ["libs/api/index.ts"],
+      "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
+      "@oxide/ui": ["libs/ui/index.ts"],
+      "@oxide/util": ["libs/util/index.ts"]
     },
     "rootDir": ".",
     "skipLibCheck": true,
