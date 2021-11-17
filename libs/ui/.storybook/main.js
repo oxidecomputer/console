@@ -33,13 +33,17 @@ module.exports = {
     previewCsfV3: true,
   },
   core: {
-    builder: 'webpack5',
+    builder: 'storybook-builder-vite',
   },
-  stories: findStoryPaths().map((storyPath) => ({
-    directory: storyPath,
-    files: '*.stories.@(tsx|ts|mdx)',
-    titlePrefix: 'components',
-  })),
+  // stories: findStoryPaths().map((storyPath) => ({
+  //   directory: storyPath,
+  //   files: '*.stories.@(tsx|ts|mdx)',
+  //   titlePrefix: 'components',
+  // })),
+  stories: [
+    '../lib/**/__stories__/*.stories.mdx',
+    '../lib/**/*.stories.@(ts|tsx|mdx)',
+  ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-links',
@@ -65,5 +69,19 @@ module.exports = {
         paths: tsBaseConfig.compilerOptions.paths,
       },
     },
+  },
+  async viteFinal(config) {
+    // customize the Vite config here
+    Object.entries(tsBaseConfig.compilerOptions.paths)
+      .map(([alias, pathArr]) => [
+        alias,
+        path.resolve(__dirname, '..', '..', '..', pathArr[0]),
+      ])
+      .forEach(([alias, pathStr]) => {
+        console.log(pathStr)
+        config.resolve.alias[alias] = pathStr
+      })
+    console.log(config.resolve.alias)
+    return config
   },
 }
