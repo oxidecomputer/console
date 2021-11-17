@@ -74,7 +74,7 @@ it('should unwrap children wrapped deeply in fragments', () => {
   `)
 })
 
-describe('pluckType', () => {
+describe('pluckFirstOfType', () => {
   it('Should remove a component of a given type from its children', () => {
     const testA = <TestA />
     const testB = <TestB />
