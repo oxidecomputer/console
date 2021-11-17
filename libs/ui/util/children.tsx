@@ -48,7 +48,7 @@ export const pluck = <P,>(children: ChildArray, selector: ChildSelector) => {
     : null
 }
 
-export const pluckType = <P,>(
+export const pluckFirstOfType = <P,>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) =>

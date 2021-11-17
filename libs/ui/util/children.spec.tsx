@@ -1,5 +1,10 @@
 import React from 'react'
-import { flattenChildren, isOneOf, pluckAllOfType, pluckType } from './children'
+import {
+  flattenChildren,
+  isOneOf,
+  pluckAllOfType,
+  pluckFirstOfType,
+} from './children'
 
 const TestA = () => (
   <div>
@@ -54,14 +59,14 @@ describe('pluckType', () => {
     const testA = <TestA />
     const testB = <TestB />
     const childArray = [testA, testB, 'hello']
-    const plucked = pluckType(childArray, TestA)
+    const plucked = pluckFirstOfType(childArray, TestA)
     expect(plucked).toEqual(testA)
     expect(childArray).toEqual([testB, 'hello'])
   })
 
   it('Should not fail when children empty', () => {
     const childArray: JSX.Element[] = []
-    const plucked = pluckType(childArray, TestA)
+    const plucked = pluckFirstOfType(childArray, TestA)
     expect(plucked).toEqual(null)
     expect(childArray).toEqual([])
   })
