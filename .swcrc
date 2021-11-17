@@ -1,0 +1,22 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "dynamicImport": true
+    },
+    "externalHelpers": false,
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      }
+    },
+    "target": "es2019"
+  },
+  "module": {
+    "type": "commonjs",
+    "strictMode": true,
+    "noInterop": false,
+    "lazy": false
+  }
+}
