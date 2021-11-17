@@ -44,7 +44,7 @@ const cardLabelStyles = `
   peer-disabled:hover:bg-gray-500
 
   children:py-2 children:px-4 children:-mx-4 children:border-gray-400
-  children:first:-mt-2 children:last:-mb-2
+  first:children:-mt-2 last:children:-mb-2
   peer-checked:children:border-green-500
   cursor-pointer peer-disabled:cursor-default
 `

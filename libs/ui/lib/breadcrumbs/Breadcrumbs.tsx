@@ -11,7 +11,7 @@ export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
   <ol className="text-xs font-mono uppercase mb-6">
     {data.map(({ href, label }) => (
       <li
-        className="inline-block first-of-type:before:content-none 
+        className="inline-block before:first-of-type:content-none 
                    before:content-['/'] before:mx-2 before:text-gray-400"
         key={`${href}-${label}`}
       >

@@ -3,15 +3,10 @@
 /** @type {import('tailwindcss/lib/util/createPlugin').default} */
 // @ts-ignore
 const plugin = require('tailwindcss/plugin')
-const defaultConfig = require('tailwindcss/defaultConfig')
-
-const childrenPlugin = require('tailwindcss-children')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
-  mode: 'jit',
-  purge: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
-  darkMode: false,
+  content: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
   theme: {
     extend: {
       borderRadius: {
@@ -74,20 +69,11 @@ module.exports = {
     },
   },
   plugins: [
-    // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
-    // on an SVG that's an immediate child of the element
-    plugin(function ({ addVariant, e }) {
-      addVariant('svg', ({ modifySelectors, separator }) => {
-        modifySelectors(
-          ({ className }) => `.${e(`svg${separator}${className}`)} > svg`
-        )
-      })
+    plugin(({ addVariant }) => {
+      // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
+      // on an SVG that's an immediate child of the element
+      addVariant('svg', '& > svg')
+      addVariant('children', '& > *')
     }),
-    childrenPlugin,
   ],
-  /**
-   * TODO: This isn't respected, need an upstream fix.
-   * @see https://github.com/tailwindlabs/tailwindcss/issues/3949
-   */
-  variantOrder: ['children', ...defaultConfig.variantOrder, 'svg'],
 }
