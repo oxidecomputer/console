@@ -19,7 +19,7 @@ import cn from 'classnames'
 
 // the tabs component is just @reach/tabs plus custom CSS
 import './Tabs.css'
-import { flattenChildren, pluckType } from '../../util/children'
+import { flattenChildren, pluckFirstOfType } from '../../util/children'
 import { invariant } from '../../util/invariant'
 
 export interface TabsProps extends ElementType<'div', RTabsProps> {}
@@ -30,10 +30,10 @@ export function Tabs({ children, className, ...props }: TabsProps) {
     (() => {
       const childArray = flattenChildren(children)
       const tabs = flattenChildren(
-        pluckType(childArray, Tab.List)?.props.children
+        pluckFirstOfType(childArray, Tab.List)?.props.children
       ) as React.ReactElement[]
       const panels = flattenChildren(
-        pluckType(childArray, Tab.Panels)?.props.children
+        pluckFirstOfType(childArray, Tab.Panels)?.props.children
       ) as React.ReactElement[]
 
       return tabs
