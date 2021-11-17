@@ -1,10 +1,19 @@
 import React from 'react'
+import format, { plugins } from 'pretty-format'
 import {
   flattenChildren,
   isOneOf,
   pluckAllOfType,
   pluckFirstOfType,
 } from './children'
+
+/**
+ * Prints out a simplified JSX representation of a provided component
+ *
+ * Uses `pretty-format` which is provided as a part of Jest.
+ * */
+const serialize = (el: React.ReactNode) =>
+  format(el, { plugins: [plugins.ReactElement], printFunctionName: false })
 
 const TestA = () => (
   <div>
@@ -19,41 +28,70 @@ const TestB = () => (
 
 describe('flattenChildren', () => {
   it('should not alter children without fragments', () => {
-    const input = (
-      <div id="wrapper">
+    // A fake representation of what would return from component.props.children
+    const children = (
+      <div>
         <TestA />
         <TestB />
       </div>
     )
-    const flattened = flattenChildren(input)
-    const childArray = React.Children.toArray(input)
-    expect(flattened).toEqual(childArray)
+    const flattened = serialize(flattenChildren(children))
+    expect(flattened).toEqual(
+      serialize([
+        // eslint-disable-next-line react/jsx-key
+        <div>
+          <TestA />
+          <TestB />
+        </div>,
+      ])
+    )
   })
 
   it('should unwrap children from fragments', () => {
-    const input = (
+    const children = (
       <>
         <TestA />
         <TestB />
       </>
     )
-    const flattened = flattenChildren(input)
-    const childArray = React.Children.toArray(input.props.children)
-    expect(flattened).toEqual(childArray)
+    const flattened = serialize(flattenChildren(children))
+    // eslint-disable-next-line react/jsx-key
+    expect(flattened).toEqual(serialize([<TestA />, <TestB />]))
+    expect(flattened).not.toEqual([
+      <>
+        <TestA />
+        <TestB />
+      </>,
+    ])
   })
 })
 
-it('should fail to match an element wrapped in a fragment', () => {
-  const input = (
+it('should unwrap children wrapped deeply in fragments', () => {
+  const children = (
     <>
-      <TestA />
-      <TestB />
+      <>
+        <TestA />
+        <TestB />
+      </>
+      <>{'hello'}</>
     </>
   )
-  const flattened = flattenChildren(input)
-  const childArray = React.Children.toArray(input)
-  expect(flattened).not.toEqual(childArray)
+  const flattened = serialize(flattenChildren(children))
+  // eslint-disable-next-line react/jsx-key
+  expect(flattened).toEqual(serialize([<TestA />, <TestB />, 'hello']))
+  expect(flattened).not.toEqual(
+    serialize([
+      <>
+        <>
+          <TestA />
+          <TestB />
+        </>
+        <>{'hello'}</>
+      </>,
+    ])
+  )
 })
+
 describe('pluckType', () => {
   it('Should remove a component of a given type from its children', () => {
     const testA = <TestA />
