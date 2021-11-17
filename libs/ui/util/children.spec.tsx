@@ -54,7 +54,7 @@ describe('flattenChildren', () => {
   })
 })
 
-it('should unwrap children wrapped deeply in fragments', () => {
+it('should unwrap children deeply nested in fragments', () => {
   const children = (
     <>
       <>
