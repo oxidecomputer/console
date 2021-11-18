@@ -16,7 +16,7 @@ import cn from 'classnames'
 
 import './Tabs.css'
 import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
-import { invariant } from '../../util/invariant'
+import { invariant } from '@oxide/util'
 import type { AriaLabel } from '../../util/aria'
 
 export type TabsProps = ElementType<'div', RTabsProps> &
