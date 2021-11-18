@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ReactNode } from 'react'
-import { invariant } from '../../util/invariant'
+import { invariant } from '@oxide/util'
 import { isOneOf } from '../../util/children'
 import { Badge } from '../badge/Badge'
 import cn from 'classnames'
