@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useMemo } from 'react'
+import React from 'react'
 
 import type {
   TabProps as RTabProps,
   TabsProps as RTabsProps,
-  TabListProps as RTabListProps,
   TabPanelProps as RTabPanelProps,
 } from '@reach/tabs'
 import {
@@ -13,66 +12,59 @@ import {
   TabPanels as RTabPanels,
   TabPanel as RTabPanel,
 } from '@reach/tabs'
-
 import cn from 'classnames'
 
 import './Tabs.css'
-import { flattenChildren, pluckAllOfType } from '../../util/children'
+import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
 import { invariant } from '../../util/invariant'
+import type { AriaLabel } from '../../util/aria'
 
-interface TabContextValue {
-  id: string
-}
-const TabContext = createContext<TabContextValue>({ id: '' })
+export type TabsProps = ElementType<'div', RTabsProps> &
+  AriaLabel & {
+    id: string
+  }
 
-export interface TabsProps extends ElementType<'div', RTabsProps> {
-  id: string
-}
-
-export function Tabs({ id, children, className, ...props }: TabsProps) {
+export function Tabs({
+  id,
+  'aria-labelledby': labelledby,
+  'aria-label': label,
+  children,
+  ...props
+}: TabsProps) {
   const childArray = flattenChildren(children)
-  const tabs = pluckAllOfType(childArray, Tab)
-  const panels = pluckAllOfType(childArray, Tab.Panel)
+  const tabs = pluckAllOfType(childArray, Tab).map(
+    addKey((i) => `${id}-tab-${i}`)
+  )
+  const panels = pluckAllOfType(childArray, Tab.Panel).map(
+    addKey((i) => `${id}-panel-${i}`)
+  )
+
   invariant(
     childArray.length === 0,
     'Expected Tabs to only contain Tab and Tab.Panel components'
   )
+
   invariant(
-    tabs
-      .map((tab, i) => tab.props.id === panels[i].props['for'])
-      .every(Boolean),
-    'Not all tabs were matched or aligned with its corresponding tab panel'
+    tabs.length === panels.length,
+    'Expected there to be exactly one Tab for every Tab.Panel'
   )
 
-  const context = useMemo(() => ({ id }), [id])
   return (
-    <TabContext.Provider value={context}>
-      <RTabs as="div" className={cn(className)} {...props}>
-        <RTabList>{tabs}</RTabList>
-        <RTabPanels>{panels}</RTabPanels>
-      </RTabs>
-    </TabContext.Provider>
+    <RTabs id={id} as="div" {...props}>
+      <RTabList aria-labelledby={labelledby} aria-label={label}>
+        {tabs}
+      </RTabList>
+      <RTabPanels>{panels}</RTabPanels>
+    </RTabs>
   )
 }
 
-export interface TabProps extends ElementType<'button', RTabProps> {
-  id: string
-}
-export function Tab({ id, className, ...props }: TabProps) {
+export interface TabProps extends ElementType<'button', RTabProps> {}
+export function Tab({ className, ...props }: TabProps) {
   return (
-    <RTab
-      as="button"
-      id={id}
-      className={cn('!no-underline', className)}
-      {...props}
-    />
+    <RTab as="button" className={cn('!no-underline', className)} {...props} />
   )
 }
 
-export interface TabPanelProps extends RTabPanelProps {
-  /** The `id` of the tab which this is a label for */
-  for: string
-}
-Tab.Panel = ({ ['for']: id, ...props }: TabPanelProps) => (
-  <RTabPanel id={`${id}-panel`} aria-labelledby={id} {...props} />
-)
+export interface TabPanelProps extends RTabPanelProps {}
+Tab.Panel = ({ ...props }: TabPanelProps) => <RTabPanel {...props} />
