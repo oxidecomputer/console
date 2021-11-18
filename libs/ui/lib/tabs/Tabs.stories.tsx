@@ -16,21 +16,13 @@ export default {
   component: Tabs,
   render: (args) => {
     return (
-      <Tabs>
-        <Tab.List>
-          {args.tabs.map((tab, i) => (
-            <Tab id={`tab-${i}`} key={`tab-${i}`}>
-              {tab}
-            </Tab>
-          ))}
-        </Tab.List>
-        <Tab.Panels>
-          {args.panels.map((panel, i) => (
-            <Tab.Panel for={`tab-${i}`} key={`tab-${i}-panel`}>
-              {panel}
-            </Tab.Panel>
-          ))}
-        </Tab.Panels>
+      <Tabs id="tabs-example">
+        {args.tabs.map((tab, i) => (
+          <>
+            <Tab id={`tab-${i}`}>{tab}</Tab>
+            <Tab.Panel for={`tab-${i}`}>{args.panels[i]}</Tab.Panel>
+          </>
+        ))}
       </Tabs>
     )
   },

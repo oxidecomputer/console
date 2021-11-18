@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { createContext, useContext, useMemo } from 'react'
 
 import type {
   TabProps as RTabProps,
   TabsProps as RTabsProps,
   TabListProps as RTabListProps,
-  TabPanelsProps as RTabPanelsProps,
   TabPanelProps as RTabPanelProps,
 } from '@reach/tabs'
 import {
@@ -17,56 +16,57 @@ import {
 
 import cn from 'classnames'
 
-// the tabs component is just @reach/tabs plus custom CSS
 import './Tabs.css'
-import { flattenChildren, pluckFirstOfType } from '../../util/children'
+import { flattenChildren, pluckAllOfType } from '../../util/children'
 import { invariant } from '../../util/invariant'
 
-export interface TabsProps extends ElementType<'div', RTabsProps> {}
-
-export function Tabs({ children, className, ...props }: TabsProps) {
-  // Validate at dev time that tabs and panels are correct and in the right order
-  invariant(
-    (() => {
-      const childArray = flattenChildren(children)
-      const tabs = flattenChildren(
-        pluckFirstOfType(childArray, Tab.List)?.props.children
-      ) as React.ReactElement[]
-      const panels = flattenChildren(
-        pluckFirstOfType(childArray, Tab.Panels)?.props.children
-      ) as React.ReactElement[]
-
-      return tabs
-        .map((tab, i) => tab.props.id === panels[i].props['for'])
-        .every(Boolean)
-    })(),
-    'Missing tab or tabs out of order'
-  )
-
-  return (
-    <RTabs as="div" className={cn(className)} {...props}>
-      {children}
-    </RTabs>
-  )
-}
-
-export interface TabProps extends ElementType<'a', RTabProps> {
+interface TabContextValue {
   id: string
 }
-export function Tab({ className, ...props }: TabProps) {
-  return <RTab as="a" className={cn('!no-underline', className)} {...props} />
+const TabContext = createContext<TabContextValue>({ id: '' })
+
+export interface TabsProps extends ElementType<'div', RTabsProps> {
+  id: string
 }
 
-export interface TabListProps extends ElementType<'div', RTabListProps> {}
-Tab.List = (props: TabListProps) => {
-  const after =
-    'after:block after:border-b after:w-full after:border-gray-400 after:ml-2.5'
-  return <RTabList as="div" className={after} {...props} />
+export function Tabs({ id, children, className, ...props }: TabsProps) {
+  const childArray = flattenChildren(children)
+  const tabs = pluckAllOfType(childArray, Tab)
+  const panels = pluckAllOfType(childArray, Tab.Panel)
+  invariant(
+    childArray.length === 0,
+    'Expected Tabs to only contain Tab and Tab.Panel components'
+  )
+  invariant(
+    tabs
+      .map((tab, i) => tab.props.id === panels[i].props['for'])
+      .every(Boolean),
+    'Not all tabs were matched or aligned with its corresponding tab panel'
+  )
+
+  const context = useMemo(() => ({ id }), [id])
+  return (
+    <TabContext.Provider value={context}>
+      <RTabs as="div" className={cn(className)} {...props}>
+        <RTabList>{tabs}</RTabList>
+        <RTabPanels>{panels}</RTabPanels>
+      </RTabs>
+    </TabContext.Provider>
+  )
 }
 
-export interface TabPanelsProps extends ElementType<'div', RTabPanelsProps> {}
-Tab.Panels = (props: TabPanelsProps) => {
-  return <RTabPanels as="div" {...props} />
+export interface TabProps extends ElementType<'button', RTabProps> {
+  id: string
+}
+export function Tab({ id, className, ...props }: TabProps) {
+  return (
+    <RTab
+      as="button"
+      id={id}
+      className={cn('!no-underline', className)}
+      {...props}
+    />
+  )
 }
 
 export interface TabPanelProps extends RTabPanelProps {
@@ -74,5 +74,5 @@ export interface TabPanelProps extends RTabPanelProps {
   for: string
 }
 Tab.Panel = ({ ['for']: id, ...props }: TabPanelProps) => (
-  <RTabPanel id={`${id}-panel`} {...props} />
+  <RTabPanel id={`${id}-panel`} aria-labelledby={id} {...props} />
 )
