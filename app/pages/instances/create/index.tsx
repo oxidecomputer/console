@@ -107,104 +107,108 @@ export function InstanceCreateForm({
       }}
     >
       <Form className="mt-4 mb-20">
-        <Heading>Choose an image</Heading>
-        <Tabs className="mt-1">
-          <Tab.List aria-label="Choose an image">
-            <Tab id="tab-distributions">Distributions</Tab>
-            <Tab id="tab-custom-images">Custom Images</Tab>
-          </Tab.List>
-          <Tab.Panels>
-            <Tab.Panel for="tab-distributions">
-              <fieldset>
-                <legend className="sr-only">Choose a pre-built image</legend>
-                <RadioGroup name="disk-image">
-                  <RadioCard value="centos">CentOS</RadioCard>
-                  <RadioCard value="debian">Debian</RadioCard>
-                  <RadioCard value="fedora">Fedora</RadioCard>
-                  <RadioCard value="freeBsd">FreeBSD</RadioCard>
-                  <RadioCard value="ubuntu">Ubuntu</RadioCard>
-                  <RadioCard value="windows">Windows</RadioCard>
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-            <Tab.Panel for="tab-custom-images">
-              <fieldset>
-                <legend className="sr-only">Choose a custom image</legend>
-                <RadioGroup name="disk-image">
-                  <RadioCard value="custom-centos">Custom CentOS</RadioCard>
-                  <RadioCard value="custom-debian">Custom Debian</RadioCard>
-                  <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-          </Tab.Panels>
+        <Heading id="choose-an-image">Choose an image</Heading>
+        <Tabs
+          id="tabs-choose-image"
+          className="mt-1"
+          aria-labelledby="choose-an-image"
+        >
+          <Tab>Distributions</Tab>
+          <Tab.Panel>
+            <fieldset>
+              <legend className="sr-only">Choose a pre-built image</legend>
+              <RadioGroup name="disk-image">
+                <RadioCard value="centos">CentOS</RadioCard>
+                <RadioCard value="debian">Debian</RadioCard>
+                <RadioCard value="fedora">Fedora</RadioCard>
+                <RadioCard value="freeBsd">FreeBSD</RadioCard>
+                <RadioCard value="ubuntu">Ubuntu</RadioCard>
+                <RadioCard value="windows">Windows</RadioCard>
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
+
+          <Tab>Custom Images</Tab>
+          <Tab.Panel>
+            <fieldset>
+              <legend className="sr-only">Choose a custom image</legend>
+              <RadioGroup name="disk-image">
+                <RadioCard value="custom-centos">Custom CentOS</RadioCard>
+                <RadioCard value="custom-debian">Custom Debian</RadioCard>
+                <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
         </Tabs>
         <Divider />
-        <Heading>Choose CPUs and RAM</Heading>
-        <Tabs className="mt-1" aria-label="Choose CPUs and RAM">
-          <Tab.List>
-            <Tab id="tab-general-purpose">General purpose</Tab>
-            <Tab id="tab-cpu-optimized">CPU-optimized</Tab>
-            <Tab id="tab-memory-optimized">Memory-optimized</Tab>
-            <Tab id="tab-custom">
-              Custom <Badge>New</Badge>
-            </Tab>
-          </Tab.List>
-          <Tab.Panels>
-            <Tab.Panel for="tab-general-purpose">
-              <fieldset aria-describedby="general-instance-hint">
-                <legend className="sr-only">
-                  Choose a general purpose instance
-                </legend>
-                <RadioGroupHint id="general-instance-hint">
-                  General purpose instances provide a good balance of CPU,
-                  memory, and high performance storage; well suited for a wide
-                  range of use cases.
-                </RadioGroupHint>
-                {/* TODO: find the logic behind this ad hoc spacing */}
-                <RadioGroup name="instance-type" className="mt-8">
-                  {renderLargeRadioCards('general')}
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-            <Tab.Panel for="tab-cpu-optimized">
-              <fieldset aria-describedby="cpu-instance-hint">
-                <legend className="sr-only">
-                  Choose a CPU-optimized instance
-                </legend>
-                <RadioGroupHint id="cpu-instance-hint">
-                  CPU optimized instances provide a good balance of...
-                </RadioGroupHint>
-                <RadioGroup name="instance-type" className="mt-8">
-                  {renderLargeRadioCards('cpuOptimized')}
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-            <Tab.Panel for="tab-memory-optimized">
-              <fieldset aria-describedby="memory-instance-hint">
-                <legend className="sr-only">
-                  Choose a memory-optimized instance
-                </legend>
-                <RadioGroupHint id="memory-instance-hint">
-                  Memory optimized instances provide a good balance of...
-                </RadioGroupHint>
-                <RadioGroup name="instance-type" className="mt-8">
-                  {renderLargeRadioCards('memoryOptimized')}
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-            <Tab.Panel for="tab-custom">
-              <fieldset aria-describedby="custom-instance-hint">
-                <legend className="sr-only">Choose a custom instance</legend>
-                <RadioGroupHint id="custom-instance-hint">
-                  Custom instances...
-                </RadioGroupHint>
-                <RadioGroup name="instance-type" className="mt-8">
-                  {renderLargeRadioCards('custom')}
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-          </Tab.Panels>
+        <Heading id="choose-cpu-ram">Choose CPUs and RAM</Heading>
+        <Tabs
+          id="tabs-choose-cpu-and-ram"
+          className="mt-1"
+          aria-labelledby="choose-cpu-ram"
+        >
+          <Tab>General purpose</Tab>
+          <Tab.Panel>
+            <fieldset aria-describedby="general-instance-hint">
+              <legend className="sr-only">
+                Choose a general purpose instance
+              </legend>
+              <RadioGroupHint id="general-instance-hint">
+                General purpose instances provide a good balance of CPU, memory,
+                and high performance storage; well suited for a wide range of
+                use cases.
+              </RadioGroupHint>
+              {/* TODO: find the logic behind this ad hoc spacing */}
+              <RadioGroup name="instance-type" className="mt-8">
+                {renderLargeRadioCards('general')}
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
+
+          <Tab>CPU-optimized</Tab>
+          <Tab.Panel>
+            <fieldset aria-describedby="cpu-instance-hint">
+              <legend className="sr-only">
+                Choose a CPU-optimized instance
+              </legend>
+              <RadioGroupHint id="cpu-instance-hint">
+                CPU optimized instances provide a good balance of...
+              </RadioGroupHint>
+              <RadioGroup name="instance-type" className="mt-8">
+                {renderLargeRadioCards('cpuOptimized')}
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
+
+          <Tab>Memory-optimized</Tab>
+          <Tab.Panel>
+            <fieldset aria-describedby="memory-instance-hint">
+              <legend className="sr-only">
+                Choose a memory-optimized instance
+              </legend>
+              <RadioGroupHint id="memory-instance-hint">
+                Memory optimized instances provide a good balance of...
+              </RadioGroupHint>
+              <RadioGroup name="instance-type" className="mt-8">
+                {renderLargeRadioCards('memoryOptimized')}
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
+
+          <Tab id="tab-custom">
+            Custom <Badge>New</Badge>
+          </Tab>
+          <Tab.Panel>
+            <fieldset aria-describedby="custom-instance-hint">
+              <legend className="sr-only">Choose a custom instance</legend>
+              <RadioGroupHint id="custom-instance-hint">
+                Custom instances...
+              </RadioGroupHint>
+              <RadioGroup name="instance-type" className="mt-8">
+                {renderLargeRadioCards('custom')}
+              </RadioGroup>
+            </fieldset>
+          </Tab.Panel>
         </Tabs>
         <Divider />
         <div className="flex mt-20">
