@@ -73,11 +73,11 @@ const ProjectsPage = () => {
                   {item.name}
                 </Link>
               </header>
-              <div className="flex mb-8 md:space-x-8 space-x-12">
+              <div className="flex mb-8 md-:space-x-8 space-x-12">
                 <Metric label="CPU" value="3%" />
                 <Metric label="Memory" value="13%" />
-                <Metric label="Storage" value="20%" className="md:hidden" />
-                <Metric label="Network" value="5%" className="md:hidden" />
+                <Metric label="Storage" value="20%" className="md-:hidden" />
+                <Metric label="Network" value="5%" className="md-:hidden" />
               </div>
             </section>
             <footer className="p-4 border-t border-gray-400 text-xs">
