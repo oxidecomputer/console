@@ -10,22 +10,19 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        '2xl-': { max: '1535px' },
-        'xl-': { max: '1279px' },
-        'lg-': { max: '1023px' },
-        'md-': { max: '767px' },
-        'sm-': { max: '639px' },
+        'xl-': { max: '1535px' },
+        'lg-': { max: '1279px' },
+        'md-': { max: '1023px' },
+        'sm-': { max: '767px' },
         'sm+': { min: '640px' },
         'md+': { min: '768px' },
         'lg+': { min: '1024px' },
         'xl+': { min: '1280px' },
         '2xl+': { min: '1536px' },
-        xs: { max: '639px' },
         sm: { min: '640px', max: '767px' },
         md: { min: '768px', max: '1023px' },
         lg: { min: '1024px', max: '1279px' },
         xl: { min: '1280px', max: '1535px' },
-        '2xl': { min: '1536px' },
       },
       borderRadius: {
         DEFAULT: '.0625rem',
