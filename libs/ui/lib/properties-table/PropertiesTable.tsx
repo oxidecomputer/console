@@ -6,10 +6,22 @@ import { Badge } from '../badge/Badge'
 import cn from 'classnames'
 import './properties-table.css'
 
+/** The amount of columns we'd like to have if there's enough space */
+type DesiredColumns = 1 | 2
 export interface PropertiesTableProps {
   className?: string
   children: ReactNode
+  columns?: DesiredColumns
 }
+
+// const columnsMapping = (columns: DesiredColumns) => {
+//   switch (columns) {
+//     case 1:
+//       return ''
+//     case 2:
+//       return co
+//   }
+// }
 
 export function PropertiesTable({ className, children }: PropertiesTableProps) {
   invariant(
@@ -20,7 +32,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500'
+        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500 min-w-min'
       )}
     >
       {children}
@@ -37,7 +49,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span>
       <Badge variant="ghost">{label}</Badge>
     </span>
-    <span>{children}</span>
+    <span className="whitespace-nowrap pr-4">{children}</span>
   </>
 )
 

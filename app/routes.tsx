@@ -30,6 +30,7 @@ import ProjectStoragePage from './pages/project/Storage'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
+import VpcPage from './pages/networking/VpcPage'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
@@ -100,7 +101,7 @@ export const routes = (
                 crumb="Create instance"
               />
             </Route>
-            <Route path="networking" crumb="Networking" />
+            <Route path="networking" crumb="Networking" element={<VpcPage />} />
             <Route
               path="storage"
               element={<ProjectStoragePage />}
