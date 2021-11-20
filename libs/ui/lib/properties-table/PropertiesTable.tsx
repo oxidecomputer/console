@@ -22,9 +22,6 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
         className,
         'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500'
       )}
-      style={{
-        gridTemplateColumns: 'minmax(min-content, 1fr) 3fr',
-      }}
     >
       {children}
     </div>
@@ -43,3 +40,19 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span>{children}</span>
   </>
 )
+
+interface PropertiesTableGroupProps {
+  children: ReactNode
+}
+
+PropertiesTable.Group = ({ children }: PropertiesTableGroupProps) => {
+  invariant(
+    isOneOf(children, [PropertiesTable]),
+    'PropertiesTable can only have PropertiesTable.Row as a child'
+  )
+  return (
+    <div className="flex min-w-min md-:flex-col lg+:space-x-4 md-:first:children:border-b-gray-500 md-:first:children:rounded-b-none md-:last:children:border-t-0 md-:last:children:rounded-t-none">
+      {children}
+    </div>
+  )
+}
