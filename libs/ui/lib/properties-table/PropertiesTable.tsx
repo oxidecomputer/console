@@ -6,22 +6,10 @@ import { Badge } from '../badge/Badge'
 import cn from 'classnames'
 import './properties-table.css'
 
-/** The amount of columns we'd like to have if there's enough space */
-type DesiredColumns = 1 | 2
 export interface PropertiesTableProps {
   className?: string
   children: ReactNode
-  columns?: DesiredColumns
 }
-
-// const columnsMapping = (columns: DesiredColumns) => {
-//   switch (columns) {
-//     case 1:
-//       return ''
-//     case 2:
-//       return co
-//   }
-// }
 
 export function PropertiesTable({ className, children }: PropertiesTableProps) {
   invariant(
