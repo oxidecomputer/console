@@ -68,7 +68,7 @@ export const routes = (
       element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
     />
 
-    <Route path="orgs">
+    <Route path="c/orgs">
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
         <Route index element={<OrgPage />} />
       </Route>
