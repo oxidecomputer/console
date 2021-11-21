@@ -20,13 +20,17 @@ import { invariant } from '@oxide/util'
 
 export type TabsProps = ElementType<'div', RTabsProps> & {
   id: string
+  fullWidth?: boolean
+  className?: string
 }
 
 export function Tabs({
   id,
+  fullWidth,
   'aria-labelledby': labelledby,
   'aria-label': label,
   children,
+  className,
   ...props
 }: TabsProps) {
   const childArray = flattenChildren(children)
@@ -47,9 +51,23 @@ export function Tabs({
     'Expected there to be exactly one Tab for every Tab.Panel'
   )
 
+  const after =
+    'after:block after:w-full after:border-b after:ml-2 overflow:hidden'
+  const before =
+    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0'
+
   return (
-    <RTabs id={id} as="div" {...props}>
-      <RTabList aria-labelledby={labelledby} aria-label={label}>
+    <RTabs
+      id={id}
+      as="div"
+      className={cn(className, fullWidth && '!col-span-3')}
+      {...props}
+    >
+      <RTabList
+        aria-labelledby={labelledby}
+        aria-label={label}
+        className={cn(after, fullWidth && before)}
+      >
         {tabs}
       </RTabList>
       <RTabPanels>{panels}</RTabPanels>

@@ -84,11 +84,21 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(({ addVariant }) => {
+    plugin(({ addVariant, addUtilities, variants }) => {
       // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
       // on an SVG that's an immediate child of the element
       addVariant('svg', '& > svg')
       addVariant('children', '& > *')
+      addUtilities(
+        Array.from({ length: 12 }, (_, i) => i)
+          .map((i) => ({
+            [`.grid-col-${i}`]: {
+              'grid-column': `${i}`,
+            },
+          }))
+          .reduce((p, c) => ({ ...p, ...c }), {}),
+        variants
+      )
     }),
   ],
 }

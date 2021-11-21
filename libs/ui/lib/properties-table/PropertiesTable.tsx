@@ -43,15 +43,24 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
 
 interface PropertiesTableGroupProps {
   children: ReactNode
+  className?: string
 }
 
-PropertiesTable.Group = ({ children }: PropertiesTableGroupProps) => {
+PropertiesTable.Group = ({
+  children,
+  className,
+}: PropertiesTableGroupProps) => {
   invariant(
     isOneOf(children, [PropertiesTable]),
     'PropertiesTable can only have PropertiesTable.Row as a child'
   )
   return (
-    <div className="flex min-w-min md-:flex-col lg+:space-x-4 md-:first:children:border-b-gray-500 md-:first:children:rounded-b-none md-:last:children:border-t-0 md-:last:children:rounded-t-none">
+    <div
+      className={cn(
+        className,
+        'flex min-w-min md-:flex-col lg+:space-x-4 md-:first:children:border-b-gray-500 md-:first:children:rounded-b-none md-:last:children:border-t-0 md-:last:children:rounded-t-none'
+      )}
+    >
       {children}
     </div>
   )
