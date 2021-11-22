@@ -46,10 +46,7 @@ const ProjectsPage = () => {
       <PageHeader className="mb-10">
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">
-          <Link
-            to={`/orgs/${orgName}/projects/new`}
-            className={buttonStyle({ variant: 'ghost' })}
-          >
+          <Link to="new" className={buttonStyle({ variant: 'ghost' })}>
             New Project
           </Link>
           <button className="p-3 flex items-center">
@@ -66,10 +63,7 @@ const ProjectsPage = () => {
           >
             <section className="p-4">
               <header className="mb-12">
-                <Link
-                  to={`/orgs/${orgName}/projects/${item.name}`}
-                  className="text-display-xl"
-                >
+                <Link to={item.name} className="text-display-xl">
                   {item.name}
                 </Link>
               </header>

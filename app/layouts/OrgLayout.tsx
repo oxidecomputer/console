@@ -24,7 +24,7 @@ const ProjectList = (props: { className?: string }) => {
           <li className="hover:bg-gray-400" key={p.id}>
             <NavLink
               className="inline-flex w-full p-1"
-              to={`/orgs/${orgName}/projects/${p.name}`}
+              to={`/c/orgs/${orgName}/projects/${p.name}`}
               end
             >
               {p.name}
@@ -35,7 +35,7 @@ const ProjectList = (props: { className?: string }) => {
       <footer className="p-1 flex">
         <Link
           className="text-xs inline-flex uppercase text-gray-100 font-mono"
-          to={`/orgs/${orgName}/projects/new`}
+          to={`/c/orgs/${orgName}/projects/new`}
         >
           <Add12Icon title="Add a project" className="mr-1.5 mt-0.5" />
           New project

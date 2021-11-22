@@ -28,7 +28,7 @@ const columns = [
       return (
         <Link
           className="text-green-500"
-          to={`/orgs/${orgName}/projects/${projectName}/instances/${value}`}
+          to={`/c/orgs/${orgName}/projects/${projectName}/instances/${value}`}
         >
           {value}
         </Link>
