@@ -27,6 +27,22 @@ export const flattenChildren = (children: ReactNode): ChildArray => {
   }, [])
 }
 
+const matchType = <P extends unknown>(
+  child: ReactElement,
+  componentType: ComponentType<P>
+) => {
+  if (!('type' in child)) return false
+  // This exists because during react fast-refresh the component types
+  // are swizzled out for a new reference. So the component imported from a module
+  // and the type in a component reference will _always_ be false after said component
+  // is fast refreshed. We're just relying on stringifying the function body contents
+  // here instead.
+  if (process.env.NODE_ENV !== 'production') {
+    return child.type.toString() === componentType.toString()
+  }
+  return child.type === componentType
+}
+
 /**
  * A function to be used with invariant to ensure at dev runtime that only expected
  * children are passed to a given component.
@@ -37,30 +53,33 @@ export const isOneOf = (
   components: ComponentType<any>[]
 ) => {
   const childIsOneOf = (child: ReactNode) =>
-    components.includes((child as ReactElement)?.type as ComponentType)
+    components.some((type) => matchType(child as ReactElement, type))
   return React.Children.toArray(children).every(childIsOneOf)
 }
 
-export const pluck = <P,>(children: ChildArray, selector: ChildSelector) => {
+export const pluck = <P extends unknown>(
+  children: ChildArray,
+  selector: ChildSelector
+) => {
   const childIndex = children.findIndex(selector)
   return childIndex !== -1
     ? (children.splice(childIndex, 1)[0] as Component<P>)
     : null
 }
 
-export const pluckFirstOfType = <P,>(
+export const pluckFirstOfType = <P extends unknown>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) =>
-  pluck<P>(children, (child) => (child as ReactElement)?.type === componentType)
+  pluck<P>(children, (child) => matchType(child as ReactElement, componentType))
 
-export const pluckAllOfType = <P,>(
+export const pluckAllOfType = <P extends unknown>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) => {
   const result: Component<P>[] = []
   for (let i = children.length - 1; i >= 0; --i) {
-    if ((children[i] as ReactElement)?.type === componentType) {
+    if (matchType(children[i] as ReactElement, componentType)) {
       result.unshift(children.splice(i, 1)[0] as Component<P>)
     }
   }
