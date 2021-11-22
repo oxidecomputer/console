@@ -30,6 +30,7 @@
       "error",
       { "argsIgnorePattern": "^_" }
     ],
+    "@typescript-eslint/no-unnecessary-type-constraint": "off",
     "arrow-body-style": "off",
     "eqeqeq": "error",
     "no-param-reassign": "error",
