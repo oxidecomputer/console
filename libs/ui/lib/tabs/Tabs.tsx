@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import type {
   TabProps as RTabProps,
@@ -33,17 +33,17 @@ export function Tabs({
   className,
   ...props
 }: TabsProps) {
-  const childArray = flattenChildren(children)
-  const tabs = pluckAllOfType(childArray, Tab).map(
-    addKey((i) => `${id}-tab-${i}`)
+  const childArray = useMemo(() => flattenChildren(children), [children])
+  const tabs = useMemo(
+    () => pluckAllOfType(childArray, Tab).map(addKey((i) => `${id}-tab-${i}`)),
+    [childArray, id]
   )
-  const panels = pluckAllOfType(childArray, Tab.Panel).map(
-    addKey((i) => `${id}-panel-${i}`)
-  )
-
-  invariant(
-    childArray.length === 0,
-    'Expected Tabs to only contain Tab and Tab.Panel components'
+  const panels = useMemo(
+    () =>
+      pluckAllOfType(childArray, Tab.Panel).map(
+        addKey((i) => `${id}-panel-${i}`)
+      ),
+    [childArray, id]
   )
 
   invariant(
@@ -52,9 +52,9 @@ export function Tabs({
   )
 
   const after =
-    'after:block after:w-full after:border-b after:ml-2 overflow:hidden'
+    'after:block after:w-full after:border-b after:ml-2 after:border-gray-500'
   const before =
-    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0'
+    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0 before:border-gray-500'
 
   return (
     <RTabs
@@ -83,4 +83,6 @@ export function Tab({ className, ...props }: TabProps) {
 }
 
 export interface TabPanelProps extends RTabPanelProps {}
-Tab.Panel = ({ ...props }: TabPanelProps) => <RTabPanel {...props} />
+Tab.Panel = function Panel({ ...props }: TabPanelProps) {
+  return <RTabPanel {...props} />
+}
