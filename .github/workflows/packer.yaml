@@ -6,7 +6,6 @@ on:
       - 'packer/**' # Only run on changes to the packer directory.
       - '.github/workflows/packer.yaml' # Run when this file changes.
   workflow_dispatch:
-    inputs:
 
 jobs:
   packer:
@@ -75,3 +74,6 @@ jobs:
         with:
           add: ./tools/create_gcp_instance.sh
           message: 'automatically update packer-id'
+
+  deploy-vm:
+    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@${{ env.GITHUB_SHA }}
