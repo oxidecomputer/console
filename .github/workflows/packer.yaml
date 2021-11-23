@@ -12,7 +12,8 @@ jobs:
   packer:
     runs-on: ubuntu-latest
     name: packer
-
+    outputs:
+      packer-id: ${{ steps.packer-output.outputs.id }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -50,5 +51,26 @@ jobs:
 
       # get the image information from gcloud
       - name: Get image information
+        id: packer-output
+        shell: bash
         run: |
-          gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1
+          PACKER=$(gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1)
+          echo "::set-output name=id::$(echo $PACKER | grep -o -P 'packer-\d+')"
+
+  update-packer:
+    runs-on: ubuntu-latest
+    name: update-packer
+    needs: packer
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Update packer id
+        shell: bash
+        run: |
+          PACKER_SCRIPT="$(cat ./tools/create_gcp_instance.sh)"
+          OLD_PACKER_ID=$(echo $PACKER_SCRIPT | grep -o -P 'packer-\d+')
+          echo "${PACKER_SCRIPT/$OLD_PACKER_ID/${{needs.packer.ouputs.packer-id}}}" > ./tools/create_gcp_instance.sh
+      - uses: EndBug/add-and-commit@v7
+        with:
+          add: ./tools/create_gcp_instance.sh
+          message: 'Update packer-id'
