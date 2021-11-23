@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     name: update-packer
     needs: packer
-    if: ${{ env.GITHUB_REF_NAME != 'main' }}
+    if: ${{ github.ref != 'refs/heads/main' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
