@@ -69,7 +69,7 @@ jobs:
         run: |
           PACKER_SCRIPT="$(cat ./tools/create_gcp_instance.sh)"
           OLD_PACKER_ID=$(echo $PACKER_SCRIPT | grep -o -P 'packer-\d+')
-          echo "${PACKER_SCRIPT/$OLD_PACKER_ID/${{needs.packer.ouputs.packer-id}}}" > ./tools/create_gcp_instance.sh
+          echo "${PACKER_SCRIPT/$OLD_PACKER_ID/${{ needs.packer.outputs.packer-id }}}" > ./tools/create_gcp_instance.sh
       - uses: EndBug/add-and-commit@v7
         with:
           add: ./tools/create_gcp_instance.sh
