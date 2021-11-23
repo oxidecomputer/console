@@ -80,6 +80,6 @@ jobs:
   deploy-vm:
     needs: update-packer
     uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@main
-    with:
+    secrets:
       GCP_PROJECT_PACKER: ${{ secrets.GCP_PROJECT_PACKER }}
       GCP_SA_KEY_PACKER: ${{ secrets.GCP_SA_KEY_PACKER }}
