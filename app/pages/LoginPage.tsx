@@ -1,16 +1,41 @@
 import React from 'react'
+import { useNavigate } from 'react-router'
 
-import { useMutation } from 'react-query'
-import { Button } from '@oxide/ui'
+import { useApiMutation } from '@oxide/api'
+import { Button, Warning12Icon, Success16Icon } from '@oxide/ui'
+import { useToast } from '../hooks'
 
 export default function LoginPage() {
   // TODO: this doesn't work when running locally with vite because the vite dev
   // server expects api routes to have the prefix /api. getting this endpoint
   // into the OpenAPI spec and using the generated client here would fix this
-  const loginPost = useMutation((username: string) =>
-    fetch('/login', { method: 'POST', body: JSON.stringify({ username }) })
-  )
-  const logout = useMutation(() => fetch('/logout', { method: 'POST' }))
+  const navigate = useNavigate()
+  const addToast = useToast()
+  const loginPost = useApiMutation('spoofLogin', {
+    onSuccess: () => {
+      addToast({
+        title: 'Logged in',
+        icon: <Success16Icon />,
+      })
+      navigate('/c')
+    },
+    onError: () => {
+      addToast({
+        title: 'Bad credentials',
+        icon: <Warning12Icon />,
+        variant: 'error',
+      })
+    },
+  })
+
+  const logout = useApiMutation('logout', {
+    onSuccess: () => {
+      addToast({
+        title: 'Logged out',
+        icon: <Success16Icon />,
+      })
+    },
+  })
   return (
     <div className="w-full justify-center flex">
       <div className="my-48 w-96 space-y-4">
@@ -20,7 +45,9 @@ export default function LoginPage() {
           variant="solid"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() => loginPost.mutate('privileged')}
+          onClick={() =>
+            loginPost.mutate({ loginParams: { username: 'privileged' } })
+          }
         >
           Privileged
         </Button>
@@ -29,7 +56,9 @@ export default function LoginPage() {
           variant="dim"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() => loginPost.mutate('unprivileged')}
+          onClick={() =>
+            loginPost.mutate({ loginParams: { username: 'unprivileged' } })
+          }
         >
           Unprivileged
         </Button>
@@ -38,7 +67,9 @@ export default function LoginPage() {
           variant="ghost"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() => loginPost.mutate('other')}
+          onClick={() =>
+            loginPost.mutate({ loginParams: { username: 'other' } })
+          }
         >
           Bad Request
         </Button>
@@ -47,11 +78,10 @@ export default function LoginPage() {
           variant="link"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() => logout.mutate()}
+          onClick={() => logout.mutate({})}
         >
           Log out
         </Button>
-        <div className="text-red-500">{loginPost.error as any}</div>
       </div>
     </div>
   )
