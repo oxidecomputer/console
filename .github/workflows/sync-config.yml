@@ -2,6 +2,8 @@ name: Sync Config
 
 on:
   push:
+    branches-ignore:
+      - main
     paths:
       - '.github/workflows/sync-config.yml'
       - '.github/workflows/deploy-vm.yml'
