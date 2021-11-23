@@ -1,10 +1,12 @@
+# When you update this file also update the sha reference to it from packer.yaml
+
 name: push image and deploy vm
 on:
   pull_request:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
+  workflow_call:
 jobs:
   docker-image:
     strategy:
