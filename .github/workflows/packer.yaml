@@ -6,13 +6,13 @@ on:
       - 'packer/**' # Only run on changes to the packer directory.
       - '.github/workflows/packer.yaml' # Run when this file changes.
   workflow_dispatch:
-    inputs:
 
 jobs:
   packer:
     runs-on: ubuntu-latest
     name: packer
-
+    outputs:
+      packer-id: ${{ steps.packer-output.outputs.id }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -46,9 +46,35 @@ jobs:
           CLOUDFLARE_TOKEN: ${{secrets.CLOUDFLARE_TOKEN}}
           SSL_CERT: ${{secrets.SSL_CERT}}
           SSL_KEY: ${{secrets.SSL_KEY}}
-          API_VERSION: 507a5a0676c132deaaf8b7bb280d26f31ce0ed18
+          API_VERSION: 561d8d6b19c01a273b6b039628d1ff7b6b295b4e
 
       # get the image information from gcloud
       - name: Get image information
+        id: packer-output
+        shell: bash
         run: |
-          gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1
+          PACKER=$(gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1)
+          echo "$PACKER"
+          echo "::set-output name=id::$(echo $PACKER | grep -o -P 'packer-\d+')"
+
+  update-packer:
+    runs-on: ubuntu-latest
+    name: update-packer
+    needs: packer
+    if: ${{ github.ref != 'refs/heads/main' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+      - name: Update packer id
+        shell: bash
+        run: |
+          PACKER_SCRIPT="$(cat ./tools/create_gcp_instance.sh)"
+          OLD_PACKER_ID=$(echo $PACKER_SCRIPT | grep -o -P 'packer-\d+')
+          echo "${PACKER_SCRIPT/$OLD_PACKER_ID/${{ needs.packer.outputs.packer-id }}}" > ./tools/create_gcp_instance.sh
+      - uses: EndBug/add-and-commit@v7
+        with:
+          add: ./tools/create_gcp_instance.sh
+          message: 'automatically update packer-id'
+          default_author: github_actions

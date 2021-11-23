@@ -1,17 +1,9 @@
-# When you update this file also update the sha reference to it from packer.yaml
-
 name: push image and deploy vm
 on:
   pull_request:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_call:
-    secrets:
-      GCP_PROJECT_PACKER:
-        required: true
-      GCP_SA_KEY_PACKER:
-        required: true
 jobs:
   docker-image:
     strategy:

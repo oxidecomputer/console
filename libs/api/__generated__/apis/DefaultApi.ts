@@ -47,27 +47,27 @@ import {
   Organization,
   OrganizationFromJSON,
   OrganizationToJSON,
-  OrganizationCreateParams,
-  OrganizationCreateParamsFromJSON,
-  OrganizationCreateParamsToJSON,
+  OrganizationCreate,
+  OrganizationCreateFromJSON,
+  OrganizationCreateToJSON,
   OrganizationResultsPage,
   OrganizationResultsPageFromJSON,
   OrganizationResultsPageToJSON,
-  OrganizationUpdateParams,
-  OrganizationUpdateParamsFromJSON,
-  OrganizationUpdateParamsToJSON,
+  OrganizationUpdate,
+  OrganizationUpdateFromJSON,
+  OrganizationUpdateToJSON,
   Project,
   ProjectFromJSON,
   ProjectToJSON,
-  ProjectCreateParams,
-  ProjectCreateParamsFromJSON,
-  ProjectCreateParamsToJSON,
+  ProjectCreate,
+  ProjectCreateFromJSON,
+  ProjectCreateToJSON,
   ProjectResultsPage,
   ProjectResultsPageFromJSON,
   ProjectResultsPageToJSON,
-  ProjectUpdateParams,
-  ProjectUpdateParamsFromJSON,
-  ProjectUpdateParamsToJSON,
+  ProjectUpdate,
+  ProjectUpdateFromJSON,
+  ProjectUpdateToJSON,
   Rack,
   RackFromJSON,
   RackToJSON,
@@ -104,6 +104,15 @@ import {
   VpcCreateParams,
   VpcCreateParamsFromJSON,
   VpcCreateParamsToJSON,
+  VpcFirewallRule,
+  VpcFirewallRuleFromJSON,
+  VpcFirewallRuleToJSON,
+  VpcFirewallRuleResultsPage,
+  VpcFirewallRuleResultsPageFromJSON,
+  VpcFirewallRuleResultsPageToJSON,
+  VpcFirewallRuleUpdate,
+  VpcFirewallRuleUpdateFromJSON,
+  VpcFirewallRuleUpdateToJSON,
   VpcResultsPage,
   VpcResultsPageFromJSON,
   VpcResultsPageToJSON,
@@ -202,13 +211,13 @@ export interface OrganizationProjectsGetProjectRequest {
 
 export interface OrganizationProjectsPostRequest {
   organizationName: string
-  projectCreateParams: ProjectCreateParams
+  projectCreate: ProjectCreate
 }
 
 export interface OrganizationProjectsPutProjectRequest {
   organizationName: string
   projectName: string
-  projectUpdateParams: ProjectUpdateParams
+  projectUpdate: ProjectUpdate
 }
 
 export interface OrganizationsDeleteOrganizationRequest {
@@ -226,12 +235,12 @@ export interface OrganizationsGetOrganizationRequest {
 }
 
 export interface OrganizationsPostRequest {
-  organizationCreateParams: OrganizationCreateParams
+  organizationCreate: OrganizationCreate
 }
 
 export interface OrganizationsPutOrganizationRequest {
   organizationName: string
-  organizationUpdateParams: OrganizationUpdateParams
+  organizationUpdate: OrganizationUpdate
 }
 
 export interface ProjectDisksDeleteDiskRequest {
@@ -388,6 +397,22 @@ export interface SagasGetRequest {
 
 export interface SagasGetSagaRequest {
   sagaId: string
+}
+
+export interface VpcFirewallRulesGetRequest {
+  organizationName: string
+  projectName: string
+  vpcName: string
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameSortMode
+}
+
+export interface VpcFirewallRulesPutRequest {
+  organizationName: string
+  projectName: string
+  vpcName: string
+  requestBody: { [key: string]: VpcFirewallRuleUpdate }
 }
 
 export interface VpcRoutersDeleteRouterRequest {
@@ -1260,12 +1285,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.projectCreateParams === null ||
-      requestParameters.projectCreateParams === undefined
+      requestParameters.projectCreate === null ||
+      requestParameters.projectCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'projectCreateParams',
-        'Required parameter requestParameters.projectCreateParams was null or undefined when calling organizationProjectsPost.'
+        'projectCreate',
+        'Required parameter requestParameters.projectCreate was null or undefined when calling organizationProjectsPost.'
       )
     }
 
@@ -1284,7 +1309,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: ProjectCreateParamsToJSON(requestParameters.projectCreateParams),
+        body: ProjectCreateToJSON(requestParameters.projectCreate),
       },
       initOverrides
     )
@@ -1336,12 +1361,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.projectUpdateParams === null ||
-      requestParameters.projectUpdateParams === undefined
+      requestParameters.projectUpdate === null ||
+      requestParameters.projectUpdate === undefined
     ) {
       throw new runtime.RequiredError(
-        'projectUpdateParams',
-        'Required parameter requestParameters.projectUpdateParams was null or undefined when calling organizationProjectsPutProject.'
+        'projectUpdate',
+        'Required parameter requestParameters.projectUpdate was null or undefined when calling organizationProjectsPutProject.'
       )
     }
 
@@ -1365,7 +1390,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: ProjectUpdateParamsToJSON(requestParameters.projectUpdateParams),
+        body: ProjectUpdateToJSON(requestParameters.projectUpdate),
       },
       initOverrides
     )
@@ -1552,12 +1577,12 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<runtime.ApiResponse<Organization>> {
     if (
-      requestParameters.organizationCreateParams === null ||
-      requestParameters.organizationCreateParams === undefined
+      requestParameters.organizationCreate === null ||
+      requestParameters.organizationCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'organizationCreateParams',
-        'Required parameter requestParameters.organizationCreateParams was null or undefined when calling organizationsPost.'
+        'organizationCreate',
+        'Required parameter requestParameters.organizationCreate was null or undefined when calling organizationsPost.'
       )
     }
 
@@ -1573,9 +1598,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: OrganizationCreateParamsToJSON(
-          requestParameters.organizationCreateParams
-        ),
+        body: OrganizationCreateToJSON(requestParameters.organizationCreate),
       },
       initOverrides
     )
@@ -1617,12 +1640,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.organizationUpdateParams === null ||
-      requestParameters.organizationUpdateParams === undefined
+      requestParameters.organizationUpdate === null ||
+      requestParameters.organizationUpdate === undefined
     ) {
       throw new runtime.RequiredError(
-        'organizationUpdateParams',
-        'Required parameter requestParameters.organizationUpdateParams was null or undefined when calling organizationsPutOrganization.'
+        'organizationUpdate',
+        'Required parameter requestParameters.organizationUpdate was null or undefined when calling organizationsPutOrganization.'
       )
     }
 
@@ -1641,9 +1664,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: OrganizationUpdateParamsToJSON(
-          requestParameters.organizationUpdateParams
-        ),
+        body: OrganizationUpdateToJSON(requestParameters.organizationUpdate),
       },
       initOverrides
     )
@@ -3612,6 +3633,195 @@ export class DefaultApi extends runtime.BaseAPI {
     initOverrides?: RequestInit
   ): Promise<Saga> {
     const response = await this.sagasGetSagaRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * List firewall rules for a VPC.
+   */
+  async vpcFirewallRulesGetRaw(
+    requestParameters: VpcFirewallRulesGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<VpcFirewallRuleResultsPage>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcFirewallRulesGet.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcFirewallRulesGet.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcFirewallRulesGet.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    if (requestParameters.limit !== undefined) {
+      queryParameters['limit'] = requestParameters.limit
+    }
+
+    if (requestParameters.pageToken !== undefined) {
+      queryParameters['page_token'] = requestParameters.pageToken
+    }
+
+    if (requestParameters.sortBy !== undefined) {
+      queryParameters['sort_by'] = requestParameters.sortBy
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      VpcFirewallRuleResultsPageFromJSON(jsonValue)
+    )
+  }
+
+  /**
+   * List firewall rules for a VPC.
+   */
+  async vpcFirewallRulesGet(
+    requestParameters: VpcFirewallRulesGetRequest,
+    initOverrides?: RequestInit
+  ): Promise<VpcFirewallRuleResultsPage> {
+    const response = await this.vpcFirewallRulesGetRaw(
+      requestParameters,
+      initOverrides
+    )
+    return await response.value()
+  }
+
+  /**
+   * Replace the firewall rules for a VPC
+   */
+  async vpcFirewallRulesPutRaw(
+    requestParameters: VpcFirewallRulesPutRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<{ [key: string]: VpcFirewallRule }>> {
+    if (
+      requestParameters.organizationName === null ||
+      requestParameters.organizationName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'organizationName',
+        'Required parameter requestParameters.organizationName was null or undefined when calling vpcFirewallRulesPut.'
+      )
+    }
+
+    if (
+      requestParameters.projectName === null ||
+      requestParameters.projectName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'projectName',
+        'Required parameter requestParameters.projectName was null or undefined when calling vpcFirewallRulesPut.'
+      )
+    }
+
+    if (
+      requestParameters.vpcName === null ||
+      requestParameters.vpcName === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'vpcName',
+        'Required parameter requestParameters.vpcName was null or undefined when calling vpcFirewallRulesPut.'
+      )
+    }
+
+    if (
+      requestParameters.requestBody === null ||
+      requestParameters.requestBody === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'requestBody',
+        'Required parameter requestParameters.requestBody was null or undefined when calling vpcFirewallRulesPut.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules`
+          .replace(
+            `{${'organization_name'}}`,
+            encodeURIComponent(String(requestParameters.organizationName))
+          )
+          .replace(
+            `{${'project_name'}}`,
+            encodeURIComponent(String(requestParameters.projectName))
+          )
+          .replace(
+            `{${'vpc_name'}}`,
+            encodeURIComponent(String(requestParameters.vpcName))
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: requestParameters.requestBody,
+      },
+      initOverrides
+    )
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      runtime.mapValues(jsonValue, VpcFirewallRuleFromJSON)
+    )
+  }
+
+  /**
+   * Replace the firewall rules for a VPC
+   */
+  async vpcFirewallRulesPut(
+    requestParameters: VpcFirewallRulesPutRequest,
+    initOverrides?: RequestInit
+  ): Promise<{ [key: string]: VpcFirewallRule }> {
+    const response = await this.vpcFirewallRulesPutRaw(
       requestParameters,
       initOverrides
     )

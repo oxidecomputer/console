@@ -57,7 +57,7 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
       onSubmit={({ name, description }) => {
         createProject.mutate({
           organizationName: orgName,
-          projectCreateParams: { name, description },
+          projectCreate: { name, description },
         })
       }}
     >
