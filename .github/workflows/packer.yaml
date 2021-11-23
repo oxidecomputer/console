@@ -78,4 +78,4 @@ jobs:
           default_author: github_actions
 
   deploy-vm:
-    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@620e05540fd6eb8ae0d8eb6e72e8d02b850e3388
+    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@main
