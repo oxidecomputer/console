@@ -55,6 +55,7 @@ jobs:
         shell: bash
         run: |
           PACKER=$(gcloud compute images list --sort-by "~creationTimestamp" --filter "name~'packer'" --limit 1)
+          echo "$PACKER"
           echo "::set-output name=id::$(echo $PACKER | grep -o -P 'packer-\d+')"
 
   update-packer:
