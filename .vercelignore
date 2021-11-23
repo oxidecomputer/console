@@ -1,0 +1,7 @@
+# Ignore everything except what we specifically enable
+/*
+
+!libs
+!package.json
+!tailwind.config.json
+!postcss.config.js
