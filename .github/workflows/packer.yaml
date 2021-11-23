@@ -76,4 +76,4 @@ jobs:
           message: 'automatically update packer-id'
 
   deploy-vm:
-    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@${{ env.GITHUB_SHA }}
+    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@${{env.GITHUB_SHA}}
