@@ -1,3 +1,5 @@
+# When you update this file also update the sha reference to it from packer.yaml
+
 name: push image and deploy vm
 on:
   pull_request:
