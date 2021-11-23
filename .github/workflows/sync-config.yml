@@ -28,3 +28,4 @@ jobs:
         with:
           add: ./.github/workflows/packer.yaml
           message: 'Update deploy-vm.yml sha in packer.yaml'
+          default_author: github_actions

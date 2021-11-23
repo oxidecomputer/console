@@ -75,6 +75,7 @@ jobs:
         with:
           add: ./tools/create_gcp_instance.sh
           message: 'automatically update packer-id'
+          default_author: github_actions
 
   deploy-vm:
     uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@dc5e8dec82c0e48adb33f01bffaa2220c91ea403
