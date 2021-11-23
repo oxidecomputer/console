@@ -29,7 +29,10 @@ export const Table = <D extends object>({
       {table.headerGroups.map((headerGroup) => (
         // headerGroupProps has the key on it
         // eslint-disable-next-line react/jsx-key
-        <tr {...headerGroup.getHeaderGroupProps()}>
+        <tr
+          {...headerGroup.getHeaderGroupProps()}
+          className="between:border-l between:border-gray-400"
+        >
           {headerGroup.headers.map((column) => (
             <th
               className={cn('font-light uppercase', column.className)}

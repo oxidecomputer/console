@@ -7,6 +7,7 @@ import {
   Tab,
   Tabs,
 } from '@oxide/ui'
+import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 
 const VpcPage = () => {
   return (
@@ -36,7 +37,9 @@ const VpcPage = () => {
 
       <Tabs id="tabs-vpc-sections" fullWidth>
         <Tab>Subnets</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <VpcSubnetsTab />
+        </Tab.Panel>
         <Tab>Routers</Tab>
         <Tab.Panel></Tab.Panel>
         <Tab>Firewall Rules</Tab>

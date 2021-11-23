@@ -70,7 +70,7 @@ export function Tabs({
       >
         {tabs}
       </RTabList>
-      <RTabPanels>{panels}</RTabPanels>
+      <RTabPanels className={cn(fullWidth && 'mx-10')}>{panels}</RTabPanels>
     </RTabs>
   )
 }

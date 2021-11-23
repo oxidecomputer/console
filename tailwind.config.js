@@ -89,6 +89,7 @@ module.exports = {
       // on an SVG that's an immediate child of the element
       addVariant('svg', '& > svg')
       addVariant('children', '& > *')
+      addVariant('between', '& > * + *')
       addUtilities(
         Array.from({ length: 12 }, (_, i) => i)
           .map((i) => ({
