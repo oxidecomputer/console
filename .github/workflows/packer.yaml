@@ -75,5 +75,8 @@ jobs:
           add: ./tools/create_gcp_instance.sh
           message: 'automatically update packer-id'
 
+  # Unfortunately we can't use interpolation in a `uses` call so the reference here has to be tied to
+  # main. An alternative would be to tie it to the sha of the last known version of deploy-vm but that
+  # itself would require some automation which doesn't seem worth taking on at the moment
   deploy-vm:
-    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@${{env.GITHUB_SHA}}
+    uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@main
