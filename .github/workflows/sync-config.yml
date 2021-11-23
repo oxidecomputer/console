@@ -20,9 +20,9 @@ jobs:
       - name: Replace sha
         run: |
           PKR_PATH=./.github/workflows/packer.yaml
+          PACKER_YML="$(cat $PKR_PATH)"
           OLD_SHA="$(echo $PACKER_YML | grep -oP 'deploy-vm.yml@(\w+)' | cut -d @ -f2)"
           NEW_SHA="$(git ls-files -s ./.github/workflows/deploy-vm.yml | cut -d ' ' -f2)"
-          PACKER_YML="$(cat $PKR_PATH)"
           echo "${PACKER_YML/$OLD_SHA/$NEW_SHA}" > $PKR_PATH
       - uses: EndBug/add-and-commit@v7
         with:
