@@ -7,6 +7,11 @@ on:
     branches: [main]
   workflow_dispatch:
   workflow_call:
+    secrets:
+      GCP_PROJECT_PACKER:
+        required: true
+      GCP_SA_KEY_PACKER:
+        required: true
 jobs:
   docker-image:
     strategy:
