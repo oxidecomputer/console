@@ -3,6 +3,6 @@
 
 !libs
 !package.json
-!tailwind.config.json
+!tailwind.config.js
 !postcss.config.js
 !tsconfig.json
