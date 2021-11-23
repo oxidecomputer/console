@@ -74,4 +74,4 @@ jobs:
       - uses: EndBug/add-and-commit@v7
         with:
           add: ./tools/create_gcp_instance.sh
-          message: 'Update packer-id'
+          message: '[skip ci] Update packer-id'
