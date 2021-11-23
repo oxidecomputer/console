@@ -78,4 +78,5 @@ jobs:
           default_author: github_actions
 
   deploy-vm:
+    needs: update-packer
     uses: oxidecomputer/console/.github/workflows/deploy-vm.yml@main
