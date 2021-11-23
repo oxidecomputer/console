@@ -31,7 +31,7 @@ const renderCreateOrg = () =>
   renderHook(() => useApiMutation('organizationsPost', {}), wrapper())
 
 const createParams = {
-  organizationCreateParams: { name: 'abc', description: '' },
+  organizationCreate: { name: 'abc', description: '' },
 }
 
 afterEach(() => {

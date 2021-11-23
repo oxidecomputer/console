@@ -14,46 +14,44 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for an [`Organization`]
+ * Updateable properties of an [`Organization`]
  * @export
- * @interface OrganizationCreateParams
+ * @interface OrganizationUpdate
  */
-export interface OrganizationCreateParams {
+export interface OrganizationUpdate {
   /**
    *
    * @type {string}
-   * @memberof OrganizationCreateParams
+   * @memberof OrganizationUpdate
    */
-  description: string
+  description?: string | null
   /**
-   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   *
    * @type {string}
-   * @memberof OrganizationCreateParams
+   * @memberof OrganizationUpdate
    */
-  name: string
+  name?: string | null
 }
 
-export function OrganizationCreateParamsFromJSON(
-  json: any
-): OrganizationCreateParams {
-  return OrganizationCreateParamsFromJSONTyped(json, false)
+export function OrganizationUpdateFromJSON(json: any): OrganizationUpdate {
+  return OrganizationUpdateFromJSONTyped(json, false)
 }
 
-export function OrganizationCreateParamsFromJSONTyped(
+export function OrganizationUpdateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): OrganizationCreateParams {
+): OrganizationUpdate {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    description: json['description'],
-    name: json['name'],
+    description: !exists(json, 'description') ? undefined : json['description'],
+    name: !exists(json, 'name') ? undefined : json['name'],
   }
 }
 
-export function OrganizationCreateParamsToJSON(
-  value?: OrganizationCreateParams | null
+export function OrganizationUpdateToJSON(
+  value?: OrganizationUpdate | null
 ): any {
   if (value === undefined) {
     return undefined
