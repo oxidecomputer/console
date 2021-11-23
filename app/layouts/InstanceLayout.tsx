@@ -37,7 +37,7 @@ const InstanceLayout = () => {
         <Picker
           category="Instance"
           resource={instanceName}
-          backTo={`/orgs/${orgName}/projects/${projectName}`}
+          backTo={`/c/orgs/${orgName}/projects/${projectName}`}
         />
         <SidebarDivider />
         <NavList>

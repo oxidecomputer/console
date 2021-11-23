@@ -90,7 +90,7 @@ describe('ProjectCreateForm', () => {
       body: project,
     })
 
-    const projectPath = `/orgs/${org.name}/projects/${project.name}`
+    const projectPath = `/c/orgs/${org.name}/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

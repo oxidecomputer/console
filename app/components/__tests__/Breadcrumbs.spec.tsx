@@ -15,44 +15,44 @@ describe('matchesToCrumbs', () => {
 
   it('works on project detail', () => {
     const matches = matchRoutes(routeConfig, {
-      pathname: '/orgs/maze-war/projects/prod-online',
+      pathname: '/c/orgs/maze-war/projects/prod-online',
     })!
     expect(matchesToCrumbs(matches)).toEqual([
-      { label: 'maze-war', href: '/orgs/maze-war' },
-      { label: 'Projects', href: '/orgs/maze-war/projects' },
+      { label: 'maze-war', href: '/c/orgs/maze-war' },
+      { label: 'Projects', href: '/c/orgs/maze-war/projects' },
       { label: 'prod-online', href: undefined },
     ])
   })
 
   it('works on new project', () => {
     const matches = matchRoutes(routeConfig, {
-      pathname: '/orgs/maze-war/projects/new',
+      pathname: '/c/orgs/maze-war/projects/new',
     })!
     expect(matchesToCrumbs(matches)).toEqual([
-      { label: 'maze-war', href: '/orgs/maze-war' },
-      { label: 'Projects', href: '/orgs/maze-war/projects' },
+      { label: 'maze-war', href: '/c/orgs/maze-war' },
+      { label: 'Projects', href: '/c/orgs/maze-war/projects' },
       { label: 'Create project', href: undefined },
     ])
   })
 
   it('works on instance storage', () => {
     const matches = matchRoutes(routeConfig, {
-      pathname: '/orgs/maze-war/projects/prod-online/instances/db1/storage',
+      pathname: '/c/orgs/maze-war/projects/prod-online/instances/db1/storage',
     })!
     expect(matchesToCrumbs(matches)).toEqual([
-      { label: 'maze-war', href: '/orgs/maze-war' },
-      { label: 'Projects', href: '/orgs/maze-war/projects' },
+      { label: 'maze-war', href: '/c/orgs/maze-war' },
+      { label: 'Projects', href: '/c/orgs/maze-war/projects' },
       {
         label: 'prod-online',
-        href: '/orgs/maze-war/projects/prod-online',
+        href: '/c/orgs/maze-war/projects/prod-online',
       },
       {
         label: 'Instances',
-        href: '/orgs/maze-war/projects/prod-online/instances',
+        href: '/c/orgs/maze-war/projects/prod-online/instances',
       },
       {
         label: 'db1',
-        href: '/orgs/maze-war/projects/prod-online/instances/db1',
+        href: '/c/orgs/maze-war/projects/prod-online/instances/db1',
       },
       { label: 'Storage', href: undefined },
     ])

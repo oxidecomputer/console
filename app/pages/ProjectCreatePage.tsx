@@ -48,7 +48,7 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      navigate(`/orgs/${orgName}/projects/${data.name}`)
+      navigate(`/c/orgs/${orgName}/projects/${data.name}`)
     },
   })
   return (
