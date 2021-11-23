@@ -74,10 +74,10 @@ export function VpcFirewallRuleHostFilterToJSON(
     return null
   }
   return {
-    ...RouteDestinationOneOfToJSON(value),
-    ...RouteDestinationOneOf1ToJSON(value),
-    ...RouteDestinationOneOf2ToJSON(value),
-    ...RouteTargetOneOfToJSON(value),
-    ...RouteTargetOneOf1ToJSON(value),
+    ...RouteDestinationOneOfToJSON(value as any),
+    ...RouteDestinationOneOf1ToJSON(value as any),
+    ...RouteDestinationOneOf2ToJSON(value as any),
+    ...RouteTargetOneOfToJSON(value as any),
+    ...RouteTargetOneOf1ToJSON(value as any),
   }
 }

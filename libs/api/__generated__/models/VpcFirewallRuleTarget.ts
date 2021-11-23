@@ -64,8 +64,8 @@ export function VpcFirewallRuleTargetToJSON(
     return null
   }
   return {
-    ...RouteDestinationOneOf1ToJSON(value),
-    ...RouteDestinationOneOf2ToJSON(value),
-    ...RouteTargetOneOfToJSON(value),
+    ...RouteDestinationOneOf1ToJSON(value as any),
+    ...RouteDestinationOneOf2ToJSON(value as any),
+    ...RouteTargetOneOfToJSON(value as any),
   }
 }
