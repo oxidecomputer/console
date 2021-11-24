@@ -1,10 +1,14 @@
 import React from 'react'
-import { Table } from '@oxide/ui'
+import { selectCol, Table } from '@oxide/ui'
+import type { VpcSubnet } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useParams } from '../../../../hooks'
+import type { Column } from 'react-table'
+import { useRowSelect } from 'react-table'
 import { useTable } from 'react-table'
+import { format } from 'date-fns'
 
-const columns = [
+const columns: Column<VpcSubnet>[] = [
   {
     accessor: (vpc) => vpc.identity.name,
     id: 'name',
@@ -12,16 +16,31 @@ const columns = [
     Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
   },
   {
-    accessor: (vpc) => [vpc.ipv4Block, vpc.ipv6bBlock],
+    accessor: (vpc) => [vpc.ipv4Block, vpc.ipv6Block],
     id: 'ip-block',
     Header: () => <div className="text-left mx-4">IP Block</div>,
-    Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
+    Cell: ({ value }: { value: [string, string] }) => (
+      <>
+        <div className="mx-4">{value[0]}</div>
+        <div className="mx-4 text-gray-200">{value[1]}</div>
+      </>
+    ),
+  },
+  {
+    accessor: (vpc) => vpc.identity.timeCreated,
+    id: 'created',
+    Header: () => <div className="text-left mx-4">Created</div>,
+    Cell: ({ value }: { value: Date }) => (
+      <>
+        <div className="mx-4">{format(value, 'MMM d, yyyy')}</div>
+        <div className="mx-4 text-gray-200">{format(value, 'p')}</div>
+      </>
+    ),
   },
 ]
 
 export const VpcSubnetsTab = () => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
-  console.log({ orgName, projectName })
   const { data } = useApiQuery('vpcSubnetsGet', {
     organizationName: orgName,
     projectName: projectName,
@@ -30,7 +49,13 @@ export const VpcSubnetsTab = () => {
 
   console.log('data', data)
 
-  const table = useTable({ columns, data: data?.items || [] })
+  const table = useTable(
+    { columns, data: data?.items || [] },
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [selectCol, ...columns])
+    }
+  )
 
   if (!data) return <div>loading</div>
 

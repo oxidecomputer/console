@@ -40,6 +40,8 @@ const VpcPage = () => {
         <Tab.Panel>
           <VpcSubnetsTab />
         </Tab.Panel>
+        <Tab>System Routes</Tab>
+        <Tab.Panel></Tab.Panel>
         <Tab>Routers</Tab>
         <Tab.Panel></Tab.Panel>
         <Tab>Firewall Rules</Tab>
