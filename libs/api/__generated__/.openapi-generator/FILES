@@ -19,6 +19,7 @@ models/Instance.ts
 models/InstanceCreateParams.ts
 models/InstanceResultsPage.ts
 models/InstanceState.ts
+models/LoginParams.ts
 models/NameOrIdSortMode.ts
 models/NameSortMode.ts
 models/Organization.ts

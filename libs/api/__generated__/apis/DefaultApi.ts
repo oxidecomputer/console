@@ -38,6 +38,9 @@ import {
   InstanceResultsPage,
   InstanceResultsPageFromJSON,
   InstanceResultsPageToJSON,
+  LoginParams,
+  LoginParamsFromJSON,
+  LoginParamsToJSON,
   NameOrIdSortMode,
   NameOrIdSortModeFromJSON,
   NameOrIdSortModeToJSON,
@@ -397,6 +400,10 @@ export interface SagasGetRequest {
 
 export interface SagasGetSagaRequest {
   sagaId: string
+}
+
+export interface SpoofLoginRequest {
+  loginParams: LoginParams
 }
 
 export interface VpcFirewallRulesGetRequest {
@@ -1067,6 +1074,34 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides
     )
     return await response.value()
+  }
+
+  /**
+   */
+  async logoutRaw(
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    const response = await this.request(
+      {
+        path: `/logout`,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   */
+  async logout(initOverrides?: RequestInit): Promise<void> {
+    await this.logoutRaw(initOverrides)
   }
 
   /**
@@ -3637,6 +3672,51 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides
     )
     return await response.value()
+  }
+
+  /**
+   */
+  async spoofLoginRaw(
+    requestParameters: SpoofLoginRequest,
+    initOverrides?: RequestInit
+  ): Promise<runtime.ApiResponse<void>> {
+    if (
+      requestParameters.loginParams === null ||
+      requestParameters.loginParams === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'loginParams',
+        'Required parameter requestParameters.loginParams was null or undefined when calling spoofLogin.'
+      )
+    }
+
+    const queryParameters: any = {}
+
+    const headerParameters: runtime.HTTPHeaders = {}
+
+    headerParameters['Content-Type'] = 'application/json'
+
+    const response = await this.request(
+      {
+        path: `/login`,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: LoginParamsToJSON(requestParameters.loginParams),
+      },
+      initOverrides
+    )
+
+    return new runtime.VoidApiResponse(response)
+  }
+
+  /**
+   */
+  async spoofLogin(
+    requestParameters: SpoofLoginRequest,
+    initOverrides?: RequestInit
+  ): Promise<void> {
+    await this.spoofLoginRaw(requestParameters, initOverrides)
   }
 
   /**
