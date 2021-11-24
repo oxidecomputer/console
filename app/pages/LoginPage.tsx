@@ -5,10 +5,20 @@ import { useApiMutation } from '@oxide/api'
 import { Button, Warning12Icon, Success16Icon } from '@oxide/ui'
 import { useToast } from '../hooks'
 
+/**
+ * Placeholder login page for demo purposes.
+ *
+ * The demo login form is only in the console bundle for the convenience of
+ * using existing tooling and using the generated API client. In the real rack,
+ * login will go through the customer's IdP; no form controlled by us will be
+ * involved. If Nexus *does* end up serving a login form, e.g., for use by
+ * admins before the IdP is set up, that will be a separate bundle with minimal
+ * JS (ideally so minimal we could inline it in the HTML response) and it would
+ * not use the generated API client at all. It could even use an HTML form POST.
+ *
+ * Login and logout endpoints are only a temporary addition to the OpenAPI spec.
+ */
 export default function LoginPage() {
-  // TODO: this doesn't work when running locally with vite because the vite dev
-  // server expects api routes to have the prefix /api. getting this endpoint
-  // into the OpenAPI spec and using the generated client here would fix this
   const navigate = useNavigate()
   const addToast = useToast()
   const loginPost = useApiMutation('spoofLogin', {
