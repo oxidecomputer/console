@@ -22,7 +22,7 @@ export default function OrgPage() {
       </PageHeader>
 
       <div className="space-x-4">
-        <Link to={`/orgs/${orgName}/projects/new`} className={buttonStyle()}>
+        <Link to="projects/new" className={buttonStyle()}>
           Create project
         </Link>
       </div>

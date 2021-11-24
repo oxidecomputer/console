@@ -19,6 +19,7 @@ function lazyLoad(importFunc: () => Promise<{ default: React.ComponentType }>) {
   )
 }
 
+import LoginPage from './pages/LoginPage'
 import InstanceCreatePage from './pages/instances/create'
 import InstanceStorage from './pages/instances/Storage'
 // Recharts is 350 KB
@@ -64,6 +65,8 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
+    <Route path="login" element={<LoginPage />} />
+
     <Route
       index
       element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
