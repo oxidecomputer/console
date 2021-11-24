@@ -24,7 +24,7 @@ sudo apt install -y --no-install-recommends \
 	containerd.io \
 
 # Install node.
-curl -fsSL https://deb.nodesource.com/setup_15.x | sudo bash -
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
 sudo apt install -y --no-install-recommends \
 	nodejs
 

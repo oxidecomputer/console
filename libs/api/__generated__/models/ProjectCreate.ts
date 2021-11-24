@@ -14,45 +14,43 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of an [`Project`]
+ * Create-time parameters for an [`Project`]
  * @export
- * @interface ProjectUpdateParams
+ * @interface ProjectCreate
  */
-export interface ProjectUpdateParams {
+export interface ProjectCreate {
   /**
    *
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof ProjectCreate
    */
-  description?: string | null
+  description: string
   /**
-   *
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof ProjectUpdateParams
+   * @memberof ProjectCreate
    */
-  name?: string | null
+  name: string
 }
 
-export function ProjectUpdateParamsFromJSON(json: any): ProjectUpdateParams {
-  return ProjectUpdateParamsFromJSONTyped(json, false)
+export function ProjectCreateFromJSON(json: any): ProjectCreate {
+  return ProjectCreateFromJSONTyped(json, false)
 }
 
-export function ProjectUpdateParamsFromJSONTyped(
+export function ProjectCreateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): ProjectUpdateParams {
+): ProjectCreate {
   if (json === undefined || json === null) {
     return json
   }
   return {
-    description: !exists(json, 'description') ? undefined : json['description'],
-    name: !exists(json, 'name') ? undefined : json['name'],
+    description: json['description'],
+    name: json['name'],
   }
 }
 
-export function ProjectUpdateParamsToJSON(
-  value?: ProjectUpdateParams | null
-): any {
+export function ProjectCreateToJSON(value?: ProjectCreate | null): any {
   if (value === undefined) {
     return undefined
   }
