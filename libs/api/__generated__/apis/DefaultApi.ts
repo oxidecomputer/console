@@ -1077,7 +1077,6 @@ export class DefaultApi extends runtime.BaseAPI {
   }
 
   /**
-   * Log user out of web console by deleting session.
    */
   async logoutRaw(
     initOverrides?: RequestInit
@@ -1100,7 +1099,6 @@ export class DefaultApi extends runtime.BaseAPI {
   }
 
   /**
-   * Log user out of web console by deleting session.
    */
   async logout(initOverrides?: RequestInit): Promise<void> {
     await this.logoutRaw(initOverrides)
