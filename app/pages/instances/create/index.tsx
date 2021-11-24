@@ -59,7 +59,7 @@ export function InstanceCreateForm({
 
   const createInstance = useApiMutation('projectInstancesPost', {
     onSuccess: () => {
-      navigate(`/c/orgs/${orgName}/projects/${projectName}`)
+      navigate(`/orgs/${orgName}/projects/${projectName}`)
     },
   })
 

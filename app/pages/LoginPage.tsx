@@ -17,7 +17,7 @@ export default function LoginPage() {
         title: 'Logged in',
         icon: <Success16Icon />,
       })
-      navigate('/c')
+      navigate('/')
     },
     onError: () => {
       addToast({

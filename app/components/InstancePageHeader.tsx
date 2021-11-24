@@ -54,7 +54,7 @@ export const InstancePageHeader = () => {
         title: `Instance '${instanceName}' deleted.`,
         timeout: 5000,
       })
-      navigate(`/c/orgs/${orgName}/projects/${projectName}`)
+      navigate(`/orgs/${orgName}/projects/${projectName}`)
     },
   })
 

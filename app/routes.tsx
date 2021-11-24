@@ -67,12 +67,11 @@ export const routes = (
     <Route path="login" element={<LoginPage />} />
 
     <Route
-      path="c"
-      element={<Navigate to="/c/orgs/maze-war/projects" replace={true} />}
+      index
+      element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
     />
 
-    {/* c/ prefix is temporary. it's so we can serve console from nexus */}
-    <Route path="c/orgs">
+    <Route path="orgs">
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
         <Route index element={<OrgPage />} />
       </Route>

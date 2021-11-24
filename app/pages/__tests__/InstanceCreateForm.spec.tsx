@@ -89,7 +89,7 @@ describe('InstanceCreateForm', () => {
   it('navigates to project page on success', async () => {
     const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
 
-    const projectPath = `/c/orgs/${org.name}/projects/${project.name}`
+    const projectPath = `/orgs/${org.name}/projects/${project.name}`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

@@ -32,7 +32,7 @@ const ProjectLayout = () => {
         <Picker
           category="Project"
           resource={projectName}
-          backTo={`/c/orgs/${orgName}`}
+          backTo={`/orgs/${orgName}`}
         />
         <SidebarDivider />
         <NavList>

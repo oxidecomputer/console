@@ -26,13 +26,13 @@ const ProjectPage = () => {
       <InstancesTable className="my-12" />
       <div className="space-x-4">
         <Link
-          to={`/c/orgs/${orgName}/projects/${projectName}/instances/new`}
+          to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
           className={buttonStyle()}
         >
           Create instance
         </Link>
         <Link
-          to={`/c/orgs/${orgName}/projects/${projectName}/access`}
+          to={`/orgs/${orgName}/projects/${projectName}/access`}
           className={buttonStyle({ variant: 'ghost' })}
         >
           Access &amp; IAM
