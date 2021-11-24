@@ -25,13 +25,13 @@ export const Table = <D extends object>({
     className={cn('w-full border border-gray-400 text-xs font-mono', className)}
     {...table.getTableProps()}
   >
-    <thead className="h-[40px] text-gray-100 bg-gray-500 border-b border-gray-400">
+    <thead className="h-[40px] text-gray-100 bg-gray-550 border-b border-gray-400">
       {table.headerGroups.map((headerGroup) => (
         // headerGroupProps has the key on it
         // eslint-disable-next-line react/jsx-key
         <tr
           {...headerGroup.getHeaderGroupProps()}
-          className="between:border-l between:border-gray-400"
+          className="between:border-l between:border-gray-500"
         >
           {headerGroup.headers.map((column) => (
             <th
@@ -52,7 +52,7 @@ export const Table = <D extends object>({
           <tr
             {...row.getRowProps()}
             className={cn(
-              'border-b border-gray-500 last-of-type:border-none h-[60px] between:border-l between:border-gray-400',
+              'border-b border-gray-500 last-of-type:border-none h-[60px] between:border-l between:border-gray-500',
               rowClassName
             )}
             key={row.id}

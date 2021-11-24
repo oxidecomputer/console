@@ -101,7 +101,9 @@ export const routes = (
                 crumb="Create instance"
               />
             </Route>
-            <Route path="networking" crumb="Networking" element={<VpcPage />} />
+            <Route path="vpcs" crumb="Vpcs">
+              <Route path=":vpcName" element={<VpcPage />} />
+            </Route>
             <Route
               path="storage"
               element={<ProjectStoragePage />}

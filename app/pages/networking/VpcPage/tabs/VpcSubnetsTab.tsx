@@ -40,14 +40,16 @@ const columns: Column<VpcSubnet>[] = [
 ]
 
 export const VpcSubnetsTab = () => {
-  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { orgName, projectName, vpcName } = useParams(
+    'orgName',
+    'projectName',
+    'vpcName'
+  )
   const { data } = useApiQuery('vpcSubnetsGet', {
     organizationName: orgName,
-    projectName: projectName,
-    vpcName: 'default',
+    projectName,
+    vpcName,
   })
-
-  console.log('data', data)
 
   const table = useTable(
     { columns, data: data?.items || [] },
