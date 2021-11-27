@@ -178,7 +178,7 @@ export const InstancesTable = ({ className }: { className?: string }) => {
     hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
   })
 
-  if (!instances) return <div>loading</div>
+  if (!instances) return null
 
   // hasPrev check is there because the API doesn't leave off nextPage when
   // we're on the last page, so there's an empty page at the end we want to show

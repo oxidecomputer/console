@@ -13,7 +13,7 @@ const ProjectPage = () => {
     projectName,
   })
 
-  if (!project) return <div>loading</div>
+  if (!project) return null
 
   return (
     <>

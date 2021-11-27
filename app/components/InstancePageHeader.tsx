@@ -68,10 +68,10 @@ export const InstancePageHeader = () => {
     if (error.raw.status === 404) {
       return <div>Instance not found</div>
     } else {
-      return <div>loading</div>
+      return null
     }
   }
-  if (!instance) return <div>loading</div>
+  if (!instance) return null
 
   const handleStop = () => {
     if (instanceCan.stop(instance)) {
