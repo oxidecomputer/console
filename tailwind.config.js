@@ -84,11 +84,104 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(({ addVariant }) => {
+    plugin(({ addVariant, addUtilities }) => {
       // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
       // on an SVG that's an immediate child of the element
       addVariant('svg', '& > svg')
       addVariant('children', '& > *')
+
+      const displayFamily = {
+        'font-family': '"Haas Grot Disp Web", sans-serif',
+      }
+      const monoFamily = {
+        'font-family': '"GT America Mono", monospace',
+      }
+      const sansFamily = {
+        'font-family': 'Inter, sans-serif',
+      }
+      addUtilities({
+        '.text-display-md': {
+          ...displayFamily,
+          'font-size': '1rem',
+          'line-height': '1.5rem',
+          'letter-spacing': '0.05rem',
+          'font-weight': 300,
+        },
+        '.text-display-lg': {
+          ...displayFamily,
+          'font-size': '1.25rem',
+          'line-height': '1.3rem',
+          'letter-spacing': '0.04rem',
+          'font-weight': 300,
+        },
+        '.text-display-xl': {
+          ...displayFamily,
+          'font-size': '1.25rem',
+          'line-height': '1.3rem',
+          'letter-spacing': '0.04rem',
+          'font-weight': 300,
+        },
+        '.text-display-2xl': {
+          ...displayFamily,
+          'font-size': '1.625rem',
+          'line-height': '1.1rem',
+          'letter-spacing': '0.03rem',
+          'font-weight': 300,
+        },
+        '.text-mono-xs': {
+          ...monoFamily,
+          'font-size': '0.625rem',
+          'letter-spacing': '0.04rem',
+        },
+        '.text-mono-sm': {
+          ...monoFamily,
+          'font-size': '0.6875rem',
+          'letter-spacing': '0.04rem',
+        },
+        '.text-mono-md': {
+          ...monoFamily,
+          'font-size': '0.75rem',
+          'letter-spacing': '0.04rem',
+        },
+        '.text-mono-lg': {
+          ...monoFamily,
+          'font-size': '0.75rem',
+          'letter-spacing': '0.04rem',
+        },
+        '.text-sans-sm': {
+          ...sansFamily,
+          'font-size': '0.75rem',
+          'letter-spacing': '0.04rem',
+        },
+        '.text-sans-md': {
+          ...sansFamily,
+          'font-size': '0.8125rem',
+          'letter-spacing': '0.03rem',
+        },
+        '.text-sans-lg': {
+          ...sansFamily,
+          'font-size': '1rem',
+          'letter-spacing': '0.02rem',
+        },
+        '.text-sans-semi-sm': {
+          ...sansFamily,
+          'font-size': '0.75rem',
+          'letter-spacing': '0.02rem',
+          'font-weight': 500,
+        },
+        '.text-sans-semi-md': {
+          ...sansFamily,
+          'font-size': '0.875rem',
+          'letter-spacing': '0.02rem',
+          'font-weight': 500,
+        },
+        '.text-sans-semi-lg': {
+          ...sansFamily,
+          'font-size': '1rem',
+          'letter-spacing': '0.02rem',
+          'font-weight': 500,
+        },
+      })
     }),
   ],
 }

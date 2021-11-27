@@ -1,6 +1,6 @@
 import * as icons from './index'
 import React from 'react'
-import { Section } from '../..//util/story-section'
+import { Section } from '../../util/story-section'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
@@ -21,8 +21,6 @@ export default {
     },
   },
 } as Story
-
-console.log(icons)
 
 export const All: Story = {
   render: ({ color }) => {
