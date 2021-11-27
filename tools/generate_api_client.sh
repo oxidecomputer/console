@@ -17,7 +17,7 @@ cp ../omicron/tools/oxapi_demo packer/oxapi_demo
 
 npx swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
   --extract-request-params \
-  --extract-request-body
+  --extract-request-body # weirdly this doesn't do anything
 
 yarn fmt --loglevel error
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import cn from 'classnames'
 
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery2 } from '@oxide/api'
 import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
 import { ContentPane, PageContainer, Sidebar } from './helpers'
@@ -11,7 +11,7 @@ import { useParams } from '../hooks'
 
 const ProjectList = (props: { className?: string }) => {
   const { orgName } = useParams('orgName')
-  const { data: projects } = useApiQuery('organizationProjectsGet', {
+  const { data: projects } = useApiQuery2('organizationProjectsGet', {
     organizationName: orgName,
   })
   return (
