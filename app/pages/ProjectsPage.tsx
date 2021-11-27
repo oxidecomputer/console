@@ -1,8 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNowStrict } from 'date-fns'
+import { useQuery } from 'react-query'
 
-import { useApiQuery } from '@oxide/api'
+import { api2 } from '@oxide/api'
 import {
   buttonStyle,
   PageHeader,
@@ -35,9 +36,9 @@ const Metric = ({ label, value, className }: MetricProps) => (
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
-  const { data } = useApiQuery('organizationProjectsGet', {
-    organizationName: orgName,
-  })
+  const data = useQuery('organizationProjectsGet', () =>
+    api2.organizations.organizationProjectsGet({ organizationName: orgName })
+  ).data?.data
 
   if (!data) return <div>loading</div>
 
@@ -76,7 +77,7 @@ const ProjectsPage = () => {
             </section>
             <footer className="p-4 border-t border-gray-400 text-xs">
               <span className="uppercase">
-                {formatDistanceToNowStrict(item.timeCreated, {
+                {formatDistanceToNowStrict(new Date(item.timeCreated), {
                   addSuffix: true,
                 })}
               </span>

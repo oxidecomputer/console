@@ -18,3 +18,7 @@ export const useApiQueryClient = getUseApiQueryClient<DefaultApi>()
 export type { ApiError } from './hooks'
 export * from './__generated__/models'
 export * from './instance-can'
+
+import * as sta from './__generated__/Api'
+
+export const api2 = new sta.Api<null>({ baseUrl: '/api' })
