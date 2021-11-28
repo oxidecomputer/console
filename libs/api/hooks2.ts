@@ -2,7 +2,6 @@ import type { UseQueryOptions } from 'react-query'
 import { useQuery } from 'react-query'
 
 import type { HttpResponse } from './__generated__/Api'
-import type { ApiError } from './hooks'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -18,18 +17,37 @@ type Result<F> = F extends (p: any, r: any) => Promise<HttpResponse<infer R>>
 type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+type ErrorData = {
+  request_id: string
+  error_code: string | null
+  message: string
+}
+
 export const getUseApiQuery2 =
   <A extends ApiClient>(api: A) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options?: UseQueryOptions<Result<A[M]>, ApiError['data']>
+    options?: UseQueryOptions<Result<A[M]>, HttpResponse<null, ErrorData>>
   ) =>
     useQuery(
       [method, params],
-      () =>
-        api[method](params)
-          .then(({ data }) => data)
-          .catch(({ error }) => Promise.reject(error)),
+      // The generated client parses the json and sticks it in `data` for us, so
+      // that's what we want to return from the fetcher. Note that while there
+      // is an --unwrap-response-data CLI flag for the generator that pulls out
+      // the data key for us, something about the types is weird or wrong, so
+      // we're doing it ourselves here instead.
+      //
+      // In the case of an error, it does the same thing with the `error` key,
+      // but since there may not always be parseable json in an error response
+      // (I think?) it seems more reasonable in that case to take the whole
+      // `HttpResponse` instead of plucking out error with
+      //
+      //   .catch((resp) => resp.error)
+      //
+      // The generated client already throws on error responses, which is what
+      // react-query wants, so we don't have to handle the error case explicitly
+      // here.
+      () => api[method](params).then((resp) => resp.data),
       options
     )
