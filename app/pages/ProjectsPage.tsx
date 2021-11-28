@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNowStrict } from 'date-fns'
 
-import { useApiQuery2 } from '@oxide/api'
+import { useApiQuery2 as useApiQuery } from '@oxide/api'
 import {
   buttonStyle,
   PageHeader,
@@ -35,7 +35,7 @@ const Metric = ({ label, value, className }: MetricProps) => (
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
-  const { data } = useApiQuery2('organizationProjectsGet', {
+  const { data } = useApiQuery('organizationProjectsGet', {
     organizationName: orgName,
   })
 
