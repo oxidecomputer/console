@@ -15,7 +15,7 @@ git -C '../omicron' checkout "$API_VERSION"
 cp ../omicron/openapi/nexus.json $SPEC_FILE
 cp ../omicron/tools/oxapi_demo packer/oxapi_demo
 
-npx swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
+yarn swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
   --extract-request-params \
   --extract-request-body # weirdly this doesn't do anything
 
