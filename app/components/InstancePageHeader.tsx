@@ -65,7 +65,7 @@ export const InstancePageHeader = () => {
   })
 
   if (error) {
-    if (error.raw.status === 404) {
+    if (error.status === 404) {
       return <div>Instance not found</div>
     } else {
       return <div>loading</div>
@@ -76,9 +76,11 @@ export const InstancePageHeader = () => {
   const handleStop = () => {
     if (instanceCan.stop(instance)) {
       stopInstance.mutate({
-        organizationName: orgName,
-        projectName,
-        instanceName: instance.name,
+        params: {
+          organizationName: orgName,
+          projectName,
+          instanceName: instance.name,
+        },
       })
     } else {
       addToast({
@@ -94,9 +96,11 @@ export const InstancePageHeader = () => {
   const handleDelete = () => {
     if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
-        organizationName: orgName,
-        projectName,
-        instanceName: instance.name,
+        params: {
+          organizationName: orgName,
+          projectName,
+          instanceName: instance.name,
+        },
       })
     } else {
       addToast({
@@ -111,9 +115,11 @@ export const InstancePageHeader = () => {
   const handleReboot = () => {
     if (instanceCan.reboot(instance)) {
       rebootInstance.mutate({
-        organizationName: orgName,
-        projectName,
-        instanceName: instance.name,
+        params: {
+          organizationName: orgName,
+          projectName,
+          instanceName: instance.name,
+        },
       })
     } else {
       addToast({

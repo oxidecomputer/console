@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import cn from 'classnames'
 
-import { useApiQuery2 as useApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
 import { ContentPane, PageContainer, Sidebar } from './helpers'

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNowStrict } from 'date-fns'
 
-import { useApiQuery2 as useApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import {
   buttonStyle,
   PageHeader,

@@ -1,4 +1,4 @@
-import type { ApiError } from '@oxide/api'
+import type { ErrorResponse } from '@oxide/api'
 
 import { capitalize } from '@oxide/util'
 
@@ -10,10 +10,10 @@ export const getServerParseError = (message: string | undefined) => {
 }
 
 export const getServerError = (
-  error: ApiError | null,
+  error: ErrorResponse | null,
   codeMap: Record<string, string> = {}
 ) => {
   if (!error) return null
-  const code = error.data?.error_code
-  return (code && codeMap[code]) || getServerParseError(error.data?.message)
+  const code = error.error?.error_code
+  return (code && codeMap[code]) || getServerParseError(error.error?.message)
 }

@@ -1,27 +1,26 @@
+import type { ErrorResponse } from '@oxide/api'
 import { getServerParseError, getServerError } from './errors'
 
 const parseError = {
-  raw: {} as Response,
-  data: {
+  error: {
     request_id: '1',
     error_code: null,
     message:
       'unable to parse body: hello there, you have an error at line 129 column 4',
   },
-}
+} as ErrorResponse
 
 const alreadyExists = {
-  raw: {} as Response,
-  data: {
+  error: {
     request_id: '2',
     error_code: 'ObjectAlreadyExists',
     message: 'whatever',
   },
-}
+} as ErrorResponse
 
 describe('getServerParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getServerParseError(parseError.data.message)).toEqual(
+    expect(getServerParseError(parseError.error.message)).toEqual(
       'Hello there, you have an error'
     )
   })
