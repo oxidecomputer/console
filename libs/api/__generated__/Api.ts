@@ -954,6 +954,14 @@ export interface HardwareRacksGetParams {
   sort_by?: IdSortMode
 }
 
+export interface HardwareRacksGetRackParams {
+  /**
+   * The rack's unique ID.
+   * @format uuid
+   */
+  rackId: string
+}
+
 export interface HardwareSledsGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -973,6 +981,18 @@ export interface HardwareSledsGetParams {
   sort_by?: IdSortMode
 }
 
+export interface HardwareSledsGetSledParams {
+  /**
+   * The sled's unique ID.
+   * @format uuid
+   */
+  sledId: string
+}
+
+export type SpoofLoginParams = object
+
+export type LogoutParams = object
+
 export interface OrganizationsGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -986,6 +1006,23 @@ export interface OrganizationsGetParams {
 
   /** Supported set of sort modes for scanning by name or id */
   sort_by?: NameOrIdSortMode
+}
+
+export type OrganizationsPostParams = object
+
+export interface OrganizationsGetOrganizationParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+}
+
+export interface OrganizationsPutOrganizationParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+}
+
+export interface OrganizationsDeleteOrganizationParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
 }
 
 export interface OrganizationProjectsGetParams {
@@ -1006,6 +1043,35 @@ export interface OrganizationProjectsGetParams {
   organizationName: Name
 }
 
+export interface OrganizationProjectsPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+}
+
+export interface OrganizationProjectsGetProjectParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface OrganizationProjectsPutProjectParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface OrganizationProjectsDeleteProjectParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
 export interface ProjectDisksGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1023,6 +1089,36 @@ export interface ProjectDisksGetParams {
    * Currently, we only support scanning in ascending order.
    */
   sort_by?: NameSortMode
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectDisksPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectDisksGetDiskParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  diskName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectDisksDeleteDiskParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  diskName: Name
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   organizationName: Name
@@ -1056,6 +1152,122 @@ export interface ProjectInstancesGetParams {
   projectName: Name
 }
 
+export interface ProjectInstancesPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectInstancesGetInstanceParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectInstancesDeleteInstanceParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface InstanceDisksGetParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface InstanceDisksGetDiskParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  diskName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface InstanceDisksPutDiskParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  diskName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface InstanceDisksDeleteDiskParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  diskName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectInstancesInstanceRebootParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectInstancesInstanceStartParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectInstancesInstanceStopParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  instanceName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
 export interface ProjectVpcsGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1081,6 +1293,47 @@ export interface ProjectVpcsGetParams {
   projectName: Name
 }
 
+export interface ProjectVpcsPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface ProjectVpcsGetVpcParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface ProjectVpcsPutVpcParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface ProjectVpcsDeleteVpcParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
 export interface VpcFirewallRulesGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1099,6 +1352,17 @@ export interface VpcFirewallRulesGetParams {
    */
   sort_by?: NameSortMode
 
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcFirewallRulesPutParams {
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   organizationName: Name
 
@@ -1137,6 +1401,59 @@ export interface VpcRoutersGetParams {
   vpcName: Name
 }
 
+export interface VpcRoutersPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcRoutersGetRouterParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcRoutersPutRouterParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcRoutersDeleteRouterParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
 export interface RoutersRoutesGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1160,6 +1477,71 @@ export interface RoutersRoutesGetParams {
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface RoutersRoutesPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface RoutersRoutesGetRouteParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routeName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface RoutersRoutesPutRouteParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routeName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routerName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface RoutersRoutesDeleteRouteParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  routeName: Name
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
@@ -1196,6 +1578,59 @@ export interface VpcSubnetsGetParams {
   vpcName: Name
 }
 
+export interface VpcSubnetsPostParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcSubnetsGetSubnetParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  subnetName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcSubnetsPutSubnetParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  subnetName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
+export interface VpcSubnetsDeleteSubnetParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  subnetName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
 export interface SagasGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1213,6 +1648,11 @@ export interface SagasGetParams {
    * Currently, we only support scanning in ascending order.
    */
   sort_by?: IdSortMode
+}
+
+export interface SagasGetSagaParams {
+  /** @format uuid */
+  sagaId: string
 }
 
 export type QueryParamsType = Record<string | number, any>
@@ -1490,7 +1930,10 @@ export class Api<
      * @name HardwareRacksGetRack
      * @request GET:/hardware/racks/{rack_id}
      */
-    hardwareRacksGetRack: (rackId: string, params: RequestParams = {}) =>
+    hardwareRacksGetRack: (
+      { rackId }: HardwareRacksGetRackParams,
+      params: RequestParams = {}
+    ) =>
       this.request<Rack, any>({
         path: `/hardware/racks/${rackId}`,
         method: 'GET',
@@ -1522,7 +1965,10 @@ export class Api<
      * @name HardwareSledsGetSled
      * @request GET:/hardware/sleds/{sled_id}
      */
-    hardwareSledsGetSled: (sledId: string, params: RequestParams = {}) =>
+    hardwareSledsGetSled: (
+      { sledId }: HardwareSledsGetSledParams,
+      params: RequestParams = {}
+    ) =>
       this.request<Sled, any>({
         path: `/hardware/sleds/${sledId}`,
         method: 'GET',
@@ -1537,7 +1983,11 @@ export class Api<
      * @name SpoofLogin
      * @request POST:/login
      */
-    spoofLogin: (data: LoginParams, params: RequestParams = {}) =>
+    spoofLogin: (
+      query: SpoofLoginParams,
+      data: LoginParams,
+      params: RequestParams = {}
+    ) =>
       this.request<any, any>({
         path: `/login`,
         method: 'POST',
@@ -1553,7 +2003,7 @@ export class Api<
      * @name Logout
      * @request POST:/logout
      */
-    logout: (params: RequestParams = {}) =>
+    logout: (query: LogoutParams, params: RequestParams = {}) =>
       this.request<any, any>({
         path: `/logout`,
         method: 'POST',
@@ -1585,7 +2035,11 @@ export class Api<
      * @name OrganizationsPost
      * @request POST:/organizations
      */
-    organizationsPost: (data: OrganizationCreate, params: RequestParams = {}) =>
+    organizationsPost: (
+      query: OrganizationsPostParams,
+      data: OrganizationCreate,
+      params: RequestParams = {}
+    ) =>
       this.request<Organization, any>({
         path: `/organizations`,
         method: 'POST',
@@ -1602,7 +2056,7 @@ export class Api<
      * @request GET:/organizations/{organization_name}
      */
     organizationsGetOrganization: (
-      organizationName: Name,
+      { organizationName }: OrganizationsGetOrganizationParams,
       params: RequestParams = {}
     ) =>
       this.request<Organization, any>({
@@ -1619,7 +2073,7 @@ export class Api<
      * @request PUT:/organizations/{organization_name}
      */
     organizationsPutOrganization: (
-      organizationName: Name,
+      { organizationName }: OrganizationsPutOrganizationParams,
       data: OrganizationUpdate,
       params: RequestParams = {}
     ) =>
@@ -1639,7 +2093,7 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}
      */
     organizationsDeleteOrganization: (
-      organizationName: Name,
+      { organizationName }: OrganizationsDeleteOrganizationParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -1673,7 +2127,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects
      */
     organizationProjectsPost: (
-      organizationName: Name,
+      { organizationName }: OrganizationProjectsPostParams,
       data: ProjectCreate,
       params: RequestParams = {}
     ) =>
@@ -1693,8 +2147,7 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}
      */
     organizationProjectsGetProject: (
-      organizationName: Name,
-      projectName: Name,
+      { organizationName, projectName }: OrganizationProjectsGetProjectParams,
       params: RequestParams = {}
     ) =>
       this.request<Project, any>({
@@ -1711,8 +2164,7 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}
      */
     organizationProjectsPutProject: (
-      organizationName: Name,
-      projectName: Name,
+      { organizationName, projectName }: OrganizationProjectsPutProjectParams,
       data: ProjectUpdate,
       params: RequestParams = {}
     ) =>
@@ -1732,8 +2184,10 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}
      */
     organizationProjectsDeleteProject: (
-      organizationName: Name,
-      projectName: Name,
+      {
+        organizationName,
+        projectName,
+      }: OrganizationProjectsDeleteProjectParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -1767,8 +2221,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/disks
      */
     projectDisksPost: (
-      organizationName: Name,
-      projectName: Name,
+      { organizationName, projectName }: ProjectDisksPostParams,
       data: DiskCreateParams,
       params: RequestParams = {}
     ) =>
@@ -1788,9 +2241,7 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
      */
     projectDisksGetDisk: (
-      diskName: Name,
-      organizationName: Name,
-      projectName: Name,
+      { diskName, organizationName, projectName }: ProjectDisksGetDiskParams,
       params: RequestParams = {}
     ) =>
       this.request<Disk, any>({
@@ -1807,9 +2258,7 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
      */
     projectDisksDeleteDisk: (
-      diskName: Name,
-      organizationName: Name,
-      projectName: Name,
+      { diskName, organizationName, projectName }: ProjectDisksDeleteDiskParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -1843,8 +2292,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances
      */
     projectInstancesPost: (
-      organizationName: Name,
-      projectName: Name,
+      { organizationName, projectName }: ProjectInstancesPostParams,
       data: InstanceCreateParams,
       params: RequestParams = {}
     ) =>
@@ -1864,9 +2312,11 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
      */
     projectInstancesGetInstance: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+      }: ProjectInstancesGetInstanceParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance, any>({
@@ -1883,9 +2333,11 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
      */
     projectInstancesDeleteInstance: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+      }: ProjectInstancesDeleteInstanceParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -1901,9 +2353,7 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks
      */
     instanceDisksGet: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      { instanceName, organizationName, projectName }: InstanceDisksGetParams,
       params: RequestParams = {}
     ) =>
       this.request<DiskAttachment[], any>({
@@ -1920,10 +2370,12 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
      */
     instanceDisksGetDisk: (
-      diskName: Name,
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        diskName,
+        instanceName,
+        organizationName,
+        projectName,
+      }: InstanceDisksGetDiskParams,
       params: RequestParams = {}
     ) =>
       this.request<DiskAttachment, any>({
@@ -1940,10 +2392,12 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
      */
     instanceDisksPutDisk: (
-      diskName: Name,
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        diskName,
+        instanceName,
+        organizationName,
+        projectName,
+      }: InstanceDisksPutDiskParams,
       params: RequestParams = {}
     ) =>
       this.request<DiskAttachment, any>({
@@ -1960,10 +2414,12 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
      */
     instanceDisksDeleteDisk: (
-      diskName: Name,
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        diskName,
+        instanceName,
+        organizationName,
+        projectName,
+      }: InstanceDisksDeleteDiskParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -1979,9 +2435,11 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/reboot
      */
     projectInstancesInstanceReboot: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+      }: ProjectInstancesInstanceRebootParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance, any>({
@@ -1998,9 +2456,11 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/start
      */
     projectInstancesInstanceStart: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+      }: ProjectInstancesInstanceStartParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance, any>({
@@ -2017,9 +2477,11 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/stop
      */
     projectInstancesInstanceStop: (
-      instanceName: Name,
-      organizationName: Name,
-      projectName: Name,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+      }: ProjectInstancesInstanceStopParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance, any>({
@@ -2054,8 +2516,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs
      */
     projectVpcsPost: (
-      organizationName: Name,
-      projectName: Name,
+      { organizationName, projectName }: ProjectVpcsPostParams,
       data: VpcCreateParams,
       params: RequestParams = {}
     ) =>
@@ -2075,9 +2536,7 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
     projectVpcsGetVpc: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: ProjectVpcsGetVpcParams,
       params: RequestParams = {}
     ) =>
       this.request<Vpc, any>({
@@ -2094,9 +2553,7 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
     projectVpcsPutVpc: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: ProjectVpcsPutVpcParams,
       data: VpcUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -2115,9 +2572,7 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
     projectVpcsDeleteVpc: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: ProjectVpcsDeleteVpcParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2156,9 +2611,7 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules
      */
     vpcFirewallRulesPut: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: VpcFirewallRulesPutParams,
       data: VpcFirewallRuleUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -2196,9 +2649,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers
      */
     vpcRoutersPost: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: VpcRoutersPostParams,
       data: VpcRouterCreateParams,
       params: RequestParams = {}
     ) =>
@@ -2218,10 +2669,12 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
     vpcRoutersGetRouter: (
-      organizationName: Name,
-      projectName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routerName,
+        vpcName,
+      }: VpcRoutersGetRouterParams,
       params: RequestParams = {}
     ) =>
       this.request<VpcRouter, any>({
@@ -2238,10 +2691,12 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
     vpcRoutersPutRouter: (
-      organizationName: Name,
-      projectName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routerName,
+        vpcName,
+      }: VpcRoutersPutRouterParams,
       data: VpcRouterUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -2260,10 +2715,12 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
     vpcRoutersDeleteRouter: (
-      organizationName: Name,
-      projectName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routerName,
+        vpcName,
+      }: VpcRoutersDeleteRouterParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2303,10 +2760,12 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes
      */
     routersRoutesPost: (
-      organizationName: Name,
-      projectName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routerName,
+        vpcName,
+      }: RoutersRoutesPostParams,
       data: RouterRouteCreateParams,
       params: RequestParams = {}
     ) =>
@@ -2326,11 +2785,13 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
     routersRoutesGetRoute: (
-      organizationName: Name,
-      projectName: Name,
-      routeName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routeName,
+        routerName,
+        vpcName,
+      }: RoutersRoutesGetRouteParams,
       params: RequestParams = {}
     ) =>
       this.request<RouterRoute, any>({
@@ -2347,11 +2808,13 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
     routersRoutesPutRoute: (
-      organizationName: Name,
-      projectName: Name,
-      routeName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routeName,
+        routerName,
+        vpcName,
+      }: RoutersRoutesPutRouteParams,
       data: RouterRouteUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -2370,11 +2833,13 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
     routersRoutesDeleteRoute: (
-      organizationName: Name,
-      projectName: Name,
-      routeName: Name,
-      routerName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        routeName,
+        routerName,
+        vpcName,
+      }: RoutersRoutesDeleteRouteParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2408,9 +2873,7 @@ export class Api<
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets
      */
     vpcSubnetsPost: (
-      organizationName: Name,
-      projectName: Name,
-      vpcName: Name,
+      { organizationName, projectName, vpcName }: VpcSubnetsPostParams,
       data: VpcSubnetCreateParams,
       params: RequestParams = {}
     ) =>
@@ -2430,10 +2893,12 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
     vpcSubnetsGetSubnet: (
-      organizationName: Name,
-      projectName: Name,
-      subnetName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        subnetName,
+        vpcName,
+      }: VpcSubnetsGetSubnetParams,
       params: RequestParams = {}
     ) =>
       this.request<VpcSubnet, any>({
@@ -2450,10 +2915,12 @@ export class Api<
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
     vpcSubnetsPutSubnet: (
-      organizationName: Name,
-      projectName: Name,
-      subnetName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        subnetName,
+        vpcName,
+      }: VpcSubnetsPutSubnetParams,
       data: VpcSubnetUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -2472,10 +2939,12 @@ export class Api<
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
     vpcSubnetsDeleteSubnet: (
-      organizationName: Name,
-      projectName: Name,
-      subnetName: Name,
-      vpcName: Name,
+      {
+        organizationName,
+        projectName,
+        subnetName,
+        vpcName,
+      }: VpcSubnetsDeleteSubnetParams,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2506,7 +2975,10 @@ export class Api<
      * @name SagasGetSaga
      * @request GET:/sagas/{saga_id}
      */
-    sagasGetSaga: (sagaId: string, params: RequestParams = {}) =>
+    sagasGetSaga: (
+      { sagaId }: SagasGetSagaParams,
+      params: RequestParams = {}
+    ) =>
       this.request<Saga, any>({
         path: `/sagas/${sagaId}`,
         method: 'GET',

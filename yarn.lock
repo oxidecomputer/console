@@ -13264,10 +13264,9 @@ swagger-schema-official@2.0.0-bab6bed:
   resolved "https://registry.yarnpkg.com/swagger-schema-official/-/swagger-schema-official-2.0.0-bab6bed.tgz#70070468d6d2977ca5237b2e519ca7d06a2ea3fd"
   integrity sha1-cAcEaNbSl3ylI3suUZyn0Gouo/0=
 
-swagger-typescript-api@^9.3.1:
+"swagger-typescript-api@https://github.com/oxidecomputer/swagger-typescript-api#27cf1ddc59a17e19ecc0fdb707db2f854c6d729e":
   version "9.3.1"
-  resolved "https://registry.yarnpkg.com/swagger-typescript-api/-/swagger-typescript-api-9.3.1.tgz#07df3aa8e83a3897356a6e820e88b8348830aa6b"
-  integrity sha512-vtarFELmXmDKrtY2FvU2OjNvN1BqOj3kHWzz7mAresNKRgRubZpjlopECxbBekrLeX3lezAYSNcrFMVRGJAD4A==
+  resolved "https://github.com/oxidecomputer/swagger-typescript-api#27cf1ddc59a17e19ecc0fdb707db2f854c6d729e"
   dependencies:
     "@types/swagger-schema-official" "2.0.21"
     axios "^0.21.4"
