@@ -19,7 +19,6 @@ export * from './lib/side-modal/SideModal'
 export * from './lib/skip-link/SkipLink'
 export * from './lib/tabs/Tabs'
 export * from './lib/table/Table'
-export * from './lib/table/select-col'
 export * from './lib/tooltip/Tooltip'
 export * from './lib/toast/Toast'
 

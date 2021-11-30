@@ -9,7 +9,6 @@ import {
   Button,
   PageHeader,
   PageTitle,
-  selectCol,
   Table,
   Add12Icon,
   Success12Icon,
@@ -22,6 +21,7 @@ import {
 } from '@oxide/ui'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
+import { selectCol } from '@oxide/table'
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">

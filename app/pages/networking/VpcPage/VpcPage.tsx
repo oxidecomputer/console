@@ -9,6 +9,7 @@ import {
 } from '@oxide/ui'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
+import { VpcRoutersTab } from './tabs/VpcRoutersTab'
 
 const VpcPage = () => {
   return (
@@ -46,7 +47,9 @@ const VpcPage = () => {
           <VpcSystemRoutesTab />
         </Tab.Panel>
         <Tab>Routers</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <VpcRoutersTab />
+        </Tab.Panel>
         <Tab>Firewall Rules</Tab>
         <Tab.Panel>Not Implemented</Tab.Panel>
         <Tab>Gateways</Tab>

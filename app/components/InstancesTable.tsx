@@ -12,10 +12,11 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, selectCol, Table, More12Icon, Success16Icon } from '@oxide/ui'
+import { classed, Table, More12Icon, Success16Icon } from '@oxide/ui'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
+import { selectCol } from '@oxide/table'
 
 const columns = [
   {

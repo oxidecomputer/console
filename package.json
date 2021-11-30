@@ -45,6 +45,7 @@
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.1",
     "recharts": "^2.1.6",
+    "tsafe": "^0.8.1",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2"
   },
