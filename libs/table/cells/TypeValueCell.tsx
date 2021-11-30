@@ -11,7 +11,7 @@ interface TypeValueCellProps {
 export const TypeValueCell = ({
   value: { type, value },
 }: TypeValueCellProps) => (
-  <Cell className="space-x-0.5">
+  <Cell className="space-x-1">
     <Badge color="green" variant="dim">
       {type}
     </Badge>
