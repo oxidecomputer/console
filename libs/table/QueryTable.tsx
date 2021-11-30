@@ -9,7 +9,7 @@ import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
 import { selectCol } from './select-col'
 import React from 'react'
-import { DefaultCell, DefaultHeader } from '.'
+import { Cell, DefaultHeader } from '.'
 import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
 
@@ -81,7 +81,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
             column.header = <DefaultHeader>{name}</DefaultHeader>
           }
           if (!column.cell) {
-            column.cell = DefaultCell
+            column.cell = Cell
           }
           column.Cell = column.cell
           column.Header = column.header
