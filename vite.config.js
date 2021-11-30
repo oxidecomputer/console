@@ -53,9 +53,13 @@ export default ({ mode }) => {
     plugins: [react(), svgrPlugin({ titleProp: true })],
     resolve: {
       // turn relative paths from tsconfig into absolute paths
-      alias: mapValues(tsConfig.compilerOptions.paths, (p) =>
-        resolve(__dirname, p[0])
-      ),
+      alias: {
+        ...mapValues(tsConfig.compilerOptions.paths, (p) =>
+          resolve(__dirname, p[0])
+        ),
+        // Useful for performance debugging
+        // 'react-dom$': 'react-dom/profiling',
+      },
     },
     server: {
       fs: {

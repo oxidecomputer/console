@@ -2,68 +2,79 @@ import { Table } from './Table'
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import type { DefaultApi } from 'libs/api/__generated__'
-import type { UseQueryOptions, UseQueryResult } from 'react-query'
+import type { UseQueryOptions } from 'react-query'
 import type { ComponentType, ReactElement } from 'react'
-import { useState } from 'react'
-import { useEffect } from 'react'
 import { useMemo } from 'react'
+import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
 import { selectCol } from './select-col'
 import React from 'react'
 import { DefaultCell, DefaultHeader } from '.'
-
-const get = (obj: any, path: string) => {
-  console.log('get called with', obj, path)
-  let current = obj
-  const parts = path.split('.')
-  for (const part of parts) {
-    current = current[part]
-  }
-  return current
-}
+import type { Path } from '@oxide/util'
+import { unsafe_get } from '@oxide/util'
 
 type Params<F> = F extends (p: infer P) => any ? P : never
 type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
 
-type PathImpl<T, Key extends keyof T> = Key extends string
-  ? T[Key] extends Record<string, any>
-    ?
-        | `${Key}.${PathImpl<T[Key], Exclude<keyof T[Key], keyof any[]>> &
-            string}`
-        | `${Key}.${Exclude<keyof T[Key], keyof any[]> & string}`
-    : never
-  : never
+interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
+  Table: ComponentType<QueryTableProps>
+  Column: ComponentType<QueryTableColumnProps<A, M, Result<A[M]>>>
+}
+/**
+ * This hook builds a table that's linked to a given query. It's a combination
+ * of react-query and react-table. It generates a `Table` component that controls
+ * table level options and a `Column` component which governs the individual column
+ * configuration
+ */
+export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
+  query: M,
+  params: Params<A[M]>,
+  options?: UseQueryOptions<Result<A[M]>, ApiError>
+): UseQueryTableResult<A, M> => {
+  // TODO: We should probably find a better way to do this
+  const stableParams = Object.values(params as Record<string, string>)
+    .sort()
+    .join(':')
+  const stableOpts =
+    options &&
+    Object.entries(options as Record<string, string>)
+      .map((e) => e.join(':'))
+      .sort()
+      .join(',')
+  const Table = useMemo(
+    () => makeQueryTable(query, params, options),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [query, stableParams, stableOpts]
+  )
 
-type PathImpl2<T> = PathImpl<T, keyof T> | keyof T
-
-type Path<T> = PathImpl2<T> extends string | keyof T ? PathImpl2<T> : keyof T
-
-// type PathValue<T, P extends Path<T>> = P extends `${infer Key}.${infer Rest}`
-//   ? Key extends keyof T
-//     ? Rest extends Path<T[Key]>
-//       ? PathValue<T[Key], Rest>
-//       : never
-//     : never
-//   : P extends keyof T
-//   ? T[P]
-//   : never
-
+  return { Table, Column: QueryTableColumn }
+}
 interface QueryTableProps {
   selectable?: boolean
+  /** Prints table data in the console when enabled */
+  debug?: boolean
+  rowId?:
+    | string
+    | ((row: Row, relativeIndex: number, parent: unknown) => string)
   children: React.ReactNode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = (query: any, params: any, options: any) =>
-  function QueryTable({ children, selectable }: QueryTableProps) {
-    const [tableData, setTableData] = useState([])
+  function QueryTable({ children, selectable, debug, rowId }: QueryTableProps) {
     const columns = useMemo(
       () =>
         React.Children.toArray(children).map((child) => {
           const column = { ...(child as ReactElement).props }
+          if (!column.accessor) {
+            column.accessor = column.id
+          }
           if (typeof column.accessor === 'string') {
             const accessorPath = column.accessor
-            column.accessor = (v: unknown) => get(v, accessorPath)
+            column.accessor = (v: unknown) => unsafe_get(v, accessorPath)
+          }
+          if (!column.header) {
+            column.header = column.id
           }
           if (typeof column.header === 'string') {
             const name = column.header
@@ -78,21 +89,38 @@ const makeQueryTable = (query: any, params: any, options: any) =>
         }),
       [children]
     )
+
     const { data, isLoading } = useApiQuery(query, params, options)
 
-    useEffect(() => {
-      setTableData((data as any)?.items || [])
-    }, [data])
+    const tableData = useMemo(
+      () => (data as any)?.items || [],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [(data as any)?.items]
+    )
+
+    const getRowId = useMemo(() => {
+      if (!rowId) return (row: Row<any>) => row.id
+      return typeof rowId === 'string'
+        ? (row: Row) => unsafe_get(row, rowId)
+        : rowId
+    }, [rowId])
 
     const table = useTable(
-      { columns, data: tableData },
+      {
+        columns,
+        data: tableData,
+        getRowId,
+        // @ts-expect-error It's yelling b/c this isn't defined in the options as a type but it is included in the docs
+        autoResetSelectedRows: false,
+      },
       useRowSelect,
       (hooks) => {
         selectable &&
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          hooks.visibleColumns.push((columns) => [selectCol as any, ...columns])
+          hooks.visibleColumns.push((columns) => [selectCol, ...columns])
       }
     )
+
+    if (debug) console.table(table.data)
 
     if (isLoading) return <div>loading</div>
 
@@ -109,8 +137,8 @@ interface QueryTableColumnProps<
 > {
   id: string
   // @ts-expect-error
-  accessor: Path<T[items][number]> | ((type: T[items][number]) => R)
-  header: string | ReactElement
+  accessor?: Path<T[items][number]> | ((type: T[items][number]) => R)
+  header?: string | ReactElement
   cell?: ComponentType<R>
 }
 const QueryTableColumn = <
@@ -122,21 +150,4 @@ const QueryTableColumn = <
   _props: QueryTableColumnProps<A, M, T, R>
 ) => {
   return null
-}
-
-interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
-  Table: ComponentType<QueryTableProps>
-  Column: ComponentType<QueryTableColumnProps<A, M, Result<A[M]>>>
-}
-export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
-  query: M,
-  params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ApiError>
-): UseQueryTableResult<A, M> => {
-  const Table = useMemo(() => {
-    console.log('regenerating')
-    return makeQueryTable(query, params, options)
-  }, [query])
-
-  return { Table, Column: QueryTableColumn }
 }
