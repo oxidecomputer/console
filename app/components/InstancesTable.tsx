@@ -11,6 +11,7 @@ import { usePagination, useParams, useToast } from '../hooks'
 import { DateCell, useQueryTable, InstanceStatusCell } from '@oxide/table'
 import { pick } from '@oxide/util'
 
+// TODO: Wire up ability to add context menus to cells
 const menuCol = {
   id: 'menu',
   Cell: ({ row }: { row: Row<Instance> }) => {
