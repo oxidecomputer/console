@@ -1,41 +1,22 @@
 import React from 'react'
-import { useTable } from 'react-table'
-
-import { useApiQuery } from '@oxide/api'
-import { Table } from '@oxide/ui'
 import { useParams } from '../../hooks'
-
-const columns = [
-  {
-    accessor: 'name' as const,
-    Header: () => <div className="text-left mx-4">Name</div>,
-    Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
-  },
-  {
-    accessor: 'description' as const,
-    Header: 'Description',
-    className: 'text-left',
-  },
-]
+import { useQueryTable } from '@oxide/table'
 
 export default function ProjectStorage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
-  const { data } = useApiQuery(
+  const { Table, Column } = useQueryTable(
     'projectDisksGet',
     { organizationName: orgName, projectName },
     { refetchInterval: 5000 }
   )
 
-  const disks = data?.items || []
-
-  const table = useTable({ columns, data: disks })
-
-  if (!data) return <div>loading</div>
-
   return (
     <>
       <h1 className="text-display-2xl my-8">Disks</h1>
-      <Table table={table} rowClassName="!h-10" />
+      <Table selectable>
+        <Column id="name" />
+        <Column id="description" />
+      </Table>
     </>
   )
 }
