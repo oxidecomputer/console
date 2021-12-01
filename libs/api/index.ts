@@ -5,8 +5,7 @@ import {
   getUseApiQueryClient,
 } from './hooks'
 
-const basePath =
-  process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
+const basePath = process.env.API_URL || '/api'
 
 const config = new Configuration({ basePath })
 const api = new DefaultApi(config)
