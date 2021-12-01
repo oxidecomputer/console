@@ -14,7 +14,7 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Client view of an [`Project`]
+ * Client view of a [`Project`]
  * @export
  * @interface Project
  */

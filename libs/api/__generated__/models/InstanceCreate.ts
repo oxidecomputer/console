@@ -16,19 +16,19 @@ import { exists, mapValues } from '../runtime'
 /**
  * Create-time parameters for an [`Instance`]
  * @export
- * @interface InstanceCreateParams
+ * @interface InstanceCreate
  */
-export interface InstanceCreateParams {
+export interface InstanceCreate {
   /**
    *
    * @type {string}
-   * @memberof InstanceCreateParams
+   * @memberof InstanceCreate
    */
   description: string
   /**
    *
    * @type {string}
-   * @memberof InstanceCreateParams
+   * @memberof InstanceCreate
    */
   hostname: string
   /**
@@ -36,31 +36,31 @@ export interface InstanceCreateParams {
    *
    * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
    * @type {number}
-   * @memberof InstanceCreateParams
+   * @memberof InstanceCreate
    */
   memory: number
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof InstanceCreateParams
+   * @memberof InstanceCreate
    */
   name: string
   /**
    * The number of CPUs in an Instance
    * @type {number}
-   * @memberof InstanceCreateParams
+   * @memberof InstanceCreate
    */
   ncpus: number
 }
 
-export function InstanceCreateParamsFromJSON(json: any): InstanceCreateParams {
-  return InstanceCreateParamsFromJSONTyped(json, false)
+export function InstanceCreateFromJSON(json: any): InstanceCreate {
+  return InstanceCreateFromJSONTyped(json, false)
 }
 
-export function InstanceCreateParamsFromJSONTyped(
+export function InstanceCreateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): InstanceCreateParams {
+): InstanceCreate {
   if (json === undefined || json === null) {
     return json
   }
@@ -73,9 +73,7 @@ export function InstanceCreateParamsFromJSONTyped(
   }
 }
 
-export function InstanceCreateParamsToJSON(
-  value?: InstanceCreateParams | null
-): any {
+export function InstanceCreateToJSON(value?: InstanceCreate | null): any {
   if (value === undefined) {
     return undefined
   }
