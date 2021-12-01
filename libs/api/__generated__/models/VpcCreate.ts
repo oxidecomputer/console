@@ -14,47 +14,50 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for a [`VpcRouter`]
+ * Create-time parameters for a [`Vpc`]
  * @export
- * @interface VpcRouterCreateParams
+ * @interface VpcCreate
  */
-export interface VpcRouterCreateParams {
+export interface VpcCreate {
   /**
    *
    * @type {string}
-   * @memberof VpcRouterCreateParams
+   * @memberof VpcCreate
    */
   description: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof VpcRouterCreateParams
+   * @memberof VpcCreate
+   */
+  dnsName: string
+  /**
+   * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+   * @type {string}
+   * @memberof VpcCreate
    */
   name: string
 }
 
-export function VpcRouterCreateParamsFromJSON(
-  json: any
-): VpcRouterCreateParams {
-  return VpcRouterCreateParamsFromJSONTyped(json, false)
+export function VpcCreateFromJSON(json: any): VpcCreate {
+  return VpcCreateFromJSONTyped(json, false)
 }
 
-export function VpcRouterCreateParamsFromJSONTyped(
+export function VpcCreateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcRouterCreateParams {
+): VpcCreate {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: json['description'],
+    dnsName: json['dnsName'],
     name: json['name'],
   }
 }
 
-export function VpcRouterCreateParamsToJSON(
-  value?: VpcRouterCreateParams | null
-): any {
+export function VpcCreateToJSON(value?: VpcCreate | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -63,6 +66,7 @@ export function VpcRouterCreateParamsToJSON(
   }
   return {
     description: value.description,
+    dnsName: value.dnsName,
     name: value.name,
   }
 }
