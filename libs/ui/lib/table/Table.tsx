@@ -1,5 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
+import './menu-button.css'
 
 export interface TableProps extends ElementType<'table'> {}
 export function Table({ className, ...props }: TableProps) {
