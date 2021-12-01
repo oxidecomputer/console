@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Table } from './Table'
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'

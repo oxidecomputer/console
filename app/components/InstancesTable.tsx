@@ -12,7 +12,8 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, selectCol, Table, More12Icon, Success16Icon } from '@oxide/ui'
+import { classed, More12Icon, Success16Icon } from '@oxide/ui'
+import { selectCol, Table } from '@oxide/table'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -175,7 +176,11 @@ export const InstancesTable = ({ className }: { className?: string }) => {
 
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
+    hooks.visibleColumns.push((columns) => [
+      selectCol as never,
+      ...columns,
+      menuCol,
+    ])
   })
 
   if (!instances) return <div>loading</div>
