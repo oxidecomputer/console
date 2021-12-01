@@ -10,3 +10,10 @@ type OmitByValue<T, V> = {
 
 // Make K optional on T
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+
+type Merge<P1, P2> = Omit<P1, keyof P2> & P2
+
+type ElementType<T extends keyof JSX.IntrinsicElements, P = unknown> = Merge<
+  JSX.IntrinsicElements[T],
+  P
+>
