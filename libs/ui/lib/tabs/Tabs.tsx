@@ -33,18 +33,16 @@ export function Tabs({
   className,
   ...props
 }: TabsProps) {
-  const childArray = useMemo(() => flattenChildren(children), [children])
-  const tabs = useMemo(
-    () => pluckAllOfType(childArray, Tab).map(addKey((i) => `${id}-tab-${i}`)),
-    [childArray, id]
-  )
-  const panels = useMemo(
-    () =>
-      pluckAllOfType(childArray, Tab.Panel).map(
-        addKey((i) => `${id}-panel-${i}`)
-      ),
-    [childArray, id]
-  )
+  const [tabs, panels] = useMemo(() => {
+    const childArray = flattenChildren(children)
+    const tabs = pluckAllOfType(childArray, Tab).map(
+      addKey((i) => `${id}-tab-${i}`)
+    )
+    const panels = pluckAllOfType(childArray, Tab.Panel).map(
+      addKey((i) => `${id}-panel-${i}`)
+    )
+    return [tabs, panels]
+  }, [children, id])
 
   invariant(
     tabs.length === panels.length,
