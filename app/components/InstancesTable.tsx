@@ -119,11 +119,9 @@ const menuCol = {
     })
 
     const instanceLookup = {
-      params: {
-        organizationName: orgName,
-        projectName,
-        instanceName,
-      },
+      organizationName: orgName,
+      projectName,
+      instanceName,
     }
 
     return (

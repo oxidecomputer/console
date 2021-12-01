@@ -76,11 +76,9 @@ export const InstancePageHeader = () => {
   const handleStop = () => {
     if (instanceCan.stop(instance)) {
       stopInstance.mutate({
-        params: {
-          organizationName: orgName,
-          projectName,
-          instanceName: instance.name,
-        },
+        organizationName: orgName,
+        projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({
@@ -96,11 +94,9 @@ export const InstancePageHeader = () => {
   const handleDelete = () => {
     if (instanceCan.delete(instance)) {
       deleteInstance.mutate({
-        params: {
-          organizationName: orgName,
-          projectName,
-          instanceName: instance.name,
-        },
+        organizationName: orgName,
+        projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({
@@ -115,11 +111,9 @@ export const InstancePageHeader = () => {
   const handleReboot = () => {
     if (instanceCan.reboot(instance)) {
       rebootInstance.mutate({
-        params: {
-          organizationName: orgName,
-          projectName,
-          instanceName: instance.name,
-        },
+        organizationName: orgName,
+        projectName,
+        instanceName: instance.name,
       })
     } else {
       addToast({

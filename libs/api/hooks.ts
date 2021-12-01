@@ -61,11 +61,12 @@ export const getUseApiMutation =
     options?: UseMutationOptions<
       Result<A[M]>,
       ErrorResponse,
-      { params: Params<A[M]>; body?: Body<A[M]> }
+      Params<A[M]> & { body?: Body<A[M]> }
     >
   ) =>
     useMutation(
-      (arg) => api[method](arg.params, arg.body).then((resp) => resp.data),
+      ({ body, ...params }) =>
+        api[method](params, body).then((resp) => resp.data),
       options
     )
 
