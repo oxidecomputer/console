@@ -13,7 +13,7 @@ function lazyLoad(importFunc: () => Promise<{ default: React.ComponentType }>) {
   const Inner = React.lazy(importFunc)
   return () => (
     // TODO: nicer fallback
-    <Suspense fallback="loading">
+    <Suspense fallback={null}>
       <Inner />
     </Suspense>
   )
