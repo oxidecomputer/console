@@ -105,7 +105,7 @@
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
-    "postcss-nesting": "^8.0.1",
+    "postcss-nesting": "^10.0.2",
     "prettier": "2.4.0",
     "rollup": "^2.52.7",
     "tailwindcss": "^3.0.0-alpha.2",
