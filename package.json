@@ -5,7 +5,6 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:test": "API_URL=fakesite.com vite build",
     "preview": "vite preview",
     "ci": "yarn tsc && yarn lint && yarn test",
     "test": "jest",
