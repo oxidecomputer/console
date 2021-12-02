@@ -3,7 +3,8 @@ import { useTable } from 'react-table'
 
 import type { DiskAttachment } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, Table } from '@oxide/ui'
+import { Button } from '@oxide/ui'
+import { Table } from '@oxide/table'
 import { useParams } from '../../hooks'
 
 const columns = [

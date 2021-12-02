@@ -2,7 +2,7 @@ import React from 'react'
 import { useTable } from 'react-table'
 
 import { useApiQuery } from '@oxide/api'
-import { Table } from '@oxide/ui'
+import { Table } from '@oxide/table'
 import { useParams } from '../../hooks'
 
 const columns = [
