@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import reactRefresh from '@vitejs/plugin-react-refresh'
+import react from '@vitejs/plugin-react'
 import svgr from '@svgr/core'
 import esbuild from 'esbuild'
 import fs from 'fs'
@@ -43,7 +43,7 @@ export default {
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
   },
-  plugins: [reactRefresh(), svgrPlugin({ titleProp: true })],
+  plugins: [react(), svgrPlugin({ titleProp: true })],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
     alias: mapValues(tsConfig.compilerOptions.paths, (p) =>
