@@ -18,9 +18,9 @@ import {
   Search16Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { Table, selectCol } from '@oxide/table'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
+import { Table, getSelectCol } from '@oxide/table'
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
@@ -106,7 +106,7 @@ const menuCol = {
 const ProjectPage = () => {
   const table = useTable({ columns, data: users }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [
-      selectCol as never,
+      getSelectCol(),
       ...columns,
       menuCol,
     ])

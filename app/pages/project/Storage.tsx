@@ -30,7 +30,7 @@ export default function ProjectStorage() {
 
   const table = useTable({ columns, data: disks })
 
-  if (!data) return <div>loading</div>
+  if (!data) return null
 
   return (
     <>

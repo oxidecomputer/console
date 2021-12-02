@@ -13,7 +13,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import { classed, More12Icon, Success16Icon } from '@oxide/ui'
-import { selectCol, Table } from '@oxide/table'
+import { Table, getSelectCol } from '@oxide/table'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -177,13 +177,13 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [
-      selectCol as never,
+      getSelectCol(),
       ...columns,
       menuCol,
     ])
   })
 
-  if (!instances) return <div>loading</div>
+  if (!instances) return null
 
   // hasPrev check is there because the API doesn't leave off nextPage when
   // we're on the last page, so there's an empty page at the end we want to show

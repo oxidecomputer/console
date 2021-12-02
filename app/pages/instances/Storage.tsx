@@ -54,7 +54,7 @@ function Storage() {
   const bootDiskTable = useTable({ columns, data: bootDisks })
   const otherDisksTable = useTable({ columns, data: otherDisks })
 
-  if (!data) return <div>loading</div>
+  if (!data) return null
 
   return (
     <div className="mt-16">
