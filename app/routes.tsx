@@ -39,6 +39,9 @@ import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
 import VpcsPage from './pages/networking/VpcsPage'
 
+// TODO: putting this before RootLayout causes a race condition? yikes
+import NotFound from './pages/NotFound'
+
 /*
  * We are doing something a little unorthodox with the route config here. We
  * realized that tagging nodes in the route tree with arbitrary data is very
@@ -66,6 +69,7 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
+    <Route path="*" element={<NotFound />} />
     <Route path="login" element={<LoginPage />} />
 
     <Route
