@@ -7,10 +7,9 @@ import { matchesToCrumbs } from '../Breadcrumbs'
 // this is kind of an integration test because it pulls in the real route config,
 // plus it's janky that it calls matchRoutes directly to get matches. but whatever
 describe('matchesToCrumbs', () => {
-  it('empty list on unmatched route', () => {
-    const matches = matchRoutes(routeConfig, { pathname: '/abc/def/ghi' })
-    expect(matches).toBeNull()
-    expect(matchesToCrumbs([])).toEqual([])
+  it('no crumbs on unmatched route', () => {
+    const matches = matchRoutes(routeConfig, { pathname: '/abc/def/ghi' })!
+    expect(matchesToCrumbs(matches)).toEqual([])
   })
 
   it('works on project detail', () => {
