@@ -1,5 +1,6 @@
 export * from './Cell'
 export * from './DateCell'
+export * from './DefaultCell'
 export * from './InstanceStatusCell'
 export * from './LabelCell'
 export * from './TwoLineCell'

@@ -37,6 +37,7 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
+import VpcsPage from './pages/networking/VpcsPage'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -104,7 +105,7 @@ export const routes = (
                 crumb="Create instance"
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs">
+            <Route path="vpcs" crumb="Vpcs" element={<VpcsPage />}>
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
             <Route
