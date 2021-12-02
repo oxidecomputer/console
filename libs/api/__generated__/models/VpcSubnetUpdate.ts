@@ -14,47 +14,57 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of a [`VpcRouter`]
+ * Updateable properties of a [`VpcSubnet`]
  * @export
- * @interface VpcRouterUpdateParams
+ * @interface VpcSubnetUpdate
  */
-export interface VpcRouterUpdateParams {
+export interface VpcSubnetUpdate {
   /**
    *
    * @type {string}
-   * @memberof VpcRouterUpdateParams
+   * @memberof VpcSubnetUpdate
    */
   description?: string | null
   /**
    *
    * @type {string}
-   * @memberof VpcRouterUpdateParams
+   * @memberof VpcSubnetUpdate
+   */
+  ipv4Block?: string | null
+  /**
+   *
+   * @type {string}
+   * @memberof VpcSubnetUpdate
+   */
+  ipv6Block?: string | null
+  /**
+   *
+   * @type {string}
+   * @memberof VpcSubnetUpdate
    */
   name?: string | null
 }
 
-export function VpcRouterUpdateParamsFromJSON(
-  json: any
-): VpcRouterUpdateParams {
-  return VpcRouterUpdateParamsFromJSONTyped(json, false)
+export function VpcSubnetUpdateFromJSON(json: any): VpcSubnetUpdate {
+  return VpcSubnetUpdateFromJSONTyped(json, false)
 }
 
-export function VpcRouterUpdateParamsFromJSONTyped(
+export function VpcSubnetUpdateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcRouterUpdateParams {
+): VpcSubnetUpdate {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: !exists(json, 'description') ? undefined : json['description'],
+    ipv4Block: !exists(json, 'ipv4Block') ? undefined : json['ipv4Block'],
+    ipv6Block: !exists(json, 'ipv6Block') ? undefined : json['ipv6Block'],
     name: !exists(json, 'name') ? undefined : json['name'],
   }
 }
 
-export function VpcRouterUpdateParamsToJSON(
-  value?: VpcRouterUpdateParams | null
-): any {
+export function VpcSubnetUpdateToJSON(value?: VpcSubnetUpdate | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -63,6 +73,8 @@ export function VpcRouterUpdateParamsToJSON(
   }
   return {
     description: value.description,
+    ipv4Block: value.ipv4Block,
+    ipv6Block: value.ipv6Block,
     name: value.name,
   }
 }

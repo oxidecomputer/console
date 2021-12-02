@@ -14,61 +14,43 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Updateable properties of a [`VpcSubnet`]
+ * Updateable properties of a [`VpcRouter`]
  * @export
- * @interface VpcSubnetUpdateParams
+ * @interface VpcRouterUpdate
  */
-export interface VpcSubnetUpdateParams {
+export interface VpcRouterUpdate {
   /**
    *
    * @type {string}
-   * @memberof VpcSubnetUpdateParams
+   * @memberof VpcRouterUpdate
    */
   description?: string | null
   /**
    *
    * @type {string}
-   * @memberof VpcSubnetUpdateParams
-   */
-  ipv4Block?: string | null
-  /**
-   *
-   * @type {string}
-   * @memberof VpcSubnetUpdateParams
-   */
-  ipv6Block?: string | null
-  /**
-   *
-   * @type {string}
-   * @memberof VpcSubnetUpdateParams
+   * @memberof VpcRouterUpdate
    */
   name?: string | null
 }
 
-export function VpcSubnetUpdateParamsFromJSON(
-  json: any
-): VpcSubnetUpdateParams {
-  return VpcSubnetUpdateParamsFromJSONTyped(json, false)
+export function VpcRouterUpdateFromJSON(json: any): VpcRouterUpdate {
+  return VpcRouterUpdateFromJSONTyped(json, false)
 }
 
-export function VpcSubnetUpdateParamsFromJSONTyped(
+export function VpcRouterUpdateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcSubnetUpdateParams {
+): VpcRouterUpdate {
   if (json === undefined || json === null) {
     return json
   }
   return {
     description: !exists(json, 'description') ? undefined : json['description'],
-    ipv4Block: !exists(json, 'ipv4Block') ? undefined : json['ipv4Block'],
-    ipv6Block: !exists(json, 'ipv6Block') ? undefined : json['ipv6Block'],
     name: !exists(json, 'name') ? undefined : json['name'],
   }
 }
 
-export function VpcSubnetUpdateParamsToJSON(
-  value?: VpcSubnetUpdateParams | null
-): any {
+export function VpcRouterUpdateToJSON(value?: VpcRouterUpdate | null): any {
   if (value === undefined) {
     return undefined
   }
@@ -77,8 +59,6 @@ export function VpcSubnetUpdateParamsToJSON(
   }
   return {
     description: value.description,
-    ipv4Block: value.ipv4Block,
-    ipv6Block: value.ipv6Block,
     name: value.name,
   }
 }
