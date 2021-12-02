@@ -7,5 +7,5 @@ interface CellProps {
   className?: string
 }
 export const Cell = ({ children, className }: CellProps) => (
-  <div className={cn('mx-4', className)}>{children}</div>
+  <div className={cn(className)}>{children}</div>
 )

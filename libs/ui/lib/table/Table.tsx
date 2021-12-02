@@ -59,5 +59,5 @@ Table.Body = ({ className, ...props }: TableBodyProps) => (
 
 export type TableCellProps = JSX.IntrinsicElements['td']
 Table.Cell = ({ className, ...props }: TableCellProps) => (
-  <td className={cn(className, 'h-16')} {...props} />
+  <td className={cn(className, 'h-16 px-4')} {...props} />
 )
