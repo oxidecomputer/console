@@ -39,7 +39,7 @@ export function ExistingDiskModal({
     organizationName: orgName,
     projectName,
   })
-  const disks = (data?.items || [])
+  const disks = data?.items
     .filter(isUnattached)
     .map((d) => ({ value: d.id, label: d.name }))
 
@@ -63,7 +63,7 @@ export function ExistingDiskModal({
             <Dropdown
               label="Disk"
               placeholder="Choose a disk..."
-              items={disks}
+              items={disks || []}
             />
             <fieldset>
               <FieldTitle as="legend">Mode</FieldTitle>

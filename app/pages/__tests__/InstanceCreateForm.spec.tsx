@@ -15,13 +15,16 @@ import { InstanceCreateForm } from '../instances/create'
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
 
-const instancesUrl = `/api/organizations/${org.name}/projects/${project.name}/instances`
-const disksUrl = `/api/organizations/${org.name}/projects/${project.name}/disks`
+const projectUrl = `/api/organizations/${org.name}/projects/${project.name}`
+const instancesUrl = `${projectUrl}/instances`
+const disksUrl = `${projectUrl}/disks`
+const vpcsUrl = `${projectUrl}/vpcs`
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
     // existing disk modal fetches disks on render even if it's not visible
     fetchMock.get(disksUrl, 200)
+    fetchMock.get(vpcsUrl, 200)
     renderWithRouter(
       <InstanceCreateForm orgName={org.name} projectName={project.name} />
     )

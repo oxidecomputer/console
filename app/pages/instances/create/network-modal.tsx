@@ -1,13 +1,26 @@
 import React from 'react'
 
 import { Button, Dropdown, SideModal } from '@oxide/ui'
+import { useApiQuery } from '@oxide/api'
 
 type Props = {
   isOpen: boolean
   onDismiss: () => void
+  orgName: string
+  projectName: string
 }
 
-export function NetworkModal({ isOpen, onDismiss }: Props) {
+export function NetworkModal({
+  isOpen,
+  onDismiss,
+  orgName,
+  projectName,
+}: Props) {
+  const { data: vpcs } = useApiQuery('projectVpcsGet', {
+    organizationName: orgName,
+    projectName,
+  })
+  const vpcItems = vpcs?.items.map((v) => ({ value: v.id, label: v.name }))
   return (
     <SideModal
       id="network-modal"
@@ -18,7 +31,11 @@ export function NetworkModal({ isOpen, onDismiss }: Props) {
       <SideModal.Section>
         {/* TODO: tearing up Dropdown into bits will let us fix button alignment */}
         <div className="flex items-end">
-          <Dropdown label="VPC" items={[]} className="flex-1 mr-2" />
+          <Dropdown
+            label="VPC"
+            items={vpcItems || []}
+            className="flex-1 mr-2"
+          />
           <Button>Create</Button>
         </div>
         <div className="flex items-end">

@@ -276,6 +276,8 @@ export function InstanceCreateForm({
         <NetworkModal
           isOpen={showNetworkModal}
           onDismiss={() => setShowNetworkModal(false)}
+          orgName={orgName}
+          projectName={projectName}
         />
 
         <Divider />
