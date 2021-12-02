@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Table } from './Table'
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -7,7 +9,7 @@ import type { ComponentType, ReactElement } from 'react'
 import { useMemo } from 'react'
 import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
-import { selectCol } from './select-col'
+import { getSelectCol } from './select-col'
 import React from 'react'
 import { Cell, DefaultHeader } from '.'
 import type { Path } from '@oxide/util'
@@ -31,7 +33,9 @@ export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ApiError>
 ): UseQueryTableResult<A, M> => {
-  // TODO: We should probably find a better way to do this
+  // TODO: We should probably find a better way to do this. In essence
+  // we need the params and options to be stable and comparable to prevent unnecessary recreation
+  // of the table which is a relatively expensive operation.
   const stableParams = Object.values(params as Record<string, string>)
     .sort()
     .join(':')
@@ -117,7 +121,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
       useRowSelect,
       (hooks) => {
         selectable &&
-          hooks.visibleColumns.push((columns) => [selectCol, ...columns])
+          hooks.visibleColumns.push((columns) => [getSelectCol(), ...columns])
       }
     )
 
@@ -137,7 +141,7 @@ interface QueryTableColumnProps<
   R extends unknown = any
 > {
   id: string
-  // @ts-expect-error
+  // @ts-expect-error It complains about items not being indexable of T but we know it will be
   accessor?: Path<T[items][number]> | ((type: T[items][number]) => R)
   header?: string | ReactElement
   cell?: ComponentType<R>

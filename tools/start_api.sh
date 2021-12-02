@@ -3,6 +3,16 @@
 set -o errexit
 set -o pipefail
 
+f_flag=
+while getopts f name
+do
+  case $name in
+    f)  f_flag=1;;
+    ?)  printf "Usage: %s [-f] \n" $0; exit 2;;
+  esac
+done
+shift $(($OPTIND - 1))
+
 # this script assumes it's being run from inside the omicron repo and the console
 # repo shares the same parent directory
 
@@ -19,15 +29,18 @@ run_in_pane() {
   tmux send-keys -t omicron-console:0."$1" "$2" C-m
 }
 
-PINNED_API_VERSION=$(awk '/API_VERSION/ {print $2}' ../console/.github/workflows/packer.yaml)
-CURRENT_API_VERSION=$(git rev-parse HEAD)
+# unless -f flag is present, refuse to start if we're not on the right omicron commit
+if [ -z "$f_flag" ]; then
+  PINNED_API_VERSION=$(awk '/API_VERSION/ {print $2}' ../console/.github/workflows/packer.yaml)
+  CURRENT_API_VERSION=$(git rev-parse HEAD)
 
-if [ "$CURRENT_API_VERSION" != "$PINNED_API_VERSION" ]; then
-  echo -e "\nERROR: Omicron version pinned in console does not match HEAD\n" >&2
-  echo -e "  pinned:  $PINNED_API_VERSION" >&2
-  echo -e "  HEAD:    $CURRENT_API_VERSION\n" >&2
-  echo -e "Check out the pinned commit and try again.\n" >&2
-  exit 1
+  if [ "$CURRENT_API_VERSION" != "$PINNED_API_VERSION" ]; then
+    echo -e "\nERROR: Omicron version pinned in console does not match HEAD\n" >&2
+    echo -e "  pinned:  $PINNED_API_VERSION" >&2
+    echo -e "  HEAD:    $CURRENT_API_VERSION\n" >&2
+    echo -e "Check out the pinned commit and try again.\n" >&2
+    exit 1
+  fi
 fi
 
 tmux new -d -s omicron-console 

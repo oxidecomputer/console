@@ -18,7 +18,7 @@ import './Tabs.css'
 import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
 import { invariant } from '@oxide/util'
 
-export type TabsProps = ElementType<'div', RTabsProps> & {
+export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
   fullWidth?: boolean
   className?: string
@@ -33,18 +33,16 @@ export function Tabs({
   className,
   ...props
 }: TabsProps) {
-  const childArray = useMemo(() => flattenChildren(children), [children])
-  const tabs = useMemo(
-    () => pluckAllOfType(childArray, Tab).map(addKey((i) => `${id}-tab-${i}`)),
-    [childArray, id]
-  )
-  const panels = useMemo(
-    () =>
-      pluckAllOfType(childArray, Tab.Panel).map(
-        addKey((i) => `${id}-panel-${i}`)
-      ),
-    [childArray, id]
-  )
+  const [tabs, panels] = useMemo(() => {
+    const childArray = flattenChildren(children)
+    const tabs = pluckAllOfType(childArray, Tab).map(
+      addKey((i) => `${id}-tab-${i}`)
+    )
+    const panels = pluckAllOfType(childArray, Tab.Panel).map(
+      addKey((i) => `${id}-panel-${i}`)
+    )
+    return [tabs, panels]
+  }, [children, id])
 
   invariant(
     tabs.length === panels.length,
@@ -66,7 +64,7 @@ export function Tabs({
       <RTabList
         aria-labelledby={labelledby}
         aria-label={label}
-        className={cn(after, fullWidth && before)}
+        className={cn(after, fullWidth && before, 'text-mono-md uppercase')}
       >
         {tabs}
       </RTabList>
@@ -75,7 +73,7 @@ export function Tabs({
   )
 }
 
-export interface TabProps extends ElementType<'button', RTabProps> {}
+export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps>
 export function Tab({ className, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />

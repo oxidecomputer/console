@@ -39,7 +39,7 @@ const ProjectsPage = () => {
     organizationName: orgName,
   })
 
-  if (!data) return <div>loading</div>
+  if (!data) return null
 
   return (
     <>

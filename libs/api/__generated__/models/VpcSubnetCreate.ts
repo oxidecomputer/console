@@ -16,45 +16,43 @@ import { exists, mapValues } from '../runtime'
 /**
  * Create-time parameters for a [`VpcSubnet`]
  * @export
- * @interface VpcSubnetCreateParams
+ * @interface VpcSubnetCreate
  */
-export interface VpcSubnetCreateParams {
+export interface VpcSubnetCreate {
   /**
    *
    * @type {string}
-   * @memberof VpcSubnetCreateParams
+   * @memberof VpcSubnetCreate
    */
   description: string
   /**
    *
    * @type {string}
-   * @memberof VpcSubnetCreateParams
+   * @memberof VpcSubnetCreate
    */
   ipv4Block?: string | null
   /**
    *
    * @type {string}
-   * @memberof VpcSubnetCreateParams
+   * @memberof VpcSubnetCreate
    */
   ipv6Block?: string | null
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof VpcSubnetCreateParams
+   * @memberof VpcSubnetCreate
    */
   name: string
 }
 
-export function VpcSubnetCreateParamsFromJSON(
-  json: any
-): VpcSubnetCreateParams {
-  return VpcSubnetCreateParamsFromJSONTyped(json, false)
+export function VpcSubnetCreateFromJSON(json: any): VpcSubnetCreate {
+  return VpcSubnetCreateFromJSONTyped(json, false)
 }
 
-export function VpcSubnetCreateParamsFromJSONTyped(
+export function VpcSubnetCreateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcSubnetCreateParams {
+): VpcSubnetCreate {
   if (json === undefined || json === null) {
     return json
   }
@@ -66,9 +64,7 @@ export function VpcSubnetCreateParamsFromJSONTyped(
   }
 }
 
-export function VpcSubnetCreateParamsToJSON(
-  value?: VpcSubnetCreateParams | null
-): any {
+export function VpcSubnetCreateToJSON(value?: VpcSubnetCreate | null): any {
   if (value === undefined) {
     return undefined
   }

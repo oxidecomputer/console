@@ -1,6 +1,5 @@
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
-import type { TabProps } from './Tabs'
 import { Tabs, Tab } from './Tabs'
 import React, { Fragment } from 'react'
 import { Badge } from '@oxide/ui'

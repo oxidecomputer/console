@@ -14,7 +14,7 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * Client view of a [`Vpc`]
  * @export
  * @interface Vpc
  */
