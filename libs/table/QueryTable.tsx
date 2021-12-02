@@ -9,7 +9,7 @@ import type { ComponentType, ReactElement } from 'react'
 import { useMemo } from 'react'
 import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
-import { selectCol } from './select-col'
+import { getSelectCol } from './select-col'
 import React from 'react'
 import { Cell, DefaultHeader } from '.'
 import type { Path } from '@oxide/util'
@@ -119,7 +119,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
       useRowSelect,
       (hooks) => {
         selectable &&
-          hooks.visibleColumns.push((columns) => [selectCol, ...columns])
+          hooks.visibleColumns.push((columns) => [getSelectCol(), ...columns])
       }
     )
 
