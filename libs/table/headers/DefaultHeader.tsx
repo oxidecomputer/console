@@ -4,5 +4,5 @@ interface DefaultHeaderProps {
   children: React.ReactNode
 }
 export const DefaultHeader = ({ children }: DefaultHeaderProps) => (
-  <div>{children}</div>
+  <span>{children}</span>
 )

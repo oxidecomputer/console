@@ -17,7 +17,7 @@ import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
 
 type Params<F> = F extends (p: infer P) => any ? P : never
-type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
+export type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
   Table: ComponentType<QueryTableProps>
@@ -135,7 +135,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
 
 type items = 'items'
 
-interface QueryTableColumnProps<
+export interface QueryTableColumnProps<
   A extends DefaultApi,
   M extends keyof A,
   T extends Result<A[M]>,
