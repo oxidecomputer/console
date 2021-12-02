@@ -47,6 +47,7 @@ export const NavList = (props: { children: React.ReactNode }) => (
 export const NavLinkItem = (props: {
   to: string
   children: React.ReactNode
+  end?: boolean
 }) => (
   <li>
     <NavLink
@@ -57,7 +58,7 @@ export const NavLinkItem = (props: {
           { 'text-white svg:!text-green-500': isActive }
         )
       }
-      end
+      end={props.end}
     >
       {props.children}
     </NavLink>

@@ -36,7 +36,7 @@ const ProjectLayout = () => {
         />
         <SidebarDivider />
         <NavList>
-          <NavLinkItem to="">
+          <NavLinkItem to="" end>
             <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="instances">

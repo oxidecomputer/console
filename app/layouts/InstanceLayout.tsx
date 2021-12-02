@@ -41,7 +41,7 @@ const InstanceLayout = () => {
         />
         <SidebarDivider />
         <NavList>
-          <NavLinkItem to="">
+          <NavLinkItem to="" end>
             <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
           <NavLinkItem to="metrics">
