@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams } from '../../hooks'
 import { useQueryTable } from '@oxide/table'
+import { Checkmark12Icon } from '@oxide/ui'
 
 export default function ProjectStorage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
@@ -16,6 +17,14 @@ export default function ProjectStorage() {
       <Table selectable>
         <Column id="name" />
         <Column id="description" />
+        {/* TODO: show info about the instance it's attached to */}
+        <Column
+          id="attached"
+          accessor={(vpc) => vpc.state.state === 'attached'}
+          cell={({ value }: { value: boolean }) =>
+            value ? <Checkmark12Icon className="text-green-500" /> : null
+          }
+        />
       </Table>
     </>
   )
