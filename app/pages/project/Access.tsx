@@ -9,8 +9,6 @@ import {
   Button,
   PageHeader,
   PageTitle,
-  selectCol,
-  Table,
   Add12Icon,
   Success12Icon,
   Close12Icon,
@@ -22,6 +20,7 @@ import {
 } from '@oxide/ui'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
+import { Table, getSelectCol } from '@oxide/table'
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
@@ -106,7 +105,11 @@ const menuCol = {
 
 const ProjectPage = () => {
   const table = useTable({ columns, data: users }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
+    hooks.visibleColumns.push((columns) => [
+      getSelectCol(),
+      ...columns,
+      menuCol,
+    ])
   })
 
   const [modalIsOpen, setModalIsOpen] = useState(false)
