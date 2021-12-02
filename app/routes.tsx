@@ -109,7 +109,8 @@ export const routes = (
                 crumb="Create instance"
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs" element={<VpcsPage />}>
+            <Route path="vpcs" crumb="Vpcs">
+              <Route index element={<VpcsPage />} />
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
             <Route

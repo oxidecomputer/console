@@ -42,7 +42,7 @@ const ProjectLayout = () => {
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
           </NavLinkItem>
-          <NavLinkItem to="networking">
+          <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">

@@ -56,7 +56,7 @@ const InstanceLayout = () => {
           <NavLinkItem to="resize">
             <Resize16Icon /> Resize
           </NavLinkItem>
-          <NavLinkItem to="networking">
+          <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
           </NavLinkItem>
           <NavLinkItem to="storage">
