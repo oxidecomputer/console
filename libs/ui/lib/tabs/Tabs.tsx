@@ -18,7 +18,7 @@ import './Tabs.css'
 import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
 import { invariant } from '@oxide/util'
 
-export type TabsProps = ElementType<'div', RTabsProps> & {
+export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
   fullWidth?: boolean
   className?: string
@@ -73,7 +73,7 @@ export function Tabs({
   )
 }
 
-export interface TabProps extends ElementType<'button', RTabProps> {}
+export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps>
 export function Tab({ className, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />
