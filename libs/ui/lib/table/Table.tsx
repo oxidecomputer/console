@@ -2,7 +2,7 @@ import React from 'react'
 import cn from 'classnames'
 import './menu-button.css'
 
-export interface TableProps extends ElementType<'table'> {}
+export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
   return (
     <table
@@ -17,7 +17,7 @@ export function Table({ className, ...props }: TableProps) {
   )
 }
 
-interface TableHeaderRowProps extends ElementType<'tr'> {}
+export type TableHeaderRowProps = JSX.IntrinsicElements['tr']
 Table.HeaderRow = ({ className, ...props }: TableHeaderRowProps) => (
   <Table.Row
     className={cn(
@@ -28,7 +28,7 @@ Table.HeaderRow = ({ className, ...props }: TableHeaderRowProps) => (
   />
 )
 
-interface TableHeaderProps extends ElementType<'thead'> {}
+export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
   <thead
     className={cn(
@@ -40,12 +40,12 @@ Table.Header = ({ children, className }: TableHeaderProps) => (
   </thead>
 )
 
-interface TableHeadCellProps extends ElementType<'th'> {}
+export type TableHeadCellProps = JSX.IntrinsicElements['th']
 Table.HeadCell = ({ className, ...props }: TableHeadCellProps) => (
   <th className={cn(className, 'font-light uppercase')} {...props} />
 )
 
-interface TableRowProps extends ElementType<'tr'> {}
+export type TableRowProps = JSX.IntrinsicElements['tr']
 Table.Row = ({ className, ...props }: TableRowProps) => (
   <tr
     className={cn(className, 'between:border-l between:border-gray-500')}
@@ -53,12 +53,12 @@ Table.Row = ({ className, ...props }: TableRowProps) => (
   />
 )
 
-interface TableBodyProps extends ElementType<'tbody'> {}
+export type TableBodyProps = JSX.IntrinsicElements['tbody']
 Table.Body = ({ className, ...props }: TableBodyProps) => (
   <tbody className={cn(className)} {...props} />
 )
 
-interface TableCellProps extends ElementType<'td'> {}
+export type TableCellProps = JSX.IntrinsicElements['td']
 Table.Cell = ({ className, ...props }: TableCellProps) => (
   <td className={cn(className, 'h-16')} {...props} />
 )
