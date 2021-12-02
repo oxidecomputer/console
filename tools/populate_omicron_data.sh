@@ -12,27 +12,40 @@ set -o xtrace
 ./tools/oxapi_demo organization_create_demo enron
 ./tools/oxapi_demo organization_create_demo theranos
 
+# Create projects
+
 ./tools/oxapi_demo project_create_demo maze-war prod-online
 ./tools/oxapi_demo project_create_demo maze-war release-infrastructure 
 ./tools/oxapi_demo project_create_demo maze-war rendering
 ./tools/oxapi_demo project_create_demo maze-war test-infrastructure
-./tools/oxapi_demo project_create_demo maze-war oxide-demo
+
+# Create instances in project prod-online
 
 ./tools/oxapi_demo instance_create_demo maze-war prod-online db1
 ./tools/oxapi_demo instance_create_demo maze-war prod-online db2
+
+# Create disks in prod-online
 
 ./tools/oxapi_demo disk_create_demo maze-war prod-online nginx
 ./tools/oxapi_demo disk_create_demo maze-war prod-online grafana
 ./tools/oxapi_demo disk_create_demo maze-war prod-online grafana-state
 ./tools/oxapi_demo disk_create_demo maze-war prod-online vault
 
-# leave unattached
-./tools/oxapi_demo disk_create_demo maze-war prod-online vol1
-./tools/oxapi_demo disk_create_demo maze-war prod-online vol2
+# Attach disks to instance db1
 
 ./tools/oxapi_demo instance_attach_disk maze-war prod-online db1 nginx
 ./tools/oxapi_demo instance_attach_disk maze-war prod-online db1 grafana
 ./tools/oxapi_demo instance_attach_disk maze-war prod-online db1 grafana-state
 ./tools/oxapi_demo instance_attach_disk maze-war prod-online db1 vault
+
+# Create some disks in prod-online to leave unattached
+
+./tools/oxapi_demo disk_create_demo maze-war prod-online vol1
+./tools/oxapi_demo disk_create_demo maze-war prod-online vol2
+
+# Create VPCs in prod-online
+
+./tools/oxapi_demo vpc_create_demo maze-war prod-online vpc1 vpc1
+./tools/oxapi_demo vpc_create_demo maze-war prod-online vpc2 vpc2
 
 echo -e "\n==== API DATA POPULATED ====\n"
