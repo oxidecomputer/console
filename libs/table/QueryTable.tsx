@@ -33,7 +33,9 @@ export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ApiError>
 ): UseQueryTableResult<A, M> => {
-  // TODO: We should probably find a better way to do this
+  // TODO: We should probably find a better way to do this. In essence
+  // we need the params and options to be stable and comparable to prevent unnecessary recreation
+  // of the table which is a relatively expensive operation.
   const stableParams = Object.values(params as Record<string, string>)
     .sort()
     .join(':')
@@ -139,7 +141,7 @@ interface QueryTableColumnProps<
   R extends unknown = any
 > {
   id: string
-  // @ts-expect-error
+  // @ts-expect-error It complains about items not being indexable of T but we know it will be
   accessor?: Path<T[items][number]> | ((type: T[items][number]) => R)
   header?: string | ReactElement
   cell?: ComponentType<R>
