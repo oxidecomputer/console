@@ -13,7 +13,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import { classed, More12Icon, Success16Icon } from '@oxide/ui'
-import { Table, selectCol } from '@oxide/table'
+import { Table, getSelectCol } from '@oxide/table'
 import { StatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
@@ -177,7 +177,7 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
   const table = useTable({ columns, data }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [
-      selectCol as never,
+      getSelectCol(),
       ...columns,
       menuCol,
     ])
