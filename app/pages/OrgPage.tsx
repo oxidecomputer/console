@@ -11,7 +11,7 @@ export default function OrgPage() {
     organizationName: orgName,
   })
 
-  if (!org) return <div>loading</div>
+  if (!org) return null
 
   return (
     <>

@@ -14,45 +14,45 @@
 
 import { exists, mapValues } from '../runtime'
 /**
- * Create-time parameters for an [`Disk`]
+ * Create-time parameters for a [`Disk`]
  * @export
- * @interface DiskCreateParams
+ * @interface DiskCreate
  */
-export interface DiskCreateParams {
+export interface DiskCreate {
   /**
    *
    * @type {string}
-   * @memberof DiskCreateParams
+   * @memberof DiskCreate
    */
   description: string
   /**
    * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
    * @type {string}
-   * @memberof DiskCreateParams
+   * @memberof DiskCreate
    */
   name: string
   /**
    * size of the Disk
    * @type {number}
-   * @memberof DiskCreateParams
+   * @memberof DiskCreate
    */
   size: number
   /**
    * id for snapshot from which the Disk should be created, if any
    * @type {string}
-   * @memberof DiskCreateParams
+   * @memberof DiskCreate
    */
   snapshotId?: string | null
 }
 
-export function DiskCreateParamsFromJSON(json: any): DiskCreateParams {
-  return DiskCreateParamsFromJSONTyped(json, false)
+export function DiskCreateFromJSON(json: any): DiskCreate {
+  return DiskCreateFromJSONTyped(json, false)
 }
 
-export function DiskCreateParamsFromJSONTyped(
+export function DiskCreateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): DiskCreateParams {
+): DiskCreate {
   if (json === undefined || json === null) {
     return json
   }
@@ -64,7 +64,7 @@ export function DiskCreateParamsFromJSONTyped(
   }
 }
 
-export function DiskCreateParamsToJSON(value?: DiskCreateParams | null): any {
+export function DiskCreateToJSON(value?: DiskCreate | null): any {
   if (value === undefined) {
     return undefined
   }

@@ -95,7 +95,7 @@ export function InstanceCreateForm({
           createInstance.mutate({
             organizationName: orgName,
             projectName,
-            instanceCreateParams: {
+            instanceCreate: {
               name: values['instance-name'],
               hostname: values.hostname,
               description: `An instance in project: ${projectName}`,

@@ -20,9 +20,9 @@ import {
   DiskAttachment,
   DiskAttachmentFromJSON,
   DiskAttachmentToJSON,
-  DiskCreateParams,
-  DiskCreateParamsFromJSON,
-  DiskCreateParamsToJSON,
+  DiskCreate,
+  DiskCreateFromJSON,
+  DiskCreateToJSON,
   DiskResultsPage,
   DiskResultsPageFromJSON,
   DiskResultsPageToJSON,
@@ -32,9 +32,9 @@ import {
   Instance,
   InstanceFromJSON,
   InstanceToJSON,
-  InstanceCreateParams,
-  InstanceCreateParamsFromJSON,
-  InstanceCreateParamsToJSON,
+  InstanceCreate,
+  InstanceCreateFromJSON,
+  InstanceCreateToJSON,
   InstanceResultsPage,
   InstanceResultsPageFromJSON,
   InstanceResultsPageToJSON,
@@ -104,9 +104,9 @@ import {
   Vpc,
   VpcFromJSON,
   VpcToJSON,
-  VpcCreateParams,
-  VpcCreateParamsFromJSON,
-  VpcCreateParamsToJSON,
+  VpcCreate,
+  VpcCreateFromJSON,
+  VpcCreateToJSON,
   VpcFirewallRule,
   VpcFirewallRuleFromJSON,
   VpcFirewallRuleToJSON,
@@ -122,30 +122,30 @@ import {
   VpcRouter,
   VpcRouterFromJSON,
   VpcRouterToJSON,
-  VpcRouterCreateParams,
-  VpcRouterCreateParamsFromJSON,
-  VpcRouterCreateParamsToJSON,
+  VpcRouterCreate,
+  VpcRouterCreateFromJSON,
+  VpcRouterCreateToJSON,
   VpcRouterResultsPage,
   VpcRouterResultsPageFromJSON,
   VpcRouterResultsPageToJSON,
-  VpcRouterUpdateParams,
-  VpcRouterUpdateParamsFromJSON,
-  VpcRouterUpdateParamsToJSON,
+  VpcRouterUpdate,
+  VpcRouterUpdateFromJSON,
+  VpcRouterUpdateToJSON,
   VpcSubnet,
   VpcSubnetFromJSON,
   VpcSubnetToJSON,
-  VpcSubnetCreateParams,
-  VpcSubnetCreateParamsFromJSON,
-  VpcSubnetCreateParamsToJSON,
+  VpcSubnetCreate,
+  VpcSubnetCreateFromJSON,
+  VpcSubnetCreateToJSON,
   VpcSubnetResultsPage,
   VpcSubnetResultsPageFromJSON,
   VpcSubnetResultsPageToJSON,
-  VpcSubnetUpdateParams,
-  VpcSubnetUpdateParamsFromJSON,
-  VpcSubnetUpdateParamsToJSON,
-  VpcUpdateParams,
-  VpcUpdateParamsFromJSON,
-  VpcUpdateParamsToJSON,
+  VpcSubnetUpdate,
+  VpcSubnetUpdateFromJSON,
+  VpcSubnetUpdateToJSON,
+  VpcUpdate,
+  VpcUpdateFromJSON,
+  VpcUpdateToJSON,
 } from '../models'
 
 export interface HardwareRacksGetRequest {
@@ -269,7 +269,7 @@ export interface ProjectDisksGetDiskRequest {
 export interface ProjectDisksPostRequest {
   organizationName: string
   projectName: string
-  diskCreateParams: DiskCreateParams
+  diskCreate: DiskCreate
 }
 
 export interface ProjectInstancesDeleteInstanceRequest {
@@ -313,7 +313,7 @@ export interface ProjectInstancesInstanceStopRequest {
 export interface ProjectInstancesPostRequest {
   organizationName: string
   projectName: string
-  instanceCreateParams: InstanceCreateParams
+  instanceCreate: InstanceCreate
 }
 
 export interface ProjectVpcsDeleteVpcRequest {
@@ -339,14 +339,14 @@ export interface ProjectVpcsGetVpcRequest {
 export interface ProjectVpcsPostRequest {
   organizationName: string
   projectName: string
-  vpcCreateParams: VpcCreateParams
+  vpcCreate: VpcCreate
 }
 
 export interface ProjectVpcsPutVpcRequest {
   organizationName: string
   projectName: string
   vpcName: string
-  vpcUpdateParams: VpcUpdateParams
+  vpcUpdate: VpcUpdate
 }
 
 export interface RoutersRoutesDeleteRouteRequest {
@@ -449,7 +449,7 @@ export interface VpcRoutersPostRequest {
   organizationName: string
   projectName: string
   vpcName: string
-  vpcRouterCreateParams: VpcRouterCreateParams
+  vpcRouterCreate: VpcRouterCreate
 }
 
 export interface VpcRoutersPutRouterRequest {
@@ -457,7 +457,7 @@ export interface VpcRoutersPutRouterRequest {
   projectName: string
   routerName: string
   vpcName: string
-  vpcRouterUpdateParams: VpcRouterUpdateParams
+  vpcRouterUpdate: VpcRouterUpdate
 }
 
 export interface VpcSubnetsDeleteSubnetRequest {
@@ -487,7 +487,7 @@ export interface VpcSubnetsPostRequest {
   organizationName: string
   projectName: string
   vpcName: string
-  vpcSubnetCreateParams: VpcSubnetCreateParams
+  vpcSubnetCreate: VpcSubnetCreate
 }
 
 export interface VpcSubnetsPutSubnetRequest {
@@ -495,7 +495,7 @@ export interface VpcSubnetsPutSubnetRequest {
   projectName: string
   subnetName: string
   vpcName: string
-  vpcSubnetUpdateParams: VpcSubnetUpdateParams
+  vpcSubnetUpdate: VpcSubnetUpdate
 }
 
 /**
@@ -1989,12 +1989,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.diskCreateParams === null ||
-      requestParameters.diskCreateParams === undefined
+      requestParameters.diskCreate === null ||
+      requestParameters.diskCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'diskCreateParams',
-        'Required parameter requestParameters.diskCreateParams was null or undefined when calling projectDisksPost.'
+        'diskCreate',
+        'Required parameter requestParameters.diskCreate was null or undefined when calling projectDisksPost.'
       )
     }
 
@@ -2018,7 +2018,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: DiskCreateParamsToJSON(requestParameters.diskCreateParams),
+        body: DiskCreateToJSON(requestParameters.diskCreate),
       },
       initOverrides
     )
@@ -2557,12 +2557,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.instanceCreateParams === null ||
-      requestParameters.instanceCreateParams === undefined
+      requestParameters.instanceCreate === null ||
+      requestParameters.instanceCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'instanceCreateParams',
-        'Required parameter requestParameters.instanceCreateParams was null or undefined when calling projectInstancesPost.'
+        'instanceCreate',
+        'Required parameter requestParameters.instanceCreate was null or undefined when calling projectInstancesPost.'
       )
     }
 
@@ -2586,9 +2586,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: InstanceCreateParamsToJSON(
-          requestParameters.instanceCreateParams
-        ),
+        body: InstanceCreateToJSON(requestParameters.instanceCreate),
       },
       initOverrides
     )
@@ -2878,12 +2876,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcCreateParams === null ||
-      requestParameters.vpcCreateParams === undefined
+      requestParameters.vpcCreate === null ||
+      requestParameters.vpcCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcCreateParams',
-        'Required parameter requestParameters.vpcCreateParams was null or undefined when calling projectVpcsPost.'
+        'vpcCreate',
+        'Required parameter requestParameters.vpcCreate was null or undefined when calling projectVpcsPost.'
       )
     }
 
@@ -2907,7 +2905,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcCreateParamsToJSON(requestParameters.vpcCreateParams),
+        body: VpcCreateToJSON(requestParameters.vpcCreate),
       },
       initOverrides
     )
@@ -2969,12 +2967,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcUpdateParams === null ||
-      requestParameters.vpcUpdateParams === undefined
+      requestParameters.vpcUpdate === null ||
+      requestParameters.vpcUpdate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcUpdateParams',
-        'Required parameter requestParameters.vpcUpdateParams was null or undefined when calling projectVpcsPutVpc.'
+        'vpcUpdate',
+        'Required parameter requestParameters.vpcUpdate was null or undefined when calling projectVpcsPutVpc.'
       )
     }
 
@@ -3002,7 +3000,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcUpdateParamsToJSON(requestParameters.vpcUpdateParams),
+        body: VpcUpdateToJSON(requestParameters.vpcUpdate),
       },
       initOverrides
     )
@@ -4226,12 +4224,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcRouterCreateParams === null ||
-      requestParameters.vpcRouterCreateParams === undefined
+      requestParameters.vpcRouterCreate === null ||
+      requestParameters.vpcRouterCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcRouterCreateParams',
-        'Required parameter requestParameters.vpcRouterCreateParams was null or undefined when calling vpcRoutersPost.'
+        'vpcRouterCreate',
+        'Required parameter requestParameters.vpcRouterCreate was null or undefined when calling vpcRoutersPost.'
       )
     }
 
@@ -4259,9 +4257,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcRouterCreateParamsToJSON(
-          requestParameters.vpcRouterCreateParams
-        ),
+        body: VpcRouterCreateToJSON(requestParameters.vpcRouterCreate),
       },
       initOverrides
     )
@@ -4333,12 +4329,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcRouterUpdateParams === null ||
-      requestParameters.vpcRouterUpdateParams === undefined
+      requestParameters.vpcRouterUpdate === null ||
+      requestParameters.vpcRouterUpdate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcRouterUpdateParams',
-        'Required parameter requestParameters.vpcRouterUpdateParams was null or undefined when calling vpcRoutersPutRouter.'
+        'vpcRouterUpdate',
+        'Required parameter requestParameters.vpcRouterUpdate was null or undefined when calling vpcRoutersPutRouter.'
       )
     }
 
@@ -4370,9 +4366,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcRouterUpdateParamsToJSON(
-          requestParameters.vpcRouterUpdateParams
-        ),
+        body: VpcRouterUpdateToJSON(requestParameters.vpcRouterUpdate),
       },
       initOverrides
     )
@@ -4708,12 +4702,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcSubnetCreateParams === null ||
-      requestParameters.vpcSubnetCreateParams === undefined
+      requestParameters.vpcSubnetCreate === null ||
+      requestParameters.vpcSubnetCreate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcSubnetCreateParams',
-        'Required parameter requestParameters.vpcSubnetCreateParams was null or undefined when calling vpcSubnetsPost.'
+        'vpcSubnetCreate',
+        'Required parameter requestParameters.vpcSubnetCreate was null or undefined when calling vpcSubnetsPost.'
       )
     }
 
@@ -4741,9 +4735,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcSubnetCreateParamsToJSON(
-          requestParameters.vpcSubnetCreateParams
-        ),
+        body: VpcSubnetCreateToJSON(requestParameters.vpcSubnetCreate),
       },
       initOverrides
     )
@@ -4815,12 +4807,12 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     if (
-      requestParameters.vpcSubnetUpdateParams === null ||
-      requestParameters.vpcSubnetUpdateParams === undefined
+      requestParameters.vpcSubnetUpdate === null ||
+      requestParameters.vpcSubnetUpdate === undefined
     ) {
       throw new runtime.RequiredError(
-        'vpcSubnetUpdateParams',
-        'Required parameter requestParameters.vpcSubnetUpdateParams was null or undefined when calling vpcSubnetsPutSubnet.'
+        'vpcSubnetUpdate',
+        'Required parameter requestParameters.vpcSubnetUpdate was null or undefined when calling vpcSubnetsPutSubnet.'
       )
     }
 
@@ -4852,9 +4844,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: VpcSubnetUpdateParamsToJSON(
-          requestParameters.vpcSubnetUpdateParams
-        ),
+        body: VpcSubnetUpdateToJSON(requestParameters.vpcSubnetUpdate),
       },
       initOverrides
     )

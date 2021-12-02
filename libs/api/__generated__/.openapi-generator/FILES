@@ -3,7 +3,7 @@ apis/index.ts
 index.ts
 models/Disk.ts
 models/DiskAttachment.ts
-models/DiskCreateParams.ts
+models/DiskCreate.ts
 models/DiskResultsPage.ts
 models/DiskState.ts
 models/DiskStateOneOf.ts
@@ -16,7 +16,7 @@ models/DiskStateOneOf6.ts
 models/IdSortMode.ts
 models/IdentityMetadata.ts
 models/Instance.ts
-models/InstanceCreateParams.ts
+models/InstanceCreate.ts
 models/InstanceResultsPage.ts
 models/InstanceState.ts
 models/LoginParams.ts
@@ -59,7 +59,7 @@ models/SagaStateOneOf2.ts
 models/Sled.ts
 models/SledResultsPage.ts
 models/Vpc.ts
-models/VpcCreateParams.ts
+models/VpcCreate.ts
 models/VpcFirewallRule.ts
 models/VpcFirewallRuleAction.ts
 models/VpcFirewallRuleDirection.ts
@@ -72,14 +72,14 @@ models/VpcFirewallRuleTarget.ts
 models/VpcFirewallRuleUpdate.ts
 models/VpcResultsPage.ts
 models/VpcRouter.ts
-models/VpcRouterCreateParams.ts
+models/VpcRouterCreate.ts
 models/VpcRouterKind.ts
 models/VpcRouterResultsPage.ts
-models/VpcRouterUpdateParams.ts
+models/VpcRouterUpdate.ts
 models/VpcSubnet.ts
-models/VpcSubnetCreateParams.ts
+models/VpcSubnetCreate.ts
 models/VpcSubnetResultsPage.ts
-models/VpcSubnetUpdateParams.ts
-models/VpcUpdateParams.ts
+models/VpcSubnetUpdate.ts
+models/VpcUpdate.ts
 models/index.ts
 runtime.ts

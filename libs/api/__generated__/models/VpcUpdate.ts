@@ -16,37 +16,37 @@ import { exists, mapValues } from '../runtime'
 /**
  * Updateable properties of a [`Vpc`]
  * @export
- * @interface VpcUpdateParams
+ * @interface VpcUpdate
  */
-export interface VpcUpdateParams {
+export interface VpcUpdate {
   /**
    *
    * @type {string}
-   * @memberof VpcUpdateParams
+   * @memberof VpcUpdate
    */
   description?: string | null
   /**
    *
    * @type {string}
-   * @memberof VpcUpdateParams
+   * @memberof VpcUpdate
    */
   dnsName?: string | null
   /**
    *
    * @type {string}
-   * @memberof VpcUpdateParams
+   * @memberof VpcUpdate
    */
   name?: string | null
 }
 
-export function VpcUpdateParamsFromJSON(json: any): VpcUpdateParams {
-  return VpcUpdateParamsFromJSONTyped(json, false)
+export function VpcUpdateFromJSON(json: any): VpcUpdate {
+  return VpcUpdateFromJSONTyped(json, false)
 }
 
-export function VpcUpdateParamsFromJSONTyped(
+export function VpcUpdateFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean
-): VpcUpdateParams {
+): VpcUpdate {
   if (json === undefined || json === null) {
     return json
   }
@@ -57,7 +57,7 @@ export function VpcUpdateParamsFromJSONTyped(
   }
 }
 
-export function VpcUpdateParamsToJSON(value?: VpcUpdateParams | null): any {
+export function VpcUpdateToJSON(value?: VpcUpdate | null): any {
   if (value === undefined) {
     return undefined
   }
