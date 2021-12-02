@@ -2,12 +2,12 @@ import type { Instance } from '@oxide/api'
 import { Badge } from '@oxide/ui'
 import { formatDistanceToNow } from 'date-fns'
 import React from 'react'
-import { TwoLineCell } from '.'
+import type { Cell } from './Cell'
+import { TwoLineCell } from './TwoLineCell'
 
-interface InstanceStatusCellProps {
-  value: Pick<Instance, 'runState' | 'timeRunStateUpdated'>
-}
-export const InstanceStatusCell = ({ value }: InstanceStatusCellProps) => {
+export const InstanceStatusCell = ({
+  value,
+}: Cell<Pick<Instance, 'runState' | 'timeRunStateUpdated'>>) => {
   return (
     <TwoLineCell
       value={[

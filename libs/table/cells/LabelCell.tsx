@@ -1,12 +1,5 @@
-import { Cell } from './Cell'
+import type { Cell } from './Cell'
 import React from 'react'
 import { Badge } from '@oxide/ui'
 
-interface LabelCellProps {
-  value: string
-}
-export const LabelCell = ({ value }: LabelCellProps) => (
-  <Cell>
-    <Badge>{value}</Badge>
-  </Cell>
-)
+export const LabelCell = ({ value }: Cell<string>) => <Badge>{value}</Badge>

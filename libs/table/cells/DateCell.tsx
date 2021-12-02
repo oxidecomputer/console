@@ -1,13 +1,10 @@
 import { format } from 'date-fns'
 import React from 'react'
-import { Cell } from './Cell'
+import type { Cell } from './Cell'
 
-interface DateCellProps {
-  value: Date
-}
-export const DateCell = ({ value }: DateCellProps) => (
-  <Cell>
+export const DateCell = ({ value }: Cell<Date>) => (
+  <>
     <div>{format(value, 'MMM d, yyyy')}</div>
     <div className="text-gray-200">{format(value, 'p')}</div>
-  </Cell>
+  </>
 )

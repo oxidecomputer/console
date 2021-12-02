@@ -6,11 +6,11 @@ import {
   Access16Icon,
   Dashboard16Icon,
   Document16Icon,
-  Instances16Icon,
   Metrics16Icon,
   Networking16Icon,
-  Settings16Icon,
+  Resize16Icon,
   Storage16Icon,
+  Tags16Icon,
 } from '@oxide/ui'
 import {
   ContentPane,
@@ -22,25 +22,39 @@ import {
   SidebarDivider,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { InstancePageHeader } from '../components/InstancePageHeader'
 import { useParams } from '../hooks'
 
-const ProjectLayout = () => {
-  const { orgName, projectName } = useParams('orgName', 'projectName')
+const InstanceLayout = () => {
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
   return (
     <PageContainer>
       <Sidebar>
         <Picker
-          category="Project"
-          resource={projectName}
-          backTo={`/orgs/${orgName}`}
+          category="Instance"
+          resource={instanceName}
+          backTo={`/orgs/${orgName}/projects/${projectName}`}
         />
         <SidebarDivider />
         <NavList>
-          <NavLinkItem to="" end>
+          <NavLinkItem to="">
             <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
-          <NavLinkItem to="instances">
-            <Instances16Icon /> Instances
+          <NavLinkItem to="metrics">
+            <Metrics16Icon /> Metrics
+          </NavLinkItem>
+          <NavLinkItem to="activity">
+            <Document16Icon title="Activity" /> Activity
+          </NavLinkItem>
+          <NavLinkItem to="access">
+            <Access16Icon /> Access &amp; IAM
+          </NavLinkItem>
+          <NavLinkItem to="resize">
+            <Resize16Icon /> Resize
           </NavLinkItem>
           <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
@@ -48,27 +62,20 @@ const ProjectLayout = () => {
           <NavLinkItem to="storage">
             <Storage16Icon /> Storage
           </NavLinkItem>
-          <NavLinkItem to="metrics">
-            <Metrics16Icon /> Metrics
-          </NavLinkItem>
-          <NavLinkItem to="audit">
-            <Document16Icon title="Audit Log" /> Audit log
-          </NavLinkItem>
-          <NavLinkItem to="access">
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
-          </NavLinkItem>
-          <NavLinkItem to="settings">
-            <Settings16Icon /> Settings
+          <NavLinkItem to="tags">
+            <Tags16Icon /> Tags
           </NavLinkItem>
         </NavList>
       </Sidebar>
       <ContentPane>
         <Breadcrumbs />
         <SkipLinkTarget />
+        <InstancePageHeader />
         <Outlet />
       </ContentPane>
     </PageContainer>
   )
 }
 
-export default ProjectLayout
+// hot reload doesn't work with `export default () => ...` ???
+export default InstanceLayout

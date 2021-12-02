@@ -31,11 +31,13 @@ import ProjectStoragePage from './pages/project/Storage'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
+import VpcPage from './pages/networking/VpcPage'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
+import VpcsPage from './pages/networking/VpcsPage'
 
 // TODO: putting this before RootLayout causes a race condition? yikes
 import NotFound from './pages/NotFound'
@@ -107,7 +109,10 @@ export const routes = (
                 crumb="Create instance"
               />
             </Route>
-            <Route path="networking" crumb="Networking" />
+            <Route path="vpcs" crumb="Vpcs">
+              <Route index element={<VpcsPage />} />
+              <Route path=":vpcName" element={<VpcPage />} />
+            </Route>
             <Route
               path="storage"
               element={<ProjectStoragePage />}

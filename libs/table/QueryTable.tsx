@@ -11,12 +11,13 @@ import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
 import { getSelectCol } from './select-col'
 import React from 'react'
-import { Cell, DefaultHeader } from '.'
+import { DefaultCell } from './cells'
+import { DefaultHeader } from './headers'
 import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
 
 type Params<F> = F extends (p: infer P) => any ? P : never
-type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
+export type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
   Table: ComponentType<QueryTableProps>
@@ -86,7 +87,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
             column.header = <DefaultHeader>{name}</DefaultHeader>
           }
           if (!column.cell) {
-            column.cell = Cell
+            column.cell = DefaultCell
           }
           column.Cell = column.cell
           column.Header = column.header
@@ -134,7 +135,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
 
 type items = 'items'
 
-interface QueryTableColumnProps<
+export interface QueryTableColumnProps<
   A extends DefaultApi,
   M extends keyof A,
   T extends Result<A[M]>,

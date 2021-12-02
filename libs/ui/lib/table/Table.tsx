@@ -42,7 +42,10 @@ Table.Header = ({ children, className }: TableHeaderProps) => (
 
 export type TableHeadCellProps = JSX.IntrinsicElements['th']
 Table.HeadCell = ({ className, ...props }: TableHeadCellProps) => (
-  <th className={cn(className, 'font-light uppercase')} {...props} />
+  <th
+    className={cn(className, 'font-light uppercase text-left px-4')}
+    {...props}
+  />
 )
 
 export type TableRowProps = JSX.IntrinsicElements['tr']
@@ -60,5 +63,5 @@ Table.Body = ({ className, ...props }: TableBodyProps) => (
 
 export type TableCellProps = JSX.IntrinsicElements['td']
 Table.Cell = ({ className, ...props }: TableCellProps) => (
-  <td className={cn(className, 'h-16')} {...props} />
+  <td className={cn(className, 'h-16 px-4')} {...props} />
 )
