@@ -7,7 +7,6 @@ describe('capitalize', () => {
 
   it('passes through falsy values', () => {
     expect(capitalize('')).toEqual('')
-    expect(capitalize(null)).toEqual(null)
     expect(capitalize(undefined)).toEqual(undefined)
   })
 })

@@ -175,13 +175,25 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   )
 
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
-  const table = useTable({ columns, data }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      getSelectCol(),
-      ...columns,
-      menuCol,
-    ])
-  })
+  const table = useTable(
+    {
+      columns,
+      data,
+      // don't reset the checkboxes every time we poll. strictly speaking this
+      // is wrong because if the rows change the selection will be wrong. but
+      // QueryTable handles this and this will soon be a QueryTable
+      // @ts-expect-error it doesn't know about this option but it exists
+      autoResetSelectedRows: false,
+    },
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        getSelectCol(),
+        ...columns,
+        menuCol,
+      ])
+    }
+  )
 
   if (!instances) return null
 
