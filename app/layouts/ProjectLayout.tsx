@@ -9,6 +9,8 @@ import {
   Metrics16Icon,
   Networking16Icon,
   Storage16Icon,
+  Notification16Icon,
+  Resize16Icon,
 } from '@oxide/ui'
 import { ContentPane, PageContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -23,7 +25,7 @@ const ProjectLayout = () => {
             <Instances16Icon /> Instances
           </NavLink>
           <NavLink to="snapshots">
-            <Instances16Icon /> Snapshots
+            <Notification16Icon /> Snapshots
           </NavLink>
           <NavLink to="storage">
             <Storage16Icon /> Disks
@@ -32,7 +34,7 @@ const ProjectLayout = () => {
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLink>
           <NavLink to="images">
-            <Access16Icon title="images" /> Images
+            <Resize16Icon title="images" /> Images
           </NavLink>
           <NavLink to="vpcs">
             <Networking16Icon /> Networking
