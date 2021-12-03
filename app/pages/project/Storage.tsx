@@ -59,7 +59,7 @@ export default function ProjectStorage() {
         />
         <Column
           id="status"
-          accessor={(disk) => disk.state.state}
+          accessor="state.state"
           cell={({ value }) => <DiskStatusBadge status={value} />}
         />
       </Table>
