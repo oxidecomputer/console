@@ -4,7 +4,7 @@ import cn from 'classnames'
 
 import type { Instance } from '@oxide/api'
 import { classed } from '@oxide/ui'
-import { StatusBadge } from './StatusBadge'
+import { InstanceStatusBadge } from './StatusBadge'
 
 export interface InstanceDetailsProps {
   instance: Instance
@@ -40,6 +40,6 @@ export const InstanceDetails = ({
     <Space />
     <span className="mr-6">&lt;IP address&gt;</span>
     <Space />
-    <StatusBadge status={instance.runState} />
+    <InstanceStatusBadge status={instance.runState} />
   </div>
 )

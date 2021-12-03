@@ -1,38 +1,28 @@
 import React from 'react'
 import { useTable } from 'react-table'
 
-import type { DiskAttachment } from '@oxide/api'
+import type { DiskAttachment, DiskState } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { Table } from '@oxide/table'
 import { useParams } from '../../hooks'
+import { DiskStatusBadge } from '../../components/StatusBadge'
 
 const columns = [
   {
     accessor: 'diskName' as const,
     // TODO: there might be a better way to add this margin to both
-    Header: () => <div className="text-left mx-4">Name</div>,
-    Cell: ({ value }: { value: string }) => <div className="mx-4">{value}</div>,
+    Header: 'Name',
+    Cell: ({ value }: { value: string }) => <div>{value}</div>,
   },
   {
-    accessor: (_d: DiskAttachment) => '<size>', // TODO: real data
-    id: 'size',
-    Header: (
-      <>
-        Size <span className="normal-case">(GiB)</span>
-      </>
+    id: 'status',
+    accessor: (d: DiskAttachment) => d.diskState.state,
+    Header: 'Status',
+    Cell: ({ value }: { value: DiskState['state'] }) => (
+      <DiskStatusBadge status={value} />
     ),
-    // width needs to be on the th itself to succesfully constrain the size
-    className: 'text-left w-32',
-  },
-  {
-    accessor: (_d: DiskAttachment) => '<mode>', // TODO: real data
-    id: 'mode',
-    Header: 'Mode',
-    // Cell: ({ value }: { value: string }) => (
-    //   <span className="uppercase">{value}</span>
-    // ),
-    className: 'text-left w-48',
+    className: 'w-56',
   },
 ]
 
