@@ -20,7 +20,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500 min-w-min'
+        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500 min-w-min flex-grow'
       )}
     >
       {children}
@@ -52,7 +52,7 @@ PropertiesTable.Group = ({
 }: PropertiesTableGroupProps) => {
   invariant(
     isOneOf(children, [PropertiesTable]),
-    'PropertiesTable can only have PropertiesTable.Row as a child'
+    'PropertiesTable can only have PropertiesTable as a child'
   )
   return (
     <div

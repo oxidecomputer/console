@@ -8,11 +8,11 @@ export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
-  xs: 'h-8 px-2 text-sm svg:w-4',
-  sm: 'h-9 px-3 text-sm svg:w-4',
-  base: 'h-10 px-3 text-sm svg:w-5',
-  lg: 'h-11 px-4 text-base svg:w-5',
-  xl: 'h-12 px-4 text-base svg:w-6',
+  xs: 'h-8 px-2 text-mono-sm svg:w-4',
+  sm: 'h-9 px-3 text-mono-sm svg:w-4',
+  base: 'h-10 px-3 text-mono-sm svg:w-5',
+  lg: 'h-11 px-4 text-mono-lg svg:w-5',
+  xl: 'h-12 px-4 text-mono-lg svg:w-6',
 }
 
 const variantStyle: Record<Variant, string> = {
@@ -21,7 +21,7 @@ const variantStyle: Record<Variant, string> = {
     hover:bg-green-600 disabled:bg-gray-200
   `,
   dim: `
-    bg-green-900 border-transparent text-green-500 hover:bg-green-950
+    bg-green-950 border-transparent text-green-500 hover:bg-green-900
     disabled:text-green-700 disabled:bg-green-900
   `,
   ghost: `
@@ -33,7 +33,7 @@ const variantStyle: Record<Variant, string> = {
 }
 
 const baseStyle = `
-  border rounded uppercase font-mono
+  border rounded-sm uppercase font-mono
   inline-flex items-center justify-center align-top
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-green-700

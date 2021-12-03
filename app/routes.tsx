@@ -36,7 +36,7 @@ import VpcPage from './pages/networking/VpcPage'
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
-import InstanceLayout from './layouts/InstanceLayout'
+import { InstancePage } from './pages/instances'
 import VpcsPage from './pages/networking/VpcsPage'
 
 // TODO: putting this before RootLayout causes a race condition? yikes
@@ -100,42 +100,20 @@ export const routes = (
             element={<ProjectLayout />}
             crumb={projectCrumb}
           >
-            <Route index element={<ProjectPage />} />
-            <Route path="instances">
-              <Route index element={<ProjectPage />} />
-              <Route
-                path="new"
-                element={<InstanceCreatePage />}
-                crumb="Create instance"
-              />
-            </Route>
-            <Route path="vpcs" crumb="Vpcs">
-              <Route index element={<VpcsPage />} />
-              <Route path=":vpcName" element={<VpcPage />} />
-            </Route>
+            <Route index element={<Navigate to="instances" />} />
+            {/* This is separate from the other instances routes because we want a different crumb */}
             <Route
-              path="storage"
-              element={<ProjectStoragePage />}
-              crumb="Storage"
+              path="instances/new"
+              element={<InstanceCreatePage />}
+              crumb="Create instance"
             />
-            <Route path="metrics" crumb="Metrics" />
-            <Route path="audit" crumb="Audit" />
-            <Route
-              path="access"
-              element={<ProjectAccessPage />}
-              crumb="Access & IAM"
-            />
-            <Route path="settings" crumb="Settings" />
-          </Route>
-
-          {/* INSTANCE */}
-          <Route path=":projectName" crumb={projectCrumb}>
             <Route path="instances" crumb="Instances">
+              <Route index element={<ProjectPage />} />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
-                element={<InstanceLayout />}
+                element={<InstancePage />}
                 crumb={instanceCrumb}
               >
                 <Route index />
@@ -156,6 +134,23 @@ export const routes = (
                 <Route path="tags" crumb="Tags" />
               </Route>
             </Route>
+            <Route path="vpcs" crumb="Vpcs">
+              <Route index element={<VpcsPage />} />
+              <Route path=":vpcName" element={<VpcPage />} />
+            </Route>
+            <Route
+              path="storage"
+              element={<ProjectStoragePage />}
+              crumb="Storage"
+            />
+            <Route path="metrics" crumb="Metrics" />
+            <Route path="audit" crumb="Audit" />
+            <Route
+              path="access"
+              element={<ProjectAccessPage />}
+              crumb="Access & IAM"
+            />
+            <Route path="settings" crumb="Settings" />
           </Route>
         </Route>
       </Route>
