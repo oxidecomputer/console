@@ -8,10 +8,7 @@ export function Table({ className, ...props }: TableProps) {
     <table
       // TODO: turns out rounded corners on a table requires border-collapse separate,
       // which requires further shenanigans to get the borders to behave
-      className={cn(
-        className,
-        'w-full border border-gray-400 text-xs font-mono'
-      )}
+      className={cn(className, 'w-full border border-gray-400 text-sans-md')}
       {...props}
     />
   )
@@ -43,7 +40,10 @@ Table.Header = ({ children, className }: TableHeaderProps) => (
 export type TableHeadCellProps = JSX.IntrinsicElements['th']
 Table.HeadCell = ({ className, ...props }: TableHeadCellProps) => (
   <th
-    className={cn(className, 'font-light uppercase text-left px-4')}
+    className={cn(
+      className,
+      'font-light uppercase text-left px-4 text-mono-md'
+    )}
     {...props}
   />
 )

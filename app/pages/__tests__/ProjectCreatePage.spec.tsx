@@ -62,7 +62,7 @@ describe('ProjectCreateForm', () => {
   it('shows message for known error code in global code map', async () => {
     fetchMock.post(projectsUrl, {
       status: 401,
-      body: { error_code: 'Unauthorized' },
+      body: { error_code: 'Forbidden' },
     })
 
     fireEvent.click(submitButton())

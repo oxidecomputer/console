@@ -13,7 +13,7 @@ export function getParseError(message: string | undefined): string | undefined {
 // Generic messages that work anywhere. There will probably be few or none of
 // these, but it's convenient for now.
 const globalCodeMap: Record<string, string> = {
-  Unauthorized: 'Action not authorized',
+  Forbidden: 'Action not authorized',
 }
 
 export const getServerError = (

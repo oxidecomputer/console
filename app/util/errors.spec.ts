@@ -23,7 +23,7 @@ const unauthorized = {
   raw: {} as Response,
   data: {
     request_id: '3',
-    error_code: 'Unauthorized',
+    error_code: 'Forbidden',
     message: "I'm afraid you can't do that, Dave",
   },
 }
@@ -65,7 +65,7 @@ describe('getServerError', () => {
     )
   })
 
-  it('uses global map of generic codes for, e.g., 401s', () => {
+  it('uses global map of generic codes for, e.g., 403s', () => {
     expect(getServerError(unauthorized, {})).toEqual('Action not authorized')
   })
 

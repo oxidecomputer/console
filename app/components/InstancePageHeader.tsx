@@ -163,7 +163,8 @@ export const InstancePageHeader = () => {
           </Menu>
         </div>
       </PageHeader>
-      <InstanceDetails instance={instance} className="mt-3" />
+      {/* HACK lol don't do this */}
+      <InstanceDetails instance={instance} className="-mt-20" />
     </>
   )
 }

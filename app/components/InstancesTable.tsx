@@ -58,7 +58,7 @@ const columns = [
       <span className="inline-flex">
         <InstanceStatusBadge className="mr-2" status={value.runState} />
         <abbr
-          className="text-xs !no-underline"
+          className="!no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}
         >
           {timeAgoAbbr(value.timeRunStateUpdated)}
@@ -75,6 +75,7 @@ const columns = [
 
 const menuCol = {
   id: 'menu',
+  className: 'w-12',
   Cell: ({ row }: { row: Row<Instance> }) => {
     const instance = row.original
     const instanceName = instance.name
@@ -126,31 +127,33 @@ const menuCol = {
     }
 
     return (
-      <Menu>
-        <MenuButton>
-          <More12Icon className="text-gray-200 mr-4" />
-        </MenuButton>
-        <MenuList className="TableControls">
-          <MenuItem
-            onSelect={() => stopInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.stop(instance)}
-          >
-            Stop
-          </MenuItem>
-          <MenuItem
-            onSelect={() => rebootInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.reboot(instance)}
-          >
-            Reboot
-          </MenuItem>
-          <MenuItem
-            onSelect={() => deleteInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.delete(instance)}
-          >
-            Delete
-          </MenuItem>
-        </MenuList>
-      </Menu>
+      <div className="flex justify-center">
+        <Menu>
+          <MenuButton>
+            <More12Icon className="text-gray-200" />
+          </MenuButton>
+          <MenuList className="TableControls">
+            <MenuItem
+              onSelect={() => stopInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.stop(instance)}
+            >
+              Stop
+            </MenuItem>
+            <MenuItem
+              onSelect={() => rebootInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.reboot(instance)}
+            >
+              Reboot
+            </MenuItem>
+            <MenuItem
+              onSelect={() => deleteInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.delete(instance)}
+            >
+              Delete
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      </div>
     )
   },
 }

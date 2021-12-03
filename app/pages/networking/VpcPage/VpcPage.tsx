@@ -10,12 +10,14 @@ import {
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
+import { useParams } from '../../../hooks'
 
 const VpcPage = () => {
+  const { vpcName } = useParams('vpcName')
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Vpcs" />}>vpc-abc123</PageTitle>
+        <PageTitle icon={<Folder24Icon title="Vpcs" />}>{vpcName}</PageTitle>
       </PageHeader>
 
       <PropertiesTable.Group className="my-12">

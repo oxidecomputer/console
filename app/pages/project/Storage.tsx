@@ -6,6 +6,7 @@ import { useApiQuery } from '@oxide/api'
 
 import { useParams } from '../../hooks'
 import { DiskStatusBadge } from '../../components/StatusBadge'
+import { PageHeader, PageTitle, Storage24Icon } from '@oxide/ui'
 
 function AttachedInstance(props: {
   orgName: string
@@ -35,7 +36,9 @@ export default function ProjectStorage() {
 
   return (
     <>
-      <h1 className="text-display-2xl my-8">Disks</h1>
+      <PageHeader>
+        <PageTitle icon={<Storage24Icon title="Vpcs" />}>Disks</PageTitle>
+      </PageHeader>
       <Table selectable>
         <Column id="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}

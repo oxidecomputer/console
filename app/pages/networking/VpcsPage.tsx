@@ -15,7 +15,7 @@ export const VpcsPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Vpcs" />}>Vpcs</PageTitle>
+        <PageTitle icon={<Folder24Icon title="Vpcs" />}>VPCs</PageTitle>
       </PageHeader>
       <Table selectable>
         <Column

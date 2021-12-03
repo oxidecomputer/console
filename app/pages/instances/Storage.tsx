@@ -47,7 +47,7 @@ function Storage() {
   if (!data) return null
 
   return (
-    <div className="mt-16">
+    <div className="mt-8">
       <h2 className="text-display-lg mb-4">Boot disk</h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
