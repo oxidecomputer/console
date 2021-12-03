@@ -22,7 +22,9 @@ function AttachedInstance(props: {
   })
   const instance = instances?.items.find((i) => i.id === props.instanceId)
   return instance ? (
-    <Link to={`../instances/${instance.name}`}>{instance.name}</Link>
+    <Link className="text-green-500" to={`../instances/${instance.name}`}>
+      {instance.name}
+    </Link>
   ) : null
 }
 

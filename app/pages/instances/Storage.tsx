@@ -48,16 +48,20 @@ function Storage() {
 
   return (
     <div className="mt-8">
-      <h2 className="text-display-lg mb-4">Boot disk</h2>
+      <h2 className="text-mono-sm uppercase mb-4 text-gray-200">Boot disk</h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} rowClassName="!h-10" />
-      <h2 className="text-display-lg mt-12 mb-4">Other disks</h2>
+      <h2 className="text-mono-sm uppercase text-gray-200 mt-12 mb-4">
+        Attached Disks
+      </h2>
       <Table table={otherDisksTable} rowClassName="!h-10" />
       <div className="mt-4">
-        <Button size="sm">Create new disk</Button>
-        <Button size="sm" className="ml-3">
+        <Button variant="dim" size="sm">
+          Create new disk
+        </Button>
+        <Button variant="dim" size="sm" className="ml-3">
           Attach existing disk
         </Button>
       </div>
