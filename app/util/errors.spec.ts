@@ -1,4 +1,4 @@
-import { getServerParseError, getServerError } from './errors'
+import { getParseError, getServerError } from './errors'
 
 const parseError = {
   raw: {} as Response,
@@ -19,17 +19,30 @@ const alreadyExists = {
   },
 }
 
-describe('getServerParseError', () => {
+const unauthorized = {
+  raw: {} as Response,
+  data: {
+    request_id: '3',
+    error_code: 'Unauthorized',
+    message: "I'm afraid you can't do that, Dave",
+  },
+}
+
+// happens if json parsing fails
+const nullData = {
+  raw: {} as Response,
+  data: null,
+}
+
+describe('getParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getServerParseError(parseError.data.message)).toEqual(
+    expect(getParseError(parseError.data.message)).toEqual(
       'Hello there, you have an error'
     )
   })
 
-  it('falls back if error string does not match pattern', () => {
-    expect(getServerParseError('some nonsense')).toEqual(
-      'Unknown error from server'
-    )
+  it('returns undefined if error does not match pattern', () => {
+    expect(getParseError('some nonsense')).toBeUndefined()
   })
 })
 
@@ -46,9 +59,17 @@ describe('getServerError', () => {
     ).toEqual('that already exists')
   })
 
-  it('falls back to generic server error if code not found', () => {
+  it('falls back to server error message if code not found', () => {
     expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual(
-      'Unknown error from server'
+      'whatever'
     )
+  })
+
+  it('uses global map of generic codes for, e.g., 401s', () => {
+    expect(getServerError(unauthorized, {})).toEqual('Action not authorized')
+  })
+
+  it('falls back to generic message if server message empty', () => {
+    expect(getServerError(nullData, {})).toEqual('Unknown error from server')
   })
 })

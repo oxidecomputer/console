@@ -46,7 +46,7 @@ describe('ProjectCreateForm', () => {
     expect(submit).not.toBeDisabled()
   })
 
-  it('shows specific message for known server error code', async () => {
+  it('shows message for known error code in project create code map', async () => {
     fetchMock.post(projectsUrl, {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
@@ -59,7 +59,7 @@ describe('ProjectCreateForm', () => {
     )
   })
 
-  it('shows specific message for known server error code', async () => {
+  it('shows message for known error code in global code map', async () => {
     fetchMock.post(projectsUrl, {
       status: 401,
       body: { error_code: 'Unauthorized' },
