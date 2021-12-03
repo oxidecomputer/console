@@ -6,7 +6,7 @@ import fetchMock from 'fetch-mock'
 
 import { projects } from '@oxide/api-mocks'
 
-import { routes, routeConfig } from './routes'
+import { routes, getRouteConfig } from './routes'
 
 describe('routes', () => {
   afterEach(() => {
@@ -23,7 +23,7 @@ describe('routes', () => {
 describe('routeConfig', () => {
   it('should send non-existent routes to the 404 splat', () => {
     const pathname = '/abc/def/ghi'
-    const matches = matchRoutes(routeConfig, { pathname })!
+    const matches = matchRoutes(getRouteConfig(), { pathname })!
     expect(matches.length).toEqual(2)
     // first match is just the leading slash, which every path will match
     expect(matches[0].pathname).toEqual('/')
