@@ -96,7 +96,7 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
         >
           Create project
         </Button>
-        <div className="text-red-500">
+        <div className="text-red-500 mt-2">
           {getServerError(createProject.error, ERROR_CODES)}
         </div>
       </Form>
