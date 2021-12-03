@@ -51,7 +51,8 @@ interface SidebarFooter {
 }
 Sidebar.Footer = ({ children }: SidebarFooter) => {
   return (
-    <ul className="space-y-0.5 text-gray-50 font-light absolute bottom-0 pb-3">
+    // TODO: The `w-[12.5rem] is hand calculated and very likely isn't what we want. Do something better here
+    <ul className="space-y-0.5 text-gray-50 font-light absolute bottom-0 pb-3 w-[12.5rem]">
       {children}
     </ul>
   )
