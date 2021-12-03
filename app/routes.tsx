@@ -37,6 +37,7 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import InstanceLayout from './layouts/InstanceLayout'
+import { InstancePage } from './pages/instances'
 import VpcsPage from './pages/networking/VpcsPage'
 
 // TODO: putting this before RootLayout causes a race condition? yikes
@@ -130,12 +131,16 @@ export const routes = (
 
           {/* INSTANCE */}
           <Route path=":projectName" crumb={projectCrumb}>
-            <Route path="instances" crumb="Instances">
+            <Route
+              path="instances"
+              crumb="Instances"
+              element={<ProjectLayout />}
+            >
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
-                element={<InstanceLayout />}
+                element={<InstancePage />}
                 crumb={instanceCrumb}
               >
                 <Route index />
