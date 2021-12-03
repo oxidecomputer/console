@@ -13,7 +13,7 @@ session_idle_timeout_minutes = 60
 session_absolute_timeout_minutes = 480
 
 [authn]
-schemes_external = ["spoof"]
+schemes_external = ["spoof", "session_cookie"]
 
 [database]
 # URL for connecting to the database
