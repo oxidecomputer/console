@@ -58,7 +58,10 @@ Table.Row = ({ className, ...props }: TableRowProps) => (
 
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
 Table.Body = ({ className, ...props }: TableBodyProps) => (
-  <tbody className={cn(className)} {...props} />
+  <tbody
+    className={cn(className, 'between:border-t between:border-gray-500')}
+    {...props}
+  />
 )
 
 export type TableCellProps = JSX.IntrinsicElements['td']
