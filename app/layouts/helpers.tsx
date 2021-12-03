@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 import { classed } from '@oxide/ui'
 import cn from 'classnames'
@@ -7,17 +7,6 @@ import cn from 'classnames'
 export const PageContainer = classed.div`grid h-screen grid-cols-[14rem,auto]`
 export const Sidebar = classed.div`pb-6 pt-6 overflow-auto bg-gray-800 border-r border-gray-400 px-3`
 export const ContentPane = classed.div`overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min gap-y-2`
-
-const Back = (props: { to: string }) => (
-  <div className="mb-6 bg-gray-500 text-green-500 flex items-center">
-    <Link to={props.to}>
-      <span className="mr-3" style={{ fontSize: '.625rem' }}>
-        &#9664;
-      </span>
-      <span className="text-xs font-mono font-light uppercase">Back</span>
-    </Link>
-  </div>
-)
 
 export const NavList = (props: { children: React.ReactNode }) => (
   <nav className="mt-8">

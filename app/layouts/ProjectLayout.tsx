@@ -4,7 +4,6 @@ import { Outlet } from 'react-router-dom'
 import {
   SkipLinkTarget,
   Access16Icon,
-  Document16Icon,
   Instances16Icon,
   Metrics16Icon,
   Networking16Icon,
