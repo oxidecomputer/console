@@ -1,7 +1,29 @@
 import React from 'react'
-import { useParams } from '../../hooks'
+import { Link } from 'react-router-dom'
+
 import { useQueryTable } from '@oxide/table'
-import { Checkmark12Icon } from '@oxide/ui'
+import { useApiQuery } from '@oxide/api'
+
+import { useParams } from '../../hooks'
+import { DiskStatusBadge } from '../../components/StatusBadge'
+
+function AttachedInstance(props: {
+  orgName: string
+  projectName: string
+  instanceId: string
+}) {
+  // HACK: workaround because there's no other way to go from an instance ID to
+  // name. Fetch the whole list (default page size is 100 I think) and find the
+  // instance client-side. Fortunately, React Query dedupes the request.
+  const { data: instances } = useApiQuery('projectInstancesGet', {
+    organizationName: props.orgName,
+    projectName: props.projectName,
+  })
+  const instance = instances?.items.find((i) => i.id === props.instanceId)
+  return instance ? (
+    <Link to={`../instances/${instance.name}`}>{instance.name}</Link>
+  ) : null
+}
 
 export default function ProjectStorage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
@@ -15,15 +37,30 @@ export default function ProjectStorage() {
     <>
       <h1 className="text-display-2xl my-8">Disks</h1>
       <Table selectable>
-        <Column id="name" />
-        <Column id="description" />
+        <Column id="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
-          id="attached"
-          accessor={(vpc) => vpc.state.state === 'attached'}
-          cell={({ value }: { value: boolean }) =>
-            value ? <Checkmark12Icon className="text-green-500" /> : null
+          id="attached-to"
+          header="Attached To"
+          accessor={(disk) =>
+            // sneaky: rather than looking at particular states, just look at
+            // whether it has an instance field
+            'instance' in disk.state ? disk.state.instance : null
           }
+          cell={({ value }: { value: string | undefined }) =>
+            value ? (
+              <AttachedInstance
+                orgName={orgName}
+                projectName={projectName}
+                instanceId={value}
+              />
+            ) : null
+          }
+        />
+        <Column
+          id="status"
+          accessor={(disk) => disk.state.state}
+          cell={({ value }) => <DiskStatusBadge status={value} />}
         />
       </Table>
     </>

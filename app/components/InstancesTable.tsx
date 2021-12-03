@@ -14,7 +14,7 @@ import {
 } from '@oxide/api'
 import { classed, More12Icon, Success16Icon } from '@oxide/ui'
 import { Table, getSelectCol } from '@oxide/table'
-import { StatusBadge } from './StatusBadge'
+import { InstanceStatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
 
@@ -56,7 +56,7 @@ const columns = [
       value: Pick<Instance, 'runState' | 'timeRunStateUpdated'>
     }) => (
       <span className="inline-flex">
-        <StatusBadge className="mr-2" status={value.runState} />
+        <InstanceStatusBadge className="mr-2" status={value.runState} />
         <abbr
           className="text-xs !no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}

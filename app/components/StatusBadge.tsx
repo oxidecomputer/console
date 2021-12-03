@@ -2,14 +2,9 @@ import React from 'react'
 
 import type { BadgeColor } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
-import type { InstanceState } from '@oxide/api'
+import type { DiskState, InstanceState } from '@oxide/api'
 
-type Props = {
-  status: InstanceState
-  className?: string
-}
-
-const COLORS: Record<InstanceState, BadgeColor> = {
+const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
   creating: 'yellow',
   starting: 'yellow',
   running: 'green',
@@ -21,8 +16,36 @@ const COLORS: Record<InstanceState, BadgeColor> = {
   destroyed: 'darkGray',
 }
 
-export const StatusBadge = ({ status, className }: Props) => (
-  <Badge color={COLORS[status]} className={className}>
-    {status}
+export const InstanceStatusBadge = (props: {
+  status: InstanceState
+  className?: string
+}) => (
+  <Badge color={INSTANCE_COLORS[props.status]} className={props.className}>
+    {props.status}
+  </Badge>
+)
+
+type DiskStateStr = DiskState['state']
+
+const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
+  attached: 'green',
+  attaching: 'yellow',
+  creating: 'yellow',
+  detaching: 'yellow',
+  detached: 'darkGray',
+  destroyed: 'darkGray', // should we ever see this?
+  faulted: 'red',
+}
+
+export const DiskStatusBadge = (props: {
+  status: DiskStateStr
+  className?: string
+}) => (
+  <Badge
+    variant="dim"
+    color={DISK_COLORS[props.status]}
+    className={props.className}
+  >
+    {props.status}
   </Badge>
 )
