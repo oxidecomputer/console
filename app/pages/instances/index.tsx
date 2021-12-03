@@ -1,4 +1,3 @@
-import { useQueryTable } from '@oxide/table'
 import {
   Instances24Icon,
   PageHeader,
