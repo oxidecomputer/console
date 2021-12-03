@@ -59,6 +59,17 @@ describe('ProjectCreateForm', () => {
     )
   })
 
+  it('shows specific message for known server error code', async () => {
+    fetchMock.post(projectsUrl, {
+      status: 401,
+      body: { error_code: 'Unauthorized' },
+    })
+
+    fireEvent.click(submitButton())
+
+    await screen.findByText('Action not authorized')
+  })
+
   it('shows field-level validation error and does not POST', async () => {
     enterName('Invalid-name')
     fireEvent.click(submitButton())

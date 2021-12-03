@@ -327,7 +327,7 @@ export function InstanceCreateForm({
         >
           Create instance
         </Button>
-        <div className="text-red-500">
+        <div className="text-red-500 mt-2">
           {getServerError(createInstance.error, ERROR_CODES)}
         </div>
       </Form>
