@@ -12,35 +12,16 @@ import {
   Storage16Icon,
   Tags16Icon,
 } from '@oxide/ui'
-import {
-  ContentPane,
-  NavLinkItem,
-  NavList,
-  PageContainer,
-  Picker,
-  Sidebar,
-  SidebarDivider,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { InstancePageHeader } from '../components/InstancePageHeader'
-import { useParams } from '../hooks'
+import { Sidebar, NavLinkItem } from '../components/Sidebar'
 
 const InstanceLayout = () => {
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
   return (
     <PageContainer>
       <Sidebar>
-        <Picker
-          category="Instance"
-          resource={instanceName}
-          backTo={`/orgs/${orgName}/projects/${projectName}`}
-        />
-        <SidebarDivider />
-        <NavList>
+        <Sidebar.Nav heading="vpc">
           <NavLinkItem to="">
             <Dashboard16Icon title="Overview" /> Overview
           </NavLinkItem>
@@ -65,7 +46,7 @@ const InstanceLayout = () => {
           <NavLinkItem to="tags">
             <Tags16Icon /> Tags
           </NavLinkItem>
-        </NavList>
+        </Sidebar.Nav>
       </Sidebar>
       <ContentPane>
         <Breadcrumbs />
