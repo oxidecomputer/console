@@ -12,60 +12,41 @@ import {
   Storage16Icon,
   Tags16Icon,
 } from '@oxide/ui'
-import {
-  ContentPane,
-  NavLinkItem,
-  NavList,
-  PageContainer,
-  Picker,
-  Sidebar,
-  SidebarDivider,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { InstancePageHeader } from '../components/InstancePageHeader'
-import { useParams } from '../hooks'
+import { Sidebar, NavLink } from '../components/Sidebar'
 
 const InstanceLayout = () => {
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
   return (
     <PageContainer>
       <Sidebar>
-        <Picker
-          category="Instance"
-          resource={instanceName}
-          backTo={`/orgs/${orgName}/projects/${projectName}`}
-        />
-        <SidebarDivider />
-        <NavList>
-          <NavLinkItem to="">
+        <Sidebar.Nav heading="vpc">
+          <NavLink to="">
             <Dashboard16Icon title="Overview" /> Overview
-          </NavLinkItem>
-          <NavLinkItem to="metrics">
+          </NavLink>
+          <NavLink to="metrics">
             <Metrics16Icon /> Metrics
-          </NavLinkItem>
-          <NavLinkItem to="activity">
+          </NavLink>
+          <NavLink to="activity">
             <Document16Icon title="Activity" /> Activity
-          </NavLinkItem>
-          <NavLinkItem to="access">
+          </NavLink>
+          <NavLink to="access">
             <Access16Icon /> Access &amp; IAM
-          </NavLinkItem>
-          <NavLinkItem to="resize">
+          </NavLink>
+          <NavLink to="resize">
             <Resize16Icon /> Resize
-          </NavLinkItem>
-          <NavLinkItem to="vpcs">
+          </NavLink>
+          <NavLink to="vpcs">
             <Networking16Icon /> Networking
-          </NavLinkItem>
-          <NavLinkItem to="storage">
+          </NavLink>
+          <NavLink to="storage">
             <Storage16Icon /> Storage
-          </NavLinkItem>
-          <NavLinkItem to="tags">
+          </NavLink>
+          <NavLink to="tags">
             <Tags16Icon /> Tags
-          </NavLinkItem>
-        </NavList>
+          </NavLink>
+        </Sidebar.Nav>
       </Sidebar>
       <ContentPane>
         <Breadcrumbs />
