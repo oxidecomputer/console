@@ -13,15 +13,15 @@ export function Sidebar({ children }: SidebarProps) {
       <ProjectSelector className="mb-10" />
       {children}
       <Sidebar.Footer>
-        <NavLink to="documentation">
+        <NavLinkItem to="documentation">
           <Document16Icon /> Documentation
-        </NavLink>
-        <NavLink to="help">
+        </NavLinkItem>
+        <NavLinkItem to="help">
           <Chat16Icon /> Help & Feedback
-        </NavLink>
-        <NavLink to="settings">
+        </NavLinkItem>
+        <NavLinkItem to="settings">
           <Settings16Icon /> Settings
-        </NavLink>
+        </NavLinkItem>
       </Sidebar.Footer>
     </div>
   )
@@ -58,7 +58,7 @@ Sidebar.Footer = ({ children }: SidebarFooter) => {
   )
 }
 
-export const NavLink = (props: {
+export const NavLinkItem = (props: {
   to: string
   children: React.ReactNode
   end?: boolean

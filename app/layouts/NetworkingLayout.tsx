@@ -15,37 +15,37 @@ import {
 import { ContentPane, PageContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { InstancePageHeader } from '../components/InstancePageHeader'
-import { Sidebar, NavLink } from '../components/Sidebar'
+import { Sidebar, NavLinkItem } from '../components/Sidebar'
 
 const InstanceLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
         <Sidebar.Nav heading="vpc">
-          <NavLink to="">
+          <NavLinkItem to="">
             <Dashboard16Icon title="Overview" /> Overview
-          </NavLink>
-          <NavLink to="metrics">
+          </NavLinkItem>
+          <NavLinkItem to="metrics">
             <Metrics16Icon /> Metrics
-          </NavLink>
-          <NavLink to="activity">
+          </NavLinkItem>
+          <NavLinkItem to="activity">
             <Document16Icon title="Activity" /> Activity
-          </NavLink>
-          <NavLink to="access">
+          </NavLinkItem>
+          <NavLinkItem to="access">
             <Access16Icon /> Access &amp; IAM
-          </NavLink>
-          <NavLink to="resize">
+          </NavLinkItem>
+          <NavLinkItem to="resize">
             <Resize16Icon /> Resize
-          </NavLink>
-          <NavLink to="vpcs">
+          </NavLinkItem>
+          <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
-          </NavLink>
-          <NavLink to="storage">
+          </NavLinkItem>
+          <NavLinkItem to="storage">
             <Storage16Icon /> Storage
-          </NavLink>
-          <NavLink to="tags">
+          </NavLinkItem>
+          <NavLinkItem to="tags">
             <Tags16Icon /> Tags
-          </NavLink>
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane>
