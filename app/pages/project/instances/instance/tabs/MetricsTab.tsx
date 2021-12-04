@@ -18,7 +18,7 @@ const data = [
   { name: '10:50', amt: 600, limit: 800 },
 ]
 
-export default function InstanceMetrics() {
+export function MetricsTab() {
   return (
     <ComposedChart
       width={600}

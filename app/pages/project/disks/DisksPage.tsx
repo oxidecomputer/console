@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import { useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
 
-import { useParams } from '../../hooks'
-import { DiskStatusBadge } from '../../components/StatusBadge'
+import { useParams } from '../../../hooks'
+import { DiskStatusBadge } from '../../../components/StatusBadge'
 import { PageHeader, PageTitle, Storage24Icon } from '@oxide/ui'
 
 function AttachedInstance(props: {
@@ -28,7 +28,7 @@ function AttachedInstance(props: {
   ) : null
 }
 
-export default function ProjectStorage() {
+export function DisksPage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable(
     'projectDisksGet',

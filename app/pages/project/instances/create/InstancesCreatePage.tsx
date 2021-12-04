@@ -20,12 +20,12 @@ import {
   Badge,
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
-import { getServerError } from '../../../util/errors'
+import { getServerError } from '../../../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
-import { NewDiskModal } from './new-disk-modal'
-import { ExistingDiskModal } from './existing-disk-modal'
-import { NetworkModal } from './network-modal'
-import { useParams } from '../../../hooks'
+import { NewDiskModal } from './modals/new-disk-modal'
+import { ExistingDiskModal } from './modals/existing-disk-modal'
+import { NetworkModal } from './modals/network-modal'
+import { useParams } from '../../../../hooks'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'
