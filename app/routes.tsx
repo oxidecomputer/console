@@ -12,7 +12,7 @@ import {
   InstancePage,
   InstancesPage,
   ImagesPage,
-  MetricPage,
+  MetricsPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
