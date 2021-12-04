@@ -11,8 +11,8 @@ import React from 'react'
 import { useParams } from '../../../../hooks'
 import { InstanceStatusBadge } from '../../../../components/StatusBadge'
 import filesize from 'filesize'
-import Storage from './tabs/StorageTab'
-import Metrics from './tabs/MetricsTab'
+import { StorageTab } from './tabs/StorageTab'
+import { MetricsTab } from './tabs/MetricsTab'
 
 export const InstancePage = () => {
   const {
@@ -65,11 +65,11 @@ export const InstancePage = () => {
       <Tabs id="tabs-instance" fullWidth>
         <Tab>Storage</Tab>
         <Tab.Panel>
-          <Storage />
+          <StorageTab />
         </Tab.Panel>
         <Tab>Metrics</Tab>
         <Tab.Panel>
-          <Metrics />
+          <MetricsTab />
         </Tab.Panel>
       </Tabs>
     </>

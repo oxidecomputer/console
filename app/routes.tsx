@@ -12,7 +12,7 @@ import {
   InstancePage,
   InstancesPage,
   ImagesPage,
-  MetricsPage,
+  MetricPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
@@ -107,7 +107,8 @@ export const routes = (
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
             <Route path="disks" element={<DisksPage />} crumb="Disks" />
-            <Route path="metrics" crumb="Metrics" element={<MetricsPage />} />
+            <Route path="metrics" element={<MetricsPage />} crumb="Metrics" />
+            <Route path="snapshots" crumb="Snapshots" />
             <Route path="audit" crumb="Audit" />
             <Route path="images" element={<ImagesPage />} crumb="Images" />
             <Route

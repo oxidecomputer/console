@@ -26,7 +26,7 @@ const ProjectLayout = () => {
           <NavLinkItem to="snapshots">
             <Notification16Icon /> Snapshots
           </NavLinkItem>
-          <NavLinkItem to="storage">
+          <NavLinkItem to="disks">
             <Storage16Icon /> Disks
           </NavLinkItem>
           <NavLinkItem to="access">
