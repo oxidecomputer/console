@@ -8,11 +8,11 @@ import {
 } from '@oxide/ui'
 import { useApiQuery } from '@oxide/api'
 import React from 'react'
-import { useParams } from '../../hooks'
-import { InstanceStatusBadge } from '../../components/StatusBadge'
+import { useParams } from '../../../../hooks'
+import { InstanceStatusBadge } from '../../../../components/StatusBadge'
 import filesize from 'filesize'
-import Storage from './Storage'
-import Metrics from './Metrics'
+import Storage from './tabs/StorageTab'
+import Metrics from './tabs/MetricsTab'
 
 export const InstancePage = () => {
   const {

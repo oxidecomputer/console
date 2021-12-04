@@ -1,43 +1,28 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 
 import type { RouteMatch, RouteObject } from 'react-router'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-// Needs to take import callback (as opposed to taking the path and passing it
-// to import()) because Rollup doesn't find the file properly otherwise. I tried
-// to follow the rules for dynamic import specified here but it didn't work:
-//
-// https://github.com/rollup/plugins/tree/02fb349d/packages/dynamic-import-vars#limitations
-// Rules imply () => import(`./{path}.tsx`) should work
-function lazyLoad(importFunc: () => Promise<{ default: React.ComponentType }>) {
-  const Inner = React.lazy(importFunc)
-  return () => (
-    // TODO: nicer fallback
-    <Suspense fallback={null}>
-      <Inner />
-    </Suspense>
-  )
-}
-
 import LoginPage from './pages/LoginPage'
-import InstanceCreatePage from './pages/instances/create'
-import InstanceStorage from './pages/instances/Storage'
-// Recharts is 350 KB
-const InstanceMetrics = lazyLoad(() => import('./pages/instances/Metrics'))
+import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
 import OrgPage from './pages/OrgPage'
-import ProjectPage from './pages/project'
-import ProjectAccessPage from './pages/project/Access'
-import ProjectStoragePage from './pages/project/Storage'
+import {
+  AccessPage,
+  DisksPage,
+  InstancePage,
+  InstancesPage,
+  ImagesPage,
+  MetricsPage,
+  VpcPage,
+  VpcsPage,
+} from './pages/project'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
-import VpcPage from './pages/networking/VpcPage'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
-import { InstancePage } from './pages/instances'
-import VpcsPage from './pages/networking/VpcsPage'
 
 // TODO: putting this before RootLayout causes a race condition? yikes
 import NotFound from './pages/NotFound'
@@ -108,46 +93,26 @@ export const routes = (
               crumb="Create instance"
             />
             <Route path="instances" crumb="Instances">
-              <Route index element={<ProjectPage />} />
+              <Route index element={<InstancesPage />} />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
                 element={<InstancePage />}
                 crumb={instanceCrumb}
-              >
-                <Route index />
-                <Route
-                  path="metrics"
-                  crumb="Metrics"
-                  element={<InstanceMetrics />}
-                />
-                <Route path="activity" crumb="Activity" />
-                <Route path="access" crumb="Access" />
-                <Route path="resize" crumb="Resize" />
-                <Route path="networking" crumb="Networking" />
-                <Route
-                  path="storage"
-                  element={<InstanceStorage />}
-                  crumb="Storage"
-                />
-                <Route path="tags" crumb="Tags" />
-              </Route>
+              />
             </Route>
             <Route path="vpcs" crumb="Vpcs">
               <Route index element={<VpcsPage />} />
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
-            <Route
-              path="storage"
-              element={<ProjectStoragePage />}
-              crumb="Storage"
-            />
-            <Route path="metrics" crumb="Metrics" />
+            <Route path="disks" element={<DisksPage />} crumb="Disks" />
+            <Route path="metrics" crumb="Metrics" element={<MetricsPage />} />
             <Route path="audit" crumb="Audit" />
+            <Route path="images" element={<ImagesPage />} crumb="Images" />
             <Route
               path="access"
-              element={<ProjectAccessPage />}
+              element={<AccessPage />}
               crumb="Access & IAM"
             />
             <Route path="settings" crumb="Settings" />

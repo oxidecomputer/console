@@ -103,7 +103,7 @@ const menuCol = {
   ),
 }
 
-const ProjectPage = () => {
+export const AccessPage = () => {
   const table = useTable({ columns, data: users }, useRowSelect, (hooks) => {
     hooks.visibleColumns.push((columns) => [
       getSelectCol(),
@@ -172,5 +172,3 @@ const ProjectPage = () => {
     </>
   )
 }
-
-export default ProjectPage

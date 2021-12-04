@@ -1,6 +1,6 @@
 import React from 'react'
 import { Folder24Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { useParams } from '../../hooks'
+import { useParams } from '../../../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
 export const VpcsPage = () => {
@@ -33,5 +33,3 @@ export const VpcsPage = () => {
     </>
   )
 }
-
-export default VpcsPage
