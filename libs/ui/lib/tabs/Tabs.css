@@ -10,7 +10,7 @@
 
 [data-reach-tab] {
   @apply uppercase text-mono-md px-2 py-2.5 rounded
-    text-gray-200 border-gray-200
+    text-gray-200 border-gray-200 hover:text-gray-100
     focus:ring-2 focus:ring-green-700 focus:outline-none space-x-2 whitespace-nowrap h-10;
 }
 
