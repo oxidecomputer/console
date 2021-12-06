@@ -61,8 +61,8 @@ describe('getServerError', () => {
     expect(getServerError(unauthorized, {})).toEqual('Action not authorized')
   })
 
-  it('falls back to generic message if server message empty', () => {
+  it('returns null if the error object is null', () => {
     // happens if json parsing fails
-    expect(getServerError(null, {})).toEqual('Unknown error from server')
+    expect(getServerError(null, {})).toEqual(null)
   })
 })
