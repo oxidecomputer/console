@@ -68,7 +68,7 @@ export const NavLinkItem = (props: {
       to={props.to}
       className={({ isActive }) =>
         cn(
-          'flex text-sans-md rounded-sm items-center p-1 hover:bg-gray-500 svg:mr-2 svg:text-gray-300',
+          'flex text-sans-md rounded-sm h-7 items-center p-1.5 hover:bg-gray-500 svg:mr-2 svg:text-gray-300',
           {
             'text-green-500 svg:!text-green-500 !bg-green-950': isActive,
           }
