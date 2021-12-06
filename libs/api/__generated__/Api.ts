@@ -82,9 +82,9 @@ export interface DiskAttachment {
 }
 
 /**
- * Create-time parameters for an [`Disk`]
+ * Create-time parameters for a [`Disk`]
  */
-export interface DiskCreateParams {
+export interface DiskCreate {
   description: string
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
@@ -216,7 +216,7 @@ export type InstanceCpuCount = number
 /**
  * Create-time parameters for an [`Instance`]
  */
-export interface InstanceCreateParams {
+export interface InstanceCreate {
   description: string
   hostname: string
 
@@ -349,7 +349,7 @@ export interface OrganizationUpdate {
 }
 
 /**
- * Client view of an [`Project`]
+ * Client view of a [`Project`]
  */
 export interface Project {
   /** human-readable free-form text about a resource */
@@ -593,7 +593,7 @@ export interface SledResultsPage {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * Client view of a [`Vpc`]
  */
 export interface Vpc {
   /** human-readable free-form text about a resource */
@@ -639,7 +639,7 @@ export interface Vpc {
 /**
  * Create-time parameters for a [`Vpc`]
  */
-export interface VpcCreateParams {
+export interface VpcCreate {
   description: string
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
@@ -815,7 +815,7 @@ export interface VpcRouter {
 /**
  * Create-time parameters for a [`VpcRouter`]
  */
-export interface VpcRouterCreateParams {
+export interface VpcRouterCreate {
   description: string
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
@@ -841,7 +841,7 @@ export interface VpcRouterResultsPage {
 /**
  * Updateable properties of a [`VpcRouter`]
  */
-export interface VpcRouterUpdateParams {
+export interface VpcRouterUpdate {
   description?: string | null
   name?: Name | null
 }
@@ -869,7 +869,7 @@ export interface VpcSubnet {
 /**
  * Create-time parameters for a [`VpcSubnet`]
  */
-export interface VpcSubnetCreateParams {
+export interface VpcSubnetCreate {
   description: string
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
@@ -892,7 +892,7 @@ export interface VpcSubnetResultsPage {
 /**
  * Updateable properties of a [`VpcSubnet`]
  */
-export interface VpcSubnetUpdateParams {
+export interface VpcSubnetUpdate {
   description?: string | null
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
@@ -902,7 +902,7 @@ export interface VpcSubnetUpdateParams {
 /**
  * Updateable properties of a [`Vpc`]
  */
-export interface VpcUpdateParams {
+export interface VpcUpdate {
   description?: string | null
   dnsName?: Name | null
   name?: Name | null
@@ -2222,7 +2222,7 @@ export class Api<
      */
     projectDisksPost: (
       { organizationName, projectName }: ProjectDisksPostParams,
-      data: DiskCreateParams,
+      data: DiskCreate,
       params: RequestParams = {}
     ) =>
       this.request<Disk, any>({
@@ -2293,7 +2293,7 @@ export class Api<
      */
     projectInstancesPost: (
       { organizationName, projectName }: ProjectInstancesPostParams,
-      data: InstanceCreateParams,
+      data: InstanceCreate,
       params: RequestParams = {}
     ) =>
       this.request<Instance, any>({
@@ -2517,7 +2517,7 @@ export class Api<
      */
     projectVpcsPost: (
       { organizationName, projectName }: ProjectVpcsPostParams,
-      data: VpcCreateParams,
+      data: VpcCreate,
       params: RequestParams = {}
     ) =>
       this.request<Vpc, any>({
@@ -2554,7 +2554,7 @@ export class Api<
      */
     projectVpcsPutVpc: (
       { organizationName, projectName, vpcName }: ProjectVpcsPutVpcParams,
-      data: VpcUpdateParams,
+      data: VpcUpdate,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2650,7 +2650,7 @@ export class Api<
      */
     vpcRoutersPost: (
       { organizationName, projectName, vpcName }: VpcRoutersPostParams,
-      data: VpcRouterCreateParams,
+      data: VpcRouterCreate,
       params: RequestParams = {}
     ) =>
       this.request<VpcRouter, any>({
@@ -2697,7 +2697,7 @@ export class Api<
         routerName,
         vpcName,
       }: VpcRoutersPutRouterParams,
-      data: VpcRouterUpdateParams,
+      data: VpcRouterUpdate,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
@@ -2874,7 +2874,7 @@ export class Api<
      */
     vpcSubnetsPost: (
       { organizationName, projectName, vpcName }: VpcSubnetsPostParams,
-      data: VpcSubnetCreateParams,
+      data: VpcSubnetCreate,
       params: RequestParams = {}
     ) =>
       this.request<VpcSubnet, any>({
@@ -2921,7 +2921,7 @@ export class Api<
         subnetName,
         vpcName,
       }: VpcSubnetsPutSubnetParams,
-      data: VpcSubnetUpdateParams,
+      data: VpcSubnetUpdate,
       params: RequestParams = {}
     ) =>
       this.request<void, any>({
