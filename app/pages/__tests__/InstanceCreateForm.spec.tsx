@@ -10,7 +10,7 @@ import fetchMock from 'fetch-mock'
 
 import { org, project, instance } from '@oxide/api-mocks'
 
-import { InstanceCreateForm } from '../instances/create'
+import { InstanceCreateForm } from '../project/instances/create/InstancesCreatePage'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })

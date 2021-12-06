@@ -35,27 +35,4 @@ describe('matchesToCrumbs', () => {
       { label: 'Create project', href: undefined },
     ])
   })
-
-  it('works on instance storage', () => {
-    const matches = matchRoutes(routeConfig, {
-      pathname: '/orgs/maze-war/projects/prod-online/instances/db1/storage',
-    })!
-    expect(matchesToCrumbs(matches)).toEqual([
-      { label: 'maze-war', href: '/orgs/maze-war' },
-      { label: 'Projects', href: '/orgs/maze-war/projects' },
-      {
-        label: 'prod-online',
-        href: '/orgs/maze-war/projects/prod-online',
-      },
-      {
-        label: 'Instances',
-        href: '/orgs/maze-war/projects/prod-online/instances',
-      },
-      {
-        label: 'db1',
-        href: '/orgs/maze-war/projects/prod-online/instances/db1',
-      },
-      { label: 'Storage', href: undefined },
-    ])
-  })
 })

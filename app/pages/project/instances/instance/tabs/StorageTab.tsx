@@ -5,8 +5,8 @@ import type { DiskAttachment, DiskState } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { Table } from '@oxide/table'
-import { useParams } from '../../hooks'
-import { DiskStatusBadge } from '../../components/StatusBadge'
+import { useParams } from '../../../../../hooks'
+import { DiskStatusBadge } from '../../../../../components/StatusBadge'
 
 const columns = [
   {
@@ -26,7 +26,7 @@ const columns = [
   },
 ]
 
-function Storage() {
+export function StorageTab() {
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',
@@ -68,5 +68,3 @@ function Storage() {
     </div>
   )
 }
-
-export default Storage

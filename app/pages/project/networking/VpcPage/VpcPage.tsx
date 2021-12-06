@@ -10,9 +10,9 @@ import {
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
-import { useParams } from '../../../hooks'
+import { useParams } from '../../../../hooks'
 
-const VpcPage = () => {
+export const VpcPage = () => {
   const { vpcName } = useParams('vpcName')
   return (
     <>
@@ -60,5 +60,3 @@ const VpcPage = () => {
     </>
   )
 }
-
-export default VpcPage
