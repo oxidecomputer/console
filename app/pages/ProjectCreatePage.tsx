@@ -32,29 +32,8 @@ export function ProjectCreateForm({
   orgName: string
   onSuccess: (p: Project) => void
 }) {
-  const queryClient = useApiQueryClient()
-  const addToast = useToast()
-
   const createProject = useApiMutation('organizationProjectsPost', {
-    onSuccess: (project) => {
-      // refetch list of projects in sidebar
-      queryClient.invalidateQueries('organizationProjectsGet', {
-        organizationName: orgName,
-      })
-      // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData(
-        'organizationProjectsGetProject',
-        { organizationName: orgName, projectName: project.name },
-        project
-      )
-      addToast({
-        icon: <Success16Icon />,
-        title: 'Success!',
-        content: 'Your project has been created.',
-        timeout: 5000,
-      })
-      onSuccess(project)
-    },
+    onSuccess,
   })
   return (
     <Formik
@@ -110,7 +89,10 @@ export function ProjectCreateForm({
 }
 
 export default function ProjectCreatePage() {
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
   const navigate = useNavigate()
+
   const { orgName } = useParams('orgName')
   return (
     <>
@@ -121,7 +103,25 @@ export default function ProjectCreatePage() {
       </PageHeader>
       <ProjectCreateForm
         orgName={orgName}
-        onSuccess={(project) => navigate(`../${project.name}`)}
+        onSuccess={(project) => {
+          // refetch list of projects in sidebar
+          queryClient.invalidateQueries('organizationProjectsGet', {
+            organizationName: orgName,
+          })
+          // avoid the project fetch when the project page loads since we have the data
+          queryClient.setQueryData(
+            'organizationProjectsGetProject',
+            { organizationName: orgName, projectName: project.name },
+            project
+          )
+          addToast({
+            icon: <Success16Icon />,
+            title: 'Success!',
+            content: 'Your project has been created.',
+            timeout: 5000,
+          })
+          navigate(`../${project.name}`)
+        }}
       />
     </>
   )
