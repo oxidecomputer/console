@@ -196,6 +196,18 @@ module.exports = {
           'letter-spacing': '0.02rem',
           'font-weight': 500,
         },
+        '.inner-shadow-green': {
+          'box-shadow': 'inset 0px 0px 0px 1px #24614A',
+        },
+        '.inner-shadow-yellow': {
+          'box-shadow': 'inset 0px 0px 0px 1px #695F36',
+        },
+        '.inner-shadow-red': {
+          'box-shadow': 'inset 0px 0px 0px 1px #643644',
+        },
+        '.inner-shadow-blue': {
+          'box-shadow': 'inset 0px 0px 0px 1px #243670',
+        },
       })
     }),
   ],
