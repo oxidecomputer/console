@@ -12,8 +12,9 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { classed, selectCol, Table, More12Icon, Success16Icon } from '@oxide/ui'
-import { StatusBadge } from './StatusBadge'
+import { classed, More12Icon, Success16Icon } from '@oxide/ui'
+import { Table, getSelectCol } from '@oxide/table'
+import { InstanceStatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
 import { usePagination, useParams, useToast } from '../hooks'
 
@@ -55,9 +56,9 @@ const columns = [
       value: Pick<Instance, 'runState' | 'timeRunStateUpdated'>
     }) => (
       <span className="inline-flex">
-        <StatusBadge className="mr-2" status={value.runState} />
+        <InstanceStatusBadge className="mr-2" status={value.runState} />
         <abbr
-          className="text-xs !no-underline"
+          className="!no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}
         >
           {timeAgoAbbr(new Date(value.timeRunStateUpdated))}
@@ -74,6 +75,7 @@ const columns = [
 
 const menuCol = {
   id: 'menu',
+  className: 'w-12',
   Cell: ({ row }: { row: Row<Instance> }) => {
     const instance = row.original
     const instanceName = instance.name
@@ -125,31 +127,33 @@ const menuCol = {
     }
 
     return (
-      <Menu>
-        <MenuButton>
-          <More12Icon className="text-gray-200 mr-4" />
-        </MenuButton>
-        <MenuList className="TableControls">
-          <MenuItem
-            onSelect={() => stopInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.stop(instance)}
-          >
-            Stop
-          </MenuItem>
-          <MenuItem
-            onSelect={() => rebootInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.reboot(instance)}
-          >
-            Reboot
-          </MenuItem>
-          <MenuItem
-            onSelect={() => deleteInstance.mutate(instanceLookup)}
-            disabled={!instanceCan.delete(instance)}
-          >
-            Delete
-          </MenuItem>
-        </MenuList>
-      </Menu>
+      <div className="flex justify-center">
+        <Menu>
+          <MenuButton>
+            <More12Icon className="text-gray-200" />
+          </MenuButton>
+          <MenuList className="TableControls">
+            <MenuItem
+              onSelect={() => stopInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.stop(instance)}
+            >
+              Stop
+            </MenuItem>
+            <MenuItem
+              onSelect={() => rebootInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.reboot(instance)}
+            >
+              Reboot
+            </MenuItem>
+            <MenuItem
+              onSelect={() => deleteInstance.mutate(instanceLookup)}
+              disabled={!instanceCan.delete(instance)}
+            >
+              Delete
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      </div>
     )
   },
 }
@@ -174,11 +178,27 @@ export const InstancesTable = ({ className }: { className?: string }) => {
   )
 
   const data = React.useMemo(() => instances?.items || [], [instances?.items])
-  const table = useTable({ columns, data }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [selectCol, ...columns, menuCol])
-  })
+  const table = useTable(
+    {
+      columns,
+      data,
+      // don't reset the checkboxes every time we poll. strictly speaking this
+      // is wrong because if the rows change the selection will be wrong. but
+      // QueryTable handles this and this will soon be a QueryTable
+      // @ts-expect-error it doesn't know about this option but it exists
+      autoResetSelectedRows: false,
+    },
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        getSelectCol(),
+        ...columns,
+        menuCol,
+      ])
+    }
+  )
 
-  if (!instances) return <div>loading</div>
+  if (!instances) return null
 
   // hasPrev check is there because the API doesn't leave off nextPage when
   // we're on the last page, so there's an empty page at the end we want to show

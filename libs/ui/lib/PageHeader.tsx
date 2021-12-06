@@ -4,7 +4,7 @@ import React from 'react'
 
 import { classed } from '../util/classed'
 
-export const PageHeader = classed.header`flex items-center justify-between mt-2.5 mb-4`
+export const PageHeader = classed.header`flex items-center justify-between mb-16 mt-4`
 
 interface Props {
   icon: ReactElement

@@ -9,8 +9,7 @@ export * from './instance-can'
 export * from './__generated__/Api'
 export type { ErrorResponse } from './hooks'
 
-const basePath =
-  process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
+const basePath = process.env.API_URL ?? '/api'
 
 const api = new Api({ baseUrl: basePath })
 

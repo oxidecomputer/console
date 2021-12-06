@@ -1,5 +1,5 @@
 import type { ErrorResponse } from '@oxide/api'
-import { getServerParseError, getServerError } from './errors'
+import { getParseError, getServerError } from './errors'
 
 const parseError = {
   error: {
@@ -18,17 +18,23 @@ const alreadyExists = {
   },
 } as ErrorResponse
 
-describe('getServerParseError', () => {
+const unauthorized = {
+  error: {
+    request_id: '3',
+    error_code: 'Forbidden',
+    message: "I'm afraid you can't do that, Dave",
+  },
+} as ErrorResponse
+
+describe('getParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getServerParseError(parseError.error.message)).toEqual(
+    expect(getParseError(parseError.error.message)).toEqual(
       'Hello there, you have an error'
     )
   })
 
-  it('falls back if error string does not match pattern', () => {
-    expect(getServerParseError('some nonsense')).toEqual(
-      'Unknown error from server'
-    )
+  it('returns undefined if error does not match pattern', () => {
+    expect(getParseError('some nonsense')).toBeUndefined()
   })
 })
 
@@ -45,9 +51,18 @@ describe('getServerError', () => {
     ).toEqual('that already exists')
   })
 
-  it('falls back to generic server error if code not found', () => {
+  it('falls back to server error message if code not found', () => {
     expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual(
-      'Unknown error from server'
+      'whatever'
     )
+  })
+
+  it('uses global map of generic codes for, e.g., 403s', () => {
+    expect(getServerError(unauthorized, {})).toEqual('Action not authorized')
+  })
+
+  it('falls back to generic message if server message empty', () => {
+    // happens if json parsing fails
+    expect(getServerError(null, {})).toEqual('Unknown error from server')
   })
 })

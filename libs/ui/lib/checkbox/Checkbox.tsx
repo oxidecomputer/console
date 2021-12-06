@@ -4,13 +4,13 @@ import React from 'react'
 import { classed } from '../../util/classed'
 
 const Check = () => (
-  <Checkmark12Icon className="absolute w-2.5 h-2 left-[3px] top-1 fill-current text-green-500" />
+  <Checkmark12Icon className="absolute w-3 h-2.5 left-0.5 top-0.5 fill-current text-green-500" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-green-500`
 
 const inputStyle = `
-  appearance-none border border-gray-300 h-4 w-4 rounded absolute left-0 outline-none
+  appearance-none border border-gray-300 h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-green-700
   hover:bg-gray-400

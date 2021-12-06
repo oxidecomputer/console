@@ -44,34 +44,46 @@ docker run -d \
 export OXAPI_URL='http://0.0.0.0:8888'  # used by oxapi_demo
 
 # Populate API data.
-# After we turn on cockroach and get rid of the in-memory store this can
-# be moved to part of the packer build to save time.
+
 oxapi_demo organization_create_demo maze-war
 oxapi_demo organization_create_demo enron
-oxapi_demo organization_create_demo theranos 
+oxapi_demo organization_create_demo theranos
+
+# Create projects
 
 oxapi_demo project_create_demo maze-war prod-online
 oxapi_demo project_create_demo maze-war release-infrastructure 
 oxapi_demo project_create_demo maze-war rendering
 oxapi_demo project_create_demo maze-war test-infrastructure
-oxapi_demo project_create_demo maze-war oxide-demo
+
+# Create instances in project prod-online
 
 oxapi_demo instance_create_demo maze-war prod-online db1
 oxapi_demo instance_create_demo maze-war prod-online db2
+
+# Create disks in prod-online
 
 oxapi_demo disk_create_demo maze-war prod-online nginx
 oxapi_demo disk_create_demo maze-war prod-online grafana
 oxapi_demo disk_create_demo maze-war prod-online grafana-state
 oxapi_demo disk_create_demo maze-war prod-online vault
 
-# leave unattached
-oxapi_demo disk_create_demo maze-war prod-online vol1
-oxapi_demo disk_create_demo maze-war prod-online vol2
+# Attach disks to instance db1
 
 oxapi_demo instance_attach_disk maze-war prod-online db1 nginx
 oxapi_demo instance_attach_disk maze-war prod-online db1 grafana
 oxapi_demo instance_attach_disk maze-war prod-online db1 grafana-state
 oxapi_demo instance_attach_disk maze-war prod-online db1 vault
+
+# Create some disks in prod-online to leave unattached
+
+oxapi_demo disk_create_demo maze-war prod-online vol1
+oxapi_demo disk_create_demo maze-war prod-online vol2
+
+# Create VPCs in prod-online
+
+oxapi_demo vpc_create_demo maze-war prod-online vpc1 vpc1
+oxapi_demo vpc_create_demo maze-war prod-online vpc2 vpc2
 
 echo "\n==== API DATA POPULATED ====\n"
 
