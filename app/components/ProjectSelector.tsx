@@ -7,13 +7,7 @@ import cn from 'classnames'
  * This is mostly temporary until we figure out the proper thing to go here
  */
 const BrandIcon = () => (
-  <svg
-    width="32"
-    height="32"
-    fill="none"
-    className="mt-1"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="32" height="32" rx="2" fill="#112725" />
     <path
       fillRule="evenodd"
@@ -30,15 +24,15 @@ interface ProjectSelectorProps {
 export const ProjectSelector = ({ className }: ProjectSelectorProps) => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   return (
-    <div className={cn('flex items-center justify-between', className)}>
+    <div className={cn('flex items-center justify-between mt-1', className)}>
       <div className="flex items-center">
         <BrandIcon />
-        <div className="text-sans-sm ml-2">
+        <div className="text-sans-sm ml-2 leading-4">
           <div>{orgName}</div>
           <div className="text-gray-300">{projectName}</div>
         </div>
       </div>
-      <SelectArrows6Icon />
+      <SelectArrows6Icon className="text-gray-300" />
     </div>
   )
 }
