@@ -8,9 +8,15 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import type { HttpResponse } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type Params<F> = F extends (p: infer P, r: any) => any ? P : never
-type Body<F> = F extends (p: any, r: infer R) => any ? R : never
-type Result<F> = F extends (p: any, r: any) => Promise<HttpResponse<infer R>>
+export type Params<F> = F extends (p: infer P, r: infer R) => any
+  ? P & {
+      body?: R
+    }
+  : never
+export type Result<F> = F extends (
+  p: any,
+  r: any
+) => Promise<HttpResponse<infer R>>
   ? R
   : never
 
@@ -58,11 +64,7 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends keyof A>(
     method: M,
-    options?: UseMutationOptions<
-      Result<A[M]>,
-      ErrorResponse,
-      Params<A[M]> & { body?: Body<A[M]> }
-    >
+    options?: UseMutationOptions<Result<A[M]>, ErrorResponse, Params<A[M]>>
   ) =>
     useMutation(
       ({ body, ...params }) =>

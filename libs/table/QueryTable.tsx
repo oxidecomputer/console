@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Table } from './Table'
-import type { ApiError } from '@oxide/api'
+import type { ErrorResponse, ApiClient, Params, Result } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import type { DefaultApi } from 'libs/api/__generated__'
 import type { UseQueryOptions } from 'react-query'
 import type { ComponentType, ReactElement } from 'react'
 import { useMemo } from 'react'
@@ -16,10 +15,7 @@ import { DefaultHeader } from './headers'
 import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
 
-type Params<F> = F extends (p: infer P) => any ? P : never
-export type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
-
-interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
+interface UseQueryTableResult<A extends ApiClient, M extends keyof A> {
   Table: ComponentType<QueryTableProps>
   Column: ComponentType<QueryTableColumnProps<A, M, Result<A[M]>>>
 }
@@ -29,10 +25,10 @@ interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
  * table level options and a `Column` component which governs the individual column
  * configuration
  */
-export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
+export const useQueryTable = <A extends ApiClient, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ApiError>
+  options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
 ): UseQueryTableResult<A, M> => {
   // TODO: We should probably find a better way to do this. In essence
   // we need the params and options to be stable and comparable to prevent unnecessary recreation
@@ -136,7 +132,7 @@ const makeQueryTable = (query: any, params: any, options: any) =>
 type items = 'items'
 
 export interface QueryTableColumnProps<
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>,
   R extends unknown = any
@@ -148,7 +144,7 @@ export interface QueryTableColumnProps<
   cell?: ComponentType<R>
 }
 const QueryTableColumn = <
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>,
   R extends unknown = any
