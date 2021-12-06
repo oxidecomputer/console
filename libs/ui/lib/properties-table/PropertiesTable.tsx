@@ -37,7 +37,9 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span>
       <Badge variant="ghost">{label}</Badge>
     </span>
-    <span className="whitespace-nowrap pr-4 text-sans-md">{children}</span>
+    <div className="whitespace-nowrap pr-4 text-sans-md flex items-center">
+      {children}
+    </div>
   </>
 )
 

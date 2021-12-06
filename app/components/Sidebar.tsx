@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 export function Sidebar({ children }: SidebarProps) {
   return (
-    <div className="pb-6 pt-5 overflow-auto bg-gray-800 border-r border-gray-450 px-3">
+    <div className="pb-6 pt-5 overflow-auto bg-gray-800 border-r border-gray-500 px-3">
       <ProjectSelector className="mb-10" />
       {children}
       <Sidebar.Footer>
@@ -68,7 +68,7 @@ export const NavLinkItem = (props: {
       to={props.to}
       className={({ isActive }) =>
         cn(
-          'flex text-sans-md rounded-sm items-center p-1 hover:bg-gray-500 svg:mr-2 svg:text-gray-300',
+          'flex text-sans-md rounded-sm h-7 items-center p-1.5 hover:bg-gray-500 svg:mr-2 svg:text-gray-300',
           {
             'text-green-500 svg:!text-green-500 !bg-green-950': isActive,
           }

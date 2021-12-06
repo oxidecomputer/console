@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  Folder24Icon,
+  Networking24Icon,
   PageHeader,
   PageTitle,
   PropertiesTable,
@@ -17,10 +17,12 @@ export const VpcPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Vpcs" />}>{vpcName}</PageTitle>
+        <PageTitle icon={<Networking24Icon title="Vpcs" />}>
+          {vpcName}
+        </PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-12">
+      <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
             Default network for the project

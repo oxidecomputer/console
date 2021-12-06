@@ -1,5 +1,5 @@
 import React from 'react'
-import { Folder24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { useParams } from '../../../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
@@ -15,7 +15,7 @@ export const VpcsPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Vpcs" />}>VPCs</PageTitle>
+        <PageTitle icon={<Networking24Icon title="Vpcs" />}>VPCs</PageTitle>
       </PageHeader>
 
       <Table selectable>
