@@ -62,7 +62,7 @@ const ProjectsPage = () => {
             className="w-full border border-gray-400 rounded"
           >
             <section className="p-4">
-              <header className="mb-12">
+              <header className="mb-16">
                 <Link to={item.name} className="text-display-xl">
                   {item.name}
                 </Link>

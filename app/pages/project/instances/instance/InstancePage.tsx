@@ -41,7 +41,7 @@ export const InstancePage = () => {
           {instanceName}
         </PageTitle>
       </PageHeader>
-      <PropertiesTable.Group className="mb-12">
+      <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             {instance.ncpus}

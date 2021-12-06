@@ -20,7 +20,7 @@ export const VpcPage = () => {
         <PageTitle icon={<Folder24Icon title="Vpcs" />}>{vpcName}</PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-12">
+      <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
             Default network for the project
