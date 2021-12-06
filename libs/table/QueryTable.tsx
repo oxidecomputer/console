@@ -6,22 +6,27 @@ import { useApiQuery } from '@oxide/api'
 import type { DefaultApi } from 'libs/api/__generated__'
 import type { UseQueryOptions } from 'react-query'
 import type { ComponentType, ReactElement } from 'react'
+import { useCallback } from 'react'
 import { useMemo } from 'react'
 import type { Row } from 'react-table'
 import { useRowSelect, useTable } from 'react-table'
-import { getSelectCol } from './select-col'
+import { getSelectCol } from './columns/select-col'
 import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
+import type { MenuAction } from './columns/action-col'
+import { getActionsCol } from './columns/action-col'
+import type { Result, Params, Items } from './util-types'
 
-type Params<F> = F extends (p: infer P) => any ? P : never
-export type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
-
-interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
-  Table: ComponentType<QueryTableProps>
-  Column: ComponentType<QueryTableColumnProps<A, M, Result<A[M]>>>
+interface UseQueryTableResult<
+  A extends DefaultApi,
+  M extends keyof A,
+  T extends Result<A[M]>
+> {
+  Table: ComponentType<QueryTableProps<A, M, T>>
+  Column: ComponentType<QueryTableColumnProps<A, M, T>>
 }
 /**
  * This hook builds a table that's linked to a given query. It's a combination
@@ -29,11 +34,15 @@ interface UseQueryTableResult<A extends DefaultApi, M extends keyof A> {
  * table level options and a `Column` component which governs the individual column
  * configuration
  */
-export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
+export const useQueryTable = <
+  A extends DefaultApi,
+  M extends keyof A,
+  T extends Result<A[M]>
+>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ApiError>
-): UseQueryTableResult<A, M> => {
+  options?: UseQueryOptions<T, ApiError>
+): UseQueryTableResult<A, M, T> => {
   // TODO: We should probably find a better way to do this. In essence
   // we need the params and options to be stable and comparable to prevent unnecessary recreation
   // of the table which is a relatively expensive operation.
@@ -55,19 +64,38 @@ export const useQueryTable = <A extends DefaultApi, M extends keyof A>(
   // @ts-expect-error FIXME: The accessor types are reported as different, but they shouldn't be
   return { Table, Column: QueryTableColumn }
 }
-interface QueryTableProps {
+interface QueryTableProps<
+  A extends DefaultApi,
+  M extends keyof A,
+  T extends Result<A[M]>
+> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
+  actions?: MenuAction<A, M, T>[]
   children: React.ReactNode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeQueryTable = (query: any, params: any, options: any) =>
-  function QueryTable({ children, selectable, debug, rowId }: QueryTableProps) {
+const makeQueryTable = <
+  A extends DefaultApi,
+  M extends keyof A,
+  T extends Result<A[M]>
+>(
+  query: any,
+  params: any,
+  options: any
+) =>
+  function QueryTable({
+    children,
+    selectable,
+    actions,
+    debug,
+    rowId,
+  }: QueryTableProps<A, M, T>) {
     const columns = useMemo(
       () =>
         React.Children.toArray(children).map((child) => {
@@ -104,12 +132,15 @@ const makeQueryTable = (query: any, params: any, options: any) =>
       [(data as any)?.items]
     )
 
-    const getRowId = useMemo(() => {
-      if (!rowId) return (row: Row<any>) => row.id
-      return typeof rowId === 'string'
-        ? (row: Row) => unsafe_get(row, rowId)
-        : rowId
-    }, [rowId])
+    const getRowId = useCallback(
+      (row, relativeIndex, parent) => {
+        if (!rowId) return row.id || row?.identity?.id
+        return typeof rowId === 'string'
+          ? unsafe_get(row, rowId)
+          : rowId(row, relativeIndex, parent)
+      },
+      [rowId]
+    )
 
     const table = useTable(
       {
@@ -121,8 +152,14 @@ const makeQueryTable = (query: any, params: any, options: any) =>
       },
       useRowSelect,
       (hooks) => {
-        selectable &&
-          hooks.visibleColumns.push((columns) => [getSelectCol(), ...columns])
+        hooks.visibleColumns.push((columns) => {
+          const visibleColumns = []
+          if (selectable) visibleColumns.push(getSelectCol())
+          visibleColumns.push(...columns)
+          if (actions) visibleColumns.push(getActionsCol(actions))
+
+          return visibleColumns
+        })
       }
     )
 
@@ -133,8 +170,6 @@ const makeQueryTable = (query: any, params: any, options: any) =>
     return <Table table={table} />
   }
 
-type items = 'items'
-
 export interface QueryTableColumnProps<
   A extends DefaultApi,
   M extends keyof A,
@@ -143,7 +178,7 @@ export interface QueryTableColumnProps<
 > {
   id: string
   // @ts-expect-error It complains about items not being indexable of T but we know it will be
-  accessor?: Path<T[items][number]> | ((type: T[items][number]) => R)
+  accessor?: Path<T[Items][number]> | ((type: T[Items][number]) => R)
   header?: string | ReactElement
   cell?: ComponentType<R>
 }

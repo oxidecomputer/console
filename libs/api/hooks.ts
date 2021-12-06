@@ -14,7 +14,7 @@ type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
 
 // even though the api object has other properties on it, as far as
 // getUseApiQuery is concerned it only has the fetcher functions
-type ApiClient<A> = OmitByValue<
+export type ApiClient<A> = OmitByValue<
   PickByValue<A, (p: any) => Promise<any>>,
   (p: any) => Promise<ApiResponse<any>> // exclude "-Raw" fetchers
 >
