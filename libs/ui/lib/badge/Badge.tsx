@@ -36,10 +36,10 @@ export const badgeColors: Record<
     lightGray: 'bg-gray-300 text-black',
   },
   ghost: {
-    green: 'inner-shadow-green text-green-500 bg-green-950',
-    red: 'inner-shadow-red text-red-500 bg-red-950',
-    yellow: 'inner-shadow-yellow text-yellow-500 bg-yellow-950',
-    blue: 'inner-shadow-blue text-blue-500 bg-blue-950',
+    green: 'ring-1 ring-inset ring-green-800 text-green-500 bg-green-950',
+    red: 'ring-1 ring-inset ring-red-800 text-red-500 bg-red-950',
+    yellow: 'ring-1 ring-inset ring-yellow-800 text-yellow-500 bg-yellow-950',
+    blue: 'ring-1 ring-inset ring-blue-800 text-blue-500 bg-blue-950',
   },
 }
 
