@@ -1905,7 +1905,7 @@ export class HttpClient<SecurityDataType = unknown> {
 export class Api<
   SecurityDataType extends unknown
 > extends HttpClient<SecurityDataType> {
-  hardware = {
+  methods = {
     /**
      * @description List racks in the system.
      *
@@ -1975,8 +1975,7 @@ export class Api<
         format: 'json',
         ...params,
       }),
-  }
-  login = {
+
     /**
      * No description
      *
@@ -1995,8 +1994,7 @@ export class Api<
         type: ContentType.Json,
         ...params,
       }),
-  }
-  logout = {
+
     /**
      * No description
      *
@@ -2009,8 +2007,7 @@ export class Api<
         method: 'POST',
         ...params,
       }),
-  }
-  organizations = {
+
     /**
      * @description List all organizations.
      *
@@ -2952,8 +2949,7 @@ export class Api<
         method: 'DELETE',
         ...params,
       }),
-  }
-  sagas = {
+
     /**
      * @description List all sagas (for debugging)
      *

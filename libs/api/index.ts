@@ -18,8 +18,8 @@ const api = new Api({ baseUrl: basePath })
 // of the thing I'd want to use a custom template to override. On the other hand
 // it's not so bad since all we care about in the console for now is the
 // organzations ones.
-export type ApiClient = typeof api.organizations
+export type ApiClient = typeof api.methods
 
-export const useApiQuery = getUseApiQuery(api.organizations)
-export const useApiMutation = getUseApiMutation(api.organizations)
+export const useApiQuery = getUseApiQuery(api.methods)
+export const useApiMutation = getUseApiMutation(api.methods)
 export const useApiQueryClient = getUseApiQueryClient<ApiClient>()

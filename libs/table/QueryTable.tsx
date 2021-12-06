@@ -48,7 +48,6 @@ export const useQueryTable = <A extends ApiClient, M extends keyof A>(
     [query, stableParams, stableOpts]
   )
 
-  // @ts-expect-error FIXME: The accessor types are reported as different, but they shouldn't be
   return { Table, Column: QueryTableColumn }
 }
 interface QueryTableProps {
