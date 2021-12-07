@@ -13,7 +13,7 @@ import { useRowSelect, useTable } from 'react-table'
 import type { ComponentType, ReactElement } from 'react'
 import type {
   ErrorResponse,
-  ApiClient,
+  ApiListMethods,
   Params,
   Result,
   ResultItem,
@@ -24,7 +24,7 @@ import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 
 interface UseQueryTableResult<
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>
 > {
@@ -38,7 +38,7 @@ interface UseQueryTableResult<
  * configuration
  */
 export const useQueryTable = <
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>
 >(
@@ -68,7 +68,7 @@ export const useQueryTable = <
 }
 
 interface QueryTableProps<
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>
 > {
@@ -84,7 +84,7 @@ interface QueryTableProps<
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>
 >(
@@ -174,7 +174,7 @@ const makeQueryTable = <
   }
 
 export interface QueryTableColumnProps<
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>,
   R extends unknown = any
@@ -186,7 +186,7 @@ export interface QueryTableColumnProps<
 }
 
 const QueryTableColumn = <
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>,
   R extends unknown = any

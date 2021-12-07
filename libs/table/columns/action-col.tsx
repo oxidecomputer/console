@@ -3,19 +3,17 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { Row } from 'react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
-import type { ApiClient, ResultItem } from '@oxide/api'
+import type { ApiListMethods, ResultItem } from '@oxide/api'
 
 export type MenuAction<
-  A extends ApiClient,
+  A extends ApiListMethods,
   M extends keyof A,
   Item extends ResultItem<A[M]>
-> =
-  | {
-      label: string
-      onActivate: (item: Item) => void
-      disabled?: boolean
-    }
-  | [label: string, onActivate: (item: Item) => void]
+> = {
+  label: string
+  onActivate: (item: Item) => void
+  disabled?: boolean
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getActionsCol(actions: MenuAction<any, any, any>[]) {

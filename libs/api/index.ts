@@ -3,7 +3,7 @@ import {
   getUseApiQuery,
   getUseApiQueryClient,
 } from './hooks'
-// import type { HttpResponse } from './__generated__/Api'
+import type { HttpResponse } from './__generated__/Api'
 import { Api } from './__generated__/Api'
 
 export * from './instance-can'
@@ -19,12 +19,18 @@ const api = new Api({ baseUrl: basePath })
 // of the thing I'd want to use a custom template to override. On the other hand
 // it's not so bad since all we care about in the console for now is the
 // organzations ones.
-export type ApiClient = typeof api.methods
-// export type ApiListMethods = PickByValue<
-//   ApiClient,
-//   (...args: any) => Promise<HttpResponse<{ items: any[] }>>
-// >
+type ApiMethods = typeof api.methods
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * All API methods that return lists.
+ **/
+export type ApiListMethods = PickByValue<
+  ApiMethods,
+  (...args: any) => Promise<HttpResponse<{ items: any[] }>>
+>
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
-export const useApiQueryClient = getUseApiQueryClient<ApiClient>()
+export const useApiQueryClient = getUseApiQueryClient<ApiMethods>()
