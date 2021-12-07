@@ -19,6 +19,7 @@ export type MenuAction<
   // @ts-expect-error Complains about T['items'][number] but it works as we want
   | [label: string, onActivate: (item: T['items'][number]) => void]
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getActionsCol(actions: MenuAction<any, any, any>[]) {
   return {
     id: 'menu',
