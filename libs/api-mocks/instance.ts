@@ -10,7 +10,7 @@ export const instance: Instance = {
   hostname: 'oxide.com',
   projectId: 'def456',
   runState: InstanceState.Running,
-  timeCreated: new Date(),
-  timeModified: new Date(),
-  timeRunStateUpdated: new Date(),
+  timeCreated: new Date().toISOString(),
+  timeModified: new Date().toISOString(),
+  timeRunStateUpdated: new Date().toISOString(),
 }

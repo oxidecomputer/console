@@ -14,9 +14,9 @@ import {
   Close12Icon,
   Filter12Icon,
   MoreMiscIcon,
-  Person24Icon,
   Search16Icon,
   Unauthorized12Icon,
+  Access24Icon,
 } from '@oxide/ui'
 import type { User } from '@oxide/api-mocks'
 import { users } from '@oxide/api-mocks'
@@ -118,7 +118,7 @@ export const AccessPage = () => {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Person24Icon title="Access & IAM" />}>
+        <PageTitle icon={<Access24Icon title="Access & IAM" />}>
           Access &amp; IAM
         </PageTitle>
       </PageHeader>

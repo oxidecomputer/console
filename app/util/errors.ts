@@ -1,4 +1,4 @@
-import type { ApiError } from '@oxide/api'
+import type { ErrorResponse } from '@oxide/api'
 
 import { capitalize } from '@oxide/util'
 
@@ -17,13 +17,13 @@ const globalCodeMap: Record<string, string> = {
 }
 
 export const getServerError = (
-  error: ApiError | null,
+  error: ErrorResponse | null,
   codeMap: Record<string, string> = {}
 ) => {
   if (!error) return null
-  const code = error.data?.error_code
+  const code = error.error?.error_code
   const codeMsg = code && (codeMap[code] || globalCodeMap[code])
-  const serverMsg = error.data?.message
+  const serverMsg = error.error?.message
   return (
     // first try to get friendly message based on code
     codeMsg ||

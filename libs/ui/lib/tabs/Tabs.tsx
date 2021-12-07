@@ -64,7 +64,7 @@ export function Tabs({
       <RTabList
         aria-labelledby={labelledby}
         aria-label={label}
-        className={cn(after, fullWidth && before, 'text-mono-md uppercase')}
+        className={cn(after, fullWidth && before)}
       >
         {tabs}
       </RTabList>

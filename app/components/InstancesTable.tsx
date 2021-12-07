@@ -61,7 +61,7 @@ const columns = [
           className="!no-underline"
           title={value.timeRunStateUpdated.toLocaleString()}
         >
-          {timeAgoAbbr(value.timeRunStateUpdated)}
+          {timeAgoAbbr(new Date(value.timeRunStateUpdated))}
         </abbr>
       </span>
     ),
@@ -171,7 +171,7 @@ export const InstancesTable = ({ className }: { className?: string }) => {
     {
       organizationName: orgName,
       projectName,
-      pageToken: currentPage,
+      page_token: currentPage,
       limit: PAGE_SIZE,
     },
     { refetchInterval: 5000, keepPreviousData: true }
@@ -223,13 +223,13 @@ export const InstancesTable = ({ className }: { className?: string }) => {
           </PageButton>
           <PageButton
             onClick={() =>
-              instances.nextPage && goToNextPage(instances.nextPage)
+              instances.next_page && goToNextPage(instances.next_page)
             }
-            disabled={!instances.nextPage}
+            disabled={!instances.next_page}
             aria-label="Next"
           >
             {/* filled triangle right, outline triangle right */}
-            {instances.nextPage ? '\u25B6' : '\u25B7'}
+            {instances.next_page ? '\u25B6' : '\u25B7'}
           </PageButton>
         </span>
       </div>

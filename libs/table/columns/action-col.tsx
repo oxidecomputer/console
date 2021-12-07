@@ -1,13 +1,12 @@
 import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { DefaultApi } from 'libs/api/__generated__/apis/DefaultApi'
 import type { Row } from 'react-table'
-import type { Result, Items } from '../util-types'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
+import type { ApiClient, Result } from '@oxide/api'
 
 export type MenuAction<
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>
 > =

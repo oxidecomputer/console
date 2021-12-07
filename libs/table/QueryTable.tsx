@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Table } from './Table'
-import type { ApiError } from '@oxide/api'
+import type { ErrorResponse, ApiClient, Params, Result } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import type { DefaultApi } from 'libs/api/__generated__'
 import type { UseQueryOptions } from 'react-query'
 import type { ComponentType, ReactElement } from 'react'
 import { useCallback } from 'react'
@@ -18,10 +17,9 @@ import type { Path } from '@oxide/util'
 import { unsafe_get } from '@oxide/util'
 import type { MenuAction } from './columns/action-col'
 import { getActionsCol } from './columns/action-col'
-import type { Result, Params, Items } from './util-types'
 
 interface UseQueryTableResult<
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>
 > {
@@ -35,13 +33,13 @@ interface UseQueryTableResult<
  * configuration
  */
 export const useQueryTable = <
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>
 >(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<T, ApiError>
+  options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
 ): UseQueryTableResult<A, M, T> => {
   // TODO: We should probably find a better way to do this. In essence
   // we need the params and options to be stable and comparable to prevent unnecessary recreation
@@ -61,11 +59,10 @@ export const useQueryTable = <
     [query, stableParams, stableOpts]
   )
 
-  // @ts-expect-error FIXME: The accessor types are reported as different, but they shouldn't be
   return { Table, Column: QueryTableColumn }
 }
 interface QueryTableProps<
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>
 > {
@@ -81,7 +78,7 @@ interface QueryTableProps<
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>
 >(
@@ -171,7 +168,7 @@ const makeQueryTable = <
   }
 
 export interface QueryTableColumnProps<
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>,
   R extends unknown = any
@@ -183,7 +180,7 @@ export interface QueryTableColumnProps<
   cell?: ComponentType<R>
 }
 const QueryTableColumn = <
-  A extends DefaultApi,
+  A extends ApiClient,
   M extends keyof A,
   T extends Result<A[M]>,
   R extends unknown = any

@@ -20,7 +20,11 @@ export const InstanceStatusBadge = (props: {
   status: InstanceState
   className?: string
 }) => (
-  <Badge color={INSTANCE_COLORS[props.status]} className={props.className}>
+  <Badge
+    variant="dim"
+    color={INSTANCE_COLORS[props.status]}
+    className={props.className}
+  >
     {props.status}
   </Badge>
 )

@@ -1,42 +1,34 @@
+import type { ErrorResponse } from '@oxide/api'
 import { getParseError, getServerError } from './errors'
 
 const parseError = {
-  raw: {} as Response,
-  data: {
+  error: {
     request_id: '1',
     error_code: null,
     message:
       'unable to parse body: hello there, you have an error at line 129 column 4',
   },
-}
+} as ErrorResponse
 
 const alreadyExists = {
-  raw: {} as Response,
-  data: {
+  error: {
     request_id: '2',
     error_code: 'ObjectAlreadyExists',
     message: 'whatever',
   },
-}
+} as ErrorResponse
 
 const unauthorized = {
-  raw: {} as Response,
-  data: {
+  error: {
     request_id: '3',
     error_code: 'Forbidden',
     message: "I'm afraid you can't do that, Dave",
   },
-}
-
-// happens if json parsing fails
-const nullData = {
-  raw: {} as Response,
-  data: null,
-}
+} as ErrorResponse
 
 describe('getParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getParseError(parseError.data.message)).toEqual(
+    expect(getParseError(parseError.error.message)).toEqual(
       'Hello there, you have an error'
     )
   })
@@ -69,7 +61,8 @@ describe('getServerError', () => {
     expect(getServerError(unauthorized, {})).toEqual('Action not authorized')
   })
 
-  it('falls back to generic message if server message empty', () => {
-    expect(getServerError(nullData, {})).toEqual('Unknown error from server')
+  it('returns null if the error object is null', () => {
+    // happens if json parsing fails
+    expect(getServerError(null, {})).toEqual(null)
   })
 })

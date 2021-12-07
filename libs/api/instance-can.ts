@@ -1,4 +1,4 @@
-import type { Instance } from './__generated__'
+import type { Instance } from '.'
 
 export const instanceCan: Record<string, (i: Instance) => boolean> = {
   reboot: (i) => i.runState === 'running',
