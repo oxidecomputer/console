@@ -1,5 +1,4 @@
 import type { Instance } from '@oxide/api'
-import { InstanceState } from '@oxide/api'
 
 export const instance: Instance = {
   ncpus: 7,
@@ -9,7 +8,7 @@ export const instance: Instance = {
   id: 'abc123',
   hostname: 'oxide.com',
   projectId: 'def456',
-  runState: InstanceState.Running,
+  runState: 'running',
   timeCreated: new Date().toISOString(),
   timeModified: new Date().toISOString(),
   timeRunStateUpdated: new Date().toISOString(),

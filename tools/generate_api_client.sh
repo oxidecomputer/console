@@ -16,6 +16,7 @@ cp ../omicron/openapi/nexus.json $SPEC_FILE
 cp ../omicron/tools/oxapi_demo packer/oxapi_demo
 
 yarn swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
+  --union-enums \
   --extract-request-params \
   --extract-request-body # weirdly this doesn't do anything
 
