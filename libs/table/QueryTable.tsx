@@ -59,7 +59,7 @@ export const useQueryTable = <
       .sort()
       .join(',')
   const Table = useMemo(
-    () => makeQueryTable(query, params, options),
+    () => makeQueryTable<A, M, Item>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, stableParams, stableOpts]
   )
