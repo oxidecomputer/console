@@ -22,9 +22,14 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
+let successSpy: jest.Mock
+
 describe('ProjectCreateForm', () => {
   beforeEach(() => {
-    renderWithRouter(<ProjectCreateForm orgName={org.name} />)
+    successSpy = jest.fn()
+    renderWithRouter(
+      <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
+    )
     enterName('valid-name')
   })
 
@@ -78,7 +83,10 @@ describe('ProjectCreateForm', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post(projectsUrl, { status: 400 })
+    fetchMock.post(projectsUrl, {
+      status: 400,
+      body: { error_code: 'UnknownCode' },
+    })
 
     fireEvent.click(submitButton())
 
@@ -95,19 +103,18 @@ describe('ProjectCreateForm', () => {
     )
   })
 
-  it('navigates to project page on success', async () => {
+  it('calls onSuccess on success', async () => {
     const mock = fetchMock.post(projectsUrl, {
       status: 201,
       body: project,
     })
 
-    const projectPath = `/orgs/${org.name}/projects/${project.name}`
-    expect(window.location.pathname).not.toEqual(projectPath)
+    expect(successSpy).not.toHaveBeenCalled()
 
     fireEvent.click(submitButton())
 
     await waitFor(() => expect(mock.called()).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
+    await waitFor(() => expect(successSpy).toHaveBeenCalled())
   })
 })

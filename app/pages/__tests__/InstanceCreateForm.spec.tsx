@@ -20,13 +20,20 @@ const instancesUrl = `${projectUrl}/instances`
 const disksUrl = `${projectUrl}/disks`
 const vpcsUrl = `${projectUrl}/vpcs`
 
+let successSpy: jest.Mock
+
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
     // existing disk modal fetches disks on render even if it's not visible
     fetchMock.get(disksUrl, 200)
     fetchMock.get(vpcsUrl, 200)
+    successSpy = jest.fn()
     renderWithRouter(
-      <InstanceCreateForm orgName={org.name} projectName={project.name} />
+      <InstanceCreateForm
+        orgName={org.name}
+        projectName={project.name}
+        onSuccess={successSpy}
+      />
     )
   })
 
@@ -62,7 +69,10 @@ describe('InstanceCreateForm', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post(instancesUrl, 400)
+    fetchMock.post(instancesUrl, {
+      status: 400,
+      body: { error_code: 'UnknownCode' },
+    })
 
     fireEvent.click(submitButton())
 
@@ -89,16 +99,15 @@ describe('InstanceCreateForm', () => {
     )
   })
 
-  it('navigates to project page on success', async () => {
+  it('calls onSuccess on success', async () => {
     const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
 
-    const projectPath = `/orgs/${org.name}/projects/${project.name}`
-    expect(window.location.pathname).not.toEqual(projectPath)
+    expect(successSpy).not.toHaveBeenCalled()
 
     fireEvent.click(submitButton())
 
     await waitFor(() => expect(mock.called(instancesUrl)).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
+    await waitFor(() => expect(successSpy).toHaveBeenCalled())
   })
 })

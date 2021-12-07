@@ -28,10 +28,11 @@ const renderGetOrgs = () =>
   renderHook(() => useApiQuery('organizationsGet', {}), wrapper())
 
 const renderCreateOrg = () =>
-  renderHook(() => useApiMutation('organizationsPost', {}), wrapper())
+  renderHook(() => useApiMutation('organizationsPost'), wrapper())
 
 const createParams = {
-  organizationCreate: { name: 'abc', description: '' },
+  params: {},
+  body: { name: 'abc', description: '', hello: 'a' },
 }
 
 afterEach(() => {
@@ -54,7 +55,7 @@ describe('useApiQuery', () => {
 
       const { result } = renderGetOrgs()
 
-      await waitFor(() => expect(result.current.error?.raw).toEqual(response))
+      await waitFor(() => expect(result.current.error).toEqual(response))
     })
 
     it('parses error json if possible', async () => {
@@ -64,7 +65,7 @@ describe('useApiQuery', () => {
 
       const { result } = renderGetOrgs()
 
-      await waitFor(() => expect(result.current.error?.data).toEqual(error))
+      await waitFor(() => expect(result.current.error?.error).toEqual(error))
     })
 
     it('sets error.data to null if error body is not json', async () => {
@@ -109,7 +110,7 @@ describe('useApiMutation', () => {
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
-      await waitFor(() => expect(result.current.error?.raw).toEqual(response))
+      await waitFor(() => expect(result.current.error).toEqual(response))
     })
 
     it('parses error json if possible', async () => {
@@ -120,7 +121,7 @@ describe('useApiMutation', () => {
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
-      await waitFor(() => expect(result.current.error?.data).toEqual(error))
+      await waitFor(() => expect(result.current.error?.error).toEqual(error))
     })
 
     it('sets error.data to null if error body is not json', async () => {

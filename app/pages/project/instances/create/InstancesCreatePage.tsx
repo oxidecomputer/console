@@ -44,24 +44,20 @@ const ERROR_CODES = {
 type InstanceCreateFormProps = {
   orgName: string
   projectName: string
+  onSuccess: () => void
 }
 
 export function InstanceCreateForm({
   orgName,
   projectName,
+  onSuccess,
 }: InstanceCreateFormProps) {
-  const navigate = useNavigate()
-
   // modals
   const [showNewDiskModal, setShowNewDiskModal] = useState(false)
   const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)
 
-  const createInstance = useApiMutation('projectInstancesPost', {
-    onSuccess: () => {
-      navigate(`/orgs/${orgName}/projects/${projectName}`)
-    },
-  })
+  const createInstance = useApiMutation('projectInstancesPost', { onSuccess })
 
   const renderLargeRadioCards = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
@@ -95,7 +91,7 @@ export function InstanceCreateForm({
           createInstance.mutate({
             organizationName: orgName,
             projectName,
-            instanceCreate: {
+            body: {
               name: values['instance-name'],
               hostname: values.hostname,
               description: `An instance in project: ${projectName}`,
@@ -336,6 +332,7 @@ export function InstanceCreateForm({
 }
 
 const InstanceCreatePage = () => {
+  const navigate = useNavigate()
   const { orgName, projectName } = useParams('orgName', 'projectName')
 
   return (
@@ -345,7 +342,11 @@ const InstanceCreatePage = () => {
           Create a new instance
         </PageTitle>
       </PageHeader>
-      <InstanceCreateForm orgName={orgName} projectName={projectName} />
+      <InstanceCreateForm
+        orgName={orgName}
+        projectName={projectName}
+        onSuccess={() => navigate('..')} // project page
+      />
     </>
   )
 }

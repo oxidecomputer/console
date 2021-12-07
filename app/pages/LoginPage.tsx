@@ -21,6 +21,7 @@ import { useToast } from '../hooks'
 export default function LoginPage() {
   const navigate = useNavigate()
   const addToast = useToast()
+  // TODO these are not under organizations. annoying. should really just use plain react-query
   const loginPost = useApiMutation('spoofLogin', {
     onSuccess: () => {
       addToast({
@@ -58,9 +59,7 @@ export default function LoginPage() {
           variant="solid"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() =>
-            loginPost.mutate({ loginParams: { username: 'privileged' } })
-          }
+          onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
         >
           Privileged
         </Button>
@@ -70,7 +69,7 @@ export default function LoginPage() {
           className="w-full"
           disabled={loginPost.isLoading}
           onClick={() =>
-            loginPost.mutate({ loginParams: { username: 'unprivileged' } })
+            loginPost.mutate({ body: { username: 'unprivileged' } })
           }
         >
           Unprivileged
@@ -80,9 +79,7 @@ export default function LoginPage() {
           variant="ghost"
           className="w-full"
           disabled={loginPost.isLoading}
-          onClick={() =>
-            loginPost.mutate({ loginParams: { username: 'other' } })
-          }
+          onClick={() => loginPost.mutate({ body: { username: 'other' } })}
         >
           Bad Request
         </Button>

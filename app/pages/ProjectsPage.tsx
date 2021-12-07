@@ -76,7 +76,7 @@ const ProjectsPage = () => {
             </section>
             <footer className="p-4 border-t border-gray-400 text-xs">
               <span className="uppercase">
-                {formatDistanceToNowStrict(item.timeCreated, {
+                {formatDistanceToNowStrict(new Date(item.timeCreated), {
                   addSuffix: true,
                 })}
               </span>
