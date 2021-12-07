@@ -175,7 +175,7 @@ export interface QueryTableColumnProps<
 > {
   id: string
   // @ts-expect-error It complains about items not being indexable of T but we know it will be
-  accessor?: Path<T[Items][number]> | ((type: T[Items][number]) => R)
+  accessor?: Path<T['items'][number]> | ((type: T['items'][number]) => R)
   header?: string | ReactElement
   cell?: ComponentType<R>
 }

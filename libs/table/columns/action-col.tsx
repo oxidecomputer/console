@@ -12,12 +12,12 @@ export type MenuAction<
 > =
   | {
       label: string
-      // @ts-expect-error Complains about T[Items][number] but it works as we want
-      onActivate: (item: T[Items][number]) => void
+      // @ts-expect-error Complains about T['items'][number] but it works as we want
+      onActivate: (item: T['items'][number]) => void
       disabled?: boolean
     }
-  // @ts-expect-error Complains about T[Items][number] but it works as we want
-  | [label: string, onActivate: (item: T[Items][number]) => void]
+  // @ts-expect-error Complains about T['items'][number] but it works as we want
+  | [label: string, onActivate: (item: T['items'][number]) => void]
 
 export function getActionsCol(actions: MenuAction<any, any, any>[]) {
   return {
