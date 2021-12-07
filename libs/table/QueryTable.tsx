@@ -23,13 +23,9 @@ import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 
-interface UseQueryTableResult<
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item extends ResultItem<A[M]>
-> {
-  Table: ComponentType<QueryTableProps<A, M, Item>>
-  Column: ComponentType<QueryTableColumnProps<A, M, Item>>
+interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
+  Table: ComponentType<QueryTableProps<A, M>>
+  Column: ComponentType<QueryTableColumnProps<A, M>>
 }
 /**
  * This hook builds a table that's linked to a given query. It's a combination
@@ -37,15 +33,11 @@ interface UseQueryTableResult<
  * table level options and a `Column` component which governs the individual column
  * configuration
  */
-export const useQueryTable = <
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item extends ResultItem<A[M]>
->(
+export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
-): UseQueryTableResult<A, M, Item> => {
+): UseQueryTableResult<A, M> => {
   // TODO: We should probably find a better way to do this. In essence
   // we need the params and options to be stable and comparable to prevent unnecessary recreation
   // of the table which is a relatively expensive operation.
@@ -59,7 +51,7 @@ export const useQueryTable = <
       .sort()
       .join(',')
   const Table = useMemo(
-    () => makeQueryTable<A, M, Item>(query, params, options),
+    () => makeQueryTable<A, M>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, stableParams, stableOpts]
   )
@@ -67,38 +59,30 @@ export const useQueryTable = <
   return { Table, Column: QueryTableColumn }
 }
 
-interface QueryTableProps<
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item extends ResultItem<A[M]>
-> {
+interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
-  actions?: MenuAction<A, M, Item>[]
+  actions?: MenuAction<A, M>[]
   children: React.ReactNode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeQueryTable = <
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item extends ResultItem<A[M]>
->(
+const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: any,
   params: any,
   options: any
-): ComponentType<QueryTableProps<A, M, Item>> =>
+): ComponentType<QueryTableProps<A, M>> =>
   function QueryTable({
     children,
     selectable,
     actions,
     debug,
     rowId,
-  }: QueryTableProps<A, M, Item>) {
+  }: QueryTableProps<A, M>) {
     const columns = useMemo(
       () =>
         React.Children.toArray(children).map((child) => {
@@ -176,7 +160,7 @@ const makeQueryTable = <
 export interface QueryTableColumnProps<
   A extends ApiListMethods,
   M extends keyof A,
-  Item extends ResultItem<A[M]>,
+  Item = ResultItem<A[M]>,
   R extends unknown = any
 > {
   id: string
@@ -188,10 +172,9 @@ export interface QueryTableColumnProps<
 const QueryTableColumn = <
   A extends ApiListMethods,
   M extends keyof A,
-  Item extends ResultItem<A[M]>,
   R extends unknown = any
 >(
-  _props: QueryTableColumnProps<A, M, Item, R>
+  _props: QueryTableColumnProps<A, M, R>
 ) => {
   return null
 }

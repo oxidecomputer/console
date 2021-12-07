@@ -5,18 +5,14 @@ import React from 'react'
 import { kebabCase } from '@oxide/util'
 import type { ApiListMethods, ResultItem } from '@oxide/api'
 
-export type MenuAction<
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item extends ResultItem<A[M]>
-> = {
+export type MenuAction<A extends ApiListMethods, M extends keyof A> = {
   label: string
-  onActivate: (item: Item) => void
+  onActivate: (item: ResultItem<A[M]>) => void
   disabled?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActionsCol(actions: MenuAction<any, any, any>[]) {
+export function getActionsCol(actions: MenuAction<any, any>[]) {
   return {
     id: 'menu',
     className: 'w-12',
