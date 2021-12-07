@@ -1,9 +1,9 @@
+import type { ResultItem } from './hooks'
 import {
   getUseApiMutation,
   getUseApiQuery,
   getUseApiQueryClient,
 } from './hooks'
-import type { HttpResponse } from './__generated__/Api'
 import { Api } from './__generated__/Api'
 
 export * from './instance-can'
@@ -14,23 +14,18 @@ const basePath = process.env.API_URL ?? '/api'
 
 const api = new Api({ baseUrl: basePath })
 
-// The fact that the route functions are grouped under keys corresponding to the
-// first segment of the path is weird and sort of annoying. It might be the kind
-// of the thing I'd want to use a custom template to override. On the other hand
-// it's not so bad since all we care about in the console for now is the
-// organzations ones.
-type ApiMethods = typeof api.methods
+type A = typeof api.methods
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * All API methods that return lists.
- **/
-export type ApiListMethods = PickByValue<
-  ApiMethods,
-  (...args: any) => Promise<HttpResponse<{ items: any[] }>>
->
-/* eslint-enable @typescript-eslint/no-explicit-any */
+ * API methods that return a list of items.
+ */
+export type ApiListMethods = {
+  // Only never extends never. If ResultItem extends never, that means we
+  // couldn't pull out an item, which means it's not a list endpoint. If we can
+  // infer an item, that means it's a list endpoint, so include its M.
+  [M in keyof A as ResultItem<A[M]> extends never ? never : M]: A[M]
+}
 
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
-export const useApiQueryClient = getUseApiQueryClient<ApiMethods>()
+export const useApiQueryClient = getUseApiQueryClient<A>()
