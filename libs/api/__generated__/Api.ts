@@ -250,17 +250,16 @@ export interface InstanceResultsPage {
 
 This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
 */
-export enum InstanceState {
-  Creating = 'creating',
-  Starting = 'starting',
-  Running = 'running',
-  Stopping = 'stopping',
-  Stopped = 'stopped',
-  Rebooting = 'rebooting',
-  Repairing = 'repairing',
-  Failed = 'failed',
-  Destroyed = 'destroyed',
-}
+export type InstanceState =
+  | 'creating'
+  | 'starting'
+  | 'running'
+  | 'stopping'
+  | 'stopped'
+  | 'rebooting'
+  | 'repairing'
+  | 'failed'
+  | 'destroyed'
 
 /**
  * An IPv4 subnet, including prefix and subnet mask
@@ -490,12 +489,7 @@ export interface RouterRouteCreateParams {
 
 See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
 */
-export enum RouterRouteKind {
-  Default = 'Default',
-  VpcSubnet = 'VpcSubnet',
-  VpcPeering = 'VpcPeering',
-  Custom = 'Custom',
-}
+export type RouterRouteKind = 'Default' | 'VpcSubnet' | 'VpcPeering' | 'Custom'
 
 /**
  * A single page of results
@@ -679,15 +673,9 @@ export interface VpcFirewallRule {
   targets: VpcFirewallRuleTarget[]
 }
 
-export enum VpcFirewallRuleAction {
-  Allow = 'allow',
-  Deny = 'deny',
-}
+export type VpcFirewallRuleAction = 'allow' | 'deny'
 
-export enum VpcFirewallRuleDirection {
-  Inbound = 'inbound',
-  Outbound = 'outbound',
-}
+export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
 
 /**
  * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
@@ -716,11 +704,7 @@ export type VpcFirewallRuleHostFilter =
 /**
  * The protocols that may be specified in a firewall rule's filter
  */
-export enum VpcFirewallRuleProtocol {
-  TCP = 'TCP',
-  UDP = 'UDP',
-  ICMP = 'ICMP',
-}
+export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 
 /**
  * A single page of results
@@ -733,10 +717,7 @@ export interface VpcFirewallRuleResultsPage {
   next_page?: string | null
 }
 
-export enum VpcFirewallRuleStatus {
-  Disabled = 'disabled',
-  Enabled = 'enabled',
-}
+export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
  * A subset of [`NetworkTarget`], `VpcFirewallRuleTarget` specifies all possible targets that a firewall rule can be attached to.
@@ -822,10 +803,7 @@ export interface VpcRouterCreate {
   name: Name
 }
 
-export enum VpcRouterKind {
-  System = 'system',
-  Custom = 'custom',
-}
+export type VpcRouterKind = 'system' | 'custom'
 
 /**
  * A single page of results
@@ -913,27 +891,22 @@ export interface VpcUpdate {
 
 Currently, we only support scanning in ascending order.
 */
-export enum IdSortMode {
-  IdAscending = 'id-ascending',
-}
+export type IdSortMode = 'id-ascending'
 
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export enum NameOrIdSortMode {
-  NameAscending = 'name-ascending',
-  NameDescending = 'name-descending',
-  IdAscending = 'id-ascending',
-}
+export type NameOrIdSortMode =
+  | 'name-ascending'
+  | 'name-descending'
+  | 'id-ascending'
 
 /**
 * Supported set of sort modes for scanning by name only
 
 Currently, we only support scanning in ascending order.
 */
-export enum NameSortMode {
-  NameAscending = 'name-ascending',
-}
+export type NameSortMode = 'name-ascending'
 
 export interface HardwareRacksGetParams {
   /**
