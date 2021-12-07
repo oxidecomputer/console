@@ -38,7 +38,7 @@ export function getActionsCol(actions: MenuAction<any, any, any>[]) {
                 if (Array.isArray(action)) {
                   return (
                     <MenuItem
-                      key={kebabCase(`action-${name}`)}
+                      key={kebabCase(`action-${action[0]}`)}
                       onSelect={action[1].bind(null, type) as () => void}
                     >
                       {action[0]}
@@ -47,7 +47,7 @@ export function getActionsCol(actions: MenuAction<any, any, any>[]) {
                 }
                 return (
                   <MenuItem
-                    key={kebabCase(`action-${name}`)}
+                    key={kebabCase(`action-${action.label}`)}
                     onSelect={action.onActivate.bind(null, type) as () => void}
                     disabled={action.disabled}
                   >
