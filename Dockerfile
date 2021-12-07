@@ -4,7 +4,6 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./
 COPY yarn.lock ./
-RUN apk update && apk add git
 RUN yarn
 COPY . ./
 RUN yarn build

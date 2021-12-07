@@ -35,9 +35,6 @@ sudo apt update
 sudo apt install -y --no-install-recommends \
 	yarn
 
-# Install git (temporary, only needed for one package we're pulling from a GH fork)
-sudo apt install -y --no-install-recommends git
-
 # Update systemd to include our service files.
 sudo mv /tmp/iptables-routing.service /etc/systemd/system/iptables-routing.service
 sudo systemctl daemon-reload
