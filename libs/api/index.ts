@@ -3,11 +3,12 @@ import {
   getUseApiQuery,
   getUseApiQueryClient,
 } from './hooks'
+// import type { HttpResponse } from './__generated__/Api'
 import { Api } from './__generated__/Api'
 
 export * from './instance-can'
 export * from './__generated__/Api'
-export type { ErrorResponse, Params, Result } from './hooks'
+export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
 
 const basePath = process.env.API_URL ?? '/api'
 
@@ -19,6 +20,10 @@ const api = new Api({ baseUrl: basePath })
 // it's not so bad since all we care about in the console for now is the
 // organzations ones.
 export type ApiClient = typeof api.methods
+// export type ApiListMethods = PickByValue<
+//   ApiClient,
+//   (...args: any) => Promise<HttpResponse<{ items: any[] }>>
+// >
 
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)

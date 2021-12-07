@@ -11,7 +11,13 @@ import { useCallback } from 'react'
 import { useMemo } from 'react'
 import { useRowSelect, useTable } from 'react-table'
 import type { ComponentType, ReactElement } from 'react'
-import type { ErrorResponse, ApiClient, Params, Result } from '@oxide/api'
+import type {
+  ErrorResponse,
+  ApiClient,
+  Params,
+  Result,
+  ResultItem,
+} from '@oxide/api'
 import type { MenuAction } from './columns'
 import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
@@ -20,10 +26,10 @@ import type { UseQueryOptions } from 'react-query'
 interface UseQueryTableResult<
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>
+  Item extends ResultItem<A[M]>
 > {
-  Table: ComponentType<QueryTableProps<A, M, T>>
-  Column: ComponentType<QueryTableColumnProps<A, M, T>>
+  Table: ComponentType<QueryTableProps<A, M, Item>>
+  Column: ComponentType<QueryTableColumnProps<A, M, Item>>
 }
 /**
  * This hook builds a table that's linked to a given query. It's a combination
@@ -34,12 +40,12 @@ interface UseQueryTableResult<
 export const useQueryTable = <
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>
+  Item extends ResultItem<A[M]>
 >(
   query: M,
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
-): UseQueryTableResult<A, M, T> => {
+): UseQueryTableResult<A, M, Item> => {
   // TODO: We should probably find a better way to do this. In essence
   // we need the params and options to be stable and comparable to prevent unnecessary recreation
   // of the table which is a relatively expensive operation.
@@ -60,10 +66,11 @@ export const useQueryTable = <
 
   return { Table, Column: QueryTableColumn }
 }
+
 interface QueryTableProps<
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>
+  Item extends ResultItem<A[M]>
 > {
   selectable?: boolean
   /** Prints table data in the console when enabled */
@@ -71,7 +78,7 @@ interface QueryTableProps<
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
-  actions?: MenuAction<A, M, T>[]
+  actions?: MenuAction<A, M, Item>[]
   children: React.ReactNode
 }
 
@@ -79,19 +86,19 @@ interface QueryTableProps<
 const makeQueryTable = <
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>
+  Item extends ResultItem<A[M]>
 >(
   query: any,
   params: any,
   options: any
-) =>
+): ComponentType<QueryTableProps<A, M, Item>> =>
   function QueryTable({
     children,
     selectable,
     actions,
     debug,
     rowId,
-  }: QueryTableProps<A, M, T>) {
+  }: QueryTableProps<A, M, Item>) {
     const columns = useMemo(
       () =>
         React.Children.toArray(children).map((child) => {
@@ -169,22 +176,22 @@ const makeQueryTable = <
 export interface QueryTableColumnProps<
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>,
+  Item extends ResultItem<A[M]>,
   R extends unknown = any
 > {
   id: string
-  // @ts-expect-error It complains about items not being indexable of T but we know it will be
-  accessor?: Path<T['items'][number]> | ((type: T['items'][number]) => R)
+  accessor?: Path<Item> | ((item: Item) => R)
   header?: string | ReactElement
   cell?: ComponentType<R>
 }
+
 const QueryTableColumn = <
   A extends ApiClient,
   M extends keyof A,
-  T extends Result<A[M]>,
+  Item extends ResultItem<A[M]>,
   R extends unknown = any
 >(
-  _props: QueryTableColumnProps<A, M, T, R>
+  _props: QueryTableColumnProps<A, M, Item, R>
 ) => {
   return null
 }

@@ -19,6 +19,12 @@ export type Result<F> = F extends (
 ) => Promise<HttpResponse<infer R>>
   ? R
   : never
+export type ResultItem<F> = F extends (
+  p: any,
+  r: any
+) => Promise<HttpResponse<{ items: (infer R)[] }>>
+  ? R
+  : never
 
 type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
