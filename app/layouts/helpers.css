@@ -9,12 +9,12 @@
 
 .ox-sidebar {
   grid-area: sidebar;
-  @apply pb-6 pt-6 overflow-auto bg-gray-600 border-r border-gray-450 px-3;
+  @apply pb-6 pt-6 overflow-auto bg-black border-r border-gray-450 px-3;
 }
 
 .ox-content-pane {
   grid-area: contentPane;
-  @apply overflow-y-scroll overflow-x-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min relative;
+  @apply overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min relative;
 }
 
 .ox-pagination-container {
