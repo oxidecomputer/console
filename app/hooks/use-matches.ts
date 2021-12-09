@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import type { RouteMatch } from 'react-router'
 import { matchRoutes, useLocation } from 'react-router'
 
-import { routeConfig } from '../routes'
+import { getRouteConfig } from '../routes'
 
 /**
  * For the current location, return the path down the route config. For example,
@@ -25,5 +26,7 @@ import { routeConfig } from '../routes'
  * ]
  * ```
  */
-export const useMatches = (): RouteMatch[] | null =>
-  matchRoutes(routeConfig, useLocation())
+export const useMatches = (): RouteMatch[] | null => {
+  const routeConfig = useMemo(getRouteConfig, [])
+  return matchRoutes(routeConfig, useLocation())
+}

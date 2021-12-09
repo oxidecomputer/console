@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { matchRoutes } from 'react-router'
-import { routeConfig } from '../../routes'
+import { getRouteConfig } from '../../routes'
 import { matchesToCrumbs } from '../Breadcrumbs'
+
+const routeConfig = getRouteConfig()
 
 // this is kind of an integration test because it pulls in the real route config,
 // plus it's janky that it calls matchRoutes directly to get matches. but whatever

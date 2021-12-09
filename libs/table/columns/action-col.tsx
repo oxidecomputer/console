@@ -3,24 +3,16 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { Row } from 'react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
-import type { ApiClient, Result } from '@oxide/api'
+import type { ApiListMethods, ResultItem } from '@oxide/api'
 
-export type MenuAction<
-  A extends ApiClient,
-  M extends keyof A,
-  T extends Result<A[M]>
-> =
-  | {
-      label: string
-      // @ts-expect-error Complains about T['items'][number] but it works as we want
-      onActivate: (item: T['items'][number]) => void
-      disabled?: boolean
-    }
-  // @ts-expect-error Complains about T['items'][number] but it works as we want
-  | [label: string, onActivate: (item: T['items'][number]) => void]
+export type MenuAction<A extends ApiListMethods, M extends keyof A> = {
+  label: string
+  onActivate: (item: ResultItem<A[M]>) => void
+  disabled?: boolean
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActionsCol(actions: MenuAction<any, any, any>[]) {
+export function getActionsCol(actions: MenuAction<any, any>[]) {
   return {
     id: 'menu',
     className: 'w-12',

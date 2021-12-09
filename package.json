@@ -6,7 +6,6 @@
     "start": "vite",
     "build": "vite build",
     "build-for-nexus": "yarn install && API_URL='' vite build",
-    "preview": "vite preview",
     "ci": "yarn tsc && yarn lint && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",

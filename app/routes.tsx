@@ -19,13 +19,11 @@ import {
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
+import NotFound from './pages/NotFound'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
-
-// TODO: putting this before RootLayout causes a race condition? yikes
-import NotFound from './pages/NotFound'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -165,4 +163,4 @@ function createRoutesFromChildren(children: React.ReactNode): RouteObject[] {
 }
 
 /** React Router route config in object form. Used by useMatches. */
-export const routeConfig = createRoutesFromChildren(routes)
+export const getRouteConfig = () => createRoutesFromChildren(routes)
