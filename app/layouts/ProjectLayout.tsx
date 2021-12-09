@@ -11,9 +11,10 @@ import {
   Notification16Icon,
   Resize16Icon,
 } from '@oxide/ui'
-import { ContentPane, PageContainer } from './helpers'
+import { ContentPane, PageContainer, PaginationContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { PaginationTarget } from '@oxide/pagination'
 
 const ProjectLayout = () => {
   return (
@@ -48,6 +49,9 @@ const ProjectLayout = () => {
         <SkipLinkTarget />
         <Outlet />
       </ContentPane>
+      <PaginationContainer>
+        <PaginationTarget />
+      </PaginationContainer>
     </PageContainer>
   )
 }

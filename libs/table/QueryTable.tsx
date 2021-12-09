@@ -4,6 +4,7 @@ import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import { getSelectCol, getActionsCol } from './columns'
+import { Pagination } from '@oxide/ui'
 import { Table } from './Table'
 import { unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
@@ -16,6 +17,7 @@ import type { MenuAction } from './columns'
 import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
+import { PaginationPortal, usePagination } from '@oxide/pagination'
 
 interface UseQueryTableResult<
   A extends ApiClient,
@@ -72,6 +74,8 @@ interface QueryTableProps<
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
   actions?: MenuAction<A, M, T>[]
+  pagination?: 'inline' | 'page'
+  pageSize?: number
   children: React.ReactNode
 }
 
@@ -91,7 +95,10 @@ const makeQueryTable = <
     actions,
     debug,
     rowId,
+    pagination = 'page',
+    pageSize = 10,
   }: QueryTableProps<A, M, T>) {
+    const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const columns = useMemo(
       () =>
         React.Children.toArray(children).map((child) => {
@@ -120,7 +127,11 @@ const makeQueryTable = <
       [children]
     )
 
-    const { data, isLoading } = useApiQuery(query, params, options)
+    const { data, isLoading } = useApiQuery(
+      query,
+      { ...params, page_token: currentPage, limit: pageSize },
+      options
+    )
 
     const tableData = useMemo(
       () => (data as any)?.items || [],
@@ -159,11 +170,32 @@ const makeQueryTable = <
       }
     )
 
-    if (debug) console.table(table.data)
+    if (debug) console.table(data)
 
-    if (isLoading) return <div>loading</div>
+    const paginationParams = useMemo(
+      () => ({
+        pageSize,
+        hasNext: tableData.length === pageSize,
+        hasPrev,
+        nextPage: (data as any)?.next_page,
+        onNext: goToNextPage,
+        onPrev: goToPrevPage,
+      }),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [pageSize, tableData.length, (data as any)?.next_page]
+    )
 
-    return <Table table={table} />
+    if (isLoading || (tableData.items?.length === 0 && !hasPrev))
+      return <div>loading</div>
+
+    return (
+      <>
+        <Table table={table} />
+        <PaginationPortal target={pagination}>
+          <Pagination type={pagination} {...paginationParams} />
+        </PaginationPortal>
+      </>
+    )
   }
 
 export interface QueryTableColumnProps<

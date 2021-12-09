@@ -19,66 +19,78 @@ const PageInput = ({ number, className }: PageInputProps) => {
   )
 }
 
-interface PaginationProps {
-  pageLevel?: boolean
+export interface PaginationProps {
+  type?: 'inline' | 'page'
   pageSize: number
-  currentPage: number
-  numPages: number
-  onNext: () => void
+  hasNext: boolean
+  hasPrev: boolean
+  nextPage: string | undefined
+  onNext: (nextPage: string) => void
   onPrev: () => void
+  className?: string
 }
 export const Pagination = ({
-  pageLevel,
+  type = 'inline',
   pageSize,
-  currentPage,
-  numPages,
+  hasNext,
+  hasPrev,
+  nextPage,
   onNext,
   onPrev,
+  className,
 }: PaginationProps) => {
-  const hasPrev = currentPage > 1
-  const hasNext = numPages > currentPage
   return (
     <>
-      {pageLevel && (
-        <hr className="absolute bottom-14 border-t w-full !col-span-3 border-gray-500" />
-      )}
       <div
         className={cn(
-          'flex space-between text-mono-sm uppercase text-gray-100',
-          (pageLevel &&
-            'absolute bottom-0 w-full !col-start-2 !col-end-2 py-5') ||
-            'mt-2.5'
+          type === 'page' && 'py-5',
+          'flex space-between text-mono-sm uppercase text-gray-100 items-center',
+          className
         )}
       >
         <span className="flex-grow text-gray-200 flex-inline">
           rows per page <PageInput number={pageSize} />
         </span>
-        <span className="space-x-2 flex items-center">
-          <button
-            className="flex items-center"
-            disabled={!hasPrev}
-            onClick={onPrev}
-          >
-            <DirectionLeftIcon
-              title="previous page"
-              className={hasPrev ? 'text-gray-50' : 'text-gray-400'}
-            />
-          </button>
-          <span>
-            <PageInput number={currentPage} /> of{' '}
-            <span className="text-gray-50">{numPages}</span>
+        {(hasNext || hasPrev) && (
+          <span className="space-x-2 flex">
+            <button
+              className={cn(
+                !hasPrev && 'text-gray-300',
+                'flex items-center uppercase'
+              )}
+              disabled={!hasPrev}
+              onClick={onPrev}
+            >
+              <DirectionLeftIcon
+                title="previous page"
+                className={cn(
+                  'mr-0.5',
+                  hasPrev ? 'text-gray-50' : 'text-gray-400'
+                )}
+              />
+              prev
+            </button>
+            <button
+              className={cn(
+                !hasNext && 'text-gray-300',
+                'flex items-center uppercase'
+              )}
+              disabled={!hasNext}
+              // nextPage will be defined if hasNext is true
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              onClick={onNext.bind(null, nextPage!)}
+            >
+              next
+              <DirectionRightIcon
+                title="next page"
+                className={cn(
+                  'ml-0.5',
+                  hasNext ? 'text-gray-50' : 'text-gray-400'
+                )}
+              />
+            </button>
           </span>
-          <button
-            className="flex items-center"
-            disabled={!hasNext}
-            onClick={onNext}
-          >
-            <DirectionRightIcon
-              title="next page"
-              className={hasNext ? 'text-gray-50' : 'text-gray-400'}
-            />
-          </button>
-        </span>
+        )}
       </div>
     </>
   )

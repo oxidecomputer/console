@@ -1,1 +1,2 @@
-export * from './use-page-pagination'
+export * from './PaginationPortal'
+export * from './use-pagination'
