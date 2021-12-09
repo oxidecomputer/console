@@ -24,8 +24,9 @@ export const addKey =
   (child: Component | ReactElement, index: number): ReactElement =>
     React.cloneElement(child as ReactElement, { key: makeKey(index) })
 
+// TODO: Make generic / add better types
 export const addProps =
-  (makeProps: (i: number, props: any) => object) =>
+  (makeProps: (i: number, props: object) => object) =>
   (child: Component | ReactElement, index: number): ReactElement =>
     React.cloneElement(child as ReactElement, {
       ...makeProps(index, child?.props),
