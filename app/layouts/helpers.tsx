@@ -1,5 +1,22 @@
-import { classed } from '@oxide/ui'
+import './helpers.css'
+import React from 'react'
+import cn from 'classnames'
+import { PaginationProvider } from '@oxide/pagination'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14rem,auto]`
-export const Sidebar = classed.div`pb-6 pt-6 overflow-auto bg-gray-800 border-r border-gray-450 px-3`
-export const ContentPane = classed.div`overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min relative`
+type Div = React.FC<JSX.IntrinsicElements['div']>
+
+export const PageContainer: Div = ({ className, children, ...props }) => (
+  <div className={cn('ox-page-container', className)} {...props}>
+    <PaginationProvider>{children}</PaginationProvider>
+  </div>
+)
+
+export const Sidebar: Div = ({ className, ...props }) => (
+  <div className={cn('ox-sidebar', className)} {...props} />
+)
+export const ContentPane: Div = ({ className, ...props }) => (
+  <div className={cn('ox-content-pane', className)} {...props} />
+)
+export const PaginationContainer: Div = ({ className, ...props }) => (
+  <div className={cn('ox-pagination-container', className)} {...props} />
+)

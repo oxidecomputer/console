@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 export function Sidebar({ children }: SidebarProps) {
   return (
-    <div className="pb-6 pt-5 overflow-auto bg-gray-800 border-r border-gray-500 px-3">
+    <div className="ox-sidebar pb-6 pt-5 overflow-auto bg-gray-800 border-r border-gray-500 px-3">
       <ProjectSelector className="mb-10" />
       {children}
       <Sidebar.Footer>
