@@ -48,10 +48,10 @@ export const PaginationPortal = React.memo(
       } else if (target === 'page' && children !== paginationComponent) {
         renderPagination(children as JSX.Element)
       }
-      // return () => renderPagination(null)
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [paginationComponent])
+    }, [paginationComponent, children, target])
 
+    // Ensure the page level pagination component also unmounts when this component goes out of view
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => () => renderPagination(null), [])
 
