@@ -84,7 +84,7 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(({ addVariant, addUtilities, variants, e }) => {
+    plugin(({ addVariant, addUtilities, variants }) => {
       // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
       // on an SVG that's an immediate child of the element
       addVariant('svg', '& > svg')
@@ -100,15 +100,6 @@ module.exports = {
           .reduce((p, c) => ({ ...p, ...c }), {}),
         variants
       )
-      const gridColSpans = {}
-      for (let start = 1; start <= 12; start++) {
-        for (let end = 1; end <= 12; end++) {
-          gridColSpans['.' + e(`grid-col-${start}/${end}`)] = {
-            'grid-column': `${start}/${end}`,
-          }
-        }
-      }
-      addUtilities(gridColSpans, variants)
 
       const displayFamily = {
         'font-family': '"Haas Grot Disp Web", sans-serif',
