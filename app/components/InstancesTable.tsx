@@ -16,7 +16,8 @@ import { classed, More12Icon, Success16Icon } from '@oxide/ui'
 import { Table, getSelectCol } from '@oxide/table'
 import { InstanceStatusBadge } from './StatusBadge'
 import { timeAgoAbbr } from '../util/date'
-import { usePagination, useParams, useToast } from '../hooks'
+import { useParams, useToast } from '../hooks'
+import { usePagination } from '@oxide/pagination'
 
 const columns = [
   {
