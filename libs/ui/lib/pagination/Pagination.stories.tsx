@@ -9,5 +9,5 @@ export default {
 } as Story
 
 export const Default: Story = {
-  args: { numPages: 30, currentPage: 1, pageSize: 100 },
+  args: { pageSize: 100, hasNext: true, hasPrev: false },
 }
