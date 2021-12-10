@@ -11,13 +11,15 @@
 }
 
 .ox-content-pane > * {
-  @apply mx-[var(--content-gutter)] w-[calc(100%-var(--content-gutter)*2)];
+  width: calc(100% - var(--content-gutter) * 2);
+  margin-left: var(--content-gutter);
+  margin-right: var(--content-gutter);
 }
 
 .ox-pagination-container {
-  @apply bottom-0 sticky bg-black h-14;
+  @apply bottom-0 sticky bg-black h-14 flex-shrink-0;
 }
 
 .ox-pagination-border {
-  @apply w-full mx-0 sticky h-0 bottom-[calc(3.5rem-2px)] border-gray-450;
+  @apply w-full mx-0 sticky -mt-1 h-0 bottom-14 border-gray-450 bg-black;
 }
