@@ -11,9 +11,9 @@
 }
 
 .ox-pagination-container {
-  @apply grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 absolute bottom-0 bg-black w-full grid-col-1 h-14;
+  @apply sticky bottom-[-0.5rem] bg-black w-full h-14 grid-col-2;
 }
 
 .ox-pagination-border {
-  @apply !col-span-3 w-full absolute bottom-14 border-gray-450;
+  @apply !col-span-3 w-full sticky bottom-12 border-gray-450;
 }
