@@ -4,7 +4,6 @@ import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import { getSelectCol, getActionsCol } from './columns'
-import { Pagination } from '@oxide/ui'
 import { Table } from './Table'
 import { unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
@@ -23,7 +22,7 @@ import type { MenuAction } from './columns'
 import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
-import { PaginationPortal, usePagination } from '@oxide/pagination'
+import { Pagination, usePagination } from '@oxide/pagination'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
   Table: ComponentType<QueryTableProps<A, M>>
@@ -182,9 +181,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     return (
       <>
         <Table table={table} />
-        <PaginationPortal target={pagination}>
-          <Pagination type={pagination} {...paginationParams} />
-        </PaginationPortal>
+        <Pagination target={pagination} {...paginationParams} />
       </>
     )
   }

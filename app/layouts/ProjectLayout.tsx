@@ -14,7 +14,6 @@ import {
 import { ContentPane, PageContainer, PaginationContainer } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { PaginationTarget } from '@oxide/pagination'
 
 const ProjectLayout = () => {
   return (
@@ -49,9 +48,7 @@ const ProjectLayout = () => {
         <SkipLinkTarget />
         <Outlet />
       </ContentPane>
-      <PaginationContainer>
-        <PaginationTarget />
-      </PaginationContainer>
+      <PaginationContainer id="pagination-target" />
     </PageContainer>
   )
 }
