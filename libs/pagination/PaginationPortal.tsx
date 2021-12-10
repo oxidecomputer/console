@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 
 interface PaginationContextType {
   paginationComponent: JSX.Element | null
