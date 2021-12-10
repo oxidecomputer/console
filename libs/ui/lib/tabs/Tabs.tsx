@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import type {
   TabProps as RTabProps,
@@ -16,7 +17,7 @@ import cn from 'classnames'
 
 import './Tabs.css'
 import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
-import { invariant } from '@oxide/util'
+import { invariant, kebabCase } from '@oxide/util'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
@@ -44,6 +45,19 @@ export function Tabs({
     return [tabs, panels]
   }, [children, id])
 
+  // TODO: add flag to Tabs to toggle query string sync on and off
+
+  // override default index (0) if there is a recognized tab ID in the query string
+  const [searchParams, setSearchParams] = useSearchParams()
+  const queryTabId = searchParams.get('tab')
+  const tabIds = tabs.map((t) => t.props.queryId ?? kebabCase(t.props.children))
+  const selectedTabIndex =
+    queryTabId && tabIds.includes(queryTabId) ? tabIds.indexOf(queryTabId) : 0
+  function onTabChange(newIdx: number) {
+    searchParams.set('tab', tabIds[newIdx])
+    setSearchParams(searchParams)
+  }
+
   invariant(
     tabs.length === panels.length,
     'Expected there to be exactly one Tab for every Tab.Panel'
@@ -60,6 +74,8 @@ export function Tabs({
       as="div"
       className={cn(className, fullWidth && '!col-span-3')}
       {...props}
+      index={selectedTabIndex}
+      onChange={onTabChange}
     >
       <RTabList
         aria-labelledby={labelledby}
@@ -73,7 +89,9 @@ export function Tabs({
   )
 }
 
-export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps>
+export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
+  queryId?: string
+}
 export function Tab({ className, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />
