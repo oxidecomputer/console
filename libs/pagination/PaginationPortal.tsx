@@ -17,16 +17,10 @@ export const PaginationProvider = ({ children }: PaginatedAreaProps) => {
   const [paginationComponent, renderPagination] =
     useState<PaginationContextType['paginationComponent']>(null)
 
-  const providerValue = useMemo(
-    () => ({
-      paginationComponent,
-      renderPagination,
-    }),
-    [paginationComponent, renderPagination]
-  )
-
   return (
-    <PaginationContext.Provider value={providerValue}>
+    <PaginationContext.Provider
+      value={{ paginationComponent, renderPagination }}
+    >
       {children}
     </PaginationContext.Provider>
   )
