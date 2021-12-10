@@ -23,6 +23,7 @@ export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
   fullWidth?: boolean
   className?: string
+  searchSync?: boolean
 }
 
 export function Tabs({
@@ -32,6 +33,7 @@ export function Tabs({
   'aria-label': label,
   children,
   className,
+  searchSync,
   ...props
 }: TabsProps) {
   const [tabs, panels] = useMemo(() => {
@@ -45,23 +47,31 @@ export function Tabs({
     return [tabs, panels]
   }, [children, id])
 
-  // TODO: add flag to Tabs to toggle query string sync on and off
-
   // override default index (0) if there is a recognized tab ID in the query string
   const [searchParams, setSearchParams] = useSearchParams()
-  const queryTabId = searchParams.get('tab')
-  const tabIds = tabs.map((t) => t.props.queryId ?? kebabCase(t.props.children))
-  const selectedTabIndex =
-    queryTabId && tabIds.includes(queryTabId) ? tabIds.indexOf(queryTabId) : 0
-  function onTabChange(newIdx: number) {
-    searchParams.set('tab', tabIds[newIdx])
-    setSearchParams(searchParams)
-  }
+  let selectedTabIndex = undefined
+  let onTabChange = undefined
+  if (searchSync) {
+    const searchTabId = searchParams.get('tab')
+    const tabIds = tabs.map((tab) => {
+      const { searchId, children } = tab.props
+      invariant(
+        searchId || typeof children === 'string',
+        'When searchSync is on, either Tab children must be a string or searchId must be provided. '
+      )
+      return searchId ?? kebabCase(children)
+    })
 
-  invariant(
-    tabs.length === panels.length,
-    'Expected there to be exactly one Tab for every Tab.Panel'
-  )
+    selectedTabIndex =
+      searchTabId && tabIds.includes(searchTabId)
+        ? tabIds.indexOf(searchTabId)
+        : 0
+
+    onTabChange = (newIdx: number) => {
+      searchParams.set('tab', tabIds[newIdx])
+      setSearchParams(searchParams)
+    }
+  }
 
   const after =
     'after:block after:w-full after:border-b after:ml-2 after:border-gray-500'
@@ -90,9 +100,10 @@ export function Tabs({
 }
 
 export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
-  queryId?: string
+  // not actually used inside Tab. it's used by Tabs when searchSync is on
+  searchId?: string
 }
-export function Tab({ className, ...props }: TabProps) {
+export function Tab({ className, searchId: _, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />
   )

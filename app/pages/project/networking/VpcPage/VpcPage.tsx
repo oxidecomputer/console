@@ -41,7 +41,7 @@ export const VpcPage = () => {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <Tabs id="tabs-vpc-sections" fullWidth>
+      <Tabs id="tabs-vpc-sections" fullWidth searchSync>
         <Tab>Subnets</Tab>
         <Tab.Panel>
           <VpcSubnetsTab />
