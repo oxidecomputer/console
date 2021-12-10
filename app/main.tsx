@@ -17,7 +17,10 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.render(
+// @ts-expect-error createRoot not in react types yet, remove once it is
+const root = ReactDOM.createRoot(document.getElementById('root'))
+
+root.render(
   <React.StrictMode>
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
@@ -27,6 +30,5 @@ ReactDOM.render(
         </ErrorBoundary>
       </QueryClientProvider>
     </ToastProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 )
