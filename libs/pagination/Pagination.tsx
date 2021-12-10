@@ -16,7 +16,7 @@ export const Pagination = ({ target, ...props }: PaginationProps) => {
           <hr className="!col-span-3 border-gray-400" />
           <UIPagination className="py-5" {...props} />
         </>,
-        document.getElementById('pagination-target')!
+        domNode
       )
     : null
 }
