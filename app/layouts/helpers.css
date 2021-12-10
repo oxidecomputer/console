@@ -7,13 +7,17 @@
 }
 
 .ox-content-pane {
-  @apply overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 relative auto-rows-min;
+  @apply overflow-auto pt-14 flex flex-col relative;
+}
+
+.ox-content-pane > * {
+  @apply mx-[var(--content-gutter)] w-[calc(100%-var(--content-gutter)*2)];
 }
 
 .ox-pagination-container {
-  @apply sticky bottom-[-0.5rem] bg-black w-full h-14 grid-col-2;
+  @apply bottom-0 sticky bg-black h-14;
 }
 
 .ox-pagination-border {
-  @apply !col-span-3 w-full sticky bottom-12 border-gray-450;
+  @apply w-full mx-0 sticky h-0 bottom-[calc(3.5rem-2px)] border-gray-450;
 }

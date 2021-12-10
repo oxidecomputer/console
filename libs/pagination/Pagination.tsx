@@ -9,7 +9,7 @@ interface PaginationProps extends UIPaginationProps {
 export const Pagination = ({ target, ...props }: PaginationProps) => {
   return target === 'page' ? (
     <>
-      <span className="h-16" />
+      <span className="h-16 flex-grow" />
       <hr className="ox-pagination-border" />
       <div className="ox-pagination-container">
         <UIPagination className="py-5" {...props} />
