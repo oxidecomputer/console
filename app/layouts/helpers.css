@@ -1,23 +1,19 @@
 .ox-page-container {
-  @apply grid h-screen;
-  grid-template-areas:
-    'sidebar contentPane'
-    'sidebar pagination';
-  grid-template-rows: 1fr min-content;
-  grid-template-columns: 13.75rem 1fr;
+  @apply grid h-screen grid-cols-[13.75rem,1fr];
 }
 
 .ox-sidebar {
-  grid-area: sidebar;
   @apply pb-6 pt-6 overflow-auto bg-black border-r border-gray-450 px-3;
 }
 
 .ox-content-pane {
-  grid-area: contentPane;
-  @apply overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min relative;
+  @apply overflow-auto pt-14 pb-2 grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 relative auto-rows-min;
 }
 
 .ox-pagination-container {
-  grid-area: pagination;
-  @apply grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 auto-rows-min;
+  @apply grid grid-cols-[2.5rem,auto,2.5rem] children:grid-col-2 absolute bottom-0 bg-black w-full grid-col-1 h-14;
+}
+
+.ox-pagination-border {
+  @apply !col-span-3 w-full absolute bottom-14 border-gray-450;
 }
