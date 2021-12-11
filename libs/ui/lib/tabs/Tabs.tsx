@@ -23,6 +23,7 @@ export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
   fullWidth?: boolean
   className?: string
+  /** Sync current tab with arg in URL query string */
   searchSync?: boolean
 }
 
@@ -68,7 +69,12 @@ export function Tabs({
         : 0
 
     onTabChange = (newIdx: number) => {
-      searchParams.set('tab', tabIds[newIdx])
+      // no arg is the canonical representation of first tab
+      if (newIdx === 0) {
+        searchParams.delete('tab')
+      } else {
+        searchParams.set('tab', tabIds[newIdx])
+      }
       setSearchParams(searchParams)
     }
   }
