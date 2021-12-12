@@ -1,3 +1,6 @@
+/// <reference types="react/next" />
+/// <reference types="react-dom/next" />
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -17,7 +20,10 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.render(
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const root = ReactDOM.createRoot(document.getElementById('root')!)
+
+root.render(
   <React.StrictMode>
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
@@ -27,6 +33,5 @@ ReactDOM.render(
         </ErrorBoundary>
       </QueryClientProvider>
     </ToastProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 )
