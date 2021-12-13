@@ -11,7 +11,6 @@
     "incremental": true,
     "jsx": "react-jsx",
     "lib": ["es2019", "dom"],
-    "module": "commonjs",
     "moduleResolution": "node",
     "noEmit": true,
     "outDir": "dist",
@@ -23,6 +22,7 @@
       "@oxide/table": ["libs/table/index.ts"],
       "@oxide/pagination": ["libs/pagination/index.ts"]
     },
+    "resolveJsonModule": true,
     "rootDir": ".",
     "skipLibCheck": true,
     "sourceMap": true,

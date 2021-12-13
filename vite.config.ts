@@ -1,23 +1,25 @@
 import { resolve } from 'path'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import type { Config as SvgrConfig } from '@svgr/core'
 import svgr from '@svgr/core'
 import esbuild from 'esbuild'
 import fs from 'fs'
 
 import tsConfig from './tsconfig.json'
 
-const mapValues = (obj, f) =>
+const mapValues = <T, U>(obj: Record<string, T>, f: (t: T) => U) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, f(v)]))
 
 // based loosely on existing plugin: https://github.com/pd4d10/vite-plugin-svgr/
 // ours is shorter, supports passing svgr options, and allows `import Arrow`
 // instead of `import { ReactComponent as Arrow }`
-const svgrPlugin = (svgrOptions) => ({
+const svgrPlugin = (svgrOptions: SvgrConfig) => ({
   name: 'vite:svgr',
-  async transform(_, id) {
+  async transform(_: string, id: string) {
     if (id.endsWith('.svg')) {
       const svg = fs.readFileSync(id, 'utf8')
-      const component = svgr.sync(svg, svgrOptions)
+      const component = svgr.transform.sync(svg, svgrOptions)
       const res = esbuild.transformSync(component, { loader: 'jsx' })
       return { code: res.code, map: null /* TODO */ }
     }
@@ -26,7 +28,7 @@ const svgrPlugin = (svgrOptions) => ({
 
 // see https://vitejs.dev/config/
 
-export default {
+export default defineConfig({
   root: './app',
   build: {
     outDir: resolve(__dirname, 'dist'),
@@ -59,4 +61,4 @@ export default {
       },
     },
   },
-}
+})
