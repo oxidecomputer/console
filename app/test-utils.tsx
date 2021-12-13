@@ -46,8 +46,8 @@ export function renderAppAt(location: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const lastBody = (mock: FetchMockStatic): any =>
-  JSON.parse(mock.lastOptions()?.body as unknown as string)
+export const lastPostBody = (mock: FetchMockStatic): any =>
+  JSON.parse(mock.lastOptions(undefined, 'POST')?.body as unknown as string)
 
 export * from '@testing-library/react'
 export { customRender as render }

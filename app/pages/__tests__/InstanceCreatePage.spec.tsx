@@ -1,6 +1,6 @@
 import {
   fireEvent,
-  lastBody,
+  lastPostBody,
   renderAppAt,
   screen,
   waitFor,
@@ -82,7 +82,7 @@ describe('InstanceCreatePage', () => {
     fireEvent.click(submitButton())
 
     await waitFor(() =>
-      expect(lastBody(mock)).toEqual({
+      expect(lastPostBody(mock)).toEqual({
         name: 'new-instance',
         description: 'An instance in project: mock-project',
         hostname: '',
