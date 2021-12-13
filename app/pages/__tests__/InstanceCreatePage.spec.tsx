@@ -17,16 +17,15 @@ const instancesUrl = `${projectUrl}/instances`
 const disksUrl = `${projectUrl}/disks`
 const vpcsUrl = `${projectUrl}/vpcs`
 
-const renderPage = () =>
-  renderAppAt(`/orgs/${org.name}/projects/${project.name}/instances/new`)
+const renderPage = () => {
+  // existing disk modal fetches disks on render even if it's not visible
+  fetchMock.get(disksUrl, 200)
+  fetchMock.get(vpcsUrl, 200)
+  fetchMock.get(projectUrl, 200)
+  return renderAppAt(`/orgs/${org.name}/projects/${project.name}/instances/new`)
+}
 
 describe('InstanceCreatePage', () => {
-  beforeEach(() => {
-    // existing disk modal fetches disks on render even if it's not visible
-    fetchMock.get(disksUrl, 200)
-    fetchMock.get(vpcsUrl, 200)
-  })
-
   afterEach(() => {
     fetchMock.reset()
   })
