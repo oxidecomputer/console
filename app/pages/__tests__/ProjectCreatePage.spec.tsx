@@ -7,6 +7,8 @@ import {
   waitFor,
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
+import type { JestMockCompatFn } from 'vitest'
+import { vi } from 'vitest'
 
 import { org, project } from '@oxide/api-mocks'
 
@@ -22,11 +24,11 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
-let successSpy: jest.Mock
+let successSpy: JestMockCompatFn
 
 describe('ProjectCreateForm', () => {
   beforeEach(() => {
-    successSpy = jest.fn()
+    successSpy = vi.fn()
     renderWithRouter(
       <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
     )

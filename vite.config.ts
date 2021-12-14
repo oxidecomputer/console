@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -41,5 +43,17 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
+  },
+  test: {
+    global: true,
+    deps: {
+      inline: [
+        'compute-scroll-into-view',
+        'internmap',
+        'prop-types',
+        'react-focus-lock',
+      ],
+    },
+    environment: 'jsdom',
   },
 })

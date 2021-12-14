@@ -28,12 +28,12 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-      Array [
-        <div>
-          <TestA />
-          <TestB />
-        </div>,
-      ]
+[
+  <div>
+    <TestA />
+    <TestB />
+  </div>,
+]
     `)
   })
 
@@ -46,10 +46,10 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-      Array [
-        <TestA />,
-        <TestB />,
-      ]
+[
+  <TestA />,
+  <TestB />,
+]
     `)
   })
   it('should unwrap children deeply nested in fragments', () => {
@@ -64,11 +64,11 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-    Array [
-      <TestA />,
-      <TestB />,
-      "hello",
-    ]
+[
+  <TestA />,
+  <TestB />,
+  "hello",
+]
   `)
   })
 })

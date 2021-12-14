@@ -1,16 +1,16 @@
 import { subSeconds, subMinutes, subHours, subDays } from 'date-fns'
 import { timeAgoAbbr } from './date'
+import { vi } from 'vitest'
 
 const baseDate = new Date(2021, 5, 7)
 
 describe('timeAgoAbbr', () => {
-  beforeEach(() => {
-    jest.useFakeTimers('modern') // modern will be default in Jest 27
-    jest.setSystemTime(baseDate)
+  beforeAll(() => {
+    vi.mockCurrentDate(baseDate)
   })
 
-  afterEach(() => {
-    jest.useRealTimers()
+  afterAll(() => {
+    vi.restoreCurrentDate()
   })
 
   it('formats times ago', () => {

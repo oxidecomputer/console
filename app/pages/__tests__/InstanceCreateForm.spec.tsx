@@ -7,6 +7,8 @@ import {
   waitFor,
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
+import type { JestMockCompatFn } from 'vitest'
+import { vi } from 'vitest'
 
 import { org, project, instance } from '@oxide/api-mocks'
 
@@ -20,14 +22,14 @@ const instancesUrl = `${projectUrl}/instances`
 const disksUrl = `${projectUrl}/disks`
 const vpcsUrl = `${projectUrl}/vpcs`
 
-let successSpy: jest.Mock
+let successSpy: JestMockCompatFn
 
 describe('InstanceCreateForm', () => {
   beforeEach(() => {
     // existing disk modal fetches disks on render even if it's not visible
     fetchMock.get(disksUrl, 200)
     fetchMock.get(vpcsUrl, 200)
-    successSpy = jest.fn()
+    successSpy = vi.fn()
     renderWithRouter(
       <InstanceCreateForm
         orgName={org.name}
