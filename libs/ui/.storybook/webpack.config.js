@@ -25,28 +25,14 @@ module.exports = async ({ config }) => {
   svgRule.test =
     /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|ttf|woff|woff2|cur|ani|pdf)(\?.*)?$/
 
-  config.module.rules.push(
-    {
-      test: /\.(png|jpe?g|gif|webp)$/,
-      loader: require.resolve('url-loader'),
-      options: {
-        limit: 10000, // 10kB
-        name: '[name].[hash:7].[ext]',
-      },
+  config.module.rules.push({
+    test: /\.(png|jpe?g|gif|webp)$/,
+    loader: require.resolve('url-loader'),
+    options: {
+      limit: 10000, // 10kB
+      name: '[name].[hash:7].[ext]',
     },
-    {
-      test: /\.svg$/,
-      use: [
-        {
-          loader: '@svgr/webpack',
-          options: {
-            titleProp: true,
-            svgo: false,
-          },
-        },
-      ],
-    }
-  )
+  })
 
   return config
 }
