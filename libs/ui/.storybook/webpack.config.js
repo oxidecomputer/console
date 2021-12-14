@@ -11,7 +11,6 @@ module.exports = async ({ config }) => {
   )
   config.resolve.extensions.push('.mdx')
   config.resolve.plugins = resolvePlugins
-
   config.resolve.fallback = {
     ...(config.resolve.fallback || {}),
     path: require.resolve('path-browserify'),
