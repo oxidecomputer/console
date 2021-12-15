@@ -24,12 +24,12 @@ export function Tabs({ searchSync, ...props }: TabsProps) {
   if (searchSync) {
     const searchTabId = searchParams.get('tab')
     const tabIds = tabs.map((tab) => {
-      const { searchId, children } = tab.props
+      const { name, children } = tab.props
       invariant(
-        searchId || typeof children === 'string',
-        'When searchSync is on, either Tab children must be a string or searchId must be provided. '
+        name || typeof children === 'string',
+        'When searchSync is on, either Tab children must be a string or name must be provided. '
       )
-      return searchId ?? kebabCase(children as string)
+      return name ?? kebabCase(children as string)
     })
 
     index =

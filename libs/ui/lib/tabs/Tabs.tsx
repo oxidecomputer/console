@@ -75,9 +75,9 @@ export function Tabs({
 
 export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
   // not actually used inside Tab. it's used by Tabs when searchSync is on
-  searchId?: string
+  name?: string
 }
-export function Tab({ className, searchId: _, ...props }: TabProps) {
+export function Tab({ className, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />
   )
