@@ -15,9 +15,7 @@ type TabsProps = UITabsProps & {
 }
 
 export function Tabs({ searchSync, ...props }: TabsProps) {
-  const childArray = flattenChildren(props.children)
-  const tabs = pluckAllOfType(childArray, Tab)
-  console.log(tabs)
+  const tabs = pluckAllOfType(flattenChildren(props.children), Tab)
 
   // override default index (0) if there is a recognized tab ID in the query string
   const [searchParams, setSearchParams] = useSearchParams()
@@ -46,7 +44,7 @@ export function Tabs({ searchSync, ...props }: TabsProps) {
       } else {
         searchParams.set('tab', tabIds[newIdx])
       }
-      setSearchParams(searchParams)
+      setSearchParams(searchParams, { replace: true })
     }
   }
 
