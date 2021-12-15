@@ -55,10 +55,7 @@ export const routes = (
     <Route path="*" element={<NotFound />} />
     <Route path="login" element={<LoginPage />} />
 
-    <Route
-      index
-      element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
-    />
+    <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
     <Route path="orgs">
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
@@ -83,7 +80,7 @@ export const routes = (
             element={<ProjectLayout />}
             crumb={projectCrumb}
           >
-            <Route index element={<Navigate to="instances" />} />
+            <Route index element={<Navigate to="instances" replace />} />
             {/* This is separate from the other instances routes because we want a different crumb */}
             <Route
               path="instances/new"
