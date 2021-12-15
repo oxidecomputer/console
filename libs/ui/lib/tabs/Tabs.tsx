@@ -20,9 +20,9 @@ import {
   addKey,
   addProps,
   flattenChildren,
+  invariant,
   pluckAllOfType,
-} from '../../util/children'
-import { invariant } from '@oxide/util'
+} from '@oxide/util'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
@@ -90,7 +90,10 @@ export function Tabs({
   )
 }
 
-export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps>
+export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
+  // not actually used inside Tab. it's used by Tabs when searchSync is on
+  name?: string
+}
 export function Tab({ className, ...props }: TabProps) {
   return (
     <RTab as="button" className={cn('!no-underline', className)} {...props} />

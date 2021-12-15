@@ -1,7 +1,6 @@
 import React from 'react'
 import type { ReactNode } from 'react'
-import { invariant } from '@oxide/util'
-import { isOneOf } from '../../util/children'
+import { invariant, isOneOf } from '@oxide/util'
 import { Badge } from '../badge/Badge'
 import cn from 'classnames'
 import './properties-table.css'

@@ -4,9 +4,8 @@ import {
   PageHeader,
   PageTitle,
   PropertiesTable,
-  Tab,
-  Tabs,
 } from '@oxide/ui'
+import { Tabs, Tab } from '../../../../components/Tabs'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
