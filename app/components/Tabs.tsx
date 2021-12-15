@@ -1,13 +1,13 @@
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { TabsProps } from '@oxide/ui'
+import { Tabs as UITabs, Tab as UITab } from '@oxide/ui'
 import {
-  Tabs as UITabs,
-  Tab as UITab,
   flattenChildren,
+  invariant,
+  kebabCase,
   pluckAllOfType,
-} from '@oxide/ui'
-import { invariant, kebabCase } from '@oxide/util'
+} from '@oxide/util'
 
 /**
  * Wrapper for UI lib Tabs that syncs current tab with arg in URL query string.

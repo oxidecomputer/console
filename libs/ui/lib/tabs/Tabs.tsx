@@ -15,8 +15,7 @@ import {
 import cn from 'classnames'
 
 import './Tabs.css'
-import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
-import { invariant } from '@oxide/util'
+import { invariant, addKey, flattenChildren, pluckAllOfType } from '@oxide/util'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string

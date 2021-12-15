@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react'
 import { Tabs, Tab } from './Tabs'
 import React, { Fragment } from 'react'
 import { Badge } from '@oxide/ui'
-import { flattenChildren } from 'libs/ui/util/children'
+import { flattenChildren } from '@oxide/util'
 
 type Story = StoryObj<
   ComponentProps<typeof Tabs> & {
