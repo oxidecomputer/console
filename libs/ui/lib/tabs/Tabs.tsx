@@ -16,6 +16,7 @@ import cn from 'classnames'
 
 import './Tabs.css'
 import { addKey, flattenChildren, pluckAllOfType } from '../../util/children'
+import { invariant } from '@oxide/util'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
@@ -42,6 +43,11 @@ export function Tabs({
     )
     return [tabs, panels]
   }, [children, id])
+
+  invariant(
+    tabs.length === panels.length,
+    'Expected there to be exactly one Tab for every Tab.Panel'
+  )
 
   const after =
     'after:block after:w-full after:border-b after:ml-2 after:border-gray-500'
