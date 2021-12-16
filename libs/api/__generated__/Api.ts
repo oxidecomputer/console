@@ -65,23 +65,6 @@ export interface Disk {
 }
 
 /**
- * Describes a Disk's attachment to an Instance
- */
-export interface DiskAttachment {
-  /** @format uuid */
-  diskId: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  diskName: Name
-
-  /** State of a Disk (primarily: attached or not) */
-  diskState: DiskState
-
-  /** @format uuid */
-  instanceId: string
-}
-
-/**
  * Create-time parameters for a [`Disk`]
  */
 export interface DiskCreate {
@@ -98,6 +81,14 @@ export interface DiskCreate {
    * @format uuid
    */
   snapshotId?: string | null
+}
+
+/**
+ * Parameters for the [`Disk`] to be attached or detached to an instance
+ */
+export interface DiskIdentifier {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  disk: Name
 }
 
 /**
@@ -284,10 +275,62 @@ export interface LoginParams {
 }
 
 /**
+ * A Media Access Control address, in EUI-48 format
+ * @pattern ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$
+ */
+export type MacAddr = string
+
+/**
  * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
  * @pattern [a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])
  */
 export type Name = string
+
+/**
+ * A `NetworkInterface` represents a virtual network interface device.
+ */
+export interface NetworkInterface {
+  /** common identifying metadata */
+  identity: IdentityMetadata
+
+  /**
+   * The Instance to which the interface belongs.
+   * @format uuid
+   */
+  instance_id: string
+
+  /**
+   * The IP address assigned to this interface.
+   * @format ip
+   */
+  ip: string
+
+  /** The MAC address assigned to this interface. */
+  mac: MacAddr
+
+  /**
+   * The subnet to which the interface belongs.
+   * @format uuid
+   */
+  subnet_id: string
+
+  /**
+   * The VPC to which the interface belongs.
+   * @format uuid
+   */
+  vpc_id: string
+}
+
+/**
+ * A single page of results
+ */
+export interface NetworkInterfaceResultsPage {
+  /** list of items on this page of results */
+  items: NetworkInterface[]
+
+  /** token used to fetch the next page of results (if any) */
+  next_page?: string | null
+}
 
 /**
  * Client view of an [`Organization`]
@@ -380,7 +423,7 @@ export interface Project {
 }
 
 /**
- * Create-time parameters for an [`Project`]
+ * Create-time parameters for a [`Project`]
  */
 export interface ProjectCreate {
   description: string
@@ -401,7 +444,7 @@ export interface ProjectResultsPage {
 }
 
 /**
- * Updateable properties of an [`Project`]
+ * Updateable properties of a [`Project`]
  */
 export interface ProjectUpdate {
   description?: string | null
@@ -581,6 +624,46 @@ export interface Sled {
 export interface SledResultsPage {
   /** list of items on this page of results */
   items: Sled[]
+
+  /** token used to fetch the next page of results (if any) */
+  next_page?: string | null
+}
+
+/**
+ * Client view of a [`User`]
+ */
+export interface User {
+  /** human-readable free-form text about a resource */
+  description: string
+
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
+}
+
+/**
+ * A single page of results
+ */
+export interface UserResultsPage {
+  /** list of items on this page of results */
+  items: User[]
 
   /** token used to fetch the next page of results (if any) */
   next_page?: string | null
@@ -1156,33 +1239,22 @@ export interface ProjectInstancesDeleteInstanceParams {
 }
 
 export interface InstanceDisksGetParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  instanceName: Name
+  /**
+   * Maximum number of items returned by a single call
+   * @format uint32
+   * @min 1
+   */
+  limit?: number | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  organizationName: Name
+  /** Token returned by previous call to retreive the subsequent page */
+  page_token?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  projectName: Name
-}
-
-export interface InstanceDisksGetDiskParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  diskName: Name
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  instanceName: Name
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  organizationName: Name
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  projectName: Name
-}
-
-export interface InstanceDisksPutDiskParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  diskName: Name
+  /**
+   * Supported set of sort modes for scanning by name only
+   *
+   * Currently, we only support scanning in ascending order.
+   */
+  sort_by?: NameSortMode
 
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
@@ -1194,10 +1266,18 @@ export interface InstanceDisksPutDiskParams {
   projectName: Name
 }
 
-export interface InstanceDisksDeleteDiskParams {
+export interface InstanceDisksAttachParams {
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
-  diskName: Name
+  instanceName: Name
 
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+}
+
+export interface InstanceDisksDetachParams {
   /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
@@ -1604,6 +1684,37 @@ export interface VpcSubnetsDeleteSubnetParams {
   vpcName: Name
 }
 
+export interface SubnetsIpsGetParams {
+  /**
+   * Maximum number of items returned by a single call
+   * @format uint32
+   * @min 1
+   */
+  limit?: number | null
+
+  /** Token returned by previous call to retreive the subsequent page */
+  page_token?: string | null
+
+  /**
+   * Supported set of sort modes for scanning by name only
+   *
+   * Currently, we only support scanning in ascending order.
+   */
+  sort_by?: NameSortMode
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  organizationName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  projectName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  subnetName: Name
+
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  vpcName: Name
+}
+
 export interface SagasGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1626,6 +1737,30 @@ export interface SagasGetParams {
 export interface SagasGetSagaParams {
   /** @format uuid */
   sagaId: string
+}
+
+export interface UsersGetParams {
+  /**
+   * Maximum number of items returned by a single call
+   * @format uint32
+   * @min 1
+   */
+  limit?: number | null
+
+  /** Token returned by previous call to retreive the subsequent page */
+  page_token?: string | null
+
+  /**
+   * Supported set of sort modes for scanning by name only
+   *
+   * Currently, we only support scanning in ascending order.
+   */
+  sort_by?: NameSortMode
+}
+
+export interface UsersGetUserParams {
+  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  userName: Name
 }
 
 export type QueryParamsType = Record<string | number, any>
@@ -2323,78 +2458,67 @@ export class Api<
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks
      */
     instanceDisksGet: (
-      { instanceName, organizationName, projectName }: InstanceDisksGetParams,
+      {
+        instanceName,
+        organizationName,
+        projectName,
+        ...query
+      }: InstanceDisksGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<DiskAttachment[], any>({
+      this.request<DiskResultsPage, any>({
         path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks`,
         method: 'GET',
+        query: query,
         format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a description of the attachment of this disk to this instance.
+     * No description
      *
-     * @name InstanceDisksGetDisk
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
+     * @name InstanceDisksAttach
+     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/attach
      */
-    instanceDisksGetDisk: (
+    instanceDisksAttach: (
       {
-        diskName,
         instanceName,
         organizationName,
         projectName,
-      }: InstanceDisksGetDiskParams,
+      }: InstanceDisksAttachParams,
+      data: DiskIdentifier,
       params: RequestParams = {}
     ) =>
-      this.request<DiskAttachment, any>({
-        path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks/${diskName}`,
-        method: 'GET',
+      this.request<Disk, any>({
+        path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks/attach`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),
 
     /**
-     * @description Attach a disk to this instance.
+     * No description
      *
-     * @name InstanceDisksPutDisk
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
+     * @name InstanceDisksDetach
+     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/detach
      */
-    instanceDisksPutDisk: (
+    instanceDisksDetach: (
       {
-        diskName,
         instanceName,
         organizationName,
         projectName,
-      }: InstanceDisksPutDiskParams,
+      }: InstanceDisksDetachParams,
+      data: DiskIdentifier,
       params: RequestParams = {}
     ) =>
-      this.request<DiskAttachment, any>({
-        path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks/${diskName}`,
-        method: 'PUT',
+      this.request<Disk, any>({
+        path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
         format: 'json',
-        ...params,
-      }),
-
-    /**
-     * @description Detach a disk from this instance.
-     *
-     * @name InstanceDisksDeleteDisk
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/{disk_name}
-     */
-    instanceDisksDeleteDisk: (
-      {
-        diskName,
-        instanceName,
-        organizationName,
-        projectName,
-      }: InstanceDisksDeleteDiskParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<void, any>({
-        path: `/organizations/${organizationName}/projects/${projectName}/instances/${instanceName}/disks/${diskName}`,
-        method: 'DELETE',
         ...params,
       }),
 
@@ -2924,6 +3048,30 @@ export class Api<
       }),
 
     /**
+     * @description List IP addresses on a VPC subnet.
+     *
+     * @name SubnetsIpsGet
+     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}/ips
+     */
+    subnetsIpsGet: (
+      {
+        organizationName,
+        projectName,
+        subnetName,
+        vpcName,
+        ...query
+      }: SubnetsIpsGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<NetworkInterfaceResultsPage, any>({
+        path: `/organizations/${organizationName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/ips`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
      * @description List all sagas (for debugging)
      *
      * @name SagasGet
@@ -2950,6 +3098,38 @@ export class Api<
     ) =>
       this.request<Saga, any>({
         path: `/sagas/${sagaId}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description List the built-in system users
+     *
+     * @name UsersGet
+     * @request GET:/users
+     */
+    usersGet: (query: UsersGetParams, params: RequestParams = {}) =>
+      this.request<UserResultsPage, any>({
+        path: `/users`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description Fetch a specific built-in system user
+     *
+     * @name UsersGetUser
+     * @request GET:/users/{user_name}
+     */
+    usersGetUser: (
+      { userName }: UsersGetUserParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<User, any>({
+        path: `/users/${userName}`,
         method: 'GET',
         format: 'json',
         ...params,
