@@ -14,7 +14,8 @@
   @apply pt-14 pb-20 flex flex-col flex-grow relative;
 }
 
-.with-content-gutters > * {
+.ox-content-pane > *,
+.ox-pagination-container > * {
   width: calc(100% - var(--content-gutter) * 2);
   margin-left: var(--content-gutter);
   margin-right: var(--content-gutter);
