@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTable } from 'react-table'
 
-import type { DiskAttachment, DiskState } from '@oxide/api'
+import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { Table } from '@oxide/table'
@@ -10,16 +10,16 @@ import { DiskStatusBadge } from '../../../../../components/StatusBadge'
 
 const columns = [
   {
-    accessor: 'diskName' as const,
+    accessor: 'name' as const,
     // TODO: there might be a better way to add this margin to both
     Header: 'Name',
     Cell: ({ value }: { value: string }) => <div>{value}</div>,
   },
   {
     id: 'status',
-    accessor: (d: DiskAttachment) => d.diskState.state,
+    accessor: (d: Disk) => d.state.state,
     Header: 'Status',
-    Cell: ({ value }: { value: DiskState['state'] }) => (
+    Cell: ({ value }: { value: Disk['state']['state'] }) => (
       <DiskStatusBadge status={value} />
     ),
     className: 'w-56',
@@ -38,8 +38,8 @@ export function StorageTab() {
     { refetchInterval: 5000 }
   )
 
-  const bootDisks = data?.slice(0, 1) || []
-  const otherDisks = data?.slice(1) || []
+  const bootDisks = data?.items.slice(0, 1) || []
+  const otherDisks = data?.items.slice(1) || []
 
   const bootDiskTable = useTable({ columns, data: bootDisks })
   const otherDisksTable = useTable({ columns, data: otherDisks })
