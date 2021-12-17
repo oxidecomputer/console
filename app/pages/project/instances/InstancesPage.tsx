@@ -3,8 +3,15 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
-import { InstancesTable } from '../../../components/InstancesTable'
 import { useParams } from '../../../hooks'
+import {
+  linkCell,
+  DateCell,
+  InstanceResourceCell,
+  InstanceStatusCell,
+  useQueryTable,
+} from '@oxide/table'
+import { useInstanceActions } from './actions'
 
 export const InstancesPage = () => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
@@ -12,6 +19,20 @@ export const InstancesPage = () => {
     organizationName: orgName,
     projectName,
   })
+
+  const actions = useInstanceActions({ organizationName: orgName, projectName })
+
+  const { Table, Column } = useQueryTable(
+    'projectInstancesGet',
+    {
+      organizationName: orgName,
+      projectName,
+    },
+    {
+      refetchInterval: 5000,
+      keepPreviousData: true,
+    }
+  )
 
   if (!project) return null
 
@@ -23,21 +44,39 @@ export const InstancesPage = () => {
         </PageTitle>
       </PageHeader>
 
-      <InstancesTable className="mb-12" />
-      <div className="space-x-4">
+      <div className="-mt-11 mb-3 flex justify-end space-x-4">
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
-          className={buttonStyle()}
+          className={buttonStyle({ size: 'xs', variant: 'dim' })}
         >
-          Create instance
-        </Link>
-        <Link
-          to={`/orgs/${orgName}/projects/${projectName}/access`}
-          className={buttonStyle({ variant: 'ghost' })}
-        >
-          Access &amp; IAM
+          new instance
         </Link>
       </div>
+      <Table selectable actions={actions}>
+        <Column
+          id="name"
+          cell={linkCell(
+            (name) =>
+              `/orgs/${orgName}/projects/${projectName}/instances/${name}`
+          )}
+        />
+        <Column
+          id="resources"
+          header="CPU, RAM / IMAGE"
+          accessor={(i) => ({ ncpus: i.ncpus, memory: i.memory })}
+          cell={InstanceResourceCell}
+        />
+        <Column
+          id="status"
+          accessor={(i) => ({
+            runState: i.runState,
+            timeRunStateUpdated: i.timeRunStateUpdated,
+          })}
+          cell={InstanceStatusCell}
+        />
+        <Column id="hostname" />
+        <Column id="created" accessor="timeCreated" cell={DateCell} />
+      </Table>
     </>
   )
 }

@@ -5,20 +5,24 @@ import React from 'react'
 import { kebabCase } from '@oxide/util'
 import type { ApiListMethods, ResultItem } from '@oxide/api'
 
-export type MenuAction<A extends ApiListMethods, M extends keyof A> = {
+export type ActionCreator<A extends ApiListMethods, M extends keyof A> = (
+  item: ResultItem<A[M]>
+) => Array<false | MenuAction>
+
+export type MenuAction = {
   label: string
-  onActivate: (item: ResultItem<A[M]>) => void
+  onActivate: () => void
   disabled?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActionsCol(actions: MenuAction<any, any>[]) {
+export function getActionsCol(actionsCreator: ActionCreator<any, any>) {
   return {
     id: 'menu',
     className: 'w-12',
     Cell: ({ row }: { row: Row }) => {
       const type = row.original
-      console.log('ROW', row)
+      const actions = actionsCreator(type).filter(Boolean) as MenuAction[]
 
       return (
         <div className="flex justify-center">
@@ -28,20 +32,10 @@ export function getActionsCol(actions: MenuAction<any, any>[]) {
             </MenuButton>
             <MenuList className="TableControls">
               {actions.map((action) => {
-                if (Array.isArray(action)) {
-                  return (
-                    <MenuItem
-                      key={kebabCase(`action-${action[0]}`)}
-                      onSelect={action[1].bind(null, type) as () => void}
-                    >
-                      {action[0]}
-                    </MenuItem>
-                  )
-                }
                 return (
                   <MenuItem
                     key={kebabCase(`action-${action.label}`)}
-                    onSelect={action.onActivate.bind(null, type) as () => void}
+                    onSelect={action.onActivate.bind(null, type)}
                     disabled={action.disabled}
                   >
                     {action.label}
