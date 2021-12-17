@@ -6,20 +6,24 @@
   @apply pb-6 pt-6 overflow-auto bg-black border-r border-gray-450 px-3;
 }
 
-.ox-content-pane {
-  @apply overflow-auto pt-14 flex flex-col relative;
+.ox-content-pane-wrapper {
+  @apply flex flex-col overflow-auto;
 }
 
-.ox-content-pane > * {
+.ox-content-pane {
+  @apply pt-14 pb-20 flex flex-col flex-grow relative;
+}
+
+.ox-content-pane > *,
+.ox-pagination-container > * {
   width: calc(100% - var(--content-gutter) * 2);
   margin-left: var(--content-gutter);
   margin-right: var(--content-gutter);
 }
-
 .ox-pagination-container {
-  @apply bottom-0 sticky bg-black h-14 flex-shrink-0;
+  @apply sticky bottom-0 bg-black h-14 flex-shrink-0;
 }
 
 .ox-pagination-border {
-  @apply w-full mx-0 sticky -mt-1 h-0 bottom-14 border-gray-450 bg-black;
+  @apply !w-full !mx-0 h-0 bottom-14 border-gray-450 bg-black;
 }

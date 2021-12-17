@@ -1,6 +1,7 @@
 import React from 'react'
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
+import ReactDOM from 'react-dom'
 
 interface PaginationProps extends UIPaginationProps {
   target: 'inline' | 'page'
@@ -8,13 +9,14 @@ interface PaginationProps extends UIPaginationProps {
 /** This component's provided children will be rendered at `#pagination-target` */
 export const Pagination = ({ target, ...props }: PaginationProps) => {
   return target === 'page' ? (
-    <>
-      <span className="h-16 flex-grow" />
-      <hr className="ox-pagination-border" />
-      <div className="ox-pagination-container">
+    ReactDOM.createPortal(
+      <>
+        <hr className="ox-pagination-border" />
         <UIPagination className="py-5" {...props} />
-      </div>
-    </>
+      </>,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      document.getElementById('pagination-target')!
+    )
   ) : (
     <UIPagination {...props} />
   )
