@@ -4,7 +4,7 @@ import type {
   ProjectInstancesGetParams,
 } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { ActionCreator } from '@oxide/table'
+import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
 import { useToast } from '../../../hooks'
 import React from 'react'
@@ -28,7 +28,7 @@ const instanceCan: Record<string, (i: Instance) => boolean> = {
 
 export const useInstanceActions = (
   params: ProjectInstancesGetParams
-): ActionCreator<ApiListMethods, 'projectInstancesGet'> => {
+): MakeActions<ApiListMethods, 'projectInstancesGet'> => {
   const addToast = useToast()
   const queryClient = useApiQueryClient()
   const refetch = () =>

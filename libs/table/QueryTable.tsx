@@ -18,7 +18,7 @@ import type {
   Result,
   ResultItem,
 } from '@oxide/api'
-import type { ActionCreator } from './columns'
+import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
@@ -67,7 +67,7 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
-  actions?: ActionCreator<A, M>
+  actions?: MakeActions<A, M>
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode

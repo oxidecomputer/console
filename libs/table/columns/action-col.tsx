@@ -5,7 +5,7 @@ import React from 'react'
 import { kebabCase } from '@oxide/util'
 import type { ApiListMethods, ResultItem } from '@oxide/api'
 
-export type ActionCreator<A extends ApiListMethods, M extends keyof A> = (
+export type MakeActions<A extends ApiListMethods, M extends keyof A> = (
   item: ResultItem<A[M]>
 ) => Array<false | MenuAction>
 
@@ -16,7 +16,7 @@ export type MenuAction = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActionsCol(actionsCreator: ActionCreator<any, any>) {
+export function getActionsCol(actionsCreator: MakeActions<any, any>) {
   return {
     id: 'menu',
     className: 'w-12',
