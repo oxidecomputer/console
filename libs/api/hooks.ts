@@ -79,7 +79,7 @@ export const getUseApiMutation =
     )
 
 export const getUseApiQueryClient =
-  <A extends ApiClient>() =>
+  <A extends ApiClient>(api: A) =>
   () => {
     const queryClient = useQueryClient()
     return {
@@ -97,7 +97,37 @@ export const getUseApiQueryClient =
       ) => {
         queryClient.setQueryData([method, params], data)
       },
+      fetchQuery: <M extends keyof A>(
+        method: M,
+        params: Params<A[M]>,
+
+        options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
+      ) => {
+        queryClient.fetchQuery(
+          [method, params],
+
+          () => api[method](params).then((resp) => resp.data),
+          options
+        )
+      },
     }
+  }
+
+export const getUseDebugApi =
+  <A extends ApiClient>(api: A) =>
+  () => {
+    console.log(
+      'api',
+      Object.entries(api).map(([e, f]) => [
+        e
+          .replace(/([A-Z]+)/g, ' $1')
+          .toLowerCase()
+          .split(' '),
+        f,
+      ])
+    )
+    // @ts-ignore
+    window.api = api
   }
 
 /* 

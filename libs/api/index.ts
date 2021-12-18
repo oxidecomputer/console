@@ -3,6 +3,7 @@ import {
   getUseApiMutation,
   getUseApiQuery,
   getUseApiQueryClient,
+  getUseDebugApi,
 } from './hooks'
 import { Api } from './__generated__/Api'
 
@@ -28,4 +29,5 @@ export type ApiListMethods = {
 
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
-export const useApiQueryClient = getUseApiQueryClient<A>()
+export const useApiQueryClient = getUseApiQueryClient(api.methods)
+export const useDebugApi = getUseDebugApi(api.methods)
