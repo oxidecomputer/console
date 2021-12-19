@@ -4,6 +4,7 @@ import type {
   UseQueryOptions,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useParams } from 'react-router'
 
 import type { HttpResponse } from './__generated__/Api'
 
@@ -116,18 +117,38 @@ export const getUseApiQueryClient =
 export const getUseDebugApi =
   <A extends ApiClient>(api: A) =>
   () => {
-    console.log(
-      'api',
-      Object.entries(api).map(([e, f]) => [
-        e
-          .replace(/([A-Z]+)/g, ' $1')
-          .toLowerCase()
-          .split(' '),
-        f,
-      ])
-    )
-    // @ts-ignore
-    window.api = api
+    const params = useParams()
+
+    if (process.env.NODE_ENV === 'development') {
+      // @ts-ignore
+      params.organizationName = params.orgName
+
+      // @ts-ignore
+      window.api = Object.fromEntries(
+        Object.entries(api).map(([key, fn]) => [
+          key,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (opt: any, ...args: any[]) => {
+            if (
+              key.includes('Post') ||
+              (key.includes('Put') && args.length === 0)
+            ) {
+              // eslint-disable-next-line no-param-reassign
+              ;(args = [opt]), (opt = {})
+            }
+            return fn({ ...params, ...opt }, ...args)
+              .then((r) => ('items' in r.data ? r.data.items : r.data))
+              .catch((e) =>
+                console.log(
+                  `%c${e.error?.message ?? 'check response output'}`,
+                  'color: red'
+                )
+              )
+              .then((r) => console.table(r))
+          },
+        ])
+      )
+    }
   }
 
 /* 

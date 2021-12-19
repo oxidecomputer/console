@@ -7,7 +7,6 @@ import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
 import { ToastProvider } from './hooks'
-import { useDebugApi } from '@oxide/api'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,16 +17,10 @@ const queryClient = new QueryClient({
   },
 })
 
-const ApiDebugger = () => {
-  useDebugApi()
-  return null
-}
-
 ReactDOM.render(
   <React.StrictMode>
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
-        <ApiDebugger />
         <ErrorBoundary>
           <SkipLink id="skip-nav" />
           <Router>{routes}</Router>

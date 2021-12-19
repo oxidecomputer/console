@@ -8,6 +8,7 @@ import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { useParams } from '../hooks'
+import { ApiDebugger } from '../components/ApiDebugger'
 
 const ProjectList = (props: { className?: string }) => {
   const { orgName } = useParams('orgName')
@@ -46,16 +47,19 @@ const ProjectList = (props: { className?: string }) => {
 }
 
 const OrgLayout = () => (
-  <PageContainer>
-    <Sidebar>
-      <ProjectList className="mt-14 px-3" />
-    </Sidebar>
-    <ContentPane>
-      <Breadcrumbs />
-      <SkipLinkTarget />
-      <Outlet />
-    </ContentPane>
-  </PageContainer>
+  <>
+    <ApiDebugger />
+    <PageContainer>
+      <Sidebar>
+        <ProjectList className="mt-14 px-3" />
+      </Sidebar>
+      <ContentPane>
+        <Breadcrumbs />
+        <SkipLinkTarget />
+        <Outlet />
+      </ContentPane>
+    </PageContainer>
+  </>
 )
 
 export default OrgLayout
