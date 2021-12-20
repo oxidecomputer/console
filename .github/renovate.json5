@@ -1,0 +1,28 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:base'],
+  enabledManagers: ['npm'],
+  packageRules: [
+    // Disable all npm dependency updates by default
+    {
+      managers: ['npm'],
+      depTypeList: ['dependencies', 'devDependencies', 'peerDependencies'],
+      packagePatterns: ['*'],
+      enabled: false,
+    },
+    // Disable all engine updates by default
+    {
+      managers: ['npm'],
+      depTypeList: ['engines'],
+      packagePatterns: ['*'],
+      enabled: false,
+    },
+    // Packages to auto update and auto merge if CI passes
+    {
+      managers: ['npm'],
+      automerge: true,
+      packageNames: ['typescript'],
+      enabled: true,
+    },
+  ],
+}
