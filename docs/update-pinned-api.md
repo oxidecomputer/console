@@ -6,14 +6,12 @@ The primary source of truth, in the sense that it determines what is actually de
 
 ## Instructions
 
-1. Update the omicron commit hash in [`packer.yaml`](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) and push to a PR
-2. Wait for `Packer` Github action to complete
-3. Get packer image ID from `Get image information` step (looks like `packer-123456789`)
-
-   <img width="864" alt="Screen Shot 2021-04-12 at 3 43 43 PM" src="https://user-images.githubusercontent.com/3612203/114452058-007cfe00-9ba6-11eb-9664-7ca466f1a280.png">
-
-4. Update packer image ID in [`tools/create_gcp_instance.sh`](https://github.com/oxidecomputer/console/blob/d046263cbfbb80b08757e432a8fcd980b8facbe3/tools/create_gcp_instance.sh#L23) and push. The deployed version will now be based on the new packer image.
-5. Update the generated API client by running `./tools/generate_api_client.sh`. This will automatically check out the omicron commit specified as `API_VERSION` in `packer.yaml`. If you forget this step, a safety test in `libs/api` will fail.
+1. Update `API_VERSION` in [`packer.yaml`](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) with new Omicron commit hash
+1. Update the generated API client by running `./tools/generate_api_client.sh`. This will automatically check out the omicron commit specified as `API_VERSION`. If you forget this step, a safety test in `libs/api` will fail.
+1. Fix any type errors introduced by changes to the generated code
+1. Commit and push to a branch
+1. Wait for `Packer` github action to complete, followed by a bot commit that updates the packer image ID in [`tools/create_gcp_instance.sh`](https://github.com/oxidecomputer/console/blob/d046263cbfbb80b08757e432a8fcd980b8facbe3/tools/create_gcp_instance.sh#L23).
+1. Test deployed version on GCP
 
 ## Available omicron versions
 

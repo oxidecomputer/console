@@ -8,7 +8,7 @@ Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omi
 - [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
 - [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [Tailwind](https://tailwindcss.com/)
-- [OpenAPI Generator](https://openapi-generator.tech/) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
+- [OpenAPI Generator](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
 - [Vite](https://vitejs.dev/)
 - [Storybook](https://storybook.js.org/) (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
 

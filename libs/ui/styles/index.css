@@ -8,6 +8,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --content-gutter: 2.5rem;
+}
+
 @layer base {
   body {
     @apply bg-black text-gray-50 font-sans overflow-y-hidden;
@@ -38,26 +42,5 @@
 
   .font-sans {
     letter-spacing: 0.02em;
-  }
-
-  .text-display-lg {
-    @apply font-display font-light;
-    font-size: 1.25rem;
-    letter-spacing: 0.04em;
-    line-height: 1;
-  }
-
-  .text-display-xl {
-    @apply font-display font-light;
-    font-size: 1.625rem;
-    letter-spacing: 0.03em;
-    line-height: 1;
-  }
-
-  .text-display-2xl {
-    @apply font-display font-light;
-    font-size: 2.625rem;
-    letter-spacing: 0.03em;
-    line-height: 1;
   }
 }

@@ -1,40 +1,29 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 
 import type { RouteMatch, RouteObject } from 'react-router'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-// Needs to take import callback (as opposed to taking the path and passing it
-// to import()) because Rollup doesn't find the file properly otherwise. I tried
-// to follow the rules for dynamic import specified here but it didn't work:
-//
-// https://github.com/rollup/plugins/tree/02fb349d/packages/dynamic-import-vars#limitations
-// Rules imply () => import(`./{path}.tsx`) should work
-function lazyLoad(importFunc: () => Promise<{ default: React.ComponentType }>) {
-  const Inner = React.lazy(importFunc)
-  return () => (
-    // TODO: nicer fallback
-    <Suspense fallback="loading">
-      <Inner />
-    </Suspense>
-  )
-}
-
-import InstanceCreatePage from './pages/instances/create'
-import InstanceStorage from './pages/instances/Storage'
-// Recharts is 350 KB
-const InstanceMetrics = lazyLoad(() => import('./pages/instances/Metrics'))
+import LoginPage from './pages/LoginPage'
+import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
 import OrgPage from './pages/OrgPage'
-import ProjectPage from './pages/project'
-import ProjectAccessPage from './pages/project/Access'
-import ProjectStoragePage from './pages/project/Storage'
+import {
+  AccessPage,
+  DisksPage,
+  InstancePage,
+  InstancesPage,
+  ImagesPage,
+  MetricsPage,
+  VpcPage,
+  VpcsPage,
+} from './pages/project'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import ToastTestPage from './pages/ToastTestPage'
+import NotFound from './pages/NotFound'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
-import InstanceLayout from './layouts/InstanceLayout'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -63,10 +52,10 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
-    <Route
-      index
-      element={<Navigate to="/orgs/maze-war/projects" replace={true} />}
-    />
+    <Route path="*" element={<NotFound />} />
+    <Route path="login" element={<LoginPage />} />
+
+    <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
     <Route path="orgs">
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
@@ -91,59 +80,38 @@ export const routes = (
             element={<ProjectLayout />}
             crumb={projectCrumb}
           >
-            <Route index element={<ProjectPage />} />
-            <Route path="instances">
-              <Route index element={<ProjectPage />} />
-              <Route
-                path="new"
-                element={<InstanceCreatePage />}
-                crumb="Create instance"
-              />
-            </Route>
-            <Route path="networking" crumb="Networking" />
+            <Route index element={<Navigate to="instances" replace />} />
+            {/* This is separate from the other instances routes because we want a different crumb */}
             <Route
-              path="storage"
-              element={<ProjectStoragePage />}
-              crumb="Storage"
+              path="instances/new"
+              element={<InstanceCreatePage />}
+              crumb="Create instance"
             />
-            <Route path="metrics" crumb="Metrics" />
-            <Route path="audit" crumb="Audit" />
-            <Route
-              path="access"
-              element={<ProjectAccessPage />}
-              crumb="Access & IAM"
-            />
-            <Route path="settings" crumb="Settings" />
-          </Route>
-
-          {/* INSTANCE */}
-          <Route path=":projectName" crumb={projectCrumb}>
             <Route path="instances" crumb="Instances">
+              <Route index element={<InstancesPage />} />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
-                element={<InstanceLayout />}
+                element={<InstancePage />}
                 crumb={instanceCrumb}
-              >
-                <Route index />
-                <Route
-                  path="metrics"
-                  crumb="Metrics"
-                  element={<InstanceMetrics />}
-                />
-                <Route path="activity" crumb="Activity" />
-                <Route path="access" crumb="Access" />
-                <Route path="resize" crumb="Resize" />
-                <Route path="networking" crumb="Networking" />
-                <Route
-                  path="storage"
-                  element={<InstanceStorage />}
-                  crumb="Storage"
-                />
-                <Route path="tags" crumb="Tags" />
-              </Route>
+              />
             </Route>
+            <Route path="vpcs" crumb="Vpcs">
+              <Route index element={<VpcsPage />} />
+              <Route path=":vpcName" element={<VpcPage />} />
+            </Route>
+            <Route path="disks" element={<DisksPage />} crumb="Disks" />
+            <Route path="metrics" element={<MetricsPage />} crumb="Metrics" />
+            <Route path="snapshots" crumb="Snapshots" />
+            <Route path="audit" crumb="Audit" />
+            <Route path="images" element={<ImagesPage />} crumb="Images" />
+            <Route
+              path="access"
+              element={<AccessPage />}
+              crumb="Access & IAM"
+            />
+            <Route path="settings" crumb="Settings" />
           </Route>
         </Route>
       </Route>
@@ -192,4 +160,4 @@ function createRoutesFromChildren(children: React.ReactNode): RouteObject[] {
 }
 
 /** React Router route config in object form. Used by useMatches. */
-export const routeConfig = createRoutesFromChildren(routes)
+export const getRouteConfig = () => createRoutesFromChildren(routes)

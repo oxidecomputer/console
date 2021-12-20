@@ -3,66 +3,83 @@ import type {
   UseMutationOptions,
   UseQueryOptions,
 } from 'react-query'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import type { ApiResponse } from './__generated__'
+import type { HttpResponse } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export type Params<F> = F extends (p: infer P, r: infer R) => any
+  ? P & {
+      body?: R
+    }
+  : never
+export type Result<F> = F extends (
+  p: any,
+  r: any
+) => Promise<HttpResponse<infer R>>
+  ? R
+  : never
+export type ResultItem<F> = F extends (
+  p: any,
+  r: any
+) => Promise<HttpResponse<{ items: (infer R)[] }>>
+  ? R
+  : never
 
-type Params<F> = F extends (p: infer P) => any ? P : never
-type Result<F> = F extends (p: any) => Promise<infer R> ? R : never
-
-// even though the api object has other properties on it, as far as
-// getUseApiQuery is concerned it only has the fetcher functions
-type ApiClient<A> = OmitByValue<
-  PickByValue<A, (p: any) => Promise<any>>,
-  (p: any) => Promise<ApiResponse<any>> // exclude "-Raw" fetchers
->
+type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export interface ApiError {
-  raw: Response
-  data: {
-    request_id: string
-    error_code: string | null
-    message: string
-  } | null
+type ErrorData = {
+  request_id: string
+  error_code: string | null
+  message: string
 }
 
-// we need to rethrow so react-query knows the request in question is a
-// failure and uses the result to populate `error` rather than `data`
-const parseJsonAndRethrow = async (error: Response): Promise<ApiError> =>
-  error
-    .json()
-    .catch(() => null) // if json parse fails, data is null
-    .then((data) => Promise.reject({ raw: error, data }))
+export type ErrorResponse = HttpResponse<null, ErrorData>
 
 export const getUseApiQuery =
-  <A extends ApiClient<A>>(api: A) =>
+  <A extends ApiClient>(api: A) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options?: UseQueryOptions<Result<A[M]>, ApiError>
+    options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
   ) =>
     useQuery(
       [method, params],
-      () => api[method](params).catch(parseJsonAndRethrow),
+      // The generated client parses the json and sticks it in `data` for us, so
+      // that's what we want to return from the fetcher. Note that while there
+      // is an --unwrap-response-data CLI flag for the generator that pulls out
+      // the data key for us, something about the types is weird or wrong, so
+      // we're doing it ourselves here instead.
+      //
+      // In the case of an error, it does the same thing with the `error` key,
+      // but since there may not always be parseable json in an error response
+      // (I think?) it seems more reasonable in that case to take the whole
+      // `HttpResponse` instead of plucking out error with
+      //
+      //   .catch((resp) => resp.error)
+      //
+      // The generated client already throws on error responses, which is what
+      // react-query wants, so we don't have to handle the error case explicitly
+      // here.
+      () => api[method](params).then((resp) => resp.data),
       options
     )
 
 export const getUseApiMutation =
-  <A extends ApiClient<A>>(api: A) =>
+  <A extends ApiClient>(api: A) =>
   <M extends keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+    options?: UseMutationOptions<Result<A[M]>, ErrorResponse, Params<A[M]>>
   ) =>
     useMutation(
-      (params) => api[method](params).catch(parseJsonAndRethrow),
+      ({ body, ...params }) =>
+        api[method](params, body).then((resp) => resp.data),
       options
     )
 
 export const getUseApiQueryClient =
-  <A extends ApiClient<A>>() =>
+  <A extends ApiClient>() =>
   () => {
     const queryClient = useQueryClient()
     return {

@@ -36,10 +36,10 @@ export const badgeColors: Record<
     lightGray: 'bg-gray-300 text-black',
   },
   ghost: {
-    green: 'border border-green-800 text-green-500 bg-green-950',
-    red: 'border border-red-800 text-red-500 bg-red-950',
-    yellow: 'border border-yellow-800 text-yellow-500 bg-yellow-950',
-    blue: 'border border-blue-800 text-blue-500 bg-blue-950',
+    green: 'ring-1 ring-inset ring-green-800 text-green-500 bg-green-950',
+    red: 'ring-1 ring-inset ring-red-800 text-red-500 bg-red-950',
+    yellow: 'ring-1 ring-inset ring-yellow-800 text-yellow-500 bg-yellow-950',
+    blue: 'ring-1 ring-inset ring-blue-800 text-blue-500 bg-blue-950',
   },
 }
 
@@ -52,7 +52,7 @@ export const Badge = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center uppercase font-mono text-sm font-thin rounded-sm px-1 whitespace-nowrap',
+        'ox-badge inline-flex items-baseline uppercase text-mono-sm rounded-sm h-4 py-[1px] px-[3px] whitespace-nowrap',
         badgeColors[variant][color],
         className
       )}

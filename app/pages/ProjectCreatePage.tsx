@@ -13,6 +13,7 @@ import {
   Success16Icon,
   FieldTitle,
 } from '@oxide/ui'
+import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { getServerError } from '../util/errors'
@@ -24,32 +25,15 @@ const ERROR_CODES = {
 }
 
 // exists primarily so we can test it without worrying about route params
-export function ProjectCreateForm({ orgName }: { orgName: string }) {
-  const navigate = useNavigate()
-
-  const queryClient = useApiQueryClient()
-  const addToast = useToast()
-
+export function ProjectCreateForm({
+  orgName,
+  onSuccess,
+}: {
+  orgName: string
+  onSuccess: (p: Project) => void
+}) {
   const createProject = useApiMutation('organizationProjectsPost', {
-    onSuccess: (data) => {
-      // refetch list of projects in sidebar
-      queryClient.invalidateQueries('organizationProjectsGet', {
-        organizationName: orgName,
-      })
-      // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData(
-        'organizationProjectsGetProject',
-        { organizationName: orgName, projectName: data.name },
-        data
-      )
-      addToast({
-        icon: <Success16Icon />,
-        title: 'Success!',
-        content: 'Your project has been created.',
-        timeout: 5000,
-      })
-      navigate(`/orgs/${orgName}/projects/${data.name}`)
-    },
+    onSuccess,
   })
   return (
     <Formik
@@ -57,7 +41,7 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
       onSubmit={({ name, description }) => {
         createProject.mutate({
           organizationName: orgName,
-          projectCreate: { name, description },
+          body: { name, description },
         })
       }}
     >
@@ -96,7 +80,7 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
         >
           Create project
         </Button>
-        <div className="text-red-500">
+        <div className="text-red-500 mt-2">
           {getServerError(createProject.error, ERROR_CODES)}
         </div>
       </Form>
@@ -105,6 +89,10 @@ export function ProjectCreateForm({ orgName }: { orgName: string }) {
 }
 
 export default function ProjectCreatePage() {
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
+  const navigate = useNavigate()
+
   const { orgName } = useParams('orgName')
   return (
     <>
@@ -113,7 +101,28 @@ export default function ProjectCreatePage() {
           Create a new project
         </PageTitle>
       </PageHeader>
-      <ProjectCreateForm orgName={orgName} />
+      <ProjectCreateForm
+        orgName={orgName}
+        onSuccess={(project) => {
+          // refetch list of projects in sidebar
+          queryClient.invalidateQueries('organizationProjectsGet', {
+            organizationName: orgName,
+          })
+          // avoid the project fetch when the project page loads since we have the data
+          queryClient.setQueryData(
+            'organizationProjectsGetProject',
+            { organizationName: orgName, projectName: project.name },
+            project
+          )
+          addToast({
+            icon: <Success16Icon />,
+            title: 'Success!',
+            content: 'Your project has been created.',
+            timeout: 5000,
+          })
+          navigate(`../${project.name}`)
+        }}
+      />
     </>
   )
 }

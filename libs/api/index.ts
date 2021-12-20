@@ -1,28 +1,30 @@
-import { DefaultApi, Configuration } from './__generated__'
+import type { ResultItem } from './hooks'
 import {
-  getUseApiQuery,
   getUseApiMutation,
+  getUseApiQuery,
   getUseApiQueryClient,
 } from './hooks'
+import { Api } from './__generated__/Api'
 
-const basePath =
-  process.env.NODE_ENV === 'production' ? process.env.API_URL : '/api'
+export * from './__generated__/Api'
+export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
 
-const config = new Configuration({
-  basePath,
-  headers: {
-    // privileged test user
-    // we're going to use this both locally and on gcp for now
-    // TODO: make configurable through env vars?
-    'oxide-authn-spoof': '001de000-05e4-0000-0000-000000004007',
-  },
-})
-const api = new DefaultApi(config)
+const basePath = process.env.API_URL ?? '/api'
 
-export const useApiQuery = getUseApiQuery(api)
-export const useApiMutation = getUseApiMutation(api)
-export const useApiQueryClient = getUseApiQueryClient<DefaultApi>()
+const api = new Api({ baseUrl: basePath })
 
-export type { ApiError } from './hooks'
-export * from './__generated__/models'
-export * from './instance-can'
+type A = typeof api.methods
+
+/**
+ * API methods that return a list of items.
+ */
+export type ApiListMethods = {
+  // Only never extends never. If ResultItem extends never, that means we
+  // couldn't pull out an item, which means it's not a list endpoint. If we can
+  // infer an item, that means it's a list endpoint, so include its M.
+  [M in keyof A as ResultItem<A[M]> extends never ? never : M]: A[M]
+}
+
+export const useApiQuery = getUseApiQuery(api.methods)
+export const useApiMutation = getUseApiMutation(api.methods)
+export const useApiQueryClient = getUseApiQueryClient<A>()

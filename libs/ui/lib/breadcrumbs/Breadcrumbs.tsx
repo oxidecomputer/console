@@ -8,7 +8,7 @@ export interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
-  <ol className="text-xs font-mono uppercase mb-6">
+  <ol className="text-mono-md uppercase">
     {data.map(({ href, label }) => (
       <li
         className="inline-block before:first-of-type:content-none 
@@ -16,7 +16,7 @@ export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
         key={`${href}-${label}`}
       >
         {href ? (
-          <Link to={href} className="text-gray-100 hover:text-green-500">
+          <Link to={href} className="text-gray-300 hover:text-gray-100">
             {label}
           </Link>
         ) : (

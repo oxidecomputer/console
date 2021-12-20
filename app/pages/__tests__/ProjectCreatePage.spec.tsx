@@ -22,9 +22,14 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
+let successSpy: jest.Mock
+
 describe('ProjectCreateForm', () => {
   beforeEach(() => {
-    renderWithRouter(<ProjectCreateForm orgName={org.name} />)
+    successSpy = jest.fn()
+    renderWithRouter(
+      <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
+    )
     enterName('valid-name')
   })
 
@@ -46,7 +51,7 @@ describe('ProjectCreateForm', () => {
     expect(submit).not.toBeDisabled()
   })
 
-  it('shows specific message for known server error code', async () => {
+  it('shows message for known error code in project create code map', async () => {
     fetchMock.post(projectsUrl, {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
@@ -59,6 +64,17 @@ describe('ProjectCreateForm', () => {
     )
   })
 
+  it('shows message for known error code in global code map', async () => {
+    fetchMock.post(projectsUrl, {
+      status: 401,
+      body: { error_code: 'Forbidden' },
+    })
+
+    fireEvent.click(submitButton())
+
+    await screen.findByText('Action not authorized')
+  })
+
   it('shows field-level validation error and does not POST', async () => {
     enterName('Invalid-name')
     fireEvent.click(submitButton())
@@ -67,7 +83,10 @@ describe('ProjectCreateForm', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post(projectsUrl, { status: 400 })
+    fetchMock.post(projectsUrl, {
+      status: 400,
+      body: { error_code: 'UnknownCode' },
+    })
 
     fireEvent.click(submitButton())
 
@@ -84,19 +103,18 @@ describe('ProjectCreateForm', () => {
     )
   })
 
-  it('navigates to project page on success', async () => {
+  it('calls onSuccess on success', async () => {
     const mock = fetchMock.post(projectsUrl, {
       status: 201,
       body: project,
     })
 
-    const projectPath = `/orgs/${org.name}/projects/${project.name}`
-    expect(window.location.pathname).not.toEqual(projectPath)
+    expect(successSpy).not.toHaveBeenCalled()
 
     fireEvent.click(submitButton())
 
     await waitFor(() => expect(mock.called()).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
+    await waitFor(() => expect(successSpy).toHaveBeenCalled())
   })
 })
