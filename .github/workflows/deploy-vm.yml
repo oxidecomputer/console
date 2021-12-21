@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Extract branch name
         shell: bash
-        run: BRANCH="${GITHUB_HEAD_REF//\//-}"; echo "::set-output name=branch::${BRANCH:-main}"
+        run: BRANCH="${GITHUB_HEAD_REF//[\/.]/-}"; echo "::set-output name=branch::${BRANCH:-main}"
         id: extract_branch
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -56,7 +56,7 @@ jobs:
           export_default_credentials: true
       - name: Extract branch name
         shell: bash
-        run: BRANCH="${GITHUB_HEAD_REF//\//-}"; echo "::set-output name=branch::${BRANCH:-main}"
+        run: BRANCH="${GITHUB_HEAD_REF//[\/.]/-}"; echo "::set-output name=branch::${BRANCH:-main}"
         id: extract_branch
       - name: Deploy VM
         shell: bash

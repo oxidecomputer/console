@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${{github.event.pull_request.head.ref}} | sed 's#refs/heads/##g' | sed 's#/#-#g')"
+        run: echo "##[set-output name=branch;]$(echo ${{github.event.pull_request.head.ref}} | sed 's#refs/heads/##g' | sed 's#[/.]#-#g')"
         id: extract_branch
       - name: Post PR comment with preview deployment URL
         uses: mshick/add-pr-comment@v1
