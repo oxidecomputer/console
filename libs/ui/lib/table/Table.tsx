@@ -47,7 +47,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
 
 export type TableRowProps = JSX.IntrinsicElements['tr']
 Table.Row = ({ className, ...props }: TableRowProps) => (
-  <tr className={cn(className, '')} {...props} />
+  <tr className={cn(className, 'hover:bg-gray-600')} {...props} />
 )
 
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
