@@ -1,0 +1,44 @@
+.TableControls[data-reach-menu-list] {
+  @apply p-0 bg-gray-500 border border-green-700 rounded;
+
+  & [data-reach-menu-item] {
+    @apply font-sans text-left px-4 py-2;
+
+    &[data-selected] {
+      @apply bg-green-900;
+    }
+  }
+}
+
+table.ox-table {
+  border-spacing: 0px;
+}
+th:first-of-type {
+  border-left-width: 1px;
+  border-top-left-radius: 0.125rem;
+}
+th:last-of-type {
+  border-right-width: 1px;
+  border-top-right-radius: 0.125rem;
+}
+tr:last-of-type td:first-of-type {
+  border-bottom-left-radius: 0.125rem;
+}
+tr:last-of-type td:last-of-type {
+  border-bottom-right-radius: 0.125rem;
+}
+
+.ox-table tbody tr:last-child td {
+  border-bottom-width: 1px;
+}
+
+.ox-table tbody tr td:first-child {
+  border-left-width: 1px;
+}
+.ox-table tbody tr td:last-child {
+  border-right-width: 1px;
+}
+
+.ox-table tr:last-child td div {
+  border-bottom-width: 0px;
+}
