@@ -19,6 +19,20 @@ The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconv
 export type ByteCount = number
 
 /**
+ * The type of an individual datum of a metric.
+ */
+export type DatumType =
+  | 'Bool'
+  | 'I64'
+  | 'F64'
+  | 'String'
+  | 'Bytes'
+  | 'CumulativeI64'
+  | 'CumulativeF64'
+  | 'HistogramI64'
+  | 'HistogramF64'
+
+/**
  * Client view of an [`Disk`]
  */
 export interface Disk {
@@ -113,6 +127,29 @@ export type DiskState =
   | { instance: string; state: 'detaching' }
   | { state: 'destroyed' }
   | { state: 'faulted' }
+
+/**
+ * The name and type information for a field of a timeseries schema.
+ */
+export interface FieldSchema {
+  name: string
+
+  /** The source from which a field is derived, the target or metric. */
+  source: FieldSource
+
+  /** The `FieldType` identifies the data type of a target or metric field. */
+  ty: FieldType
+}
+
+/**
+ * The source from which a field is derived, the target or metric.
+ */
+export type FieldSource = 'Target' | 'Metric'
+
+/**
+ * The `FieldType` identifies the data type of a target or metric field.
+ */
+export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
  * Identity-related metadata that's included in nearly all public API objects
@@ -471,6 +508,33 @@ export interface RackResultsPage {
 }
 
 /**
+ * Client view of a [`Role`]
+ */
+export interface Role {
+  description: string
+
+  /** Role names consist of two string components separated by dot ("."). */
+  name: RoleName
+}
+
+/**
+ * Role names consist of two string components separated by dot (".").
+ * @pattern [a-z-]+\.[a-z-]+
+ */
+export type RoleName = string
+
+/**
+ * A single page of results
+ */
+export interface RoleResultsPage {
+  /** list of items on this page of results */
+  items: Role[]
+
+  /** token used to fetch the next page of results (if any) */
+  next_page?: string | null
+}
+
+/**
  * A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`].
  */
 export type RouteDestination =
@@ -624,6 +688,40 @@ export interface Sled {
 export interface SledResultsPage {
   /** list of items on this page of results */
   items: Sled[]
+
+  /** token used to fetch the next page of results (if any) */
+  next_page?: string | null
+}
+
+/**
+ * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
+ * @pattern (([a-z]+[a-z0-9]*)(_([a-z0-9]+))*):(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*)
+ */
+export type TimeseriesName = string
+
+/**
+* The schema for a timeseries.
+
+This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
+*/
+export interface TimeseriesSchema {
+  /** @format date-time */
+  created: string
+
+  /** The type of an individual datum of a metric. */
+  datum_type: DatumType
+  field_schema: FieldSchema[]
+
+  /** Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words. */
+  timeseries_name: TimeseriesName
+}
+
+/**
+ * A single page of results
+ */
+export interface TimeseriesSchemaResultsPage {
+  /** list of items on this page of results */
+  items: TimeseriesSchema[]
 
   /** token used to fetch the next page of results (if any) */
   next_page?: string | null
@@ -1715,6 +1813,23 @@ export interface SubnetsIpsGetParams {
   vpcName: Name
 }
 
+export interface RolesGetParams {
+  /**
+   * Maximum number of items returned by a single call
+   * @format uint32
+   * @min 1
+   */
+  limit?: number | null
+
+  /** Token returned by previous call to retreive the subsequent page */
+  page_token?: string | null
+}
+
+export interface RolesGetRoleParams {
+  /** The built-in role's unique name. */
+  roleName: string
+}
+
 export interface SagasGetParams {
   /**
    * Maximum number of items returned by a single call
@@ -1737,6 +1852,20 @@ export interface SagasGetParams {
 export interface SagasGetSagaParams {
   /** @format uuid */
   sagaId: string
+}
+
+export type SessionMeParams = object
+
+export interface TimeseriesSchemaGetParams {
+  /**
+   * Maximum number of items returned by a single call
+   * @format uint32
+   * @min 1
+   */
+  limit?: number | null
+
+  /** Token returned by previous call to retreive the subsequent page */
+  page_token?: string | null
 }
 
 export interface UsersGetParams {
@@ -3072,6 +3201,38 @@ export class Api<
       }),
 
     /**
+     * @description List the built-in roles
+     *
+     * @name RolesGet
+     * @request GET:/roles
+     */
+    rolesGet: (query: RolesGetParams, params: RequestParams = {}) =>
+      this.request<RoleResultsPage, any>({
+        path: `/roles`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description Fetch a specific built-in role
+     *
+     * @name RolesGetRole
+     * @request GET:/roles/{role_name}
+     */
+    rolesGetRole: (
+      { roleName }: RolesGetRoleParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<Role, any>({
+        path: `/roles/${roleName}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
      * @description List all sagas (for debugging)
      *
      * @name SagasGet
@@ -3099,6 +3260,38 @@ export class Api<
       this.request<Saga, any>({
         path: `/sagas/${sagaId}`,
         method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description Fetch the user associated with the current session
+     *
+     * @name SessionMe
+     * @request GET:/session/me
+     */
+    sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
+      this.request<User, any>({
+        path: `/session/me`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description List all timeseries schema
+     *
+     * @name TimeseriesSchemaGet
+     * @request GET:/timeseries/schema
+     */
+    timeseriesSchemaGet: (
+      query: TimeseriesSchemaGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<TimeseriesSchemaResultsPage, any>({
+        path: `/timeseries/schema`,
+        method: 'GET',
+        query: query,
         format: 'json',
         ...params,
       }),
