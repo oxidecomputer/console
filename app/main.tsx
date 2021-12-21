@@ -5,6 +5,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 
 import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { UserProvider } from './components/UserProvider'
 import { routes } from './routes'
 import { ToastProvider } from './hooks'
 
@@ -22,8 +23,10 @@ ReactDOM.render(
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <SkipLink id="skip-nav" />
-          <Router>{routes}</Router>
+          <UserProvider>
+            <SkipLink id="skip-nav" />
+            <Router>{routes}</Router>
+          </UserProvider>
         </ErrorBoundary>
       </QueryClientProvider>
     </ToastProvider>

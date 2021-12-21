@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Button, Warning12Icon, Success16Icon } from '@oxide/ui'
 import { useToast } from '../hooks'
 
@@ -21,6 +21,7 @@ import { useToast } from '../hooks'
 export default function LoginPage() {
   const navigate = useNavigate()
   const addToast = useToast()
+  const queryClient = useApiQueryClient()
   // TODO these are not under organizations. annoying. should really just use plain react-query
   const loginPost = useApiMutation('spoofLogin', {
     onSuccess: () => {
@@ -29,6 +30,7 @@ export default function LoginPage() {
         icon: <Success16Icon />,
         timeout: 4000,
       })
+      queryClient.invalidateQueries('sessionMe', {})
       navigate('/')
     },
     onError: () => {
