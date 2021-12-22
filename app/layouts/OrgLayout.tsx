@@ -7,6 +7,7 @@ import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
 import { ContentPane, PageContainer, Sidebar } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 
 const ProjectList = (props: { className?: string }) => {
@@ -51,6 +52,7 @@ const OrgLayout = () => (
       <ProjectList className="mt-14 px-3" />
     </Sidebar>
     <ContentPane>
+      <TopBar />
       <Breadcrumbs />
       <SkipLinkTarget />
       <Outlet />

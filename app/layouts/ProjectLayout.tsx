@@ -18,6 +18,7 @@ import {
   PaginationContainer,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
 
 const ProjectLayout = () => {
@@ -50,6 +51,7 @@ const ProjectLayout = () => {
       </Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
+          <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
           <Outlet />

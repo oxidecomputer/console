@@ -11,7 +11,7 @@
 }
 
 .ox-content-pane {
-  @apply pt-14 pb-20 flex flex-col flex-grow relative;
+  @apply pt-4 pb-20 flex flex-col flex-grow relative;
 }
 
 .ox-content-pane > *,
