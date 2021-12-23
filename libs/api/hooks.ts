@@ -37,6 +37,8 @@ type ErrorData = {
 
 export type ErrorResponse = HttpResponse<null, ErrorData>
 
+export const LOGIN_REDIRECT_URL = '/login'
+
 function reloadIf401(resp: ErrorResponse) {
   // if logged out, refresh in order to trigger a login redirect on the server
   if (resp.status === 401) {
@@ -44,14 +46,7 @@ function reloadIf401(resp: ErrorResponse) {
     // warning could come as a surprise to the user, especially because
     // sometimes background requests are not directly triggered by a user
     // action, e.g., polling or refetching when window regains focus
-
-    // TODO-correctness: reload assumes request is happening from a route that
-    // requires the user to be authenticated to see it. If the user is on a page
-    // that the server does not auth gate, then reload will simply reload. Maybe
-    // that's ok, otherwise we can simply define a server route like GET /login
-    // that always responds with a redirect to the real (IdP) login form, and
-    // then do `window.location.href = "/login"` here instead
-    window.location.reload()
+    window.location.href = LOGIN_REDIRECT_URL
   }
   return resp
 }

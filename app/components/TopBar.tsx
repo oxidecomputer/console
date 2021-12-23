@@ -1,14 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useApiQuery, useApiMutation } from '@oxide/api'
+import { useApiQuery, useApiMutation, LOGIN_REDIRECT_URL } from '@oxide/api'
 import { buttonStyle, Button } from '@oxide/ui'
 
 export function TopBar() {
   const logout = useApiMutation('logout', {
     onSuccess: () => {
-      // reload triggers login redirect from the server. see TODO comments
-      // on reloadIf401 in api hooks file for possible correctness caveat
-      window.location.reload()
+      // server will respond to /login with a login redirect
+      // TODO-usability: do we just want to dump them back to login or is there
+      // another page that would make sense, like a logged out homepage
+      window.location.href = LOGIN_REDIRECT_URL
     },
   })
   const { data: user, error } = useApiQuery(
