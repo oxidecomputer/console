@@ -1,18 +1,21 @@
 import React from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useApiQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Link } from 'react-router-dom'
+import { useApiQuery, useApiMutation } from '@oxide/api'
 import { buttonStyle, Button } from '@oxide/ui'
 
 export function TopBar() {
-  const queryClient = useApiQueryClient()
-  const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
-      queryClient.invalidateQueries('sessionMe', {})
-      navigate('/login')
+      // reload triggers login redirect from the server. see TODO comments
+      // on reloadIf401 in api hooks file for possible correctness caveat
+      window.location.reload()
     },
   })
-  const { data: user, error } = useApiQuery('sessionMe', {})
+  const { data: user, error } = useApiQuery(
+    'sessionMe',
+    {},
+    { cacheTime: 0, refetchOnWindowFocus: false }
+  )
 
   let contents = (
     <Link to="/login" className={buttonStyle({ variant: 'link' })}>

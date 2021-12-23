@@ -37,6 +37,25 @@ type ErrorData = {
 
 export type ErrorResponse = HttpResponse<null, ErrorData>
 
+function reloadIf401(resp: ErrorResponse) {
+  // if logged out, refresh in order to trigger a login redirect on the server
+  if (resp.status === 401) {
+    // TODO-usability: for background requests, a redirect to login without
+    // warning could come as a surprise to the user, especially because
+    // sometimes background requests are not directly triggered by a user
+    // action, e.g., polling or refetching when window regains focus
+
+    // TODO-correctness: reload assumes request is happening from a route that
+    // requires the user to be authenticated to see it. If the user is on a page
+    // that the server does not auth gate, then reload will simply reload. Maybe
+    // that's ok, otherwise we can simply define a server route like GET /login
+    // that always responds with a redirect to the real (IdP) login form, and
+    // then do `window.location.href = "/login"` here instead
+    window.location.reload()
+  }
+  return resp
+}
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends keyof A>(
@@ -62,7 +81,10 @@ export const getUseApiQuery =
       // The generated client already throws on error responses, which is what
       // react-query wants, so we don't have to handle the error case explicitly
       // here.
-      () => api[method](params).then((resp) => resp.data),
+      () =>
+        api[method](params)
+          .then((resp) => resp.data)
+          .catch(reloadIf401),
       options
     )
 
@@ -74,7 +96,9 @@ export const getUseApiMutation =
   ) =>
     useMutation(
       ({ body, ...params }) =>
-        api[method](params, body).then((resp) => resp.data),
+        api[method](params, body)
+          .then((resp) => resp.data)
+          .catch(reloadIf401),
       options
     )
 
