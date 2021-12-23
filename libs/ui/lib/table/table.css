@@ -39,6 +39,118 @@ tr:last-of-type td:last-of-type {
   border-right-width: 1px;
 }
 
-.ox-table tr:last-child td div {
+.ox-table tr:last-child td > div {
   border-bottom-width: 0px;
+}
+
+.ox-table .is-selected:not(.multi-selection) td:first-child > div {
+  border-top-left-radius: 0.125rem;
+  border-bottom-left-radius: 0.125rem;
+  box-shadow: -1px -1px rgb(72 213 151), -1px 1px rgb(72 213 151);
+  margin-right: -3px;
+}
+
+.ox-table .is-selected:not(.multi-selection) td:last-child > div {
+  border-top-right-radius: 0.125rem;
+  box-shadow: 1px -1px rgb(72 213 151), 1px 1px rgb(72 213 151);
+  border-bottom-right-radius: 0.125rem;
+}
+
+.ox-table .is-selected:not(.multi-selection) td:nth-last-child(2) > div {
+  margin-right: -3px;
+}
+
+.ox-table .is-selected:not(.multi-selection) td > div {
+  box-shadow: 0px 1px rgb(72 213 151), 0px -1px rgb(72 213 151);
+  margin-top: -2px;
+  padding-top: 2px;
+  margin-bottom: 0px;
+  border-bottom: 0;
+  height: 100%;
+}
+
+/* Defines the top border of a selection */
+.ox-table .is-selected td > div {
+  box-shadow: 0px -1px rgb(72 213 151);
+}
+
+/* Ensures subsequent, interior selected rows don't have a top border */
+.ox-table .multi-selection:not(.selection-start):not(.selection-end) td > div {
+  box-shadow: none;
+}
+
+/* Adds the selected border for the top left corner of a selection */
+.ox-table .selection-start td:first-child > div {
+  border-top-left-radius: 0.125rem;
+  box-shadow: -1px -1px rgb(72 213 151);
+  margin-right: -3px;
+}
+
+/* Ensures subsequent, interior selections have side borders */
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:first-child
+  > div {
+  box-shadow: -1px 0px rgb(72 213 151);
+}
+
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:last-child
+  > div {
+  box-shadow: 1px 0px rgb(72 213 151);
+}
+
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:first-child
+  > div,
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:last-child
+  > div {
+  /* This little piece of skulduggery is required to ensure the box-shadows touch and the content stays in place */
+  margin-top: -4px;
+  height: calc(100% + 5px);
+  padding-top: 3px;
+}
+
+/* Adds the selected border for the top right corner of a selection */
+.ox-table .selection-start td:last-child > div {
+  border-top-right-radius: 0.125rem;
+  box-shadow: 1px -1px rgb(72 213 151);
+}
+/* Ensures the top right border and the cell next to it have their box-shadows overlap */
+.ox-table .selection-start td:nth-last-child(2) > div {
+  margin-right: -3px;
+}
+
+.ox-table .selection-end td > div {
+  box-shadow: 0px 1px rgb(72 213 151);
+}
+
+.ox-table .selection-end td > div {
+  border-bottom: 0;
+  height: calc(100% + 3px);
+  margin-top: -4px;
+  padding-top: 2px;
+}
+
+.ox-table .selection-end:last-of-type td > div {
+  height: calc(100% + 5px);
+}
+
+/* Adds the selected border for the bottom left corner of a selection */
+.ox-table .selection-end td:first-child > div {
+  border-bottom-left-radius: 0.125rem;
+  box-shadow: -1px 1px rgb(72 213 151);
+  margin-right: -4px;
+}
+
+.ox-table .selection-end td:last-child > div {
+  border-bottom-right-radius: 0.125rem;
+  box-shadow: 1px 1px rgb(72 213 151);
+}
+.ox-table .selection-end td:nth-last-child(2) > div {
+  margin-right: -3px;
 }

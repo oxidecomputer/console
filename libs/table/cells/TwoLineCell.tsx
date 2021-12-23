@@ -6,6 +6,6 @@ export const TwoLineCell = ({
 }: Cell<[string | JSX.Element, string | JSX.Element]>) => (
   <div className="space-y-1 text-sans-sm">
     <div>{value[0]}</div>
-    <div className="text-gray-200">{value[1]}</div>
+    <div className="text-gray-200 selected:text-green-700">{value[1]}</div>
   </div>
 )

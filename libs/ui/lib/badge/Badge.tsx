@@ -28,7 +28,7 @@ export const badgeColors: Record<
     blue: 'bg-blue-500 text-black',
   },
   dim: {
-    green: 'bg-green-950 text-green-500',
+    green: 'bg-green-950 text-green-500 selected:bg-green-900',
     red: 'bg-red-900 text-red-500',
     yellow: 'bg-yellow-900 text-yellow-500',
     blue: 'bg-blue-900 text-blue-500',

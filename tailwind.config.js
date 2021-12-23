@@ -90,6 +90,7 @@ module.exports = {
       addVariant('svg', '& > svg')
       addVariant('children', '& > *')
       addVariant('between', '& > * + *')
+      addVariant('selected', '.is-selected &')
       addUtilities(
         Array.from({ length: 12 }, (_, i) => i)
           .map((i) => ({
