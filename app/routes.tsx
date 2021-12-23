@@ -54,10 +54,6 @@ export const routes = (
   <Routes>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<LoginPage />} />
-    {/* Nexus responds to GET /login with a redirect to a login form. But when we use 
-      the dev server, we only hit Nexus for API requests, not normal pageloads, so no
-      login redirect. This client-side nav simulates the login redirect. For now. */}
-    <Route path="login" element={<Navigate to="/spoof_login" />} />
 
     <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
