@@ -653,6 +653,14 @@ export type SagaState =
   | { error_info: SagaErrorInfo; error_node_name: string; state: 'failed' }
 
 /**
+ * Client view of currently authed user.
+ */
+export interface SessionUser {
+  /** @format uuid */
+  id: string
+}
+
+/**
  * Client view of an [`Sled`]
  */
 export interface Sled {
@@ -3271,7 +3279,7 @@ export class Api<
      * @request GET:/session/me
      */
     sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
-      this.request<User, any>({
+      this.request<SessionUser, any>({
         path: `/session/me`,
         method: 'GET',
         format: 'json',

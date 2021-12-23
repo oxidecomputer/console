@@ -2856,7 +2856,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/SessionUser"
                 }
               }
             }
@@ -4138,6 +4138,17 @@
             "required": ["error_info", "error_node_name", "state"]
           }
         ]
+      },
+      "SessionUser": {
+        "description": "Client view of currently authed user.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
       },
       "Sled": {
         "description": "Client view of an [`Sled`]",
