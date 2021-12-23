@@ -26,4 +26,4 @@ export const useApiQueryClient = getUseApiQueryClient<A>()
 
 export * from './__generated__/Api'
 export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
-export { LOGIN_REDIRECT_URL } from './hooks'
+export { loginRedirectUrl } from './hooks'

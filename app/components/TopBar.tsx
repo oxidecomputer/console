@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useApiQuery, useApiMutation, LOGIN_REDIRECT_URL } from '@oxide/api'
+import { loginRedirectUrl, useApiQuery, useApiMutation } from '@oxide/api'
 import { buttonStyle, Button } from '@oxide/ui'
 
 export function TopBar() {
@@ -9,7 +9,7 @@ export function TopBar() {
       // server will respond to /login with a login redirect
       // TODO-usability: do we just want to dump them back to login or is there
       // another page that would make sense, like a logged out homepage
-      window.location.href = LOGIN_REDIRECT_URL
+      window.location.href = loginRedirectUrl({ includeCurrent: false })
     },
   })
   const { data: user, error } = useApiQuery(

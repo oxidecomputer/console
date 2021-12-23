@@ -37,16 +37,22 @@ type ErrorData = {
 
 export type ErrorResponse = HttpResponse<null, ErrorData>
 
-export const LOGIN_REDIRECT_URL = '/login'
+export const loginRedirectUrl = (
+  opts: { includeCurrent: boolean } = { includeCurrent: false }
+) =>
+  opts.includeCurrent
+    ? // TODO: include query args too?
+      `/login?state=${encodeURIComponent(window.location.pathname)}`
+    : '/login'
 
 function reloadIf401(resp: ErrorResponse) {
-  // if logged out, refresh in order to trigger a login redirect on the server
+  // if logged out, hit /login to trigger login redirect
   if (resp.status === 401) {
     // TODO-usability: for background requests, a redirect to login without
     // warning could come as a surprise to the user, especially because
     // sometimes background requests are not directly triggered by a user
     // action, e.g., polling or refetching when window regains focus
-    window.location.href = LOGIN_REDIRECT_URL
+    window.location.href = loginRedirectUrl({ includeCurrent: true })
   }
   return resp
 }
