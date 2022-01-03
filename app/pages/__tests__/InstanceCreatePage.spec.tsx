@@ -93,17 +93,15 @@ describe('InstanceCreatePage', () => {
 
   it('navigates to project instances page on success', async () => {
     const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
-    const { history } = renderPage()
+    renderPage()
 
     const instancesPage = `/orgs/${org.name}/projects/${project.name}/instances`
-    expect(history.location.pathname).not.toEqual(instancesPage)
+    expect(window.location.pathname).not.toEqual(instancesPage)
 
     fireEvent.click(submitButton())
 
     await waitFor(() => expect(mock.called(instancesUrl)).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() =>
-      expect(history.location.pathname).toEqual(instancesPage)
-    )
+    await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
   })
 })

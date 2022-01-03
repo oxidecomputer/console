@@ -116,12 +116,12 @@ describe('ProjectCreatePage', () => {
     // instances fetch after success
     fetchMock.get(instancesUrl, { status: 200, body: { items: [] } })
 
-    const { history } = renderPage()
+    renderPage()
     const projectPath = `/orgs/${org.name}/projects/${project.name}/instances`
-    expect(history.location.pathname).not.toEqual(projectPath)
+    expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())
 
-    await waitFor(() => expect(history.location.pathname).toEqual(projectPath))
+    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
   })
 })

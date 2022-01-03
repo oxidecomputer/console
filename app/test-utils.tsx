@@ -1,9 +1,5 @@
 import React from 'react'
-import {
-  BrowserRouter,
-  unstable_HistoryRouter as HistoryRouter,
-} from 'react-router-dom'
-import { createMemoryHistory } from 'history'
+import { BrowserRouter } from 'react-router-dom'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import type { FetchMockStatic } from 'fetch-mock'
@@ -24,8 +20,9 @@ const customRender = (ui: React.ReactElement) =>
     ),
   })
 
-export const renderWithRouter = (ui: React.ReactElement) =>
-  render(ui, {
+export function renderAppAt(url: string) {
+  window.history.pushState({}, 'Test page', url)
+  return render(routes, {
     wrapper: ({ children }) => (
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
@@ -34,15 +31,6 @@ export const renderWithRouter = (ui: React.ReactElement) =>
       </BrowserRouter>
     ),
   })
-
-export function renderAppAt(location: string) {
-  const history = createMemoryHistory({ initialEntries: [location] })
-  const rendered = render(
-    <HistoryRouter history={history}>
-      <QueryClientProvider client={queryClient}>{routes}</QueryClientProvider>
-    </HistoryRouter>
-  )
-  return { history, rendered }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
