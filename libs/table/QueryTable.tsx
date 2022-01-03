@@ -175,8 +175,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
       [pageSize, tableData.length, (data as any)?.next_page]
     )
 
-    if (isLoading || (tableData.items?.length === 0 && !hasPrev))
-      return <div>loading</div>
+    if (isLoading || (tableData.items?.length === 0 && !hasPrev)) return null
 
     return (
       <>
