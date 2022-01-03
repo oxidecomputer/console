@@ -17,12 +17,14 @@ const instancesUrl = `${projectUrl}/instances`
 const disksUrl = `${projectUrl}/disks`
 const vpcsUrl = `${projectUrl}/vpcs`
 
+const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
+
 const renderPage = () => {
   // existing disk modal fetches disks on render even if it's not visible
   fetchMock.get(disksUrl, 200)
   fetchMock.get(vpcsUrl, 200)
   fetchMock.get(projectUrl, 200)
-  return renderAppAt(`/orgs/${org.name}/projects/${project.name}/instances/new`)
+  return renderAppAt(formUrl)
 }
 
 describe('InstanceCreatePage', () => {
@@ -30,8 +32,8 @@ describe('InstanceCreatePage', () => {
     fetchMock.reset()
   })
 
-  it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(instancesUrl, 201)
+  it('disables submit button on submit', async () => {
+    fetchMock.post(instancesUrl, 201)
     renderPage()
 
     const submit = submitButton()
@@ -39,9 +41,7 @@ describe('InstanceCreatePage', () => {
 
     fireEvent.click(submit)
 
-    expect(mock.called(instancesUrl)).toBeFalsy()
     await waitFor(() => expect(submit).toBeDisabled())
-    expect(mock.done()).toBeTruthy()
   })
 
   it('shows specific message for known server error code', async () => {
@@ -56,6 +56,8 @@ describe('InstanceCreatePage', () => {
     await screen.findByText(
       'An instance with that name already exists in this project'
     )
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows generic message for unknown server error', async () => {
@@ -68,6 +70,8 @@ describe('InstanceCreatePage', () => {
     fireEvent.click(submitButton())
 
     await screen.findByText('Unknown error from server')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('posts form on submit', async () => {

@@ -21,10 +21,12 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
+const formUrl = `/orgs/${org.name}/projects/new`
+
 const renderPage = () => {
   // fetch projects list for org layout sidebar on project create
   fetchMock.get(projectsUrl, { status: 200, body: { items: [] } })
-  const result = renderAppAt(`/orgs/${org.name}/projects/new`)
+  const result = renderAppAt(formUrl)
   enterName('valid-name')
   return result
 }
@@ -34,8 +36,8 @@ describe('ProjectCreatePage', () => {
     fetchMock.reset()
   })
 
-  it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(projectsUrl, { status: 201 })
+  it('disables submit button on submit', async () => {
+    fetchMock.post(projectsUrl, { status: 201 })
     renderPage()
 
     const submit = submitButton()
@@ -44,7 +46,6 @@ describe('ProjectCreatePage', () => {
     fireEvent.click(submit)
 
     await waitFor(() => expect(submit).toBeDisabled())
-    expect(mock.called(undefined, 'POST')).toBeTruthy()
   })
 
   it('shows message for known error code in project create code map', async () => {
@@ -59,6 +60,8 @@ describe('ProjectCreatePage', () => {
     await screen.findByText(
       'A project with that name already exists in this organization'
     )
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows message for known error code in global code map', async () => {
@@ -71,6 +74,8 @@ describe('ProjectCreatePage', () => {
     fireEvent.click(submitButton())
 
     await screen.findByText('Action not authorized')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows field-level validation error and does not POST', async () => {
@@ -79,6 +84,8 @@ describe('ProjectCreatePage', () => {
     fireEvent.click(submitButton())
 
     await screen.findByText('Must start with a lower-case letter')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows generic message for unknown server error', async () => {
@@ -91,6 +98,8 @@ describe('ProjectCreatePage', () => {
     fireEvent.click(submitButton())
 
     await screen.findByText('Unknown error from server')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('posts form on submit', async () => {
