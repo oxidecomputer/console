@@ -16,7 +16,35 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Check if packer files have changed
+        id: packer-files-changed
+        uses: tj-actions/changed-files@v12.2
+        with:
+          files: |
+            .github/workflows/packer.yaml
+            packer
+
+      - name: Stop if not changed
+        if: steps.packer-files-changed.outputs.any_changed == "false"
+        id: stop-if-changed
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run_id = "${{ github.run_id }}";
+            github.rest.actions.cancelWorkflowRun({
+              owner,
+              repo,
+              run_id
+            });
+
+      - name: Wait for cancellation
+        if: steps.packer-files-changed.outputs.any_changed == "false"
+        run: sleep 60
+
       - name: Set up Cloud SDK
+        if: steps.packer-files-changed.outputs.any_changed == "true"
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: ${{ secrets.GCP_PROJECT_PACKER }}
@@ -25,6 +53,7 @@ jobs:
 
       # validate templates
       - name: Validate Template
+        if: steps.packer-files-changed.outputs.any_changed == "true"
         uses: hashicorp/packer-github-actions@master
         with:
           command: validate
@@ -33,6 +62,7 @@ jobs:
 
       # build artifact
       - name: Build Artifact
+        if: steps.packer-files-changed.outputs.any_changed == "true"
         uses: hashicorp/packer-github-actions@master
         with:
           command: build
