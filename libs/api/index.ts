@@ -6,7 +6,6 @@ import {
 } from './hooks'
 import { Api } from './__generated__/Api'
 
-export * from './instance-can'
 export * from './__generated__/Api'
 export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
 

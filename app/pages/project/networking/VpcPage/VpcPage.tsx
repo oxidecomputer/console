@@ -4,13 +4,13 @@ import {
   PageHeader,
   PageTitle,
   PropertiesTable,
-  Tab,
-  Tabs,
 } from '@oxide/ui'
+import { Tabs, Tab } from '../../../../components/Tabs'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
 import { useParams } from '../../../../hooks'
+import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 
 export const VpcPage = () => {
   const { vpcName } = useParams('vpcName')
@@ -55,7 +55,9 @@ export const VpcPage = () => {
           <VpcRoutersTab />
         </Tab.Panel>
         <Tab>Firewall Rules</Tab>
-        <Tab.Panel>Not Implemented</Tab.Panel>
+        <Tab.Panel>
+          <VpcFirewallRulesTab />
+        </Tab.Panel>
         <Tab>Gateways</Tab>
         <Tab.Panel>Not implemented</Tab.Panel>
       </Tabs>

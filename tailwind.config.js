@@ -6,7 +6,7 @@ const plugin = require('tailwindcss/plugin')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
-  content: ['./libs/ui/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
+  content: ['./libs/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
   theme: {
     extend: {
       screens: {
