@@ -2232,7 +2232,7 @@ export class Api<
       data: LoginParams,
       params: RequestParams = {}
     ) =>
-      this.request<any, any>({
+      this.request<any, void>({
         path: `/login`,
         method: 'POST',
         body: data,
@@ -2247,7 +2247,7 @@ export class Api<
      * @request POST:/logout
      */
     logout: (query: LogoutParams, params: RequestParams = {}) =>
-      this.request<any, any>({
+      this.request<any, void>({
         path: `/logout`,
         method: 'POST',
         ...params,
