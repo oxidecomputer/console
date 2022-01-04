@@ -14,6 +14,7 @@ describe('routes', () => {
   })
 
   it('should render successfully', async () => {
+    fetchMock.get('/api/session/me', 200)
     fetchMock.get('/api/organizations/maze-war/projects', projects)
     const { findAllByText } = renderWithRouter(routes)
     await findAllByText(projects.items[0].name)

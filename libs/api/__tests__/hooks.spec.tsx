@@ -7,6 +7,8 @@ import { Response } from 'node-fetch'
 
 import { org, orgs } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
+import { redirectToLogin } from '../login-redirect'
+jest.mock('../login-redirect')
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -79,6 +81,12 @@ describe('useApiQuery', () => {
         expect(result.current.error?.data).toBeNull()
       })
     })
+
+    it('navigates to login if 401', async () => {
+      fetchMock.get('/api/organizations', 401)
+      renderGetOrgs()
+      await waitFor(() => expect(redirectToLogin).toHaveBeenCalled())
+    })
   })
 
   describe('on success response', () => {
@@ -135,6 +143,12 @@ describe('useApiMutation', () => {
         expect(result.current.error).toBeTruthy()
         expect(result.current.error?.data).toBeNull()
       })
+    })
+
+    it('navigates to login if 401', async () => {
+      fetchMock.post('/api/organizations', 401)
+      renderCreateOrg()
+      await waitFor(() => expect(redirectToLogin).toHaveBeenCalled())
     })
   })
 

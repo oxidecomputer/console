@@ -1,4 +1,6 @@
 import React from 'react'
+import fetchMock from 'fetch-mock'
+
 import {
   fireEvent,
   lastBody,
@@ -6,10 +8,7 @@ import {
   screen,
   waitFor,
 } from '../../test-utils'
-import fetchMock from 'fetch-mock'
-
 import { org, project } from '@oxide/api-mocks'
-
 import { ProjectCreateForm } from '../ProjectCreatePage'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
@@ -24,8 +23,9 @@ function enterName(value: string) {
 
 let successSpy: jest.Mock
 
-describe('ProjectCreateForm', () => {
+describe('ProjectCreatePage', () => {
   beforeEach(() => {
+    // fetchMock.get('/api/session/me', { status: 200, body: {} })
     successSpy = jest.fn()
     renderWithRouter(
       <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
@@ -33,9 +33,7 @@ describe('ProjectCreateForm', () => {
     enterName('valid-name')
   })
 
-  afterEach(() => {
-    fetchMock.reset()
-  })
+  afterEach(() => fetchMock.reset())
 
   it('disables submit button on submit and enables on response', async () => {
     const mock = fetchMock.post(projectsUrl, { status: 201 })
@@ -66,7 +64,7 @@ describe('ProjectCreateForm', () => {
 
   it('shows message for known error code in global code map', async () => {
     fetchMock.post(projectsUrl, {
-      status: 401,
+      status: 403,
       body: { error_code: 'Forbidden' },
     })
 
