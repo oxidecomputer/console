@@ -9,10 +9,6 @@ import { projects, sessionMe } from '@oxide/api-mocks'
 import { getRouteConfig } from './routes'
 
 describe('routes', () => {
-  afterEach(() => {
-    fetchMock.reset()
-  })
-
   it('should render successfully', async () => {
     fetchMock.get('/api/session/me', { status: 200, body: sessionMe })
     fetchMock.get('/api/organizations/maze-war/projects', projects)

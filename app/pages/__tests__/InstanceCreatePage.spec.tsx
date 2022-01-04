@@ -29,10 +29,6 @@ const renderPage = () => {
 }
 
 describe('InstanceCreatePage', () => {
-  afterEach(() => {
-    fetchMock.reset()
-  })
-
   it('disables submit button on submit', async () => {
     fetchMock.post(instancesUrl, 201)
     renderPage()

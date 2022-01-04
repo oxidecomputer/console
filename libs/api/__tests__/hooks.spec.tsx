@@ -37,10 +37,6 @@ const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
 }
 
-afterEach(() => {
-  fetchMock.reset()
-})
-
 describe('useApiQuery', () => {
   it('has correct initial state', () => {
     const { result } = renderGetOrgs()
@@ -147,7 +143,10 @@ describe('useApiMutation', () => {
 
     it('navigates to login if 401', async () => {
       fetchMock.post('/api/organizations', 401)
-      renderCreateOrg()
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
       await waitFor(() => expect(redirectToLogin).toHaveBeenCalled())
     })
   })
