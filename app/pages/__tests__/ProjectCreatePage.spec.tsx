@@ -1,6 +1,4 @@
 import React from 'react'
-import fetchMock from 'fetch-mock'
-
 import {
   fireEvent,
   lastBody,
@@ -8,7 +6,10 @@ import {
   screen,
   waitFor,
 } from '../../test-utils'
+import fetchMock from 'fetch-mock'
+
 import { org, project } from '@oxide/api-mocks'
+
 import { ProjectCreateForm } from '../ProjectCreatePage'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
@@ -25,7 +26,6 @@ let successSpy: jest.Mock
 
 describe('ProjectCreatePage', () => {
   beforeEach(() => {
-    // fetchMock.get('/api/session/me', { status: 200, body: {} })
     successSpy = jest.fn()
     renderWithRouter(
       <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
@@ -33,7 +33,9 @@ describe('ProjectCreatePage', () => {
     enterName('valid-name')
   })
 
-  afterEach(() => fetchMock.reset())
+  afterEach(() => {
+    fetchMock.reset()
+  })
 
   it('disables submit button on submit and enables on response', async () => {
     const mock = fetchMock.post(projectsUrl, { status: 201 })
