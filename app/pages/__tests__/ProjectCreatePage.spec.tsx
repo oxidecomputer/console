@@ -1,8 +1,7 @@
-import React from 'react'
 import {
   fireEvent,
-  lastBody,
-  renderWithRouter,
+  lastPostBody,
+  renderAppAt,
   screen,
   waitFor,
 } from '../../test-utils'
@@ -10,9 +9,9 @@ import fetchMock from 'fetch-mock'
 
 import { org, project } from '@oxide/api-mocks'
 
-import { ProjectCreateForm } from '../ProjectCreatePage'
-
 const projectsUrl = `/api/organizations/${org.name}/projects`
+const projectUrl = `${projectsUrl}/${project.name}`
+const instancesUrl = `${projectUrl}/instances?limit=10`
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create project' })
@@ -22,33 +21,31 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
-let successSpy: jest.Mock
+const formUrl = `/orgs/${org.name}/projects/new`
+
+const renderPage = () => {
+  // fetch projects list for org layout sidebar on project create
+  fetchMock.get(projectsUrl, { status: 200, body: { items: [] } })
+  const result = renderAppAt(formUrl)
+  enterName('valid-name')
+  return result
+}
 
 describe('ProjectCreatePage', () => {
-  beforeEach(() => {
-    successSpy = jest.fn()
-    renderWithRouter(
-      <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
-    )
-    enterName('valid-name')
-  })
-
   afterEach(() => {
     fetchMock.reset()
   })
 
-  it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(projectsUrl, { status: 201 })
+  it('disables submit button on submit', async () => {
+    fetchMock.post(projectsUrl, { status: 201 })
+    renderPage()
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
 
     fireEvent.click(submit)
 
-    expect(mock.called()).toBeFalsy()
     await waitFor(() => expect(submit).toBeDisabled())
-    expect(mock.done()).toBeTruthy()
-    expect(submit).not.toBeDisabled()
   })
 
   it('shows message for known error code in project create code map', async () => {
@@ -56,12 +53,15 @@ describe('ProjectCreatePage', () => {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
     })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await screen.findByText(
       'A project with that name already exists in this organization'
     )
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows message for known error code in global code map', async () => {
@@ -69,17 +69,23 @@ describe('ProjectCreatePage', () => {
       status: 403,
       body: { error_code: 'Forbidden' },
     })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await screen.findByText('Action not authorized')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows field-level validation error and does not POST', async () => {
+    renderPage()
     enterName('Invalid-name')
     fireEvent.click(submitButton())
 
     await screen.findByText('Must start with a lower-case letter')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows generic message for unknown server error', async () => {
@@ -87,34 +93,44 @@ describe('ProjectCreatePage', () => {
       status: 400,
       body: { error_code: 'UnknownCode' },
     })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await screen.findByText('Unknown error from server')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('posts form on submit', async () => {
     const mock = fetchMock.post(projectsUrl, { status: 201 })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await waitFor(() =>
-      expect(lastBody(mock)).toEqual({ name: 'valid-name', description: '' })
+      expect(lastPostBody(mock)).toEqual({
+        name: 'valid-name',
+        description: '',
+      })
     )
   })
 
-  it('calls onSuccess on success', async () => {
-    const mock = fetchMock.post(projectsUrl, {
+  it('navigates to project instances page on success', async () => {
+    fetchMock.post(projectsUrl, {
       status: 201,
       body: project,
     })
+    fetchMock.get(projectUrl, { status: 200 })
+    // instances fetch after success
+    fetchMock.get(instancesUrl, { status: 200, body: { items: [] } })
 
-    expect(successSpy).not.toHaveBeenCalled()
+    renderPage()
+    const projectPath = `/orgs/${org.name}/projects/${project.name}/instances`
+    expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())
 
-    await waitFor(() => expect(mock.called()).toBeTruthy())
-    await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(successSpy).toHaveBeenCalled())
+    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
   })
 })

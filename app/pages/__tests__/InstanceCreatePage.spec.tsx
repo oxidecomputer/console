@@ -1,16 +1,13 @@
-import React from 'react'
 import {
   fireEvent,
-  lastBody,
-  renderWithRouter,
+  lastPostBody,
+  renderAppAt,
   screen,
   waitFor,
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
 import { org, project, instance } from '@oxide/api-mocks'
-
-import { InstanceCreateForm } from '../project/instances/create/InstancesCreatePage'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
@@ -20,39 +17,31 @@ const instancesUrl = `${projectUrl}/instances`
 const disksUrl = `${projectUrl}/disks`
 const vpcsUrl = `${projectUrl}/vpcs`
 
-let successSpy: jest.Mock
+const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
 
-describe('InstanceCreateForm', () => {
-  beforeEach(() => {
-    // existing disk modal fetches disks on render even if it's not visible
-    fetchMock.get(disksUrl, 200)
-    fetchMock.get(vpcsUrl, 200)
-    successSpy = jest.fn()
-    renderWithRouter(
-      <InstanceCreateForm
-        orgName={org.name}
-        projectName={project.name}
-        onSuccess={successSpy}
-      />
-    )
-  })
+const renderPage = () => {
+  // existing disk modal fetches disks on render even if it's not visible
+  fetchMock.get(disksUrl, 200)
+  fetchMock.get(vpcsUrl, 200)
+  fetchMock.get(projectUrl, 200)
+  return renderAppAt(formUrl)
+}
 
+describe('InstanceCreatePage', () => {
   afterEach(() => {
     fetchMock.reset()
   })
 
-  it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(instancesUrl, 201)
+  it('disables submit button on submit', async () => {
+    fetchMock.post(instancesUrl, 201)
+    renderPage()
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
 
     fireEvent.click(submit)
 
-    expect(mock.called(instancesUrl)).toBeFalsy()
     await waitFor(() => expect(submit).toBeDisabled())
-    expect(mock.done()).toBeTruthy()
-    expect(submit).not.toBeDisabled()
   })
 
   it('shows specific message for known server error code', async () => {
@@ -60,12 +49,15 @@ describe('InstanceCreateForm', () => {
       status: 400,
       body: { error_code: 'ObjectAlreadyExists' },
     })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await screen.findByText(
       'An instance with that name already exists in this project'
     )
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows generic message for unknown server error', async () => {
@@ -73,14 +65,18 @@ describe('InstanceCreateForm', () => {
       status: 400,
       body: { error_code: 'UnknownCode' },
     })
+    renderPage()
 
     fireEvent.click(submitButton())
 
     await screen.findByText('Unknown error from server')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('posts form on submit', async () => {
     const mock = fetchMock.post(instancesUrl, 201)
+    renderPage()
 
     fireEvent.change(screen.getByLabelText('Choose a name'), {
       target: { value: 'new-instance' },
@@ -89,7 +85,7 @@ describe('InstanceCreateForm', () => {
     fireEvent.click(submitButton())
 
     await waitFor(() =>
-      expect(lastBody(mock)).toEqual({
+      expect(lastPostBody(mock)).toEqual({
         name: 'new-instance',
         description: 'An instance in project: mock-project',
         hostname: '',
@@ -99,15 +95,17 @@ describe('InstanceCreateForm', () => {
     )
   })
 
-  it('calls onSuccess on success', async () => {
+  it('navigates to project instances page on success', async () => {
     const mock = fetchMock.post(instancesUrl, { status: 201, body: instance })
+    renderPage()
 
-    expect(successSpy).not.toHaveBeenCalled()
+    const instancesPage = `/orgs/${org.name}/projects/${project.name}/instances`
+    expect(window.location.pathname).not.toEqual(instancesPage)
 
     fireEvent.click(submitButton())
 
     await waitFor(() => expect(mock.called(instancesUrl)).toBeTruthy())
     await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(successSpy).toHaveBeenCalled())
+    await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
   })
 })

@@ -1,8 +1,9 @@
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import type { FetchMockStatic } from 'fetch-mock'
+import { routes } from './routes'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,20 +20,22 @@ const customRender = (ui: React.ReactElement) =>
     ),
   })
 
-export const renderWithRouter = (ui: React.ReactElement) =>
-  render(ui, {
+export function renderAppAt(url: string) {
+  window.history.pushState({}, 'Test page', url)
+  return render(routes, {
     wrapper: ({ children }) => (
-      <Router>
+      <BrowserRouter>
         <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>
-      </Router>
+      </BrowserRouter>
     ),
   })
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const lastBody = (mock: FetchMockStatic): any =>
-  JSON.parse(mock.lastOptions()?.body as unknown as string)
+export const lastPostBody = (mock: FetchMockStatic): any =>
+  JSON.parse(mock.lastOptions(undefined, 'POST')?.body as unknown as string)
 
 export * from '@testing-library/react'
 export { customRender as render }
