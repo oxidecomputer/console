@@ -11,6 +11,7 @@ sudo apt install -y --no-install-recommends \
 
 # Start tailscale.
 export TAILSCALE_MACHINE_KEY=$(cat /etc/tailscale/machine_key | tr -d '[:space:]')
+echo "TAILSCALE_MACHINE_KEY = $TAILSCALE_MACHINE_KEY"
 tailscale up --authkey=${TAILSCALE_MACHINE_KEY}
 sleep 5
 
@@ -52,7 +53,7 @@ oxapi_demo organization_create_demo theranos
 # Create projects
 
 oxapi_demo project_create_demo maze-war prod-online
-oxapi_demo project_create_demo maze-war release-infrastructure 
+oxapi_demo project_create_demo maze-war release-infrastructure
 oxapi_demo project_create_demo maze-war rendering
 oxapi_demo project_create_demo maze-war test-infrastructure
 
