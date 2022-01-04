@@ -5,7 +5,12 @@ import cn from 'classnames'
 import { useApiQuery } from '@oxide/api'
 import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
-import { ContentPane, PageContainer, Sidebar } from './helpers'
+import {
+  ContentPane,
+  ContentPaneWrapper,
+  PageContainer,
+  Sidebar,
+} from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
@@ -51,12 +56,14 @@ const OrgLayout = () => (
     <Sidebar>
       <ProjectList className="mt-14 px-3" />
     </Sidebar>
-    <ContentPane>
-      <TopBar />
-      <Breadcrumbs />
-      <SkipLinkTarget />
-      <Outlet />
-    </ContentPane>
+    <ContentPaneWrapper>
+      <ContentPane>
+        <TopBar />
+        <Breadcrumbs />
+        <SkipLinkTarget />
+        <Outlet />
+      </ContentPane>
+    </ContentPaneWrapper>
   </PageContainer>
 )
 

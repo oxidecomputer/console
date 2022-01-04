@@ -52,7 +52,7 @@ oxapi_demo organization_create_demo theranos
 # Create projects
 
 oxapi_demo project_create_demo maze-war prod-online
-oxapi_demo project_create_demo maze-war release-infrastructure 
+oxapi_demo project_create_demo maze-war release-infrastructure
 oxapi_demo project_create_demo maze-war rendering
 oxapi_demo project_create_demo maze-war test-infrastructure
 
