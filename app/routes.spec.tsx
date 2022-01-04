@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { matchRoutes } from 'react-router'
-import { renderWithRouter } from './test-utils'
+import { renderAppAt } from './test-utils'
 import fetchMock from 'fetch-mock'
 
 import { projects } from '@oxide/api-mocks'
 
-import { routes, getRouteConfig } from './routes'
+import { getRouteConfig } from './routes'
 
 describe('routes', () => {
   afterEach(() => {
@@ -15,7 +15,7 @@ describe('routes', () => {
 
   it('should render successfully', async () => {
     fetchMock.get('/api/organizations/maze-war/projects', projects)
-    const { findAllByText } = renderWithRouter(routes)
+    const { findAllByText } = renderAppAt('/')
     await findAllByText(projects.items[0].name)
   })
 })
