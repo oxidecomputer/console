@@ -4,7 +4,7 @@ import type {
   UseQueryOptions,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { redirectToLogin } from './login-redirect'
+import { navToLogin } from './nav-to-login'
 
 import type { HttpResponse } from './__generated__/Api'
 
@@ -45,7 +45,7 @@ function loginRedirectIf401(resp: ErrorResponse) {
     // warning could come as a surprise to the user, especially because
     // sometimes background requests are not directly triggered by a user
     // action, e.g., polling or refetching when window regains focus
-    redirectToLogin({ includeCurrent: true })
+    navToLogin({ includeCurrent: true })
   }
   // we need to rethrow because that's how react-query knows it's an error
   throw resp

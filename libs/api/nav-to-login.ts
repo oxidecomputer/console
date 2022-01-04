@@ -1,7 +1,7 @@
 // this is only a separate module so we can easily mock it in tests. jsdom
 // doesn't support navigation
 
-export function redirectToLogin(
+export function navToLogin(
   opts: { includeCurrent: boolean } = { includeCurrent: false }
 ) {
   const url = opts.includeCurrent
