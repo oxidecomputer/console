@@ -11,8 +11,7 @@ sudo apt install -y --no-install-recommends \
 
 # Start tailscale.
 export TAILSCALE_MACHINE_KEY=$(cat /etc/tailscale/machine_key | tr -d '[:space:]')
-echo "TAILSCALE_MACHINE_KEY = $TAILSCALE_MACHINE_KEY"
-tailscale up --force-reauth --authkey=${TAILSCALE_MACHINE_KEY}
+tailscale up --authkey=${TAILSCALE_MACHINE_KEY}
 sleep 5
 
 # Get the IP of the instance.
