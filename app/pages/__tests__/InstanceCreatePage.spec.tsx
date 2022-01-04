@@ -7,7 +7,7 @@ import {
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
-import { org, project, instance } from '@oxide/api-mocks'
+import { org, project, instance, sessionMe } from '@oxide/api-mocks'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
@@ -21,6 +21,7 @@ const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
 
 const renderPage = () => {
   // existing disk modal fetches disks on render even if it's not visible
+  fetchMock.get('/api/session/me', { status: 200, body: sessionMe })
   fetchMock.get(disksUrl, 200)
   fetchMock.get(vpcsUrl, 200)
   fetchMock.get(projectUrl, 200)
