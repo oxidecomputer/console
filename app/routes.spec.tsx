@@ -4,7 +4,7 @@ import { matchRoutes } from 'react-router'
 import { renderWithRouter } from './test-utils'
 import fetchMock from 'fetch-mock'
 
-import { projects } from '@oxide/api-mocks'
+import { projects, sessionMe } from '@oxide/api-mocks'
 
 import { routes, getRouteConfig } from './routes'
 
@@ -14,7 +14,7 @@ describe('routes', () => {
   })
 
   it('should render successfully', async () => {
-    fetchMock.get('/api/session/me', 200)
+    fetchMock.get('/api/session/me', { status: 200, body: sessionMe })
     fetchMock.get('/api/organizations/maze-war/projects', projects)
     const { findAllByText } = renderWithRouter(routes)
     await findAllByText(projects.items[0].name)
