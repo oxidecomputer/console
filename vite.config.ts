@@ -40,6 +40,10 @@ export default defineConfig({
         target: 'http://localhost:12220',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      // We want to actually hit Nexus for this because it gives us a login redirect
+      '/login': {
+        target: 'http://localhost:12220',
+      },
     },
   },
 })

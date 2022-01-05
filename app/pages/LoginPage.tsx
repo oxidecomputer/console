@@ -21,7 +21,6 @@ import { useToast } from '../hooks'
 export default function LoginPage() {
   const navigate = useNavigate()
   const addToast = useToast()
-  // TODO these are not under organizations. annoying. should really just use plain react-query
   const loginPost = useApiMutation('spoofLogin', {
     onSuccess: () => {
       addToast({

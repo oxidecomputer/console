@@ -7,7 +7,7 @@ import {
 } from '../../test-utils'
 import fetchMock from 'fetch-mock'
 
-import { org, project } from '@oxide/api-mocks'
+import { org, project, projects, sessionMe } from '@oxide/api-mocks'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
 const projectUrl = `${projectsUrl}/${project.name}`
@@ -25,7 +25,8 @@ const formUrl = `/orgs/${org.name}/projects/new`
 
 const renderPage = () => {
   // fetch projects list for org layout sidebar on project create
-  fetchMock.get(projectsUrl, { status: 200, body: { items: [] } })
+  fetchMock.get('/api/session/me', { status: 200, body: sessionMe })
+  fetchMock.get(projectsUrl, { status: 200, body: projects })
   const result = renderAppAt(formUrl)
   enterName('valid-name')
   return result
@@ -66,7 +67,7 @@ describe('ProjectCreatePage', () => {
 
   it('shows message for known error code in global code map', async () => {
     fetchMock.post(projectsUrl, {
-      status: 401,
+      status: 403,
       body: { error_code: 'Forbidden' },
     })
     renderPage()

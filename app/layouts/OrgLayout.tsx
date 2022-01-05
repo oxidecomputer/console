@@ -12,6 +12,7 @@ import {
   Sidebar,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 
 const ProjectList = (props: { className?: string }) => {
@@ -57,6 +58,7 @@ const OrgLayout = () => (
     </Sidebar>
     <ContentPaneWrapper>
       <ContentPane>
+        <TopBar />
         <Breadcrumbs />
         <SkipLinkTarget />
         <Outlet />

@@ -6,12 +6,7 @@ import {
 } from './hooks'
 import { Api } from './__generated__/Api'
 
-export * from './__generated__/Api'
-export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
-
-const basePath = process.env.API_URL ?? '/api'
-
-const api = new Api({ baseUrl: basePath })
+const api = new Api({ baseUrl: process.env.API_URL ?? '/api' })
 
 type A = typeof api.methods
 
@@ -28,3 +23,7 @@ export type ApiListMethods = {
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 export const useApiQueryClient = getUseApiQueryClient<A>()
+
+export * from './__generated__/Api'
+export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
+export { navToLogin } from './nav-to-login'
