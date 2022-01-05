@@ -5,6 +5,7 @@ import { Button } from '../button/Button'
 import { pluckFirstOfType } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
 import { Close12Icon } from '../icons'
+import cn from 'classnames'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -27,7 +28,7 @@ export function SideModal({
       id={id}
       onDismiss={onDismiss}
       {...dialogProps}
-      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-gray-500 border-l border-gray-400"
+      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-black border-l border-gray-400"
       aria-labelledby={titleId}
     >
       <div
@@ -51,8 +52,16 @@ export function SideModal({
   )
 }
 
-SideModal.Section = ({ children }: ChildrenProp) => (
-  <div className="p-8 space-y-6 border-gray-400">{children}</div>
+SideModal.Section = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) => (
+  <div className={cn('p-8 space-y-6 border-gray-400', className)}>
+    {children}
+  </div>
 )
 
 SideModal.Docs = ({ children }: ChildrenProp) => (

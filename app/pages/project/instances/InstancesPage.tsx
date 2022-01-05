@@ -49,7 +49,7 @@ export const InstancesPage = () => {
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
           className={buttonStyle({ size: 'xs', variant: 'dim' })}
         >
-          new instance
+          New Instance
         </Link>
       </div>
       <Table selectable actions={actions}>
