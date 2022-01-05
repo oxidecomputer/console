@@ -1,12 +1,16 @@
 // this is only a separate module so we can easily mock it in tests. jsdom
 // doesn't support navigation
 
-export function navToLogin(
+export function loginUrl(
   opts: { includeCurrent: boolean } = { includeCurrent: false }
 ) {
-  const url = opts.includeCurrent
+  const { pathname, search } = window.location
+  return opts.includeCurrent
     ? // TODO: include query args too?
-      `/login?state=${encodeURIComponent(window.location.pathname)}`
+      `/login?state=${encodeURIComponent(pathname + search)}`
     : '/login'
-  window.location.assign(url)
+}
+
+export function navToLogin(opts: { includeCurrent: boolean }) {
+  window.location.assign(loginUrl(opts))
 }

@@ -38,7 +38,7 @@ type ErrorData = {
 
 export type ErrorResponse = HttpResponse<null, ErrorData>
 
-function loginRedirectIf401(resp: ErrorResponse) {
+function navToLoginIf401(resp: ErrorResponse) {
   // if logged out, hit /login to trigger login redirect
   if (resp.status === 401) {
     // TODO-usability: for background requests, a redirect to login without
@@ -79,7 +79,7 @@ export const getUseApiQuery =
       () =>
         api[method](params)
           .then((resp) => resp.data)
-          .catch(loginRedirectIf401),
+          .catch(navToLoginIf401),
       options
     )
 
@@ -93,7 +93,7 @@ export const getUseApiMutation =
       ({ body, ...params }) =>
         api[method](params, body)
           .then((resp) => resp.data)
-          .catch(loginRedirectIf401),
+          .catch(navToLoginIf401),
       options
     )
 
