@@ -64,7 +64,7 @@ export function CreateVpcSubnetModal({
           <SideModal.Section>
             <div className="space-y-0.5">
               <FieldTitle htmlFor="subnet-ipv4-block" tip="TBA">
-                IPv6 block
+                IPv4 block
               </FieldTitle>
               <TextField id="subnet-ipv4-block" name="ipv4Block" />
             </div>
@@ -87,8 +87,7 @@ export function CreateVpcSubnetModal({
                 htmlFor="subnet-description"
                 tip="A description for the subnet"
               >
-                Description (optional)
-                {/* TODO: optional should be lighter font */}
+                Description {/* TODO: indicate optional */}
               </FieldTitle>
               <TextField id="subnet-description" name="description" />
             </div>
