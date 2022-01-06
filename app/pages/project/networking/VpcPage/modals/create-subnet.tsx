@@ -3,6 +3,7 @@ import { Formik, Form } from 'formik'
 
 import { Button, FieldTitle, SideModal, TextField } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { getServerError } from '../../../../../util/errors'
 
 type Props = {
   isOpen: boolean
@@ -25,10 +26,16 @@ export function CreateVpcSubnetModal({
     vpcName,
   }
   const queryClient = useApiQueryClient()
+
+  function dismiss() {
+    createSubnet.reset()
+    onDismiss()
+  }
+
   const createSubnet = useApiMutation('vpcSubnetsPost', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
-      onDismiss()
+      dismiss()
     },
   })
   const formId = 'create-vpc-subnet-form'
@@ -37,7 +44,7 @@ export function CreateVpcSubnetModal({
       id="create-vpc-subnet-modal"
       title="Create subnet"
       isOpen={isOpen}
-      onDismiss={onDismiss}
+      onDismiss={dismiss}
     >
       <Formik
         initialValues={{
@@ -92,10 +99,15 @@ export function CreateVpcSubnetModal({
               <TextField id="subnet-description" name="description" />
             </div>
           </SideModal.Section>
+          <SideModal.Section>
+            <div className="text-red-500">
+              {getServerError(createSubnet.error)}
+            </div>
+          </SideModal.Section>
         </Form>
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={onDismiss}>
+        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">

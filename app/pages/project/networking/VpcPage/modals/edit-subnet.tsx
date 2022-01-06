@@ -4,6 +4,7 @@ import { Formik, Form } from 'formik'
 import { Button, FieldTitle, SideModal, TextField } from '@oxide/ui'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { getServerError } from '../../../../../util/errors'
 
 type Props = {
   onDismiss: () => void
@@ -26,10 +27,17 @@ export function EditVpcSubnetModal({
     vpcName,
   }
   const queryClient = useApiQueryClient()
+
+  function dismiss() {
+    updateSubnet.reset()
+    onDismiss()
+  }
+
   const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
-      onDismiss()
+      updateSubnet.reset()
+      dismiss()
     },
   })
 
@@ -40,7 +48,7 @@ export function EditVpcSubnetModal({
     <SideModal
       id="edit-vpc-subnet-modal"
       title="Edit subnet"
-      onDismiss={onDismiss}
+      onDismiss={dismiss}
     >
       <Formik
         initialValues={{
@@ -95,10 +103,15 @@ export function EditVpcSubnetModal({
               <TextField id="subnet-description" name="description" />
             </div>
           </SideModal.Section>
+          <SideModal.Section>
+            <div className="text-red-500">
+              {getServerError(updateSubnet.error)}
+            </div>
+          </SideModal.Section>
         </Form>
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={onDismiss}>
+        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
