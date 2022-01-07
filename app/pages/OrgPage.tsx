@@ -7,9 +7,7 @@ import { useParams } from '../hooks'
 
 export default function OrgPage() {
   const { orgName } = useParams('orgName')
-  const { data: org } = useApiQuery('organizationsGetOrganization', {
-    organizationName: orgName,
-  })
+  const { data: org } = useApiQuery('organizationsGetOrganization', { orgName })
 
   if (!org) return null
 

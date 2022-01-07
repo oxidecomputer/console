@@ -21,7 +21,6 @@ yarn swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
   --extract-request-body # weirdly this doesn't do anything
 
 sed -i '' 's/organizationName/orgName/g' "$GEN_DIR/Api.ts"
-
 yarn fmt --loglevel error "{$GEN_DIR,$SPEC_FILE}"
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF

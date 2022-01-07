@@ -33,13 +33,11 @@ export default function ProjectCreatePage() {
   const createProject = useApiMutation('organizationProjectsPost', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('organizationProjectsGet', {
-        organizationName: orgName,
-      })
+      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'organizationProjectsGetProject',
-        { organizationName: orgName, projectName: project.name },
+        { orgName, projectName: project.name },
         project
       )
       addToast({
@@ -63,7 +61,7 @@ export default function ProjectCreatePage() {
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
           createProject.mutate({
-            organizationName: orgName,
+            orgName,
             body: { name, description },
           })
         }}

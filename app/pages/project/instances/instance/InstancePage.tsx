@@ -15,19 +15,14 @@ import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 
 export const InstancePage = () => {
-  const {
-    orgName: organizationName,
-    projectName,
-    instanceName,
-  } = useParams('orgName', 'projectName', 'instanceName')
-  // const { Table, Column } = useQueryTable('projectInstancesGetInstance', {
-  //   organizationName,
-  //   projectName,
-  //   instanceName,
-  // })
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
 
   const { data: instance } = useApiQuery('projectInstancesGetInstance', {
-    organizationName,
+    orgName,
     projectName,
     instanceName,
   })
