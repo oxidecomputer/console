@@ -9,7 +9,7 @@
     "ci": "yarn tsc && yarn lint && yarn test",
     "test": "jest",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
-    "fmt": "prettier --write .",
+    "fmt": "prettier --write",
     "gen": "plop",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache",

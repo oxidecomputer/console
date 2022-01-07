@@ -20,7 +20,9 @@ yarn swagger-typescript-api -p $SPEC_FILE -o $GEN_DIR \
   --extract-request-params \
   --extract-request-body # weirdly this doesn't do anything
 
-yarn fmt --loglevel error
+sed -i '' 's/organizationName/orgName/g' "$GEN_DIR/Api.ts"
+
+yarn fmt --loglevel error "{$GEN_DIR,$SPEC_FILE}"
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
