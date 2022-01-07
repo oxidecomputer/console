@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 import { cloneElement } from 'react'
 import React from 'react'
 
-import { classed } from '../util/classed'
+import { classed } from '@oxide/util'
 
 export const PageHeader = classed.header`flex items-center justify-between mb-16 mt-4`
 

@@ -2,10 +2,9 @@ import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
-import { pluckFirstOfType } from '@oxide/util'
+import { classed, pluckFirstOfType } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
 import { Close12Icon } from '../icons'
-import cn from 'classnames'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -52,17 +51,7 @@ export function SideModal({
   )
 }
 
-SideModal.Section = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode
-  className?: string
-}) => (
-  <div className={cn('p-8 space-y-6 border-gray-400', className)}>
-    {children}
-  </div>
-)
+SideModal.Section = classed.div`p-8 space-y-6 border-gray-400`
 
 SideModal.Docs = ({ children }: ChildrenProp) => (
   <SideModal.Section>
