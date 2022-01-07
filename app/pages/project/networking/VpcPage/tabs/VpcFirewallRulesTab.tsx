@@ -9,16 +9,9 @@ import React from 'react'
 import { useParams } from '../../../../../hooks'
 
 export const VpcFirewallRulesTab = () => {
-  const { orgName: organizationName, ...other } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcFirewallRulesGet', {
-    organizationName,
-    ...other,
-  })
+  const { Table, Column } = useQueryTable('vpcFirewallRulesGet', vpcParams)
 
   return (
     <Table selectable>

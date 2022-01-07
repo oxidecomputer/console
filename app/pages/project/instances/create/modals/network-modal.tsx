@@ -16,10 +16,7 @@ export function NetworkModal({
   orgName,
   projectName,
 }: Props) {
-  const { data: vpcs } = useApiQuery('projectVpcsGet', {
-    organizationName: orgName,
-    projectName,
-  })
+  const { data: vpcs } = useApiQuery('projectVpcsGet', { orgName, projectName })
   const vpcItems = vpcs?.items.map((v) => ({ value: v.id, label: v.name }))
   return (
     <SideModal

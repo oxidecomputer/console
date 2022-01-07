@@ -17,7 +17,7 @@ function AttachedInstance(props: {
   // name. Fetch the whole list (default page size is 100 I think) and find the
   // instance client-side. Fortunately, React Query dedupes the request.
   const { data: instances } = useApiQuery('projectInstancesGet', {
-    organizationName: props.orgName,
+    orgName: props.orgName,
     projectName: props.projectName,
   })
   const instance = instances?.items.find((i) => i.id === props.instanceId)
@@ -32,7 +32,7 @@ export function DisksPage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable(
     'projectDisksGet',
-    { organizationName: orgName, projectName },
+    { orgName, projectName },
     { refetchInterval: 5000 }
   )
 
