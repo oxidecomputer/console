@@ -1,4 +1,5 @@
 import React from 'react'
+import { format } from 'date-fns'
 import {
   Networking24Icon,
   PageHeader,
@@ -11,9 +12,22 @@ import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
 import { useParams } from '../../../../hooks'
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
+import { useApiQuery } from '@oxide/api'
+
+const formatDateTime = (s: string) => format(new Date(s), 'MMM d, yyyy H:mm aa')
 
 export const VpcPage = () => {
-  const { vpcName } = useParams('vpcName')
+  const { orgName, projectName, vpcName } = useParams(
+    'orgName',
+    'projectName',
+    'vpcName'
+  )
+  const { data: vpc } = useApiQuery('projectVpcsGetVpc', {
+    organizationName: orgName,
+    projectName,
+    vpcName,
+  })
+
   return (
     <>
       <PageHeader>
@@ -25,18 +39,18 @@ export const VpcPage = () => {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
-            Default network for the project
+            {vpc?.description}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="DNS Name">
-            frontend-production-vpc
+            {vpc?.dnsName}
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">
-            Default network for the project
+            {vpc?.timeCreated && formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            Default network for the project
+            {vpc?.timeModified && formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

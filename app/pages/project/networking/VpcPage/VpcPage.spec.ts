@@ -1,32 +1,85 @@
 import {
   fireEvent,
-  // logRoles,
+  lastPostBody,
   renderAppAt,
   screen,
-  // userEvent,
+  userEvent,
+  waitForElementToBeRemoved,
 } from '../../../../test-utils'
+import fetchMock from 'fetch-mock'
+import {
+  org,
+  project,
+  vpc,
+  vpcSubnet,
+  vpcSubnet2,
+  vpcSubnets,
+} from '@oxide/api-mocks'
+
+const vpcUrl = `/api/organizations/${org.name}/projects/${project.name}/vpcs/default`
+const subnetsUrl = `${vpcUrl}/subnets`
+const getSubnetsUrl = `${subnetsUrl}?limit=10`
 
 describe('VpcPage', () => {
   describe('subnets tab', () => {
-    it('does something', async () => {
-      renderAppAt('/orgs/maze-war/projects/prod-online/vpcs/default')
+    it('creating a subnet works', async () => {
+      fetchMock.get(vpcUrl, { status: 200, body: vpc })
+      fetchMock.getOnce(getSubnetsUrl, { status: 200, body: vpcSubnets })
+      const postMock = fetchMock.postOnce(subnetsUrl, {
+        status: 201,
+        body: vpcSubnet2,
+      })
+
+      renderAppAt('/orgs/mock-org/projects/mock-project/vpcs/default')
       screen.getByText('Subnets')
-      const newSubnet = screen.getByRole('button', { name: 'New subnet' })
-      expect(screen.queryByRole('button', { name: 'Create subnet' })).toBeNull()
-      fireEvent.click(newSubnet)
 
-      // const ipv4 = screen.getByRole('textbox', { name: 'IPv4 block' })
-      // const ipv6 = screen.getByRole('textbox', { name: 'IPv6 block' })
-      // const name = screen.getByRole('textbox', { name: 'Name' })
+      // wait for subnet to show up in the table
+      await screen.findByRole('cell', { name: vpcSubnet.identity.name })
 
-      // this pisses off testing library, "formik change outside of act()". ugh
-      // userEvent.type(ipv4, 'new-subnet')
+      // modal is not already open
+      expect(screen.queryByRole('dialog', { name: 'Create subnet' })).toBeNull()
 
-      // const form = document.getElementById('create-vpc-subnet-form')!
-      // screen.debug(form, 10000)
-      // logRoles(form)
+      // click button to open modal
+      fireEvent.click(screen.getByRole('button', { name: 'New subnet' }))
 
-      // const submit = screen.getByRole('button', { name: 'Create subnet' })
+      // modal is open
+      screen.getByRole('dialog', { name: 'Create subnet' })
+
+      const ipv4 = screen.getByRole('textbox', { name: 'IPv4 block' })
+      userEvent.type(ipv4, '1.1.1.2/24')
+
+      const name = screen.getByRole('textbox', { name: 'Name' })
+      userEvent.type(name, 'mock-subnet-2')
+
+      // override the subnets GET to include both subnets
+      fetchMock.getOnce(
+        getSubnetsUrl,
+        {
+          status: 200,
+          body: { items: [vpcSubnet, vpcSubnet2] },
+        },
+        { overwriteRoutes: true }
+      )
+
+      // submit the form
+      fireEvent.click(screen.getByRole('button', { name: 'Create subnet' }))
+
+      // wait for modal to close
+      await waitForElementToBeRemoved(() =>
+        screen.queryByRole('dialog', { name: 'Create subnet' })
+      )
+
+      // it posted the form
+      expect(lastPostBody(postMock)).toEqual({
+        ipv4Block: '1.1.1.2/24',
+        ipv6Block: null,
+        name: 'mock-subnet-2',
+        description: '',
+      })
+
+      // table should refetch and now include second subnet
+      screen.getByRole('cell', { name: vpcSubnet.identity.name })
+      screen.getByRole('cell', { name: vpcSubnet2.identity.name })
     })
   })
 })
