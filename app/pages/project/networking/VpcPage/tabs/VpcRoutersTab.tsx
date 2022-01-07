@@ -3,16 +3,9 @@ import { useParams } from '../../../../../hooks'
 import { useQueryTable, DateCell, LabelCell } from '@oxide/table'
 
 export const VpcRoutersTab = () => {
-  const { orgName: organizationName, ...other } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcRoutersGet', {
-    organizationName,
-    ...other,
-  })
+  const { Table, Column } = useQueryTable('vpcRoutersGet', vpcParams)
 
   return (
     <Table selectable>

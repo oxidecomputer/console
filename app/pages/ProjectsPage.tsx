@@ -14,9 +14,7 @@ import { useParams } from '../hooks'
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
-  const { data } = useApiQuery('organizationProjectsGet', {
-    organizationName: orgName,
-  })
+  const { data } = useApiQuery('organizationProjectsGet', { orgName })
 
   if (!data) return null
 

@@ -34,7 +34,7 @@ export function StorageTab() {
   )
   const { data } = useApiQuery(
     'instanceDisksGet',
-    { organizationName: orgName, projectName, instanceName },
+    { orgName, projectName, instanceName },
     { refetchInterval: 5000 }
   )
 

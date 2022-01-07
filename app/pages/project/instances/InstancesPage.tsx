@@ -16,18 +16,15 @@ import { useInstanceActions } from './actions'
 export const InstancesPage = () => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { data: project } = useApiQuery('organizationProjectsGetProject', {
-    organizationName: orgName,
+    orgName,
     projectName,
   })
 
-  const actions = useInstanceActions({ organizationName: orgName, projectName })
+  const actions = useInstanceActions({ orgName, projectName })
 
   const { Table, Column } = useQueryTable(
     'projectInstancesGet',
-    {
-      organizationName: orgName,
-      projectName,
-    },
+    { orgName, projectName },
     {
       refetchInterval: 5000,
       keepPreviousData: true,

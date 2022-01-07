@@ -91,7 +91,7 @@ export default function InstanceCreatePage() {
             ) || { memory: 0, ncpus: 0 }
 
             createInstance.mutate({
-              organizationName: orgName,
+              orgName,
               projectName,
               body: {
                 name: values['instance-name'],
