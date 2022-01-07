@@ -3,8 +3,7 @@ import { useParams } from '../../../../../hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
 import { Button } from '@oxide/ui'
-import { CreateVpcSubnetModal } from '../modals/CreateVpcSubnetModal'
-import { EditVpcSubnetModal } from '../modals/EditVpcSubnetModal'
+import { CreateVpcSubnetModal, EditVpcSubnetModal } from '../modals/vpc-subnets'
 import type { VpcSubnet } from '@oxide/api'
 
 export const VpcSubnetsTab = () => {

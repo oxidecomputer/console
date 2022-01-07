@@ -4,8 +4,7 @@ import { Button } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, DateCell, LabelCell } from '@oxide/table'
 import type { VpcRouter } from '@oxide/api'
-import { CreateVpcRouterModal } from '../modals/CreateVpcRouterModal'
-import { EditVpcRouterModal } from '../modals/EditVpcRouterModal'
+import { CreateVpcRouterModal, EditVpcRouterModal } from '../modals/vpc-routers'
 
 export const VpcRoutersTab = () => {
   const { orgName, projectName, vpcName } = useParams(
