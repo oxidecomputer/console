@@ -11,7 +11,7 @@ describe('VpcPage', () => {
     it('does something', async () => {
       renderAppAt('/orgs/maze-war/projects/prod-online/vpcs/default')
       screen.getByText('Subnets')
-      const newSubnet = screen.getByRole('button', { name: 'New Subnet' })
+      const newSubnet = screen.getByRole('button', { name: 'New subnet' })
       expect(screen.queryByRole('button', { name: 'Create subnet' })).toBeNull()
       fireEvent.click(newSubnet)
 

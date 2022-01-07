@@ -3,8 +3,8 @@ import { useParams } from '../../../../../hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
 import { Button } from '@oxide/ui'
-import { CreateVpcSubnetModal } from '../modals/create-subnet'
-import { EditVpcSubnetModal } from '../modals/edit-subnet'
+import { CreateVpcSubnetModal } from '../modals/CreateVpcSubnetModal'
+import { EditVpcSubnetModal } from '../modals/EditVpcSubnetModal'
 import type { VpcSubnet } from '@oxide/api'
 
 export const VpcSubnetsTab = () => {
@@ -21,13 +21,12 @@ export const VpcSubnetsTab = () => {
   })
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editingSubnet, setEditingSubnet] = useState<VpcSubnet | null>(null)
+  const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
   const actions = (subnet: VpcSubnet): MenuAction[] => [
     {
       label: 'Edit',
-      onActivate: () => setEditingSubnet(subnet),
-      // TODO: disable for default? can you edit it?
+      onActivate: () => setEditing(subnet),
     },
   ]
 
@@ -39,7 +38,7 @@ export const VpcSubnetsTab = () => {
           variant="dim"
           onClick={() => setCreateModalOpen(true)}
         >
-          New Subnet
+          New subnet
         </Button>
         <CreateVpcSubnetModal
           orgName={orgName}
@@ -52,8 +51,8 @@ export const VpcSubnetsTab = () => {
           orgName={orgName}
           projectName={projectName}
           vpcName={vpcName}
-          originalSubnet={editingSubnet} // modal is open if this is non-null
-          onDismiss={() => setEditingSubnet(null)}
+          originalSubnet={editing} // modal is open if this is non-null
+          onDismiss={() => setEditing(null)}
         />
       </div>
       <Table selectable actions={actions}>

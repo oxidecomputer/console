@@ -38,7 +38,9 @@ export function CreateVpcSubnetModal({
       dismiss()
     },
   })
+
   const formId = 'create-vpc-subnet-form'
+
   return (
     <SideModal
       id="create-vpc-subnet-modal"
