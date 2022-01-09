@@ -14,7 +14,7 @@ export const VpcSubnetsTab = () => {
   )
 
   const { Table, Column } = useQueryTable('vpcSubnetsGet', {
-    organizationName: orgName,
+    orgName,
     projectName,
     vpcName,
   })

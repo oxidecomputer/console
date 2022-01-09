@@ -14,7 +14,7 @@ export const VpcRoutersTab = () => {
   )
 
   const { Table, Column } = useQueryTable('vpcRoutersGet', {
-    organizationName: orgName,
+    orgName,
     projectName,
     vpcName,
   })
