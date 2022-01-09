@@ -11,7 +11,14 @@ export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
 
 const basePath = process.env.API_URL ?? '/api'
 
-const api = new Api({ baseUrl: basePath })
+const api = new Api({
+  baseUrl: basePath,
+  baseApiParams: {
+    // default format so that the client parses JSON error responses for endpoints
+    // where the success response is 204 No Content
+    format: 'json',
+  },
+})
 
 type A = typeof api.methods
 

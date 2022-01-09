@@ -1,7 +1,7 @@
 import { Checkmark12Icon } from '@oxide/ui'
 import React from 'react'
 
-import { classed } from '../../util/classed'
+import { classed } from '@oxide/util'
 
 const Check = () => (
   <Checkmark12Icon className="absolute w-3 h-2.5 left-0.5 top-0.5 fill-current text-green-500" />
