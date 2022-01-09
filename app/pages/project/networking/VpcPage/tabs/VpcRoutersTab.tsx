@@ -7,17 +7,9 @@ import type { VpcRouter } from '@oxide/api'
 import { CreateVpcRouterModal, EditVpcRouterModal } from '../modals/vpc-routers'
 
 export const VpcRoutersTab = () => {
-  const { orgName, projectName, vpcName } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcRoutersGet', {
-    orgName,
-    projectName,
-    vpcName,
-  })
+  const { Table, Column } = useQueryTable('vpcRoutersGet', vpcParams)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcRouter | null>(null)
@@ -40,16 +32,12 @@ export const VpcRoutersTab = () => {
           New router
         </Button>
         <CreateVpcRouterModal
-          orgName={orgName}
-          projectName={projectName}
-          vpcName={vpcName}
+          {...vpcParams}
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
         />
         <EditVpcRouterModal
-          orgName={orgName}
-          projectName={projectName}
-          vpcName={vpcName}
+          {...vpcParams}
           originalRouter={editing} // modal is open if this is non-null
           onDismiss={() => setEditing(null)}
         />

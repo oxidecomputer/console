@@ -56,11 +56,7 @@ export function CreateVpcRouterModal({
   projectName,
   vpcName,
 }: CreateProps) {
-  const parentIds = {
-    organizationName: orgName,
-    projectName,
-    vpcName,
-  }
+  const parentIds = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -122,11 +118,7 @@ export function EditVpcRouterModal({
   vpcName,
   originalRouter,
 }: EditProps) {
-  const parentIds = {
-    organizationName: orgName,
-    projectName,
-    vpcName,
-  }
+  const parentIds = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {

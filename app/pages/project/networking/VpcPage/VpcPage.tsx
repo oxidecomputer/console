@@ -17,22 +17,14 @@ import { useApiQuery } from '@oxide/api'
 const formatDateTime = (s: string) => format(new Date(s), 'MMM d, yyyy H:mm aa')
 
 export const VpcPage = () => {
-  const { orgName, projectName, vpcName } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
-  const { data: vpc } = useApiQuery('projectVpcsGetVpc', {
-    organizationName: orgName,
-    projectName,
-    vpcName,
-  })
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const { data: vpc } = useApiQuery('projectVpcsGetVpc', vpcParams)
 
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon title="Vpcs" />}>
-          {vpcName}
+          {vpcParams.vpcName}
         </PageTitle>
       </PageHeader>
 

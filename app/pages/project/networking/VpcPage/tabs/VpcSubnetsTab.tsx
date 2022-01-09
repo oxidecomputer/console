@@ -7,17 +7,9 @@ import { CreateVpcSubnetModal, EditVpcSubnetModal } from '../modals/vpc-subnets'
 import type { VpcSubnet } from '@oxide/api'
 
 export const VpcSubnetsTab = () => {
-  const { orgName, projectName, vpcName } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcSubnetsGet', {
-    orgName,
-    projectName,
-    vpcName,
-  })
+  const { Table, Column } = useQueryTable('vpcSubnetsGet', vpcParams)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
@@ -40,16 +32,12 @@ export const VpcSubnetsTab = () => {
           New subnet
         </Button>
         <CreateVpcSubnetModal
-          orgName={orgName}
-          projectName={projectName}
-          vpcName={vpcName}
+          {...vpcParams}
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
         />
         <EditVpcSubnetModal
-          orgName={orgName}
-          projectName={projectName}
-          vpcName={vpcName}
+          {...vpcParams}
           originalSubnet={editing} // modal is open if this is non-null
           onDismiss={() => setEditing(null)}
         />
