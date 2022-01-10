@@ -1,5 +1,10 @@
 import { project } from './project'
-import type { Vpc, VpcSubnet, VpcSubnetResultsPage } from '@oxide/api'
+import type {
+  Vpc,
+  VpcResultsPage,
+  VpcSubnet,
+  VpcSubnetResultsPage,
+} from '@oxide/api'
 
 export const vpc: Vpc = {
   id: 'vpc-id',
@@ -11,6 +16,8 @@ export const vpc: Vpc = {
   projectId: project.id,
   systemRouterId: 'router-id', // ???
 }
+
+export const vpcs: VpcResultsPage = { items: [vpc] }
 
 export const vpcSubnet: VpcSubnet = {
   // this is supposed to be flattened into the top level. will fix in API
