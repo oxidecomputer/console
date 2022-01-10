@@ -4,8 +4,12 @@ import react from '@vitejs/plugin-react'
 
 import tsConfig from './tsconfig.json'
 
-const mapValues = <T, U>(obj: Record<string, T>, f: (t: T) => U) =>
-  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, f(v)]))
+const mapObj = <V0, V>(
+  obj: Record<string, V0>,
+  kf: (t: string) => string,
+  vf: (t: V0) => V
+): Record<string, V> =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [kf(k), vf(v)]))
 
 // see https://vitejs.dev/config/
 
@@ -29,8 +33,14 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
-    alias: mapValues(tsConfig.compilerOptions.paths, (p) =>
-      resolve(__dirname, p[0])
+    // replace is there to turn
+    //   "app/*" => "app/*"
+    // into
+    //   "app" => "app"
+    alias: mapObj(
+      tsConfig.compilerOptions.paths,
+      (k) => k.replace('/*', ''),
+      (paths) => resolve(__dirname, paths[0].replace('/*', ''))
     ),
   },
   server: {

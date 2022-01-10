@@ -6,7 +6,7 @@ import type {
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
-import { useToast } from '../../../hooks'
+import { useToast } from 'app/hooks'
 import React from 'react'
 
 const showStart = (i: Instance): boolean => {

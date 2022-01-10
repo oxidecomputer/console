@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
-import { useParams } from '../../../hooks'
+import { useParams } from 'app/hooks'
 import {
   linkCell,
   DateCell,

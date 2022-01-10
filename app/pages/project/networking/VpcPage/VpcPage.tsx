@@ -6,11 +6,11 @@ import {
   PageTitle,
   PropertiesTable,
 } from '@oxide/ui'
-import { Tabs, Tab } from '../../../../components/Tabs'
+import { Tabs, Tab } from 'app/components/Tabs'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
-import { useParams } from '../../../../hooks'
+import { useParams } from 'app/hooks'
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { useApiQuery } from '@oxide/api'
 
