@@ -17,7 +17,7 @@ describe('Generated API client version', () => {
     const deployedVersion = /API_VERSION: ([0-9a-f]+)/.exec(packerConfig)?.[1]
 
     // if this test fails, most likely you have updated the API_VERSION in packer.yaml
-    // without re-running tools/generate_api_client.sh
+    // without re-running `yarn gen-api`
     expect(generatedVersion).toEqual(deployedVersion)
   })
 })

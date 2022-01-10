@@ -7,7 +7,7 @@ The primary source of truth, in the sense that it determines what is actually de
 ## Instructions
 
 1. Update `API_VERSION` in [`packer.yaml`](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) with new Omicron commit hash
-1. Update the generated API client by running `./tools/generate_api_client.sh`. This will automatically check out the omicron commit specified as `API_VERSION`. If you forget this step, a safety test in `libs/api` will fail.
+1. Update the generated API client by running `yarn gen-api`. This will automatically check out the omicron commit specified as `API_VERSION`. If you forget this step, a safety test in `libs/api` will fail.
 1. Fix any type errors introduced by changes to the generated code
 1. Commit and push to a branch
 1. Wait for `Packer` github action to complete, followed by a bot commit that updates the packer image ID in [`tools/create_gcp_instance.sh`](https://github.com/oxidecomputer/console/blob/d046263cbfbb80b08757e432a8fcd980b8facbe3/tools/create_gcp_instance.sh#L23).
