@@ -7,6 +7,8 @@ import { Response } from 'node-fetch'
 
 import { org, orgs } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
+import { navToLogin } from '../nav-to-login'
+jest.mock('../nav-to-login')
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -34,10 +36,6 @@ const createParams = {
   params: {},
   body: { name: 'abc', description: '', hello: 'a' },
 }
-
-afterEach(() => {
-  fetchMock.reset()
-})
 
 describe('useApiQuery', () => {
   it('has correct initial state', () => {
@@ -78,6 +76,12 @@ describe('useApiQuery', () => {
         expect(result.current.error).toBeTruthy()
         expect(result.current.error?.data).toBeNull()
       })
+    })
+
+    it('navigates to login if 401', async () => {
+      fetchMock.get('/api/organizations', 401)
+      renderGetOrgs()
+      await waitFor(() => expect(navToLogin).toHaveBeenCalled())
     })
   })
 
@@ -135,6 +139,15 @@ describe('useApiMutation', () => {
         expect(result.current.error).toBeTruthy()
         expect(result.current.error?.data).toBeNull()
       })
+    })
+
+    it('navigates to login if 401', async () => {
+      fetchMock.post('/api/organizations', 401)
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
+      await waitFor(() => expect(navToLogin).toHaveBeenCalled())
     })
   })
 

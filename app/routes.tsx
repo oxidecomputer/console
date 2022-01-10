@@ -53,7 +53,7 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 export const routes = (
   <Routes>
     <Route path="*" element={<NotFound />} />
-    <Route path="login" element={<LoginPage />} />
+    <Route path="spoof_login" element={<LoginPage />} />
 
     <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 

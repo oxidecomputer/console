@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import fetchMock from 'fetch-mock'
 import { setLogger } from 'react-query'
 
 // react-query calls console.error whenever a request fails.
@@ -9,3 +10,5 @@ setLogger({
   warn: console.warn,
   error: () => {},
 })
+
+afterEach(() => fetchMock.reset())

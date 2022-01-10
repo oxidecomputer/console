@@ -23,6 +23,7 @@ const getSubnetsUrl = `${subnetsUrl}?limit=10`
 describe('VpcPage', () => {
   describe('subnets tab', () => {
     it('creating a subnet works', async () => {
+      fetchMock.get('/api/session/me', 200)
       fetchMock.get(vpcUrl, { status: 200, body: vpc })
       fetchMock.getOnce(getSubnetsUrl, { status: 200, body: vpcSubnets })
       const postMock = fetchMock.postOnce(subnetsUrl, {

@@ -6,13 +6,8 @@ import {
 } from './hooks'
 import { Api } from './__generated__/Api'
 
-export * from './__generated__/Api'
-export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
-
-const basePath = process.env.API_URL ?? '/api'
-
 const api = new Api({
-  baseUrl: basePath,
+  baseUrl: process.env.API_URL ?? '/api',
   baseApiParams: {
     // default format so that the client parses JSON error responses for endpoints
     // where the success response is 204 No Content
@@ -35,3 +30,7 @@ export type ApiListMethods = {
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 export const useApiQueryClient = getUseApiQueryClient<A>()
+
+export * from './__generated__/Api'
+export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
+export { navToLogin } from './nav-to-login'
