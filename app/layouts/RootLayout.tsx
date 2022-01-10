@@ -9,12 +9,14 @@ import {
   Sidebar,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '..//components/TopBar'
 
 const RootLayout = () => (
   <PageContainer>
     <Sidebar>TBD</Sidebar>
     <ContentPaneWrapper>
       <ContentPane>
+        <TopBar />
         <Breadcrumbs />
         <SkipLinkTarget />
         <Outlet />
