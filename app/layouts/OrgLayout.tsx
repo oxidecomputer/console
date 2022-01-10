@@ -17,9 +17,7 @@ import { useParams } from '../hooks'
 
 const ProjectList = (props: { className?: string }) => {
   const { orgName } = useParams('orgName')
-  const { data: projects } = useApiQuery('organizationProjectsGet', {
-    organizationName: orgName,
-  })
+  const { data: projects } = useApiQuery('organizationProjectsGet', { orgName })
   return (
     <section className={cn('space-y-2', props.className)}>
       <header className="p-1 space-x-2 uppercase text-xs font-mono text-green-500">

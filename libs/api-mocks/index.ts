@@ -1,5 +1,6 @@
 export * from './instance'
 export * from './org'
 export * from './project'
-export * from './users'
 export * from './session'
+export * from './users'
+export * from './vpc'

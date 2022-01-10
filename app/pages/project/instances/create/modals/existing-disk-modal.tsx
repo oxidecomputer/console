@@ -35,10 +35,8 @@ export function ExistingDiskModal({
   projectName,
 }: Props) {
   // TODO: maybe wait to fetch until you open the modal
-  const { data } = useApiQuery('projectDisksGet', {
-    organizationName: orgName,
-    projectName,
-  })
+  const { data } = useApiQuery('projectDisksGet', { orgName, projectName })
+
   const disks = data?.items
     .filter(isUnattached)
     .map((d) => ({ value: d.id, label: d.name }))

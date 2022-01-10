@@ -23,4 +23,4 @@ for file in $CODEMOD_DIR/*.icons.js; do
     yarn jscodeshift -t $file --extensions=ts,tsx --parser=tsx $ICONS_DIR
 done
 
-yarn fmt
+yarn fmt .

@@ -2,7 +2,7 @@ import React from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
-import { pluckFirstOfType } from '@oxide/util'
+import { classed, pluckFirstOfType } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
 import { Close12Icon } from '../icons'
 
@@ -27,7 +27,7 @@ export function SideModal({
       id={id}
       onDismiss={onDismiss}
       {...dialogProps}
-      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-gray-500 border-l border-gray-400"
+      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-black border-l border-gray-400"
       aria-labelledby={titleId}
     >
       <div
@@ -51,9 +51,7 @@ export function SideModal({
   )
 }
 
-SideModal.Section = ({ children }: ChildrenProp) => (
-  <div className="p-8 space-y-6 border-gray-400">{children}</div>
-)
+SideModal.Section = classed.div`p-8 space-y-6 border-gray-400`
 
 SideModal.Docs = ({ children }: ChildrenProp) => (
   <SideModal.Section>

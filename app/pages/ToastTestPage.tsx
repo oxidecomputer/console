@@ -1,6 +1,7 @@
-import { Button, classed, Comment16Icon, Success16Icon } from '@oxide/ui'
+import { Button, Comment16Icon, Success16Icon } from '@oxide/ui'
 import React, { useState } from 'react'
 import { useToast } from '../hooks'
+import { classed } from '@oxide/util'
 
 const useCounter = (initialValue: number): [number, () => void] => {
   const [value, setValue] = useState(initialValue)

@@ -38,4 +38,5 @@ export const lastPostBody = (mock: FetchMockStatic): any =>
   JSON.parse(mock.lastOptions(undefined, 'POST')?.body as unknown as string)
 
 export * from '@testing-library/react'
+export { default as userEvent } from '@testing-library/user-event'
 export { customRender as render }

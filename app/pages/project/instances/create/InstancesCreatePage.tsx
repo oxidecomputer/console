@@ -4,7 +4,6 @@ import cn from 'classnames'
 import { Formik, Form } from 'formik'
 
 import {
-  classed,
   Button,
   PageHeader,
   PageTitle,
@@ -19,6 +18,7 @@ import {
   FieldTitle,
   Badge,
 } from '@oxide/ui'
+import { classed } from '@oxide/util'
 import { useApiMutation } from '@oxide/api'
 import { getServerError } from '../../../../util/errors'
 import { INSTANCE_SIZES } from './instance-types'
@@ -91,7 +91,7 @@ export default function InstanceCreatePage() {
             ) || { memory: 0, ncpus: 0 }
 
             createInstance.mutate({
-              organizationName: orgName,
+              orgName,
               projectName,
               body: {
                 name: values['instance-name'],
