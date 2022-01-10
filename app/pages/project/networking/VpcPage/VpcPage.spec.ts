@@ -5,7 +5,7 @@ import {
   screen,
   userEvent,
   waitForElementToBeRemoved,
-} from '../../../../test-utils'
+} from 'app/test-utils'
 import fetchMock from 'fetch-mock'
 import {
   org,

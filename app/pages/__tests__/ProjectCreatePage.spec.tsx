@@ -4,7 +4,7 @@ import {
   renderAppAt,
   screen,
   waitFor,
-} from '../../test-utils'
+} from 'app/test-utils'
 import fetchMock from 'fetch-mock'
 
 import { org, project, projects, sessionMe } from '@oxide/api-mocks'

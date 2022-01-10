@@ -6,7 +6,7 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import React from 'react'
-import { useParams } from '../../../../../hooks'
+import { useParams } from 'app/hooks'
 
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')

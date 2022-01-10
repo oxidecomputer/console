@@ -4,7 +4,7 @@ import { Formik, Form } from 'formik'
 import { Button, FieldTitle, SideModal, TextField } from '@oxide/ui'
 import type { VpcSubnet, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { getServerError } from '../../../../../util/errors'
+import { getServerError } from 'app/util/errors'
 
 type FormProps = {
   error: ErrorResponse | null
