@@ -1,36 +1,18 @@
 import {
   fireEvent,
-  lastPostBody,
   renderAppAt,
   screen,
   userEvent,
   waitForElementToBeRemoved,
 } from '../../../../test-utils'
-import fetchMock from 'fetch-mock'
-import {
-  org,
-  project,
-  vpc,
-  vpcSubnet,
-  vpcSubnet2,
-  vpcSubnets,
-} from '@oxide/api-mocks'
+import { org, project, vpcSubnet, vpcSubnet2 } from '@oxide/api-mocks'
+import { override } from '../../../../../libs/api/msw/server'
 
-const vpcUrl = `/api/organizations/${org.name}/projects/${project.name}/vpcs/default`
-const subnetsUrl = `${vpcUrl}/subnets`
-const getSubnetsUrl = `${subnetsUrl}?limit=10`
+const subnetsUrl = `/api/organizations/${org.name}/projects/${project.name}/vpcs/default/subnets`
 
 describe('VpcPage', () => {
   describe('subnets tab', () => {
     it('creating a subnet works', async () => {
-      fetchMock.get('/api/session/me', 200)
-      fetchMock.get(vpcUrl, { status: 200, body: vpc })
-      fetchMock.getOnce(getSubnetsUrl, { status: 200, body: vpcSubnets })
-      const postMock = fetchMock.postOnce(subnetsUrl, {
-        status: 201,
-        body: vpcSubnet2,
-      })
-
       renderAppAt('/orgs/mock-org/projects/mock-project/vpcs/default')
       screen.getByText('Subnets')
 
@@ -52,15 +34,9 @@ describe('VpcPage', () => {
       const name = screen.getByRole('textbox', { name: 'Name' })
       userEvent.type(name, 'mock-subnet-2')
 
-      // override the subnets GET to include both subnets
-      fetchMock.getOnce(
-        getSubnetsUrl,
-        {
-          status: 200,
-          body: { items: [vpcSubnet, vpcSubnet2] },
-        },
-        { overwriteRoutes: true }
-      )
+      // this is temporary, a workaround for the fact that the mock server
+      // doesn't have a persistence layer yet
+      override('get', subnetsUrl, 200, { items: [vpcSubnet, vpcSubnet2] })
 
       // submit the form
       fireEvent.click(screen.getByRole('button', { name: 'Create subnet' }))
@@ -70,17 +46,16 @@ describe('VpcPage', () => {
         screen.queryByRole('dialog', { name: 'Create subnet' })
       )
 
-      // it posted the form
-      expect(lastPostBody(postMock)).toEqual({
-        ipv4Block: '1.1.1.2/24',
-        ipv6Block: null,
-        name: 'mock-subnet-2',
-        description: '',
-      })
+      // TODO: before, we asserted what body the form posted. MSW strongly
+      // discourages this because it's testing implementation details, but I
+      // can't shake the feeling that I want it. But it might feel better after
+      // the MSW mock is more sophisticated and actually handles a create by
+      // inserting the thing in the list of subnets. Then our assertion that it
+      // showed up in the list actually does check what was posted.
 
       // table should refetch and now include second subnet
       screen.getByRole('cell', { name: vpcSubnet.identity.name })
-      screen.getByRole('cell', { name: vpcSubnet2.identity.name })
+      await screen.findByRole('cell', { name: vpcSubnet2.identity.name })
     })
   })
 })

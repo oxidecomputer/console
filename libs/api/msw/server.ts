@@ -11,12 +11,12 @@ function override(
   body: string | Record<string, unknown>
 ) {
   server.use(
-    rest[method](path, (req, res, ctx) => {
-      return res(
+    rest[method](path, (req, res, ctx) =>
+      res(
         ctx.status(status),
         typeof body === 'string' ? ctx.text(body) : ctx.json(body)
       )
-    })
+    )
   )
 }
 
