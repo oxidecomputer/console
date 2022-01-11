@@ -29,6 +29,7 @@ export default defineConfig({
   },
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
+    'process.env.MSW': JSON.stringify(process.env.MSW),
   },
   plugins: [react()],
   resolve: {

@@ -8,9 +8,6 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
 import { ToastProvider } from './hooks'
 
-import { worker } from '@oxide/api-mocks'
-worker.start()
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -20,16 +17,25 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.render(
-  <React.StrictMode>
-    <ToastProvider>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <SkipLink id="skip-nav" />
-          <Router>{routes}</Router>
-        </ErrorBoundary>
-      </QueryClientProvider>
-    </ToastProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+function render() {
+  ReactDOM.render(
+    <React.StrictMode>
+      <ToastProvider>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <SkipLink id="skip-nav" />
+            <Router>{routes}</Router>
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </ToastProvider>
+    </React.StrictMode>,
+    document.getElementById('root')
+  )
+}
+
+if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
+  // need to defer requests until after the mock server starts up
+  import('@oxide/api-mocks').then(({ worker }) => worker.start()).then(render)
+} else {
+  render()
+}
