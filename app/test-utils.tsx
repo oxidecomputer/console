@@ -13,6 +13,10 @@ const queryClient = new QueryClient({
   },
 })
 
+// this is necessary to prevent requests left in flight at the end of a test from
+// coming back during another test and triggering whatever they would trigger
+afterEach(() => queryClient.clear())
+
 const customRender = (ui: React.ReactElement) =>
   render(ui, {
     wrapper: ({ children }) => (

@@ -22,6 +22,14 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(mock.projects))
   }),
 
+  rest.post('/api/organizations/:orgId/projects', (req, res, ctx) => {
+    return res(ctx.status(201), ctx.json(mock.project))
+  }),
+
+  rest.get('/api/organizations/:orgId/projects/:projectId', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(mock.project))
+  }),
+
   rest.get(
     '/api/organizations/:orgId/projects/:projectId/instances',
     (req, res, ctx) => {

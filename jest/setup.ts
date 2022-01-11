@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom'
-import fetchMock from 'fetch-mock'
 import { setLogger } from 'react-query'
 import 'whatwg-fetch'
 import { server } from '../libs/api/msw/server'
@@ -14,8 +13,5 @@ setLogger({
 })
 
 beforeAll(() => server.listen())
-afterEach(() => {
-  server.resetHandlers()
-  fetchMock.reset()
-})
+afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
