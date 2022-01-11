@@ -8,6 +8,9 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
 import { ToastProvider } from './hooks'
 
+import { worker } from '@oxide/api-mocks'
+worker.start()
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
