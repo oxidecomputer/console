@@ -42,8 +42,10 @@ describe('VpcPage', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Create subnet' }))
 
       // wait for modal to close
-      await waitForElementToBeRemoved(() =>
-        screen.queryByRole('dialog', { name: 'Create subnet' })
+      await waitForElementToBeRemoved(
+        () => screen.queryByRole('dialog', { name: 'Create subnet' }),
+        // fails in CI without a longer timeout (default 1000). boo
+        { timeout: 2000 }
       )
 
       // TODO: before, we asserted what body the form posted. MSW strongly
