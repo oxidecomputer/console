@@ -43,7 +43,7 @@ export const VpcSubnetsTab = () => {
         />
       </div>
       <Table selectable actions={actions}>
-        <Column id="name" accessor="name" />
+        <Column id="name" />
         <Column
           id="ip-block"
           header="IP Block"

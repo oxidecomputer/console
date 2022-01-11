@@ -15,7 +15,7 @@ export const VpcFirewallRulesTab = () => {
 
   return (
     <Table selectable>
-      <Column id="name" accessor="name" />
+      <Column id="name" />
       <Column id="action" />
       <Column id="targets" cell={TypeValueListCell} />
       <Column id="filters" cell={FirewallFilterCell} />
