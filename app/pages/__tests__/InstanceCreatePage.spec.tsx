@@ -24,7 +24,6 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows specific message for known server error code', async () => {
-    // XXX mystery: this passes when run alone, fails when run all together
     override('post', instancesUrl, 400, { error_code: 'ObjectAlreadyExists' })
     renderAppAt(formUrl)
 
