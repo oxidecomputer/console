@@ -1,5 +1,11 @@
-import { fireEvent, renderAppAt, screen, waitFor } from 'app/test-utils'
-import { msw, org, project } from '@oxide/api-mocks'
+import {
+  fireEvent,
+  override,
+  renderAppAt,
+  screen,
+  waitFor,
+} from 'app/test-utils'
+import { org, project } from '@oxide/api-mocks'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
 
@@ -32,7 +38,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in project create code map', async () => {
-    msw.override('post', projectsUrl, 400, {
+    override('post', projectsUrl, 400, {
       error_code: 'ObjectAlreadyExists',
     })
     renderPage()
@@ -47,7 +53,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in global code map', async () => {
-    msw.override('post', projectsUrl, 403, { error_code: 'Forbidden' })
+    override('post', projectsUrl, 403, { error_code: 'Forbidden' })
     renderPage()
 
     fireEvent.click(submitButton())
@@ -68,7 +74,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    msw.override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
+    override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
     renderPage()
 
     fireEvent.click(submitButton())

@@ -1,5 +1,11 @@
-import { fireEvent, renderAppAt, screen, waitFor } from 'app/test-utils'
-import { msw, org, project } from '@oxide/api-mocks'
+import {
+  fireEvent,
+  override,
+  renderAppAt,
+  screen,
+  waitFor,
+} from 'app/test-utils'
+import { org, project } from '@oxide/api-mocks'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
@@ -22,7 +28,7 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows specific message for known server error code', async () => {
-    msw.override('post', instancesUrl, 400, {
+    override('post', instancesUrl, 400, {
       error_code: 'ObjectAlreadyExists',
     })
     renderAppAt(formUrl)
@@ -37,7 +43,7 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    msw.override('post', instancesUrl, 400, { error_code: 'UnknownCode' })
+    override('post', instancesUrl, 400, { error_code: 'UnknownCode' })
     renderAppAt(formUrl)
 
     fireEvent.click(submitButton())

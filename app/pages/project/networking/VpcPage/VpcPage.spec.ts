@@ -1,11 +1,12 @@
 import {
   fireEvent,
+  override,
   renderAppAt,
   screen,
   userEvent,
   waitForElementToBeRemoved,
 } from 'app/test-utils'
-import { msw, org, project, vpcSubnet, vpcSubnet2 } from '@oxide/api-mocks'
+import { org, project, vpcSubnet, vpcSubnet2 } from '@oxide/api-mocks'
 
 const subnetsUrl = `/api/organizations/${org.name}/projects/${project.name}/vpcs/default/subnets`
 
@@ -35,7 +36,7 @@ describe('VpcPage', () => {
 
       // this is temporary, a workaround for the fact that the mock server
       // doesn't have a persistence layer yet
-      msw.override('get', subnetsUrl, 200, { items: [vpcSubnet, vpcSubnet2] })
+      override('get', subnetsUrl, 200, { items: [vpcSubnet, vpcSubnet2] })
 
       // submit the form
       fireEvent.click(screen.getByRole('button', { name: 'Create subnet' }))

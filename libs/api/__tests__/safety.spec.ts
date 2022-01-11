@@ -24,9 +24,11 @@ describe('Generated API client version', () => {
 })
 
 it('@oxide/api-mocks is only referenced in test files', () => {
-  const stdOut = execSync('git grep -l "@oxide/api-mocks"')
+  const stdOut = execSync('git grep -l "from \'@oxide/api-mocks\'"')
   const files = stdOut.toString().trim().split('\n')
   for (const file of files) {
-    expect(file).toMatch(/__tests__|\.spec\.|jest|tsconfig|api-mocks/)
+    expect(file).toMatch(
+      /__tests__|test-utils|\.spec\.|jest|tsconfig|api-mocks/
+    )
   }
 })

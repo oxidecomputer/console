@@ -35,7 +35,9 @@ function render() {
 
 if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
   // need to defer requests until after the mock server starts up
-  import('@oxide/api-mocks').then(({ worker }) => worker.start()).then(render)
+  Promise.all([import('@oxide/api-mocks'), import('msw')])
+    .then(([{ handlers }, { setupWorker }]) => setupWorker(...handlers).start())
+    .then(render)
 } else {
   render()
 }

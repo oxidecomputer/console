@@ -5,5 +5,4 @@ export * from './project'
 export * from './session'
 export * from './vpc'
 
-// export * as msw from './msw/server'
-export * from './msw/browser'
+export * from './msw-handlers'
