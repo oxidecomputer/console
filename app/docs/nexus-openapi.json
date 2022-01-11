@@ -3257,40 +3257,6 @@
         "type": "string",
         "enum": ["String", "I64", "IpAddr", "Uuid", "Bool"]
       },
-      "IdentityMetadata": {
-        "description": "Identity-related metadata that's included in nearly all public API objects",
-        "type": "object",
-        "properties": {
-          "description": {
-            "description": "human-readable free-form text about a resource",
-            "type": "string"
-          },
-          "id": {
-            "description": "unique, immutable, system-controlled identifier for each resource",
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "description": "unique, mutable, user-controlled identifier for each resource",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Name"
-              }
-            ]
-          },
-          "timeCreated": {
-            "description": "timestamp when this resource was created",
-            "type": "string",
-            "format": "date-time"
-          },
-          "timeModified": {
-            "description": "timestamp when this resource was last modified",
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": ["description", "id", "name", "timeCreated", "timeModified"]
-      },
       "Instance": {
         "description": "Client view of an [`Instance`]",
         "type": "object",
@@ -3481,13 +3447,14 @@
         "description": "A `NetworkInterface` represents a virtual network interface device.",
         "type": "object",
         "properties": {
-          "identity": {
-            "description": "common identifying metadata",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IdentityMetadata"
-              }
-            ]
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
           },
           "instance_id": {
             "description": "The Instance to which the interface belongs.",
@@ -3507,10 +3474,28 @@
               }
             ]
           },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Name"
+              }
+            ]
+          },
           "subnet_id": {
             "description": "The subnet to which the interface belongs.",
             "type": "string",
             "format": "uuid"
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
           },
           "vpc_id": {
             "description": "The VPC to which the interface belongs.",
@@ -3519,11 +3504,15 @@
           }
         },
         "required": [
-          "identity",
+          "description",
+          "id",
           "instance_id",
           "ip",
           "mac",
+          "name",
           "subnet_id",
+          "timeCreated",
+          "timeModified",
           "vpc_id"
         ]
       },
@@ -3729,11 +3718,35 @@
         "description": "Client view of an [`Rack`]",
         "type": "object",
         "properties": {
-          "identity": {
-            "$ref": "#/components/schemas/IdentityMetadata"
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Name"
+              }
+            ]
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
           }
         },
-        "required": ["identity"]
+        "required": ["description", "id", "name", "timeCreated", "timeModified"]
       },
       "RackResultsPage": {
         "description": "A single page of results",
@@ -3913,22 +3926,31 @@
         "description": "A route defines a rule that governs where traffic should be sent based on its destination.",
         "type": "object",
         "properties": {
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
           "destination": {
             "$ref": "#/components/schemas/RouteDestination"
           },
-          "identity": {
-            "description": "common identifying metadata",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IdentityMetadata"
-              }
-            ]
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
           },
           "kind": {
             "description": "Describes the kind of router. Set at creation. `read-only`",
             "allOf": [
               {
                 "$ref": "#/components/schemas/RouterRouteKind"
+              }
+            ]
+          },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Name"
               }
             ]
           },
@@ -3939,9 +3961,29 @@
           },
           "target": {
             "$ref": "#/components/schemas/RouteTarget"
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
           }
         },
-        "required": ["destination", "identity", "kind", "router_id", "target"]
+        "required": [
+          "description",
+          "destination",
+          "id",
+          "kind",
+          "name",
+          "router_id",
+          "target",
+          "timeCreated",
+          "timeModified"
+        ]
       },
       "RouterRouteCreateParams": {
         "description": "Create-time parameters for a [`RouterRoute`]",
@@ -4411,6 +4453,10 @@
               }
             ]
           },
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
           "direction": {
             "description": "whether this rule is for incoming or outgoing traffic",
             "allOf": [
@@ -4427,11 +4473,16 @@
               }
             ]
           },
-          "identity": {
-            "description": "common identifying metadata",
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
             "allOf": [
               {
-                "$ref": "#/components/schemas/IdentityMetadata"
+                "$ref": "#/components/schemas/Name"
               }
             ]
           },
@@ -4455,16 +4506,30 @@
             "items": {
               "$ref": "#/components/schemas/VpcFirewallRuleTarget"
             }
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
           "action",
+          "description",
           "direction",
           "filters",
-          "identity",
+          "id",
+          "name",
           "priority",
           "status",
-          "targets"
+          "targets",
+          "timeCreated",
+          "timeModified"
         ]
       },
       "VpcFirewallRuleAction": {
@@ -4749,16 +4814,35 @@
         "description": "A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.",
         "type": "object",
         "properties": {
-          "identity": {
-            "description": "common identifying metadata",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IdentityMetadata"
-              }
-            ]
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
           },
           "kind": {
             "$ref": "#/components/schemas/VpcRouterKind"
+          },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Name"
+              }
+            ]
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
           },
           "vpc_id": {
             "description": "The VPC to which the router belongs.",
@@ -4766,7 +4850,15 @@
             "format": "uuid"
           }
         },
-        "required": ["identity", "kind", "vpc_id"]
+        "required": [
+          "description",
+          "id",
+          "kind",
+          "name",
+          "timeCreated",
+          "timeModified",
+          "vpc_id"
+        ]
       },
       "VpcRouterCreate": {
         "description": "Create-time parameters for a [`VpcRouter`]",
@@ -4826,13 +4918,14 @@
         "description": "A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.",
         "type": "object",
         "properties": {
-          "identity": {
-            "description": "common identifying metadata",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IdentityMetadata"
-              }
-            ]
+          "description": {
+            "description": "human-readable free-form text about a resource",
+            "type": "string"
+          },
+          "id": {
+            "description": "unique, immutable, system-controlled identifier for each resource",
+            "type": "string",
+            "format": "uuid"
           },
           "ipv4_block": {
             "nullable": true,
@@ -4852,13 +4945,38 @@
               }
             ]
           },
+          "name": {
+            "description": "unique, mutable, user-controlled identifier for each resource",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Name"
+              }
+            ]
+          },
+          "timeCreated": {
+            "description": "timestamp when this resource was created",
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeModified": {
+            "description": "timestamp when this resource was last modified",
+            "type": "string",
+            "format": "date-time"
+          },
           "vpc_id": {
             "description": "The VPC to which the subnet belongs.",
             "type": "string",
             "format": "uuid"
           }
         },
-        "required": ["identity", "vpc_id"]
+        "required": [
+          "description",
+          "id",
+          "name",
+          "timeCreated",
+          "timeModified",
+          "vpc_id"
+        ]
       },
       "VpcSubnetCreate": {
         "description": "Create-time parameters for a [`VpcSubnet`]",

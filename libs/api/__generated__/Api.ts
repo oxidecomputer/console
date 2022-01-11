@@ -152,35 +152,6 @@ export type FieldSource = 'Target' | 'Metric'
 export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
- */
-export interface IdentityMetadata {
-  /** human-readable free-form text about a resource */
-  description: string
-
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
-   */
-  id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-
-  /**
-   * timestamp when this resource was created
-   * @format date-time
-   */
-  timeCreated: string
-
-  /**
-   * timestamp when this resource was last modified
-   * @format date-time
-   */
-  timeModified: string
-}
-
-/**
  * Client view of an [`Instance`]
  */
 export interface Instance {
@@ -327,8 +298,14 @@ export type Name = string
  * A `NetworkInterface` represents a virtual network interface device.
  */
 export interface NetworkInterface {
-  /** common identifying metadata */
-  identity: IdentityMetadata
+  /** human-readable free-form text about a resource */
+  description: string
+
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
 
   /**
    * The Instance to which the interface belongs.
@@ -345,11 +322,26 @@ export interface NetworkInterface {
   /** The MAC address assigned to this interface. */
   mac: MacAddr
 
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+
   /**
    * The subnet to which the interface belongs.
    * @format uuid
    */
   subnet_id: string
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 
   /**
    * The VPC to which the interface belongs.
@@ -492,8 +484,29 @@ export interface ProjectUpdate {
  * Client view of an [`Rack`]
  */
 export interface Rack {
-  /** Identity-related metadata that's included in nearly all public API objects */
-  identity: IdentityMetadata
+  /** human-readable free-form text about a resource */
+  description: string
+
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 }
 
 /**
@@ -556,14 +569,23 @@ export type RouteTarget =
  * A route defines a rule that governs where traffic should be sent based on its destination.
  */
 export interface RouterRoute {
+  /** human-readable free-form text about a resource */
+  description: string
+
   /** A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`]. */
   destination: RouteDestination
 
-  /** common identifying metadata */
-  identity: IdentityMetadata
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
 
   /** Describes the kind of router. Set at creation. `read-only` */
   kind: RouterRouteKind
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
 
   /**
    * The VPC Router to which the route belongs.
@@ -573,6 +595,18 @@ export interface RouterRoute {
 
   /** A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to. */
   target: RouteTarget
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 }
 
 /**
@@ -839,14 +873,23 @@ export interface VpcFirewallRule {
   /** whether traffic matching the rule should be allowed or dropped */
   action: VpcFirewallRuleAction
 
+  /** human-readable free-form text about a resource */
+  description: string
+
   /** whether this rule is for incoming or outgoing traffic */
   direction: VpcFirewallRuleDirection
 
   /** reductions on the scope of the rule */
   filters: VpcFirewallRuleFilter
 
-  /** common identifying metadata */
-  identity: IdentityMetadata
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
 
   /**
    * the relative priority of this rule
@@ -860,6 +903,18 @@ export interface VpcFirewallRule {
 
   /** list of sets of instances that the rule applies to */
   targets: VpcFirewallRuleTarget[]
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 }
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'
@@ -971,9 +1026,30 @@ export interface VpcResultsPage {
  * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  */
 export interface VpcRouter {
-  /** common identifying metadata */
-  identity: IdentityMetadata
+  /** human-readable free-form text about a resource */
+  description: string
+
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
   kind: VpcRouterKind
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 
   /**
    * The VPC to which the router belongs.
@@ -1017,14 +1093,35 @@ export interface VpcRouterUpdate {
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
  */
 export interface VpcSubnet {
-  /** common identifying metadata */
-  identity: IdentityMetadata
+  /** human-readable free-form text about a resource */
+  description: string
+
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   * @format uuid
+   */
+  id: string
 
   /** The IPv4 subnet CIDR block. */
   ipv4_block?: Ipv4Net | null
 
   /** The IPv6 subnet CIDR block. */
   ipv6_block?: Ipv6Net | null
+
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+
+  /**
+   * timestamp when this resource was created
+   * @format date-time
+   */
+  timeCreated: string
+
+  /**
+   * timestamp when this resource was last modified
+   * @format date-time
+   */
+  timeModified: string
 
   /**
    * The VPC to which the subnet belongs.

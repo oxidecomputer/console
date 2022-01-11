@@ -144,13 +144,13 @@ export function EditVpcRouterModal({
     >
       <Formik
         initialValues={{
-          name: originalRouter.identity.name,
-          description: originalRouter.identity.description,
+          name: originalRouter.name,
+          description: originalRouter.description,
         }}
         onSubmit={({ name, description }) => {
           updateRouter.mutate({
             ...parentIds,
-            routerName: originalRouter.identity.name,
+            routerName: originalRouter.name,
             body: { name, description },
           })
         }}

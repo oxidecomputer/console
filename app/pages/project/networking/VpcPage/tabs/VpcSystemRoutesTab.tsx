@@ -12,7 +12,7 @@ export const VpcSystemRoutesTab = () => {
 
   return (
     <Table>
-      <Column id="name" header="Name" accessor="identity.name" />
+      <Column id="name" header="Name" accessor="name" />
       <Column
         id="destination"
         header="destination"
@@ -25,11 +25,7 @@ export const VpcSystemRoutesTab = () => {
         accessor="target"
         cell={TypeValueCell}
       />
-      <Column
-        id="description"
-        header="description"
-        accessor="identity.description"
-      />
+      <Column id="description" header="description" accessor="description" />
     </Table>
   )
 }

@@ -167,15 +167,15 @@ export function EditVpcSubnetModal({
     >
       <Formik
         initialValues={{
-          name: originalSubnet.identity.name,
-          description: originalSubnet.identity.description,
+          name: originalSubnet.name,
+          description: originalSubnet.description,
           ipv4Block: originalSubnet.ipv4_block || '',
           ipv6Block: originalSubnet.ipv6_block || '',
         }}
         onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
           updateSubnet.mutate({
             ...parentIds,
-            subnetName: originalSubnet.identity.name,
+            subnetName: originalSubnet.name,
             body: {
               name,
               description,
