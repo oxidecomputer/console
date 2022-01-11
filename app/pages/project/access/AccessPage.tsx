@@ -18,9 +18,49 @@ import {
   Unauthorized12Icon,
   Access24Icon,
 } from '@oxide/ui'
-import type { User } from '@oxide/api-mocks'
-import { users } from '@oxide/api-mocks'
 import { Table, getSelectCol } from '@oxide/table'
+
+type User = {
+  name: string
+  lastAccessed: string
+  access: {
+    read: boolean
+    modify: boolean
+    create: boolean
+    admin: boolean
+  }
+}
+
+const makeRM = (name: string): User => ({
+  name,
+  lastAccessed: 'Never',
+  access: {
+    read: true,
+    modify: true,
+    create: false,
+    admin: false,
+  },
+})
+
+export const users = [
+  {
+    name: 'Cameron Howe',
+    lastAccessed: 'Just now',
+    access: {
+      read: true,
+      modify: true,
+      create: true,
+      admin: false,
+    },
+  },
+  makeRM('Ryan Ray'),
+  makeRM('Frosty Turek'),
+  makeRM('Donna Clark'),
+  makeRM('Wonder Boy'),
+  makeRM('Malcolm Levitan'),
+  makeRM('Yoyo Engberk'),
+  makeRM('Tom Renden'),
+]
 
 const AccessIcon = ({ value }: { value: boolean }) => (
   <div className="text-center">
