@@ -1,6 +1,6 @@
 import React from 'react'
 import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { useParams } from '../../../hooks'
+import { useParams } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
 export const VpcsPage = () => {

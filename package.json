@@ -11,6 +11,7 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write",
     "gen": "plop",
+    "gen-api": "./tools/generate_api_client.sh",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
     "storybook:clean": "rm -rf node_modules/.cache",
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",

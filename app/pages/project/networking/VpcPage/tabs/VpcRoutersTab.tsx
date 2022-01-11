@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams } from '../../../../../hooks'
+import { useParams } from 'app/hooks'
 import { Button } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, DateCell, LabelCell } from '@oxide/table'

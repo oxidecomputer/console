@@ -20,12 +20,12 @@ import {
 } from '@oxide/ui'
 import { classed } from '@oxide/util'
 import { useApiMutation } from '@oxide/api'
-import { getServerError } from '../../../../util/errors'
+import { getServerError } from 'app/util/errors'
 import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './modals/new-disk-modal'
 import { ExistingDiskModal } from './modals/existing-disk-modal'
 import { NetworkModal } from './modals/network-modal'
-import { useParams } from '../../../../hooks'
+import { useParams } from 'app/hooks'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-display-xl font-sans font-light'

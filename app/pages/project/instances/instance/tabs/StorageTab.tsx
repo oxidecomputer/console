@@ -5,8 +5,8 @@ import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { Table } from '@oxide/table'
-import { useParams } from '../../../../../hooks'
-import { DiskStatusBadge } from '../../../../../components/StatusBadge'
+import { useParams } from 'app/hooks'
+import { DiskStatusBadge } from 'app/components/StatusBadge'
 
 const columns = [
   {

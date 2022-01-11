@@ -4,7 +4,7 @@ import {
   screen,
   userEvent,
   waitForElementToBeRemoved,
-} from '../../../../test-utils'
+} from 'app/test-utils'
 import { org, project, vpcSubnet, vpcSubnet2 } from '@oxide/api-mocks'
 import { override } from '../../../../../libs/api/msw/server'
 

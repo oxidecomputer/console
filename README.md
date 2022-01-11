@@ -104,14 +104,15 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 ### Useful commands
 
-| Command      | Description                                                      |
-| ------------ | ---------------------------------------------------------------- |
-| `yarn test`  | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`   |
-| `yarn lint`  | ESLint                                                           |
-| `yarn tsc`   | Check types                                                      |
-| `yarn ci`    | Lint, tests, and types                                           |
-| `yarn fmt .` | Format everything. Rarely necessary thanks to editor integration |
-| `yarn gen`   | Generate components, stories, tests, etc                         |
+| Command        | Description                                                                        |
+| -------------- | ---------------------------------------------------------------------------------- |
+| `yarn test`    | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`                     |
+| `yarn lint`    | ESLint                                                                             |
+| `yarn tsc`     | Check types                                                                        |
+| `yarn ci`      | Lint, tests, and types                                                             |
+| `yarn fmt .`   | Format everything. Rarely necessary thanks to editor integration                   |
+| `yarn gen`     | Generate components, stories, tests, etc                                           |
+| `yarn gen-api` | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 
 ## Relevant documents
 

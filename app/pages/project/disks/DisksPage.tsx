@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import { useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
 
-import { useParams } from '../../../hooks'
-import { DiskStatusBadge } from '../../../components/StatusBadge'
+import { useParams } from 'app/hooks'
+import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { PageHeader, PageTitle, Storage24Icon } from '@oxide/ui'
 
 function AttachedInstance(props: {

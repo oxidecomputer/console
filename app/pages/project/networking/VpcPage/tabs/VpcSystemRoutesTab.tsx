@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams } from '../../../../../hooks'
+import { useParams } from 'app/hooks'
 import { useQueryTable, TypeValueCell } from '@oxide/table'
 
 export const VpcSystemRoutesTab = () => {

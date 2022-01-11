@@ -1,4 +1,4 @@
-import { fireEvent, renderAppAt, screen, waitFor } from '../../test-utils'
+import { fireEvent, renderAppAt, screen, waitFor } from 'app/test-utils'
 import { override } from '../../../libs/api/msw/server'
 
 import { org, project } from '@oxide/api-mocks'
