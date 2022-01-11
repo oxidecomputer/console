@@ -16,7 +16,7 @@ describe('VpcPage', () => {
       screen.getByText('Subnets')
 
       // wait for subnet to show up in the table
-      await screen.findByRole('cell', { name: vpcSubnet.identity.name })
+      await screen.findByRole('cell', { name: vpcSubnet.name })
 
       // modal is not already open
       expect(screen.queryByRole('dialog', { name: 'Create subnet' })).toBeNull()
@@ -55,8 +55,8 @@ describe('VpcPage', () => {
       // showed up in the list actually does check what was posted.
 
       // table should refetch and now include second subnet
-      screen.getByRole('cell', { name: vpcSubnet.identity.name })
-      await screen.findByRole('cell', { name: vpcSubnet2.identity.name })
+      screen.getByRole('cell', { name: vpcSubnet.name })
+      await screen.findByRole('cell', { name: vpcSubnet2.name })
     })
   })
 })

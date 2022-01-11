@@ -43,14 +43,14 @@ export const VpcSubnetsTab = () => {
         />
       </div>
       <Table selectable actions={actions}>
-        <Column id="name" accessor="identity.name" />
+        <Column id="name" />
         <Column
           id="ip-block"
           header="IP Block"
           accessor={(vpc) => [vpc.ipv4_block, vpc.ipv6_block]}
           cell={TwoLineCell}
         />
-        <Column id="created" accessor="identity.timeCreated" cell={DateCell} />
+        <Column id="created" accessor="timeCreated" cell={DateCell} />
       </Table>
     </>
   )

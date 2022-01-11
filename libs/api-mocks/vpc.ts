@@ -21,24 +21,20 @@ export const vpcs: VpcResultsPage = { items: [vpc] }
 
 export const vpcSubnet: VpcSubnet = {
   // this is supposed to be flattened into the top level. will fix in API
-  identity: {
-    id: 'vpc-subnet-id',
-    name: 'mock-subnet',
-    description: 'a fake subnet',
-    timeCreated: new Date(2021, 0, 1).toISOString(),
-    timeModified: new Date(2021, 0, 2).toISOString(),
-  },
+  id: 'vpc-subnet-id',
+  name: 'mock-subnet',
+  description: 'a fake subnet',
+  timeCreated: new Date(2021, 0, 1).toISOString(),
+  timeModified: new Date(2021, 0, 2).toISOString(),
   // supposed to be camelcase, will fix in API
   vpc_id: vpc.id,
   ipv4_block: '1.1.1.1/24',
 }
 
 export const vpcSubnet2: VpcSubnet = {
-  identity: {
-    ...vpcSubnet.identity,
-    id: 'vpc-subnet-id-2',
-    name: 'mock-subnet-2',
-  },
+  ...vpcSubnet,
+  id: 'vpc-subnet-id-2',
+  name: 'mock-subnet-2',
   vpc_id: vpc.id,
   ipv4_block: '1.1.1.2/24',
 }

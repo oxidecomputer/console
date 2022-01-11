@@ -43,12 +43,12 @@ export const VpcRoutersTab = () => {
         />
       </div>
       <Table selectable actions={actions}>
-        <Column id="name" header="Name" accessor="identity.name" />
-        <Column id="kind" header="type" accessor="kind" cell={LabelCell} />
+        <Column id="name" header="Name" />
+        <Column id="kind" header="type" cell={LabelCell} />
         <Column
           id="created"
           header="Created"
-          accessor="identity.timeCreated"
+          accessor="timeCreated"
           cell={DateCell}
         />
       </Table>
