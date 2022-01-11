@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { setLogger } from 'react-query'
 import 'whatwg-fetch'
-import { server } from '../libs/api/msw/server'
+import { msw } from '@oxide/api-mocks'
 
 // react-query calls console.error whenever a request fails.
 // this is annoying and we don't need it. leave log and warn there
@@ -12,6 +12,6 @@ setLogger({
   error: () => {},
 })
 
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+beforeAll(() => msw.server.listen())
+afterEach(() => msw.server.resetHandlers())
+afterAll(() => msw.server.close())
