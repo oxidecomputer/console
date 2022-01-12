@@ -1,4 +1,4 @@
-import type { Instance } from '@oxide/api'
+import type { Instance, InstanceResultsPage } from '@oxide/api'
 
 export const instance: Instance = {
   ncpus: 7,
@@ -13,3 +13,5 @@ export const instance: Instance = {
   timeModified: new Date().toISOString(),
   timeRunStateUpdated: new Date().toISOString(),
 }
+
+export const instances: InstanceResultsPage = { items: [instance] }

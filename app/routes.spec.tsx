@@ -2,16 +2,13 @@
 
 import { matchRoutes } from 'react-router'
 import { renderAppAt } from './test-utils'
-import fetchMock from 'fetch-mock'
 
-import { projects, sessionMe } from '@oxide/api-mocks'
+import { projects } from '@oxide/api-mocks'
 
 import { getRouteConfig } from './routes'
 
 describe('routes', () => {
   it('should render successfully', async () => {
-    fetchMock.get('/api/session/me', { status: 200, body: sessionMe })
-    fetchMock.get('/api/organizations/maze-war/projects', projects)
     const { findAllByText } = renderAppAt('/')
     await findAllByText(projects.items[0].name)
   })

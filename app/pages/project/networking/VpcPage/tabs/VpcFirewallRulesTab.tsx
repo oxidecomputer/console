@@ -15,12 +15,12 @@ export const VpcFirewallRulesTab = () => {
 
   return (
     <Table selectable>
-      <Column id="name" accessor="identity.name" />
+      <Column id="name" />
       <Column id="action" />
       <Column id="targets" cell={TypeValueListCell} />
       <Column id="filters" cell={FirewallFilterCell} />
       <Column id="status" header="state" cell={EnabledCell} />
-      <Column id="created" accessor="identity.timeCreated" cell={DateCell} />
+      <Column id="created" accessor="timeCreated" cell={DateCell} />
     </Table>
   )
 }
