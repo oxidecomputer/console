@@ -47,6 +47,8 @@ async function startMockAPI() {
 }
 
 if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
+  // MSW has NODE_ENV !== prod built into it, but let's be extra safe
+  // need to defer requests until after the mock server starts up
   startMockAPI().then(render)
 } else {
   render()
