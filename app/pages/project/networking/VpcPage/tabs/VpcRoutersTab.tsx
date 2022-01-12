@@ -42,7 +42,7 @@ export const VpcRoutersTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable actions={actions}>
+      <Table actions={actions}>
         <Column id="name" header="Name" />
         <Column id="kind" header="type" cell={LabelCell} />
         <Column

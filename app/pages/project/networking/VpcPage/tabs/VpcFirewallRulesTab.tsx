@@ -14,7 +14,7 @@ export const VpcFirewallRulesTab = () => {
   const { Table, Column } = useQueryTable('vpcFirewallRulesGet', vpcParams)
 
   return (
-    <Table selectable>
+    <Table>
       <Column id="name" />
       <Column id="action" />
       <Column id="targets" cell={TypeValueListCell} />

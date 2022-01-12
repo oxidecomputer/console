@@ -5,7 +5,7 @@ import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import { getSelectCol, getActionsCol } from './columns'
 import { Table } from './Table'
-import { unsafe_get } from '@oxide/util'
+import { kebabCase, unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
@@ -23,6 +23,8 @@ import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
+import type { BulkAction } from './bulk-actions'
+import { BulkActionMenu } from 'libs/ui/lib/bulk-action-menu/BulkActionMenu'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
   Table: ComponentType<QueryTableProps<A, M>>
@@ -61,13 +63,13 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
 }
 
 interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
-  selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
   actions?: MakeActions<A, M>
+  bulkActions?: BulkAction<A, M>[]
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
@@ -81,8 +83,8 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
 ): ComponentType<QueryTableProps<A, M>> =>
   function QueryTable({
     children,
-    selectable,
     actions,
+    bulkActions,
     debug,
     rowId,
     pagination = 'page',
@@ -151,7 +153,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
       (hooks) => {
         hooks.visibleColumns.push((columns) => {
           const visibleColumns = []
-          if (selectable) visibleColumns.push(getSelectCol())
+          if (bulkActions?.length) visibleColumns.push(getSelectCol())
           visibleColumns.push(...columns)
           if (actions) visibleColumns.push(getActionsCol(actions))
 
@@ -180,6 +182,21 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     return (
       <>
         <Table table={table} />
+        {bulkActions?.length && table.selectedFlatRows.length > 0 && (
+          <BulkActionMenu
+            selectedCount={table.selectedFlatRows.length}
+            onSelectAll={() => table.toggleAllRowsSelected()}
+          >
+            {bulkActions.map(({ label, icon, onActivate }) => (
+              <BulkActionMenu.Button
+                key={kebabCase(label)}
+                onClick={() => onActivate(table.selectedFlatRows as any)}
+              >
+                {icon} {label}
+              </BulkActionMenu.Button>
+            ))}
+          </BulkActionMenu>
+        )}
         <Pagination target={pagination} {...paginationParams} />
       </>
     )

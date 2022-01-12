@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useParams } from 'app/hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
-import { Button } from '@oxide/ui'
+import { Button, Delete10Icon } from '@oxide/ui'
 import { CreateVpcSubnetModal, EditVpcSubnetModal } from '../modals/vpc-subnets'
 import type { VpcSubnet } from '@oxide/api'
 
@@ -42,7 +42,16 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable actions={actions}>
+      <Table
+        actions={actions}
+        bulkActions={{
+          label: 'delete',
+          icon: <Delete10Icon />,
+          onActivate(items) {
+            console.log(items)
+          },
+        }}
+      >
         <Column id="name" />
         <Column
           id="ip-block"

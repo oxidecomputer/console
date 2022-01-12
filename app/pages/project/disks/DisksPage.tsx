@@ -41,7 +41,7 @@ export function DisksPage() {
       <PageHeader>
         <PageTitle icon={<Storage24Icon title="Vpcs" />}>Disks</PageTitle>
       </PageHeader>
-      <Table selectable>
+      <Table>
         <Column id="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
