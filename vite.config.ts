@@ -17,7 +17,9 @@ export default defineConfig(({ mode }) => {
   const msw = mode !== 'production' && process.env.MSW
   return {
     root: './app',
-    // don't serve mockServiceWorker.js in production
+    // don't serve mockServiceWorker.js in production. this only works because
+    // msw.js is the only thing in the public dir. if we wanted something else
+    // in there we'd have to get more elaborate
     publicDir: msw ? 'public' : false,
     build: {
       outDir: resolve(__dirname, 'dist'),
@@ -50,6 +52,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 4000,
+      // these only get hit when MSW isn't intercepting requests
       proxy: {
         '/api': {
           target: 'http://localhost:12220',
