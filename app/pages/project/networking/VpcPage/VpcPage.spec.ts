@@ -9,7 +9,7 @@ import {
 describe('VpcPage', () => {
   describe('subnets tab', () => {
     it('creating a subnet works', async () => {
-      renderAppAt('/orgs/mock-org/projects/mock-project/vpcs/mock-vpc')
+      renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
       screen.getByText('Subnets')
 
       // wait for subnet to show up in the table

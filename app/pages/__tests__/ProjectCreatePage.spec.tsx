@@ -21,7 +21,7 @@ const formUrl = `/orgs/${org.name}/projects/new`
 
 const renderPage = () => {
   const result = renderAppAt(formUrl)
-  enterName('valid-name')
+  enterName('mock-project-2')
   return result
 }
 
@@ -38,10 +38,8 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in project create code map', async () => {
-    override('post', projectsUrl, 400, {
-      error_code: 'ObjectAlreadyExists',
-    })
-    renderPage()
+    renderAppAt(formUrl)
+    enterName(project.name) // already exists
 
     fireEvent.click(submitButton())
 
@@ -86,7 +84,7 @@ describe('ProjectCreatePage', () => {
 
   it('navigates to project instances page on success', async () => {
     renderPage()
-    const projectPath = `/orgs/${org.name}/projects/${project.name}/instances`
+    const projectPath = `/orgs/${org.name}/projects/mock-project-2/instances`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

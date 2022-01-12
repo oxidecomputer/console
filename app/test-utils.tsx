@@ -6,12 +6,15 @@ import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
 import { routes } from './routes'
-import { handlers } from '@oxide/api-mocks'
+import { handlers, resetDb } from '@oxide/api-mocks'
 
 const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
+afterEach(() => {
+  resetDb()
+  server.resetHandlers()
+})
 afterAll(() => server.close())
 
 // Override request handlers in order to test special cases

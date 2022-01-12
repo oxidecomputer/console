@@ -2,6 +2,11 @@ import crypto from 'crypto'
 import { rest } from 'msw'
 import * as mock from '@oxide/api-mocks'
 import type {
+  OrganizationProjectsGetParams,
+  OrganizationProjectsPostParams,
+  Project,
+  ProjectCreate,
+  ProjectResultsPage,
   ProjectVpcsGetVpcParams,
   Vpc,
   VpcSubnet,
@@ -12,8 +17,22 @@ import type {
 } from '@oxide/api'
 
 type ToRecord<Obj> = Record<keyof Obj, string>
-type Err = { error_code: 'ObjectNotFound' | 'ObjectAlreadyExists' }
+
+const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' }
+const notFoundErr = { error_code: 'ObjectNotFound' }
+
+type GetErr = typeof notFoundErr
+type PostErr = typeof alreadyExistsErr | typeof notFoundErr
+
 type NoBody = Record<string, never>
+
+function getTimestamps() {
+  const now = new Date().toISOString()
+  return {
+    timeCreated: now,
+    timeModified: now,
+  }
+}
 
 const initDb = {
   orgs: [mock.org],
@@ -49,12 +68,50 @@ export const handlers = [
     return res(ctx.status(404), ctx.text('Not found'))
   }),
 
-  rest.get('/api/organizations/:orgName/projects', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mock.projects))
+  rest.get<
+    NoBody,
+    ToRecord<OrganizationProjectsGetParams>,
+    ProjectResultsPage | GetErr
+  >('/api/organizations/:orgName/projects', (req, res, ctx) => {
+    const org = db.orgs.find((org) => org.name === req.params.orgName)
+    if (!org) {
+      return res(ctx.status(404), ctx.json(notFoundErr))
+    }
+
+    return res(ctx.status(200), ctx.json({ items: db.projects }))
   }),
 
-  rest.post('/api/organizations/:orgName/projects', (req, res, ctx) => {
-    return res(ctx.status(201), ctx.json(mock.project))
+  rest.post<
+    ProjectCreate,
+    ToRecord<OrganizationProjectsPostParams>,
+    Project | PostErr
+  >('/api/organizations/:orgName/projects', (req, res, ctx) => {
+    const { orgName } = req.params
+    // this isn't fully correct yet — it should also check the project ID
+    // on the vpc and the org ID on the project. ugh
+    const org = db.orgs.find((org) => org.name === orgName)
+    if (!org) {
+      return res(ctx.status(404), ctx.json(notFoundErr))
+    }
+
+    const { name, description } = req.body
+
+    const alreadyExists =
+      db.projects.filter((p) => p.organizationId === org.id && p.name === name)
+        .length > 0
+
+    if (alreadyExists) {
+      return res(ctx.status(400), ctx.json(alreadyExistsErr))
+    }
+
+    const newProject = {
+      id: 'project-' + crypto.randomUUID(),
+      organizationId: mock.org.id,
+      name,
+      description,
+      ...getTimestamps(),
+    }
+    return res(ctx.status(201), ctx.json(newProject))
   }),
 
   rest.get(
@@ -92,18 +149,22 @@ export const handlers = [
     }
   ),
 
-  rest.get<NoBody, ToRecord<ProjectVpcsGetVpcParams>, Vpc | Err>(
+  rest.get<NoBody, ToRecord<ProjectVpcsGetVpcParams>, Vpc | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const result = db.vpcs.find((vpc) => vpc.name === req.params.vpcName)
       if (!result) {
-        return res(ctx.status(404), ctx.json({ error_code: 'ObjectNotFound' }))
+        return res(ctx.status(404), ctx.json(notFoundErr))
       }
       return res(ctx.status(200), ctx.json(result))
     }
   ),
 
-  rest.get<NoBody, ToRecord<VpcSubnetsGetParams>, VpcSubnetResultsPage | Err>(
+  rest.get<
+    NoBody,
+    ToRecord<VpcSubnetsGetParams>,
+    VpcSubnetResultsPage | GetErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       // need to know:
@@ -115,14 +176,18 @@ export const handlers = [
       const { vpcName } = req.params
       const vpc = db.vpcs.find((vpc) => vpc.name === vpcName)
       if (!vpc) {
-        return res(ctx.status(404), ctx.json({ error_code: 'ObjectNotFound' }))
+        return res(ctx.status(404), ctx.json(notFoundErr))
       }
       const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
       return res(ctx.status(200), ctx.json({ items }))
     }
   ),
 
-  rest.post<VpcSubnetCreate, ToRecord<VpcSubnetsPostParams>, VpcSubnet | Err>(
+  rest.post<
+    VpcSubnetCreate,
+    ToRecord<VpcSubnetsPostParams>,
+    VpcSubnet | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       // need to know:
@@ -139,7 +204,7 @@ export const handlers = [
       // on the vpc and the org ID on the project. ugh
       const vpc = db.vpcs.find((vpc) => vpc.name === vpcName)
       if (!vpc) {
-        return res(ctx.status(404), ctx.json({ error_code: 'ObjectNotFound' }))
+        return res(ctx.status(404), ctx.json(notFoundErr))
       }
 
       const alreadyExists =
@@ -147,18 +212,13 @@ export const handlers = [
           .length > 0
 
       if (alreadyExists) {
-        return res(
-          ctx.status(400),
-          ctx.json({ error_code: 'ObjectAlreadyExists' })
-        )
+        return res(ctx.status(400), ctx.json(alreadyExistsErr))
       }
 
-      const now = new Date().toISOString()
       const newSubnet = {
         id: 'vpc-subnet-' + crypto.randomUUID(),
         vpc_id: vpc.id,
-        timeCreated: now,
-        timeModified: now,
+        ...getTimestamps(),
         name,
         dnsName: name,
         description,
