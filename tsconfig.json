@@ -11,6 +11,7 @@
     "incremental": true,
     "jsx": "react-jsx",
     "lib": ["es2019", "dom"],
+    "module": "es2020",
     "moduleResolution": "node",
     "noEmit": true,
     "outDir": "dist",

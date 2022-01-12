@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { msw, org, orgs } from '@oxide/api-mocks'
+import { override } from 'app/test-utils'
+import { org, orgs } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -61,7 +62,7 @@ describe('useApiQuery', () => {
 
     it('parses error json if possible', async () => {
       const error = { abc: 'xyz' }
-      msw.override('get', '/api/organizations', 404, error)
+      override('get', '/api/organizations', 404, error)
 
       const { result } = renderGetOrgs()
 
@@ -71,7 +72,7 @@ describe('useApiQuery', () => {
     // TODO: this test applies to the old generated client. now it's more like
     // data is null. error appears to get the JSON parse error for some reason
     it('sets error.data to null if error body is not json', async () => {
-      msw.override('get', '/api/organizations', 404, 'not json')
+      override('get', '/api/organizations', 404, 'not json')
 
       const { result } = renderGetOrgs()
 
@@ -101,7 +102,7 @@ describe('useApiMutation', () => {
 
   describe('on error response', () => {
     it('passes through raw response', async () => {
-      msw.override('post', '/api/organizations', 404, 'not json')
+      override('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -114,7 +115,7 @@ describe('useApiMutation', () => {
 
     it('parses error json if possible', async () => {
       const error = { abc: 'xyz' }
-      msw.override('post', '/api/organizations', 400, error)
+      override('post', '/api/organizations', 400, error)
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -123,7 +124,7 @@ describe('useApiMutation', () => {
     })
 
     it('sets error.data to null if error body is not json', async () => {
-      msw.override('post', '/api/organizations', 404, 'not json')
+      override('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))

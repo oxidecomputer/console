@@ -17,16 +17,37 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.render(
-  <React.StrictMode>
-    <ToastProvider>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <SkipLink id="skip-nav" />
-          <Router>{routes}</Router>
-        </ErrorBoundary>
-      </QueryClientProvider>
-    </ToastProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+function render() {
+  ReactDOM.render(
+    <React.StrictMode>
+      <ToastProvider>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <SkipLink id="skip-nav" />
+            <Router>{routes}</Router>
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </ToastProvider>
+    </React.StrictMode>,
+    document.getElementById('root')
+  )
+}
+
+// stripped out by rollup in production
+async function startMockAPI() {
+  const { handlers } = await import('@oxide/api-mocks')
+  const { setupWorker } = await import('msw')
+  // @ts-expect-error
+  const { default: workerUrl } = await import('./mockServiceWorker.js?url')
+  await setupWorker(...handlers).start({
+    serviceWorker: {
+      url: workerUrl,
+    },
+  })
+}
+
+if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
+  startMockAPI().then(render)
+} else {
+  render()
+}

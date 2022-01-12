@@ -6,9 +6,9 @@ Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omi
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
-- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [Mock Service Workers](https://mswjs.io/)
 - [Tailwind](https://tailwindcss.com/)
-- [OpenAPI Generator](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
+- [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
 - [Vite](https://vitejs.dev/)
 - [Storybook](https://storybook.js.org/) (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
 
@@ -38,11 +38,25 @@ yarn storybook
 
 This will start the storybook for the `ui` component library and start it on `http://localhost:4400`.
 
-### Run dev server
+### Run with [MSW](https://mswjs.io/) mock API
 
-Run `yarn start` and navigate to http://localhost:4000/. The app will automatically reload if you change code. In order for this to work, you need to run the API as well.
+This is the easiest way to run the console locally. Just run:
 
-### Run API
+```
+yarn start:msw
+```
+
+and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
+
+### Run with real API
+
+You can also run the console against a real instance of Nexus, the API.
+
+#### Run dev server
+
+Run `yarn start` and navigate to http://localhost:4000/ in the browser. The running app will automatically update if you change the source code. It will mostly not work until you run the API.
+
+#### Run API
 
 Clone [omicron](https://github.com/oxidecomputer/omicron) in the same parent directory as the console and install [rustup](https://rustup.rs/). Then:
 
@@ -102,7 +116,7 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 </details>
 
-### Useful commands
+### Other useful commands
 
 | Command        | Description                                                                        |
 | -------------- | ---------------------------------------------------------------------------------- |
