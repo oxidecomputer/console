@@ -1,20 +1,7 @@
 import crypto from 'crypto'
 import { rest } from 'msw'
 import * as mock from '@oxide/api-mocks'
-import type {
-  OrganizationProjectsGetParams,
-  OrganizationProjectsPostParams,
-  Project,
-  ProjectCreate,
-  ProjectResultsPage,
-  ProjectVpcsGetVpcParams,
-  Vpc,
-  VpcSubnet,
-  VpcSubnetCreate,
-  VpcSubnetResultsPage,
-  VpcSubnetsGetParams,
-  VpcSubnetsPostParams,
-} from '@oxide/api'
+import type { ApiTypes as Api } from '@oxide/api'
 
 type ToRecord<Obj> = Record<keyof Obj, string>
 
@@ -70,8 +57,8 @@ export const handlers = [
 
   rest.get<
     NoBody,
-    ToRecord<OrganizationProjectsGetParams>,
-    ProjectResultsPage | GetErr
+    ToRecord<Api.OrganizationProjectsGetParams>,
+    Api.ProjectResultsPage | GetErr
   >('/api/organizations/:orgName/projects', (req, res, ctx) => {
     const org = db.orgs.find((org) => org.name === req.params.orgName)
     if (!org) {
@@ -82,9 +69,9 @@ export const handlers = [
   }),
 
   rest.post<
-    ProjectCreate,
-    ToRecord<OrganizationProjectsPostParams>,
-    Project | PostErr
+    Api.ProjectCreate,
+    ToRecord<Api.OrganizationProjectsPostParams>,
+    Api.Project | PostErr
   >('/api/organizations/:orgName/projects', (req, res, ctx) => {
     const { orgName } = req.params
     // this isn't fully correct yet — it should also check the project ID
@@ -149,7 +136,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<NoBody, ToRecord<ProjectVpcsGetVpcParams>, Vpc | GetErr>(
+  rest.get<NoBody, ToRecord<Api.ProjectVpcsGetVpcParams>, Api.Vpc | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const result = db.vpcs.find((vpc) => vpc.name === req.params.vpcName)
@@ -162,8 +149,8 @@ export const handlers = [
 
   rest.get<
     NoBody,
-    ToRecord<VpcSubnetsGetParams>,
-    VpcSubnetResultsPage | GetErr
+    ToRecord<Api.VpcSubnetsGetParams>,
+    Api.VpcSubnetResultsPage | GetErr
   >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
@@ -184,9 +171,9 @@ export const handlers = [
   ),
 
   rest.post<
-    VpcSubnetCreate,
-    ToRecord<VpcSubnetsPostParams>,
-    VpcSubnet | PostErr
+    Api.VpcSubnetCreate,
+    ToRecord<Api.VpcSubnetsPostParams>,
+    Api.VpcSubnet | PostErr
   >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
