@@ -44,13 +44,15 @@ export const VpcSubnetsTab = () => {
       </div>
       <Table
         actions={actions}
-        bulkActions={{
-          label: 'delete',
-          icon: <Delete10Icon />,
-          onActivate(items) {
-            console.log(items)
+        bulkActions={[
+          {
+            label: 'delete',
+            icon: <Delete10Icon />,
+            onActivate(items) {
+              console.log(items)
+            },
           },
-        }}
+        ]}
       >
         <Column id="name" />
         <Column
