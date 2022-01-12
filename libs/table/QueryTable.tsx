@@ -24,7 +24,7 @@ import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 import type { BulkAction } from './bulk-actions'
-import { BulkActionMenu } from 'libs/ui/lib/bulk-action-menu/BulkActionMenu'
+import { BulkActionMenu } from '@oxide/ui'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
   Table: ComponentType<QueryTableProps<A, M>>
@@ -190,7 +190,11 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
             {bulkActions.map(({ label, icon, onActivate }) => (
               <BulkActionMenu.Button
                 key={kebabCase(label)}
-                onClick={() => onActivate(table.selectedFlatRows as any)}
+                onClick={() =>
+                  onActivate(
+                    table.selectedFlatRows.map((row) => row.original) as any
+                  )
+                }
               >
                 {icon} {label}
               </BulkActionMenu.Button>
