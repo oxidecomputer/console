@@ -13,56 +13,49 @@ const mapObj = <V0, V>(
 
 // see https://vitejs.dev/config/
 
-export default defineConfig(({ mode }) => {
-  const msw = mode !== 'production' && process.env.MSW
-  return {
-    root: './app',
-    // don't serve mockServiceWorker.js in production. this only works because
-    // msw.js is the only thing in the public dir. if we wanted something else
-    // in there we'd have to get more elaborate
-    publicDir: msw ? 'public' : false,
-    build: {
-      outDir: resolve(__dirname, 'dist'),
-      emptyOutDir: true,
-      sourcemap: true,
-      rollupOptions: {
-        input: {
-          main: resolve(__dirname, 'app/index.html'),
-          docs: resolve(__dirname, 'app/docs/index.html'),
-        },
-      },
-      // minify: false, // uncomment for debugging
-    },
-    define: {
-      'process.env.API_URL': JSON.stringify(process.env.API_URL),
-      'process.env.MSW': JSON.stringify(msw),
-    },
-    plugins: [react()],
-    resolve: {
-      // turn relative paths from tsconfig into absolute paths
-      // replace is there to turn
-      //   "app/*" => "app/*"
-      // into
-      //   "app" => "app"
-      alias: mapObj(
-        tsConfig.compilerOptions.paths,
-        (k) => k.replace('/*', ''),
-        (paths) => resolve(__dirname, paths[0].replace('/*', ''))
-      ),
-    },
-    server: {
-      port: 4000,
-      // these only get hit when MSW isn't intercepting requests
-      proxy: {
-        '/api': {
-          target: 'http://localhost:12220',
-          rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-        // We want to actually hit Nexus for this because it gives us a login redirect
-        '/login': {
-          target: 'http://localhost:12220',
-        },
+export default defineConfig(({ mode }) => ({
+  root: './app',
+  build: {
+    outDir: resolve(__dirname, 'dist'),
+    emptyOutDir: true,
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'app/index.html'),
+        docs: resolve(__dirname, 'app/docs/index.html'),
       },
     },
-  }
-})
+    // minify: false, // uncomment for debugging
+  },
+  define: {
+    'process.env.API_URL': JSON.stringify(process.env.API_URL),
+    'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
+  },
+  plugins: [react()],
+  resolve: {
+    // turn relative paths from tsconfig into absolute paths
+    // replace is there to turn
+    //   "app/*" => "app/*"
+    // into
+    //   "app" => "app"
+    alias: mapObj(
+      tsConfig.compilerOptions.paths,
+      (k) => k.replace('/*', ''),
+      (paths) => resolve(__dirname, paths[0].replace('/*', ''))
+    ),
+  },
+  server: {
+    port: 4000,
+    // these only get hit when MSW isn't intercepting requests
+    proxy: {
+      '/api': {
+        target: 'http://localhost:12220',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      // We want to actually hit Nexus for this because it gives us a login redirect
+      '/login': {
+        target: 'http://localhost:12220',
+      },
+    },
+  },
+}))

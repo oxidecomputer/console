@@ -33,12 +33,21 @@ function render() {
   )
 }
 
+// stripped out by rollup in production
+async function startMockAPI() {
+  const { handlers } = await import('@oxide/api-mocks')
+  const { setupWorker } = await import('msw')
+  // @ts-expect-error
+  const { default: workerUrl } = await import('./mockServiceWorker.js?url')
+  await setupWorker(...handlers).start({
+    serviceWorker: {
+      url: workerUrl,
+    },
+  })
+}
+
 if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
-  // MSW has NODE_ENV !== prod built into it, but let's be extra safe
-  // need to defer requests until after the mock server starts up
-  Promise.all([import('@oxide/api-mocks'), import('msw')])
-    .then(([{ handlers }, { setupWorker }]) => setupWorker(...handlers).start())
-    .then(render)
+  startMockAPI().then(render)
 } else {
   render()
 }
