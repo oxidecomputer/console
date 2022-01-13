@@ -43,16 +43,37 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(mock.sessionMe))
   }),
 
-  rest.get('/api/organizations', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(mock.orgs))
+  rest.get<
+    NoBody,
+    ToRecord<Api.OrganizationsGetParams>,
+    Api.OrganizationResultsPage
+  >('/api/organizations', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json({ items: db.orgs }))
   }),
 
-  rest.post('/api/organizations', (req, res, ctx) => {
-    return res(ctx.status(201), ctx.json(mock.org))
+  rest.post<
+    Api.OrganizationCreate,
+    ToRecord<Api.OrganizationsPostParams>,
+    Api.Organization
+  >('/api/organizations', (req, res, ctx) => {
+    const newOrg = {
+      id: 'org-' + crypto.randomUUID(),
+      ...req.body,
+      ...getTimestamps(),
+    }
+    return res(ctx.status(201), ctx.json(newOrg))
   }),
 
-  rest.get('/api/organizations/:orgName', (req, res, ctx) => {
-    return res(ctx.status(404), ctx.text('Not found'))
+  rest.get<
+    NoBody,
+    ToRecord<Api.OrganizationsGetOrganizationParams>,
+    Api.Organization | GetErr
+  >('/api/organizations/:orgName', (req, res, ctx) => {
+    const org = db.orgs.find((o) => o.name === req.params.orgName)
+    if (!org) {
+      return res(ctx.status(404), ctx.json(notFoundErr))
+    }
+    return res(ctx.status(200), ctx.json(org))
   }),
 
   rest.get<
@@ -73,10 +94,7 @@ export const handlers = [
     ToRecord<Api.OrganizationProjectsPostParams>,
     Api.Project | PostErr
   >('/api/organizations/:orgName/projects', (req, res, ctx) => {
-    const { orgName } = req.params
-    // this isn't fully correct yet — it should also check the project ID
-    // on the vpc and the org ID on the project. ugh
-    const org = db.orgs.find((org) => org.name === orgName)
+    const org = db.orgs.find((org) => org.name === req.params.orgName)
     if (!org) {
       return res(ctx.status(404), ctx.json(notFoundErr))
     }
