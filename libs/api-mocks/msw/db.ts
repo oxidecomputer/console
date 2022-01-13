@@ -1,4 +1,6 @@
 import type {
+  DefaultRequestBody,
+  PathParams,
   ResponseComposition,
   ResponseFunction,
   RestContext,
@@ -14,13 +16,24 @@ type Result<T> =
   | { ok: T; err: null }
   | { ok: null; err: ReturnType<ResponseFunction> }
 
-type Lookup<T> = (
-  req: RestRequest,
+export type OrgParams = { orgName: string }
+export type ProjectParams = { orgName: string; projectName: string }
+export type VpcParams = {
+  orgName: string
+  projectName: string
+  vpcName: string
+}
+// export type InstanceParams = ProjectParams & { instanceName: string }
+
+// lets us make sure you're only calling a lookup function from a handler with
+// the required path params
+type Req<P extends PathParams> = RestRequest<DefaultRequestBody, P>
+
+export function lookupOrg(
+  req: Req<OrgParams>,
   res: ResponseComposition,
   ctx: RestContext
-) => Result<T>
-
-export const lookupOrg: Lookup<Api.Organization> = (req, res, ctx) => {
+): Result<Api.Organization> {
   const org = db.orgs.find((o) => o.name === req.params.orgName)
   if (!org) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -28,7 +41,11 @@ export const lookupOrg: Lookup<Api.Organization> = (req, res, ctx) => {
   return { ok: org, err: null }
 }
 
-export const lookupProject: Lookup<Api.Project> = (req, res, ctx) => {
+export function lookupProject(
+  req: Req<ProjectParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Api.Project> {
   const org = lookupOrg(req, res, ctx)
   if (org.err) return org // has to be the whole result, not just the error
 
@@ -42,7 +59,11 @@ export const lookupProject: Lookup<Api.Project> = (req, res, ctx) => {
   return { ok: project, err: null }
 }
 
-export const lookupVpc: Lookup<Api.Vpc> = (req, res, ctx) => {
+export function lookupVpc(
+  req: Req<VpcParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Api.Vpc> {
   const project = lookupProject(req, res, ctx)
   if (project.err) return project // has to be the whole result, not just the error
 
