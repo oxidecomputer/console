@@ -28,7 +28,7 @@ describe('InstanceCreatePage', () => {
     await waitFor(() => expect(submit).toBeDisabled())
   })
 
-  it.only('shows specific message for known server error code', async () => {
+  it('shows specific message for known server error code', async () => {
     renderAppAt(formUrl)
     const name = screen.getByRole('textbox', { name: 'Choose a name' })
     userEvent.type(name, instance.name) // already exists in db
