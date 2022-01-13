@@ -176,14 +176,14 @@ export const handlers = [
       // - name of this table (vpcSubnets)
       // - name of param identifying parent (vpcName)
       // - name of parent table (vpcs)
-      // - name of parent id field (vpc_id)
+      // - name of parent id field (vpcId)
 
       const { vpcName } = req.params
       const vpc = db.vpcs.find((vpc) => vpc.name === vpcName)
       if (!vpc) {
         return res(ctx.status(404), ctx.json(notFoundErr))
       }
-      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
+      const items = db.vpcSubnets.filter((s) => s.vpcId === vpc.id)
       return res(ctx.status(200), ctx.json({ items }))
     }
   ),
@@ -199,10 +199,8 @@ export const handlers = [
       // - name of this table (vpcSubnets)
       // - name of param identifying parent (vpcName)
       // - name of parent table (vpcs)
-      // - name of parent id field (vpc_id)
+      // - name of parent id field (vpcId)
       // - how to convert req.body into params
-
-      const { name, description, ipv4Block, ipv6Block } = req.body
 
       const { vpcName } = req.params
       // this isn't fully correct yet — it should also check the project ID
@@ -213,8 +211,9 @@ export const handlers = [
       }
 
       const alreadyExists =
-        db.vpcSubnets.filter((o) => o.vpc_id === vpc.id && o.name === name)
-          .length > 0
+        db.vpcSubnets.filter(
+          (s) => s.vpcId === vpc.id && s.name === req.body.name
+        ).length > 0
 
       if (alreadyExists) {
         return res(ctx.status(400), ctx.json(alreadyExistsErr))
@@ -222,13 +221,10 @@ export const handlers = [
 
       const newSubnet = {
         id: 'vpc-subnet-' + crypto.randomUUID(),
-        vpc_id: vpc.id,
+        vpcId: vpc.id,
+        dnsName: req.body.name,
+        ...req.body,
         ...getTimestamps(),
-        name,
-        dnsName: name,
-        description,
-        ipv4_block: ipv4Block,
-        ipv6_block: ipv6Block,
       }
       db.vpcSubnets.push(newSubnet)
       return res(ctx.status(201), ctx.json(newSubnet))

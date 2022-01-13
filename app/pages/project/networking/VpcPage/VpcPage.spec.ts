@@ -45,6 +45,6 @@ describe('VpcPage', () => {
       // table refetches and now includes second subnet
       screen.getByRole('cell', { name: 'mock-subnet' })
       await screen.findByRole('cell', { name: 'mock-subnet-2' })
-    })
+    }, 10000) // otherwise it flakes in CI
   })
 })
