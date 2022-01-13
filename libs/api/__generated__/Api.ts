@@ -311,7 +311,7 @@ export interface NetworkInterface {
    * The Instance to which the interface belongs.
    * @format uuid
    */
-  instance_id: string
+  instanceId: string
 
   /**
    * The IP address assigned to this interface.
@@ -329,7 +329,7 @@ export interface NetworkInterface {
    * The subnet to which the interface belongs.
    * @format uuid
    */
-  subnet_id: string
+  subnetId: string
 
   /**
    * timestamp when this resource was created
@@ -347,7 +347,7 @@ export interface NetworkInterface {
    * The VPC to which the interface belongs.
    * @format uuid
    */
-  vpc_id: string
+  vpcId: string
 }
 
 /**
@@ -591,7 +591,7 @@ export interface RouterRoute {
    * The VPC Router to which the route belongs.
    * @format uuid
    */
-  router_id: string
+  routerId: string
 
   /** A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to. */
   target: RouteTarget
@@ -1055,7 +1055,7 @@ export interface VpcRouter {
    * The VPC to which the router belongs.
    * @format uuid
    */
-  vpc_id: string
+  vpcId: string
 }
 
 /**
@@ -1103,10 +1103,10 @@ export interface VpcSubnet {
   id: string
 
   /** The IPv4 subnet CIDR block. */
-  ipv4_block?: Ipv4Net | null
+  ipv4Block?: Ipv4Net | null
 
   /** The IPv6 subnet CIDR block. */
-  ipv6_block?: Ipv6Net | null
+  ipv6Block?: Ipv6Net | null
 
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
@@ -1127,7 +1127,7 @@ export interface VpcSubnet {
    * The VPC to which the subnet belongs.
    * @format uuid
    */
-  vpc_id: string
+  vpcId: string
 }
 
 /**
@@ -2251,6 +2251,7 @@ export class Api<
     /**
      * @description List racks in the system.
      *
+     * @tags hardware
      * @name HardwareRacksGet
      * @request GET:/hardware/racks
      */
@@ -2269,6 +2270,7 @@ export class Api<
     /**
      * @description Fetch information about a particular rack.
      *
+     * @tags hardware
      * @name HardwareRacksGetRack
      * @request GET:/hardware/racks/{rack_id}
      */
@@ -2286,6 +2288,7 @@ export class Api<
     /**
      * @description List sleds in the system.
      *
+     * @tags hardware
      * @name HardwareSledsGet
      * @request GET:/hardware/sleds
      */
@@ -2304,6 +2307,7 @@ export class Api<
     /**
      * @description Fetch information about a sled in the system.
      *
+     * @tags hardware
      * @name HardwareSledsGetSled
      * @request GET:/hardware/sleds/{sled_id}
      */
@@ -2321,6 +2325,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags hidden
      * @name SpoofLogin
      * @request POST:/login
      */
@@ -2340,6 +2345,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags hidden
      * @name Logout
      * @request POST:/logout
      */
@@ -2353,6 +2359,7 @@ export class Api<
     /**
      * @description List all organizations.
      *
+     * @tags organizations
      * @name OrganizationsGet
      * @request GET:/organizations
      */
@@ -2371,6 +2378,7 @@ export class Api<
     /**
      * @description Create a new organization.
      *
+     * @tags organizations
      * @name OrganizationsPost
      * @request POST:/organizations
      */
@@ -2391,6 +2399,7 @@ export class Api<
     /**
      * @description Fetch a specific organization
      *
+     * @tags organizations
      * @name OrganizationsGetOrganization
      * @request GET:/organizations/{organization_name}
      */
@@ -2408,6 +2417,7 @@ export class Api<
     /**
      * @description Update a specific organization. * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      *
+     * @tags organizations
      * @name OrganizationsPutOrganization
      * @request PUT:/organizations/{organization_name}
      */
@@ -2428,6 +2438,7 @@ export class Api<
     /**
      * @description Delete a specific organization.
      *
+     * @tags organizations
      * @name OrganizationsDeleteOrganization
      * @request DELETE:/organizations/{organization_name}
      */
@@ -2444,6 +2455,7 @@ export class Api<
     /**
      * @description List all projects.
      *
+     * @tags projects
      * @name OrganizationProjectsGet
      * @request GET:/organizations/{organization_name}/projects
      */
@@ -2462,6 +2474,7 @@ export class Api<
     /**
      * @description Create a new project.
      *
+     * @tags projects
      * @name OrganizationProjectsPost
      * @request POST:/organizations/{organization_name}/projects
      */
@@ -2482,6 +2495,7 @@ export class Api<
     /**
      * @description Fetch a specific project
      *
+     * @tags projects
      * @name OrganizationProjectsGetProject
      * @request GET:/organizations/{organization_name}/projects/{project_name}
      */
@@ -2499,6 +2513,7 @@ export class Api<
     /**
      * @description Update a specific project. * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      *
+     * @tags organizations
      * @name OrganizationProjectsPutProject
      * @request PUT:/organizations/{organization_name}/projects/{project_name}
      */
@@ -2519,6 +2534,7 @@ export class Api<
     /**
      * @description Delete a specific project.
      *
+     * @tags projects
      * @name OrganizationProjectsDeleteProject
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}
      */
@@ -2535,6 +2551,7 @@ export class Api<
     /**
      * @description List disks in a project.
      *
+     * @tags projects
      * @name ProjectDisksGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/disks
      */
@@ -2553,6 +2570,7 @@ export class Api<
     /**
      * @description Create a disk in a project. * TODO-correctness See note about instance create.  This should be async.
      *
+     * @tags projects
      * @name ProjectDisksPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/disks
      */
@@ -2573,6 +2591,7 @@ export class Api<
     /**
      * @description Fetch a single disk in a project.
      *
+     * @tags projects
      * @name ProjectDisksGetDisk
      * @request GET:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
      */
@@ -2590,6 +2609,7 @@ export class Api<
     /**
      * @description Delete a disk from a project.
      *
+     * @tags projects
      * @name ProjectDisksDeleteDisk
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
      */
@@ -2606,6 +2626,7 @@ export class Api<
     /**
      * @description List instances in a project.
      *
+     * @tags instances
      * @name ProjectInstancesGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances
      */
@@ -2624,6 +2645,7 @@ export class Api<
     /**
      * @description Create an instance in a project. * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it's just not booted yet.  Maybe the boot operation is what's a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a "reboot" operation would return a 202 Accepted because there's no actual resource created?
      *
+     * @tags instances
      * @name ProjectInstancesPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances
      */
@@ -2644,6 +2666,7 @@ export class Api<
     /**
      * @description Get an instance in a project.
      *
+     * @tags instances
      * @name ProjectInstancesGetInstance
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
      */
@@ -2661,6 +2684,7 @@ export class Api<
     /**
      * @description Delete an instance from a project.
      *
+     * @tags instances
      * @name ProjectInstancesDeleteInstance
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
      */
@@ -2681,6 +2705,7 @@ export class Api<
     /**
      * @description List disks attached to this instance.
      *
+     * @tags instances
      * @name InstanceDisksGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks
      */
@@ -2699,6 +2724,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags instances
      * @name InstanceDisksAttach
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/attach
      */
@@ -2719,6 +2745,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags instances
      * @name InstanceDisksDetach
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/detach
      */
@@ -2739,6 +2766,7 @@ export class Api<
     /**
      * @description Reboot an instance.
      *
+     * @tags instances
      * @name ProjectInstancesInstanceReboot
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/reboot
      */
@@ -2760,6 +2788,7 @@ export class Api<
     /**
      * @description Boot an instance.
      *
+     * @tags instances
      * @name ProjectInstancesInstanceStart
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/start
      */
@@ -2781,6 +2810,7 @@ export class Api<
     /**
      * @description Halt an instance.
      *
+     * @tags instances
      * @name ProjectInstancesInstanceStop
      * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/stop
      */
@@ -2802,6 +2832,7 @@ export class Api<
     /**
      * @description List VPCs in a project.
      *
+     * @tags networking
      * @name ProjectVpcsGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs
      */
@@ -2820,6 +2851,7 @@ export class Api<
     /**
      * @description Create a VPC in a project.
      *
+     * @tags networking
      * @name ProjectVpcsPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs
      */
@@ -2840,6 +2872,7 @@ export class Api<
     /**
      * @description Get a VPC in a project.
      *
+     * @tags networking
      * @name ProjectVpcsGetVpc
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
@@ -2857,6 +2890,7 @@ export class Api<
     /**
      * @description Update a VPC.
      *
+     * @tags networking
      * @name ProjectVpcsPutVpc
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
@@ -2876,6 +2910,7 @@ export class Api<
     /**
      * @description Delete a vpc from a project.
      *
+     * @tags networking
      * @name ProjectVpcsDeleteVpc
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
      */
@@ -2892,6 +2927,7 @@ export class Api<
     /**
      * @description List firewall rules for a VPC.
      *
+     * @tags networking
      * @name VpcFirewallRulesGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules
      */
@@ -2910,6 +2946,7 @@ export class Api<
     /**
      * @description Replace the firewall rules for a VPC
      *
+     * @tags networking
      * @name VpcFirewallRulesPut
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules
      */
@@ -2930,6 +2967,7 @@ export class Api<
     /**
      * @description List VPC Custom and System Routers
      *
+     * @tags networking
      * @name VpcRoutersGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers
      */
@@ -2948,6 +2986,7 @@ export class Api<
     /**
      * @description Create a VPC Router
      *
+     * @tags networking
      * @name VpcRoutersPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers
      */
@@ -2968,6 +3007,7 @@ export class Api<
     /**
      * @description Get a VPC Router
      *
+     * @tags networking
      * @name VpcRoutersGetRouter
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
@@ -2985,6 +3025,7 @@ export class Api<
     /**
      * @description Update a VPC Router
      *
+     * @tags networking
      * @name VpcRoutersPutRouter
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
@@ -3004,6 +3045,7 @@ export class Api<
     /**
      * @description Delete a router from its VPC
      *
+     * @tags networking
      * @name VpcRoutersDeleteRouter
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
      */
@@ -3025,6 +3067,7 @@ export class Api<
     /**
      * @description List a Router's routes
      *
+     * @tags networking
      * @name RoutersRoutesGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes
      */
@@ -3049,6 +3092,7 @@ export class Api<
     /**
      * @description Create a VPC Router
      *
+     * @tags networking
      * @name RoutersRoutesPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes
      */
@@ -3069,6 +3113,7 @@ export class Api<
     /**
      * @description Get a VPC Router route
      *
+     * @tags networking
      * @name RoutersRoutesGetRoute
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
@@ -3092,6 +3137,7 @@ export class Api<
     /**
      * @description Update a Router route
      *
+     * @tags networking
      * @name RoutersRoutesPutRoute
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
@@ -3117,6 +3163,7 @@ export class Api<
     /**
      * @description Delete a route from its router
      *
+     * @tags networking
      * @name RoutersRoutesDeleteRoute
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
      */
@@ -3139,6 +3186,7 @@ export class Api<
     /**
      * @description List subnets in a VPC.
      *
+     * @tags networking
      * @name VpcSubnetsGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets
      */
@@ -3157,6 +3205,7 @@ export class Api<
     /**
      * @description Create a subnet in a VPC.
      *
+     * @tags networking
      * @name VpcSubnetsPost
      * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets
      */
@@ -3177,6 +3226,7 @@ export class Api<
     /**
      * @description Get subnet in a VPC.
      *
+     * @tags networking
      * @name VpcSubnetsGetSubnet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
@@ -3194,6 +3244,7 @@ export class Api<
     /**
      * @description Update a VPC Subnet.
      *
+     * @tags networking
      * @name VpcSubnetsPutSubnet
      * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
@@ -3213,6 +3264,7 @@ export class Api<
     /**
      * @description Delete a subnet from a VPC.
      *
+     * @tags networking
      * @name VpcSubnetsDeleteSubnet
      * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
      */
@@ -3234,6 +3286,7 @@ export class Api<
     /**
      * @description List IP addresses on a VPC subnet.
      *
+     * @tags networking
      * @name SubnetsIpsGet
      * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}/ips
      */
@@ -3258,6 +3311,7 @@ export class Api<
     /**
      * @description List the built-in roles
      *
+     * @tags roles
      * @name RolesGet
      * @request GET:/roles
      */
@@ -3273,6 +3327,7 @@ export class Api<
     /**
      * @description Fetch a specific built-in role
      *
+     * @tags roles
      * @name RolesGetRole
      * @request GET:/roles/{role_name}
      */
@@ -3290,6 +3345,7 @@ export class Api<
     /**
      * @description List all sagas (for debugging)
      *
+     * @tags sagas
      * @name SagasGet
      * @request GET:/sagas
      */
@@ -3305,6 +3361,7 @@ export class Api<
     /**
      * @description Fetch information about a single saga (for debugging)
      *
+     * @tags sagas
      * @name SagasGetSaga
      * @request GET:/sagas/{saga_id}
      */
@@ -3322,6 +3379,7 @@ export class Api<
     /**
      * @description Fetch the user associated with the current session
      *
+     * @tags hidden
      * @name SessionMe
      * @request GET:/session/me
      */
@@ -3336,6 +3394,7 @@ export class Api<
     /**
      * @description List all timeseries schema
      *
+     * @tags metrics
      * @name TimeseriesSchemaGet
      * @request GET:/timeseries/schema
      */
@@ -3354,6 +3413,7 @@ export class Api<
     /**
      * @description List the built-in system users
      *
+     * @tags users
      * @name UsersGet
      * @request GET:/users
      */
@@ -3369,6 +3429,7 @@ export class Api<
     /**
      * @description Fetch a specific built-in system user
      *
+     * @tags users
      * @name UsersGetUser
      * @request GET:/users/{user_name}
      */

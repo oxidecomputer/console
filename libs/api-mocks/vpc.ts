@@ -27,16 +27,16 @@ export const vpcSubnet: VpcSubnet = {
   timeCreated: new Date(2021, 0, 1).toISOString(),
   timeModified: new Date(2021, 0, 2).toISOString(),
   // supposed to be camelcase, will fix in API
-  vpc_id: vpc.id,
-  ipv4_block: '1.1.1.1/24',
+  vpcId: vpc.id,
+  ipv4Block: '1.1.1.1/24',
 }
 
 export const vpcSubnet2: VpcSubnet = {
   ...vpcSubnet,
   id: 'vpc-subnet-id-2',
   name: 'mock-subnet-2',
-  vpc_id: vpc.id,
-  ipv4_block: '1.1.1.2/24',
+  vpcId: vpc.id,
+  ipv4Block: '1.1.1.2/24',
 }
 
 export const vpcSubnets: VpcSubnetResultsPage = {
