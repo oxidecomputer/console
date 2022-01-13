@@ -54,13 +54,19 @@ export const handlers = [
   rest.post<
     Api.OrganizationCreate,
     ToRecord<Api.OrganizationsPostParams>,
-    Api.Organization
+    Api.Organization | PostErr
   >('/api/organizations', (req, res, ctx) => {
+    const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+    if (alreadyExists) {
+      return res(ctx.status(400), ctx.json(alreadyExistsErr))
+    }
+
     const newOrg = {
       id: 'org-' + crypto.randomUUID(),
       ...req.body,
       ...getTimestamps(),
     }
+    db.orgs.push(newOrg)
     return res(ctx.status(201), ctx.json(newOrg))
   }),
 
@@ -101,9 +107,9 @@ export const handlers = [
 
     const { name, description } = req.body
 
-    const alreadyExists =
-      db.projects.filter((p) => p.organizationId === org.id && p.name === name)
-        .length > 0
+    const alreadyExists = db.projects.some(
+      (p) => p.organizationId === org.id && p.name === name
+    )
 
     if (alreadyExists) {
       return res(ctx.status(400), ctx.json(alreadyExistsErr))
@@ -116,52 +122,152 @@ export const handlers = [
       description,
       ...getTimestamps(),
     }
+    db.projects.push(newProject)
     return res(ctx.status(201), ctx.json(newProject))
   }),
 
-  rest.get(
-    '/api/organizations/:orgName/projects/:projectName',
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mock.project))
+  rest.get<
+    NoBody,
+    ToRecord<Api.OrganizationProjectsGetProjectParams>,
+    Api.Project | GetErr
+  >('/api/organizations/:orgName/projects/:projectName', (req, res, ctx) => {
+    const org = db.orgs.find((org) => org.name === req.params.orgName)
+    if (!org) {
+      return res(ctx.status(404), ctx.json(notFoundErr))
     }
-  ),
+    const project = db.projects.find(
+      (p) => p.organizationId === org.id && p.name === req.params.projectName
+    )
+    if (!project) {
+      return res(ctx.status(404), ctx.json(notFoundErr))
+    }
+    return res(ctx.status(200), ctx.json(project))
+  }),
 
-  rest.get(
+  rest.get<
+    NoBody,
+    ToRecord<Api.ProjectInstancesGetParams>,
+    Api.InstanceResultsPage | GetErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mock.instances))
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const instances = db.instances.filter((i) => i.projectId === project.id)
+      return res(ctx.status(200), ctx.json({ items: instances }))
     }
   ),
 
-  rest.post(
+  rest.post<
+    Api.InstanceCreate,
+    ToRecord<Api.ProjectInstancesPostParams>,
+    Api.Instance | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
-      return res(ctx.status(201), ctx.json(mock.instance))
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+
+      const alreadyExists = db.instances.some(
+        (i) => i.projectId === project.id && i.name === req.body.name
+      )
+      if (alreadyExists) {
+        return res(ctx.status(400), ctx.json(alreadyExistsErr))
+      }
+
+      const newInstance: Api.Instance = {
+        id: 'instance-' + crypto.randomUUID(),
+        projectId: project.id,
+        ...req.body,
+        ...getTimestamps(),
+        runState: 'stopped',
+        timeRunStateUpdated: new Date().toISOString(),
+      }
+      db.instances.push(newInstance)
+      return res(ctx.status(201), ctx.json(newInstance))
     }
   ),
 
-  rest.get(
+  rest.get<
+    NoBody,
+    ToRecord<Api.ProjectDisksGetParams>,
+    Api.DiskResultsPage | GetErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mock.disks))
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const disks = db.disks.filter((d) => d.projectId === project.id)
+      return res(ctx.status(200), ctx.json({ items: disks }))
     }
   ),
 
-  rest.get(
+  rest.get<
+    NoBody,
+    ToRecord<Api.ProjectVpcsGetParams>,
+    Api.VpcResultsPage | GetErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ items: db.vpcs }))
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const vpcs = db.vpcs.filter((v) => v.projectId === project.id)
+      return res(ctx.status(200), ctx.json({ items: vpcs }))
     }
   ),
 
   rest.get<NoBody, ToRecord<Api.ProjectVpcsGetVpcParams>, Api.Vpc | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
-      const result = db.vpcs.find((vpc) => vpc.name === req.params.vpcName)
-      if (!result) {
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
         return res(ctx.status(404), ctx.json(notFoundErr))
       }
-      return res(ctx.status(200), ctx.json(result))
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const vpc = db.vpcs.find(
+        (v) => v.projectId === project.id && v.name === req.params.vpcName
+      )
+      if (!vpc) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      return res(ctx.status(200), ctx.json(vpc))
     }
   ),
 
@@ -172,14 +278,19 @@ export const handlers = [
   >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
-      // need to know:
-      // - name of this table (vpcSubnets)
-      // - name of param identifying parent (vpcName)
-      // - name of parent table (vpcs)
-      // - name of parent id field (vpcId)
-
-      const { vpcName } = req.params
-      const vpc = db.vpcs.find((vpc) => vpc.name === vpcName)
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const vpc = db.vpcs.find(
+        (v) => v.projectId === project.id && v.name === req.params.vpcName
+      )
       if (!vpc) {
         return res(ctx.status(404), ctx.json(notFoundErr))
       }
@@ -195,26 +306,26 @@ export const handlers = [
   >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
-      // need to know:
-      // - name of this table (vpcSubnets)
-      // - name of param identifying parent (vpcName)
-      // - name of parent table (vpcs)
-      // - name of parent id field (vpcId)
-      // - how to convert req.body into params
-
-      const { vpcName } = req.params
-      // this isn't fully correct yet — it should also check the project ID
-      // on the vpc and the org ID on the project. ugh
-      const vpc = db.vpcs.find((vpc) => vpc.name === vpcName)
+      const org = db.orgs.find((org) => org.name === req.params.orgName)
+      if (!org) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const project = db.projects.find(
+        (p) => p.organizationId === org.id && p.name === req.params.projectName
+      )
+      if (!project) {
+        return res(ctx.status(404), ctx.json(notFoundErr))
+      }
+      const vpc = db.vpcs.find(
+        (v) => v.projectId === project.id && v.name === req.params.vpcName
+      )
       if (!vpc) {
         return res(ctx.status(404), ctx.json(notFoundErr))
       }
 
-      const alreadyExists =
-        db.vpcSubnets.filter(
-          (s) => s.vpcId === vpc.id && s.name === req.body.name
-        ).length > 0
-
+      const alreadyExists = db.vpcSubnets.some(
+        (s) => s.vpcId === vpc.id && s.name === req.body.name
+      )
       if (alreadyExists) {
         return res(ctx.status(400), ctx.json(alreadyExistsErr))
       }
