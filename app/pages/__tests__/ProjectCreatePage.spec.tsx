@@ -19,15 +19,10 @@ function enterName(value: string) {
 
 const formUrl = `/orgs/${org.name}/projects/new`
 
-const renderPage = () => {
-  const result = renderAppAt(formUrl)
-  enterName('mock-project-2')
-  return result
-}
-
 describe('ProjectCreatePage', () => {
   it('disables submit button on submit', async () => {
-    renderPage()
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
@@ -52,7 +47,8 @@ describe('ProjectCreatePage', () => {
 
   it('shows message for known error code in global code map', async () => {
     override('post', projectsUrl, 403, { error_code: 'Forbidden' })
-    renderPage()
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
@@ -62,7 +58,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows field-level validation error and does not POST', async () => {
-    renderPage()
+    renderAppAt(formUrl)
     enterName('Invalid-name')
     fireEvent.click(submitButton())
 
@@ -73,7 +69,8 @@ describe('ProjectCreatePage', () => {
 
   it('shows generic message for unknown server error', async () => {
     override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
-    renderPage()
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
@@ -83,7 +80,9 @@ describe('ProjectCreatePage', () => {
   })
 
   it('navigates to project instances page on success', async () => {
-    renderPage()
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
+
     const projectPath = `/orgs/${org.name}/projects/mock-project-2/instances`
     expect(window.location.pathname).not.toEqual(projectPath)
 
