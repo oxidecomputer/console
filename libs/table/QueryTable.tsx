@@ -179,12 +179,14 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
 
     if (isLoading || (tableData.items?.length === 0 && !hasPrev)) return null
 
+    const selectedRowIds = Object.keys((table.state as any).selectedRowIds)
+
     return (
       <>
         <Table table={table} />
-        {bulkActions?.length && table.selectedFlatRows.length > 0 && (
+        {bulkActions?.length && selectedRowIds.length > 0 && (
           <BulkActionMenu
-            selectedCount={table.selectedFlatRows.length}
+            selectedCount={selectedRowIds.length}
             onSelectAll={() => table.toggleAllRowsSelected()}
           >
             {bulkActions.map(({ label, icon, onActivate }) => (
