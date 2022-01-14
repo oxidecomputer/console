@@ -23,8 +23,8 @@ import type { Path } from '@oxide/util'
 import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
+import { BulkActionMenu } from './bulk-actions'
 import type { BulkAction } from './bulk-actions'
-import { BulkActionMenu } from '@oxide/ui'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
   Table: ComponentType<QueryTableProps<A, M>>
@@ -186,6 +186,8 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
         <Table table={table} />
         {bulkActions?.length && selectedRowIds.length > 0 && (
           <BulkActionMenu
+            // Need a better way to center this
+            className="absolute bottom-8 w-[fill-available]"
             selectedCount={selectedRowIds.length}
             onSelectAll={() => table.toggleAllRowsSelected()}
           >

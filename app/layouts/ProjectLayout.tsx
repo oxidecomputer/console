@@ -57,6 +57,7 @@ const ProjectLayout = () => {
           <Outlet />
         </ContentPane>
         <PaginationContainer id="pagination-target" />
+        <div id="popup-container" />
       </ContentPaneWrapper>
     </PageContainer>
   )
