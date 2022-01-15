@@ -1,0 +1,54 @@
+{
+  "default": {
+    "value": 2,
+    "type": "borderRadius"
+  },
+  "large": {
+    "value": 3,
+    "type": "borderRadius"
+  },
+  "border-bottom-secondary": {
+    "value": {
+      "x": 0,
+      "y": -1,
+      "blur": 0,
+      "spread": 0,
+      "color": "{stroke.secondary}",
+      "type": "innerShadow"
+    },
+    "type": "boxShadow"
+  },
+  "border-top-secondary": {
+    "value": {
+      "x": 0,
+      "y": 1,
+      "blur": 0,
+      "spread": 0,
+      "color": "{stroke.secondary}",
+      "type": "innerShadow"
+    },
+    "type": "boxShadow"
+  },
+  "border-right-secondary": {
+    "value": {
+      "x": -1,
+      "y": 0,
+      "blur": 0,
+      "spread": 0,
+      "color": "{stroke.secondary}",
+      "type": "innerShadow"
+    },
+    "type": "boxShadow"
+  },
+  "border-left-secondary": {
+    "value": {
+      "x": 1,
+      "y": 0,
+      "blur": 0,
+      "spread": 0,
+      "color": "{stroke.secondary}",
+      "type": "innerShadow"
+    },
+    "type": "boxShadow"
+  }
+}
