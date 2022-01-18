@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import { rest } from 'msw'
 import { sessionMe } from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
@@ -6,6 +5,9 @@ import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
 import { db, lookupOrg, lookupProject, lookupVpc } from './db'
 
 const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' }
+
+/// generate random 11 digit hex string
+const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
 
 type GetErr = typeof notFoundErr
 type PostErr = typeof alreadyExistsErr | typeof notFoundErr
@@ -41,7 +43,7 @@ export const handlers = [
       }
 
       const newOrg = {
-        id: 'org-' + crypto.randomUUID(),
+        id: 'org-' + randomHex(),
         ...req.body,
         ...getTimestamps(),
       }
@@ -86,7 +88,7 @@ export const handlers = [
       }
 
       const newProject = {
-        id: 'project-' + crypto.randomUUID(),
+        id: 'project-' + randomHex(),
         organizationId: org.ok.id,
         ...req.body,
         ...getTimestamps(),
@@ -131,7 +133,7 @@ export const handlers = [
       }
 
       const newInstance: Api.Instance = {
-        id: 'instance-' + crypto.randomUUID(),
+        id: 'instance-' + randomHex(),
         projectId: project.ok.id,
         ...req.body,
         ...getTimestamps(),
@@ -196,7 +198,7 @@ export const handlers = [
       }
 
       const newSubnet = {
-        id: 'vpc-subnet-' + crypto.randomUUID(),
+        id: 'vpc-subnet-' + randomHex(),
         vpcId: vpc.ok.id,
         dnsName: req.body.name,
         ...req.body,
