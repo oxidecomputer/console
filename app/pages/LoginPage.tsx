@@ -52,7 +52,7 @@ export default function LoginPage() {
   return (
     <div className="w-full justify-center flex">
       <div className="my-48 w-96 space-y-4">
-        <h3 className="text-display-xl mb-2 text-center">Log in as</h3>
+        <h3 className="text-sans-xl mb-2 text-center">Log in as</h3>
         <Button
           type="submit"
           variant="solid"

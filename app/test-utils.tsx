@@ -2,7 +2,37 @@ import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { rest } from 'msw'
+import { setupServer } from 'msw/node'
+
 import { routes } from './routes'
+import { handlers, resetDb } from '@oxide/api-mocks'
+
+const server = setupServer(...handlers)
+
+beforeAll(() => server.listen())
+afterEach(() => {
+  resetDb()
+  server.resetHandlers()
+})
+afterAll(() => server.close())
+
+// Override request handlers in order to test special cases
+export function override(
+  method: keyof typeof rest,
+  path: string,
+  status: number,
+  body: string | Record<string, unknown>
+) {
+  server.use(
+    rest[method](path, (_req, res, ctx) => {
+      return res(
+        ctx.status(status),
+        typeof body === 'string' ? ctx.text(body) : ctx.json(body)
+      )
+    })
+  )
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

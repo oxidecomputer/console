@@ -40,7 +40,7 @@ const ProjectsPage = () => {
           >
             <section className="p-4">
               <header>
-                <Link to={item.name} className="text-display-xl">
+                <Link to={item.name} className="text-sans-xl">
                   {item.name}
                 </Link>
               </header>

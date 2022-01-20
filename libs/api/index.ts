@@ -32,5 +32,10 @@ export const useApiMutation = getUseApiMutation(api.methods)
 export const useApiQueryClient = getUseApiQueryClient<A>()
 
 export * from './__generated__/Api'
+
+// for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
+import type * as ApiTypes from './__generated__/Api'
+export type { ApiTypes }
+
 export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
 export { navToLogin } from './nav-to-login'

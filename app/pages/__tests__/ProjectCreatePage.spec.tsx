@@ -1,5 +1,11 @@
-import { fireEvent, renderAppAt, screen, waitFor } from 'app/test-utils'
-import { msw, org, project } from '@oxide/api-mocks'
+import {
+  fireEvent,
+  override,
+  renderAppAt,
+  screen,
+  waitFor,
+} from 'app/test-utils'
+import { org, project } from '@oxide/api-mocks'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
 
@@ -13,15 +19,10 @@ function enterName(value: string) {
 
 const formUrl = `/orgs/${org.name}/projects/new`
 
-const renderPage = () => {
-  const result = renderAppAt(formUrl)
-  enterName('valid-name')
-  return result
-}
-
 describe('ProjectCreatePage', () => {
   it('disables submit button on submit', async () => {
-    renderPage()
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
@@ -32,10 +33,8 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in project create code map', async () => {
-    msw.override('post', projectsUrl, 400, {
-      error_code: 'ObjectAlreadyExists',
-    })
-    renderPage()
+    renderAppAt(formUrl)
+    enterName(project.name) // already exists
 
     fireEvent.click(submitButton())
 
@@ -47,8 +46,9 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in global code map', async () => {
-    msw.override('post', projectsUrl, 403, { error_code: 'Forbidden' })
-    renderPage()
+    override('post', projectsUrl, 403, { error_code: 'Forbidden' })
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
@@ -58,7 +58,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows field-level validation error and does not POST', async () => {
-    renderPage()
+    renderAppAt(formUrl)
     enterName('Invalid-name')
     fireEvent.click(submitButton())
 
@@ -68,8 +68,9 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    msw.override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
-    renderPage()
+    override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
@@ -79,8 +80,10 @@ describe('ProjectCreatePage', () => {
   })
 
   it('navigates to project instances page on success', async () => {
-    renderPage()
-    const projectPath = `/orgs/${org.name}/projects/${project.name}/instances`
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
+
+    const projectPath = `/orgs/${org.name}/projects/mock-project-2/instances`
     expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())

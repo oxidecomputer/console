@@ -169,8 +169,8 @@ export function EditVpcSubnetModal({
         initialValues={{
           name: originalSubnet.name,
           description: originalSubnet.description,
-          ipv4Block: originalSubnet.ipv4_block || '',
-          ipv6Block: originalSubnet.ipv6_block || '',
+          ipv4Block: originalSubnet.ipv4Block || '',
+          ipv6Block: originalSubnet.ipv6Block || '',
         }}
         onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
           updateSubnet.mutate({
