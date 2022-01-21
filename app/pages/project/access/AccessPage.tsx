@@ -172,7 +172,7 @@ export const AccessPage = () => {
         <div className="modal-body">
           <div className="p-8">
             <div className="flex justify-between mt-2 mb-14">
-              <h2 className="text-display-xl" id="access-modal-title">
+              <h2 className="text-sans-xl" id="access-modal-title">
                 Manage project access
               </h2>
               <Button variant="link" onClick={closeModal}>

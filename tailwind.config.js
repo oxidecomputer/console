@@ -101,44 +101,14 @@ module.exports = {
         variants
       )
 
-      const displayFamily = {
-        'font-family': '"Haas Grot Disp Web", sans-serif',
-      }
       const monoFamily = {
         'font-family': '"GT America Mono", monospace',
       }
       const sansFamily = {
-        'font-family': 'Inter, sans-serif',
+        'font-family':
+          'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
       }
       addUtilities({
-        '.text-display-md': {
-          ...displayFamily,
-          'font-size': '1rem',
-          'line-height': '1.5',
-          'letter-spacing': '0.05rem',
-          'font-weight': 300,
-        },
-        '.text-display-lg': {
-          ...displayFamily,
-          'font-size': '1.25rem',
-          'line-height': '1.3',
-          'letter-spacing': '0.05rem',
-          'font-weight': 300,
-        },
-        '.text-display-xl': {
-          ...displayFamily,
-          'font-size': '1.625rem',
-          'line-height': '1.1',
-          'letter-spacing': '0.05rem',
-          'font-weight': 300,
-        },
-        '.text-display-2xl': {
-          ...displayFamily,
-          'font-size': '2.625rem',
-          'line-height': '1.1',
-          'letter-spacing': '0.078125rem',
-          'font-weight': 300,
-        },
         '.text-mono-xs': {
           ...monoFamily,
           'font-size': '0.625rem',
@@ -165,41 +135,61 @@ module.exports = {
         },
         '.text-sans-sm': {
           ...sansFamily,
-          'font-size': '0.75rem',
-          'line-height': '0.975rem',
-          'letter-spacing': '0.03125rem',
+          'font-size': '0.8125rem',
+          'line-height': '1.125rem',
+          'letter-spacing': '0.05rem',
         },
         '.text-sans-md': {
           ...sansFamily,
-          'font-size': '0.8125rem',
+          'font-size': '0.875rem',
           'line-height': '1.225rem',
-          'letter-spacing': '0.025rem',
+          'letter-spacing': '0.04rem',
         },
         '.text-sans-lg': {
           ...sansFamily,
           'font-size': '1rem',
           'line-height': '1.3rem',
-          'letter-spacing': '0.01875rem',
+          'letter-spacing': '0.03rem',
+        },
+        '.text-sans-xl': {
+          ...sansFamily,
+          'font-size': '1.1875rem',
+          'line-height': '1.54375rem',
+          'letter-spacing': '0.02rem',
+          'font-weight': 300,
+        },
+        '.text-sans-2xl': {
+          ...sansFamily,
+          'font-size': '1.5625rem',
+          'line-height': '1.7188rem',
+          'font-weight': 300,
+        },
+        '.text-sans-3xl': {
+          ...sansFamily,
+          'font-size': '2.5rem',
+          'line-height': '2.75rem',
+          'letter-spacing': '0.015rem',
+          'font-weight': 300,
         },
         '.text-sans-semi-sm': {
           ...sansFamily,
-          'font-size': '0.75rem',
+          'font-size': '0.8125rem',
           'line-height': '0.975rem',
-          'letter-spacing': '0.03125rem',
+          'letter-spacing': '0.05rem',
           'font-weight': 500,
         },
         '.text-sans-semi-md': {
           ...sansFamily,
           'font-size': '0.875rem',
           'line-height': '1.225rem',
-          'letter-spacing': '0.025rem',
+          'letter-spacing': '0.04rem',
           'font-weight': 500,
         },
         '.text-sans-semi-lg': {
           ...sansFamily,
           'font-size': '1rem',
           'line-height': '1.3rem',
-          'letter-spacing': '0.01875rem',
+          'letter-spacing': '0.03rem',
           'font-weight': 500,
         },
       })

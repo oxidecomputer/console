@@ -3,9 +3,10 @@ import {
   override,
   renderAppAt,
   screen,
+  userEvent,
   waitFor,
 } from 'app/test-utils'
-import { org, project } from '@oxide/api-mocks'
+import { org, project, instance } from '@oxide/api-mocks'
 
 const submitButton = () =>
   screen.getByRole('button', { name: 'Create instance' })
@@ -28,10 +29,9 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows specific message for known server error code', async () => {
-    override('post', instancesUrl, 400, {
-      error_code: 'ObjectAlreadyExists',
-    })
     renderAppAt(formUrl)
+    const name = screen.getByRole('textbox', { name: 'Choose a name' })
+    userEvent.type(name, instance.name) // already exists in db
 
     fireEvent.click(submitButton())
 

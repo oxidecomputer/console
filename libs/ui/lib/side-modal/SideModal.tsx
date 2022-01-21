@@ -36,7 +36,7 @@ export function SideModal({
       >
         {/* Title */}
         <div className="flex justify-between mt-2 mb-8 p-6">
-          <h2 className="text-display-xl" id={titleId}>
+          <h2 className="text-sans-xl" id={titleId}>
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>

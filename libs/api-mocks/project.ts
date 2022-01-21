@@ -1,4 +1,5 @@
 import type { Project, ProjectResultsPage } from '@oxide/api'
+import { org } from './org'
 
 export const project: Project = {
   id: 'mock-project-uuid',
@@ -6,7 +7,7 @@ export const project: Project = {
   description: 'a fake project',
   timeCreated: new Date(2021, 0, 1).toISOString(),
   timeModified: new Date(2021, 0, 2).toISOString(),
-  organizationId: 'org-id',
+  organizationId: org.id,
 }
 
 export const projects: ProjectResultsPage = { items: [project] }
