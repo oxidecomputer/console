@@ -18,7 +18,8 @@
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\""
   },
   "private": true,
   "dependencies": {
@@ -115,6 +116,7 @@
     "swagger-typescript-api": "9.3.1",
     "tailwindcss": "^3.0.9",
     "ts-node": "^9.1.1",
+    "ts-unused-exports": "^7.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "typescript": "4.5.5",
     "url-loader": "^3.0.0",
