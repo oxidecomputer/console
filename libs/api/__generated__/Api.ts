@@ -1,21 +1,10 @@
 /* eslint-disable */
-/* tslint:disable */
-/*
- * ---------------------------------------------------------------
- * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
- * ##                                                           ##
- * ## AUTHOR: acacode                                           ##
- * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
- * ---------------------------------------------------------------
- */
 
 /**
-* A count of bytes, typically used either for memory or storage capacity
-
-The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
-* @format uint64
-* @min 0
-*/
+ * A count of bytes, typically used either for memory or storage capacity
+ *
+ * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
+ */
 export type ByteCount = number
 
 /**
@@ -35,45 +24,30 @@ export type DatumType =
 /**
  * Client view of an [`Disk`]
  */
-export interface Disk {
-  /** human-readable free-form text about a resource */
+export type Disk = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
   devicePath: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-
-  /** @format uuid */
-  projectId: string
-
   /**
-   * A count of bytes, typically used either for memory or storage capacity
-   *
-   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
+   * unique, mutable, user-controlled identifier for each resource
    */
+  name: Name
+  projectId: string
   size: ByteCount
-
-  /** @format uuid */
   snapshotId?: string | null
-
-  /** State of a Disk (primarily: attached or not) */
   state: DiskState
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -81,18 +55,15 @@ export interface Disk {
 /**
  * Create-time parameters for a [`Disk`]
  */
-export interface DiskCreate {
+export type DiskCreate = {
   description: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
-
-  /** size of the Disk */
+  /**
+   * size of the Disk
+   */
   size: ByteCount
-
   /**
    * id for snapshot from which the Disk should be created, if any
-   * @format uuid
    */
   snapshotId?: string | null
 }
@@ -100,20 +71,22 @@ export interface DiskCreate {
 /**
  * Parameters for the [`Disk`] to be attached or detached to an instance
  */
-export interface DiskIdentifier {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+export type DiskIdentifier = {
   disk: Name
 }
 
 /**
  * A single page of results
  */
-export interface DiskResultsPage {
-  /** list of items on this page of results */
+export type DiskResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Disk[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
@@ -131,13 +104,9 @@ export type DiskState =
 /**
  * The name and type information for a field of a timeseries schema.
  */
-export interface FieldSchema {
+export type FieldSchema = {
   name: string
-
-  /** The source from which a field is derived, the target or metric. */
   source: FieldSource
-
-  /** The `FieldType` identifies the data type of a target or metric field. */
   ty: FieldType
 }
 
@@ -154,101 +123,82 @@ export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 /**
  * Client view of an [`Instance`]
  */
-export interface Instance {
-  /** human-readable free-form text about a resource */
+export type Instance = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
-  /** RFC1035-compliant hostname for the Instance. */
+  /**
+   * RFC1035-compliant hostname for the Instance.
+   */
   hostname: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** memory allocated for this Instance */
+  /**
+   * memory allocated for this Instance
+   */
   memory: ByteCount
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
-  /** number of CPUs allocated for this Instance */
+  /**
+   * number of CPUs allocated for this Instance
+   */
   ncpus: InstanceCpuCount
-
   /**
    * id for the project containing this Instance
-   * @format uuid
    */
   projectId: string
-
-  /**
-   * Running state of an Instance (primarily: booted or stopped)
-   *
-   * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
-   */
   runState: InstanceState
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
-
-  /** @format date-time */
   timeRunStateUpdated: string
 }
 
 /**
  * The number of CPUs in an Instance
- * @format uint16
- * @min 0
  */
 export type InstanceCpuCount = number
 
 /**
  * Create-time parameters for an [`Instance`]
  */
-export interface InstanceCreate {
+export type InstanceCreate = {
   description: string
   hostname: string
-
-  /**
-   * A count of bytes, typically used either for memory or storage capacity
-   *
-   * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
-   */
   memory: ByteCount
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
-
-  /** The number of CPUs in an Instance */
   ncpus: InstanceCpuCount
 }
 
 /**
  * A single page of results
  */
-export interface InstanceResultsPage {
-  /** list of items on this page of results */
+export type InstanceResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Instance[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
-* Running state of an Instance (primarily: booted or stopped)
-
-This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
-*/
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
 export type InstanceState =
   | 'creating'
   | 'starting'
@@ -262,90 +212,75 @@ export type InstanceState =
 
 /**
  * An IPv4 subnet, including prefix and subnet mask
- * @pattern ^(10\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]\.){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$^(172\.16\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$^(192\.168\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$
  */
 export type Ipv4Net = string
 
 /**
  * An IPv6 subnet, including prefix and subnet mask
- * @pattern ^(fd|FD)00:((([0-9a-fA-F]{1,4}\:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$
  */
 export type Ipv6Net = string
 
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
- * @pattern ^[0-9]{1,5}(-[0-9]{1,5})?$
  */
 export type L4PortRange = string
 
-export interface LoginParams {
+export type LoginParams = {
   username: string
 }
 
 /**
  * A Media Access Control address, in EUI-48 format
- * @pattern ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$
  */
 export type MacAddr = string
 
 /**
  * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
- * @pattern [a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])
  */
 export type Name = string
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.
  */
-export interface NetworkInterface {
-  /** human-readable free-form text about a resource */
+export type NetworkInterface = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
   /**
    * The Instance to which the interface belongs.
-   * @format uuid
    */
   instanceId: string
-
   /**
    * The IP address assigned to this interface.
-   * @format ip
    */
   ip: string
-
-  /** The MAC address assigned to this interface. */
+  /**
+   * The MAC address assigned to this interface.
+   */
   mac: MacAddr
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * The subnet to which the interface belongs.
-   * @format uuid
    */
   subnetId: string
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
-
   /**
    * The VPC to which the interface belongs.
-   * @format uuid
    */
   vpcId: string
 }
@@ -353,39 +288,39 @@ export interface NetworkInterface {
 /**
  * A single page of results
  */
-export interface NetworkInterfaceResultsPage {
-  /** list of items on this page of results */
+export type NetworkInterfaceResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: NetworkInterface[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Client view of an [`Organization`]
  */
-export interface Organization {
-  /** human-readable free-form text about a resource */
+export type Organization = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -393,28 +328,29 @@ export interface Organization {
 /**
  * Create-time parameters for an [`Organization`]
  */
-export interface OrganizationCreate {
+export type OrganizationCreate = {
   description: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
 }
 
 /**
  * A single page of results
  */
-export interface OrganizationResultsPage {
-  /** list of items on this page of results */
+export type OrganizationResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Organization[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Updateable properties of an [`Organization`]
  */
-export interface OrganizationUpdate {
+export type OrganizationUpdate = {
   description?: string | null
   name?: Name | null
 }
@@ -422,31 +358,26 @@ export interface OrganizationUpdate {
 /**
  * Client view of a [`Project`]
  */
-export interface Project {
-  /** human-readable free-form text about a resource */
+export type Project = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
-  /** @format uuid */
   organizationId: string
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -454,28 +385,29 @@ export interface Project {
 /**
  * Create-time parameters for a [`Project`]
  */
-export interface ProjectCreate {
+export type ProjectCreate = {
   description: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
 }
 
 /**
  * A single page of results
  */
-export interface ProjectResultsPage {
-  /** list of items on this page of results */
+export type ProjectResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Project[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Updateable properties of a [`Project`]
  */
-export interface ProjectUpdate {
+export type ProjectUpdate = {
   description?: string | null
   name?: Name | null
 }
@@ -483,28 +415,25 @@ export interface ProjectUpdate {
 /**
  * Client view of an [`Rack`]
  */
-export interface Rack {
-  /** human-readable free-form text about a resource */
+export type Rack = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -512,39 +441,42 @@ export interface Rack {
 /**
  * A single page of results
  */
-export interface RackResultsPage {
-  /** list of items on this page of results */
+export type RackResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Rack[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Client view of a [`Role`]
  */
-export interface Role {
+export type Role = {
   description: string
-
-  /** Role names consist of two string components separated by dot ("."). */
   name: RoleName
 }
 
 /**
  * Role names consist of two string components separated by dot (".").
- * @pattern [a-z-]+\.[a-z-]+
  */
 export type RoleName = string
 
 /**
  * A single page of results
  */
-export interface RoleResultsPage {
-  /** list of items on this page of results */
+export type RoleResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Role[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
@@ -568,43 +500,35 @@ export type RouteTarget =
 /**
  * A route defines a rule that governs where traffic should be sent based on its destination.
  */
-export interface RouterRoute {
-  /** human-readable free-form text about a resource */
+export type RouterRoute = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
-  /** A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`]. */
   destination: RouteDestination
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** Describes the kind of router. Set at creation. `read-only` */
+  /**
+   * Describes the kind of router. Set at creation. `read-only`
+   */
   kind: RouterRouteKind
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * The VPC Router to which the route belongs.
-   * @format uuid
    */
   routerId: string
-
-  /** A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to. */
   target: RouteTarget
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -612,59 +536,51 @@ export interface RouterRoute {
 /**
  * Create-time parameters for a [`RouterRoute`]
  */
-export interface RouterRouteCreateParams {
+export type RouterRouteCreateParams = {
   description: string
-
-  /** A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`]. */
   destination: RouteDestination
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
-
-  /** A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to. */
   target: RouteTarget
 }
 
 /**
-* The classification of a [`RouterRoute`] as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
-
-See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
-*/
+ * The classification of a [`RouterRoute`] as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ *
+ * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
+ */
 export type RouterRouteKind = 'Default' | 'VpcSubnet' | 'VpcPeering' | 'Custom'
 
 /**
  * A single page of results
  */
-export interface RouterRouteResultsPage {
-  /** list of items on this page of results */
+export type RouterRouteResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: RouterRoute[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Updateable properties of a [`RouterRoute`]
  */
-export interface RouterRouteUpdateParams {
+export type RouterRouteUpdateParams = {
   description?: string | null
-
-  /** A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`]. */
   destination: RouteDestination
   name?: Name | null
-
-  /** A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to. */
   target: RouteTarget
 }
 
-export interface Saga {
-  /** @format uuid */
+export type Saga = {
   id: string
   state: SagaState
 }
 
 export type SagaErrorInfo =
-  | { error: 'actionFailed'; source_error: any }
+  | { error: 'actionFailed'; sourceError: any }
   | { error: 'deserializeFailed'; message: string }
   | { error: 'injectedError' }
   | { error: 'serializeFailed'; message: string }
@@ -673,53 +589,52 @@ export type SagaErrorInfo =
 /**
  * A single page of results
  */
-export interface SagaResultsPage {
-  /** list of items on this page of results */
+export type SagaResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Saga[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 export type SagaState =
   | { state: 'running' }
   | { state: 'succeeded' }
-  | { error_info: SagaErrorInfo; error_node_name: string; state: 'failed' }
+  | { errorInfo: SagaErrorInfo; errorNodeName: string; state: 'failed' }
 
 /**
  * Client view of currently authed user.
  */
-export interface SessionUser {
-  /** @format uuid */
+export type SessionUser = {
   id: string
 }
 
 /**
  * Client view of an [`Sled`]
  */
-export interface Sled {
-  /** human-readable free-form text about a resource */
+export type Sled = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
   serviceAddress: string
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -727,73 +642,70 @@ export interface Sled {
 /**
  * A single page of results
  */
-export interface SledResultsPage {
-  /** list of items on this page of results */
+export type SledResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Sled[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
- * @pattern (([a-z]+[a-z0-9]*)(_([a-z0-9]+))*):(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*)
  */
 export type TimeseriesName = string
 
 /**
-* The schema for a timeseries.
-
-This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
-*/
-export interface TimeseriesSchema {
-  /** @format date-time */
+ * The schema for a timeseries.
+ *
+ * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
+ */
+export type TimeseriesSchema = {
   created: string
-
-  /** The type of an individual datum of a metric. */
-  datum_type: DatumType
-  field_schema: FieldSchema[]
-
-  /** Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words. */
-  timeseries_name: TimeseriesName
+  datumType: DatumType
+  fieldSchema: FieldSchema[]
+  timeseriesName: TimeseriesName
 }
 
 /**
  * A single page of results
  */
-export interface TimeseriesSchemaResultsPage {
-  /** list of items on this page of results */
+export type TimeseriesSchemaResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: TimeseriesSchema[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Client view of a [`User`]
  */
-export interface User {
-  /** human-readable free-form text about a resource */
+export type User = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -801,54 +713,51 @@ export interface User {
 /**
  * A single page of results
  */
-export interface UserResultsPage {
-  /** list of items on this page of results */
+export type UserResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: User[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Client view of a [`Vpc`]
  */
-export interface Vpc {
-  /** human-readable free-form text about a resource */
+export type Vpc = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
-  /** The name used for the VPC in DNS. */
+  /**
+   * The name used for the VPC in DNS.
+   */
   dnsName: Name
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * id for the project containing this VPC
-   * @format uuid
    */
   projectId: string
-
   /**
    * id for the system router where subnet default routes are registered
-   * @format uuid
    */
   systemRouterId: string
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -856,63 +765,58 @@ export interface Vpc {
 /**
  * Create-time parameters for a [`Vpc`]
  */
-export interface VpcCreate {
+export type VpcCreate = {
   description: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   dnsName: Name
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
 }
 
 /**
  * A single rule in a VPC firewall
  */
-export interface VpcFirewallRule {
-  /** whether traffic matching the rule should be allowed or dropped */
+export type VpcFirewallRule = {
+  /**
+   * whether traffic matching the rule should be allowed or dropped
+   */
   action: VpcFirewallRuleAction
-
-  /** human-readable free-form text about a resource */
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
-  /** whether this rule is for incoming or outgoing traffic */
+  /**
+   * whether this rule is for incoming or outgoing traffic
+   */
   direction: VpcFirewallRuleDirection
-
-  /** reductions on the scope of the rule */
+  /**
+   * reductions on the scope of the rule
+   */
   filters: VpcFirewallRuleFilter
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * the relative priority of this rule
-   * @format uint16
-   * @min 0
    */
   priority: number
-
-  /** whether this rule is in effect */
+  /**
+   * whether this rule is in effect
+   */
   status: VpcFirewallRuleStatus
-
-  /** list of sets of instances that the rule applies to */
+  /**
+   * list of sets of instances that the rule applies to
+   */
   targets: VpcFirewallRuleTarget[]
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
 }
@@ -924,14 +828,18 @@ export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
 /**
  * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
  */
-export interface VpcFirewallRuleFilter {
-  /** If present, the sources (if incoming) or destinations (if outgoing) this rule applies to. */
+export type VpcFirewallRuleFilter = {
+  /**
+   * If present, the sources (if incoming) or destinations (if outgoing) this rule applies to.
+   */
   hosts?: VpcFirewallRuleHostFilter[] | null
-
-  /** If present, the destination ports this rule applies to. */
+  /**
+   * If present, the destination ports this rule applies to.
+   */
   ports?: L4PortRange[] | null
-
-  /** If present, the networking protocols this rule applies to. */
+  /**
+   * If present, the networking protocols this rule applies to.
+   */
   protocols?: VpcFirewallRuleProtocol[] | null
 }
 
@@ -953,12 +861,15 @@ export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 /**
  * A single page of results
  */
-export interface VpcFirewallRuleResultsPage {
-  /** list of items on this page of results */
+export type VpcFirewallRuleResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: VpcFirewallRule[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
@@ -974,86 +885,88 @@ export type VpcFirewallRuleTarget =
 /**
  * A single rule in a VPC firewall
  */
-export interface VpcFirewallRuleUpdate {
-  /** whether traffic matching the rule should be allowed or dropped */
+export type VpcFirewallRuleUpdate = {
+  /**
+   * whether traffic matching the rule should be allowed or dropped
+   */
   action: VpcFirewallRuleAction
-
-  /** human-readable free-form text about a resource */
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
-  /** whether this rule is for incoming or outgoing traffic */
+  /**
+   * whether this rule is for incoming or outgoing traffic
+   */
   direction: VpcFirewallRuleDirection
-
-  /** reductions on the scope of the rule */
+  /**
+   * reductions on the scope of the rule
+   */
   filters: VpcFirewallRuleFilter
-
   /**
    * the relative priority of this rule
-   * @format uint16
-   * @min 0
    */
   priority: number
-
-  /** whether this rule is in effect */
+  /**
+   * whether this rule is in effect
+   */
   status: VpcFirewallRuleStatus
-
-  /** list of sets of instances that the rule applies to */
+  /**
+   * list of sets of instances that the rule applies to
+   */
   targets: VpcFirewallRuleTarget[]
 }
 
 /**
  * Updateable properties of a [`Vpc`]'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = Record<string, VpcFirewallRuleUpdate>
+export type VpcFirewallRuleUpdateParams = {}
 
 /**
  * Response to an update replacing [`Vpc`]'s firewall
  */
-export type VpcFirewallRuleUpdateResult = Record<string, VpcFirewallRule>
+export type VpcFirewallRuleUpdateResult = {}
 
 /**
  * A single page of results
  */
-export interface VpcResultsPage {
-  /** list of items on this page of results */
+export type VpcResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: Vpc[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  */
-export interface VpcRouter {
-  /** human-readable free-form text about a resource */
+export type VpcRouter = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
   kind: VpcRouterKind
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
-
   /**
    * The VPC to which the router belongs.
-   * @format uuid
    */
   vpcId: string
 }
@@ -1061,10 +974,8 @@ export interface VpcRouter {
 /**
  * Create-time parameters for a [`VpcRouter`]
  */
-export interface VpcRouterCreate {
+export type VpcRouterCreate = {
   description: string
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
 }
 
@@ -1073,18 +984,21 @@ export type VpcRouterKind = 'system' | 'custom'
 /**
  * A single page of results
  */
-export interface VpcRouterResultsPage {
-  /** list of items on this page of results */
+export type VpcRouterResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: VpcRouter[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Updateable properties of a [`VpcRouter`]
  */
-export interface VpcRouterUpdate {
+export type VpcRouterUpdate = {
   description?: string | null
   name?: Name | null
 }
@@ -1092,40 +1006,37 @@ export interface VpcRouterUpdate {
 /**
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
  */
-export interface VpcSubnet {
-  /** human-readable free-form text about a resource */
+export type VpcSubnet = {
+  /**
+   * human-readable free-form text about a resource
+   */
   description: string
-
   /**
    * unique, immutable, system-controlled identifier for each resource
-   * @format uuid
    */
   id: string
-
-  /** The IPv4 subnet CIDR block. */
+  /**
+   * The IPv4 subnet CIDR block.
+   */
   ipv4Block?: Ipv4Net | null
-
-  /** The IPv6 subnet CIDR block. */
+  /**
+   * The IPv6 subnet CIDR block.
+   */
   ipv6Block?: Ipv6Net | null
-
-  /** unique, mutable, user-controlled identifier for each resource */
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
   name: Name
-
   /**
    * timestamp when this resource was created
-   * @format date-time
    */
   timeCreated: string
-
   /**
    * timestamp when this resource was last modified
-   * @format date-time
    */
   timeModified: string
-
   /**
    * The VPC to which the subnet belongs.
-   * @format uuid
    */
   vpcId: string
 }
@@ -1133,30 +1044,31 @@ export interface VpcSubnet {
 /**
  * Create-time parameters for a [`VpcSubnet`]
  */
-export interface VpcSubnetCreate {
+export type VpcSubnetCreate = {
   description: string
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
-
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   name: Name
 }
 
 /**
  * A single page of results
  */
-export interface VpcSubnetResultsPage {
-  /** list of items on this page of results */
+export type VpcSubnetResultsPage = {
+  /**
+   * list of items on this page of results
+   */
   items: VpcSubnet[]
-
-  /** token used to fetch the next page of results (if any) */
-  next_page?: string | null
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
  * Updateable properties of a [`VpcSubnet`]
  */
-export interface VpcSubnetUpdate {
+export type VpcSubnetUpdate = {
   description?: string | null
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
@@ -1166,17 +1078,17 @@ export interface VpcSubnetUpdate {
 /**
  * Updateable properties of a [`Vpc`]
  */
-export interface VpcUpdate {
+export type VpcUpdate = {
   description?: string | null
   dnsName?: Name | null
   name?: Name | null
 }
 
 /**
-* Supported set of sort modes for scanning by id only.
-
-Currently, we only support scanning in ascending order.
-*/
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
 export type IdSortMode = 'id-ascending'
 
 /**
@@ -1188,35 +1100,29 @@ export type NameOrIdSortMode =
   | 'id-ascending'
 
 /**
-* Supported set of sort modes for scanning by name only
-
-Currently, we only support scanning in ascending order.
-*/
+ * Supported set of sort modes for scanning by name only
+ *
+ * Currently, we only support scanning in ascending order.
+ */
 export type NameSortMode = 'name-ascending'
 
 export interface HardwareRacksGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by id only.
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: IdSortMode
+  pageToken?: string | null
+
+  sortBy?: IdSortMode
 }
 
 export interface HardwareRacksGetRackParams {
   /**
    * The rack's unique ID.
-   * @format uuid
    */
   rackId: string
 }
@@ -1224,793 +1130,595 @@ export interface HardwareRacksGetRackParams {
 export interface HardwareSledsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by id only.
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: IdSortMode
+  pageToken?: string | null
+
+  sortBy?: IdSortMode
 }
 
 export interface HardwareSledsGetSledParams {
   /**
    * The sled's unique ID.
-   * @format uuid
    */
   sledId: string
 }
 
-export type SpoofLoginParams = object
+export interface SpoofLoginParams {}
 
-export type LogoutParams = object
+export interface LogoutParams {}
 
 export interface OrganizationsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
+  /**
+   * Token returned by previous call to retreive the subsequent page
+   */
+  pageToken?: string | null
 
-  /** Supported set of sort modes for scanning by name or id */
-  sort_by?: NameOrIdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
-export type OrganizationsPostParams = object
+export interface OrganizationsPostParams {}
 
 export interface OrganizationsGetOrganizationParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 }
 
 export interface OrganizationsPutOrganizationParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 }
 
 export interface OrganizationsDeleteOrganizationParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 }
 
 export interface OrganizationProjectsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
+  /**
+   * Token returned by previous call to retreive the subsequent page
+   */
+  pageToken?: string | null
 
-  /** Supported set of sort modes for scanning by name or id */
-  sort_by?: NameOrIdSortMode
+  sortBy?: NameOrIdSortMode
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 }
 
 export interface OrganizationProjectsPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 }
 
 export interface OrganizationProjectsGetProjectParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface OrganizationProjectsPutProjectParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface OrganizationProjectsDeleteProjectParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectDisksGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectDisksPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectDisksGetDiskParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   diskName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectDisksDeleteDiskParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   diskName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesGetInstanceParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesDeleteInstanceParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface InstanceDisksGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface InstanceDisksAttachParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface InstanceDisksDetachParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesInstanceRebootParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesInstanceStartParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectInstancesInstanceStopParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   instanceName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectVpcsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectVpcsPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 }
 
 export interface ProjectVpcsGetVpcParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface ProjectVpcsPutVpcParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface ProjectVpcsDeleteVpcParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcFirewallRulesGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcFirewallRulesPutParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcRoutersGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcRoutersPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcRoutersGetRouterParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcRoutersPutRouterParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcRoutersDeleteRouterParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RoutersRoutesGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RoutersRoutesPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RoutersRoutesGetRouteParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routeName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RoutersRoutesPutRouteParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routeName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RoutersRoutesDeleteRouteParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routeName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   routerName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcSubnetsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcSubnetsPostParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcSubnetsGetSubnetParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   subnetName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcSubnetsPutSubnetParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   subnetName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface VpcSubnetsDeleteSubnetParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   subnetName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface SubnetsIpsGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
+  sortBy?: NameSortMode
+
   orgName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   projectName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   subnetName: Name
 
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   vpcName: Name
 }
 
 export interface RolesGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
+  /**
+   * Token returned by previous call to retreive the subsequent page
+   */
+  pageToken?: string | null
 }
 
 export interface RolesGetRoleParams {
-  /** The built-in role's unique name. */
+  /**
+   * The built-in role's unique name.
+   */
   roleName: string
 }
 
 export interface SagasGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by id only.
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: IdSortMode
+  pageToken?: string | null
+
+  sortBy?: IdSortMode
 }
 
 export interface SagasGetSagaParams {
-  /** @format uuid */
   sagaId: string
 }
 
-export type SessionMeParams = object
+export interface SessionMeParams {}
 
 export interface TimeseriesSchemaGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
+  /**
+   * Token returned by previous call to retreive the subsequent page
+   */
+  pageToken?: string | null
 }
 
 export interface UsersGetParams {
   /**
    * Maximum number of items returned by a single call
-   * @format uint32
-   * @min 1
    */
   limit?: number | null
 
-  /** Token returned by previous call to retreive the subsequent page */
-  page_token?: string | null
-
   /**
-   * Supported set of sort modes for scanning by name only
-   *
-   * Currently, we only support scanning in ascending order.
+   * Token returned by previous call to retreive the subsequent page
    */
-  sort_by?: NameSortMode
+  pageToken?: string | null
+
+  sortBy?: NameSortMode
 }
 
 export interface UsersGetUserParams {
-  /** Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. */
   userName: Name
 }
 
+// credit where due: this is a stripped-down version of the fetch client from
+// https://github.com/acacode/swagger-typescript-api
+
 export type QueryParamsType = Record<string | number, any>
-export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>
 
 export interface FullRequestParams extends Omit<RequestInit, 'body'> {
-  /** set parameter to `true` for call `securityWorker` for this request */
-  secure?: boolean
   /** request path */
   path: string
-  /** content type of request body */
-  type?: ContentType
   /** query params */
   query?: QueryParamsType
-  /** format of response (i.e. response.json() -> format: "json") */
-  format?: ResponseFormat
   /** request body */
   body?: unknown
   /** base url */
@@ -2024,12 +1732,9 @@ export type RequestParams = Omit<
   'body' | 'method' | 'query' | 'path'
 >
 
-export interface ApiConfig<SecurityDataType = unknown> {
+export interface ApiConfig {
   baseUrl?: string
   baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>
-  securityWorker?: (
-    securityData: SecurityDataType | null
-  ) => Promise<RequestParams | void> | RequestParams | void
   customFetch?: typeof fetch
 }
 
@@ -2041,16 +1746,57 @@ export interface HttpResponse<D extends unknown, E extends unknown = unknown>
 
 type CancelToken = Symbol | string | number
 
-export enum ContentType {
-  Json = 'application/json',
-  FormData = 'multipart/form-data',
-  UrlEncoded = 'application/x-www-form-urlencoded',
-}
+const encodeQueryParam = (key: string, value: any) =>
+  `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
 
-export class HttpClient<SecurityDataType = unknown> {
+const toQueryString = (rawQuery?: QueryParamsType): string =>
+  Object.entries(rawQuery || {})
+    .filter(([key, value]) => typeof value !== 'undefined')
+    .map(([key, value]) =>
+      Array.isArray(value)
+        ? value.map((item) => encodeQueryParam(key, item)).join('&')
+        : encodeQueryParam(key, value)
+    )
+    .join('&')
+
+const camelToSnake = (s: string) =>
+  s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
+
+const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())
+
+const isObject = (o: unknown) =>
+  typeof o === 'object' &&
+  !(o instanceof Date) &&
+  !(o instanceof RegExp) &&
+  !(o instanceof Error) &&
+  o !== null
+
+// recursively map keys using Object.keys
+const mapKeys =
+  (fn: (k: string) => string) =>
+  (o: unknown): unknown => {
+    if (!isObject(o)) return o
+
+    if (Array.isArray(o)) {
+      return o.map(mapKeys(fn))
+    }
+
+    const obj = o as Record<string, unknown>
+
+    const newObj: Record<string, unknown> = {}
+    for (const key of Object.keys(obj)) {
+      if (typeof key === 'string') {
+        newObj[fn(key)] = mapKeys(fn)(obj[key] as Record<string, unknown>)
+      }
+    }
+    return newObj
+  }
+
+const snakeify = mapKeys(camelToSnake)
+const camelify = mapKeys(snakeToCamel)
+
+export class HttpClient {
   public baseUrl: string = ''
-  private securityData: SecurityDataType | null = null
-  private securityWorker?: ApiConfig<SecurityDataType>['securityWorker']
   private abortControllers = new Map<CancelToken, AbortController>()
   private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
     fetch(...fetchParams)
@@ -2062,82 +1808,17 @@ export class HttpClient<SecurityDataType = unknown> {
     referrerPolicy: 'no-referrer',
   }
 
-  constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
+  constructor(apiConfig: ApiConfig = {}) {
     Object.assign(this, apiConfig)
   }
 
-  public setSecurityData = (data: SecurityDataType | null) => {
-    this.securityData = data
-  }
-
-  private encodeQueryParam(key: string, value: any) {
-    const encodedKey = encodeURIComponent(key)
-    return `${encodedKey}=${encodeURIComponent(
-      typeof value === 'number' ? value : `${value}`
-    )}`
-  }
-
-  private addQueryParam(query: QueryParamsType, key: string) {
-    return this.encodeQueryParam(key, query[key])
-  }
-
-  private addArrayQueryParam(query: QueryParamsType, key: string) {
-    const value = query[key]
-    return value.map((v: any) => this.encodeQueryParam(key, v)).join('&')
-  }
-
-  protected toQueryString(rawQuery?: QueryParamsType): string {
-    const query = rawQuery || {}
-    const keys = Object.keys(query).filter(
-      (key) => 'undefined' !== typeof query[key]
-    )
-    return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key)
-      )
-      .join('&')
-  }
-
-  protected addQueryParams(rawQuery?: QueryParamsType): string {
-    const queryString = this.toQueryString(rawQuery)
-    return queryString ? `?${queryString}` : ''
-  }
-
-  private contentFormatters: Record<ContentType, (input: any) => any> = {
-    [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === 'object' || typeof input === 'string')
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
-        const property = input[key]
-        formData.append(
-          key,
-          property instanceof Blob
-            ? property
-            : typeof property === 'object' && property !== null
-            ? JSON.stringify(property)
-            : `${property}`
-        )
-        return formData
-      }, new FormData()),
-    [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
-  }
-
-  private mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams
-  ): RequestParams {
+  private mergeRequestParams(params: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
-      ...params1,
-      ...(params2 || {}),
+      ...params,
       headers: {
-        ...(this.baseApiParams.headers || {}),
-        ...(params1.headers || {}),
-        ...((params2 && params2.headers) || {}),
+        ...this.baseApiParams.headers,
+        ...params.headers,
       },
     }
   }
@@ -2169,91 +1850,62 @@ export class HttpClient<SecurityDataType = unknown> {
 
   public request = async <T = any, E = any>({
     body,
-    secure,
     path,
-    type,
     query,
-    format,
     baseUrl,
     cancelToken,
     ...params
   }: FullRequestParams): Promise<HttpResponse<T, E>> => {
-    const secureParams =
-      ((typeof secure === 'boolean' ? secure : this.baseApiParams.secure) &&
-        this.securityWorker &&
-        (await this.securityWorker(this.securityData))) ||
-      {}
-    const requestParams = this.mergeRequestParams(params, secureParams)
-    const queryString = query && this.toQueryString(query)
-    const payloadFormatter = this.contentFormatters[type || ContentType.Json]
-    const responseFormat = format || requestParams.format
+    const requestParams = this.mergeRequestParams(params)
+    const queryString = query && toQueryString(query)
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ''}${path}${
-        queryString ? `?${queryString}` : ''
-      }`,
-      {
-        ...requestParams,
-        headers: {
-          ...(type && type !== ContentType.FormData
-            ? { 'Content-Type': type }
-            : {}),
-          ...(requestParams.headers || {}),
-        },
-        signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
-        body:
-          typeof body === 'undefined' || body === null
-            ? null
-            : payloadFormatter(body),
-      }
-    ).then(async (response) => {
+    let url = baseUrl || this.baseUrl || ''
+    url += path
+    if (queryString) {
+      url += '?' + queryString
+    }
+
+    return this.customFetch(url, {
+      ...requestParams,
+      headers: {
+        'Content-Type': 'application/json',
+        ...requestParams.headers,
+      },
+      signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
+      body: JSON.stringify(snakeify(body)),
+    }).then(async (response) => {
       const r = response as HttpResponse<T, E>
       r.data = null as unknown as T
       r.error = null as unknown as E
 
-      const data = !responseFormat
-        ? r
-        : await response[responseFormat]()
-            .then((data) => {
-              if (r.ok) {
-                r.data = data
-              } else {
-                r.error = data
-              }
-              return r
-            })
-            .catch((e) => {
-              r.error = e
-              return r
-            })
+      await response
+        .json()
+        .then(camelify)
+        .then((data) => {
+          if (r.ok) {
+            r.data = data as T
+          } else {
+            r.error = data as E
+          }
+        })
+        .catch((e) => {
+          r.error = e
+        })
 
       if (cancelToken) {
         this.abortControllers.delete(cancelToken)
       }
 
-      if (!response.ok) throw data
-      return data
+      if (!r.ok) throw r
+      return r
     })
   }
 }
 
-/**
- * @title Oxide Region API
- * @version 0.0.1
- * @contact <api@oxide.computer> (https://oxide.computer)
- *
- * API for interacting with the Oxide control plane
- */
-export class Api<
-  SecurityDataType extends unknown
-> extends HttpClient<SecurityDataType> {
+export class Api extends HttpClient {
   methods = {
     /**
-     * @description List racks in the system.
-     *
-     * @tags hardware
-     * @name HardwareRacksGet
-     * @request GET:/hardware/racks
+     * List racks in the system.
      */
     hardwareRacksGet: (
       query: HardwareRacksGetParams,
@@ -2263,16 +1915,11 @@ export class Api<
         path: `/hardware/racks`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch information about a particular rack.
-     *
-     * @tags hardware
-     * @name HardwareRacksGetRack
-     * @request GET:/hardware/racks/{rack_id}
+     * Fetch information about a particular rack.
      */
     hardwareRacksGetRack: (
       { rackId }: HardwareRacksGetRackParams,
@@ -2281,16 +1928,11 @@ export class Api<
       this.request<Rack, any>({
         path: `/hardware/racks/${rackId}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List sleds in the system.
-     *
-     * @tags hardware
-     * @name HardwareSledsGet
-     * @request GET:/hardware/sleds
+     * List sleds in the system.
      */
     hardwareSledsGet: (
       query: HardwareSledsGetParams,
@@ -2300,16 +1942,11 @@ export class Api<
         path: `/hardware/sleds`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch information about a sled in the system.
-     *
-     * @tags hardware
-     * @name HardwareSledsGetSled
-     * @request GET:/hardware/sleds/{sled_id}
+     * Fetch information about a sled in the system.
      */
     hardwareSledsGetSled: (
       { sledId }: HardwareSledsGetSledParams,
@@ -2318,50 +1955,30 @@ export class Api<
       this.request<Sled, any>({
         path: `/hardware/sleds/${sledId}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
-    /**
-     * No description
-     *
-     * @tags hidden
-     * @name SpoofLogin
-     * @request POST:/login
-     */
     spoofLogin: (
       query: SpoofLoginParams,
       data: LoginParams,
       params: RequestParams = {}
     ) =>
-      this.request<any, void>({
+      this.request<void, any>({
         path: `/login`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
         ...params,
       }),
 
-    /**
-     * No description
-     *
-     * @tags hidden
-     * @name Logout
-     * @request POST:/logout
-     */
     logout: (query: LogoutParams, params: RequestParams = {}) =>
-      this.request<any, void>({
+      this.request<void, any>({
         path: `/logout`,
         method: 'POST',
         ...params,
       }),
 
     /**
-     * @description List all organizations.
-     *
-     * @tags organizations
-     * @name OrganizationsGet
-     * @request GET:/organizations
+     * List all organizations.
      */
     organizationsGet: (
       query: OrganizationsGetParams,
@@ -2371,16 +1988,11 @@ export class Api<
         path: `/organizations`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a new organization.
-     *
-     * @tags organizations
-     * @name OrganizationsPost
-     * @request POST:/organizations
+     * Create a new organization.
      */
     organizationsPost: (
       query: OrganizationsPostParams,
@@ -2391,17 +2003,11 @@ export class Api<
         path: `/organizations`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a specific organization
-     *
-     * @tags organizations
-     * @name OrganizationsGetOrganization
-     * @request GET:/organizations/{organization_name}
+     * Fetch a specific organization
      */
     organizationsGetOrganization: (
       { orgName }: OrganizationsGetOrganizationParams,
@@ -2410,16 +2016,12 @@ export class Api<
       this.request<Organization, any>({
         path: `/organizations/${orgName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a specific organization. * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
-     *
-     * @tags organizations
-     * @name OrganizationsPutOrganization
-     * @request PUT:/organizations/{organization_name}
+     * Update a specific organization.
+     *  * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      */
     organizationsPutOrganization: (
       { orgName }: OrganizationsPutOrganizationParams,
@@ -2430,17 +2032,11 @@ export class Api<
         path: `/organizations/${orgName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Delete a specific organization.
-     *
-     * @tags organizations
-     * @name OrganizationsDeleteOrganization
-     * @request DELETE:/organizations/{organization_name}
+     * Delete a specific organization.
      */
     organizationsDeleteOrganization: (
       { orgName }: OrganizationsDeleteOrganizationParams,
@@ -2453,11 +2049,7 @@ export class Api<
       }),
 
     /**
-     * @description List all projects.
-     *
-     * @tags projects
-     * @name OrganizationProjectsGet
-     * @request GET:/organizations/{organization_name}/projects
+     * List all projects.
      */
     organizationProjectsGet: (
       { orgName, ...query }: OrganizationProjectsGetParams,
@@ -2467,16 +2059,11 @@ export class Api<
         path: `/organizations/${orgName}/projects`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a new project.
-     *
-     * @tags projects
-     * @name OrganizationProjectsPost
-     * @request POST:/organizations/{organization_name}/projects
+     * Create a new project.
      */
     organizationProjectsPost: (
       { orgName }: OrganizationProjectsPostParams,
@@ -2487,17 +2074,11 @@ export class Api<
         path: `/organizations/${orgName}/projects`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a specific project
-     *
-     * @tags projects
-     * @name OrganizationProjectsGetProject
-     * @request GET:/organizations/{organization_name}/projects/{project_name}
+     * Fetch a specific project
      */
     organizationProjectsGetProject: (
       { orgName, projectName }: OrganizationProjectsGetProjectParams,
@@ -2506,16 +2087,12 @@ export class Api<
       this.request<Project, any>({
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a specific project. * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
-     *
-     * @tags organizations
-     * @name OrganizationProjectsPutProject
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}
+     * Update a specific project.
+     *  * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      */
     organizationProjectsPutProject: (
       { orgName, projectName }: OrganizationProjectsPutProjectParams,
@@ -2526,17 +2103,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Delete a specific project.
-     *
-     * @tags projects
-     * @name OrganizationProjectsDeleteProject
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}
+     * Delete a specific project.
      */
     organizationProjectsDeleteProject: (
       { orgName, projectName }: OrganizationProjectsDeleteProjectParams,
@@ -2549,11 +2120,7 @@ export class Api<
       }),
 
     /**
-     * @description List disks in a project.
-     *
-     * @tags projects
-     * @name ProjectDisksGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/disks
+     * List disks in a project.
      */
     projectDisksGet: (
       { orgName, projectName, ...query }: ProjectDisksGetParams,
@@ -2563,16 +2130,12 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a disk in a project. * TODO-correctness See note about instance create.  This should be async.
-     *
-     * @tags projects
-     * @name ProjectDisksPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/disks
+     * Create a disk in a project.
+     *  * TODO-correctness See note about instance create.  This should be async.
      */
     projectDisksPost: (
       { orgName, projectName }: ProjectDisksPostParams,
@@ -2583,17 +2146,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a single disk in a project.
-     *
-     * @tags projects
-     * @name ProjectDisksGetDisk
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
+     * Fetch a single disk in a project.
      */
     projectDisksGetDisk: (
       { diskName, orgName, projectName }: ProjectDisksGetDiskParams,
@@ -2602,16 +2159,11 @@ export class Api<
       this.request<Disk, any>({
         path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Delete a disk from a project.
-     *
-     * @tags projects
-     * @name ProjectDisksDeleteDisk
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/disks/{disk_name}
+     * Delete a disk from a project.
      */
     projectDisksDeleteDisk: (
       { diskName, orgName, projectName }: ProjectDisksDeleteDiskParams,
@@ -2624,11 +2176,7 @@ export class Api<
       }),
 
     /**
-     * @description List instances in a project.
-     *
-     * @tags instances
-     * @name ProjectInstancesGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/instances
+     * List instances in a project.
      */
     projectInstancesGet: (
       { orgName, projectName, ...query }: ProjectInstancesGetParams,
@@ -2638,16 +2186,12 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create an instance in a project. * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it's just not booted yet.  Maybe the boot operation is what's a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a "reboot" operation would return a 202 Accepted because there's no actual resource created?
-     *
-     * @tags instances
-     * @name ProjectInstancesPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances
+     * Create an instance in a project.
+     *  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it's just not booted yet.  Maybe the boot operation is what's a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a "reboot" operation would return a 202 Accepted because there's no actual resource created?
      */
     projectInstancesPost: (
       { orgName, projectName }: ProjectInstancesPostParams,
@@ -2658,17 +2202,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Get an instance in a project.
-     *
-     * @tags instances
-     * @name ProjectInstancesGetInstance
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
+     * Get an instance in a project.
      */
     projectInstancesGetInstance: (
       { instanceName, orgName, projectName }: ProjectInstancesGetInstanceParams,
@@ -2677,16 +2215,11 @@ export class Api<
       this.request<Instance, any>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Delete an instance from a project.
-     *
-     * @tags instances
-     * @name ProjectInstancesDeleteInstance
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}
+     * Delete an instance from a project.
      */
     projectInstancesDeleteInstance: (
       {
@@ -2703,11 +2236,7 @@ export class Api<
       }),
 
     /**
-     * @description List disks attached to this instance.
-     *
-     * @tags instances
-     * @name InstanceDisksGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks
+     * List disks attached to this instance.
      */
     instanceDisksGet: (
       { instanceName, orgName, projectName, ...query }: InstanceDisksGetParams,
@@ -2717,17 +2246,9 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
-    /**
-     * No description
-     *
-     * @tags instances
-     * @name InstanceDisksAttach
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/attach
-     */
     instanceDisksAttach: (
       { instanceName, orgName, projectName }: InstanceDisksAttachParams,
       data: DiskIdentifier,
@@ -2737,18 +2258,9 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/attach`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
-    /**
-     * No description
-     *
-     * @tags instances
-     * @name InstanceDisksDetach
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/disks/detach
-     */
     instanceDisksDetach: (
       { instanceName, orgName, projectName }: InstanceDisksDetachParams,
       data: DiskIdentifier,
@@ -2758,17 +2270,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Reboot an instance.
-     *
-     * @tags instances
-     * @name ProjectInstancesInstanceReboot
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/reboot
+     * Reboot an instance.
      */
     projectInstancesInstanceReboot: (
       {
@@ -2781,16 +2287,11 @@ export class Api<
       this.request<Instance, any>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
         method: 'POST',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Boot an instance.
-     *
-     * @tags instances
-     * @name ProjectInstancesInstanceStart
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/start
+     * Boot an instance.
      */
     projectInstancesInstanceStart: (
       {
@@ -2803,16 +2304,11 @@ export class Api<
       this.request<Instance, any>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/start`,
         method: 'POST',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Halt an instance.
-     *
-     * @tags instances
-     * @name ProjectInstancesInstanceStop
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/instances/{instance_name}/stop
+     * Halt an instance.
      */
     projectInstancesInstanceStop: (
       {
@@ -2825,16 +2321,11 @@ export class Api<
       this.request<Instance, any>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/stop`,
         method: 'POST',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List VPCs in a project.
-     *
-     * @tags networking
-     * @name ProjectVpcsGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs
+     * List VPCs in a project.
      */
     projectVpcsGet: (
       { orgName, projectName, ...query }: ProjectVpcsGetParams,
@@ -2844,16 +2335,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a VPC in a project.
-     *
-     * @tags networking
-     * @name ProjectVpcsPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs
+     * Create a VPC in a project.
      */
     projectVpcsPost: (
       { orgName, projectName }: ProjectVpcsPostParams,
@@ -2864,17 +2350,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Get a VPC in a project.
-     *
-     * @tags networking
-     * @name ProjectVpcsGetVpc
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
+     * Get a VPC in a project.
      */
     projectVpcsGetVpc: (
       { orgName, projectName, vpcName }: ProjectVpcsGetVpcParams,
@@ -2883,16 +2363,11 @@ export class Api<
       this.request<Vpc, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a VPC.
-     *
-     * @tags networking
-     * @name ProjectVpcsPutVpc
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
+     * Update a VPC.
      */
     projectVpcsPutVpc: (
       { orgName, projectName, vpcName }: ProjectVpcsPutVpcParams,
@@ -2903,16 +2378,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
         ...params,
       }),
 
     /**
-     * @description Delete a vpc from a project.
-     *
-     * @tags networking
-     * @name ProjectVpcsDeleteVpc
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}
+     * Delete a vpc from a project.
      */
     projectVpcsDeleteVpc: (
       { orgName, projectName, vpcName }: ProjectVpcsDeleteVpcParams,
@@ -2925,11 +2395,7 @@ export class Api<
       }),
 
     /**
-     * @description List firewall rules for a VPC.
-     *
-     * @tags networking
-     * @name VpcFirewallRulesGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules
+     * List firewall rules for a VPC.
      */
     vpcFirewallRulesGet: (
       { orgName, projectName, vpcName, ...query }: VpcFirewallRulesGetParams,
@@ -2939,16 +2405,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Replace the firewall rules for a VPC
-     *
-     * @tags networking
-     * @name VpcFirewallRulesPut
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/firewall/rules
+     * Replace the firewall rules for a VPC
      */
     vpcFirewallRulesPut: (
       { orgName, projectName, vpcName }: VpcFirewallRulesPutParams,
@@ -2959,17 +2420,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List VPC Custom and System Routers
-     *
-     * @tags networking
-     * @name VpcRoutersGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers
+     * List VPC Custom and System Routers
      */
     vpcRoutersGet: (
       { orgName, projectName, vpcName, ...query }: VpcRoutersGetParams,
@@ -2979,16 +2434,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a VPC Router
-     *
-     * @tags networking
-     * @name VpcRoutersPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers
+     * Create a VPC Router
      */
     vpcRoutersPost: (
       { orgName, projectName, vpcName }: VpcRoutersPostParams,
@@ -2999,17 +2449,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Get a VPC Router
-     *
-     * @tags networking
-     * @name VpcRoutersGetRouter
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
+     * Get a VPC Router
      */
     vpcRoutersGetRouter: (
       { orgName, projectName, routerName, vpcName }: VpcRoutersGetRouterParams,
@@ -3018,16 +2462,11 @@ export class Api<
       this.request<VpcRouter, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a VPC Router
-     *
-     * @tags networking
-     * @name VpcRoutersPutRouter
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
+     * Update a VPC Router
      */
     vpcRoutersPutRouter: (
       { orgName, projectName, routerName, vpcName }: VpcRoutersPutRouterParams,
@@ -3038,16 +2477,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
         ...params,
       }),
 
     /**
-     * @description Delete a router from its VPC
-     *
-     * @tags networking
-     * @name VpcRoutersDeleteRouter
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}
+     * Delete a router from its VPC
      */
     vpcRoutersDeleteRouter: (
       {
@@ -3065,11 +2499,7 @@ export class Api<
       }),
 
     /**
-     * @description List a Router's routes
-     *
-     * @tags networking
-     * @name RoutersRoutesGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes
+     * List a Router's routes
      */
     routersRoutesGet: (
       {
@@ -3085,16 +2515,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a VPC Router
-     *
-     * @tags networking
-     * @name RoutersRoutesPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes
+     * Create a VPC Router
      */
     routersRoutesPost: (
       { orgName, projectName, routerName, vpcName }: RoutersRoutesPostParams,
@@ -3105,17 +2530,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Get a VPC Router route
-     *
-     * @tags networking
-     * @name RoutersRoutesGetRoute
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
+     * Get a VPC Router route
      */
     routersRoutesGetRoute: (
       {
@@ -3130,16 +2549,11 @@ export class Api<
       this.request<RouterRoute, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a Router route
-     *
-     * @tags networking
-     * @name RoutersRoutesPutRoute
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
+     * Update a Router route
      */
     routersRoutesPutRoute: (
       {
@@ -3156,16 +2570,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
         ...params,
       }),
 
     /**
-     * @description Delete a route from its router
-     *
-     * @tags networking
-     * @name RoutersRoutesDeleteRoute
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/routers/{router_name}/routes/{route_name}
+     * Delete a route from its router
      */
     routersRoutesDeleteRoute: (
       {
@@ -3184,11 +2593,7 @@ export class Api<
       }),
 
     /**
-     * @description List subnets in a VPC.
-     *
-     * @tags networking
-     * @name VpcSubnetsGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets
+     * List subnets in a VPC.
      */
     vpcSubnetsGet: (
       { orgName, projectName, vpcName, ...query }: VpcSubnetsGetParams,
@@ -3198,16 +2603,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Create a subnet in a VPC.
-     *
-     * @tags networking
-     * @name VpcSubnetsPost
-     * @request POST:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets
+     * Create a subnet in a VPC.
      */
     vpcSubnetsPost: (
       { orgName, projectName, vpcName }: VpcSubnetsPostParams,
@@ -3218,17 +2618,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'POST',
         body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Get subnet in a VPC.
-     *
-     * @tags networking
-     * @name VpcSubnetsGetSubnet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
+     * Get subnet in a VPC.
      */
     vpcSubnetsGetSubnet: (
       { orgName, projectName, subnetName, vpcName }: VpcSubnetsGetSubnetParams,
@@ -3237,16 +2631,11 @@ export class Api<
       this.request<VpcSubnet, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Update a VPC Subnet.
-     *
-     * @tags networking
-     * @name VpcSubnetsPutSubnet
-     * @request PUT:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
+     * Update a VPC Subnet.
      */
     vpcSubnetsPutSubnet: (
       { orgName, projectName, subnetName, vpcName }: VpcSubnetsPutSubnetParams,
@@ -3257,16 +2646,11 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'PUT',
         body: data,
-        type: ContentType.Json,
         ...params,
       }),
 
     /**
-     * @description Delete a subnet from a VPC.
-     *
-     * @tags networking
-     * @name VpcSubnetsDeleteSubnet
-     * @request DELETE:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}
+     * Delete a subnet from a VPC.
      */
     vpcSubnetsDeleteSubnet: (
       {
@@ -3284,11 +2668,7 @@ export class Api<
       }),
 
     /**
-     * @description List IP addresses on a VPC subnet.
-     *
-     * @tags networking
-     * @name SubnetsIpsGet
-     * @request GET:/organizations/{organization_name}/projects/{project_name}/vpcs/{vpc_name}/subnets/{subnet_name}/ips
+     * List IP addresses on a VPC subnet.
      */
     subnetsIpsGet: (
       {
@@ -3304,32 +2684,22 @@ export class Api<
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/ips`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List the built-in roles
-     *
-     * @tags roles
-     * @name RolesGet
-     * @request GET:/roles
+     * List the built-in roles
      */
     rolesGet: (query: RolesGetParams, params: RequestParams = {}) =>
       this.request<RoleResultsPage, any>({
         path: `/roles`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a specific built-in role
-     *
-     * @tags roles
-     * @name RolesGetRole
-     * @request GET:/roles/{role_name}
+     * Fetch a specific built-in role
      */
     rolesGetRole: (
       { roleName }: RolesGetRoleParams,
@@ -3338,32 +2708,22 @@ export class Api<
       this.request<Role, any>({
         path: `/roles/${roleName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List all sagas (for debugging)
-     *
-     * @tags sagas
-     * @name SagasGet
-     * @request GET:/sagas
+     * List all sagas (for debugging)
      */
     sagasGet: (query: SagasGetParams, params: RequestParams = {}) =>
       this.request<SagaResultsPage, any>({
         path: `/sagas`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch information about a single saga (for debugging)
-     *
-     * @tags sagas
-     * @name SagasGetSaga
-     * @request GET:/sagas/{saga_id}
+     * Fetch information about a single saga (for debugging)
      */
     sagasGetSaga: (
       { sagaId }: SagasGetSagaParams,
@@ -3372,31 +2732,21 @@ export class Api<
       this.request<Saga, any>({
         path: `/sagas/${sagaId}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch the user associated with the current session
-     *
-     * @tags hidden
-     * @name SessionMe
-     * @request GET:/session/me
+     * Fetch the user associated with the current session
      */
     sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
       this.request<SessionUser, any>({
         path: `/session/me`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List all timeseries schema
-     *
-     * @tags metrics
-     * @name TimeseriesSchemaGet
-     * @request GET:/timeseries/schema
+     * List all timeseries schema
      */
     timeseriesSchemaGet: (
       query: TimeseriesSchemaGetParams,
@@ -3406,32 +2756,22 @@ export class Api<
         path: `/timeseries/schema`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description List the built-in system users
-     *
-     * @tags users
-     * @name UsersGet
-     * @request GET:/users
+     * List the built-in system users
      */
     usersGet: (query: UsersGetParams, params: RequestParams = {}) =>
       this.request<UserResultsPage, any>({
         path: `/users`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
-     * @description Fetch a specific built-in system user
-     *
-     * @tags users
-     * @name UsersGetUser
-     * @request GET:/users/{user_name}
+     * Fetch a specific built-in system user
      */
     usersGetUser: (
       { userName }: UsersGetUserParams,
@@ -3440,7 +2780,6 @@ export class Api<
       this.request<User, any>({
         path: `/users/${userName}`,
         method: 'GET',
-        format: 'json',
         ...params,
       }),
   }
