@@ -6,7 +6,7 @@ The primary source of truth, in the sense that it determines what is actually de
 
 ## Setup
 
-The API generation script assumes you have `omicron` and `oxide.ts` cloned under the same parent directory as the console. You should also run `npm install` in `oxide.ts`.
+The API generation script assumes you have `omicron` and `oxide.ts` cloned under the same parent directory as the console. You should also run `npm install` in `oxide.ts/generator`.
 
 ## Instructions
 

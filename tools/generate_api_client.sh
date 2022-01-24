@@ -4,7 +4,8 @@ set -o errexit # exit if anything fails
 set -o pipefail
 set -o xtrace
 
-# script assumes omicron and oxide.ts are cloned under the same parent dir as console
+# script assumes omicron and oxide.ts are cloned under the same parent dir as
+# console and have run `npm install` inside oxide.ts/generator
 
 OMICRON_SHA=$(awk '/OMICRON_SHA/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
