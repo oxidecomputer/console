@@ -7,7 +7,7 @@ set -o xtrace
 # script assumes omicron and oxide.ts are cloned under the same parent dir as
 # console and have run `npm install` inside oxide.ts/generator
 
-OMICRON_SHA=$(awk '/OMICRON_SHA/ {print $2}' .github/workflows/packer.yaml)
+OMICRON_SHA=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
 GEN_DIR='libs/api/__generated__'
 
 git -C '../omicron' fetch --all

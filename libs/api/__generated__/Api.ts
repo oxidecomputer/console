@@ -495,7 +495,7 @@ export type RouteTarget =
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
-  | { type: 'internetGateway'; value: Name }
+  | { type: 'internet_gateway'; value: Name }
 
 /**
  * A route defines a rule that governs where traffic should be sent based on its destination.
@@ -548,7 +548,11 @@ export type RouterRouteCreateParams = {
  *
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
-export type RouterRouteKind = 'Default' | 'VpcSubnet' | 'VpcPeering' | 'Custom'
+export type RouterRouteKind =
+  | 'default'
+  | 'vpc_subnet'
+  | 'vpc_peering'
+  | 'custom'
 
 /**
  * A single page of results
@@ -580,11 +584,11 @@ export type Saga = {
 }
 
 export type SagaErrorInfo =
-  | { error: 'actionFailed'; sourceError: any }
-  | { error: 'deserializeFailed'; message: string }
-  | { error: 'injectedError' }
-  | { error: 'serializeFailed'; message: string }
-  | { error: 'subsagaCreateFailed'; message: string }
+  | { error: 'action_failed'; sourceError: any }
+  | { error: 'deserialize_failed'; message: string }
+  | { error: 'injected_error' }
+  | { error: 'serialize_failed'; message: string }
+  | { error: 'subsaga_create_failed'; message: string }
 
 /**
  * A single page of results
@@ -851,7 +855,7 @@ export type VpcFirewallRuleHostFilter =
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
   | { type: 'ip'; value: string }
-  | { type: 'internetGateway'; value: Name }
+  | { type: 'internet_gateway'; value: Name }
 
 /**
  * The protocols that may be specified in a firewall rule's filter
