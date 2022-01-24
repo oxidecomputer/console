@@ -64,7 +64,7 @@ describe('useApiQuery', () => {
 
       await waitFor(() =>
         expect(result.current.error?.error).toEqual({
-          error_code: 'ObjectNotFound',
+          errorCode: 'ObjectNotFound',
         })
       )
     })
@@ -130,7 +130,7 @@ describe('useApiMutation', () => {
 
       await waitFor(() =>
         expect(result.current.error?.error).toEqual({
-          error_code: 'ObjectNotFound',
+          errorCode: 'ObjectNotFound',
         })
       )
     })

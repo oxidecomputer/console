@@ -4,7 +4,7 @@ import type { ApiTypes as Api } from '@oxide/api'
 import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
 import { db, lookupOrg, lookupProject, lookupVpc } from './db'
 
-const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' }
+const alreadyExistsErr = { errorCode: 'ObjectAlreadyExists' }
 
 /// generate random 11 digit hex string
 const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)

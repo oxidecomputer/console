@@ -46,7 +46,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows message for known error code in global code map', async () => {
-    override('post', projectsUrl, 403, { error_code: 'Forbidden' })
+    override('post', projectsUrl, 403, { errorCode: 'Forbidden' })
     renderAppAt(formUrl)
     enterName('mock-project-2')
 
@@ -68,7 +68,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
+    override('post', projectsUrl, 400, { errorCode: 'UnknownCode' })
     renderAppAt(formUrl)
     enterName('mock-project-2')
 

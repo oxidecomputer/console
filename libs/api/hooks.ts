@@ -31,8 +31,8 @@ type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 type ErrorData = {
-  request_id: string
-  error_code: string | null
+  requestId: string
+  errorCode: string | null
   message: string
 }
 

@@ -21,7 +21,7 @@ export const getServerError = (
   codeMap: Record<string, string> = {}
 ) => {
   if (!error) return null
-  const code = error.error?.error_code
+  const code = error.error?.errorCode
   const codeMsg = code && (codeMap[code] || globalCodeMap[code])
   const serverMsg = error.error?.message
   return (
