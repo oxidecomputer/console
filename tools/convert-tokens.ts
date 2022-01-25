@@ -83,27 +83,23 @@ StyleDictionary.registerFormat({
         .join('\n')}
     }\n
 
-      ${
-        (options.includeFonts &&
-          props
-            .filter(
-              (prop) =>
-                prop.type === 'typography' &&
-                !prop.name.endsWith('-uncased') &&
-                !prop.name.endsWith('-underline')
-            )
-            .map(
-              (prop) => `.text-${formatFontClass(prop.name)} {
+      ${props
+        .filter(
+          (prop) =>
+            prop.type === 'typography' &&
+            !prop.name.endsWith('-uncased') &&
+            !prop.name.endsWith('-underline')
+        )
+        .map(
+          (prop) => `.text-${formatFontClass(prop.name)} {
           ${Object.entries(prop.value)
             .map(([name, value]) => formatStyle(name, value))
             .filter((style) => style !== null)
             .map(([name, value]) => `${name}: ${value};`)
             .join('\n')}
           }`
-            )
-            .join('\n')) ||
-        ''
-      }`
+        )
+        .join('\n')}`
   },
 })
 
@@ -127,7 +123,6 @@ const makeConfig = (theme: string): Config => {
             format: 'theme',
             options: {
               selector: theme === 'main' ? ':root' : `.${theme}-theme`,
-              includeFonts: theme === 'main',
             },
           },
         ],
