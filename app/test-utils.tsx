@@ -4,9 +4,23 @@ import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import 'whatwg-fetch'
+import '@testing-library/jest-dom'
 
 import { routes } from './routes'
 import { handlers, resetDb } from '@oxide/api-mocks'
+import { afterAll, afterEach, beforeAll } from 'vitest'
+
+import { setLogger } from 'react-query'
+
+// react-query calls console.error whenever a request fails.
+// this is annoying and we don't need it. leave log and warn there
+// just in case they tell us something useful
+setLogger({
+  log: console.log,
+  warn: console.warn,
+  error: () => {},
+})
 
 const server = setupServer(...handlers)
 
