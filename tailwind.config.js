@@ -35,7 +35,7 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-      black: '#080F11',
+      black: 'var(--base-black-700)',
       white: '#FFFFFF',
       gray: {
         50: '#E7E7E8',
@@ -49,7 +49,7 @@ module.exports = {
         600: '#0E1518',
       },
       red: {
-        500: '#E86886',
+        500: 'var(--base-red-500)',
         600: '#BC5770',
         700: '#8F465A',
         800: '#643644',
@@ -57,7 +57,7 @@ module.exports = {
         950: '#211C23',
       },
       yellow: {
-        500: '#F5CF65',
+        500: 'var(--base-yellow-500)',
         600: '#C6AA56',
         700: '#978447',
         800: '#695F36',
@@ -65,7 +65,7 @@ module.exports = {
         950: '#222720',
       },
       blue: {
-        500: '#4969F6',
+        500: 'var(--base-blue-500)',
         600: '#3C58CA',
         700: '#30479E',
         800: '#243670',
@@ -73,7 +73,7 @@ module.exports = {
         950: '#111C2F',
       },
       green: {
-        500: '#48D597',
+        500: 'var(--base-green-500)',
         600: '#3CAE7E',
         700: '#2F8865',
         800: '#24614A',
