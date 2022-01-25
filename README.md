@@ -20,8 +20,6 @@ The app is in [`app`](app). You can see the route structure in [`app/app.tsx`](a
 
 The console is automatically deployed to GCP for testing purposes. It uses the real API, but the underlying systems are simulated as in local dev, so, e.g., while you can create "instances" (CockroachDB rows representing instances), they are not instantiated as running VMs. [Set up Tailscale](https://github.com/oxidecomputer/meta/blob/master/general/vpn.md) and go to https://console-git-main.internal.oxide.computer to see the main branch. PRs are deployed to `console-git-<branch_name>.internal.oxide.computer`.
 
-The deployed instance includes a very barebones API docs page powered by [Redoc](https://github.com/Redocly/redoc). See it [here](https://console-git-main.internal.oxide.computer/docs/).
-
 ## Development
 
 ### Install dependencies

@@ -22,7 +22,6 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'app/index.html'),
-        docs: resolve(__dirname, 'app/docs/index.html'),
       },
     },
     // minify: false, // uncomment for debugging
