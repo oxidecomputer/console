@@ -112,19 +112,19 @@ module.exports = {
         '.text-mono-xs': {
           ...monoFamily,
           'font-size': '0.625rem',
-          'line-height': '1.3',
+          'line-height': '1.3rem',
           'letter-spacing': '0.025rem',
         },
         '.text-mono-sm': {
           ...monoFamily,
           'font-size': '0.6875rem',
-          'line-height': '1.27',
+          'line-height': '1.27rem',
           'letter-spacing': '0.028125rem',
         },
         '.text-mono-md': {
           ...monoFamily,
           'font-size': '0.75rem',
-          'line-height': '1.25',
+          'line-height': '1.25rem',
           'letter-spacing': '0.028125rem',
         },
         '.text-mono-lg': {
