@@ -45,11 +45,11 @@ export type Disk = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -156,12 +156,12 @@ export type Instance = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
-  timeRunStateUpdated: string
+  timeModified: Date
+  timeRunStateUpdated: Date
 }
 
 /**
@@ -274,11 +274,11 @@ export type NetworkInterface = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
   /**
    * The VPC to which the interface belongs.
    */
@@ -318,11 +318,11 @@ export type Organization = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -375,11 +375,11 @@ export type Project = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -431,11 +431,11 @@ export type Rack = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -526,11 +526,11 @@ export type RouterRoute = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -636,11 +636,11 @@ export type Sled = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -707,11 +707,11 @@ export type User = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -759,11 +759,11 @@ export type Vpc = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 /**
@@ -818,11 +818,11 @@ export type VpcFirewallRule = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
 }
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'
@@ -964,11 +964,11 @@ export type VpcRouter = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
   /**
    * The VPC to which the router belongs.
    */
@@ -1034,11 +1034,11 @@ export type VpcSubnet = {
   /**
    * timestamp when this resource was created
    */
-  timeCreated: string
+  timeCreated: Date
   /**
    * timestamp when this resource was last modified
    */
-  timeModified: string
+  timeModified: Date
   /**
    * The VPC to which the subnet belongs.
    */
@@ -1713,6 +1713,54 @@ export interface UsersGetUserParams {
   userName: Name
 }
 
+const camelToSnake = (s: string) =>
+  s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
+
+const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())
+
+const isObjectOrArray = (o: unknown) =>
+  typeof o === 'object' &&
+  !(o instanceof Date) &&
+  !(o instanceof RegExp) &&
+  !(o instanceof Error) &&
+  o !== null
+
+/**
+ * Recursively map (k, v) pairs using Object.entries
+ *
+ * Note that value transform function takes both k and v so we can use the key
+ * to decide whether to transform the value.
+ */
+const mapObj =
+  (
+    kf: (k: string) => string,
+    vf: (k: string | undefined, v: unknown) => any = (k, v) => v
+  ) =>
+  (o: unknown): unknown => {
+    if (!isObjectOrArray(o)) return o
+
+    if (Array.isArray(o)) return o.map(mapObj(kf, vf))
+
+    const newObj: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(o as Record<string, unknown>)) {
+      newObj[kf(k)] = isObjectOrArray(v) ? mapObj(kf, vf)(v) : vf(k, v)
+    }
+    return newObj
+  }
+
+const parseIfDate = (k: string | undefined, v: any) => {
+  if (typeof v === 'string' && k?.startsWith('time_')) {
+    const d = new Date(v)
+    if (isNaN(d.getTime())) return v
+    return d
+  }
+  return v
+}
+
+const snakeify = mapObj(camelToSnake)
+
+const processResponseBody = mapObj(snakeToCamel, parseIfDate)
+
 // credit where due: this is a stripped-down version of the fetch client from
 // https://github.com/acacode/swagger-typescript-api
 
@@ -1762,42 +1810,6 @@ const toQueryString = (rawQuery?: QueryParamsType): string =>
         : encodeQueryParam(key, value)
     )
     .join('&')
-
-const camelToSnake = (s: string) =>
-  s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
-
-const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())
-
-const isObject = (o: unknown) =>
-  typeof o === 'object' &&
-  !(o instanceof Date) &&
-  !(o instanceof RegExp) &&
-  !(o instanceof Error) &&
-  o !== null
-
-// recursively map keys using Object.keys
-const mapKeys =
-  (fn: (k: string) => string) =>
-  (o: unknown): unknown => {
-    if (!isObject(o)) return o
-
-    if (Array.isArray(o)) {
-      return o.map(mapKeys(fn))
-    }
-
-    const obj = o as Record<string, unknown>
-
-    const newObj: Record<string, unknown> = {}
-    for (const key of Object.keys(obj)) {
-      if (typeof key === 'string') {
-        newObj[fn(key)] = mapKeys(fn)(obj[key] as Record<string, unknown>)
-      }
-    }
-    return newObj
-  }
-
-const snakeify = mapKeys(camelToSnake)
-const camelify = mapKeys(snakeToCamel)
 
 export class HttpClient {
   public baseUrl: string = ''
@@ -1884,7 +1896,7 @@ export class HttpClient {
 
       await response
         .json()
-        .then(camelify)
+        .then(processResponseBody)
         .then((data) => {
           if (r.ok) {
             r.data = data as T
