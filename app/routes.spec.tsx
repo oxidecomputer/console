@@ -23,13 +23,13 @@ describe('routeConfig', () => {
     expect(matches[0].pathname).toEqual('/')
     // second/last is the full match
     expect(matches[1]).toMatchInlineSnapshot(`
-      Object {
-        "params": Object {
+      {
+        "params": {
           "*": "abc/def/ghi",
         },
         "pathname": "/abc/def/ghi",
         "pathnameBase": "/",
-        "route": Object {
+        "route": {
           "element": <NotFound />,
           "path": "*",
         },
