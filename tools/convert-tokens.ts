@@ -60,6 +60,11 @@ const formatStyle = (name, value) => {
 StyleDictionary.registerFormat({
   name: 'theme',
   formatter({ dictionary, options }) {
+    const colors = Object.fromEntries(
+      dictionary.allProperties
+        .filter((prop) => prop.name.startsWith('base-'))
+        .map((prop) => [prop.value, prop.name])
+    )
     const props = dictionary.allProperties.filter(
       (prop) => !prop.name.includes('font-families')
     )
@@ -68,18 +73,14 @@ StyleDictionary.registerFormat({
 
     ${options.selector} {
       ${props
-        .filter(
-          (prop) =>
-            typeof prop.value !== 'object' &&
-            !prop.name.startsWith('font-') &&
-            !prop.name.startsWith('paragraph-spacing') &&
-            !prop.name.startsWith('line-heights') &&
-            !prop.name.startsWith('letter-spacing') &&
-            !prop.name.startsWith('text-') &&
-            prop.name !== 'default' &&
-            prop.name !== 'large'
-        )
-        .map((prop) => `  --${prop.name}: ${prop.value};`)
+        .filter((prop) => typeof prop.value !== 'object')
+        .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
+        .map((prop) => {
+          if (prop.value in colors && !prop.name.startsWith('base-')) {
+            return `  --${prop.name}: var(--${colors[prop.value]});`
+          }
+          return `  --${prop.name}: ${prop.value};`
+        })
         .join('\n')}
     }\n
 
@@ -103,11 +104,19 @@ StyleDictionary.registerFormat({
   },
 })
 
-StyleDictionary.registerTransform({
-  name: 'sizes/rem',
-  type: 'value',
-  matcher: (prop) => [].includes(prop.attributes?.category),
-  transformer: (prop) => valueToRem(prop.original.value),
+StyleDictionary.registerFilter({
+  name: 'filter/fonts',
+  matcher: (prop) =>
+    ![
+      'fontWeights',
+      'fontSizes',
+      'letterSpacing',
+      'paragraphSpacing',
+      'textCase',
+      'textDecoration',
+      'lineHeights',
+      'borderRadius',
+    ].includes(prop.original.type),
 })
 
 const makeConfig = (theme: string): Config => {
@@ -115,10 +124,11 @@ const makeConfig = (theme: string): Config => {
     source: [`libs/ui/styles/.tokens/${theme}.json`],
     platforms: {
       web: {
-        transforms: ['attribute/cti', 'name/cti/kebab', 'sizes/rem'],
+        transforms: ['attribute/cti', 'name/cti/kebab'],
         buildPath: 'libs/ui/styles/themes/',
         files: [
           {
+            filter: 'filter/fonts',
             destination: `${theme}.css`,
             format: 'theme',
             options: {

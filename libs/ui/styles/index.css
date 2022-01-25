@@ -4,13 +4,11 @@
 @import '@reach/menu-button/styles.css';
 @import '@reach/tabs/styles.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --content-gutter: 2.5rem;
-}
+@import 'tailwindcss/base';
+@import './themes/main.css';
+@import './themes/operator-mode.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 @layer base {
   body {
