@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -56,5 +58,9 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:12220',
       },
     },
+  },
+  test: {
+    global: true,
+    environment: 'jsdom',
   },
 }))

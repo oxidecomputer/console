@@ -6,7 +6,7 @@ Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omi
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
-- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [Mock Service Workers](https://mswjs.io/)
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [Mock Service Workers](https://mswjs.io/)
 - [Tailwind](https://tailwindcss.com/)
 - [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
 - [Vite](https://vitejs.dev/)
@@ -116,15 +116,16 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 ### Other useful commands
 
-| Command        | Description                                                                        |
-| -------------- | ---------------------------------------------------------------------------------- |
-| `yarn test`    | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`                     |
-| `yarn lint`    | ESLint                                                                             |
-| `yarn tsc`     | Check types                                                                        |
-| `yarn ci`      | Lint, tests, and types                                                             |
-| `yarn fmt .`   | Format everything. Rarely necessary thanks to editor integration                   |
-| `yarn gen`     | Generate components, stories, tests, etc                                           |
-| `yarn gen-api` | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
+| Command         | Description                                                                        |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `yarn test:run` | Vitest tests                                                                       |
+| `yarn test`     | Vitest tests in watch mode                                                         |
+| `yarn lint`     | ESLint                                                                             |
+| `yarn tsc`      | Check types                                                                        |
+| `yarn ci`       | Lint, tests, and types                                                             |
+| `yarn fmt .`    | Format everything. Rarely necessary thanks to editor integration                   |
+| `yarn gen`      | Generate components, stories, tests, etc                                           |
+| `yarn gen-api`  | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 
 ## Relevant documents
 

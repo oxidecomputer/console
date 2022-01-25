@@ -28,7 +28,7 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-      Array [
+      [
         <div>
           <TestA />
           <TestB />
@@ -46,7 +46,7 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-      Array [
+      [
         <TestA />,
         <TestB />,
       ]
@@ -64,12 +64,12 @@ describe('flattenChildren', () => {
     )
     const flattened = flattenChildren(children)
     expect(flattened).toMatchInlineSnapshot(`
-    Array [
-      <TestA />,
-      <TestB />,
-      "hello",
-    ]
-  `)
+      [
+        <TestA />,
+        <TestB />,
+        "hello",
+      ]
+    `)
   })
 })
 
