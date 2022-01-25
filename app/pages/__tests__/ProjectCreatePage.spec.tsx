@@ -32,7 +32,7 @@ describe('ProjectCreatePage', () => {
     await waitFor(() => expect(submit).toBeDisabled())
   })
 
-  it('shows message for known error code in project create code map', async () => {
+  it.only('shows message for known error code in project create code map', async () => {
     renderAppAt(formUrl)
     enterName(project.name) // already exists
 

@@ -5,8 +5,8 @@ export const project: Project = {
   id: 'mock-project-uuid',
   name: 'mock-project',
   description: 'a fake project',
-  timeCreated: new Date(2021, 0, 1).toISOString(),
-  timeModified: new Date(2021, 0, 2).toISOString(),
+  timeCreated: new Date(2021, 0, 1),
+  timeModified: new Date(2021, 0, 2),
   organizationId: org.id,
 }
 

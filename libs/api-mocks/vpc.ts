@@ -11,8 +11,8 @@ export const vpc: Vpc = {
   name: 'mock-vpc',
   description: 'a fake vpc',
   dnsName: 'mock-vpc',
-  timeCreated: new Date(2021, 0, 1).toISOString(),
-  timeModified: new Date(2021, 0, 2).toISOString(),
+  timeCreated: new Date(2021, 0, 1),
+  timeModified: new Date(2021, 0, 2),
   projectId: project.id,
   systemRouterId: 'router-id', // ???
 }
@@ -24,8 +24,8 @@ export const vpcSubnet: VpcSubnet = {
   id: 'vpc-subnet-id',
   name: 'mock-subnet',
   description: 'a fake subnet',
-  timeCreated: new Date(2021, 0, 1).toISOString(),
-  timeModified: new Date(2021, 0, 2).toISOString(),
+  timeCreated: new Date(2021, 0, 1),
+  timeModified: new Date(2021, 0, 2),
   // supposed to be camelcase, will fix in API
   vpcId: vpc.id,
   ipv4Block: '1.1.1.1/24',

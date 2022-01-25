@@ -10,9 +10,9 @@ export const instance: Instance = {
   hostname: 'oxide.com',
   projectId: project.id,
   runState: 'running',
-  timeCreated: new Date().toISOString(),
-  timeModified: new Date().toISOString(),
-  timeRunStateUpdated: new Date().toISOString(),
+  timeCreated: new Date(),
+  timeModified: new Date(),
+  timeRunStateUpdated: new Date(),
 }
 
 export const instances: InstanceResultsPage = { items: [instance] }
