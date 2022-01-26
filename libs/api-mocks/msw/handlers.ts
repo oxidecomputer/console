@@ -58,8 +58,6 @@ export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
 
 const alreadyExistsErr = { errorCode: 'ObjectAlreadyExists' } as const
 
-type Empty = Record<string, never>
-
 type GetErr = typeof notFoundErr
 type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 
@@ -68,14 +66,14 @@ export const handlers = [
     return res(json(sessionMe))
   }),
 
-  rest.get<Empty, Empty, Api.OrganizationResultsPage>(
+  rest.get<never, never, Api.OrganizationResultsPage>(
     '/api/organizations',
     (req, res) => {
       return res(json({ items: db.orgs }))
     }
   ),
 
-  rest.post<Api.OrganizationCreate, Empty, Api.Organization | PostErr>(
+  rest.post<Api.OrganizationCreate, never, Api.Organization | PostErr>(
     '/api/organizations',
     (req, res) => {
       const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
@@ -91,7 +89,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, OrgParams, Api.Organization | GetErr>(
+  rest.get<never, OrgParams, Api.Organization | GetErr>(
     '/api/organizations/:orgName',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -101,7 +99,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, OrgParams, Api.ProjectResultsPage | GetErr>(
+  rest.get<never, OrgParams, Api.ProjectResultsPage | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -135,7 +133,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.Project | GetErr>(
+  rest.get<never, ProjectParams, Api.Project | GetErr>(
     '/api/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -144,7 +142,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.InstanceResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.InstanceResultsPage | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -182,7 +180,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.DiskResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.DiskResultsPage | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -192,7 +190,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.VpcResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.VpcResultsPage | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -202,7 +200,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, VpcParams, Api.Vpc | GetErr>(
+  rest.get<never, VpcParams, Api.Vpc | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
@@ -211,7 +209,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<Empty, VpcParams, Api.VpcSubnetResultsPage | GetErr>(
+  rest.get<never, VpcParams, Api.VpcSubnetResultsPage | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
