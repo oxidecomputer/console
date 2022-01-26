@@ -1,18 +1,18 @@
-import type { Instance, InstanceResultsPage } from '@oxide/api'
+import type { InstanceJSON, InstanceResultsPageJSON } from '@oxide/api'
 import { project } from './project'
 
-export const instance: Instance = {
+export const instance: InstanceJSON = {
   ncpus: 7,
   memory: 1024 * 1024 * 256,
   name: 'db1',
   description: 'an instance',
   id: 'abc123',
   hostname: 'oxide.com',
-  projectId: project.id,
-  runState: 'running',
-  timeCreated: new Date(),
-  timeModified: new Date(),
-  timeRunStateUpdated: new Date(),
+  project_id: project.id,
+  run_state: 'running',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  time_run_state_updated: new Date().toISOString(),
 }
 
-export const instances: InstanceResultsPage = { items: [instance] }
+export const instances: InstanceResultsPageJSON = { items: [instance] }

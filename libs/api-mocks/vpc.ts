@@ -1,44 +1,44 @@
 import { project } from './project'
 import type {
-  Vpc,
-  VpcResultsPage,
-  VpcSubnet,
-  VpcSubnetResultsPage,
+  VpcJSON,
+  VpcResultsPageJSON,
+  VpcSubnetJSON,
+  VpcSubnetResultsPageJSON,
 } from '@oxide/api'
 
-export const vpc: Vpc = {
+export const vpc: VpcJSON = {
   id: 'vpc-id',
   name: 'mock-vpc',
   description: 'a fake vpc',
-  dnsName: 'mock-vpc',
-  timeCreated: new Date(2021, 0, 1),
-  timeModified: new Date(2021, 0, 2),
-  projectId: project.id,
-  systemRouterId: 'router-id', // ???
+  dns_name: 'mock-vpc',
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 2).toISOString(),
+  project_id: project.id,
+  system_router_id: 'router-id', // ???
 }
 
-export const vpcs: VpcResultsPage = { items: [vpc] }
+export const vpcs: VpcResultsPageJSON = { items: [vpc] }
 
-export const vpcSubnet: VpcSubnet = {
+export const vpcSubnet: VpcSubnetJSON = {
   // this is supposed to be flattened into the top level. will fix in API
   id: 'vpc-subnet-id',
   name: 'mock-subnet',
   description: 'a fake subnet',
-  timeCreated: new Date(2021, 0, 1),
-  timeModified: new Date(2021, 0, 2),
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 2).toISOString(),
   // supposed to be camelcase, will fix in API
-  vpcId: vpc.id,
-  ipv4Block: '1.1.1.1/24',
+  vpc_id: vpc.id,
+  ipv4_block: '1.1.1.1/24',
 }
 
-export const vpcSubnet2: VpcSubnet = {
+export const vpcSubnet2: VpcSubnetJSON = {
   ...vpcSubnet,
   id: 'vpc-subnet-id-2',
   name: 'mock-subnet-2',
-  vpcId: vpc.id,
-  ipv4Block: '1.1.1.2/24',
+  vpc_id: vpc.id,
+  ipv4_block: '1.1.1.2/24',
 }
 
-export const vpcSubnets: VpcSubnetResultsPage = {
+export const vpcSubnets: VpcSubnetResultsPageJSON = {
   items: [vpcSubnet],
 }

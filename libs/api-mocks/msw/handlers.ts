@@ -4,82 +4,49 @@ import { sessionMe } from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
 import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
 import { db, lookupOrg, lookupProject, lookupVpc } from './db'
-import { mapObj } from './map-obj'
+
+// Note the *JSON types. Those represent actual API request and response bodies,
+// the snake-cased objects coming straight from the API before the generated
+// client camel-cases the keys and parses date fields. Inside the mock API everything
+// is *JSON type.
 
 /// generate random 11 digit hex string
 const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
 
 function getTimestamps() {
-  const now = new Date()
-  return {
-    timeCreated: now,
-    timeModified: now,
-  }
+  const now = new Date().toISOString()
+  return { time_created: now, time_modified: now }
 }
 
-const camelToSnake = (s: string) =>
-  s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
-
-const dateToStr = (k: string | undefined, v: unknown) =>
-  v instanceof Date ? v.toISOString() : v
-
-const apiify = mapObj(camelToSnake, dateToStr)
-
 /**
- * Custom transformer: snake case keys and stringify dates like the real Nexus.
+ * Custom transformer: convenience function for less typing. Equivalent to
+ * `res(ctx.status(status), ctx.json(body))` in a handler.
  *
- * Because our camel-cased and date-parsed API types are all we get from the
- * generated client, it's convenient to use them everywhere in the mock server,
- * including the objects in the mock DB. However, we also need to return
- * realistic API responses, which are snake-cased and have stringified dates. So
- * we deal with our client-side API types as long as we can, right up until
- * serialization time. When a POST comes in, the body is snake-cased because the
- * client is doing the right thing as far as the real API is concerned. TODO: we
- * should be camelizing and date-parsing request bodies when they come in. Ugh.
- *
- * It might be less error-prone to do this transformation in something like a
- * middleware, but that doesn't seem like a thing in MSW.
- *
- * Note that the B in the return type is a lie! The incoming value is of course
- * a B, but once it's transformed, it should really be something like
- * `Snakify<DateToStr<B>>`. (`mapObj` returns `any`, so we can just cast to what
- * we want.) This lie is convenient because it lets us annotate, say, GET
- * project with a response type of `Project` even though technically it's
- * `Snakify<DateToStr<Project>>`. We could, of course, do this properly but it's
- * a lot of noise with little additional value as long as you remember the One
- * Weird Trick.
- *
- * It _would_ be easy to forget to call this on every response, except that
- * calling res() with a plain object is an error anyway. This `json()` is
- * replacing `ctx.json()`.
+ * https://mswjs.io/docs/basics/response-transformer#custom-transformer
  */
 export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
-  compose(context.status(status), context.json(apiify(body)))
+  compose(context.status(status), context.json(body))
 
-const alreadyExistsErr = { errorCode: 'ObjectAlreadyExists' } as const
+const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' } as const
 
 type GetErr = typeof notFoundErr
 type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 
 export const handlers = [
-  rest.get('/api/session/me', (req, res) => {
-    return res(json(sessionMe))
-  }),
+  rest.get('/api/session/me', (req, res) => res(json(sessionMe))),
 
-  rest.get<never, never, Api.OrganizationResultsPage>(
+  rest.get<never, never, Api.OrganizationResultsPageJSON>(
     '/api/organizations',
-    (req, res) => {
-      return res(json({ items: db.orgs }))
-    }
+    (req, res) => res(json({ items: db.orgs }))
   ),
 
-  rest.post<Api.OrganizationCreate, never, Api.Organization | PostErr>(
+  rest.post<Api.OrganizationCreateJSON, never, Api.OrganizationJSON | PostErr>(
     '/api/organizations',
     (req, res) => {
       const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newOrg = {
+      const newOrg: Api.OrganizationJSON = {
         id: 'org-' + randomHex(),
         ...req.body,
         ...getTimestamps(),
@@ -89,7 +56,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, OrgParams, Api.Organization | GetErr>(
+  rest.get<never, OrgParams, Api.OrganizationJSON | GetErr>(
     '/api/organizations/:orgName',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -99,32 +66,34 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, OrgParams, Api.ProjectResultsPage | GetErr>(
+  rest.get<never, OrgParams, Api.ProjectResultsPageJSON | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
-      const projects = db.projects.filter((p) => p.organizationId === org.ok.id)
+      const projects = db.projects.filter(
+        (p) => p.organization_id === org.ok.id
+      )
       return res(json({ items: projects }))
     }
   ),
 
-  rest.post<Api.ProjectCreate, OrgParams, Api.Project | PostErr>(
+  rest.post<Api.ProjectCreateJSON, OrgParams, Api.ProjectJSON | PostErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
       const alreadyExists = db.projects.some(
-        (p) => p.organizationId === org.ok.id && p.name === req.body.name
+        (p) => p.organization_id === org.ok.id && p.name === req.body.name
       )
 
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newProject = {
+      const newProject: Api.ProjectJSON = {
         id: 'project-' + randomHex(),
-        organizationId: org.ok.id,
+        organization_id: org.ok.id,
         ...req.body,
         ...getTimestamps(),
       }
@@ -133,7 +102,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.Project | GetErr>(
+  rest.get<never, ProjectParams, Api.ProjectJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -142,65 +111,65 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.InstanceResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.InstanceResultsPageJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
       const instances = db.instances.filter(
-        (i) => i.projectId === project.ok.id
+        (i) => i.project_id === project.ok.id
       )
       return res(json({ items: instances }))
     }
   ),
 
-  rest.post<Api.InstanceCreate, ProjectParams, Api.Instance | PostErr>(
+  rest.post<Api.InstanceCreateJSON, ProjectParams, Api.InstanceJSON | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
 
       const alreadyExists = db.instances.some(
-        (i) => i.projectId === project.ok.id && i.name === req.body.name
+        (i) => i.project_id === project.ok.id && i.name === req.body.name
       )
       if (alreadyExists) {
         return res(json(alreadyExistsErr, 400))
       }
 
-      const newInstance: Api.Instance = {
+      const newInstance: Api.InstanceJSON = {
         id: 'instance-' + randomHex(),
-        projectId: project.ok.id,
+        project_id: project.ok.id,
         ...req.body,
         ...getTimestamps(),
-        runState: 'stopped',
-        timeRunStateUpdated: new Date(),
+        run_state: 'stopped',
+        time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
       return res(json(newInstance, 201))
     }
   ),
 
-  rest.get<never, ProjectParams, Api.DiskResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.DiskResultsPageJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
-      const disks = db.disks.filter((d) => d.projectId === project.ok.id)
+      const disks = db.disks.filter((d) => d.project_id === project.ok.id)
       return res(json({ items: disks }))
     }
   ),
 
-  rest.get<never, ProjectParams, Api.VpcResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Api.VpcResultsPageJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
-      const vpcs = db.vpcs.filter((v) => v.projectId === project.ok.id)
+      const vpcs = db.vpcs.filter((v) => v.project_id === project.ok.id)
       return res(json({ items: vpcs }))
     }
   ),
 
-  rest.get<never, VpcParams, Api.Vpc | GetErr>(
+  rest.get<never, VpcParams, Api.VpcJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
@@ -209,31 +178,30 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Api.VpcSubnetResultsPage | GetErr>(
+  rest.get<never, VpcParams, Api.VpcSubnetResultsPageJSON | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
-      const items = db.vpcSubnets.filter((s) => s.vpcId === vpc.ok.id)
+      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.ok.id)
       return res(json({ items }))
     }
   ),
 
-  rest.post<Api.VpcSubnetCreate, VpcParams, Api.VpcSubnet | PostErr>(
+  rest.post<Api.VpcSubnetCreateJSON, VpcParams, Api.VpcSubnetJSON | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
 
       const alreadyExists = db.vpcSubnets.some(
-        (s) => s.vpcId === vpc.ok.id && s.name === req.body.name
+        (s) => s.vpc_id === vpc.ok.id && s.name === req.body.name
       )
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newSubnet = {
+      const newSubnet: Api.VpcSubnetJSON = {
         id: 'vpc-subnet-' + randomHex(),
-        vpcId: vpc.ok.id,
-        dnsName: req.body.name,
+        vpc_id: vpc.ok.id,
         ...req.body,
         ...getTimestamps(),
       }

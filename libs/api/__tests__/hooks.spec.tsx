@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
 import { override } from 'app/test-utils'
-import { orgs } from '@oxide/api-mocks'
+import { org } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -86,7 +86,11 @@ describe('useApiQuery', () => {
   describe('on success response', () => {
     it('returns data', async () => {
       const { result } = renderGetOrgs()
-      await waitFor(() => expect(result.current.data).toEqual(orgs))
+      await waitFor(() => {
+        const items = result.current.data?.items
+        expect(items?.length).toEqual(1)
+        expect(items?.[0].id).toEqual(org.id)
+      })
     })
   })
 })

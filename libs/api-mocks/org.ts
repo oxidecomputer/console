@@ -1,11 +1,11 @@
-import type { Organization, OrganizationResultsPage } from '@oxide/api'
+import type { OrganizationJSON, OrganizationResultsPageJSON } from '@oxide/api'
 
-export const org: Organization = {
+export const org: OrganizationJSON = {
   id: 'org-uuid',
   name: 'maze-war',
   description: 'a fake org',
-  timeCreated: new Date(2021, 0, 1),
-  timeModified: new Date(2021, 0, 2),
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 2).toISOString(),
 }
 
-export const orgs: OrganizationResultsPage = { items: [org] }
+export const orgs: OrganizationResultsPageJSON = { items: [org] }

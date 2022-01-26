@@ -10,7 +10,7 @@ import type {
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
 
-export const notFoundErr = { errorCode: 'ObjectNotFound' } as const
+export const notFoundErr = { error_code: 'ObjectNotFound' } as const
 
 type Result<T> =
   | { ok: T; err: null }
@@ -33,7 +33,7 @@ export function lookupOrg(
   req: Req<OrgParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Organization> {
+): Result<Api.OrganizationJSON> {
   const org = db.orgs.find((o) => o.name === req.params.orgName)
   if (!org) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -45,12 +45,12 @@ export function lookupProject(
   req: Req<ProjectParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Project> {
+): Result<Api.ProjectJSON> {
   const org = lookupOrg(req, res, ctx)
   if (org.err) return org // has to be the whole result, not just the error
 
   const project = db.projects.find(
-    (p) => p.organizationId === org.ok.id && p.name === req.params.projectName
+    (p) => p.organization_id === org.ok.id && p.name === req.params.projectName
   )
   if (!project) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -63,12 +63,12 @@ export function lookupVpc(
   req: Req<VpcParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Vpc> {
+): Result<Api.VpcJSON> {
   const project = lookupProject(req, res, ctx)
   if (project.err) return project // has to be the whole result, not just the error
 
   const vpc = db.vpcs.find(
-    (p) => p.projectId === project.ok.id && p.name === req.params.vpcName
+    (p) => p.project_id === project.ok.id && p.name === req.params.vpcName
   )
   if (!vpc) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }

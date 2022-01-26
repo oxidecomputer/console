@@ -1,13 +1,13 @@
-import type { Project, ProjectResultsPage } from '@oxide/api'
+import type { ProjectJSON, ProjectResultsPageJSON } from '@oxide/api'
 import { org } from './org'
 
-export const project: Project = {
+export const project: ProjectJSON = {
   id: 'mock-project-uuid',
   name: 'mock-project',
   description: 'a fake project',
-  timeCreated: new Date(2021, 0, 1),
-  timeModified: new Date(2021, 0, 2),
-  organizationId: org.id,
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 2).toISOString(),
+  organization_id: org.id,
 }
 
-export const projects: ProjectResultsPage = { items: [project] }
+export const projects: ProjectResultsPageJSON = { items: [project] }
