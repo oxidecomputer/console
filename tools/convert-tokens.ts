@@ -85,12 +85,7 @@ StyleDictionary.registerFormat({
     }\n
 
       ${props
-        .filter(
-          (prop) =>
-            prop.type === 'typography' &&
-            !prop.name.endsWith('-uncased') &&
-            !prop.name.endsWith('-underline')
-        )
+        .filter((prop) => prop.type === 'typography')
         .map(
           (prop) => `.text-${formatFontClass(prop.name)} {
           ${Object.entries(prop.value)
@@ -105,18 +100,21 @@ StyleDictionary.registerFormat({
 })
 
 StyleDictionary.registerFilter({
-  name: 'filter/fonts',
-  matcher: (prop) =>
-    ![
-      'fontWeights',
-      'fontSizes',
-      'letterSpacing',
-      'paragraphSpacing',
-      'textCase',
-      'textDecoration',
-      'lineHeights',
-      'borderRadius',
-    ].includes(prop.original.type),
+  name: 'filter',
+  matcher: (prop) => {
+    return (
+      ![
+        'fontWeights',
+        'fontSizes',
+        'letterSpacing',
+        'paragraphSpacing',
+        'textCase',
+        'textDecoration',
+        'lineHeights',
+        'borderRadius',
+      ].includes(prop.original.type) && !prop.path.some((i) => i.includes('*'))
+    )
+  },
 })
 
 const makeConfig = (theme: string): Config => {
@@ -128,7 +126,7 @@ const makeConfig = (theme: string): Config => {
         buildPath: 'libs/ui/styles/themes/',
         files: [
           {
-            filter: 'filter/fonts',
+            filter: 'filter',
             destination: `${theme}.css`,
             format: 'theme',
             options: {
