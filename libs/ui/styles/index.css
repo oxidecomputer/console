@@ -4,11 +4,12 @@
 @import '@reach/menu-button/styles.css';
 @import '@reach/tabs/styles.css';
 
-@import 'tailwindcss/base';
 @import './themes/main.css';
 @import './themes/operator-mode.css';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   body {
