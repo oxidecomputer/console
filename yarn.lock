@@ -13371,6 +13371,11 @@ type-fest@^1.2.2:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
 
+type-fest@^2.10.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.10.0.tgz#0ee9c3cd411efb3bba434065d32235592d3644cf"
+  integrity sha512-u2yreDMllFI3VCpWt0rKrGs/E2LO0YHBwiiOIj+ilQh9+ALMaa4lNBSdoDvuHN3cbKcYk9L1BXP49x9RT+o/SA==
+
 type-is@~1.6.17, type-is@~1.6.18:
   version "1.6.18"
   resolved "https://registry.npmjs.org/type-is/-/type-is-1.6.18.tgz"
