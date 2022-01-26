@@ -1,7 +1,8 @@
-import type { InstanceJSON, InstanceResultsPageJSON } from '@oxide/api'
+import type { Instance, InstanceResultsPage } from '@oxide/api'
+import type { Json } from './json-type'
 import { project } from './project'
 
-export const instance: InstanceJSON = {
+export const instance: Json<Instance> = {
   ncpus: 7,
   memory: 1024 * 1024 * 256,
   name: 'db1',
@@ -15,4 +16,4 @@ export const instance: InstanceJSON = {
   time_run_state_updated: new Date().toISOString(),
 }
 
-export const instances: InstanceResultsPageJSON = { items: [instance] }
+export const instances: Json<InstanceResultsPage> = { items: [instance] }

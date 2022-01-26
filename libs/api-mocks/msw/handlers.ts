@@ -1,7 +1,8 @@
 import type { ResponseTransformer } from 'msw'
 import { rest, context, compose } from 'msw'
-import { sessionMe } from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
+import type { Json } from '../json-type'
+import { sessionMe } from '../session'
 import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
 import { db, lookupOrg, lookupProject, lookupVpc } from './db'
 
@@ -35,28 +36,29 @@ type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 export const handlers = [
   rest.get('/api/session/me', (req, res) => res(json(sessionMe))),
 
-  rest.get<never, never, Api.OrganizationResultsPageJSON>(
+  rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
     (req, res) => res(json({ items: db.orgs }))
   ),
 
-  rest.post<Api.OrganizationCreateJSON, never, Api.OrganizationJSON | PostErr>(
-    '/api/organizations',
-    (req, res) => {
-      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
-      if (alreadyExists) return res(json(alreadyExistsErr, 400))
+  rest.post<
+    Json<Api.OrganizationCreate>,
+    never,
+    Json<Api.Organization> | PostErr
+  >('/api/organizations', (req, res) => {
+    const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+    if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newOrg: Api.OrganizationJSON = {
-        id: 'org-' + randomHex(),
-        ...req.body,
-        ...getTimestamps(),
-      }
-      db.orgs.push(newOrg)
-      return res(json(newOrg, 201))
+    const newOrg: Json<Api.Organization> = {
+      id: 'org-' + randomHex(),
+      ...req.body,
+      ...getTimestamps(),
     }
-  ),
+    db.orgs.push(newOrg)
+    return res(json(newOrg, 201))
+  }),
 
-  rest.get<never, OrgParams, Api.OrganizationJSON | GetErr>(
+  rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
     '/api/organizations/:orgName',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -66,7 +68,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, OrgParams, Api.ProjectResultsPageJSON | GetErr>(
+  rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -79,7 +81,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Api.ProjectCreateJSON, OrgParams, Api.ProjectJSON | PostErr>(
+  rest.post<Json<Api.ProjectCreate>, OrgParams, Json<Api.Project> | PostErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
@@ -91,7 +93,7 @@ export const handlers = [
 
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newProject: Api.ProjectJSON = {
+      const newProject: Json<Api.Project> = {
         id: 'project-' + randomHex(),
         organization_id: org.ok.id,
         ...req.body,
@@ -102,7 +104,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.ProjectJSON | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.Project> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -111,7 +113,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.InstanceResultsPageJSON | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -123,7 +125,11 @@ export const handlers = [
     }
   ),
 
-  rest.post<Api.InstanceCreateJSON, ProjectParams, Api.InstanceJSON | PostErr>(
+  rest.post<
+    Json<Api.InstanceCreate>,
+    ProjectParams,
+    Json<Api.Instance> | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -136,7 +142,7 @@ export const handlers = [
         return res(json(alreadyExistsErr, 400))
       }
 
-      const newInstance: Api.InstanceJSON = {
+      const newInstance: Json<Api.Instance> = {
         id: 'instance-' + randomHex(),
         project_id: project.ok.id,
         ...req.body,
@@ -149,7 +155,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.DiskResultsPageJSON | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -159,7 +165,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Api.VpcResultsPageJSON | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.VpcResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
@@ -169,7 +175,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Api.VpcJSON | GetErr>(
+  rest.get<never, VpcParams, Json<Api.Vpc> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
@@ -178,7 +184,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Api.VpcSubnetResultsPageJSON | GetErr>(
+  rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
@@ -188,7 +194,11 @@ export const handlers = [
     }
   ),
 
-  rest.post<Api.VpcSubnetCreateJSON, VpcParams, Api.VpcSubnetJSON | PostErr>(
+  rest.post<
+    Json<Api.VpcSubnetCreate>,
+    VpcParams,
+    Json<Api.VpcSubnet> | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
@@ -199,7 +209,7 @@ export const handlers = [
       )
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
-      const newSubnet: Api.VpcSubnetJSON = {
+      const newSubnet: Json<Api.VpcSubnet> = {
         id: 'vpc-subnet-' + randomHex(),
         vpc_id: vpc.ok.id,
         ...req.body,

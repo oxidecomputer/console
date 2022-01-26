@@ -7,23 +7,10 @@
  */
 export type ByteCount = number
 
-export type ByteCountJSON = number
-
 /**
  * The type of an individual datum of a metric.
  */
 export type DatumType =
-  | 'Bool'
-  | 'I64'
-  | 'F64'
-  | 'String'
-  | 'Bytes'
-  | 'CumulativeI64'
-  | 'CumulativeF64'
-  | 'HistogramI64'
-  | 'HistogramF64'
-
-export type DatumTypeJSON =
   | 'Bool'
   | 'I64'
   | 'F64'
@@ -65,34 +52,6 @@ export type Disk = {
   timeModified: Date
 }
 
-export type DiskJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  device_path: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  project_id: string
-  size: ByteCountJSON
-  snapshot_id?: string | null
-  state: DiskStateJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * Create-time parameters for a [`Disk`]
  */
@@ -109,28 +68,11 @@ export type DiskCreate = {
   snapshotId?: string | null
 }
 
-export type DiskCreateJSON = {
-  description: string
-  name: NameJSON
-  /**
-   * size of the Disk
-   */
-  size: ByteCountJSON
-  /**
-   * id for snapshot from which the Disk should be created, if any
-   */
-  snapshot_id?: string | null
-}
-
 /**
  * Parameters for the [`Disk`] to be attached or detached to an instance
  */
 export type DiskIdentifier = {
   disk: Name
-}
-
-export type DiskIdentifierJSON = {
-  disk: NameJSON
 }
 
 /**
@@ -147,30 +89,10 @@ export type DiskResultsPage = {
   nextPage?: string | null
 }
 
-export type DiskResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: DiskJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * State of a Disk (primarily: attached or not)
  */
 export type DiskState =
-  | { state: 'creating' }
-  | { state: 'detached' }
-  | { instance: string; state: 'attaching' }
-  | { instance: string; state: 'attached' }
-  | { instance: string; state: 'detaching' }
-  | { state: 'destroyed' }
-  | { state: 'faulted' }
-
-export type DiskStateJSON =
   | { state: 'creating' }
   | { state: 'detached' }
   | { instance: string; state: 'attaching' }
@@ -188,25 +110,15 @@ export type FieldSchema = {
   ty: FieldType
 }
 
-export type FieldSchemaJSON = {
-  name: string
-  source: FieldSourceJSON
-  ty: FieldTypeJSON
-}
-
 /**
  * The source from which a field is derived, the target or metric.
  */
 export type FieldSource = 'Target' | 'Metric'
 
-export type FieldSourceJSON = 'Target' | 'Metric'
-
 /**
  * The `FieldType` identifies the data type of a target or metric field.
  */
 export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
-
-export type FieldTypeJSON = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
  * Client view of an [`Instance`]
@@ -252,53 +164,10 @@ export type Instance = {
   timeRunStateUpdated: Date
 }
 
-export type InstanceJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * RFC1035-compliant hostname for the Instance.
-   */
-  hostname: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * memory allocated for this Instance
-   */
-  memory: ByteCountJSON
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * number of CPUs allocated for this Instance
-   */
-  ncpus: InstanceCpuCountJSON
-  /**
-   * id for the project containing this Instance
-   */
-  project_id: string
-  run_state: InstanceStateJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-  time_run_state_updated: string
-}
-
 /**
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
-
-export type InstanceCpuCountJSON = number
 
 /**
  * Create-time parameters for an [`Instance`]
@@ -309,14 +178,6 @@ export type InstanceCreate = {
   memory: ByteCount
   name: Name
   ncpus: InstanceCpuCount
-}
-
-export type InstanceCreateJSON = {
-  description: string
-  hostname: string
-  memory: ByteCountJSON
-  name: NameJSON
-  ncpus: InstanceCpuCountJSON
 }
 
 /**
@@ -331,17 +192,6 @@ export type InstanceResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
-}
-
-export type InstanceResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: InstanceJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
 }
 
 /**
@@ -360,43 +210,22 @@ export type InstanceState =
   | 'failed'
   | 'destroyed'
 
-export type InstanceStateJSON =
-  | 'creating'
-  | 'starting'
-  | 'running'
-  | 'stopping'
-  | 'stopped'
-  | 'rebooting'
-  | 'repairing'
-  | 'failed'
-  | 'destroyed'
-
 /**
  * An IPv4 subnet, including prefix and subnet mask
  */
 export type Ipv4Net = string
-
-export type Ipv4NetJSON = string
 
 /**
  * An IPv6 subnet, including prefix and subnet mask
  */
 export type Ipv6Net = string
 
-export type Ipv6NetJSON = string
-
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
  */
 export type L4PortRange = string
 
-export type L4PortRangeJSON = string
-
 export type LoginParams = {
-  username: string
-}
-
-export type LoginParamsJSON = {
   username: string
 }
 
@@ -405,14 +234,10 @@ export type LoginParamsJSON = {
  */
 export type MacAddr = string
 
-export type MacAddrJSON = string
-
 /**
  * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
  */
 export type Name = string
-
-export type NameJSON = string
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.
@@ -460,49 +285,6 @@ export type NetworkInterface = {
   vpcId: string
 }
 
-export type NetworkInterfaceJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * The Instance to which the interface belongs.
-   */
-  instance_id: string
-  /**
-   * The IP address assigned to this interface.
-   */
-  ip: string
-  /**
-   * The MAC address assigned to this interface.
-   */
-  mac: MacAddrJSON
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * The subnet to which the interface belongs.
-   */
-  subnet_id: string
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-  /**
-   * The VPC to which the interface belongs.
-   */
-  vpc_id: string
-}
-
 /**
  * A single page of results
  */
@@ -515,17 +297,6 @@ export type NetworkInterfaceResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
-}
-
-export type NetworkInterfaceResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: NetworkInterfaceJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
 }
 
 /**
@@ -554,40 +325,12 @@ export type Organization = {
   timeModified: Date
 }
 
-export type OrganizationJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * Create-time parameters for an [`Organization`]
  */
 export type OrganizationCreate = {
   description: string
   name: Name
-}
-
-export type OrganizationCreateJSON = {
-  description: string
-  name: NameJSON
 }
 
 /**
@@ -604,28 +347,12 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: OrganizationJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Updateable properties of an [`Organization`]
  */
 export type OrganizationUpdate = {
   description?: string | null
   name?: Name | null
-}
-
-export type OrganizationUpdateJSON = {
-  description?: string | null
-  name?: NameJSON | null
 }
 
 /**
@@ -655,41 +382,12 @@ export type Project = {
   timeModified: Date
 }
 
-export type ProjectJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  organization_id: string
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * Create-time parameters for a [`Project`]
  */
 export type ProjectCreate = {
   description: string
   name: Name
-}
-
-export type ProjectCreateJSON = {
-  description: string
-  name: NameJSON
 }
 
 /**
@@ -706,28 +404,12 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: ProjectJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Updateable properties of a [`Project`]
  */
 export type ProjectUpdate = {
   description?: string | null
   name?: Name | null
-}
-
-export type ProjectUpdateJSON = {
-  description?: string | null
-  name?: NameJSON | null
 }
 
 /**
@@ -756,29 +438,6 @@ export type Rack = {
   timeModified: Date
 }
 
-export type RackJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * A single page of results
  */
@@ -793,17 +452,6 @@ export type RackResultsPage = {
   nextPage?: string | null
 }
 
-export type RackResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: RackJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Client view of a [`Role`]
  */
@@ -812,17 +460,10 @@ export type Role = {
   name: RoleName
 }
 
-export type RoleJSON = {
-  description: string
-  name: RoleNameJSON
-}
-
 /**
  * Role names consist of two string components separated by dot (".").
  */
 export type RoleName = string
-
-export type RoleNameJSON = string
 
 /**
  * A single page of results
@@ -838,17 +479,6 @@ export type RoleResultsPage = {
   nextPage?: string | null
 }
 
-export type RoleResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: RoleJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`].
  */
@@ -856,11 +486,6 @@ export type RouteDestination =
   | { type: 'ip'; value: string }
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
-
-export type RouteDestinationJSON =
-  | { type: 'ip'; value: string }
-  | { type: 'vpc'; value: NameJSON }
-  | { type: 'subnet'; value: NameJSON }
 
 /**
  * A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to.
@@ -871,13 +496,6 @@ export type RouteTarget =
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
   | { type: 'internet_gateway'; value: Name }
-
-export type RouteTargetJSON =
-  | { type: 'ip'; value: string }
-  | { type: 'vpc'; value: NameJSON }
-  | { type: 'subnet'; value: NameJSON }
-  | { type: 'instance'; value: NameJSON }
-  | { type: 'internet_gateway'; value: NameJSON }
 
 /**
  * A route defines a rule that governs where traffic should be sent based on its destination.
@@ -915,39 +533,6 @@ export type RouterRoute = {
   timeModified: Date
 }
 
-export type RouterRouteJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  destination: RouteDestinationJSON
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * Describes the kind of router. Set at creation. `read-only`
-   */
-  kind: RouterRouteKindJSON
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * The VPC Router to which the route belongs.
-   */
-  router_id: string
-  target: RouteTargetJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * Create-time parameters for a [`RouterRoute`]
  */
@@ -958,25 +543,12 @@ export type RouterRouteCreateParams = {
   target: RouteTarget
 }
 
-export type RouterRouteCreateParamsJSON = {
-  description: string
-  destination: RouteDestinationJSON
-  name: NameJSON
-  target: RouteTargetJSON
-}
-
 /**
  * The classification of a [`RouterRoute`] as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
  *
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
 export type RouterRouteKind =
-  | 'default'
-  | 'vpc_subnet'
-  | 'vpc_peering'
-  | 'custom'
-
-export type RouterRouteKindJSON =
   | 'default'
   | 'vpc_subnet'
   | 'vpc_peering'
@@ -996,17 +568,6 @@ export type RouterRouteResultsPage = {
   nextPage?: string | null
 }
 
-export type RouterRouteResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: RouterRouteJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Updateable properties of a [`RouterRoute`]
  */
@@ -1017,32 +578,13 @@ export type RouterRouteUpdateParams = {
   target: RouteTarget
 }
 
-export type RouterRouteUpdateParamsJSON = {
-  description?: string | null
-  destination: RouteDestinationJSON
-  name?: NameJSON | null
-  target: RouteTargetJSON
-}
-
 export type Saga = {
   id: string
   state: SagaState
 }
 
-export type SagaJSON = {
-  id: string
-  state: SagaStateJSON
-}
-
 export type SagaErrorInfo =
   | { error: 'action_failed'; sourceError: any }
-  | { error: 'deserialize_failed'; message: string }
-  | { error: 'injected_error' }
-  | { error: 'serialize_failed'; message: string }
-  | { error: 'subsaga_create_failed'; message: string }
-
-export type SagaErrorInfoJSON =
-  | { error: 'action_failed'; source_error: any }
   | { error: 'deserialize_failed'; message: string }
   | { error: 'injected_error' }
   | { error: 'serialize_failed'; message: string }
@@ -1062,35 +604,15 @@ export type SagaResultsPage = {
   nextPage?: string | null
 }
 
-export type SagaResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: SagaJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 export type SagaState =
   | { state: 'running' }
   | { state: 'succeeded' }
   | { errorInfo: SagaErrorInfo; errorNodeName: string; state: 'failed' }
 
-export type SagaStateJSON =
-  | { state: 'running' }
-  | { state: 'succeeded' }
-  | { error_info: SagaErrorInfoJSON; error_node_name: string; state: 'failed' }
-
 /**
  * Client view of currently authed user.
  */
 export type SessionUser = {
-  id: string
-}
-
-export type SessionUserJSON = {
   id: string
 }
 
@@ -1121,30 +643,6 @@ export type Sled = {
   timeModified: Date
 }
 
-export type SledJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  service_address: string
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * A single page of results
  */
@@ -1159,23 +657,10 @@ export type SledResultsPage = {
   nextPage?: string | null
 }
 
-export type SledResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: SledJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
  */
 export type TimeseriesName = string
-
-export type TimeseriesNameJSON = string
 
 /**
  * The schema for a timeseries.
@@ -1187,13 +672,6 @@ export type TimeseriesSchema = {
   datumType: DatumType
   fieldSchema: FieldSchema[]
   timeseriesName: TimeseriesName
-}
-
-export type TimeseriesSchemaJSON = {
-  created: string
-  datum_type: DatumTypeJSON
-  field_schema: FieldSchemaJSON[]
-  timeseries_name: TimeseriesNameJSON
 }
 
 /**
@@ -1208,17 +686,6 @@ export type TimeseriesSchemaResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
-}
-
-export type TimeseriesSchemaResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: TimeseriesSchemaJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
 }
 
 /**
@@ -1247,29 +714,6 @@ export type User = {
   timeModified: Date
 }
 
-export type UserJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * A single page of results
  */
@@ -1282,17 +726,6 @@ export type UserResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
-}
-
-export type UserResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: UserJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
 }
 
 /**
@@ -1333,41 +766,6 @@ export type Vpc = {
   timeModified: Date
 }
 
-export type VpcJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * The name used for the VPC in DNS.
-   */
-  dns_name: NameJSON
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * id for the project containing this VPC
-   */
-  project_id: string
-  /**
-   * id for the system router where subnet default routes are registered
-   */
-  system_router_id: string
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 /**
  * Create-time parameters for a [`Vpc`]
  */
@@ -1375,12 +773,6 @@ export type VpcCreate = {
   description: string
   dnsName: Name
   name: Name
-}
-
-export type VpcCreateJSON = {
-  description: string
-  dns_name: NameJSON
-  name: NameJSON
 }
 
 /**
@@ -1433,60 +825,9 @@ export type VpcFirewallRule = {
   timeModified: Date
 }
 
-export type VpcFirewallRuleJSON = {
-  /**
-   * whether traffic matching the rule should be allowed or dropped
-   */
-  action: VpcFirewallRuleActionJSON
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * whether this rule is for incoming or outgoing traffic
-   */
-  direction: VpcFirewallRuleDirectionJSON
-  /**
-   * reductions on the scope of the rule
-   */
-  filters: VpcFirewallRuleFilterJSON
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * the relative priority of this rule
-   */
-  priority: number
-  /**
-   * whether this rule is in effect
-   */
-  status: VpcFirewallRuleStatusJSON
-  /**
-   * list of sets of instances that the rule applies to
-   */
-  targets: VpcFirewallRuleTargetJSON[]
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-}
-
 export type VpcFirewallRuleAction = 'allow' | 'deny'
 
-export type VpcFirewallRuleActionJSON = 'allow' | 'deny'
-
 export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
-
-export type VpcFirewallRuleDirectionJSON = 'inbound' | 'outbound'
 
 /**
  * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
@@ -1506,21 +847,6 @@ export type VpcFirewallRuleFilter = {
   protocols?: VpcFirewallRuleProtocol[] | null
 }
 
-export type VpcFirewallRuleFilterJSON = {
-  /**
-   * If present, the sources (if incoming) or destinations (if outgoing) this rule applies to.
-   */
-  hosts?: VpcFirewallRuleHostFilterJSON[] | null
-  /**
-   * If present, the destination ports this rule applies to.
-   */
-  ports?: L4PortRangeJSON[] | null
-  /**
-   * If present, the networking protocols this rule applies to.
-   */
-  protocols?: VpcFirewallRuleProtocolJSON[] | null
-}
-
 /**
  * A subset of [`NetworkTarget`], `VpcFirewallRuleHostFilter` specifies all possible targets that a route can forward to.
  */
@@ -1531,19 +857,10 @@ export type VpcFirewallRuleHostFilter =
   | { type: 'ip'; value: string }
   | { type: 'internet_gateway'; value: Name }
 
-export type VpcFirewallRuleHostFilterJSON =
-  | { type: 'vpc'; value: NameJSON }
-  | { type: 'subnet'; value: NameJSON }
-  | { type: 'instance'; value: NameJSON }
-  | { type: 'ip'; value: string }
-  | { type: 'internet_gateway'; value: NameJSON }
-
 /**
  * The protocols that may be specified in a firewall rule's filter
  */
 export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
-
-export type VpcFirewallRuleProtocolJSON = 'TCP' | 'UDP' | 'ICMP'
 
 /**
  * A single page of results
@@ -1559,20 +876,7 @@ export type VpcFirewallRuleResultsPage = {
   nextPage?: string | null
 }
 
-export type VpcFirewallRuleResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcFirewallRuleJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
-
-export type VpcFirewallRuleStatusJSON = 'disabled' | 'enabled'
 
 /**
  * A subset of [`NetworkTarget`], `VpcFirewallRuleTarget` specifies all possible targets that a firewall rule can be attached to.
@@ -1581,11 +885,6 @@ export type VpcFirewallRuleTarget =
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
-
-export type VpcFirewallRuleTargetJSON =
-  | { type: 'vpc'; value: NameJSON }
-  | { type: 'subnet'; value: NameJSON }
-  | { type: 'instance'; value: NameJSON }
 
 /**
  * A single rule in a VPC firewall
@@ -1621,50 +920,15 @@ export type VpcFirewallRuleUpdate = {
   targets: VpcFirewallRuleTarget[]
 }
 
-export type VpcFirewallRuleUpdateJSON = {
-  /**
-   * whether traffic matching the rule should be allowed or dropped
-   */
-  action: VpcFirewallRuleActionJSON
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * whether this rule is for incoming or outgoing traffic
-   */
-  direction: VpcFirewallRuleDirectionJSON
-  /**
-   * reductions on the scope of the rule
-   */
-  filters: VpcFirewallRuleFilterJSON
-  /**
-   * the relative priority of this rule
-   */
-  priority: number
-  /**
-   * whether this rule is in effect
-   */
-  status: VpcFirewallRuleStatusJSON
-  /**
-   * list of sets of instances that the rule applies to
-   */
-  targets: VpcFirewallRuleTargetJSON[]
-}
-
 /**
  * Updateable properties of a [`Vpc`]'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
 export type VpcFirewallRuleUpdateParams = {}
 
-export type VpcFirewallRuleUpdateParamsJSON = {}
-
 /**
  * Response to an update replacing [`Vpc`]'s firewall
  */
 export type VpcFirewallRuleUpdateResult = {}
-
-export type VpcFirewallRuleUpdateResultJSON = {}
 
 /**
  * A single page of results
@@ -1678,17 +942,6 @@ export type VpcResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
-}
-
-export type VpcResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
 }
 
 /**
@@ -1722,34 +975,6 @@ export type VpcRouter = {
   vpcId: string
 }
 
-export type VpcRouterJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  kind: VpcRouterKindJSON
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-  /**
-   * The VPC to which the router belongs.
-   */
-  vpc_id: string
-}
-
 /**
  * Create-time parameters for a [`VpcRouter`]
  */
@@ -1758,14 +983,7 @@ export type VpcRouterCreate = {
   name: Name
 }
 
-export type VpcRouterCreateJSON = {
-  description: string
-  name: NameJSON
-}
-
 export type VpcRouterKind = 'system' | 'custom'
-
-export type VpcRouterKindJSON = 'system' | 'custom'
 
 /**
  * A single page of results
@@ -1781,28 +999,12 @@ export type VpcRouterResultsPage = {
   nextPage?: string | null
 }
 
-export type VpcRouterResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcRouterJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Updateable properties of a [`VpcRouter`]
  */
 export type VpcRouterUpdate = {
   description?: string | null
   name?: Name | null
-}
-
-export type VpcRouterUpdateJSON = {
-  description?: string | null
-  name?: NameJSON | null
 }
 
 /**
@@ -1843,41 +1045,6 @@ export type VpcSubnet = {
   vpcId: string
 }
 
-export type VpcSubnetJSON = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * The IPv4 subnet CIDR block.
-   */
-  ipv4_block?: Ipv4NetJSON | null
-  /**
-   * The IPv6 subnet CIDR block.
-   */
-  ipv6_block?: Ipv6NetJSON | null
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: NameJSON
-  /**
-   * timestamp when this resource was created
-   */
-  time_created: string
-  /**
-   * timestamp when this resource was last modified
-   */
-  time_modified: string
-  /**
-   * The VPC to which the subnet belongs.
-   */
-  vpc_id: string
-}
-
 /**
  * Create-time parameters for a [`VpcSubnet`]
  */
@@ -1886,13 +1053,6 @@ export type VpcSubnetCreate = {
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
   name: Name
-}
-
-export type VpcSubnetCreateJSON = {
-  description: string
-  ipv4_block?: Ipv4NetJSON | null
-  ipv6_block?: Ipv6NetJSON | null
-  name: NameJSON
 }
 
 /**
@@ -1909,17 +1069,6 @@ export type VpcSubnetResultsPage = {
   nextPage?: string | null
 }
 
-export type VpcSubnetResultsPageJSON = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcSubnetJSON[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  next_page?: string | null
-}
-
 /**
  * Updateable properties of a [`VpcSubnet`]
  */
@@ -1928,13 +1077,6 @@ export type VpcSubnetUpdate = {
   ipv4Block?: Ipv4Net | null
   ipv6Block?: Ipv6Net | null
   name?: Name | null
-}
-
-export type VpcSubnetUpdateJSON = {
-  description?: string | null
-  ipv4_block?: Ipv4NetJSON | null
-  ipv6_block?: Ipv6NetJSON | null
-  name?: NameJSON | null
 }
 
 /**
@@ -1946,12 +1088,6 @@ export type VpcUpdate = {
   name?: Name | null
 }
 
-export type VpcUpdateJSON = {
-  description?: string | null
-  dns_name?: NameJSON | null
-  name?: NameJSON | null
-}
-
 /**
  * Supported set of sort modes for scanning by id only.
  *
@@ -1959,17 +1095,10 @@ export type VpcUpdateJSON = {
  */
 export type IdSortMode = 'id-ascending'
 
-export type IdSortModeJSON = 'id-ascending'
-
 /**
  * Supported set of sort modes for scanning by name or id
  */
 export type NameOrIdSortMode =
-  | 'name-ascending'
-  | 'name-descending'
-  | 'id-ascending'
-
-export type NameOrIdSortModeJSON =
   | 'name-ascending'
   | 'name-descending'
   | 'id-ascending'
@@ -1980,8 +1109,6 @@ export type NameOrIdSortModeJSON =
  * Currently, we only support scanning in ascending order.
  */
 export type NameSortMode = 'name-ascending'
-
-export type NameSortModeJSON = 'name-ascending'
 
 export interface HardwareRacksGetParams {
   /**

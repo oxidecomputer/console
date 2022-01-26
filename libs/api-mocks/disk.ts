@@ -1,7 +1,8 @@
-import type { DiskJSON, DiskResultsPageJSON } from '@oxide/api'
+import type { Disk, DiskResultsPage } from '@oxide/api'
+import type { Json } from './json-type'
 import { project } from './project'
 
-export const disk: DiskJSON = {
+export const disk: Json<Disk> = {
   id: 'disk-id',
   name: 'disk-name',
   description: "it's a disk",
@@ -13,4 +14,4 @@ export const disk: DiskJSON = {
   size: 1000,
 }
 
-export const disks: DiskResultsPageJSON = { items: [disk] }
+export const disks: Json<DiskResultsPage> = { items: [disk] }

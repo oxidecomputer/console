@@ -1,12 +1,13 @@
+import type { Json } from './json-type'
 import { project } from './project'
 import type {
-  VpcJSON,
-  VpcResultsPageJSON,
-  VpcSubnetJSON,
-  VpcSubnetResultsPageJSON,
+  Vpc,
+  VpcResultsPage,
+  VpcSubnet,
+  VpcSubnetResultsPage,
 } from '@oxide/api'
 
-export const vpc: VpcJSON = {
+export const vpc: Json<Vpc> = {
   id: 'vpc-id',
   name: 'mock-vpc',
   description: 'a fake vpc',
@@ -17,9 +18,9 @@ export const vpc: VpcJSON = {
   system_router_id: 'router-id', // ???
 }
 
-export const vpcs: VpcResultsPageJSON = { items: [vpc] }
+export const vpcs: Json<VpcResultsPage> = { items: [vpc] }
 
-export const vpcSubnet: VpcSubnetJSON = {
+export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API
   id: 'vpc-subnet-id',
   name: 'mock-subnet',
@@ -31,7 +32,7 @@ export const vpcSubnet: VpcSubnetJSON = {
   ipv4_block: '1.1.1.1/24',
 }
 
-export const vpcSubnet2: VpcSubnetJSON = {
+export const vpcSubnet2: Json<VpcSubnet> = {
   ...vpcSubnet,
   id: 'vpc-subnet-id-2',
   name: 'mock-subnet-2',
@@ -39,6 +40,6 @@ export const vpcSubnet2: VpcSubnetJSON = {
   ipv4_block: '1.1.1.2/24',
 }
 
-export const vpcSubnets: VpcSubnetResultsPageJSON = {
+export const vpcSubnets: Json<VpcSubnetResultsPage> = {
   items: [vpcSubnet],
 }

@@ -6,6 +6,7 @@ import type {
   RestContext,
   RestRequest,
 } from 'msw'
+import type { Json } from '../json-type'
 
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
@@ -33,7 +34,7 @@ export function lookupOrg(
   req: Req<OrgParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.OrganizationJSON> {
+): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === req.params.orgName)
   if (!org) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -45,7 +46,7 @@ export function lookupProject(
   req: Req<ProjectParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.ProjectJSON> {
+): Result<Json<Api.Project>> {
   const org = lookupOrg(req, res, ctx)
   if (org.err) return org // has to be the whole result, not just the error
 
@@ -63,7 +64,7 @@ export function lookupVpc(
   req: Req<VpcParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.VpcJSON> {
+): Result<Json<Api.Vpc>> {
   const project = lookupProject(req, res, ctx)
   if (project.err) return project // has to be the whole result, not just the error
 
