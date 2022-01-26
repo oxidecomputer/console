@@ -10,7 +10,7 @@ import type {
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
 
-export const notFoundErr = { errorCode: 'ObjectNotFound' }
+export const notFoundErr = { errorCode: 'ObjectNotFound' } as const
 
 type Result<T> =
   | { ok: T; err: null }

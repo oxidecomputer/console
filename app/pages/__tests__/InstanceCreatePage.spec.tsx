@@ -43,7 +43,7 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    override('post', instancesUrl, 400, { errorCode: 'UnknownCode' })
+    override('post', instancesUrl, 400, { error_code: 'UnknownCode' })
     renderAppAt(formUrl)
 
     fireEvent.click(submitButton())

@@ -9,11 +9,6 @@ import { mapObj } from './map-obj'
 /// generate random 11 digit hex string
 const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
 
-type GetErr = typeof notFoundErr
-type PostErr = typeof alreadyExistsErr | typeof notFoundErr
-
-type Empty = Record<string, never>
-
 function getTimestamps() {
   const now = new Date()
   return {
@@ -28,23 +23,45 @@ const camelToSnake = (s: string) =>
 const dateToStr = (k: string | undefined, v: unknown) =>
   v instanceof Date ? v.toISOString() : v
 
-/** Custom transformer: snake case keys, stringify dates, attach status. */
-// The real API stores things internally in snake case and (more importantly)
-// serializes them in snake case, and of course dates in JSON must be strings.
-// The problem is our mock DB uses the API types, and it would be pretty
-// inconvenient to do otherwise because that's all we have. If the API client
-// defined both API-side types (snake case and dates as strings) and
-// post-processed JS-friendly types (the ones we have now), we could use the
-// API-side types as our DB types and our response types and do explicit
-// conversion in the handlers. Instead, what we're doing here is storing
-// everything in client-side types and only snakeifying and stringifying dates
-// at serialization time.
-function json<T>(o: T, status = 200): ResponseTransformer<T> {
-  const data = mapObj(camelToSnake, dateToStr)(o)
-  return compose(context.status(status), context.json(data))
-}
+const apiify = mapObj(camelToSnake, dateToStr)
 
-const alreadyExistsErr = { errorCode: 'ObjectAlreadyExists' }
+/**
+ * Custom transformer: snake case keys and stringify dates like the real Nexus.
+ *
+ * Because our camel-cased and date-parsed API types are all we get from the
+ * generated client, it's convenient to use them everywhere in the mock server,
+ * including the objects in the mock DB. However, we also need to return
+ * realistic API responses, which are snake-cased and have stringified dates. So
+ * we deal with our client-side API types as long as we can, right up until
+ * serialization time. When a POST comes in, the body is snake-cased because the
+ * client is doing the right thing as far as the real API is concerned. TODO: we
+ * should be camelizing and date-parsing request bodies when they come in. Ugh.
+ *
+ * It might be less error-prone to do this transformation in something like a
+ * middleware, but that doesn't seem like a thing in MSW.
+ *
+ * Note that the B in the return type is a lie! The incoming value is of course
+ * a B, but once it's transformed, it should really be something like
+ * `Snakify<DateToStr<B>>`. (`mapObj` returns `any`, so we can just cast to what
+ * we want.) This lie is convenient because it lets us annotate, say, GET
+ * project with a response type of `Project` even though technically it's
+ * `Snakify<DateToStr<Project>>`. We could, of course, do this properly but it's
+ * a lot of noise with little additional value as long as you remember the One
+ * Weird Trick.
+ *
+ * It _would_ be easy to forget to call this on every response, except that
+ * calling res() with a plain object is an error anyway. This `json()` is
+ * replacing `ctx.json()`.
+ */
+export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
+  compose(context.status(status), context.json(apiify(body)))
+
+const alreadyExistsErr = { errorCode: 'ObjectAlreadyExists' } as const
+
+type Empty = Record<string, never>
+
+type GetErr = typeof notFoundErr
+type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 
 export const handlers = [
   rest.get('/api/session/me', (req, res) => {
@@ -98,7 +115,6 @@ export const handlers = [
   rest.post<Api.ProjectCreate, OrgParams, Api.Project | PostErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
-      console.log(req.params)
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
@@ -106,7 +122,7 @@ export const handlers = [
         (p) => p.organizationId === org.ok.id && p.name === req.body.name
       )
 
-      if (alreadyExists) res(json(alreadyExistsErr, 400))
+      if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
       const newProject = {
         id: 'project-' + randomHex(),
@@ -214,7 +230,7 @@ export const handlers = [
       const alreadyExists = db.vpcSubnets.some(
         (s) => s.vpcId === vpc.ok.id && s.name === req.body.name
       )
-      if (alreadyExists) res(json(alreadyExistsErr, 400))
+      if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
       const newSubnet = {
         id: 'vpc-subnet-' + randomHex(),
