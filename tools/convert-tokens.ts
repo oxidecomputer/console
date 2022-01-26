@@ -27,11 +27,14 @@ const formatFontClass = (name: string) => {
     .replace('-book', '-semi')
 }
 
-const formatStyle = (name, value) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const formatStyle = (name: string, value: any) => {
+  // eslint-disable-next-line no-param-reassign
   name = kebabCase(name)
   if (value === 'none') return null
   switch (name) {
     case 'font-family':
+      // @ts-expect-error
       return [name, FONT_FAMILIES[value]]
     case 'line-height':
       return value === 'AUTO' ? null : [name, valueToRem(value)]
@@ -91,6 +94,7 @@ StyleDictionary.registerFormat({
           ${Object.entries(prop.value)
             .map(([name, value]) => formatStyle(name, value))
             .filter((style) => style !== null)
+            // @ts-expect-error null is filtered despite showing up in the types
             .map(([name, value]) => `${name}: ${value};`)
             .join('\n')}
           }`
