@@ -4,6 +4,10 @@ There are, in a way, two sources of truth for the omicron version pinned for dep
 
 The primary source of truth, in the sense that it determines what is actually deployed, is the packer image ID in `tools/create_gcp/instance.sh`. Unless that is changed, the API version deployed will not change. But if you want to change the packer image, you have to get a new one to build by first changing the `API_VERSION` env var set in `.github/workflows/packer.yaml`.
 
+## Setup
+
+The API generation script assumes you have `omicron` and `oxide.ts` cloned under the same parent directory as the console. You should also run `npm install` in `oxide.ts/generator`.
+
 ## Instructions
 
 1. Update `API_VERSION` in [`packer.yaml`](https://github.com/oxidecomputer/console/blob/c90ac1660273dbee2a2fe5456fc8318057444a13/.github/workflows/packer.yaml#L49) with new Omicron commit hash

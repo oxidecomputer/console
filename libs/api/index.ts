@@ -8,11 +8,6 @@ import { Api } from './__generated__/Api'
 
 const api = new Api({
   baseUrl: process.env.API_URL ?? '/api',
-  baseApiParams: {
-    // default format so that the client parses JSON error responses for endpoints
-    // where the success response is 204 No Content
-    format: 'json',
-  },
 })
 
 type A = typeof api.methods

@@ -14,7 +14,7 @@ import { useParams } from 'app/hooks'
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { useApiQuery } from '@oxide/api'
 
-const formatDateTime = (s: string) => format(new Date(s), 'MMM d, yyyy H:mm aa')
+const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
 export const VpcPage = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')

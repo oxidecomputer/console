@@ -3,8 +3,8 @@ import { getParseError, getServerError } from './errors'
 
 const parseError = {
   error: {
-    request_id: '1',
-    error_code: null,
+    requestId: '1',
+    errorCode: null,
     message:
       'unable to parse body: hello there, you have an error at line 129 column 4',
   },
@@ -12,16 +12,16 @@ const parseError = {
 
 const alreadyExists = {
   error: {
-    request_id: '2',
-    error_code: 'ObjectAlreadyExists',
+    requestId: '2',
+    errorCode: 'ObjectAlreadyExists',
     message: 'whatever',
   },
 } as ErrorResponse
 
 const unauthorized = {
   error: {
-    request_id: '3',
-    error_code: 'Forbidden',
+    requestId: '3',
+    errorCode: 'Forbidden',
     message: "I'm afraid you can't do that, Dave",
   },
 } as ErrorResponse

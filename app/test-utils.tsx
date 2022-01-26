@@ -4,6 +4,7 @@ import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { json } from '@oxide/api-mocks'
 import 'whatwg-fetch'
 import '@testing-library/jest-dom'
 
@@ -39,12 +40,11 @@ export function override(
   body: string | Record<string, unknown>
 ) {
   server.use(
-    rest[method](path, (_req, res, ctx) => {
-      return res(
-        ctx.status(status),
-        typeof body === 'string' ? ctx.text(body) : ctx.json(body)
-      )
-    })
+    rest[method](path, (_req, res, ctx) =>
+      typeof body === 'string'
+        ? res(ctx.status(status), ctx.text(body))
+        : res(json(body, status))
+    )
   )
 }
 
