@@ -1,10 +1,14 @@
+/**
+ * Utilized by `build_themes.sh` to convert theme token files to generate the files in `libs/ui/styles/themes`
+ */
+
 import { kebabCase } from '@oxide/util'
 import type { CSSProperties } from 'react'
 import type { Config, TransformedToken } from 'style-dictionary'
 import type { KebabCase } from 'type-fest'
 import StyleDictionary from 'style-dictionary'
 
-const THEMES = ['main', 'operator-mode']
+const THEMES = ['main', 'operator-mode'] as const
 
 const FONT_FAMILIES = {
   'GT America Mono': '"GT America Mono", monospace',
@@ -29,8 +33,14 @@ const formatFontClass = (name: string) => {
     .replace('-book', '-semi')
 }
 
+/**
+ * The token build process leaves typography styles in object form while it
+ * collapses everything else into individual properties. We pass that object
+ * to this function to ensure everything is formatted to `rem` units and to remove
+ * and properties that we don't really want or need
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const formatStyle = (name: string, value: any) => {
+const formatTypographyStyles = (name: string, value: any) => {
   // eslint-disable-next-line no-param-reassign
   name = kebabCase(name)
   if (value === 'none') return null
@@ -88,9 +98,21 @@ StyleDictionary.registerFormat({
   },
 })
 
+/**
+ * A helper used by the tailwind formatter, it generates custom tailwind utilities for color styles
+ *
+ * @param tokenPrefix  The prefix of the color token name to be targeted / replaced
+ * @param classPrefix  What will ultimately be prepended to the tailwind class
+ * @param cssProperty  The css property name to be output in the generated class
+ */
 const makeColorUtility =
   (
-    tokenPrefix: string,
+    tokenPrefix:
+      | 'surface'
+      | 'content'
+      | 'stroke'
+      | 'chart-fill'
+      | 'chart-stroke',
     classPrefix: string,
     cssProperty: KebabCase<keyof CSSProperties> | `--${string}`
   ) =>
@@ -122,7 +144,7 @@ StyleDictionary.registerFormat({
           (prop) => `
           '.text-${formatFontClass(prop.name)}': {
             ${Object.entries(prop.value)
-              .map(([name, value]) => formatStyle(name, value))
+              .map(([name, value]) => formatTypographyStyles(name, value))
               .filter((style) => style !== null)
               // @ts-expect-error null is filtered despite showing up in the types
               .map(([name, value]) => `'${name}': ${JSON.stringify(value)},`)
@@ -143,6 +165,12 @@ StyleDictionary.registerFormat({
   },
 })
 
+/**
+ * Anything we're not actively using in the theme files or tailwind config should be filtered out
+ *
+ * If an asterisk appears in the token path that style will be filtered out here which gives us the ability
+ * to explicitly filter things out directly from the token file
+ */
 StyleDictionary.registerFilter({
   name: 'unused-theme-tokens',
   matcher: (prop) => {
@@ -162,7 +190,7 @@ StyleDictionary.registerFilter({
   },
 })
 
-const makeConfig = (theme: string) => {
+const makeConfig = (theme: typeof THEMES[number]) => {
   const config: Config = {
     source: [`libs/ui/styles/.tokens/${theme}.json`],
     platforms: {
