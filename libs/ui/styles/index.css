@@ -11,6 +11,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --content-gutter: 2.5rem;
+}
+
 @layer base {
   body {
     @apply bg-black text-gray-50 font-sans overflow-y-hidden;
