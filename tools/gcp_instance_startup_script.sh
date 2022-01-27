@@ -43,6 +43,8 @@ docker run -d \
 
 export OXAPI_URL='http://0.0.0.0:8888'  # used by oxapi_demo
 
+sleep 20 # things take time to spin up sometimes
+
 # Populate API data.
 
 oxapi_demo organization_create_demo maze-war
