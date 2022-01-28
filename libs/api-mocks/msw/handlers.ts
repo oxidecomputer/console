@@ -3,8 +3,14 @@ import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
 import type { Json } from '../json-type'
 import { sessionMe } from '../session'
-import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
-import { db, lookupOrg, lookupProject, lookupVpc } from './db'
+import type {
+  notFoundErr,
+  InstanceParams,
+  OrgParams,
+  ProjectParams,
+  VpcParams,
+} from './db'
+import { db, lookupInstance, lookupOrg, lookupProject, lookupVpc } from './db'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -122,6 +128,15 @@ export const handlers = [
         (i) => i.project_id === project.ok.id
       )
       return res(json({ items: instances }))
+    }
+  ),
+
+  rest.get<never, InstanceParams, Json<Api.Instance> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      return res(json(instance.ok))
     }
   ),
 
