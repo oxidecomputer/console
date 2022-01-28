@@ -9,8 +9,16 @@ import type {
   OrgParams,
   ProjectParams,
   VpcParams,
+  VpcSubnetParams,
 } from './db'
-import { db, lookupInstance, lookupOrg, lookupProject, lookupVpc } from './db'
+import {
+  db,
+  lookupInstance,
+  lookupOrg,
+  lookupProject,
+  lookupVpc,
+  lookupVpcSubnet,
+} from './db'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -36,6 +44,16 @@ export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
 
 const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' } as const
 
+const badRequest = (msg: string) =>
+  compose(
+    context.status(400),
+    context.json({
+      request_id: '',
+      error_code: null,
+      message: `unable to parse body: ${msg} at line 1 column 1`,
+    })
+  )
+
 type GetErr = typeof notFoundErr
 type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 
@@ -54,6 +72,10 @@ export const handlers = [
   >('/api/organizations', (req, res) => {
     const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
     if (alreadyExists) return res(json(alreadyExistsErr, 400))
+
+    if (!req.body.name) {
+      return res(badRequest('name requires at least one character'))
+    }
 
     const newOrg: Json<Api.Organization> = {
       id: 'org-' + randomHex(),
@@ -98,6 +120,10 @@ export const handlers = [
       )
 
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
 
       const newProject: Json<Api.Project> = {
         id: 'project-' + randomHex(),
@@ -155,6 +181,10 @@ export const handlers = [
       )
       if (alreadyExists) {
         return res(json(alreadyExistsErr, 400))
+      }
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
       }
 
       const newInstance: Json<Api.Instance> = {
@@ -224,6 +254,10 @@ export const handlers = [
       )
       if (alreadyExists) return res(json(alreadyExistsErr, 400))
 
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
       const newSubnet: Json<Api.VpcSubnet> = {
         id: 'vpc-subnet-' + randomHex(),
         vpc_id: vpc.ok.id,
@@ -232,6 +266,29 @@ export const handlers = [
       }
       db.vpcSubnets.push(newSubnet)
       return res(json(newSubnet, 201))
+    }
+  ),
+
+  rest.put<
+    Json<Api.VpcSubnetUpdate>,
+    VpcSubnetParams,
+    Json<Api.VpcSubnet> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
+    (req, res, ctx) => {
+      const subnet = lookupVpcSubnet(req, res, ctx)
+      if (subnet.err) return subnet.err
+
+      // modify object in place for now. TODO: improve this
+      if (req.body.name) {
+        subnet.ok.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        subnet.ok.description = req.body.description
+      }
+      subnet.ok.ipv4_block = req.body.ipv4_block
+      subnet.ok.ipv6_block = req.body.ipv6_block
+      return res(ctx.status(204))
     }
   ),
 ]
