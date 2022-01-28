@@ -5,14 +5,14 @@ import { Badge } from '@oxide/ui'
 import type { DiskState, InstanceState } from '@oxide/api'
 
 const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
-  creating: 'yellow',
-  starting: 'yellow',
-  running: 'green',
-  rebooting: 'yellow',
-  stopping: 'yellow',
+  creating: 'notice',
+  starting: 'notice',
+  running: 'default',
+  rebooting: 'notice',
+  stopping: 'notice',
   stopped: 'lightGray',
-  repairing: 'blue',
-  failed: 'red',
+  repairing: 'notice',
+  failed: 'destructive',
   destroyed: 'darkGray',
 }
 
@@ -32,13 +32,13 @@ export const InstanceStatusBadge = (props: {
 type DiskStateStr = DiskState['state']
 
 const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
-  attached: 'green',
-  attaching: 'yellow',
-  creating: 'yellow',
-  detaching: 'yellow',
+  attached: 'default',
+  attaching: 'notice',
+  creating: 'notice',
+  detaching: 'notice',
   detached: 'darkGray',
   destroyed: 'darkGray', // should we ever see this?
-  faulted: 'red',
+  faulted: 'destructive',
 }
 
 export const DiskStatusBadge = (props: {
