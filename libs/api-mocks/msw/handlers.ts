@@ -192,7 +192,7 @@ export const handlers = [
         project_id: project.ok.id,
         ...req.body,
         ...getTimestamps(),
-        run_state: 'stopped',
+        run_state: 'running',
         time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
