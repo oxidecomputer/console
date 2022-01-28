@@ -200,6 +200,26 @@ export const handlers = [
     }
   ),
 
+  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      instance.ok.run_state = 'running'
+      return res(ctx.status(202), ctx.json(instance.ok))
+    }
+  ),
+
+  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      instance.ok.run_state = 'stopped'
+      return res(ctx.status(202), ctx.json(instance.ok))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
