@@ -1,7 +1,15 @@
 name: 'Visual Regression Testing'
 
 # Event for the workflow
-on: push
+on:
+  push:
+    paths:
+      - 'libs/ui/**'
+      - 'libs/table/**'
+      - 'libs/pagination/**'
+      - 'libs/util/**'
+      - 'tailwind.config.js'
+      - 'postcss.config.js'
 
 # List of jobs
 jobs:
