@@ -20,7 +20,8 @@
     "build:storybook": "build-storybook -c libs/ui/.storybook -o dist/storybook/ui",
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
-    "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\""
+    "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
+    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'"
   },
   "private": true,
   "dependencies": {
