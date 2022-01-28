@@ -10,6 +10,7 @@ on:
       - 'libs/util/**'
       - 'tailwind.config.js'
       - 'postcss.config.js'
+      - '.github/workflows/visual-test.yaml'
 
 # List of jobs
 jobs:
