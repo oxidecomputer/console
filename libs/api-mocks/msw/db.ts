@@ -24,7 +24,17 @@ export type VpcParams = {
   projectName: string
   vpcName: string
 }
-// export type InstanceParams = ProjectParams & { instanceName: string }
+export type InstanceParams = {
+  orgName: string
+  projectName: string
+  instanceName: string
+}
+export type VpcSubnetParams = {
+  orgName: string
+  projectName: string
+  vpcName: string
+  subnetName: string
+}
 
 // lets us make sure you're only calling a lookup function from a handler with
 // the required path params
@@ -76,6 +86,42 @@ export function lookupVpc(
   }
 
   return { ok: vpc, err: null }
+}
+
+export function lookupInstance(
+  req: Req<InstanceParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Json<Api.Instance>> {
+  const project = lookupProject(req, res, ctx)
+  if (project.err) return project // has to be the whole result, not just the error
+
+  const instance = db.instances.find(
+    (p) => p.project_id === project.ok.id && p.name === req.params.instanceName
+  )
+  if (!instance) {
+    return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
+  }
+
+  return { ok: instance, err: null }
+}
+
+export function lookupVpcSubnet(
+  req: Req<VpcSubnetParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Json<Api.VpcSubnet>> {
+  const vpc = lookupVpc(req, res, ctx)
+  if (vpc.err) return vpc // has to be the whole result, not just the error
+
+  const subnet = db.vpcSubnets.find(
+    (p) => p.vpc_id === vpc.ok.id && p.name === req.params.subnetName
+  )
+  if (!subnet) {
+    return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
+  }
+
+  return { ok: subnet, err: null }
 }
 
 const initDb = {
