@@ -221,7 +221,7 @@ const makeConfig = (theme: typeof THEMES[number]) => {
   return config
 }
 
-THEMES.map((theme) => {
+THEMES.forEach((theme) => {
   const sd = StyleDictionary.extend(makeConfig(theme))
   sd.buildAllPlatforms()
 })
