@@ -4,6 +4,9 @@
 @import '@reach/menu-button/styles.css';
 @import '@reach/tabs/styles.css';
 
+@import './themes/main.css';
+@import './themes/operator-mode.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

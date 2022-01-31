@@ -59,16 +59,15 @@ describe('InstanceCreatePage', () => {
     const instancesPage = `/orgs/${org.name}/projects/${project.name}/instances`
     expect(window.location.pathname).not.toEqual(instancesPage)
 
-    // TODO: once MSW data layer is in place, uncomment these and assert that
-    // the name shows up in the list of instances
+    const name = screen.getByRole('textbox', { name: 'Choose a name' })
+    userEvent.type(name, 'new-instance')
+    userEvent.click(screen.getByLabelText(/6 CPUs/))
+    userEvent.click(submitButton())
 
-    // fireEvent.change(screen.getByLabelText('Choose a name'), {
-    //   target: { value: 'new-instance' },
-    // })
-    // fireEvent.click(screen.getByLabelText(/6 CPUs/))
-
-    fireEvent.click(submitButton())
-
+    // nav to instances list
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
+
+    // new instance shows up in the list
+    await screen.findByRole('cell', { name: 'new-instance' })
   })
 })
