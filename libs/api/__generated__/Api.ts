@@ -181,6 +181,13 @@ export type InstanceCreate = {
 }
 
 /**
+ * Migration parameters for an [`Instance`]
+ */
+export type InstanceMigrate = {
+  dstSledUuid: string
+}
+
+/**
  * A single page of results
  */
 export type InstanceResultsPage = {
@@ -206,6 +213,7 @@ export type InstanceState =
   | 'stopping'
   | 'stopped'
   | 'rebooting'
+  | 'migrating'
   | 'repairing'
   | 'failed'
   | 'destroyed'
@@ -923,12 +931,12 @@ export type VpcFirewallRuleUpdate = {
 /**
  * Updateable properties of a [`Vpc`]'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = {}
+export type VpcFirewallRuleUpdateParams = Record<string, VpcFirewallRuleUpdate>
 
 /**
  * Response to an update replacing [`Vpc`]'s firewall
  */
-export type VpcFirewallRuleUpdateResult = {}
+export type VpcFirewallRuleUpdateResult = Record<string, VpcFirewallRule>
 
 /**
  * A single page of results
@@ -1331,6 +1339,14 @@ export interface InstanceDisksAttachParams {
 }
 
 export interface InstanceDisksDetachParams {
+  instanceName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
+export interface ProjectInstancesMigrateInstanceParams {
   instanceName: Name
 
   orgName: Name
@@ -2037,7 +2053,6 @@ export class Api extends HttpClient {
 
     /**
      * Update a specific organization.
-     *  * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      */
     organizationsPutOrganization: (
       { orgName }: OrganizationsPutOrganizationParams,
@@ -2108,7 +2123,6 @@ export class Api extends HttpClient {
 
     /**
      * Update a specific project.
-     *  * TODO-correctness: Is it valid for PUT to accept application/json that's a subset of what the resource actually represents?  If not, is that a problem? (HTTP may require that this be idempotent.)  If so, can we get around that having this be a slightly different content-type (e.g., "application/json-patch")?  We should see what other APIs do.
      */
     organizationProjectsPutProject: (
       { orgName, projectName }: OrganizationProjectsPutProjectParams,
@@ -2151,7 +2165,6 @@ export class Api extends HttpClient {
 
     /**
      * Create a disk in a project.
-     *  * TODO-correctness See note about instance create.  This should be async.
      */
     projectDisksPost: (
       { orgName, projectName }: ProjectDisksPostParams,
@@ -2207,7 +2220,6 @@ export class Api extends HttpClient {
 
     /**
      * Create an instance in a project.
-     *  * TODO-correctness This is supposed to be async.  Is that right?  We can create the instance immediately -- it's just not booted yet.  Maybe the boot operation is what's a separate operation_id.  What about the response code (201 Created vs 202 Accepted)?  Is that orthogonal?  Things can return a useful response, including an operation id, with either response code.  Maybe a "reboot" operation would return a 202 Accepted because there's no actual resource created?
      */
     projectInstancesPost: (
       { orgName, projectName }: ProjectInstancesPostParams,
@@ -2284,6 +2296,25 @@ export class Api extends HttpClient {
     ) =>
       this.request<Disk, any>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
+        method: 'POST',
+        body: data,
+        ...params,
+      }),
+
+    /**
+     * Migrate an instance to a different propolis-server, possibly on a different sled.
+     */
+    projectInstancesMigrateInstance: (
+      {
+        instanceName,
+        orgName,
+        projectName,
+      }: ProjectInstancesMigrateInstanceParams,
+      data: InstanceMigrate,
+      params: RequestParams = {}
+    ) =>
+      this.request<Instance, any>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/migrate`,
         method: 'POST',
         body: data,
         ...params,

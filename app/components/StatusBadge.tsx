@@ -12,6 +12,7 @@ const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
   stopping: 'notice',
   stopped: 'lightGray',
   repairing: 'notice',
+  migrating: 'notice',
   failed: 'destructive',
   destroyed: 'darkGray',
 }
