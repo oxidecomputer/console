@@ -104,6 +104,11 @@ module.exports = {
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
+      addUtilities({
+        '.appearance-textfield': {
+          appearance: 'textfield',
+        },
+      })
     }),
   ],
 }

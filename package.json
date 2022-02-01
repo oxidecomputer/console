@@ -52,7 +52,8 @@
     "react-transition-group": "^4.4.1",
     "recharts": "^2.1.6",
     "tslib": "^2.0.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",

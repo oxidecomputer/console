@@ -8,18 +8,20 @@ import { ErrorMessage, Field } from 'formik'
 // through, but couldn't get it to work. FieldAttributes<string> is closest but
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
-// manually tack on validate. Omit `type` because this is always a text field.
-export type TextFieldProps = Omit<React.ComponentProps<'input'>, 'type'> & {
+// manually tack on validate.
+export type TextFieldProps = React.ComponentProps<'input'> & {
   validate?: FieldValidator
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean
   disabled?: boolean
   className?: string
+  fieldClassName?: string
 }
 
 export const TextField = ({
   error,
   className,
+  fieldClassName,
   ...fieldProps
 }: TextFieldProps) => (
   <div
@@ -32,16 +34,31 @@ export const TextField = ({
     )}
   >
     <Field
-      type="text"
-      className={`
-        py-[0.5625rem] px-3 w-full
+      className={cn(
+        `py-[0.5625rem] px-3 w-full
         text-sm font-sans text-gray-50 
-        bg-transparent border-none focus:outline-none`}
+        bg-transparent border-none focus:outline-none`,
+        fieldClassName
+      )}
       aria-invalid={error}
       placeholder=""
       {...fieldProps}
     />
   </div>
+)
+
+// TODO: do this properly: extract a NumberField that styles the up and down
+// buttons for when we do want them *and* add a flag to hide them using
+// appearance-textfield
+export const NumberTextField = ({
+  fieldClassName,
+  ...props
+}: Omit<TextFieldProps, 'type'>) => (
+  <TextField
+    type="number"
+    {...props}
+    fieldClassName={cn(fieldClassName, 'appearance-textfield')}
+  />
 )
 
 type HintProps = {

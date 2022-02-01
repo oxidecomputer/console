@@ -31,7 +31,7 @@ export function SideModal({
       aria-labelledby={titleId}
     >
       <div
-        style={{ maxHeight: 'calc(100vw - 5rem)' }}
+        style={{ maxHeight: 'calc(100vh - 5rem)' }}
         className="overflow-y-auto"
       >
         {/* Title */}
