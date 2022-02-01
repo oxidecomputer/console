@@ -23,9 +23,9 @@ const sizeStyles: Record<AvatarSize, string> = {
 }
 
 const colorStyles: Record<AvatarColor, string> = {
-  default: 'text-accent-default bg-accent-dim',
-  notice: 'text-notice-default bg-notice-dim',
-  destructive: 'text-destructive-default bg-destructive-dim',
+  default: 'text-accent bg-accent-dim',
+  notice: 'text-notice bg-notice-dim',
+  destructive: 'text-destructive bg-destructive-dim',
 }
 
 const getInitials = (name: string) =>

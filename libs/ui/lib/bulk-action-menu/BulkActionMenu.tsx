@@ -15,12 +15,12 @@ export function BulkActionMenu({
 }: BulkActionMenuProps) {
   const actionButtons = flattenChildren(children)
   return (
-    <div className="flex rounded-sm border border-accent-default bg-accent-dim children:p-3 children:items-center children:space-x-2 w-fit">
+    <div className="flex rounded-sm border border-accent bg-accent-dim children:p-3 children:items-center children:space-x-2 w-fit">
       <div className="flex border-r border-accent-tertiary">
         {actionButtons}
       </div>
       <div className="flex">
-        <span className="text-sans-sm text-accent-default">
+        <span className="text-sans-sm text-accent">
           {selectedCount} selected
         </span>
       </div>
