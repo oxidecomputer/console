@@ -931,12 +931,12 @@ export type VpcFirewallRuleUpdate = {
 /**
  * Updateable properties of a [`Vpc`]'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = {}
+export type VpcFirewallRuleUpdateParams = Record<string, VpcFirewallRuleUpdate>
 
 /**
  * Response to an update replacing [`Vpc`]'s firewall
  */
-export type VpcFirewallRuleUpdateResult = {}
+export type VpcFirewallRuleUpdateResult = Record<string, VpcFirewallRule>
 
 /**
  * A single page of results
