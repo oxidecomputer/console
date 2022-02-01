@@ -157,8 +157,8 @@ module.exports.colorUtilities = {
   '.text-quaternary': {
     color: 'var(--content-quaternary)',
   },
-  '.text-accent-default': {
-    color: 'var(--content-accent-default)',
+  '.text-accent': {
+    color: 'var(--content-accent)',
   },
   '.text-accent-secondary': {
     color: 'var(--content-accent-secondary)',
@@ -166,8 +166,8 @@ module.exports.colorUtilities = {
   '.text-accent-disabled': {
     color: 'var(--content-accent-disabled)',
   },
-  '.text-destructive-default': {
-    color: 'var(--content-destructive-default)',
+  '.text-destructive': {
+    color: 'var(--content-destructive)',
   },
   '.text-destructive-secondary': {
     color: 'var(--content-destructive-secondary)',
@@ -175,8 +175,8 @@ module.exports.colorUtilities = {
   '.text-destructive-disabled': {
     color: 'var(--content-destructive-disabled)',
   },
-  '.text-notice-default': {
-    color: 'var(--content-notice-default)',
+  '.text-notice': {
+    color: 'var(--content-notice)',
   },
   '.text-notice-secondary': {
     color: 'var(--content-notice-secondary)',
@@ -259,8 +259,8 @@ module.exports.colorUtilities = {
   '.border-raise': {
     'border-color': 'var(--stroke-raise)',
   },
-  '.border-accent-default': {
-    'border-color': 'var(--stroke-accent-default)',
+  '.border-accent': {
+    'border-color': 'var(--stroke-accent)',
   },
   '.border-accent-secondary': {
     'border-color': 'var(--stroke-accent-secondary)',
@@ -268,8 +268,8 @@ module.exports.colorUtilities = {
   '.border-accent-tertiary': {
     'border-color': 'var(--stroke-accent-tertiary)',
   },
-  '.border-destructive-default': {
-    'border-color': 'var(--stroke-destructive-default)',
+  '.border-destructive': {
+    'border-color': 'var(--stroke-destructive)',
   },
   '.border-destructive-secondary': {
     'border-color': 'var(--stroke-destructive-secondary)',
@@ -277,8 +277,8 @@ module.exports.colorUtilities = {
   '.border-destructive-tertiary': {
     'border-color': 'var(--stroke-destructive-tertiary)',
   },
-  '.border-notice-default': {
-    'border-color': 'var(--stroke-notice-default)',
+  '.border-notice': {
+    'border-color': 'var(--stroke-notice)',
   },
   '.border-notice-secondary': {
     'border-color': 'var(--stroke-notice-secondary)',
@@ -298,8 +298,8 @@ module.exports.colorUtilities = {
   '.ring-raise': {
     '--tw-ring-color': 'var(--stroke-raise)',
   },
-  '.ring-accent-default': {
-    '--tw-ring-color': 'var(--stroke-accent-default)',
+  '.ring-accent': {
+    '--tw-ring-color': 'var(--stroke-accent)',
   },
   '.ring-accent-secondary': {
     '--tw-ring-color': 'var(--stroke-accent-secondary)',
@@ -307,8 +307,8 @@ module.exports.colorUtilities = {
   '.ring-accent-tertiary': {
     '--tw-ring-color': 'var(--stroke-accent-tertiary)',
   },
-  '.ring-destructive-default': {
-    '--tw-ring-color': 'var(--stroke-destructive-default)',
+  '.ring-destructive': {
+    '--tw-ring-color': 'var(--stroke-destructive)',
   },
   '.ring-destructive-secondary': {
     '--tw-ring-color': 'var(--stroke-destructive-secondary)',
@@ -316,8 +316,8 @@ module.exports.colorUtilities = {
   '.ring-destructive-tertiary': {
     '--tw-ring-color': 'var(--stroke-destructive-tertiary)',
   },
-  '.ring-notice-default': {
-    '--tw-ring-color': 'var(--stroke-notice-default)',
+  '.ring-notice': {
+    '--tw-ring-color': 'var(--stroke-notice)',
   },
   '.ring-notice-secondary': {
     '--tw-ring-color': 'var(--stroke-notice-secondary)',

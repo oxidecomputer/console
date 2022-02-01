@@ -190,12 +190,20 @@ StyleDictionary.registerFilter({
   },
 })
 
+StyleDictionary.registerTransform({
+  name: 'remove-default',
+  type: 'name',
+  transformer(token) {
+    return token.name.replace(/(\w+-\w+)-default/, '$1')
+  },
+})
+
 const makeConfig = (theme: typeof THEMES[number]) => {
   const config: Config = {
     source: [`libs/ui/styles/.tokens/${theme}.json`],
     platforms: {
       web: {
-        transforms: ['attribute/cti', 'name/cti/kebab'],
+        transforms: ['attribute/cti', 'name/cti/kebab', 'remove-default'],
         buildPath: 'libs/ui/styles/themes/',
         files: [
           {
