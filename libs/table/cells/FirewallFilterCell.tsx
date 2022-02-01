@@ -12,7 +12,7 @@ export const FirewallFilterCell = ({
       hosts.map((h, i) => <TypeValueCell key={`${h}-${i}`} value={h} />)}
     {protocols &&
       protocols.map((p, i) => (
-        <Badge key={`${p}-${i}`} color="green" variant="dim">
+        <Badge key={`${p}-${i}`} variant="dim">
           {p}
         </Badge>
       ))}

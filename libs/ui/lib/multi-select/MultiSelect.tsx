@@ -84,7 +84,6 @@ export const MultiSelect = ({
             ? ms.selectedItems?.map((selectedItem, index) => (
                 <Badge
                   key={selectedItem.value}
-                  color="green"
                   variant="dim"
                   onClose={() => ms.removeSelectedItem(selectedItem)}
                   {...ms.getSelectedItemProps({ selectedItem, index })}

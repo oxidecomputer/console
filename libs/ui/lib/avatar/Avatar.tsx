@@ -4,7 +4,7 @@ import cn from 'classnames'
 export const avatarSizes = ['sm', 'base', 'lg'] as const
 export type AvatarSize = typeof avatarSizes[number]
 
-export const avatarColors = ['green', 'yellow', 'red'] as const
+export const avatarColors = ['default', 'notice', 'destructive'] as const
 type AvatarColor = typeof avatarColors[number]
 
 export interface AvatarProps {
@@ -17,15 +17,15 @@ export interface AvatarProps {
 }
 
 const sizeStyles: Record<AvatarSize, string> = {
-  sm: 'w-6 h-6 text-xs',
-  base: 'w-8 h-8 text-sm',
-  lg: 'w-12 h-12 text-lg',
+  sm: 'w-6 h-6 text-mono-sm',
+  base: 'w-8 h-8 text-mono-md',
+  lg: 'w-12 h-12 text-mono-lg',
 }
 
 const colorStyles: Record<AvatarColor, string> = {
-  green: 'text-green-500 bg-green-900',
-  yellow: 'text-yellow-500 bg-yellow-900',
-  red: 'text-red-500 bg-red-900',
+  default: 'text-accent bg-accent-dim',
+  notice: 'text-notice bg-notice-dim',
+  destructive: 'text-destructive bg-destructive-dim',
 }
 
 const getInitials = (name: string) =>
@@ -41,7 +41,7 @@ export const Avatar = ({
   name,
   round = false,
   size = 'base',
-  color = 'green',
+  color = 'default',
   src,
 }: AvatarProps) => {
   const initials = useMemo(() => getInitials(name), [name])
@@ -58,7 +58,7 @@ export const Avatar = ({
       {src ? (
         <img src={src} alt={name} />
       ) : (
-        <abbr className="!no-underline font-sans uppercase" title={name}>
+        <abbr className="!no-underline" title={name}>
           {initials}
         </abbr>
       )}
