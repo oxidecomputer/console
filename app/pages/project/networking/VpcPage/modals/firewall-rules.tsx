@@ -59,6 +59,21 @@ const CommonForm = ({ id, error }: FormProps) => {
   const { setFieldValue, values } = useFormikContext<Values>()
   return (
     <Form id={id}>
+      <SideModal.Section className="border-t">
+        {/* omitting value prop makes it a boolean value. beautiful */}
+        {/* TODO: better text or heading or tip or something on this checkbox */}
+        <CheckboxField name="enabled">Enabled</CheckboxField>
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="rule-name">Name</FieldTitle>
+          <TextField id="rule-name" name="name" />
+        </div>
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="rule-description">
+            Description {/* TODO: indicate optional */}
+          </FieldTitle>
+          <TextField id="rule-description" name="description" />
+        </div>
+      </SideModal.Section>
       <SideModal.Section>
         <div className="space-y-0.5">
           <FieldTitle htmlFor="priority">Priority</FieldTitle>
@@ -328,25 +343,6 @@ const CommonForm = ({ id, error }: FormProps) => {
           </div>
         </fieldset>
       </SideModal.Section>
-      <SideModal.Section className="border-t">
-        {/* omitting value prop makes it a boolean value. beautiful */}
-        <CheckboxField name="enabled">Enabled</CheckboxField>
-        <div className="space-y-0.5">
-          <FieldTitle htmlFor="subnet-name" tip="The name of the subnet">
-            Name
-          </FieldTitle>
-          <TextField id="subnet-name" name="name" />
-        </div>
-        <div className="space-y-0.5">
-          <FieldTitle
-            htmlFor="subnet-description"
-            tip="A description for the subnet"
-          >
-            Description {/* TODO: indicate optional */}
-          </FieldTitle>
-          <TextField id="subnet-description" name="description" />
-        </div>
-      </SideModal.Section>
       <SideModal.Section>
         <div className="text-red-500">{getServerError(error)}</div>
       </SideModal.Section>
@@ -384,7 +380,7 @@ export function CreateFirewallRuleModal({
     },
   })
 
-  const formId = 'create-vpc-subnet-form'
+  const formId = 'create-firewall-rule-form'
 
   return (
     <SideModal
@@ -396,10 +392,11 @@ export function CreateFirewallRuleModal({
       <Formik
         initialValues={
           {
-            enabled: false,
-            priority: '',
+            enabled: true,
             name: '',
             description: '',
+
+            priority: '',
             action: 'allow',
             direction: 'inbound',
 
@@ -501,18 +498,18 @@ export function EditFirewallRuleModal({
 
   const updateRule = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
       dismiss()
     },
   })
 
   if (!originalRule) return null
 
-  const formId = 'edit-vpc-subnet-form'
+  const formId = 'edit-firewall-rule-form'
   return (
     <SideModal
-      id="edit-vpc-subnet-modal"
-      title="Edit subnet"
+      id="edit-firewall-rule-modal"
+      title="Edit rule"
       onDismiss={dismiss}
     >
       <Formik
@@ -537,7 +534,7 @@ export function EditFirewallRuleModal({
           Cancel
         </Button>
         <Button form={formId} type="submit">
-          Update subnet
+          Update rule
         </Button>
       </SideModal.Footer>
     </SideModal>
