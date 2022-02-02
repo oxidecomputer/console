@@ -430,15 +430,27 @@ export function CreateFirewallRuleModal({
             .required('Required'),
         })}
         validateOnBlur
-        onSubmit={({ name, enabled, ...rest }) => {
-          console.log({ name, enabled, ...rest })
-          // const status = values.enabled ? 'enabled' : 'disabled'
-          // createRule.mutate({
-          //   ...parentIds,
-          //   body: {
-          //     [name]: { status, ...rest},
-          //   },
-          // })
+        onSubmit={({ name, ...values }) => {
+          console.log({ name, ...values })
+          createRule.mutate({
+            ...parentIds,
+            body: {
+              [name]: {
+                status: values.enabled ? 'enabled' : 'disabled',
+                action: values.action,
+                description: values.description,
+                direction: values.direction,
+                filters: {
+                  hosts: values.hosts,
+                  ports: values.ports,
+                  protocols: values.protocols,
+                },
+                priority: parseInt(values.priority, 10),
+                targets: values.targets,
+              },
+              // TODO: need to spread all existing rules here
+            },
+          })
         }}
       >
         <CommonForm id={formId} error={createRule.error} />
