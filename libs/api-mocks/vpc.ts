@@ -2,20 +2,24 @@ import type { Json } from './json-type'
 import { project } from './project'
 import type {
   Vpc,
+  VpcFirewallRule,
   VpcResultsPage,
   VpcSubnet,
   VpcSubnetResultsPage,
 } from '@oxide/api'
+
+const time_created = new Date(2021, 0, 1).toISOString()
+const time_modified = new Date(2021, 0, 2).toISOString()
 
 export const vpc: Json<Vpc> = {
   id: 'vpc-id',
   name: 'mock-vpc',
   description: 'a fake vpc',
   dns_name: 'mock-vpc',
-  time_created: new Date(2021, 0, 1).toISOString(),
-  time_modified: new Date(2021, 0, 2).toISOString(),
   project_id: project.id,
   system_router_id: 'router-id', // ???
+  time_created,
+  time_modified,
 }
 
 export const vpcs: Json<VpcResultsPage> = { items: [vpc] }
@@ -43,3 +47,74 @@ export const vpcSubnet2: Json<VpcSubnet> = {
 export const vpcSubnets: Json<VpcSubnetResultsPage> = {
   items: [vpcSubnet],
 }
+
+// TODO: uncomment vpc_ids once omicron PR lands
+export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
+  {
+    id: 'firewall-rule-id-1',
+    name: 'allow-internal-inbound',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [{ type: 'vpc', value: 'default' }],
+    action: 'allow',
+    description:
+      'allow inbound traffic to all instances within the VPC if originated within the VPC',
+    filters: {
+      hosts: [{ type: 'vpc', value: 'default' }],
+    },
+    priority: 65534,
+    time_created,
+    time_modified,
+    // vpc_id: vpc.id,
+  },
+  {
+    id: 'firewall-rule-id-2',
+    name: 'allow-ssh',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [{ type: 'vpc', value: 'default' }],
+    description: 'allow inbound TCP connections on port 22 from anywhere',
+    filters: {
+      ports: ['22'],
+      protocols: ['TCP'],
+    },
+    action: 'allow',
+    priority: 65534,
+    time_created,
+    time_modified,
+    // vpc_id: vpc.id,
+  },
+  {
+    id: 'firewall-rule-id-3',
+    name: 'allow-icmp',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [{ type: 'vpc', value: 'default' }],
+    description: 'allow inbound ICMP traffic from anywhere',
+    filters: {
+      protocols: ['ICMP'],
+    },
+    action: 'allow',
+    priority: 65534,
+    time_created,
+    time_modified,
+    // vpc_id: vpc.id,
+  },
+  {
+    id: 'firewall-rule-id-4',
+    name: 'allow-rdp',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [{ type: 'vpc', value: 'default' }],
+    description: 'allow inbound TCP connections on port 3389 from anywhere',
+    filters: {
+      ports: ['3389'],
+      protocols: ['TCP'],
+    },
+    action: 'allow',
+    priority: 65534,
+    time_created,
+    time_modified,
+    // vpc_id: vpc.id,
+  },
+]

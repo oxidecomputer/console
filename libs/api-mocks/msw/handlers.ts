@@ -311,4 +311,15 @@ export const handlers = [
       return res(ctx.status(204))
     }
   ),
+
+  rest.get<never, VpcParams, Json<Api.VpcFirewallRuleResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
+    (req, res, ctx) => {
+      const vpc = lookupVpc(req, res, ctx)
+      if (vpc.err) return vpc.err
+      // TODO: uncomment once omicron PR lands
+      const items = db.vpcFirewallRules //.filter((r) => r.vpc_id === vpc.ok.id)
+      return res(json({ items }))
+    }
+  ),
 ]

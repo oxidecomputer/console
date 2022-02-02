@@ -33,7 +33,7 @@ const CommonForm = ({ id, error }: FormProps) => (
     <SideModal.Section>
       <div className="space-y-0.5">
         <FieldTitle htmlFor="priority">Priority</FieldTitle>
-        <TextFieldHint id="priority-hint">Must be 0&ndash;35535</TextFieldHint>
+        <TextFieldHint id="priority-hint">Must be 0&ndash;65535</TextFieldHint>
         <NumberTextField
           id="priority"
           name="priority"
@@ -297,7 +297,7 @@ export function CreateFirewallRuleModal({
           priority: Yup.number()
             .integer()
             .min(0)
-            .max(35535)
+            .max(65535)
             .required('Required'),
         })}
         validateOnBlur
