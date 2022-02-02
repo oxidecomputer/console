@@ -20,7 +20,7 @@ export const VpcFirewallRulesTab = () => {
 
   const { Table, Column } = useQueryTable('vpcFirewallRulesGet', vpcParams)
 
-  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(true)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
   const actions = (rule: VpcFirewallRule): MenuAction[] => [

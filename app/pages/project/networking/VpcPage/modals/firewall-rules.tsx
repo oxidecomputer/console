@@ -18,7 +18,7 @@ import {
   TextFieldHint,
 } from '@oxide/ui'
 import type { VpcFirewallRule, ErrorResponse } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { parsePortRange, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
 
 type FormProps = {
@@ -26,16 +26,37 @@ type FormProps = {
   id: string
 }
 
-// TODO (can pass to useFormikContext to get it to behave)
-// type FormState = {}
+type Values = {
+  enabled: boolean
+  priority: string
+  name: string
+  description: string
+  action: VpcFirewallRule['action']
+  direction: VpcFirewallRule['direction']
+
+  protocols: NonNullable<VpcFirewallRule['filters']['protocols']>
+
+  // port subform
+  ports: NonNullable<VpcFirewallRule['filters']['ports']>
+  portRange: string
+
+  // host subform
+  hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
+  hostType: string
+  hostValue: string
+
+  // target subform
+  targets: VpcFirewallRule['targets']
+  targetType: string
+  targetValue: string
+}
+
+// TODO: pressing enter in ports, hosts, and targets value field should "submit" subform
 
 // the moment the two forms diverge, inline them rather than introducing BS
 // props here
 const CommonForm = ({ id, error }: FormProps) => {
-  const {
-    setFieldValue,
-    values: { targetName, targetType, targets },
-  } = useFormikContext()
+  const { setFieldValue, values } = useFormikContext<Values>()
   return (
     <Form id={id}>
       <SideModal.Section>
@@ -75,28 +96,39 @@ const CommonForm = ({ id, error }: FormProps) => {
             { value: 'subnet', label: 'VPC Subnet' },
             { value: 'instance', label: 'Instance' },
           ]}
-          // TODO: this is kind of a hack? move this inside Dropdown somehow
           onChange={(item) => {
             setFieldValue('targetType', item?.value)
           }}
         />
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="targetName">Name</FieldTitle>
-          <TextField id="targetName" name="targetName" />
+          <FieldTitle htmlFor="targetValue">Name</FieldTitle>
+          <TextField id="targetValue" name="targetValue" />
         </div>
 
         <div className="flex justify-end">
+          {/* TODO does this clear out the form or the existing targets? */}
           <Button variant="ghost" className="mr-2.5">
             Clear
           </Button>
           <Button
             variant="dim"
             onClick={() => {
-              if (!targets.some((t) => t.name === targetName)) {
+              // TODO: show error instead of ignoring click
+              if (
+                values.targetType &&
+                values.targetValue && // TODO: validate
+                !values.targets.some(
+                  (t) =>
+                    t.value === values.targetValue &&
+                    t.type === values.targetType
+                )
+              ) {
                 setFieldValue('targets', [
-                  ...targets,
-                  { type: targetType, name: targetName },
+                  ...values.targets,
+                  { type: values.targetType, value: values.targetValue },
                 ])
+                setFieldValue('targetValue', '')
+                // TODO: clear dropdown too?
               }
             }}
           >
@@ -113,17 +145,20 @@ const CommonForm = ({ id, error }: FormProps) => {
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            {targets.map((t) => (
-              <Table.Row key={t.name}>
+            {values.targets.map((t) => (
+              <Table.Row key={`${t.type}|${t.value}`}>
+                {/* TODO: should be the pretty type label, not the type key */}
                 <Table.Cell>{t.type}</Table.Cell>
-                <Table.Cell>{t.name}</Table.Cell>
+                <Table.Cell>{t.value}</Table.Cell>
                 <Table.Cell>
                   <Delete10Icon
                     className="cursor-pointer"
                     onClick={() => {
                       setFieldValue(
                         'targets',
-                        targets.filter((t1) => t1.name !== t.name)
+                        values.targets.filter(
+                          (t1) => t1.value !== t.value || t1.type !== t.type
+                        )
                       )
                     }}
                   />
@@ -144,20 +179,23 @@ const CommonForm = ({ id, error }: FormProps) => {
             { value: 'ip', label: 'IP' },
             { value: 'internet_gateway', label: 'Internet Gateway' },
           ]}
+          onChange={(item) => {
+            setFieldValue('hostType', item?.value)
+          }}
         />
         <div className="space-y-0.5">
           {/* For everything but IP this is a name, but for IP it's an IP. 
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and 
           not a block. */}
-          <FieldTitle htmlFor="host-filter-value">Value</FieldTitle>
-          <TextFieldHint id="host-filter-value-hint">
+          <FieldTitle htmlFor="hostValue">Value</FieldTitle>
+          <TextFieldHint id="hostValue-hint">
             For IP, an address. For the rest, a name. [TODO: copy]
           </TextFieldHint>
           <TextField
-            id="host-filter-value"
-            name="host-filter-value"
-            aria-describedby="host-filter-value-hint"
+            id="hostValue"
+            name="hostValue"
+            aria-describedby="hostValue-hint"
           />
         </div>
 
@@ -165,7 +203,29 @@ const CommonForm = ({ id, error }: FormProps) => {
           <Button variant="ghost" className="mr-2.5">
             Clear
           </Button>
-          <Button variant="dim">Add host filter</Button>
+          <Button
+            variant="dim"
+            onClick={() => {
+              // TODO: show error instead of ignoring click
+              if (
+                values.hostType &&
+                values.hostValue && // TODO: validate
+                !values.hosts.some(
+                  (t) =>
+                    t.value === values.hostValue || t.type === values.hostType
+                )
+              ) {
+                setFieldValue('hosts', [
+                  ...values.hosts,
+                  { type: values.hostType, value: values.hostValue },
+                ])
+                setFieldValue('hostValue', '')
+                // TODO: clear dropdown too?
+              }
+            }}
+          >
+            Add host filter
+          </Button>
         </div>
 
         <Table className="w-full">
@@ -177,13 +237,26 @@ const CommonForm = ({ id, error }: FormProps) => {
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            <Table.Row>
-              <Table.Cell>VPC</Table.Cell>
-              <Table.Cell>my-vpc</Table.Cell>
-              <Table.Cell>
-                <Delete10Icon className="cursor-pointer" />
-              </Table.Cell>
-            </Table.Row>
+            {values.hosts.map((h) => (
+              <Table.Row key={`${h.type}|${h.value}`}>
+                {/* TODO: should be the pretty type label, not the type key */}
+                <Table.Cell>{h.type}</Table.Cell>
+                <Table.Cell>{h.value}</Table.Cell>
+                <Table.Cell>
+                  <Delete10Icon
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setFieldValue(
+                        'hosts',
+                        values.hosts.filter(
+                          (h1) => h1.value !== h.value && h1.type !== h.type
+                        )
+                      )
+                    }}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            ))}
           </Table.Body>
         </Table>
       </SideModal.Section>
@@ -204,21 +277,34 @@ const CommonForm = ({ id, error }: FormProps) => {
             <Button variant="ghost" className="mr-2.5">
               Clear
             </Button>
-            <Button variant="dim">Add port filter</Button>
+            <Button
+              variant="dim"
+              onClick={() => {
+                const portRange = values.portRange.trim()
+                // TODO: show error instead of ignoring the click
+                if (!parsePortRange(portRange)) return
+                setFieldValue('ports', [...values.ports, portRange])
+                setFieldValue('portRange', '')
+              }}
+            >
+              Add port filter
+            </Button>
           </div>
           <ul>
-            <li>
-              1234
-              <Delete10Icon className="cursor-pointer ml-2" />
-            </li>
-            <li>
-              456-567
-              <Delete10Icon className="cursor-pointer ml-2" />
-            </li>
-            <li>
-              8080-8086
-              <Delete10Icon className="cursor-pointer ml-2" />
-            </li>
+            {values.ports.map((p) => (
+              <li key={p}>
+                {p}
+                <Delete10Icon
+                  className="cursor-pointer ml-2"
+                  onClick={() => {
+                    setFieldValue(
+                      'ports',
+                      values.ports.filter((p1) => p1 !== p)
+                    )
+                  }}
+                />
+              </li>
+            ))}
           </ul>
         </div>
       </SideModal.Section>
@@ -308,25 +394,34 @@ export function CreateFirewallRuleModal({
       onDismiss={dismiss}
     >
       <Formik
-        initialValues={{
-          enabled: false,
-          priority: '',
-          name: '',
-          description: '',
-          action: 'allow',
-          direction: 'inbound',
-          // TODO: in the request body, these go in a `filters` object. we probably don't
-          // need such nesting here though. not even sure how to do it
-          // filters
-          protocols: [],
-          ports: [],
-          hosts: [],
+        initialValues={
+          {
+            enabled: false,
+            priority: '',
+            name: '',
+            description: '',
+            action: 'allow',
+            direction: 'inbound',
 
-          // target subform
-          targets: [],
-          targetType: '',
-          targetName: '',
-        }}
+            // in the request body, these go in a `filters` object. we probably don't
+            // need such nesting here though. not even sure how to do it
+            protocols: [],
+
+            // port subform
+            ports: [],
+            portRange: '',
+
+            // host subform
+            hosts: [],
+            hostType: '',
+            hostValue: '',
+
+            // target subform
+            targets: [],
+            targetType: '',
+            targetValue: '',
+          } as Values // best way to tell formik this type
+        }
         validationSchema={Yup.object({
           priority: Yup.number()
             .integer()

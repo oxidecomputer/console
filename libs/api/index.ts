@@ -26,6 +26,7 @@ export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 export const useApiQueryClient = getUseApiQueryClient<A>()
 
+export * from './parse'
 export * from './__generated__/Api'
 
 // for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
