@@ -831,6 +831,10 @@ export type VpcFirewallRule = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * the VPC to which this rule belongs
+   */
+  vpcId: string
 }
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'

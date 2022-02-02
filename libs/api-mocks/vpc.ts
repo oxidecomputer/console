@@ -48,7 +48,6 @@ export const vpcSubnets: Json<VpcSubnetResultsPage> = {
   items: [vpcSubnet],
 }
 
-// TODO: uncomment vpc_ids once omicron PR lands
 export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
   {
     id: 'firewall-rule-id-1',
@@ -65,7 +64,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
     priority: 65534,
     time_created,
     time_modified,
-    // vpc_id: vpc.id,
+    vpc_id: vpc.id,
   },
   {
     id: 'firewall-rule-id-2',
@@ -82,7 +81,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
     priority: 65534,
     time_created,
     time_modified,
-    // vpc_id: vpc.id,
+    vpc_id: vpc.id,
   },
   {
     id: 'firewall-rule-id-3',
@@ -98,7 +97,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
     priority: 65534,
     time_created,
     time_modified,
-    // vpc_id: vpc.id,
+    vpc_id: vpc.id,
   },
   {
     id: 'firewall-rule-id-4',
@@ -115,6 +114,6 @@ export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
     priority: 65534,
     time_created,
     time_modified,
-    // vpc_id: vpc.id,
+    vpc_id: vpc.id,
   },
 ]
