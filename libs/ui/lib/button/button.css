@@ -1,0 +1,28 @@
+.btn-dim-accent {
+  @apply bg-accent-dim text-accent-default disabled:text-accent-disabled disabled:surface-accent-dim;
+}
+
+.btn-dim-destructive {
+  @apply bg-destructive-dim text-destructive-default disabled:text-destructive-disabled disabled:surface-destructive-dim;
+}
+
+.btn-dim-notice {
+  @apply bg-notice-dim text-notice-default disabled:text-notice-disabled disabled:surface-notice-dim;
+}
+
+.btn-dim-secondary {
+  /* TODO: Add a disabled state */
+  @apply bg-secondary-dim text-secondary-default;
+}
+
+.btn-solid-accent {
+  @apply bg-accent-solid text-black disabled:text-accent-disabled disabled:surface-accent-solid;
+}
+
+.btn-solid-destructive {
+  @apply bg-destructive-solid text-black disabled:text-destructive-disabled disabled:surface-destructive-solid;
+}
+
+.btn-solid-notice {
+  @apply bg-notice-solid text-black disabled:text-notice-disabled disabled:surface-notice-solid;
+}

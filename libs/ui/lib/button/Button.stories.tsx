@@ -1,6 +1,8 @@
 import { Button, buttonSizes, variants } from './Button'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+import { Section } from '../../util/story-section'
+import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Button>>
 
@@ -29,4 +31,16 @@ export const Default: Story = {
     size: 'base',
     variant: 'solid',
   },
+}
+
+export const All = () => {
+  return (
+    <div className="flex flex-wrap space-x-2">
+      {variants.map((variant) => (
+        <Button key={variant} variant={variant}>
+          {variant}
+        </Button>
+      ))}
+    </div>
+  )
 }
