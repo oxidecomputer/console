@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Formik } from 'formik'
+import { Form, Formik, useFormikContext } from 'formik'
 import * as Yup from 'yup'
 
 import {
@@ -26,217 +26,247 @@ type FormProps = {
   id: string
 }
 
+// TODO (can pass to useFormikContext to get it to behave)
+// type FormState = {}
+
 // the moment the two forms diverge, inline them rather than introducing BS
 // props here
-const CommonForm = ({ id, error }: FormProps) => (
-  <Form id={id}>
-    <SideModal.Section>
-      <div className="space-y-0.5">
-        <FieldTitle htmlFor="priority">Priority</FieldTitle>
-        <TextFieldHint id="priority-hint">Must be 0&ndash;65535</TextFieldHint>
-        <NumberTextField
-          id="priority"
-          name="priority"
-          aria-describedby="priority-hint"
+const CommonForm = ({ id, error }: FormProps) => {
+  const {
+    setFieldValue,
+    values: { targetName, targetType, targets },
+  } = useFormikContext()
+  return (
+    <Form id={id}>
+      <SideModal.Section>
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="priority">Priority</FieldTitle>
+          <TextFieldHint id="priority-hint">
+            Must be 0&ndash;65535
+          </TextFieldHint>
+          <NumberTextField
+            id="priority"
+            name="priority"
+            aria-describedby="priority-hint"
+          />
+          <TextFieldError name="priority" />
+        </div>
+        <fieldset>
+          <legend>Action</legend>
+          <RadioGroup column name="action">
+            <Radio value="allow">Allow</Radio>
+            <Radio value="deny">Deny</Radio>
+          </RadioGroup>
+        </fieldset>
+        <fieldset>
+          <legend>Direction of traffic</legend>
+          <RadioGroup column name="direction">
+            <Radio value="inbound">Incoming</Radio>
+            <Radio value="outbound">Outgoing</Radio>
+          </RadioGroup>
+        </fieldset>
+      </SideModal.Section>
+      <SideModal.Section className="border-t">
+        <h3 className="text-sans-xl mb-4">Targets</h3>
+        <Dropdown
+          label="Target type"
+          items={[
+            { value: 'vpc', label: 'VPC' },
+            { value: 'subnet', label: 'VPC Subnet' },
+            { value: 'instance', label: 'Instance' },
+          ]}
+          // TODO: this is kind of a hack? move this inside Dropdown somehow
+          onChange={(item) => {
+            setFieldValue('targetType', item?.value)
+          }}
         />
-        <TextFieldError name="priority" />
-      </div>
-      <fieldset>
-        <legend>Action</legend>
-        <RadioGroup column name="action">
-          <Radio value="allow">Allow</Radio>
-          <Radio value="deny">Deny</Radio>
-        </RadioGroup>
-      </fieldset>
-      <fieldset>
-        <legend>Direction of traffic</legend>
-        <RadioGroup column name="direction">
-          <Radio value="inbound">Incoming</Radio>
-          <Radio value="outbound">Outgoing</Radio>
-        </RadioGroup>
-      </fieldset>
-    </SideModal.Section>
-    <SideModal.Section className="border-t">
-      <h3 className="text-sans-xl mb-4">Targets</h3>
-      <Dropdown
-        label="Target type"
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
-          { value: 'instance', label: 'Instance' },
-        ]}
-      />
-      <div className="space-y-0.5">
-        <FieldTitle htmlFor="target-name">Name</FieldTitle>
-        <TextField id="target-name" name="target-name" />
-      </div>
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="targetName">Name</FieldTitle>
+          <TextField id="targetName" name="targetName" />
+        </div>
 
-      <div className="flex justify-end">
-        <Button variant="ghost" className="mr-2.5">
-          Clear
-        </Button>
-        <Button variant="dim">Add target</Button>
-      </div>
-
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Type</Table.HeadCell>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell />
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>VPC</Table.Cell>
-            <Table.Cell>target-vpc</Table.Cell>
-            <Table.Cell>
-              <Delete10Icon className="cursor-pointer" />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>VPC Subnet</Table.Cell>
-            <Table.Cell>target-subnet</Table.Cell>
-            <Table.Cell>
-              <Delete10Icon className="cursor-pointer" />
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
-    </SideModal.Section>
-    <SideModal.Section className="border-t">
-      <h3 className="text-sans-xl mb-4">Host filters</h3>
-      <Dropdown
-        label="Host type"
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'ip', label: 'IP' },
-          { value: 'internet_gateway', label: 'Internet Gateway' },
-        ]}
-      />
-      <div className="space-y-0.5">
-        {/* For everything but IP this is a name, but for IP it's an IP. 
-          So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and 
-          not a block. */}
-        <FieldTitle htmlFor="host-filter-value">Value</FieldTitle>
-        <TextFieldHint id="host-filter-value-hint">
-          For IP, an address. For the rest, a name. [TODO: copy]
-        </TextFieldHint>
-        <TextField
-          id="host-filter-value"
-          name="host-filter-value"
-          aria-describedby="host-filter-value-hint"
-        />
-      </div>
-
-      <div className="flex justify-end">
-        <Button variant="ghost" className="mr-2.5">
-          Clear
-        </Button>
-        <Button variant="dim">Add host filter</Button>
-      </div>
-
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Type</Table.HeadCell>
-            <Table.HeadCell>Value</Table.HeadCell>
-            <Table.HeadCell />
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>VPC</Table.Cell>
-            <Table.Cell>my-vpc</Table.Cell>
-            <Table.Cell>
-              <Delete10Icon className="cursor-pointer" />
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
-    </SideModal.Section>
-    <SideModal.Section className="border-t">
-      <div className="space-y-0.5">
-        <FieldTitle htmlFor="portRange">Port filter</FieldTitle>
-        <TextFieldHint id="portRange-hint">
-          A single port (1234) or a range (1234-2345)
-        </TextFieldHint>
-        <TextField
-          id="portRange"
-          name="portRange"
-          aria-describedby="portRange-hint"
-        />
-        <TextFieldError name="portRange" />
         <div className="flex justify-end">
-          {/* TODO: ghost variant is wrong, we actually need a new one to match the design */}
           <Button variant="ghost" className="mr-2.5">
             Clear
           </Button>
-          <Button variant="dim">Add port filter</Button>
+          <Button
+            variant="dim"
+            onClick={() => {
+              if (!targets.some((t) => t.name === targetName)) {
+                setFieldValue('targets', [
+                  ...targets,
+                  { type: targetType, name: targetName },
+                ])
+              }
+            }}
+          >
+            Add target
+          </Button>
         </div>
-        <ul>
-          <li>
-            1234
-            <Delete10Icon className="cursor-pointer ml-2" />
-          </li>
-          <li>
-            456-567
-            <Delete10Icon className="cursor-pointer ml-2" />
-          </li>
-          <li>
-            8080-8086
-            <Delete10Icon className="cursor-pointer ml-2" />
-          </li>
-        </ul>
-      </div>
-    </SideModal.Section>
-    <SideModal.Section className="border-t">
-      <fieldset className="space-y-0.5">
-        <legend>Protocols</legend>
-        <div>
-          <CheckboxField name="protocols" value="TCP">
-            TCP
-          </CheckboxField>
+
+        <Table className="w-full">
+          <Table.Header>
+            <Table.HeaderRow>
+              <Table.HeadCell>Type</Table.HeadCell>
+              <Table.HeadCell>Name</Table.HeadCell>
+              <Table.HeadCell />
+            </Table.HeaderRow>
+          </Table.Header>
+          <Table.Body>
+            {targets.map((t) => (
+              <Table.Row key={t.name}>
+                <Table.Cell>{t.type}</Table.Cell>
+                <Table.Cell>{t.name}</Table.Cell>
+                <Table.Cell>
+                  <Delete10Icon
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setFieldValue(
+                        'targets',
+                        targets.filter((t1) => t1.name !== t.name)
+                      )
+                    }}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </SideModal.Section>
+      <SideModal.Section className="border-t">
+        <h3 className="text-sans-xl mb-4">Host filters</h3>
+        <Dropdown
+          label="Host type"
+          items={[
+            { value: 'vpc', label: 'VPC' },
+            { value: 'subnet', label: 'VPC Subnet' },
+            { value: 'instance', label: 'Instance' },
+            { value: 'ip', label: 'IP' },
+            { value: 'internet_gateway', label: 'Internet Gateway' },
+          ]}
+        />
+        <div className="space-y-0.5">
+          {/* For everything but IP this is a name, but for IP it's an IP. 
+          So we should probably have the label on this field change when the
+          host type changes. Also need to confirm that it's just an IP and 
+          not a block. */}
+          <FieldTitle htmlFor="host-filter-value">Value</FieldTitle>
+          <TextFieldHint id="host-filter-value-hint">
+            For IP, an address. For the rest, a name. [TODO: copy]
+          </TextFieldHint>
+          <TextField
+            id="host-filter-value"
+            name="host-filter-value"
+            aria-describedby="host-filter-value-hint"
+          />
         </div>
-        <div>
-          <CheckboxField name="protocols" value="UDP">
-            UDP
-          </CheckboxField>
+
+        <div className="flex justify-end">
+          <Button variant="ghost" className="mr-2.5">
+            Clear
+          </Button>
+          <Button variant="dim">Add host filter</Button>
         </div>
-        <div>
-          <CheckboxField name="protocols" value="ICMP">
-            ICMP
-          </CheckboxField>
+
+        <Table className="w-full">
+          <Table.Header>
+            <Table.HeaderRow>
+              <Table.HeadCell>Type</Table.HeadCell>
+              <Table.HeadCell>Value</Table.HeadCell>
+              <Table.HeadCell />
+            </Table.HeaderRow>
+          </Table.Header>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell>VPC</Table.Cell>
+              <Table.Cell>my-vpc</Table.Cell>
+              <Table.Cell>
+                <Delete10Icon className="cursor-pointer" />
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table>
+      </SideModal.Section>
+      <SideModal.Section className="border-t">
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="portRange">Port filter</FieldTitle>
+          <TextFieldHint id="portRange-hint">
+            A single port (1234) or a range (1234-2345)
+          </TextFieldHint>
+          <TextField
+            id="portRange"
+            name="portRange"
+            aria-describedby="portRange-hint"
+          />
+          <TextFieldError name="portRange" />
+          <div className="flex justify-end">
+            {/* TODO: ghost variant is wrong, we actually need a new one to match the design */}
+            <Button variant="ghost" className="mr-2.5">
+              Clear
+            </Button>
+            <Button variant="dim">Add port filter</Button>
+          </div>
+          <ul>
+            <li>
+              1234
+              <Delete10Icon className="cursor-pointer ml-2" />
+            </li>
+            <li>
+              456-567
+              <Delete10Icon className="cursor-pointer ml-2" />
+            </li>
+            <li>
+              8080-8086
+              <Delete10Icon className="cursor-pointer ml-2" />
+            </li>
+          </ul>
         </div>
-      </fieldset>
-    </SideModal.Section>
-    <SideModal.Section className="border-t">
-      {/* omitting value prop makes it a boolean value. beautiful */}
-      <CheckboxField name="enabled">Enabled</CheckboxField>
-      <div className="space-y-0.5">
-        <FieldTitle htmlFor="subnet-name" tip="The name of the subnet">
-          Name
-        </FieldTitle>
-        <TextField id="subnet-name" name="name" />
-      </div>
-      <div className="space-y-0.5">
-        <FieldTitle
-          htmlFor="subnet-description"
-          tip="A description for the subnet"
-        >
-          Description {/* TODO: indicate optional */}
-        </FieldTitle>
-        <TextField id="subnet-description" name="description" />
-      </div>
-    </SideModal.Section>
-    <SideModal.Section>
-      <div className="text-red-500">{getServerError(error)}</div>
-    </SideModal.Section>
-  </Form>
-)
+      </SideModal.Section>
+      <SideModal.Section className="border-t">
+        <fieldset className="space-y-0.5">
+          <legend>Protocols</legend>
+          <div>
+            <CheckboxField name="protocols" value="TCP">
+              TCP
+            </CheckboxField>
+          </div>
+          <div>
+            <CheckboxField name="protocols" value="UDP">
+              UDP
+            </CheckboxField>
+          </div>
+          <div>
+            <CheckboxField name="protocols" value="ICMP">
+              ICMP
+            </CheckboxField>
+          </div>
+        </fieldset>
+      </SideModal.Section>
+      <SideModal.Section className="border-t">
+        {/* omitting value prop makes it a boolean value. beautiful */}
+        <CheckboxField name="enabled">Enabled</CheckboxField>
+        <div className="space-y-0.5">
+          <FieldTitle htmlFor="subnet-name" tip="The name of the subnet">
+            Name
+          </FieldTitle>
+          <TextField id="subnet-name" name="name" />
+        </div>
+        <div className="space-y-0.5">
+          <FieldTitle
+            htmlFor="subnet-description"
+            tip="A description for the subnet"
+          >
+            Description {/* TODO: indicate optional */}
+          </FieldTitle>
+          <TextField id="subnet-description" name="description" />
+        </div>
+      </SideModal.Section>
+      <SideModal.Section>
+        <div className="text-red-500">{getServerError(error)}</div>
+      </SideModal.Section>
+    </Form>
+  )
+}
 
 type CreateProps = {
   isOpen: boolean
@@ -291,7 +321,11 @@ export function CreateFirewallRuleModal({
           protocols: [],
           ports: [],
           hosts: [],
+
+          // target subform
           targets: [],
+          targetType: '',
+          targetName: '',
         }}
         validationSchema={Yup.object({
           priority: Yup.number()
