@@ -34,3 +34,6 @@ p.sbdocs {
 .docs-story > div {
   overflow: visible;
 }
+.sb-show-main {
+  overflow: auto;
+}

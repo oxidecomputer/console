@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react'
 import cn from 'classnames'
-import { match } from 'ts-pattern'
-import { invariant } from '@oxide/util'
+import './button.css'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
 export const variants = ['solid', 'dim', 'ghost', 'link'] as const
@@ -17,44 +16,52 @@ const sizeStyle: Record<ButtonSize, string> = {
   base: 'h-10 px-3 text-mono-lg svg:w-5',
 }
 
-const colorStyle = (variant: Variant, color: Color) =>
-  match<`${Variant} ${Color}`>(`${variant} ${color}`)
-    .with('solid accent', () => `.btn-solid-accent`)
-    .with('solid notice', () => `.btn-solid-notice`)
-    .with('solid destructive', () => `.btn-solid-destructive`)
-    .with('dim accent', () => `.btn-dim-accent`)
-    .with('dim notice', () => `.btn-dim-notice`)
-    .with('dim destructive', () => `.btn-dim-destructive`)
-    .exhaustive()
+const colorStyle = (variant: Variant, color: Color): string => {
+  switch (`${variant} ${color}` as `${Variant} ${Color}`) {
+    case 'solid accent':
+      return 'btn-solid-accent'
+    case 'solid notice':
+      return 'btn-solid-notice'
+    case 'solid destructive':
+      return 'btn-solid-destructive'
+    case 'solid secondary':
+      return 'btn-solid-secondary'
+    case 'dim accent':
+      return 'btn-dim-accent'
+    case 'dim notice':
+      return 'btn-dim-notice'
+    case 'dim destructive':
+      return 'btn-dim-destructive'
+    case 'ghost accent':
+      return 'btn-ghost-accent'
+    case 'ghost notice':
+      return 'btn-ghost-notice'
+    case 'ghost destructive':
+      return 'btn-ghost-destructive'
+    case 'ghost secondary':
+      return 'btn-ghost-secondary'
+    case 'link accent':
+      return 'btn-link-accent'
+    case 'link notice':
+      return 'btn-link-notice'
+    case 'link destructive':
+      return 'btn-link-destructive'
+    case 'link secondary':
+    default:
+      return 'btn-not-implemented'
+  }
+}
 
 const ringStyle = (color: Color) =>
-  match(color)
-    .with('destructive', (_) => 'focus:ring-destructive-secondary')
-    .with('notice', (_) => 'focus:ring-notice-secondary')
-    .otherwise((_) => 'focus:ring-accent-secondary')
-
-// const variantStyle: Record<Variant, string> = {
-//   solid: `
-//     bg-green-500 border-transparent text-black
-//     hover:bg-green-600 disabled:bg-gray-200
-//   `,
-//   dim: `
-//     bg-green-950 border-transparent text-green-500 hover:bg-green-900
-//     disabled:text-green-700 disabled:bg-green-900
-//   `,
-//   ghost: `
-//     text-white border-green-500 hover:bg-green-900
-//     disabled:border-green-700 disabled:bg-black disabled:text-gray-100
-//   `,
-//   // note h-auto overriding size style
-//   link: 'border-transparent text-green-500 !h-auto !leading-5 !px-0.5 hover:underline',
-// }
+  color === 'destructive'
+    ? 'focus:ring-destructive-secondary'
+    : color === 'notice'
+    ? 'focus:ring-notice-secondary'
+    : 'focus:ring-accent-secondary'
 
 const baseStyle = `
-  rounded-sm uppercase font-mono
-  inline-flex items-center justify-center align-top
-  disabled:cursor-not-allowed
-  focus:ring-2
+  rounded-sm inline-flex items-center justify-center align-top
+  disabled:cursor-not-allowed focus:ring-2
 `
 
 type ButtonStyleProps = {
@@ -70,8 +77,14 @@ export const buttonStyle = ({
   size = 'base',
   variant = 'solid',
   color = 'accent',
-}: ButtonStyleProps = {}) =>
-  cn(baseStyle, sizeStyle[size], ringStyle(color), colorStyle(variant, color))
+}: ButtonStyleProps = {}) => {
+  return cn(
+    baseStyle,
+    sizeStyle[size],
+    ringStyle(color),
+    colorStyle(variant, color)
+  )
+}
 
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
