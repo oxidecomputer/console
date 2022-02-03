@@ -1,16 +1,7 @@
 name: 'Visual Regression Testing'
 
 # Event for the workflow
-on:
-  push:
-    paths:
-      - 'libs/ui/**'
-      - 'libs/table/**'
-      - 'libs/pagination/**'
-      - 'libs/util/**'
-      - 'tailwind.config.js'
-      - 'postcss.config.js'
-      - '.github/workflows/visual-test.yaml'
+on: push
 
 # List of jobs
 jobs:
@@ -27,3 +18,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          onlyChanged: true
