@@ -1,6 +1,8 @@
-import { Button, buttonSizes, variants } from './Button'
+import { Button, buttonSizes, variants, colors } from './Button'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+import { Section } from '../../util/story-section'
+import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Button>>
 
@@ -29,4 +31,30 @@ export const Default: Story = {
     size: 'base',
     variant: 'solid',
   },
+}
+
+const states = ['normal', 'hover', 'focus', 'disabled']
+export const All = () => {
+  return (
+    <div className="flex flex-row flex-wrap">
+      {states.map((state) => (
+        <Section key={state} title={state}>
+          {colors.map((color) => (
+            <div key={color} className="flex flex-row space-x-2 mb-2">
+              {variants.map((variant) => (
+                <Button
+                  key={variant}
+                  variant={variant}
+                  color={color}
+                  className={`:${state}`}
+                >
+                  {variant}
+                </Button>
+              ))}
+            </div>
+          ))}
+        </Section>
+      ))}
+    </div>
+  )
 }
