@@ -9,6 +9,7 @@ import {
 import React, { useState } from 'react'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import {
   CreateFirewallRuleModal,
@@ -18,6 +19,7 @@ import {
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
+  const { data: rules } = useApiQuery('vpcFirewallRulesGet', vpcParams)
   const { Table, Column } = useQueryTable('vpcFirewallRulesGet', vpcParams)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -44,6 +46,7 @@ export const VpcFirewallRulesTab = () => {
           {...vpcParams}
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
+          existingRules={rules?.items || []}
         />
         <EditFirewallRuleModal
           {...vpcParams}

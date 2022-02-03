@@ -37,6 +37,7 @@
     "filesize": "^6.3.0",
     "formik": "^2.2.9",
     "history": "^5.0.0",
+    "lodash-es": "^4.17.21",
     "match-sorter": "^6.3.0",
     "mousetrap": "^1.6.5",
     "prop-types": "^15.7.2",

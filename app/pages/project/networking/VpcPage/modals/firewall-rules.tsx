@@ -1,6 +1,7 @@
 import React from 'react'
 import { Form, Formik, useFormikContext } from 'formik'
 import * as Yup from 'yup'
+import omit from 'lodash/omit'
 
 import {
   Button,
@@ -17,7 +18,11 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type { VpcFirewallRule, ErrorResponse } from '@oxide/api'
+import type {
+  VpcFirewallRule,
+  ErrorResponse,
+  VpcFirewallRuleUpdateParams,
+} from '@oxide/api'
 import { parsePortRange, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
 
@@ -356,6 +361,16 @@ type CreateProps = {
   orgName: string
   projectName: string
   vpcName: string
+  existingRules: VpcFirewallRule[]
+}
+
+function rulesArrToObj(rules: VpcFirewallRule[]): VpcFirewallRuleUpdateParams {
+  const obj: VpcFirewallRuleUpdateParams = {}
+  for (const rule of rules) {
+    const { name } = rule
+    obj[name] = omit(rule, 'id', 'name', 'timeCreated', 'timeModified', 'vpcId')
+  }
+  return obj
 }
 
 export function CreateFirewallRuleModal({
@@ -364,6 +379,7 @@ export function CreateFirewallRuleModal({
   orgName,
   projectName,
   vpcName,
+  existingRules,
 }: CreateProps) {
   const parentIds = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
@@ -432,6 +448,7 @@ export function CreateFirewallRuleModal({
           createRule.mutate({
             ...parentIds,
             body: {
+              ...rulesArrToObj(existingRules),
               [name]: {
                 status: values.enabled ? 'enabled' : 'disabled',
                 action: values.action,
@@ -445,7 +462,6 @@ export function CreateFirewallRuleModal({
                 priority: parseInt(values.priority, 10),
                 targets: values.targets,
               },
-              // TODO: need to spread all existing rules here
             },
           })
         }}
