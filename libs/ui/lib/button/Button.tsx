@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react'
 import cn from 'classnames'
 import './button.css'
-import { assertUnreachable } from 'libs/ui/util/unreachable'
+import { assertUnreachable } from '@oxide/util'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
 export const variants = ['solid', 'dim', 'ghost', 'link'] as const
