@@ -14,7 +14,7 @@
 }
 
 .btn-solid-secondary {
-  @apply bg-secondary text-black hover:bg-secondary-hover disabled:bg-secondary;
+  @apply bg-secondary text-secondary hover:bg-secondary-hover disabled:bg-secondary;
 }
 
 /**
@@ -36,16 +36,16 @@
  * Ghost
  */
 .btn-ghost-accent {
-  @apply border-accent-tertiary text-accent hover:bg-accent-dark-hover disabled:bg-transparent;
+  @apply border border-accent-tertiary text-accent hover:bg-accent-dark-hover disabled:bg-transparent;
 }
 .btn-ghost-notice {
-  @apply border-notice-secondary text-notice hover:bg-notice-dark-hover disabled:bg-transparent;
+  @apply border border-notice-secondary text-notice hover:bg-notice-dark-hover disabled:bg-transparent;
 }
 .btn-ghost-destructive {
-  @apply border-default text-destructive hover:bg-destructive-dark-hover disabled:bg-transparent;
+  @apply border border-destructive-secondary text-destructive hover:bg-destructive-dark-hover disabled:bg-transparent;
 }
 .btn-ghost-secondary {
-  @apply border-default text-secondary hover:bg-raise disabled:bg-transparent;
+  @apply border border-default text-secondary hover:bg-raise disabled:bg-transparent;
 }
 
 /**

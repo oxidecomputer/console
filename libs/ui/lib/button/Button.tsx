@@ -47,6 +47,7 @@ const colorStyle = (variant: Variant, color: Color): string => {
     case 'link destructive':
       return 'btn-link-destructive'
     case 'link secondary':
+      return 'btn-link-secondary'
     default:
       return 'btn-not-implemented'
   }
