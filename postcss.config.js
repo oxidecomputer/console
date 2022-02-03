@@ -1,5 +1,5 @@
 let storybookPlugins = []
-if (process.env.NODE_ENV === 'development') {
+if (process.env.IS_STORYBOOK) {
   storybookPlugins.push(
     require('postcss-pseudo-classes')({
       restrictTo: ['hover', 'disabled', 'active', 'focus'],
