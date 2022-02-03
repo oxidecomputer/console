@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Formik, useFormikContext } from 'formik'
 import * as Yup from 'yup'
-import omit from 'lodash/omit'
+import { pick } from '@oxide/util'
 
 import {
   Button,
@@ -21,6 +21,7 @@ import {
 import type {
   VpcFirewallRule,
   ErrorResponse,
+  VpcFirewallRuleUpdate,
   VpcFirewallRuleUpdateParams,
 } from '@oxide/api'
 import { parsePortRange, useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -365,12 +366,22 @@ type CreateProps = {
 }
 
 function rulesArrToObj(rules: VpcFirewallRule[]): VpcFirewallRuleUpdateParams {
-  const obj: VpcFirewallRuleUpdateParams = {}
-  for (const rule of rules) {
-    const { name } = rule
-    obj[name] = omit(rule, 'id', 'name', 'timeCreated', 'timeModified', 'vpcId')
-  }
-  return obj
+  return Object.fromEntries(
+    rules.map((rule) => {
+      const ruleUpdate: NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =
+        pick(
+          rule,
+          'action',
+          'description',
+          'direction',
+          'filters',
+          'priority',
+          'status',
+          'targets'
+        )
+      return [rule.name, ruleUpdate]
+    })
+  )
 }
 
 export function CreateFirewallRuleModal({
