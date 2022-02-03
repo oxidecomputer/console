@@ -11020,9 +11020,10 @@ postcss-nesting@^10.0.2:
   dependencies:
     postcss-selector-parser "6.0.6"
 
-"postcss-pseudo-classes@https://github.com/giuseppeg/postcss-pseudo-classes#a965c38c8615254983cd5743fc4a0ba5b0b2a8cc":
+postcss-pseudo-classes@^0.2.1:
   version "0.2.1"
-  resolved "https://github.com/giuseppeg/postcss-pseudo-classes#a965c38c8615254983cd5743fc4a0ba5b0b2a8cc"
+  resolved "https://registry.yarnpkg.com/postcss-pseudo-classes/-/postcss-pseudo-classes-0.2.1.tgz#694dfe6622c9bd5a699730582b1341c7b110f416"
+  integrity sha512-qEuco5PmPo9AaXfYgnIflVTxUXNnhOIpv3/ptaVz7NRN09oy7Eqa2Smc+htoz0d91AE9JkR8Mebtf/ofamlWWQ==
   dependencies:
     postcss "^7.0.0"
 
