@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react'
 import cn from 'classnames'
 import './button.css'
+import { assertUnreachable } from 'libs/ui/util/unreachable'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
 export const variants = ['solid', 'dim', 'ghost', 'link'] as const
@@ -17,7 +18,8 @@ const sizeStyle: Record<ButtonSize, string> = {
 }
 
 const colorStyle = (variant: Variant, color: Color): string => {
-  switch (`${variant} ${color}` as `${Variant} ${Color}`) {
+  const style: `${Variant} ${Color}` = `${variant} ${color}`
+  switch (style) {
     case 'solid accent':
       return 'btn-solid-accent'
     case 'solid notice':
@@ -32,6 +34,8 @@ const colorStyle = (variant: Variant, color: Color): string => {
       return 'btn-dim-notice'
     case 'dim destructive':
       return 'btn-dim-destructive'
+    case 'dim secondary':
+      return 'btn-not-implemented'
     case 'ghost accent':
       return 'btn-ghost-accent'
     case 'ghost notice':
@@ -49,7 +53,7 @@ const colorStyle = (variant: Variant, color: Color): string => {
     case 'link secondary':
       return 'btn-link-secondary'
     default:
-      return 'btn-not-implemented'
+      assertUnreachable(style)
   }
 }
 
