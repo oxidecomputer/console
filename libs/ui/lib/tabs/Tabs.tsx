@@ -63,9 +63,9 @@ export function Tabs({
   )
 
   const after =
-    'after:block after:w-full after:border-b after:ml-2 after:border-gray-500'
+    'after:block after:w-full after:border-b after:ml-2 after:border-secondary'
   const before =
-    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0 before:border-gray-500'
+    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0 before:border-secondary'
 
   return (
     <RTabs
