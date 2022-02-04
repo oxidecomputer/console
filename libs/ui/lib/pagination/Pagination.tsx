@@ -44,7 +44,7 @@ export const Pagination = ({
       <div
         className={cn(
           type === 'page' && 'py-5',
-          'flex space-between text-default text-mono-xs items-center',
+          'flex space-between text-default text-mono-xs items-center bg-default',
           className
         )}
       >
