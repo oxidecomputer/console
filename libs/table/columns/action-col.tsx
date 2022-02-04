@@ -28,7 +28,7 @@ export function getActionsCol(actionsCreator: MakeActions<any, any>) {
         <div className="flex justify-center">
           <Menu>
             <MenuButton>
-              <More12Icon className="text-gray-200" />
+              <More12Icon className="text-tertiary" />
             </MenuButton>
             <MenuList className="TableControls">
               {actions.map((action) => {

@@ -5,7 +5,7 @@ import React from 'react'
 import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
 
-const slash = <span className="text-gray-200">/</span>
+const slash = <span className="text-secondary">/</span>
 export const InstanceResourceCell = ({
   value,
 }: Cell<Pick<Instance, 'ncpus' | 'memory'>>) => {
@@ -15,7 +15,7 @@ export const InstanceResourceCell = ({
         <span key="first-row">
           {value.ncpus} vCPU {slash} {fileSize(value.memory)} SSD
         </span>,
-        <span className="flex items-center" key="second-row">
+        <span className="flex items-center text-secondary" key="second-row">
           <UbuntuResponsiveIcon className="mr-1" /> FakeOS 12.04
         </span>,
       ]}
