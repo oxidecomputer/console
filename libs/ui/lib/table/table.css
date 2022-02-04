@@ -1,3 +1,15 @@
+.TableControls[data-reach-menu-list] {
+  @apply p-0 bg-default border border-default rounded-sm;
+
+  & [data-reach-menu-item] {
+    @apply text-sans-sm text-left px-4 py-2;
+
+    &[data-selected] {
+      @apply bg-raise;
+    }
+  }
+}
+
 table.ox-table {
   border-spacing: 0px;
 }
