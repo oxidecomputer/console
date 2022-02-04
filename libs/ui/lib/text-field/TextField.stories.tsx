@@ -10,4 +10,14 @@ export default {
   decorators: [FormikDecorator('')],
 } as Story
 
-export const Default: Story = {}
+export const Default: Story = {
+  args: {
+    placeholder: 'Placeholder',
+  },
+}
+
+export const WithValue: Story = {
+  args: {
+    value: 'Something here',
+  },
+}
