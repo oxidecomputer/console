@@ -170,6 +170,7 @@ StyleDictionary.registerFormat({
             'border-bottom-color',
           ]),
           makeColorUtility('stroke', 'ring', '--tw-ring-color'),
+          makeColorUtility('stroke', 'outline', 'outline-color'),
         ].map((make) => make(colors))}
       }
     `

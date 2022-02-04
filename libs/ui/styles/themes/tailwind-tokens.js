@@ -544,4 +544,43 @@ module.exports.colorUtilities = {
   '.ring-notice-tertiary': {
     '--tw-ring-color': 'var(--stroke-notice-tertiary)',
   },
+  '.outline-default': {
+    'outline-color': 'var(--stroke-default)',
+  },
+  '.outline-secondary': {
+    'outline-color': 'var(--stroke-secondary)',
+  },
+  '.outline-tertiary': {
+    'outline-color': 'var(--stroke-tertiary)',
+  },
+  '.outline-raise': {
+    'outline-color': 'var(--stroke-raise)',
+  },
+  '.outline-accent': {
+    'outline-color': 'var(--stroke-accent)',
+  },
+  '.outline-accent-secondary': {
+    'outline-color': 'var(--stroke-accent-secondary)',
+  },
+  '.outline-accent-tertiary': {
+    'outline-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.outline-destructive': {
+    'outline-color': 'var(--stroke-destructive)',
+  },
+  '.outline-destructive-secondary': {
+    'outline-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.outline-destructive-tertiary': {
+    'outline-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.outline-notice': {
+    'outline-color': 'var(--stroke-notice)',
+  },
+  '.outline-notice-secondary': {
+    'outline-color': 'var(--stroke-notice-secondary)',
+  },
+  '.outline-notice-tertiary': {
+    'outline-color': 'var(--stroke-notice-tertiary)',
+  },
 }
