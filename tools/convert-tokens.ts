@@ -185,6 +185,7 @@ StyleDictionary.registerFormat({
 StyleDictionary.registerFilter({
   name: 'unused-theme-tokens',
   matcher: (prop) => {
+    console.log(prop.name)
     return (
       ![
         'fontFamilies',
@@ -196,7 +197,9 @@ StyleDictionary.registerFilter({
         'textDecoration',
         'lineHeights',
         'borderRadius',
-      ].includes(prop.original.type) && !prop.path.some((i) => i.includes('*'))
+      ].includes(prop.original.type) &&
+      !prop.path.some((i) => i.includes('*')) &&
+      !prop.name.endsWith('-uncased')
     )
   },
 })
@@ -232,6 +235,7 @@ const makeConfig = (theme: typeof THEMES[number]) => {
 
   if (theme === 'main') {
     config.platforms.web.files?.push({
+      filter: 'unused-theme-tokens',
       destination: `tailwind-tokens.js`,
       format: 'tailwind',
     })

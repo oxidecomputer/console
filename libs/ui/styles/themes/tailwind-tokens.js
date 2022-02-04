@@ -29,30 +29,6 @@ module.exports.textUtilities = {
     'letter-spacing': '0.04rem',
     'text-transform': 'uppercase',
   },
-  '.text-mono-xs-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.625rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-sm-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.6875rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-md-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.75rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-lg-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.875rem',
-    'letter-spacing': '0.04rem',
-  },
   '.text-sans-xl': {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
@@ -84,15 +60,6 @@ module.exports.textUtilities = {
     'line-height': '1.125rem',
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
-  },
-  '.text-sans-sm-underline': {
-    'font-family':
-      'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
-    'font-weight': 400,
-    'line-height': '1.125rem',
-    'font-size': '0.8125rem',
-    'letter-spacing': '0.05rem',
-    'text-decoration': 'underline',
   },
   '.text-sans-md': {
     'font-family':
@@ -133,14 +100,6 @@ module.exports.textUtilities = {
     'line-height': '1.3rem',
     'font-size': '1rem',
     'letter-spacing': '0.03rem',
-  },
-  '.text-sans-italic-sm': {
-    'font-family':
-      'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
-    'font-weight': 400,
-    'line-height': '1.125rem',
-    'font-size': '0.8125rem',
-    'letter-spacing': '0.05rem',
   },
 }
 
