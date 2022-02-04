@@ -79,9 +79,9 @@
           }
         ],
         "background": {
-          "activeOnStart": false,
+          "activeOnStart": true,
           "beginsPattern": "Running",
-          "endsPattern": "INFO listening"
+          "endsPattern": "INFO SEC running"
         }
       },
       "options": {
