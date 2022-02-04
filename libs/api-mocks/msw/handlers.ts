@@ -1,6 +1,7 @@
 import type { ResponseTransformer } from 'msw'
 import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
+import { firewallRulesArrToObj } from '@oxide/api'
 import type { Json } from '../json-type'
 import { sessionMe } from '../session'
 import type {
@@ -319,6 +320,36 @@ export const handlers = [
       if (vpc.err) return vpc.err
       const items = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.ok.id)
       return res(json({ items }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.VpcFirewallRuleUpdateParams>,
+    VpcParams,
+    Json<Api.VpcFirewallRuleUpdateResult> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
+    (req, res, ctx) => {
+      const vpc = lookupVpc(req, res, ctx)
+      if (vpc.err) return vpc.err
+      const rules = Object.entries(req.body).map(([name, rule]) => ({
+        name,
+        vpc_id: vpc.ok.id,
+        id: 'firewall-rule-' + randomHex(),
+        ...rule,
+        ...getTimestamps(),
+      }))
+      // replace existing rules for this VPC with the new ones
+      db.vpcFirewallRules = [
+        ...db.vpcFirewallRules.filter((r) => r.vpc_id !== vpc.ok.id),
+        ...rules,
+      ]
+
+      // TODO: fix types lol
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const result = firewallRulesArrToObj(rules as any)
+      return res(json(result as any))
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     }
   ),
 ]

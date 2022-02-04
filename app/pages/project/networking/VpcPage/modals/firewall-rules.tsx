@@ -1,7 +1,6 @@
 import React from 'react'
 import { Form, Formik, useFormikContext } from 'formik'
 import * as Yup from 'yup'
-import { pick } from '@oxide/util'
 
 import {
   Button,
@@ -18,13 +17,13 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type {
-  VpcFirewallRule,
-  ErrorResponse,
-  VpcFirewallRuleUpdate,
-  VpcFirewallRuleUpdateParams,
+import type { VpcFirewallRule, ErrorResponse } from '@oxide/api'
+import {
+  firewallRulesArrToObj,
+  parsePortRange,
+  useApiMutation,
+  useApiQueryClient,
 } from '@oxide/api'
-import { parsePortRange, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
 
 type FormProps = {
@@ -122,7 +121,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           }}
         />
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="targetValue">Name</FieldTitle>
+          <FieldTitle htmlFor="targetValue">Target name</FieldTitle>
           <TextField id="targetValue" name="targetValue" />
         </div>
 
@@ -311,23 +310,34 @@ const CommonForm = ({ id, error }: FormProps) => {
               Add port filter
             </Button>
           </div>
-          <ul>
-            {values.ports.map((p) => (
-              <li key={p}>
-                {p}
-                <Delete10Icon
-                  className="cursor-pointer ml-2"
-                  onClick={() => {
-                    setFieldValue(
-                      'ports',
-                      values.ports.filter((p1) => p1 !== p)
-                    )
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
         </div>
+        <Table className="w-full">
+          <Table.Header>
+            <Table.HeaderRow>
+              <Table.HeadCell>Range</Table.HeadCell>
+              <Table.HeadCell />
+            </Table.HeaderRow>
+          </Table.Header>
+          <Table.Body>
+            {values.ports.map((p) => (
+              <Table.Row key={p}>
+                {/* TODO: should be the pretty type label, not the type key */}
+                <Table.Cell>{p}</Table.Cell>
+                <Table.Cell>
+                  <Delete10Icon
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setFieldValue(
+                        'ports',
+                        values.ports.filter((p1) => p1 !== p)
+                      )
+                    }}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
       </SideModal.Section>
       <SideModal.Section className="border-t">
         <fieldset className="space-y-0.5">
@@ -363,25 +373,6 @@ type CreateProps = {
   projectName: string
   vpcName: string
   existingRules: VpcFirewallRule[]
-}
-
-function rulesArrToObj(rules: VpcFirewallRule[]): VpcFirewallRuleUpdateParams {
-  return Object.fromEntries(
-    rules.map((rule) => {
-      const ruleUpdate: NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =
-        pick(
-          rule,
-          'action',
-          'description',
-          'direction',
-          'filters',
-          'priority',
-          'status',
-          'targets'
-        )
-      return [rule.name, ruleUpdate]
-    })
-  )
 }
 
 export function CreateFirewallRuleModal({
@@ -455,11 +446,11 @@ export function CreateFirewallRuleModal({
         })}
         validateOnBlur
         onSubmit={({ name, ...values }) => {
-          console.log({ name, ...values })
+          // console.log({ name, ...values })
           createRule.mutate({
             ...parentIds,
             body: {
-              ...rulesArrToObj(existingRules),
+              ...firewallRulesArrToObj(existingRules),
               [name]: {
                 status: values.enabled ? 'enabled' : 'disabled',
                 action: values.action,

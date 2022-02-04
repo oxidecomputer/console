@@ -31,9 +31,9 @@ describe('InstanceCreatePage', () => {
   it('shows specific message for known server error code', async () => {
     renderAppAt(formUrl)
     const name = screen.getByRole('textbox', { name: 'Choose a name' })
-    userEvent.type(name, instance.name) // already exists in db
+    await userEvent.type(name, instance.name) // already exists in db
 
-    fireEvent.click(submitButton())
+    await userEvent.click(submitButton())
 
     await screen.findByText(
       'An instance with that name already exists in this project'
@@ -60,9 +60,9 @@ describe('InstanceCreatePage', () => {
     expect(window.location.pathname).not.toEqual(instancesPage)
 
     const name = screen.getByRole('textbox', { name: 'Choose a name' })
-    userEvent.type(name, 'new-instance')
-    userEvent.click(screen.getByLabelText(/6 CPUs/))
-    userEvent.click(submitButton())
+    await userEvent.type(name, 'new-instance')
+    await userEvent.click(screen.getByLabelText(/6 CPUs/))
+    await userEvent.click(submitButton())
 
     // nav to instances list
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))

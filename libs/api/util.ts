@@ -1,3 +1,11 @@
+/// Helpers for working with API objects
+import type {
+  VpcFirewallRule,
+  VpcFirewallRuleUpdate,
+  VpcFirewallRuleUpdateParams,
+} from './__generated__/Api'
+import { pick } from '@oxide/util'
+
 type PortRange = [number, number]
 
 /** Parse '1234' into [1234, 1234] and '80-100' into [80, 100] */
@@ -15,4 +23,25 @@ export function parsePortRange(portRange: string): PortRange | null {
   if (p2 < p1) return null
 
   return [p1, p2]
+}
+
+export function firewallRulesArrToObj(
+  rules: VpcFirewallRule[]
+): VpcFirewallRuleUpdateParams {
+  return Object.fromEntries(
+    rules.map((rule) => {
+      const ruleUpdate: NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =
+        pick(
+          rule,
+          'action',
+          'description',
+          'direction',
+          'filters',
+          'priority',
+          'status',
+          'targets'
+        )
+      return [rule.name, ruleUpdate]
+    })
+  )
 }

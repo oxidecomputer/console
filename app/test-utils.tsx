@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
@@ -23,6 +23,9 @@ setLogger({
   error: () => {},
 })
 
+/*****************************************
+ * MSW
+ ****************************************/
 const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
@@ -48,6 +51,9 @@ export function override(
   )
 }
 
+/*****************************************
+ * RENDERING
+ ****************************************/
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -80,6 +86,35 @@ export function renderAppAt(url: string) {
   })
 }
 
+/*****************************************
+ * TESTING LIBRARY
+ ****************************************/
+
 export * from '@testing-library/react'
-export { default as userEvent } from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event'
+export { userEvent }
 export { customRender as render }
+
+// export async function findByRoleAndClick(role: string, name: string) {
+//   const element = await screen.findByRole(role, { name })
+//   await userEvent.click(element)
+// }
+
+// export async function findByRoleAndType(
+//   role: string,
+//   name: string,
+//   text: string
+// ) {
+//   const element = await screen.findByRole(role, { name })
+//   await userEvent.type(element, text)
+// }
+
+export async function clickByRole(role: string, name: string) {
+  const element = screen.getByRole(role, { name })
+  await userEvent.click(element)
+}
+
+export async function typeByRole(role: string, name: string, text: string) {
+  const element = screen.getByRole(role, { name })
+  await userEvent.type(element, text)
+}

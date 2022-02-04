@@ -1,4 +1,4 @@
-import { parsePortRange } from './parse'
+import { parsePortRange } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
