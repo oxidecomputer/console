@@ -29,7 +29,7 @@ export const badgeColors: Record<
     default: 'bg-accent-dim text-accent',
     destructive: 'bg-destructive-dim text-destructive',
     notice: 'bg-notice-dim text-notice',
-    darkGray: 'bg-gray-500 text-gray-100',
+    darkGray: 'bg-disabled text-secondary',
     lightGray: 'bg-gray-300 text-black',
   },
   ghost: {
