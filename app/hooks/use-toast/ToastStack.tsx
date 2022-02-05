@@ -11,7 +11,7 @@ interface ToastStackProps {
 }
 
 export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => (
-  <TransitionGroup className="fixed z-50 bottom-4 right-4 space-y-2 flex flex-col items-end">
+  <TransitionGroup className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-2">
     {toasts.map(({ id, options }: ToastModel) => (
       <CSSTransition key={id} timeout={300} classNames="toast">
         <Toast

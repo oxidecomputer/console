@@ -26,7 +26,7 @@ export const All: Story = {
   render: ({ color }) => {
     const iconEntries = Object.entries(icons)
     return (
-      <div className="flex flex-wrap max-w-6xl">
+      <div className="flex max-w-6xl flex-wrap">
         <Section title="24px">
           <div className="flex flex-wrap items-center gap-2">
             {iconEntries

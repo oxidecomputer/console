@@ -44,15 +44,15 @@ export const Dropdown: FC<DropdownProps> = ({
   return (
     <div className={cn('relative', className)}>
       <label
-        className={showLabel ? 'text-white text-sm' : 'sr-only'}
+        className={showLabel ? 'text-sm text-white' : 'sr-only'}
         {...select.getLabelProps()}
       >
         {label}
       </label>
       <button
         type="button"
-        className={`flex items-center justify-between mt-1 py-2 px-4 w-full
-          text-base text-white bg-gray-400 hover:bg-gray-400
+        className={`text-base mt-1 flex w-full items-center justify-between bg-gray-400
+          py-2 px-4 text-white hover:bg-gray-400
           focus:ring-1 focus:ring-green-500`}
         aria-describedby={hintId}
         {...select.getToggleButtonProps()}
@@ -63,7 +63,7 @@ export const Dropdown: FC<DropdownProps> = ({
         <DirectionDownIcon title="Select" className="ml-5" />
       </button>
       <ul
-        className="z-10 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
+        className="absolute left-0 right-0 z-10 mt-1 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
         {...select.getMenuProps()}
       >
         {select.isOpen &&
@@ -71,7 +71,7 @@ export const Dropdown: FC<DropdownProps> = ({
             <li
               key={item.value}
               className={cn(
-                'py-2 px-4 text-sm text-gray-50 focus:bg-gray-400 focus:ring-1 focus:ring-green-500',
+                'text-sm py-2 px-4 text-gray-50 focus:bg-gray-400 focus:ring-1 focus:ring-green-500',
                 select.highlightedIndex === index && 'bg-gray-400'
               )}
               {...select.getItemProps({ item, index })}

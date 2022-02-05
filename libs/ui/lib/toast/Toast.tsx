@@ -33,7 +33,7 @@ export const Toast = ({
 }: ToastProps) => (
   <Alert
     className={cn(
-      'w-96 p-4 flex items-center text-base space-x-2',
+      'text-base flex w-96 items-center space-x-2 p-4',
       color[variant]
     )}
   >
