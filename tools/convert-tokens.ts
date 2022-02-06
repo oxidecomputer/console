@@ -5,7 +5,6 @@
 import { kebabCase } from '@oxide/util'
 import type { CSSProperties } from 'react'
 import type { Config, TransformedToken } from 'style-dictionary'
-import { filter } from 'style-dictionary'
 import type { KebabCase } from 'type-fest'
 import StyleDictionary from 'style-dictionary'
 

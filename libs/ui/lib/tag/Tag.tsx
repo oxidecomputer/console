@@ -1,6 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
-import { Close8Icon, Close12Icon } from '../icons'
+import { Close8Icon } from '../icons'
 
 export type TagColor = 'green' | 'red' | 'yellow' | 'gray'
 export type TagVariant = 'solid' | 'dim'
