@@ -42,7 +42,7 @@ export const Tag = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center uppercase font-mono text-sm font-thin rounded-sm px-1 whitespace-nowrap',
+        'text-sm inline-flex items-center whitespace-nowrap rounded-sm px-1 font-mono font-thin uppercase',
         tagColors[variant][color],
         narrow ? 'h-4' : 'h-6',
         className

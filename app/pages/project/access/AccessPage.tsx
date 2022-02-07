@@ -75,7 +75,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 const NameCell = ({ value }: { value: string }) => (
   <div className="flex items-center">
     <Avatar round size="sm" name={value} className="inline-block" />
-    <span className="ml-3 text-sm font-sans font-light">{value}</span>
+    <span className="text-sm ml-3 font-sans font-light">{value}</span>
   </div>
 )
 
@@ -126,7 +126,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <MoreMiscIcon className="text-gray-200 mr-4" />
+        <MoreMiscIcon className="mr-4 text-gray-200" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
@@ -171,7 +171,7 @@ export const AccessPage = () => {
       >
         <div className="modal-body">
           <div className="p-8">
-            <div className="flex justify-between mt-2 mb-14">
+            <div className="mt-2 mb-14 flex justify-between">
               <h2 className="text-sans-xl" id="access-modal-title">
                 Manage project access
               </h2>

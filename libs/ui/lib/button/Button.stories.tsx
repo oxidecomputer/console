@@ -40,7 +40,7 @@ export const All = () => {
       {states.map((state) => (
         <Section key={state} title={state}>
           {colors.map((color) => (
-            <div key={color} className="flex flex-row space-x-2 mb-2">
+            <div key={color} className="mb-2 flex flex-row space-x-2">
               {variants.map((variant) => (
                 <Button
                   key={variant}

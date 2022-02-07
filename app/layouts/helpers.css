@@ -3,7 +3,7 @@
 }
 
 .ox-sidebar {
-  @apply pb-6 pt-6 overflow-auto bg-black border-r border-gray-450 px-3;
+  @apply overflow-auto border-r border-gray-450 bg-black px-3 pb-6 pt-6;
 }
 
 .ox-content-pane-wrapper {
@@ -11,7 +11,7 @@
 }
 
 .ox-content-pane {
-  @apply pt-4 pb-20 flex flex-col flex-grow relative;
+  @apply relative flex flex-grow flex-col pt-4 pb-20;
 }
 
 .ox-content-pane > *,
@@ -21,9 +21,9 @@
   margin-right: var(--content-gutter);
 }
 .ox-pagination-container {
-  @apply sticky bottom-0 bg-black h-14 flex-shrink-0;
+  @apply sticky bottom-0 h-14 flex-shrink-0 bg-black;
 }
 
 .ox-pagination-border {
-  @apply !w-full !mx-0 h-0 bottom-14 border-gray-450 bg-black;
+  @apply bottom-14 !mx-0 h-0 !w-full border-gray-450 bg-black;
 }

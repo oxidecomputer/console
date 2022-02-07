@@ -25,13 +25,13 @@ const fieldStyles = `
 
 export const Radio = ({ children, ...inputProps }: RadioProps) => (
   <label className="inline-flex items-center">
-    <span className="h-4 w-4 relative">
+    <span className="relative h-4 w-4">
       <Field className={fieldStyles} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="hidden peer-checked:block absolute w-2 h-2 left-1 top-1 rounded-full bg-green-500" />
+      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-green-500 peer-checked:block" />
     </span>
 
-    <span className="text-xs uppercase font-mono ml-2.5">{children}</span>
+    <span className="text-xs ml-2.5 font-mono uppercase">{children}</span>
   </label>
 )
 
@@ -51,7 +51,7 @@ const cardLabelStyles = `
 
 export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   return (
-    <label className={cn('items-center inline-flex font-mono', className)}>
+    <label className={cn('inline-flex items-center font-mono', className)}>
       <Field className="peer sr-only" type="radio" {...inputProps} />
       <span className={cn(cardLabelStyles, 'divide-y')}>{children}</span>
     </label>
@@ -60,5 +60,5 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="opacity-60 !p-0 !m-0">{children}</span>
+  <span className="!m-0 !p-0 opacity-60">{children}</span>
 )
