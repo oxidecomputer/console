@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
@@ -91,30 +91,18 @@ export function renderAppAt(url: string) {
  ****************************************/
 
 export * from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-export { userEvent }
 export { customRender as render }
 
-// export async function findByRoleAndClick(role: string, name: string) {
-//   const element = await screen.findByRole(role, { name })
-//   await userEvent.click(element)
-// }
+// convenience functions so we can click and type in a one-liner. these were
+// initially created to use the user-event library, but it was remarkably slow.
+// see if those issues are improved before trying that again
 
-// export async function findByRoleAndType(
-//   role: string,
-//   name: string,
-//   text: string
-// ) {
-//   const element = await screen.findByRole(role, { name })
-//   await userEvent.type(element, text)
-// }
-
-export async function clickByRole(role: string, name: string) {
+export function clickByRole(role: string, name: string) {
   const element = screen.getByRole(role, { name })
-  await userEvent.click(element)
+  fireEvent.click(element)
 }
 
-export async function typeByRole(role: string, name: string, text: string) {
+export function typeByRole(role: string, name: string, text: string) {
   const element = screen.getByRole(role, { name })
-  await userEvent.type(element, text)
+  fireEvent.change(element, { target: { value: text } })
 }

@@ -3,7 +3,7 @@ import {
   override,
   renderAppAt,
   screen,
-  userEvent,
+  typeByRole,
   waitFor,
 } from 'app/test-utils'
 import { org, project, instance } from '@oxide/api-mocks'
@@ -30,10 +30,9 @@ describe('InstanceCreatePage', () => {
 
   it('shows specific message for known server error code', async () => {
     renderAppAt(formUrl)
-    const name = screen.getByRole('textbox', { name: 'Choose a name' })
-    await userEvent.type(name, instance.name) // already exists in db
+    typeByRole('textbox', 'Choose a name', instance.name) // already exists in db
 
-    await userEvent.click(submitButton())
+    fireEvent.click(submitButton())
 
     await screen.findByText(
       'An instance with that name already exists in this project'
@@ -59,10 +58,9 @@ describe('InstanceCreatePage', () => {
     const instancesPage = `/orgs/${org.name}/projects/${project.name}/instances`
     expect(window.location.pathname).not.toEqual(instancesPage)
 
-    const name = screen.getByRole('textbox', { name: 'Choose a name' })
-    await userEvent.type(name, 'new-instance')
-    await userEvent.click(screen.getByLabelText(/6 CPUs/))
-    await userEvent.click(submitButton())
+    typeByRole('textbox', 'Choose a name', 'new-instance')
+    fireEvent.click(screen.getByLabelText(/6 CPUs/))
+    fireEvent.click(submitButton())
 
     // nav to instances list
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))

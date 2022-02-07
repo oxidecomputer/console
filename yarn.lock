@@ -3117,13 +3117,6 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^8.0.0"
 
-"@testing-library/user-event@^14.0.0-beta.8":
-  version "14.0.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-14.0.0-beta.8.tgz#0256b870011d4c7b2dff636c92a1a9005f3705ef"
-  integrity sha512-aUWaag5b/tB25ykeyp7mi0HK0dLktkxuU4MC3tze8B+gS86xFQ43cba0huykte97mZsxfi47VbuHWeXTmbSkxg==
-  dependencies:
-    "@babel/runtime" "^7.12.5"
-
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"

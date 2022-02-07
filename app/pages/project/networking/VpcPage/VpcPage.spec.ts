@@ -1,7 +1,6 @@
 import {
   renderAppAt,
   screen,
-  userEvent,
   waitForElementToBeRemoved,
   clickByRole,
   typeByRole,
@@ -23,21 +22,17 @@ describe('VpcPage', () => {
       expect(screen.queryByRole('dialog', { name: 'Create subnet' })).toBeNull()
 
       // click button to open modal
-      await userEvent.click(screen.getByRole('button', { name: 'New subnet' }))
+      clickByRole('button', 'New subnet')
 
       // modal is open
       screen.getByRole('dialog', { name: 'Create subnet' })
 
-      const ipv4 = screen.getByRole('textbox', { name: 'IPv4 block' })
-      await userEvent.type(ipv4, '1.1.1.2/24')
+      typeByRole('textbox', 'IPv4 block', '1.1.1.2/24')
 
-      const name = screen.getByRole('textbox', { name: 'Name' })
-      await userEvent.type(name, 'mock-subnet-2')
+      typeByRole('textbox', 'Name', 'mock-subnet-2')
 
       // submit the form
-      await userEvent.click(
-        screen.getByRole('button', { name: 'Create subnet' })
-      )
+      clickByRole('button', 'Create subnet')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
@@ -55,7 +50,7 @@ describe('VpcPage', () => {
   describe('firewall rule', () => {
     it('create works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      await clickByRole('tab', 'Firewall Rules')
+      clickByRole('tab', 'Firewall Rules')
 
       // default rules show up in the table
       for (const { name } of defaultFirewallRules) {
@@ -70,55 +65,59 @@ describe('VpcPage', () => {
       ).toBeNull()
 
       // click button to open modal
-      await clickByRole('button', 'New rule')
+      clickByRole('button', 'New rule')
 
       // modal is open
       await screen.findByRole('dialog', { name: 'Create firewall rule' })
 
-      await typeByRole('textbox', 'Name', 'my-new-rule')
+      typeByRole('textbox', 'Name', 'my-new-rule')
 
-      await clickByRole('radio', 'Outgoing')
+      clickByRole('radio', 'Outgoing')
 
       // input type="number" becomes spinbutton for some reason
-      await typeByRole('spinbutton', 'Priority', '5')
+      typeByRole('spinbutton', 'Priority', '5')
 
-      await clickByRole('button', 'Target type')
-      await clickByRole('option', 'VPC')
-      await typeByRole('textbox', 'Target name', 'my-target-vpc')
-      await clickByRole('button', 'Add target')
+      clickByRole('button', 'Target type')
+      clickByRole('option', 'VPC')
+      typeByRole('textbox', 'Target name', 'my-target-vpc')
+      clickByRole('button', 'Add target')
 
       // target is added to targets table
       screen.getByRole('cell', { name: 'my-target-vpc' })
 
-      await clickByRole('button', 'Host type')
-      await clickByRole('option', 'Instance')
-      await typeByRole('textbox', 'Value', 'my-target-instance')
-      await clickByRole('button', 'Add host filter')
+      clickByRole('button', 'Host type')
+      clickByRole('option', 'Instance')
+      typeByRole('textbox', 'Value', 'my-target-instance')
+      clickByRole('button', 'Add host filter')
 
       // host is added to hosts table
       screen.getByRole('cell', { name: 'my-target-instance' })
 
       // TODO: test invalid port range once I put an error message in there
-      await typeByRole('textbox', 'Port filter', '123-456')
-      await clickByRole('button', 'Add port filter')
+      typeByRole('textbox', 'Port filter', '123-456')
+      clickByRole('button', 'Add port filter')
 
       // port range is added to port ranges table
       screen.getByRole('cell', { name: '123-456' })
 
-      await clickByRole('checkbox', 'UDP')
+      clickByRole('checkbox', 'UDP')
 
       // submit the form
-      await clickByRole('button', 'Create rule')
+      clickByRole('button', 'Create rule')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
         () => screen.queryByRole('dialog', { name: 'Create firewall rule' }),
         // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+        { timeout: 4000 }
       )
 
       // table refetches and now includes the new rule
-      await screen.findByRole('cell', { name: 'my-new-rule' })
+      await screen.findByRole(
+        'cell',
+        { name: 'my-new-rule' },
+        { timeout: 5000 } // ugh
+      )
     }, 15000)
   })
 })
