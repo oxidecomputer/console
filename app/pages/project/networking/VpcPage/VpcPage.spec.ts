@@ -110,6 +110,6 @@ describe('VpcPage', () => {
 
       // table refetches and now includes the new rule
       await screen.findByText('my-new-rule')
-    })
+    }, 10000)
   })
 })
