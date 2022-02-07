@@ -112,6 +112,7 @@
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
     "postcss-nesting": "^10.0.2",
+    "postcss-pseudo-classes": "^0.2.1",
     "prettier": "2.5.0",
     "rollup": "^2.52.7",
     "style-dictionary": "^3.1.1",

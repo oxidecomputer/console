@@ -1,5 +1,5 @@
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
 import { Button, Warning12Icon, Success16Icon } from '@oxide/ui'
@@ -19,8 +19,7 @@ import { useToast } from '../hooks'
  * Login and logout endpoints are only a temporary addition to the OpenAPI spec.
  */
 export default function LoginPage() {
-  const redirectUrl =
-    new URLSearchParams(useLocation().search).get('state') || '/'
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const addToast = useToast()
   const loginPost = useApiMutation('spoofLogin', {
@@ -30,7 +29,7 @@ export default function LoginPage() {
         icon: <Success16Icon />,
         timeout: 4000,
       })
-      navigate(redirectUrl)
+      navigate(searchParams.get('state') || '/')
     },
     onError: () => {
       addToast({

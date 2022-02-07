@@ -1,16 +1,7 @@
 name: 'Visual Regression Testing'
 
 # Event for the workflow
-on:
-  push:
-    paths:
-      - 'libs/ui/**'
-      - 'libs/table/**'
-      - 'libs/pagination/**'
-      - 'libs/util/**'
-      - 'tailwind.config.js'
-      - 'postcss.config.js'
-      - '.github/workflows/visual-test.yaml'
+on: push
 
 # List of jobs
 jobs:
@@ -22,8 +13,18 @@ jobs:
       - uses: actions/checkout@v1
       - name: Install dependencies
         run: yarn
-      - name: Publish to Chromatic
+      - name: Run chromatic visual tests for branch
+        if: github.ref != 'refs/heads/main'
         uses: chromaui/action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          onlyChanged: true
+      - name: Update visual tests in main
+        if: github.ref == 'refs/heads/main'
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          onlyChanged: true
+          autoAcceptChanges: true

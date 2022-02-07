@@ -1,0 +1,82 @@
+/**
+ * Solid
+ */
+.btn-solid-accent {
+  @apply bg-accent-solid text-black hover:bg-accent-light-hover disabled:text-accent-disabled disabled:bg-accent-solid;
+}
+
+.btn-solid-notice {
+  @apply bg-notice-solid text-black hover:bg-notice-light-hover disabled:text-notice-disabled disabled:bg-notice-solid;
+}
+
+.btn-solid-destructive {
+  @apply bg-destructive-solid text-black hover:bg-destructive-light-hover disabled:text-destructive-disabled disabled:bg-destructive-solid;
+}
+
+.btn-solid-secondary {
+  @apply bg-secondary text-secondary hover:bg-secondary-hover disabled:bg-secondary;
+}
+
+/**
+ * Dim
+ */
+.btn-dim-accent {
+  @apply bg-accent-dim text-accent hover:bg-accent-dark-hover disabled:text-accent-disabled disabled:bg-accent-dim;
+}
+
+.btn-dim-destructive {
+  @apply bg-destructive-dim text-destructive hover:bg-destructive-dark-hover disabled:text-destructive-disabled disabled:bg-destructive-dim;
+}
+
+.btn-dim-notice {
+  @apply bg-notice-dim text-notice hover:bg-notice-dark-hover disabled:text-notice-disabled disabled:bg-notice-dim;
+}
+
+/**
+ * Ghost
+ */
+.btn-ghost-accent {
+  @apply border border-accent-tertiary text-accent hover:bg-accent-dark-hover disabled:bg-transparent;
+}
+.btn-ghost-notice {
+  @apply border border-notice-secondary text-notice hover:bg-notice-dark-hover disabled:bg-transparent;
+}
+.btn-ghost-destructive {
+  @apply border border-destructive-secondary text-destructive hover:bg-destructive-dark-hover disabled:bg-transparent;
+}
+.btn-ghost-secondary {
+  @apply border border-default text-secondary hover:bg-raise disabled:bg-transparent;
+}
+
+/**
+ * Link
+ */
+.btn-link-accent {
+  @apply hover:underline disabled:no-underline text-accent;
+}
+
+.btn-link-notice {
+  @apply hover:underline disabled:no-underline text-notice;
+}
+
+.btn-link-destructive {
+  @apply hover:underline disabled:no-underline text-destructive;
+}
+
+.btn-link-secondary {
+  @apply hover:underline disabled:no-underline text-secondary;
+}
+
+/**
+ * A class to make it very visually obvious that a button style is missing 
+ */
+.btn-not-implemented {
+  @apply text-transparent cursor-not-allowed focus:ring-transparent;
+  background: repeating-linear-gradient(
+    45deg,
+    yellow,
+    yellow 10px,
+    black 10px,
+    black 20px
+  );
+}
