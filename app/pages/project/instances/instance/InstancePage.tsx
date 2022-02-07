@@ -40,12 +40,12 @@ export const InstancePage = () => {
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             {instance.ncpus}
-            <span className="ml-1 text-gray-300"> vCPUs</span>
+            <span className="text-gray-300 ml-1"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(filesize(instance.memory, { output: 'object' }) as any).value}
-            <span className="ml-1 text-gray-300"> GiB</span>
+            <span className="text-gray-300 ml-1"> GiB</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

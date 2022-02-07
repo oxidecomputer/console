@@ -33,7 +33,7 @@ export function TopBar() {
   }
 
   return (
-    <div className="flex h-10 justify-end">
+    <div className="flex justify-end h-10">
       <div>{contents}</div>
     </div>
   )

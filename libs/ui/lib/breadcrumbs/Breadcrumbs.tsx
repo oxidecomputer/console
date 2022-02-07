@@ -11,8 +11,8 @@ export const Breadcrumbs = ({ data }: BreadcrumbsProps) => (
   <ol className="text-mono-md">
     {data.map(({ href, label }) => (
       <li
-        className="inline-block before:mx-2 
-                   before:content-['/'] before:text-quaternary before:first-of-type:content-none"
+        className="inline-block before:first-of-type:content-none 
+                   before:content-['/'] before:mx-2 before:text-quaternary"
         key={`${href}-${label}`}
       >
         {href ? (

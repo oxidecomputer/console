@@ -15,7 +15,7 @@ export function BulkActionMenu({
 }: BulkActionMenuProps) {
   const actionButtons = flattenChildren(children)
   return (
-    <div className="flex w-fit rounded-sm border bg-accent-dim border-accent children:items-center children:space-x-2 children:p-3">
+    <div className="flex rounded-sm border border-accent bg-accent-dim children:p-3 children:items-center children:space-x-2 w-fit">
       <div className="flex border-r border-accent-tertiary">
         {actionButtons}
       </div>
@@ -33,7 +33,7 @@ BulkActionMenu.Button = (props: Omit<ButtonProps, 'size' | 'variant'>) => (
     size="xs"
     variant="dim"
     // TODO: Remove this border once the proper button styles are available
-    className="rounded-sm border !border-accent-secondary"
+    className="border rounded-sm !border-accent-secondary"
     {...props}
   />
 )

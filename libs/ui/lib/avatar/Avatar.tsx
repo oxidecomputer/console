@@ -48,7 +48,7 @@ export const Avatar = ({
   return (
     <div
       className={cn(
-        'inline-flex items-center justify-center overflow-hidden',
+        'overflow-hidden inline-flex items-center justify-center',
         round ? 'rounded-full' : 'rounded',
         sizeStyles[size],
         colorStyles[color],

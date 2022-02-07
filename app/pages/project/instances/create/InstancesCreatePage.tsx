@@ -209,7 +209,7 @@ export default function InstanceCreatePage() {
             </Tab.Panel>
           </Tabs>
           <Divider />
-          <div className="mt-20 flex">
+          <div className="flex mt-20">
             <fieldset>
               <legend className={cn(headingStyle, 'mb-8')}>
                 Boot disk storage
@@ -238,7 +238,7 @@ export default function InstanceCreatePage() {
               <h2 className={cn(headingStyle, 'mb-8')}>Additional volumes</h2>
               <Button
                 variant="dim"
-                className="mb-3 w-full"
+                className="w-full mb-3"
                 onClick={() => setShowNewDiskModal(true)}
               >
                 Add new disk
@@ -319,13 +319,13 @@ export default function InstanceCreatePage() {
 
           <Button
             type="submit"
-            className="mt-16 w-[30rem]"
+            className="w-[30rem] mt-16"
             disabled={createInstance.isLoading}
             variant="dim"
           >
             Create instance
           </Button>
-          <div className="mt-2 text-red-500">
+          <div className="text-red-500 mt-2">
             {getServerError(createInstance.error, ERROR_CODES)}
           </div>
         </Form>

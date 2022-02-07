@@ -13,8 +13,8 @@ interface Props {
 
 export const PageTitle = ({ children, icon }: Props) => {
   return (
-    <h1 className="inline-flex items-center space-x-2 text-green-500 text-sans-2xl">
-      <span className="h-2.5 w-10 border-l border-b border-gray-300" />
+    <h1 className="inline-flex items-center text-green-500 text-sans-2xl space-x-2">
+      <span className="border-l border-b border-gray-300 w-10 h-2.5" />
       {cloneElement(icon, { className: 'mt-1 text-green-800' })}
       <span>{children}</span>
     </h1>

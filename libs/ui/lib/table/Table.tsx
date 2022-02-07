@@ -17,7 +17,7 @@ Table.HeaderRow = ({ className, ...props }: TableHeaderRowProps) => (
   <Table.Row
     className={cn(
       className,
-      'h-9 border-b border-gray-500 last-of-type:border-none'
+      'border-b border-gray-500 last-of-type:border-none h-9'
     )}
     {...props}
   />
@@ -25,7 +25,7 @@ Table.HeaderRow = ({ className, ...props }: TableHeaderRowProps) => (
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('border border-gray-400 text-gray-100', className)}>
+  <thead className={cn('text-gray-100 border border-gray-400', className)}>
     {children}
   </thead>
 )
@@ -35,11 +35,11 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'border border-x-0 border-gray-400 bg-gray-550 text-left font-light uppercase text-mono-md children:first:border-0'
+      'border border-gray-400 border-x-0 bg-gray-550 font-light uppercase text-left text-mono-md children:first:border-0'
     )}
     {...props}
   >
-    <div className="-my-[1px] flex h-9 items-center border-l border-gray-500 pl-3">
+    <div className="border-l border-gray-500 h-9 -my-[1px] flex items-center pl-3">
       {children}
     </div>
   </th>
@@ -63,11 +63,11 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'h-16 border-gray-400 children:first:-ml-[1px] children:first:border-l-0 children:last:-mr-[1px]'
+      'border-gray-400 h-16 children:first:border-l-0 children:first:-ml-[1px] children:last:-mr-[1px]'
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b border-gray-500 px-3">
+    <div className="flex items-center border-l border-b border-gray-500 h-16 -my-[1px] -mr-[2px] px-3">
       {children}
     </div>
   </td>

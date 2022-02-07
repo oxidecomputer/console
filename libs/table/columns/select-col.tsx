@@ -6,7 +6,7 @@ import { Checkbox } from '@oxide/ui'
 export const getSelectCol = <T extends object>() => ({
   id: 'selection',
   Header: (props: TableInstance<T>) => (
-    <div className="flex items-center justify-center">
+    <div className="flex justify-center items-center">
       <Checkbox {...props.getToggleAllRowsSelectedProps()} />
     </div>
   ),

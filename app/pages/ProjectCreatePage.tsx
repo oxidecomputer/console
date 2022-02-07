@@ -101,7 +101,7 @@ export default function ProjectCreatePage() {
           >
             Create project
           </Button>
-          <div className="mt-2 text-red-500">
+          <div className="text-red-500 mt-2">
             {getServerError(createProject.error, ERROR_CODES)}
           </div>
         </Form>

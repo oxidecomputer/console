@@ -27,7 +27,7 @@ export function SideModal({
       id={id}
       onDismiss={onDismiss}
       {...dialogProps}
-      className="absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l border-gray-400 bg-black p-0"
+      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-black border-l border-gray-400"
       aria-labelledby={titleId}
     >
       <div
@@ -35,7 +35,7 @@ export function SideModal({
         className="overflow-y-auto"
       >
         {/* Title */}
-        <div className="mt-2 mb-8 flex justify-between p-6">
+        <div className="flex justify-between mt-2 mb-8 p-6">
           <h2 className="text-sans-xl" id={titleId}>
             {title}
           </h2>
@@ -67,7 +67,7 @@ SideModal.Docs = ({ children }: ChildrenProp) => (
 )
 
 SideModal.Footer = ({ children }: ChildrenProp) => (
-  <footer className="flex h-20 items-center justify-end border-t border-gray-400 p-6">
+  <footer className="flex h-20 p-6 border-t border-gray-400 items-center justify-end">
     {children}
   </footer>
 )

@@ -18,9 +18,9 @@ const groups = Object.entries(colorConfig).filter(
 )
 
 const Color = ({ name, value }: ColorProps) => (
-  <div key={name} className="mb-4 flex">
+  <div key={name} className="flex mb-4">
     <div
-      className="mr-3 h-12 w-12 border border-gray-400"
+      className="w-12 h-12 mr-3 border border-gray-400"
       style={{ backgroundColor: value }}
     />
     <div className="flex flex-col">
@@ -38,7 +38,7 @@ export const AllColors: React.FC = () => (
         className="flex flex-col flex-wrap"
         style={{ flex: colors.length === 1 ? '1 1 100%' : '0 0 25%' }}
       >
-        <h3 className="text-lg my-4 font-sans font-medium">{group}</h3>
+        <h3 className="my-4 font-sans font-medium text-lg">{group}</h3>
         {typeof colors === 'string' ? (
           <Color value={colors} />
         ) : (

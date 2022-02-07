@@ -31,12 +31,12 @@ export function NetworkModal({
           <Dropdown
             label="VPC"
             items={vpcItems || []}
-            className="mr-2 flex-1"
+            className="flex-1 mr-2"
           />
           <Button>Create</Button>
         </div>
         <div className="flex items-end">
-          <Dropdown label="VPC subnet" items={[]} className="mr-2 flex-1" />
+          <Dropdown label="VPC subnet" items={[]} className="flex-1 mr-2" />
           <Button>Create</Button>
         </div>
         <Dropdown label="Primary internal IP" items={[]} />
