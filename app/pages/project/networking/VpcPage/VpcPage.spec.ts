@@ -104,8 +104,10 @@ describe('VpcPage', () => {
       clickByRole('button', 'Create rule')
 
       // wait for modal to close
-      await waitForElementToBeRemoved(() =>
-        screen.queryByText('Create firewall rule')
+      await waitForElementToBeRemoved(
+        () => screen.queryByText('Create firewall rule'),
+        // fails in CI without a longer timeout (default 1000). boo
+        { timeout: 2000 }
       )
 
       // table refetches and now includes the new rule
