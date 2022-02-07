@@ -90,6 +90,7 @@ export function CreateVpcSubnetModal({
       title="Create subnet"
       isOpen={isOpen}
       onDismiss={dismiss}
+      data-testid="create-vpc-subnet-modal"
     >
       <Formik
         initialValues={{

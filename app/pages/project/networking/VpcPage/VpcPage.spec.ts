@@ -14,12 +14,12 @@ describe('VpcPage', () => {
       screen.getByText('Subnets')
 
       // wait for subnet to show up in the table
-      await screen.findByRole('cell', { name: 'mock-subnet' })
+      await screen.findByText('mock-subnet')
       // the one we'll be adding is not there
       expect(screen.queryByRole('cell', { name: 'mock-subnet-2' })).toBeNull()
 
       // modal is not already open
-      expect(screen.queryByRole('dialog', { name: 'Create subnet' })).toBeNull()
+      expect(screen.queryByTestId('create-vpc-subnet-modal')).toBeNull()
 
       // click button to open modal
       clickByRole('button', 'New subnet')
@@ -35,15 +35,13 @@ describe('VpcPage', () => {
       clickByRole('button', 'Create subnet')
 
       // wait for modal to close
-      await waitForElementToBeRemoved(
-        () => screen.queryByRole('dialog', { name: 'Create subnet' }),
-        // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+      await waitForElementToBeRemoved(() =>
+        screen.queryByTestId('create-vpc-subnet-modal')
       )
 
       // table refetches and now includes second subnet
-      await screen.findByRole('cell', { name: 'mock-subnet' })
-      await screen.findByRole('cell', { name: 'mock-subnet-2' })
+      await screen.findByText('mock-subnet')
+      await screen.findByText('mock-subnet-2')
     }, 10000) // otherwise it flakes in CI
   })
 
@@ -54,7 +52,7 @@ describe('VpcPage', () => {
 
       // default rules show up in the table
       for (const { name } of defaultFirewallRules) {
-        await screen.findByRole('cell', { name })
+        await screen.findByText(name)
       }
       // the one we'll be adding is not there
       expect(screen.queryByRole('cell', { name: 'my-new-rule' })).toBeNull()
@@ -68,7 +66,7 @@ describe('VpcPage', () => {
       clickByRole('button', 'New rule')
 
       // modal is open
-      await screen.findByRole('dialog', { name: 'Create firewall rule' })
+      await screen.findByText('Create firewall rule')
 
       typeByRole('textbox', 'Name', 'my-new-rule')
 
@@ -106,18 +104,12 @@ describe('VpcPage', () => {
       clickByRole('button', 'Create rule')
 
       // wait for modal to close
-      await waitForElementToBeRemoved(
-        () => screen.queryByRole('dialog', { name: 'Create firewall rule' }),
-        // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 4000 }
+      await waitForElementToBeRemoved(() =>
+        screen.queryByText('Create firewall rule')
       )
 
       // table refetches and now includes the new rule
-      await screen.findByRole(
-        'cell',
-        { name: 'my-new-rule' },
-        { timeout: 5000 } // ugh
-      )
-    }, 20000)
+      await screen.findByText('my-new-rule')
+    })
   })
 })
