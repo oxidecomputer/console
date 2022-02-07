@@ -118,6 +118,6 @@ describe('VpcPage', () => {
         { name: 'my-new-rule' },
         { timeout: 5000 } // ugh
       )
-    }, 15000)
+    }, 20000)
   })
 })
