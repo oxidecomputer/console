@@ -56,7 +56,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   // HACK: This forces the focus states for storybook stories
   const focus = className?.includes(':focus') ? ':focus' : ''
   return (
-    <label className="font-mono inline-flex items-center">
+    <label className="inline-flex items-center">
       <Field
         className={cn(focus, 'peer sr-only')}
         type="radio"
