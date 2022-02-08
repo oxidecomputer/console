@@ -170,7 +170,7 @@ tr:last-of-type td:last-of-type {
 
 .ox-table .selection-end td:last-child > div,
 .ox-table .is-selected:not(.multi-selection) td:last-child > div {
-  @apply relative -ml-0.5 border-l-0 before:block before:absolute before:left-0.5 before:bottom-1 before:top-0 before:border-l before:border-green-900 before:h-full;
+  @apply relative -ml-0.5 border-l-0 before:absolute before:left-0.5 before:bottom-1 before:top-0 before:block before:h-full before:border-l before:border-green-900;
   /* Avoid layout shift caused by the border being inline with the content */
   padding-left: calc(1rem - 1px);
 }
