@@ -19,7 +19,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid border border-gray-400 rounded-sm divide-y children:p-2 children:border-gray-500 min-w-min flex-grow'
+        'properties-table grid border border-default rounded-sm divide-y children:p-2 children:border-secondary min-w-min flex-grow'
       )}
     >
       {children}
@@ -59,7 +59,7 @@ PropertiesTable.Group = ({
     <div
       className={cn(
         className,
-        'flex min-w-min md-:flex-col lg+:space-x-4 md-:first:children:border-b-gray-500 md-:first:children:rounded-b-none md-:last:children:border-t-0 md-:last:children:rounded-t-none'
+        'flex min-w-min md-:flex-col lg+:space-x-4 md-:first:children:border-b-secondary md-:first:children:rounded-b-none md-:last:children:border-t-0 md-:last:children:rounded-t-none'
       )}
     >
       {children}

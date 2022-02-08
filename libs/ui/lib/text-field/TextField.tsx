@@ -24,10 +24,10 @@ export const TextField = ({
 }: TextFieldProps) => (
   <div
     className={cn(
-      'flex border border-gray-400 rounded',
-      'focus-within:border-green-500 hover:focus-within:border-green-500',
-      error && '!border-red-500',
-      !fieldProps.disabled && 'hover:border-gray-300',
+      'flex border border-default rounded-sm',
+      'focus-within:border-accent hover:focus-within:border-accent',
+      error && '!border-destructive',
+      !fieldProps.disabled && 'hover:border-raise',
       className
     )}
   >
@@ -35,7 +35,7 @@ export const TextField = ({
       type="text"
       className={`
         py-[0.5625rem] px-3 w-full
-        text-sm font-sans text-gray-50 
+        text-sans-md text-default
         bg-transparent border-none focus:outline-none`}
       aria-invalid={error}
       placeholder=""
@@ -55,10 +55,7 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextFieldHint = ({ id, children, className }: HintProps) => (
-  <div
-    id={id}
-    className={cn('text-sm font-sans font-light mb-2 text-gray-50', className)}
-  >
+  <div id={id} className={cn('text-sans-sm mb-2 text-secondary', className)}>
     {children}
   </div>
 )
@@ -71,7 +68,7 @@ export const TextFieldError = ({ name }: { name: string }) => (
     <ErrorMessage name={name}>
       {(msg) =>
         msg && (
-          <Alert className="font-mono uppercase text-red-500 text-xs py-2 px-3">
+          <Alert className="text-mono-xs text-destructive py-2 px-3">
             {msg}
           </Alert>
         )

@@ -13,9 +13,9 @@ interface Props {
 
 export const PageTitle = ({ children, icon }: Props) => {
   return (
-    <h1 className="inline-flex items-center text-green-500 text-sans-2xl space-x-2">
-      <span className="border-l border-b border-gray-300 w-10 h-2.5" />
-      {cloneElement(icon, { className: 'mt-1 text-green-800' })}
+    <h1 className="inline-flex items-center text-accent text-sans-2xl space-x-2">
+      <span className="border-l border-b border-secondary w-8 h-2.5" />
+      {cloneElement(icon, { className: 'mt-1 text-accent-secondary' })}
       <span>{children}</span>
     </h1>
   )

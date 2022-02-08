@@ -98,34 +98,32 @@ StyleDictionary.registerFormat({
   },
 })
 
+type CSSProperty = KebabCase<keyof CSSProperties> | `--${string}`
 /**
  * A helper used by the tailwind formatter, it generates custom tailwind utilities for color styles
  *
  * @param tokenPrefix  The prefix of the color token name to be targeted / replaced
  * @param classPrefix  What will ultimately be prepended to the tailwind class
- * @param cssProperty  The css property name to be output in the generated class
+ * @param cssProperties  The css property name to be output in the generated class
  */
-const makeColorUtility =
-  (
-    tokenPrefix:
-      | 'surface'
-      | 'content'
-      | 'stroke'
-      | 'chart-fill'
-      | 'chart-stroke',
-    classPrefix: string,
-    cssProperty: KebabCase<keyof CSSProperties> | `--${string}`
-  ) =>
-  (colors: TransformedToken[]) =>
+const makeColorUtility = (
+  tokenPrefix: 'surface' | 'content' | 'stroke' | 'chart-fill' | 'chart-stroke',
+  classPrefix: string,
+  cssProperties: CSSProperty | CSSProperty[]
+) => {
+  const properties = Array.isArray(cssProperties)
+    ? cssProperties
+    : [cssProperties]
+  return (colors: TransformedToken[]) =>
     colors
       .filter((color) => color.name.startsWith(tokenPrefix))
       .map(
         (color) => `
         '.${color.name.replace(tokenPrefix, classPrefix)}': {
-          '${cssProperty}': 'var(--${color.name})',
-        }
-      `
+          ${properties.map((prop) => `'${prop}': 'var(--${color.name})'`)}
+        }`
       )
+}
 
 StyleDictionary.registerFormat({
   name: 'tailwind',
@@ -158,7 +156,20 @@ StyleDictionary.registerFormat({
           makeColorUtility('content', 'text', 'color'),
           makeColorUtility('surface', 'bg', 'background-color'),
           makeColorUtility('stroke', 'border', 'border-color'),
+          makeColorUtility('stroke', 'border-l', 'border-left-color'),
+          makeColorUtility('stroke', 'border-r', 'border-right-color'),
+          makeColorUtility('stroke', 'border-t', 'border-top-color'),
+          makeColorUtility('stroke', 'border-b', 'border-bottom-color'),
+          makeColorUtility('stroke', 'border-x', [
+            'border-left-color',
+            'border-right-color',
+          ]),
+          makeColorUtility('stroke', 'border-y', [
+            'border-top-color',
+            'border-bottom-color',
+          ]),
           makeColorUtility('stroke', 'ring', '--tw-ring-color'),
+          makeColorUtility('stroke', 'outline', 'outline-color'),
         ].map((make) => make(colors))}
       }
     `
@@ -174,6 +185,7 @@ StyleDictionary.registerFormat({
 StyleDictionary.registerFilter({
   name: 'unused-theme-tokens',
   matcher: (prop) => {
+    console.log(prop.name)
     return (
       ![
         'fontFamilies',
@@ -185,7 +197,9 @@ StyleDictionary.registerFilter({
         'textDecoration',
         'lineHeights',
         'borderRadius',
-      ].includes(prop.original.type) && !prop.path.some((i) => i.includes('*'))
+      ].includes(prop.original.type) &&
+      !prop.path.some((i) => i.includes('*')) &&
+      !prop.name.endsWith('-uncased')
     )
   },
 })
@@ -221,6 +235,7 @@ const makeConfig = (theme: typeof THEMES[number]) => {
 
   if (theme === 'main') {
     config.platforms.web.files?.push({
+      filter: 'unused-theme-tokens',
       destination: `tailwind-tokens.js`,
       format: 'tailwind',
     })

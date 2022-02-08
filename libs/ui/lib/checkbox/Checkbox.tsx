@@ -1,26 +1,27 @@
-import { Checkmark12Icon } from '@oxide/ui'
 import React from 'react'
-
+import { Checkmark12Icon } from '@oxide/ui'
 import { classed } from '@oxide/util'
+import cn from 'classnames'
 
 const Check = () => (
-  <Checkmark12Icon className="absolute w-3 h-2.5 left-0.5 top-0.5 fill-current text-green-500" />
+  <Checkmark12Icon className="absolute w-3 h-2.5 left-0.5 top-0.5 fill-current text-accent" />
 )
 
-const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-green-500`
+const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent-solid`
 
 const inputStyle = `
-  appearance-none border border-gray-300 h-4 w-4 rounded-sm absolute left-0 outline-none
+  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
-  focus:ring-2 focus:ring-green-700
-  hover:bg-gray-400
-  checked:bg-green-900 checked:border-green-500 hover:checked:bg-green-950
-  indeterminate:bg-green-900 indeterminate:border-green-500 hover:indeterminate:bg-green-950
+  focus:ring-2 focus:ring-accent-secondary
+  hover:bg-secondary
+  checked:bg-accent-dim checked:border-accent hover:checked:bg-accent-dark-hover
+  indeterminate:bg-accent-dim indeterminate:border-accent hover:indeterminate:bg-accent-dark-hover
 `
 
 export type CheckboxProps = {
   indeterminate?: boolean
   children?: React.ReactNode
+  className?: string
 } & React.ComponentProps<'input'>
 
 // ref function is from: https://davidwalsh.name/react-indeterminate. this makes
@@ -32,12 +33,13 @@ export type CheckboxProps = {
 export const Checkbox = ({
   indeterminate,
   children,
+  className,
   ...inputProps
 }: CheckboxProps) => (
   <label className="inline-flex items-center">
     <span className="h-4 w-4 relative">
       <input
-        className={inputStyle}
+        className={cn(inputStyle, className)}
         type="checkbox"
         ref={(el) => el && (el.indeterminate = !!indeterminate)}
         {...inputProps}
@@ -47,9 +49,7 @@ export const Checkbox = ({
     </span>
 
     {children && (
-      <span className="text-xs text-gray-200 uppercase font-mono ml-2.5">
-        {children}
-      </span>
+      <span className="text-sans-md text-secondary ml-2.5">{children}</span>
     )}
   </label>
 )
