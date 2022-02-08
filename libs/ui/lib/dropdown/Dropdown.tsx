@@ -53,9 +53,9 @@ export const Dropdown: FC<DropdownProps> = ({
       <button
         type="button"
         className={cn(
-          `flex items-center justify-between mt-1 py-2 px-4 w-full
-          text-sans-md bg-default hover:bg-raise border border-default
-          focus:ring-1 focus:ring-accent-secondary rounded-sm`,
+          `mt-1 flex w-full items-center justify-between rounded-sm border
+          py-2 px-4 text-sans-md bg-default border-default
+          hover:bg-raise focus:ring-1 focus:ring-accent-secondary`,
           select.isOpen ? 'text-secondary' : 'text-default'
         )}
         aria-describedby={hintId}
@@ -68,7 +68,7 @@ export const Dropdown: FC<DropdownProps> = ({
       </button>
       <ul
         className={cn(
-          'z-10 mt-1 absolute left-0 right-0 overflow-y-auto bg-default border-0 rounded-sm children:border children:border-b-0 children:border-default !children:border-b-secondary last:children:border-b',
+          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-1 overflow-y-auto rounded-sm border-0 bg-default children:border children:border-b-0 children:border-default last:children:border-b',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
@@ -78,9 +78,9 @@ export const Dropdown: FC<DropdownProps> = ({
             <li
               key={item.value}
               className={cn(
-                'py-2 px-4 text-sm text-gray-50 hover:bg-raise text-default',
+                'text-sm py-2 px-4 text-gray-50 text-default hover:bg-raise',
                 select.selectedItem?.value === item.value &&
-                  'outline outline-accent-secondary m-0.5 rounded-sm',
+                  'm-0.5 rounded-sm outline outline-accent-secondary',
                 select.highlightedIndex === index && 'bg-raise'
               )}
               {...select.getItemProps({ item, index })}
@@ -90,7 +90,7 @@ export const Dropdown: FC<DropdownProps> = ({
           ))}
       </ul>
       {hint && hintId && (
-        <div id={hintId} className="text-mono-sm mt-1 text-secondary">
+        <div id={hintId} className="mt-1 text-mono-sm text-secondary">
           {hint}
         </div>
       )}

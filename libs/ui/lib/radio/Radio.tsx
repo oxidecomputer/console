@@ -25,17 +25,17 @@ const fieldStyles = `
 
 export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
   <label className="inline-flex items-center">
-    <span className="h-4 w-4 relative">
+    <span className="relative h-4 w-4">
       <Field
         className={cn(fieldStyles, className)}
         type="radio"
         {...inputProps}
       />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="hidden peer-checked:block absolute w-2 h-2 left-1 top-1 rounded-full bg-accent-solid" />
+      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent-solid peer-checked:block" />
     </span>
 
-    <span className="text-sans-md text-secondary ml-2.5">{children}</span>
+    <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
   </label>
 )
 
@@ -56,7 +56,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   // HACK: This forces the focus states for storybook stories
   const focus = className?.includes(':focus') ? ':focus' : ''
   return (
-    <label className="items-center inline-flex font-mono">
+    <label className="inline-flex items-center font-mono">
       <Field
         className={cn(focus, 'peer sr-only')}
         type="radio"
@@ -71,5 +71,5 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="opacity-60 !p-0 !m-0">{children}</span>
+  <span className="!m-0 !p-0 opacity-60">{children}</span>
 )

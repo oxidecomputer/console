@@ -26,7 +26,7 @@ const ProjectsPage = () => {
           <Link to="new" className={buttonStyle({ variant: 'ghost' })}>
             New Project
           </Link>
-          <button className="p-3 flex items-center">
+          <button className="flex items-center p-3">
             <MoreMiscIcon className="mr-4" />
           </button>
         </div>
@@ -36,7 +36,7 @@ const ProjectsPage = () => {
         {data.items.map((item) => (
           <article
             key={item.id}
-            className="w-full border border-gray-400 rounded"
+            className="w-full rounded border border-gray-400"
           >
             <section className="p-4">
               <header>
@@ -45,7 +45,7 @@ const ProjectsPage = () => {
                 </Link>
               </header>
             </section>
-            <footer className="p-4 border-t border-gray-400 text-xs">
+            <footer className="text-xs border-t border-gray-400 p-4">
               <span className="uppercase">
                 {formatDistanceToNowStrict(new Date(item.timeCreated), {
                   addSuffix: true,

@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 export function Sidebar({ children }: SidebarProps) {
   return (
-    <div className="ox-sidebar pb-6 pt-5 overflow-auto border-r border-secondary px-3 text-default text-sans-md">
+    <div className="ox-sidebar overflow-auto border-r px-3 pb-6 pt-5 text-sans-md text-default border-secondary">
       <ProjectSelector className="mb-10" />
       {children}
       <Sidebar.Footer>
@@ -35,7 +35,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => {
   return (
     <div className="mt-8 space-y-1">
       {heading ? (
-        <span className="text-secondary text-mono-sm ml-2">{heading}</span>
+        <span className="ml-2 text-mono-sm text-secondary">{heading}</span>
       ) : null}
       <nav>
         <ul className="space-y-0.5">{children}</ul>
@@ -50,7 +50,7 @@ interface SidebarFooter {
 Sidebar.Footer = ({ children }: SidebarFooter) => {
   return (
     // TODO: The `w-[12.5rem] is hand calculated and very likely isn't what we want. Do something better here
-    <ul className="space-y-0.5 absolute bottom-0 pb-3 w-[12.5rem]">
+    <ul className="absolute bottom-0 w-[12.5rem] space-y-0.5 pb-3">
       {children}
     </ul>
   )
@@ -66,9 +66,9 @@ export const NavLinkItem = (props: {
       to={props.to}
       className={({ isActive }) =>
         cn(
-          'flex text-sans-md rounded-sm h-7 items-center p-1.5 hover:bg-raise svg:mr-2 svg:text-tertiary',
+          'flex h-7 items-center rounded-sm p-1.5 text-sans-md hover:bg-raise svg:mr-2 svg:text-tertiary',
           {
-            'text-accent svg:!text-accent !bg-accent-dim': isActive,
+            'text-accent !bg-accent-dim svg:!text-accent': isActive,
           }
         )
       }
