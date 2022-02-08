@@ -108,7 +108,7 @@ const CommonForm = ({ id, error }: FormProps) => {
         </fieldset>
       </SideModal.Section>
       <SideModal.Section className="border-t">
-        <h3 className="text-sans-xl mb-4">Targets</h3>
+        <h3 className="mb-4 text-sans-xl">Targets</h3>
         <Dropdown
           label="Target type"
           items={[
@@ -189,7 +189,7 @@ const CommonForm = ({ id, error }: FormProps) => {
         </Table>
       </SideModal.Section>
       <SideModal.Section className="border-t">
-        <h3 className="text-sans-xl mb-4">Host filters</h3>
+        <h3 className="mb-4 text-sans-xl">Host filters</h3>
         <Dropdown
           label="Host type"
           items={[
