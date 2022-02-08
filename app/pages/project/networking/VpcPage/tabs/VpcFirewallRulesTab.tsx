@@ -102,8 +102,9 @@ export const VpcFirewallRulesTab = () => {
         />
         <EditFirewallRuleModal
           {...vpcParams}
-          originalRule={editing} // modal is open if this is non-null
           onDismiss={() => setEditing(null)}
+          existingRules={rules}
+          originalRule={editing} // modal is open if this is non-null
         />
       </div>
       <Table table={table} />

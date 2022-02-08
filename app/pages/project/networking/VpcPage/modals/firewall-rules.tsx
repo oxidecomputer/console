@@ -17,7 +17,11 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type { ErrorResponse, VpcFirewallRule } from '@oxide/api'
+import type {
+  ErrorResponse,
+  VpcFirewallRule,
+  VpcFirewallRuleUpdate,
+} from '@oxide/api'
 import {
   parsePortRange,
   useApiMutation,
@@ -365,6 +369,21 @@ const CommonForm = ({ id, error }: FormProps) => {
   )
 }
 
+const valuesToRuleUpdate = (values: Values): VpcFirewallRuleUpdate => ({
+  name: values.name,
+  status: values.enabled ? 'enabled' : 'disabled',
+  action: values.action,
+  description: values.description,
+  direction: values.direction,
+  filters: {
+    hosts: values.hosts,
+    ports: values.ports,
+    protocols: values.protocols,
+  },
+  priority: parseInt(values.priority, 10),
+  targets: values.targets,
+})
+
 type CreateProps = {
   isOpen: boolean
   onDismiss: () => void
@@ -386,11 +405,11 @@ export function CreateFirewallRuleModal({
   const queryClient = useApiQueryClient()
 
   function dismiss() {
-    createRule.reset()
+    updateRules.reset()
     onDismiss()
   }
 
-  const createRule = useApiMutation('vpcFirewallRulesPut', {
+  const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
       dismiss()
@@ -444,36 +463,19 @@ export function CreateFirewallRuleModal({
             .required('Required'),
         })}
         validateOnBlur
-        onSubmit={({ name, ...values }) => {
-          const rules = existingRules
-            .filter((r) => r.name !== name)
+        onSubmit={(values) => {
+          const otherRules = existingRules
+            .filter((r) => r.name !== values.name)
             .map(firewallRuleGetToPut)
-
-          createRule.mutate({
+          updateRules.mutate({
             ...parentIds,
             body: {
-              rules: [
-                ...rules,
-                {
-                  name,
-                  status: values.enabled ? 'enabled' : 'disabled',
-                  action: values.action,
-                  description: values.description,
-                  direction: values.direction,
-                  filters: {
-                    hosts: values.hosts,
-                    ports: values.ports,
-                    protocols: values.protocols,
-                  },
-                  priority: parseInt(values.priority, 10),
-                  targets: values.targets,
-                },
-              ],
+              rules: [...otherRules, valuesToRuleUpdate(values)],
             },
           })
         }}
       >
-        <CommonForm id={formId} error={createRule.error} />
+        <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
         <Button variant="dim" className="mr-2.5" onClick={dismiss}>
@@ -493,26 +495,26 @@ type EditProps = {
   projectName: string
   vpcName: string
   originalRule: VpcFirewallRule | null
+  existingRules: VpcFirewallRule[]
 }
 
-// TODO: this whole thing. shouldn't take much to fill in the initialValues
-// based on the rule being edited
 export function EditFirewallRuleModal({
   onDismiss,
   orgName,
   projectName,
   vpcName,
   originalRule,
+  existingRules,
 }: EditProps) {
   const parentIds = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
-    updateRule.reset()
+    updateRules.reset()
     onDismiss()
   }
 
-  const updateRule = useApiMutation('vpcFirewallRulesPut', {
+  const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
       dismiss()
@@ -529,21 +531,47 @@ export function EditFirewallRuleModal({
       onDismiss={dismiss}
     >
       <Formik
-        initialValues={{
-          name: originalRule.name,
-          description: originalRule.description,
-        }}
-        onSubmit={(_values) => {
-          // updateRule.mutate({
-          //   ...parentIds,
-          //   body: {
-          //     name,
-          //     description,
-          //   },
-          // })
+        initialValues={
+          {
+            enabled: originalRule.status === 'enabled',
+            name: originalRule.name,
+            description: originalRule.description,
+
+            priority: originalRule.priority.toString(),
+            action: originalRule.action,
+            direction: originalRule.direction,
+
+            protocols: originalRule.filters.protocols || [],
+
+            // port subform
+            ports: originalRule.filters.ports || [],
+            portRange: '',
+
+            // host subform
+            hosts: originalRule.filters.hosts || [],
+            hostType: '',
+            hostValue: '',
+
+            // target subform
+            targets: originalRule.targets,
+            targetType: '',
+            targetValue: '',
+          } as Values // best way to tell formik this type
+        }
+        onSubmit={(values) => {
+          // note different filter logic from create: filter by the *original* name
+          const otherRules = existingRules
+            .filter((r) => r.name !== originalRule.name)
+            .map(firewallRuleGetToPut)
+          updateRules.mutate({
+            ...parentIds,
+            body: {
+              rules: [...otherRules, valuesToRuleUpdate(values)],
+            },
+          })
         }}
       >
-        <CommonForm id={formId} error={updateRule.error} />
+        <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
         <Button variant="dim" className="mr-2.5" onClick={dismiss}>
