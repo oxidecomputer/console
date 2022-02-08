@@ -110,8 +110,11 @@ describe('VpcPage', () => {
         { timeout: 2000 }
       )
 
-      // table refetches and now includes the new rule
+      // table refetches and now includes the new rule as well as the originals
       await screen.findByText('my-new-rule')
+      for (const { name } of defaultFirewallRules) {
+        screen.getByText(name)
+      }
     }, 10000)
   })
 })

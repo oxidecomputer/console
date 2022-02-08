@@ -1,8 +1,4 @@
-import type {
-  ApiListMethods,
-  Instance,
-  ProjectInstancesGetParams,
-} from '@oxide/api'
+import type { Instance, ProjectInstancesGetParams } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
@@ -28,7 +24,7 @@ const instanceCan: Record<string, (i: Instance) => boolean> = {
 
 export const useInstanceActions = (
   params: ProjectInstancesGetParams
-): MakeActions<ApiListMethods, 'projectInstancesGet'> => {
+): MakeActions<Instance> => {
   const addToast = useToast()
   const queryClient = useApiQueryClient()
   const refetch = () =>

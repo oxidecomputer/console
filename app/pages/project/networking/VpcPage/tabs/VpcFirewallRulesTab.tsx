@@ -1,12 +1,15 @@
+import React, { useState, useMemo } from 'react'
+import { useTable, useRowSelect } from 'react-table'
 import type { MenuAction } from '@oxide/table'
 import {
+  getActionsCol,
+  getSelectCol,
   DateCell,
   EnabledCell,
   FirewallFilterCell,
   TypeValueListCell,
-  useQueryTable,
+  Table,
 } from '@oxide/table'
-import React, { useState } from 'react'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -16,11 +19,43 @@ import {
   EditFirewallRuleModal,
 } from '../modals/firewall-rules'
 
+const columns = [
+  {
+    accessor: 'name' as const,
+    Header: 'Name',
+  },
+  {
+    accessor: 'action' as const,
+    Header: 'Action',
+  },
+  {
+    accessor: 'targets' as const,
+    Header: 'Targets',
+    Cell: TypeValueListCell,
+  },
+  {
+    accessor: 'filters' as const,
+    Header: 'Filters',
+    Cell: FirewallFilterCell,
+  },
+  {
+    accessor: 'status' as const,
+    Header: 'Status',
+    Cell: EnabledCell,
+  },
+  {
+    id: 'created',
+    accessor: 'timeCreated' as const,
+    Header: 'Created',
+    Cell: DateCell,
+  },
+]
+
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { data: rules } = useApiQuery('vpcFirewallRulesGet', vpcParams)
-  const { Table, Column } = useQueryTable('vpcFirewallRulesGet', vpcParams)
+  const { data } = useApiQuery('vpcFirewallRulesGet', vpcParams)
+  const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
@@ -31,6 +66,23 @@ export const VpcFirewallRulesTab = () => {
       onActivate: () => setEditing(rule),
     },
   ]
+
+  const table = useTable(
+    {
+      data: rules,
+      columns,
+      // @ts-expect-error types are wrong. this is included in the docs
+      autoResetSelectedRows: false,
+    },
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        getSelectCol(),
+        ...columns,
+        getActionsCol(actions),
+      ])
+    }
+  )
 
   return (
     <>
@@ -46,7 +98,7 @@ export const VpcFirewallRulesTab = () => {
           {...vpcParams}
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-          existingRules={rules?.items || []}
+          existingRules={rules}
         />
         <EditFirewallRuleModal
           {...vpcParams}
@@ -54,14 +106,7 @@ export const VpcFirewallRulesTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable actions={actions}>
-        <Column id="name" />
-        <Column id="action" />
-        <Column id="targets" cell={TypeValueListCell} />
-        <Column id="filters" cell={FirewallFilterCell} />
-        <Column id="status" header="state" cell={EnabledCell} />
-        <Column id="created" accessor="timeCreated" cell={DateCell} />
-      </Table>
+      <Table table={table} />
     </>
   )
 }

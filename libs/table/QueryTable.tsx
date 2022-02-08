@@ -67,7 +67,7 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
-  actions?: MakeActions<A, M>
+  actions?: MakeActions<ResultItem<A[M]>>
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode

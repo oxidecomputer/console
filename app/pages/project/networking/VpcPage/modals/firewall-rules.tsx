@@ -17,12 +17,12 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type { VpcFirewallRule, ErrorResponse } from '@oxide/api'
+import type { ErrorResponse, VpcFirewallRule } from '@oxide/api'
 import {
-  firewallRulesArrToObj,
   parsePortRange,
   useApiMutation,
   useApiQueryClient,
+  firewallRuleGetToPut,
 } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
 
@@ -445,24 +445,30 @@ export function CreateFirewallRuleModal({
         })}
         validateOnBlur
         onSubmit={({ name, ...values }) => {
-          // console.log({ name, ...values })
+          const rules = existingRules
+            .filter((r) => r.name !== name)
+            .map(firewallRuleGetToPut)
+
           createRule.mutate({
             ...parentIds,
             body: {
-              ...firewallRulesArrToObj(existingRules),
-              [name]: {
-                status: values.enabled ? 'enabled' : 'disabled',
-                action: values.action,
-                description: values.description,
-                direction: values.direction,
-                filters: {
-                  hosts: values.hosts,
-                  ports: values.ports,
-                  protocols: values.protocols,
+              rules: [
+                ...rules,
+                {
+                  name,
+                  status: values.enabled ? 'enabled' : 'disabled',
+                  action: values.action,
+                  description: values.description,
+                  direction: values.direction,
+                  filters: {
+                    hosts: values.hosts,
+                    ports: values.ports,
+                    protocols: values.protocols,
+                  },
+                  priority: parseInt(values.priority, 10),
+                  targets: values.targets,
                 },
-                priority: parseInt(values.priority, 10),
-                targets: values.targets,
-              },
+              ],
             },
           })
         }}

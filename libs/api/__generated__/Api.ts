@@ -234,7 +234,7 @@ export type Ipv6Net = string
 
 /** Regex pattern for validating Ipv6Net */
 export const ipv6NetPattern =
-  '^(fd|FD)00:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+  '^(fd|FD)[0-9a-fA-F]{2}:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
 
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
@@ -777,6 +777,10 @@ export type Vpc = {
    */
   id: string
   /**
+   * The unique local IPv6 address range for subnets in this VPC
+   */
+  ipv6Prefix: Ipv6Net
+  /**
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
@@ -804,6 +808,7 @@ export type Vpc = {
 export type VpcCreate = {
   description: string
   dnsName: Name
+  ipv6Prefix?: Ipv6Net | null
   name: Name
 }
 
@@ -898,20 +903,6 @@ export type VpcFirewallRuleHostFilter =
  */
 export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 
-/**
- * A single page of results
- */
-export type VpcFirewallRuleResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcFirewallRule[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
-}
-
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
@@ -943,6 +934,10 @@ export type VpcFirewallRuleUpdate = {
    */
   filters: VpcFirewallRuleFilter
   /**
+   * name of the rule, unique to this VPC
+   */
+  name: Name
+  /**
    * the relative priority of this rule
    */
   priority: number
@@ -959,12 +954,16 @@ export type VpcFirewallRuleUpdate = {
 /**
  * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = Record<string, VpcFirewallRuleUpdate>
+export type VpcFirewallRuleUpdateParams = {
+  rules: VpcFirewallRuleUpdate[]
+}
 
 /**
- * Response to an update replacing `Vpc`'s firewall
+ * Collection of a [`Vpc`]'s firewall rules
  */
-export type VpcFirewallRuleUpdateResult = Record<string, VpcFirewallRule>
+export type VpcFirewallRules = {
+  rules: VpcFirewallRule[]
+}
 
 /**
  * A single page of results
@@ -1455,18 +1454,6 @@ export interface ProjectVpcsDeleteVpcParams {
 }
 
 export interface VpcFirewallRulesGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
-  limit?: number | null
-
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
-  pageToken?: string | null
-
-  sortBy?: NameSortMode
-
   orgName: Name
 
   projectName: Name
@@ -2473,13 +2460,12 @@ export class Api extends HttpClient {
      * List firewall rules for a VPC.
      */
     vpcFirewallRulesGet: (
-      { orgName, projectName, vpcName, ...query }: VpcFirewallRulesGetParams,
+      { orgName, projectName, vpcName }: VpcFirewallRulesGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRuleResultsPage, any>({
+      this.request<VpcFirewallRules, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'GET',
-        query: query,
         ...params,
       }),
 
@@ -2491,7 +2477,7 @@ export class Api extends HttpClient {
       data: VpcFirewallRuleUpdateParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRuleUpdateResult, any>({
+      this.request<VpcFirewallRules, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'PUT',
         body: data,

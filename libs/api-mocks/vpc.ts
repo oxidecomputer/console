@@ -18,6 +18,7 @@ export const vpc: Json<Vpc> = {
   dns_name: 'mock-vpc',
   project_id: project.id,
   system_router_id: 'router-id', // ???
+  ipv6_prefix: 'fdf6:1818:b6e1::/48',
   time_created,
   time_modified,
 }
@@ -48,7 +49,7 @@ export const vpcSubnets: Json<VpcSubnetResultsPage> = {
   items: [vpcSubnet],
 }
 
-export const defaultFirewallRules: Json<VpcFirewallRule>[] = [
+export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
   {
     id: 'firewall-rule-id-1',
     name: 'allow-internal-inbound',

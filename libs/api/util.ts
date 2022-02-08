@@ -2,7 +2,6 @@
 import type {
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
-  VpcFirewallRuleUpdateParams,
 } from './__generated__/Api'
 import { pick } from '@oxide/util'
 
@@ -25,23 +24,17 @@ export function parsePortRange(portRange: string): PortRange | null {
   return [p1, p2]
 }
 
-export function firewallRulesArrToObj(
-  rules: VpcFirewallRule[]
-): VpcFirewallRuleUpdateParams {
-  return Object.fromEntries(
-    rules.map((rule) => {
-      const ruleUpdate: NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =
-        pick(
-          rule,
-          'action',
-          'description',
-          'direction',
-          'filters',
-          'priority',
-          'status',
-          'targets'
-        )
-      return [rule.name, ruleUpdate]
-    })
-  )
-}
+export const firewallRuleGetToPut = (
+  rule: VpcFirewallRule
+): VpcFirewallRuleUpdate =>
+  pick(
+    rule,
+    'name',
+    'action',
+    'description',
+    'direction',
+    'filters',
+    'priority',
+    'status',
+    'targets'
+  ) as NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule>
