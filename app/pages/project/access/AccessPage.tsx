@@ -75,7 +75,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 const NameCell = ({ value }: { value: string }) => (
   <div className="flex items-center">
     <Avatar round size="sm" name={value} className="inline-block" />
-    <span className="text-sm ml-3 font-sans font-light">{value}</span>
+    <span className="text-sm font-sans ml-3 font-light">{value}</span>
   </div>
 )
 

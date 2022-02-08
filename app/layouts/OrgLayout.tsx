@@ -20,7 +20,7 @@ const ProjectList = (props: { className?: string }) => {
   const { data: projects } = useApiQuery('organizationProjectsGet', { orgName })
   return (
     <section className={cn('space-y-2', props.className)}>
-      <header className="text-xs space-x-2 p-1 font-mono uppercase text-green-500">
+      <header className="text-xs space-x-2 p-1 text-green-500 text-mono-md">
         Projects
       </header>
       <ul className="text-sm space-y-0.5 font-light text-gray-200">
@@ -38,7 +38,7 @@ const ProjectList = (props: { className?: string }) => {
       </ul>
       <footer className="flex p-1">
         <Link
-          className="text-xs inline-flex font-mono uppercase text-gray-100"
+          className="text-xs inline-flex text-gray-100 text-mono-md"
           to={`/orgs/${orgName}/projects/new`}
         >
           <Add12Icon title="Add a project" className="mr-1.5 mt-0.5" />

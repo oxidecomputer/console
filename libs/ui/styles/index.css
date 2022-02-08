@@ -17,7 +17,7 @@
 
 @layer base {
   body {
-    @apply overflow-y-hidden bg-black font-sans text-gray-50;
+    @apply font-sans overflow-y-hidden bg-black text-gray-50;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
