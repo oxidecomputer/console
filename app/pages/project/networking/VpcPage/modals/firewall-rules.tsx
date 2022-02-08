@@ -498,6 +498,8 @@ type EditProps = {
   existingRules: VpcFirewallRule[]
 }
 
+// TODO: this whole thing. shouldn't take much to fill in the initialValues
+// based on the rule being edited
 export function EditFirewallRuleModal({
   onDismiss,
   orgName,
@@ -527,7 +529,7 @@ export function EditFirewallRuleModal({
   return (
     <SideModal
       id="edit-firewall-rule-modal"
-      title="Edit rule"
+      title="Edit firewall rule"
       onDismiss={dismiss}
     >
       <Formik
