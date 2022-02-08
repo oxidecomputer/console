@@ -487,15 +487,6 @@ export function CreateFirewallRuleModal({
   )
 }
 
-// TODO: right now edit works like the other resources in that it only knows
-// about the rule being modified and expects to send that straight to the PUT
-// endpoint. In reality (at least for now) the PUT endpoint expects the full
-// list of rules, which means the edit modal should take the full list plus an
-// ID for the one being edited. Then it can apply the user's changes to that one
-// and PUT the full list. I am putting off implementing this aspect of it
-// because we will probably get a normal PUT endpoint that relieves us of having
-// to do all that. See https://github.com/oxidecomputer/omicron/issues/623
-
 type EditProps = {
   onDismiss: () => void
   orgName: string
@@ -504,6 +495,8 @@ type EditProps = {
   originalRule: VpcFirewallRule | null
 }
 
+// TODO: this whole thing. shouldn't take much to fill in the initialValues
+// based on the rule being edited
 export function EditFirewallRuleModal({
   onDismiss,
   orgName,

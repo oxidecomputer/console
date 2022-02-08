@@ -26,7 +26,7 @@ export function parsePortRange(portRange: string): PortRange | null {
 
 export const firewallRuleGetToPut = (
   rule: VpcFirewallRule
-): VpcFirewallRuleUpdate =>
+): NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =>
   pick(
     rule,
     'name',
@@ -37,4 +37,4 @@ export const firewallRuleGetToPut = (
     'priority',
     'status',
     'targets'
-  ) as NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule>
+  )

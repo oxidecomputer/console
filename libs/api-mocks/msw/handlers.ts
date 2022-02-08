@@ -1,6 +1,7 @@
 import type { ResponseTransformer } from 'msw'
 import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
+import { sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
 import { sessionMe } from '../session'
 import type {
@@ -318,7 +319,7 @@ export const handlers = [
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
       const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.ok.id)
-      return res(json({ rules }))
+      return res(json({ rules: sortBy(rules, (r) => r.name) }))
     }
   ),
 
@@ -342,7 +343,7 @@ export const handlers = [
         ...db.vpcFirewallRules.filter((r) => r.vpc_id !== vpc.ok.id),
         ...rules,
       ]
-      return res(json({ rules }))
+      return res(json({ rules: sortBy(rules, (r) => r.name) }))
     }
   ),
 ]
