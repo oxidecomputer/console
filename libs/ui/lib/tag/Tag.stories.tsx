@@ -15,7 +15,7 @@ export const All = () => {
   return (
     <main className="flex flex-wrap">
       <Section title="Normal">
-        <div className="grid grid-cols-2 grid-flow-col w-max gap-y-1 gap-x-6">
+        <div className="grid w-max grid-flow-col grid-cols-2 gap-y-1 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
               <span
@@ -31,7 +31,7 @@ export const All = () => {
         </div>
       </Section>
       <Section title="Narrow">
-        <div className="grid grid-cols-2 grid-flow-col w-max gap-x-6">
+        <div className="grid w-max grid-flow-col grid-cols-2 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
               <span
@@ -51,7 +51,7 @@ export const All = () => {
         </div>
       </Section>
       <Section title="Closable">
-        <div className="grid grid-cols-2 grid-flow-col w-max gap-y-1 gap-x-6">
+        <div className="grid w-max grid-flow-col grid-cols-2 gap-y-1 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
               <span
@@ -71,7 +71,7 @@ export const All = () => {
         </div>
       </Section>
       <Section title="Closable Narrow">
-        <div className="grid grid-cols-2 grid-flow-col w-max gap-x-6">
+        <div className="grid w-max grid-flow-col grid-cols-2 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
               <span

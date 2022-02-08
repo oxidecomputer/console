@@ -6,7 +6,7 @@ export const linkCell =
   (makeHref: (value: string) => string) =>
   ({ value }: Cell<string>) => {
     return (
-      <Link className="text-green-500" to={makeHref(value)}>
+      <Link className="text-accent" to={makeHref(value)}>
         {value}
       </Link>
     )

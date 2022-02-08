@@ -2,6 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const tsBaseConfig = require('../../../tsconfig.json')
 
+process.env.IS_STORYBOOK = true
+
 const findStoryPaths = (
   dir = path.join(__dirname, '../lib'),
   knownStoryPaths = []

@@ -5,5 +5,5 @@ export * from './project'
 export * from './session'
 export * from './vpc'
 
-export { handlers } from './msw/handlers'
+export { handlers, json } from './msw/handlers'
 export { resetDb } from './msw/db'

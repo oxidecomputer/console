@@ -1,211 +1,314 @@
-import { rest } from 'msw'
-import { sessionMe } from '@oxide/api-mocks'
+import type { ResponseTransformer } from 'msw'
+import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
-import type { notFoundErr, OrgParams, ProjectParams, VpcParams } from './db'
-import { db, lookupOrg, lookupProject, lookupVpc } from './db'
+import type { Json } from '../json-type'
+import { sessionMe } from '../session'
+import type {
+  notFoundErr,
+  InstanceParams,
+  OrgParams,
+  ProjectParams,
+  VpcParams,
+  VpcSubnetParams,
+} from './db'
+import {
+  db,
+  lookupInstance,
+  lookupOrg,
+  lookupProject,
+  lookupVpc,
+  lookupVpcSubnet,
+} from './db'
 
-const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' }
+// Note the *JSON types. Those represent actual API request and response bodies,
+// the snake-cased objects coming straight from the API before the generated
+// client camel-cases the keys and parses date fields. Inside the mock API everything
+// is *JSON type.
 
 /// generate random 11 digit hex string
 const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
 
+function getTimestamps() {
+  const now = new Date().toISOString()
+  return { time_created: now, time_modified: now }
+}
+
+/**
+ * Custom transformer: convenience function for less typing. Equivalent to
+ * `res(ctx.status(status), ctx.json(body))` in a handler.
+ *
+ * https://mswjs.io/docs/basics/response-transformer#custom-transformer
+ */
+export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
+  compose(context.status(status), context.json(body))
+
+const alreadyExistsErr = { error_code: 'ObjectAlreadyExists' } as const
+
+const badRequest = (msg: string) =>
+  compose(
+    context.status(400),
+    context.json({
+      request_id: '',
+      error_code: null,
+      message: `unable to parse body: ${msg} at line 1 column 1`,
+    })
+  )
+
 type GetErr = typeof notFoundErr
 type PostErr = typeof alreadyExistsErr | typeof notFoundErr
 
-type Empty = Record<string, never>
-
-function getTimestamps() {
-  const now = new Date().toISOString()
-  return {
-    timeCreated: now,
-    timeModified: now,
-  }
-}
-
 export const handlers = [
-  rest.get('/api/session/me', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(sessionMe))
+  rest.get('/api/session/me', (req, res) => res(json(sessionMe))),
+
+  rest.get<never, never, Json<Api.OrganizationResultsPage>>(
+    '/api/organizations',
+    (req, res) => res(json({ items: db.orgs }))
+  ),
+
+  rest.post<
+    Json<Api.OrganizationCreate>,
+    never,
+    Json<Api.Organization> | PostErr
+  >('/api/organizations', (req, res) => {
+    const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+    if (alreadyExists) return res(json(alreadyExistsErr, 400))
+
+    if (!req.body.name) {
+      return res(badRequest('name requires at least one character'))
+    }
+
+    const newOrg: Json<Api.Organization> = {
+      id: 'org-' + randomHex(),
+      ...req.body,
+      ...getTimestamps(),
+    }
+    db.orgs.push(newOrg)
+    return res(json(newOrg, 201))
   }),
 
-  rest.get<Empty, Empty, Api.OrganizationResultsPage>(
-    '/api/organizations',
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ items: db.orgs }))
-    }
-  ),
-
-  rest.post<Api.OrganizationCreate, Empty, Api.Organization | PostErr>(
-    '/api/organizations',
-    (req, res, ctx) => {
-      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
-      if (alreadyExists) {
-        return res(ctx.status(400), ctx.json(alreadyExistsErr))
-      }
-
-      const newOrg = {
-        id: 'org-' + randomHex(),
-        ...req.body,
-        ...getTimestamps(),
-      }
-      db.orgs.push(newOrg)
-      return res(ctx.status(201), ctx.json(newOrg))
-    }
-  ),
-
-  rest.get<Empty, OrgParams, Api.Organization | GetErr>(
+  rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
     '/api/organizations/:orgName',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
-      return res(ctx.status(200), ctx.json(org.ok))
+      return res(json(org.ok))
     }
   ),
 
-  rest.get<Empty, OrgParams, Api.ProjectResultsPage | GetErr>(
+  rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
-      const projects = db.projects.filter((p) => p.organizationId === org.ok.id)
-      return res(ctx.status(200), ctx.json({ items: projects }))
+      const projects = db.projects.filter(
+        (p) => p.organization_id === org.ok.id
+      )
+      return res(json({ items: projects }))
     }
   ),
 
-  rest.post<Api.ProjectCreate, OrgParams, Api.Project | PostErr>(
+  rest.post<Json<Api.ProjectCreate>, OrgParams, Json<Api.Project> | PostErr>(
     '/api/organizations/:orgName/projects',
     (req, res, ctx) => {
       const org = lookupOrg(req, res, ctx)
       if (org.err) return org.err
 
       const alreadyExists = db.projects.some(
-        (p) => p.organizationId === org.ok.id && p.name === req.body.name
+        (p) => p.organization_id === org.ok.id && p.name === req.body.name
       )
 
-      if (alreadyExists) {
-        return res(ctx.status(400), ctx.json(alreadyExistsErr))
+      if (alreadyExists) return res(json(alreadyExistsErr, 400))
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
       }
 
-      const newProject = {
+      const newProject: Json<Api.Project> = {
         id: 'project-' + randomHex(),
-        organizationId: org.ok.id,
+        organization_id: org.ok.id,
         ...req.body,
         ...getTimestamps(),
       }
       db.projects.push(newProject)
-      return res(ctx.status(201), ctx.json(newProject))
+      return res(json(newProject, 201))
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.Project | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.Project> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
-      return res(ctx.status(200), ctx.json(project.ok))
+      return res(json(project.ok))
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.InstanceResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
       const instances = db.instances.filter(
-        (i) => i.projectId === project.ok.id
+        (i) => i.project_id === project.ok.id
       )
-      return res(ctx.status(200), ctx.json({ items: instances }))
+      return res(json({ items: instances }))
     }
   ),
 
-  rest.post<Api.InstanceCreate, ProjectParams, Api.Instance | PostErr>(
+  rest.get<never, InstanceParams, Json<Api.Instance> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      return res(json(instance.ok))
+    }
+  ),
+
+  rest.post<
+    Json<Api.InstanceCreate>,
+    ProjectParams,
+    Json<Api.Instance> | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
 
       const alreadyExists = db.instances.some(
-        (i) => i.projectId === project.ok.id && i.name === req.body.name
+        (i) => i.project_id === project.ok.id && i.name === req.body.name
       )
       if (alreadyExists) {
-        return res(ctx.status(400), ctx.json(alreadyExistsErr))
+        return res(json(alreadyExistsErr, 400))
       }
 
-      const newInstance: Api.Instance = {
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const newInstance: Json<Api.Instance> = {
         id: 'instance-' + randomHex(),
-        projectId: project.ok.id,
+        project_id: project.ok.id,
         ...req.body,
         ...getTimestamps(),
-        runState: 'stopped',
-        timeRunStateUpdated: new Date().toISOString(),
+        run_state: 'running',
+        time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
-      return res(ctx.status(201), ctx.json(newInstance))
+      return res(json(newInstance, 201))
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.DiskResultsPage | GetErr>(
+  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      instance.ok.run_state = 'running'
+      return res(ctx.status(202), ctx.json(instance.ok))
+    }
+  ),
+
+  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      instance.ok.run_state = 'stopped'
+      return res(ctx.status(202), ctx.json(instance.ok))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
-      const disks = db.disks.filter((d) => d.projectId === project.ok.id)
-      return res(ctx.status(200), ctx.json({ items: disks }))
+      const disks = db.disks.filter((d) => d.project_id === project.ok.id)
+      return res(json({ items: disks }))
     }
   ),
 
-  rest.get<Empty, ProjectParams, Api.VpcResultsPage | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.VpcResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res, ctx) => {
       const project = lookupProject(req, res, ctx)
       if (project.err) return project.err
-      const vpcs = db.vpcs.filter((v) => v.projectId === project.ok.id)
-      return res(ctx.status(200), ctx.json({ items: vpcs }))
+      const vpcs = db.vpcs.filter((v) => v.project_id === project.ok.id)
+      return res(json({ items: vpcs }))
     }
   ),
 
-  rest.get<Empty, VpcParams, Api.Vpc | GetErr>(
+  rest.get<never, VpcParams, Json<Api.Vpc> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
-      return res(ctx.status(200), ctx.json(vpc.ok))
+      return res(json(vpc.ok))
     }
   ),
 
-  rest.get<Empty, VpcParams, Api.VpcSubnetResultsPage | GetErr>(
+  rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
-      const items = db.vpcSubnets.filter((s) => s.vpcId === vpc.ok.id)
-      return res(ctx.status(200), ctx.json({ items }))
+      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.ok.id)
+      return res(json({ items }))
     }
   ),
 
-  rest.post<Api.VpcSubnetCreate, VpcParams, Api.VpcSubnet | PostErr>(
+  rest.post<
+    Json<Api.VpcSubnetCreate>,
+    VpcParams,
+    Json<Api.VpcSubnet> | PostErr
+  >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res, ctx) => {
       const vpc = lookupVpc(req, res, ctx)
       if (vpc.err) return vpc.err
 
       const alreadyExists = db.vpcSubnets.some(
-        (s) => s.vpcId === vpc.ok.id && s.name === req.body.name
+        (s) => s.vpc_id === vpc.ok.id && s.name === req.body.name
       )
-      if (alreadyExists) {
-        return res(ctx.status(400), ctx.json(alreadyExistsErr))
+      if (alreadyExists) return res(json(alreadyExistsErr, 400))
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
       }
 
-      const newSubnet = {
+      const newSubnet: Json<Api.VpcSubnet> = {
         id: 'vpc-subnet-' + randomHex(),
-        vpcId: vpc.ok.id,
-        dnsName: req.body.name,
+        vpc_id: vpc.ok.id,
         ...req.body,
         ...getTimestamps(),
       }
       db.vpcSubnets.push(newSubnet)
-      return res(ctx.status(201), ctx.json(newSubnet))
+      return res(json(newSubnet, 201))
+    }
+  ),
+
+  rest.put<
+    Json<Api.VpcSubnetUpdate>,
+    VpcSubnetParams,
+    Json<Api.VpcSubnet> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
+    (req, res, ctx) => {
+      const subnet = lookupVpcSubnet(req, res, ctx)
+      if (subnet.err) return subnet.err
+
+      // modify object in place for now. TODO: improve this
+      if (req.body.name) {
+        subnet.ok.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        subnet.ok.description = req.body.description
+      }
+      subnet.ok.ipv4_block = req.body.ipv4_block
+      subnet.ok.ipv6_block = req.body.ipv6_block
+      return res(ctx.status(204))
     }
   ),
 ]

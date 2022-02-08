@@ -4,15 +4,20 @@
 @import '@reach/menu-button/styles.css';
 @import '@reach/tabs/styles.css';
 
-@import 'tailwindcss/base';
 @import './themes/main.css';
 @import './themes/operator-mode.css';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --content-gutter: 2.5rem;
+}
 
 @layer base {
   body {
-    @apply bg-black text-gray-50 font-sans overflow-y-hidden;
+    @apply font-sans overflow-y-hidden bg-black text-gray-50;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */

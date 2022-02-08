@@ -4,7 +4,7 @@ import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
 import { classed, pluckFirstOfType } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
-import { Close12Icon } from '../icons'
+import { Close12Icon, OpenLink12Icon } from '../icons'
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -27,7 +27,7 @@ export function SideModal({
       id={id}
       onDismiss={onDismiss}
       {...dialogProps}
-      className="absolute right-0 top-0 bottom-0 w-[32rem] p-0 m-0 flex flex-col justify-between bg-black border-l border-gray-400"
+      className="absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
       aria-labelledby={titleId}
     >
       <div
@@ -35,8 +35,8 @@ export function SideModal({
         className="overflow-y-auto"
       >
         {/* Title */}
-        <div className="flex justify-between mt-2 mb-8 p-6">
-          <h2 className="text-sans-xl" id={titleId}>
+        <div className="mt-2 mb-8 flex justify-between p-6">
+          <h2 className="mt-2 text-sans-2xl" id={titleId}>
             {title}
           </h2>
           <Button variant="link" onClick={onDismiss}>
@@ -51,15 +51,18 @@ export function SideModal({
   )
 }
 
-SideModal.Section = classed.div`p-8 space-y-6 border-gray-400`
+SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
 SideModal.Docs = ({ children }: ChildrenProp) => (
   <SideModal.Section>
     <div>
-      <h3 className="font-medium">Relevant docs</h3>
-      <ul className="text-gray-100">
+      <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
+      <ul className="space-y-0.5 text-sans-md text-secondary">
         {React.Children.map(children, (child) => (
-          <li>{child}</li>
+          <li className="flex items-center space-x-2">
+            <OpenLink12Icon className="mt-0.5 text-accent" />
+            {child}
+          </li>
         ))}
       </ul>
     </div>
@@ -67,7 +70,7 @@ SideModal.Docs = ({ children }: ChildrenProp) => (
 )
 
 SideModal.Footer = ({ children }: ChildrenProp) => (
-  <footer className="flex h-20 p-6 border-t border-gray-400 items-center justify-end">
+  <footer className="flex h-20 items-center justify-end border-t p-6 border-secondary">
     {children}
   </footer>
 )

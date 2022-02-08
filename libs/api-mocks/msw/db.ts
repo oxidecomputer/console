@@ -6,11 +6,12 @@ import type {
   RestContext,
   RestRequest,
 } from 'msw'
+import type { Json } from '../json-type'
 
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
 
-export const notFoundErr = { error_code: 'ObjectNotFound' }
+export const notFoundErr = { error_code: 'ObjectNotFound' } as const
 
 type Result<T> =
   | { ok: T; err: null }
@@ -23,7 +24,17 @@ export type VpcParams = {
   projectName: string
   vpcName: string
 }
-// export type InstanceParams = ProjectParams & { instanceName: string }
+export type InstanceParams = {
+  orgName: string
+  projectName: string
+  instanceName: string
+}
+export type VpcSubnetParams = {
+  orgName: string
+  projectName: string
+  vpcName: string
+  subnetName: string
+}
 
 // lets us make sure you're only calling a lookup function from a handler with
 // the required path params
@@ -33,7 +44,7 @@ export function lookupOrg(
   req: Req<OrgParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Organization> {
+): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === req.params.orgName)
   if (!org) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -45,12 +56,12 @@ export function lookupProject(
   req: Req<ProjectParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Project> {
+): Result<Json<Api.Project>> {
   const org = lookupOrg(req, res, ctx)
   if (org.err) return org // has to be the whole result, not just the error
 
   const project = db.projects.find(
-    (p) => p.organizationId === org.ok.id && p.name === req.params.projectName
+    (p) => p.organization_id === org.ok.id && p.name === req.params.projectName
   )
   if (!project) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
@@ -63,18 +74,54 @@ export function lookupVpc(
   req: Req<VpcParams>,
   res: ResponseComposition,
   ctx: RestContext
-): Result<Api.Vpc> {
+): Result<Json<Api.Vpc>> {
   const project = lookupProject(req, res, ctx)
   if (project.err) return project // has to be the whole result, not just the error
 
   const vpc = db.vpcs.find(
-    (p) => p.projectId === project.ok.id && p.name === req.params.vpcName
+    (p) => p.project_id === project.ok.id && p.name === req.params.vpcName
   )
   if (!vpc) {
     return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
   }
 
   return { ok: vpc, err: null }
+}
+
+export function lookupInstance(
+  req: Req<InstanceParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Json<Api.Instance>> {
+  const project = lookupProject(req, res, ctx)
+  if (project.err) return project // has to be the whole result, not just the error
+
+  const instance = db.instances.find(
+    (p) => p.project_id === project.ok.id && p.name === req.params.instanceName
+  )
+  if (!instance) {
+    return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
+  }
+
+  return { ok: instance, err: null }
+}
+
+export function lookupVpcSubnet(
+  req: Req<VpcSubnetParams>,
+  res: ResponseComposition,
+  ctx: RestContext
+): Result<Json<Api.VpcSubnet>> {
+  const vpc = lookupVpc(req, res, ctx)
+  if (vpc.err) return vpc // has to be the whole result, not just the error
+
+  const subnet = db.vpcSubnets.find(
+    (p) => p.vpc_id === vpc.ok.id && p.name === req.params.subnetName
+  )
+  if (!subnet) {
+    return { ok: null, err: res(ctx.status(404), ctx.json(notFoundErr)) }
+  }
+
+  return { ok: subnet, err: null }
 }
 
 const initDb = {
