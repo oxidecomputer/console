@@ -1,15 +1,12 @@
 import React from 'react'
 import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { useParams } from '../../../hooks'
+import { useParams } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
 export const VpcsPage = () => {
-  const { orgName: organizationName, projectName } = useParams(
-    'orgName',
-    'projectName'
-  )
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('projectVpcsGet', {
-    organizationName,
+    orgName,
     projectName,
   })
   return (
@@ -22,8 +19,7 @@ export const VpcsPage = () => {
         <Column
           id="name"
           cell={linkCell(
-            (name) =>
-              `/orgs/${organizationName}/projects/${projectName}/vpcs/${name}`
+            (name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`
           )}
         />
         <Column id="dnsName" header="dns name" />

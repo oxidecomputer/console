@@ -1,40 +1,21 @@
 import React from 'react'
-import { useParams } from '../../../../../hooks'
+import { useParams } from 'app/hooks'
 import { useQueryTable, TypeValueCell } from '@oxide/table'
 
 export const VpcSystemRoutesTab = () => {
-  const { orgName: organizationName, ...other } = useParams(
-    'orgName',
-    'projectName',
-    'vpcName'
-  )
+  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('routersRoutesGet', {
     routerName: 'system',
-    organizationName,
-    ...other,
+    ...vpcParams,
   })
 
   return (
     <Table>
-      <Column id="name" header="Name" accessor="identity.name" />
-      <Column
-        id="destination"
-        header="destination"
-        accessor="destination"
-        cell={TypeValueCell}
-      />
-      <Column
-        id="target"
-        header="target"
-        accessor="target"
-        cell={TypeValueCell}
-      />
-      <Column
-        id="description"
-        header="description"
-        accessor="identity.description"
-      />
+      <Column id="name" header="Name" />
+      <Column id="destination" header="destination" cell={TypeValueCell} />
+      <Column id="target" header="target" cell={TypeValueCell} />
+      <Column id="description" header="description" />
     </Table>
   )
 }

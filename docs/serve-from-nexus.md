@@ -42,12 +42,8 @@ Whatever the directory is, the files need to be at top level, just like they are
 │   ├── Inter-Black.05f95cac.ttf
 │   ├── ...
 │   └── vendor.b63b8457.js.map
-├── docs
-│   └── index.html
 └── index.html
 ```
-
-(`docs/` doesn't matter for now but it's easier to leave it in than take it out.)
 
 ### Navigate to console in browser
 

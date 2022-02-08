@@ -5,21 +5,25 @@ import cn from 'classnames'
 import { useApiQuery } from '@oxide/api'
 import { SkipLinkTarget, Add12Icon } from '@oxide/ui'
 
-import { ContentPane, PageContainer, Sidebar } from './helpers'
+import {
+  ContentPane,
+  ContentPaneWrapper,
+  PageContainer,
+  Sidebar,
+} from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 
 const ProjectList = (props: { className?: string }) => {
   const { orgName } = useParams('orgName')
-  const { data: projects } = useApiQuery('organizationProjectsGet', {
-    organizationName: orgName,
-  })
+  const { data: projects } = useApiQuery('organizationProjectsGet', { orgName })
   return (
     <section className={cn('space-y-2', props.className)}>
-      <header className="p-1 space-x-2 uppercase text-xs font-mono text-green-500">
+      <header className="text-xs space-x-2 p-1 font-mono uppercase text-green-500">
         Projects
       </header>
-      <ul className="space-y-0.5 text-gray-200 font-light text-sm">
+      <ul className="text-sm space-y-0.5 font-light text-gray-200">
         {projects?.items.map((p) => (
           <li className="hover:bg-gray-400" key={p.id}>
             <NavLink
@@ -32,9 +36,9 @@ const ProjectList = (props: { className?: string }) => {
           </li>
         ))}
       </ul>
-      <footer className="p-1 flex">
+      <footer className="flex p-1">
         <Link
-          className="text-xs inline-flex uppercase text-gray-100 font-mono"
+          className="text-xs inline-flex font-mono uppercase text-gray-100"
           to={`/orgs/${orgName}/projects/new`}
         >
           <Add12Icon title="Add a project" className="mr-1.5 mt-0.5" />
@@ -50,11 +54,14 @@ const OrgLayout = () => (
     <Sidebar>
       <ProjectList className="mt-14 px-3" />
     </Sidebar>
-    <ContentPane>
-      <Breadcrumbs />
-      <SkipLinkTarget />
-      <Outlet />
-    </ContentPane>
+    <ContentPaneWrapper>
+      <ContentPane>
+        <TopBar />
+        <Breadcrumbs />
+        <SkipLinkTarget />
+        <Outlet />
+      </ContentPane>
+    </ContentPaneWrapper>
   </PageContainer>
 )
 

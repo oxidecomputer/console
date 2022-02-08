@@ -29,10 +29,7 @@
 /.sass-cache
 /connect.lock
 /coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
+*.log
 /typings
 .env
 

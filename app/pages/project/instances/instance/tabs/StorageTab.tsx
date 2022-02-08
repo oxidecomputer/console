@@ -5,8 +5,8 @@ import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { Table } from '@oxide/table'
-import { useParams } from '../../../../../hooks'
-import { DiskStatusBadge } from '../../../../../components/StatusBadge'
+import { useParams } from 'app/hooks'
+import { DiskStatusBadge } from 'app/components/StatusBadge'
 
 const columns = [
   {
@@ -34,7 +34,7 @@ export function StorageTab() {
   )
   const { data } = useApiQuery(
     'instanceDisksGet',
-    { organizationName: orgName, projectName, instanceName },
+    { orgName, projectName, instanceName },
     { refetchInterval: 5000 }
   )
 
@@ -48,12 +48,12 @@ export function StorageTab() {
 
   return (
     <div className="mt-8">
-      <h2 className="text-mono-sm uppercase mb-4 text-gray-200">Boot disk</h2>
+      <h2 className="mb-4 uppercase text-gray-200 text-mono-sm">Boot disk</h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} rowClassName="!h-10" />
-      <h2 className="text-mono-sm uppercase text-gray-200 mt-12 mb-4">
+      <h2 className="mt-12 mb-4 uppercase text-gray-200 text-mono-sm">
         Attached Disks
       </h2>
       <Table table={otherDisksTable} rowClassName="!h-10" />

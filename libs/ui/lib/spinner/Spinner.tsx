@@ -15,7 +15,7 @@ export const Spinner = ({ className }: SpinnerProps) => {
   }, 150)
 
   return (
-    <span className={cn('font-mono text-green-500', className)}>
+    <span className={cn('text-mono-lg text-accent', className)}>
       {FRAMES[index]}
     </span>
   )

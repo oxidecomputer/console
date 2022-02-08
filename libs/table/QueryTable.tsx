@@ -131,7 +131,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
 
     const getRowId = useCallback(
       (row, relativeIndex, parent) => {
-        if (!rowId) return row.id || row?.identity?.id
+        if (!rowId) return row.id
         return typeof rowId === 'string'
           ? unsafe_get(row, rowId)
           : rowId(row, relativeIndex, parent)
@@ -175,8 +175,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
       [pageSize, tableData.length, (data as any)?.next_page]
     )
 
-    if (isLoading || (tableData.items?.length === 0 && !hasPrev))
-      return <div>loading</div>
+    if (isLoading || (tableData.items?.length === 0 && !hasPrev)) return null
 
     return (
       <>

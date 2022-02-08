@@ -1,16 +1,11 @@
-import React from 'react'
 import {
   fireEvent,
-  lastBody,
-  renderWithRouter,
+  override,
+  renderAppAt,
   screen,
   waitFor,
-} from '../../test-utils'
-import fetchMock from 'fetch-mock'
-
+} from 'app/test-utils'
 import { org, project } from '@oxide/api-mocks'
-
-import { ProjectCreateForm } from '../ProjectCreatePage'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
 
@@ -22,99 +17,79 @@ function enterName(value: string) {
   fireEvent.change(nameInput, { target: { value } })
 }
 
-let successSpy: jest.Mock
+const formUrl = `/orgs/${org.name}/projects/new`
 
-describe('ProjectCreateForm', () => {
-  beforeEach(() => {
-    successSpy = jest.fn()
-    renderWithRouter(
-      <ProjectCreateForm orgName={org.name} onSuccess={successSpy} />
-    )
-    enterName('valid-name')
-  })
-
-  afterEach(() => {
-    fetchMock.reset()
-  })
-
-  it('disables submit button on submit and enables on response', async () => {
-    const mock = fetchMock.post(projectsUrl, { status: 201 })
+describe('ProjectCreatePage', () => {
+  it('disables submit button on submit', async () => {
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     const submit = submitButton()
     expect(submit).not.toBeDisabled()
 
     fireEvent.click(submit)
 
-    expect(mock.called()).toBeFalsy()
     await waitFor(() => expect(submit).toBeDisabled())
-    expect(mock.done()).toBeTruthy()
-    expect(submit).not.toBeDisabled()
   })
 
   it('shows message for known error code in project create code map', async () => {
-    fetchMock.post(projectsUrl, {
-      status: 400,
-      body: { error_code: 'ObjectAlreadyExists' },
-    })
+    renderAppAt(formUrl)
+    enterName(project.name) // already exists
 
     fireEvent.click(submitButton())
 
     await screen.findByText(
       'A project with that name already exists in this organization'
     )
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows message for known error code in global code map', async () => {
-    fetchMock.post(projectsUrl, {
-      status: 401,
-      body: { error_code: 'Forbidden' },
-    })
+    override('post', projectsUrl, 403, { error_code: 'Forbidden' })
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
     await screen.findByText('Action not authorized')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows field-level validation error and does not POST', async () => {
+    renderAppAt(formUrl)
     enterName('Invalid-name')
     fireEvent.click(submitButton())
 
     await screen.findByText('Must start with a lower-case letter')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
   it('shows generic message for unknown server error', async () => {
-    fetchMock.post(projectsUrl, {
-      status: 400,
-      body: { error_code: 'UnknownCode' },
-    })
+    override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
 
     fireEvent.click(submitButton())
 
     await screen.findByText('Unknown error from server')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
   })
 
-  it('posts form on submit', async () => {
-    const mock = fetchMock.post(projectsUrl, { status: 201 })
+  it('navigates to project instances page on success', async () => {
+    renderAppAt(formUrl)
+    enterName('mock-project-2')
+
+    const projectPath = `/orgs/${org.name}/projects/mock-project-2/instances`
+    expect(window.location.pathname).not.toEqual(projectPath)
 
     fireEvent.click(submitButton())
 
-    await waitFor(() =>
-      expect(lastBody(mock)).toEqual({ name: 'valid-name', description: '' })
-    )
-  })
+    await waitFor(() => expect(window.location.pathname).toEqual(projectPath))
 
-  it('calls onSuccess on success', async () => {
-    const mock = fetchMock.post(projectsUrl, {
-      status: 201,
-      body: project,
-    })
-
-    expect(successSpy).not.toHaveBeenCalled()
-
-    fireEvent.click(submitButton())
-
-    await waitFor(() => expect(mock.called()).toBeTruthy())
-    await waitFor(() => expect(mock.done()).toBeTruthy())
-    await waitFor(() => expect(successSpy).toHaveBeenCalled())
+    // TODO: navigate to projects page so you can see the project in the list?
   })
 })

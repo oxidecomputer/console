@@ -43,9 +43,9 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { classed } from '../../util/classed'
+import { classed } from '@oxide/util'
 
-export const RadioGroupHint = classed.p`text-base text-gray-100 font-sans font-light max-w-3xl`
+export const RadioGroupHint = classed.p`text-base text-secondary font-sans-sm max-w-3xl`
 
 export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group

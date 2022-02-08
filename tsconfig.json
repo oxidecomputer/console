@@ -11,10 +11,12 @@
     "incremental": true,
     "jsx": "react-jsx",
     "lib": ["es2019", "dom"],
+    "module": "es2020",
     "moduleResolution": "node",
     "noEmit": true,
     "outDir": "dist",
     "paths": {
+      "app/*": ["app/*"],
       "@oxide/api": ["libs/api/index.ts"],
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
       "@oxide/ui": ["libs/ui/index.ts"],
@@ -28,6 +30,6 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2015",
-    "types": ["node", "jest"]
+    "types": ["node"]
   }
 }

@@ -27,6 +27,11 @@ export default {
             <Table.Cell>Another daily</Table.Cell>
             <Table.Cell>An average example</Table.Cell>
           </Table.Row>
+          <Table.Row>
+            <Table.Cell>xyz-342</Table.Cell>
+            <Table.Cell>Another thing</Table.Cell>
+            <Table.Cell>Repeated example</Table.Cell>
+          </Table.Row>
         </Table.Body>
       </Table>
     )

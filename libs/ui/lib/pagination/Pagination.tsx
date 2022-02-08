@@ -10,7 +10,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'ring-1 ring-inset ring-gray-400 text-gray-100 uppercase text-mono-sm rounded-sm h-4 pb-[3px] pt-[1px] px-[3px] whitespace-nowrap',
+        'h-4 whitespace-nowrap rounded-sm px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary ring-default',
         className
       )}
     >
@@ -44,19 +44,19 @@ export const Pagination = ({
       <div
         className={cn(
           type === 'page' && 'py-5',
-          'flex space-between text-mono-sm uppercase text-gray-100 items-center',
+          'space-between flex items-center text-mono-xs text-default bg-default',
           className
         )}
       >
-        <span className="flex-grow text-gray-200 flex-inline">
+        <span className="flex-inline flex-grow text-tertiary">
           rows per page <PageInput number={pageSize} />
         </span>
         {(hasNext || hasPrev) && (
-          <span className="space-x-2 flex">
+          <span className="flex space-x-2">
             <button
               className={cn(
-                !hasPrev && 'text-gray-300',
-                'flex items-center uppercase'
+                !hasPrev && 'text-secondary',
+                'flex items-center text-mono-xs'
               )}
               disabled={!hasPrev}
               onClick={onPrev}
@@ -65,15 +65,15 @@ export const Pagination = ({
                 title="previous page"
                 className={cn(
                   'mr-0.5',
-                  hasPrev ? 'text-gray-50' : 'text-gray-400'
+                  hasPrev ? 'text-default' : 'text-quaternary'
                 )}
               />
               prev
             </button>
             <button
               className={cn(
-                !hasNext && 'text-gray-300',
-                'flex items-center uppercase'
+                !hasNext && 'text-secondary',
+                'flex items-center text-mono-xs'
               )}
               disabled={!hasNext}
               // nextPage will be defined if hasNext is true
@@ -85,7 +85,7 @@ export const Pagination = ({
                 title="next page"
                 className={cn(
                   'ml-0.5',
-                  hasNext ? 'text-gray-50' : 'text-gray-400'
+                  hasNext ? 'text-default' : 'text-quaternary'
                 )}
               />
             </button>

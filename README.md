@@ -6,9 +6,9 @@ Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omi
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
-- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [Mock Service Workers](https://mswjs.io/)
 - [Tailwind](https://tailwindcss.com/)
-- [OpenAPI Generator](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
+- [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
 - [Vite](https://vitejs.dev/)
 - [Storybook](https://storybook.js.org/) (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
 
@@ -19,8 +19,6 @@ The app is in [`app`](app). You can see the route structure in [`app/app.tsx`](a
 ## Try it
 
 The console is automatically deployed to GCP for testing purposes. It uses the real API, but the underlying systems are simulated as in local dev, so, e.g., while you can create "instances" (CockroachDB rows representing instances), they are not instantiated as running VMs. [Set up Tailscale](https://github.com/oxidecomputer/meta/blob/master/general/vpn.md) and go to https://console-git-main.internal.oxide.computer to see the main branch. PRs are deployed to `console-git-<branch_name>.internal.oxide.computer`.
-
-The deployed instance includes a very barebones API docs page powered by [Redoc](https://github.com/Redocly/redoc). See it [here](https://console-git-main.internal.oxide.computer/docs/).
 
 ## Development
 
@@ -38,11 +36,25 @@ yarn storybook
 
 This will start the storybook for the `ui` component library and start it on `http://localhost:4400`.
 
-### Run dev server
+### Run with [MSW](https://mswjs.io/) mock API
 
-Run `yarn start` and navigate to http://localhost:4000/. The app will automatically reload if you change code. In order for this to work, you need to run the API as well.
+This is the easiest way to run the console locally. Just run:
 
-### Run API
+```
+yarn start:msw
+```
+
+and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
+
+### Run with real API
+
+You can also run the console against a real instance of Nexus, the API.
+
+#### Run dev server
+
+Run `yarn start` and navigate to http://localhost:4000/ in the browser. The running app will automatically update if you change the source code. It will mostly not work until you run the API.
+
+#### Run API
 
 Clone [omicron](https://github.com/oxidecomputer/omicron) in the same parent directory as the console and install [rustup](https://rustup.rs/). Then:
 
@@ -102,16 +114,18 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 </details>
 
-### Useful commands
+### Other useful commands
 
-| Command     | Description                                                      |
-| ----------- | ---------------------------------------------------------------- |
-| `yarn test` | Jest tests. Takes Jest flags like `--onlyChanged` or `--watch`   |
-| `yarn lint` | ESLint                                                           |
-| `yarn tsc`  | Check types                                                      |
-| `yarn ci`   | Lint, tests, and types                                           |
-| `yarn fmt`  | Format everything. Rarely necessary thanks to editor integration |
-| `yarn gen`  | Generate components, stories, tests, etc                         |
+| Command         | Description                                                                        |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `yarn test:run` | Vitest tests                                                                       |
+| `yarn test`     | Vitest tests in watch mode                                                         |
+| `yarn lint`     | ESLint                                                                             |
+| `yarn tsc`      | Check types                                                                        |
+| `yarn ci`       | Lint, tests, and types                                                             |
+| `yarn fmt .`    | Format everything. Rarely necessary thanks to editor integration                   |
+| `yarn gen`      | Generate components, stories, tests, etc                                           |
+| `yarn gen-api`  | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 
 ## Relevant documents
 

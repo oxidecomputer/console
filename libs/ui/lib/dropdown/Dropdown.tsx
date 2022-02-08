@@ -5,6 +5,7 @@ import cn from 'classnames'
 import { useSelect } from 'downshift'
 
 import { DirectionDownIcon } from '../icons'
+import { FieldTitle } from '../field-title/FieldTitle'
 
 type Item = { value: string; label: string }
 
@@ -43,17 +44,20 @@ export const Dropdown: FC<DropdownProps> = ({
 
   return (
     <div className={cn('relative', className)}>
-      <label
-        className={showLabel ? 'text-white text-sm' : 'sr-only'}
+      <FieldTitle
         {...select.getLabelProps()}
+        className={cn(!showLabel && 'sr-only')}
       >
         {label}
-      </label>
+      </FieldTitle>
       <button
         type="button"
-        className={`flex items-center justify-between mt-1 py-2 px-4 w-full
-          text-base text-white bg-gray-400 hover:bg-gray-400
-          focus:ring-1 focus:ring-green-500`}
+        className={cn(
+          `mt-1 flex w-full items-center justify-between rounded-sm border
+          py-2 px-4 text-sans-md bg-default border-default
+          hover:bg-raise focus:ring-1 focus:ring-accent-secondary`,
+          select.isOpen ? 'text-secondary' : 'text-default'
+        )}
         aria-describedby={hintId}
         {...select.getToggleButtonProps()}
       >
@@ -63,7 +67,10 @@ export const Dropdown: FC<DropdownProps> = ({
         <DirectionDownIcon title="Select" className="ml-5" />
       </button>
       <ul
-        className="z-10 mt-1 absolute left-0 right-0 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
+        className={cn(
+          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-1 overflow-y-auto rounded-sm border-0 bg-default children:border children:border-b-0 children:border-default last:children:border-b',
+          select.isOpen && 'border'
+        )}
         {...select.getMenuProps()}
       >
         {select.isOpen &&
@@ -71,8 +78,10 @@ export const Dropdown: FC<DropdownProps> = ({
             <li
               key={item.value}
               className={cn(
-                'py-2 px-4 text-sm text-gray-50 focus:bg-gray-400 focus:ring-1 focus:ring-green-500',
-                select.highlightedIndex === index && 'bg-gray-400'
+                'text-sm py-2 px-4 text-gray-50 text-default hover:bg-raise',
+                select.selectedItem?.value === item.value &&
+                  'm-0.5 rounded-sm outline outline-accent-secondary',
+                select.highlightedIndex === index && 'bg-raise'
               )}
               {...select.getItemProps({ item, index })}
             >
@@ -81,7 +90,7 @@ export const Dropdown: FC<DropdownProps> = ({
           ))}
       </ul>
       {hint && hintId && (
-        <div id={hintId} className="text-sm mt-1 text-gray-50">
+        <div id={hintId} className="mt-1 text-mono-sm text-secondary">
           {hint}
         </div>
       )}

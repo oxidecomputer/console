@@ -1,4 +1,6 @@
+export * from './classed'
 export * from './str'
 export * from './invariant'
 export * from './object'
 export * from './children'
+export * from './unreachable'

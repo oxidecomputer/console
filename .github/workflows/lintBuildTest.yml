@@ -27,11 +27,11 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Test
+        run: yarn test:run
+
       - name: Build
         run: yarn build
 
       - name: Build for Nexus
         run: yarn build-for-nexus
-
-      - name: Test
-        run: yarn test

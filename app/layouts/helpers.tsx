@@ -1,5 +1,5 @@
 import './helpers.css'
-import { classed } from '@oxide/ui'
+import { classed } from '@oxide/util'
 
 export const PageContainer = classed.div`ox-page-container`
 export const Sidebar = classed.div`ox-sidebar`

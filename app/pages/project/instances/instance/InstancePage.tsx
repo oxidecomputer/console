@@ -8,26 +8,21 @@ import {
 } from '@oxide/ui'
 import { useApiQuery } from '@oxide/api'
 import React from 'react'
-import { useParams } from '../../../../hooks'
-import { InstanceStatusBadge } from '../../../../components/StatusBadge'
+import { useParams } from 'app/hooks'
+import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import filesize from 'filesize'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 
 export const InstancePage = () => {
-  const {
-    orgName: organizationName,
-    projectName,
-    instanceName,
-  } = useParams('orgName', 'projectName', 'instanceName')
-  // const { Table, Column } = useQueryTable('projectInstancesGetInstance', {
-  //   organizationName,
-  //   projectName,
-  //   instanceName,
-  // })
+  const { orgName, projectName, instanceName } = useParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
 
   const { data: instance } = useApiQuery('projectInstancesGetInstance', {
-    organizationName,
+    orgName,
     projectName,
     instanceName,
   })
@@ -45,12 +40,12 @@ export const InstancePage = () => {
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             {instance.ncpus}
-            <span className="text-gray-300 ml-1"> vCPUs</span>
+            <span className="ml-1 text-gray-300"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(filesize(instance.memory, { output: 'object' }) as any).value}
-            <span className="text-gray-300 ml-1"> GiB</span>
+            <span className="ml-1 text-gray-300"> GiB</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

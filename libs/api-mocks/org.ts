@@ -1,11 +1,12 @@
 import type { Organization, OrganizationResultsPage } from '@oxide/api'
+import type { Json } from './json-type'
 
-export const org: Organization = {
-  id: 'mock-org-uuid',
-  name: 'mock-org',
+export const org: Json<Organization> = {
+  id: 'org-uuid',
+  name: 'maze-war',
   description: 'a fake org',
-  timeCreated: new Date(2021, 0, 1).toISOString(),
-  timeModified: new Date(2021, 0, 2).toISOString(),
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 2).toISOString(),
 }
 
-export const orgs: OrganizationResultsPage = { items: [org] }
+export const orgs: Json<OrganizationResultsPage> = { items: [org] }

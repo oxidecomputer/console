@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { matchRoutes } from 'react-router'
-import { renderWithRouter } from './test-utils'
-import fetchMock from 'fetch-mock'
+import { renderAppAt } from './test-utils'
 
 import { projects } from '@oxide/api-mocks'
 
-import { routes, getRouteConfig } from './routes'
+import { getRouteConfig } from './routes'
 
 describe('routes', () => {
-  afterEach(() => {
-    fetchMock.reset()
-  })
-
   it('should render successfully', async () => {
-    fetchMock.get('/api/organizations/maze-war/projects', projects)
-    const { findAllByText } = renderWithRouter(routes)
+    const { findAllByText } = renderAppAt('/')
     await findAllByText(projects.items[0].name)
   })
 })
@@ -29,13 +23,13 @@ describe('routeConfig', () => {
     expect(matches[0].pathname).toEqual('/')
     // second/last is the full match
     expect(matches[1]).toMatchInlineSnapshot(`
-      Object {
-        "params": Object {
+      {
+        "params": {
           "*": "abc/def/ghi",
         },
         "pathname": "/abc/def/ghi",
         "pathnameBase": "/",
-        "route": Object {
+        "route": {
           "element": <NotFound />,
           "path": "*",
         },

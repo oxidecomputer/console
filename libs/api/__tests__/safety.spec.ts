@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { execSync } from 'child_process'
 
 describe('Generated API client version', () => {
   it('matches API version specified for deployment', () => {
@@ -17,7 +18,15 @@ describe('Generated API client version', () => {
     const deployedVersion = /API_VERSION: ([0-9a-f]+)/.exec(packerConfig)?.[1]
 
     // if this test fails, most likely you have updated the API_VERSION in packer.yaml
-    // without re-running tools/generate_api_client.sh
+    // without re-running `yarn gen-api`
     expect(generatedVersion).toEqual(deployedVersion)
   })
+})
+
+it('@oxide/api-mocks is only referenced in test files', () => {
+  const stdOut = execSync('git grep -l "from \'@oxide/api-mocks\'"')
+  const files = stdOut.toString().trim().split('\n')
+  for (const file of files) {
+    expect(file).toMatch(/__tests__|test-utils|\.spec\.|tsconfig|api-mocks/)
+  }
 })

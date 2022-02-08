@@ -4,6 +4,7 @@ import type {
   UseQueryOptions,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { navToLogin } from './nav-to-login'
 
 import type { HttpResponse } from './__generated__/Api'
 
@@ -30,12 +31,25 @@ type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 type ErrorData = {
-  request_id: string
-  error_code: string | null
+  requestId: string
+  errorCode: string | null
   message: string
 }
 
 export type ErrorResponse = HttpResponse<null, ErrorData>
+
+function navToLoginIf401(resp: ErrorResponse) {
+  // if logged out, hit /login to trigger login redirect
+  if (resp.status === 401) {
+    // TODO-usability: for background requests, a redirect to login without
+    // warning could come as a surprise to the user, especially because
+    // sometimes background requests are not directly triggered by a user
+    // action, e.g., polling or refetching when window regains focus
+    navToLogin({ includeCurrent: true })
+  }
+  // we need to rethrow because that's how react-query knows it's an error
+  throw resp
+}
 
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
@@ -62,7 +76,10 @@ export const getUseApiQuery =
       // The generated client already throws on error responses, which is what
       // react-query wants, so we don't have to handle the error case explicitly
       // here.
-      () => api[method](params).then((resp) => resp.data),
+      () =>
+        api[method](params)
+          .then((resp) => resp.data)
+          .catch(navToLoginIf401),
       options
     )
 
@@ -74,7 +91,9 @@ export const getUseApiMutation =
   ) =>
     useMutation(
       ({ body, ...params }) =>
-        api[method](params, body).then((resp) => resp.data),
+        api[method](params, body)
+          .then((resp) => resp.data)
+          .catch(navToLoginIf401),
       options
     )
 

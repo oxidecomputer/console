@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
-import { useParams } from '../../../hooks'
+import { useParams } from 'app/hooks'
 import {
   linkCell,
   DateCell,
@@ -16,18 +16,15 @@ import { useInstanceActions } from './actions'
 export const InstancesPage = () => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { data: project } = useApiQuery('organizationProjectsGetProject', {
-    organizationName: orgName,
+    orgName,
     projectName,
   })
 
-  const actions = useInstanceActions({ organizationName: orgName, projectName })
+  const actions = useInstanceActions({ orgName, projectName })
 
   const { Table, Column } = useQueryTable(
     'projectInstancesGet',
-    {
-      organizationName: orgName,
-      projectName,
-    },
+    { orgName, projectName },
     {
       refetchInterval: 5000,
       keepPreviousData: true,
@@ -49,7 +46,7 @@ export const InstancesPage = () => {
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
           className={buttonStyle({ size: 'xs', variant: 'dim' })}
         >
-          new instance
+          New Instance
         </Link>
       </div>
       <Table selectable actions={actions}>
