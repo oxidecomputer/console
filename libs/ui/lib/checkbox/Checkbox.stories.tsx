@@ -1,6 +1,7 @@
 import { Checkbox } from './Checkbox'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Checkbox>>
 
@@ -12,6 +13,30 @@ export default {
     children: { control: 'text' },
   },
 } as Story
+
+export const All = () => {
+  return (
+    <div className="flex flex-col space-y-2">
+      <Checkbox>default</Checkbox>
+      <Checkbox className=":hover">hover</Checkbox>
+      <Checkbox className=":focus">focus</Checkbox>
+      <Checkbox checked>selected</Checkbox>
+      <Checkbox indeterminate>partial</Checkbox>
+      <Checkbox indeterminate className=":hover">
+        hover, partial
+      </Checkbox>
+      <Checkbox indeterminate className=":focus">
+        focus, partial
+      </Checkbox>
+      <Checkbox checked className=":hover">
+        hover, selected
+      </Checkbox>
+      <Checkbox checked className=":focus">
+        focus, selected
+      </Checkbox>
+    </div>
+  )
+}
 
 export const Unchecked: Story = {
   args: { checked: false, indeterminate: false, children: 'Label' },

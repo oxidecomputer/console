@@ -8,4 +8,8 @@ export default {
   component: SkipLink,
 } as Story
 
-export const Default: Story = {}
+export const Default: Story = {
+  args: {
+    className: ':focus',
+  },
+}

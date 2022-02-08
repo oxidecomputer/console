@@ -29,30 +29,6 @@ module.exports.textUtilities = {
     'letter-spacing': '0.04rem',
     'text-transform': 'uppercase',
   },
-  '.text-mono-xs-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.625rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-sm-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.6875rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-md-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.75rem',
-    'letter-spacing': '0.04rem',
-  },
-  '.text-mono-lg-uncased': {
-    'font-family': '"GT America Mono", monospace',
-    'font-weight': 400,
-    'font-size': '0.875rem',
-    'letter-spacing': '0.04rem',
-  },
   '.text-sans-xl': {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
@@ -85,15 +61,6 @@ module.exports.textUtilities = {
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
   },
-  '.text-sans-sm-underline': {
-    'font-family':
-      'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
-    'font-weight': 400,
-    'line-height': '1.125rem',
-    'font-size': '0.8125rem',
-    'letter-spacing': '0.05rem',
-    'text-decoration': 'underline',
-  },
   '.text-sans-md': {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
@@ -114,7 +81,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 500,
-    'line-height': '0.975rem',
+    'line-height': '1.125rem',
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
   },
@@ -133,14 +100,6 @@ module.exports.textUtilities = {
     'line-height': '1.3rem',
     'font-size': '1rem',
     'letter-spacing': '0.03rem',
-  },
-  '.text-sans-italic-sm': {
-    'font-family':
-      'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
-    'font-weight': 400,
-    'line-height': '1.125rem',
-    'font-size': '0.8125rem',
-    'letter-spacing': '0.05rem',
   },
 }
 
@@ -163,6 +122,9 @@ module.exports.colorUtilities = {
   '.text-accent-secondary': {
     color: 'var(--content-accent-secondary)',
   },
+  '.text-accent-tertiary': {
+    color: 'var(--content-accent-tertiary)',
+  },
   '.text-accent-disabled': {
     color: 'var(--content-accent-disabled)',
   },
@@ -172,6 +134,9 @@ module.exports.colorUtilities = {
   '.text-destructive-secondary': {
     color: 'var(--content-destructive-secondary)',
   },
+  '.text-destructive-tertiary': {
+    color: 'var(--content-destructive-tertiary)',
+  },
   '.text-destructive-disabled': {
     color: 'var(--content-destructive-disabled)',
   },
@@ -180,6 +145,9 @@ module.exports.colorUtilities = {
   },
   '.text-notice-secondary': {
     color: 'var(--content-notice-secondary)',
+  },
+  '.text-notice-tertiary': {
+    color: 'var(--content-notice-tertiary)',
   },
   '.text-notice-disabled': {
     color: 'var(--content-notice-disabled)',
@@ -286,6 +254,266 @@ module.exports.colorUtilities = {
   '.border-notice-tertiary': {
     'border-color': 'var(--stroke-notice-tertiary)',
   },
+  '.border-l-default': {
+    'border-left-color': 'var(--stroke-default)',
+  },
+  '.border-l-secondary': {
+    'border-left-color': 'var(--stroke-secondary)',
+  },
+  '.border-l-tertiary': {
+    'border-left-color': 'var(--stroke-tertiary)',
+  },
+  '.border-l-raise': {
+    'border-left-color': 'var(--stroke-raise)',
+  },
+  '.border-l-accent': {
+    'border-left-color': 'var(--stroke-accent)',
+  },
+  '.border-l-accent-secondary': {
+    'border-left-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-l-accent-tertiary': {
+    'border-left-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-l-destructive': {
+    'border-left-color': 'var(--stroke-destructive)',
+  },
+  '.border-l-destructive-secondary': {
+    'border-left-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-l-destructive-tertiary': {
+    'border-left-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-l-notice': {
+    'border-left-color': 'var(--stroke-notice)',
+  },
+  '.border-l-notice-secondary': {
+    'border-left-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-l-notice-tertiary': {
+    'border-left-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.border-r-default': {
+    'border-right-color': 'var(--stroke-default)',
+  },
+  '.border-r-secondary': {
+    'border-right-color': 'var(--stroke-secondary)',
+  },
+  '.border-r-tertiary': {
+    'border-right-color': 'var(--stroke-tertiary)',
+  },
+  '.border-r-raise': {
+    'border-right-color': 'var(--stroke-raise)',
+  },
+  '.border-r-accent': {
+    'border-right-color': 'var(--stroke-accent)',
+  },
+  '.border-r-accent-secondary': {
+    'border-right-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-r-accent-tertiary': {
+    'border-right-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-r-destructive': {
+    'border-right-color': 'var(--stroke-destructive)',
+  },
+  '.border-r-destructive-secondary': {
+    'border-right-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-r-destructive-tertiary': {
+    'border-right-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-r-notice': {
+    'border-right-color': 'var(--stroke-notice)',
+  },
+  '.border-r-notice-secondary': {
+    'border-right-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-r-notice-tertiary': {
+    'border-right-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.border-t-default': {
+    'border-top-color': 'var(--stroke-default)',
+  },
+  '.border-t-secondary': {
+    'border-top-color': 'var(--stroke-secondary)',
+  },
+  '.border-t-tertiary': {
+    'border-top-color': 'var(--stroke-tertiary)',
+  },
+  '.border-t-raise': {
+    'border-top-color': 'var(--stroke-raise)',
+  },
+  '.border-t-accent': {
+    'border-top-color': 'var(--stroke-accent)',
+  },
+  '.border-t-accent-secondary': {
+    'border-top-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-t-accent-tertiary': {
+    'border-top-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-t-destructive': {
+    'border-top-color': 'var(--stroke-destructive)',
+  },
+  '.border-t-destructive-secondary': {
+    'border-top-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-t-destructive-tertiary': {
+    'border-top-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-t-notice': {
+    'border-top-color': 'var(--stroke-notice)',
+  },
+  '.border-t-notice-secondary': {
+    'border-top-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-t-notice-tertiary': {
+    'border-top-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.border-b-default': {
+    'border-bottom-color': 'var(--stroke-default)',
+  },
+  '.border-b-secondary': {
+    'border-bottom-color': 'var(--stroke-secondary)',
+  },
+  '.border-b-tertiary': {
+    'border-bottom-color': 'var(--stroke-tertiary)',
+  },
+  '.border-b-raise': {
+    'border-bottom-color': 'var(--stroke-raise)',
+  },
+  '.border-b-accent': {
+    'border-bottom-color': 'var(--stroke-accent)',
+  },
+  '.border-b-accent-secondary': {
+    'border-bottom-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-b-accent-tertiary': {
+    'border-bottom-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-b-destructive': {
+    'border-bottom-color': 'var(--stroke-destructive)',
+  },
+  '.border-b-destructive-secondary': {
+    'border-bottom-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-b-destructive-tertiary': {
+    'border-bottom-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-b-notice': {
+    'border-bottom-color': 'var(--stroke-notice)',
+  },
+  '.border-b-notice-secondary': {
+    'border-bottom-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-b-notice-tertiary': {
+    'border-bottom-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.border-x-default': {
+    'border-left-color': 'var(--stroke-default)',
+    'border-right-color': 'var(--stroke-default)',
+  },
+  '.border-x-secondary': {
+    'border-left-color': 'var(--stroke-secondary)',
+    'border-right-color': 'var(--stroke-secondary)',
+  },
+  '.border-x-tertiary': {
+    'border-left-color': 'var(--stroke-tertiary)',
+    'border-right-color': 'var(--stroke-tertiary)',
+  },
+  '.border-x-raise': {
+    'border-left-color': 'var(--stroke-raise)',
+    'border-right-color': 'var(--stroke-raise)',
+  },
+  '.border-x-accent': {
+    'border-left-color': 'var(--stroke-accent)',
+    'border-right-color': 'var(--stroke-accent)',
+  },
+  '.border-x-accent-secondary': {
+    'border-left-color': 'var(--stroke-accent-secondary)',
+    'border-right-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-x-accent-tertiary': {
+    'border-left-color': 'var(--stroke-accent-tertiary)',
+    'border-right-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-x-destructive': {
+    'border-left-color': 'var(--stroke-destructive)',
+    'border-right-color': 'var(--stroke-destructive)',
+  },
+  '.border-x-destructive-secondary': {
+    'border-left-color': 'var(--stroke-destructive-secondary)',
+    'border-right-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-x-destructive-tertiary': {
+    'border-left-color': 'var(--stroke-destructive-tertiary)',
+    'border-right-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-x-notice': {
+    'border-left-color': 'var(--stroke-notice)',
+    'border-right-color': 'var(--stroke-notice)',
+  },
+  '.border-x-notice-secondary': {
+    'border-left-color': 'var(--stroke-notice-secondary)',
+    'border-right-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-x-notice-tertiary': {
+    'border-left-color': 'var(--stroke-notice-tertiary)',
+    'border-right-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.border-y-default': {
+    'border-top-color': 'var(--stroke-default)',
+    'border-bottom-color': 'var(--stroke-default)',
+  },
+  '.border-y-secondary': {
+    'border-top-color': 'var(--stroke-secondary)',
+    'border-bottom-color': 'var(--stroke-secondary)',
+  },
+  '.border-y-tertiary': {
+    'border-top-color': 'var(--stroke-tertiary)',
+    'border-bottom-color': 'var(--stroke-tertiary)',
+  },
+  '.border-y-raise': {
+    'border-top-color': 'var(--stroke-raise)',
+    'border-bottom-color': 'var(--stroke-raise)',
+  },
+  '.border-y-accent': {
+    'border-top-color': 'var(--stroke-accent)',
+    'border-bottom-color': 'var(--stroke-accent)',
+  },
+  '.border-y-accent-secondary': {
+    'border-top-color': 'var(--stroke-accent-secondary)',
+    'border-bottom-color': 'var(--stroke-accent-secondary)',
+  },
+  '.border-y-accent-tertiary': {
+    'border-top-color': 'var(--stroke-accent-tertiary)',
+    'border-bottom-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.border-y-destructive': {
+    'border-top-color': 'var(--stroke-destructive)',
+    'border-bottom-color': 'var(--stroke-destructive)',
+  },
+  '.border-y-destructive-secondary': {
+    'border-top-color': 'var(--stroke-destructive-secondary)',
+    'border-bottom-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.border-y-destructive-tertiary': {
+    'border-top-color': 'var(--stroke-destructive-tertiary)',
+    'border-bottom-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-y-notice': {
+    'border-top-color': 'var(--stroke-notice)',
+    'border-bottom-color': 'var(--stroke-notice)',
+  },
+  '.border-y-notice-secondary': {
+    'border-top-color': 'var(--stroke-notice-secondary)',
+    'border-bottom-color': 'var(--stroke-notice-secondary)',
+  },
+  '.border-y-notice-tertiary': {
+    'border-top-color': 'var(--stroke-notice-tertiary)',
+    'border-bottom-color': 'var(--stroke-notice-tertiary)',
+  },
   '.ring-default': {
     '--tw-ring-color': 'var(--stroke-default)',
   },
@@ -324,5 +552,44 @@ module.exports.colorUtilities = {
   },
   '.ring-notice-tertiary': {
     '--tw-ring-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.outline-default': {
+    'outline-color': 'var(--stroke-default)',
+  },
+  '.outline-secondary': {
+    'outline-color': 'var(--stroke-secondary)',
+  },
+  '.outline-tertiary': {
+    'outline-color': 'var(--stroke-tertiary)',
+  },
+  '.outline-raise': {
+    'outline-color': 'var(--stroke-raise)',
+  },
+  '.outline-accent': {
+    'outline-color': 'var(--stroke-accent)',
+  },
+  '.outline-accent-secondary': {
+    'outline-color': 'var(--stroke-accent-secondary)',
+  },
+  '.outline-accent-tertiary': {
+    'outline-color': 'var(--stroke-accent-tertiary)',
+  },
+  '.outline-destructive': {
+    'outline-color': 'var(--stroke-destructive)',
+  },
+  '.outline-destructive-secondary': {
+    'outline-color': 'var(--stroke-destructive-secondary)',
+  },
+  '.outline-destructive-tertiary': {
+    'outline-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.outline-notice': {
+    'outline-color': 'var(--stroke-notice)',
+  },
+  '.outline-notice-secondary': {
+    'outline-color': 'var(--stroke-notice-secondary)',
+  },
+  '.outline-notice-tertiary': {
+    'outline-color': 'var(--stroke-notice-tertiary)',
   },
 }

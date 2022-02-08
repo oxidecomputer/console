@@ -26,18 +26,19 @@ export const TextField = ({
 }: TextFieldProps) => (
   <div
     className={cn(
-      'flex border border-gray-400 rounded',
-      'focus-within:border-green-500 hover:focus-within:border-green-500',
-      error && '!border-red-500',
-      !fieldProps.disabled && 'hover:border-gray-300',
+      'flex rounded-sm border border-default',
+      'focus-within:border-accent hover:focus-within:border-accent',
+      error && '!border-destructive',
+      !fieldProps.disabled && 'hover:border-raise',
       className
     )}
   >
     <Field
+      type="text"
       className={cn(
-        `py-[0.5625rem] px-3 w-full
-        text-sm font-sans text-gray-50 
-        bg-transparent border-none focus:outline-none`,
+        `w-full border-none bg-transparent
+        py-[0.5625rem] px-3
+        text-sans-md text-default focus:outline-none`,
         fieldClassName
       )}
       aria-invalid={error}
@@ -72,10 +73,7 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextFieldHint = ({ id, children, className }: HintProps) => (
-  <div
-    id={id}
-    className={cn('text-sm font-sans font-light mb-2 text-gray-50', className)}
-  >
+  <div id={id} className={cn('mb-2 text-sans-sm text-secondary', className)}>
     {children}
   </div>
 )
@@ -84,11 +82,11 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
 // already space for the error to appear in, and following content doesn't get
 // pushed down
 export const TextFieldError = ({ name }: { name: string }) => (
-  <div className="min-h-[2.25rem] ml-px">
+  <div className="ml-px min-h-[2.25rem]">
     <ErrorMessage name={name}>
       {(msg) =>
         msg && (
-          <Alert className="font-mono uppercase text-red-500 text-xs py-2 px-3">
+          <Alert className="py-2 px-3 text-mono-xs text-destructive">
             {msg}
           </Alert>
         )

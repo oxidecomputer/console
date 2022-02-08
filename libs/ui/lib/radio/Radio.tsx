@@ -16,49 +16,60 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 const fieldStyles = `
   peer appearance-none absolute outline-none
-  border border-gray-300 h-4 w-4 rounded-full
-  hover:bg-gray-400 hover:checked:bg-green-950
-  focus:ring-2 focus:ring-green-700
-  checked:bg-green-900 checked:border-green-500
+  border border-default h-4 w-4 rounded-full
+  hover:bg-secondary hover:checked:bg-accent-dark-hover
+  focus:ring-2 focus:ring-accent-secondary
+  checked:bg-accent-dim checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
 `
 
-export const Radio = ({ children, ...inputProps }: RadioProps) => (
+export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
   <label className="inline-flex items-center">
-    <span className="h-4 w-4 relative">
-      <Field className={fieldStyles} type="radio" {...inputProps} />
+    <span className="relative h-4 w-4">
+      <Field
+        className={cn(fieldStyles, className)}
+        type="radio"
+        {...inputProps}
+      />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="hidden peer-checked:block absolute w-2 h-2 left-1 top-1 rounded-full bg-green-500" />
+      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent-solid peer-checked:block" />
     </span>
 
-    <span className="text-xs uppercase font-mono ml-2.5">{children}</span>
+    <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
   </label>
 )
 
 const cardLabelStyles = `
-  py-2 px-4 text-sm border rounded border-gray-400 bg-gray-500 hover:bg-gray-550
-  peer-focus:ring-2 peer-focus:ring-green-700
-  peer-checked:bg-green-900 peer-checked:border-green-500 peer-checked:hover:bg-green-950 
-  peer-checked:border-green-500 peer-checked:text-green-500
-  peer-disabled:hover:text-gray-100 peer-disabled:text-gray-100 peer-disabled:hover:border-gray-400 
-  peer-disabled:hover:bg-gray-500
+  py-2 px-4 text-sm border rounded-sm border-default bg-default hover:bg-raise
+  peer-focus:ring-2 peer-focus:ring-accent-secondary
+  peer-checked:bg-accent-dim peer-checked:border-accent peer-checked:hover:bg-accent-raise 
+  peer-checked:border-accent peer-checked:text-accent
+  peer-disabled:bg-disabled peer-disabled:text-secondary
 
-  children:py-2 children:px-4 children:-mx-4 children:border-gray-400
+  children:py-2 children:px-4 children:-mx-4 children:border-secondary
   first:children:-mt-2 last:children:-mb-2
-  peer-checked:children:border-green-500
+  peer-checked:children:border-accent
   cursor-pointer peer-disabled:cursor-default
 `
 
 export function RadioCard({ children, className, ...inputProps }: RadioProps) {
+  // HACK: This forces the focus states for storybook stories
+  const focus = className?.includes(':focus') ? ':focus' : ''
   return (
-    <label className={cn('items-center inline-flex font-mono', className)}>
-      <Field className="peer sr-only" type="radio" {...inputProps} />
-      <span className={cn(cardLabelStyles, 'divide-y')}>{children}</span>
+    <label className="inline-flex items-center">
+      <Field
+        className={cn(focus, 'peer sr-only')}
+        type="radio"
+        {...inputProps}
+      />
+      <span className={cn(cardLabelStyles, className, 'divide-y')}>
+        {children}
+      </span>
     </label>
   )
 }
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="opacity-60 !p-0 !m-0">{children}</span>
+  <span className="!m-0 !p-0 opacity-60">{children}</span>
 )

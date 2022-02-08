@@ -31,8 +31,11 @@ export const FieldTitle = <T extends ElementType = 'label'>({
 }: PropsWithChildren<FieldTitleProps<T>>) => {
   const Component = as || 'label'
   return (
-    <Wrap with={<div className="flex space-x-1 align-center" />} when={tip}>
-      <Component className="block text-sm font-sans h-6" htmlFor={htmlFor}>
+    <Wrap with={<div className="flex space-x-2" />} when={tip}>
+      <Component
+        className="flex h-6 items-center text-sans-sm"
+        htmlFor={htmlFor}
+      >
         {children}
       </Component>
       {tip && (
