@@ -123,11 +123,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
       options
     )
 
-    const tableData = useMemo(
-      () => (data as any)?.items || [],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [(data as any)?.items]
-    )
+    const tableData = useMemo(() => (data as any)?.items || [], [data])
 
     const getRowId = useCallback(
       (row, relativeIndex, parent) => {
