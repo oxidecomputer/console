@@ -10,7 +10,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'ring-1 ring-inset ring-default text-secondary text-mono-sm rounded-sm h-4 pb-[3px] pt-[1px] px-[3px] whitespace-nowrap',
+        'h-4 whitespace-nowrap rounded-sm px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary ring-default',
         className
       )}
     >
@@ -44,15 +44,15 @@ export const Pagination = ({
       <div
         className={cn(
           type === 'page' && 'py-5',
-          'flex space-between text-default text-mono-xs items-center bg-default',
+          'space-between flex items-center text-mono-xs text-default bg-default',
           className
         )}
       >
-        <span className="flex-grow text-tertiary flex-inline">
+        <span className="flex-inline flex-grow text-tertiary">
           rows per page <PageInput number={pageSize} />
         </span>
         {(hasNext || hasPrev) && (
-          <span className="space-x-2 flex">
+          <span className="flex space-x-2">
             <button
               className={cn(
                 !hasPrev && 'text-secondary',

@@ -15,12 +15,12 @@ export type ProgressProps = {
 export const Progress = (props: ProgressProps) => (
   <div
     role="progressbar"
-    className={cn('bg-accent-dim h-1.5 rounded', props.className)}
+    className={cn('h-1.5 rounded bg-accent-dim', props.className)}
     aria-valuenow={Math.round(props.value)}
     {...ariaLabel(props)}
   >
     <div
-      className="bg-accent-solid h-1.5 rounded"
+      className="h-1.5 rounded bg-accent-solid"
       style={{
         width: `${props.value}%`,
         transition:

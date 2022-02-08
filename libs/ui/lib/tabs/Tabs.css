@@ -2,16 +2,16 @@
 }
 
 [data-reach-tab-list] {
-  @apply space-x-2.5 mb-8 bg-transparent;
+  @apply mb-8 space-x-2.5 bg-transparent;
 }
 
 [data-reach-tab-panels] {
 }
 
 [data-reach-tab] {
-  @apply uppercase text-mono-md px-2 py-2.5 rounded
-    text-secondary border-secondary hover:border-raise
-    focus:ring-2 focus:ring-accent-secondary focus:outline-none space-x-2 whitespace-nowrap h-10;
+  @apply h-10 space-x-2 whitespace-nowrap rounded px-2
+    py-2.5 uppercase text-mono-md
+    text-secondary border-secondary hover:border-raise focus:outline-none focus:ring-2 focus:ring-accent-secondary;
 }
 
 [data-reach-tab][data-selected] {
@@ -19,7 +19,7 @@
 }
 
 [data-reach-tab] > .ox-badge {
-  @apply text-current -mt-1 select-none;
+  @apply -mt-1 select-none text-current;
 }
 
 [data-reach-tab]:not([data-selected]) > .ox-badge {
@@ -33,5 +33,5 @@
 [data-reach-tab-panel] {
   /* why tab panel is focusable: https://github.com/reach/reach-ui/issues/490 */
   /* TODO: this is ugly but usable */
-  @apply rounded focus-visible:ring-2 focus-visible:ring-accent-secondary focus-visible:outline-none;
+  @apply rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-secondary;
 }

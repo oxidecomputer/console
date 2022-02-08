@@ -17,7 +17,7 @@ Table.HeaderRow = (props: TableHeaderRowProps) => <Table.Row {...props} />
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('text-secondary text-mono-sm text-left', className)}>
+  <thead className={cn('text-left text-mono-sm text-secondary', className)}>
     {children}
   </thead>
 )
@@ -27,11 +27,11 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'border border-default border-x-0 bg-secondary children:first:border-0'
+      'border border-x-0 bg-secondary border-default children:first:border-0'
     )}
     {...props}
   >
-    <div className="border-l border-secondary h-9 -my-[1px] flex items-center pl-3">
+    <div className="-my-[1px] flex h-9 items-center border-l pl-3 border-secondary">
       {children}
     </div>
   </th>
@@ -39,7 +39,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
 
 export type TableRowProps = JSX.IntrinsicElements['tr']
 Table.Row = ({ className, ...props }: TableRowProps) => (
-  <tr className={cn(className, 'hover:bg-raise bg-default')} {...props} />
+  <tr className={cn(className, 'bg-default hover:bg-raise')} {...props} />
 )
 
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
@@ -55,11 +55,11 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'border-default h-16 children:first:border-l-0 children:first:-ml-[1px] children:last:-mr-[1px]'
+      'h-16 border-default children:first:-ml-[1px] children:first:border-l-0 children:last:-mr-[1px]'
     )}
     {...props}
   >
-    <div className="flex items-center border-l border-b border-secondary h-16 -my-[1px] -mr-[2px] px-3 text-sans-sm">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 text-sans-sm border-secondary">
       {children}
     </div>
   </td>

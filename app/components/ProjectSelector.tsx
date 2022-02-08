@@ -24,10 +24,10 @@ interface ProjectSelectorProps {
 export const ProjectSelector = ({ className }: ProjectSelectorProps) => {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   return (
-    <div className={cn('flex items-center justify-between mt-1', className)}>
+    <div className={cn('mt-1 flex items-center justify-between', className)}>
       <div className="flex items-center">
         <BrandIcon />
-        <div className="text-sans-sm ml-2 leading-4 pb-0.5">
+        <div className="ml-2 pb-0.5 leading-4 text-sans-sm">
           <div>{orgName}</div>
           <div className="text-secondary">{projectName}</div>
         </div>

@@ -4,7 +4,7 @@ import { classed } from '@oxide/util'
 import cn from 'classnames'
 
 const Check = () => (
-  <Checkmark12Icon className="absolute w-3 h-2.5 left-0.5 top-0.5 fill-current text-accent" />
+  <Checkmark12Icon className="absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent-solid`
@@ -37,7 +37,7 @@ export const Checkbox = ({
   ...inputProps
 }: CheckboxProps) => (
   <label className="inline-flex items-center">
-    <span className="h-4 w-4 relative">
+    <span className="relative h-4 w-4">
       <input
         className={cn(inputStyle, className)}
         type="checkbox"
@@ -49,7 +49,7 @@ export const Checkbox = ({
     </span>
 
     {children && (
-      <span className="text-sans-md text-secondary ml-2.5">{children}</span>
+      <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
     )}
   </label>
 )

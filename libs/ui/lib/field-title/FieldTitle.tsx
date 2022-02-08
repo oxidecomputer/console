@@ -33,7 +33,7 @@ export const FieldTitle = <T extends ElementType = 'label'>({
   return (
     <Wrap with={<div className="flex space-x-2" />} when={tip}>
       <Component
-        className="flex items-center text-sans-sm h-6"
+        className="flex h-6 items-center text-sans-sm"
         htmlFor={htmlFor}
       >
         {children}

@@ -50,7 +50,7 @@ export const Badge = ({
   return (
     <span
       className={cn(
-        'ox-badge inline-flex items-center uppercase text-mono-sm rounded-sm h-4 py-[1px] px-[3px] whitespace-nowrap',
+        'ox-badge inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
         badgeColors[variant][color],
         className
       )}

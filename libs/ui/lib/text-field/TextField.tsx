@@ -24,7 +24,7 @@ export const TextField = ({
 }: TextFieldProps) => (
   <div
     className={cn(
-      'flex border border-default rounded-sm',
+      'flex rounded-sm border border-default',
       'focus-within:border-accent hover:focus-within:border-accent',
       error && '!border-destructive',
       !fieldProps.disabled && 'hover:border-raise',
@@ -34,9 +34,9 @@ export const TextField = ({
     <Field
       type="text"
       className={`
-        py-[0.5625rem] px-3 w-full
-        text-sans-md text-default
-        bg-transparent border-none focus:outline-none`}
+        w-full border-none bg-transparent
+        py-[0.5625rem] px-3
+        text-sans-md text-default focus:outline-none`}
       aria-invalid={error}
       placeholder=""
       {...fieldProps}
@@ -55,7 +55,7 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextFieldHint = ({ id, children, className }: HintProps) => (
-  <div id={id} className={cn('text-sans-sm mb-2 text-secondary', className)}>
+  <div id={id} className={cn('mb-2 text-sans-sm text-secondary', className)}>
     {children}
   </div>
 )
@@ -64,11 +64,11 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
 // already space for the error to appear in, and following content doesn't get
 // pushed down
 export const TextFieldError = ({ name }: { name: string }) => (
-  <div className="min-h-[2.25rem] ml-px">
+  <div className="ml-px min-h-[2.25rem]">
     <ErrorMessage name={name}>
       {(msg) =>
         msg && (
-          <Alert className="text-mono-xs text-destructive py-2 px-3">
+          <Alert className="py-2 px-3 text-mono-xs text-destructive">
             {msg}
           </Alert>
         )
