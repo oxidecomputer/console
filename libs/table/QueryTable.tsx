@@ -21,6 +21,7 @@ import type {
 import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'
+import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
@@ -38,22 +39,10 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
 ): UseQueryTableResult<A, M> => {
-  // TODO: We should probably find a better way to do this. In essence
-  // we need the params and options to be stable and comparable to prevent unnecessary recreation
-  // of the table which is a relatively expensive operation.
-  const stableParams = Object.values(params as Record<string, string>)
-    .sort()
-    .join(':')
-  const stableOpts =
-    options &&
-    Object.entries(options as Record<string, string>)
-      .map((e) => e.join(':'))
-      .sort()
-      .join(',')
   const Table = useMemo(
     () => makeQueryTable<A, M>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, stableParams, stableOpts]
+    [query, hashQueryKey(params as any), hashQueryKey(options as any)]
   )
 
   return { Table, Column: QueryTableColumn }
