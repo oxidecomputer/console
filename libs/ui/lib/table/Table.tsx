@@ -79,11 +79,11 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'selected:bg-accent-secondary h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent'
+      'h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent selected:bg-accent-dim'
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary  selected:border-accent-secondary">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary selected:border-accent-secondary">
       {children}
     </div>
   </td>
