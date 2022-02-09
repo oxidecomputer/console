@@ -21,11 +21,9 @@ jobs:
         run: yarn install
 
       - name: Format
-        if: ${{ github.ref != 'refs/heads/main' }}
         run: yarn fmt .
 
       - uses: EndBug/add-and-commit@v7
-        if: ${{ github.ref != 'refs/heads/main' }}
         with:
           add: .
           message: 'LOOK ON MY REFORMAT, YE MIGHTY, AND DESPAIR!' # At this point it's almost traditional
