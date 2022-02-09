@@ -36,7 +36,7 @@ export function StorageTab() {
     'instanceDisksGet',
     { orgName, projectName, instanceName },
     { refetchInterval: 5000 }
-  )
+  );
 
   const bootDisks = data?.items.slice(0, 1) || []
   const otherDisks = data?.items.slice(1) || []
