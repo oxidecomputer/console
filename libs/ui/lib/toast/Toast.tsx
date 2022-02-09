@@ -40,7 +40,7 @@ export const Toast = ({
     {icon}
     <div className="flex-1">
       <div>{title}</div>
-      <div className="font-light">{content}</div>
+      <div className="text-sans-sm">{content}</div>
     </div>
     <div>
       <button type="button" onClick={() => onClose()} className="flex">

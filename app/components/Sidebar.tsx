@@ -13,7 +13,7 @@ export function Sidebar({ children }: SidebarProps) {
       <ProjectSelector className="mb-10" />
       {children}
       <Sidebar.Footer>
-        <NavLinkItem to="documentation">
+        <NavLinkItem to="https://docs.oxide.computer">
           <Document16Icon /> Documentation
         </NavLinkItem>
         <NavLinkItem to="help">
@@ -64,12 +64,19 @@ export const NavLinkItem = (props: {
   <li>
     <RRNavLink
       to={props.to}
+      onClick={(e) => {
+        // TODO: Probably a better way to do this. Should it open in a new page?
+        if (props.to.startsWith('http')) {
+          window.open(props.to, '_blank')
+          e.preventDefault()
+        }
+      }}
       className={({ isActive }) =>
         cn(
           'flex h-7 items-center rounded-sm p-1.5 text-sans-md hover:bg-raise svg:mr-2 svg:text-tertiary',
-          {
-            'text-accent !bg-accent-dim svg:!text-accent': isActive,
-          }
+          isActive
+            ? 'text-accent !bg-accent-dim svg:!text-accent'
+            : 'text-default'
         )
       }
       end={props.end}
