@@ -189,6 +189,8 @@ export interface QueryTableColumnProps<
   id: string
   accessor?: Path<Item> | ((item: Item) => R)
   header?: string | ReactElement
+  /** Use `header` instead */
+  name?: never
   cell?: ComponentType<R>
 }
 

@@ -75,7 +75,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 const NameCell = ({ value }: { value: string }) => (
   <div className="flex items-center">
     <Avatar round size="sm" name={value} className="inline-block" />
-    <span className="text-sm font-sans ml-3 font-light">{value}</span>
+    <span className="ml-3 text-sans-sm">{value}</span>
   </div>
 )
 
@@ -179,12 +179,12 @@ export const AccessPage = () => {
                 <Close12Icon />
               </Button>
             </div>
-            <h3 className="font-medium">Choose members</h3>
-            <h3 className="font-medium">Select roles</h3>
+            <h3 className="text-sans-md">Choose members</h3>
+            <h3 className="text-sans-md">Select roles</h3>
           </div>
           <hr className="border-gray-400" />
           <div className="p-8">
-            <h3 className="font-medium">Relevant docs</h3>
+            <h3 className="text-sans-md">Relevant docs</h3>
           </div>
         </div>
         <footer className="modal-footer">
