@@ -5,6 +5,7 @@ import Alert from '@reach/alert'
 
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 import { Close12Icon } from '../icons'
+import { Button } from '../button/Button'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -18,9 +19,9 @@ export interface ToastProps {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-green-900 text-green-500',
-  error: 'bg-red-900 text-red-500',
-  info: 'bg-yellow-900 text-yellow-500',
+  success: 'bg-accent-dim text-accent',
+  error: 'bg-accent-dim text-accent',
+  info: 'bg-accent-dim text-accent',
 }
 
 export const Toast = ({
@@ -33,17 +34,21 @@ export const Toast = ({
 }: ToastProps) => (
   <Alert
     className={cn(
-      'flex w-96 items-center space-x-2 p-4 text-sans-semi-lg',
+      'flex w-96 items-center space-x-2 p-4 rounded-sm',
       color[variant]
     )}
   >
     {icon}
-    <div className="flex-1">
-      <div>{title}</div>
-      <div className="text-sans-lg">{content}</div>
+    <div className="flex-1 space-y-1 pl-2">
+      <div className="text-sans-xl">{title}</div>
+      <div className="text-sans-md">{content}</div>
     </div>
     <div>
-      <button type="button" onClick={() => onClose()} className="flex">
+      <Button
+        className="flex !border-transparent"
+        variant="ghost"
+        onClick={onClose}
+      >
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <Close12Icon />
@@ -51,7 +56,7 @@ export const Toast = ({
         ) : (
           <Close12Icon />
         )}
-      </button>
+      </Button>
     </div>
   </Alert>
 )
