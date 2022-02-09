@@ -33,14 +33,14 @@ export const Toast = ({
 }: ToastProps) => (
   <Alert
     className={cn(
-      'flex w-96 items-center space-x-2 p-4 text-sans-semi-md',
+      'flex w-96 items-center space-x-2 p-4 text-sans-semi-lg',
       color[variant]
     )}
   >
     {icon}
     <div className="flex-1">
       <div>{title}</div>
-      <div className="text-sans-md">{content}</div>
+      <div className="text-sans-lg">{content}</div>
     </div>
     <div>
       <button type="button" onClick={() => onClose()} className="flex">
