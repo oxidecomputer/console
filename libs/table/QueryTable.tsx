@@ -140,7 +140,6 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
         columns,
         data: tableData,
         getRowId,
-        // @ts-expect-error It's yelling b/c this isn't defined in the options as a type but it is included in the docs
         autoResetSelectedRows: false,
       },
       useRowSelect,

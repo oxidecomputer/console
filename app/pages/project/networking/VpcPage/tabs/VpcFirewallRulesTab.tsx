@@ -68,12 +68,7 @@ export const VpcFirewallRulesTab = () => {
   ]
 
   const table = useTable(
-    {
-      data: rules,
-      columns,
-      // @ts-expect-error types are wrong. this is included in the docs
-      autoResetSelectedRows: false,
-    },
+    { data: rules, columns, autoResetSelectedRows: false },
     useRowSelect,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
