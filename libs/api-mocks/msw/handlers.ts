@@ -1,6 +1,7 @@
 import type { ResponseTransformer } from 'msw'
 import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
+import { sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
 import { sessionMe } from '../session'
 import type {
@@ -220,6 +221,18 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, InstanceParams, Json<Api.DiskResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      const disks = db.disks.filter(
+        (d) => 'instance' in d.state && d.state.instance === instance.ok.id
+      )
+      return res(json({ items: disks }))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
@@ -309,6 +322,40 @@ export const handlers = [
       subnet.ok.ipv4_block = req.body.ipv4_block
       subnet.ok.ipv6_block = req.body.ipv6_block
       return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, VpcParams, Json<Api.VpcFirewallRules> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
+    (req, res, ctx) => {
+      const vpc = lookupVpc(req, res, ctx)
+      if (vpc.err) return vpc.err
+      const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.ok.id)
+      return res(json({ rules: sortBy(rules, (r) => r.name) }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.VpcFirewallRuleUpdateParams>,
+    VpcParams,
+    Json<Api.VpcFirewallRules> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
+    (req, res, ctx) => {
+      const vpc = lookupVpc(req, res, ctx)
+      if (vpc.err) return vpc.err
+      const rules = req.body.rules.map((rule) => ({
+        vpc_id: vpc.ok.id,
+        id: 'firewall-rule-' + randomHex(),
+        ...rule,
+        ...getTimestamps(),
+      }))
+      // replace existing rules for this VPC with the new ones
+      db.vpcFirewallRules = [
+        ...db.vpcFirewallRules.filter((r) => r.vpc_id !== vpc.ok.id),
+        ...rules,
+      ]
+      return res(json({ rules: sortBy(rules, (r) => r.name) }))
     }
   ),
 ]

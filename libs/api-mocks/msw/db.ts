@@ -128,9 +128,10 @@ const initDb = {
   orgs: [mock.org],
   projects: [mock.project],
   instances: [mock.instance],
-  disks: [mock.disk],
+  disks: [...mock.disks],
   vpcs: [mock.vpc],
   vpcSubnets: [mock.vpcSubnet],
+  vpcFirewallRules: [...mock.defaultFirewallRules],
 }
 
 const clone = (o: unknown) => JSON.parse(JSON.stringify(o))

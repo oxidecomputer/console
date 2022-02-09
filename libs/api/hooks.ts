@@ -2,6 +2,7 @@ import type {
   InvalidateQueryFilters,
   UseMutationOptions,
   UseQueryOptions,
+  QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { navToLogin } from './nav-to-login'
@@ -59,7 +60,7 @@ export const getUseApiQuery =
     options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
   ) =>
     useQuery(
-      [method, params],
+      [method, params] as QueryKey,
       // The generated client parses the json and sticks it in `data` for us, so
       // that's what we want to return from the fetcher. Note that while there
       // is an --unwrap-response-data CLI flag for the generator that pulls out

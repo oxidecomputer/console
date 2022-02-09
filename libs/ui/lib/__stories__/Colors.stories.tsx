@@ -38,7 +38,7 @@ export const AllColors: React.FC = () => (
         className="flex flex-col flex-wrap"
         style={{ flex: colors.length === 1 ? '1 1 100%' : '0 0 25%' }}
       >
-        <h3 className="text-lg my-4 font-sans font-medium">{group}</h3>
+        <h3 className="my-4 text-sans-lg">{group}</h3>
         {typeof colors === 'string' ? (
           <Color value={colors} />
         ) : (

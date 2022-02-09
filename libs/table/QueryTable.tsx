@@ -67,7 +67,7 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   rowId?:
     | string
     | ((row: Row, relativeIndex: number, parent: unknown) => string)
-  actions?: MakeActions<A, M>
+  actions?: MakeActions<ResultItem<A[M]>>
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
@@ -123,11 +123,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
       options
     )
 
-    const tableData = useMemo(
-      () => (data as any)?.items || [],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [(data as any)?.items]
-    )
+    const tableData = useMemo(() => (data as any)?.items || [], [data])
 
     const getRowId = useCallback(
       (row, relativeIndex, parent) => {
@@ -144,7 +140,6 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
         columns,
         data: tableData,
         getRowId,
-        // @ts-expect-error It's yelling b/c this isn't defined in the options as a type but it is included in the docs
         autoResetSelectedRows: false,
       },
       useRowSelect,
@@ -194,6 +189,8 @@ export interface QueryTableColumnProps<
   id: string
   accessor?: Path<Item> | ((item: Item) => R)
   header?: string | ReactElement
+  /** Use `header` instead */
+  name?: never
   cell?: ComponentType<R>
 }
 

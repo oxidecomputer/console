@@ -28,8 +28,8 @@ import { NetworkModal } from './modals/network-modal'
 import { useParams } from 'app/hooks'
 
 // TODO: these probably should not both exist
-const headingStyle = 'text-white text-sans-xl font-sans font-light'
-const Heading = classed.h2`text-white text-sans-xl mt-16 mb-8 font-sans font-light`
+const headingStyle = 'text-white text-sans-xl'
+const Heading = classed.h2`text-white text-sans-xl mt-16 mb-8`
 
 // TODO: need to fix page container if we want these to go all the way across
 const Divider = () => <hr className="my-16 border-gray-400" />

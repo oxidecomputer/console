@@ -11,6 +11,7 @@ const {
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   corePlugins: {
+    fontFamily: false,
     fontSize: false,
   },
   content: ['./libs/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
@@ -105,6 +106,11 @@ module.exports = {
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
+      addUtilities({
+        '.appearance-textfield': {
+          appearance: 'textfield',
+        },
+      })
     }),
   ],
 }

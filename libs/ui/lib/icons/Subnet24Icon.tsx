@@ -4,8 +4,8 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Face24Icon({
-  title = 'Face',
+function Subnet24Icon({
+  title = 'Subnet',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
@@ -22,11 +22,11 @@ function Face24Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M6 8C4.3 8 3 6.7 3 5s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm12 0c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm-6 15c6.1 0 11-4.9 11-11H1c0 6.1 4.9 11 11 11z"
+        d="M10 2H2v8h3v4H2v8h8v-3h4v3h8v-8h-3v-4h3V2h-8v3h-4V2zm7 12v-4h-3V7h-4v3H7v4h3v3h4v-3h3z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Face24Icon
+export default Subnet24Icon

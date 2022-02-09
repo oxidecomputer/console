@@ -17,13 +17,13 @@
 
 @layer base {
   body {
-    @apply overflow-y-hidden bg-black font-sans text-gray-50;
+    @apply overflow-y-hidden text-default bg-default;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
   input::placeholder,
   textarea::placeholder {
-    color: theme('colors.gray.200');
+    @apply text-tertiary;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L224 */
@@ -37,13 +37,5 @@
   .dashed-underline {
     text-decoration: underline;
     text-decoration-style: dashed;
-  }
-
-  .font-mono {
-    letter-spacing: 0.04em;
-  }
-
-  .font-sans {
-    letter-spacing: 0.02em;
   }
 }

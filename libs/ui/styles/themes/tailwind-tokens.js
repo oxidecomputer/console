@@ -81,7 +81,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 500,
-    'line-height': '0.975rem',
+    'line-height': '1.125rem',
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
   },
@@ -122,6 +122,9 @@ module.exports.colorUtilities = {
   '.text-accent-secondary': {
     color: 'var(--content-accent-secondary)',
   },
+  '.text-accent-tertiary': {
+    color: 'var(--content-accent-tertiary)',
+  },
   '.text-accent-disabled': {
     color: 'var(--content-accent-disabled)',
   },
@@ -131,6 +134,9 @@ module.exports.colorUtilities = {
   '.text-destructive-secondary': {
     color: 'var(--content-destructive-secondary)',
   },
+  '.text-destructive-tertiary': {
+    color: 'var(--content-destructive-tertiary)',
+  },
   '.text-destructive-disabled': {
     color: 'var(--content-destructive-disabled)',
   },
@@ -139,6 +145,9 @@ module.exports.colorUtilities = {
   },
   '.text-notice-secondary': {
     color: 'var(--content-notice-secondary)',
+  },
+  '.text-notice-tertiary': {
+    color: 'var(--content-notice-tertiary)',
   },
   '.text-notice-disabled': {
     color: 'var(--content-notice-disabled)',

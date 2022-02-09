@@ -3,11 +3,8 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { Row } from 'react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
-import type { ApiListMethods, ResultItem } from '@oxide/api'
 
-export type MakeActions<A extends ApiListMethods, M extends keyof A> = (
-  item: ResultItem<A[M]>
-) => Array<false | MenuAction>
+export type MakeActions<Item> = (item: Item) => Array<false | MenuAction>
 
 export type MenuAction = {
   label: string
@@ -15,14 +12,16 @@ export type MenuAction = {
   disabled?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActionsCol(actionsCreator: MakeActions<any, any>) {
+export function getActionsCol<Item>(actionsCreator: MakeActions<Item>) {
   return {
     id: 'menu',
     className: 'w-12',
     Cell: ({ row }: { row: Row }) => {
       const type = row.original
-      const actions = actionsCreator(type).filter(Boolean) as MenuAction[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const actions = actionsCreator(type as any).filter(
+        Boolean
+      ) as MenuAction[]
 
       return (
         <div className="flex justify-center">

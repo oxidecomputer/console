@@ -1,4 +1,7 @@
 import React from 'react'
+import type { FieldAttributes } from 'formik'
+import { Field } from 'formik'
+
 import { Checkmark12Icon } from '@oxide/ui'
 import { classed } from '@oxide/util'
 import cn from 'classnames'
@@ -22,7 +25,7 @@ export type CheckboxProps = {
   indeterminate?: boolean
   children?: React.ReactNode
   className?: string
-} & React.ComponentProps<'input'>
+} & Omit<React.ComponentProps<'input'>, 'type'>
 
 // ref function is from: https://davidwalsh.name/react-indeterminate. this makes
 // the native input work with indeterminate. you can't pass indeterminate as a
@@ -30,6 +33,7 @@ export type CheckboxProps = {
 // examples using forwardRef to allow passing ref from outside:
 // https://github.com/tannerlinsley/react-table/discussions/1989
 
+/** Checkbox component that handles label, styling, and indeterminate state */
 export const Checkbox = ({
   indeterminate,
   children,
@@ -52,4 +56,12 @@ export const Checkbox = ({
       <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
     )}
   </label>
+)
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CheckboxFieldProps = CheckboxProps & Omit<FieldAttributes<any>, 'type'>
+
+/** Formik Field version of Checkbox */
+export const CheckboxField = (props: CheckboxFieldProps) => (
+  <Field type="checkbox" as={Checkbox} {...props} />
 )

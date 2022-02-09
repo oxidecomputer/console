@@ -29,6 +29,8 @@ export const InstancePage = () => {
 
   if (!instance) return null
 
+  const memory = filesize(instance.memory, { output: 'object', base: 2 })
+
   return (
     <>
       <PageHeader>
@@ -43,9 +45,8 @@ export const InstancePage = () => {
             <span className="ml-1 text-gray-300"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(filesize(instance.memory, { output: 'object' }) as any).value}
-            <span className="ml-1 text-gray-300"> GiB</span>
+            {memory.value}
+            <span className="ml-1 text-gray-300"> {memory.unit}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

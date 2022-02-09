@@ -20,7 +20,7 @@ function Info8Icon({
     >
       {title ? <title id={titleId}>{title}</title> : null}
       <path
-        d="M0 1a1 1 0 011-1h6a1 1 0 011 1v10a1 1 0 01-1 1H1a1 1 0 01-1-1V1z"
+        d="M0 2a2 2 0 012-2h4a2 2 0 012 2v8a2 2 0 01-2 2H2a2 2 0 01-2-2V2z"
         fill="#102422"
       />
       <path

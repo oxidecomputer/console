@@ -6,8 +6,8 @@
  *   <fieldset>
  *     <legend>Pick a foot</legend>
  *     <RadioGroup column name="foot">
- *       <Radio value="left">Left</radio>
- *       <Radio value="right">Right</radio>
+ *       <Radio value="left">Left</Radio>
+ *       <Radio value="right">Right</Radio>
  *     </RadioGroup>
  *   </fieldset>
  *
@@ -17,8 +17,8 @@
  *     <legend>Pick a foot</legend>
  *     <p id="foot-hint">Don't think about it too hard</p>
  *     <RadioGroup column name="foot">
- *       <Radio value="left">Left</radio>
- *       <Radio value="right">Right</radio>
+ *       <Radio value="left">Left</Radio>
+ *       <Radio value="right">Right</Radio>
  *     </RadioGroup>
  *   </fieldset>
  *
@@ -45,7 +45,7 @@ import cn from 'classnames'
 
 import { classed } from '@oxide/util'
 
-export const RadioGroupHint = classed.p`text-base text-secondary font-sans-sm max-w-3xl`
+export const RadioGroupHint = classed.p`text-base text-secondary text-sans-sm max-w-3xl`
 
 export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group

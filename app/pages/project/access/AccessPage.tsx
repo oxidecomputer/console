@@ -13,7 +13,7 @@ import {
   Success12Icon,
   Close12Icon,
   Filter12Icon,
-  MoreMiscIcon,
+  More12Icon,
   Search16Icon,
   Unauthorized12Icon,
   Access24Icon,
@@ -75,7 +75,7 @@ const AccessIcon = ({ value }: { value: boolean }) => (
 const NameCell = ({ value }: { value: string }) => (
   <div className="flex items-center">
     <Avatar round size="sm" name={value} className="inline-block" />
-    <span className="text-sm ml-3 font-sans font-light">{value}</span>
+    <span className="ml-3 text-sans-sm">{value}</span>
   </div>
 )
 
@@ -126,7 +126,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <MoreMiscIcon className="mr-4 text-gray-200" />
+        <More12Icon className="mr-4 text-gray-200" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
@@ -179,12 +179,12 @@ export const AccessPage = () => {
                 <Close12Icon />
               </Button>
             </div>
-            <h3 className="font-medium">Choose members</h3>
-            <h3 className="font-medium">Select roles</h3>
+            <h3 className="text-sans-md">Choose members</h3>
+            <h3 className="text-sans-md">Select roles</h3>
           </div>
           <hr className="border-gray-400" />
           <div className="p-8">
-            <h3 className="font-medium">Relevant docs</h3>
+            <h3 className="text-sans-md">Relevant docs</h3>
           </div>
         </div>
         <footer className="modal-footer">
