@@ -8,17 +8,16 @@ interface PaginationProps extends UIPaginationProps {
 }
 /** This component's provided children will be rendered at `#pagination-target` */
 export const Pagination = ({ target, ...props }: PaginationProps) => {
+  if (target === 'inline') return <UIPagination {...props} />
+
   const el = document.getElementById('pagination-target')
   if (!el) return null
-  return target === 'page' ? (
-    ReactDOM.createPortal(
-      <>
-        <hr className="ox-pagination-border" />
-        <UIPagination className="py-5" {...props} />
-      </>,
-      el
-    )
-  ) : (
-    <UIPagination {...props} />
+
+  return ReactDOM.createPortal(
+    <>
+      <hr className="ox-pagination-border" />
+      <UIPagination className="py-5" {...props} />
+    </>,
+    el
   )
 }
