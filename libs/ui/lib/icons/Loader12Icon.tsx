@@ -4,29 +4,27 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function Loader12Icon({
+  title = 'Loader',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={16}
-      height={16}
+      width={12}
+      height={12}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
-        fill="currentColor"
-      />
+      <g strokeWidth={1.5}>
+        <circle cx={6} cy={6} r={5.25} stroke="#353C40" />
+        <path d="M6 .75a5.25 5.25 0 014.536 7.893" stroke="#48D597" />
+      </g>
     </svg>
   )
 }
 
-export default Error16Icon
+export default Loader12Icon

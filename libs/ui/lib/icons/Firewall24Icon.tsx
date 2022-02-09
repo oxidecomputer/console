@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function Firewall24Icon({
+  title = 'Firewall',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={16}
-      height={16}
+      width={24}
+      height={24}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -22,11 +22,11 @@ function Error16Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
+        d="M2 2h9v5H2V2zm0 15h9v5H2v-5zm5-8H2v6h5V9zm10 0h5v6h-5V9zm5-7h-9v5h9V2zm-9 15h9v5h-9v-5zm-2.4-1.91L12 16l1.4-.91c1-.69 1.6-1.854 1.6-3.126V9H9v2.964c0 1.272.6 2.472 1.6 3.127z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Error16Icon
+export default Firewall24Icon

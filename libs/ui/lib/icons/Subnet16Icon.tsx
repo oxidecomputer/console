@@ -4,8 +4,8 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function Subnet16Icon({
+  title = 'Subnet',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
@@ -19,14 +19,16 @@ function Error16Icon({
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
-        fill="currentColor"
-      />
+      <g fill="currentColor">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M0 0h6v6H4v4h2v6H0v-6h2V6H0V0zm10 0h6v6h-2v4h2v6h-6v-6h2V6h-2V0z"
+        />
+        <path d="M11 4V2H5v2h6zM11 14v-2H5v2h6z" />
+      </g>
     </svg>
   )
 }
 
-export default Error16Icon
+export default Subnet16Icon

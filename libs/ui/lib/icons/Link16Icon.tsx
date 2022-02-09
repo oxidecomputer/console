@@ -4,29 +4,31 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Delivery24Icon({
-  title = 'Delivery',
+function Link16Icon({
+  title = 'Link',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={24}
-      height={24}
+      width={16}
+      height={16}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M12 11.9l10-5.5L12 1 2 6.4l10 5.5zm-1 1.7L1 8.1V18l10 5.5v-9.9zm2 9.9v-9.9l10-5.5V18l-10 5.5z"
-        fill="currentColor"
-      />
+      <g fill="currentColor">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M14 5v6h-4v2h6V3h-6v2h4zM6 5V3H0v10h6v-2H2V5h4z"
+        />
+        <path d="M11 7v2H5V7z" />
+      </g>
     </svg>
   )
 }
 
-export default Delivery24Icon
+export default Link16Icon

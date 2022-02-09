@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function Router24Icon({
+  title = 'Router',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={16}
-      height={16}
+      width={24}
+      height={24}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -22,11 +22,11 @@ function Error16Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
+        d="M16 5l-4-4-4 4h2v4h4V5h2zm-1 7l4-4v2h4v4h-4v2l-4-4zM5 10H1v4h4v2l4-4-4-4v2zm9 9v-4h-4v4H8l4 4 4-4h-2z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Error16Icon
+export default Router24Icon

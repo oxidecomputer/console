@@ -4,26 +4,29 @@ interface SVGRProps {
   titleId?: string
 }
 
-function More24Icon({
-  title = 'More',
+function SoftwareUpdate16Icon({
+  title = 'SoftwareUpdate',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={24}
-      height={24}
+      width={16}
+      height={16}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
       {...props}
     >
       {title ? <title id={titleId}>{title}</title> : null}
-      <g fill="currentColor">
-        <path d="M10 1h4v6h-4V1zm0 16h4v6h-4v-6zM14 9h-4v6h4V9z" />
-      </g>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 5L8 1 4 5h8zM1 7h14v8H1V7zm7 2l4 4H4l4-4z"
+        fill="currentColor"
+      />
     </svg>
   )
 }
 
-export default More24Icon
+export default SoftwareUpdate16Icon
