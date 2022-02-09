@@ -116,20 +116,6 @@ tr:last-of-type td:last-of-type {
   box-shadow: 1px 0px rgb(72 213 151);
 }
 
-.ox-table
-  .multi-selection:not(.selection-start):not(.selection-end)
-  td:first-child
-  > div,
-.ox-table
-  .multi-selection:not(.selection-start):not(.selection-end)
-  td:last-child
-  > div {
-  /* This little piece of skulduggery is required to ensure the box-shadows touch and the content stays in place */
-  margin-top: -4px;
-  height: calc(100% + 5px);
-  padding-top: 3px;
-}
-
 /* Fills gaps between borders that show up in Safari and Chrome on OSX */
 .ox-table .multi-selection:not(.selection-end) td:first-child,
 .ox-table .multi-selection:not(.selection-end) td:last-child {
@@ -157,9 +143,10 @@ tr:last-of-type td:last-of-type {
   padding-top: 3px;
 }
 
+/* Account for layout shift at the bottom of the table */
 .ox-table .selection-end:last-of-type td > div {
   margin-top: -3px;
-  height: calc(100% + 5px);
+  height: calc(100% + 7px);
 }
 
 /* Adds the selected border for the bottom left corner of a selection */
