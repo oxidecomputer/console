@@ -221,6 +221,18 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, InstanceParams, Json<Api.DiskResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+    (req, res, ctx) => {
+      const instance = lookupInstance(req, res, ctx)
+      if (instance.err) return instance.err
+      const disks = db.disks.filter(
+        (d) => 'instance' in d.state && d.state.instance === instance.ok.id
+      )
+      return res(json({ items: disks }))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res, ctx) => {
