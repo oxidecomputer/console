@@ -13,7 +13,7 @@ import {
   Success12Icon,
   Close12Icon,
   Filter12Icon,
-  MoreMiscIcon,
+  More12Icon,
   Search16Icon,
   Unauthorized12Icon,
   Access24Icon,
@@ -126,7 +126,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <MoreMiscIcon className="mr-4 text-gray-200" />
+        <More12Icon className="mr-4 text-gray-200" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
