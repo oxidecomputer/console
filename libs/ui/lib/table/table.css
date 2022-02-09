@@ -143,10 +143,21 @@ tr:last-of-type td:last-of-type {
   padding-top: 3px;
 }
 
-/* Account for layout shift at the bottom of the table */
+/* Account for layout shift at the bottom of the table as best we can */
 .ox-table .selection-end:last-of-type td > div {
-  margin-top: -3px;
-  height: calc(100% + 7px);
+  margin-top: -4px;
+  height: calc(100% + 8px);
+  margin-bottom: -1px;
+}
+
+/* Correct for firefox's wider variation in table border spacing */
+@supports (-moz-appearance: none) {
+  .ox-table .selection-end:last-of-type td > div {
+    margin-top: -2px;
+    height: calc(100% + 4px);
+    padding-top: 2px;
+    padding-bottom: 1px;
+  }
 }
 
 /* Adds the selected border for the bottom left corner of a selection */
