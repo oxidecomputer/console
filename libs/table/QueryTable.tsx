@@ -20,7 +20,6 @@ import type {
 } from '@oxide/api'
 import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
-import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 
@@ -64,9 +63,6 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
-  rowId?:
-    | string
-    | ((row: Row, relativeIndex: number, parent: unknown) => string)
   actions?: MakeActions<ResultItem<A[M]>>
   pagination?: 'inline' | 'page'
   pageSize?: number
@@ -84,7 +80,6 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     selectable,
     actions,
     debug,
-    rowId,
     pagination = 'page',
     pageSize = 10,
   }: QueryTableProps<A, M>) {
@@ -125,15 +120,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
 
     const tableData = useMemo(() => (data as any)?.items || [], [data])
 
-    const getRowId = useCallback(
-      (row, relativeIndex, parent) => {
-        if (!rowId) return row.id
-        return typeof rowId === 'string'
-          ? unsafe_get(row, rowId)
-          : rowId(row, relativeIndex, parent)
-      },
-      [rowId]
-    )
+    const getRowId = useCallback((row) => row.id, [])
 
     const table = useTable(
       {
