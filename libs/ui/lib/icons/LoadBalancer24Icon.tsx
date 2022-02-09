@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function LoadBalancer24Icon({
+  title = 'LoadBalancer',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={16}
-      height={16}
+      width={24}
+      height={24}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -22,11 +22,11 @@ function Error16Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
+        d="M15 2H9v5h2v3H3v7H1v5h6v-5H5v-5h6v5H9v5h6v-5h-2v-5h6v5h-2v5h6v-5h-2v-7h-8V7h2V2z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Error16Icon
+export default LoadBalancer24Icon

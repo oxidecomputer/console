@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function SoftwareUpdate24Icon({
+  title = 'SoftwareUpdate',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={16}
-      height={16}
+      width={24}
+      height={24}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -22,11 +22,11 @@ function Error16Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
+        d="M12 2l4 4H8l4-4zm10 6H2v8h20V8zm-6 6l-4-4-4 4h8zm0 8l-4-4-4 4h8z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Error16Icon
+export default SoftwareUpdate24Icon

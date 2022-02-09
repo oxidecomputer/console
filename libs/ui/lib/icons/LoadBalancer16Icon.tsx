@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Star24Icon({
-  title = 'Star',
+function LoadBalancer16Icon({
+  title = 'LoadBalancer',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={24}
-      height={24}
+      width={16}
+      height={16}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -20,11 +20,13 @@ function Star24Icon({
     >
       {title ? <title id={titleId}>{title}</title> : null}
       <path
-        d="M12 1l2.7 4.5 5.1-1.3-1.3 5.1L23 12l-4.5 2.7 1.3 5.1-5.1-1.3L12 23l-2.7-4.5-5.1 1.3 1.3-5.1L1 12l4.5-2.7-1.3-5.1 5.1 1.3L12 1z"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M11 0H5v5h2v2H2v4H0v5h6v-5H4V9h8v2h-2v5h6v-5h-2V7H9V5h2V0z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Star24Icon
+export default LoadBalancer16Icon

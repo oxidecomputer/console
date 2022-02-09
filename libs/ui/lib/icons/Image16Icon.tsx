@@ -4,8 +4,8 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Error16Icon({
-  title = 'Error',
+function Image16Icon({
+  title = 'Image',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
@@ -22,11 +22,11 @@ function Error16Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 15A7 7 0 108 1a7 7 0 000 14zM5.53 4.47L8 6.94l2.47-2.47 1.06 1.06L9.06 8l2.47 2.47-1.06 1.06L8 9.06l-2.47 2.47-1.06-1.06L6.94 8 4.47 5.53l1.06-1.06z"
+        d="M1 5.088v6.869l6 2.608V7.66L1 5.088zm8 9.477l6-2.608V5.088L9 7.659v6.906zm4.69-11.091L8 1 2.31 3.474 8 5.912l5.69-2.438z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Error16Icon
+export default Image16Icon
