@@ -53,7 +53,7 @@ export type Disk = {
 }
 
 /**
- * Create-time parameters for a [`Disk`]
+ * Create-time parameters for a [`Disk`](omicron_common::api::external::Disk)
  */
 export type DiskCreate = {
   description: string
@@ -69,7 +69,7 @@ export type DiskCreate = {
 }
 
 /**
- * Parameters for the [`Disk`] to be attached or detached to an instance
+ * Parameters for the [`Disk`](omicron_common::api::external::Disk) to be attached or detached to an instance
  */
 export type DiskIdentifier = {
   disk: Name
@@ -170,7 +170,7 @@ export type Instance = {
 export type InstanceCpuCount = number
 
 /**
- * Create-time parameters for an [`Instance`]
+ * Create-time parameters for an [`Instance`](omicron_common::api::external::Instance)
  */
 export type InstanceCreate = {
   description: string
@@ -181,7 +181,7 @@ export type InstanceCreate = {
 }
 
 /**
- * Migration parameters for an [`Instance`]
+ * Migration parameters for an [`Instance`](omicron_common::api::external::Instance)
  */
 export type InstanceMigrate = {
   dstSledUuid: string
@@ -223,15 +223,26 @@ export type InstanceState =
  */
 export type Ipv4Net = string
 
+/** Regex pattern for validating Ipv4Net */
+export const ipv4NetPattern =
+  '^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$'
+
 /**
  * An IPv6 subnet, including prefix and subnet mask
  */
 export type Ipv6Net = string
 
+/** Regex pattern for validating Ipv6Net */
+export const ipv6NetPattern =
+  '^(fd|FD)[0-9a-fA-F]{2}:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
  */
 export type L4PortRange = string
+
+/** Regex pattern for validating L4PortRange */
+export const l4PortRangePattern = '^[0-9]{1,5}(-[0-9]{1,5})?$'
 
 export type LoginParams = {
   username: string
@@ -242,10 +253,16 @@ export type LoginParams = {
  */
 export type MacAddr = string
 
+/** Regex pattern for validating MacAddr */
+export const macAddrPattern = '^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$'
+
 /**
  * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
  */
 export type Name = string
+
+/** Regex pattern for validating Name */
+export const namePattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.
@@ -334,7 +351,7 @@ export type Organization = {
 }
 
 /**
- * Create-time parameters for an [`Organization`]
+ * Create-time parameters for an [`Organization`](crate::external_api::views::Organization)
  */
 export type OrganizationCreate = {
   description: string
@@ -356,7 +373,7 @@ export type OrganizationResultsPage = {
 }
 
 /**
- * Updateable properties of an [`Organization`]
+ * Updateable properties of an [`Organization`](crate::external_api::views::Organization)
  */
 export type OrganizationUpdate = {
   description?: string | null
@@ -391,7 +408,7 @@ export type Project = {
 }
 
 /**
- * Create-time parameters for a [`Project`]
+ * Create-time parameters for a [`Project`](crate::external_api::views::Project)
  */
 export type ProjectCreate = {
   description: string
@@ -413,7 +430,7 @@ export type ProjectResultsPage = {
 }
 
 /**
- * Updateable properties of a [`Project`]
+ * Updateable properties of a [`Project`](crate::external_api::views::Project)
  */
 export type ProjectUpdate = {
   description?: string | null
@@ -472,6 +489,9 @@ export type Role = {
  * Role names consist of two string components separated by dot (".").
  */
 export type RoleName = string
+
+/** Regex pattern for validating RoleName */
+export const roleNamePattern = '[a-z-]+.[a-z-]+'
 
 /**
  * A single page of results
@@ -670,6 +690,10 @@ export type SledResultsPage = {
  */
 export type TimeseriesName = string
 
+/** Regex pattern for validating TimeseriesName */
+export const timeseriesNamePattern =
+  '(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*):(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*)'
+
 /**
  * The schema for a timeseries.
  *
@@ -753,6 +777,10 @@ export type Vpc = {
    */
   id: string
   /**
+   * The unique local IPv6 address range for subnets in this VPC
+   */
+  ipv6Prefix: Ipv6Net
+  /**
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
@@ -775,11 +803,12 @@ export type Vpc = {
 }
 
 /**
- * Create-time parameters for a [`Vpc`]
+ * Create-time parameters for a [`Vpc`](crate::external_api::views::Vpc)
  */
 export type VpcCreate = {
   description: string
   dnsName: Name
+  ipv6Prefix?: Ipv6Net | null
   name: Name
 }
 
@@ -831,6 +860,10 @@ export type VpcFirewallRule = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * the VPC to which this rule belongs
+   */
+  vpcId: string
 }
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'
@@ -870,20 +903,6 @@ export type VpcFirewallRuleHostFilter =
  */
 export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 
-/**
- * A single page of results
- */
-export type VpcFirewallRuleResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: VpcFirewallRule[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
-}
-
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
@@ -915,6 +934,10 @@ export type VpcFirewallRuleUpdate = {
    */
   filters: VpcFirewallRuleFilter
   /**
+   * name of the rule, unique to this VPC
+   */
+  name: Name
+  /**
    * the relative priority of this rule
    */
   priority: number
@@ -929,14 +952,18 @@ export type VpcFirewallRuleUpdate = {
 }
 
 /**
- * Updateable properties of a [`Vpc`]'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
+ * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = Record<string, VpcFirewallRuleUpdate>
+export type VpcFirewallRuleUpdateParams = {
+  rules: VpcFirewallRuleUpdate[]
+}
 
 /**
- * Response to an update replacing [`Vpc`]'s firewall
+ * Collection of a [`Vpc`]'s firewall rules
  */
-export type VpcFirewallRuleUpdateResult = Record<string, VpcFirewallRule>
+export type VpcFirewallRules = {
+  rules: VpcFirewallRule[]
+}
 
 /**
  * A single page of results
@@ -984,7 +1011,7 @@ export type VpcRouter = {
 }
 
 /**
- * Create-time parameters for a [`VpcRouter`]
+ * Create-time parameters for a [`VpcRouter`](omicron_common::api::external::VpcRouter)
  */
 export type VpcRouterCreate = {
   description: string
@@ -1008,7 +1035,7 @@ export type VpcRouterResultsPage = {
 }
 
 /**
- * Updateable properties of a [`VpcRouter`]
+ * Updateable properties of a [`VpcRouter`](omicron_common::api::external::VpcRouter)
  */
 export type VpcRouterUpdate = {
   description?: string | null
@@ -1054,7 +1081,7 @@ export type VpcSubnet = {
 }
 
 /**
- * Create-time parameters for a [`VpcSubnet`]
+ * Create-time parameters for a [`VpcSubnet`](crate::external_api::views::VpcSubnet)
  */
 export type VpcSubnetCreate = {
   description: string
@@ -1078,7 +1105,7 @@ export type VpcSubnetResultsPage = {
 }
 
 /**
- * Updateable properties of a [`VpcSubnet`]
+ * Updateable properties of a [`VpcSubnet`](crate::external_api::views::VpcSubnet)
  */
 export type VpcSubnetUpdate = {
   description?: string | null
@@ -1088,7 +1115,7 @@ export type VpcSubnetUpdate = {
 }
 
 /**
- * Updateable properties of a [`Vpc`]
+ * Updateable properties of a [`Vpc`](crate::external_api::views::Vpc)
  */
 export type VpcUpdate = {
   description?: string | null
@@ -1427,18 +1454,6 @@ export interface ProjectVpcsDeleteVpcParams {
 }
 
 export interface VpcFirewallRulesGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
-  limit?: number | null
-
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
-  pageToken?: string | null
-
-  sortBy?: NameSortMode
-
   orgName: Name
 
   projectName: Name
@@ -2445,13 +2460,12 @@ export class Api extends HttpClient {
      * List firewall rules for a VPC.
      */
     vpcFirewallRulesGet: (
-      { orgName, projectName, vpcName, ...query }: VpcFirewallRulesGetParams,
+      { orgName, projectName, vpcName }: VpcFirewallRulesGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRuleResultsPage, any>({
+      this.request<VpcFirewallRules, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'GET',
-        query: query,
         ...params,
       }),
 
@@ -2463,7 +2477,7 @@ export class Api extends HttpClient {
       data: VpcFirewallRuleUpdateParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRuleUpdateResult, any>({
+      this.request<VpcFirewallRules, any>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'PUT',
         body: data,

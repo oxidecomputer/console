@@ -118,7 +118,7 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 | Command         | Description                                                                        |
 | --------------- | ---------------------------------------------------------------------------------- |
-| `yarn test:run` | Vitest tests                                                                       |
+| `yarn test run` | Vitest tests                                                                       |
 | `yarn test`     | Vitest tests in watch mode                                                         |
 | `yarn lint`     | ESLint                                                                             |
 | `yarn tsc`      | Check types                                                                        |

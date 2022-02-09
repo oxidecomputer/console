@@ -23,6 +23,7 @@ export interface DropdownProps {
    */
   showLabel?: boolean
   className?: string
+  onChange?: (value: Item | null | undefined) => void
 }
 
 export const Dropdown: FC<DropdownProps> = ({
@@ -33,12 +34,16 @@ export const Dropdown: FC<DropdownProps> = ({
   placeholder,
   showLabel = true,
   className,
+  onChange,
 }) => {
   const itemToString = (item: Item | null) => (item ? item.label : '')
   const select = useSelect({
     initialSelectedItem: items.find((i) => i.value === defaultValue) || null,
     items,
     itemToString,
+    onSelectedItemChange(changes) {
+      onChange?.(changes.selectedItem)
+    },
   })
   const hintId = hint ? `${select.getLabelProps().id}-hint` : null
 
