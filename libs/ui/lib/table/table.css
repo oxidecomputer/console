@@ -130,6 +130,12 @@ tr:last-of-type td:last-of-type {
   padding-top: 3px;
 }
 
+/* Fills gaps between borders that show up in Safari and Chrome on OSX */
+.ox-table .multi-selection:not(.selection-end) td:first-child,
+.ox-table .multi-selection:not(.selection-end) td:last-child {
+  @apply border-accent;
+}
+
 /* Adds the selected border for the top right corner of a selection */
 .ox-table .selection-start td:last-child > div {
   border-top-right-radius: 0.125rem;
