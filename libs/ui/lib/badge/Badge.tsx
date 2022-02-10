@@ -26,7 +26,7 @@ export const badgeColors: Record<
     notice: 'bg-notice-solid text-black',
   },
   dim: {
-    default: 'bg-accent-dim text-accent',
+    default: 'bg-accent-dim text-accent selected:bg-accent-secondary',
     destructive: 'bg-destructive-dim text-destructive',
     notice: 'bg-notice-dim text-notice',
     darkGray: 'bg-disabled text-secondary',

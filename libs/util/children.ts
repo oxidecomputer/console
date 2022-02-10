@@ -1,5 +1,6 @@
 import type {
   Component,
+  ComponentProps,
   ComponentType,
   ReactChildren,
   ReactElement,
@@ -24,12 +25,18 @@ export const addKey =
   (child: Component | ReactElement, index: number): ReactElement =>
     React.cloneElement(child as ReactElement, { key: makeKey(index) })
 
-// TODO: Make generic / add better types
 export const addProps =
-  (makeProps: (i: number, props: object) => object) =>
-  (child: Component | ReactElement, index: number): ReactElement =>
+  <C extends React.ComponentType<unknown>, P = ComponentProps<C>>(
+    makeProps: (
+      i: number,
+      props: P,
+      children: Array<C & { props: P }>
+    ) => Record<string, unknown>
+  ) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (child: any, index: number, children: any): ReactElement =>
     React.cloneElement(child as ReactElement, {
-      ...makeProps(index, child?.props),
+      ...makeProps(index, child?.props, children),
     })
 
 /**

@@ -40,6 +40,7 @@ export const Table = <D extends object>({
           <UITable.Row
             {...row.getRowProps()}
             className={rowClassName}
+            selected={row.isSelected}
             key={row.id}
           >
             {row.cells.map((cell) => (

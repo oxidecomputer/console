@@ -1,6 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 import './table.css'
+import { addProps } from '@oxide/util'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
@@ -27,7 +28,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'border border-x-0 bg-secondary border-default children:first:border-0'
+      'border border-x-0 pl-0 text-left text-mono-sm bg-secondary border-default children:first:border-0'
     )}
     {...props}
   >
@@ -37,29 +38,52 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   </th>
 )
 
-export type TableRowProps = JSX.IntrinsicElements['tr']
-Table.Row = ({ className, ...props }: TableRowProps) => (
-  <tr className={cn(className, 'bg-default hover:bg-raise')} {...props} />
-)
-
-export type TableBodyProps = JSX.IntrinsicElements['tbody']
-Table.Body = ({ className, ...props }: TableBodyProps) => (
-  <tbody
-    className={cn(className, 'between:border-t between:border-secondary')}
+export type TableRowProps = JSX.IntrinsicElements['tr'] & {
+  selected?: boolean
+}
+Table.Row = ({ className, selected, ...props }: TableRowProps) => (
+  <tr
+    className={cn(className, (selected && 'is-selected') || 'hover:bg-raise')}
     {...props}
   />
 )
+
+export type TableBodyProps = JSX.IntrinsicElements['tbody']
+Table.Body = ({ className, children, ...props }: TableBodyProps) => {
+  const rows = React.Children.toArray(children).map(
+    addProps<typeof Table.Row>((i, props, siblings) => {
+      const beforeSelected = siblings[i - 1]?.props.selected
+      const afterSelected = siblings[i + 1]?.props.selected
+      if (props.selected && (beforeSelected || afterSelected)) {
+        return {
+          className: cn(
+            props.className,
+            'multi-selection',
+            !beforeSelected && 'selection-start',
+            !afterSelected && 'selection-end'
+          ),
+        }
+      }
+      return {}
+    })
+  )
+  return (
+    <tbody className={className} {...props}>
+      {rows}
+    </tbody>
+  )
+}
 
 export type TableCellProps = JSX.IntrinsicElements['td']
 Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'h-16 border-default children:first:-ml-[1px] children:first:border-l-0 children:last:-mr-[1px]'
+      'h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent selected:bg-accent-dim'
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 text-sans-sm border-secondary">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary selected:border-accent-tertiary">
       {children}
     </div>
   </td>

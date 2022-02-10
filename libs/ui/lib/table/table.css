@@ -39,6 +39,144 @@ tr:last-of-type td:last-of-type {
   border-right-width: 1px;
 }
 
-.ox-table tr:last-child td div {
+.ox-table tr:last-child td > div {
   border-bottom-width: 0px;
 }
+
+/* === Begin table selection styles === */
+
+/** 
+ * Our table selection styles dictate complex behaviors like rounded selection corners,
+ * grouped selections, and seemless border overlap. To acheive this, `box-shadow` properties
+ * are used for selection border styles. To make this effect possible, special classes were
+ * added to the table. Those classes are:
+ * 
+ * - `.is-selected` -- present on every selected row
+ * - `.multi-selection` -- present on every selected row that has at least one direct sibling which is also selected 
+ * - `.selection-start` -- the first selected item in a `multi-selection` group
+ * - `.selection-end` -- the last selected item in a `multi-selection` group
+ */
+
+/* Left-most cell of a single selection */
+.ox-table .is-selected:not(.multi-selection) td:first-child > div {
+  border-top-left-radius: 0.125rem;
+  border-bottom-left-radius: 0.125rem;
+  box-shadow: -1px -1px var(--stroke-accent), -1px 1px var(--stroke-accent);
+}
+
+/* Right-most cell of a single selection */
+.ox-table .is-selected:not(.multi-selection) td:last-child > div {
+  border-top-right-radius: 0.125rem;
+  box-shadow: 1px -1px var(--stroke-accent), 1px 1px var(--stroke-accent);
+  border-bottom-right-radius: 0.125rem;
+}
+
+/* All cells of a single selection */
+.ox-table .is-selected:not(.multi-selection) td > div {
+  box-shadow: 0px 1px var(--stroke-accent), 0px -1px var(--stroke-accent);
+  margin-top: -2px;
+  border-bottom: 0;
+  height: calc(100% + 1px);
+}
+
+.ox-table .is-selected:not(.multi-selection):last-of-type td > div {
+  margin-top: -1px;
+  height: calc(100% + 3px);
+}
+
+/* Defines the top border of a selection */
+.ox-table .is-selected td > div {
+  box-shadow: 0px -1px var(--stroke-accent);
+}
+
+/* Ensures subsequent, interior selected rows don't have a top border */
+.ox-table .multi-selection:not(.selection-start):not(.selection-end) td > div {
+  box-shadow: none;
+}
+
+/* Adds the selected border for the top left corner of a selection */
+.ox-table .selection-start td:first-child > div {
+  border-top-left-radius: 0.125rem;
+  box-shadow: -1px -1px var(--stroke-accent);
+  margin-right: -3px;
+}
+
+/* Ensures subsequent, interior selections have side borders */
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:first-child
+  > div {
+  box-shadow: -1px 0px var(--stroke-accent);
+}
+
+.ox-table
+  .multi-selection:not(.selection-start):not(.selection-end)
+  td:last-child
+  > div {
+  box-shadow: 1px 0px var(--stroke-accent);
+}
+
+/* Fills gaps between borders that show up in Safari and Chrome on OSX */
+.ox-table .multi-selection:not(.selection-end) td:first-child,
+.ox-table .multi-selection:not(.selection-end) td:last-child {
+  @apply border-accent;
+}
+
+/* Adds the selected border for the top right corner of a selection */
+.ox-table .selection-start td:last-child > div {
+  border-top-right-radius: 0.125rem;
+  box-shadow: 1px -1px var(--stroke-accent);
+}
+/* Ensures the top right border and the cell next to it have their box-shadows overlap */
+.ox-table .selection-start td:nth-last-child(2) > div {
+  margin-right: -3px;
+}
+
+.ox-table .selection-end td > div {
+  box-shadow: 0px 1px var(--stroke-accent);
+}
+
+.ox-table .selection-end td > div {
+  border-bottom: 0;
+  height: calc(100% + 3px);
+  margin-top: -5px;
+  padding-top: 3px;
+}
+
+/* Account for layout shift at the bottom of the table as best we can */
+.ox-table .selection-end:last-of-type td > div {
+  margin-top: -4px;
+  height: calc(100% + 8px);
+  margin-bottom: -1px;
+}
+
+/* Correct for firefox's wider variation in table border spacing */
+@supports (-moz-appearance: none) {
+  .ox-table .selection-end:last-of-type td > div {
+    margin-top: -2px;
+    height: calc(100% + 4px);
+    padding-top: 2px;
+    padding-bottom: 1px;
+  }
+}
+
+/* Adds the selected border for the bottom left corner of a selection */
+.ox-table .selection-end td:first-child > div {
+  border-bottom-left-radius: 0.125rem;
+  box-shadow: -1px 1px var(--stroke-accent);
+  margin-right: -4px;
+}
+
+.ox-table .selection-end td:last-child > div {
+  border-bottom-right-radius: 0.125rem;
+  box-shadow: 1px 1px var(--stroke-accent);
+}
+
+.ox-table .selection-end td:last-child > div,
+.ox-table .is-selected:not(.multi-selection) td:last-child > div {
+  @apply relative -ml-0.5 border-l-0 before:absolute before:left-0.5 before:bottom-1 before:top-0 before:block before:h-full before:border-l before:border-accent-tertiary;
+  /* Avoid layout shift caused by the border being inline with the content */
+  padding-left: calc(1rem - 1px);
+}
+
+/* === End table selection styles === */
