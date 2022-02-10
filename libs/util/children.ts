@@ -31,7 +31,7 @@ export const addProps =
       i: number,
       props: P,
       children: Array<C & { props: P }>
-    ) => object
+    ) => Record<string, unknown>
   ) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (child: any, index: number, children: any): ReactElement =>
