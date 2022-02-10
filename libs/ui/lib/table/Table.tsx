@@ -51,7 +51,7 @@ Table.Row = ({ className, selected, ...props }: TableRowProps) => (
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
 Table.Body = ({ className, children, ...props }: TableBodyProps) => {
   const rows = React.Children.toArray(children).map(
-    addProps<typeof Table['Row']>((i, props, siblings) => {
+    addProps<typeof Table.Row>((i, props, siblings) => {
       const beforeSelected = siblings[i - 1]?.props.selected
       const afterSelected = siblings[i + 1]?.props.selected
       if (props.selected && (beforeSelected || afterSelected)) {
