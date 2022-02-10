@@ -166,7 +166,6 @@ module.exports.colorUtilities = {
   },
   '.bg-scrim': {
     'background-color': 'var(--surface-scrim)',
-    opacity: 0.4,
   },
   '.bg-secondary-hover': {
     'background-color': 'var(--surface-secondary-hover)',
@@ -595,19 +594,15 @@ module.exports.colorUtilities = {
   },
   '.chart-fill-area-primary': {
     fill: 'var(--chart-fill-area-primary)',
-    opacity: 0.7019607843137254,
   },
   '.chart-fill-area-secondary': {
     fill: 'var(--chart-fill-area-secondary)',
-    opacity: 0.7019607843137254,
   },
   '.chart-fill-area-tertiary': {
     fill: 'var(--chart-fill-area-tertiary)',
-    opacity: 0.7019607843137254,
   },
   '.chart-fill-area-quaternary': {
     fill: 'var(--chart-fill-area-quaternary)',
-    opacity: 0.2,
   },
   '.chart-fill-item-primary': {
     fill: 'var(--chart-fill-item-primary)',
@@ -650,17 +645,14 @@ module.exports.colorUtilities = {
   },
   '.chart-stroke-y-axis': {
     stroke: 'var(--chart-stroke-y-axis)',
-    opacity: 0.4,
   },
   '.chart-stroke-item': {
     stroke: 'var(--chart-stroke-item)',
-    opacity: 0.4,
   },
   '.chart-stroke-item-inactive': {
     stroke: 'var(--chart-stroke-item-inactive)',
   },
   '.chart-stroke-error': {
     stroke: 'var(--chart-stroke-error)',
-    opacity: 0.4,
   },
 }

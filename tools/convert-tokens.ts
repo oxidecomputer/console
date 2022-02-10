@@ -16,6 +16,10 @@ const FONT_FAMILIES = {
     'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
 }
 
+const hexToRGB = (hexColor: string) => {
+  return hexColor.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16))
+}
+
 const percentToRem = (value: string) => {
   return parseFloat(value) / 100 + 'rem'
 }
@@ -93,19 +97,37 @@ StyleDictionary.registerFormat({
         .filter((prop) => typeof prop.value !== 'object')
         .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
         .map((prop) => {
-          const color = prop.value.slice(0, 7)
-          if (color in colors) {
-            if (prop.name.startsWith('theme-'))
-              return `--${prop.name}: var(--${colors[prop.value]});`
-            if (!prop.name.startsWith('base-')) {
-              return `--${prop.name}: var(--${
-                themes[color] || colors[color] || color
-              });`
-            }
-            if (prop.name.startsWith('base-') && options.selector !== ':root')
-              return ''
+          const color: string = prop.value.slice(0, 7)
+          const alpha: string = prop.value.slice(7, 9)
+          if (alpha) {
+            console.log('alpha:', alpha)
           }
-          return `--${prop.name}: ${prop.value};`
+          const rgbColor = hexToRGB(prop.value.slice(1))
+          if (!rgbColor) {
+            throw new Error(
+              `Invalid color for ${prop.name}. Expected a hex value, got '${prop.value}'`
+            )
+          }
+          if (color in colors) {
+            if (prop.name.startsWith('base-')) {
+              return options.selector === ':root'
+                ? `--${prop.name}: ${rgbColor}; /* ${prop.value} */`
+                : ''
+            }
+            if (prop.name.startsWith('theme-')) {
+              return `--${prop.name}: var(--${colors[prop.value]});`
+            }
+            if (alpha) {
+              return `--${prop.name}: rgba(var(--${
+                themes[color] || colors[color]
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              }), ${hexToRGB(alpha)![0] / 255});`
+            }
+            return `--${prop.name}: rgb(var(--${
+              themes[color] || colors[color]
+            }));`
+          }
+          return `--${prop.name}: ${alpha ? 'rgba' : 'rgb'}(${rgbColor});`
         })
         .join('\n')}
     }\n`
@@ -135,11 +157,6 @@ const makeColorUtility = (
         (color) => `
         '.${color.name.replace(tokenPrefix, classPrefix)}': {
           ${properties.map((prop) => `'${prop}': 'var(--${color.name})'`)}
-          ${
-            (color.attributes?.opacity &&
-              `,opacity: ${color.attributes.opacity}`) ||
-            ''
-          }
         }`
       )
 }
@@ -232,31 +249,12 @@ StyleDictionary.registerTransform({
   },
 })
 
-StyleDictionary.registerTransform({
-  name: 'color-opacity',
-  type: 'attribute',
-  transformer(token) {
-    if (token.original.type === 'color' && token.value.length > 7) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      token.attributes!.opacity = (parseInt(token.value.slice(7, 9), 16) /
-        255) as number
-    }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return token.attributes!
-  },
-})
-
 const makeConfig = (theme: typeof THEMES[number]) => {
   const config: Config = {
     source: [`libs/ui/styles/.tokens/${theme}.json`],
     platforms: {
       web: {
-        transforms: [
-          'attribute/cti',
-          'name/cti/kebab',
-          'remove-default',
-          'color-opacity',
-        ],
+        transforms: ['attribute/cti', 'name/cti/kebab', 'remove-default'],
         buildPath: 'libs/ui/styles/themes/',
         files: [
           {
