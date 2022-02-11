@@ -200,14 +200,14 @@ module.exports.colorUtilities = {
   '.bg-destructive-light-hover': {
     'background-color': 'var(--surface-destructive-light-hover)',
   },
-  '.bg-notice-raise': {
-    'background-color': 'var(--surface-notice-raise)',
-  },
   '.bg-notice-dim': {
     'background-color': 'var(--surface-notice-dim)',
   },
   '.bg-notice-solid': {
     'background-color': 'var(--surface-notice-solid)',
+  },
+  '.bg-notice-raise': {
+    'background-color': 'var(--surface-notice-raise)',
   },
   '.bg-notice-dark-hover': {
     'background-color': 'var(--surface-notice-dark-hover)',
@@ -591,5 +591,68 @@ module.exports.colorUtilities = {
   },
   '.outline-notice-tertiary': {
     'outline-color': 'var(--stroke-notice-tertiary)',
+  },
+  '.chart-fill-area-primary': {
+    fill: 'var(--chart-fill-area-primary)',
+  },
+  '.chart-fill-area-secondary': {
+    fill: 'var(--chart-fill-area-secondary)',
+  },
+  '.chart-fill-area-tertiary': {
+    fill: 'var(--chart-fill-area-tertiary)',
+  },
+  '.chart-fill-area-quaternary': {
+    fill: 'var(--chart-fill-area-quaternary)',
+  },
+  '.chart-fill-item-primary': {
+    fill: 'var(--chart-fill-item-primary)',
+  },
+  '.chart-fill-item-secondary': {
+    fill: 'var(--chart-fill-item-secondary)',
+  },
+  '.chart-fill-item-tertiary': {
+    fill: 'var(--chart-fill-item-tertiary)',
+  },
+  '.chart-fill-item-quaternary': {
+    fill: 'var(--chart-fill-item-quaternary)',
+  },
+  '.chart-fill-error-primary': {
+    fill: 'var(--chart-fill-error-primary)',
+  },
+  '.chart-fill-error-secondary': {
+    fill: 'var(--chart-fill-error-secondary)',
+  },
+  '.chart-fill-error-tertiary': {
+    fill: 'var(--chart-fill-error-tertiary)',
+  },
+  '.chart-fill-error-quaternary': {
+    fill: 'var(--chart-fill-error-quaternary)',
+  },
+  '.chart-fill-inactive': {
+    fill: 'var(--chart-fill-inactive)',
+  },
+  '.chart-stroke-line': {
+    stroke: 'var(--chart-stroke-line)',
+  },
+  '.chart-stroke-line-secondary': {
+    stroke: 'var(--chart-stroke-line-secondary)',
+  },
+  '.chart-stroke-line-tertiary': {
+    stroke: 'var(--chart-stroke-line-tertiary)',
+  },
+  '.chart-stroke-line-quaternary': {
+    stroke: 'var(--chart-stroke-line-quaternary)',
+  },
+  '.chart-stroke-y-axis': {
+    stroke: 'var(--chart-stroke-y-axis)',
+  },
+  '.chart-stroke-item': {
+    stroke: 'var(--chart-stroke-item)',
+  },
+  '.chart-stroke-item-inactive': {
+    stroke: 'var(--chart-stroke-item-inactive)',
+  },
+  '.chart-stroke-error': {
+    stroke: 'var(--chart-stroke-error)',
   },
 }
