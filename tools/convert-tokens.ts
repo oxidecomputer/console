@@ -90,7 +90,6 @@ StyleDictionary.registerFormat({
           const color: string = prop.value.slice(0, 7)
           const alpha: string = prop.value.slice(7, 9)
           const rgbColor = hexToRGB(color.slice(1))
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const alphaValue = alpha && hexToRGB(alpha)[0] / 255
           if (!rgbColor) {
             throw new Error(
