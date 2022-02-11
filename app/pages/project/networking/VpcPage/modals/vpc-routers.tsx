@@ -36,7 +36,7 @@ const CommonForm = ({ error, id }: FormProps) => (
       </div>
     </SideModal.Section>
     <SideModal.Section>
-      <div className="text-red-500">{getServerError(error)}</div>
+      <div className="text-destructive">{getServerError(error)}</div>
     </SideModal.Section>
   </Form>
 )

@@ -2,15 +2,15 @@
  * Solid
  */
 .btn-solid-accent {
-  @apply text-black bg-accent-solid hover:bg-accent-light-hover disabled:text-accent-disabled disabled:bg-accent-solid;
+  @apply text-inverse bg-accent-solid hover:bg-accent-light-hover disabled:text-accent-disabled disabled:bg-accent-solid;
 }
 
 .btn-solid-notice {
-  @apply text-black bg-notice-solid hover:bg-notice-light-hover disabled:text-notice-disabled disabled:bg-notice-solid;
+  @apply text-inverse bg-notice-solid hover:bg-notice-light-hover disabled:text-notice-disabled disabled:bg-notice-solid;
 }
 
 .btn-solid-destructive {
-  @apply text-black bg-destructive-solid hover:bg-destructive-light-hover disabled:text-destructive-disabled disabled:bg-destructive-solid;
+  @apply text-inverse bg-destructive-solid hover:bg-destructive-light-hover disabled:text-destructive-disabled disabled:bg-destructive-solid;
 }
 
 .btn-solid-secondary {

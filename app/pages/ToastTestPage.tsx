@@ -8,7 +8,7 @@ const useCounter = (initialValue: number): [number, () => void] => {
   return [value, () => setValue((v) => v + 1)]
 }
 
-const Heading = classed.h2`mb-4 mt-8 text-lg text-green-500`
+const Heading = classed.h2`mb-4 mt-8 text-lg text-accent`
 
 const ToastTestPage = () => {
   const addToast = useToast()

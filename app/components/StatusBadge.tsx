@@ -1,20 +1,23 @@
 import React from 'react'
 
-import type { BadgeColor } from '@oxide/ui'
+import type { BadgeColor, BadgeProps } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
 import type { DiskState, InstanceState } from '@oxide/api'
 
-const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
-  creating: 'notice',
-  starting: 'notice',
-  running: 'default',
-  rebooting: 'notice',
-  stopping: 'notice',
-  stopped: 'lightGray',
-  repairing: 'notice',
-  migrating: 'notice',
-  failed: 'destructive',
-  destroyed: 'darkGray',
+const INSTANCE_COLORS: Record<
+  InstanceState,
+  Pick<BadgeProps, 'color' | 'variant'>
+> = {
+  creating: { color: 'notice' },
+  starting: { color: 'notice' },
+  running: { color: 'default' },
+  rebooting: { color: 'notice' },
+  stopping: { color: 'notice' },
+  stopped: { color: 'neutral', variant: 'solid' },
+  repairing: { color: 'notice' },
+  migrating: { color: 'notice' },
+  failed: { color: 'destructive' },
+  destroyed: { color: 'neutral' },
 }
 
 export const InstanceStatusBadge = (props: {
@@ -23,7 +26,7 @@ export const InstanceStatusBadge = (props: {
 }) => (
   <Badge
     variant="dim"
-    color={INSTANCE_COLORS[props.status]}
+    {...INSTANCE_COLORS[props.status]}
     className={props.className}
   >
     {props.status}
@@ -37,8 +40,8 @@ const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
   attaching: 'notice',
   creating: 'notice',
   detaching: 'notice',
-  detached: 'darkGray',
-  destroyed: 'darkGray', // should we ever see this?
+  detached: 'neutral',
+  destroyed: 'neutral', // should we ever see this?
   faulted: 'destructive',
 }
 

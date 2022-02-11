@@ -42,11 +42,11 @@ export const InstancePage = () => {
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             {instance.ncpus}
-            <span className="ml-1 text-gray-300"> vCPUs</span>
+            <span className="ml-1 text-tertiary"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
             {memory.value}
-            <span className="ml-1 text-gray-300"> {memory.unit}</span>
+            <span className="ml-1 text-tertiary"> {memory.unit}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

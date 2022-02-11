@@ -105,554 +105,599 @@ module.exports.textUtilities = {
 
 module.exports.colorUtilities = {
   '.text-default': {
-    color: 'var(--content-default)',
+    color: 'rgb(var(--content-default))',
   },
   '.text-secondary': {
-    color: 'var(--content-secondary)',
+    color: 'rgb(var(--content-secondary))',
   },
   '.text-tertiary': {
-    color: 'var(--content-tertiary)',
+    color: 'rgb(var(--content-tertiary))',
   },
   '.text-quaternary': {
-    color: 'var(--content-quaternary)',
+    color: 'rgb(var(--content-quaternary))',
   },
   '.text-accent': {
-    color: 'var(--content-accent)',
+    color: 'rgb(var(--content-accent))',
   },
   '.text-accent-secondary': {
-    color: 'var(--content-accent-secondary)',
+    color: 'rgb(var(--content-accent-secondary))',
   },
   '.text-accent-tertiary': {
-    color: 'var(--content-accent-tertiary)',
+    color: 'rgb(var(--content-accent-tertiary))',
   },
   '.text-accent-disabled': {
-    color: 'var(--content-accent-disabled)',
+    color: 'rgb(var(--content-accent-disabled))',
   },
   '.text-destructive': {
-    color: 'var(--content-destructive)',
+    color: 'rgb(var(--content-destructive))',
   },
   '.text-destructive-secondary': {
-    color: 'var(--content-destructive-secondary)',
+    color: 'rgb(var(--content-destructive-secondary))',
   },
   '.text-destructive-tertiary': {
-    color: 'var(--content-destructive-tertiary)',
+    color: 'rgb(var(--content-destructive-tertiary))',
   },
   '.text-destructive-disabled': {
-    color: 'var(--content-destructive-disabled)',
+    color: 'rgb(var(--content-destructive-disabled))',
   },
   '.text-notice': {
-    color: 'var(--content-notice)',
+    color: 'rgb(var(--content-notice))',
   },
   '.text-notice-secondary': {
-    color: 'var(--content-notice-secondary)',
+    color: 'rgb(var(--content-notice-secondary))',
   },
   '.text-notice-tertiary': {
-    color: 'var(--content-notice-tertiary)',
+    color: 'rgb(var(--content-notice-tertiary))',
   },
   '.text-notice-disabled': {
-    color: 'var(--content-notice-disabled)',
+    color: 'rgb(var(--content-notice-disabled))',
+  },
+  '.text-inverse': {
+    color: 'rgb(var(--content-inverse))',
+  },
+  '.text-inverse-secondary': {
+    color: 'rgb(var(--content-inverse-secondary))',
   },
   '.bg-default': {
-    'background-color': 'var(--surface-default)',
+    'background-color': 'rgb(var(--surface-default))',
   },
   '.bg-secondary': {
-    'background-color': 'var(--surface-secondary)',
+    'background-color': 'rgb(var(--surface-secondary))',
   },
   '.bg-raise': {
-    'background-color': 'var(--surface-raise)',
+    'background-color': 'rgb(var(--surface-raise))',
   },
   '.bg-disabled': {
-    'background-color': 'var(--surface-disabled)',
+    'background-color': 'rgb(var(--surface-disabled))',
   },
-  '.bg-scrim': {
-    'background-color': 'var(--surface-scrim)',
+  '/* Command menu backdrop */ \n.bg-scrim': {
+    'background-color': 'var(--surface-scrim-alpha)',
   },
   '.bg-secondary-hover': {
-    'background-color': 'var(--surface-secondary-hover)',
+    'background-color': 'rgb(var(--surface-secondary-hover))',
   },
   '.bg-accent-dim': {
-    'background-color': 'var(--surface-accent-dim)',
+    'background-color': 'rgb(var(--surface-accent-dim))',
   },
   '.bg-accent-solid': {
-    'background-color': 'var(--surface-accent-solid)',
+    'background-color': 'rgb(var(--surface-accent-solid))',
   },
   '.bg-accent-raise': {
-    'background-color': 'var(--surface-accent-raise)',
+    'background-color': 'rgb(var(--surface-accent-raise))',
   },
   '.bg-accent-dark-hover': {
-    'background-color': 'var(--surface-accent-dark-hover)',
+    'background-color': 'rgb(var(--surface-accent-dark-hover))',
   },
   '.bg-accent-light-hover': {
-    'background-color': 'var(--surface-accent-light-hover)',
+    'background-color': 'rgb(var(--surface-accent-light-hover))',
   },
   '.bg-destructive-dim': {
-    'background-color': 'var(--surface-destructive-dim)',
+    'background-color': 'rgb(var(--surface-destructive-dim))',
   },
   '.bg-destructive-solid': {
-    'background-color': 'var(--surface-destructive-solid)',
+    'background-color': 'rgb(var(--surface-destructive-solid))',
   },
   '.bg-destructive-raise': {
-    'background-color': 'var(--surface-destructive-raise)',
+    'background-color': 'rgb(var(--surface-destructive-raise))',
   },
   '.bg-destructive-dark-hover': {
-    'background-color': 'var(--surface-destructive-dark-hover)',
+    'background-color': 'rgb(var(--surface-destructive-dark-hover))',
   },
   '.bg-destructive-light-hover': {
-    'background-color': 'var(--surface-destructive-light-hover)',
+    'background-color': 'rgb(var(--surface-destructive-light-hover))',
   },
   '.bg-notice-dim': {
-    'background-color': 'var(--surface-notice-dim)',
+    'background-color': 'rgb(var(--surface-notice-dim))',
   },
   '.bg-notice-solid': {
-    'background-color': 'var(--surface-notice-solid)',
+    'background-color': 'rgb(var(--surface-notice-solid))',
   },
   '.bg-notice-raise': {
-    'background-color': 'var(--surface-notice-raise)',
+    'background-color': 'rgb(var(--surface-notice-raise))',
   },
   '.bg-notice-dark-hover': {
-    'background-color': 'var(--surface-notice-dark-hover)',
+    'background-color': 'rgb(var(--surface-notice-dark-hover))',
   },
   '.bg-notice-light-hover': {
-    'background-color': 'var(--surface-notice-light-hover)',
+    'background-color': 'rgb(var(--surface-notice-light-hover))',
+  },
+  '.bg-inverse': {
+    'background-color': 'rgb(var(--surface-inverse))',
+  },
+  '.bg-inverse-secondary': {
+    'background-color': 'rgb(var(--surface-inverse-secondary))',
+  },
+  '.bg-inverse-tertiary': {
+    'background-color': 'rgb(var(--surface-inverse-tertiary))',
   },
   '.border-default': {
-    'border-color': 'var(--stroke-default)',
+    'border-color': 'rgb(var(--stroke-default))',
   },
   '.border-secondary': {
-    'border-color': 'var(--stroke-secondary)',
+    'border-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-tertiary': {
-    'border-color': 'var(--stroke-tertiary)',
+    'border-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-raise': {
-    'border-color': 'var(--stroke-raise)',
+    'border-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-surface': {
+    'border-color': 'rgb(var(--stroke-surface))',
   },
   '.border-accent': {
-    'border-color': 'var(--stroke-accent)',
+    'border-color': 'rgb(var(--stroke-accent))',
   },
   '.border-accent-secondary': {
-    'border-color': 'var(--stroke-accent-secondary)',
+    'border-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-accent-tertiary': {
-    'border-color': 'var(--stroke-accent-tertiary)',
+    'border-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-destructive': {
-    'border-color': 'var(--stroke-destructive)',
+    'border-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-destructive-secondary': {
-    'border-color': 'var(--stroke-destructive-secondary)',
+    'border-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-destructive-tertiary': {
-    'border-color': 'var(--stroke-destructive-tertiary)',
+    'border-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-notice': {
-    'border-color': 'var(--stroke-notice)',
+    'border-color': 'rgb(var(--stroke-notice))',
   },
   '.border-notice-secondary': {
-    'border-color': 'var(--stroke-notice-secondary)',
+    'border-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-notice-tertiary': {
-    'border-color': 'var(--stroke-notice-tertiary)',
+    'border-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-l-default': {
-    'border-left-color': 'var(--stroke-default)',
+    'border-left-color': 'rgb(var(--stroke-default))',
   },
   '.border-l-secondary': {
-    'border-left-color': 'var(--stroke-secondary)',
+    'border-left-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-l-tertiary': {
-    'border-left-color': 'var(--stroke-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-l-raise': {
-    'border-left-color': 'var(--stroke-raise)',
+    'border-left-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-l-surface': {
+    'border-left-color': 'rgb(var(--stroke-surface))',
   },
   '.border-l-accent': {
-    'border-left-color': 'var(--stroke-accent)',
+    'border-left-color': 'rgb(var(--stroke-accent))',
   },
   '.border-l-accent-secondary': {
-    'border-left-color': 'var(--stroke-accent-secondary)',
+    'border-left-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-l-accent-tertiary': {
-    'border-left-color': 'var(--stroke-accent-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-l-destructive': {
-    'border-left-color': 'var(--stroke-destructive)',
+    'border-left-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-l-destructive-secondary': {
-    'border-left-color': 'var(--stroke-destructive-secondary)',
+    'border-left-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-l-destructive-tertiary': {
-    'border-left-color': 'var(--stroke-destructive-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-l-notice': {
-    'border-left-color': 'var(--stroke-notice)',
+    'border-left-color': 'rgb(var(--stroke-notice))',
   },
   '.border-l-notice-secondary': {
-    'border-left-color': 'var(--stroke-notice-secondary)',
+    'border-left-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-l-notice-tertiary': {
-    'border-left-color': 'var(--stroke-notice-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-r-default': {
-    'border-right-color': 'var(--stroke-default)',
+    'border-right-color': 'rgb(var(--stroke-default))',
   },
   '.border-r-secondary': {
-    'border-right-color': 'var(--stroke-secondary)',
+    'border-right-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-r-tertiary': {
-    'border-right-color': 'var(--stroke-tertiary)',
+    'border-right-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-r-raise': {
-    'border-right-color': 'var(--stroke-raise)',
+    'border-right-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-r-surface': {
+    'border-right-color': 'rgb(var(--stroke-surface))',
   },
   '.border-r-accent': {
-    'border-right-color': 'var(--stroke-accent)',
+    'border-right-color': 'rgb(var(--stroke-accent))',
   },
   '.border-r-accent-secondary': {
-    'border-right-color': 'var(--stroke-accent-secondary)',
+    'border-right-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-r-accent-tertiary': {
-    'border-right-color': 'var(--stroke-accent-tertiary)',
+    'border-right-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-r-destructive': {
-    'border-right-color': 'var(--stroke-destructive)',
+    'border-right-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-r-destructive-secondary': {
-    'border-right-color': 'var(--stroke-destructive-secondary)',
+    'border-right-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-r-destructive-tertiary': {
-    'border-right-color': 'var(--stroke-destructive-tertiary)',
+    'border-right-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-r-notice': {
-    'border-right-color': 'var(--stroke-notice)',
+    'border-right-color': 'rgb(var(--stroke-notice))',
   },
   '.border-r-notice-secondary': {
-    'border-right-color': 'var(--stroke-notice-secondary)',
+    'border-right-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-r-notice-tertiary': {
-    'border-right-color': 'var(--stroke-notice-tertiary)',
+    'border-right-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-t-default': {
-    'border-top-color': 'var(--stroke-default)',
+    'border-top-color': 'rgb(var(--stroke-default))',
   },
   '.border-t-secondary': {
-    'border-top-color': 'var(--stroke-secondary)',
+    'border-top-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-t-tertiary': {
-    'border-top-color': 'var(--stroke-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-t-raise': {
-    'border-top-color': 'var(--stroke-raise)',
+    'border-top-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-t-surface': {
+    'border-top-color': 'rgb(var(--stroke-surface))',
   },
   '.border-t-accent': {
-    'border-top-color': 'var(--stroke-accent)',
+    'border-top-color': 'rgb(var(--stroke-accent))',
   },
   '.border-t-accent-secondary': {
-    'border-top-color': 'var(--stroke-accent-secondary)',
+    'border-top-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-t-accent-tertiary': {
-    'border-top-color': 'var(--stroke-accent-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-t-destructive': {
-    'border-top-color': 'var(--stroke-destructive)',
+    'border-top-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-t-destructive-secondary': {
-    'border-top-color': 'var(--stroke-destructive-secondary)',
+    'border-top-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-t-destructive-tertiary': {
-    'border-top-color': 'var(--stroke-destructive-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-t-notice': {
-    'border-top-color': 'var(--stroke-notice)',
+    'border-top-color': 'rgb(var(--stroke-notice))',
   },
   '.border-t-notice-secondary': {
-    'border-top-color': 'var(--stroke-notice-secondary)',
+    'border-top-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-t-notice-tertiary': {
-    'border-top-color': 'var(--stroke-notice-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-b-default': {
-    'border-bottom-color': 'var(--stroke-default)',
+    'border-bottom-color': 'rgb(var(--stroke-default))',
   },
   '.border-b-secondary': {
-    'border-bottom-color': 'var(--stroke-secondary)',
+    'border-bottom-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-b-tertiary': {
-    'border-bottom-color': 'var(--stroke-tertiary)',
+    'border-bottom-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-b-raise': {
-    'border-bottom-color': 'var(--stroke-raise)',
+    'border-bottom-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-b-surface': {
+    'border-bottom-color': 'rgb(var(--stroke-surface))',
   },
   '.border-b-accent': {
-    'border-bottom-color': 'var(--stroke-accent)',
+    'border-bottom-color': 'rgb(var(--stroke-accent))',
   },
   '.border-b-accent-secondary': {
-    'border-bottom-color': 'var(--stroke-accent-secondary)',
+    'border-bottom-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-b-accent-tertiary': {
-    'border-bottom-color': 'var(--stroke-accent-tertiary)',
+    'border-bottom-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-b-destructive': {
-    'border-bottom-color': 'var(--stroke-destructive)',
+    'border-bottom-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-b-destructive-secondary': {
-    'border-bottom-color': 'var(--stroke-destructive-secondary)',
+    'border-bottom-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-b-destructive-tertiary': {
-    'border-bottom-color': 'var(--stroke-destructive-tertiary)',
+    'border-bottom-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-b-notice': {
-    'border-bottom-color': 'var(--stroke-notice)',
+    'border-bottom-color': 'rgb(var(--stroke-notice))',
   },
   '.border-b-notice-secondary': {
-    'border-bottom-color': 'var(--stroke-notice-secondary)',
+    'border-bottom-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-b-notice-tertiary': {
-    'border-bottom-color': 'var(--stroke-notice-tertiary)',
+    'border-bottom-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-x-default': {
-    'border-left-color': 'var(--stroke-default)',
-    'border-right-color': 'var(--stroke-default)',
+    'border-left-color': 'rgb(var(--stroke-default))',
+    'border-right-color': 'rgb(var(--stroke-default))',
   },
   '.border-x-secondary': {
-    'border-left-color': 'var(--stroke-secondary)',
-    'border-right-color': 'var(--stroke-secondary)',
+    'border-left-color': 'rgb(var(--stroke-secondary))',
+    'border-right-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-x-tertiary': {
-    'border-left-color': 'var(--stroke-tertiary)',
-    'border-right-color': 'var(--stroke-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-tertiary))',
+    'border-right-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-x-raise': {
-    'border-left-color': 'var(--stroke-raise)',
-    'border-right-color': 'var(--stroke-raise)',
+    'border-left-color': 'rgb(var(--stroke-raise))',
+    'border-right-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-x-surface': {
+    'border-left-color': 'rgb(var(--stroke-surface))',
+    'border-right-color': 'rgb(var(--stroke-surface))',
   },
   '.border-x-accent': {
-    'border-left-color': 'var(--stroke-accent)',
-    'border-right-color': 'var(--stroke-accent)',
+    'border-left-color': 'rgb(var(--stroke-accent))',
+    'border-right-color': 'rgb(var(--stroke-accent))',
   },
   '.border-x-accent-secondary': {
-    'border-left-color': 'var(--stroke-accent-secondary)',
-    'border-right-color': 'var(--stroke-accent-secondary)',
+    'border-left-color': 'rgb(var(--stroke-accent-secondary))',
+    'border-right-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-x-accent-tertiary': {
-    'border-left-color': 'var(--stroke-accent-tertiary)',
-    'border-right-color': 'var(--stroke-accent-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-accent-tertiary))',
+    'border-right-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-x-destructive': {
-    'border-left-color': 'var(--stroke-destructive)',
-    'border-right-color': 'var(--stroke-destructive)',
+    'border-left-color': 'rgb(var(--stroke-destructive))',
+    'border-right-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-x-destructive-secondary': {
-    'border-left-color': 'var(--stroke-destructive-secondary)',
-    'border-right-color': 'var(--stroke-destructive-secondary)',
+    'border-left-color': 'rgb(var(--stroke-destructive-secondary))',
+    'border-right-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-x-destructive-tertiary': {
-    'border-left-color': 'var(--stroke-destructive-tertiary)',
-    'border-right-color': 'var(--stroke-destructive-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-destructive-tertiary))',
+    'border-right-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-x-notice': {
-    'border-left-color': 'var(--stroke-notice)',
-    'border-right-color': 'var(--stroke-notice)',
+    'border-left-color': 'rgb(var(--stroke-notice))',
+    'border-right-color': 'rgb(var(--stroke-notice))',
   },
   '.border-x-notice-secondary': {
-    'border-left-color': 'var(--stroke-notice-secondary)',
-    'border-right-color': 'var(--stroke-notice-secondary)',
+    'border-left-color': 'rgb(var(--stroke-notice-secondary))',
+    'border-right-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-x-notice-tertiary': {
-    'border-left-color': 'var(--stroke-notice-tertiary)',
-    'border-right-color': 'var(--stroke-notice-tertiary)',
+    'border-left-color': 'rgb(var(--stroke-notice-tertiary))',
+    'border-right-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.border-y-default': {
-    'border-top-color': 'var(--stroke-default)',
-    'border-bottom-color': 'var(--stroke-default)',
+    'border-top-color': 'rgb(var(--stroke-default))',
+    'border-bottom-color': 'rgb(var(--stroke-default))',
   },
   '.border-y-secondary': {
-    'border-top-color': 'var(--stroke-secondary)',
-    'border-bottom-color': 'var(--stroke-secondary)',
+    'border-top-color': 'rgb(var(--stroke-secondary))',
+    'border-bottom-color': 'rgb(var(--stroke-secondary))',
   },
   '.border-y-tertiary': {
-    'border-top-color': 'var(--stroke-tertiary)',
-    'border-bottom-color': 'var(--stroke-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-tertiary))',
+    'border-bottom-color': 'rgb(var(--stroke-tertiary))',
   },
   '.border-y-raise': {
-    'border-top-color': 'var(--stroke-raise)',
-    'border-bottom-color': 'var(--stroke-raise)',
+    'border-top-color': 'rgb(var(--stroke-raise))',
+    'border-bottom-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.border-y-surface': {
+    'border-top-color': 'rgb(var(--stroke-surface))',
+    'border-bottom-color': 'rgb(var(--stroke-surface))',
   },
   '.border-y-accent': {
-    'border-top-color': 'var(--stroke-accent)',
-    'border-bottom-color': 'var(--stroke-accent)',
+    'border-top-color': 'rgb(var(--stroke-accent))',
+    'border-bottom-color': 'rgb(var(--stroke-accent))',
   },
   '.border-y-accent-secondary': {
-    'border-top-color': 'var(--stroke-accent-secondary)',
-    'border-bottom-color': 'var(--stroke-accent-secondary)',
+    'border-top-color': 'rgb(var(--stroke-accent-secondary))',
+    'border-bottom-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.border-y-accent-tertiary': {
-    'border-top-color': 'var(--stroke-accent-tertiary)',
-    'border-bottom-color': 'var(--stroke-accent-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-accent-tertiary))',
+    'border-bottom-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.border-y-destructive': {
-    'border-top-color': 'var(--stroke-destructive)',
-    'border-bottom-color': 'var(--stroke-destructive)',
+    'border-top-color': 'rgb(var(--stroke-destructive))',
+    'border-bottom-color': 'rgb(var(--stroke-destructive))',
   },
   '.border-y-destructive-secondary': {
-    'border-top-color': 'var(--stroke-destructive-secondary)',
-    'border-bottom-color': 'var(--stroke-destructive-secondary)',
+    'border-top-color': 'rgb(var(--stroke-destructive-secondary))',
+    'border-bottom-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.border-y-destructive-tertiary': {
-    'border-top-color': 'var(--stroke-destructive-tertiary)',
-    'border-bottom-color': 'var(--stroke-destructive-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-destructive-tertiary))',
+    'border-bottom-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.border-y-notice': {
-    'border-top-color': 'var(--stroke-notice)',
-    'border-bottom-color': 'var(--stroke-notice)',
+    'border-top-color': 'rgb(var(--stroke-notice))',
+    'border-bottom-color': 'rgb(var(--stroke-notice))',
   },
   '.border-y-notice-secondary': {
-    'border-top-color': 'var(--stroke-notice-secondary)',
-    'border-bottom-color': 'var(--stroke-notice-secondary)',
+    'border-top-color': 'rgb(var(--stroke-notice-secondary))',
+    'border-bottom-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.border-y-notice-tertiary': {
-    'border-top-color': 'var(--stroke-notice-tertiary)',
-    'border-bottom-color': 'var(--stroke-notice-tertiary)',
+    'border-top-color': 'rgb(var(--stroke-notice-tertiary))',
+    'border-bottom-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.ring-default': {
-    '--tw-ring-color': 'var(--stroke-default)',
+    '--tw-ring-color': 'rgb(var(--stroke-default))',
   },
   '.ring-secondary': {
-    '--tw-ring-color': 'var(--stroke-secondary)',
+    '--tw-ring-color': 'rgb(var(--stroke-secondary))',
   },
   '.ring-tertiary': {
-    '--tw-ring-color': 'var(--stroke-tertiary)',
+    '--tw-ring-color': 'rgb(var(--stroke-tertiary))',
   },
   '.ring-raise': {
-    '--tw-ring-color': 'var(--stroke-raise)',
+    '--tw-ring-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.ring-surface': {
+    '--tw-ring-color': 'rgb(var(--stroke-surface))',
   },
   '.ring-accent': {
-    '--tw-ring-color': 'var(--stroke-accent)',
+    '--tw-ring-color': 'rgb(var(--stroke-accent))',
   },
   '.ring-accent-secondary': {
-    '--tw-ring-color': 'var(--stroke-accent-secondary)',
+    '--tw-ring-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.ring-accent-tertiary': {
-    '--tw-ring-color': 'var(--stroke-accent-tertiary)',
+    '--tw-ring-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.ring-destructive': {
-    '--tw-ring-color': 'var(--stroke-destructive)',
+    '--tw-ring-color': 'rgb(var(--stroke-destructive))',
   },
   '.ring-destructive-secondary': {
-    '--tw-ring-color': 'var(--stroke-destructive-secondary)',
+    '--tw-ring-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.ring-destructive-tertiary': {
-    '--tw-ring-color': 'var(--stroke-destructive-tertiary)',
+    '--tw-ring-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.ring-notice': {
-    '--tw-ring-color': 'var(--stroke-notice)',
+    '--tw-ring-color': 'rgb(var(--stroke-notice))',
   },
   '.ring-notice-secondary': {
-    '--tw-ring-color': 'var(--stroke-notice-secondary)',
+    '--tw-ring-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.ring-notice-tertiary': {
-    '--tw-ring-color': 'var(--stroke-notice-tertiary)',
+    '--tw-ring-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.outline-default': {
-    'outline-color': 'var(--stroke-default)',
+    'outline-color': 'rgb(var(--stroke-default))',
   },
   '.outline-secondary': {
-    'outline-color': 'var(--stroke-secondary)',
+    'outline-color': 'rgb(var(--stroke-secondary))',
   },
   '.outline-tertiary': {
-    'outline-color': 'var(--stroke-tertiary)',
+    'outline-color': 'rgb(var(--stroke-tertiary))',
   },
   '.outline-raise': {
-    'outline-color': 'var(--stroke-raise)',
+    'outline-color': 'rgb(var(--stroke-raise))',
+  },
+  '/* Matches the default surface color */ \n.outline-surface': {
+    'outline-color': 'rgb(var(--stroke-surface))',
   },
   '.outline-accent': {
-    'outline-color': 'var(--stroke-accent)',
+    'outline-color': 'rgb(var(--stroke-accent))',
   },
   '.outline-accent-secondary': {
-    'outline-color': 'var(--stroke-accent-secondary)',
+    'outline-color': 'rgb(var(--stroke-accent-secondary))',
   },
   '.outline-accent-tertiary': {
-    'outline-color': 'var(--stroke-accent-tertiary)',
+    'outline-color': 'rgb(var(--stroke-accent-tertiary))',
   },
   '.outline-destructive': {
-    'outline-color': 'var(--stroke-destructive)',
+    'outline-color': 'rgb(var(--stroke-destructive))',
   },
   '.outline-destructive-secondary': {
-    'outline-color': 'var(--stroke-destructive-secondary)',
+    'outline-color': 'rgb(var(--stroke-destructive-secondary))',
   },
   '.outline-destructive-tertiary': {
-    'outline-color': 'var(--stroke-destructive-tertiary)',
+    'outline-color': 'rgb(var(--stroke-destructive-tertiary))',
   },
   '.outline-notice': {
-    'outline-color': 'var(--stroke-notice)',
+    'outline-color': 'rgb(var(--stroke-notice))',
   },
   '.outline-notice-secondary': {
-    'outline-color': 'var(--stroke-notice-secondary)',
+    'outline-color': 'rgb(var(--stroke-notice-secondary))',
   },
   '.outline-notice-tertiary': {
-    'outline-color': 'var(--stroke-notice-tertiary)',
+    'outline-color': 'rgb(var(--stroke-notice-tertiary))',
   },
   '.chart-fill-area-primary': {
-    fill: 'var(--chart-fill-area-primary)',
+    fill: 'var(--chart-fill-area-primary-alpha)',
   },
   '.chart-fill-area-secondary': {
-    fill: 'var(--chart-fill-area-secondary)',
+    fill: 'var(--chart-fill-area-secondary-alpha)',
   },
   '.chart-fill-area-tertiary': {
-    fill: 'var(--chart-fill-area-tertiary)',
+    fill: 'var(--chart-fill-area-tertiary-alpha)',
   },
   '.chart-fill-area-quaternary': {
-    fill: 'var(--chart-fill-area-quaternary)',
+    fill: 'var(--chart-fill-area-quaternary-alpha)',
   },
   '.chart-fill-item-primary': {
-    fill: 'var(--chart-fill-item-primary)',
+    fill: 'rgb(var(--chart-fill-item-primary))',
   },
   '.chart-fill-item-secondary': {
-    fill: 'var(--chart-fill-item-secondary)',
+    fill: 'rgb(var(--chart-fill-item-secondary))',
   },
   '.chart-fill-item-tertiary': {
-    fill: 'var(--chart-fill-item-tertiary)',
+    fill: 'rgb(var(--chart-fill-item-tertiary))',
   },
   '.chart-fill-item-quaternary': {
-    fill: 'var(--chart-fill-item-quaternary)',
+    fill: 'rgb(var(--chart-fill-item-quaternary))',
   },
   '.chart-fill-error-primary': {
-    fill: 'var(--chart-fill-error-primary)',
+    fill: 'rgb(var(--chart-fill-error-primary))',
   },
   '.chart-fill-error-secondary': {
-    fill: 'var(--chart-fill-error-secondary)',
+    fill: 'rgb(var(--chart-fill-error-secondary))',
   },
   '.chart-fill-error-tertiary': {
-    fill: 'var(--chart-fill-error-tertiary)',
+    fill: 'rgb(var(--chart-fill-error-tertiary))',
   },
   '.chart-fill-error-quaternary': {
-    fill: 'var(--chart-fill-error-quaternary)',
+    fill: 'rgb(var(--chart-fill-error-quaternary))',
   },
   '.chart-fill-inactive': {
-    fill: 'var(--chart-fill-inactive)',
+    fill: 'rgb(var(--chart-fill-inactive))',
   },
   '.chart-stroke-line': {
-    stroke: 'var(--chart-stroke-line)',
+    stroke: 'rgb(var(--chart-stroke-line))',
   },
   '.chart-stroke-line-secondary': {
-    stroke: 'var(--chart-stroke-line-secondary)',
+    stroke: 'rgb(var(--chart-stroke-line-secondary))',
   },
   '.chart-stroke-line-tertiary': {
-    stroke: 'var(--chart-stroke-line-tertiary)',
+    stroke: 'rgb(var(--chart-stroke-line-tertiary))',
   },
   '.chart-stroke-line-quaternary': {
-    stroke: 'var(--chart-stroke-line-quaternary)',
+    stroke: 'rgb(var(--chart-stroke-line-quaternary))',
   },
   '.chart-stroke-y-axis': {
-    stroke: 'var(--chart-stroke-y-axis)',
+    stroke: 'var(--chart-stroke-y-axis-alpha)',
   },
-  '.chart-stroke-item': {
-    stroke: 'var(--chart-stroke-item)',
-  },
+  '/* Used as a stroke in conjuction with a fill. For discrete shapes e.g. bar charts; pie charts; tree maps. */ \n.chart-stroke-item':
+    {
+      stroke: 'var(--chart-stroke-item-alpha)',
+    },
   '.chart-stroke-item-inactive': {
-    stroke: 'var(--chart-stroke-item-inactive)',
+    stroke: 'rgb(var(--chart-stroke-item-inactive))',
   },
   '.chart-stroke-error': {
-    stroke: 'var(--chart-stroke-error)',
+    stroke: 'var(--chart-stroke-error-alpha)',
   },
 }

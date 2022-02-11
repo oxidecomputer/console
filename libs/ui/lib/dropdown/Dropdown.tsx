@@ -83,7 +83,7 @@ export const Dropdown: FC<DropdownProps> = ({
             <li
               key={item.value}
               className={cn(
-                'text-sm py-2 px-4 text-gray-50 text-default hover:bg-raise',
+                'py-2 px-4 text-sans-sm text-default hover:bg-raise',
                 select.selectedItem?.value === item.value &&
                   'm-0.5 rounded-sm outline outline-accent-secondary',
                 select.highlightedIndex === index && 'bg-raise'

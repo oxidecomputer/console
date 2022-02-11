@@ -12,7 +12,7 @@
     content: '';
     transform: rotate(45deg);
     visibility: visible;
-    @apply bg-gray-400;
+    @apply border-t border-l bg-raise border-secondary;
   }
 }
 

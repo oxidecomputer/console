@@ -32,7 +32,7 @@ const headingStyle = 'text-white text-sans-xl'
 const Heading = classed.h2`text-white text-sans-xl mt-16 mb-8`
 
 // TODO: need to fix page container if we want these to go all the way across
-const Divider = () => <hr className="my-16 border-gray-400" />
+const Divider = () => <hr className="my-16 border-secondary" />
 
 const GB = 1024 * 1024 * 1024
 
@@ -325,7 +325,7 @@ export default function InstanceCreatePage() {
           >
             Create instance
           </Button>
-          <div className="mt-2 text-red-500">
+          <div className="mt-2 text-destructive">
             {getServerError(createInstance.error, ERROR_CODES)}
           </div>
         </Form>

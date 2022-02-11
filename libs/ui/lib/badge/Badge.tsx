@@ -1,12 +1,8 @@
 import React from 'react'
 import cn from 'classnames'
+import { invariant } from '@oxide/util'
 
-export type BadgeColor =
-  | 'default'
-  | 'destructive'
-  | 'notice'
-  | 'darkGray'
-  | 'lightGray'
+export type BadgeColor = 'default' | 'destructive' | 'notice' | 'neutral'
 export type BadgeVariant = 'solid' | 'dim' | 'ghost'
 
 export interface BadgeProps {
@@ -21,16 +17,16 @@ export const badgeColors: Record<
   Partial<Record<BadgeColor, string>>
 > = {
   solid: {
-    default: 'bg-accent-solid text-black',
-    destructive: 'bg-destructive-solid text-black',
-    notice: 'bg-notice-solid text-black',
+    default: 'bg-accent-solid text-inverse',
+    destructive: 'bg-destructive-solid text-inverse',
+    notice: 'bg-notice-solid text-inverse',
+    neutral: 'bg-inverse-tertiary text-inverse',
   },
   dim: {
     default: 'bg-accent-dim text-accent selected:bg-accent-secondary',
     destructive: 'bg-destructive-dim text-destructive',
     notice: 'bg-notice-dim text-notice',
-    darkGray: 'bg-disabled text-secondary',
-    lightGray: 'bg-gray-300 text-black',
+    neutral: 'bg-secondary text-secondary',
   },
   ghost: {
     default:
@@ -47,6 +43,10 @@ export const Badge = ({
   color = 'default',
   variant = 'solid',
 }: BadgeProps) => {
+  invariant(
+    badgeColors[variant][color],
+    `${variant} ${color} is not a valid variant/color combination`
+  )
   return (
     <span
       className={cn(
