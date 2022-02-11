@@ -87,8 +87,8 @@ StyleDictionary.registerFormat({
         .filter((prop) => typeof prop.value !== 'object')
         .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
         .map((prop) => {
-          const color: string = prop.value.slice(0, 7)
-          const rgbColor = hexToRGB(color.slice(1))
+          const color: string = prop.value.slice(1, 7)
+          const rgbColor = hexToRGB(color)
           const { alpha, hasAlpha } = prop.attributes || {}
           if (!rgbColor) {
             throw new Error(
@@ -104,10 +104,7 @@ StyleDictionary.registerFormat({
             return `--${prop.name}: var(--${prop.attributes?.ref});`
           }
           if (hasAlpha && prop.attributes?.ref) {
-            return `--${prop.name}-alpha: rgba(var(--${
-              prop.attributes?.ref
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            }), ${alpha});`
+            return `--${prop.name}-alpha: rgba(var(--${prop.attributes?.ref}), ${alpha});`
           }
           if (prop.attributes?.ref) {
             return `--${prop.name}: var(--${prop.attributes?.ref});`
