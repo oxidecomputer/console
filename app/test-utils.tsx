@@ -12,6 +12,7 @@ import { setupServer } from 'msw/node'
 import { json } from '@oxide/api-mocks'
 import 'whatwg-fetch'
 import '@testing-library/jest-dom'
+import { computeAccessibleName } from 'dom-accessibility-api'
 
 import { routes } from './routes'
 import { handlers, resetDb } from '@oxide/api-mocks'
@@ -119,6 +120,9 @@ export function typeByRole(role: string, name: string, text: string) {
   fireEvent.change(element, { target: { value: text } })
 }
 
+const getComputedStyle = () =>
+  ({ getPropertyValue: () => null } as unknown as CSSStyleDeclaration)
+
 /** If `matcher` is a string, it is matched exactly. */
 export function getAllBySelectorAndText(
   selector: string,
@@ -126,10 +130,14 @@ export function getAllBySelectorAndText(
 ) {
   return Array.from(document.querySelectorAll<HTMLElement>(selector)).filter(
     (el) => {
-      if (!el.textContent) return false
+      // note that we are mocking getComputedStyle because it is super slow!
+      // this likely means that when we want to actually distinguish between
+      // visible and non-visible elements, we need to use the real getByRole
+      const accessibleName = computeAccessibleName(el, { getComputedStyle })
+      if (!accessibleName) return false
       return typeof matcher === 'string'
-        ? el.textContent === matcher
-        : matcher.test(el.textContent)
+        ? accessibleName === matcher
+        : matcher.test(accessibleName)
     }
   )
 }

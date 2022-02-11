@@ -120,7 +120,7 @@ describe('VpcPage', () => {
 
       // table refetches and now includes the new rule as well as the originals
       await screen.findByText('my-new-rule')
-      getBySelectorAndText('td', 'instancehost-filter-instanceUDP123-456')
+      getBySelectorAndText('td', 'instance host-filter-instance UDP 123-456')
 
       for (const { name } of defaultFirewallRules) {
         screen.getByText(name)
@@ -200,7 +200,7 @@ describe('VpcPage', () => {
       expect(document.querySelectorAll('tbody tr').length).toEqual(4)
 
       // the filters cell says "Instance edit-filter-instance" and "ICMP"
-      getBySelectorAndText('td', 'instanceedit-filter-instanceICMP')
+      getBySelectorAndText('td', 'instance edit-filter-instance ICMP')
 
       // other 3 rules are still there
       const rest = defaultFirewallRules.filter((r) => r.name !== 'allow-icmp')
