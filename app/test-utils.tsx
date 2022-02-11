@@ -1,5 +1,10 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
+import type {
+  SelectorMatcherOptions,
+  waitForOptions,
+} from '@testing-library/react'
+import { waitFor } from '@testing-library/react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { rest } from 'msw'
@@ -103,7 +108,84 @@ export async function clickByRole(role: string, name: string) {
   await userEvent.click(element)
 }
 
+export async function clickByText(
+  text: string,
+  options?: SelectorMatcherOptions
+) {
+  const element = screen.getByText(text, options)
+  await userEvent.click(element)
+}
+
 export function typeByRole(role: string, name: string, text: string) {
   const element = screen.getByRole(role, { name })
   fireEvent.change(element, { target: { value: text } })
+}
+
+/** If `matcher` is a string, it is matched exactly. */
+export function getAllBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp
+) {
+  return Array.from(document.querySelectorAll<HTMLElement>(selector)).filter(
+    (el) => {
+      if (!el.textContent) return false
+      return typeof matcher === 'string'
+        ? el.textContent === matcher
+        : matcher.test(el.textContent)
+    }
+  )
+}
+
+function exactlyOneOrThrow(results: HTMLElement[], msg: string): HTMLElement {
+  if (results.length === 0) {
+    throw Error(`No element found with ${msg}`)
+  }
+  if (results.length > 1) {
+    throw Error(`More than one element found with ${msg}`)
+  }
+  return results[0]
+}
+
+/** If `matcher` is a string, it is matched exactly. Throw if 0 or >1 results. */
+export function getBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp
+) {
+  return exactlyOneOrThrow(
+    getAllBySelectorAndText(selector, matcher),
+    `selector '${selector}' and matcher '${matcher}'`
+  )
+}
+
+export function queryBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp
+) {
+  try {
+    return getBySelectorAndText(selector, matcher)
+  } catch {
+    return null
+  }
+}
+
+export async function findBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp,
+  waitForOptions?: waitForOptions
+) {
+  return await waitFor(
+    () =>
+      exactlyOneOrThrow(
+        getAllBySelectorAndText(selector, matcher),
+        `selector '${selector}' and matcher '${matcher}'`
+      ),
+    waitForOptions
+  )
+}
+
+export function clickBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp
+) {
+  fireEvent.click(getBySelectorAndText(selector, matcher))
 }

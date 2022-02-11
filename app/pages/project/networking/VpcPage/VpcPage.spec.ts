@@ -1,11 +1,18 @@
 import {
   clickByRole,
+  clickBySelectorAndText,
+  clickByText,
+  findBySelectorAndText,
+  getBySelectorAndText,
+  queryBySelectorAndText,
+  getByText,
   renderAppAt,
   screen,
   typeByRole,
-  waitForElementToBeRemoved,
   userEvent,
-  getByRole,
+  waitForElementToBeRemoved,
+  fireEvent,
+  waitFor,
 } from 'app/test-utils'
 import { defaultFirewallRules } from '@oxide/api-mocks'
 
@@ -125,30 +132,31 @@ describe('VpcPage', () => {
 
     it('edit works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      await clickByRole('tab', 'Firewall Rules')
+      await clickByText('Firewall Rules')
 
       // default rules show up in the table
+      await waitFor(() =>
+        expect(document.querySelectorAll('tbody tr').length).toEqual(4)
+      )
       for (const { name } of defaultFirewallRules) {
-        await screen.findByText(name)
+        screen.getByText(name)
       }
-      expect(screen.getAllByRole('row').length).toEqual(5) // 4 + header
 
       // the one we'll be adding is not there
-      expect(screen.queryByRole('cell', { name: 'new-rule-name' })).toBeNull()
+      expect(screen.queryByText('new-rule-name')).toBeNull()
 
       // modal is not already open
-      expect(
-        screen.queryByRole('dialog', { name: 'Edit firewall rule' })
-      ).toBeNull()
+      expect(screen.queryByText('Edit firewall rule')).toBeNull()
 
       // click more button on allow-icmp row to get menu, then click Edit
-      const allowIcmpRow = screen.getByRole('row', { name: /allow-icmp/ })
-      const more = getByRole(allowIcmpRow, 'button', { name: 'More' })
+      const allowIcmpRow = getBySelectorAndText('tr', /allow-icmp/)
+      const more = getByText(allowIcmpRow, 'More')
       await userEvent.click(more)
+
       await clickByRole('menuitem', 'Edit')
 
       // now the modal is open
-      screen.getByRole('dialog', { name: 'Edit firewall rule' })
+      screen.getByText('Edit firewall rule')
 
       // name is populated
       const name = screen.getByRole('textbox', { name: 'Name' })
@@ -159,29 +167,30 @@ describe('VpcPage', () => {
       expect(priority).toHaveValue(65534)
 
       // protocol is populated
-      expect(screen.getByRole('checkbox', { name: /ICMP/ })).toBeChecked()
-      expect(screen.getByRole('checkbox', { name: /TCP/ })).not.toBeChecked()
-      expect(screen.getByRole('checkbox', { name: /UDP/ })).not.toBeChecked()
+      expect(screen.getByLabelText(/ICMP/)).toBeChecked()
+      expect(screen.getByLabelText(/TCP/)).not.toBeChecked()
+      expect(screen.getByLabelText(/UDP/)).not.toBeChecked()
 
       // targets default vpc
-      screen.getByRole('cell', { name: 'vpc' })
-      screen.getByRole('cell', { name: 'default' })
+      getBySelectorAndText('td', 'vpc')
+      getBySelectorAndText('td', 'default')
 
       // update name
-      await userEvent.clear(name)
-      await userEvent.type(name, 'new-rule-name')
+      fireEvent.change(name, { target: { value: 'new-rule-name' } })
 
       // add host filter
-      await clickByRole('button', 'Host type')
-      await clickByRole('option', 'Instance')
-      typeByRole('textbox', 'Value', 'edit-filter-instance')
-      await clickByRole('button', 'Add host filter')
+      clickBySelectorAndText('button', /Host type/)
+      clickBySelectorAndText('[role=option]', 'Instance')
+      fireEvent.change(screen.getByLabelText('Value'), {
+        target: { value: 'edit-filter-instance' },
+      })
+      clickBySelectorAndText('button', 'Add host filter')
 
       // host is added to hosts table
-      screen.getByRole('cell', { name: 'edit-filter-instance' })
+      getBySelectorAndText('td', 'edit-filter-instance')
 
       // submit the form
-      await clickByRole('button', 'Update rule')
+      clickBySelectorAndText('button', 'Update rule')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
@@ -191,19 +200,18 @@ describe('VpcPage', () => {
       )
 
       // table refetches and now includes the updated rule name, not the old name
-      await screen.findByText('new-rule-name')
-      expect(screen.queryByRole('cell', { name: 'allow-icmp' })).toBeNull()
-      expect(screen.getAllByRole('row').length).toEqual(5) // 4 + header
+      await findBySelectorAndText('td', 'new-rule-name')
+      expect(queryBySelectorAndText('td', 'allow-icmp')).toBeNull()
+      expect(document.querySelectorAll('tbody tr').length).toEqual(4)
 
-      screen.getByRole('cell', {
-        name: 'instance edit-filter-instance ICMP',
-      })
+      // the filters cell says "Instance edit-filter-instance" and "ICMP"
+      getBySelectorAndText('td', 'instanceedit-filter-instanceICMP')
 
       // other 3 rules are still there
       const rest = defaultFirewallRules.filter((r) => r.name !== 'allow-icmp')
       for (const { name } of rest) {
-        screen.getByRole('cell', { name })
+        getBySelectorAndText('td', name)
       }
-    }, 20000)
+    })
   })
 })
