@@ -4,7 +4,8 @@ import cn from 'classnames'
 import { useMultipleSelection, useSelect } from 'downshift'
 
 import { Badge } from '../badge/Badge'
-import { DirectionDownIcon } from '../icons'
+import { DirectionDownIcon, SelectArrows6Icon } from '../icons'
+import { FieldTitle } from '../field-title/FieldTitle'
 
 type Item = { value: string; label: string }
 
@@ -65,21 +66,21 @@ export const MultiSelect = ({
 
   return (
     <div className="relative">
-      <label
-        className={showLabel ? 'text-sm text-white' : 'sr-only'}
+      <FieldTitle
         {...select.getLabelProps()}
+        className={showLabel || 'sr-only'}
       >
         {label}
-      </label>
+      </FieldTitle>
       <button
         type="button"
-        className={`text-base mt-1 flex w-full items-center justify-between rounded
-          border border-gray-400 py-2 px-4 text-white
-          focus:ring-1 focus:ring-green-500`}
+        className={`mt-1 flex h-10 w-full items-center justify-between
+          rounded-sm border px-3 text-sans-md text-tertiary border-default
+          focus:ring-1 focus:ring-accent`}
         aria-describedby={hintId}
         {...select.getToggleButtonProps(ms.getDropdownProps())}
       >
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           {ms.selectedItems.length > 0
             ? ms.selectedItems?.map((selectedItem, index) => (
                 <Badge
@@ -91,12 +92,12 @@ export const MultiSelect = ({
                   {selectedItem.label}
                 </Badge>
               ))
-            : placeholder || label}
+            : placeholder}
         </div>
-        <DirectionDownIcon title="Select" className="ml-5" />
+        <SelectArrows6Icon title="select" />
       </button>
       <ul
-        className="absolute left-0 right-0 z-10 mt-1 overflow-y-auto bg-gray-500 focus:ring-1 focus:ring-green-500"
+        className="absolute left-0 right-0 z-10 mt-1 overflow-y-auto overflow-x-hidden rounded-sm border-0 bg-default focus:ring-1 focus:ring-accent children:border children:border-b-0 children:border-default children:border-b-secondary last:children:border-b"
         {...select.getMenuProps()}
       >
         {select.isOpen &&
@@ -104,9 +105,11 @@ export const MultiSelect = ({
             <li
               key={item.value}
               className={cn(
-                'text-sm py-2 px-4 text-gray-50 focus:bg-gray-400 focus:ring-1 focus:ring-green-500',
-                select.highlightedIndex === index && 'bg-gray-400',
-                ms.selectedItems.includes(item) && '!text-green-500'
+                // TODO: FIX THIS
+                'py-2 px-4 text-sans-sm text-default hover:bg-raise',
+                select.highlightedIndex === index && 'bg-raise',
+                ms.selectedItems.includes(item) &&
+                  'is-selected !border-1 -mx-[1px] text-accent bg-accent-dim'
               )}
               {...select.getItemProps({ item, index })}
             >
@@ -115,7 +118,7 @@ export const MultiSelect = ({
           ))}
       </ul>
       {hint && hintId && (
-        <div id={hintId} className="text-sm mt-1 text-gray-50">
+        <div id={hintId} className="text-sm mt-1 text-default">
           {hint}
         </div>
       )}

@@ -23,6 +23,8 @@ const SAMPLE_OPTIONS = [
 
 export const Default: Story = {
   args: {
+    label: 'Multiselect example',
+    placeholder: 'Please select something',
     items: SAMPLE_OPTIONS,
   },
 }
