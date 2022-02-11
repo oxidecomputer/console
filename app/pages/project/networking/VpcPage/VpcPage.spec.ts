@@ -115,7 +115,7 @@ describe('VpcPage', () => {
       await waitForElementToBeRemoved(
         () => screen.queryByText('Create firewall rule'),
         // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+        { timeout: 3000 }
       )
 
       // table refetches and now includes the new rule as well as the originals
@@ -125,7 +125,7 @@ describe('VpcPage', () => {
       for (const { name } of defaultFirewallRules) {
         screen.getByText(name)
       }
-    })
+    }, 15000)
 
     it('edit works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
@@ -191,7 +191,7 @@ describe('VpcPage', () => {
       await waitForElementToBeRemoved(
         () => screen.queryByText('Edit firewall rule'),
         // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+        { timeout: 3000 }
       )
 
       // table refetches and now includes the updated rule name, not the old name
@@ -207,6 +207,6 @@ describe('VpcPage', () => {
       for (const { name } of rest) {
         getBySelectorAndText('td', name)
       }
-    })
+    }, 15000)
   })
 })
