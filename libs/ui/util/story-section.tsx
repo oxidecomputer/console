@@ -17,7 +17,7 @@ export const Section = ({
   className?: string
 }) => (
   <section className={cn(className, 'mb-8 mr-8')}>
-    <h2 className="border-accent-dim mb-4 border-b pb-4 text-sans-2xl text-accent">
+    <h2 className="mb-4 border-b pb-4 text-sans-2xl text-accent border-accent-secondary">
       {capitalize(title)}
     </h2>
     {children}
