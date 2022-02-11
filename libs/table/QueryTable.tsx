@@ -20,8 +20,8 @@ import type {
 } from '@oxide/api'
 import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
-import type { Row } from 'react-table'
 import type { UseQueryOptions } from 'react-query'
+import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 
 interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
@@ -39,22 +39,10 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
 ): UseQueryTableResult<A, M> => {
-  // TODO: We should probably find a better way to do this. In essence
-  // we need the params and options to be stable and comparable to prevent unnecessary recreation
-  // of the table which is a relatively expensive operation.
-  const stableParams = Object.values(params as Record<string, string>)
-    .sort()
-    .join(':')
-  const stableOpts =
-    options &&
-    Object.entries(options as Record<string, string>)
-      .map((e) => e.join(':'))
-      .sort()
-      .join(',')
   const Table = useMemo(
     () => makeQueryTable<A, M>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, stableParams, stableOpts]
+    [query, hashQueryKey(params as any), hashQueryKey(options as any)]
   )
 
   return { Table, Column: QueryTableColumn }
@@ -64,9 +52,6 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
-  rowId?:
-    | string
-    | ((row: Row, relativeIndex: number, parent: unknown) => string)
   actions?: MakeActions<ResultItem<A[M]>>
   pagination?: 'inline' | 'page'
   pageSize?: number
@@ -84,7 +69,6 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     selectable,
     actions,
     debug,
-    rowId,
     pagination = 'page',
     pageSize = 10,
   }: QueryTableProps<A, M>) {
@@ -125,15 +109,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
 
     const tableData = useMemo(() => (data as any)?.items || [], [data])
 
-    const getRowId = useCallback(
-      (row, relativeIndex, parent) => {
-        if (!rowId) return row.id
-        return typeof rowId === 'string'
-          ? unsafe_get(row, rowId)
-          : rowId(row, relativeIndex, parent)
-      },
-      [rowId]
-    )
+    const getRowId = useCallback((row) => row.id, [])
 
     const table = useTable(
       {
