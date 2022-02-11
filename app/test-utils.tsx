@@ -189,3 +189,19 @@ export function clickBySelectorAndText(
 ) {
   fireEvent.click(getBySelectorAndText(selector, matcher))
 }
+
+export function typeBySelectorAndText(
+  selector: string,
+  matcher: string | RegExp,
+  value: string
+) {
+  fireEvent.change(getBySelectorAndText(selector, matcher), {
+    target: { value },
+  })
+}
+
+export function typeByLabelText(matcher: string | RegExp, value: string) {
+  fireEvent.change(screen.getByLabelText(matcher), {
+    target: { value },
+  })
+}
