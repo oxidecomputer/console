@@ -88,9 +88,8 @@ StyleDictionary.registerFormat({
         .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
         .map((prop) => {
           const color: string = prop.value.slice(0, 7)
-          const alpha: string = prop.value.slice(7, 9)
           const rgbColor = hexToRGB(color.slice(1))
-          const alphaValue = alpha && hexToRGB(alpha)[0] / 255
+          const { alpha, hasAlpha } = prop.attributes || {}
           if (!rgbColor) {
             throw new Error(
               `Invalid color for ${prop.name}. Expected a hex value, got '${prop.value}'`
@@ -104,18 +103,19 @@ StyleDictionary.registerFormat({
           if (prop.name.startsWith('theme-')) {
             return `--${prop.name}: var(--${prop.attributes?.ref});`
           }
-          if (alpha && prop.attributes?.ref) {
-            return `--${prop.name}: rgba(var(--${
+          if (hasAlpha && prop.attributes?.ref) {
+            return `--${prop.name}-alpha: rgba(var(--${
               prop.attributes?.ref
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            }), ${alphaValue});`
+            }), ${alpha});`
           }
           if (prop.attributes?.ref) {
-            return `--${prop.name}: rgb(var(--${prop.attributes?.ref}));`
+            return `--${prop.name}: var(--${prop.attributes?.ref});`
           }
-          return `--${prop.name}: ${
-            alpha ? 'rgba' : 'rgb'
-          }(${rgbColor}, ${alphaValue});`
+          if (hasAlpha) {
+            return `--${prop.name}-alpha: rgba(${rgbColor}, ${alpha});`
+          }
+          return `--${prop.name}: ${rgbColor};`
         })
         .join('\n')}
     }\n`
@@ -152,7 +152,11 @@ const makeColorUtility = (
             )) ||
           ''
         }.${color.name.replace(tokenPrefix, classPrefix)}': {
-          ${properties.map((prop) => `'${prop}': 'var(--${color.name})'`)}
+          ${properties.map((prop) =>
+            color.attributes?.hasAlpha
+              ? `'${prop}': 'var(--${color.name}-alpha)'`
+              : `'${prop}': 'rgb(var(--${color.name}))'`
+          )}
         }`
       )
 }
@@ -238,7 +242,7 @@ StyleDictionary.registerFilter({
 })
 
 StyleDictionary.registerTransform({
-  name: 'remove-default',
+  name: 'name/strip-default',
   type: 'name',
   transformer(token) {
     return token.name.replace(/(\w+-\w+)-default/, '$1')
@@ -246,7 +250,7 @@ StyleDictionary.registerTransform({
 })
 
 StyleDictionary.registerTransform({
-  name: 'format-reference',
+  name: 'attribute/reference',
   type: 'attribute',
   matcher: (token) => token.original.type === 'color',
   transformer(token) {
@@ -254,6 +258,17 @@ StyleDictionary.registerTransform({
       .match(/{(.+)}/)?.[1]
       ?.replace(/\./g, '-')
     return { ...token.attributes, ref }
+  },
+})
+
+StyleDictionary.registerTransform({
+  name: 'attribute/alpha',
+  type: 'attribute',
+  matcher: (token) => token.original.type === 'color',
+  transformer(token) {
+    const alphaText = token.value.slice(7, 9)
+    const alpha = alphaText && hexToRGB(alphaText)[0] / 255
+    return { ...token.attributes, alpha, hasAlpha: typeof alpha === 'number' }
   },
 })
 
@@ -265,8 +280,9 @@ const makeConfig = (theme: typeof THEMES[number]) => {
         transforms: [
           'attribute/cti',
           'name/cti/kebab',
-          'remove-default',
-          'format-reference',
+          'name/strip-default',
+          'attribute/reference',
+          'attribute/alpha',
         ],
         buildPath: 'libs/ui/styles/themes/',
         files: [
