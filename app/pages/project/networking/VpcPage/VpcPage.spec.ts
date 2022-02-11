@@ -2,6 +2,7 @@ import {
   clickByRole,
   clickBySelectorAndText,
   clickByText,
+  clickByLabelText,
   findBySelectorAndText,
   getBySelectorAndText,
   queryBySelectorAndText,
@@ -9,7 +10,6 @@ import {
   getByText,
   renderAppAt,
   screen,
-  typeByRole,
   userEvent,
   waitForElementToBeRemoved,
   fireEvent,
@@ -58,60 +58,58 @@ describe('VpcPage', () => {
   describe('firewall rule', () => {
     it('create works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      await clickByRole('tab', 'Firewall Rules')
+      clickByText('Firewall Rules')
 
       // default rules show up in the table
       for (const { name } of defaultFirewallRules) {
-        await screen.findByText(name)
+        await findBySelectorAndText('td', name)
       }
       // the one we'll be adding is not there
-      expect(screen.queryByRole('cell', { name: 'my-new-rule' })).toBeNull()
+      expect(queryBySelectorAndText('td', 'my-new-rule')).toBeNull()
 
       // modal is not already open
-      expect(
-        screen.queryByRole('dialog', { name: 'Create firewall rule' })
-      ).toBeNull()
+      expect(screen.queryByText('Create firewall rule')).toBeNull()
 
       // click button to open modal
-      await clickByRole('button', 'New rule')
+      clickBySelectorAndText('button', 'New rule')
 
       // modal is open
-      screen.getByRole('dialog', { name: 'Create firewall rule' })
+      screen.getByText('Create firewall rule')
 
-      typeByRole('textbox', 'Name', 'my-new-rule')
+      typeByLabelText('Name', 'my-new-rule')
 
-      await clickByRole('radio', 'Outgoing')
+      clickByLabelText('Outgoing')
 
       // input type="number" becomes spinbutton for some reason
-      typeByRole('spinbutton', 'Priority', '5')
+      typeByLabelText('Priority', '5')
 
-      await clickByRole('button', 'Target type')
-      await clickByRole('option', 'VPC')
-      typeByRole('textbox', 'Target name', 'my-target-vpc')
-      await clickByRole('button', 'Add target')
+      clickBySelectorAndText('button', /Target type/)
+      clickBySelectorAndText('[role=option]', 'VPC')
+      typeByLabelText('Target name', 'my-target-vpc')
+      clickBySelectorAndText('button', 'Add target')
 
       // target is added to targets table
-      screen.getByRole('cell', { name: 'my-target-vpc' })
+      getBySelectorAndText('td', 'my-target-vpc')
 
-      await clickByRole('button', 'Host type')
-      await clickByRole('option', 'Instance')
-      typeByRole('textbox', 'Value', 'host-filter-instance')
-      await clickByRole('button', 'Add host filter')
+      clickBySelectorAndText('button', /Host type/)
+      clickBySelectorAndText('[role=option]', 'Instance')
+      typeByLabelText('Value', 'host-filter-instance')
+      clickBySelectorAndText('button', 'Add host filter')
 
       // host is added to hosts table
-      screen.getByRole('cell', { name: 'host-filter-instance' })
+      getBySelectorAndText('td', 'host-filter-instance')
 
       // TODO: test invalid port range once I put an error message in there
-      typeByRole('textbox', 'Port filter', '123-456')
-      await clickByRole('button', 'Add port filter')
+      typeByLabelText('Port filter', '123-456')
+      clickByText('Add port filter')
 
       // port range is added to port ranges table
-      screen.getByRole('cell', { name: '123-456' })
+      getBySelectorAndText('td', '123-456')
 
-      await clickByRole('checkbox', 'UDP')
+      clickByLabelText('UDP')
 
       // submit the form
-      await clickByRole('button', 'Create rule')
+      clickBySelectorAndText('button', 'Create rule')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
@@ -122,14 +120,12 @@ describe('VpcPage', () => {
 
       // table refetches and now includes the new rule as well as the originals
       await screen.findByText('my-new-rule')
-      screen.getByRole('cell', {
-        name: 'instance host-filter-instance UDP 123-456',
-      })
+      getBySelectorAndText('td', 'instancehost-filter-instanceUDP123-456')
 
       for (const { name } of defaultFirewallRules) {
         screen.getByText(name)
       }
-    }, 20000)
+    })
 
     it('edit works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
@@ -182,9 +178,7 @@ describe('VpcPage', () => {
       // add host filter
       clickBySelectorAndText('button', /Host type/)
       clickBySelectorAndText('[role=option]', 'Instance')
-      fireEvent.change(screen.getByLabelText('Value'), {
-        target: { value: 'edit-filter-instance' },
-      })
+      typeByLabelText('Value', 'edit-filter-instance')
       clickBySelectorAndText('button', 'Add host filter')
 
       // host is added to hosts table

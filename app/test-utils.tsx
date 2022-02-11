@@ -99,9 +99,7 @@ export * from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 export { customRender as render, userEvent }
 
-// convenience functions so we can click and type in a one-liner. these were
-// initially created to use the user-event library, but it was remarkably slow.
-// see if those issues are improved before trying that again
+// convenience functions so we can click and type in a one-liner
 
 export async function clickByRole(role: string, name: string) {
   const element = screen.getByRole(role, { name })
@@ -113,7 +111,7 @@ export async function clickByText(
   options?: SelectorMatcherOptions
 ) {
   const element = screen.getByText(text, options)
-  await userEvent.click(element)
+  await fireEvent.click(element)
 }
 
 export function typeByRole(role: string, name: string, text: string) {
@@ -174,11 +172,7 @@ export async function findBySelectorAndText(
   waitForOptions?: waitForOptions
 ) {
   return await waitFor(
-    () =>
-      exactlyOneOrThrow(
-        getAllBySelectorAndText(selector, matcher),
-        `selector '${selector}' and matcher '${matcher}'`
-      ),
+    () => getBySelectorAndText(selector, matcher),
     waitForOptions
   )
 }
@@ -204,4 +198,7 @@ export function typeByLabelText(matcher: string | RegExp, value: string) {
   fireEvent.change(screen.getByLabelText(matcher), {
     target: { value },
   })
+}
+export function clickByLabelText(matcher: string | RegExp) {
+  fireEvent.click(screen.getByLabelText(matcher))
 }
