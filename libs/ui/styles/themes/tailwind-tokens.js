@@ -152,6 +152,12 @@ module.exports.colorUtilities = {
   '.text-notice-disabled': {
     color: 'var(--content-notice-disabled)',
   },
+  '.text-inverse': {
+    color: 'var(--content-inverse)',
+  },
+  '.text-inverse-secondary': {
+    color: 'var(--content-inverse-secondary)',
+  },
   '.bg-default': {
     'background-color': 'var(--surface-default)',
   },
@@ -214,6 +220,15 @@ module.exports.colorUtilities = {
   },
   '.bg-notice-light-hover': {
     'background-color': 'var(--surface-notice-light-hover)',
+  },
+  '.bg-inverse': {
+    'background-color': 'var(--surface-inverse)',
+  },
+  '.bg-inverse-secondary': {
+    'background-color': 'var(--surface-inverse-secondary)',
+  },
+  '.bg-inverse-tertiary': {
+    'background-color': 'var(--surface-inverse-tertiary)',
   },
   '.border-default': {
     'border-color': 'var(--stroke-default)',

@@ -66,6 +66,9 @@
   --surface-notice-raise: rgb(var(--theme-notice-4));
   --surface-notice-dark-hover: rgb(var(--theme-notice-4));
   --surface-notice-light-hover: rgb(var(--theme-notice-2));
+  --surface-inverse: rgb(var(--base-grey-500));
+  --surface-inverse-secondary: rgb(var(--base-grey-600));
+  --surface-inverse-tertiary: rgb(var(--base-grey-700));
   --content-default: rgb(var(--base-grey-500));
   --content-secondary: rgb(var(--base-grey-600));
   --content-tertiary: rgb(var(--base-grey-700));
@@ -82,6 +85,8 @@
   --content-notice-secondary: rgb(var(--theme-notice-2));
   --content-notice-tertiary: rgb(var(--theme-notice-3));
   --content-notice-disabled: rgb(var(--theme-notice-3));
+  --content-inverse: rgb(var(--base-black-700));
+  --content-inverse-secondary: rgb(var(--base-black-500));
   --stroke-default: rgb(var(--base-grey-900));
   --stroke-secondary: rgb(var(--base-grey-1000));
   --stroke-tertiary: rgb(var(--base-black-500));
