@@ -19,9 +19,9 @@ export const tagColors: Record<
   Partial<Record<TagColor, string>>
 > = {
   solid: {
-    green: 'bg-accent-solid text-black',
-    red: 'bg-destructive-solid text-black',
-    yellow: 'bg-notice-solid text-black',
+    green: 'bg-accent-solid text-inverse',
+    red: 'bg-destructive-solid text-inverse',
+    yellow: 'bg-notice-solid text-inverse',
   },
   dim: {
     green: 'bg-accent-dim text-accent',
@@ -53,7 +53,7 @@ export const Tag = ({
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
           <Close8Icon
             className={cn(
-              variant === 'solid' ? 'text-black' : 'text-accent',
+              variant === 'solid' ? 'text-inverse' : 'text-accent',
               'ml-1'
             )}
           />

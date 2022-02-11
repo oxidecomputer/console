@@ -17,9 +17,9 @@ export const badgeColors: Record<
   Partial<Record<BadgeColor, string>>
 > = {
   solid: {
-    default: 'bg-accent-solid text-black',
-    destructive: 'bg-destructive-solid text-black',
-    notice: 'bg-notice-solid text-black',
+    default: 'bg-accent-solid text-inverse',
+    destructive: 'bg-destructive-solid text-inverse',
+    notice: 'bg-notice-solid text-inverse',
     neutral: 'bg-inverse-tertiary text-inverse',
   },
   dim: {

@@ -170,7 +170,7 @@ module.exports.colorUtilities = {
   '.bg-disabled': {
     'background-color': 'var(--surface-disabled)',
   },
-  '.bg-scrim': {
+  '/** Command menu backdrop */ \n.bg-scrim': {
     'background-color': 'var(--surface-scrim)',
   },
   '.bg-secondary-hover': {
@@ -242,6 +242,9 @@ module.exports.colorUtilities = {
   '.border-raise': {
     'border-color': 'var(--stroke-raise)',
   },
+  '/** Matches the default surface color */ \n.border-surface': {
+    'border-color': 'var(--stroke-surface)',
+  },
   '.border-accent': {
     'border-color': 'var(--stroke-accent)',
   },
@@ -280,6 +283,9 @@ module.exports.colorUtilities = {
   },
   '.border-l-raise': {
     'border-left-color': 'var(--stroke-raise)',
+  },
+  '/** Matches the default surface color */ \n.border-l-surface': {
+    'border-left-color': 'var(--stroke-surface)',
   },
   '.border-l-accent': {
     'border-left-color': 'var(--stroke-accent)',
@@ -320,6 +326,9 @@ module.exports.colorUtilities = {
   '.border-r-raise': {
     'border-right-color': 'var(--stroke-raise)',
   },
+  '/** Matches the default surface color */ \n.border-r-surface': {
+    'border-right-color': 'var(--stroke-surface)',
+  },
   '.border-r-accent': {
     'border-right-color': 'var(--stroke-accent)',
   },
@@ -359,6 +368,9 @@ module.exports.colorUtilities = {
   '.border-t-raise': {
     'border-top-color': 'var(--stroke-raise)',
   },
+  '/** Matches the default surface color */ \n.border-t-surface': {
+    'border-top-color': 'var(--stroke-surface)',
+  },
   '.border-t-accent': {
     'border-top-color': 'var(--stroke-accent)',
   },
@@ -397,6 +409,9 @@ module.exports.colorUtilities = {
   },
   '.border-b-raise': {
     'border-bottom-color': 'var(--stroke-raise)',
+  },
+  '/** Matches the default surface color */ \n.border-b-surface': {
+    'border-bottom-color': 'var(--stroke-surface)',
   },
   '.border-b-accent': {
     'border-bottom-color': 'var(--stroke-accent)',
@@ -440,6 +455,10 @@ module.exports.colorUtilities = {
   '.border-x-raise': {
     'border-left-color': 'var(--stroke-raise)',
     'border-right-color': 'var(--stroke-raise)',
+  },
+  '/** Matches the default surface color */ \n.border-x-surface': {
+    'border-left-color': 'var(--stroke-surface)',
+    'border-right-color': 'var(--stroke-surface)',
   },
   '.border-x-accent': {
     'border-left-color': 'var(--stroke-accent)',
@@ -493,6 +512,10 @@ module.exports.colorUtilities = {
     'border-top-color': 'var(--stroke-raise)',
     'border-bottom-color': 'var(--stroke-raise)',
   },
+  '/** Matches the default surface color */ \n.border-y-surface': {
+    'border-top-color': 'var(--stroke-surface)',
+    'border-bottom-color': 'var(--stroke-surface)',
+  },
   '.border-y-accent': {
     'border-top-color': 'var(--stroke-accent)',
     'border-bottom-color': 'var(--stroke-accent)',
@@ -541,6 +564,9 @@ module.exports.colorUtilities = {
   '.ring-raise': {
     '--tw-ring-color': 'var(--stroke-raise)',
   },
+  '/** Matches the default surface color */ \n.ring-surface': {
+    '--tw-ring-color': 'var(--stroke-surface)',
+  },
   '.ring-accent': {
     '--tw-ring-color': 'var(--stroke-accent)',
   },
@@ -579,6 +605,9 @@ module.exports.colorUtilities = {
   },
   '.outline-raise': {
     'outline-color': 'var(--stroke-raise)',
+  },
+  '/** Matches the default surface color */ \n.outline-surface': {
+    'outline-color': 'var(--stroke-surface)',
   },
   '.outline-accent': {
     'outline-color': 'var(--stroke-accent)',
@@ -661,9 +690,10 @@ module.exports.colorUtilities = {
   '.chart-stroke-y-axis': {
     stroke: 'var(--chart-stroke-y-axis)',
   },
-  '.chart-stroke-item': {
-    stroke: 'var(--chart-stroke-item)',
-  },
+  '/** Used as a stroke in conjuction with a fill. For discrete shapes e.g. bar charts; pie charts; tree maps. */ \n.chart-stroke-item':
+    {
+      stroke: 'var(--chart-stroke-item)',
+    },
   '.chart-stroke-item-inactive': {
     stroke: 'var(--chart-stroke-item-inactive)',
   },
