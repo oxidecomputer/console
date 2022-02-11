@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { useMultipleSelection, useSelect } from 'downshift'
 
 import { Badge } from '../badge/Badge'
-import { DirectionDownIcon, SelectArrows6Icon } from '../icons'
+import { SelectArrows6Icon } from '../icons'
 import { FieldTitle } from '../field-title/FieldTitle'
 
 type Item = { value: string; label: string }
