@@ -91,7 +91,7 @@ const columns = [
     accessor: 'lastAccessed' as const,
     Header: () => <div className="text-left">Accessed</div>,
     Cell: ({ value }: { value: string }) => (
-      <div className="uppercase text-gray-200">{value}</div>
+      <div className="uppercase text-secondary">{value}</div>
     ),
   },
   {
@@ -126,7 +126,7 @@ const menuCol = {
   Cell: ({ row }: { row: Row<User> }) => (
     <Menu>
       <MenuButton>
-        <More12Icon className="mr-4 text-gray-200" />
+        <More12Icon className="mr-4 text-tertiary" />
       </MenuButton>
       <MenuList className="TableControls">
         <MenuItem onSelect={() => console.log(row.values.name)}>
@@ -182,7 +182,7 @@ export const AccessPage = () => {
             <h3 className="text-sans-md">Choose members</h3>
             <h3 className="text-sans-md">Select roles</h3>
           </div>
-          <hr className="border-gray-400" />
+          <hr className="border-default" />
           <div className="p-8">
             <h3 className="text-sans-md">Relevant docs</h3>
           </div>

@@ -20,7 +20,7 @@ const groups = Object.entries(colorConfig).filter(
 const Color = ({ name, value }: ColorProps) => (
   <div key={name} className="mb-4 flex">
     <div
-      className="mr-3 h-12 w-12 border border-gray-400"
+      className="mr-3 h-12 w-12 border border-secondary"
       style={{ backgroundColor: value }}
     />
     <div className="flex flex-col">

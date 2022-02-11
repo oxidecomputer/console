@@ -48,14 +48,12 @@ export function StorageTab() {
 
   return (
     <div className="mt-8">
-      <h2 className="mb-4 uppercase text-gray-200 text-mono-sm">Boot disk</h2>
+      <h2 className="mb-4 text-mono-sm text-secondary">Boot disk</h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} rowClassName="!h-10" />
-      <h2 className="mt-12 mb-4 uppercase text-gray-200 text-mono-sm">
-        Attached Disks
-      </h2>
+      <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
       <Table table={otherDisksTable} rowClassName="!h-10" />
       <div className="mt-4">
         <Button variant="dim" size="sm">
