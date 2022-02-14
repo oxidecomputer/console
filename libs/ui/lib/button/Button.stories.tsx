@@ -29,7 +29,7 @@ export const Default: Story = {
     children: 'Button',
     disabled: false,
     size: 'base',
-    variant: 'solid',
+    variant: 'default',
   },
 }
 

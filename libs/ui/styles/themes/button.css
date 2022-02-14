@@ -18,18 +18,18 @@
 }
 
 /**
- * Secondary
+ * Dim
  */
 .btn-accent-secondary {
-  @apply hover:bg-accent-hover-secondary bg-accent-secondary disabled:bg-accent-secondary text-accent disabled:text-accent-disabled;
+  @apply bg-accent-secondary hover:bg-accent-hover-secondary disabled:bg-accent-secondary text-accent disabled:text-accent-disabled;
 }
 
 .btn-destructive-secondary {
-  @apply hover:bg-destructive-hover-secondary bg-destructive-secondary disabled:bg-destructive-secondary text-destructive disabled:text-destructive-disabled;
+  @apply bg-destructive-secondary hover:bg-destructive-hover-secondary disabled:bg-destructive-secondary text-destructive disabled:text-destructive-disabled;
 }
 
 .btn-notice-secondary {
-  @apply hover:bg-notice-hover-secondary bg-notice-secondary disabled:bg-notice-secondary text-notice disabled:text-notice-disabled;
+  @apply bg-notice-secondary hover:bg-notice-hover-secondary disabled:bg-notice-secondary text-notice disabled:text-notice-disabled;
 }
 
 /**

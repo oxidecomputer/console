@@ -135,7 +135,7 @@ const CommonForm = ({ id, error }: FormProps) => {
             Clear
           </Button>
           <Button
-            variant="dim"
+            variant="secondary"
             onClick={() => {
               // TODO: show error instead of ignoring click
               if (
@@ -228,7 +228,7 @@ const CommonForm = ({ id, error }: FormProps) => {
             Clear
           </Button>
           <Button
-            variant="dim"
+            variant="secondary"
             onClick={() => {
               // TODO: show error instead of ignoring click
               if (
@@ -301,7 +301,7 @@ const CommonForm = ({ id, error }: FormProps) => {
               Clear
             </Button>
             <Button
-              variant="dim"
+              variant="secondary"
               onClick={() => {
                 const portRange = values.portRange.trim()
                 // TODO: show error instead of ignoring the click
@@ -478,7 +478,7 @@ export function CreateFirewallRuleModal({
         <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
@@ -576,7 +576,7 @@ export function EditFirewallRuleModal({
         <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">

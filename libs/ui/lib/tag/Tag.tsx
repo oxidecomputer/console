@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { Close8Icon } from '../icons'
 
 export type TagColor = 'green' | 'red' | 'yellow' | 'gray'
-export type TagVariant = 'solid' | 'dim'
+export type TagVariant = 'default' | 'secondary'
 
 export interface TagProps {
   color?: TagColor
@@ -18,15 +18,15 @@ export const tagColors: Record<
   TagVariant,
   Partial<Record<TagColor, string>>
 > = {
-  solid: {
-    green: 'bg-accent-solid text-inverse',
-    red: 'bg-destructive-solid text-inverse',
-    yellow: 'bg-notice-solid text-inverse',
+  default: {
+    green: 'bg-accent text-inverse',
+    red: 'bg-destructive text-inverse',
+    yellow: 'bg-notice text-inverse',
   },
-  dim: {
-    green: 'bg-accent-dim text-accent',
-    red: 'bg-destructive-dim text-destructive',
-    yellow: 'bg-notice-dim text-notice',
+  secondary: {
+    green: 'bg-accent-secondary text-accent',
+    red: 'bg-destructive-secondary text-destructive',
+    yellow: 'bg-notice-secondary text-notice',
     gray: 'bg-disabled text-secondary',
   },
 }
@@ -35,7 +35,7 @@ export const Tag = ({
   className,
   children,
   color = 'green',
-  variant = 'solid',
+  variant = 'default',
   narrow,
   onClose,
 }: TagProps) => {
@@ -53,7 +53,7 @@ export const Tag = ({
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
           <Close8Icon
             className={cn(
-              variant === 'solid' ? 'text-inverse' : 'text-accent',
+              variant === 'default' ? 'text-inverse' : 'text-accent',
               'ml-1'
             )}
           />

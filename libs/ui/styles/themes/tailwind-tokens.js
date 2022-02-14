@@ -176,50 +176,50 @@ module.exports.colorUtilities = {
   '.bg-secondary-hover': {
     'background-color': 'rgb(var(--surface-secondary-hover))',
   },
-  '.bg-accent-dim': {
-    'background-color': 'rgb(var(--surface-accent-dim))',
+  '.bg-accent': {
+    'background-color': 'rgb(var(--surface-accent))',
   },
-  '.bg-accent-solid': {
-    'background-color': 'rgb(var(--surface-accent-solid))',
+  '.bg-accent-secondary': {
+    'background-color': 'rgb(var(--surface-accent-secondary))',
   },
   '.bg-accent-raise': {
     'background-color': 'rgb(var(--surface-accent-raise))',
   },
-  '.bg-accent-dark-hover': {
-    'background-color': 'rgb(var(--surface-accent-dark-hover))',
+  '.bg-accent-hover': {
+    'background-color': 'rgb(var(--surface-accent-hover))',
   },
-  '.bg-accent-light-hover': {
-    'background-color': 'rgb(var(--surface-accent-light-hover))',
+  '.bg-accent-hover-secondary': {
+    'background-color': 'rgb(var(--surface-accent-hover-secondary))',
   },
-  '.bg-destructive-dim': {
-    'background-color': 'rgb(var(--surface-destructive-dim))',
+  '.bg-destructive': {
+    'background-color': 'rgb(var(--surface-destructive))',
   },
-  '.bg-destructive-solid': {
-    'background-color': 'rgb(var(--surface-destructive-solid))',
+  '.bg-destructive-secondary': {
+    'background-color': 'rgb(var(--surface-destructive-secondary))',
   },
   '.bg-destructive-raise': {
     'background-color': 'rgb(var(--surface-destructive-raise))',
   },
-  '.bg-destructive-dark-hover': {
-    'background-color': 'rgb(var(--surface-destructive-dark-hover))',
+  '.bg-destructive-hover': {
+    'background-color': 'rgb(var(--surface-destructive-hover))',
   },
-  '.bg-destructive-light-hover': {
-    'background-color': 'rgb(var(--surface-destructive-light-hover))',
+  '.bg-destructive-hover-secondary': {
+    'background-color': 'rgb(var(--surface-destructive-hover-secondary))',
   },
-  '.bg-notice-dim': {
-    'background-color': 'rgb(var(--surface-notice-dim))',
+  '.bg-notice': {
+    'background-color': 'rgb(var(--surface-notice))',
   },
-  '.bg-notice-solid': {
-    'background-color': 'rgb(var(--surface-notice-solid))',
+  '.bg-notice-secondary': {
+    'background-color': 'rgb(var(--surface-notice-secondary))',
   },
   '.bg-notice-raise': {
     'background-color': 'rgb(var(--surface-notice-raise))',
   },
-  '.bg-notice-dark-hover': {
-    'background-color': 'rgb(var(--surface-notice-dark-hover))',
+  '.bg-notice-hover': {
+    'background-color': 'rgb(var(--surface-notice-hover))',
   },
-  '.bg-notice-light-hover': {
-    'background-color': 'rgb(var(--surface-notice-light-hover))',
+  '.bg-notice-hover-secondary': {
+    'background-color': 'rgb(var(--surface-notice-hover-secondary))',
   },
   '.bg-inverse': {
     'background-color': 'rgb(var(--surface-inverse))',

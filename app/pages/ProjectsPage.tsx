@@ -17,7 +17,7 @@ const ProjectsPage = () => {
         <div className="flex items-center">
           <Link
             to="new"
-            className={buttonStyle({ variant: 'dim', size: 'xs' })}
+            className={buttonStyle({ variant: 'secondary', size: 'xs' })}
           >
             New Project
           </Link>

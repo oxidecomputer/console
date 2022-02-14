@@ -198,10 +198,10 @@ export const AccessPage = () => {
 
       <div className="flex justify-end">
         {/* TODO: not supposed to be dim buttons */}
-        <Button variant="dim">
+        <Button variant="secondary">
           <Search16Icon />
         </Button>
-        <Button variant="dim">
+        <Button variant="secondary">
           <Filter12Icon />
         </Button>
         <Button onClick={() => setModalIsOpen(true)}>

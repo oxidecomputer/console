@@ -27,7 +27,7 @@
 }
 
 [data-reach-tab][data-selected] > .ox-badge {
-  @apply bg-accent-dim;
+  @apply bg-accent-secondary;
 }
 
 [data-reach-tab-panel] {

@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { invariant } from '@oxide/util'
 
 export type BadgeColor = 'default' | 'destructive' | 'notice' | 'neutral'
-export type BadgeVariant = 'solid' | 'dim' | 'ghost'
+export type BadgeVariant = 'default' | 'secondary' | 'ghost'
 
 export interface BadgeProps {
   color?: BadgeColor
@@ -16,24 +16,25 @@ export const badgeColors: Record<
   BadgeVariant,
   Partial<Record<BadgeColor, string>>
 > = {
-  solid: {
-    default: 'bg-accent-solid text-inverse',
-    destructive: 'bg-destructive-solid text-inverse',
-    notice: 'bg-notice-solid text-inverse',
+  default: {
+    default: 'bg-accent text-inverse',
+    destructive: 'bg-destructive text-inverse',
+    notice: 'bg-notice text-inverse',
     neutral: 'bg-inverse-tertiary text-inverse',
   },
-  dim: {
-    default: 'bg-accent-dim text-accent selected:bg-accent-secondary',
-    destructive: 'bg-destructive-dim text-destructive',
-    notice: 'bg-notice-dim text-notice',
+  secondary: {
+    default: 'bg-accent-secondary text-accent selected:bg-accent-secondary',
+    destructive: 'bg-destructive-secondary text-destructive',
+    notice: 'bg-notice-secondary text-notice',
     neutral: 'bg-secondary text-secondary',
   },
   ghost: {
     default:
-      'ring-1 ring-inset ring-accent-secondary text-accent bg-accent-dim',
+      'ring-1 ring-inset ring-accent-secondary text-accent bg-accent-secondary',
     destructive:
-      'ring-1 ring-inset ring-destructive-secondary text-destructive bg-destructive-dim',
-    notice: 'ring-1 ring-inset ring-notice-secondary text-notice bg-notice-dim',
+      'ring-1 ring-inset ring-destructive-secondary text-destructive bg-destructive-secondary',
+    notice:
+      'ring-1 ring-inset ring-notice-secondary text-notice bg-notice-secondary',
   },
 }
 
@@ -41,7 +42,7 @@ export const Badge = ({
   className,
   children,
   color = 'default',
-  variant = 'solid',
+  variant = 'default',
 }: BadgeProps) => {
   invariant(
     badgeColors[variant][color],

@@ -56,10 +56,10 @@ export function StorageTab() {
       <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
       <Table table={otherDisksTable} rowClassName="!h-10" />
       <div className="mt-4">
-        <Button variant="dim" size="sm">
+        <Button variant="secondary" size="sm">
           Create new disk
         </Button>
-        <Button variant="dim" size="sm" className="ml-3">
+        <Button variant="secondary" size="sm" className="ml-3">
           Attach existing disk
         </Button>
       </div>
