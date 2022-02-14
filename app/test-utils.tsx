@@ -72,6 +72,7 @@ const customRender = (ui: React.ReactElement) =>
 
 export function renderAppAt(url: string) {
   window.history.pushState({}, 'Test page', url)
+  console.log('hi')
   return render(routes, {
     wrapper: ({ children }) => (
       <BrowserRouter>
