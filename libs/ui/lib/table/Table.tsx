@@ -79,7 +79,7 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'selected:bg-accent-secondary h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent'
+      'h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent selected:bg-accent-secondary'
     )}
     {...props}
   >

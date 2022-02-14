@@ -2,15 +2,15 @@
  * Default
  */
 .btn-accent {
-  @apply bg-accent disabled:bg-accent text-inverse hover:bg-accent-hover disabled:text-accent-disabled;
+  @apply text-inverse bg-accent hover:bg-accent-hover disabled:text-accent-disabled disabled:bg-accent;
 }
 
 .btn-notice {
-  @apply bg-notice disabled:bg-notice text-inverse hover:bg-notice-hover disabled:text-notice-disabled;
+  @apply text-inverse bg-notice hover:bg-notice-hover disabled:text-notice-disabled disabled:bg-notice;
 }
 
 .btn-destructive {
-  @apply bg-destructive disabled:bg-destructive text-inverse hover:bg-destructive-hover disabled:text-destructive-disabled;
+  @apply text-inverse bg-destructive hover:bg-destructive-hover disabled:text-destructive-disabled disabled:bg-destructive;
 }
 
 .btn-secondary {
@@ -21,28 +21,28 @@
  * Dim
  */
 .btn-accent-secondary {
-  @apply bg-accent-secondary hover:bg-accent-hover-secondary disabled:bg-accent-secondary text-accent disabled:text-accent-disabled;
+  @apply text-accent bg-accent-secondary hover:bg-accent-hover-secondary disabled:text-accent-disabled disabled:bg-accent-secondary;
 }
 
 .btn-destructive-secondary {
-  @apply bg-destructive-secondary hover:bg-destructive-hover-secondary disabled:bg-destructive-secondary text-destructive disabled:text-destructive-disabled;
+  @apply text-destructive bg-destructive-secondary hover:bg-destructive-hover-secondary disabled:text-destructive-disabled disabled:bg-destructive-secondary;
 }
 
 .btn-notice-secondary {
-  @apply bg-notice-secondary hover:bg-notice-hover-secondary disabled:bg-notice-secondary text-notice disabled:text-notice-disabled;
+  @apply text-notice bg-notice-secondary hover:bg-notice-hover-secondary disabled:text-notice-disabled disabled:bg-notice-secondary;
 }
 
 /**
  * Ghost
  */
 .btn-ghost-accent {
-  @apply hover:bg-accent-hover-secondary border text-accent border-accent-tertiary disabled:bg-transparent;
+  @apply border text-accent border-accent-tertiary hover:bg-accent-hover-secondary disabled:bg-transparent;
 }
 .btn-ghost-notice {
-  @apply hover:bg-notice-hover-secondary border text-notice border-notice-secondary disabled:bg-transparent;
+  @apply border text-notice border-notice-secondary hover:bg-notice-hover-secondary disabled:bg-transparent;
 }
 .btn-ghost-destructive {
-  @apply hover:bg-destructive-hover-secondary border text-destructive border-destructive-secondary disabled:bg-transparent;
+  @apply border text-destructive border-destructive-secondary hover:bg-destructive-hover-secondary disabled:bg-transparent;
 }
 .btn-ghost-secondary {
   @apply border text-secondary border-default hover:bg-raise disabled:bg-transparent;

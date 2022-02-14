@@ -109,7 +109,7 @@ export const MultiSelect = ({
                 'py-2 px-4 text-sans-sm text-default hover:bg-raise',
                 select.highlightedIndex === index && 'bg-raise',
                 ms.selectedItems.includes(item) &&
-                  'is-selected !border-1 bg-accent-secondary -mx-[1px] text-accent'
+                  'is-selected !border-1 -mx-[1px] text-accent bg-accent-secondary'
               )}
               {...select.getItemProps({ item, index })}
             >
