@@ -1,4 +1,5 @@
 import {
+  clickByRole,
   fireEvent,
   override,
   renderAppAt,
@@ -8,31 +9,14 @@ import {
 } from 'app/test-utils'
 import { org, project, instance } from '@oxide/api-mocks'
 
-const submitButton = () =>
-  screen.getByRole('button', { name: 'Create instance' })
-
-const projectUrl = `/api/organizations/${org.name}/projects/${project.name}`
-const instancesUrl = `${projectUrl}/instances`
-
 const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
 
 describe('InstanceCreatePage', () => {
-  it('disables submit button on submit', async () => {
-    renderAppAt(formUrl)
-
-    const submit = submitButton()
-    expect(submit).not.toBeDisabled()
-
-    fireEvent.click(submit)
-
-    await waitFor(() => expect(submit).toBeDisabled())
-  })
-
   it('shows specific message for known server error code', async () => {
     renderAppAt(formUrl)
     typeByRole('textbox', 'Choose a name', instance.name) // already exists in db
 
-    fireEvent.click(submitButton())
+    await clickByRole('button', 'Create instance')
 
     await screen.findByText(
       'An instance with that name already exists in this project'
@@ -42,10 +26,11 @@ describe('InstanceCreatePage', () => {
   })
 
   it('shows generic message for unknown server error', async () => {
-    override('post', instancesUrl, 400, { error_code: 'UnknownCode' })
+    const createUrl = `/api/organizations/${org.name}/projects/${project.name}/instances`
+    override('post', createUrl, 400, { error_code: 'UnknownCode' })
     renderAppAt(formUrl)
 
-    fireEvent.click(submitButton())
+    await clickByRole('button', 'Create instance')
 
     await screen.findByText('Unknown error from server')
     // don't nav away
@@ -60,7 +45,11 @@ describe('InstanceCreatePage', () => {
 
     typeByRole('textbox', 'Choose a name', 'new-instance')
     fireEvent.click(screen.getByLabelText(/6 CPUs/))
-    fireEvent.click(submitButton())
+
+    await clickByRole('button', 'Create instance')
+
+    const submit = screen.getByRole('button', { name: 'Create instance' })
+    await waitFor(() => expect(submit).toBeDisabled())
 
     // nav to instances list
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
