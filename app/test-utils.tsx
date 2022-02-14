@@ -55,28 +55,30 @@ export function override(
  * RENDERING
  ****************************************/
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
+const queryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
     },
-  },
-})
+  })
 
 const customRender = (ui: React.ReactElement) =>
   render(ui, {
     wrapper: ({ children }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient()}>
+        {children}
+      </QueryClientProvider>
     ),
   })
 
 export function renderAppAt(url: string) {
   window.history.pushState({}, 'Test page', url)
-  console.log('hi')
   return render(routes, {
     wrapper: ({ children }) => (
       <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient()}>
           {children}
         </QueryClientProvider>
       </BrowserRouter>
