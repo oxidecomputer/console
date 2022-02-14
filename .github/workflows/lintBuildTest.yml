@@ -28,7 +28,7 @@ jobs:
         run: yarn lint
 
       - name: Test
-        run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 yarn test run
+        run: yarn test run
 
       - name: Build
         run: yarn build
