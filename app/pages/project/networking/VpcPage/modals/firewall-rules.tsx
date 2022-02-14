@@ -131,7 +131,7 @@ const CommonForm = ({ id, error }: FormProps) => {
 
         <div className="flex justify-end">
           {/* TODO does this clear out the form or the existing targets? */}
-          <Button variant="ghost" color="secondary" className="mr-2.5">
+          <Button variant="ghost" color="neutral" className="mr-2.5">
             Clear
           </Button>
           <Button
@@ -224,7 +224,7 @@ const CommonForm = ({ id, error }: FormProps) => {
         </div>
 
         <div className="flex justify-end">
-          <Button variant="ghost" color="secondary" className="mr-2.5">
+          <Button variant="ghost" color="neutral" className="mr-2.5">
             Clear
           </Button>
           <Button
@@ -297,7 +297,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           />
           <TextFieldError name="portRange" />
           <div className="flex justify-end">
-            <Button variant="ghost" color="secondary" className="mr-2.5">
+            <Button variant="ghost" color="neutral" className="mr-2.5">
               Clear
             </Button>
             <Button
