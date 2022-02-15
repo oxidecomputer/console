@@ -4,8 +4,8 @@ import './button.css'
 import { assertUnreachable } from '@oxide/util'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
-export const variants = ['solid', 'dim', 'ghost', 'link'] as const
-export const colors = ['accent', 'destructive', 'notice', 'secondary'] as const
+export const variants = ['default', 'secondary', 'ghost', 'link'] as const
+export const colors = ['accent', 'destructive', 'notice', 'neutral'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
@@ -20,21 +20,21 @@ const sizeStyle: Record<ButtonSize, string> = {
 const colorStyle = (variant: Variant, color: Color): string => {
   const style: `${Variant} ${Color}` = `${variant} ${color}`
   switch (style) {
-    case 'solid accent':
-      return 'btn-solid-accent'
-    case 'solid notice':
-      return 'btn-solid-notice'
-    case 'solid destructive':
-      return 'btn-solid-destructive'
-    case 'solid secondary':
-      return 'btn-solid-secondary'
-    case 'dim accent':
-      return 'btn-dim-accent'
-    case 'dim notice':
-      return 'btn-dim-notice'
-    case 'dim destructive':
-      return 'btn-dim-destructive'
-    case 'dim secondary':
+    case 'default accent':
+      return 'btn-accent'
+    case 'default notice':
+      return 'btn-notice'
+    case 'default destructive':
+      return 'btn-destructive'
+    case 'default neutral':
+      return 'btn-secondary'
+    case 'secondary accent':
+      return 'btn-accent-secondary'
+    case 'secondary notice':
+      return 'btn-notice-secondary'
+    case 'secondary destructive':
+      return 'btn-destructive-secondary'
+    case 'secondary neutral':
       return 'btn-not-implemented'
     case 'ghost accent':
       return 'btn-ghost-accent'
@@ -42,7 +42,7 @@ const colorStyle = (variant: Variant, color: Color): string => {
       return 'btn-ghost-notice'
     case 'ghost destructive':
       return 'btn-ghost-destructive'
-    case 'ghost secondary':
+    case 'ghost neutral':
       return 'btn-ghost-secondary'
     case 'link accent':
       return 'btn-link-accent'
@@ -50,10 +50,10 @@ const colorStyle = (variant: Variant, color: Color): string => {
       return 'btn-link-notice'
     case 'link destructive':
       return 'btn-link-destructive'
-    case 'link secondary':
+    case 'link neutral':
       return 'btn-link-secondary'
     default:
-      assertUnreachable(style)
+      assertUnreachable(`Invalid button state ${style}`, style)
   }
 }
 
@@ -80,7 +80,7 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> &
 
 export const buttonStyle = ({
   size = 'base',
-  variant = 'solid',
+  variant = 'default',
   color = 'accent',
 }: ButtonStyleProps = {}) => {
   return cn(

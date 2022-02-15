@@ -10,15 +10,15 @@ const Check = () => (
   <Checkmark12Icon className="absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
 )
 
-const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent-solid`
+const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent`
 
 const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-accent-secondary
   hover:bg-secondary
-  checked:bg-accent-dim checked:border-accent hover:checked:bg-accent-dark-hover
-  indeterminate:bg-accent-dim indeterminate:border-accent hover:indeterminate:bg-accent-dark-hover
+  checked:bg-accent-secondary checked:border-accent hover:checked:bg-accent-hover-secondary
+  indeterminate:bg-accent-secondary indeterminate:border-accent hover:indeterminate:bg-accent-hover-secondary
 `
 
 export type CheckboxProps = {

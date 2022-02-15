@@ -56,7 +56,6 @@ export default function LoginPage() {
         <h3 className="mb-2 text-center text-sans-xl">Log in as</h3>
         <Button
           type="submit"
-          variant="solid"
           className="w-full"
           disabled={loginPost.isLoading}
           onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
@@ -65,7 +64,7 @@ export default function LoginPage() {
         </Button>
         <Button
           type="submit"
-          variant="dim"
+          variant="secondary"
           className="w-full"
           disabled={loginPost.isLoading}
           onClick={() =>

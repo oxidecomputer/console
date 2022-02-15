@@ -17,9 +17,9 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 const fieldStyles = `
   peer appearance-none absolute outline-none
   border border-default h-4 w-4 rounded-full
-  hover:bg-secondary hover:checked:bg-accent-dark-hover
+  hover:bg-secondary hover:checked:bg-accent-hover-secondary
   focus:ring-2 focus:ring-accent-secondary
-  checked:bg-accent-dim checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
+  checked:bg-accent-secondary checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
 `
 
@@ -32,7 +32,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
         {...inputProps}
       />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent-solid peer-checked:block" />
+      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
     </span>
 
     <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
@@ -42,7 +42,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
 const cardLabelStyles = `
   py-2 px-4 text-sm border rounded-sm border-default bg-default hover:bg-raise
   peer-focus:ring-2 peer-focus:ring-accent-secondary
-  peer-checked:bg-accent-dim peer-checked:border-accent peer-checked:hover:bg-accent-raise 
+  peer-checked:bg-accent-secondary peer-checked:border-accent peer-checked:hover:bg-accent-raise 
   peer-checked:border-accent peer-checked:text-accent
   peer-disabled:bg-disabled peer-disabled:text-secondary
 

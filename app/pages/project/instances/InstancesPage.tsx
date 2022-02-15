@@ -44,7 +44,7 @@ export const InstancesPage = () => {
       <div className="-mt-11 mb-3 flex justify-end space-x-4">
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
-          className={buttonStyle({ size: 'xs', variant: 'dim' })}
+          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
         >
           New Instance
         </Link>

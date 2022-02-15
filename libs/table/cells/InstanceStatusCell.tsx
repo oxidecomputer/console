@@ -11,7 +11,7 @@ export const InstanceStatusCell = ({
   return (
     <TwoLineCell
       value={[
-        <Badge variant="dim" key="run-state">
+        <Badge variant="secondary" key="run-state">
           {value.runState}
         </Badge>,
         formatDistanceToNow(value.timeRunStateUpdated),
