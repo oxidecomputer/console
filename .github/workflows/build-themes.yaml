@@ -1,6 +1,7 @@
 name: Build Themes
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'figma-tokens'
