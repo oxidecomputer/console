@@ -188,8 +188,8 @@ module.exports.colorUtilities = {
   '.bg-accent-hover': {
     'background-color': 'rgb(var(--surface-accent-hover))',
   },
-  '.bg-accent-hover-secondary': {
-    'background-color': 'rgb(var(--surface-accent-hover-secondary))',
+  '.bg-accent-secondary-hover': {
+    'background-color': 'rgb(var(--surface-accent-secondary-hover))',
   },
   '.bg-destructive': {
     'background-color': 'rgb(var(--surface-destructive))',
@@ -203,8 +203,8 @@ module.exports.colorUtilities = {
   '.bg-destructive-hover': {
     'background-color': 'rgb(var(--surface-destructive-hover))',
   },
-  '.bg-destructive-hover-secondary': {
-    'background-color': 'rgb(var(--surface-destructive-hover-secondary))',
+  '.bg-destructive-secondary-hover': {
+    'background-color': 'rgb(var(--surface-destructive-secondary-hover))',
   },
   '.bg-notice': {
     'background-color': 'rgb(var(--surface-notice))',
@@ -218,8 +218,8 @@ module.exports.colorUtilities = {
   '.bg-notice-hover': {
     'background-color': 'rgb(var(--surface-notice-hover))',
   },
-  '.bg-notice-hover-secondary': {
-    'background-color': 'rgb(var(--surface-notice-hover-secondary))',
+  '.bg-notice-secondary-hover': {
+    'background-color': 'rgb(var(--surface-notice-secondary-hover))',
   },
   '.bg-inverse': {
     'background-color': 'rgb(var(--surface-inverse))',

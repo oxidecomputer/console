@@ -21,28 +21,28 @@
  * Dim
  */
 .btn-accent-secondary {
-  @apply text-accent bg-accent-secondary hover:bg-accent-hover-secondary disabled:text-accent-disabled disabled:bg-accent-secondary;
+  @apply hover:bg-accent-hover-secondary text-accent bg-accent-secondary disabled:text-accent-disabled disabled:bg-accent-secondary;
 }
 
 .btn-destructive-secondary {
-  @apply text-destructive bg-destructive-secondary hover:bg-destructive-hover-secondary disabled:text-destructive-disabled disabled:bg-destructive-secondary;
+  @apply hover:bg-destructive-hover-secondary text-destructive bg-destructive-secondary disabled:text-destructive-disabled disabled:bg-destructive-secondary;
 }
 
 .btn-notice-secondary {
-  @apply text-notice bg-notice-secondary hover:bg-notice-hover-secondary disabled:text-notice-disabled disabled:bg-notice-secondary;
+  @apply hover:bg-notice-hover-secondary text-notice bg-notice-secondary disabled:text-notice-disabled disabled:bg-notice-secondary;
 }
 
 /**
  * Ghost
  */
 .btn-ghost-accent {
-  @apply border text-accent border-accent-tertiary hover:bg-accent-hover-secondary disabled:bg-transparent;
+  @apply hover:bg-accent-hover-secondary border text-accent border-accent-tertiary disabled:bg-transparent;
 }
 .btn-ghost-notice {
-  @apply border text-notice border-notice-secondary hover:bg-notice-hover-secondary disabled:bg-transparent;
+  @apply hover:bg-notice-hover-secondary border text-notice border-notice-secondary disabled:bg-transparent;
 }
 .btn-ghost-destructive {
-  @apply border text-destructive border-destructive-secondary hover:bg-destructive-hover-secondary disabled:bg-transparent;
+  @apply hover:bg-destructive-hover-secondary border text-destructive border-destructive-secondary disabled:bg-transparent;
 }
 .btn-ghost-secondary {
   @apply border text-secondary border-default hover:bg-raise disabled:bg-transparent;
