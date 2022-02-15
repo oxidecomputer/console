@@ -1,0 +1,43 @@
+diff --git a/node_modules/@reach/combobox/styles.css b/node_modules/@reach/combobox/styles.css
+index ae5caaf..1427633 100644
+--- a/node_modules/@reach/combobox/styles.css
++++ b/node_modules/@reach/combobox/styles.css
+@@ -1,13 +1,12 @@
++/**
++ * We've motified this file to remove styles visual styles that we already define. We wanted to preserve it as a patch such that
++ * when we upgrade it would be obvious what changes were made and why. 
++ */
++
+ :root {
+   --reach-combobox: 1;
+ }
+ 
+-[data-reach-combobox-popover] {
+-  border: solid 1px hsla(0, 0%, 0%, 0.25);
+-  background: hsla(0, 100%, 100%, 0.99);
+-  font-size: 85%;
+-}
+-
+ [data-reach-combobox-list] {
+   list-style: none;
+   margin: 0;
+@@ -20,19 +19,3 @@
+   margin: 0;
+   padding: 0.25rem 0.5rem;
+ }
+-
+-[data-reach-combobox-option][aria-selected="true"] {
+-  background: hsl(211, 10%, 95%);
+-}
+-
+-[data-reach-combobox-option]:hover {
+-  background: hsl(211, 10%, 92%);
+-}
+-
+-[data-reach-combobox-option][aria-selected="true"]:hover {
+-  background: hsl(211, 10%, 90%);
+-}
+-
+-[data-suggested-value] {
+-  font-weight: bold;
+-}
