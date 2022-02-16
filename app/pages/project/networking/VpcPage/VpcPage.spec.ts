@@ -24,7 +24,7 @@ describe('VpcPage', () => {
       expect(screen.queryByTestId('create-vpc-subnet-modal')).toBeNull()
 
       // click button to open modal
-      await clickByRole('button', 'New subnet')
+      clickByRole('button', 'New subnet')
 
       // modal is open
       screen.getByRole('dialog', { name: 'Create subnet' })
@@ -34,7 +34,7 @@ describe('VpcPage', () => {
       typeByRole('textbox', 'Name', 'mock-subnet-2')
 
       // submit the form
-      await clickByRole('button', 'Create subnet')
+      clickByRole('button', 'Create subnet')
 
       // wait for modal to close
       await waitForElementToBeRemoved(() =>
@@ -50,7 +50,7 @@ describe('VpcPage', () => {
   describe('firewall rule', () => {
     it('create works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      await clickByRole('tab', 'Firewall Rules')
+      clickByRole('tab', 'Firewall Rules')
 
       // default rules show up in the table
       for (const { name } of defaultFirewallRules) {
@@ -65,45 +65,45 @@ describe('VpcPage', () => {
       ).toBeNull()
 
       // click button to open modal
-      await clickByRole('button', 'New rule')
+      clickByRole('button', 'New rule')
 
       // modal is open
       screen.getByRole('dialog', { name: 'Create firewall rule' })
 
       typeByRole('textbox', 'Name', 'my-new-rule')
 
-      await clickByRole('radio', 'Outgoing')
+      clickByRole('radio', 'Outgoing')
 
       // input type="number" becomes spinbutton for some reason
       typeByRole('spinbutton', 'Priority', '5')
 
-      await clickByRole('button', 'Target type')
-      await clickByRole('option', 'VPC')
+      clickByRole('button', 'Target type')
+      clickByRole('option', 'VPC')
       typeByRole('textbox', 'Target name', 'my-target-vpc')
-      await clickByRole('button', 'Add target')
+      clickByRole('button', 'Add target')
 
       // target is added to targets table
       screen.getByRole('cell', { name: 'my-target-vpc' })
 
-      await clickByRole('button', 'Host type')
-      await clickByRole('option', 'Instance')
+      clickByRole('button', 'Host type')
+      clickByRole('option', 'Instance')
       typeByRole('textbox', 'Value', 'host-filter-instance')
-      await clickByRole('button', 'Add host filter')
+      clickByRole('button', 'Add host filter')
 
       // host is added to hosts table
       screen.getByRole('cell', { name: 'host-filter-instance' })
 
       // TODO: test invalid port range once I put an error message in there
       typeByRole('textbox', 'Port filter', '123-456')
-      await clickByRole('button', 'Add port filter')
+      clickByRole('button', 'Add port filter')
 
       // port range is added to port ranges table
       screen.getByRole('cell', { name: '123-456' })
 
-      await clickByRole('checkbox', 'UDP')
+      clickByRole('checkbox', 'UDP')
 
       // submit the form
-      await clickByRole('button', 'Create rule')
+      clickByRole('button', 'Create rule')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
@@ -121,11 +121,11 @@ describe('VpcPage', () => {
       for (const { name } of defaultFirewallRules) {
         screen.getByText(name)
       }
-    }, 25000)
+    }, 30000)
 
     it('edit works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      await clickByRole('tab', 'Firewall Rules')
+      clickByRole('tab', 'Firewall Rules')
 
       // default rules show up in the table
       for (const { name } of defaultFirewallRules) {
@@ -145,7 +145,11 @@ describe('VpcPage', () => {
       const allowIcmpRow = screen.getByRole('row', { name: /allow-icmp/ })
       const more = getByRole(allowIcmpRow, 'button', { name: 'More' })
       await userEvent.click(more)
-      await clickByRole('menuitem', 'Edit')
+
+      const edit = screen.getByRole('menuitem', { name: 'Edit' })
+      // needs to be userEvent and not fireEvent because reach menu is triggered
+      // by mousedown. we could also fire mousedown but that feels brittle
+      await userEvent.click(edit)
 
       // now the modal is open
       screen.getByRole('dialog', { name: 'Edit firewall rule' })
@@ -172,16 +176,16 @@ describe('VpcPage', () => {
       await userEvent.type(name, 'new-rule-name')
 
       // add host filter
-      await clickByRole('button', 'Host type')
-      await clickByRole('option', 'Instance')
+      clickByRole('button', 'Host type')
+      clickByRole('option', 'Instance')
       typeByRole('textbox', 'Value', 'edit-filter-instance')
-      await clickByRole('button', 'Add host filter')
+      clickByRole('button', 'Add host filter')
 
       // host is added to hosts table
       screen.getByRole('cell', { name: 'edit-filter-instance' })
 
       // submit the form
-      await clickByRole('button', 'Update rule')
+      clickByRole('button', 'Update rule')
 
       // wait for modal to close
       await waitForElementToBeRemoved(
@@ -204,6 +208,6 @@ describe('VpcPage', () => {
       for (const { name } of rest) {
         screen.getByRole('cell', { name })
       }
-    }, 20000)
+    }, 30000)
   })
 })

@@ -22,7 +22,7 @@ describe('ProjectCreatePage', () => {
     renderAppAt(formUrl)
     enterName(project.name) // already exists
 
-    await clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
     await screen.findByText(
       'A project with that name already exists in this organization'
@@ -36,7 +36,7 @@ describe('ProjectCreatePage', () => {
     renderAppAt(formUrl)
     enterName('mock-project-2')
 
-    await clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
     await screen.findByText('Action not authorized')
     // don't nav away
@@ -47,7 +47,7 @@ describe('ProjectCreatePage', () => {
     renderAppAt(formUrl)
     enterName('Invalid-name')
 
-    await clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
     await screen.findByText('Must start with a lower-case letter')
     // don't nav away
@@ -59,7 +59,7 @@ describe('ProjectCreatePage', () => {
     renderAppAt(formUrl)
     enterName('mock-project-2')
 
-    await clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
     await screen.findByText('Unknown error from server')
     // don't nav away
@@ -73,7 +73,7 @@ describe('ProjectCreatePage', () => {
     const projectPath = `/orgs/${org.name}/projects/mock-project-2/instances`
     expect(window.location.pathname).not.toEqual(projectPath)
 
-    await clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
     const submit = screen.getByRole('button', { name: 'Create project' })
     await waitFor(() => expect(submit).toBeDisabled())
