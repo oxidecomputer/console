@@ -1,6 +1,6 @@
 .ActionMenu {
   & [data-reach-combobox-option][data-highlighted] {
-    @apply bg-accent-secondary outline outline-1 text-accent outline-accent;
+    @apply outline outline-1 text-accent bg-accent-secondary outline-accent;
   }
 
   /* the matching segments */
