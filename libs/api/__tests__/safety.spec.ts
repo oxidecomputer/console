@@ -38,6 +38,6 @@ it('@oxide/api-mocks is only referenced in test files', () => {
 // findByRole is too slow: the getByRole query is usually longer than the
 // default waitFor interval of 50ms. Try findByText or findByTestId instead
 it("don't use findByRole", () => {
-  const files = grepFiles('findByRole')
+  const files = grepFiles('screen.findByRole')
   expect(files).toEqual([])
 })
