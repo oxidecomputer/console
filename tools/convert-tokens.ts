@@ -98,14 +98,14 @@ StyleDictionary.registerFormat({
           if (prop.name.startsWith('base-')) {
             return options.selector === ':root'
               ? `--${prop.name}-rgb: ${rgbColor}; /* ${prop.value} */
-                 --${prop.name}: rgb(${rgbColor}); 
+                 --${prop.name}: rgb(${prop.name}-rgb); 
                 `
               : ''
           }
           if (prop.name.startsWith('theme-')) {
             return `
               --${prop.name}-rgb: var(--${prop.attributes?.ref}-rgb);
-              --${prop.name}: rgb(var(--${prop.attributes?.ref}-rgb));
+              --${prop.name}: rgb(var(--${prop.name}-rgb));
             `
           }
           if (hasAlpha && prop.attributes?.ref) {
@@ -114,7 +114,7 @@ StyleDictionary.registerFormat({
           if (prop.attributes?.ref) {
             return `
               --${prop.name}-rgb: var(--${prop.attributes?.ref}-rgb);
-              --${prop.name}: rgb(var(--${prop.attributes?.ref}-rgb));
+              --${prop.name}: rgb(var(--${prop.name}-rgb));
             `
           }
           if (hasAlpha) {
@@ -122,7 +122,7 @@ StyleDictionary.registerFormat({
           }
           return `
             --${prop.name}-rgb: ${rgbColor};
-            --${prop.name}: rgb(${rgbColor});
+            --${prop.name}: rgb(--${prop.name}-rgb);
           `
         })
         .join('\n')}

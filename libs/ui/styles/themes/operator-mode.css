@@ -2,20 +2,20 @@
 
 .operator-mode-theme {
   --theme-accent-1-rgb: var(--base-yellow-500-rgb);
-  --theme-accent-1: rgb(var(--base-yellow-500-rgb));
+  --theme-accent-1: rgb(var(--theme-accent-1-rgb));
 
   --theme-accent-2-rgb: var(--base-yellow-600-rgb);
-  --theme-accent-2: rgb(var(--base-yellow-600-rgb));
+  --theme-accent-2: rgb(var(--theme-accent-2-rgb));
 
   --theme-accent-3-rgb: var(--base-yellow-700-rgb);
-  --theme-accent-3: rgb(var(--base-yellow-700-rgb));
+  --theme-accent-3: rgb(var(--theme-accent-3-rgb));
 
   --theme-accent-4-rgb: var(--base-yellow-800-rgb);
-  --theme-accent-4: rgb(var(--base-yellow-800-rgb));
+  --theme-accent-4: rgb(var(--theme-accent-4-rgb));
 
   --theme-accent-5-rgb: var(--base-yellow-900-rgb);
-  --theme-accent-5: rgb(var(--base-yellow-900-rgb));
+  --theme-accent-5: rgb(var(--theme-accent-5-rgb));
 
   --chart-stroke-line-secondary-rgb: var(--base-green-600-rgb);
-  --chart-stroke-line-secondary: rgb(var(--base-green-600-rgb));
+  --chart-stroke-line-secondary: rgb(var(--chart-stroke-line-secondary-rgb));
 }
