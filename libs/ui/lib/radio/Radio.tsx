@@ -17,7 +17,7 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 const fieldStyles = `
   peer appearance-none absolute outline-none
   border border-default h-4 w-4 rounded-full
-  hover:bg-secondary hover:checked:bg-accent-hover-secondary
+  hover:bg-secondary hover:checked:bg-accent-secondary-hover
   focus:ring-2 focus:ring-accent-secondary
   checked:bg-accent-secondary checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
