@@ -13626,7 +13626,7 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.6.1-rc:
+typescript@4.6.1-rc:
   version "4.6.1-rc"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.1-rc.tgz#75baa823a6fca592f358b486acc2039f103ca2af"
   integrity sha512-tLPT3GelVfTN9wXPOuPKfY83PkMvgdF3V3gHK/ElNrpQPdLKQ/HMU5cS6+7epYSIF2gne190jzydAW0FLLwU7A==
