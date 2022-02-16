@@ -98,9 +98,9 @@ export { customRender as render, userEvent }
 // initially created to use the user-event library, but it was remarkably slow.
 // see if those issues are improved before trying that again
 
-export async function clickByRole(role: string, name: string) {
+export function clickByRole(role: string, name: string) {
   const element = screen.getByRole(role, { name })
-  await userEvent.click(element)
+  fireEvent.click(element)
 }
 
 export function typeByRole(role: string, name: string, text: string) {
