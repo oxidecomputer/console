@@ -121,7 +121,7 @@ describe('VpcPage', () => {
       for (const { name } of defaultFirewallRules) {
         screen.getByText(name)
       }
-    }, 25000)
+    }, 30000)
 
     it('edit works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
@@ -208,6 +208,6 @@ describe('VpcPage', () => {
       for (const { name } of rest) {
         screen.getByRole('cell', { name })
       }
-    }, 20000)
+    }, 30000)
   })
 })
