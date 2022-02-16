@@ -92,7 +92,7 @@ export function CreateVpcRouterModal({
         <CommonForm id={formId} error={createRouter.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
@@ -158,7 +158,7 @@ export function EditVpcRouterModal({
         <CommonForm id={formId} error={updateRouter.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">

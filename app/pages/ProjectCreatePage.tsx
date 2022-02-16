@@ -95,7 +95,7 @@ export default function ProjectCreatePage() {
           </div>
           <Button
             type="submit"
-            variant="dim"
+            variant="secondary"
             className="w-[30rem]"
             disabled={createProject.isLoading}
           >

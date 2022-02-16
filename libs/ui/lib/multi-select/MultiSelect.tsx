@@ -85,7 +85,7 @@ export const MultiSelect = ({
             ? ms.selectedItems?.map((selectedItem, index) => (
                 <Badge
                   key={selectedItem.value}
-                  variant="dim"
+                  variant="secondary"
                   onClose={() => ms.removeSelectedItem(selectedItem)}
                   {...ms.getSelectedItemProps({ selectedItem, index })}
                 >
@@ -109,7 +109,7 @@ export const MultiSelect = ({
                 'py-2 px-4 text-sans-sm text-default hover:bg-raise',
                 select.highlightedIndex === index && 'bg-raise',
                 ms.selectedItems.includes(item) &&
-                  'is-selected !border-1 -mx-[1px] text-accent bg-accent-dim'
+                  'is-selected !border-1 -mx-[1px] text-accent bg-accent-secondary'
               )}
               {...select.getItemProps({ item, index })}
             >

@@ -18,7 +18,7 @@
 }
 
 /**
- * Secondary
+ * Dim
  */
 .btn-accent-secondary {
   @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover disabled:text-accent-disabled disabled:bg-accent-secondary;

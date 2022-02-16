@@ -19,9 +19,9 @@ export interface ToastProps {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-accent-dim text-accent',
-  error: 'bg-accent-dim text-accent',
-  info: 'bg-accent-dim text-accent',
+  success: 'bg-accent-secondary text-accent',
+  error: 'bg-accent-secondary text-accent',
+  info: 'bg-accent-secondary text-accent',
 }
 
 export const Toast = ({

@@ -237,7 +237,7 @@ export default function InstanceCreatePage() {
             <div className="ml-20 min-w-[24rem]">
               <h2 className={cn(headingStyle, 'mb-8')}>Additional volumes</h2>
               <Button
-                variant="dim"
+                variant="secondary"
                 className="mb-3 w-full"
                 onClick={() => setShowNewDiskModal(true)}
               >
@@ -248,7 +248,7 @@ export default function InstanceCreatePage() {
                 onDismiss={() => setShowNewDiskModal(false)}
               />
               <Button
-                variant="dim"
+                variant="secondary"
                 className="w-full"
                 onClick={() => setShowExistingDiskModal(true)}
               >
@@ -265,7 +265,7 @@ export default function InstanceCreatePage() {
           <Divider />
           <Heading>Networking</Heading>
           <Button
-            variant="dim"
+            variant="secondary"
             className="w-[30rem]"
             onClick={() => setShowNetworkModal(true)}
           >
@@ -321,7 +321,7 @@ export default function InstanceCreatePage() {
             type="submit"
             className="mt-16 w-[30rem]"
             disabled={createInstance.isLoading}
-            variant="dim"
+            variant="secondary"
           >
             Create instance
           </Button>
