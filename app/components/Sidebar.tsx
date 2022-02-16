@@ -75,7 +75,7 @@ export const NavLinkItem = (props: {
         cn(
           'flex h-7 items-center rounded-sm p-1.5 text-sans-md hover:bg-raise svg:mr-2 svg:text-tertiary',
           isActive
-            ? 'text-accent !bg-accent-dim svg:!text-accent'
+            ? 'text-accent !bg-accent-secondary svg:!text-accent'
             : 'text-default'
         )
       }

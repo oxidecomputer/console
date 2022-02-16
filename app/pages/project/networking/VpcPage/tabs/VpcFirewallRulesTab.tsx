@@ -84,7 +84,7 @@ export const VpcFirewallRulesTab = () => {
       <div className="mb-3 flex justify-end space-x-4">
         <Button
           size="xs"
-          variant="dim"
+          variant="secondary"
           onClick={() => setCreateModalOpen(true)}
         >
           New rule

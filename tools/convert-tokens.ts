@@ -97,22 +97,33 @@ StyleDictionary.registerFormat({
           }
           if (prop.name.startsWith('base-')) {
             return options.selector === ':root'
-              ? `--${prop.name}: ${rgbColor}; /* ${prop.value} */`
+              ? `--${prop.name}-rgb: ${rgbColor}; /* ${prop.value} */
+                 --${prop.name}: rgb(var(--${prop.name}-rgb)); 
+                `
               : ''
           }
           if (prop.name.startsWith('theme-')) {
-            return `--${prop.name}: var(--${prop.attributes?.ref});`
+            return `
+              --${prop.name}-rgb: var(--${prop.attributes?.ref}-rgb);
+              --${prop.name}: rgb(var(--${prop.name}-rgb));
+            `
           }
           if (hasAlpha && prop.attributes?.ref) {
-            return `--${prop.name}-alpha: rgba(var(--${prop.attributes?.ref}), ${alpha});`
+            return `--${prop.name}: rgba(var(--${prop.attributes?.ref}-rgb), ${alpha});`
           }
           if (prop.attributes?.ref) {
-            return `--${prop.name}: var(--${prop.attributes?.ref});`
+            return `
+              --${prop.name}-rgb: var(--${prop.attributes?.ref}-rgb);
+              --${prop.name}: rgb(var(--${prop.name}-rgb));
+            `
           }
           if (hasAlpha) {
-            return `--${prop.name}-alpha: rgba(${rgbColor}, ${alpha});`
+            return `--${prop.name}: rgba(${rgbColor}-rgb, ${alpha});`
           }
-          return `--${prop.name}: ${rgbColor};`
+          return `
+            --${prop.name}-rgb: ${rgbColor};
+            --${prop.name}: rgb(var(--${prop.name}-rgb));
+          `
         })
         .join('\n')}
     }\n`
@@ -149,11 +160,7 @@ const makeColorUtility = (
             )) ||
           ''
         }.${color.name.replace(tokenPrefix, classPrefix)}': {
-          ${properties.map((prop) =>
-            color.attributes?.hasAlpha
-              ? `'${prop}': 'var(--${color.name}-alpha)'`
-              : `'${prop}': 'rgb(var(--${color.name}))'`
-          )}
+          ${properties.map((prop) => `'${prop}': 'var(--${color.name})'`)}
         }`
       )
 }

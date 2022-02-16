@@ -7,7 +7,7 @@ const skipLinkStyles = `
     w-full uppercase text-mono-lg
     inline-flex items-center justify-center 
     focus:ring-2 focus:ring-accent-secondary 
-    bg-accent-solid border-transparent text-inverse
+    bg-accent border-transparent text-inverse
     transition-all motion-reduce:transform-none
 `
 

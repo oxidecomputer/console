@@ -13,7 +13,7 @@ const INSTANCE_COLORS: Record<
   running: { color: 'default' },
   rebooting: { color: 'notice' },
   stopping: { color: 'notice' },
-  stopped: { color: 'neutral', variant: 'solid' },
+  stopped: { color: 'neutral', variant: 'default' },
   repairing: { color: 'notice' },
   migrating: { color: 'notice' },
   failed: { color: 'destructive' },
@@ -25,7 +25,7 @@ export const InstanceStatusBadge = (props: {
   className?: string
 }) => (
   <Badge
-    variant="dim"
+    variant="secondary"
     {...INSTANCE_COLORS[props.status]}
     className={props.className}
   >
@@ -50,7 +50,7 @@ export const DiskStatusBadge = (props: {
   className?: string
 }) => (
   <Badge
-    variant="dim"
+    variant="secondary"
     color={DISK_COLORS[props.status]}
     className={props.className}
   >

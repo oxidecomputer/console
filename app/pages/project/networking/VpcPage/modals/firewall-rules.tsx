@@ -131,11 +131,11 @@ const CommonForm = ({ id, error }: FormProps) => {
 
         <div className="flex justify-end">
           {/* TODO does this clear out the form or the existing targets? */}
-          <Button variant="ghost" color="secondary" className="mr-2.5">
+          <Button variant="ghost" color="neutral" className="mr-2.5">
             Clear
           </Button>
           <Button
-            variant="dim"
+            variant="secondary"
             onClick={() => {
               // TODO: show error instead of ignoring click
               if (
@@ -224,11 +224,11 @@ const CommonForm = ({ id, error }: FormProps) => {
         </div>
 
         <div className="flex justify-end">
-          <Button variant="ghost" color="secondary" className="mr-2.5">
+          <Button variant="ghost" color="neutral" className="mr-2.5">
             Clear
           </Button>
           <Button
-            variant="dim"
+            variant="secondary"
             onClick={() => {
               // TODO: show error instead of ignoring click
               if (
@@ -297,11 +297,11 @@ const CommonForm = ({ id, error }: FormProps) => {
           />
           <TextFieldError name="portRange" />
           <div className="flex justify-end">
-            <Button variant="ghost" color="secondary" className="mr-2.5">
+            <Button variant="ghost" color="neutral" className="mr-2.5">
               Clear
             </Button>
             <Button
-              variant="dim"
+              variant="secondary"
               onClick={() => {
                 const portRange = values.portRange.trim()
                 // TODO: show error instead of ignoring the click
@@ -478,7 +478,7 @@ export function CreateFirewallRuleModal({
         <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
@@ -576,7 +576,7 @@ export function EditFirewallRuleModal({
         <CommonForm id={formId} error={updateRules.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">

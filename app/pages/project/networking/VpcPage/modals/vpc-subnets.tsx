@@ -116,7 +116,7 @@ export function CreateVpcSubnetModal({
         <CommonForm id={formId} error={createSubnet.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
@@ -190,7 +190,7 @@ export function EditVpcSubnetModal({
         <CommonForm id={formId} error={updateSubnet.error} />
       </Formik>
       <SideModal.Footer>
-        <Button variant="dim" className="mr-2.5" onClick={dismiss}>
+        <Button variant="secondary" className="mr-2.5" onClick={dismiss}>
           Cancel
         </Button>
         <Button form={formId} type="submit">
