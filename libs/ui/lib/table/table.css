@@ -61,22 +61,19 @@ tr:last-of-type td:last-of-type {
 .ox-table .is-selected:not(.multi-selection) td:first-child > div {
   border-top-left-radius: 0.125rem;
   border-bottom-left-radius: 0.125rem;
-  box-shadow: -1px -1px rgb(var(--stroke-accent)),
-    -1px 1px rgb(var(--stroke-accent));
+  box-shadow: -1px -1px var(--stroke-accent), -1px 1px var(--stroke-accent);
 }
 
 /* Right-most cell of a single selection */
 .ox-table .is-selected:not(.multi-selection) td:last-child > div {
   border-top-right-radius: 0.125rem;
-  box-shadow: 1px -1px rgb(var(--stroke-accent)),
-    1px 1px rgb(var(--stroke-accent));
+  box-shadow: 1px -1px var(--stroke-accent), 1px 1px var(--stroke-accent);
   border-bottom-right-radius: 0.125rem;
 }
 
 /* All cells of a single selection */
 .ox-table .is-selected:not(.multi-selection) td > div {
-  box-shadow: 0px 1px rgb(var(--stroke-accent)),
-    0px -1px rgb(var(--stroke-accent));
+  box-shadow: 0px 1px var(--stroke-accent), 0px -1px var(--stroke-accent);
   margin-top: -2px;
   border-bottom: 0;
   height: calc(100% + 1px);
@@ -89,7 +86,7 @@ tr:last-of-type td:last-of-type {
 
 /* Defines the top border of a selection */
 .ox-table .is-selected td > div {
-  box-shadow: 0px -1px rgb(var(--stroke-accent));
+  box-shadow: 0px -1px var(--stroke-accent);
 }
 
 /* Ensures subsequent, interior selected rows don't have a top border */
@@ -100,7 +97,7 @@ tr:last-of-type td:last-of-type {
 /* Adds the selected border for the top left corner of a selection */
 .ox-table .selection-start td:first-child > div {
   border-top-left-radius: 0.125rem;
-  box-shadow: -1px -1px rgb(var(--stroke-accent));
+  box-shadow: -1px -1px var(--stroke-accent);
   margin-right: -3px;
 }
 
@@ -109,14 +106,14 @@ tr:last-of-type td:last-of-type {
   .multi-selection:not(.selection-start):not(.selection-end)
   td:first-child
   > div {
-  box-shadow: -1px 0px rgb(var(--stroke-accent));
+  box-shadow: -1px 0px var(--stroke-accent);
 }
 
 .ox-table
   .multi-selection:not(.selection-start):not(.selection-end)
   td:last-child
   > div {
-  box-shadow: 1px 0px rgb(var(--stroke-accent));
+  box-shadow: 1px 0px var(--stroke-accent);
 }
 
 /* Fills gaps between borders that show up in Safari and Chrome on OSX */
@@ -128,7 +125,7 @@ tr:last-of-type td:last-of-type {
 /* Adds the selected border for the top right corner of a selection */
 .ox-table .selection-start td:last-child > div {
   border-top-right-radius: 0.125rem;
-  box-shadow: 1px -1px rgb(var(--stroke-accent));
+  box-shadow: 1px -1px var(--stroke-accent);
 }
 /* Ensures the top right border and the cell next to it have their box-shadows overlap */
 .ox-table .selection-start td:nth-last-child(2) > div {
@@ -136,7 +133,7 @@ tr:last-of-type td:last-of-type {
 }
 
 .ox-table .selection-end td > div {
-  box-shadow: 0px 1px rgb(var(--stroke-accent));
+  box-shadow: 0px 1px var(--stroke-accent);
 }
 
 .ox-table .selection-end td > div {
@@ -166,13 +163,13 @@ tr:last-of-type td:last-of-type {
 /* Adds the selected border for the bottom left corner of a selection */
 .ox-table .selection-end td:first-child > div {
   border-bottom-left-radius: 0.125rem;
-  box-shadow: -1px 1px rgb(var(--stroke-accent));
+  box-shadow: -1px 1px var(--stroke-accent);
   margin-right: -4px;
 }
 
 .ox-table .selection-end td:last-child > div {
   border-bottom-right-radius: 0.125rem;
-  box-shadow: 1px 1px rgb(var(--stroke-accent));
+  box-shadow: 1px 1px var(--stroke-accent);
 }
 
 .ox-table .selection-end td:last-child > div,
