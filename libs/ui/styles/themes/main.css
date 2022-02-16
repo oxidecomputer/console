@@ -2,91 +2,91 @@
 
 :root {
   --base-black-700-rgb: 8, 15, 17; /* #080f11 */
-  --base-black-700: rgb(base-black-700-rgb);
+  --base-black-700: rgb(var(--base-black-700-rgb));
 
   --base-black-600-rgb: 11, 20, 24; /* #0b1418 */
-  --base-black-600: rgb(base-black-600-rgb);
+  --base-black-600: rgb(var(--base-black-600-rgb));
 
   --base-black-500-rgb: 24, 32, 36; /* #182024 */
-  --base-black-500: rgb(base-black-500-rgb);
+  --base-black-500: rgb(var(--base-black-500-rgb));
 
   --base-grey-1000-rgb: 37, 45, 49; /* #252d31 */
-  --base-grey-1000: rgb(base-grey-1000-rgb);
+  --base-grey-1000: rgb(var(--base-grey-1000-rgb));
 
   --base-grey-900-rgb: 53, 60, 64; /* #353c40 */
-  --base-grey-900: rgb(base-grey-900-rgb);
+  --base-grey-900: rgb(var(--base-grey-900-rgb));
 
   --base-grey-800-rgb: 75, 82, 85; /* #4b5255 */
-  --base-grey-800: rgb(base-grey-800-rgb);
+  --base-grey-800: rgb(var(--base-grey-800-rgb));
 
   --base-grey-700-rgb: 108, 113, 116; /* #6c7174 */
-  --base-grey-700: rgb(base-grey-700-rgb);
+  --base-grey-700: rgb(var(--base-grey-700-rgb));
 
   --base-grey-600-rgb: 158, 161, 163; /* #9ea1a3 */
-  --base-grey-600: rgb(base-grey-600-rgb);
+  --base-grey-600: rgb(var(--base-grey-600-rgb));
 
   --base-grey-500-rgb: 231, 231, 232; /* #e7e7e8 */
-  --base-grey-500: rgb(base-grey-500-rgb);
+  --base-grey-500: rgb(var(--base-grey-500-rgb));
 
   --base-blue-900-rgb: 16, 27, 42; /* #101b2a */
-  --base-blue-900: rgb(base-blue-900-rgb);
+  --base-blue-900: rgb(var(--base-blue-900-rgb));
 
   --base-blue-800-rgb: 22, 35, 63; /* #16233f */
-  --base-blue-800: rgb(base-blue-800-rgb);
+  --base-blue-800: rgb(var(--base-blue-800-rgb));
 
   --base-blue-700-rgb: 31, 47, 95; /* #1f2f5f */
-  --base-blue-700: rgb(base-blue-700-rgb);
+  --base-blue-700: rgb(var(--base-blue-700-rgb));
 
   --base-blue-600-rgb: 46, 68, 150; /* #2e4496 */
-  --base-blue-600: rgb(base-blue-600-rgb);
+  --base-blue-600: rgb(var(--base-blue-600-rgb));
 
   --base-blue-500-rgb: 73, 105, 246; /* #4969f6 */
-  --base-blue-500: rgb(base-blue-500-rgb);
+  --base-blue-500: rgb(var(--base-blue-500-rgb));
 
   --base-red-900-rgb: 29, 27, 33; /* #1d1b21 */
-  --base-red-900: rgb(base-red-900-rgb);
+  --base-red-900: rgb(var(--base-red-900-rgb));
 
   --base-red-800-rgb: 50, 35, 43; /* #32232b */
-  --base-red-800: rgb(base-red-800-rgb);
+  --base-red-800: rgb(var(--base-red-800-rgb));
 
   --base-red-700-rgb: 81, 47, 59; /* #512f3b */
-  --base-red-700: rgb(base-red-700-rgb);
+  --base-red-700: rgb(var(--base-red-700-rgb));
 
   --base-red-600-rgb: 136, 68, 86; /* #884456 */
-  --base-red-600: rgb(base-red-600-rgb);
+  --base-red-600: rgb(var(--base-red-600-rgb));
 
   --base-red-500-rgb: 232, 104, 134; /* #e86886 */
-  --base-red-500: rgb(base-red-500-rgb);
+  --base-red-500: rgb(var(--base-red-500-rgb));
 
   --base-yellow-900-rgb: 30, 35, 30; /* #1e231e */
-  --base-yellow-900: rgb(base-yellow-900-rgb);
+  --base-yellow-900: rgb(var(--base-yellow-900-rgb));
 
   --base-yellow-800-rgb: 52, 53, 38; /* #343526 */
-  --base-yellow-800: rgb(base-yellow-800-rgb);
+  --base-yellow-800: rgb(var(--base-yellow-800-rgb));
 
   --base-yellow-700-rgb: 85, 79, 48; /* #554f30 */
-  --base-yellow-700: rgb(base-yellow-700-rgb);
+  --base-yellow-700: rgb(var(--base-yellow-700-rgb));
 
   --base-yellow-600-rgb: 143, 126, 68; /* #8f7e44 */
-  --base-yellow-600: rgb(base-yellow-600-rgb);
+  --base-yellow-600: rgb(var(--base-yellow-600-rgb));
 
   --base-yellow-500-rgb: 245, 207, 101; /* #f5cf65 */
-  --base-yellow-500: rgb(base-yellow-500-rgb);
+  --base-yellow-500: rgb(var(--base-yellow-500-rgb));
 
   --base-green-900-rgb: 16, 36, 34; /* #102422 */
-  --base-green-900: rgb(base-green-900-rgb);
+  --base-green-900: rgb(var(--base-green-900-rgb));
 
   --base-green-800-rgb: 22, 54, 46; /* #16362e */
-  --base-green-800: rgb(base-green-800-rgb);
+  --base-green-800: rgb(var(--base-green-800-rgb));
 
   --base-green-700-rgb: 30, 81, 64; /* #1e5140 */
-  --base-green-700: rgb(base-green-700-rgb);
+  --base-green-700: rgb(var(--base-green-700-rgb));
 
   --base-green-600-rgb: 46, 129, 96; /* #2e8160 */
-  --base-green-600: rgb(base-green-600-rgb);
+  --base-green-600: rgb(var(--base-green-600-rgb));
 
   --base-green-500-rgb: 72, 213, 151; /* #48d597 */
-  --base-green-500: rgb(base-green-500-rgb);
+  --base-green-500: rgb(var(--base-green-500-rgb));
 
   --theme-accent-1-rgb: var(--base-green-500-rgb);
   --theme-accent-1: rgb(var(--theme-accent-1-rgb));

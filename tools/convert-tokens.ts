@@ -98,7 +98,7 @@ StyleDictionary.registerFormat({
           if (prop.name.startsWith('base-')) {
             return options.selector === ':root'
               ? `--${prop.name}-rgb: ${rgbColor}; /* ${prop.value} */
-                 --${prop.name}: rgb(${prop.name}-rgb); 
+                 --${prop.name}: rgb(var(--${prop.name}-rgb)); 
                 `
               : ''
           }
@@ -122,7 +122,7 @@ StyleDictionary.registerFormat({
           }
           return `
             --${prop.name}-rgb: ${rgbColor};
-            --${prop.name}: rgb(--${prop.name}-rgb);
+            --${prop.name}: rgb(var(--${prop.name}-rgb));
           `
         })
         .join('\n')}
