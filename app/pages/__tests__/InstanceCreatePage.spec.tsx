@@ -55,6 +55,6 @@ describe('InstanceCreatePage', () => {
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
 
     // new instance shows up in the list
-    await screen.findByRole('cell', { name: 'new-instance' })
+    await screen.findByText('new-instance')
   })
 })
