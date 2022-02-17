@@ -114,6 +114,16 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 </details>
 
+### E2E tests with [Playwright](https://playwright.dev/)
+
+The basic command to run the tests is `yarn playwright test`. Some debugging tricks (more in the docs [here](https://playwright.dev/docs/debug)):
+
+- Add `--headed` to run the full tests in visible browsers (but they go by too fast to really see anything)
+- (Requires `--headed`) The simplest way to debug at a particular spot is to add `await page.pause();` right before it. This runs the test in a headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) and pauses the debugger. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
+- `PWDEBUG=1 yarn playwright test` starts the tests in headed browser with the inspector, paused on the first line of the first test
+- Add `--project=chromium` to only run the tests in a single browser
+  - Useful in combination with the inspector options because 3 browsers and 3 inspectors is not very useful (and it doesn't say which inspector goes with which browser)
+
 ### Other useful commands
 
 | Command         | Description                                                                        |
