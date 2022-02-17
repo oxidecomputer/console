@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
 
-describe('Generated API client version matches API version specified for deployment', () => {
+it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
     .readFileSync(
       path.resolve(__dirname, '../__generated__/OMICRON_VERSION'),
@@ -31,7 +31,7 @@ const grepFiles = (s: string) =>
 it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles("from '@oxide/api-mocks'")
   for (const file of files) {
-    expect(file).toMatch(/__tests__|test-utils|\.spec\.|tsconfig|api-mocks/)
+    expect(file).toMatch(/__tests__\/|app\/test\/|\.spec\.|tsconfig|api-mocks/)
   }
 })
 

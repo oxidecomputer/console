@@ -6,7 +6,7 @@ import {
   screen,
   typeByRole,
   waitFor,
-} from 'app/test-utils'
+} from 'app/test/utils'
 import { org, project, instance } from '@oxide/api-mocks'
 
 const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`

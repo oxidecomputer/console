@@ -1,12 +1,12 @@
+import userEvent from '@testing-library/user-event'
 import {
   clickByRole,
   renderAppAt,
   screen,
   typeByRole,
   waitForElementToBeRemoved,
-  userEvent,
   getByRole,
-} from 'app/test-utils'
+} from 'app/test/utils'
 import { defaultFirewallRules } from '@oxide/api-mocks'
 
 describe('VpcPage', () => {
