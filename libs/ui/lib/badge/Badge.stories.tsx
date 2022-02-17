@@ -32,6 +32,15 @@ export const All = () => {
   )
 }
 
+export const Selected = () => {
+  return (
+    <div className="is-selected bg-accent-secondary -m-4 p-4">
+      <All />
+    </div>
+  )
+}
+Selected.storyName = `Theme/Selected`
+
 export const Default: Story = {
   args: {
     children: 'Badge',

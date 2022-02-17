@@ -43,7 +43,11 @@ export type TableRowProps = JSX.IntrinsicElements['tr'] & {
 }
 Table.Row = ({ className, selected, ...props }: TableRowProps) => (
   <tr
-    className={cn(className, (selected && 'is-selected') || 'hover:bg-raise')}
+    className={cn(
+      'bg-default',
+      className,
+      (selected && 'is-selected') || 'hover:bg-raise'
+    )}
     {...props}
   />
 )
@@ -79,11 +83,11 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
   <td
     className={cn(
       className,
-      'h-16 pl-0 border-default children:first:border-l-0 children:last:-mr-[1px] selected:text-accent selected:bg-accent-secondary'
+      'h-16 pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary selected:border-accent-tertiary">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary">
       {children}
     </div>
   </td>

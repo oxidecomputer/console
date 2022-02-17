@@ -58,3 +58,12 @@ export const All = () => {
     </div>
   )
 }
+
+export const Selected = () => {
+  return (
+    <div className="is-selected bg-accent-secondary -m-4 p-4">
+      <All />
+    </div>
+  )
+}
+Selected.storyName = `Theme/Selected`

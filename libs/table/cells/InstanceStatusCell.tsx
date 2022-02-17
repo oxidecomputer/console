@@ -10,6 +10,7 @@ export const InstanceStatusCell = ({
 }: Cell<Pick<Instance, 'runState' | 'timeRunStateUpdated'>>) => {
   return (
     <TwoLineCell
+      detailsClass="text-mono-sm"
       value={[
         <Badge variant="secondary" key="run-state">
           {value.runState}
