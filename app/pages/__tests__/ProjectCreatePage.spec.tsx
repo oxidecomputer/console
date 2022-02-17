@@ -5,7 +5,7 @@ import {
   renderAppAt,
   screen,
   waitFor,
-} from 'app/test-utils'
+} from 'app/test/utils'
 import { org, project } from '@oxide/api-mocks'
 
 const projectsUrl = `/api/organizations/${org.name}/projects`
