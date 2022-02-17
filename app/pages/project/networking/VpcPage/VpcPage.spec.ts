@@ -10,43 +10,6 @@ import {
 import { defaultFirewallRules } from '@oxide/api-mocks'
 
 describe('VpcPage', () => {
-  describe('subnet', () => {
-    it('create works', async () => {
-      renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
-      screen.getByText('Subnets')
-
-      // wait for subnet to show up in the table
-      await screen.findByText('mock-subnet')
-      // the one we'll be adding is not there
-      expect(screen.queryByRole('cell', { name: 'mock-subnet-2' })).toBeNull()
-
-      // modal is not already open
-      expect(screen.queryByTestId('create-vpc-subnet-modal')).toBeNull()
-
-      // click button to open modal
-      clickByRole('button', 'New subnet')
-
-      // modal is open
-      screen.getByRole('dialog', { name: 'Create subnet' })
-
-      typeByRole('textbox', 'IPv4 block', '1.1.1.2/24')
-
-      typeByRole('textbox', 'Name', 'mock-subnet-2')
-
-      // submit the form
-      clickByRole('button', 'Create subnet')
-
-      // wait for modal to close
-      await waitForElementToBeRemoved(() =>
-        screen.queryByTestId('create-vpc-subnet-modal')
-      )
-
-      // table refetches and now includes second subnet
-      await screen.findByText('mock-subnet')
-      await screen.findByText('mock-subnet-2')
-    }, 10000) // otherwise it flakes in CI
-  })
-
   describe('firewall rule', () => {
     it('create works', async () => {
       renderAppAt('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
@@ -109,7 +72,7 @@ describe('VpcPage', () => {
       await waitForElementToBeRemoved(
         () => screen.queryByText('Create firewall rule'),
         // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+        { timeout: 4000 }
       )
 
       // table refetches and now includes the new rule as well as the originals
@@ -191,7 +154,7 @@ describe('VpcPage', () => {
       await waitForElementToBeRemoved(
         () => screen.queryByText('Edit firewall rule'),
         // fails in CI without a longer timeout (default 1000). boo
-        { timeout: 2000 }
+        { timeout: 4000 }
       )
 
       // table refetches and now includes the updated rule name, not the old name

@@ -66,6 +66,7 @@
     "@figma-export/cli": "^3.5.0",
     "@figma-export/output-components-as-svgr": "^3.4.0",
     "@figma-export/transform-svg-with-svgo": "^3.5.0",
+    "@playwright/test": "^1.19.1",
     "@storybook/addon-docs": "^6.4.12",
     "@storybook/addon-essentials": "^6.4.12",
     "@storybook/addon-links": "^6.4.12",
@@ -127,7 +128,7 @@
     "typescript": "4.6.1-rc",
     "url-loader": "^4.1.1",
     "vite": "^2.8.0",
-    "vitest": "^0.3.5",
+    "vitest": "^0.3.6",
     "webpack": "^5.40.0",
     "whatwg-fetch": "^3.6.2"
   },
