@@ -82,7 +82,6 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^7.0.1",
-    "@testing-library/user-event": "14.0.0-beta.10",
     "@types/jscodeshift": "^0.11.2",
     "@types/mousetrap": "^1.6.8",
     "@types/node": "^16.11.9",
