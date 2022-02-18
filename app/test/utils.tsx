@@ -1,49 +1,26 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { fireEvent, render as tlRender, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 import { routes } from '../routes'
 export { override } from './server'
 
-/*****************************************
- * RENDERING
- ****************************************/
-
-const queryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  })
-
-export const customRender = (ui: React.ReactElement) =>
-  tlRender(ui, {
-    wrapper: ({ children }) => (
-      <QueryClientProvider client={queryClient()}>
-        {children}
-      </QueryClientProvider>
-    ),
-  })
+const defaultOptions = { queries: { retry: false } }
 
 export function renderAppAt(url: string) {
   window.history.pushState({}, 'Test page', url)
-  return tlRender(routes, {
+  const queryClient = new QueryClient({ defaultOptions })
+  return render(routes, {
     wrapper: ({ children }) => (
       <BrowserRouter>
-        <QueryClientProvider client={queryClient()}>
+        <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>
       </BrowserRouter>
     ),
   })
 }
-
-/*****************************************
- * TESTING LIBRARY
- ****************************************/
 
 export * from '@testing-library/react'
 

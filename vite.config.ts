@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -63,5 +61,13 @@ export default defineConfig(({ mode }) => ({
     global: true,
     environment: 'jsdom',
     setupFiles: ['app/test/setup.ts'],
+    exclude: [
+      'app/e2e/**',
+      // defaults (workaround for bug when I try to import these from vitest)
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+    ],
   },
 }))
