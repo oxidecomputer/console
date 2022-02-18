@@ -5,7 +5,8 @@ import { devices } from '@playwright/test'
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
-  testDir: './app/e2e',
+  testDir: './app',
+  testMatch: /.*\.e2e\.(js|ts|mjs)/,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
