@@ -12,8 +12,7 @@ jobs:
   build-themes:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      statuses: write
+      pull-requests: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
