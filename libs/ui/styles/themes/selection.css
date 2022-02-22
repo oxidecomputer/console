@@ -10,7 +10,8 @@
   --content-tertiary: var(--theme-accent-1);
   --surface-default: var(--theme-accent-5);
   --stroke-secondary: var(--stroke-accent-tertiary);
-  --stroke-surface: var(--surface-accent-secondary);
+  --stroke-surface: var(--surface-default);
+  --surface-raise: var(--theme-accent-4);
 
   & .ox-badge:not(.variant-ghost),
   & .ox-tag,
