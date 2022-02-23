@@ -21,8 +21,7 @@
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
-    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'",
-    "postinstall": "patch-package"
+    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'"
   },
   "private": true,
   "dependencies": {
@@ -110,7 +109,6 @@
     "jscodeshift": "^0.13.0",
     "jsdom": "^19.0.0",
     "msw": "^0.36.7",
-    "patch-package": "^6.4.7",
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
@@ -121,7 +119,7 @@
     "rollup": "^2.52.7",
     "style-dictionary": "^3.1.1",
     "tailwindcss": "^3.0.19",
-    "token-transformer": "^0.0.17",
+    "token-transformer": "^0.0.18",
     "ts-unused-exports": "^7.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "type-fest": "^2.10.0",
