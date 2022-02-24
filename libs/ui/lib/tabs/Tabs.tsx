@@ -62,10 +62,9 @@ export function Tabs({
     'Expected there to be exactly one Tab for every Tab.Panel'
   )
 
-  const after =
-    'after:block after:w-full after:border-b after:ml-2 after:border-secondary'
+  const after = 'after:block after:w-full after:border-b after:border-secondary'
   const before =
-    'before:block before:min-w-max before:w-8 before:border-b before:mr-2 before:flex-shrink-0 before:border-secondary'
+    'before:block before:min-w-max before:w-10 before:border-b before:flex-shrink-0 before:border-secondary'
 
   return (
     <RTabs

@@ -33,7 +33,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 300,
-    'line-height': '1.3rem',
+    'line-height': '1.5375rem',
     'font-size': '1.1875rem',
     'letter-spacing': '0.02rem',
   },
@@ -41,7 +41,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 300,
-    'line-height': '1.1rem',
+    'line-height': '2.025rem',
     'font-size': '1.5625rem',
     'letter-spacing': '0rem',
   },
@@ -49,7 +49,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 300,
-    'line-height': '1.1rem',
+    'line-height': '3.24375rem',
     'font-size': '2.5rem',
     'letter-spacing': '0.015rem',
   },
@@ -57,7 +57,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 400,
-    'line-height': '1.125rem',
+    'line-height': '1.05625rem',
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
   },
@@ -65,7 +65,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 400,
-    'line-height': '1.225rem',
+    'line-height': '1.125rem',
     'font-size': '0.875rem',
     'letter-spacing': '0.04rem',
   },
@@ -81,7 +81,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 500,
-    'line-height': '1.125rem',
+    'line-height': '1.05625rem',
     'font-size': '0.8125rem',
     'letter-spacing': '0.05rem',
   },
@@ -89,7 +89,7 @@ module.exports.textUtilities = {
     'font-family':
       'SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif',
     'font-weight': 500,
-    'line-height': '1.225rem',
+    'line-height': '1.125rem',
     'font-size': '0.875rem',
     'letter-spacing': '0.04rem',
   },
@@ -139,6 +139,18 @@ module.exports.colorUtilities = {
   },
   '.text-destructive-disabled': {
     color: 'var(--content-destructive-disabled)',
+  },
+  '.text-success': {
+    color: 'var(--content-success)',
+  },
+  '.text-success-secondary': {
+    color: 'var(--content-success-secondary)',
+  },
+  '.text-error': {
+    color: 'var(--content-error)',
+  },
+  '.text-error-secondary': {
+    color: 'var(--content-error-secondary)',
   },
   '.text-notice': {
     color: 'var(--content-notice)',
@@ -206,6 +218,18 @@ module.exports.colorUtilities = {
   '.bg-destructive-secondary-hover': {
     'background-color': 'var(--surface-destructive-secondary-hover)',
   },
+  '.bg-success': {
+    'background-color': 'var(--surface-success)',
+  },
+  '.bg-success-secondary': {
+    'background-color': 'var(--surface-success-secondary)',
+  },
+  '.bg-error': {
+    'background-color': 'var(--surface-error)',
+  },
+  '.bg-error-secondary': {
+    'background-color': 'var(--surface-error-secondary)',
+  },
   '.bg-notice': {
     'background-color': 'var(--surface-notice)',
   },
@@ -263,6 +287,24 @@ module.exports.colorUtilities = {
   '.border-destructive-tertiary': {
     'border-color': 'var(--stroke-destructive-tertiary)',
   },
+  '.border-success': {
+    'border-color': 'var(--stroke-success)',
+  },
+  '.border-success-secondary': {
+    'border-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-success-tertiary': {
+    'border-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-error': {
+    'border-color': 'var(--stroke-error)',
+  },
+  '.border-error-secondary': {
+    'border-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-error-tertiary': {
+    'border-color': 'var(--stroke-error-tertiary)',
+  },
   '.border-notice': {
     'border-color': 'var(--stroke-notice)',
   },
@@ -304,6 +346,24 @@ module.exports.colorUtilities = {
   },
   '.border-l-destructive-tertiary': {
     'border-left-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-l-success': {
+    'border-left-color': 'var(--stroke-success)',
+  },
+  '.border-l-success-secondary': {
+    'border-left-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-l-success-tertiary': {
+    'border-left-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-l-error': {
+    'border-left-color': 'var(--stroke-error)',
+  },
+  '.border-l-error-secondary': {
+    'border-left-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-l-error-tertiary': {
+    'border-left-color': 'var(--stroke-error-tertiary)',
   },
   '.border-l-notice': {
     'border-left-color': 'var(--stroke-notice)',
@@ -347,6 +407,24 @@ module.exports.colorUtilities = {
   '.border-r-destructive-tertiary': {
     'border-right-color': 'var(--stroke-destructive-tertiary)',
   },
+  '.border-r-success': {
+    'border-right-color': 'var(--stroke-success)',
+  },
+  '.border-r-success-secondary': {
+    'border-right-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-r-success-tertiary': {
+    'border-right-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-r-error': {
+    'border-right-color': 'var(--stroke-error)',
+  },
+  '.border-r-error-secondary': {
+    'border-right-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-r-error-tertiary': {
+    'border-right-color': 'var(--stroke-error-tertiary)',
+  },
   '.border-r-notice': {
     'border-right-color': 'var(--stroke-notice)',
   },
@@ -389,6 +467,24 @@ module.exports.colorUtilities = {
   '.border-t-destructive-tertiary': {
     'border-top-color': 'var(--stroke-destructive-tertiary)',
   },
+  '.border-t-success': {
+    'border-top-color': 'var(--stroke-success)',
+  },
+  '.border-t-success-secondary': {
+    'border-top-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-t-success-tertiary': {
+    'border-top-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-t-error': {
+    'border-top-color': 'var(--stroke-error)',
+  },
+  '.border-t-error-secondary': {
+    'border-top-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-t-error-tertiary': {
+    'border-top-color': 'var(--stroke-error-tertiary)',
+  },
   '.border-t-notice': {
     'border-top-color': 'var(--stroke-notice)',
   },
@@ -430,6 +526,24 @@ module.exports.colorUtilities = {
   },
   '.border-b-destructive-tertiary': {
     'border-bottom-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-b-success': {
+    'border-bottom-color': 'var(--stroke-success)',
+  },
+  '.border-b-success-secondary': {
+    'border-bottom-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-b-success-tertiary': {
+    'border-bottom-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-b-error': {
+    'border-bottom-color': 'var(--stroke-error)',
+  },
+  '.border-b-error-secondary': {
+    'border-bottom-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-b-error-tertiary': {
+    'border-bottom-color': 'var(--stroke-error-tertiary)',
   },
   '.border-b-notice': {
     'border-bottom-color': 'var(--stroke-notice)',
@@ -483,6 +597,30 @@ module.exports.colorUtilities = {
   '.border-x-destructive-tertiary': {
     'border-left-color': 'var(--stroke-destructive-tertiary)',
     'border-right-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.border-x-success': {
+    'border-left-color': 'var(--stroke-success)',
+    'border-right-color': 'var(--stroke-success)',
+  },
+  '.border-x-success-secondary': {
+    'border-left-color': 'var(--stroke-success-secondary)',
+    'border-right-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-x-success-tertiary': {
+    'border-left-color': 'var(--stroke-success-tertiary)',
+    'border-right-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-x-error': {
+    'border-left-color': 'var(--stroke-error)',
+    'border-right-color': 'var(--stroke-error)',
+  },
+  '.border-x-error-secondary': {
+    'border-left-color': 'var(--stroke-error-secondary)',
+    'border-right-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-x-error-tertiary': {
+    'border-left-color': 'var(--stroke-error-tertiary)',
+    'border-right-color': 'var(--stroke-error-tertiary)',
   },
   '.border-x-notice': {
     'border-left-color': 'var(--stroke-notice)',
@@ -540,6 +678,30 @@ module.exports.colorUtilities = {
     'border-top-color': 'var(--stroke-destructive-tertiary)',
     'border-bottom-color': 'var(--stroke-destructive-tertiary)',
   },
+  '.border-y-success': {
+    'border-top-color': 'var(--stroke-success)',
+    'border-bottom-color': 'var(--stroke-success)',
+  },
+  '.border-y-success-secondary': {
+    'border-top-color': 'var(--stroke-success-secondary)',
+    'border-bottom-color': 'var(--stroke-success-secondary)',
+  },
+  '.border-y-success-tertiary': {
+    'border-top-color': 'var(--stroke-success-tertiary)',
+    'border-bottom-color': 'var(--stroke-success-tertiary)',
+  },
+  '.border-y-error': {
+    'border-top-color': 'var(--stroke-error)',
+    'border-bottom-color': 'var(--stroke-error)',
+  },
+  '.border-y-error-secondary': {
+    'border-top-color': 'var(--stroke-error-secondary)',
+    'border-bottom-color': 'var(--stroke-error-secondary)',
+  },
+  '.border-y-error-tertiary': {
+    'border-top-color': 'var(--stroke-error-tertiary)',
+    'border-bottom-color': 'var(--stroke-error-tertiary)',
+  },
   '.border-y-notice': {
     'border-top-color': 'var(--stroke-notice)',
     'border-bottom-color': 'var(--stroke-notice)',
@@ -585,6 +747,24 @@ module.exports.colorUtilities = {
   '.ring-destructive-tertiary': {
     '--tw-ring-color': 'var(--stroke-destructive-tertiary)',
   },
+  '.ring-success': {
+    '--tw-ring-color': 'var(--stroke-success)',
+  },
+  '.ring-success-secondary': {
+    '--tw-ring-color': 'var(--stroke-success-secondary)',
+  },
+  '.ring-success-tertiary': {
+    '--tw-ring-color': 'var(--stroke-success-tertiary)',
+  },
+  '.ring-error': {
+    '--tw-ring-color': 'var(--stroke-error)',
+  },
+  '.ring-error-secondary': {
+    '--tw-ring-color': 'var(--stroke-error-secondary)',
+  },
+  '.ring-error-tertiary': {
+    '--tw-ring-color': 'var(--stroke-error-tertiary)',
+  },
   '.ring-notice': {
     '--tw-ring-color': 'var(--stroke-notice)',
   },
@@ -626,6 +806,24 @@ module.exports.colorUtilities = {
   },
   '.outline-destructive-tertiary': {
     'outline-color': 'var(--stroke-destructive-tertiary)',
+  },
+  '.outline-success': {
+    'outline-color': 'var(--stroke-success)',
+  },
+  '.outline-success-secondary': {
+    'outline-color': 'var(--stroke-success-secondary)',
+  },
+  '.outline-success-tertiary': {
+    'outline-color': 'var(--stroke-success-tertiary)',
+  },
+  '.outline-error': {
+    'outline-color': 'var(--stroke-error)',
+  },
+  '.outline-error-secondary': {
+    'outline-color': 'var(--stroke-error-secondary)',
+  },
+  '.outline-error-tertiary': {
+    'outline-color': 'var(--stroke-error-tertiary)',
   },
   '.outline-notice': {
     'outline-color': 'var(--stroke-notice)',

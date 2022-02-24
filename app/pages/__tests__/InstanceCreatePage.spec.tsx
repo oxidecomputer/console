@@ -6,7 +6,7 @@ import {
   screen,
   typeByRole,
   waitFor,
-} from 'app/test-utils'
+} from 'app/test/utils'
 import { org, project, instance } from '@oxide/api-mocks'
 
 const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
@@ -16,7 +16,7 @@ describe('InstanceCreatePage', () => {
     renderAppAt(formUrl)
     typeByRole('textbox', 'Choose a name', instance.name) // already exists in db
 
-    await clickByRole('button', 'Create instance')
+    clickByRole('button', 'Create instance')
 
     await screen.findByText(
       'An instance with that name already exists in this project'
@@ -30,7 +30,7 @@ describe('InstanceCreatePage', () => {
     override('post', createUrl, 400, { error_code: 'UnknownCode' })
     renderAppAt(formUrl)
 
-    await clickByRole('button', 'Create instance')
+    clickByRole('button', 'Create instance')
 
     await screen.findByText('Unknown error from server')
     // don't nav away
@@ -46,7 +46,7 @@ describe('InstanceCreatePage', () => {
     typeByRole('textbox', 'Choose a name', 'new-instance')
     fireEvent.click(screen.getByLabelText(/6 CPUs/))
 
-    await clickByRole('button', 'Create instance')
+    clickByRole('button', 'Create instance')
 
     const submit = screen.getByRole('button', { name: 'Create instance' })
     await waitFor(() => expect(submit).toBeDisabled())
@@ -55,6 +55,6 @@ describe('InstanceCreatePage', () => {
     await waitFor(() => expect(window.location.pathname).toEqual(instancesPage))
 
     // new instance shows up in the list
-    await screen.findByRole('cell', { name: 'new-instance' })
+    await screen.findByText('new-instance')
   })
 })

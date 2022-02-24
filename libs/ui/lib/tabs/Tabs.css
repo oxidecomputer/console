@@ -2,14 +2,14 @@
 }
 
 [data-reach-tab-list] {
-  @apply mb-8 space-x-2.5 bg-transparent;
+  @apply mb-8 bg-transparent;
 }
 
 [data-reach-tab-panels] {
 }
 
 [data-reach-tab] {
-  @apply h-10 space-x-2 whitespace-nowrap rounded px-2
+  @apply h-10 space-x-2 whitespace-nowrap rounded px-3
     py-2.5 uppercase text-mono-md
     text-secondary border-secondary hover:border-raise focus:outline-none focus:ring-2 focus:ring-accent-secondary;
 }
