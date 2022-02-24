@@ -14,7 +14,7 @@ export const VpcSubnetsTab = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
-  const actions = (subnet: VpcSubnet): MenuAction[] => [
+  const makeActions = (subnet: VpcSubnet): MenuAction[] => [
     {
       label: 'Edit',
       onActivate: () => setEditing(subnet),
@@ -42,7 +42,7 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable actions={actions}>
+      <Table selectable makeActions={makeActions}>
         <Column id="name" />
         <Column
           id="ip-block"

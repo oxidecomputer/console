@@ -52,7 +52,8 @@ interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
-  actions?: MakeActions<ResultItem<A[M]>>
+  /** Function that produces a list of actions from a row item */
+  makeActions?: MakeActions<ResultItem<A[M]>>
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
@@ -67,7 +68,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
   function QueryTable({
     children,
     selectable,
-    actions,
+    makeActions,
     debug,
     pagination = 'page',
     pageSize = 10,
@@ -124,7 +125,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
           const visibleColumns = []
           if (selectable) visibleColumns.push(getSelectCol())
           visibleColumns.push(...columns)
-          if (actions) visibleColumns.push(getActionsCol(actions))
+          if (makeActions) visibleColumns.push(getActionsCol(makeActions))
 
           return visibleColumns
         })

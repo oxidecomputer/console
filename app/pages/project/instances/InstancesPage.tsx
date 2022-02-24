@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
 import { useParams } from 'app/hooks'
 import {
@@ -11,16 +11,23 @@ import {
   InstanceStatusCell,
   useQueryTable,
 } from '@oxide/table'
-import { useInstanceActions } from './actions'
+import { useMakeInstanceActions } from './actions'
 
 export const InstancesPage = () => {
-  const { orgName, projectName } = useParams('orgName', 'projectName')
-  const { data: project } = useApiQuery('organizationProjectsGetProject', {
-    orgName,
-    projectName,
-  })
+  const projectParams = useParams('orgName', 'projectName')
+  const { orgName, projectName } = projectParams
+  const { data: project } = useApiQuery(
+    'organizationProjectsGetProject',
+    projectParams
+  )
 
-  const actions = useInstanceActions({ orgName, projectName })
+  const queryClient = useApiQueryClient()
+  const refetchInstances = () =>
+    queryClient.invalidateQueries('projectInstancesGet', projectParams)
+
+  const makeActions = useMakeInstanceActions(projectParams, {
+    onSuccess: refetchInstances,
+  })
 
   const { Table, Column } = useQueryTable(
     'projectInstancesGet',
@@ -49,7 +56,7 @@ export const InstancesPage = () => {
           New Instance
         </Link>
       </div>
-      <Table selectable actions={actions}>
+      <Table selectable makeActions={makeActions}>
         <Column
           id="name"
           cell={linkCell(

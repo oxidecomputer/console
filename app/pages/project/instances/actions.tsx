@@ -1,5 +1,5 @@
-import type { Instance, ProjectInstancesGetParams } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { Instance } from '@oxide/api'
+import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
 import { isTruthy } from '@oxide/util'
@@ -23,34 +23,23 @@ const instanceCan: Record<string, (i: Instance) => boolean> = {
   delete: (i) => i.runState === 'stopped',
 }
 
-export const useInstanceActions = (
-  params: ProjectInstancesGetParams
+type Options = {
+  onSuccess?: () => void
+}
+
+export const useMakeInstanceActions = (
+  projectParams: { orgName: string; projectName: string },
+  { onSuccess }: Options
 ): MakeActions<Instance> => {
   const addToast = useToast()
-  const queryClient = useApiQueryClient()
-  const refetch = () =>
-    queryClient.invalidateQueries('projectInstancesGet', params)
 
-  const startInstance = useApiMutation('projectInstancesInstanceStart', {
-    onSuccess() {
-      refetch()
-    },
-  })
-  const stopInstance = useApiMutation('projectInstancesInstanceStop', {
-    onSuccess() {
-      refetch()
-    },
-  })
-  const rebootInstance = useApiMutation('projectInstancesInstanceReboot', {
-    onSuccess() {
-      refetch()
-    },
-  })
-  const deleteInstance = useApiMutation('projectInstancesDeleteInstance', {
-    onSuccess() {
-      refetch()
-    },
-  })
+  // if you also pass onSuccess to mutate(), this one is not overridden — this
+  // one runs first, then the one passed to mutate()
+  const opts = { onSuccess }
+  const startInstance = useApiMutation('projectInstancesInstanceStart', opts)
+  const stopInstance = useApiMutation('projectInstancesInstanceStop', opts)
+  const rebootInstance = useApiMutation('projectInstancesInstanceReboot', opts)
+  const deleteInstance = useApiMutation('projectInstancesDeleteInstance', opts)
 
   return (instance) => {
     const { name: instanceName } = instance
@@ -59,7 +48,7 @@ export const useInstanceActions = (
         label: 'start',
         onActivate() {
           startInstance.mutate(
-            { ...params, instanceName },
+            { ...projectParams, instanceName },
             {
               onSuccess() {
                 addToast({
@@ -77,7 +66,7 @@ export const useInstanceActions = (
         label: 'stop',
         onActivate() {
           stopInstance.mutate(
-            { ...params, instanceName },
+            { ...projectParams, instanceName },
             {
               onSuccess() {
                 addToast({
@@ -94,7 +83,7 @@ export const useInstanceActions = (
       {
         label: 'reboot',
         onActivate() {
-          rebootInstance.mutate({ ...params, instanceName })
+          rebootInstance.mutate({ ...projectParams, instanceName })
         },
         disabled: !instanceCan.reboot(instance),
       },
@@ -102,7 +91,7 @@ export const useInstanceActions = (
         label: 'delete',
         onActivate() {
           deleteInstance.mutate(
-            { ...params, instanceName },
+            { ...projectParams, instanceName },
             {
               onSuccess() {
                 addToast({
