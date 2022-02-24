@@ -15,7 +15,7 @@ export const VpcsPage = () => {
         <PageTitle icon={<Networking24Icon title="Vpcs" />}>VPCs</PageTitle>
       </PageHeader>
 
-      <Table selectable>
+      <Table>
         <Column
           id="name"
           cell={linkCell(

@@ -9,3 +9,14 @@ export function sortBy<T>(arr: T[], by: (t: T) => any = identity) {
   return copy
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
+
+/**
+ * TS-friendly version of `Boolean` for when you want to filter for truthy
+ * values. Use `.filter(truthy)` instead of `.filter(Boolean)`. See
+ * [StackOverflow](https://stackoverflow.com/a/58110124/604986).
+ */
+export function isTruthy<T>(value: T): value is Truthy<T> {
+  return !!value
+}

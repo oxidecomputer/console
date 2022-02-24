@@ -4,7 +4,7 @@ import type { Row } from 'react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
 
-export type MakeActions<Item> = (item: Item) => Array<false | MenuAction>
+export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
 export type MenuAction = {
   label: string
@@ -19,9 +19,7 @@ export function getActionsCol<Item>(actionsCreator: MakeActions<Item>) {
     Cell: ({ row }: { row: Row }) => {
       const type = row.original
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const actions = actionsCreator(type as any).filter(
-        Boolean
-      ) as MenuAction[]
+      const actions = actionsCreator(type as any)
 
       return (
         <div className="flex justify-center">

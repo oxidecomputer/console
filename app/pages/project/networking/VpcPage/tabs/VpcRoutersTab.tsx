@@ -14,7 +14,7 @@ export const VpcRoutersTab = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcRouter | null>(null)
 
-  const actions = (router: VpcRouter): MenuAction[] => [
+  const makeActions = (router: VpcRouter): MenuAction[] => [
     {
       label: 'Edit',
       onActivate: () => setEditing(router),
@@ -42,7 +42,7 @@ export const VpcRoutersTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable actions={actions}>
+      <Table makeActions={makeActions}>
         <Column id="name" header="Name" />
         <Column id="kind" header="type" cell={LabelCell} />
         <Column
