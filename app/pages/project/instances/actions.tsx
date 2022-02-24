@@ -2,6 +2,7 @@ import type { Instance, ProjectInstancesGetParams } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
+import { isTruthy } from '@oxide/util'
 import { useToast } from 'app/hooks'
 import React from 'react'
 
@@ -115,6 +116,6 @@ export const useInstanceActions = (
         },
         disabled: !instanceCan.delete(instance),
       },
-    ]
+    ].filter(isTruthy)
   }
 }
