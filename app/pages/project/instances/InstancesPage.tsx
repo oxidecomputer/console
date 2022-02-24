@@ -56,7 +56,7 @@ export const InstancesPage = () => {
           New Instance
         </Link>
       </div>
-      <Table selectable makeActions={makeActions}>
+      <Table makeActions={makeActions}>
         <Column
           id="name"
           cell={linkCell(

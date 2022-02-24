@@ -42,7 +42,7 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table selectable makeActions={makeActions}>
+      <Table makeActions={makeActions}>
         <Column id="name" />
         <Column
           id="ip-block"

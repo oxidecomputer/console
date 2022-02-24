@@ -49,7 +49,6 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
 }
 
 interface QueryTableProps<Item> {
-  selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
   /** Function that produces a list of actions from a row item */
@@ -67,7 +66,6 @@ const makeQueryTable = <Item,>(
 ): ComponentType<QueryTableProps<Item>> =>
   function QueryTable({
     children,
-    selectable,
     makeActions,
     debug,
     pagination = 'page',
@@ -123,7 +121,7 @@ const makeQueryTable = <Item,>(
       (hooks) => {
         hooks.visibleColumns.push((columns) => {
           const visibleColumns = []
-          if (selectable) visibleColumns.push(getSelectCol())
+          if (makeActions) visibleColumns.push(getSelectCol())
           visibleColumns.push(...columns)
           if (makeActions) visibleColumns.push(getActionsCol(makeActions))
 
