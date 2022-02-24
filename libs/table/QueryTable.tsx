@@ -24,9 +24,9 @@ import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 
-interface UseQueryTableResult<A extends ApiListMethods, M extends keyof A> {
-  Table: ComponentType<QueryTableProps<A, M>>
-  Column: ComponentType<QueryTableColumnProps<A, M>>
+interface UseQueryTableResult<Item> {
+  Table: ComponentType<QueryTableProps<Item>>
+  Column: ComponentType<QueryTableColumnProps<Item>>
 }
 /**
  * This hook builds a table that's linked to a given query. It's a combination
@@ -38,9 +38,9 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
   options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
-): UseQueryTableResult<A, M> => {
+): UseQueryTableResult<ResultItem<A[M]>> => {
   const Table = useMemo(
-    () => makeQueryTable<A, M>(query, params, options),
+    () => makeQueryTable<ResultItem<A[M]>>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, hashQueryKey(params as any), hashQueryKey(options as any)]
   )
@@ -48,23 +48,23 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   return { Table, Column: QueryTableColumn }
 }
 
-interface QueryTableProps<A extends ApiListMethods, M extends keyof A> {
+interface QueryTableProps<Item> {
   selectable?: boolean
   /** Prints table data in the console when enabled */
   debug?: boolean
   /** Function that produces a list of actions from a row item */
-  makeActions?: MakeActions<ResultItem<A[M]>>
+  makeActions?: MakeActions<Item>
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
+const makeQueryTable = <Item,>(
   query: any,
   params: any,
   options: any
-): ComponentType<QueryTableProps<A, M>> =>
+): ComponentType<QueryTableProps<Item>> =>
   function QueryTable({
     children,
     selectable,
@@ -72,7 +72,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     debug,
     pagination = 'page',
     pageSize = 10,
-  }: QueryTableProps<A, M>) {
+  }: QueryTableProps<Item>) {
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const columns = useMemo(
       () =>
@@ -157,12 +157,7 @@ const makeQueryTable = <A extends ApiListMethods, M extends keyof A>(
     )
   }
 
-export interface QueryTableColumnProps<
-  A extends ApiListMethods,
-  M extends keyof A,
-  Item = ResultItem<A[M]>,
-  R extends unknown = any
-> {
+export interface QueryTableColumnProps<Item, R extends unknown = any> {
   id: string
   accessor?: Path<Item> | ((item: Item) => R)
   header?: string | ReactElement
@@ -171,12 +166,6 @@ export interface QueryTableColumnProps<
   cell?: ComponentType<R>
 }
 
-const QueryTableColumn = <
-  A extends ApiListMethods,
-  M extends keyof A,
-  R extends unknown = any
->(
-  _props: QueryTableColumnProps<A, M, R>
-) => {
-  return null
-}
+const QueryTableColumn = <Item, R extends unknown = any>(
+  _props: QueryTableColumnProps<Item, R>
+) => null
