@@ -9,10 +9,12 @@ import Dialog from '@reach/dialog'
 import React from 'react'
 import './ActionMenu.css'
 import cn from 'classnames'
+import { matchSorter } from 'match-sorter'
+import { invariant, isOneOf } from '@oxide/util'
 
 export interface MenuItem {
   value: string
-  action: () => void
+  onSelect: () => void
 }
 
 export interface ActionMenuProps {
@@ -20,18 +22,32 @@ export interface ActionMenuProps {
   onDismiss: () => void
   className?: string
   inputClassName?: string
-  items: MenuItem[]
   ariaLabel: string
+  children: React.ReactElement[] // really only ActionMenu.Item, enforced at runtime
 }
 
+const childrenToItems = (children: React.ReactElement[]): MenuItem[] =>
+  React.Children.map(children, (child) => ({
+    value: child.props.children,
+    onSelect: child.props.onSelect,
+  }))
+
 export function ActionMenu(props: ActionMenuProps) {
+  invariant(
+    isOneOf(props.children, [ActionMenu.Item]),
+    'ActionMenu can only have ActionMenu.Item as a child'
+  )
+
   const [input, setInput] = React.useState('')
+  const items = matchSorter(childrenToItems(props.children), input, {
+    keys: ['value'],
+    // use original order as tiebreaker instead of, e.g., alphabetical
+    baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+  })
+
   return (
     <Dialog
-      className={cn(
-        'ActionMenu !mt-[20vh] !w-1/3 p-0',
-        props.items.length > 0 ? 'rounded-t-sm' : 'rounded-sm'
-      )}
+      className="ActionMenu !mt-[20vh] !w-1/3 p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
       onDismiss={() => {
@@ -43,14 +59,14 @@ export function ActionMenu(props: ActionMenuProps) {
         onSelect={(value) => {
           // have to find by value string because we can't give option a value
           // of the whole item object
-          props.items.find((i) => i.value === value)?.action()
+          items.find((i) => i.value === value)?.onSelect()
         }}
+        openOnFocus
       >
         <ComboboxInput
           autocomplete={false}
           className={cn(
             'mousetrap w-full border p-4 bg-raise border-secondary focus:outline-none',
-            props.items.length > 0 ? 'rounded-t-sm' : 'rounded-sm',
             props.inputClassName
           )}
           value={input}
@@ -62,9 +78,9 @@ export function ActionMenu(props: ActionMenuProps) {
           className="!border-none !bg-transparent children:between:border-t-0"
         >
           <ComboboxList>
-            {props.items.map((item) => (
+            {items.map((item) => (
               <ComboboxOption
-                className="rounded border !p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
+                className="-mt-px border !p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
                 key={item.value}
                 value={item.value}
               />
@@ -75,3 +91,10 @@ export function ActionMenu(props: ActionMenuProps) {
     </Dialog>
   )
 }
+
+type ItemProps = {
+  children: string
+  onSelect: () => void
+}
+
+ActionMenu.Item = (_props: ItemProps) => null
