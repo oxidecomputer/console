@@ -1,7 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { buttonStyle, PageHeader, PageTitle, Folder24Icon } from '@oxide/ui'
-import { useParams } from '../hooks'
+import { useActionMenu, useParams } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
 const ProjectsPage = () => {
@@ -9,9 +9,20 @@ const ProjectsPage = () => {
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
     orgName,
   })
+  const navigate = useNavigate()
+  const ActionMenu = useActionMenu()
 
   return (
     <>
+      <ActionMenu
+        items={[
+          {
+            value: 'New project',
+            action: () => navigate('new'),
+          },
+        ]}
+        ariaLabel="Projects quick actions"
+      />
       <PageHeader className="mb-10">
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">

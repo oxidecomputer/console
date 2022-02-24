@@ -1,5 +1,6 @@
 import './styles/index.css'
 
+export * from './lib/action-menu/ActionMenu'
 export * from './lib/avatar/Avatar'
 export * from './lib/badge/Badge'
 export * from './lib/breadcrumbs/Breadcrumbs'

@@ -33,6 +33,8 @@ export function ActionMenu(props: ActionMenuProps) {
         props.items.length > 0 ? 'rounded-t-sm' : 'rounded-sm'
       )}
       aria-label={props.ariaLabel}
+      isOpen={props.isOpen}
+      onDismiss={props.onDismiss}
     >
       <Combobox
         onSelect={(value) => {
