@@ -1,0 +1,33 @@
+/**
+ * The selection theme overrides certain styles such that the selected state of components can be displayed without
+ * requiring each individual component to implement styles for it 
+ *
+ * This file is _not_ automatically generated
+ */
+.is-selected {
+  --content-default: var(--theme-accent-1);
+  --content-secondary: var(--theme-accent-2);
+  --content-tertiary: var(--theme-accent-1);
+  --surface-default: var(--theme-accent-5);
+  --stroke-secondary: var(--stroke-accent-tertiary);
+  --stroke-surface: var(--surface-default);
+  --surface-raise: var(--theme-accent-4);
+
+  & .ox-badge:not(.variant-ghost),
+  & .ox-tag,
+  & .ox-button:not(.variant-ghost):not(.variant-link),
+  & .ox-avatar {
+    --content-accent: var(--content-inverse);
+    --surface-accent-secondary: var(--theme-accent-1);
+    --surface-accent-secondary-hover: var(--theme-accent-2);
+    --content-notice: var(--content-inverse);
+    --surface-notice-secondary: var(--theme-notice-1);
+    --surface-notice-secondary-hover: var(--theme-notice-2);
+    --content-destructive: var(--content-inverse);
+    --surface-destructive-secondary: var(--theme-destructive-1);
+    --surface-destructive-secondary-hover: var(--theme-destructive-2);
+    --content-secondary: var(--content-inverse);
+    --surface-secondary: var(--surface-inverse-secondary);
+    --surface-secondary-hover: var(--surface-inverse-tertiary);
+  }
+}

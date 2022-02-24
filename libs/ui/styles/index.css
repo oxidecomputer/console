@@ -6,6 +6,7 @@
 
 @import './themes/main.css';
 @import './themes/operator-mode.css';
+@import './themes/selection.css';
 
 @tailwind base;
 @tailwind components;

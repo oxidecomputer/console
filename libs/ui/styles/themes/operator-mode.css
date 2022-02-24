@@ -16,6 +16,270 @@
   --theme-accent-5-rgb: var(--base-yellow-900-rgb);
   --theme-accent-5: rgb(var(--theme-accent-5-rgb));
 
+  --theme-destructive-1-rgb: var(--base-red-500-rgb);
+  --theme-destructive-1: rgb(var(--theme-destructive-1-rgb));
+
+  --theme-destructive-2-rgb: var(--base-red-600-rgb);
+  --theme-destructive-2: rgb(var(--theme-destructive-2-rgb));
+
+  --theme-destructive-3-rgb: var(--base-red-700-rgb);
+  --theme-destructive-3: rgb(var(--theme-destructive-3-rgb));
+
+  --theme-destructive-4-rgb: var(--base-red-800-rgb);
+  --theme-destructive-4: rgb(var(--theme-destructive-4-rgb));
+
+  --theme-destructive-5-rgb: var(--base-red-900-rgb);
+  --theme-destructive-5: rgb(var(--theme-destructive-5-rgb));
+
+  --theme-notice-1-rgb: var(--base-yellow-500-rgb);
+  --theme-notice-1: rgb(var(--theme-notice-1-rgb));
+
+  --theme-notice-2-rgb: var(--base-yellow-600-rgb);
+  --theme-notice-2: rgb(var(--theme-notice-2-rgb));
+
+  --theme-notice-3-rgb: var(--base-yellow-700-rgb);
+  --theme-notice-3: rgb(var(--theme-notice-3-rgb));
+
+  --theme-notice-4-rgb: var(--base-yellow-800-rgb);
+  --theme-notice-4: rgb(var(--theme-notice-4-rgb));
+
+  --theme-notice-5-rgb: var(--base-yellow-900-rgb);
+  --theme-notice-5: rgb(var(--theme-notice-5-rgb));
+
   --chart-stroke-line-secondary-rgb: var(--base-green-600-rgb);
   --chart-stroke-line-secondary: rgb(var(--chart-stroke-line-secondary-rgb));
+
+  --chart-stroke-line-rgb: var(--theme-accent-2-rgb);
+  --chart-stroke-line: rgb(var(--chart-stroke-line-rgb));
+
+  --chart-stroke-line-tertiary-rgb: var(--base-red-600-rgb);
+  --chart-stroke-line-tertiary: rgb(var(--chart-stroke-line-tertiary-rgb));
+
+  --chart-stroke-line-quaternary-rgb: var(--base-blue-600-rgb);
+  --chart-stroke-line-quaternary: rgb(var(--chart-stroke-line-quaternary-rgb));
+
+  --chart-stroke-y-axis: rgba(var(--stroke-default-rgb), 0.4);
+  --chart-stroke-item: rgba(var(--theme-accent-2-rgb), 0.4);
+
+  --chart-stroke-item-inactive-rgb: var(--base-grey-1000-rgb);
+  --chart-stroke-item-inactive: rgb(var(--chart-stroke-item-inactive-rgb));
+
+  --chart-stroke-error: rgba(var(--theme-destructive-2-rgb), 0.4);
+  --chart-fill-area-primary: rgba(
+    var(--theme-accent-3-rgb),
+    0.7019607843137254
+  );
+  --chart-fill-area-secondary: rgba(
+    var(--theme-accent-4-rgb),
+    0.7019607843137254
+  );
+  --chart-fill-area-tertiary: rgba(
+    var(--theme-accent-5-rgb),
+    0.7019607843137254
+  );
+  --chart-fill-area-quaternary: rgba(var(--theme-accent-5-rgb), 0.2);
+
+  --chart-fill-item-primary-rgb: var(--theme-accent-2-rgb);
+  --chart-fill-item-primary: rgb(var(--chart-fill-item-primary-rgb));
+
+  --chart-fill-item-secondary-rgb: var(--theme-accent-3-rgb);
+  --chart-fill-item-secondary: rgb(var(--chart-fill-item-secondary-rgb));
+
+  --chart-fill-item-tertiary-rgb: var(--theme-accent-4-rgb);
+  --chart-fill-item-tertiary: rgb(var(--chart-fill-item-tertiary-rgb));
+
+  --chart-fill-item-quaternary-rgb: var(--theme-accent-5-rgb);
+  --chart-fill-item-quaternary: rgb(var(--chart-fill-item-quaternary-rgb));
+
+  --chart-fill-error-primary-rgb: var(--theme-destructive-2-rgb);
+  --chart-fill-error-primary: rgb(var(--chart-fill-error-primary-rgb));
+
+  --chart-fill-error-secondary-rgb: var(--theme-destructive-3-rgb);
+  --chart-fill-error-secondary: rgb(var(--chart-fill-error-secondary-rgb));
+
+  --chart-fill-error-tertiary-rgb: var(--theme-destructive-4-rgb);
+  --chart-fill-error-tertiary: rgb(var(--chart-fill-error-tertiary-rgb));
+
+  --chart-fill-error-quaternary-rgb: var(--theme-destructive-5-rgb);
+  --chart-fill-error-quaternary: rgb(var(--chart-fill-error-quaternary-rgb));
+
+  --chart-fill-inactive-rgb: var(--base-black-600-rgb);
+  --chart-fill-inactive: rgb(var(--chart-fill-inactive-rgb));
+
+  --surface-default-rgb: var(--base-black-700-rgb);
+  --surface-default: rgb(var(--surface-default-rgb));
+
+  --surface-secondary-rgb: var(--base-black-500-rgb);
+  --surface-secondary: rgb(var(--surface-secondary-rgb));
+
+  --surface-raise-rgb: var(--base-black-600-rgb);
+  --surface-raise: rgb(var(--surface-raise-rgb));
+
+  --surface-disabled-rgb: var(--base-black-500-rgb);
+  --surface-disabled: rgb(var(--surface-disabled-rgb));
+
+  --surface-scrim: rgba(var(--base-black-700-rgb), 0.4);
+
+  --surface-secondary-hover-rgb: var(--base-grey-1000-rgb);
+  --surface-secondary-hover: rgb(var(--surface-secondary-hover-rgb));
+
+  --surface-accent-rgb: var(--theme-accent-1-rgb);
+  --surface-accent: rgb(var(--surface-accent-rgb));
+
+  --surface-accent-secondary-rgb: var(--theme-accent-5-rgb);
+  --surface-accent-secondary: rgb(var(--surface-accent-secondary-rgb));
+
+  --surface-accent-raise-rgb: var(--theme-accent-4-rgb);
+  --surface-accent-raise: rgb(var(--surface-accent-raise-rgb));
+
+  --surface-accent-hover-rgb: var(--theme-accent-2-rgb);
+  --surface-accent-hover: rgb(var(--surface-accent-hover-rgb));
+
+  --surface-accent-secondary-hover-rgb: var(--theme-accent-4-rgb);
+  --surface-accent-secondary-hover: rgb(
+    var(--surface-accent-secondary-hover-rgb)
+  );
+
+  --surface-destructive-rgb: var(--theme-destructive-1-rgb);
+  --surface-destructive: rgb(var(--surface-destructive-rgb));
+
+  --surface-destructive-secondary-rgb: var(--theme-destructive-5-rgb);
+  --surface-destructive-secondary: rgb(
+    var(--surface-destructive-secondary-rgb)
+  );
+
+  --surface-destructive-raise-rgb: var(--theme-destructive-4-rgb);
+  --surface-destructive-raise: rgb(var(--surface-destructive-raise-rgb));
+
+  --surface-destructive-hover-rgb: var(--theme-destructive-2-rgb);
+  --surface-destructive-hover: rgb(var(--surface-destructive-hover-rgb));
+
+  --surface-destructive-secondary-hover-rgb: var(--theme-destructive-4-rgb);
+  --surface-destructive-secondary-hover: rgb(
+    var(--surface-destructive-secondary-hover-rgb)
+  );
+
+  --surface-notice-rgb: var(--theme-notice-1-rgb);
+  --surface-notice: rgb(var(--surface-notice-rgb));
+
+  --surface-notice-secondary-rgb: var(--theme-notice-5-rgb);
+  --surface-notice-secondary: rgb(var(--surface-notice-secondary-rgb));
+
+  --surface-notice-raise-rgb: var(--theme-notice-4-rgb);
+  --surface-notice-raise: rgb(var(--surface-notice-raise-rgb));
+
+  --surface-notice-hover-rgb: var(--theme-notice-2-rgb);
+  --surface-notice-hover: rgb(var(--surface-notice-hover-rgb));
+
+  --surface-notice-secondary-hover-rgb: var(--theme-notice-4-rgb);
+  --surface-notice-secondary-hover: rgb(
+    var(--surface-notice-secondary-hover-rgb)
+  );
+
+  --surface-inverse-rgb: var(--content-default-rgb);
+  --surface-inverse: rgb(var(--surface-inverse-rgb));
+
+  --surface-inverse-secondary-rgb: var(--content-secondary-rgb);
+  --surface-inverse-secondary: rgb(var(--surface-inverse-secondary-rgb));
+
+  --surface-inverse-tertiary-rgb: var(--content-tertiary-rgb);
+  --surface-inverse-tertiary: rgb(var(--surface-inverse-tertiary-rgb));
+
+  --content-default-rgb: var(--base-grey-500-rgb);
+  --content-default: rgb(var(--content-default-rgb));
+
+  --content-secondary-rgb: var(--base-grey-600-rgb);
+  --content-secondary: rgb(var(--content-secondary-rgb));
+
+  --content-tertiary-rgb: var(--base-grey-700-rgb);
+  --content-tertiary: rgb(var(--content-tertiary-rgb));
+
+  --content-quaternary-rgb: var(--base-grey-900-rgb);
+  --content-quaternary: rgb(var(--content-quaternary-rgb));
+
+  --content-accent-rgb: var(--theme-accent-1-rgb);
+  --content-accent: rgb(var(--content-accent-rgb));
+
+  --content-accent-secondary-rgb: var(--theme-accent-2-rgb);
+  --content-accent-secondary: rgb(var(--content-accent-secondary-rgb));
+
+  --content-accent-tertiary-rgb: var(--theme-accent-3-rgb);
+  --content-accent-tertiary: rgb(var(--content-accent-tertiary-rgb));
+
+  --content-accent-disabled-rgb: var(--theme-accent-3-rgb);
+  --content-accent-disabled: rgb(var(--content-accent-disabled-rgb));
+
+  --content-destructive-rgb: var(--theme-destructive-1-rgb);
+  --content-destructive: rgb(var(--content-destructive-rgb));
+
+  --content-destructive-secondary-rgb: var(--theme-destructive-2-rgb);
+  --content-destructive-secondary: rgb(
+    var(--content-destructive-secondary-rgb)
+  );
+
+  --content-destructive-tertiary-rgb: var(--theme-destructive-3-rgb);
+  --content-destructive-tertiary: rgb(var(--content-destructive-tertiary-rgb));
+
+  --content-destructive-disabled-rgb: var(--theme-destructive-3-rgb);
+  --content-destructive-disabled: rgb(var(--content-destructive-disabled-rgb));
+
+  --content-notice-rgb: var(--theme-notice-1-rgb);
+  --content-notice: rgb(var(--content-notice-rgb));
+
+  --content-notice-secondary-rgb: var(--theme-notice-2-rgb);
+  --content-notice-secondary: rgb(var(--content-notice-secondary-rgb));
+
+  --content-notice-tertiary-rgb: var(--theme-notice-3-rgb);
+  --content-notice-tertiary: rgb(var(--content-notice-tertiary-rgb));
+
+  --content-notice-disabled-rgb: var(--theme-notice-3-rgb);
+  --content-notice-disabled: rgb(var(--content-notice-disabled-rgb));
+
+  --content-inverse-rgb: var(--surface-default-rgb);
+  --content-inverse: rgb(var(--content-inverse-rgb));
+
+  --content-inverse-secondary-rgb: var(--surface-secondary-rgb);
+  --content-inverse-secondary: rgb(var(--content-inverse-secondary-rgb));
+
+  --stroke-default-rgb: var(--base-grey-900-rgb);
+  --stroke-default: rgb(var(--stroke-default-rgb));
+
+  --stroke-secondary-rgb: var(--base-grey-1000-rgb);
+  --stroke-secondary: rgb(var(--stroke-secondary-rgb));
+
+  --stroke-tertiary-rgb: var(--base-black-500-rgb);
+  --stroke-tertiary: rgb(var(--stroke-tertiary-rgb));
+
+  --stroke-raise-rgb: var(--base-grey-700-rgb);
+  --stroke-raise: rgb(var(--stroke-raise-rgb));
+
+  --stroke-surface-rgb: var(--surface-default-rgb);
+  --stroke-surface: rgb(var(--stroke-surface-rgb));
+
+  --stroke-accent-rgb: var(--theme-accent-1-rgb);
+  --stroke-accent: rgb(var(--stroke-accent-rgb));
+
+  --stroke-accent-secondary-rgb: var(--theme-accent-3-rgb);
+  --stroke-accent-secondary: rgb(var(--stroke-accent-secondary-rgb));
+
+  --stroke-accent-tertiary-rgb: var(--theme-accent-4-rgb);
+  --stroke-accent-tertiary: rgb(var(--stroke-accent-tertiary-rgb));
+
+  --stroke-destructive-rgb: var(--theme-destructive-1-rgb);
+  --stroke-destructive: rgb(var(--stroke-destructive-rgb));
+
+  --stroke-destructive-secondary-rgb: var(--theme-destructive-3-rgb);
+  --stroke-destructive-secondary: rgb(var(--stroke-destructive-secondary-rgb));
+
+  --stroke-destructive-tertiary-rgb: var(--theme-destructive-4-rgb);
+  --stroke-destructive-tertiary: rgb(var(--stroke-destructive-tertiary-rgb));
+
+  --stroke-notice-rgb: var(--theme-notice-1-rgb);
+  --stroke-notice: rgb(var(--stroke-notice-rgb));
+
+  --stroke-notice-secondary-rgb: var(--theme-notice-3-rgb);
+  --stroke-notice-secondary: rgb(var(--stroke-notice-secondary-rgb));
+
+  --stroke-notice-tertiary-rgb: var(--theme-notice-4-rgb);
+  --stroke-notice-tertiary: rgb(var(--stroke-notice-tertiary-rgb));
 }

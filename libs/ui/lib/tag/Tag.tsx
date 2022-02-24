@@ -2,7 +2,7 @@ import React from 'react'
 import cn from 'classnames'
 import { Close8Icon } from '../icons'
 
-export type TagColor = 'green' | 'red' | 'yellow' | 'gray'
+export type TagColor = 'default' | 'destructive' | 'notice' | 'neutral'
 export type TagVariant = 'default' | 'secondary'
 
 export interface TagProps {
@@ -19,22 +19,22 @@ export const tagColors: Record<
   Partial<Record<TagColor, string>>
 > = {
   default: {
-    green: 'bg-accent text-inverse',
-    red: 'bg-destructive text-inverse',
-    yellow: 'bg-notice text-inverse',
+    default: 'bg-accent text-inverse',
+    destructive: 'bg-destructive text-inverse',
+    notice: 'bg-notice text-inverse',
   },
   secondary: {
-    green: 'bg-accent-secondary text-accent',
-    red: 'bg-destructive-secondary text-destructive',
-    yellow: 'bg-notice-secondary text-notice',
-    gray: 'bg-disabled text-secondary',
+    default: 'bg-accent-secondary text-accent',
+    destructive: 'bg-destructive-secondary text-destructive',
+    notice: 'bg-notice-secondary text-notice',
+    neutral: 'bg-secondary text-secondary',
   },
 }
 
 export const Tag = ({
   className,
   children,
-  color = 'green',
+  color = 'default',
   variant = 'default',
   narrow,
   onClose,
@@ -42,6 +42,8 @@ export const Tag = ({
   return (
     <span
       className={cn(
+        'ox-tag',
+        `variant-${variant}`,
         'inline-flex items-center whitespace-nowrap rounded-sm px-1 text-mono-sm',
         tagColors[variant][color],
         narrow ? 'h-4' : 'h-6',

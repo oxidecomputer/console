@@ -23,18 +23,16 @@ export const badgeColors: Record<
     neutral: 'bg-inverse-tertiary text-inverse',
   },
   secondary: {
-    default: 'bg-accent-secondary text-accent selected:bg-accent-secondary',
+    default: 'bg-accent-secondary text-accent',
     destructive: 'bg-destructive-secondary text-destructive',
     notice: 'bg-notice-secondary text-notice',
     neutral: 'bg-secondary text-secondary',
   },
   ghost: {
-    default:
-      'ring-1 ring-inset ring-accent-secondary text-accent bg-accent-secondary',
+    default: 'ring-1 ring-inset ring-accent-secondary text-accent',
     destructive:
-      'ring-1 ring-inset ring-destructive-secondary text-destructive bg-destructive-secondary',
-    notice:
-      'ring-1 ring-inset ring-notice-secondary text-notice bg-notice-secondary',
+      'ring-1 ring-inset ring-destructive-secondary text-destructive',
+    notice: 'ring-1 ring-inset ring-notice-secondary text-notice',
   },
 }
 
@@ -51,7 +49,9 @@ export const Badge = ({
   return (
     <span
       className={cn(
-        'ox-badge inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
+        'ox-badge',
+        `variant-${variant}`,
+        'inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
         badgeColors[variant][color],
         className
       )}

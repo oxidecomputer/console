@@ -84,6 +84,8 @@ export const buttonStyle = ({
   color = 'accent',
 }: ButtonStyleProps = {}) => {
   return cn(
+    'ox-button',
+    `variant-${variant}`,
     baseStyle,
     sizeStyle[size],
     ringStyle(color),
