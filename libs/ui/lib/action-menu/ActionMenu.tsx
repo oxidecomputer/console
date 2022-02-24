@@ -34,7 +34,10 @@ export function ActionMenu(props: ActionMenuProps) {
       )}
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
-      onDismiss={props.onDismiss}
+      onDismiss={() => {
+        setInput('')
+        props.onDismiss()
+      }}
     >
       <Combobox
         onSelect={(value) => {
