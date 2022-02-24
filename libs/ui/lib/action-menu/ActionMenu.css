@@ -1,0 +1,15 @@
+.ActionMenu {
+  & [data-reach-combobox-option][data-highlighted] {
+    @apply outline outline-1 text-accent bg-accent-secondary outline-accent;
+  }
+
+  /* the matching segments */
+  & [data-user-value] {
+    @apply text-sans-semi-md text-default;
+  }
+
+  /* the non-matching segments */
+  & [data-suggested-value] {
+    @apply text-secondary;
+  }
+}
