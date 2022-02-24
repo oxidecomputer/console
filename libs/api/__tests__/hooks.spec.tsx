@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { override } from 'app/test-utils'
+import { override } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 

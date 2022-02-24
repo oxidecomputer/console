@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { matchRoutes } from 'react-router'
-import { renderAppAt } from './test-utils'
+import { renderAppAt } from './test/utils'
 
 import { projects } from '@oxide/api-mocks'
 
