@@ -7,7 +7,7 @@ import {
 import { Api } from './__generated__/Api'
 
 const api = new Api({
-  baseUrl: process.env.API_URL ?? '/api',
+  baseUrl: process.env.API_URL,
 })
 
 type A = typeof api.methods

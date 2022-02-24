@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
     // minify: false, // uncomment for debugging
   },
   define: {
-    'process.env.API_URL': JSON.stringify(process.env.API_URL),
+    'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
   },
   plugins: [react()],
