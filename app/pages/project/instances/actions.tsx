@@ -1,20 +1,9 @@
+import React from 'react'
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
-import { isTruthy } from '@oxide/util'
 import { useToast } from 'app/hooks'
-import React from 'react'
-
-const showStart = (i: Instance): boolean => {
-  switch (i.runState) {
-    case 'stopped':
-    case 'stopping':
-      return true
-    default:
-      return false
-  }
-}
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
   start: (i) => i.runState === 'stopped',
@@ -29,13 +18,14 @@ type Options = {
 
 export const useMakeInstanceActions = (
   projectParams: { orgName: string; projectName: string },
-  { onSuccess }: Options
+  opts: Options = {}
 ): MakeActions<Instance> => {
   const addToast = useToast()
+  const successToast = (title: string) =>
+    addToast({ icon: <Success16Icon />, title, timeout: 5000 })
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
-  const opts = { onSuccess }
   const startInstance = useApiMutation('projectInstancesInstanceStart', opts)
   const stopInstance = useApiMutation('projectInstancesInstanceStop', opts)
   const rebootInstance = useApiMutation('projectInstancesInstanceReboot', opts)
@@ -44,67 +34,58 @@ export const useMakeInstanceActions = (
   return (instance) => {
     const { name: instanceName } = instance
     return [
-      showStart(instance) && {
-        label: 'start',
+      {
+        label: 'Start',
         onActivate() {
           startInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess() {
-                addToast({
-                  icon: <Success16Icon />,
-                  title: `Starting instance '${instanceName}'`,
-                  timeout: 5000,
-                })
-              },
+              onSuccess: () =>
+                successToast(`Starting instance '${instanceName}'`),
             }
           )
         },
         disabled: !instanceCan.start(instance),
       },
-      !showStart(instance) && {
-        label: 'stop',
+      {
+        label: 'Stop',
         onActivate() {
           stopInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess() {
-                addToast({
-                  icon: <Success16Icon />,
-                  title: `Stopping instance '${instanceName}'`,
-                  timeout: 5000,
-                })
-              },
+              onSuccess: () =>
+                successToast(`Stopping instance '${instanceName}'`),
             }
           )
         },
         disabled: !instanceCan.stop(instance),
       },
       {
-        label: 'reboot',
+        label: 'Reboot',
         onActivate() {
-          rebootInstance.mutate({ ...projectParams, instanceName })
+          rebootInstance.mutate(
+            { ...projectParams, instanceName },
+            {
+              onSuccess: () =>
+                successToast(`Rebooting instance '${instanceName}'`),
+            }
+          )
         },
         disabled: !instanceCan.reboot(instance),
       },
       {
-        label: 'delete',
+        label: 'Delete',
         onActivate() {
           deleteInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess() {
-                addToast({
-                  icon: <Success16Icon />,
-                  title: `Deleting instance '${instanceName}'`,
-                  timeout: 5000,
-                })
-              },
+              onSuccess: () =>
+                successToast(`Deleting instance '${instanceName}'`),
             }
           )
         },
         disabled: !instanceCan.delete(instance),
       },
-    ].filter(isTruthy)
+    ]
   }
 }

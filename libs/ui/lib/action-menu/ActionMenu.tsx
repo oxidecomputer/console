@@ -45,21 +45,27 @@ export function ActionMenu(props: ActionMenuProps) {
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
 
+  function onDismiss() {
+    setInput('')
+    props.onDismiss()
+  }
+
   return (
     <Dialog
       className="ActionMenu !mt-[20vh] !w-1/3 p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
-      onDismiss={() => {
-        setInput('')
-        props.onDismiss()
-      }}
+      onDismiss={onDismiss}
     >
       <Combobox
         onSelect={(value) => {
           // have to find by value string because we can't give option a value
           // of the whole item object
-          items.find((i) => i.value === value)?.onSelect()
+          const item = items.find((i) => i.value === value)
+          if (item) {
+            item.onSelect()
+            onDismiss()
+          }
         }}
         openOnFocus
       >
