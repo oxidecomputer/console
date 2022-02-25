@@ -18,17 +18,19 @@ const ProjectsPage = () => {
   const navigate = useNavigate()
   const actionMenuProps = useActionMenuState()
 
+  const quickActions = [
+    { value: 'New project', onSelect: () => navigate('new') },
+    { value: 'Also new project', onSelect: () => navigate('new') },
+    // TODO: an entry for every visible project?
+  ]
+
   return (
     <>
-      <ActionMenu {...actionMenuProps} ariaLabel="Projects quick actions">
-        <ActionMenu.Item onSelect={() => navigate('new')}>
-          New Project
-        </ActionMenu.Item>
-        <ActionMenu.Item onSelect={() => navigate('new')}>
-          Also new Project
-        </ActionMenu.Item>
-        {/* TODO: an entry for every visible project? */}
-      </ActionMenu>
+      <ActionMenu
+        {...actionMenuProps}
+        ariaLabel="Projects quick actions"
+        items={quickActions}
+      />
       <PageHeader className="mb-10">
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">

@@ -27,7 +27,7 @@ export function getActionsCol<Item>(actionsCreator: MakeActions<Item>) {
             <MenuButton>
               <More12Icon className="text-tertiary" />
             </MenuButton>
-            <MenuList className="TableControls">
+            <MenuList>
               {actions.map((action) => {
                 return (
                   <MenuItem

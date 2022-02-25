@@ -1,6 +1,7 @@
 import React from 'react'
 import filesize from 'filesize'
 import { useNavigate } from 'react-router-dom'
+import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 
 import {
   ActionMenu,
@@ -10,6 +11,7 @@ import {
   PropertiesTable,
   Tabs,
   Tab,
+  More12Icon,
 } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
@@ -18,6 +20,7 @@ import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 import { useMakeInstanceActions } from '../actions'
+import { useProjectNavItems } from '../../quick-nav'
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -36,6 +39,7 @@ export const InstancePage = () => {
     // go to project instances list since there's no more instance
     onDelete: () => navigate('..'),
   })
+  const projectQuickNavItems = useProjectNavItems()
 
   const { data: instance } = useApiQuery(
     'projectInstancesGetInstance',
@@ -46,28 +50,43 @@ export const InstancePage = () => {
   if (!instance) return null
 
   const actions = makeActions(instance)
+  const quickActions = actions
     // in the quick menu we do not show disabled actions
     .filter((a) => !a.disabled)
     // append "instance" to labels
     // TODO: if these were in an "Instance actions" subsection they might not
     // need the suffix for clarity
-    .map((a) => ({ onSelect: a.onActivate, label: `${a.label} instance` }))
+    .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` }))
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
   return (
     <>
-      <ActionMenu {...actionMenuProps} ariaLabel="Instance quick actions">
-        {actions.map(({ label, onSelect }) => (
-          <ActionMenu.Item onSelect={onSelect} key={label}>
-            {label}
-          </ActionMenu.Item>
-        ))}
-      </ActionMenu>
+      <ActionMenu
+        {...actionMenuProps}
+        items={[...quickActions, ...projectQuickNavItems]}
+        ariaLabel="Instance quick actions"
+      />
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Instances" />}>
           {instanceParams.instanceName}
         </PageTitle>
+        <Menu>
+          <MenuButton>
+            <More12Icon className="text-tertiary" />
+          </MenuButton>
+          <MenuList>
+            {actions.map((a) => (
+              <MenuItem
+                disabled={a.disabled}
+                key={a.label}
+                onSelect={a.onActivate}
+              >
+                {a.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
