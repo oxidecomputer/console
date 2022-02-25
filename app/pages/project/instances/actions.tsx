@@ -14,11 +14,16 @@ const instanceCan: Record<string, (i: Instance) => boolean> = {
 
 type Options = {
   onSuccess?: () => void
+  // delete needs special behavior on instance detail because you need to nav to
+  // instances list. this is starting to be a code smell. if the API of this
+  // hook has to expand to encompass the sum of all the APIs of these hooks it
+  // call internally, the abstraction is not good
+  onDelete?: () => void
 }
 
 export const useMakeInstanceActions = (
   projectParams: { orgName: string; projectName: string },
-  opts: Options = {}
+  options: Options = {}
 ): MakeActions<Instance> => {
   const addToast = useToast()
   const successToast = (title: string) =>
@@ -26,6 +31,7 @@ export const useMakeInstanceActions = (
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
+  const opts = { onSuccess: options.onSuccess }
   const startInstance = useApiMutation('projectInstancesInstanceStart', opts)
   const stopInstance = useApiMutation('projectInstancesInstanceStop', opts)
   const rebootInstance = useApiMutation('projectInstancesInstanceReboot', opts)
@@ -79,8 +85,10 @@ export const useMakeInstanceActions = (
           deleteInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess: () =>
-                successToast(`Deleting instance '${instanceName}'`),
+              onSuccess: () => {
+                options.onDelete?.()
+                successToast(`Deleting instance '${instanceName}'`)
+              },
             }
           )
         },

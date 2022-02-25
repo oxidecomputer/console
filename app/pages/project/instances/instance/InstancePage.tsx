@@ -1,3 +1,7 @@
+import React from 'react'
+import filesize from 'filesize'
+import { useNavigate } from 'react-router-dom'
+
 import {
   ActionMenu,
   Instances24Icon,
@@ -7,30 +11,37 @@ import {
   Tabs,
   Tab,
 } from '@oxide/ui'
-import { useApiQuery } from '@oxide/api'
-import React from 'react'
+import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { pick } from '@oxide/util'
 import { useParams, useActionMenuState } from 'app/hooks'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import filesize from 'filesize'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 import { useMakeInstanceActions } from '../actions'
 
 export const InstancePage = () => {
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
+  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
+  const navigate = useNavigate()
+  const queryClient = useApiQueryClient()
   const actionMenuProps = useActionMenuState()
-  const makeActions = useMakeInstanceActions({ projectName, orgName })
-
-  const { data: instance } = useApiQuery('projectInstancesGetInstance', {
-    orgName,
-    projectName,
-    instanceName,
+  const projectParams = pick(instanceParams, 'projectName', 'orgName')
+  const makeActions = useMakeInstanceActions(projectParams, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        'projectInstancesGetInstance',
+        instanceParams
+      )
+    },
+    // go to project instances list since there's no more instance
+    onDelete: () => navigate('..'),
   })
+
+  const { data: instance } = useApiQuery(
+    'projectInstancesGetInstance',
+    instanceParams,
+    { refetchInterval: 5000 }
+  )
 
   if (!instance) return null
 
@@ -55,7 +66,7 @@ export const InstancePage = () => {
       </ActionMenu>
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Instances" />}>
-          {instanceName}
+          {instanceParams.instanceName}
         </PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
