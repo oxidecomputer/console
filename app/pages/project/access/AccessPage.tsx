@@ -128,7 +128,7 @@ const menuCol = {
       <MenuButton>
         <More12Icon className="mr-4 text-tertiary" />
       </MenuButton>
-      <MenuList className="TableControls">
+      <MenuList>
         <MenuItem onSelect={() => console.log(row.values.name)}>
           Delete
         </MenuItem>

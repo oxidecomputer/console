@@ -10,7 +10,6 @@ import React from 'react'
 import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { invariant, isOneOf } from '@oxide/util'
 
 export interface MenuItem {
   value: string
@@ -23,23 +22,12 @@ export interface ActionMenuProps {
   className?: string
   inputClassName?: string
   ariaLabel: string
-  children: React.ReactElement[] // really only ActionMenu.Item, enforced at runtime
+  items: MenuItem[]
 }
 
-const childrenToItems = (children: React.ReactElement[]): MenuItem[] =>
-  React.Children.map(children, (child) => ({
-    value: child.props.children,
-    onSelect: child.props.onSelect,
-  }))
-
 export function ActionMenu(props: ActionMenuProps) {
-  invariant(
-    isOneOf(props.children, [ActionMenu.Item]),
-    'ActionMenu can only have ActionMenu.Item as a child'
-  )
-
   const [input, setInput] = React.useState('')
-  const items = matchSorter(childrenToItems(props.children), input, {
+  const items = matchSorter(props.items, input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
@@ -97,10 +85,3 @@ export function ActionMenu(props: ActionMenuProps) {
     </Dialog>
   )
 }
-
-type ItemProps = {
-  children: string
-  onSelect: () => void
-}
-
-ActionMenu.Item = (_props: ItemProps) => null
