@@ -1,4 +1,5 @@
 import {
+  ActionMenu,
   Instances24Icon,
   PageHeader,
   PageTitle,
@@ -8,11 +9,12 @@ import {
 } from '@oxide/ui'
 import { useApiQuery } from '@oxide/api'
 import React from 'react'
-import { useParams } from 'app/hooks'
+import { useParams, useActionMenuState } from 'app/hooks'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import filesize from 'filesize'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
+import { useMakeInstanceActions } from '../actions'
 
 export const InstancePage = () => {
   const { orgName, projectName, instanceName } = useParams(
@@ -20,6 +22,9 @@ export const InstancePage = () => {
     'projectName',
     'instanceName'
   )
+
+  const actionMenuProps = useActionMenuState()
+  const makeActions = useMakeInstanceActions({ projectName, orgName })
 
   const { data: instance } = useApiQuery('projectInstancesGetInstance', {
     orgName,
@@ -29,10 +34,25 @@ export const InstancePage = () => {
 
   if (!instance) return null
 
+  const actions = makeActions(instance)
+    // in the quick menu we do not show disabled actions
+    .filter((a) => !a.disabled)
+    // append "instance" to labels
+    // TODO: if these were in an "Instance actions" subsection they might not
+    // need the suffix for clarity
+    .map((a) => ({ onSelect: a.onActivate, label: `${a.label} instance` }))
+
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
   return (
     <>
+      <ActionMenu {...actionMenuProps} ariaLabel="Instance quick actions">
+        {actions.map(({ label, onSelect }) => (
+          <ActionMenu.Item onSelect={onSelect} key={label}>
+            {label}
+          </ActionMenu.Item>
+        ))}
+      </ActionMenu>
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Instances" />}>
           {instanceName}
