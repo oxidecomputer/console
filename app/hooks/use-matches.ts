@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import type { RouteMatch } from 'react-router'
-import { matchRoutes, useLocation } from 'react-router'
+import type { RouteMatch } from 'react-router-dom'
+import { matchRoutes, useLocation } from 'react-router-dom'
 
 import { getRouteConfig } from '../routes'
 

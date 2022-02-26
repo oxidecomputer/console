@@ -1,9 +1,9 @@
 import type {
   RouteProps as OriginalRouteProps,
   RouteObject as OriginalRouteObject,
-} from 'react-router'
+} from 'react-router-dom'
 
-declare module 'react-router' {
+declare module 'react-router-dom' {
   type Crumb = string | ((m: RouteMatch) => string)
   export interface RouteProps extends OriginalRouteProps {
     crumb?: Crumb

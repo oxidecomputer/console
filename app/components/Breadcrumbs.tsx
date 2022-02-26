@@ -3,7 +3,7 @@ import React from 'react'
 import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
 import { useMatches } from '../hooks/use-matches'
-import type { RouteMatch } from 'react-router'
+import type { RouteMatch } from 'react-router-dom'
 
 export function matchesToCrumbs(matches: RouteMatch[]): Crumb[] {
   const filtered = matches.filter((m) => m.route.crumb)

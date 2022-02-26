@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import { matchRoutes } from 'react-router'
+import { matchRoutes } from 'react-router-dom'
 import { getRouteConfig } from '../../routes'
 import { matchesToCrumbs } from '../Breadcrumbs'
 
