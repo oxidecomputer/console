@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react'
 import type { Config, TransformedToken } from 'style-dictionary'
 import type { KebabCase } from 'type-fest'
 import StyleDictionary from 'style-dictionary'
+import dedent from 'ts-dedent'
 
 const THEMES = ['main', 'operator-mode'] as const
 
@@ -218,6 +219,54 @@ StyleDictionary.registerFormat({
   },
 })
 
+type ColorGroup = { [colorValue: string]: TransformedToken[] }
+StyleDictionary.registerFormat({
+  name: 'mermaid',
+  formatter({ dictionary, options }) {
+    const { name } = options
+    const colors = dictionary.allProperties
+      .filter((prop) => prop.type === 'color')
+      .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
+    const baseColors = colors
+      .filter(({ name }) => name.startsWith('base-'))
+      .reverse()
+    const colorGroups = colors.reduce<ColorGroup>((all, current) => {
+      const currentGroup = all[current.value] ?? []
+      currentGroup.push(current)
+      all[current.value] = currentGroup
+      return all
+    }, {})
+
+    return dedent`
+    # \`${name}\` Theme
+
+    This document shows the relationship of colors within the \`${name}\` theme. 
+
+    ${baseColors
+      .map((groupColor) => {
+        return dedent`
+        ## ${groupColor.name}
+        \`\`\`mermaid
+        graph RL
+          ${colorGroups[groupColor.value]
+            .map(
+              (color) =>
+                `${color.name} --> ${
+                  color.attributes?.ref ??
+                  `${color.original.rawValue}:::${groupColor.name}`
+                }`
+            )
+            .join('\n')}
+
+          classDef ${groupColor.name} stroke-width:5,stroke:${groupColor.value}
+        \`\`\`
+      `
+      })
+      .join('\n')}
+    `
+  },
+})
+
 /**
  * Anything we're not actively using in the theme files or tailwind config should be filtered out
  *
@@ -296,6 +345,14 @@ const makeConfig = (theme: typeof THEMES[number]) => {
             format: 'theme',
             options: {
               selector: theme === 'main' ? ':root' : `.${theme}-theme`,
+            },
+          },
+          {
+            filter: 'unused-theme-tokens',
+            destination: `${theme}.md`,
+            format: 'mermaid',
+            options: {
+              name: theme,
             },
           },
         ],
