@@ -10,12 +10,14 @@ import React from 'react'
 import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
+import { groupBy } from '@oxide/util'
 
 export interface QuickActionItem {
   value: string
   // strings are paths to navigate() to
   // onSelect: string | (() => void)
   onSelect: () => void
+  navGroup?: string
 }
 
 export interface ActionMenuProps {
@@ -27,6 +29,30 @@ export interface ActionMenuProps {
   items: QuickActionItem[]
 }
 
+type OptionGroupProps = {
+  label?: string
+  items: QuickActionItem[]
+}
+
+function OptionGroup({ label, items }: OptionGroupProps) {
+  return (
+    <>
+      {label && (
+        <h3 className="px-4 py-2 text-mono-sm text-secondary bg-secondary">
+          {label}
+        </h3>
+      )}
+      {items.map((item) => (
+        <ComboboxOption
+          className="-mt-px border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
+          key={item.value}
+          value={item.value}
+        />
+      ))}
+    </>
+  )
+}
+
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = React.useState('')
   const items = matchSorter(props.items, input, {
@@ -34,6 +60,14 @@ export function ActionMenu(props: ActionMenuProps) {
     // use original order as tiebreaker instead of, e.g., alphabetical
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
+
+  // items without a navGroup label are considered actions and rendered first
+  const actions = items.filter((i) => !i.navGroup)
+
+  const navGroups = groupBy(
+    items.filter((i) => i.navGroup),
+    (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  )
 
   function onDismiss() {
     setInput('')
@@ -74,12 +108,11 @@ export function ActionMenu(props: ActionMenuProps) {
           className="!border-none !bg-transparent children:between:border-t-0"
         >
           <ComboboxList>
-            {items.map((item) => (
-              <ComboboxOption
-                className="-mt-px border !p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
-                key={item.value}
-                value={item.value}
-              />
+            {actions.length > 0 && (
+              <OptionGroup label="Actions" items={actions} />
+            )}
+            {Object.entries(navGroups).map(([label, items]) => (
+              <OptionGroup label={label} key={label} items={items} />
             ))}
           </ComboboxList>
         </ComboboxPopover>
