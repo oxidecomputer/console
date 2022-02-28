@@ -1,5 +1,5 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   SkipLinkTarget,
@@ -20,8 +20,24 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { useQuickActions } from 'app/hooks'
 
 const ProjectLayout = () => {
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () => [
+        { value: 'Instances', onSelect: () => navigate('instances') },
+        { value: 'Snapshots', onSelect: () => navigate('snapshots') },
+        { value: 'Disks', onSelect: () => navigate('disks') },
+        { value: 'Access & IAM', onSelect: () => navigate('access') },
+        { value: 'Networking', onSelect: () => navigate('vpcs') },
+      ],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      []
+    )
+  )
+
   return (
     <PageContainer>
       <Sidebar>

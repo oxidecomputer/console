@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
@@ -37,7 +37,7 @@ export const useMakeInstanceActions = (
   const rebootInstance = useApiMutation('projectInstancesInstanceReboot', opts)
   const deleteInstance = useApiMutation('projectInstancesDeleteInstance', opts)
 
-  return (instance) => {
+  return useCallback((instance) => {
     const { name: instanceName } = instance
     return [
       {
@@ -95,5 +95,7 @@ export const useMakeInstanceActions = (
         disabled: !instanceCan.delete(instance),
       },
     ]
-  }
+    // TODO: fix this lol
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 }

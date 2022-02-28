@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import filesize from 'filesize'
 import { useNavigate } from 'react-router-dom'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 
 import {
-  ActionMenu,
   Instances24Icon,
   PageHeader,
   PageTitle,
@@ -15,19 +14,17 @@ import {
 } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
-import { useParams, useActionMenuState } from 'app/hooks'
+import { useParams, useQuickActions } from 'app/hooks'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 import { useMakeInstanceActions } from '../actions'
-import { useProjectNavItems } from '../../quick-nav'
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const actionMenuProps = useActionMenuState()
   const projectParams = pick(instanceParams, 'projectName', 'orgName')
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: () => {
@@ -39,34 +36,35 @@ export const InstancePage = () => {
     // go to project instances list since there's no more instance
     onDelete: () => navigate('..'),
   })
-  const projectQuickNavItems = useProjectNavItems()
 
   const { data: instance } = useApiQuery(
     'projectInstancesGetInstance',
     instanceParams,
     { refetchInterval: 5000 }
   )
+  const actions = useMemo(
+    () => (instance ? makeActions(instance) : []),
+    [instance, makeActions]
+  )
+  const quickActions = useMemo(
+    () =>
+      actions
+        // in the quick menu we do not show disabled actions
+        .filter((a) => !a.disabled)
+        // append "instance" to labels
+        // TODO: if these were in an "Instance actions" subsection they might not
+        // need the suffix for clarity
+        .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` })),
+    [actions]
+  )
+  useQuickActions(quickActions)
 
   if (!instance) return null
-
-  const actions = makeActions(instance)
-  const quickActions = actions
-    // in the quick menu we do not show disabled actions
-    .filter((a) => !a.disabled)
-    // append "instance" to labels
-    // TODO: if these were in an "Instance actions" subsection they might not
-    // need the suffix for clarity
-    .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` }))
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
   return (
     <>
-      <ActionMenu
-        {...actionMenuProps}
-        items={[...quickActions, ...projectQuickNavItems]}
-        ariaLabel="Instance quick actions"
-      />
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Instances" />}>
           {instanceParams.instanceName}
