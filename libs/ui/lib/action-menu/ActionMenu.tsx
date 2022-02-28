@@ -11,8 +11,10 @@ import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 
-export interface MenuItem {
+export interface QuickActionItem {
   value: string
+  // strings are paths to navigate() to
+  // onSelect: string | (() => void)
   onSelect: () => void
 }
 
@@ -22,7 +24,7 @@ export interface ActionMenuProps {
   className?: string
   inputClassName?: string
   ariaLabel: string
-  items: MenuItem[]
+  items: QuickActionItem[]
 }
 
 export function ActionMenu(props: ActionMenuProps) {

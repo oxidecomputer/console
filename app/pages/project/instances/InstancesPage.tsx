@@ -2,14 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
-import {
-  buttonStyle,
-  ActionMenu,
-  PageHeader,
-  PageTitle,
-  Instances24Icon,
-} from '@oxide/ui'
-import { useActionMenuState, useParams } from 'app/hooks'
+import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
+import { useParams } from 'app/hooks'
 import {
   linkCell,
   DateCell,
@@ -18,7 +12,6 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import { useMakeInstanceActions } from './actions'
-import { useProjectNavItems } from '../quick-nav'
 
 export const InstancesPage = () => {
   const projectParams = useParams('orgName', 'projectName')
@@ -35,8 +28,6 @@ export const InstancesPage = () => {
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: refetchInstances,
   })
-  const actionMenuProps = useActionMenuState()
-  const projectQuickNavItems = useProjectNavItems()
 
   const { Table, Column } = useQueryTable(
     'projectInstancesGet',
@@ -51,12 +42,6 @@ export const InstancesPage = () => {
 
   return (
     <>
-      <ActionMenu
-        {...actionMenuProps}
-        items={projectQuickNavItems}
-        ariaLabel="Project quick actions"
-      />
-
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Project" />}>
           {project.name}
