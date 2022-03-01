@@ -10,14 +10,11 @@ import React from 'react'
 import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { groupBy } from '@oxide/util'
+import { invariant, isOneOf } from '@oxide/util'
 
-export interface QuickActionItem {
+export interface MenuItem {
   value: string
-  // strings are paths to navigate() to
-  // onSelect: string | (() => void)
   onSelect: () => void
-  navGroup?: string
 }
 
 export interface ActionMenuProps {
@@ -26,70 +23,43 @@ export interface ActionMenuProps {
   className?: string
   inputClassName?: string
   ariaLabel: string
-  items: QuickActionItem[]
+  children: React.ReactElement[] // really only ActionMenu.Item, enforced at runtime
 }
 
-type OptionGroupProps = {
-  label?: string
-  items: QuickActionItem[]
-}
-
-function OptionGroup({ label, items }: OptionGroupProps) {
-  return (
-    <>
-      {label && (
-        <h3 className="px-4 py-2 text-mono-sm text-secondary bg-secondary">
-          {label}
-        </h3>
-      )}
-      {items.map((item) => (
-        <ComboboxOption
-          className="-mt-px border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
-          key={item.value}
-          value={item.value}
-        />
-      ))}
-    </>
-  )
-}
+const childrenToItems = (children: React.ReactElement[]): MenuItem[] =>
+  React.Children.map(children, (child) => ({
+    value: child.props.children,
+    onSelect: child.props.onSelect,
+  }))
 
 export function ActionMenu(props: ActionMenuProps) {
+  invariant(
+    isOneOf(props.children, [ActionMenu.Item]),
+    'ActionMenu can only have ActionMenu.Item as a child'
+  )
+
   const [input, setInput] = React.useState('')
-  const items = matchSorter(props.items, input, {
+  const items = matchSorter(childrenToItems(props.children), input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
-
-  // items without a navGroup label are considered actions and rendered first
-  const actions = items.filter((i) => !i.navGroup)
-
-  const navGroups = groupBy(
-    items.filter((i) => i.navGroup),
-    (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
-  )
-
-  function onDismiss() {
-    setInput('')
-    props.onDismiss()
-  }
 
   return (
     <Dialog
       className="ActionMenu !mt-[20vh] !w-1/3 p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        setInput('')
+        props.onDismiss()
+      }}
     >
       <Combobox
         onSelect={(value) => {
           // have to find by value string because we can't give option a value
           // of the whole item object
-          const item = items.find((i) => i.value === value)
-          if (item) {
-            item.onSelect()
-            onDismiss()
-          }
+          items.find((i) => i.value === value)?.onSelect()
         }}
         openOnFocus
       >
@@ -108,11 +78,12 @@ export function ActionMenu(props: ActionMenuProps) {
           className="!border-none !bg-transparent children:between:border-t-0"
         >
           <ComboboxList>
-            {actions.length > 0 && (
-              <OptionGroup label="Actions" items={actions} />
-            )}
-            {Object.entries(navGroups).map(([label, items]) => (
-              <OptionGroup label={label} key={label} items={items} />
+            {items.map((item) => (
+              <ComboboxOption
+                className="-mt-px border !p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
+                key={item.value}
+                value={item.value}
+              />
             ))}
           </ComboboxList>
         </ComboboxPopover>
@@ -120,3 +91,10 @@ export function ActionMenu(props: ActionMenuProps) {
     </Dialog>
   )
 }
+
+type ItemProps = {
+  children: string
+  onSelect: () => void
+}
+
+ActionMenu.Item = (_props: ItemProps) => null

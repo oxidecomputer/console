@@ -158,16 +158,6 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, InstanceParams, GetErr>(
-    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName',
-    (req, res, ctx) => {
-      const [instance, err] = lookupInstance(req)
-      if (err) return res(err)
-      db.instances = db.instances.filter((i) => i.id !== instance.id)
-      return res(ctx.status(204))
-    }
-  ),
-
   rest.post<
     Json<Api.InstanceCreate>,
     ProjectParams,

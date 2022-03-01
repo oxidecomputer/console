@@ -1,7 +1,13 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, PageHeader, PageTitle, Folder24Icon } from '@oxide/ui'
-import { useParams, useQuickActions } from '../hooks'
+import {
+  buttonStyle,
+  ActionMenu,
+  PageHeader,
+  PageTitle,
+  Folder24Icon,
+} from '@oxide/ui'
+import { useActionMenuState, useParams } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 
 const ProjectsPage = () => {
@@ -10,19 +16,19 @@ const ProjectsPage = () => {
     orgName,
   })
   const navigate = useNavigate()
-  useQuickActions(
-    useMemo(
-      () => [
-        { value: 'New project', onSelect: () => navigate('new') },
-        // TODO: an entry for every visible project?
-      ],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      []
-    )
-  )
+  const actionMenuProps = useActionMenuState()
 
   return (
     <>
+      <ActionMenu {...actionMenuProps} ariaLabel="Projects quick actions">
+        <ActionMenu.Item onSelect={() => navigate('new')}>
+          New Project
+        </ActionMenu.Item>
+        <ActionMenu.Item onSelect={() => navigate('new')}>
+          Also new Project
+        </ActionMenu.Item>
+        {/* TODO: an entry for every visible project? */}
+      </ActionMenu>
       <PageHeader className="mb-10">
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">
