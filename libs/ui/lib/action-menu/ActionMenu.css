@@ -13,3 +13,7 @@
     @apply text-secondary;
   }
 }
+
+[data-reach-dialog-overlay] {
+  @apply bg-scrim
+}
