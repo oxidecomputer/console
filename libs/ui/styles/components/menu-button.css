@@ -1,0 +1,11 @@
+[data-reach-menu-list] {
+  @apply rounded-sm border py-2 bg-default border-default;
+
+  & [data-reach-menu-item] {
+    @apply px-4 py-2 text-left text-sans-sm;
+
+    &[data-selected] {
+      @apply bg-secondary;
+    }
+  }
+}

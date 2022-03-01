@@ -2,6 +2,7 @@
 @import '@reach/combobox/styles.css';
 @import '@reach/dialog/styles.css';
 @import '@reach/menu-button/styles.css';
+@import './components/menu-button.css';
 @import '@reach/tabs/styles.css';
 
 @import './themes/main.css';
