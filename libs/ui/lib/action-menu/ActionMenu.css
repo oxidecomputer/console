@@ -15,5 +15,5 @@
 }
 
 [data-reach-dialog-overlay] {
-  @apply bg-scrim
+  @apply bg-scrim;
 }
