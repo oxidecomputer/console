@@ -103,21 +103,27 @@ export function ActionMenu(props: ActionMenuProps) {
           <ul>
             {allGroups.map(([label, items]) => (
               <>
-                {label && (
-                  <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
-                    {label}
-                  </h3>
-                )}
+                <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                  {label}
+                </h3>
                 {items.map((item) => (
                   <li
                     className={cn(
-                      '-mt-px border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-secondary-hover',
+                      '-mt-px border text-secondary bg-raise border-tertiary last:rounded-b-[3px]',
                       item.value === selectedItem?.value &&
                         'outline outline-1 text-accent bg-accent-secondary outline-accent'
                     )}
                     key={item.value}
                   >
-                    {item.value}
+                    <button
+                      className="w-full p-4 text-left text-sans-md hover:bg-secondary-hover"
+                      onClick={() => {
+                        item.onSelect()
+                        onDismiss()
+                      }}
+                    >
+                      {item.value}
+                    </button>
                   </li>
                 ))}
               </>
