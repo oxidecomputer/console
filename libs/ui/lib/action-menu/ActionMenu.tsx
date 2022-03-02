@@ -38,13 +38,13 @@ function OptionGroup({ label, items }: OptionGroupProps) {
   return (
     <>
       {label && (
-        <h3 className="px-4 py-2 text-mono-sm text-secondary bg-secondary">
+        <h3 className="px-4 py-2 text-mono-sm text-secondary bg-secondary rounded-t-[3px]">
           {label}
         </h3>
       )}
       {items.map((item) => (
         <ComboboxOption
-          className="-mt-px border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
+          className="-mt-px border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-secondary-hover"
           key={item.value}
           value={item.value}
         />
@@ -76,7 +76,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
   return (
     <Dialog
-      className="ActionMenu !mt-[20vh] !w-1/3 p-0"
+      className="ActionMenu !mt-[20vh] !w-[31] bg-transparent p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
       onDismiss={onDismiss}
@@ -96,7 +96,7 @@ export function ActionMenu(props: ActionMenuProps) {
         <ComboboxInput
           autocomplete={false}
           className={cn(
-            'mousetrap w-full border p-4 bg-raise border-secondary focus:outline-none',
+            'mousetrap w-full border p-4 rounded-[3px] bg-raise border-secondary shadow block focus:outline-none',
             props.inputClassName
           )}
           value={input}
@@ -105,7 +105,7 @@ export function ActionMenu(props: ActionMenuProps) {
         />
         <ComboboxPopover
           portal={false}
-          className="!border-none !bg-transparent children:between:border-t-0"
+          className="!border-none !bg-transparent mt-5 shadow children:between:border-t-0"
         >
           <ComboboxList>
             {actions.length > 0 && (
