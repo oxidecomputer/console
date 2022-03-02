@@ -33,7 +33,9 @@ const ProjectLayout = () => {
         { navGroup, value: 'Snapshots', onSelect: () => navigate('snapshots') },
         { navGroup, value: 'Disks', onSelect: () => navigate('disks') },
         { navGroup, value: 'Access & IAM', onSelect: () => navigate('access') },
+        { navGroup, value: 'Images', onSelect: () => navigate('images') },
         { navGroup, value: 'Networking', onSelect: () => navigate('vpcs') },
+        { navGroup, value: 'Metrics', onSelect: () => navigate('metrics') },
       ],
       // eslint-disable-next-line react-hooks/exhaustive-deps
       []
