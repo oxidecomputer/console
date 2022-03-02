@@ -38,7 +38,7 @@ function OptionGroup({ label, items }: OptionGroupProps) {
   return (
     <>
       {label && (
-        <h3 className="px-4 py-2 text-mono-sm text-secondary bg-secondary rounded-t-[3px]">
+        <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
           {label}
         </h3>
       )}
@@ -96,7 +96,7 @@ export function ActionMenu(props: ActionMenuProps) {
         <ComboboxInput
           autocomplete={false}
           className={cn(
-            'mousetrap w-full border p-4 rounded-[3px] bg-raise border-secondary shadow block focus:outline-none',
+            'mousetrap block w-full rounded-[3px] border p-4 shadow bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
           value={input}
@@ -105,7 +105,7 @@ export function ActionMenu(props: ActionMenuProps) {
         />
         <ComboboxPopover
           portal={false}
-          className="!border-none !bg-transparent mt-5 shadow children:between:border-t-0"
+          className="mt-5 !border-none !bg-transparent shadow children:between:border-t-0"
         >
           <ComboboxList>
             {actions.length > 0 && (

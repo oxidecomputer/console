@@ -37,7 +37,7 @@ module.exports = {
       },
       boxShadow: {
         DEFAULT: '0 16px 32px rgba(0, 0, 0, 0.25)',
-      }
+      },
     },
     colors: {
       transparent: 'transparent',
