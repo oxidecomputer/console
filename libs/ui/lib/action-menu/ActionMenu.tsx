@@ -1,12 +1,5 @@
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-} from '@reach/combobox'
 import Dialog from '@reach/dialog'
-import React from 'react'
+import React, { useState } from 'react'
 import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
@@ -29,32 +22,8 @@ export interface ActionMenuProps {
   items: QuickActionItem[]
 }
 
-type OptionGroupProps = {
-  label?: string
-  items: QuickActionItem[]
-}
-
-function OptionGroup({ label, items }: OptionGroupProps) {
-  return (
-    <>
-      {label && (
-        <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
-          {label}
-        </h3>
-      )}
-      {items.map((item) => (
-        <ComboboxOption
-          className="-mt-px border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-secondary-hover"
-          key={item.value}
-          value={item.value}
-        />
-      ))}
-    </>
-  )
-}
-
 export function ActionMenu(props: ActionMenuProps) {
-  const [input, setInput] = React.useState('')
+  const [input, setInput] = useState('')
   const items = matchSorter(props.items, input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
@@ -64,13 +33,29 @@ export function ActionMenu(props: ActionMenuProps) {
   // items without a navGroup label are considered actions and rendered first
   const actions = items.filter((i) => !i.navGroup)
 
-  const navGroups = groupBy(
-    items.filter((i) => i.navGroup),
-    (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  // TODO: repent. this is horrible
+  const groupedItems = Object.entries(
+    groupBy(
+      items.filter((i) => i.navGroup),
+      (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    )
   )
+
+  const allGroups: [string, QuickActionItem[]][] =
+    actions.length > 0
+      ? [['Actions', items.filter((i) => !i.navGroup)], ...groupedItems]
+      : groupedItems
+
+  const itemsInOrder = ([] as QuickActionItem[]).concat(
+    ...allGroups.map(([_, items]) => items)
+  )
+
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const selectedItem = itemsInOrder.at(selectedIdx)
 
   function onDismiss() {
     setInput('')
+    setSelectedIdx(0)
     props.onDismiss()
   }
 
@@ -81,42 +66,66 @@ export function ActionMenu(props: ActionMenuProps) {
       isOpen={props.isOpen}
       onDismiss={onDismiss}
     >
-      <Combobox
-        onSelect={(value) => {
-          // have to find by value string because we can't give option a value
-          // of the whole item object
-          const item = items.find((i) => i.value === value)
-          if (item) {
-            item.onSelect()
-            onDismiss()
+      <div
+        onKeyDown={(e) => {
+          switch (e.key) {
+            case 'Enter':
+              if (selectedItem) {
+                selectedItem.onSelect()
+                onDismiss()
+              }
+              break
+            case 'ArrowDown':
+              setSelectedIdx((i) => (i === itemsInOrder.length - 1 ? 0 : i + 1))
+              break
+            case 'ArrowUp':
+              setSelectedIdx((i) => (i === 0 ? itemsInOrder.length - 1 : i - 1))
+              break
           }
         }}
-        openOnFocus
+        role="combobox"
+        tabIndex={-1}
+        aria-controls="TODO"
+        aria-expanded
       >
-        <ComboboxInput
-          autocomplete={false}
+        <input
           className={cn(
-            'mousetrap block w-full rounded-[3px] border p-4 shadow bg-raise border-secondary focus:outline-none',
+            'mousetrap block w-full rounded-[3px] border p-4 shadow text-sans-xl bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setSelectedIdx(0)
+            setInput(e.target.value)
+          }}
           placeholder="Find anything..."
         />
-        <ComboboxPopover
-          portal={false}
-          className="mt-5 !border-none !bg-transparent shadow children:between:border-t-0"
-        >
-          <ComboboxList>
-            {actions.length > 0 && (
-              <OptionGroup label="Actions" items={actions} />
-            )}
-            {Object.entries(navGroups).map(([label, items]) => (
-              <OptionGroup label={label} key={label} items={items} />
+        <div className="mt-5 !border-none !bg-transparent shadow children:between:border-t-0">
+          <ul>
+            {allGroups.map(([label, items]) => (
+              <>
+                {label && (
+                  <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                    {label}
+                  </h3>
+                )}
+                {items.map((item) => (
+                  <li
+                    className={cn(
+                      '-mt-px border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-secondary-hover',
+                      item.value === selectedItem?.value &&
+                        'outline outline-1 text-accent bg-accent-secondary outline-accent'
+                    )}
+                    key={item.value}
+                  >
+                    {item.value}
+                  </li>
+                ))}
+              </>
             ))}
-          </ComboboxList>
-        </ComboboxPopover>
-      </Combobox>
+          </ul>
+        </div>
+      </div>
     </Dialog>
   )
 }
