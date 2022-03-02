@@ -28,7 +28,7 @@ cd -
 
 # this will be less horrific when the package is published? or maybe not
 npm run --silent --prefix ../oxide.ts/generator gen-from "$SPEC_FILE" > "$GEN_DIR/Api.ts"
-yarn fmt --loglevel error "$GEN_DIR"
+yarn prettier --write --loglevel error "$GEN_DIR"
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
