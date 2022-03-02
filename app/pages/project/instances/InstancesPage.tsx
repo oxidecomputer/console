@@ -1,9 +1,9 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { buttonStyle, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
-import { useParams } from 'app/hooks'
+import { useParams, useQuickActions } from 'app/hooks'
 import {
   linkCell,
   DateCell,
@@ -16,10 +16,6 @@ import { useMakeInstanceActions } from './actions'
 export const InstancesPage = () => {
   const projectParams = useParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
-  const { data: project } = useApiQuery(
-    'organizationProjectsGetProject',
-    projectParams
-  )
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
@@ -29,22 +25,42 @@ export const InstancesPage = () => {
     onSuccess: refetchInstances,
   })
 
+  const { data: instances } = useApiQuery('projectInstancesGet', {
+    ...projectParams,
+    limit: 10, // to have same params as QueryTable
+  })
+
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () => [
+        { value: 'New instance', onSelect: () => navigate('new') },
+        ...(instances?.items || []).map((p) => ({
+          value: p.name,
+          onSelect: () => navigate(p.name),
+          navGroup: 'Go to instance',
+        })),
+      ],
+      [instances, navigate]
+    )
+  )
+
   const { Table, Column } = useQueryTable(
     'projectInstancesGet',
-    { orgName, projectName },
+    projectParams,
     {
       refetchInterval: 5000,
       keepPreviousData: true,
     }
   )
 
-  if (!project) return null
+  if (!instances) return null
 
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Project" />}>
-          {project.name}
+          {projectName}
         </PageTitle>
       </PageHeader>
 

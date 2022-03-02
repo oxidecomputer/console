@@ -17,7 +17,10 @@ import { Sidebar, NavLinkItem } from '../components/Sidebar'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
-  const { data: projects } = useApiQuery('organizationProjectsGet', { orgName })
+  const { data: projects } = useApiQuery('organizationProjectsGet', {
+    orgName,
+    limit: 10,
+  })
   return (
     <PageContainer>
       <Sidebar>
