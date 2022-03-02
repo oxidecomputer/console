@@ -1,9 +1,0 @@
-.ActionMenu {
-  & [data-highlighted] {
-    @apply outline outline-1 text-accent bg-accent-secondary outline-accent;
-  }
-}
-
-[data-reach-dialog-overlay] {
-  @apply bg-scrim;
-}

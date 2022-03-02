@@ -1,6 +1,5 @@
 import Dialog from '@reach/dialog'
 import React, { useState } from 'react'
-import './ActionMenu.css'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { groupBy } from '@oxide/util'
