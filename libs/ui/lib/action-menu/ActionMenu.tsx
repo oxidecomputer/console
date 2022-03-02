@@ -50,7 +50,7 @@ export function ActionMenu(props: ActionMenuProps) {
   )
 
   const [selectedIdx, setSelectedIdx] = useState(0)
-  const selectedItem = itemsInOrder.at(selectedIdx)
+  const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
 
   function onDismiss() {
     setInput('')
