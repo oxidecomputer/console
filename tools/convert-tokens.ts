@@ -228,15 +228,13 @@ StyleDictionary.registerFormat({
         ].map((make) => make(colors))}
       }
 
-      module.exports.borderRadiusUtilities = {
+      module.exports.borderRadiusTokens = {
         ${borderRadius
           .map(
-            ({ name, value }) => `'.rounded${name.replace(
-              'border-radius',
-              ''
-            )}': { 
-              'border-radius': '${value}'
-            }`
+            ({ name, value }) =>
+              `'${
+                name.replace(/border-radius-?/, '') || 'DEFAULT'
+              }': '${value}'`
           )
           .join(',')}
       }

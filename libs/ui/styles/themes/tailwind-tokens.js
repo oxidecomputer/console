@@ -903,11 +903,7 @@ module.exports.colorUtilities = {
   },
 }
 
-module.exports.borderRadiusUtilities = {
-  '.rounded': {
-    'border-radius': '0.125rem',
-  },
-  '.rounded-lg': {
-    'border-radius': '0.1875rem',
-  },
+module.exports.borderRadiusTokens = {
+  DEFAULT: '0.125rem',
+  lg: '0.1875rem',
 }
