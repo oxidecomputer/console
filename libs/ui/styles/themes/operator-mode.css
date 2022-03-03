@@ -31,6 +31,36 @@
   --theme-destructive-5-rgb: var(--base-red-900-rgb);
   --theme-destructive-5: rgb(var(--theme-destructive-5-rgb));
 
+  --theme-success-1-rgb: var(--base-green-500-rgb);
+  --theme-success-1: rgb(var(--theme-success-1-rgb));
+
+  --theme-success-2-rgb: var(--base-green-600-rgb);
+  --theme-success-2: rgb(var(--theme-success-2-rgb));
+
+  --theme-success-3-rgb: var(--base-green-700-rgb);
+  --theme-success-3: rgb(var(--theme-success-3-rgb));
+
+  --theme-success-4-rgb: var(--base-green-800-rgb);
+  --theme-success-4: rgb(var(--theme-success-4-rgb));
+
+  --theme-success-5-rgb: var(--base-green-900-rgb);
+  --theme-success-5: rgb(var(--theme-success-5-rgb));
+
+  --theme-error-1-rgb: var(--base-red-500-rgb);
+  --theme-error-1: rgb(var(--theme-error-1-rgb));
+
+  --theme-error-2-rgb: var(--base-red-600-rgb);
+  --theme-error-2: rgb(var(--theme-error-2-rgb));
+
+  --theme-error-3-rgb: var(--base-red-700-rgb);
+  --theme-error-3: rgb(var(--theme-error-3-rgb));
+
+  --theme-error-4-rgb: var(--base-red-800-rgb);
+  --theme-error-4: rgb(var(--theme-error-4-rgb));
+
+  --theme-error-5-rgb: var(--base-red-900-rgb);
+  --theme-error-5: rgb(var(--theme-error-5-rgb));
+
   --theme-notice-1-rgb: var(--base-yellow-500-rgb);
   --theme-notice-1: rgb(var(--theme-notice-1-rgb));
 
@@ -118,6 +148,9 @@
   --surface-disabled-rgb: var(--base-black-500-rgb);
   --surface-disabled: rgb(var(--surface-disabled-rgb));
 
+  --surface-raise-hover-rgb: var(--base-black-500-rgb);
+  --surface-raise-hover: rgb(var(--surface-raise-hover-rgb));
+
   --surface-scrim: rgba(var(--base-black-700-rgb), 0.4);
 
   --surface-secondary-hover-rgb: var(--base-grey-1000-rgb);
@@ -158,6 +191,18 @@
   --surface-destructive-secondary-hover: rgb(
     var(--surface-destructive-secondary-hover-rgb)
   );
+
+  --surface-success-rgb: var(--theme-success-1-rgb);
+  --surface-success: rgb(var(--surface-success-rgb));
+
+  --surface-success-secondary-rgb: var(--theme-success-5-rgb);
+  --surface-success-secondary: rgb(var(--surface-success-secondary-rgb));
+
+  --surface-error-rgb: var(--theme-error-1-rgb);
+  --surface-error: rgb(var(--surface-error-rgb));
+
+  --surface-error-secondary-rgb: var(--theme-error-5-rgb);
+  --surface-error-secondary: rgb(var(--surface-error-secondary-rgb));
 
   --surface-notice-rgb: var(--theme-notice-1-rgb);
   --surface-notice: rgb(var(--surface-notice-rgb));
@@ -223,6 +268,18 @@
   --content-destructive-disabled-rgb: var(--theme-destructive-3-rgb);
   --content-destructive-disabled: rgb(var(--content-destructive-disabled-rgb));
 
+  --content-success-rgb: var(--theme-success-1-rgb);
+  --content-success: rgb(var(--content-success-rgb));
+
+  --content-success-secondary-rgb: var(--theme-success-2-rgb);
+  --content-success-secondary: rgb(var(--content-success-secondary-rgb));
+
+  --content-error-rgb: var(--theme-error-1-rgb);
+  --content-error: rgb(var(--content-error-rgb));
+
+  --content-error-secondary-rgb: var(--theme-error-2-rgb);
+  --content-error-secondary: rgb(var(--content-error-secondary-rgb));
+
   --content-notice-rgb: var(--theme-notice-1-rgb);
   --content-notice: rgb(var(--content-notice-rgb));
 
@@ -273,6 +330,24 @@
 
   --stroke-destructive-tertiary-rgb: var(--theme-destructive-4-rgb);
   --stroke-destructive-tertiary: rgb(var(--stroke-destructive-tertiary-rgb));
+
+  --stroke-success-rgb: var(--theme-success-1-rgb);
+  --stroke-success: rgb(var(--stroke-success-rgb));
+
+  --stroke-success-secondary-rgb: var(--theme-success-3-rgb);
+  --stroke-success-secondary: rgb(var(--stroke-success-secondary-rgb));
+
+  --stroke-success-tertiary-rgb: var(--theme-success-4-rgb);
+  --stroke-success-tertiary: rgb(var(--stroke-success-tertiary-rgb));
+
+  --stroke-error-rgb: var(--theme-error-1-rgb);
+  --stroke-error: rgb(var(--stroke-error-rgb));
+
+  --stroke-error-secondary-rgb: var(--theme-error-3-rgb);
+  --stroke-error-secondary: rgb(var(--stroke-error-secondary-rgb));
+
+  --stroke-error-tertiary-rgb: var(--theme-error-4-rgb);
+  --stroke-error-tertiary: rgb(var(--stroke-error-tertiary-rgb));
 
   --stroke-notice-rgb: var(--theme-notice-1-rgb);
   --stroke-notice: rgb(var(--stroke-notice-rgb));

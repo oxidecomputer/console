@@ -342,6 +342,7 @@ graph RL
   base-black-500 --> #182024:::base-black-500
   surface-secondary --> base-black-500
   surface-disabled --> base-black-500
+  surface-raise-hover --> base-black-500
   content-inverse-secondary --> surface-secondary
   stroke-tertiary --> base-black-500
 
