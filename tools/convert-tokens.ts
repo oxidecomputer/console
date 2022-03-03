@@ -231,10 +231,10 @@ StyleDictionary.registerFormat({
       module.exports.borderRadiusTokens = {
         ${borderRadius
           .map(
-            ({ name, value }) =>
+            ({ name }) =>
               `'${
                 name.replace(/border-radius-?/, '') || 'DEFAULT'
-              }': '${value}'`
+              }': 'var(--${name})'`
           )
           .join(',')}
       }

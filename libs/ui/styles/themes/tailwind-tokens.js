@@ -904,6 +904,7 @@ module.exports.colorUtilities = {
 }
 
 module.exports.borderRadiusTokens = {
-  DEFAULT: '0.125rem',
-  lg: '0.1875rem',
+  DEFAULT: 'var(--border-radius)',
+  lg: 'var(--border-radius-lg)',
+  full: 'var(--border-radius-full)',
 }
