@@ -89,9 +89,10 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <input
           className={cn(
-            'mousetrap block w-full rounded-[3px] border p-4 shadow text-sans-xl bg-raise border-secondary focus:outline-none',
+            'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border p-4 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
+          style={{ maxHeight: 'calc(80vh - 80px)' }}
           value={input}
           onChange={(e) => {
             setSelectedIdx(0)
@@ -107,23 +108,26 @@ export function ActionMenu(props: ActionMenuProps) {
                   {label}
                 </h3>
                 {items.map((item) => (
+                  // TODO: there is probably a more correct way of fixing this reasonable lint error.
+                  // Putting a button inside the <li> is not a great solution because it becomes
+                  // focusable separate from the item selection
+                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                   <li
+                    role="option"
                     className={cn(
-                      '-mt-px border text-secondary bg-raise border-tertiary last:rounded-b-[3px]',
+                      '-mt-px cursor-pointer border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-secondary-hover',
                       item.value === selectedItem?.value &&
                         'outline outline-1 text-accent bg-accent-secondary outline-accent'
                     )}
+                    aria-selected={item.value === selectedItem?.value}
+                    // TODO: there's probably an aria property to put on when it's highlighted
                     key={item.value}
+                    onClick={() => {
+                      item.onSelect()
+                      onDismiss()
+                    }}
                   >
-                    <button
-                      className="w-full p-4 text-left text-sans-md hover:bg-secondary-hover"
-                      onClick={() => {
-                        item.onSelect()
-                        onDismiss()
-                      }}
-                    >
-                      {item.value}
-                    </button>
+                    {item.value}
                   </li>
                 ))}
               </>

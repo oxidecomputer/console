@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
 
 import {
   SkipLinkTarget,
@@ -24,21 +24,31 @@ import { useParams, useQuickActions } from 'app/hooks'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const { projectName } = useParams('projectName')
-  const navGroup = `Project '${projectName}'`
+  const { projectName } = useParams('orgName', 'projectName')
+  const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
-      () => [
-        { navGroup, value: 'Instances', onSelect: () => navigate('instances') },
-        { navGroup, value: 'Snapshots', onSelect: () => navigate('snapshots') },
-        { navGroup, value: 'Disks', onSelect: () => navigate('disks') },
-        { navGroup, value: 'Access & IAM', onSelect: () => navigate('access') },
-        { navGroup, value: 'Images', onSelect: () => navigate('images') },
-        { navGroup, value: 'Networking', onSelect: () => navigate('vpcs') },
-        { navGroup, value: 'Metrics', onSelect: () => navigate('metrics') },
-      ],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      []
+      () =>
+        [
+          { value: 'Instances', path: 'instances' },
+          { value: 'Snapshots', path: 'snapshots' },
+          { value: 'Disks', path: 'disks' },
+          { value: 'Access & IAM', path: 'access' },
+          { value: 'Images', path: 'images' },
+          { value: 'Networking', path: 'vpcs' },
+          { value: 'Metrics', path: 'metrics' },
+        ]
+          // filter out the entry for the path we're currently on
+          .filter(
+            (i) =>
+              !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath)
+          )
+          .map((i) => ({
+            navGroup: `Project '${projectName}'`,
+            value: i.value,
+            onSelect: () => navigate(i.path),
+          })),
+      [currentPath, navigate, projectName]
     )
   )
 
