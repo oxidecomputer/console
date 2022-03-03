@@ -1,5 +1,5 @@
 .TableControls[data-reach-menu-list] {
-  @apply rounded-sm border p-0 bg-default border-default;
+  @apply rounded border p-0 bg-default border-default;
 
   & [data-reach-menu-item] {
     @apply px-4 py-2 text-left text-sans-sm;

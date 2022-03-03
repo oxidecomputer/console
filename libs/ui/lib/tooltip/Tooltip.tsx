@@ -109,7 +109,7 @@ export const Tooltip: FC<TooltipProps> = ({
         style={styles.popper}
         {...attributes.popper}
       >
-        <div className="rounded-sm border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
+        <div className="rounded border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
           {content}
         </div>
         <div className="TooltipArrow" ref={arrowElement} style={styles.arrow} />

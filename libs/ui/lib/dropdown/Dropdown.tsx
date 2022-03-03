@@ -58,7 +58,7 @@ export const Dropdown: FC<DropdownProps> = ({
       <button
         type="button"
         className={cn(
-          `mt-1 flex w-full items-center justify-between rounded-sm border
+          `mt-1 flex w-full items-center justify-between rounded border
           py-2 px-4 text-sans-md bg-default border-default
           hover:bg-raise focus:ring-1 focus:ring-accent-secondary`,
           select.isOpen ? 'text-secondary' : 'text-default'
@@ -73,7 +73,7 @@ export const Dropdown: FC<DropdownProps> = ({
       </button>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-1 overflow-y-auto rounded-sm border-0 bg-default children:border children:border-b-0 children:border-default last:children:border-b',
+          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-1 overflow-y-auto rounded border-0 bg-default children:border children:border-b-0 children:border-default last:children:border-b',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
@@ -85,7 +85,7 @@ export const Dropdown: FC<DropdownProps> = ({
               className={cn(
                 'py-2 px-4 text-sans-sm text-default hover:bg-raise',
                 select.selectedItem?.value === item.value &&
-                  'm-0.5 rounded-sm outline outline-accent-secondary',
+                  'm-0.5 rounded outline outline-accent-secondary',
                 select.highlightedIndex === index && 'bg-raise'
               )}
               {...select.getItemProps({ item, index })}

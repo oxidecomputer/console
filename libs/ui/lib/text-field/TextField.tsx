@@ -26,7 +26,7 @@ export const TextField = ({
 }: TextFieldProps) => (
   <div
     className={cn(
-      'flex rounded-sm border border-default',
+      'flex rounded border border-default',
       'focus-within:border-accent hover:focus-within:border-accent',
       error && '!border-destructive',
       !fieldProps.disabled && 'hover:border-raise',

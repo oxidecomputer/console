@@ -19,7 +19,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid min-w-min flex-grow divide-y rounded-sm border border-default children:p-2 children:border-secondary'
+        'properties-table grid min-w-min flex-grow divide-y rounded border border-default children:p-2 children:border-secondary'
       )}
     >
       {children}
