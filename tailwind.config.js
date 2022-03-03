@@ -6,6 +6,7 @@ const plugin = require('tailwindcss/plugin')
 const {
   textUtilities,
   colorUtilities,
+  borderRadiusTokens,
 } = require('./libs/ui/styles/themes/tailwind-tokens')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
@@ -33,7 +34,7 @@ module.exports = {
         xl: { min: '1280px', max: '1535px' },
       },
       borderRadius: {
-        DEFAULT: '.0625rem',
+        ...borderRadiusTokens,
       },
     },
     colors: {

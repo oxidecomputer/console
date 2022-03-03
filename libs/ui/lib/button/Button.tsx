@@ -65,7 +65,7 @@ const ringStyle = (color: Color) =>
     : 'focus:ring-accent-secondary'
 
 const baseStyle = `
-  rounded-sm inline-flex items-center justify-center align-top
+  rounded inline-flex items-center justify-center align-top
   disabled:cursor-not-allowed focus:ring-2
 `
 

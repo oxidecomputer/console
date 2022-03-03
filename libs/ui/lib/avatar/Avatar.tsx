@@ -49,7 +49,7 @@ export const Avatar = ({
     <div
       className={cn(
         'ox-avatar inline-flex items-center justify-center overflow-hidden',
-        round ? 'rounded-full' : 'rounded',
+        round ? 'rounded-full' : 'rounded-lg',
         sizeStyles[size],
         colorStyles[color],
         className

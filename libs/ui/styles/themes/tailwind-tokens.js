@@ -902,3 +902,9 @@ module.exports.colorUtilities = {
     stroke: 'var(--chart-stroke-error)',
   },
 }
+
+module.exports.borderRadiusTokens = {
+  DEFAULT: 'var(--border-radius)',
+  lg: 'var(--border-radius-lg)',
+  full: 'var(--border-radius-full)',
+}
