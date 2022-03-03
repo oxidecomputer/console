@@ -56,7 +56,7 @@ export function QuickActionsProvider({ children }: ProviderProps) {
     [items]
   )
 
-  useKey(['command+k', 'ctrl+k'], openDialog)
+  useKey('mod+k', openDialog)
 
   const closeDialog = useCallback(() => setIsOpen(false), [])
 
