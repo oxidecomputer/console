@@ -24,6 +24,7 @@ import NotFound from './pages/NotFound'
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
+import AuthLayout from './layouts/AuthLayout'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -53,7 +54,9 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 export const routes = (
   <Routes>
     <Route path="*" element={<NotFound />} />
-    <Route path="spoof_login" element={<LoginPage />} />
+    <Route path="spoof_login" element={<AuthLayout />}>
+      <Route index element={<LoginPage />} />
+    </Route>
 
     <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
