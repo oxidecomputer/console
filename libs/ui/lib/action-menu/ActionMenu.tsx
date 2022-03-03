@@ -115,7 +115,7 @@ export function ActionMenu(props: ActionMenuProps) {
                   <li
                     role="option"
                     className={cn(
-                      'hover:bg-raise-hover -mt-px cursor-pointer border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px]',
+                      '-mt-px cursor-pointer border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-raise-hover',
                       item.value === selectedItem?.value &&
                         'outline outline-1 text-accent bg-accent-secondary outline-accent hover:bg-accent-secondary-hover'
                     )}
