@@ -6,6 +6,7 @@ const plugin = require('tailwindcss/plugin')
 const {
   textUtilities,
   colorUtilities,
+  borderRadiusUtilities,
 } = require('./libs/ui/styles/themes/tailwind-tokens')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
@@ -106,6 +107,7 @@ module.exports = {
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
+      addUtilities(borderRadiusUtilities)
       addUtilities({
         '.appearance-textfield': {
           appearance: 'textfield',

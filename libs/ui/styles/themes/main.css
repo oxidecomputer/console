@@ -445,4 +445,7 @@
   --chart-stroke-item-inactive: rgb(var(--chart-stroke-item-inactive-rgb));
 
   --chart-stroke-error: rgba(var(--theme-destructive-2-rgb), 0.4);
+
+  --border-radius: 0.125rem;
+  --border-radius-lg: 0.1875rem;
 }
