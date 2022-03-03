@@ -15,14 +15,12 @@ export const VpcsPage = () => {
   const navigate = useNavigate()
   useQuickActions(
     useMemo(
-      () => [
-        { value: 'New instance', onSelect: () => navigate('new') },
-        ...(vpcs?.items || []).map((p) => ({
+      () =>
+        (vpcs?.items || []).map((p) => ({
           value: p.name,
           onSelect: () => navigate(p.name),
           navGroup: 'Go to VPC',
         })),
-      ],
       [vpcs, navigate]
     )
   )
