@@ -1,8 +1,9 @@
 import Dialog from '@reach/dialog'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { groupBy } from '@oxide/util'
+import { useSteppedScroll } from '../hooks/use-stepped-scroll'
 
 export interface QuickActionItem {
   value: string
@@ -57,54 +58,7 @@ export function ActionMenu(props: ActionMenuProps) {
   const divRef = React.createRef<HTMLDivElement>()
   const ulRef = React.createRef<HTMLUListElement>()
 
-  // appreciate this. I suffered
-  useEffect(() => {
-    const div = divRef.current
-    const ul = ulRef.current
-    // rather than put refs on all the li, get item by index using the ul ref
-    const li = ul?.querySelectorAll('li')[selectedIdx]
-    if (div && ul && li) {
-      // absolute top and bottom of scroll container in viewport. annoyingly,
-      // the div's bounding client rect bottom is the real bottom, including the
-      // the part that's scrolled out of view. what we want is the bottom of the
-      // part that's in view
-      const scrollBoxTop = div.getBoundingClientRect().top
-      const scrollBoxBottom = scrollBoxTop + LIST_HEIGHT
-
-      // absolute top and bottom of list and item in viewport. the div stays
-      // where it is, the ul moves within it
-      const { top: liTop, bottom: liBottom } = li.getBoundingClientRect()
-      const { top: ulTop } = ul.getBoundingClientRect()
-
-      // when we decide whether the item we're scrolling to is in view already
-      // or not, we need to compare absolute positions, i.e., is this item
-      // inside the visible rectangle or not
-      const shouldScrollUp = liTop < scrollBoxTop
-      const shouldScrollDown = liBottom > scrollBoxBottom
-
-      // this probably the most counterintuitive part. now we're trying to tell
-      // the scrolling container how far to scroll, so we need the position of
-      // the item relative to the top of the full list (ulTop), not relative to
-      // the absolute y-position of the top of the visible scrollPort
-      // (scrollBoxTop)
-      const itemTopScrollTo = liTop - ulTop - 1
-      const itemBottomScrollTo = liBottom - ulTop
-
-      if (shouldScrollUp) {
-        // when scrolling up, scroll to the top of the item you're scrolling to.
-        // -1 is for top outline
-        div.scrollTo({ top: itemTopScrollTo - 1 })
-      } else if (shouldScrollDown) {
-        // when scrolling down, we want to scroll just far enough so the bottom
-        // edge of the selected item is in view. Because scrollTo is about the
-        // *top* edge of the scrolling container, that means we scroll to
-        // LIST_HEIGHT *above* the bottom edge of the item. +2 is for top *and*
-        // bottom outline
-        div.scrollTo({ top: itemBottomScrollTo - LIST_HEIGHT + 2 })
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIdx])
+  useSteppedScroll(divRef, ulRef, selectedIdx, LIST_HEIGHT)
 
   function onDismiss() {
     setInput('')
