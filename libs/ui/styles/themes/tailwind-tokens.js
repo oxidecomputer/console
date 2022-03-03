@@ -182,6 +182,9 @@ module.exports.colorUtilities = {
   '.bg-disabled': {
     'background-color': 'var(--surface-disabled)',
   },
+  '.bg-raise-hover': {
+    'background-color': 'var(--surface-raise-hover)',
+  },
   '/* Command menu backdrop */ \n.bg-scrim': {
     'background-color': 'var(--surface-scrim)',
   },
