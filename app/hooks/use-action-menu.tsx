@@ -13,6 +13,10 @@ const QuickActionsContext = React.createContext<ContextType>([[], () => {}])
 /**
  * Register action items with the global quick actions menu. `itemsToAdd` must
  * be memoized by the caller, otherwise the effect will run too often.
+ *
+ * The idea here is that any component in the tree can register actions to go in
+ * the menu and having them appear when the component is mounted and not appear
+ * when the component is unmounted Just Works.
  */
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
   const [, setItems] = useContext(QuickActionsContext)
@@ -32,7 +36,6 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
 
     // remove items, using value as unique ID
     return () => {
-      // only works if called in the callabck style
       setItems((items) => items.filter((i) => !itemsToAddKeys.has(i.value)))
     }
 
@@ -46,14 +49,17 @@ export function QuickActionsProvider({ children }: ProviderProps) {
   const [items, setItems] = useState<Items>([])
   const [isOpen, setIsOpen] = useState(false)
 
+  const anyItems = items.length > 0
+
+  // only memoized to avoid render churn in useKey
   const openDialog = useCallback(
     (e) => {
-      if (items.length > 0) {
+      if (anyItems) {
         e.preventDefault()
         setIsOpen(true)
       }
     },
-    [items]
+    [anyItems]
   )
 
   useKey('mod+k', openDialog)
@@ -61,11 +67,9 @@ export function QuickActionsProvider({ children }: ProviderProps) {
   const closeDialog = useCallback(() => setIsOpen(false), [])
 
   return (
-    // TODO: constrain setItems more — don't let any caller do whatever they want
-    // with the state. I guess a reducer is in order, ew. Or just provide two
-    // functions: addItems and removeItems
-
-    // TODO: filter out nav item matching current route
+    // Putting setItems directly on the value is a bit permissive. The real
+    // constraint comes from the fact that QuickActionsContext is private to
+    // this file.
     <QuickActionsContext.Provider value={[items, setItems]}>
       <ActionMenu
         isOpen={isOpen}

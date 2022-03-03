@@ -103,7 +103,7 @@ export function ActionMenu(props: ActionMenuProps) {
         <div className="mt-5 !border-none !bg-transparent shadow children:between:border-t-0">
           <ul>
             {allGroups.map(([label, items]) => (
-              <>
+              <React.Fragment key={label}>
                 <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
                   {label}
                 </h3>
@@ -120,7 +120,6 @@ export function ActionMenu(props: ActionMenuProps) {
                         'outline outline-1 text-accent bg-accent-secondary outline-accent hover:bg-accent-secondary-hover'
                     )}
                     aria-selected={item.value === selectedItem?.value}
-                    // TODO: there's probably an aria property to put on when it's highlighted
                     key={item.value}
                     onClick={() => {
                       item.onSelect()
@@ -130,7 +129,7 @@ export function ActionMenu(props: ActionMenuProps) {
                     {item.value}
                   </li>
                 ))}
-              </>
+              </React.Fragment>
             ))}
           </ul>
         </div>
