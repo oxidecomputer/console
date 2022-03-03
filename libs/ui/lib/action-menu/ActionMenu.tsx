@@ -1,5 +1,5 @@
 import Dialog from '@reach/dialog'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { groupBy } from '@oxide/util'
@@ -20,6 +20,8 @@ export interface ActionMenuProps {
   ariaLabel: string
   items: QuickActionItem[]
 }
+
+const LIST_HEIGHT = 384
 
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
@@ -52,6 +54,58 @@ export function ActionMenu(props: ActionMenuProps) {
   const [selectedIdx, setSelectedIdx] = useState(0)
   const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
 
+  const divRef = React.createRef<HTMLDivElement>()
+  const ulRef = React.createRef<HTMLUListElement>()
+
+  // appreciate this. I suffered
+  useEffect(() => {
+    const div = divRef.current
+    const ul = ulRef.current
+    // rather than put refs on all the li, get item by index using the ul ref
+    const li = ul?.querySelectorAll('li')[selectedIdx]
+    if (div && ul && li) {
+      // absolute top and bottom of scroll container in viewport. annoyingly,
+      // the div's bounding client rect bottom is the real bottom, including the
+      // the part that's scrolled out of view. what we want is the bottom of the
+      // part that's in view
+      const scrollBoxTop = div.getBoundingClientRect().top
+      const scrollBoxBottom = scrollBoxTop + LIST_HEIGHT
+
+      // absolute top and bottom of list and item in viewport. the div stays
+      // where it is, the ul moves within it
+      const { top: liTop, bottom: liBottom } = li.getBoundingClientRect()
+      const { top: ulTop } = ul.getBoundingClientRect()
+
+      // when we decide whether the item we're scrolling to is in view already
+      // or not, we need to compare absolute positions, i.e., is this item
+      // inside the visible rectangle or not
+      const shouldScrollUp = liTop < scrollBoxTop
+      const shouldScrollDown = liBottom > scrollBoxBottom
+
+      // this probably the most counterintuitive part. now we're trying to tell
+      // the scrolling container how far to scroll, so we need the position of
+      // the item relative to the top of the full list (ulTop), not relative to
+      // the absolute y-position of the top of the visible scrollPort
+      // (scrollBoxTop)
+      const itemTopScrollTo = liTop - ulTop - 1
+      const itemBottomScrollTo = liBottom - ulTop
+
+      if (shouldScrollUp) {
+        // when scrolling up, scroll to the top of the item you're scrolling to.
+        // -1 is for top outline
+        div.scrollTo({ top: itemTopScrollTo - 1 })
+      } else if (shouldScrollDown) {
+        // when scrolling down, we want to scroll just far enough so the bottom
+        // edge of the selected item is in view. Because scrollTo is about the
+        // *top* edge of the scrolling container, that means we scroll to
+        // LIST_HEIGHT *above* the bottom edge of the item. +2 is for top *and*
+        // bottom outline
+        div.scrollTo({ top: itemBottomScrollTo - LIST_HEIGHT + 2 })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIdx])
+
   function onDismiss() {
     setInput('')
     setSelectedIdx(0)
@@ -67,19 +121,18 @@ export function ActionMenu(props: ActionMenuProps) {
     >
       <div
         onKeyDown={(e) => {
-          switch (e.key) {
-            case 'Enter':
-              if (selectedItem) {
-                selectedItem.onSelect()
-                onDismiss()
-              }
-              break
-            case 'ArrowDown':
-              setSelectedIdx((i) => (i === itemsInOrder.length - 1 ? 0 : i + 1))
-              break
-            case 'ArrowUp':
-              setSelectedIdx((i) => (i === 0 ? itemsInOrder.length - 1 : i - 1))
-              break
+          const lastIdx = itemsInOrder.length - 1
+          if (e.key === 'Enter') {
+            if (selectedItem) {
+              selectedItem.onSelect()
+              onDismiss()
+            }
+          } else if (e.key === 'ArrowDown') {
+            const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
+            setSelectedIdx(newIdx)
+          } else if (e.key === 'ArrowUp') {
+            const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
+            setSelectedIdx(newIdx)
           }
         }}
         role="combobox"
@@ -92,7 +145,6 @@ export function ActionMenu(props: ActionMenuProps) {
             'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border p-4 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
-          style={{ maxHeight: 'calc(80vh - 80px)' }}
           value={input}
           onChange={(e) => {
             setSelectedIdx(0)
@@ -100,8 +152,12 @@ export function ActionMenu(props: ActionMenuProps) {
           }}
           placeholder="Find anything..."
         />
-        <div className="mt-5 !border-none !bg-transparent shadow children:between:border-t-0">
-          <ul>
+        <div
+          className="mt-5 overflow-y-auto"
+          ref={divRef}
+          style={{ maxHeight: LIST_HEIGHT }}
+        >
+          <ul className="m-px" ref={ulRef}>
             {allGroups.map(([label, items]) => (
               <React.Fragment key={label}>
                 <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
