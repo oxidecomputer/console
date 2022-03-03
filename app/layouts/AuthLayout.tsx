@@ -1,6 +1,5 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { PageContainer } from './helpers'
 
 const TopLeftDecoration = ({ className = '' }) => {
   return (
