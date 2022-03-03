@@ -51,47 +51,43 @@ export default function LoginPage() {
     },
   })
   return (
-    <div className="flex w-full justify-center">
-      <div className="my-48 w-96 space-y-4">
-        <h3 className="mb-2 text-center text-sans-xl">Log in as</h3>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loginPost.isLoading}
-          onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
-        >
-          Privileged
-        </Button>
-        <Button
-          type="submit"
-          variant="secondary"
-          className="w-full"
-          disabled={loginPost.isLoading}
-          onClick={() =>
-            loginPost.mutate({ body: { username: 'unprivileged' } })
-          }
-        >
-          Unprivileged
-        </Button>
-        <Button
-          type="submit"
-          variant="ghost"
-          className="w-full"
-          disabled={loginPost.isLoading}
-          onClick={() => loginPost.mutate({ body: { username: 'other' } })}
-        >
-          Bad Request
-        </Button>
-        <Button
-          type="submit"
-          variant="link"
-          className="w-full"
-          disabled={loginPost.isLoading}
-          onClick={() => logout.mutate({})}
-        >
-          Log out
-        </Button>
-      </div>
+    <div className="space-y-4 bg-default">
+      <h3 className="mb-2 text-center text-sans-2xl">Log in as</h3>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={loginPost.isLoading}
+        onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
+      >
+        Privileged
+      </Button>
+      <Button
+        type="submit"
+        variant="secondary"
+        className="w-full"
+        disabled={loginPost.isLoading}
+        onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
+      >
+        Unprivileged
+      </Button>
+      <Button
+        type="submit"
+        variant="ghost"
+        className="w-full"
+        disabled={loginPost.isLoading}
+        onClick={() => loginPost.mutate({ body: { username: 'other' } })}
+      >
+        Bad Request
+      </Button>
+      <Button
+        type="submit"
+        variant="link"
+        className="w-full"
+        disabled={loginPost.isLoading}
+        onClick={() => logout.mutate({})}
+      >
+        Log out
+      </Button>
     </div>
   )
 }
