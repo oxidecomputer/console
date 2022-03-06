@@ -68,7 +68,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
   return (
     <Dialog
-      className="ActionMenu !mt-[20vh] !w-[31] bg-transparent p-0"
+      className="ActionMenu mt-[20vh] bg-transparent p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
       onDismiss={onDismiss}
