@@ -16,7 +16,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           branch: 'update-icons'
-          
+
       - uses: actions/checkout@v2
         with:
           ref: 'update-icons'
