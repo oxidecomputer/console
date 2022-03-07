@@ -1,20 +1,16 @@
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-} from '@reach/combobox'
 import Dialog from '@reach/dialog'
-import React from 'react'
-import './ActionMenu.css'
+import React, { useState } from 'react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { invariant, isOneOf } from '@oxide/util'
+import { groupBy } from '@oxide/util'
+import { useSteppedScroll } from '../hooks/use-stepped-scroll'
 
-export interface MenuItem {
+export interface QuickActionItem {
   value: string
+  // strings are paths to navigate() to
+  // onSelect: string | (() => void)
   onSelect: () => void
+  navGroup?: string
 }
 
 export interface ActionMenuProps {
@@ -23,78 +19,131 @@ export interface ActionMenuProps {
   className?: string
   inputClassName?: string
   ariaLabel: string
-  children: React.ReactElement[] // really only ActionMenu.Item, enforced at runtime
+  items: QuickActionItem[]
 }
 
-const childrenToItems = (children: React.ReactElement[]): MenuItem[] =>
-  React.Children.map(children, (child) => ({
-    value: child.props.children,
-    onSelect: child.props.onSelect,
-  }))
+const LIST_HEIGHT = 384
 
 export function ActionMenu(props: ActionMenuProps) {
-  invariant(
-    isOneOf(props.children, [ActionMenu.Item]),
-    'ActionMenu can only have ActionMenu.Item as a child'
-  )
-
-  const [input, setInput] = React.useState('')
-  const items = matchSorter(childrenToItems(props.children), input, {
+  const [input, setInput] = useState('')
+  const items = matchSorter(props.items, input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
 
+  // items without a navGroup label are considered actions and rendered first
+  const actions = items.filter((i) => !i.navGroup)
+
+  // TODO: repent. this is horrible
+  const groupedItems = Object.entries(
+    groupBy(
+      items.filter((i) => i.navGroup),
+      (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    )
+  )
+
+  const allGroups: [string, QuickActionItem[]][] =
+    actions.length > 0
+      ? [['Actions', items.filter((i) => !i.navGroup)], ...groupedItems]
+      : groupedItems
+
+  const itemsInOrder = ([] as QuickActionItem[]).concat(
+    ...allGroups.map(([_, items]) => items)
+  )
+
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
+
+  const divRef = React.createRef<HTMLDivElement>()
+  const ulRef = React.createRef<HTMLUListElement>()
+
+  useSteppedScroll(divRef, ulRef, selectedIdx, LIST_HEIGHT)
+
+  function onDismiss() {
+    setInput('')
+    setSelectedIdx(0)
+    props.onDismiss()
+  }
+
   return (
     <Dialog
-      className="ActionMenu !mt-[20vh] !w-1/3 p-0"
+      className="ActionMenu mt-[20vh] bg-transparent p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
-      onDismiss={() => {
-        setInput('')
-        props.onDismiss()
-      }}
+      onDismiss={onDismiss}
     >
-      <Combobox
-        onSelect={(value) => {
-          // have to find by value string because we can't give option a value
-          // of the whole item object
-          items.find((i) => i.value === value)?.onSelect()
+      <div
+        onKeyDown={(e) => {
+          const lastIdx = itemsInOrder.length - 1
+          if (e.key === 'Enter') {
+            if (selectedItem) {
+              selectedItem.onSelect()
+              onDismiss()
+            }
+          } else if (e.key === 'ArrowDown') {
+            const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
+            setSelectedIdx(newIdx)
+          } else if (e.key === 'ArrowUp') {
+            const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
+            setSelectedIdx(newIdx)
+          }
         }}
-        openOnFocus
+        role="combobox"
+        tabIndex={-1}
+        aria-controls="TODO"
+        aria-expanded
       >
-        <ComboboxInput
-          autocomplete={false}
+        <input
           className={cn(
-            'mousetrap w-full border p-4 bg-raise border-secondary focus:outline-none',
+            'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border p-4 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setSelectedIdx(0)
+            setInput(e.target.value)
+          }}
           placeholder="Find anything..."
         />
-        <ComboboxPopover
-          portal={false}
-          className="!border-none !bg-transparent children:between:border-t-0"
+        <div
+          className="mt-5 overflow-y-auto"
+          ref={divRef}
+          style={{ maxHeight: LIST_HEIGHT }}
         >
-          <ComboboxList>
-            {items.map((item) => (
-              <ComboboxOption
-                className="-mt-px border !p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-secondary-hover"
-                key={item.value}
-                value={item.value}
-              />
+          <ul className="m-px" ref={ulRef}>
+            {allGroups.map(([label, items]) => (
+              <React.Fragment key={label}>
+                <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                  {label}
+                </h3>
+                {items.map((item) => (
+                  // TODO: there is probably a more correct way of fixing this reasonable lint error.
+                  // Putting a button inside the <li> is not a great solution because it becomes
+                  // focusable separate from the item selection
+                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                  <li
+                    role="option"
+                    className={cn(
+                      '-mt-px cursor-pointer border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-raise-hover',
+                      item.value === selectedItem?.value &&
+                        'outline outline-1 text-accent bg-accent-secondary outline-accent hover:bg-accent-secondary-hover'
+                    )}
+                    aria-selected={item.value === selectedItem?.value}
+                    key={item.value}
+                    onClick={() => {
+                      item.onSelect()
+                      onDismiss()
+                    }}
+                  >
+                    {item.value}
+                  </li>
+                ))}
+              </React.Fragment>
             ))}
-          </ComboboxList>
-        </ComboboxPopover>
-      </Combobox>
+          </ul>
+        </div>
+      </div>
     </Dialog>
   )
 }
-
-type ItemProps = {
-  children: string
-  onSelect: () => void
-}
-
-ActionMenu.Item = (_props: ItemProps) => null

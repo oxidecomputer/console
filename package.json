@@ -27,7 +27,6 @@
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "@reach/alert": "^0.16.0",
-    "@reach/combobox": "^0.16.5",
     "@reach/dialog": "^0.16.2",
     "@reach/menu-button": "^0.16.2",
     "@reach/tabs": "^0.16.4",

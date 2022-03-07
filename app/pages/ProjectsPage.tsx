@@ -1,34 +1,38 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {
-  buttonStyle,
-  ActionMenu,
-  PageHeader,
-  PageTitle,
-  Folder24Icon,
-} from '@oxide/ui'
-import { useActionMenuState, useParams } from '../hooks'
+import { buttonStyle, PageHeader, PageTitle, Folder24Icon } from '@oxide/ui'
+import { useParams, useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { useApiQuery } from '@oxide/api'
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
     orgName,
   })
+
+  const { data: projects } = useApiQuery('organizationProjectsGet', {
+    orgName,
+    limit: 10, // to have same params as QueryTable
+  })
+
   const navigate = useNavigate()
-  const actionMenuProps = useActionMenuState()
+  useQuickActions(
+    useMemo(
+      () => [
+        { value: 'New project', onSelect: () => navigate('new') },
+        ...(projects?.items || []).map((p) => ({
+          value: p.name,
+          onSelect: () => navigate(p.name),
+          navGroup: 'Go to project',
+        })),
+      ],
+      [navigate, projects]
+    )
+  )
 
   return (
     <>
-      <ActionMenu {...actionMenuProps} ariaLabel="Projects quick actions">
-        <ActionMenu.Item onSelect={() => navigate('new')}>
-          New Project
-        </ActionMenu.Item>
-        <ActionMenu.Item onSelect={() => navigate('new')}>
-          Also new Project
-        </ActionMenu.Item>
-        {/* TODO: an entry for every visible project? */}
-      </ActionMenu>
       <PageHeader className="mb-10">
         <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
         <div className="flex items-center">

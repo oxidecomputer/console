@@ -1,14 +1,31 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { useParams } from 'app/hooks'
+import { useParams, useQuickActions } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { useApiQuery } from '@oxide/api'
+import { useNavigate } from 'react-router-dom'
 
 export const VpcsPage = () => {
-  const { orgName, projectName } = useParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('projectVpcsGet', {
-    orgName,
-    projectName,
+  const projectParams = useParams('orgName', 'projectName')
+  const { orgName, projectName } = projectParams
+  const { data: vpcs } = useApiQuery('projectVpcsGet', {
+    ...projectParams,
+    limit: 10, // to have same params as QueryTable
   })
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () =>
+        (vpcs?.items || []).map((p) => ({
+          value: p.name,
+          onSelect: () => navigate(p.name),
+          navGroup: 'Go to VPC',
+        })),
+      [vpcs, navigate]
+    )
+  )
+
+  const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
   return (
     <>
       <PageHeader>

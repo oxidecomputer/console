@@ -1,3 +1,8 @@
+import React, { useMemo } from 'react'
+import filesize from 'filesize'
+import { useNavigate } from 'react-router-dom'
+import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
+
 import {
   Instances24Icon,
   PageHeader,
@@ -5,27 +10,54 @@ import {
   PropertiesTable,
   Tabs,
   Tab,
+  More12Icon,
 } from '@oxide/ui'
-import { useApiQuery } from '@oxide/api'
-import React from 'react'
-import { useParams } from 'app/hooks'
+import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { pick } from '@oxide/util'
+import { useParams, useQuickActions } from 'app/hooks'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import filesize from 'filesize'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
+import { useMakeInstanceActions } from '../actions'
 
 export const InstancePage = () => {
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
+  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
-  const { data: instance } = useApiQuery('projectInstancesGetInstance', {
-    orgName,
-    projectName,
-    instanceName,
+  const navigate = useNavigate()
+  const queryClient = useApiQueryClient()
+  const projectParams = pick(instanceParams, 'projectName', 'orgName')
+  const makeActions = useMakeInstanceActions(projectParams, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        'projectInstancesGetInstance',
+        instanceParams
+      )
+    },
+    // go to project instances list since there's no more instance
+    onDelete: () => navigate('..'),
   })
+
+  const { data: instance } = useApiQuery(
+    'projectInstancesGetInstance',
+    instanceParams,
+    { refetchInterval: 5000 }
+  )
+  const actions = useMemo(
+    () => (instance ? makeActions(instance) : []),
+    [instance, makeActions]
+  )
+  const quickActions = useMemo(
+    () =>
+      actions
+        // in the quick menu we do not show disabled actions
+        .filter((a) => !a.disabled)
+        // append "instance" to labels
+        // TODO: if these were in an "Instance actions" subsection they might not
+        // need the suffix for clarity
+        .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` })),
+    [actions]
+  )
+  useQuickActions(quickActions)
 
   if (!instance) return null
 
@@ -35,8 +67,24 @@ export const InstancePage = () => {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon title="Instances" />}>
-          {instanceName}
+          {instanceParams.instanceName}
         </PageTitle>
+        <Menu>
+          <MenuButton>
+            <More12Icon className="text-tertiary" />
+          </MenuButton>
+          <MenuList>
+            {actions.map((a) => (
+              <MenuItem
+                disabled={a.disabled}
+                key={a.label}
+                onSelect={a.onActivate}
+              >
+                {a.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>

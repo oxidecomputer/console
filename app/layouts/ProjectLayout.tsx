@@ -1,5 +1,5 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
 
 import {
   SkipLinkTarget,
@@ -20,8 +20,38 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { useParams, useQuickActions } from 'app/hooks'
 
 const ProjectLayout = () => {
+  const navigate = useNavigate()
+  const { projectName } = useParams('orgName', 'projectName')
+  const currentPath = useLocation().pathname
+  useQuickActions(
+    useMemo(
+      () =>
+        [
+          { value: 'Instances', path: 'instances' },
+          { value: 'Snapshots', path: 'snapshots' },
+          { value: 'Disks', path: 'disks' },
+          { value: 'Access & IAM', path: 'access' },
+          { value: 'Images', path: 'images' },
+          { value: 'Networking', path: 'vpcs' },
+          { value: 'Metrics', path: 'metrics' },
+        ]
+          // filter out the entry for the path we're currently on
+          .filter(
+            (i) =>
+              !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath)
+          )
+          .map((i) => ({
+            navGroup: `Project '${projectName}'`,
+            value: i.value,
+            onSelect: () => navigate(i.path),
+          })),
+      [currentPath, navigate, projectName]
+    )
+  )
+
   return (
     <PageContainer>
       <Sidebar>
