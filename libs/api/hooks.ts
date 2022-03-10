@@ -7,7 +7,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { navToLogin } from './nav-to-login'
 
-import type { HttpResponse } from './__generated__/Api'
+import type { Error, HttpResponse } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P, r: infer R) => any
@@ -31,13 +31,7 @@ export type ResultItem<F> = F extends (
 type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-type ErrorData = {
-  requestId: string
-  errorCode: string | null
-  message: string
-}
-
-export type ErrorResponse = HttpResponse<null, ErrorData>
+export type ErrorResponse = HttpResponse<null, Error>
 
 function navToLoginIf401(resp: ErrorResponse) {
   // if logged out, hit /login to trigger login redirect
@@ -62,15 +56,11 @@ export const getUseApiQuery =
     useQuery(
       [method, params] as QueryKey,
       // The generated client parses the json and sticks it in `data` for us, so
-      // that's what we want to return from the fetcher. Note that while there
-      // is an --unwrap-response-data CLI flag for the generator that pulls out
-      // the data key for us, something about the types is weird or wrong, so
-      // we're doing it ourselves here instead.
-      //
-      // In the case of an error, it does the same thing with the `error` key,
-      // but since there may not always be parseable json in an error response
-      // (I think?) it seems more reasonable in that case to take the whole
-      // `HttpResponse` instead of plucking out error with
+      // that's what we want to return from the fetcher. In the case of an
+      // error, it does the same thing with the `error` key, but since there may
+      // not always be parseable json in an error response (I think?) it seems
+      // more reasonable in that case to take the whole `HttpResponse` instead
+      // of plucking out error with
       //
       //   .catch((resp) => resp.error)
       //
