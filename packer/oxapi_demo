@@ -8,6 +8,8 @@
 OXAPI_URL="${OXAPI_URL:-http://127.0.0.1:12220}"
 ARG0="$(basename "${BASH_SOURCE[0]}")"
 NO_AUTHENTICATE=false
+AUTH_HEADER="Authorization: Bearer"
+AUTH_HEADER="$AUTH_HEADER oxide-spoof-001de000-05e4-4000-8000-000000004007"
 HELP="$(cat <<EOF
 usage: $ARG0 [-A] [cmd] [args]
 
@@ -88,6 +90,10 @@ IAM
     users_get    USER_NAME
     roles_list
     role_get     ROLE_NAME
+
+UPDATES
+
+    updates_refresh
 EOF
 )"
 
@@ -158,8 +164,7 @@ function do_curl_authn
 	if [[ $NO_AUTHENTICATE == true ]]; then
 		do_curl "$@"
 	else
-		do_curl "$@" \
-			-H "oxide-authn-spoof: 001de000-05e4-4000-8000-000000004007"
+		do_curl "$@" -H "$AUTH_HEADER"
 	fi
 }
 
@@ -243,7 +248,7 @@ function cmd_project_get
 function cmd_project_list_instances
 {
 	[[ $# != 2 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME"
-	do_curl "/organizations/$1/projects/$2/instances"
+	do_curl_authn "/organizations/$1/projects/$2/instances"
 }
 
 function cmd_project_list_disks
@@ -264,44 +269,45 @@ function cmd_instance_create_demo
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
 	mkjson name="$3" description="an instance called $3" ncpus=1 \
 		memory=268435456 boot_disk_size=1 hostname="$3" |
-		do_curl "/organizations/$1/projects/$2/instances" -X POST -T -
+		do_curl_authn "/organizations/$1/projects/$2/instances" \
+		    -X POST -T -
 }
 
 function cmd_instance_get
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3"
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3"
 }
 
 function cmd_instance_delete
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3" -X DELETE
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3" -X DELETE
 }
 
 function cmd_instance_migrate
 {
 	[[ $# != 4 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME SLED_ID"
 	mkjson dst_sled_uuid="$4" | \
-		do_curl "/organizations/$1/projects/$2/instances/$3/migrate" -X POST -T -
+		do_curl_authn "/organizations/$1/projects/$2/instances/$3/migrate" -X POST -T -
 }
 
 function cmd_instance_stop
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3/stop" -X POST
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3/stop" -X POST
 }
 
 function cmd_instance_start
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3/start" -X POST
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3/start" -X POST
 }
 
 function cmd_instance_reboot
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3/reboot" -X POST
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3/reboot" -X POST
 }
 
 function cmd_instance_attach_disk
@@ -321,7 +327,7 @@ function cmd_instance_detach_disk
 function cmd_instance_list_disks
 {
 	[[ $# != 3 ]] && usage "expected ORGANIZATION_NAME PROJECT_NAME INSTANCE_NAME"
-	do_curl "/organizations/$1/projects/$2/instances/$3/disks"
+	do_curl_authn "/organizations/$1/projects/$2/instances/$3/disks"
 }
 
 function cmd_disk_create_demo
@@ -433,6 +439,11 @@ function cmd_role_get
 {
 	[[ $# != 1 ]] && usage "expected ROLE_NAME"
 	do_curl_authn "/roles/$1"
+}
+
+function cmd_updates_refresh
+{
+	do_curl /updates/refresh -X POST
 }
 
 main "$@"
