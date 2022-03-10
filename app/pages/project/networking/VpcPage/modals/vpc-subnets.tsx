@@ -99,18 +99,10 @@ export function CreateVpcSubnetModal({
           ipv4Block: '',
           ipv6Block: '',
         }}
-        onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
-          createSubnet.mutate({
-            ...parentIds,
-            // XXX body is optional. useApiMutation should be smarter and require body when it's required
-            body: {
-              name,
-              description,
-              // TODO: validate these client-side using the patterns. sadly non-trivial
-              ipv4Block: ipv4Block || null,
-              ipv6Block: ipv6Block || null,
-            },
-          })
+        onSubmit={(body) => {
+          // XXX body is optional. useApiMutation should be smarter and require body when it's required
+          // TODO: validate IP blocks client-side using the patterns. sadly non-trivial
+          createSubnet.mutate({ ...parentIds, body })
         }}
       >
         <CommonForm id={formId} error={createSubnet.error} />
