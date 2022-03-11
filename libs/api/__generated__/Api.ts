@@ -1744,6 +1744,11 @@ export interface ApiConfig {
 
 export type ErrorResponse = Response & {
   data: null
+  // Note that this Error is not JS `Error` but rather an Error type generated
+  // from the spec. The fact that it has the same name as the global Error type
+  // is unfortunate. If the generated error type disappears, this will not fail
+  // typechecking here, but any code that depends on this having a certain shape
+  // will fail, so it's not that bad, though the error message may be confusing.
   error: Error
 }
 
