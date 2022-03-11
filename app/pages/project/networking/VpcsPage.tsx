@@ -4,6 +4,13 @@ import { useParams, useQuickActions } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
 import { useNavigate } from 'react-router-dom'
+import { Form } from '@oxide/form'
+
+const Test = ({ initialValue = Test.initialValue }) => {
+  return <>{initialValue}</>
+}
+
+Test.initialValue = 'cat dog'
 
 export const VpcsPage = () => {
   const projectParams = useParams('orgName', 'projectName')
@@ -31,6 +38,10 @@ export const VpcsPage = () => {
       <PageHeader>
         <PageTitle icon={<Networking24Icon title="Vpcs" />}>VPCs</PageTitle>
       </PageHeader>
+
+      <Form>
+        <Test />
+      </Form>
 
       <Table>
         <Column

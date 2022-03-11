@@ -8,22 +8,31 @@ import { Info8Icon, Tooltip } from '@oxide/ui'
  */
 type FieldTitleProps<T extends ElementType> = (
   | {
+      id: string
+      htmlFor?: never
+      as?: never
+    }
+  | {
       as: 'label'
       htmlFor: string
+      id?: never
     }
   | {
       as?: never
       htmlFor: string
+      id?: never
     }
   | {
       as: Exclude<T, 'label'>
       htmlFor?: string
+      id?: never
     }
 ) & {
   tip?: string
 }
 
 export const FieldTitle = <T extends ElementType = 'label'>({
+  id,
   children,
   htmlFor,
   tip,
@@ -33,13 +42,14 @@ export const FieldTitle = <T extends ElementType = 'label'>({
   return (
     <Wrap with={<div className="flex space-x-2" />} when={tip}>
       <Component
+        id={id}
         className="flex h-6 items-center text-sans-sm"
         htmlFor={htmlFor}
       >
         {children}
       </Component>
       {tip && (
-        <Tooltip isPrimaryLabel={false} content={tip}>
+        <Tooltip id={`${id}-tip`} content={tip}>
           <Info8Icon />
         </Tooltip>
       )}

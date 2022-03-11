@@ -9,8 +9,7 @@ import './tooltip.css'
 import { KEYS } from '../../util/keys'
 
 export interface TooltipProps {
-  /** Required. Let screen readers know whether this is the primary label or an auxiliary description. */
-  isPrimaryLabel: boolean
+  id: string
   children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
@@ -21,9 +20,9 @@ export interface TooltipProps {
 const ARROW_SIZE = 12
 
 export const Tooltip: FC<TooltipProps> = ({
+  id,
   children,
   content,
-  isPrimaryLabel,
   onClick,
   definition = false,
 }) => {
@@ -31,10 +30,6 @@ export const Tooltip: FC<TooltipProps> = ({
   const popperElement = useRef(null)
   const arrowElement = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
-  const popperId = useMemo(() => uuid(), [])
-  const ariaProps = isPrimaryLabel
-    ? { 'aria-labelledby': popperId }
-    : { 'aria-describedby': popperId }
 
   const { attributes, styles, update } = usePopper(
     referenceElement.current,
@@ -97,7 +92,6 @@ export const Tooltip: FC<TooltipProps> = ({
         className={cn('svg:pointer-events-none', {
           'dashed-underline': definition,
         })}
-        {...ariaProps}
       >
         {children}
       </button>
@@ -105,7 +99,7 @@ export const Tooltip: FC<TooltipProps> = ({
         className={cn('TooltipContainer', isOpen ? 'block' : 'hidden')}
         ref={popperElement}
         role="tooltip"
-        id={popperId}
+        id={id}
         style={styles.popper}
         {...attributes.popper}
       >

@@ -16,7 +16,7 @@ import {
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { getServerError } from '../util/errors'
-import { validateName } from '../util/validate'
+import { validateName } from '@oxide/form'
 
 const ERROR_CODES = {
   ObjectAlreadyExists:

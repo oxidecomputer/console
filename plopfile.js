@@ -63,4 +63,26 @@ module.exports = (plop) => {
       ]
     },
   })
+
+  plop.setGenerator('form-field', {
+    description: 'generates a form field',
+    prompts: [
+      {
+        type: 'input',
+        name: 'type',
+        message: 'Form type?',
+        transformer(input) {
+          return toTrainCase(input)
+        },
+      },
+      {
+        type: 'input',
+        name: 'initialValue',
+        message: "What's this forms default initial value?",
+      },
+    ],
+    actions(args) {
+      return []
+    },
+  })
 }

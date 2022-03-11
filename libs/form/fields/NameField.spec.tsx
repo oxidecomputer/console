@@ -1,4 +1,4 @@
-import { validateName } from './validate'
+import { validateName } from './NameField'
 
 describe('validateName', () => {
   it('returns undefined for valid names', () => {

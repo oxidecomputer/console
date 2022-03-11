@@ -85,7 +85,7 @@ export const isOneOf = (
   return React.Children.toArray(children).every(childIsOneOf)
 }
 
-export const pluck = <P extends unknown>(
+const pluck = <P extends unknown>(
   children: ChildArray,
   selector: ChildSelector
 ) => {
