@@ -7,7 +7,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { navToLogin } from './nav-to-login'
 
-import type { Error, HttpResponse } from './__generated__/Api'
+import type { ErrorResponse, ApiResponse } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P, r: infer R) => any
@@ -18,20 +18,18 @@ export type Params<F> = F extends (p: infer P, r: infer R) => any
 export type Result<F> = F extends (
   p: any,
   r: any
-) => Promise<HttpResponse<infer R>>
+) => Promise<ApiResponse<infer R>>
   ? R
   : never
 export type ResultItem<F> = F extends (
   p: any,
   r: any
-) => Promise<HttpResponse<{ items: (infer R)[] }>>
+) => Promise<ApiResponse<{ items: (infer R)[] }>>
   ? R
   : never
 
-type ApiClient = Record<string, (...args: any) => Promise<HttpResponse<any>>>
+type ApiClient = Record<string, (...args: any) => Promise<ApiResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
-export type ErrorResponse = HttpResponse<null, Error>
 
 function navToLoginIf401(resp: ErrorResponse) {
   // if logged out, hit /login to trigger login redirect
