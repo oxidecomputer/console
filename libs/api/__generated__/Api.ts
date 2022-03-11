@@ -1841,7 +1841,7 @@ export class HttpClient {
       url += '?' + queryString
     }
 
-    return this.customFetch(url, {
+    const response = await this.customFetch(url, {
       ...requestParams,
       headers: {
         'Content-Type': 'application/json',
@@ -1849,29 +1849,29 @@ export class HttpClient {
       },
       signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
       body: JSON.stringify(snakeify(body)),
-    }).then(async (response) => {
-      const r = response as ApiResponse<Data>
-      r.data = null as unknown as Data
-      r.error = null as unknown as Error
-
-      try {
-        const data = processResponseBody(await response.json())
-        if (r.ok) {
-          r.data = data as Data
-        } else {
-          r.error = data as Error
-        }
-      } catch (e) {
-        r.error = e as Error
-      }
-
-      if (cancelToken) {
-        this.abortControllers.delete(cancelToken)
-      }
-
-      if (!r.ok) throw r
-      return r
     })
+
+    const r = response as ApiResponse<Data>
+    r.data = null as unknown as Data
+    r.error = null as unknown as Error
+
+    try {
+      const data = processResponseBody(await response.json())
+      if (r.ok) {
+        r.data = data as Data
+      } else {
+        r.error = data as Error
+      }
+    } catch (e) {
+      r.error = e as Error
+    }
+
+    if (cancelToken) {
+      this.abortControllers.delete(cancelToken)
+    }
+
+    if (!r.ok) throw r
+    return r
   }
 }
 
