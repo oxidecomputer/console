@@ -16,7 +16,7 @@ export const Pagination = ({ target, ...props }: PaginationProps) => {
   return ReactDOM.createPortal(
     <>
       <hr className="ox-pagination-border" />
-      <UIPagination className="py-5" {...props} />
+      <UIPagination className="h-14 py-5" {...props} />
     </>,
     el
   )
