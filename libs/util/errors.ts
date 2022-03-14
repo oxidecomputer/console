@@ -17,13 +17,13 @@ const globalCodeMap: Record<string, string> = {
 }
 
 export const getServerError = (
-  error: ErrorResponse | null,
+  resp: ErrorResponse | null,
   codeMap: Record<string, string> = {}
 ) => {
-  if (!error) return null
-  const code = error.error?.errorCode
+  if (!resp) return null
+  const code = resp.error.errorCode
   const codeMsg = code && (codeMap[code] || globalCodeMap[code])
-  const serverMsg = error.error?.message
+  const serverMsg = resp.error.message
   return (
     // first try to get friendly message based on code
     codeMsg ||
