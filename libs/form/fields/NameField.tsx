@@ -7,12 +7,19 @@ export interface NameFieldProps
   name?: string
 }
 
-NameField.initialValue = ''
 export function NameField({
-  name = 'Name',
+  name = 'name',
+  required = true,
   ...textFieldProps
 }: NameFieldProps) {
-  return <TextField name={name} validate={validateName} {...textFieldProps} />
+  return (
+    <TextField
+      name={name}
+      validate={validateName}
+      required={required}
+      {...textFieldProps}
+    />
+  )
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern

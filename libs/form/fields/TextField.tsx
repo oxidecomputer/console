@@ -1,15 +1,16 @@
 import type { TextFieldProps as UITextFieldProps } from '@oxide/ui'
+import { TextFieldError } from '@oxide/ui'
 import { TextFieldHint } from '@oxide/ui'
 import { FieldTitle, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
+import { useFormikContext } from 'formik'
 import React from 'react'
-import type { Field } from './Field'
+import { useError } from '../hooks/useError'
 
-export interface TextFieldProps
-  extends Field<string>,
-    Omit<UITextFieldProps, 'name'> {
+export interface TextFieldProps extends UITextFieldProps {
   id: string
+  name: string
   /** Will default to name if not provided */
   title?: string
   hint?: string
@@ -17,29 +18,32 @@ export interface TextFieldProps
   placeholder?: string
 }
 
-TextField.initialValue = ''
-
 export function TextField({
   id,
   title,
   description,
   hint,
+  name,
   ...inputProps
 }: TextFieldProps) {
+  const error = useError(name)
   return (
-    <>
+    <div>
       <FieldTitle id={`${id}-title`} tip={description}>
-        {title || capitalize(inputProps.name)}
+        {title || capitalize(name)}
       </FieldTitle>
       {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
       <UITextField
         id={id}
+        name={name}
+        error={!!error}
         aria-labelledby={cn(`${id}-title`, {
           [`${id}-hint`]: !!description,
         })}
         aria-describedby={description ? `${id}-title-tip` : undefined}
         {...inputProps}
       />
-    </>
+      <TextFieldError name={name} />
+    </div>
   )
 }

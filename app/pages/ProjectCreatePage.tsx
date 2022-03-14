@@ -1,22 +1,16 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Formik, Form } from 'formik'
 
 import {
   Button,
   PageHeader,
   PageTitle,
-  TextField,
-  TextFieldError,
-  TextFieldHint,
   Folder24Icon,
   Success16Icon,
-  FieldTitle,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
-import { getServerError } from '../util/errors'
-import { validateName } from '@oxide/form'
+import { Form, NameField, DescriptionField } from '@oxide/form'
 
 const ERROR_CODES = {
   ObjectAlreadyExists:
@@ -57,7 +51,8 @@ export default function ProjectCreatePage() {
           Create a new project
         </PageTitle>
       </PageHeader>
-      <Formik
+      <Form
+        id="create-project-form"
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
           createProject.mutate({
@@ -66,46 +61,20 @@ export default function ProjectCreatePage() {
           })
         }}
       >
-        <Form>
-          <div className="mb-4">
-            <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
-            <TextField
-              id="project-name"
-              name="name"
-              placeholder="Enter name"
-              validate={validateName}
-              autoComplete="off"
-            />
-            <TextFieldError name="name" />
-          </div>
-          <div className="mb-8">
-            <FieldTitle htmlFor="project-description">
-              Choose a description
-            </FieldTitle>
-            <TextFieldHint id="description-hint">
-              What is unique about your project?
-            </TextFieldHint>
-            <TextField
-              id="project-description"
-              name="description"
-              aria-describedby="description-hint"
-              placeholder="A project"
-              autoComplete="off"
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="secondary"
-            className="w-[30rem]"
-            disabled={createProject.isLoading}
-          >
-            Create project
-          </Button>
-          <div className="mt-2 text-destructive">
-            {getServerError(createProject.error, ERROR_CODES)}
-          </div>
-        </Form>
-      </Formik>
+        <NameField
+          id="project-name"
+          title="Choose a name"
+          placeholder="Enter name"
+        />
+        <DescriptionField
+          id="project-description"
+          title="Choose a description"
+        />
+        <Form.Actions mutation={createProject} errorCodes={ERROR_CODES}>
+          <Button>Create project</Button>
+          <Button variant="ghost">Equivalent CLI</Button>
+        </Form.Actions>
+      </Form>
     </>
   )
 }
