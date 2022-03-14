@@ -2,9 +2,10 @@ import type { ErrorResponse } from '@oxide/api'
 import type { ButtonProps } from '@oxide/ui'
 import { Separator } from '@oxide/ui'
 import {
+  classed,
   flattenChildren,
   getServerError,
-  invariant,
+  kebabCase,
   pluckFirstOfType,
 } from '@oxide/util'
 import type { FormikConfig } from 'formik'
@@ -12,6 +13,7 @@ import { Formik, Form as FormikForm } from 'formik'
 import type { ReactNode } from 'react'
 import React from 'react'
 import type { UseMutationResult } from 'react-query'
+import './form.css'
 
 interface FormProps<Values> extends FormikConfig<Values> {
   id: string
@@ -29,7 +31,9 @@ export function Form<Values>({
   return (
     <>
       <Formik {...formikProps}>
-        <FormikForm id={id}>{childArray}</FormikForm>
+        <FormikForm id={id} className="ox-form space-y-9">
+          {childArray}
+        </FormikForm>
       </Formik>
       {actions && React.cloneElement(actions, { formId: id })}
     </>
@@ -80,6 +84,23 @@ Form.Actions = <D, E extends ErrorResponse | null, T>({
         </div>
       )}
       <div className="flex space-x-2">{childArray}</div>
+    </>
+  )
+}
+
+const FormHeading = classed.h2`ox-form-heading text-content text-sans-2xl`
+
+export interface FormSectionProps {
+  id?: string
+  children: React.ReactNode
+  title: string
+}
+Form.Section = ({ id, title, children }: FormSectionProps) => {
+  return (
+    <>
+      <Separator />
+      <FormHeading id={id || kebabCase(title)}>{title}</FormHeading>
+      {children}
     </>
   )
 }

@@ -70,7 +70,7 @@ export function Tabs({
     <RTabs
       id={id}
       as="div"
-      className={cn(className, fullWidth && '!mx-0 !w-full')}
+      className={cn('ox-tabs', className, fullWidth && '!mx-0 !w-full')}
       {...props}
     >
       <RTabList

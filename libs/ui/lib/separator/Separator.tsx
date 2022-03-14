@@ -6,6 +6,12 @@ export interface SeparatorProps {
 }
 export const Separator = ({ className }: SeparatorProps) => {
   return (
-    <hr className={cn(className, '!mx-0 !w-full border-t border-secondary')} />
+    <hr
+      className={cn(
+        'ox-separator',
+        className,
+        'w-full border-t border-secondary'
+      )}
+    />
   )
 }

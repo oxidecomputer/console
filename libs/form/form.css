@@ -1,0 +1,11 @@
+.ox-form .ox-separator {
+  @apply !my-20;
+  width: calc(100% + var(--content-gutter) * 2);
+  margin-left: calc(var(--content-gutter) * -1);
+}
+
+/* TODO: Fix tabs full width behavior broken when in container */
+.ox-form .ox-tabs > div {
+  width: calc(100% + var(--content-gutter) * 2) !important;
+  margin-left: calc(var(--content-gutter) * -1) !important;
+}
