@@ -102,6 +102,15 @@ export type DiskState =
   | { state: 'faulted' }
 
 /**
+ * Error information from a response.
+ */
+export type Error = {
+  errorCode?: string | null
+  message: string
+  requestId: string
+}
+
+/**
  * The name and type information for a field of a timeseries schema.
  */
 export type FieldSchema = {
@@ -808,6 +817,11 @@ export type Vpc = {
 export type VpcCreate = {
   description: string
   dnsName: Name
+  /**
+   * The IPv6 prefix for this VPC.
+   *
+   * All IPv6 subnets created from this VPC must be taken from this range, which sould be a Unique Local Address in the range `fd00::/48`. The default VPC Subnet will have the first `/64` range from this prefix.
+   */
   ipv6Prefix?: Ipv6Net | null
   name: Name
 }
@@ -1057,11 +1071,11 @@ export type VpcSubnet = {
   /**
    * The IPv4 subnet CIDR block.
    */
-  ipv4Block?: Ipv4Net | null
+  ipv4Block: Ipv4Net
   /**
    * The IPv6 subnet CIDR block.
    */
-  ipv6Block?: Ipv6Net | null
+  ipv6Block: Ipv6Net
   /**
    * unique, mutable, user-controlled identifier for each resource
    */
@@ -1085,7 +1099,17 @@ export type VpcSubnet = {
  */
 export type VpcSubnetCreate = {
   description: string
-  ipv4Block?: Ipv4Net | null
+  /**
+   * The IPv4 address range for this subnet.
+   *
+   * It must be allocated from an RFC 1918 private address range, and must not overlap with any other existing subnet in the VPC.
+   */
+  ipv4Block: Ipv4Net
+  /**
+   * The IPv6 address range for this subnet.
+   *
+   * It must be allocated from the RFC 4193 Unique Local Address range, with the prefix equal to the parent VPC's prefix. A random `/64` block will be assigned if one is not provided. It must not overlap with any existing subnet in the VPC.
+   */
   ipv6Block?: Ipv6Net | null
   name: Name
 }
@@ -1146,44 +1170,26 @@ export type NameOrIdSortMode =
 export type NameSortMode = 'name-ascending'
 
 export interface HardwareRacksGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: IdSortMode
 }
 
 export interface HardwareRacksGetRackParams {
-  /**
-   * The rack's unique ID.
-   */
   rackId: string
 }
 
 export interface HardwareSledsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: IdSortMode
 }
 
 export interface HardwareSledsGetSledParams {
-  /**
-   * The sled's unique ID.
-   */
   sledId: string
 }
 
@@ -1192,14 +1198,8 @@ export interface SpoofLoginParams {}
 export interface LogoutParams {}
 
 export interface OrganizationsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameOrIdSortMode
@@ -1220,14 +1220,8 @@ export interface OrganizationsDeleteOrganizationParams {
 }
 
 export interface OrganizationProjectsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameOrIdSortMode
@@ -1258,14 +1252,8 @@ export interface OrganizationProjectsDeleteProjectParams {
 }
 
 export interface ProjectDisksGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1298,14 +1286,8 @@ export interface ProjectDisksDeleteDiskParams {
 }
 
 export interface ProjectInstancesGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1338,14 +1320,8 @@ export interface ProjectInstancesDeleteInstanceParams {
 }
 
 export interface InstanceDisksGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1406,14 +1382,8 @@ export interface ProjectInstancesInstanceStopParams {
 }
 
 export interface ProjectVpcsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1470,14 +1440,8 @@ export interface VpcFirewallRulesPutParams {
 }
 
 export interface VpcRoutersGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1528,14 +1492,8 @@ export interface VpcRoutersDeleteRouterParams {
 }
 
 export interface RoutersRoutesGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1596,14 +1554,8 @@ export interface RoutersRoutesDeleteRouteParams {
 }
 
 export interface VpcSubnetsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1654,14 +1606,8 @@ export interface VpcSubnetsDeleteSubnetParams {
 }
 
 export interface SubnetsIpsGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1676,33 +1622,18 @@ export interface SubnetsIpsGetParams {
 }
 
 export interface RolesGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 }
 
 export interface RolesGetRoleParams {
-  /**
-   * The built-in role's unique name.
-   */
   roleName: string
 }
 
 export interface SagasGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: IdSortMode
@@ -1715,26 +1646,16 @@ export interface SagasGetSagaParams {
 export interface SessionMeParams {}
 
 export interface TimeseriesSchemaGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 }
 
+export interface UpdatesRefreshParams {}
+
 export interface UsersGetParams {
-  /**
-   * Maximum number of items returned by a single call
-   */
   limit?: number | null
 
-  /**
-   * Token returned by previous call to retreive the subsequent page
-   */
   pageToken?: string | null
 
   sortBy?: NameSortMode
@@ -1821,11 +1742,24 @@ export interface ApiConfig {
   customFetch?: typeof fetch
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
-  data: D
-  error: E
+export type ErrorResponse = Response & {
+  data: null
+  // Note that this Error is not JS `Error` but rather an Error type generated
+  // from the spec. The fact that it has the same name as the global Error type
+  // is unfortunate. If the generated error type disappears, this will not fail
+  // typechecking here, but any code that depends on this having a certain shape
+  // will fail, so it's not that bad, though the error message may be confusing.
+  error: Error
 }
+
+export type SuccessResponse<Data extends unknown> = Response & {
+  data: Data
+  error: null
+}
+
+export type ApiResponse<Data extends unknown> =
+  | SuccessResponse<Data>
+  | ErrorResponse
 
 type CancelToken = Symbol | string | number
 
@@ -1895,14 +1829,14 @@ export class HttpClient {
     }
   }
 
-  public request = async <T = any, E = any>({
+  public request = async <Data extends unknown>({
     body,
     path,
     query,
     baseUrl,
     cancelToken,
     ...params
-  }: FullRequestParams): Promise<HttpResponse<T, E>> => {
+  }: FullRequestParams): Promise<ApiResponse<Data>> => {
     const requestParams = this.mergeRequestParams(params)
     const queryString = query && toQueryString(query)
 
@@ -1912,7 +1846,7 @@ export class HttpClient {
       url += '?' + queryString
     }
 
-    return this.customFetch(url, {
+    const response = await this.customFetch(url, {
       ...requestParams,
       headers: {
         'Content-Type': 'application/json',
@@ -1920,32 +1854,29 @@ export class HttpClient {
       },
       signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
       body: JSON.stringify(snakeify(body)),
-    }).then(async (response) => {
-      const r = response as HttpResponse<T, E>
-      r.data = null as unknown as T
-      r.error = null as unknown as E
-
-      await response
-        .json()
-        .then(processResponseBody)
-        .then((data) => {
-          if (r.ok) {
-            r.data = data as T
-          } else {
-            r.error = data as E
-          }
-        })
-        .catch((e) => {
-          r.error = e
-        })
-
-      if (cancelToken) {
-        this.abortControllers.delete(cancelToken)
-      }
-
-      if (!r.ok) throw r
-      return r
     })
+
+    const r = response as ApiResponse<Data>
+    r.data = null as unknown as Data
+    r.error = null as unknown as Error
+
+    try {
+      const data = processResponseBody(await response.json())
+      if (r.ok) {
+        r.data = data as Data
+      } else {
+        r.error = data as Error
+      }
+    } catch (e) {
+      r.error = e as Error
+    }
+
+    if (cancelToken) {
+      this.abortControllers.delete(cancelToken)
+    }
+
+    if (!r.ok) throw r
+    return r
   }
 }
 
@@ -1958,7 +1889,7 @@ export class Api extends HttpClient {
       query: HardwareRacksGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<RackResultsPage, any>({
+      this.request<RackResultsPage>({
         path: `/hardware/racks`,
         method: 'GET',
         query: query,
@@ -1972,7 +1903,7 @@ export class Api extends HttpClient {
       { rackId }: HardwareRacksGetRackParams,
       params: RequestParams = {}
     ) =>
-      this.request<Rack, any>({
+      this.request<Rack>({
         path: `/hardware/racks/${rackId}`,
         method: 'GET',
         ...params,
@@ -1985,7 +1916,7 @@ export class Api extends HttpClient {
       query: HardwareSledsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<SledResultsPage, any>({
+      this.request<SledResultsPage>({
         path: `/hardware/sleds`,
         method: 'GET',
         query: query,
@@ -1999,7 +1930,7 @@ export class Api extends HttpClient {
       { sledId }: HardwareSledsGetSledParams,
       params: RequestParams = {}
     ) =>
-      this.request<Sled, any>({
+      this.request<Sled>({
         path: `/hardware/sleds/${sledId}`,
         method: 'GET',
         ...params,
@@ -2010,7 +1941,7 @@ export class Api extends HttpClient {
       data: LoginParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/login`,
         method: 'POST',
         body: data,
@@ -2018,7 +1949,7 @@ export class Api extends HttpClient {
       }),
 
     logout: (query: LogoutParams, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/logout`,
         method: 'POST',
         ...params,
@@ -2031,7 +1962,7 @@ export class Api extends HttpClient {
       query: OrganizationsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationResultsPage, any>({
+      this.request<OrganizationResultsPage>({
         path: `/organizations`,
         method: 'GET',
         query: query,
@@ -2046,7 +1977,7 @@ export class Api extends HttpClient {
       data: OrganizationCreate,
       params: RequestParams = {}
     ) =>
-      this.request<Organization, any>({
+      this.request<Organization>({
         path: `/organizations`,
         method: 'POST',
         body: data,
@@ -2060,7 +1991,7 @@ export class Api extends HttpClient {
       { orgName }: OrganizationsGetOrganizationParams,
       params: RequestParams = {}
     ) =>
-      this.request<Organization, any>({
+      this.request<Organization>({
         path: `/organizations/${orgName}`,
         method: 'GET',
         ...params,
@@ -2074,7 +2005,7 @@ export class Api extends HttpClient {
       data: OrganizationUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<Organization, any>({
+      this.request<Organization>({
         path: `/organizations/${orgName}`,
         method: 'PUT',
         body: data,
@@ -2088,7 +2019,7 @@ export class Api extends HttpClient {
       { orgName }: OrganizationsDeleteOrganizationParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}`,
         method: 'DELETE',
         ...params,
@@ -2101,7 +2032,7 @@ export class Api extends HttpClient {
       { orgName, ...query }: OrganizationProjectsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectResultsPage, any>({
+      this.request<ProjectResultsPage>({
         path: `/organizations/${orgName}/projects`,
         method: 'GET',
         query: query,
@@ -2116,7 +2047,7 @@ export class Api extends HttpClient {
       data: ProjectCreate,
       params: RequestParams = {}
     ) =>
-      this.request<Project, any>({
+      this.request<Project>({
         path: `/organizations/${orgName}/projects`,
         method: 'POST',
         body: data,
@@ -2130,7 +2061,7 @@ export class Api extends HttpClient {
       { orgName, projectName }: OrganizationProjectsGetProjectParams,
       params: RequestParams = {}
     ) =>
-      this.request<Project, any>({
+      this.request<Project>({
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'GET',
         ...params,
@@ -2144,7 +2075,7 @@ export class Api extends HttpClient {
       data: ProjectUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<Project, any>({
+      this.request<Project>({
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'PUT',
         body: data,
@@ -2158,7 +2089,7 @@ export class Api extends HttpClient {
       { orgName, projectName }: OrganizationProjectsDeleteProjectParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'DELETE',
         ...params,
@@ -2171,7 +2102,7 @@ export class Api extends HttpClient {
       { orgName, projectName, ...query }: ProjectDisksGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<DiskResultsPage, any>({
+      this.request<DiskResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'GET',
         query: query,
@@ -2186,7 +2117,7 @@ export class Api extends HttpClient {
       data: DiskCreate,
       params: RequestParams = {}
     ) =>
-      this.request<Disk, any>({
+      this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'POST',
         body: data,
@@ -2200,7 +2131,7 @@ export class Api extends HttpClient {
       { diskName, orgName, projectName }: ProjectDisksGetDiskParams,
       params: RequestParams = {}
     ) =>
-      this.request<Disk, any>({
+      this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
         method: 'GET',
         ...params,
@@ -2213,7 +2144,7 @@ export class Api extends HttpClient {
       { diskName, orgName, projectName }: ProjectDisksDeleteDiskParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
         method: 'DELETE',
         ...params,
@@ -2226,7 +2157,7 @@ export class Api extends HttpClient {
       { orgName, projectName, ...query }: ProjectInstancesGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<InstanceResultsPage, any>({
+      this.request<InstanceResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'GET',
         query: query,
@@ -2241,7 +2172,7 @@ export class Api extends HttpClient {
       data: InstanceCreate,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'POST',
         body: data,
@@ -2255,7 +2186,7 @@ export class Api extends HttpClient {
       { instanceName, orgName, projectName }: ProjectInstancesGetInstanceParams,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}`,
         method: 'GET',
         ...params,
@@ -2272,7 +2203,7 @@ export class Api extends HttpClient {
       }: ProjectInstancesDeleteInstanceParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}`,
         method: 'DELETE',
         ...params,
@@ -2285,7 +2216,7 @@ export class Api extends HttpClient {
       { instanceName, orgName, projectName, ...query }: InstanceDisksGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<DiskResultsPage, any>({
+      this.request<DiskResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks`,
         method: 'GET',
         query: query,
@@ -2297,7 +2228,7 @@ export class Api extends HttpClient {
       data: DiskIdentifier,
       params: RequestParams = {}
     ) =>
-      this.request<Disk, any>({
+      this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/attach`,
         method: 'POST',
         body: data,
@@ -2309,7 +2240,7 @@ export class Api extends HttpClient {
       data: DiskIdentifier,
       params: RequestParams = {}
     ) =>
-      this.request<Disk, any>({
+      this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
         method: 'POST',
         body: data,
@@ -2328,7 +2259,7 @@ export class Api extends HttpClient {
       data: InstanceMigrate,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/migrate`,
         method: 'POST',
         body: data,
@@ -2346,7 +2277,7 @@ export class Api extends HttpClient {
       }: ProjectInstancesInstanceRebootParams,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
         method: 'POST',
         ...params,
@@ -2363,7 +2294,7 @@ export class Api extends HttpClient {
       }: ProjectInstancesInstanceStartParams,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/start`,
         method: 'POST',
         ...params,
@@ -2380,7 +2311,7 @@ export class Api extends HttpClient {
       }: ProjectInstancesInstanceStopParams,
       params: RequestParams = {}
     ) =>
-      this.request<Instance, any>({
+      this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/stop`,
         method: 'POST',
         ...params,
@@ -2393,7 +2324,7 @@ export class Api extends HttpClient {
       { orgName, projectName, ...query }: ProjectVpcsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcResultsPage, any>({
+      this.request<VpcResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'GET',
         query: query,
@@ -2408,7 +2339,7 @@ export class Api extends HttpClient {
       data: VpcCreate,
       params: RequestParams = {}
     ) =>
-      this.request<Vpc, any>({
+      this.request<Vpc>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'POST',
         body: data,
@@ -2422,7 +2353,7 @@ export class Api extends HttpClient {
       { orgName, projectName, vpcName }: ProjectVpcsGetVpcParams,
       params: RequestParams = {}
     ) =>
-      this.request<Vpc, any>({
+      this.request<Vpc>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'GET',
         ...params,
@@ -2436,7 +2367,7 @@ export class Api extends HttpClient {
       data: VpcUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'PUT',
         body: data,
@@ -2450,7 +2381,7 @@ export class Api extends HttpClient {
       { orgName, projectName, vpcName }: ProjectVpcsDeleteVpcParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'DELETE',
         ...params,
@@ -2463,7 +2394,7 @@ export class Api extends HttpClient {
       { orgName, projectName, vpcName }: VpcFirewallRulesGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRules, any>({
+      this.request<VpcFirewallRules>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'GET',
         ...params,
@@ -2477,7 +2408,7 @@ export class Api extends HttpClient {
       data: VpcFirewallRuleUpdateParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcFirewallRules, any>({
+      this.request<VpcFirewallRules>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'PUT',
         body: data,
@@ -2491,7 +2422,7 @@ export class Api extends HttpClient {
       { orgName, projectName, vpcName, ...query }: VpcRoutersGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcRouterResultsPage, any>({
+      this.request<VpcRouterResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'GET',
         query: query,
@@ -2506,7 +2437,7 @@ export class Api extends HttpClient {
       data: VpcRouterCreate,
       params: RequestParams = {}
     ) =>
-      this.request<VpcRouter, any>({
+      this.request<VpcRouter>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'POST',
         body: data,
@@ -2520,7 +2451,7 @@ export class Api extends HttpClient {
       { orgName, projectName, routerName, vpcName }: VpcRoutersGetRouterParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcRouter, any>({
+      this.request<VpcRouter>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'GET',
         ...params,
@@ -2534,7 +2465,7 @@ export class Api extends HttpClient {
       data: VpcRouterUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'PUT',
         body: data,
@@ -2553,7 +2484,7 @@ export class Api extends HttpClient {
       }: VpcRoutersDeleteRouterParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'DELETE',
         ...params,
@@ -2572,7 +2503,7 @@ export class Api extends HttpClient {
       }: RoutersRoutesGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<RouterRouteResultsPage, any>({
+      this.request<RouterRouteResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'GET',
         query: query,
@@ -2587,7 +2518,7 @@ export class Api extends HttpClient {
       data: RouterRouteCreateParams,
       params: RequestParams = {}
     ) =>
-      this.request<RouterRoute, any>({
+      this.request<RouterRoute>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'POST',
         body: data,
@@ -2607,7 +2538,7 @@ export class Api extends HttpClient {
       }: RoutersRoutesGetRouteParams,
       params: RequestParams = {}
     ) =>
-      this.request<RouterRoute, any>({
+      this.request<RouterRoute>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'GET',
         ...params,
@@ -2627,7 +2558,7 @@ export class Api extends HttpClient {
       data: RouterRouteUpdateParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'PUT',
         body: data,
@@ -2647,7 +2578,7 @@ export class Api extends HttpClient {
       }: RoutersRoutesDeleteRouteParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'DELETE',
         ...params,
@@ -2660,7 +2591,7 @@ export class Api extends HttpClient {
       { orgName, projectName, vpcName, ...query }: VpcSubnetsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcSubnetResultsPage, any>({
+      this.request<VpcSubnetResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'GET',
         query: query,
@@ -2675,7 +2606,7 @@ export class Api extends HttpClient {
       data: VpcSubnetCreate,
       params: RequestParams = {}
     ) =>
-      this.request<VpcSubnet, any>({
+      this.request<VpcSubnet>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'POST',
         body: data,
@@ -2689,7 +2620,7 @@ export class Api extends HttpClient {
       { orgName, projectName, subnetName, vpcName }: VpcSubnetsGetSubnetParams,
       params: RequestParams = {}
     ) =>
-      this.request<VpcSubnet, any>({
+      this.request<VpcSubnet>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'GET',
         ...params,
@@ -2703,7 +2634,7 @@ export class Api extends HttpClient {
       data: VpcSubnetUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'PUT',
         body: data,
@@ -2722,7 +2653,7 @@ export class Api extends HttpClient {
       }: VpcSubnetsDeleteSubnetParams,
       params: RequestParams = {}
     ) =>
-      this.request<void, any>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'DELETE',
         ...params,
@@ -2741,7 +2672,7 @@ export class Api extends HttpClient {
       }: SubnetsIpsGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<NetworkInterfaceResultsPage, any>({
+      this.request<NetworkInterfaceResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/ips`,
         method: 'GET',
         query: query,
@@ -2752,7 +2683,7 @@ export class Api extends HttpClient {
      * List the built-in roles
      */
     rolesGet: (query: RolesGetParams, params: RequestParams = {}) =>
-      this.request<RoleResultsPage, any>({
+      this.request<RoleResultsPage>({
         path: `/roles`,
         method: 'GET',
         query: query,
@@ -2766,7 +2697,7 @@ export class Api extends HttpClient {
       { roleName }: RolesGetRoleParams,
       params: RequestParams = {}
     ) =>
-      this.request<Role, any>({
+      this.request<Role>({
         path: `/roles/${roleName}`,
         method: 'GET',
         ...params,
@@ -2776,7 +2707,7 @@ export class Api extends HttpClient {
      * List all sagas (for debugging)
      */
     sagasGet: (query: SagasGetParams, params: RequestParams = {}) =>
-      this.request<SagaResultsPage, any>({
+      this.request<SagaResultsPage>({
         path: `/sagas`,
         method: 'GET',
         query: query,
@@ -2790,7 +2721,7 @@ export class Api extends HttpClient {
       { sagaId }: SagasGetSagaParams,
       params: RequestParams = {}
     ) =>
-      this.request<Saga, any>({
+      this.request<Saga>({
         path: `/sagas/${sagaId}`,
         method: 'GET',
         ...params,
@@ -2800,7 +2731,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
-      this.request<SessionUser, any>({
+      this.request<SessionUser>({
         path: `/session/me`,
         method: 'GET',
         ...params,
@@ -2813,7 +2744,7 @@ export class Api extends HttpClient {
       query: TimeseriesSchemaGetParams,
       params: RequestParams = {}
     ) =>
-      this.request<TimeseriesSchemaResultsPage, any>({
+      this.request<TimeseriesSchemaResultsPage>({
         path: `/timeseries/schema`,
         method: 'GET',
         query: query,
@@ -2821,10 +2752,20 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Refresh update metadata
+     */
+    updatesRefresh: (query: UpdatesRefreshParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/updates/refresh`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
      * List the built-in system users
      */
     usersGet: (query: UsersGetParams, params: RequestParams = {}) =>
-      this.request<UserResultsPage, any>({
+      this.request<UserResultsPage>({
         path: `/users`,
         method: 'GET',
         query: query,
@@ -2838,7 +2779,7 @@ export class Api extends HttpClient {
       { userName }: UsersGetUserParams,
       params: RequestParams = {}
     ) =>
-      this.request<User, any>({
+      this.request<User>({
         path: `/users/${userName}`,
         method: 'GET',
         ...params,
