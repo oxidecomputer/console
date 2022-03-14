@@ -20,7 +20,7 @@ import {
 } from '@oxide/ui'
 import { classed } from '@oxide/util'
 import { useApiMutation } from '@oxide/api'
-import { getServerError } from 'app/util/errors'
+import { getServerError } from '@oxide/util'
 import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './modals/new-disk-modal'
 import { ExistingDiskModal } from './modals/existing-disk-modal'

@@ -28,7 +28,7 @@ import {
   useApiQueryClient,
   firewallRuleGetToPut,
 } from '@oxide/api'
-import { getServerError } from 'app/util/errors'
+import { getServerError } from '@oxide/util'
 
 type FormProps = {
   error: ErrorResponse | null

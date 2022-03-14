@@ -1,4 +1,5 @@
 export * from './classed'
+export * from './errors'
 export * from './str'
 export * from './invariant'
 export * from './object'
