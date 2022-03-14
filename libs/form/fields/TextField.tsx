@@ -18,30 +18,22 @@ export interface TextFieldProps extends UITextFieldProps {
   placeholder?: string
 }
 
-export function TextField({
-  id,
-  title,
-  description,
-  hint,
-  name,
-  ...inputProps
-}: TextFieldProps) {
+export function TextField(props: TextFieldProps) {
+  const { id, description, hint, name, title, required } = props
   const error = useError(name)
   return (
     <div>
-      <FieldTitle id={`${id}-title`} tip={description}>
+      <FieldTitle id={`${id}-title`} tip={description} optional={!required}>
         {title || capitalize(name)}
       </FieldTitle>
       {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
       <UITextField
-        id={id}
-        name={name}
         error={!!error}
         aria-labelledby={cn(`${id}-title`, {
           [`${id}-hint`]: !!description,
         })}
         aria-describedby={description ? `${id}-title-tip` : undefined}
-        {...inputProps}
+        {...props}
       />
       <TextFieldError name={name} />
     </div>

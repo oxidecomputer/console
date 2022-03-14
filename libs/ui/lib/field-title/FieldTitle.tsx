@@ -29,6 +29,7 @@ type FieldTitleProps<T extends ElementType> = (
     }
 ) & {
   tip?: string
+  optional?: boolean
 }
 
 export const FieldTitle = <T extends ElementType = 'label'>({
@@ -36,6 +37,7 @@ export const FieldTitle = <T extends ElementType = 'label'>({
   children,
   htmlFor,
   tip,
+  optional,
   as,
 }: PropsWithChildren<FieldTitleProps<T>>) => {
   const Component = as || 'label'
@@ -47,6 +49,13 @@ export const FieldTitle = <T extends ElementType = 'label'>({
         htmlFor={htmlFor}
       >
         {children}
+        {optional && (
+          // Announcing this optional text is unnecessary as the required attribute on the
+          // form will be used
+          <span className="pl-1 text-secondary" aria-hidden="true">
+            (Optional)
+          </span>
+        )}
       </Component>
       {tip && (
         <Tooltip id={`${id}-tip`} content={tip}>
