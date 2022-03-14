@@ -36,6 +36,9 @@ module.exports = {
       borderRadius: {
         ...borderRadiusTokens,
       },
+      width: {
+        184: '46rem',
+      },
     },
     colors: {
       transparent: 'transparent',
