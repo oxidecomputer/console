@@ -96,7 +96,7 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <input
           className={cn(
-            'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border px-4 py-2.5 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
+            'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border px-4 py-2.5 caret-gray-100 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
             props.inputClassName
           )}
           value={input}
