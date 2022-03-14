@@ -4,13 +4,13 @@ import { TextFieldHint } from '@oxide/ui'
 import { FieldTitle, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
-import { useFormikContext } from 'formik'
 import React from 'react'
 import { useError } from '../hooks/useError'
 
 export interface TextFieldProps extends UITextFieldProps {
   id: string
-  name: string
+  /** Will default to id if not provided */
+  name?: string
   /** Will default to name if not provided */
   title?: string
   hint?: string
@@ -18,8 +18,13 @@ export interface TextFieldProps extends UITextFieldProps {
   placeholder?: string
 }
 
-export function TextField(props: TextFieldProps) {
-  const { id, description, hint, name, title, required } = props
+export function TextField({
+  id,
+  name = id,
+  title = name,
+  ...props
+}: TextFieldProps) {
+  const { description, hint, required } = props
   const error = useError(name)
   return (
     <div>
@@ -28,6 +33,9 @@ export function TextField(props: TextFieldProps) {
       </FieldTitle>
       {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
       <UITextField
+        id={id}
+        name={name}
+        title={title}
         error={!!error}
         aria-labelledby={cn(`${id}-title`, {
           [`${id}-hint`]: !!description,

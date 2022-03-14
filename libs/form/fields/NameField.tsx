@@ -8,13 +8,11 @@ export interface NameFieldProps
 }
 
 export function NameField({
-  name = 'name',
   required = true,
   ...textFieldProps
 }: NameFieldProps) {
   return (
     <TextField
-      name={name}
       validate={validateName}
       required={required}
       {...textFieldProps}
