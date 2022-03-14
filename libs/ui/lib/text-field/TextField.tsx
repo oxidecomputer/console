@@ -86,9 +86,7 @@ export const TextFieldError = ({ name }: { name: string }) => (
     <ErrorMessage name={name}>
       {(msg) =>
         msg && (
-          <Alert className="py-2 px-3 text-mono-xs text-destructive">
-            {msg}
-          </Alert>
+          <Alert className="py-2 text-mono-xs text-destructive">{msg}</Alert>
         )
       }
     </ErrorMessage>
