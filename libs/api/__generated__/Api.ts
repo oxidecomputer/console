@@ -3,7 +3,7 @@
 /**
  * A count of bytes, typically used either for memory or storage capacity
  *
- * The maximum supported byte count is [`i64::MAX`].  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
+ * The maximum supported byte count is `i64::MAX`.  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
  */
 export type ByteCount = number
 
@@ -22,7 +22,7 @@ export type DatumType =
   | 'HistogramF64'
 
 /**
- * Client view of an [`Disk`]
+ * Client view of an {@link Disk}
  */
 export type Disk = {
   /**
@@ -53,7 +53,7 @@ export type Disk = {
 }
 
 /**
- * Create-time parameters for a [`Disk`](omicron_common::api::external::Disk)
+ * Create-time parameters for a {@link Disk}
  */
 export type DiskCreate = {
   description: string
@@ -69,7 +69,7 @@ export type DiskCreate = {
 }
 
 /**
- * Parameters for the [`Disk`](omicron_common::api::external::Disk) to be attached or detached to an instance
+ * Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export type DiskIdentifier = {
   disk: Name
@@ -130,7 +130,7 @@ export type FieldSource = 'Target' | 'Metric'
 export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
- * Client view of an [`Instance`]
+ * Client view of an {@link Instance}
  */
 export type Instance = {
   /**
@@ -179,7 +179,7 @@ export type Instance = {
 export type InstanceCpuCount = number
 
 /**
- * Create-time parameters for an [`Instance`](omicron_common::api::external::Instance)
+ * Create-time parameters for an {@link Instance}
  */
 export type InstanceCreate = {
   description: string
@@ -190,7 +190,7 @@ export type InstanceCreate = {
 }
 
 /**
- * Migration parameters for an [`Instance`](omicron_common::api::external::Instance)
+ * Migration parameters for an {@link Instance}
  */
 export type InstanceMigrate = {
   dstSledUuid: string
@@ -334,7 +334,7 @@ export type NetworkInterfaceResultsPage = {
 }
 
 /**
- * Client view of an [`Organization`]
+ * Client view of an {@link Organization}
  */
 export type Organization = {
   /**
@@ -360,7 +360,7 @@ export type Organization = {
 }
 
 /**
- * Create-time parameters for an [`Organization`](crate::external_api::views::Organization)
+ * Create-time parameters for an {@link Organization}
  */
 export type OrganizationCreate = {
   description: string
@@ -382,7 +382,7 @@ export type OrganizationResultsPage = {
 }
 
 /**
- * Updateable properties of an [`Organization`](crate::external_api::views::Organization)
+ * Updateable properties of an {@link Organization}
  */
 export type OrganizationUpdate = {
   description?: string | null
@@ -390,7 +390,7 @@ export type OrganizationUpdate = {
 }
 
 /**
- * Client view of a [`Project`]
+ * Client view of a {@link Project}
  */
 export type Project = {
   /**
@@ -417,7 +417,7 @@ export type Project = {
 }
 
 /**
- * Create-time parameters for a [`Project`](crate::external_api::views::Project)
+ * Create-time parameters for a {@link Project}
  */
 export type ProjectCreate = {
   description: string
@@ -439,7 +439,7 @@ export type ProjectResultsPage = {
 }
 
 /**
- * Updateable properties of a [`Project`](crate::external_api::views::Project)
+ * Updateable properties of a {@link Project}
  */
 export type ProjectUpdate = {
   description?: string | null
@@ -447,7 +447,7 @@ export type ProjectUpdate = {
 }
 
 /**
- * Client view of an [`Rack`]
+ * Client view of an {@link Rack}
  */
 export type Rack = {
   /**
@@ -487,7 +487,7 @@ export type RackResultsPage = {
 }
 
 /**
- * Client view of a [`Role`]
+ * Client view of a {@link Role}
  */
 export type Role = {
   description: string
@@ -517,7 +517,7 @@ export type RoleResultsPage = {
 }
 
 /**
- * A subset of [`NetworkTarget`], `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the [`RouteTarget`].
+ * A subset of `NetworkTarget`, `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the {@link RouteTarget}.
  */
 export type RouteDestination =
   | { type: 'ip'; value: string }
@@ -525,7 +525,7 @@ export type RouteDestination =
   | { type: 'subnet'; value: Name }
 
 /**
- * A subset of [`NetworkTarget`], `RouteTarget` specifies all possible targets that a route can forward to.
+ * A subset of `NetworkTarget`, `RouteTarget` specifies all possible targets that a route can forward to.
  */
 export type RouteTarget =
   | { type: 'ip'; value: string }
@@ -571,7 +571,7 @@ export type RouterRoute = {
 }
 
 /**
- * Create-time parameters for a [`RouterRoute`]
+ * Create-time parameters for a {@link RouterRoute}
  */
 export type RouterRouteCreateParams = {
   description: string
@@ -581,7 +581,7 @@ export type RouterRouteCreateParams = {
 }
 
 /**
- * The classification of a [`RouterRoute`] as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ * The classification of a {@link RouterRoute} as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
  *
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
@@ -606,7 +606,7 @@ export type RouterRouteResultsPage = {
 }
 
 /**
- * Updateable properties of a [`RouterRoute`]
+ * Updateable properties of a {@link RouterRoute}
  */
 export type RouterRouteUpdateParams = {
   description?: string | null
@@ -654,7 +654,7 @@ export type SessionUser = {
 }
 
 /**
- * Client view of an [`Sled`]
+ * Client view of an {@link Sled}
  */
 export type Sled = {
   /**
@@ -730,7 +730,7 @@ export type TimeseriesSchemaResultsPage = {
 }
 
 /**
- * Client view of a [`User`]
+ * Client view of a {@link User}
  */
 export type User = {
   /**
@@ -770,7 +770,7 @@ export type UserResultsPage = {
 }
 
 /**
- * Client view of a [`Vpc`]
+ * Client view of a {@link Vpc}
  */
 export type Vpc = {
   /**
@@ -812,7 +812,7 @@ export type Vpc = {
 }
 
 /**
- * Create-time parameters for a [`Vpc`](crate::external_api::views::Vpc)
+ * Create-time parameters for a {@link Vpc}
  */
 export type VpcCreate = {
   description: string
@@ -903,7 +903,7 @@ export type VpcFirewallRuleFilter = {
 }
 
 /**
- * A subset of [`NetworkTarget`], `VpcFirewallRuleHostFilter` specifies all possible targets that a route can forward to.
+ * A subset of `NetworkTarget`, `VpcFirewallRuleHostFilter` specifies all possible targets that a route can forward to.
  */
 export type VpcFirewallRuleHostFilter =
   | { type: 'vpc'; value: Name }
@@ -920,7 +920,7 @@ export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
- * A subset of [`NetworkTarget`], `VpcFirewallRuleTarget` specifies all possible targets that a firewall rule can be attached to.
+ * A subset of `NetworkTarget`, `VpcFirewallRuleTarget` specifies all possible targets that a firewall rule can be attached to.
  */
 export type VpcFirewallRuleTarget =
   | { type: 'vpc'; value: Name }
@@ -973,7 +973,7 @@ export type VpcFirewallRuleUpdateParams = {
 }
 
 /**
- * Collection of a [`Vpc`]'s firewall rules
+ * Collection of a {@link Vpc}'s firewall rules
  */
 export type VpcFirewallRules = {
   rules: VpcFirewallRule[]
@@ -1025,7 +1025,7 @@ export type VpcRouter = {
 }
 
 /**
- * Create-time parameters for a [`VpcRouter`](omicron_common::api::external::VpcRouter)
+ * Create-time parameters for a {@link VpcRouter}
  */
 export type VpcRouterCreate = {
   description: string
@@ -1049,7 +1049,7 @@ export type VpcRouterResultsPage = {
 }
 
 /**
- * Updateable properties of a [`VpcRouter`](omicron_common::api::external::VpcRouter)
+ * Updateable properties of a {@link VpcRouter}
  */
 export type VpcRouterUpdate = {
   description?: string | null
@@ -1095,7 +1095,7 @@ export type VpcSubnet = {
 }
 
 /**
- * Create-time parameters for a [`VpcSubnet`](crate::external_api::views::VpcSubnet)
+ * Create-time parameters for a {@link VpcSubnet}
  */
 export type VpcSubnetCreate = {
   description: string
@@ -1129,7 +1129,7 @@ export type VpcSubnetResultsPage = {
 }
 
 /**
- * Updateable properties of a [`VpcSubnet`](crate::external_api::views::VpcSubnet)
+ * Updateable properties of a {@link VpcSubnet}
  */
 export type VpcSubnetUpdate = {
   description?: string | null
@@ -1139,7 +1139,7 @@ export type VpcSubnetUpdate = {
 }
 
 /**
- * Updateable properties of a [`Vpc`](crate::external_api::views::Vpc)
+ * Updateable properties of a {@link Vpc}
  */
 export type VpcUpdate = {
   description?: string | null

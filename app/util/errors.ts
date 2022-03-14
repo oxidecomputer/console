@@ -23,7 +23,7 @@ export const getServerError = (
   if (!resp) return null
   const code = resp.error.errorCode
   const codeMsg = code && (codeMap[code] || globalCodeMap[code])
-  const serverMsg = resp.error?.message
+  const serverMsg = resp.error.message
   return (
     // first try to get friendly message based on code
     codeMsg ||
