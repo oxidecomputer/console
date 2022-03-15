@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { override } from 'app/test/utils'
+import { override, queryClientOptions } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
@@ -13,9 +13,7 @@ import { useApiQuery, useApiMutation } from '../'
 
 // make a whole new query client for every test. it was acting weird
 const wrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  })
+  const queryClient = new QueryClient(queryClientOptions)
   return {
     wrapper: ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
