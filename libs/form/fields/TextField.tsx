@@ -41,7 +41,7 @@ export function TextField({
   const { description, helpText, required } = props
   const error = useError(name)
   return (
-    <div>
+    <div className="max-w-lg">
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
         {label}
       </FieldLabel>
