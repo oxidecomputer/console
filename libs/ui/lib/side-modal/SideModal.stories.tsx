@@ -6,10 +6,6 @@ import { Button } from '../button/Button'
 
 type Story = StoryObj<ComponentProps<typeof SideModal>>
 
-export default {
-  component: SideModal,
-} as Story
-
 export const Default: Story = {
   args: {
     title: 'Test SideModal',

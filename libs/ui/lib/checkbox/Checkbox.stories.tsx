@@ -5,14 +5,14 @@ import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Checkbox>>
 
-export default {
-  component: Checkbox,
-  argTypes: {
-    checked: { control: 'boolean' },
-    indeterminate: { control: 'boolean' },
-    children: { control: 'text' },
-  },
-} as Story
+// export default {
+//   component: Checkbox,
+//   argTypes: {
+//     checked: { control: 'boolean' },
+//     indeterminate: { control: 'boolean' },
+//     children: { control: 'text' },
+//   },
+// } as Story
 
 export const All = () => {
   return (

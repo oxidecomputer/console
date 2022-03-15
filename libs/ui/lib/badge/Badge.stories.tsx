@@ -7,10 +7,6 @@ import { Section } from '../../util/story-section'
 
 type Story = StoryObj<ComponentProps<typeof Badge>>
 
-export default {
-  component: Badge,
-} as Story
-
 export const All = () => {
   return (
     <div className="flex flex-wrap">
@@ -39,7 +35,7 @@ export const Selected = () => {
     </div>
   )
 }
-Selected.storyName = `Theme/Selected`
+Selected.storyName = 'Theme/Selected'
 
 export const Default: Story = {
   args: {

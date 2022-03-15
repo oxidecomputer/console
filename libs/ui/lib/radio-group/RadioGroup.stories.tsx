@@ -8,10 +8,6 @@ import type { StoryObj } from '@storybook/react'
 
 type Story = StoryObj<ComponentProps<typeof RadioGroup>>
 
-export default {
-  component: RadioGroup,
-} as Story
-
 export const Default = () => (
   <RadioGroup name="group1">
     <Radio value="notify">Comments</Radio>

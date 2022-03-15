@@ -5,10 +5,6 @@ import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof AvatarStack>>
 
-export default {
-  component: AvatarStack,
-} as Story
-
 const AVATAR_DATA = [
   { name: 'Haley Clark', round: true },
   { name: 'Cameron Howe', round: true },
@@ -26,4 +22,4 @@ export const Selected = () => {
     </div>
   )
 }
-Selected.storyName = `Theme/Selected`
+Selected.storyName = 'Theme/Selected'

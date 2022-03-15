@@ -1,12 +1,8 @@
-import { FieldTitle } from './FieldTitle'
+import type { FieldTitle } from './FieldTitle'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
 type Story = StoryObj<ComponentProps<typeof FieldTitle>>
-
-export default {
-  component: FieldTitle,
-} as Story
 
 export const Default: Story = {
   args: {

@@ -6,10 +6,6 @@ import { Delete10Icon, Spanner12Icon, Terminal10Icon } from '../icons'
 
 type Story = StoryObj<ComponentProps<typeof BulkActionMenu>>
 
-export default {
-  component: BulkActionMenu,
-} as Story
-
 export const Default: Story = {
   args: {
     selectedCount: 5,

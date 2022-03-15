@@ -6,23 +6,23 @@ import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Button>>
 
-export default {
-  component: Button,
-  argTypes: {
-    size: {
-      control: {
-        type: 'select',
-        options: buttonSizes,
-      },
-    },
-    variant: {
-      control: {
-        type: 'select',
-        options: variants,
-      },
-    },
-  },
-} as Story
+// export default {
+//   component: Button,
+//   argTypes: {
+//     size: {
+//       control: {
+//         type: 'select',
+//         options: buttonSizes,
+//       },
+//     },
+//     variant: {
+//       control: {
+//         type: 'select',
+//         options: variants,
+//       },
+//     },
+//   },
+// } as Story
 
 export const Default: Story = {
   args: {
@@ -66,4 +66,4 @@ export const Selected = () => {
     </div>
   )
 }
-Selected.storyName = `Theme/Selected`
+Selected.storyName = 'Theme/Selected'

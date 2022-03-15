@@ -6,14 +6,14 @@ import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Radio>>
 
-export default {
-  component: Radio,
-  argTypes: {
-    checked: { control: 'boolean' },
-    children: { control: 'text' },
-  },
-  decorators: [FormikDecorator()],
-} as Story
+// export default {
+//   component: Radio,
+//   argTypes: {
+//     checked: { control: 'boolean' },
+//     children: { control: 'text' },
+//   },
+//   decorators: [FormikDecorator()],
+// } as Story
 
 export const All = () => {
   return (

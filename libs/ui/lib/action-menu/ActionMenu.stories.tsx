@@ -1,12 +1,8 @@
-import { ActionMenu } from './ActionMenu'
+import type { ActionMenu } from './ActionMenu'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
 
 type Story = StoryObj<ComponentProps<typeof ActionMenu>>
-
-export default {
-  component: ActionMenu,
-} as Story
 
 const makeItem = (value: string) => ({
   value,

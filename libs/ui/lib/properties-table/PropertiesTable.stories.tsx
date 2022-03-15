@@ -5,10 +5,6 @@ import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof PropertiesTable>>
 
-export default {
-  component: PropertiesTable,
-} as Story
-
 export const Default: Story = {
   args: {
     children: [

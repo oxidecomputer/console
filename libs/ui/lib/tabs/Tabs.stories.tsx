@@ -1,6 +1,7 @@
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
-import { Tabs, Tab } from './Tabs'
+import type { Tabs } from './Tabs'
+import { Tab } from './Tabs'
 import React, { Fragment } from 'react'
 import { Badge } from '@oxide/ui'
 import { flattenChildren } from '@oxide/util'
@@ -13,22 +14,22 @@ type Story = StoryObj<
   }
 >
 
-export default {
-  component: Tabs,
-  render: (args) => {
-    return (
-      <Tabs aria-label={args.label} id="tabs-example">
-        {flattenChildren(args.tabs).map((tab, i) => (
-          <Fragment key={`tab-group-${i}`}>
-            {typeof tab === 'string' ? <Tab>{tab}</Tab> : tab}
-            <Tab.Panel>{args.panels[i]}</Tab.Panel>
-          </Fragment>
-        ))}
-      </Tabs>
-    )
-  },
-  args: {},
-} as Story
+// export default {
+//   component: Tabs,
+//   render: (args) => {
+//     return (
+//       <Tabs aria-label={args.label} id="tabs-example">
+//         {flattenChildren(args.tabs).map((tab, i) => (
+//           <Fragment key={`tab-group-${i}`}>
+//             {typeof tab === 'string' ? <Tab>{tab}</Tab> : tab}
+//             <Tab.Panel>{args.panels[i]}</Tab.Panel>
+//           </Fragment>
+//         ))}
+//       </Tabs>
+//     )
+//   },
+//   args: {},
+// } as Story
 
 export const Default: Story = {
   args: {
