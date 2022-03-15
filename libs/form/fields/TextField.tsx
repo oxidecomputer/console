@@ -35,7 +35,7 @@ export interface TextFieldProps extends UITextFieldProps {
 export function TextField({
   id,
   name = id,
-  label = name,
+  label = capitalize(name),
   ...props
 }: TextFieldProps) {
   const { description, helpText, required } = props
@@ -43,7 +43,7 @@ export function TextField({
   return (
     <div>
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-        {label || capitalize(name)}
+        {label}
       </FieldLabel>
       {helpText && (
         <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>

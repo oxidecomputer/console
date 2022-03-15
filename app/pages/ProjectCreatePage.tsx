@@ -61,8 +61,8 @@ export default function ProjectCreatePage() {
           })
         }}
       >
-        <NameField id="project-name" />
-        <DescriptionField id="project-description" />
+        <NameField id="name" />
+        <DescriptionField id="description" />
         <Form.Actions mutation={createProject} errorCodes={ERROR_CODES}>
           <Button>Create project</Button>
           <Button variant="ghost">Equivalent CLI</Button>
