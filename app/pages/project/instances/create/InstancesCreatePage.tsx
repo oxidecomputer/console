@@ -15,7 +15,7 @@ import {
   TextField,
   TextFieldHint,
   Instances24Icon,
-  FieldTitle,
+  FieldLabel,
   Badge,
 } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -282,7 +282,7 @@ export default function InstanceCreatePage() {
 
           <Heading>Finalize and create</Heading>
           <div>
-            <FieldTitle htmlFor="instance-name">Choose a name</FieldTitle>
+            <FieldLabel htmlFor="instance-name">Choose a name</FieldLabel>
             <TextFieldHint id="instance-name-hint">
               Choose an identifying name you will remember. Names may contain
               alphanumeric characters, dashes, and periods.
@@ -295,7 +295,7 @@ export default function InstanceCreatePage() {
             />
           </div>
           <div className="mt-8">
-            <FieldTitle htmlFor="hostname">Choose a hostname</FieldTitle>
+            <FieldLabel htmlFor="hostname">Choose a hostname</FieldLabel>
             <TextFieldHint id="hostname-hint">
               Optional. If left blank, we will use the instance name.
             </TextFieldHint>
@@ -309,7 +309,7 @@ export default function InstanceCreatePage() {
 
           {/* this is going to be a tag multiselect, not a text input */}
           <div className="mt-8">
-            <FieldTitle htmlFor="tags">Add tags</FieldTitle>
+            <FieldLabel htmlFor="tags">Add tags</FieldLabel>
             <TextFieldHint id="tags-hint">
               Use tags to organize and relate resources. Tags may contain
               letters, numbers, colons, dashes, and underscores.
