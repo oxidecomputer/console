@@ -1,4 +1,4 @@
-import { Button, FieldTitle, TextFieldHint } from '@oxide/ui'
+import { Button, FieldLabel, TextFieldHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import React from 'react'
 
@@ -14,10 +14,10 @@ export function TagsField(props: TagsFieldProps) {
   const { id, name = 'tags', title, hint, description } = props
   return (
     <div>
-      <FieldTitle id={id} tip={description} optional>
+      <FieldLabel id={id} tip={description} optional>
         {title || capitalize(name)}
-      </FieldTitle>
-      {/* TODO: Should TextFieldHint be grouped with FieldTitle? */}
+      </FieldLabel>
+      {/* TODO: Should TextFieldHint be grouped with FieldLabel? */}
       {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
       <Button
         variant="secondary"

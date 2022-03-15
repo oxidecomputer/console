@@ -1,7 +1,7 @@
 import type { TextFieldProps as UITextFieldProps } from '@oxide/ui'
 import { TextFieldError } from '@oxide/ui'
 import { TextFieldHint } from '@oxide/ui'
-import { FieldTitle, TextField as UITextField } from '@oxide/ui'
+import { FieldLabel, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
 import React from 'react'
@@ -35,24 +35,26 @@ export interface TextFieldProps extends UITextFieldProps {
 export function TextField({
   id,
   name = id,
-  label: title = name,
+  label = name,
   ...props
 }: TextFieldProps) {
-  const { description, helpText: hint, required } = props
+  const { description, helpText, required } = props
   const error = useError(name)
   return (
     <div>
-      <FieldTitle id={`${id}-title`} tip={description} optional={!required}>
-        {title || capitalize(name)}
-      </FieldTitle>
-      {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
+      <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+        {label || capitalize(name)}
+      </FieldLabel>
+      {helpText && (
+        <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>
+      )}
       <UITextField
         id={id}
         name={name}
-        title={title}
+        title={label}
         error={!!error}
         aria-labelledby={cn(`${id}-title`, {
-          [`${id}-hint`]: !!description,
+          [`${id}-help-text`]: !!description,
         })}
         aria-describedby={description ? `${id}-title-tip` : undefined}
         {...props}
