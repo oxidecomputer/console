@@ -82,7 +82,7 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
 // already space for the error to appear in, and following content doesn't get
 // pushed down
 export const TextFieldError = ({ name }: { name: string }) => (
-  <div className="ml-px -mb-9 min-h-[2.25rem]">
+  <div className="ml-px -mb-8 min-h-[2.25rem]">
     <ErrorMessage name={name}>
       {(msg) =>
         msg && (
