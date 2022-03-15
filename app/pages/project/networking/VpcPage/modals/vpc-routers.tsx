@@ -1,7 +1,7 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
 
-import { Button, FieldTitle, SideModal, TextField } from '@oxide/ui'
+import { Button, FieldLabel, SideModal, TextField } from '@oxide/ui'
 import type { VpcRouter, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from '@oxide/util'
@@ -20,18 +20,18 @@ const CommonForm = ({ error, id }: FormProps) => (
   <Form id={id}>
     <SideModal.Section className="border-t">
       <div className="space-y-0.5">
-        <FieldTitle htmlFor="router-name" tip="The name of the router">
+        <FieldLabel htmlFor="router-name" tip="The name of the router">
           Name
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="router-name" name="name" />
       </div>
       <div className="space-y-0.5">
-        <FieldTitle
+        <FieldLabel
           htmlFor="router-description"
           tip="A description for the router"
         >
           Description {/* TODO: indicate optional */}
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="router-description" name="description" />
       </div>
     </SideModal.Section>

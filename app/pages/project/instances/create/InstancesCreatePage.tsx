@@ -12,7 +12,6 @@ import {
   Tabs,
   Tab,
   Instances24Icon,
-  FieldTitle,
   Badge,
 } from '@oxide/ui'
 import { classed } from '@oxide/util'

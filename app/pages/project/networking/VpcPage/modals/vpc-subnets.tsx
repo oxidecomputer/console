@@ -1,7 +1,7 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
 
-import { Button, FieldTitle, SideModal, TextField } from '@oxide/ui'
+import { Button, FieldLabel, SideModal, TextField } from '@oxide/ui'
 import type { VpcSubnet, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from '@oxide/util'
@@ -17,32 +17,32 @@ const CommonForm = ({ id, error }: FormProps) => (
   <Form id={id}>
     <SideModal.Section>
       <div className="space-y-0.5">
-        <FieldTitle htmlFor="subnet-ipv4-block" tip="TBA">
+        <FieldLabel htmlFor="subnet-ipv4-block" tip="TBA">
           IPv4 block
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="subnet-ipv4-block" name="ipv4Block" />
       </div>
       <div className="space-y-0.5">
-        <FieldTitle htmlFor="subnet-ipv6-block" tip="TBA">
+        <FieldLabel htmlFor="subnet-ipv6-block" tip="TBA">
           IPv6 block
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="subnet-ipv6-block" name="ipv6Block" />
       </div>
     </SideModal.Section>
     <SideModal.Section className="border-t">
       <div className="space-y-0.5">
-        <FieldTitle htmlFor="subnet-name" tip="The name of the subnet">
+        <FieldLabel htmlFor="subnet-name" tip="The name of the subnet">
           Name
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="subnet-name" name="name" />
       </div>
       <div className="space-y-0.5">
-        <FieldTitle
+        <FieldLabel
           htmlFor="subnet-description"
           tip="A description for the subnet"
         >
           Description {/* TODO: indicate optional */}
-        </FieldTitle>
+        </FieldLabel>
         <TextField id="subnet-description" name="description" />
       </div>
     </SideModal.Section>
@@ -99,18 +99,10 @@ export function CreateVpcSubnetModal({
           ipv4Block: '',
           ipv6Block: '',
         }}
-        onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
-          createSubnet.mutate({
-            ...parentIds,
-            // XXX body is optional. useApiMutation should be smarter and require body when it's required
-            body: {
-              name,
-              description,
-              // TODO: validate these client-side using the patterns. sadly non-trivial
-              ipv4Block: ipv4Block || null,
-              ipv6Block: ipv6Block || null,
-            },
-          })
+        onSubmit={(body) => {
+          // XXX body is optional. useApiMutation should be smarter and require body when it's required
+          // TODO: validate IP blocks client-side using the patterns. sadly non-trivial
+          createSubnet.mutate({ ...parentIds, body })
         }}
       >
         <CommonForm id={formId} error={createSubnet.error} />

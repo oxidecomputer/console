@@ -13,6 +13,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: false,
       staleTime: 2000,
+      networkMode: 'offlineFirst',
     },
   },
 })

@@ -6,7 +6,7 @@ import { Info8Icon, Tooltip } from '@oxide/ui'
 /**
  * Ensures that label always has an `htmlFor` prop associated with it
  */
-type FieldTitleProps<T extends ElementType> = (
+type FieldLabelProps<T extends ElementType> = (
   | {
       id: string
       htmlFor?: never
@@ -32,14 +32,14 @@ type FieldTitleProps<T extends ElementType> = (
   optional?: boolean
 }
 
-export const FieldTitle = <T extends ElementType = 'label'>({
+export const FieldLabel = <T extends ElementType = 'label'>({
   id,
   children,
   htmlFor,
   tip,
   optional,
   as,
-}: PropsWithChildren<FieldTitleProps<T>>) => {
+}: PropsWithChildren<FieldLabelProps<T>>) => {
   const Component = as || 'label'
   return (
     <Wrap with={<div className="flex space-x-2" />} when={tip}>
