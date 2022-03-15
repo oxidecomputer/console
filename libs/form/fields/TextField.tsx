@@ -12,8 +12,22 @@ export interface TextFieldProps extends UITextFieldProps {
   /** Will default to id if not provided */
   name?: string
   /** Will default to name if not provided */
-  title?: string
-  hint?: string
+  label?: string
+  /**
+   * Displayed inline as supplementary text to the label. Should
+   * only be used for text that's necessary context for helping
+   * complete the input. This will be announced in tandem with the
+   * label when using a screen reader.
+   */
+  helpText?: string
+  /**
+   * Displayed in a tooltip beside the title. This field should be used
+   * for auxiliary context that helps users understand extra context about
+   * a field but isn't specifically required to know how to complete the input.
+   * This is announced as an `aria-description`
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
+   */
   description?: string
   placeholder?: string
 }
@@ -21,10 +35,10 @@ export interface TextFieldProps extends UITextFieldProps {
 export function TextField({
   id,
   name = id,
-  title = name,
+  label: title = name,
   ...props
 }: TextFieldProps) {
-  const { description, hint, required } = props
+  const { description, helpText: hint, required } = props
   const error = useError(name)
   return (
     <div>
