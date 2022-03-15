@@ -25,6 +25,7 @@
   },
   "private": true,
   "dependencies": {
+    "@ladle/react": "^0.8.2",
     "@popperjs/core": "^2.9.2",
     "@reach/alert": "^0.16.0",
     "@reach/dialog": "^0.16.2",
