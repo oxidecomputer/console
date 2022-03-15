@@ -7,7 +7,7 @@ import {
   CheckboxField,
   Delete10Icon,
   Dropdown,
-  FieldTitle,
+  FieldLabel,
   NumberTextField,
   Radio,
   RadioGroup,
@@ -73,19 +73,19 @@ const CommonForm = ({ id, error }: FormProps) => {
         {/* TODO: better text or heading or tip or something on this checkbox */}
         <CheckboxField name="enabled">Enabled</CheckboxField>
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="rule-name">Name</FieldTitle>
+          <FieldLabel htmlFor="rule-name">Name</FieldLabel>
           <TextField id="rule-name" name="name" />
         </div>
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="rule-description">
+          <FieldLabel htmlFor="rule-description">
             Description {/* TODO: indicate optional */}
-          </FieldTitle>
+          </FieldLabel>
           <TextField id="rule-description" name="description" />
         </div>
       </SideModal.Section>
       <SideModal.Section>
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="priority">Priority</FieldTitle>
+          <FieldLabel htmlFor="priority">Priority</FieldLabel>
           <TextFieldHint id="priority-hint">
             Must be 0&ndash;65535
           </TextFieldHint>
@@ -125,7 +125,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           }}
         />
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="targetValue">Target name</FieldTitle>
+          <FieldLabel htmlFor="targetValue">Target name</FieldLabel>
           <TextField id="targetValue" name="targetValue" />
         </div>
 
@@ -212,7 +212,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and 
           not a block. */}
-          <FieldTitle htmlFor="hostValue">Value</FieldTitle>
+          <FieldLabel htmlFor="hostValue">Value</FieldLabel>
           <TextFieldHint id="hostValue-hint">
             For IP, an address. For the rest, a name. [TODO: copy]
           </TextFieldHint>
@@ -286,7 +286,7 @@ const CommonForm = ({ id, error }: FormProps) => {
       </SideModal.Section>
       <SideModal.Section className="border-t">
         <div className="space-y-0.5">
-          <FieldTitle htmlFor="portRange">Port filter</FieldTitle>
+          <FieldLabel htmlFor="portRange">Port filter</FieldLabel>
           <TextFieldHint id="portRange-hint">
             A single port (1234) or a range (1234-2345)
           </TextFieldHint>

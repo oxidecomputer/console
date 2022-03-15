@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import {
   Button,
   Dropdown,
-  FieldTitle,
+  FieldLabel,
   Radio,
   RadioGroup,
   SideModal,
@@ -64,14 +64,14 @@ export function ExistingDiskModal({
               items={disks || []}
             />
             <fieldset>
-              <FieldTitle as="legend">Mode</FieldTitle>
+              <FieldLabel as="legend">Mode</FieldLabel>
               <RadioGroup name="mode" column>
                 <Radio value="read-write">Read/Write</Radio>
                 <Radio value="read-only">Read only</Radio>
               </RadioGroup>
             </fieldset>
             <fieldset>
-              <FieldTitle as="legend">Deletion Rule</FieldTitle>
+              <FieldLabel as="legend">Deletion Rule</FieldLabel>
               <RadioGroup name="deletion-rule" column>
                 <Radio value="keep">Keep disk</Radio>
                 <Radio value="delete">Delete disk</Radio>

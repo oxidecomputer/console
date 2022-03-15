@@ -11,7 +11,7 @@ import {
   TextFieldHint,
   Folder24Icon,
   Success16Icon,
-  FieldTitle,
+  FieldLabel,
 } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
@@ -68,7 +68,7 @@ export default function ProjectCreatePage() {
       >
         <Form>
           <div className="mb-4">
-            <FieldTitle htmlFor="project-name">Choose a name</FieldTitle>
+            <FieldLabel htmlFor="project-name">Choose a name</FieldLabel>
             <TextField
               id="project-name"
               name="name"
@@ -79,9 +79,9 @@ export default function ProjectCreatePage() {
             <TextFieldError name="name" />
           </div>
           <div className="mb-8">
-            <FieldTitle htmlFor="project-description">
+            <FieldLabel htmlFor="project-description">
               Choose a description
-            </FieldTitle>
+            </FieldLabel>
             <TextFieldHint id="description-hint">
               What is unique about your project?
             </TextFieldHint>

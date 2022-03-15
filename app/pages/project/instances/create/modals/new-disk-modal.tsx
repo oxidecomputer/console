@@ -3,7 +3,7 @@ import { Formik, Form } from 'formik'
 
 import {
   Button,
-  FieldTitle,
+  FieldLabel,
   Radio,
   RadioGroup,
   SideModal,
@@ -37,43 +37,43 @@ export function NewDiskModal({ isOpen, onDismiss }: Props) {
         >
           <Form id="new-disk-form" className="space-y-6 children:space-y-0.5">
             <div>
-              <FieldTitle htmlFor="new-disk-name" tip="The name of the disk">
+              <FieldLabel htmlFor="new-disk-name" tip="The name of the disk">
                 Name
-              </FieldTitle>
+              </FieldLabel>
               <TextField id="new-disk-name" name="name" />
             </div>
             <div>
-              <FieldTitle
+              <FieldLabel
                 htmlFor="new-disk-description"
                 tip="A message to be stored about the disk"
               >
                 Description
-              </FieldTitle>
+              </FieldLabel>
               <TextField id="new-disk-description" name="description" />
             </div>
             <div>
-              <FieldTitle htmlFor="new-disk-type">Type</FieldTitle>
+              <FieldLabel htmlFor="new-disk-type">Type</FieldLabel>
               <TextField id="new-disk-type" name="type" />
             </div>
             <div>
-              <FieldTitle htmlFor="new-disk-source-type">
+              <FieldLabel htmlFor="new-disk-source-type">
                 Source type
-              </FieldTitle>
+              </FieldLabel>
               <TextField id="new-disk-source-type" name="source-type" />
             </div>
             <fieldset>
-              <FieldTitle as="legend">Deletion rule</FieldTitle>
+              <FieldLabel as="legend">Deletion rule</FieldLabel>
               <RadioGroup name="deletion-rule" column>
                 <Radio value="keep">Keep disk</Radio>
                 <Radio value="delete">Delete disk</Radio>
               </RadioGroup>
             </fieldset>
             <div>
-              <FieldTitle htmlFor="new-disk-size">Size (GiB)</FieldTitle>
+              <FieldLabel htmlFor="new-disk-size">Size (GiB)</FieldLabel>
               <TextField id="new-disk-size" name="size" />
             </div>
             <fieldset>
-              <FieldTitle as="legend">Configuration options</FieldTitle>
+              <FieldLabel as="legend">Configuration options</FieldLabel>
               <RadioGroup name="configuration-options" column>
                 <Radio value="manual-mount">Manually format and mount</Radio>
                 <Radio value="auto-mount">Automatically format and mount</Radio>
