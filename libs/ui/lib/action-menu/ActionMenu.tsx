@@ -58,6 +58,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
   const divRef = React.createRef<HTMLDivElement>()
   const ulRef = React.createRef<HTMLUListElement>()
+  const inputRef = React.createRef<HTMLInputElement>()
 
   useSteppedScroll(divRef, ulRef, selectedIdx, LIST_HEIGHT)
 
@@ -101,6 +102,7 @@ export function ActionMenu(props: ActionMenuProps) {
           )}
         >
           <input
+            ref={inputRef}
             className={cn(
               'mousetrap w-full bg-transparent px-4 caret-gray-100 text-sans-xl focus:outline-none',
               props.inputClassName
@@ -117,6 +119,7 @@ export function ActionMenu(props: ActionMenuProps) {
             className="flex items-center p-6 text-secondary"
             onClick={() => {
               setInput('')
+              inputRef.current.focus()
             }}
           >
             <Close12Icon />
