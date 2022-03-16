@@ -122,67 +122,69 @@ export function ActionMenu(props: ActionMenuProps) {
           </button>
         </div>
 
-        <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
-          <div
-            className="overflow-y-auto"
-            ref={divRef}
-            style={{ maxHeight: LIST_HEIGHT }}
-          >
-            <ul ref={ulRef}>
-              {allGroups.map(([label, items]) => (
-                <React.Fragment key={label}>
-                  <div>
-                    <h3
-                      className={cn(
-                        'sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary'
-                      )}
-                    >
-                      {label}
-                    </h3>
-                    {items.map((item, idx) => (
-                      // TODO: there is probably a more correct way of fixing this reasonable lint error.
-                      // Putting a button inside the <li> is not a great solution because it becomes
-                      // focusable separate from the item selection
-                      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-                      <div className={cn('relative', idx !== 0 && '-mt-px')}>
-                        {item.value === selectedItem?.value && (
-                          <div className="absolute z-10 h-full w-full rounded-[3px] border border-accent" />
+        {items.length > 0 && (
+          <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
+            <div
+              className="overflow-y-auto"
+              ref={divRef}
+              style={{ maxHeight: LIST_HEIGHT }}
+            >
+              <ul ref={ulRef}>
+                {allGroups.map(([label, items]) => (
+                  <React.Fragment key={label}>
+                    <div>
+                      <h3
+                        className={cn(
+                          'sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary'
                         )}
-
-                        <li
-                          role="option"
-                          className={cn(
-                            'box-border block h-full w-full cursor-pointer overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary border-tertiary hover:bg-raise-hover',
-                            item.value === selectedItem?.value &&
-                              'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                      >
+                        {label}
+                      </h3>
+                      {items.map((item, idx) => (
+                        // TODO: there is probably a more correct way of fixing this reasonable lint error.
+                        // Putting a button inside the <li> is not a great solution because it becomes
+                        // focusable separate from the item selection
+                        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                        <div className={cn('relative', idx !== 0 && '-mt-px')}>
+                          {item.value === selectedItem?.value && (
+                            <div className="absolute z-10 h-full w-full rounded-[3px] border border-accent" />
                           )}
-                          aria-selected={item.value === selectedItem?.value}
-                          key={item.value}
-                          onClick={() => {
-                            item.onSelect()
-                            onDismiss()
-                          }}
-                        >
-                          {item.value}
-                        </li>
-                      </div>
-                    ))}
-                  </div>
-                </React.Fragment>
-              ))}
-            </ul>
-          </div>
-          <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
-            <ActionMenuHotkey keys={['Enter']} action="submit" />
 
-            <ActionMenuHotkey
-              keys={['Arrow Up', 'Arrow Down']}
-              action="select"
-            />
+                          <li
+                            role="option"
+                            className={cn(
+                              'box-border block h-full w-full cursor-pointer overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary border-tertiary hover:bg-raise-hover',
+                              item.value === selectedItem?.value &&
+                                'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                            )}
+                            aria-selected={item.value === selectedItem?.value}
+                            key={item.value}
+                            onClick={() => {
+                              item.onSelect()
+                              onDismiss()
+                            }}
+                          >
+                            {item.value}
+                          </li>
+                        </div>
+                      ))}
+                    </div>
+                  </React.Fragment>
+                ))}
+              </ul>
+            </div>
+            <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
+              <ActionMenuHotkey keys={['Enter']} action="submit" />
 
-            <ActionMenuHotkey keys={['Esc']} action="close" />
+              <ActionMenuHotkey
+                keys={['Arrow Up', 'Arrow Down']}
+                action="select"
+              />
+
+              <ActionMenuHotkey keys={['Esc']} action="close" />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Dialog>
   )
