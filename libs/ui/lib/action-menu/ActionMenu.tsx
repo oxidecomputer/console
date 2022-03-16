@@ -113,6 +113,7 @@ export function ActionMenu(props: ActionMenuProps) {
               setInput(e.target.value)
             }}
             placeholder="Search"
+            spellcheck="false"
           />
 
           <button
