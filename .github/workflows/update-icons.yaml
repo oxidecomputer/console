@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: 'update-icons'
+          fetch-depth: 0
 
       - uses: actions/setup-node@v2
         with:
@@ -32,15 +33,25 @@ jobs:
       - name: Export icons from Figma
         run: ./tools/export-icons.sh
         env:
-          FIGMA_TOKENS: ${{ secrets.FIGMA_TOKEN }}
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
-      - uses: EndBug/add-and-commit@v7
+      - name: Commit icon file updates (if any)
+        uses: EndBug/add-and-commit@v9
         with:
-          add: ./libs/ui/styles/themes
-          message: 'Update themes from token file'
+          add: ./libs/ui/lib/icons
+          message: 'Pull icon updates from figma'
           default_author: github_actions
+          new_branch: update-icons
+
+      - name: Check if icon files have changed
+        id: icon-files-changed
+        uses: tj-actions/changed-files@v18.1
+        with:
+          files: |
+            libs/ui/lib/icons
 
       - name: Create PR if it doesn't exist
+        if: steps.icon-files-changed.outputs.any_changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

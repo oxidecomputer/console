@@ -4,15 +4,15 @@ interface SVGRProps {
   titleId?: string
 }
 
-function Message24Icon({
-  title = 'Message',
+function Health16Icon({
+  title = 'Health',
   titleId,
   ...props
 }: React.SVGProps<SVGSVGElement> & SVGRProps) {
   return (
     <svg
-      width={24}
-      height={24}
+      width={16}
+      height={16}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-labelledby={titleId}
@@ -20,13 +20,11 @@ function Message24Icon({
     >
       {title ? <title id={titleId}>{title}</title> : null}
       <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M12 10.2L3.7 4h16.6L12 10.2zm-10-5l10 7.6 10-7.6V19H2V5.2z"
+        d="M8 3.228a4.05 4.05 0 015.793 0c1.61 1.626 1.61 4.292 0 5.918L8 15 2.207 9.081c-1.61-1.626-1.61-4.292 0-5.918A4.108 4.108 0 018 3.228z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
-export default Message24Icon
+export default Health16Icon

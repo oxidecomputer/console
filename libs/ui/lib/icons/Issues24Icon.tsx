@@ -22,7 +22,7 @@ function Issues24Icon({
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 21v-9h4v3h8V6h-5V3H6v18h2z"
+        d="M6 3h9v3h5v9h-8v-3H8v9H6V3z"
         fill="currentColor"
       />
     </svg>
