@@ -50,7 +50,7 @@ export function useSteppedScroll(
       if (shouldScrollUp) {
         // when scrolling up, scroll to the top of the item you're scrolling to.
         // -1 is for top outline
-        outer.scrollTo({ top: itemTopScrollTo - 1 })
+        outer.scrollTo({ top: itemTopScrollTo - 1 - 32 })
       } else if (shouldScrollDown) {
         // when scrolling down, we want to scroll just far enough so the bottom
         // edge of the selected item is in view. Because scrollTo is about the

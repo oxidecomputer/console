@@ -68,7 +68,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
   return (
     <Dialog
-      className="ActionMenu mt-[20vh] bg-transparent p-0"
+      className="ActionMenu mt-[20vh] !w-[46rem] bg-transparent p-0"
       aria-label={props.ariaLabel}
       isOpen={props.isOpen}
       onDismiss={onDismiss}
@@ -106,44 +106,86 @@ export function ActionMenu(props: ActionMenuProps) {
           }}
           placeholder="Find anything..."
         />
-        <div
-          className="mt-5 overflow-y-auto"
-          ref={divRef}
-          style={{ maxHeight: LIST_HEIGHT }}
-        >
-          <ul className="m-px" ref={ulRef}>
-            {allGroups.map(([label, items]) => (
-              <React.Fragment key={label}>
-                <h3 className="rounded-t-[3px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
-                  {label}
-                </h3>
-                {items.map((item) => (
-                  // TODO: there is probably a more correct way of fixing this reasonable lint error.
-                  // Putting a button inside the <li> is not a great solution because it becomes
-                  // focusable separate from the item selection
-                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-                  <li
-                    role="option"
-                    className={cn(
-                      '-mt-px cursor-pointer border p-4 text-sans-md text-secondary bg-raise border-tertiary last:rounded-b-[3px] hover:bg-raise-hover',
-                      item.value === selectedItem?.value &&
-                        'outline outline-1 text-accent bg-accent-secondary outline-accent hover:bg-accent-secondary-hover'
-                    )}
-                    aria-selected={item.value === selectedItem?.value}
-                    key={item.value}
-                    onClick={() => {
-                      item.onSelect()
-                      onDismiss()
-                    }}
-                  >
-                    {item.value}
-                  </li>
-                ))}
-              </React.Fragment>
-            ))}
-          </ul>
+        <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
+          <div
+            className="overflow-y-auto"
+            ref={divRef}
+            style={{ maxHeight: LIST_HEIGHT }}
+          >
+            <ul ref={ulRef}>
+              {allGroups.map(([label, items]) => (
+                <React.Fragment key={label}>
+                  <div>
+                    <h3
+                      className={cn(
+                        'sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary'
+                      )}
+                    >
+                      {label}
+                    </h3>
+                    {items.map((item, idx) => (
+                      // TODO: there is probably a more correct way of fixing this reasonable lint error.
+                      // Putting a button inside the <li> is not a great solution because it becomes
+                      // focusable separate from the item selection
+                      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                      <div className={cn('relative', idx !== 0 && '-mt-px')}>
+                        {item.value === selectedItem?.value && (
+                          <div className="absolute z-10 h-full w-full rounded-[3px] border border-accent" />
+                        )}
+
+                        <li
+                          role="option"
+                          className={cn(
+                            'box-border block h-full w-full cursor-pointer overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary border-tertiary hover:bg-raise-hover',
+                            item.value === selectedItem?.value &&
+                              'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                          )}
+                          aria-selected={item.value === selectedItem?.value}
+                          key={item.value}
+                          onClick={() => {
+                            item.onSelect()
+                            onDismiss()
+                          }}
+                        >
+                          {item.value}
+                        </li>
+                      </div>
+                    ))}
+                  </div>
+                </React.Fragment>
+              ))}
+            </ul>
+          </div>
+          <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
+            <ActionMenuHotkey keys={['Enter']} action="submit" />
+
+            <ActionMenuHotkey
+              keys={['Arrow Up', 'Arrow Down']}
+              action="select"
+            />
+
+            <ActionMenuHotkey keys={['Esc']} action="close" />
+          </div>
         </div>
       </div>
     </Dialog>
   )
 }
+
+interface ActionMenuHotkeyProps {
+  keys: Array<String>
+  action: String
+}
+
+export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
+  <div>
+    <div className="mr-1 inline-block">
+      {keys.map((hotkey) => (
+        <span className="mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default border-default">
+          {hotkey}
+        </span>
+      ))}
+    </div>
+    <span className="text-sans-sm text-tertiary">to {action}</span>
+  </div>
+)
