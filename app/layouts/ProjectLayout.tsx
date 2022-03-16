@@ -15,7 +15,7 @@ import {
   ContentPane,
   ContentPaneWrapper,
   PageContainer,
-  PaginationContainer,
+  ContentPaneActions,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
@@ -87,9 +87,9 @@ const ProjectLayout = () => {
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>
-        <PaginationContainer>
+        <ContentPaneActions>
           <Pagination.Target />
-        </PaginationContainer>
+        </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
   )
