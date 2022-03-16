@@ -104,7 +104,7 @@ export function ActionMenu(props: ActionMenuProps) {
             setSelectedIdx(0)
             setInput(e.target.value)
           }}
-          placeholder="Find anything..."
+          placeholder="Search"
         />
         <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
           <div
