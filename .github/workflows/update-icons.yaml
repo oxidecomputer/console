@@ -35,23 +35,23 @@ jobs:
         env:
           FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
-      - name: Check for modified files
-        id: git-check
-        run: echo ::set-output name=modified::$(if git diff-index --ignore-submodules --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      - name: Commit icon file updates (if any)
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ./libs/ui/lib/icons
+          message: 'Pull icon updates from figma'
+          default_author: github_actions
+          new_branch: update-icons
 
-      - name: Commit changes, if any
-        if: steps.git-check.outputs.modified == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git fetch origin
-          git add .
-          git commit -am "Pull icon updates from figma" || true
-          git push origin update-icons || true
+      - name: Check if icon files have changed
+        id: icon-files-changed
+        uses: tj-actions/changed-files@v18.1
+        with:
+          files: |
+            libs/ui/lib/icons
 
       - name: Create PR if it doesn't exist
-        if: steps.git-check.outputs.modified == 'true'
+        if: steps.icon-files-changed.outputs.any_changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
