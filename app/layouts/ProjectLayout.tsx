@@ -21,6 +21,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { useParams, useQuickActions } from 'app/hooks'
+import { Pagination } from '@oxide/pagination'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -86,7 +87,9 @@ const ProjectLayout = () => {
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>
-        <PaginationContainer id="pagination-target" />
+        <PaginationContainer>
+          <Pagination.Target />
+        </PaginationContainer>
       </ContentPaneWrapper>
     </PageContainer>
   )
