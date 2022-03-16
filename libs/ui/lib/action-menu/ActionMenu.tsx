@@ -94,18 +94,34 @@ export function ActionMenu(props: ActionMenuProps) {
         aria-controls="TODO"
         aria-expanded
       >
-        <input
+        <div
           className={cn(
-            'mousetrap shadow-black/25 block w-full overflow-y-auto rounded-[3px] border px-4 py-2.5 caret-gray-100 shadow-2xl text-sans-xl bg-raise border-secondary focus:outline-none',
-            props.inputClassName
+            'shadow-black/25 block flex h-14 w-full overflow-y-auto rounded-[3px] border shadow-2xl bg-raise border-secondary'
           )}
-          value={input}
-          onChange={(e) => {
-            setSelectedIdx(0)
-            setInput(e.target.value)
-          }}
-          placeholder="Search"
-        />
+        >
+          <input
+            className={cn(
+              'mousetrap w-full bg-transparent px-4 caret-gray-100 text-sans-xl focus:outline-none',
+              props.inputClassName
+            )}
+            value={input}
+            onChange={(e) => {
+              setSelectedIdx(0)
+              setInput(e.target.value)
+            }}
+            placeholder="Search"
+          />
+
+          <button
+            onClick={() => {
+              onDismiss()
+            }}
+            className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
+          >
+            Dismiss
+          </button>
+        </div>
+
         <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
           <div
             className="overflow-y-auto"
