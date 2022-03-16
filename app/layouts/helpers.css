@@ -15,12 +15,12 @@
 }
 
 .ox-content-pane > *,
-.ox-pagination-container > * {
+.ox-content-pane-actions > * {
   width: calc(100% - var(--content-gutter) * 2);
   margin-left: var(--content-gutter);
   margin-right: var(--content-gutter);
 }
-.ox-pagination-container {
+.ox-content-pane-actions {
   @apply sticky bottom-0 h-14 flex-shrink-0 overflow-hidden;
 }
 

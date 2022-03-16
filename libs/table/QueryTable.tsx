@@ -150,7 +150,7 @@ const makeQueryTable = <Item,>(
     return (
       <>
         <Table table={table} />
-        <Pagination target={pagination} {...paginationParams} />
+        <Pagination inline={pagination === 'inline'} {...paginationParams} />
       </>
     )
   }

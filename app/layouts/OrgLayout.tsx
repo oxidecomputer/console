@@ -8,12 +8,13 @@ import {
   ContentPane,
   ContentPaneWrapper,
   PageContainer,
-  PaginationContainer,
+  ContentPaneActions,
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { Pagination } from '@oxide/pagination'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
@@ -39,7 +40,9 @@ const OrgLayout = () => {
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>
-        <PaginationContainer id="pagination-target" />
+        <ContentPaneActions>
+          <Pagination.Target />
+        </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
   )
