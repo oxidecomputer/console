@@ -98,7 +98,7 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <div
           className={cn(
-            'shadow-black/25 block flex h-14 w-full overflow-y-auto rounded-[3px] border shadow-2xl bg-raise border-secondary'
+            'shadow-black/25 block flex h-14 w-full overflow-y-auto rounded-lg border shadow-2xl bg-raise border-secondary'
           )}
         >
           <input
@@ -137,7 +137,7 @@ export function ActionMenu(props: ActionMenuProps) {
         </div>
 
         {items.length > 0 && (
-          <div className="relative mt-5 transform-gpu overflow-hidden rounded-[3px]">
+          <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg">
             <div
               className="overflow-y-auto"
               ref={divRef}
@@ -161,7 +161,7 @@ export function ActionMenu(props: ActionMenuProps) {
                         // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                         <div className={cn('relative', idx !== 0 && '-mt-px')}>
                           {item.value === selectedItem?.value && (
-                            <div className="absolute z-10 h-full w-full rounded-[3px] border border-accent" />
+                            <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
                           )}
 
                           <li
