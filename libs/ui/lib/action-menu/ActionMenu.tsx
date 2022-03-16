@@ -4,6 +4,7 @@ import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { groupBy } from '@oxide/util'
 import { useSteppedScroll } from '../hooks/use-stepped-scroll'
+import { Button, Close12Icon } from '@oxide/ui'
 
 export interface QuickActionItem {
   value: string
@@ -111,6 +112,15 @@ export function ActionMenu(props: ActionMenuProps) {
             }}
             placeholder="Search"
           />
+
+          <button
+            className="flex items-center p-6 text-secondary"
+            onClick={() => {
+              setInput('')
+            }}
+          >
+            <Close12Icon />
+          </button>
 
           <button
             onClick={() => {
