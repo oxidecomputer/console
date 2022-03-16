@@ -16,7 +16,7 @@ export const InstanceResourceCell = ({
           {value.ncpus} vCPU {slash} {fileSize(value.memory)} SSD
         </span>,
         <span className="flex items-center text-secondary" key="second-row">
-          <UbuntuResponsiveIcon className="mr-1" /> FakeOS 12.04
+          <UbuntuResponsiveIcon className="mr-1 w-5" /> FakeOS 12.04
         </span>,
       ]}
     ></TwoLineCell>
