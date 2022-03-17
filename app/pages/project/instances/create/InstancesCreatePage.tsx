@@ -319,11 +319,11 @@ export default function InstanceCreatePage() {
               />
             </div>
           </div>
-          <TextField id="disk-name" title="Disk name" />
+          <TextField id="disk-name" label="Disk name" />
         </Form.Section>
 
         <Form.Section title="Networking">
-          <TextField id="instance-hostname" title="Hostname" />
+          <TextField id="instance-hostname" label="Hostname" />
           <Button
             variant="secondary"
             size="sm"
