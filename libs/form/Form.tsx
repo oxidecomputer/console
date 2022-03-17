@@ -1,5 +1,7 @@
 import type { ErrorResponse } from '@oxide/api'
 import type { ButtonProps } from '@oxide/ui'
+import { SideModal } from '@oxide/ui'
+import { useIsInSideModal } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 import {
   classed,
@@ -7,13 +9,17 @@ import {
   getServerError,
   kebabCase,
   pluckFirstOfType,
+  tunnel,
 } from '@oxide/util'
 import type { FormikConfig } from 'formik'
-import { Formik, Form as FormikForm } from 'formik'
-import type { ReactNode } from 'react'
+import { Formik } from 'formik'
+import type { ReactElement, ReactNode } from 'react'
 import React from 'react'
 import type { UseMutationResult } from 'react-query'
 import './form.css'
+import cn from 'classnames'
+
+const FormActionsTunnel = tunnel('form-actions')
 
 interface FormProps<Values> extends FormikConfig<Values> {
   id: string
@@ -25,17 +31,39 @@ export function Form<Values>({
   children,
   ...formikProps
 }: FormProps<Values>) {
+  const isSideModal = useIsInSideModal()
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
 
   return (
     <>
       <Formik {...formikProps}>
-        <FormikForm id={id} className="ox-form space-y-9">
-          {childArray}
-        </FormikForm>
+        {(props) => (
+          <>
+            <form
+              id={id}
+              className={cn('ox-form space-y-9', { 'pb-20': !isSideModal })}
+              onReset={props.handleReset}
+              onSubmit={props.handleSubmit}
+            >
+              <>{childArray}</>
+            </form>
+            {actions && !isSideModal && (
+              <FormActionsTunnel.In>
+                {React.cloneElement(actions, {
+                  formId: id,
+                  submitDisabled: !props.dirty || !props.isValid,
+                })}
+              </FormActionsTunnel.In>
+            )}
+          </>
+        )}
       </Formik>
-      {actions && React.cloneElement(actions, { formId: id })}
+      {actions && isSideModal && (
+        <SideModal.Footer>
+          <FormActionsTunnel.Out />
+        </SideModal.Footer>
+      )}
     </>
   )
 }
@@ -45,12 +73,14 @@ interface FormActionsProps<D, E extends ErrorResponse | null, T> {
   errorCodes: Record<string, string>
   formId?: string
   children: React.ReactNode
+  submitDisabled?: boolean
 }
 Form.Actions = <D, E extends ErrorResponse | null, T>({
   children,
   mutation,
   formId,
   errorCodes,
+  submitDisabled = true,
 }: FormActionsProps<D, E, T>) => {
   const childArray = flattenChildren(children).map((child, index) => {
     const buttonStyle: Pick<
@@ -61,7 +91,7 @@ Form.Actions = <D, E extends ErrorResponse | null, T>({
         ? {
             variant: 'default',
             color: 'accent',
-            disabled: mutation.isLoading,
+            disabled: submitDisabled || mutation.isLoading,
             type: 'submit',
           }
         : index === 1
@@ -75,18 +105,18 @@ Form.Actions = <D, E extends ErrorResponse | null, T>({
     })
   })
   return (
-    <>
-      <div className="flex-1" />
-      <Separator className="mb-6 mt-16" />
+    <div className="flex h-20 items-center">
       {mutation.error && (
         <div className="mt-2 text-destructive">
           {getServerError(mutation.error, errorCodes)}
         </div>
       )}
       <div className="flex space-x-2">{childArray}</div>
-    </>
+    </div>
   )
 }
+
+Form.ActionsTarget = FormActionsTunnel.Out as () => ReactElement | null
 
 const FormHeading = classed.h2`ox-form-heading text-content text-sans-2xl`
 

@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { createContext, useContext } from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
 import { Button } from '../button/Button'
 import { classed, pluckFirstOfType } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
 import { Close12Icon, OpenLink12Icon } from '../icons'
+
+const SideModalContext = createContext(false)
+
+export const useIsInSideModal = () => {
+  return useContext(SideModalContext)
+}
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
@@ -23,31 +29,33 @@ export function SideModal({
   const titleId = `${id}-title`
 
   return (
-    <Dialog
-      id={id}
-      onDismiss={onDismiss}
-      {...dialogProps}
-      className="absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
-      aria-labelledby={titleId}
-    >
-      <div
-        style={{ maxHeight: 'calc(100vh - 5rem)' }}
-        className="overflow-y-auto"
+    <SideModalContext.Provider value={true}>
+      <Dialog
+        id={id}
+        onDismiss={onDismiss}
+        {...dialogProps}
+        className="absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
+        aria-labelledby={titleId}
       >
-        {/* Title */}
-        <div className="mt-2 mb-8 flex justify-between p-6">
-          <h2 className="mt-2 text-sans-2xl" id={titleId}>
-            {title}
-          </h2>
-          <Button variant="link" onClick={onDismiss}>
-            <Close12Icon />
-          </Button>
+        <div
+          style={{ maxHeight: 'calc(100vh - 5rem)' }}
+          className="overflow-y-auto"
+        >
+          {/* Title */}
+          <div className="mt-2 mb-8 flex justify-between p-6">
+            <h2 className="mt-2 text-sans-2xl" id={titleId}>
+              {title}
+            </h2>
+            <Button variant="link" onClick={onDismiss}>
+              <Close12Icon />
+            </Button>
+          </div>
+          {/* Body */}
+          <div className="divide-y">{childArray}</div>
         </div>
-        {/* Body */}
-        <div className="divide-y">{childArray}</div>
-      </div>
-      {footer}
-    </Dialog>
+        {footer}
+      </Dialog>
+    </SideModalContext.Provider>
   )
 }
 
