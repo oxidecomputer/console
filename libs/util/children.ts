@@ -64,9 +64,13 @@ const matchType = <P extends unknown>(
   // are swizzled out for a new reference. So the component imported from a module
   // and the type in a component reference will _always_ be false after said component
   // is fast refreshed. We're just relying on stringifying the function body contents
-  // here instead.
+  // here instead. The downside of this approach is that dynamic metadata that's added
+  // to the components (like sourcemap line numbers, removed below) can break the checks
   if (process.env.NODE_ENV !== 'production') {
-    return child.type.toString() === componentType.toString()
+    return (
+      child.type.toString().replace(/lineNumber: \d+/g, '') ===
+      componentType.toString().replace(/lineNumber: \d+/g, '')
+    )
   }
   return child.type === componentType
 }
