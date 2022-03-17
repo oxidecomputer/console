@@ -40,7 +40,6 @@ function render() {
 async function startMockAPI() {
   const { handlers } = await import('@oxide/api-mocks')
   const { setupWorker } = await import('msw')
-  // @ts-expect-error
   const { default: workerUrl } = await import('./mockServiceWorker.js?url')
   await setupWorker(...handlers).start({
     serviceWorker: {
