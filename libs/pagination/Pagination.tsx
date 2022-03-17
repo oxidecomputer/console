@@ -1,9 +1,9 @@
 import React from 'react'
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
-import tunnel from 'tunnel-rat'
+import { tunnel } from '@oxide/util'
 
-const Tunnel = tunnel()
+const Tunnel = tunnel('pagination')
 
 interface PaginationProps extends UIPaginationProps {
   /** If true pagination will be rendered wherever `Pagination.Target` is included */
