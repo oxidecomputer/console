@@ -1,14 +1,14 @@
 import React from 'react'
 import cn from 'classnames'
 
-export interface SeparatorProps {
+export interface DividerProps {
   className?: string
 }
-export const Separator = ({ className }: SeparatorProps) => {
+export const Divider = ({ className }: DividerProps) => {
   return (
     <hr
       className={cn(
-        'ox-separator',
+        'ox-divider',
         className,
         'w-full border-t border-secondary'
       )}

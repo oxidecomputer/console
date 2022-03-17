@@ -1,6 +1,6 @@
 import type { ErrorResponse } from '@oxide/api'
 import type { ButtonProps } from '@oxide/ui'
-import { Separator } from '@oxide/ui'
+import { Divider } from '@oxide/ui'
 import {
   classed,
   flattenChildren,
@@ -98,7 +98,7 @@ export interface FormSectionProps {
 Form.Section = ({ id, title, children }: FormSectionProps) => {
   return (
     <>
-      <Separator />
+      <Divider />
       <FormHeading id={id || kebabCase(title)}>{title}</FormHeading>
       {children}
     </>

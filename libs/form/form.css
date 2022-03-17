@@ -1,4 +1,4 @@
-.ox-form .ox-separator {
+.ox-form .ox-divider {
   @apply !my-20;
   width: calc(100% + var(--content-gutter) * 2);
   margin-left: calc(var(--content-gutter) * -1);

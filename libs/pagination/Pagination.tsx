@@ -14,7 +14,6 @@ export function Pagination({ inline = false, ...props }: PaginationProps) {
 
   return (
     <Tunnel.In>
-      <hr className="ox-pagination-border" />
       <UIPagination className="h-14 py-5" {...props} />
     </Tunnel.In>
   )
