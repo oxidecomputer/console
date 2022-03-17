@@ -13,8 +13,13 @@ import {
   Tab,
   Instances24Icon,
   Badge,
+  CentOSResponsiveIcon,
+  DebianResponsiveIcon,
+  FedoraResponsiveIcon,
+  FreeBSDResponsiveIcon,
+  UbuntuResponsiveIcon,
+  WindowsResponsiveIcon,
 } from '@oxide/ui'
-import { classed } from '@oxide/util'
 import { useApiMutation } from '@oxide/api'
 import { INSTANCE_SIZES } from './instance-types'
 import { NewDiskModal } from './modals/new-disk-modal'
@@ -25,10 +30,6 @@ import { Form, NameField, TagsField, TextField } from '@oxide/form'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-sans-xl'
-const Heading = classed.h2`text-white text-sans-xl mt-16 mb-8`
-
-// TODO: need to fix page container if we want these to go all the way across
-const Divider = () => <hr className="my-16 border-secondary" />
 
 const GB = 1024 * 1024 * 1024
 
@@ -54,7 +55,7 @@ export default function InstanceCreatePage() {
   const renderLargeRadioCards = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
-        <RadioCard key={option.id} value={option.id}>
+        <RadioCard key={option.id} value={option.id} className="w-40">
           <div>
             {option.ncpus} <RadioCard.Unit>CPUs</RadioCard.Unit>
           </div>
@@ -63,6 +64,26 @@ export default function InstanceCreatePage() {
           </div>
         </RadioCard>
       )
+    )
+  }
+
+  interface DistroRadioCardProps {
+    label: string
+    value: string
+    Icon: React.ComponentType<{ className: string }>
+  }
+  const renderDistroRadioCard = ({
+    label,
+    value,
+    Icon,
+  }: DistroRadioCardProps) => {
+    return (
+      <RadioCard value={value} className="h-44 w-44 pb-6">
+        <div className="flex h-full flex-col items-center justify-end space-y-4">
+          <Icon className="h-12 w-12 text-tertiary" />
+          <span className="text-sans-xl text-secondary">{label}</span>
+        </div>
+      </RadioCard>
     )
   }
 
@@ -80,6 +101,7 @@ export default function InstanceCreatePage() {
           'instance-type': '',
           'instance-tags': {},
           'disk-name': '',
+          'disk-image': '',
           hostname: '',
           storage: '',
         }}
@@ -142,7 +164,7 @@ export default function InstanceCreatePage() {
                 <RadioGroupHint id="cpu-instance-hint">
                   CPU optimized instances provide a good balance of...
                 </RadioGroupHint>
-                <RadioGroup name="instance-type" className="mt-8">
+                <RadioGroup name="instance-type" className="mt-8" required>
                   {renderLargeRadioCards('cpuOptimized')}
                 </RadioGroup>
               </fieldset>
@@ -190,13 +212,37 @@ export default function InstanceCreatePage() {
             <Tab.Panel>
               <fieldset>
                 <legend className="sr-only">Choose a pre-built image</legend>
-                <RadioGroup name="disk-image">
-                  <RadioCard value="centos">CentOS</RadioCard>
-                  <RadioCard value="debian">Debian</RadioCard>
-                  <RadioCard value="fedora">Fedora</RadioCard>
-                  <RadioCard value="freeBsd">FreeBSD</RadioCard>
-                  <RadioCard value="ubuntu">Ubuntu</RadioCard>
-                  <RadioCard value="windows">Windows</RadioCard>
+                <RadioGroup name="disk-image" className="gap-3">
+                  {renderDistroRadioCard({
+                    label: 'Ubuntu',
+                    value: 'ubuntu',
+                    Icon: UbuntuResponsiveIcon,
+                  })}
+                  {renderDistroRadioCard({
+                    label: 'FreeBSD',
+                    value: 'freeBsd',
+                    Icon: FreeBSDResponsiveIcon,
+                  })}
+                  {renderDistroRadioCard({
+                    label: 'Fedora',
+                    value: 'fedora',
+                    Icon: FedoraResponsiveIcon,
+                  })}
+                  {renderDistroRadioCard({
+                    label: 'Debian',
+                    value: 'debian',
+                    Icon: DebianResponsiveIcon,
+                  })}
+                  {renderDistroRadioCard({
+                    label: 'CentOS',
+                    value: 'centos',
+                    Icon: CentOSResponsiveIcon,
+                  })}
+                  {renderDistroRadioCard({
+                    label: 'Windows',
+                    value: 'windows',
+                    Icon: WindowsResponsiveIcon,
+                  })}
                 </RadioGroup>
               </fieldset>
             </Tab.Panel>
@@ -205,7 +251,7 @@ export default function InstanceCreatePage() {
             <Tab.Panel>
               <fieldset>
                 <legend className="sr-only">Choose a custom image</legend>
-                <RadioGroup name="disk-image">
+                <RadioGroup name="disk-image" required>
                   <RadioCard value="custom-centos">Custom CentOS</RadioCard>
                   <RadioCard value="custom-debian">Custom Debian</RadioCard>
                   <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
@@ -295,6 +341,9 @@ export default function InstanceCreatePage() {
 
         <Form.Actions mutation={createInstance} errorCodes={ERROR_CODES}>
           <Button>Create instance</Button>
+          <Button variant="ghost" color="neutral">
+            Equivalent CLI Command
+          </Button>
         </Form.Actions>
       </Form>
     </>
