@@ -32,7 +32,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
     )}
     {...props}
   >
-    <div className="-my-[1px] flex h-9 items-center border-l pl-3 border-secondary">
+    <div className="-my-[1px] flex h-9 items-center border-l px-3 border-secondary">
       {children}
     </div>
   </th>
