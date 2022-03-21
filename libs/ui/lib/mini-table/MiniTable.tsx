@@ -11,7 +11,7 @@ export function MiniTable({ children }: MiniTableProps) {
   const childArray = flattenChildren(children)
   const header = pluckFirstOfType(childArray, MiniTable.Header)
   return (
-    <table className="ox-mini-table w-full border-separate">
+    <table className="ox-mini-table w-full border-separate text-sans-md">
       {header}
       <tbody>{childArray}</tbody>
     </table>
