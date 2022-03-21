@@ -18,20 +18,22 @@ export const Default: Story = {
           <MiniTable.HeadCell>Source Type</MiniTable.HeadCell>
           <MiniTable.HeadCell>Size</MiniTable.HeadCell>
         </MiniTable.Header>
-        <MiniTable.Row>
-          <MiniTable.Cell>disk-1</MiniTable.Cell>
-          <MiniTable.Cell>Blank</MiniTable.Cell>
-          <MiniTable.Cell>
-            128 <span className="text-secondary">GiB</span>
-          </MiniTable.Cell>
-        </MiniTable.Row>
-        <MiniTable.Row>
-          <MiniTable.Cell>disk-2</MiniTable.Cell>
-          <MiniTable.Cell>Blank</MiniTable.Cell>
-          <MiniTable.Cell>
-            128 <span className="text-secondary">GiB</span>
-          </MiniTable.Cell>
-        </MiniTable.Row>
+        <MiniTable.Body>
+          <MiniTable.Row>
+            <MiniTable.Cell>disk-1</MiniTable.Cell>
+            <MiniTable.Cell>Blank</MiniTable.Cell>
+            <MiniTable.Cell>
+              128 <span className="text-secondary">GiB</span>
+            </MiniTable.Cell>
+          </MiniTable.Row>
+          <MiniTable.Row>
+            <MiniTable.Cell>disk-2</MiniTable.Cell>
+            <MiniTable.Cell>Blank</MiniTable.Cell>
+            <MiniTable.Cell>
+              128 <span className="text-secondary">GiB</span>
+            </MiniTable.Cell>
+          </MiniTable.Row>
+        </MiniTable.Body>
       </>
     ),
   },
