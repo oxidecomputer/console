@@ -9,7 +9,7 @@
   --content-secondary: var(--theme-accent-2);
   --content-tertiary: var(--theme-accent-1);
   --surface-default: var(--theme-accent-5);
-  --stroke-secondary: var(--stroke-accent-tertiary);
+  --stroke-secondary: var(--stroke-accent-secondary);
   --stroke-surface: var(--surface-default);
   --surface-raise: var(--theme-accent-4);
 
