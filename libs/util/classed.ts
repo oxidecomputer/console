@@ -33,6 +33,8 @@ export const classed = {
   ol: make('ol'),
   p: make('p'),
   span: make('span'),
+  table: make('table'),
+  tbody: make('tbody'),
   td: make('td'),
   th: make('th'),
   tr: make('tr'),

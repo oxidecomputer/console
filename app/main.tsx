@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
-import { QuickActionsProvider, ToastProvider } from './hooks'
+import { QuickActions, ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,10 +24,9 @@ function render() {
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
-            <QuickActionsProvider>
-              <SkipLink id="skip-nav" />
-              <Router>{routes}</Router>
-            </QuickActionsProvider>
+            <QuickActions />
+            <SkipLink id="skip-nav" />
+            <Router>{routes}</Router>
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
@@ -40,7 +39,6 @@ function render() {
 async function startMockAPI() {
   const { handlers } = await import('@oxide/api-mocks')
   const { setupWorker } = await import('msw')
-  // @ts-expect-error
   const { default: workerUrl } = await import('./mockServiceWorker.js?url')
   await setupWorker(...handlers).start({
     serviceWorker: {
