@@ -129,9 +129,7 @@ export function ActionMenu(props: ActionMenuProps) {
           )}
 
           <button
-            onClick={() => {
-              onDismiss()
-            }}
+            onClick={onDismiss}
             className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
           >
             Dismiss
