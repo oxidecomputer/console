@@ -118,7 +118,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
           {input.length > 0 && (
             <button
-              className="flex items-center p-6 text-secondary"
+              className="flex items-center py-6 pl-6 pr-4 text-secondary"
               onClick={() => {
                 setInput('')
                 inputRef.current.focus()
