@@ -339,11 +339,9 @@ graph RL
 
 ```mermaid
 graph RL
-  base-black-550 --> #182024:::base-black-500
   base-black-500 --> #182024:::base-black-500
   surface-secondary --> base-black-500
   surface-disabled --> base-black-500
-  surface-raise-hover --> base-black-550
   content-inverse-secondary --> surface-secondary
   stroke-tertiary --> base-black-500
 
@@ -354,15 +352,10 @@ graph RL
 
 ```mermaid
 graph RL
-  base-black-550 --> #182024:::base-black-550
-  base-black-500 --> #182024:::base-black-550
-  surface-secondary --> base-black-500
-  surface-disabled --> base-black-500
+  base-black-550 --> #0E1A1F:::base-black-550
   surface-raise-hover --> base-black-550
-  content-inverse-secondary --> surface-secondary
-  stroke-tertiary --> base-black-500
 
-  classDef base-black-550 stroke-width:5,stroke:#182024
+  classDef base-black-550 stroke-width:5,stroke:#0E1A1F
 ```
 
 ## base-black-600

@@ -7,7 +7,7 @@
   --base-black-600-rgb: 11, 20, 24; /* #0b1418 */
   --base-black-600: rgb(var(--base-black-600-rgb));
 
-  --base-black-550-rgb: 24, 32, 36; /* #182024 */
+  --base-black-550-rgb: 14, 26, 31; /* #0E1A1F */
   --base-black-550: rgb(var(--base-black-550-rgb));
 
   --base-black-500-rgb: 24, 32, 36; /* #182024 */
