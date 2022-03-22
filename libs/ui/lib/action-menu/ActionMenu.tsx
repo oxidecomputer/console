@@ -164,11 +164,13 @@ export function ActionMenu(props: ActionMenuProps) {
                           {item.value === selectedItem?.value && (
                             <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
                           )}
+                          {/*
+                            TODO: there is probably a more correct way of fixing this reasonable lint error.
+                            Putting a button inside the <li> is not a great solution because it becomes
+                            focusable separate from the item selection
+                          */}
 
-                          // TODO: there is probably a more correct way of fixing this reasonable lint error.
-                          // Putting a button inside the <li> is not a great solution because it becomes
-                          // focusable separate from the item selection
-                          // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
                           <li
                             role="option"
                             className={cn(
