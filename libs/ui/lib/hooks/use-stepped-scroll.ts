@@ -50,6 +50,7 @@ export function useSteppedScroll(
       if (shouldScrollUp) {
         // when scrolling up, scroll to the top of the item you're scrolling to.
         // -1 is for top outline
+        // -32 compensates for the height of the position: sticky <h3>
         outer.scrollTo({ top: itemTopScrollTo - 1 - 32 })
       } else if (shouldScrollDown) {
         // when scrolling down, we want to scroll just far enough so the bottom
