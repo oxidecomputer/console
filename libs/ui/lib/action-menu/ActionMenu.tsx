@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { groupBy } from '@oxide/util'
 import { useSteppedScroll } from '../hooks/use-stepped-scroll'
-import { Button, Close12Icon } from '@oxide/ui'
+import { Close12Icon } from '@oxide/ui'
 
 export interface QuickActionItem {
   value: string
