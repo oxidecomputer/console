@@ -219,12 +219,12 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
   <div>
     <div className="mr-1 inline-block">
       {keys.map((hotkey) => (
-        <span
+        <kbd
           key={hotkey}
           className="mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default border-default"
         >
           {hotkey}
-        </span>
+        </kbd>
       ))}
     </div>
     <span className="text-sans-sm text-tertiary">to {action}</span>
