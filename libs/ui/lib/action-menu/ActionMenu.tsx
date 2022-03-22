@@ -157,15 +157,18 @@ export function ActionMenu(props: ActionMenuProps) {
                         {label}
                       </h3>
                       {items.map((item, idx) => (
-                        // TODO: there is probably a more correct way of fixing this reasonable lint error.
-                        // Putting a button inside the <li> is not a great solution because it becomes
-                        // focusable separate from the item selection
-                        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-                        <div className={cn('relative', idx !== 0 && '-mt-px')}>
+                        <div
+                          key={item.value}
+                          className={cn('relative', idx !== 0 && '-mt-px')}
+                        >
                           {item.value === selectedItem?.value && (
                             <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
                           )}
 
+                          // TODO: there is probably a more correct way of fixing this reasonable lint error.
+                          // Putting a button inside the <li> is not a great solution because it becomes
+                          // focusable separate from the item selection
+                          // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                           <li
                             role="option"
                             className={cn(
@@ -174,7 +177,6 @@ export function ActionMenu(props: ActionMenuProps) {
                                 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
                             )}
                             aria-selected={item.value === selectedItem?.value}
-                            key={item.value}
                             onClick={() => {
                               item.onSelect()
                               onDismiss()
