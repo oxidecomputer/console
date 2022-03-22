@@ -7,6 +7,9 @@
   --base-black-600-rgb: 11, 20, 24; /* #0b1418 */
   --base-black-600: rgb(var(--base-black-600-rgb));
 
+  --base-black-550-rgb: 24, 32, 36; /* #182024 */
+  --base-black-550: rgb(var(--base-black-550-rgb));
+
   --base-black-500-rgb: 24, 32, 36; /* #182024 */
   --base-black-500: rgb(var(--base-black-500-rgb));
 
@@ -175,7 +178,7 @@
   --surface-disabled-rgb: var(--base-black-500-rgb);
   --surface-disabled: rgb(var(--surface-disabled-rgb));
 
-  --surface-raise-hover-rgb: var(--base-black-500-rgb);
+  --surface-raise-hover-rgb: var(--base-black-550-rgb);
   --surface-raise-hover: rgb(var(--surface-raise-hover-rgb));
 
   --surface-scrim: rgba(var(--base-black-700-rgb), 0.4);
