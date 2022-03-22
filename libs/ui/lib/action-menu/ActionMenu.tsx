@@ -116,15 +116,17 @@ export function ActionMenu(props: ActionMenuProps) {
             spellcheck="false"
           />
 
-          <button
-            className="flex items-center p-6 text-secondary"
-            onClick={() => {
-              setInput('')
-              inputRef.current.focus()
-            }}
-          >
-            <Close12Icon />
-          </button>
+          {input.length > 0 && (
+            <button
+              className="flex items-center p-6 text-secondary"
+              onClick={() => {
+                setInput('')
+                inputRef.current.focus()
+              }}
+            >
+              <Close12Icon />
+            </button>
+          )}
 
           <button
             onClick={() => {
