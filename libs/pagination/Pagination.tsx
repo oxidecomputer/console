@@ -1,23 +1,23 @@
 import React from 'react'
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
-import ReactDOM from 'react-dom'
+import { tunnel } from '@oxide/util'
+
+const Tunnel = tunnel('pagination')
 
 interface PaginationProps extends UIPaginationProps {
-  target: 'inline' | 'page'
+  /** If true pagination will be rendered wherever `Pagination.Target` is included */
+  inline?: boolean
 }
-/** This component's provided children will be rendered at `#pagination-target` */
-export const Pagination = ({ target, ...props }: PaginationProps) => {
-  if (target === 'inline') return <UIPagination {...props} />
+export function Pagination({ inline = false, ...props }: PaginationProps) {
+  if (inline) return <UIPagination {...props} />
 
-  const el = document.getElementById('pagination-target')
-  if (!el) return null
-
-  return ReactDOM.createPortal(
-    <>
+  return (
+    <Tunnel.In>
       <hr className="ox-pagination-border" />
       <UIPagination className="py-5" {...props} />
-    </>,
-    el
+    </Tunnel.In>
   )
 }
+
+Pagination.Target = Tunnel.Out as () => React.ReactElement

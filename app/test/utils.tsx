@@ -6,11 +6,21 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { routes } from '../routes'
 export { override } from './server'
 
-const defaultOptions = { queries: { retry: false } }
+export const queryClientOptions = {
+  defaultOptions: { queries: { retry: false } },
+  // react-query calls console.error whenever a request fails.
+  // this is annoying and we don't need it. leave log and warn there
+  // just in case they tell us something useful
+  logger: {
+    log: console.log,
+    warn: console.warn,
+    error: () => {},
+  },
+}
 
 export function renderAppAt(url: string) {
   window.history.pushState({}, 'Test page', url)
-  const queryClient = new QueryClient({ defaultOptions })
+  const queryClient = new QueryClient(queryClientOptions)
   return render(routes, {
     wrapper: ({ children }) => (
       <BrowserRouter>

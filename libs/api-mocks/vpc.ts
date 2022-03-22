@@ -35,6 +35,7 @@ export const vpcSubnet: Json<VpcSubnet> = {
   // supposed to be camelcase, will fix in API
   vpc_id: vpc.id,
   ipv4_block: '1.1.1.1/24',
+  ipv6_block: 'fd9b:870a:4245::/64',
 }
 
 export const vpcSubnet2: Json<VpcSubnet> = {

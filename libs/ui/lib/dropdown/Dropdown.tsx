@@ -5,7 +5,7 @@ import cn from 'classnames'
 import { useSelect } from 'downshift'
 
 import { DirectionDownIcon } from '../icons'
-import { FieldTitle } from '../field-title/FieldTitle'
+import { FieldLabel } from '../field-label/FieldLabel'
 
 type Item = { value: string; label: string }
 
@@ -49,12 +49,12 @@ export const Dropdown: FC<DropdownProps> = ({
 
   return (
     <div className={cn('relative', className)}>
-      <FieldTitle
+      <FieldLabel
         {...select.getLabelProps()}
         className={cn(!showLabel && 'sr-only')}
       >
         {label}
-      </FieldTitle>
+      </FieldLabel>
       <button
         type="button"
         className={cn(

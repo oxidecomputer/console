@@ -1,0 +1,44 @@
+.ox-mini-table {
+  border-spacing: 0px;
+}
+
+.ox-mini-table th:first-child > div:first-child {
+  @apply pl-6;
+}
+
+.ox-mini-table td {
+  @apply px-0 pt-2;
+}
+
+.ox-mini-table tr {
+  @apply relative;
+}
+
+.ox-mini-table td + td:before {
+  @apply absolute top-[calc(0.5rem+1px)] bottom-[2px] block w-[1px] border-l border-secondary;
+  content: ' ';
+}
+
+.ox-mini-table tr:last-child td + td:before {
+  @apply bottom-[calc(0.5rem+2px)];
+}
+
+.ox-mini-table td > div {
+  @apply border-y py-3 pl-3 text-default bg-default border-accent;
+}
+
+.ox-mini-table tr:hover td > div {
+  @apply bg-raise;
+}
+
+.ox-mini-table tr:last-child td {
+  @apply pb-2;
+}
+
+.ox-mini-table td:first-child > div {
+  @apply ml-2 rounded-l border-l;
+}
+
+.ox-mini-table td:last-child > div {
+  @apply mr-2 rounded-r border-r;
+}

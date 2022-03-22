@@ -5,7 +5,7 @@ import { useMultipleSelection, useSelect } from 'downshift'
 
 import { Badge } from '../badge/Badge'
 import { SelectArrows6Icon } from '../icons'
-import { FieldTitle } from '../field-title/FieldTitle'
+import { FieldLabel } from '../field-label/FieldLabel'
 
 type Item = { value: string; label: string }
 
@@ -66,12 +66,12 @@ export const MultiSelect = ({
 
   return (
     <div className="relative">
-      <FieldTitle
+      <FieldLabel
         {...select.getLabelProps()}
         className={showLabel || 'sr-only'}
       >
         {label}
-      </FieldTitle>
+      </FieldLabel>
       <button
         type="button"
         className={`mt-1 flex h-10 w-full items-center justify-between

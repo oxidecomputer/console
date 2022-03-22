@@ -294,6 +294,10 @@ export const handlers = [
         id: 'vpc-subnet-' + randomHex(),
         vpc_id: vpc.id,
         ...req.body,
+        // required in subnet but not in update, so we need a fallback. API says
+        // "A random `/64` block will be assigned if one is not provided." Our
+        // fallback is not random, but it should be good enough.
+        ipv6_block: req.body.ipv6_block || 'fd2d:4569:88b1::/64',
         ...getTimestamps(),
       }
       db.vpcSubnets.push(newSubnet)
@@ -318,8 +322,12 @@ export const handlers = [
       if (typeof req.body.description === 'string') {
         subnet.description = req.body.description
       }
-      subnet.ipv4_block = req.body.ipv4_block
-      subnet.ipv6_block = req.body.ipv6_block
+      if (req.body.ipv4_block) {
+        subnet.ipv4_block = req.body.ipv4_block
+      }
+      if (req.body.ipv6_block) {
+        subnet.ipv6_block = req.body.ipv6_block
+      }
       return res(ctx.status(204))
     }
   ),

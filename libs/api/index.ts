@@ -33,5 +33,5 @@ export * from './__generated__/Api'
 import type * as ApiTypes from './__generated__/Api'
 export type { ApiTypes }
 
-export type { ErrorResponse, Params, Result, ResultItem } from './hooks'
+export type { Params, Result, ResultItem } from './hooks'
 export { navToLogin } from './nav-to-login'
