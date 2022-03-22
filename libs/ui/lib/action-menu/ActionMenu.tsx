@@ -121,7 +121,7 @@ export function ActionMenu(props: ActionMenuProps) {
               className="flex items-center py-6 pl-6 pr-4 text-secondary"
               onClick={() => {
                 setInput('')
-                inputRef.current.focus()
+                inputRef.current?.focus()
               }}
             >
               <Close12Icon />
