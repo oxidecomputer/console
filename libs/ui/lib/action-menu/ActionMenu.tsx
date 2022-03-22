@@ -207,8 +207,8 @@ export function ActionMenu(props: ActionMenuProps) {
 }
 
 interface ActionMenuHotkeyProps {
-  keys: Array<String>
-  action: String
+  keys: Array<string>
+  action: string
 }
 
 export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
