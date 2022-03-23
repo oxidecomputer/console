@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import type { Row } from 'react-table'
-import { useTable, useRowSelect } from 'react-table'
+import { createTable } from '@tanstack/react-table'
 import { Dialog } from '@reach/dialog'
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 
@@ -18,7 +17,7 @@ import {
   Unauthorized12Icon,
   Access24Icon,
 } from '@oxide/ui'
-import { Table, getSelectCol } from '@oxide/table'
+import { Table2 } from '@oxide/table'
 
 type User = {
   name: string
@@ -79,78 +78,68 @@ const NameCell = ({ value }: { value: string }) => (
   </div>
 )
 
-const columns = [
-  // TS doesn't like string accessors unless they're `as const`. Nested string
-  // accessors don't even work with `as const`, which is why they're functions
-  {
-    accessor: 'name' as const,
-    Header: () => <div className="text-left">Name</div>,
-    Cell: NameCell,
-  },
-  {
-    accessor: 'lastAccessed' as const,
-    Header: () => <div className="text-left">Accessed</div>,
-    Cell: ({ value }: { value: string }) => (
+const tableHelper = createTable().RowType<User>()
+
+const columns = tableHelper.createColumns([
+  // TODO: row select — v8 doesn't have it yet:
+  // https://github.com/TanStack/react-table/blob/c3c9f8f606/packages/react-table/src/core.tsx#L45
+  tableHelper.createColumn('name', {
+    header: <div className="text-left">Name</div>,
+    cell: NameCell,
+  }),
+  tableHelper.createColumn('lastAccessed', {
+    header: <div className="text-left">Accessed</div>,
+    cell: ({ value }) => (
       <div className="uppercase text-secondary">{value}</div>
     ),
-  },
-  {
-    accessor: (u: User) => u.access.read,
+  }),
+  tableHelper.createColumn((u) => u.access.read, {
     id: 'access.read',
-    Header: 'Read',
-    Cell: AccessIcon,
-  },
-  {
-    accessor: (u: User) => u.access.modify,
+    header: 'Read',
+    cell: AccessIcon,
+  }),
+  tableHelper.createColumn((u) => u.access.modify, {
     id: 'access.modify',
-    Header: 'Modify',
-    Cell: AccessIcon,
-  },
-  {
-    accessor: (u: User) => u.access.create,
+    header: 'Modify',
+    cell: AccessIcon,
+  }),
+  tableHelper.createColumn((u) => u.access.create, {
     id: 'access.create',
-    Header: 'Create',
-    Cell: AccessIcon,
-  },
-  {
-    accessor: (u: User) => u.access.admin,
+    header: 'Create',
+    cell: AccessIcon,
+  }),
+  tableHelper.createColumn((u) => u.access.admin, {
     id: 'access.admin',
-    Header: 'Admin',
-    Cell: AccessIcon,
-  },
-]
-
-// TODO: inline separate copies of this until we can see if it's worth abstracting
-const menuCol = {
-  id: 'menu',
-  Cell: ({ row }: { row: Row<User> }) => (
-    <Menu>
-      <MenuButton>
-        <More12Icon className="mr-4 text-tertiary" />
-      </MenuButton>
-      <MenuList>
-        <MenuItem onSelect={() => console.log(row.values.name)}>
-          Delete
-        </MenuItem>
-        <MenuItem onSelect={() => console.log(row.values.name)}>
-          Interpret
-        </MenuItem>
-        <MenuItem onSelect={() => console.log(row.values.name)}>
-          Astonish
-        </MenuItem>
-      </MenuList>
-    </Menu>
-  ),
-}
+    header: 'Admin',
+    cell: AccessIcon,
+  }),
+  // TODO: is this the way to do this? select the entire object as the value?
+  tableHelper.createColumn((u) => u, {
+    id: 'more',
+    header: '',
+    cell: ({ value: user }) => (
+      <Menu>
+        <MenuButton>
+          <More12Icon className="mr-4 text-tertiary" />
+        </MenuButton>
+        <MenuList className="TableControls">
+          <MenuItem onSelect={() => console.log('delete', user.name)}>
+            Delete
+          </MenuItem>
+          <MenuItem onSelect={() => console.log('interpret', user.name)}>
+            Interpret
+          </MenuItem>
+          <MenuItem onSelect={() => console.log('astonish', user.name)}>
+            Astonish
+          </MenuItem>
+        </MenuList>
+      </Menu>
+    ),
+  }),
+])
 
 export const AccessPage = () => {
-  const table = useTable({ columns, data: users }, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      getSelectCol(),
-      ...columns,
-      menuCol,
-    ])
-  })
+  const table = tableHelper.useTable({ columns, data: users })
 
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const closeModal = () => setModalIsOpen(false)
@@ -208,7 +197,7 @@ export const AccessPage = () => {
           Add <Add12Icon className="ml-2" />
         </Button>
       </div>
-      <Table className="mt-4" table={table} />
+      <Table2 className="mt-4" table={table} />
     </>
   )
 }
