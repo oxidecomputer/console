@@ -56,29 +56,25 @@ oxide disk create nginx \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-            0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 oxide disk create grafana \
 	-D "The grafana disk." \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-			0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 oxide disk create grafana-state \
 	-D "The grafana state disk." \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-			0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 oxide disk create vault \
 	-D "The vault disk." \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-			0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 
 # Attach disks to instance db1
 
@@ -102,15 +98,13 @@ oxide disk create vol1 \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-			0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 oxide disk create vol2 \
 	-D "The vol2 disk." \
 	-o maze-war \
 	-p prod-online \
 	--size 10 \
-	--snapshot-id 00000000-0000-
-			0000-0000-000000000000
+	--snapshot-id 00000000-0000-0000-0000-000000000000
 
 # Create VPCs in prod-online
 
