@@ -83,38 +83,38 @@ const tableHelper = createTable().RowType<User>()
 const columns = tableHelper.createColumns([
   // TODO: row select — v8 doesn't have it yet:
   // https://github.com/TanStack/react-table/blob/c3c9f8f606/packages/react-table/src/core.tsx#L45
-  tableHelper.createColumn('name', {
+  tableHelper.createDataColumn('name', {
     header: <div className="text-left">Name</div>,
     cell: NameCell,
   }),
-  tableHelper.createColumn('lastAccessed', {
+  tableHelper.createDataColumn('lastAccessed', {
     header: <div className="text-left">Accessed</div>,
     cell: ({ value }) => (
       <div className="uppercase text-secondary">{value}</div>
     ),
   }),
-  tableHelper.createColumn((u) => u.access.read, {
+  tableHelper.createDataColumn((u) => u.access.read, {
     id: 'access.read',
     header: 'Read',
     cell: AccessIcon,
   }),
-  tableHelper.createColumn((u) => u.access.modify, {
+  tableHelper.createDataColumn((u) => u.access.modify, {
     id: 'access.modify',
     header: 'Modify',
     cell: AccessIcon,
   }),
-  tableHelper.createColumn((u) => u.access.create, {
+  tableHelper.createDataColumn((u) => u.access.create, {
     id: 'access.create',
     header: 'Create',
     cell: AccessIcon,
   }),
-  tableHelper.createColumn((u) => u.access.admin, {
+  tableHelper.createDataColumn((u) => u.access.admin, {
     id: 'access.admin',
     header: 'Admin',
     cell: AccessIcon,
   }),
   // TODO: is this the way to do this? select the entire object as the value?
-  tableHelper.createColumn((u) => u, {
+  tableHelper.createDataColumn((u) => u, {
     id: 'more',
     header: '',
     cell: ({ value: user }) => (

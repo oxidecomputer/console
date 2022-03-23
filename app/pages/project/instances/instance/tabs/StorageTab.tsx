@@ -11,11 +11,11 @@ import { DiskStatusBadge } from 'app/components/StatusBadge'
 const table = createTable().RowType<Disk>()
 
 const columns = table.createColumns([
-  table.createColumn('name', {
+  table.createDataColumn('name', {
     header: 'Name',
     cell: ({ value }) => <div>{value}</div>,
   }),
-  table.createColumn((d) => d.state.state, {
+  table.createDataColumn((d) => d.state.state, {
     id: 'status',
     header: 'Status',
     cell: ({ value }) => <DiskStatusBadge status={value} />,
