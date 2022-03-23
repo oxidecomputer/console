@@ -51,9 +51,10 @@ sudo mv /tmp/nginx /etc/nginx
 # Download the latest Oxide command line.
 # FROM: https://github.com/oxidecomputer/cli/releases
 
-export OXIDE_CLI_SHA256="440869bce30b390d027a7d613f08e7c1cccf1d731f9d41c2d1d34274d2507324"
+export OXIDE_CLI_SHA256="8f042f94aadc37abd001394f8f8b3f0e0098d0eac2dbb1c99b8f8e0608f46fd2"
+export OXIDE_CLI_VERSION="v0.1.0-pre.8"
 # Download and check the sha256sum.
-$ curl -fSL "https://dl.oxide.computer/releases/cli/v0.1.0-pre.7/oxide-x86_64-unknown-linux-musl" -o "/usr/local/bin/oxide" \
+$ curl -fSL "https://dl.oxide.computer/releases/cli/${OXIDE_CLI_VERSION}/oxide-x86_64-unknown-linux-musl" -o "/usr/local/bin/oxide" \
 	&& echo "${OXIDE_CLI_SHA256}  /usr/local/bin/oxide" | sha256sum -c - \
 	&& chmod a+x "/usr/local/bin/oxide"
 
