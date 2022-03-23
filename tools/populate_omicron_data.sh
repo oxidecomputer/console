@@ -83,16 +83,16 @@ oxide disk create vault \
 # Attach disks to instance db1
 
 oxide disk attach nginx db1 \
-	-o maze-war
+	-o maze-war \
 	-p prod-online
 oxide disk attach grafana db1 \
-	-o maze-war
+	-o maze-war \
 	-p prod-online
 oxide disk attach grafana-state db1 \
-	-o maze-war
+	-o maze-war \
 	-p prod-online
 oxide disk attach vault db1 \
-	-o maze-war
+	-o maze-war \
 	-p prod-online
 
 # Create some disks in prod-online to leave unattached
