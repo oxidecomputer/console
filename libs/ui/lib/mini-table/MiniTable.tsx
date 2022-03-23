@@ -3,16 +3,7 @@ import React from 'react'
 import { Table } from '../table/Table'
 import './mini-table.css'
 
-export const MiniTable =
-  classed.table`ox-mini-table w-full border-separate text-sans-md` as ReturnType<
-    typeof classed.table
-  > & {
-    Header: React.ComponentType
-    Body: React.ComponentType
-    HeadCell: React.ComponentType
-    Row: React.ComponentType
-    Cell: React.ComponentType
-  }
+export const MiniTable = classed.table`ox-mini-table w-full border-separate text-sans-md`
 
 MiniTable.Header = ({ children }) => (
   <Table.Header>

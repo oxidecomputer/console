@@ -6,13 +6,16 @@ import cn from 'classnames'
 const make =
   <T extends keyof JSX.IntrinsicElements>(tag: T) =>
   // only one argument here means string interpolations are not allowed
-  (strings: TemplateStringsArray) =>
-  ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
-    React.createElement(
-      tag,
-      { className: cn(strings[0], className), ...rest },
-      children
-    )
+  (strings: TemplateStringsArray) => {
+    const Comp = ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
+      React.createElement(
+        tag,
+        { className: cn(strings[0], className), ...rest },
+        children
+      )
+    // allow arbitrary components to hang off this one, e.g., Table.Body
+    return Comp as typeof Comp & Record<string, React.ComponentType>
+  }
 
 // JSX.IntrinsicElements[T] ensures same props as the real DOM element. For example,
 // classed.span doesn't allow a type attr but classed.input does.
