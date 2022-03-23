@@ -148,9 +148,7 @@ export function ActionMenu(props: ActionMenuProps) {
                   <React.Fragment key={label}>
                     <div>
                       <h3
-                        className={cn(
-                          'sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary'
-                        )}
+                        className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary"
                       >
                         {label}
                       </h3>
