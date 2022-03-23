@@ -147,9 +147,7 @@ export function ActionMenu(props: ActionMenuProps) {
                 {allGroups.map(([label, items]) => (
                   <React.Fragment key={label}>
                     <div>
-                      <h3
-                        className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary"
-                      >
+                      <h3 className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary">
                         {label}
                       </h3>
                       {items.map((item, idx) => (
