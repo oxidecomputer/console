@@ -41,7 +41,7 @@ docker run -d \
 	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
 	ghcr.io/oxidecomputer/console:BRANCH_NAME
 
-export OXIDE_HOST='http://0.0.0.0:8888'  # used by oxide command line
+export OXIDE_HOST='localhost:8888'  # used by oxide command line
 export OXIDE_TOKEN="oxide-spoof-001de000-05e4-4000-8000-000000004007"
 
 /usr/local/bin/populate_omicron_data.sh
