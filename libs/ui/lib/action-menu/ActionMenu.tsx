@@ -145,45 +145,43 @@ export function ActionMenu(props: ActionMenuProps) {
             >
               <ul ref={ulRef}>
                 {allGroups.map(([label, items]) => (
-                  <React.Fragment key={label}>
-                    <div>
-                      <h3 className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary">
-                        {label}
-                      </h3>
-                      {items.map((item, idx) => (
-                        <div
-                          key={item.value}
-                          className="relative -mt-px first-of-type:mt-0"
-                        >
-                          {item.value === selectedItem?.value && (
-                            <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
-                          )}
-                          {/*
-                            TODO: there is probably a more correct way of fixing this reasonable lint error.
-                            Putting a button inside the <li> is not a great solution because it becomes
-                            focusable separate from the item selection
-                          */}
+                  <div key={label}>
+                    <h3 className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                      {label}
+                    </h3>
+                    {items.map((item, idx) => (
+                      <div
+                        key={item.value}
+                        className="relative -mt-px first-of-type:mt-0"
+                      >
+                        {item.value === selectedItem?.value && (
+                          <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
+                        )}
+                        {/*
+                          TODO: there is probably a more correct way of fixing this reasonable lint error.
+                          Putting a button inside the <li> is not a great solution because it becomes
+                          focusable separate from the item selection
+                        */}
 
-                          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-                          <li
-                            role="option"
-                            className={cn(
-                              'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary border-tertiary hover:bg-raise-hover',
-                              item.value === selectedItem?.value &&
-                                'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
-                            )}
-                            aria-selected={item.value === selectedItem?.value}
-                            onClick={() => {
-                              item.onSelect()
-                              onDismiss()
-                            }}
-                          >
-                            {item.value}
-                          </li>
-                        </div>
-                      ))}
-                    </div>
-                  </React.Fragment>
+                        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
+                        <li
+                          role="option"
+                          className={cn(
+                            'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary border-tertiary hover:bg-raise-hover',
+                            item.value === selectedItem?.value &&
+                              'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                          )}
+                          aria-selected={item.value === selectedItem?.value}
+                          onClick={() => {
+                            item.onSelect()
+                            onDismiss()
+                          }}
+                        >
+                          {item.value}
+                        </li>
+                      </div>
+                    ))}
+                  </div>
                 ))}
               </ul>
             </div>
