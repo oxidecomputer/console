@@ -2,7 +2,7 @@ import Dialog from '@reach/dialog'
 import React, { useState } from 'react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { groupBy } from '@oxide/util'
+import { classed, groupBy } from '@oxide/util'
 import { useSteppedScroll } from '../hooks/use-stepped-scroll'
 import { Close12Icon } from '@oxide/ui'
 
