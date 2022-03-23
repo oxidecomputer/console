@@ -157,7 +157,7 @@ export function ActionMenu(props: ActionMenuProps) {
                       {items.map((item, idx) => (
                         <div
                           key={item.value}
-                          className={cn('relative', idx !== 0 && '-mt-px')}
+                          className="relative -mt-px first-of-type:mt-0"
                         >
                           {item.value === selectedItem?.value && (
                             <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
