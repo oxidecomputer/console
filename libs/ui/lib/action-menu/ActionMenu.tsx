@@ -146,7 +146,7 @@ export function ActionMenu(props: ActionMenuProps) {
               <ul ref={ulRef}>
                 {allGroups.map(([label, items]) => (
                   <div key={label}>
-                    <h3 className="sticky top-0 z-20 px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                    <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
                       {label}
                     </h3>
                     {items.map((item) => (
