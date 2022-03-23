@@ -53,8 +53,8 @@ sudo mv /tmp/populate_omicron_data.sh /usr/local/bin/populate_omicron_data.sh
 # Download the latest Oxide command line.
 # FROM: https://github.com/oxidecomputer/cli/releases
 
-export OXIDE_CLI_SHA256="8f042f94aadc37abd001394f8f8b3f0e0098d0eac2dbb1c99b8f8e0608f46fd2"
-export OXIDE_CLI_VERSION="v0.1.0-pre.8"
+export OXIDE_CLI_SHA256="d88685869ec278efed16e21894ebf5367ebe740c87ca8c451f5fed6382df614c"
+export OXIDE_CLI_VERSION="v0.1.0-pre.10"
 # Download and check the sha256sum.
 $ curl -fSL "https://dl.oxide.computer/releases/cli/${OXIDE_CLI_VERSION}/oxide-x86_64-unknown-linux-musl" -o "/usr/local/bin/oxide" \
 	&& echo "${OXIDE_CLI_SHA256}  /usr/local/bin/oxide" | sha256sum -c - \
