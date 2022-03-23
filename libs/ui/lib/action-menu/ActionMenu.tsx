@@ -98,7 +98,7 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <div
           className={cn(
-            'shadow-black/25 block flex h-14 w-full overflow-y-auto rounded-lg border shadow-2xl bg-raise border-secondary'
+            'shadow-black/25 flex h-14 w-full overflow-y-auto rounded-lg border shadow-2xl bg-raise border-secondary'
           )}
         >
           <input
