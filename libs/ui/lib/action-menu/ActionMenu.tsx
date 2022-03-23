@@ -25,6 +25,8 @@ export interface ActionMenuProps {
 
 const LIST_HEIGHT = 384
 
+const Outline = classed.div`absolute z-10 h-full w-full rounded-lg border border-accent`
+
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
   const items = matchSorter(props.items, input, {
@@ -154,9 +156,8 @@ export function ActionMenu(props: ActionMenuProps) {
                         key={item.value}
                         className="relative -mt-px first-of-type:mt-0"
                       >
-                        {item.value === selectedItem?.value && (
-                          <div className="absolute z-10 h-full w-full rounded-lg border border-accent" />
-                        )}
+                        {item.value === selectedItem?.value && <Outline />}
+
                         {/*
                           TODO: there is probably a more correct way of fixing this reasonable lint error.
                           Putting a button inside the <li> is not a great solution because it becomes
