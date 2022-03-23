@@ -106,11 +106,11 @@ oxide vpc create vpc1 \
 	-D "The vpc1 VPC." \
 	-o maze-war \
 	-p prod-online \
-	--dns-name vpc1.maze-war.com
+	--dns-name vpc1
 oxide vpc create vpc2 \
 	-D "The vpc2 VPC." \
 	-o maze-war \
 	-p prod-online \
-	--dns-name vpc2.maze-war.com
+	--dns-name vpc2
 
 echo -e "\n==== API DATA POPULATED ====\n"
