@@ -12,6 +12,7 @@ curl -sSL https://pkgs.tailscale.com/stable/debian/buster.gpg | sudo apt-key add
 sudo apt install -y --no-install-recommends \
 	apt-transport-https \
 	ca-certificates \
+	coreutils \
 	software-properties-common \
 	uuid-runtime
 
