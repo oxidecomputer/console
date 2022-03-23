@@ -7,7 +7,7 @@
 }
 
 .ox-mini-table td {
-  @apply px-0 pt-2;
+  @apply relative px-0 pt-2;
 }
 
 .ox-mini-table tr {
