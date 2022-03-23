@@ -3,6 +3,8 @@ set -e
 set -o pipefail
 set -x
 
+export API_VERSION=$(cat /etc/api_version | tr -d '[:space:]')
+
 /usr/local/bin/bootstrap-omicron.sh
 
 # Install tailscale at machine start, there is something they are saving on the

@@ -85,6 +85,7 @@ echo "${CLOUDFLARE_EMAIL}" | sudo tee /etc/cloudflare/email
 echo "${CLOUDFLARE_TOKEN}" | sudo tee /etc/cloudflare/token
 echo "${SSL_CERT}" | sudo tee /etc/cloudflare/certificate
 echo "${SSL_KEY}" | sudo tee /etc/cloudflare/private_key
+echo "${API_VERSION}" | sudo tee /etc/api_version
 
 # Clean up
 sudo apt autoremove -y
