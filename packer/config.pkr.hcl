@@ -111,6 +111,10 @@ build {
         source = "packer/nginx"
         destination = "/tmp/nginx"
     }
+    provisioner "file" {
+        source = "tools/populate_omicron_data.sh"
+        destination = "/tmp/populate_omicron_data.sh"
+    }
     provisioner "shell" {
         script = "packer/provision.sh"
         pause_before = "10s"
