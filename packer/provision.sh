@@ -48,8 +48,14 @@ sudo mv /tmp/omicron.toml /etc/omicron/config.toml
 # Move the nginx configs to the right directory.
 sudo mv /tmp/nginx /etc/nginx
 
-# Move the oxapi_demo script to the right location.
-sudo mv /tmp/oxapi_demo /usr/local/bin/oxapi_demo
+# Download the latest Oxide command line.
+# FROM: https://github.com/oxidecomputer/cli/releases
+
+export OXIDE_CLI_SHA256="440869bce30b390d027a7d613f08e7c1cccf1d731f9d41c2d1d34274d2507324"
+# Download and check the sha256sum.
+$ curl -fSL "https://dl.oxide.computer/releases/cli/v0.1.0-pre.7/oxide-x86_64-unknown-linux-musl" -o "/usr/local/bin/oxide" \
+	&& echo "${OXIDE_CLI_SHA256}  /usr/local/bin/oxide" | sha256sum -c - \
+	&& chmod a+x "/usr/local/bin/oxide"
 
 # Login to the GitHub container registry.
 sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"

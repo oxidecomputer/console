@@ -41,49 +41,123 @@ docker run -d \
 	-v "/etc/nginx/conf.d:/etc/nginx/conf.d:ro" \
 	ghcr.io/oxidecomputer/console:BRANCH_NAME
 
-export OXAPI_URL='http://0.0.0.0:8888'  # used by oxapi_demo
+export OXIDE_HOST='http://0.0.0.0:8888'  # used by oxapi_demo
+export OXIDE_TOKEN="oxide-spoof-001de000-05e4-4000-8000-000000004007"
 
-# Populate API data.
-
-oxapi_demo organization_create_demo maze-war
-oxapi_demo organization_create_demo enron
-oxapi_demo organization_create_demo theranos
+oxide org create maze-war \
+	-D "The Maze War organization."
+oxide org create enron \
+	-D "The Enron organization."
+oxide org create theranos \
+	-D "The Theranos organization."
 
 # Create projects
 
-oxapi_demo project_create_demo maze-war prod-online
-oxapi_demo project_create_demo maze-war release-infrastructure
-oxapi_demo project_create_demo maze-war rendering
-oxapi_demo project_create_demo maze-war test-infrastructure
+oxide project create prod-online \
+	-D "The production online project." \
+	-o maze-war
+oxide project create release-infrastructure \
+	-D "The release infrastructure project." \
+	-o maze-war
+oxide project create rendering \
+	-D "The rendering project." \
+	-o maze-war
+oxide project create test-infrastructure \
+	-D "The test infrastructure project." \
+	-o maze-war
 
 # Create instances in project prod-online
 
-oxapi_demo instance_create_demo maze-war prod-online db1
-oxapi_demo instance_create_demo maze-war prod-online db2
+oxide instance create d1 \
+	-D "The first production database instance." \
+	-o maze-war \
+	-p prod-online \
+	--hostname "db1.maze-war.com" \
+	--ncpus 1 \
+	--memory 8
+oxide instance create d2 \
+	-D "The second production database instance." \
+	-o maze-war \
+	-p prod-online \
+	--hostname "db2.maze-war.com" \
+	--ncpus 1 \
+	--memory 8
 
 # Create disks in prod-online
 
-oxapi_demo disk_create_demo maze-war prod-online nginx
-oxapi_demo disk_create_demo maze-war prod-online grafana
-oxapi_demo disk_create_demo maze-war prod-online grafana-state
-oxapi_demo disk_create_demo maze-war prod-online vault
+oxide disk create nginx \
+	-D "The nginx disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+            0000-0000-000000000000
+oxide disk create grafana \
+	-D "The grafana disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+			0000-0000-000000000000
+oxide disk create grafana-state \
+	-D "The grafana state disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+			0000-0000-000000000000
+oxide disk create vault \
+	-D "The vault disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+			0000-0000-000000000000
 
 # Attach disks to instance db1
 
-oxapi_demo instance_attach_disk maze-war prod-online db1 nginx
-oxapi_demo instance_attach_disk maze-war prod-online db1 grafana
-oxapi_demo instance_attach_disk maze-war prod-online db1 grafana-state
-oxapi_demo instance_attach_disk maze-war prod-online db1 vault
+oxide disk attach nginx db1 \
+	-o maze-war
+	-p prod-online
+oxide disk attach grafana db1 \
+	-o maze-war
+	-p prod-online
+oxide disk attach grafana-state db1 \
+	-o maze-war
+	-p prod-online
+oxide disk attach vault db1 \
+	-o maze-war
+	-p prod-online
 
 # Create some disks in prod-online to leave unattached
 
-oxapi_demo disk_create_demo maze-war prod-online vol1
-oxapi_demo disk_create_demo maze-war prod-online vol2
+oxide disk create vol1 \
+	-D "The vol1 disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+			0000-0000-000000000000
+oxide disk create vol2 \
+	-D "The vol2 disk." \
+	-o maze-war \
+	-p prod-online \
+	--size 10 \
+	--snapshot-id 00000000-0000-
+			0000-0000-000000000000
 
 # Create VPCs in prod-online
 
-oxapi_demo vpc_create_demo maze-war prod-online vpc1 vpc1
-oxapi_demo vpc_create_demo maze-war prod-online vpc2 vpc2
+oxide vpc create vpc1 \
+	-D "The vpc1 VPC." \
+	-o maze-war \
+	-p prod-online \
+	--dns-name vpc1.maze-war.com
+oxide vpc create vpc2 \
+	-D "The vpc2 VPC." \
+	-o maze-war \
+	-p prod-online \
+	--dns-name vpc2.maze-war.com
 
 echo "\n==== API DATA POPULATED ====\n"
 

@@ -107,10 +107,6 @@ build {
         source = "packer/omicron.toml"
         destination = "/tmp/omicron.toml"
     }
-    provisioner "file" {
-        source = "packer/oxapi_demo"
-        destination = "/tmp/oxapi_demo"
-    }
     provisioner "file"{
         source = "packer/nginx"
         destination = "/tmp/nginx"
