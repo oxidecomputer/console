@@ -115,6 +115,10 @@ build {
         source = "tools/populate_omicron_data.sh"
         destination = "/tmp/populate_omicron_data.sh"
     }
+    provisioner "file" {
+        source = "packer/bootstrap-omicron.sh"
+        destination = "/tmp/bootstrap-omicron.sh"
+    }
     provisioner "shell" {
         script = "packer/provision.sh"
         pause_before = "10s"
@@ -132,13 +136,5 @@ build {
         script = "packer/bootstrap-cockroach.sh"
         pause_before = "10s"
         timeout      = "10s"
-    }
-    provisioner "shell" {
-        script = "packer/bootstrap-omicron.sh"
-        pause_before = "10s"
-        timeout      = "10s"
-        environment_vars = [
-            "API_VERSION=${var.api_version}"
-        ]
     }
 }

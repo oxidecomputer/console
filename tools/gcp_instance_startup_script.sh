@@ -3,6 +3,8 @@ set -e
 set -o pipefail
 set -x
 
+/usr/local/bin/bootstrap-omicron.sh
+
 # Install tailscale at machine start, there is something they are saving on the
 # host that makes everything think its the same machine.
 sudo apt update
