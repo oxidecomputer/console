@@ -34,14 +34,14 @@ oxide project create test-infrastructure \
 
 # Create instances in project prod-online
 
-oxide instance create d1 \
+oxide instance create db1 \
 	-D "The first production database instance." \
 	-o maze-war \
 	-p prod-online \
 	--hostname "db1.maze-war.com" \
 	--ncpus 1 \
 	--memory 8
-oxide instance create d2 \
+oxide instance create db2 \
 	-D "The second production database instance." \
 	-o maze-war \
 	-p prod-online \
