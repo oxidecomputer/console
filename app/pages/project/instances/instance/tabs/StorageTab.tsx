@@ -1,30 +1,27 @@
 import React from 'react'
-import { useTable } from 'react-table'
+import { createTable } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
-import { Table } from '@oxide/table'
+import { Table2 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 
-const columns = [
-  {
-    accessor: 'name' as const,
-    // TODO: there might be a better way to add this margin to both
-    Header: 'Name',
-    Cell: ({ value }: { value: string }) => <div>{value}</div>,
-  },
-  {
+const table = createTable().RowType<Disk>()
+
+const columns = table.createColumns([
+  table.createColumn('name', {
+    header: 'Name',
+    cell: ({ value }) => <div>{value}</div>,
+  }),
+  table.createColumn((d) => d.state.state, {
     id: 'status',
-    accessor: (d: Disk) => d.state.state,
-    Header: 'Status',
-    Cell: ({ value }: { value: Disk['state']['state'] }) => (
-      <DiskStatusBadge status={value} />
-    ),
-    className: 'w-56',
-  },
-]
+    header: 'Status',
+    cell: ({ value }) => <DiskStatusBadge status={value} />,
+    // TODO: need to figure out how to specify width on a column
+  }),
+])
 
 export function StorageTab() {
   const { orgName, projectName, instanceName } = useParams(
@@ -38,11 +35,11 @@ export function StorageTab() {
     { refetchInterval: 5000 }
   )
 
-  const bootDisks = data?.items.slice(0, 1) || []
-  const otherDisks = data?.items.slice(1) || []
+  const bootDisks = React.useMemo(() => data?.items.slice(0, 1) || [], [data])
+  const otherDisks = React.useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = useTable({ columns, data: bootDisks })
-  const otherDisksTable = useTable({ columns, data: otherDisks })
+  const bootDiskTable = table.useTable({ columns, data: bootDisks })
+  const otherDisksTable = table.useTable({ columns, data: otherDisks })
 
   if (!data) return null
 
@@ -52,9 +49,9 @@ export function StorageTab() {
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
-      <Table table={bootDiskTable} rowClassName="!h-10" />
+      <Table2 table={bootDiskTable} rowClassName="!h-10" />
       <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
-      <Table table={otherDisksTable} rowClassName="!h-10" />
+      <Table2 table={otherDisksTable} rowClassName="!h-10" />
       <div className="mt-4">
         <Button variant="secondary" size="sm">
           Create new disk
