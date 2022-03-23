@@ -3321,10 +3321,10 @@
     "@svgr/hast-util-to-babel-ast" "^5.5.0"
     svg-parser "^2.0.2"
 
-"@tanstack/react-table@^8.0.0-alpha.4":
-  version "8.0.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-alpha.4.tgz#d65309fb6b320548ae5f3d02c4f8809ef02468e4"
-  integrity sha512-ls/vor4Aq0iMNo/MEeHeen3dgfDgNMC7JA/nESaoT/yCMURNxlarZ7lLr7SXImU021DdJIf0lOyP5ZfvfrhZ/g==
+"@tanstack/react-table@^8.0.0-alpha.5":
+  version "8.0.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-alpha.5.tgz#87225e3c93f0681379a96857ba42afbf1ff33a2c"
+  integrity sha512-OAX33QIvfBlzDiHCqolcz+dv6NeUq9vbmrh+e57Dh0IwJQnHqFhGxOEdwt0+XAulvdnB341ugZQE9s9uKpvNUA==
 
 "@testing-library/dom@^8.0.0":
   version "8.1.0"

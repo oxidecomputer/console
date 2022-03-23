@@ -17,7 +17,7 @@ import {
   Unauthorized12Icon,
   Access24Icon,
 } from '@oxide/ui'
-import { Table2 } from '@oxide/table'
+import { Table2, selectCol } from '@oxide/table'
 
 type User = {
   name: string
@@ -81,8 +81,7 @@ const NameCell = ({ value }: { value: string }) => (
 const tableHelper = createTable().RowType<User>()
 
 const columns = tableHelper.createColumns([
-  // TODO: row select — v8 doesn't have it yet:
-  // https://github.com/TanStack/react-table/blob/c3c9f8f606/packages/react-table/src/core.tsx#L45
+  tableHelper.createDisplayColumn(selectCol()),
   tableHelper.createDataColumn('name', {
     header: <div className="text-left">Name</div>,
     cell: NameCell,
