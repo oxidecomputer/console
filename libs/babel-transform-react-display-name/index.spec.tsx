@@ -1,4 +1,6 @@
 import babel from '@babel/core'
+
+// @ts-expect-error We don't really need to directly deal with this interface anyway, so it's fine
 import plugin from './index'
 
 describe('functions returning JSX', () => {
@@ -180,8 +182,8 @@ describe('classed template tag literals', () => {
  * Helper to streamline babel transforms
  */
 function transform(strings: TemplateStringsArray) {
-  return babel.transform(strings.join(''), {
+  return babel.transformSync(strings.join(''), {
     plugins: ['@babel/plugin-syntax-jsx', plugin],
     filename: __filename,
-  }).code
+  })?.code
 }
