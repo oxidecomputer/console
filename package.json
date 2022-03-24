@@ -111,6 +111,7 @@
     "jscodeshift": "^0.13.0",
     "jsdom": "^19.0.0",
     "msw": "^0.38.1",
+    "patch-package": "^6.4.7",
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
