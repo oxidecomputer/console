@@ -63,9 +63,15 @@ const matchType = <P extends unknown>(
   // This exists because during react fast-refresh the component types
   // are swizzled out for a new reference. So the component imported from a module
   // and the type in a component reference will _always_ be false after said component
-  // is fast refreshed. We're just relying on stringifying the function body contents
-  // here instead.
-  if (process.env.NODE_ENV !== 'production') {
+  // is fast refreshed. We'll test the displayName if our target type has one otherwise
+  // we have to fallback on some very imperfect string comparisons.
+  if (process.env.NODE_ENV !== 'production' && typeof child.type !== 'string') {
+    if (componentType.displayName) {
+      console.log(componentType.displayName)
+      return (
+        (child.type as ComponentType).displayName === componentType.displayName
+      )
+    }
     return child.type.toString() === componentType.toString()
   }
   return child.type === componentType
