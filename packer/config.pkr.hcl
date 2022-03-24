@@ -107,13 +107,17 @@ build {
         source = "packer/omicron.toml"
         destination = "/tmp/omicron.toml"
     }
-    provisioner "file" {
-        source = "packer/oxapi_demo"
-        destination = "/tmp/oxapi_demo"
-    }
     provisioner "file"{
         source = "packer/nginx"
         destination = "/tmp/nginx"
+    }
+    provisioner "file" {
+        source = "tools/populate_omicron_data.sh"
+        destination = "/tmp/populate_omicron_data.sh"
+    }
+    provisioner "file" {
+        source = "packer/bootstrap-omicron.sh"
+        destination = "/tmp/bootstrap-omicron.sh"
     }
     provisioner "shell" {
         script = "packer/provision.sh"
@@ -125,20 +129,13 @@ build {
             "CLOUDFLARE_EMAIL=${var.cloudflare_email}",
             "CLOUDFLARE_TOKEN=${var.cloudflare_token}",
             "SSL_CERT=${var.ssl_cert}",
-            "SSL_KEY=${var.ssl_key}"
+            "SSL_KEY=${var.ssl_key}",
+            "API_VERSION=${var.api_version}"
         ]
     }
     provisioner "shell" {
         script = "packer/bootstrap-cockroach.sh"
         pause_before = "10s"
         timeout      = "10s"
-    }
-    provisioner "shell" {
-        script = "packer/bootstrap-omicron.sh"
-        pause_before = "10s"
-        timeout      = "10s"
-        environment_vars = [
-            "API_VERSION=${var.api_version}"
-        ]
     }
 }

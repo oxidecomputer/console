@@ -31,6 +31,6 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2015",
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client", "vitest/importMeta"]
   }
 }
