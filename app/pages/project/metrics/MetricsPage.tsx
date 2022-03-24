@@ -10,3 +10,5 @@ export const MetricsPage = () => {
     </>
   )
 }
+
+export default MetricsPage

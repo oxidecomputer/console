@@ -10,3 +10,5 @@ export const ImagesPage = () => {
     </>
   )
 }
+
+export default ImagesPage

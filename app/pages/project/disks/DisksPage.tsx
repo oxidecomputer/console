@@ -71,3 +71,5 @@ export function DisksPage() {
     </>
   )
 }
+
+export default DisksPage

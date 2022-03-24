@@ -70,3 +70,5 @@ export const VpcPage = () => {
     </>
   )
 }
+
+export default VpcPage

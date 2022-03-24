@@ -100,3 +100,5 @@ export const InstancesPage = () => {
     </>
   )
 }
+
+export default InstancesPage

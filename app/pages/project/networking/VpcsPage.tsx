@@ -46,3 +46,5 @@ export const VpcsPage = () => {
     </>
   )
 }
+
+export default VpcsPage

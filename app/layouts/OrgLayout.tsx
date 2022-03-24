@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { SkipLinkTarget } from '@oxide/ui'
+import { SkipLinkTarget, Spinner } from '@oxide/ui'
 
 import {
   ContentPane,
@@ -38,7 +38,9 @@ const OrgLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <Outlet />
+          <Suspense fallback={<Spinner />}>
+            <Outlet />
+          </Suspense>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

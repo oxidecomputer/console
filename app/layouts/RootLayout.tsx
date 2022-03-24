@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { SkipLinkTarget } from '@oxide/ui'
+import { SkipLinkTarget, Spinner } from '@oxide/ui'
 import {
   ContentPane,
   ContentPaneWrapper,
@@ -19,7 +19,9 @@ const RootLayout = () => (
         <TopBar />
         <Breadcrumbs />
         <SkipLinkTarget />
-        <Outlet />
+        <Suspense fallback={<Spinner />}>
+          <Outlet />
+        </Suspense>
       </ContentPane>
     </ContentPaneWrapper>
   </PageContainer>

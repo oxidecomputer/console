@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { Suspense, useMemo } from 'react'
 import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
 
 import {
@@ -10,6 +10,7 @@ import {
   Storage16Icon,
   Notification16Icon,
   Resize16Icon,
+  Spinner,
 } from '@oxide/ui'
 import {
   ContentPane,
@@ -85,7 +86,9 @@ const ProjectLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <Outlet />
+          <Suspense fallback={<Spinner />}>
+            <Outlet />
+          </Suspense>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

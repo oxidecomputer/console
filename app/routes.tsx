@@ -4,27 +4,38 @@ import type { RouteMatch, RouteObject } from 'react-router-dom'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import LoginPage from './pages/LoginPage'
-import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
-import OrgPage from './pages/OrgPage'
-import {
-  AccessPage,
-  DisksPage,
-  InstancePage,
-  InstancesPage,
-  ImagesPage,
-  MetricsPage,
-  VpcPage,
-  VpcsPage,
-} from './pages/project'
-import ProjectCreatePage from './pages/ProjectCreatePage'
-import ProjectsPage from './pages/ProjectsPage'
-import ToastTestPage from './pages/ToastTestPage'
 import NotFound from './pages/NotFound'
 
 import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
+
+const ToastTestPage = React.lazy(() => import('./pages/ToastTestPage'))
+const OrgPage = React.lazy(() => import('./pages/OrgPage'))
+const ProjectsPage = React.lazy(() => import('./pages/ProjectsPage'))
+const ProjectCreatePage = React.lazy(() => import('./pages/ProjectCreatePage'))
+const AccessPage = React.lazy(() => import('./pages/project/access/AccessPage'))
+const DisksPage = React.lazy(() => import('./pages/project/disks/DisksPage'))
+const InstancePage = React.lazy(
+  () => import('./pages/project/instances/instance/InstancePage')
+)
+const InstancesPage = React.lazy(
+  () => import('./pages/project/instances/InstancesPage')
+)
+const InstanceCreatePage = React.lazy(
+  () => import('./pages/project/instances/create/InstancesCreatePage')
+)
+const ImagesPage = React.lazy(() => import('./pages/project/images/ImagesPage'))
+const MetricsPage = React.lazy(
+  () => import('./pages/project/metrics/MetricsPage')
+)
+
+const VpcPage = React.lazy(
+  () => import('./pages/project/networking/VpcPage/VpcPage')
+)
+
+const VpcsPage = React.lazy(() => import('./pages/project/networking/VpcsPage'))
 
 /*
  * We are doing something a little unorthodox with the route config here. We
