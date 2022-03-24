@@ -20,6 +20,7 @@ export const getSelectCol = <T extends object>() => ({
 // only needs to be a function because of the generic params
 export const selectCol = <T, U, V, W, X>() => ({
   id: 'select',
+  // TODO: fix width at w-12
   header: ({ instance }: { instance: ReactTable<T, U, V, W, X> }) => (
     <Checkbox {...instance.getToggleAllRowsSelectedProps()} />
   ),
