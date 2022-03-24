@@ -14,19 +14,23 @@ export const useIsInSideModal = () => {
 
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
-  title: string
+  // TODO: Remove references to title prop
+  title?: string
 }
 
 export function SideModal({
   id,
-  title,
   children,
   onDismiss,
+  title: titleProp,
   ...dialogProps
 }: SideModalProps) {
-  const childArray = React.Children.toArray(children)
-  const footer = pluckFirstOfType(childArray, SideModal.Footer)
   const titleId = `${id}-title`
+  const childArray = React.Children.toArray(children)
+  const title = pluckFirstOfType(childArray, SideModal.Title) || (
+    <SideModal.Title id={titleId}>{titleProp}</SideModal.Title>
+  )
+  const footer = pluckFirstOfType(childArray, SideModal.Footer)
 
   return (
     <SideModalContext.Provider value={true}>
@@ -43,9 +47,7 @@ export function SideModal({
         >
           {/* Title */}
           <div className="mt-2 mb-8 flex justify-between p-6">
-            <h2 className="mt-2 text-sans-2xl" id={titleId}>
-              {title}
-            </h2>
+            {title}
             <Button variant="link" onClick={onDismiss}>
               <Close12Icon />
             </Button>
@@ -56,6 +58,18 @@ export function SideModal({
         {footer}
       </Dialog>
     </SideModalContext.Provider>
+  )
+}
+
+interface SideModalTitleProps {
+  id: string
+  children: React.ReactNode
+}
+SideModal.Title = ({ id, children }: SideModalTitleProps) => {
+  return (
+    <h2 className="mt-2 text-sans-2xl" id={id}>
+      {children}
+    </h2>
   )
 }
 

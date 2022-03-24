@@ -21,13 +21,15 @@ import cn from 'classnames'
 
 const FormActionsTunnel = tunnel('form-actions')
 
-interface FormProps<Values> extends FormikConfig<Values> {
+export interface FormProps<Values> extends FormikConfig<Values> {
   id: string
+  title?: ReactNode
   children: ReactNode
 }
 
 export function Form<Values>({
   id,
+  title,
   children,
   ...formikProps
 }: FormProps<Values>) {
@@ -37,6 +39,12 @@ export function Form<Values>({
 
   return (
     <>
+      {title &&
+        (isSideModal ? (
+          <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
+        ) : (
+          title
+        ))}
       <Formik {...formikProps}>
         {(props) => (
           <>
