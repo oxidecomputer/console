@@ -12,7 +12,6 @@
   ],
   "plugins": [
     "@babel/plugin-transform-runtime",
-    "@babel/plugin-proposal-class-properties",
-    "./libs/babel-transform-react-display-name"
+    "@babel/plugin-proposal-class-properties"
   ]
 }
