@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'packer/**' # Only run on changes to the packer directory.
+      - 'tools/populate_omicron_data.sh'
       - '.github/workflows/packer.yaml' # Run when this file changes.
   workflow_dispatch:
 
