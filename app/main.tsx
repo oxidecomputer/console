@@ -2,11 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter as Router } from 'react-router-dom'
+import fileSystemRoutes from 'virtual:remix-routes'
 
 import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
 import { QuickActions, ToastProvider } from './hooks'
+
+console.log(fileSystemRoutes)
 
 const queryClient = new QueryClient({
   defaultOptions: {

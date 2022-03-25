@@ -1,0 +1,387 @@
+diff --git a/node_modules/vite-plugin-remix-routes/dist/client/index.cjs b/node_modules/vite-plugin-remix-routes/dist/client/index.cjs
+new file mode 100644
+index 0000000..6b77e04
+--- /dev/null
++++ b/node_modules/vite-plugin-remix-routes/dist/client/index.cjs
+@@ -0,0 +1,44 @@
++var __defProp = Object.defineProperty;
++var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
++var __getOwnPropNames = Object.getOwnPropertyNames;
++var __hasOwnProp = Object.prototype.hasOwnProperty;
++var __export = (target, all) => {
++  for (var name in all)
++    __defProp(target, name, { get: all[name], enumerable: true });
++};
++var __copyProps = (to, from, except, desc) => {
++  if (from && typeof from === "object" || typeof from === "function") {
++    for (let key of __getOwnPropNames(from))
++      if (!__hasOwnProp.call(to, key) && key !== except)
++        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
++  }
++  return to;
++};
++var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
++
++// lib/client/index.ts
++var client_exports = {};
++__export(client_exports, {
++  EagerLoader: () => EagerLoader
++});
++module.exports = __toCommonJS(client_exports);
++
++// lib/client/eager-loader.ts
++var import_react = require("react");
++var import_react_router_dom = require("react-router-dom");
++function EagerLoader({ routes }) {
++  const location = (0, import_react_router_dom.useLocation)();
++  (0, import_react.useEffect)(() => {
++    const matches = (0, import_react_router_dom.matchRoutes)(routes, location) || [];
++    matches.forEach((match) => {
++      const route = match.route;
++      if (route.loader)
++        route.loader();
++    });
++  }, [location]);
++  return null;
++}
++// Annotate the CommonJS export names for ESM import in node:
++0 && (module.exports = {
++  EagerLoader
++});
+diff --git a/node_modules/vite-plugin-remix-routes/dist/node/index.cjs b/node_modules/vite-plugin-remix-routes/dist/node/index.cjs
+index 4e6dcd1..71977c3 100644
+--- a/node_modules/vite-plugin-remix-routes/dist/node/index.cjs
++++ b/node_modules/vite-plugin-remix-routes/dist/node/index.cjs
+@@ -21,46 +21,72 @@ var __spreadValues = (a, b) => {
+   return a;
+ };
+ var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+-var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
++var __objRest = (source, exclude) => {
++  var target = {};
++  for (var prop in source)
++    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
++      target[prop] = source[prop];
++  if (source != null && __getOwnPropSymbols)
++    for (var prop of __getOwnPropSymbols(source)) {
++      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
++        target[prop] = source[prop];
++    }
++  return target;
++};
+ var __export = (target, all) => {
+-  __markAsModule(target);
+   for (var name in all)
+     __defProp(target, name, { get: all[name], enumerable: true });
+ };
+-var __reExport = (target, module2, desc) => {
+-  if (module2 && typeof module2 === "object" || typeof module2 === "function") {
+-    for (let key of __getOwnPropNames(module2))
+-      if (!__hasOwnProp.call(target, key) && key !== "default")
+-        __defProp(target, key, { get: () => module2[key], enumerable: !(desc = __getOwnPropDesc(module2, key)) || desc.enumerable });
++var __copyProps = (to, from, except, desc) => {
++  if (from && typeof from === "object" || typeof from === "function") {
++    for (let key of __getOwnPropNames(from))
++      if (!__hasOwnProp.call(to, key) && key !== except)
++        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+   }
+-  return target;
+-};
+-var __toModule = (module2) => {
+-  return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? { get: () => module2.default, enumerable: true } : { value: module2, enumerable: true })), module2);
++  return to;
+ };
++var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
++var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+ 
+ // lib/node/index.ts
+-__export(exports, {
++var node_exports = {};
++__export(node_exports, {
+   default: () => node_default,
+   getRoutes: () => getRoutes,
+   stringifyRoutes: () => stringifyRoutes
+ });
+-var import_node_path = __toModule(require("path"));
++module.exports = __toCommonJS(node_exports);
++var import_node_path = __toESM(require("path"), 1);
++var import_node_fs = __toESM(require("fs"), 1);
+ 
+ // lib/node/remix.ts
+-var import_routesConvention = __toModule(require("@remix-run/dev/config/routesConvention"));
+-function getRoutes(options) {
+-  const { appDir, is404Route = (route) => route.id.endsWith("/404") } = options;
++var import_routesConvention = require("@remix-run/dev/config/routesConvention");
++var import_routes = require("@remix-run/dev/config/routes");
++async function getRoutes(options) {
++  const {
++    appDirectory,
++    is404Route = (route) => route.id.endsWith("/404"),
++    ignoredRouteFiles
++  } = options;
+   const routeManifest = {
+     root: { path: "", id: "root", file: "routes/index" }
+   };
+-  const conventionalRoutes = (0, import_routesConvention.defineConventionalRoutes)(appDir);
++  const conventionalRoutes = (0, import_routesConvention.defineConventionalRoutes)(appDirectory, ignoredRouteFiles);
+   for (const key of Object.keys(conventionalRoutes)) {
+     const route = conventionalRoutes[key];
+     routeManifest[route.id] = __spreadProps(__spreadValues({}, route), {
+       parentId: route.parentId || "root"
+     });
+   }
++  if (options.routes) {
++    let manualRoutes = await options.routes(import_routes.defineRoutes);
++    for (const key of Object.keys(manualRoutes)) {
++      const route = manualRoutes[key];
++      routeManifest[route.id] = __spreadProps(__spreadValues({}, route), {
++        parentId: route.parentId || "root"
++      });
++    }
++  }
+   const routes = createRoutes(routeManifest)[0].children;
+   const modifyRoute = (route) => __spreadProps(__spreadValues({}, route), {
+     path: is404Route(route) ? "*" : route.path,
+@@ -102,7 +128,7 @@ function routeToString(route, context, components) {
+   const componentName = getRouteComponentName(route);
+   const componentPath = `${context.prefix}/${route.file}`;
+   const importMode = ((_a = context.importMode) == null ? void 0 : _a.call(context, route)) || "sync";
+-  const props = new Map();
++  const props = /* @__PURE__ */ new Map();
+   if (route.path !== "") {
+     props.set("path", `'${route.path}'`);
+   }
+@@ -131,12 +157,32 @@ function getRouteComponentName(route) {
+ // lib/node/index.ts
+ function plugin(options = {}) {
+   const virtualModuleId = "virtual:remix-routes";
+-  const {
+-    appDir = import_node_path.default.join(process.cwd(), "src"),
+-    importMode,
+-    is404Route
+-  } = options;
+-  const prefix = appDir.replace(process.cwd(), "");
++  const _a = options, {
++    appDir: _appDir,
++    appDirectory = _appDir,
++    importMode
++  } = _a, otherOptions = __objRest(_a, [
++    "appDir",
++    "appDirectory",
++    "importMode"
++  ]);
++  let dir = "";
++  if (appDirectory) {
++    dir = import_node_path.default.resolve(process.cwd(), appDirectory);
++  } else {
++    const srcDir = import_node_path.default.resolve(process.cwd(), "src");
++    const appDir = import_node_path.default.resolve(process.cwd(), "app");
++    if (!dir && import_node_fs.default.existsSync(srcDir)) {
++      dir = srcDir;
++    }
++    if (!dir && import_node_fs.default.existsSync(appDir)) {
++      dir = appDir;
++    }
++    if (!dir) {
++      throw new Error("[vite-plugin-remix-routes] appDirectory not found, please specify it in the plugin's config");
++    }
++  }
++  const prefix = `.${import_node_path.default.sep}${import_node_path.default.relative(process.cwd(), dir)}`;
+   return {
+     name: "vite-plugin-remix-routes",
+     resolveId(id) {
+@@ -144,9 +190,9 @@ function plugin(options = {}) {
+         return id;
+       }
+     },
+-    load(id) {
++    async load(id) {
+       if (id === virtualModuleId) {
+-        const routes = getRoutes({ appDir, is404Route });
++        const routes = await getRoutes(__spreadValues({ appDirectory: dir }, otherOptions));
+         const { routesString, componentsString } = stringifyRoutes(routes, {
+           prefix,
+           importMode
+diff --git a/node_modules/vite-plugin-remix-routes/dist/node/index.d.ts b/node_modules/vite-plugin-remix-routes/dist/node/index.d.ts
+index 1cb5b45..b9387e1 100644
+--- a/node_modules/vite-plugin-remix-routes/dist/node/index.d.ts
++++ b/node_modules/vite-plugin-remix-routes/dist/node/index.d.ts
+@@ -1,13 +1,22 @@
+ import { Plugin } from 'vite';
++import { AppConfig } from '@remix-run/dev/config';
+ 
+-interface Options$1 {
+-    appDir: string;
+-    is404Route?: (route: Route) => boolean;
++declare type RequireOnly<Object, Keys extends keyof Object> = Omit<Object, Keys> & Required<Pick<Object, Keys>>;
++interface Context {
++    prefix: string;
++    importMode?: (route: Route) => "sync" | "async";
+ }
++declare function stringifyRoutes(routes: Route[], context: Context): {
++    routesString: string;
++    componentsString: string;
++};
++
++declare type RemixOptions = Pick<AppConfig, "appDirectory" | "routes" | "ignoredRouteFiles">;
++declare type GetRouteOptions = Omit<PluginOptions, "appDir" | "importModule"> & RequireOnly<RemixOptions, "appDirectory">;
+ /**
+  * See `readConfig` in @remix-run/dev/config.ts
+  */
+-declare function getRoutes(options: Options$1): Route[];
++declare function getRoutes(options: GetRouteOptions): Promise<Route[]>;
+ interface Route {
+     id: string;
+     file: string;
+@@ -16,21 +25,14 @@ interface Route {
+     children: Route[];
+ }
+ 
+-interface Context {
+-    prefix: string;
+-    importMode?: (route: Route) => "sync" | "async";
++interface Options extends PluginOptions, RemixOptions {
+ }
+-declare function stringifyRoutes(routes: Route[], context: Context): {
+-    routesString: string;
+-    componentsString: string;
+-};
+-
+-interface Options {
++interface PluginOptions {
+     /**
+      * An absolute path to the folder containing the `routes` folder.
+      * This will most likely be your `/src` folder.
+      *
+-     * @default path.join(process.cwd(), "src")
++     * @deprecated Use `appDirectory` instead
+      */
+     appDir?: string;
+     /**
+@@ -52,4 +54,4 @@ interface Options {
+ }
+ declare function plugin(options?: Options): Plugin;
+ 
+-export { Route, plugin as default, getRoutes, stringifyRoutes };
++export { Options, PluginOptions, Route, plugin as default, getRoutes, stringifyRoutes };
+diff --git a/node_modules/vite-plugin-remix-routes/dist/node/index.js b/node_modules/vite-plugin-remix-routes/dist/node/index.js
+index bc92c6b..ecddc00 100644
+--- a/node_modules/vite-plugin-remix-routes/dist/node/index.js
++++ b/node_modules/vite-plugin-remix-routes/dist/node/index.js
+@@ -17,24 +17,53 @@ var __spreadValues = (a, b) => {
+   return a;
+ };
+ var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
++var __objRest = (source, exclude) => {
++  var target = {};
++  for (var prop in source)
++    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
++      target[prop] = source[prop];
++  if (source != null && __getOwnPropSymbols)
++    for (var prop of __getOwnPropSymbols(source)) {
++      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
++        target[prop] = source[prop];
++    }
++  return target;
++};
+ 
+ // lib/node/index.ts
+ import path from "path";
++import fs from "fs";
+ 
+ // lib/node/remix.ts
+ import { defineConventionalRoutes } from "@remix-run/dev/config/routesConvention";
+-function getRoutes(options) {
+-  const { appDir, is404Route = (route) => route.id.endsWith("/404") } = options;
++import {
++  defineRoutes
++} from "@remix-run/dev/config/routes";
++async function getRoutes(options) {
++  const {
++    appDirectory,
++    is404Route = (route) => route.id.endsWith("/404"),
++    ignoredRouteFiles
++  } = options;
+   const routeManifest = {
+     root: { path: "", id: "root", file: "routes/index" }
+   };
+-  const conventionalRoutes = defineConventionalRoutes(appDir);
++  const conventionalRoutes = defineConventionalRoutes(appDirectory, ignoredRouteFiles);
+   for (const key of Object.keys(conventionalRoutes)) {
+     const route = conventionalRoutes[key];
+     routeManifest[route.id] = __spreadProps(__spreadValues({}, route), {
+       parentId: route.parentId || "root"
+     });
+   }
++  if (options.routes) {
++    let manualRoutes = await options.routes(defineRoutes);
++    for (const key of Object.keys(manualRoutes)) {
++      const route = manualRoutes[key];
++      routeManifest[route.id] = __spreadProps(__spreadValues({}, route), {
++        parentId: route.parentId || "root"
++      });
++    }
++  }
+   const routes = createRoutes(routeManifest)[0].children;
+   const modifyRoute = (route) => __spreadProps(__spreadValues({}, route), {
+     path: is404Route(route) ? "*" : route.path,
+@@ -76,7 +105,7 @@ function routeToString(route, context, components) {
+   const componentName = getRouteComponentName(route);
+   const componentPath = `${context.prefix}/${route.file}`;
+   const importMode = ((_a = context.importMode) == null ? void 0 : _a.call(context, route)) || "sync";
+-  const props = new Map();
++  const props = /* @__PURE__ */ new Map();
+   if (route.path !== "") {
+     props.set("path", `'${route.path}'`);
+   }
+@@ -105,12 +134,32 @@ function getRouteComponentName(route) {
+ // lib/node/index.ts
+ function plugin(options = {}) {
+   const virtualModuleId = "virtual:remix-routes";
+-  const {
+-    appDir = path.join(process.cwd(), "src"),
+-    importMode,
+-    is404Route
+-  } = options;
+-  const prefix = appDir.replace(process.cwd(), "");
++  const _a = options, {
++    appDir: _appDir,
++    appDirectory = _appDir,
++    importMode
++  } = _a, otherOptions = __objRest(_a, [
++    "appDir",
++    "appDirectory",
++    "importMode"
++  ]);
++  let dir = "";
++  if (appDirectory) {
++    dir = path.resolve(process.cwd(), appDirectory);
++  } else {
++    const srcDir = path.resolve(process.cwd(), "src");
++    const appDir = path.resolve(process.cwd(), "app");
++    if (!dir && fs.existsSync(srcDir)) {
++      dir = srcDir;
++    }
++    if (!dir && fs.existsSync(appDir)) {
++      dir = appDir;
++    }
++    if (!dir) {
++      throw new Error("[vite-plugin-remix-routes] appDirectory not found, please specify it in the plugin's config");
++    }
++  }
++  const prefix = `.${path.sep}${path.relative(process.cwd(), dir)}`;
+   return {
+     name: "vite-plugin-remix-routes",
+     resolveId(id) {
+@@ -118,9 +167,9 @@ function plugin(options = {}) {
+         return id;
+       }
+     },
+-    load(id) {
++    async load(id) {
+       if (id === virtualModuleId) {
+-        const routes = getRoutes({ appDir, is404Route });
++        const routes = await getRoutes(__spreadValues({ appDirectory: dir }, otherOptions));
+         const { routesString, componentsString } = stringifyRoutes(routes, {
+           prefix,
+           importMode

@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import remixRoutes from 'vite-plugin-remix-routes'
 
 import tsConfig from './tsconfig.json'
 
@@ -30,7 +31,12 @@ export default defineConfig(({ mode }) => ({
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    remixRoutes({
+      appDir: resolve(__dirname, 'app'),
+    }),
+  ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
     // replace is there to turn
