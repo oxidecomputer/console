@@ -58,7 +58,7 @@ export const routes = (
       <Route index element={<LoginPage />} />
     </Route>
 
-    <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
+    {/* <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} /> */}
 
     <Route path="orgs">
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>

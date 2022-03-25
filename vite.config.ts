@@ -34,7 +34,12 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     remixRoutes({
-      appDir: resolve(__dirname, 'app'),
+      importMode: () => 'async',
+      routes: async (defineRoutes) => {
+        return defineRoutes((route) => {
+          route('*', 'pages/NotFound.tsx')
+        })
+      },
     }),
   ],
   resolve: {
