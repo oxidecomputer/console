@@ -21,7 +21,8 @@
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
-    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'"
+    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'",
+    "postinstall": "patch-package"
   },
   "private": true,
   "dependencies": {
@@ -82,6 +83,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^7.0.1",
+    "@types/babel__core": "^7.1.19",
     "@types/jscodeshift": "^0.11.2",
     "@types/mousetrap": "^1.6.8",
     "@types/node": "^16.11.9",
@@ -110,6 +112,7 @@
     "jscodeshift": "^0.13.0",
     "jsdom": "^19.0.0",
     "msw": "^0.38.1",
+    "patch-package": "^6.4.7",
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
