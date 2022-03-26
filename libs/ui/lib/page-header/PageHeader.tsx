@@ -1,11 +1,11 @@
-import type { PropsWithChildren, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import React from 'react'
 
 import { tunnel } from '@oxide/util'
 
 const PageHeaderActionsTunnel = tunnel('page-header-actions')
 
-export const PageHeader = ({ children }: PropsWithChildren<never>) => (
+export const PageHeader = ({ children }: { children: ReactElement }) => (
   <header className="mb-24 mt-4 flex items-center justify-between">
     {children}
     <PageHeaderActionsTunnel.Out />
