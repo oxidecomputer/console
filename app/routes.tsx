@@ -60,7 +60,7 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
-    <Route path="*" element={<NotFound />} title="Not found" />
+    <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
     </Route>
