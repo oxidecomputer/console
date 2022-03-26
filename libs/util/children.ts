@@ -67,7 +67,6 @@ const matchType = <P extends unknown>(
   // we have to fallback on some very imperfect string comparisons.
   if (process.env.NODE_ENV !== 'production' && typeof child.type !== 'string') {
     if (componentType.displayName) {
-      console.log(componentType.displayName)
       return (
         (child.type as ComponentType).displayName === componentType.displayName
       )
