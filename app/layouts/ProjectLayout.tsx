@@ -5,7 +5,6 @@ import {
   SkipLinkTarget,
   Access16Icon,
   Instances16Icon,
-  Metrics16Icon,
   Networking16Icon,
   Storage16Icon,
   Notification16Icon,
@@ -41,7 +40,6 @@ const ProjectLayout = () => {
           { value: 'Access & IAM', path: 'access' },
           { value: 'Images', path: 'images' },
           { value: 'Networking', path: 'vpcs' },
-          { value: 'Metrics', path: 'metrics' },
         ]
           // filter out the entry for the path we're currently on
           .filter(
@@ -78,9 +76,6 @@ const ProjectLayout = () => {
           </NavLinkItem>
           <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
-          </NavLinkItem>
-          <NavLinkItem to="metrics">
-            <Metrics16Icon /> Metrics
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
