@@ -32,6 +32,7 @@ describe('routeConfig', () => {
         "route": {
           "element": <NotFound />,
           "path": "*",
+          "title": "Not found",
         },
       }
     `)
