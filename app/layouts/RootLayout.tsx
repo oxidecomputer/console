@@ -1,7 +1,8 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
+import { useTitle } from 'app/hooks/use-title'
 
-import { SkipLinkTarget } from '@oxide/ui'
+import { PageHeader, PageTitle, SkipLinkTarget } from '@oxide/ui'
 import {
   ContentPane,
   ContentPaneWrapper,
@@ -11,18 +12,26 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 
-const RootLayout = () => (
-  <PageContainer>
-    <Sidebar>TBD</Sidebar>
-    <ContentPaneWrapper>
-      <ContentPane>
-        <TopBar />
-        <Breadcrumbs />
-        <SkipLinkTarget />
-        <Outlet />
-      </ContentPane>
-    </ContentPaneWrapper>
-  </PageContainer>
-)
+const RootLayout = () => {
+  const [title, icon] = useTitle()
+  return (
+    <PageContainer>
+      <Sidebar>TBD</Sidebar>
+      <ContentPaneWrapper>
+        <ContentPane>
+          <TopBar />
+          <Breadcrumbs />
+          <SkipLinkTarget />
+          {title && (
+            <PageHeader>
+              <PageTitle icon={icon}>{title}</PageTitle>
+            </PageHeader>
+          )}
+          <Outlet />
+        </ContentPane>
+      </ContentPaneWrapper>
+    </PageContainer>
+  )
+}
 
 export default RootLayout

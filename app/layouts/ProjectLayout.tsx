@@ -10,6 +10,8 @@ import {
   Storage16Icon,
   Notification16Icon,
   Resize16Icon,
+  PageTitle,
+  PageHeader,
 } from '@oxide/ui'
 import {
   ContentPane,
@@ -22,11 +24,13 @@ import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
+import { useTitle } from 'app/hooks/use-title'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
   const { projectName } = useParams('orgName', 'projectName')
   const currentPath = useLocation().pathname
+  const [title, icon] = useTitle()
   useQuickActions(
     useMemo(
       () =>
@@ -85,6 +89,11 @@ const ProjectLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
+          {title && (
+            <PageHeader>
+              <PageTitle icon={icon}>{title}</PageTitle>
+            </PageHeader>
+          )}
           <Outlet />
         </ContentPane>
         <ContentPaneActions>
