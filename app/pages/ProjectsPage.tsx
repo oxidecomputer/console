@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useParams, useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
+import { buttonStyle } from '@oxide/ui'
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
@@ -32,6 +33,14 @@ const ProjectsPage = () => {
 
   return (
     <>
+      <div className="-mt-11 mb-3 flex justify-end space-x-4">
+        <Link
+          to={`/orgs/${orgName}/projects/new`}
+          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
+        >
+          New Project
+        </Link>
+      </div>
       <Table>
         <Column
           id="name"
