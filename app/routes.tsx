@@ -25,6 +25,14 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
+import {
+  Access24Icon,
+  Instances24Icon,
+  Image24Icon,
+  Snapshots24Icon,
+  Storage24Icon,
+  Networking24Icon,
+} from '@oxide/ui'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -53,7 +61,7 @@ const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 /** React Router route config in JSX form */
 export const routes = (
   <Routes>
-    <Route path="*" element={<NotFound />} />
+    <Route path="*" element={<NotFound />} title="Not found" />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
     </Route>
@@ -84,14 +92,18 @@ export const routes = (
             crumb={projectCrumb}
           >
             <Route index element={<Navigate to="instances" replace />} />
-            {/* This is separate from the other instances routes because we want a different crumb */}
             <Route
-              path="instances/new"
-              element={<InstanceCreatePage />}
-              crumb="Create instance"
-            />
-            <Route path="instances" crumb="Instances">
+              path="instances"
+              crumb="Instances"
+              icon={<Instances24Icon />}
+            >
               <Route index element={<InstancesPage />} />
+              <Route
+                path="new"
+                element={<InstanceCreatePage />}
+                title="Create instance"
+                icon={<Instances24Icon />}
+              />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
@@ -100,19 +112,33 @@ export const routes = (
                 crumb={instanceCrumb}
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs">
+            <Route path="vpcs" crumb="Vpcs" icon={<Networking24Icon />}>
               <Route index element={<VpcsPage />} />
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
-            <Route path="disks" element={<DisksPage />} crumb="Disks" />
-            <Route path="metrics" element={<MetricsPage />} crumb="Metrics" />
-            <Route path="snapshots" crumb="Snapshots" />
+            <Route
+              path="disks"
+              element={<DisksPage />}
+              crumb="Disks"
+              icon={<Storage24Icon />}
+            />
+            <Route
+              path="snapshots"
+              crumb="Snapshots"
+              icon={<Snapshots24Icon />}
+            />
             <Route path="audit" crumb="Audit" />
-            <Route path="images" element={<ImagesPage />} crumb="Images" />
+            <Route
+              path="images"
+              element={<ImagesPage />}
+              crumb="Images"
+              icon={<Image24Icon />}
+            />
             <Route
               path="access"
               element={<AccessPage />}
               crumb="Access & IAM"
+              icon={<Access24Icon />}
             />
             <Route path="settings" crumb="Settings" />
           </Route>

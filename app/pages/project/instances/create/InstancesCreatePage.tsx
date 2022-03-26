@@ -5,8 +5,6 @@ import { Formik, Form } from 'formik'
 
 import {
   Button,
-  PageHeader,
-  PageTitle,
   RadioGroupHint,
   RadioGroup,
   RadioCard,
@@ -14,7 +12,6 @@ import {
   Tab,
   TextField,
   TextFieldHint,
-  Instances24Icon,
   FieldLabel,
   Badge,
 } from '@oxide/ui'
@@ -72,11 +69,6 @@ export default function InstanceCreatePage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Instances24Icon title="Instances" />}>
-          Create a new instance
-        </PageTitle>
-      </PageHeader>
       <Formik
         initialValues={{
           'instance-name': '',
