@@ -172,7 +172,7 @@ describe('classed template tag literals', () => {
       "\\"use strict\\";
       
       const MyDiv = classed.div\`mb-4\`;
-      MyDiv.displayName = \\"MyDiv - libs/babel-transform-react-display-name/index.spec.tsx\\""
+      MyDiv.displayName = \\"MyDiv |classed.div| - libs/babel-transform-react-display-name/index.spec.tsx\\""
     `)
     expect(result).toContain('MyDiv.displayName = ')
   })
