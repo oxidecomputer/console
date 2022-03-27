@@ -3,7 +3,10 @@
  * Rollup in prod.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function invariant(condition: any, message: string) {
+export function invariant(
+  condition: unknown,
+  message: string
+): asserts condition {
   if (process.env.NODE_ENV !== 'production') {
     if (!condition) {
       throw new Error(message)
