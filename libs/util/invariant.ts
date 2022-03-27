@@ -2,7 +2,6 @@
  * Throw with message if condition is falsy. Entire call stripped out by
  * Rollup in prod.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function invariant(
   condition: unknown,
   message: string
