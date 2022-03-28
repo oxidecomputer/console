@@ -71,6 +71,8 @@ run_in_pane 2 "cargo run --bin=sled-agent-sim -- $(uuidgen) 127.0.0.1:12345 127.
 run_in_pane 3 "$UTILS"
 run_in_pane 3 "set_pane_title 'seed data'"
 run_in_pane 3 "wait_for_up 12345"
+run_in_pane 3 "export OXIDE_HOST='http://127.0.0.1:12220'"
+run_in_pane 3 "export OXIDE_TOKEN='oxide-spoof-001de000-05e4-4000-8000-000000004007'"
 run_in_pane 3 "../console/tools/populate_omicron_data.sh"
 
 tmux attach -t omicron-console
