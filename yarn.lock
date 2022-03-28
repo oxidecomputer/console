@@ -4020,6 +4020,11 @@
     "@typescript-eslint/types" "5.9.1"
     eslint-visitor-keys "^3.0.0"
 
+"@utilityjs/use-get-scrollbar-width@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@utilityjs/use-get-scrollbar-width/-/use-get-scrollbar-width-1.0.1.tgz#06a1dfacc07ece5cc04465c8a233ee97a2c11fc6"
+  integrity sha512-ABEhSJVisEeJc8QqHjzC4Wo/FQM9sZxB4ns8bGbT+IE+DkR7dFgBIi1ZoXytgvTKjURcqKGMYUyiqWa+edOVfQ==
+
 "@vitejs/plugin-react@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-react/-/plugin-react-1.2.0.tgz#4cfb4c0475e93885e56d66ff15e12ef4c34b0af0"

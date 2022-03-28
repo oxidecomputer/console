@@ -15,6 +15,7 @@
 
 :root {
   --content-gutter: 2.5rem;
+  --scrollbar-width: 0px;
 }
 
 @layer base {
