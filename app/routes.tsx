@@ -17,6 +17,8 @@ import {
 } from './pages/project'
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
+import OrgsPage from './pages/OrgsPage'
+import OrgCreatePage from './pages/OrgCreatePage'
 import ToastTestPage from './pages/ToastTestPage'
 import NotFound from './pages/NotFound'
 
@@ -68,6 +70,10 @@ export const routes = (
     <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
     <Route path="orgs">
+      <Route element={<RootLayout />} crumb="Orgs">
+        <Route index element={<OrgsPage />} />
+        <Route path="new" element={<OrgCreatePage />} />
+      </Route>
       <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
         <Route index element={<OrgPage />} />
       </Route>
