@@ -2,8 +2,6 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { PageHeader, PageTitle, SkipLinkTarget } from '@oxide/ui'
-import { useTitle } from 'app/hooks/use-title'
 
 import {
   ContentPane,
@@ -15,10 +13,11 @@ import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
+import { SkipLinkTarget } from '@oxide/ui'
 
 const OrgLayout = () => {
-  const [title, icon] = useTitle()
   const { orgName } = useParams('orgName')
   const { data: projects } = useApiQuery('organizationProjectsGet', {
     orgName,
@@ -40,11 +39,7 @@ const OrgLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          {title && (
-            <PageHeader>
-              <PageTitle icon={icon}>{title}</PageTitle>
-            </PageHeader>
-          )}
+          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

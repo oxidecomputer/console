@@ -1,8 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { useTitle } from 'app/hooks/use-title'
 
-import { PageHeader, PageTitle, SkipLinkTarget } from '@oxide/ui'
+import { SkipLinkTarget } from '@oxide/ui'
 import {
   ContentPane,
   ContentPaneWrapper,
@@ -11,9 +10,9 @@ import {
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
+import { PageHeader } from '../components/PageHeader'
 
 const RootLayout = () => {
-  const [title, icon] = useTitle()
   return (
     <PageContainer>
       <Sidebar>TBD</Sidebar>
@@ -22,11 +21,7 @@ const RootLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          {title && (
-            <PageHeader>
-              <PageTitle icon={icon}>{title}</PageTitle>
-            </PageHeader>
-          )}
+          <PageHeader />
           <Outlet />
         </ContentPane>
       </ContentPaneWrapper>
