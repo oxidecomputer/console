@@ -10,19 +10,23 @@ import {
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
+import { PageHeader } from '../components/PageHeader'
 
-const RootLayout = () => (
-  <PageContainer>
-    <Sidebar>TBD</Sidebar>
-    <ContentPaneWrapper>
-      <ContentPane>
-        <TopBar />
-        <Breadcrumbs />
-        <SkipLinkTarget />
-        <Outlet />
-      </ContentPane>
-    </ContentPaneWrapper>
-  </PageContainer>
-)
+const RootLayout = () => {
+  return (
+    <PageContainer>
+      <Sidebar>TBD</Sidebar>
+      <ContentPaneWrapper>
+        <ContentPane>
+          <TopBar />
+          <Breadcrumbs />
+          <SkipLinkTarget />
+          <PageHeader />
+          <Outlet />
+        </ContentPane>
+      </ContentPaneWrapper>
+    </PageContainer>
+  )
+}
 
 export default RootLayout

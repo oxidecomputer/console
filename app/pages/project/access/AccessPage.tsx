@@ -7,8 +7,6 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button'
 import {
   Avatar,
   Button,
-  PageHeader,
-  PageTitle,
   Add12Icon,
   Success12Icon,
   Close12Icon,
@@ -16,7 +14,6 @@ import {
   More12Icon,
   Search16Icon,
   Unauthorized12Icon,
-  Access24Icon,
 } from '@oxide/ui'
 import { Table, getSelectCol } from '@oxide/table'
 
@@ -157,12 +154,6 @@ export const AccessPage = () => {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Access24Icon title="Access & IAM" />}>
-          Access &amp; IAM
-        </PageTitle>
-      </PageHeader>
-
       <Dialog
         className="SideModal"
         isOpen={modalIsOpen}
