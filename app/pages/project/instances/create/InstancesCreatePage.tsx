@@ -4,14 +4,11 @@ import cn from 'classnames'
 
 import {
   Button,
-  PageHeader,
-  PageTitle,
   RadioGroupHint,
   RadioGroup,
   RadioCard,
   Tabs,
   Tab,
-  Instances24Icon,
   Badge,
   CentOSResponsiveIcon,
   DebianResponsiveIcon,
@@ -89,11 +86,6 @@ export default function InstanceCreatePage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Instances24Icon title="Instances" />}>
-          Create a new instance
-        </PageTitle>
-      </PageHeader>
       <Form
         id="instances-create-form"
         initialValues={{

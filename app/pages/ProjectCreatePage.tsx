@@ -1,13 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  Button,
-  PageHeader,
-  PageTitle,
-  Folder24Icon,
-  Success16Icon,
-} from '@oxide/ui'
+import { Button, Success16Icon } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { Form, NameField, DescriptionField } from '@oxide/form'
@@ -46,11 +40,6 @@ export default function ProjectCreatePage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Projects" />}>
-          Create a new project
-        </PageTitle>
-      </PageHeader>
       <Form
         id="create-project-form"
         initialValues={{ name: '', description: '' }}

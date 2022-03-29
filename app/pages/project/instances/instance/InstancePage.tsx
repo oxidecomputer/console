@@ -1,17 +1,8 @@
 import React, { useMemo } from 'react'
 import filesize from 'filesize'
 import { useNavigate } from 'react-router-dom'
-import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 
-import {
-  Instances24Icon,
-  PageHeader,
-  PageTitle,
-  PropertiesTable,
-  Tabs,
-  Tab,
-  More12Icon,
-} from '@oxide/ui'
+import { PropertiesTable, Tabs, Tab, PageHeaderActions } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 import { useParams, useQuickActions } from 'app/hooks'
@@ -19,6 +10,7 @@ import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
 import { useMakeInstanceActions } from '../actions'
+import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -65,28 +57,10 @@ export const InstancePage = () => {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Instances24Icon title="Instances" />}>
-          {instanceParams.instanceName}
-        </PageTitle>
-        <Menu>
-          <MenuButton>
-            <More12Icon className="text-tertiary" />
-          </MenuButton>
-          <MenuList>
-            {actions.map((a) => (
-              <MenuItem
-                disabled={a.disabled}
-                key={a.label}
-                onSelect={a.onActivate}
-              >
-                {a.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      </PageHeader>
-      <PropertiesTable.Group className="mb-16">
+      <PageHeaderActions>
+        <MoreActionsMenu actions={actions} />
+      </PageHeaderActions>
+      <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             {instance.ncpus}
