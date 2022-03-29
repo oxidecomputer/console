@@ -87,7 +87,7 @@ const ProjectLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.ActionsTarget />
+          <Form.PageActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

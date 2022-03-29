@@ -16,6 +16,7 @@ import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
+import { Form } from '@oxide/form'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
@@ -44,6 +45,7 @@ const OrgLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
+          <Form.PageActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
