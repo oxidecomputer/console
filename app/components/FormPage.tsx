@@ -1,6 +1,5 @@
 import React, { Suspense, useMemo } from 'react'
-import type { FormTypes } from 'app/forms/helpers/form-types'
-
+import type { FormTypes } from 'app/forms'
 interface FormPageProps<K extends keyof FormTypes> {
   id: K
 }
@@ -9,7 +8,7 @@ interface FormPageProps<K extends keyof FormTypes> {
  * Dynamically load a form from the `forms` directory where id is the name of the form.
  * This is generally used to render form pages from the routes file.
  */
-export function FormPage<K extends keyof FormTypes>({
+export function FormPage<FormTypes, K extends keyof FormTypes>({
   id,
   ...props
 }: FormPageProps<K>) {

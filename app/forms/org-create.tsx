@@ -4,7 +4,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
 import { useNavigate } from 'react-router-dom'
 import { Success16Icon } from '@oxide/ui'
-import type { BaseFormProps } from './helpers/form-types'
+import type { PrebuiltFormProps } from '@oxide/form'
 
 const values = {
   name: '',
@@ -23,7 +23,7 @@ export function CreateOrgForm({
   initialValues,
   onSubmit,
   ...props
-}: BaseFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()

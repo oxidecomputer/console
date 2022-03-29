@@ -2,7 +2,7 @@ import { SideModal } from '@oxide/ui'
 import type { ComponentProps } from 'react'
 import { useState, Suspense, useMemo } from 'react'
 import React from 'react'
-import type { FormTypes } from 'app/forms/helpers/form-types'
+import type { FormTypes } from 'app/forms'
 
 type FormProps<K extends keyof FormTypes> = Omit<
   ComponentProps<FormTypes[K]>,

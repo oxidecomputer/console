@@ -5,8 +5,20 @@ import { Success16Icon } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { Form, NameField, DescriptionField } from '@oxide/form'
+import type { PrebuiltFormProps } from '@oxide/form'
 
-export function CreateProjectForm() {
+const values = {
+  name: '',
+  description: '',
+}
+
+export function CreateProjectForm({
+  id = 'create-project-form',
+  title = 'Create project',
+  initialValues = values,
+  onSubmit,
+  ...props
+}: PrebuiltFormProps<typeof values>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
@@ -34,25 +46,28 @@ export function CreateProjectForm() {
   })
 
   return (
-    <>
-      <Form
-        id="create-project-form"
-        initialValues={{ name: '', description: '' }}
-        onSubmit={({ name, description }) => {
+    <Form
+      id={id}
+      initialValues={initialValues}
+      title={title}
+      onSubmit={
+        onSubmit ||
+        (({ name, description }) => {
           createProject.mutate({
             orgName,
             body: { name, description },
           })
-        }}
-      >
-        <NameField id="name" />
-        <DescriptionField id="description" />
-        <Form.Actions>
-          <Form.Submit>Create project</Form.Submit>
-          <Form.Cancel />
-        </Form.Actions>
-      </Form>
-    </>
+        })
+      }
+      {...props}
+    >
+      <NameField id="name" />
+      <DescriptionField id="description" />
+      <Form.Actions>
+        <Form.Submit>Create project</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
+    </Form>
   )
 }
 

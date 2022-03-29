@@ -1,8 +1,14 @@
-import { DescriptionField, Form, NameField, TextField } from '@oxide/form'
+import {
+  DescriptionField,
+  Form,
+  NameField,
+  TextField,
+  RadioField,
+  Radio,
+} from '@oxide/form'
 import { Divider } from '@oxide/ui'
-import { RadioField, Radio } from '@oxide/form'
 import React from 'react'
-import type { BaseFormProps } from './helpers/form-types'
+import type { PrebuiltFormProps } from '@oxide/form'
 
 const values = {
   name: '',
@@ -13,25 +19,19 @@ const values = {
   deletionRule: '',
 }
 
-CreateDiskForm.defaultProps = {
-  id: 'create-disk-form',
-  title: 'Create Disk',
-  initialValues: values,
-  onSubmit: () => {},
-}
 export function CreateDiskForm({
-  id,
-  title,
-  initialValues,
+  id = 'create-disk-form',
+  title = 'Create Disk',
+  initialValues = values,
   onSubmit,
   ...props
-}: BaseFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values>) {
   return (
     <Form
-      id={id!}
+      id={id}
       title={title}
-      initialValues={initialValues!}
-      onSubmit={onSubmit!}
+      initialValues={initialValues}
+      onSubmit={onSubmit}
       {...props}
     >
       <NameField id="disk-name" />
@@ -49,7 +49,7 @@ export function CreateDiskForm({
       </RadioField>
       <TextField id="disk-size" name="size" label="Size (GiB)" type="number" />
       <Form.Actions>
-        <Form.Submit>{title!}</Form.Submit>
+        <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
     </Form>
