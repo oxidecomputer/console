@@ -1,0 +1,9 @@
+.ox-side-modal {
+  --content-gutter: 2rem;
+}
+
+.ox-side-modal > :not(.body, button, footer),
+.ox-side-modal > .body > * {
+  margin-left: var(--content-gutter);
+  margin-right: var(--content-gutter);
+}
