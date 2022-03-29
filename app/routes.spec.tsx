@@ -3,14 +3,12 @@
 import { matchRoutes } from 'react-router-dom'
 import { renderAppAt } from './test/utils'
 
-import { projects } from '@oxide/api-mocks'
-
 import { getRouteConfig } from './routes'
 
 describe('routes', () => {
   it('should render successfully', async () => {
     const { findAllByText } = renderAppAt('/')
-    await findAllByText(projects.items[0].name)
+    await findAllByText('Organizations')
   })
 })
 
