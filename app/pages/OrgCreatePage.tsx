@@ -4,12 +4,9 @@ import { Formik, Form } from 'formik'
 
 import {
   Button,
-  PageHeader,
-  PageTitle,
   TextField,
   TextFieldError,
   TextFieldHint,
-  Folder24Icon,
   Success16Icon,
   FieldLabel,
 } from '@oxide/ui'
