@@ -328,8 +328,8 @@ export default function InstanceCreatePage() {
           projectName={projectName}
         />
 
-        <Form.Actions mutation={createInstance} errorCodes={ERROR_CODES}>
-          <Button>Create instance</Button>
+        <Form.Actions>
+          <Form.Submit>Create instance</Form.Submit>
           <Button variant="ghost" color="neutral">
             Equivalent CLI Command
           </Button>
