@@ -11,7 +11,7 @@
 }
 
 .ox-content-pane {
-  @apply relative flex flex-grow flex-col pt-4 pb-20;
+  @apply relative flex flex-grow flex-col pt-4 pb-10;
 }
 
 .ox-content-pane > *,
@@ -21,9 +21,14 @@
   margin-right: var(--content-gutter);
 }
 .ox-content-pane-actions {
-  @apply sticky bottom-0 h-14 flex-shrink-0 overflow-hidden;
+  @apply sticky bottom-0 flex-shrink-0 overflow-hidden bg-default;
 }
 
-.ox-pagination-border {
-  @apply bottom-14 !mx-0 h-0 !w-full bg-default border-secondary;
+.ox-content-pane-actions:not(:empty) {
+  @apply border-t border-secondary;
+}
+
+.ox-content-pane-actions > * {
+  margin-left: var(--content-gutter);
+  margin-right: var(--content-gutter);
 }
