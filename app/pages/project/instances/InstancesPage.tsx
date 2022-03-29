@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
-import { buttonStyle } from '@oxide/ui'
+import { buttonStyle, TableActions } from '@oxide/ui'
 import { useParams, useQuickActions } from 'app/hooks'
 import {
   linkCell,
@@ -58,14 +58,14 @@ export const InstancesPage = () => {
 
   return (
     <>
-      <div className="-mt-11 mb-3 flex justify-end space-x-4">
+      <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
           className={buttonStyle({ size: 'xs', variant: 'secondary' })}
         >
           New Instance
         </Link>
-      </div>
+      </TableActions>
       <Table makeActions={makeActions}>
         <Column
           id="name"
