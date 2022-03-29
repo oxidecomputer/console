@@ -17,7 +17,6 @@ import {
 import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import OrgsPage from './pages/OrgsPage'
-import OrgCreatePage from './pages/OrgCreatePage'
 import ToastTestPage from './pages/ToastTestPage'
 import NotFound from './pages/NotFound'
 
@@ -34,6 +33,7 @@ import {
   Networking24Icon,
   Folder24Icon,
 } from '@oxide/ui'
+import { FormPage } from './components/FormPage'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -76,7 +76,11 @@ export const routes = (
         title="Organizations"
       >
         <Route index element={<OrgsPage />} />
-        <Route path="new" element={<OrgCreatePage />} />
+        <Route
+          path="new"
+          title="Create Organization"
+          element={<FormPage id="org-create" />}
+        />
       </Route>
 
       <Route path=":orgName" crumb={orgCrumb} icon={<Folder24Icon />}>
