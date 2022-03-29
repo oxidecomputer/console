@@ -5,13 +5,13 @@ import path from 'path'
 test('FormTypes must contain references to all forms', async () => {
   let formIds: string[] = []
 
-  const formFiles = (await fs.readdir(path.join(__dirname, '../')))
+  const formFiles = (await fs.readdir(path.join(__dirname, './')))
     .filter((f) => f.endsWith('.tsx'))
     .map((f) => f.slice(0, -4))
     .sort()
 
   const AST = await parse(
-    await fs.readFile(path.join(__dirname, './form-types.ts'), 'utf8')
+    await fs.readFile(path.join(__dirname, './index.ts'), 'utf8')
   )
   traverse(AST, {
     TSInterfaceDeclaration(path) {
