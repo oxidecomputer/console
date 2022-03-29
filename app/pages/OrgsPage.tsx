@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, PageActions, TableActions } from '@oxide/ui'
+import { buttonStyle, TableActions } from '@oxide/ui'
 import { useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
