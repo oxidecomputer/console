@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import cn from 'classnames'
+import { Formik, Form } from 'formik'
 
 import {
   Button,
@@ -9,24 +10,26 @@ import {
   RadioCard,
   Tabs,
   Tab,
+  TextField,
+  TextFieldHint,
+  FieldLabel,
   Badge,
-  CentOSResponsiveIcon,
-  DebianResponsiveIcon,
-  FedoraResponsiveIcon,
-  FreeBSDResponsiveIcon,
-  UbuntuResponsiveIcon,
-  WindowsResponsiveIcon,
 } from '@oxide/ui'
+import { classed } from '@oxide/util'
 import { useApiMutation } from '@oxide/api'
+import { getServerError } from 'app/util/errors'
 import { INSTANCE_SIZES } from './instance-types'
+import { NewDiskModal } from './modals/new-disk-modal'
 import { ExistingDiskModal } from './modals/existing-disk-modal'
 import { NetworkModal } from './modals/network-modal'
 import { useParams } from 'app/hooks'
-import { Form, NameField, TagsField, TextField } from '@oxide/form'
-import { useForm } from 'app/hooks/use-form'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-sans-xl'
+const Heading = classed.h2`text-white text-sans-xl mt-16 mb-8`
+
+// TODO: need to fix page container if we want these to go all the way across
+const Divider = () => <hr className="my-16 border-secondary" />
 
 const GB = 1024 * 1024 * 1024
 
@@ -38,8 +41,8 @@ const ERROR_CODES = {
 export default function InstanceCreatePage() {
   const navigate = useNavigate()
   const { orgName, projectName } = useParams('orgName', 'projectName')
-  const [diskForm, invokeDiskForm] = useForm('disk-create')
 
+  const [showNewDiskModal, setShowNewDiskModal] = useState(false)
   const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)
 
@@ -52,7 +55,7 @@ export default function InstanceCreatePage() {
   const renderLargeRadioCards = (category: string) => {
     return INSTANCE_SIZES.filter((option) => option.category === category).map(
       (option) => (
-        <RadioCard key={option.id} value={option.id} className="w-40">
+        <RadioCard key={option.id} value={option.id}>
           <div>
             {option.ncpus} <RadioCard.Unit>CPUs</RadioCard.Unit>
           </div>
@@ -64,36 +67,12 @@ export default function InstanceCreatePage() {
     )
   }
 
-  interface DistroRadioCardProps {
-    label: string
-    value: string
-    Icon: React.ComponentType<{ className: string }>
-  }
-  const renderDistroRadioCard = ({
-    label,
-    value,
-    Icon,
-  }: DistroRadioCardProps) => {
-    return (
-      <RadioCard value={value} className="h-44 w-44 pb-6">
-        <div className="flex h-full flex-col items-center justify-end space-y-4">
-          <Icon className="h-12 w-12 text-tertiary" />
-          <span className="text-sans-xl text-secondary">{label}</span>
-        </div>
-      </RadioCard>
-    )
-  }
-
   return (
     <>
-      <Form
-        id="instances-create-form"
+      <Formik
         initialValues={{
           'instance-name': '',
           'instance-type': '',
-          'instance-tags': {},
-          'disk-name': '',
-          'disk-image': '',
           hostname: '',
           storage: '',
         }}
@@ -117,17 +96,46 @@ export default function InstanceCreatePage() {
           }
         }}
       >
-        <NameField id="instance-name" title="Name" />
-        <TagsField
-          id="instance-tags"
-          hint="Add tag key/value pairs to your instance to organize your project"
-        />
-        <Form.Section title="Hardware">
+        <Form className="mt-4 mb-20">
+          <Heading id="choose-an-image">Choose an image</Heading>
+          <Tabs
+            id="tabs-choose-image"
+            className="mt-1"
+            aria-labelledby="choose-an-image"
+          >
+            <Tab>Distributions</Tab>
+            <Tab.Panel>
+              <fieldset>
+                <legend className="sr-only">Choose a pre-built image</legend>
+                <RadioGroup name="disk-image">
+                  <RadioCard value="centos">CentOS</RadioCard>
+                  <RadioCard value="debian">Debian</RadioCard>
+                  <RadioCard value="fedora">Fedora</RadioCard>
+                  <RadioCard value="freeBsd">FreeBSD</RadioCard>
+                  <RadioCard value="ubuntu">Ubuntu</RadioCard>
+                  <RadioCard value="windows">Windows</RadioCard>
+                </RadioGroup>
+              </fieldset>
+            </Tab.Panel>
+
+            <Tab>Custom Images</Tab>
+            <Tab.Panel>
+              <fieldset>
+                <legend className="sr-only">Choose a custom image</legend>
+                <RadioGroup name="disk-image">
+                  <RadioCard value="custom-centos">Custom CentOS</RadioCard>
+                  <RadioCard value="custom-debian">Custom Debian</RadioCard>
+                  <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
+                </RadioGroup>
+              </fieldset>
+            </Tab.Panel>
+          </Tabs>
+          <Divider />
+          <Heading id="choose-cpu-ram">Choose CPUs and RAM</Heading>
           <Tabs
             id="tabs-choose-cpu-and-ram"
             className="mt-1"
             aria-labelledby="choose-cpu-ram"
-            fullWidth
           >
             <Tab>General purpose</Tab>
             <Tab.Panel>
@@ -156,7 +164,7 @@ export default function InstanceCreatePage() {
                 <RadioGroupHint id="cpu-instance-hint">
                   CPU optimized instances provide a good balance of...
                 </RadioGroupHint>
-                <RadioGroup name="instance-type" className="mt-8" required>
+                <RadioGroup name="instance-type" className="mt-8">
                   {renderLargeRadioCards('cpuOptimized')}
                 </RadioGroup>
               </fieldset>
@@ -192,73 +200,8 @@ export default function InstanceCreatePage() {
               </fieldset>
             </Tab.Panel>
           </Tabs>
-        </Form.Section>
-        <Form.Section title="Boot disk">
-          <Tabs
-            id="tabs-choose-image"
-            className="mt-1"
-            aria-labelledby="choose-an-image"
-            fullWidth
-          >
-            <Tab>Distributions</Tab>
-            <Tab.Panel>
-              <fieldset>
-                <legend className="sr-only">Choose a pre-built image</legend>
-                <RadioGroup name="disk-image" className="gap-3">
-                  {renderDistroRadioCard({
-                    label: 'Ubuntu',
-                    value: 'ubuntu',
-                    Icon: UbuntuResponsiveIcon,
-                  })}
-                  {renderDistroRadioCard({
-                    label: 'FreeBSD',
-                    value: 'freeBsd',
-                    Icon: FreeBSDResponsiveIcon,
-                  })}
-                  {renderDistroRadioCard({
-                    label: 'Fedora',
-                    value: 'fedora',
-                    Icon: FedoraResponsiveIcon,
-                  })}
-                  {renderDistroRadioCard({
-                    label: 'Debian',
-                    value: 'debian',
-                    Icon: DebianResponsiveIcon,
-                  })}
-                  {renderDistroRadioCard({
-                    label: 'CentOS',
-                    value: 'centos',
-                    Icon: CentOSResponsiveIcon,
-                  })}
-                  {renderDistroRadioCard({
-                    label: 'Windows',
-                    value: 'windows',
-                    Icon: WindowsResponsiveIcon,
-                  })}
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-
-            <Tab>Images</Tab>
-            <Tab.Panel>
-              <fieldset>
-                <legend className="sr-only">Choose a custom image</legend>
-                <RadioGroup name="disk-image" required>
-                  <RadioCard value="custom-centos">Custom CentOS</RadioCard>
-                  <RadioCard value="custom-debian">Custom Debian</RadioCard>
-                  <RadioCard value="custom-fedora">Custom Fedora</RadioCard>
-                </RadioGroup>
-              </fieldset>
-            </Tab.Panel>
-            <Tab>Snapshots</Tab>
-            <Tab.Panel>
-              <fieldset>
-                <legend className="sr-only">Choose a snapshot</legend>
-                TODO
-              </fieldset>
-            </Tab.Panel>
-          </Tabs>
-          <div>
+          <Divider />
+          <div className="mt-20 flex">
             <fieldset>
               <legend className={cn(headingStyle, 'mb-8')}>
                 Boot disk storage
@@ -288,11 +231,14 @@ export default function InstanceCreatePage() {
               <Button
                 variant="secondary"
                 className="mb-3 w-full"
-                onClick={() => invokeDiskForm()}
+                onClick={() => setShowNewDiskModal(true)}
               >
                 Add new disk
               </Button>
-              {diskForm}
+              <NewDiskModal
+                isOpen={showNewDiskModal}
+                onDismiss={() => setShowNewDiskModal(false)}
+              />
               <Button
                 variant="secondary"
                 className="w-full"
@@ -308,33 +254,74 @@ export default function InstanceCreatePage() {
               />
             </div>
           </div>
-          <TextField id="disk-name" label="Disk name" />
-        </Form.Section>
-
-        <Form.Section title="Networking">
-          <TextField id="instance-hostname" label="Hostname" />
+          <Divider />
+          <Heading>Networking</Heading>
           <Button
             variant="secondary"
-            size="sm"
+            className="w-[30rem]"
             onClick={() => setShowNetworkModal(true)}
           >
             Add network interface
           </Button>
-        </Form.Section>
-        <NetworkModal
-          isOpen={showNetworkModal}
-          onDismiss={() => setShowNetworkModal(false)}
-          orgName={orgName}
-          projectName={projectName}
-        />
+          <NetworkModal
+            isOpen={showNetworkModal}
+            onDismiss={() => setShowNetworkModal(false)}
+            orgName={orgName}
+            projectName={projectName}
+          />
 
-        <Form.Actions>
-          <Form.Submit>Create instance</Form.Submit>
-          <Button variant="ghost" color="neutral">
-            Equivalent CLI Command
+          <Divider />
+
+          <Heading>Finalize and create</Heading>
+          <div>
+            <FieldLabel htmlFor="instance-name">Choose a name</FieldLabel>
+            <TextFieldHint id="instance-name-hint">
+              Choose an identifying name you will remember. Names may contain
+              alphanumeric characters, dashes, and periods.
+            </TextFieldHint>
+            <TextField
+              id="instance-name"
+              name="instance-name"
+              aria-describedby="instance-name-hint"
+              placeholder="web1"
+            />
+          </div>
+          <div className="mt-8">
+            <FieldLabel htmlFor="hostname">Choose a hostname</FieldLabel>
+            <TextFieldHint id="hostname-hint">
+              Optional. If left blank, we will use the instance name.
+            </TextFieldHint>
+            <TextField
+              id="hostname"
+              name="hostname"
+              aria-describedby="hostname-hint"
+              placeholder="example.com"
+            />
+          </div>
+
+          {/* this is going to be a tag multiselect, not a text input */}
+          <div className="mt-8">
+            <FieldLabel htmlFor="tags">Add tags</FieldLabel>
+            <TextFieldHint id="tags-hint">
+              Use tags to organize and relate resources. Tags may contain
+              letters, numbers, colons, dashes, and underscores.
+            </TextFieldHint>
+            <TextField id="tags" name="tags" aria-describedby="tags-hint" />
+          </div>
+
+          <Button
+            type="submit"
+            className="mt-16 w-[30rem]"
+            disabled={createInstance.isLoading}
+            variant="secondary"
+          >
+            Create instance
           </Button>
-        </Form.Actions>
-      </Form>
+          <div className="mt-2 text-destructive">
+            {getServerError(createInstance.error, ERROR_CODES)}
+          </div>
+        </Form>
+      </Formik>
     </>
   )
 }
