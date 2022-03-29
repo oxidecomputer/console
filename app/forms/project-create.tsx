@@ -1,17 +1,12 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, Success16Icon } from '@oxide/ui'
+import { Success16Icon } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { Form, NameField, DescriptionField } from '@oxide/form'
 
-const ERROR_CODES = {
-  ObjectAlreadyExists:
-    'A project with that name already exists in this organization',
-}
-
-export default function ProjectCreatePage() {
+export function CreateProjectForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
@@ -34,7 +29,7 @@ export default function ProjectCreatePage() {
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      navigate(`../${project.name}`)
+      navigate(`../`)
     },
   })
 
@@ -52,11 +47,13 @@ export default function ProjectCreatePage() {
       >
         <NameField id="name" />
         <DescriptionField id="description" />
-        <Form.Actions mutation={createProject} errorCodes={ERROR_CODES}>
-          <Button>Create project</Button>
-          <Button variant="ghost">Equivalent CLI</Button>
+        <Form.Actions>
+          <Form.Submit>Create project</Form.Submit>
+          <Form.Cancel />
         </Form.Actions>
       </Form>
     </>
   )
 }
+
+export default CreateProjectForm

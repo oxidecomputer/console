@@ -4,6 +4,7 @@ import type { CreateSubnetForm } from '../subnet-create'
 import type { EditSubnetForm } from '../subnet-edit'
 import type { CreateOrgForm } from '../org-create'
 import type { CreateDiskForm } from '../disk-create'
+import type { CreateProjectForm } from '../project-create'
 
 /**
  * A form that defines everything it needs
@@ -23,8 +24,9 @@ export type ExtendedFormProps<C> = C extends ComponentType<infer B>
   : never
 
 export interface FormTypes {
+  'org-create': typeof CreateOrgForm
+  'project-create': typeof CreateProjectForm
+  'disk-create': typeof CreateDiskForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
-  'org-create': typeof CreateOrgForm
-  'disk-create': typeof CreateDiskForm
 }

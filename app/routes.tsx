@@ -91,7 +91,7 @@ export const routes = (
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
-              element={<ProjectCreatePage />}
+              element={<FormPage id="project-create" />}
               crumb="Create project"
             />
           </Route>
