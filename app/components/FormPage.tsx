@@ -4,6 +4,11 @@ import type { FormTypes } from 'app/forms/helpers/form-types'
 interface FormPageProps<K extends keyof FormTypes> {
   id: K
 }
+
+/**
+ * Dynamically load a form from the `forms` directory where id is the name of the form.
+ * This is generally used to render form pages from the routes file.
+ */
 export function FormPage<K extends keyof FormTypes>({
   id,
   ...props

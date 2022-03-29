@@ -7,7 +7,8 @@ import type { CreateDiskForm } from '../disk-create'
 import type { CreateProjectForm } from '../project-create'
 
 /**
- * A form that defines everything it needs
+ * A form that defines everything it needs and sets fields that are commonly provided
+ * as defaults as optional.
  */
 export type BaseFormProps<Values> = Omit<
   Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit'>,
@@ -23,6 +24,11 @@ export type ExtendedFormProps<C> = C extends ComponentType<infer B>
     : never
   : never
 
+/**
+ * A map of all existing forms. When a new form is created in the forms directory, a
+ * new entry should be added here with the key of the string name of the form's filename
+ * and a value of the form's type. There's a test to validate that this happens.
+ */
 export interface FormTypes {
   'org-create': typeof CreateOrgForm
   'project-create': typeof CreateProjectForm
