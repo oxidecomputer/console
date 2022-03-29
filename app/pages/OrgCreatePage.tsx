@@ -4,12 +4,9 @@ import { Formik, Form } from 'formik'
 
 import {
   Button,
-  PageHeader,
-  PageTitle,
   TextField,
   TextFieldError,
   TextFieldHint,
-  Folder24Icon,
   Success16Icon,
   FieldLabel,
 } from '@oxide/ui'
@@ -48,11 +45,6 @@ export default function OrgCreatePage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Folder24Icon title="Orgs" />}>
-          Create a new organization
-        </PageTitle>
-      </PageHeader>
       <Formik
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
