@@ -33,6 +33,7 @@ import {
   Snapshots24Icon,
   Storage24Icon,
   Networking24Icon,
+  Folder24Icon,
 } from '@oxide/ui'
 
 /*
@@ -70,15 +71,17 @@ export const routes = (
     <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
 
     <Route path="orgs">
-      <Route element={<RootLayout />} crumb="Orgs">
+      <Route
+        element={<RootLayout />}
+        icon={<Folder24Icon />}
+        title="Organizations"
+      >
         <Route index element={<OrgsPage />} />
         <Route path="new" element={<OrgCreatePage />} />
       </Route>
-      <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
-        <Route index element={<OrgPage />} />
-      </Route>
 
-      <Route path=":orgName" crumb={orgCrumb}>
+      <Route path=":orgName" crumb={orgCrumb} icon={<Folder24Icon />}>
+        <Route index element={<Navigate to="projects" replace />} />
         <Route path="projects" crumb="Projects">
           {/* ORG */}
           <Route element={<OrgLayout />}>
