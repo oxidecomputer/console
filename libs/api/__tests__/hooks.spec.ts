@@ -1,9 +1,7 @@
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { override, queryClientOptions } from 'app/test/utils'
+import { override, Wrapper } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
 import { useApiQuery, useApiMutation } from '../'
 
@@ -11,28 +9,20 @@ import { useApiQuery, useApiMutation } from '../'
 // around React Query's useQuery and useMutation, these tests are mostly about
 // testing the one bit of real logic in there: error parsing
 
-// make a whole new query client for every test. it was acting weird
-const wrapper = () => {
-  const queryClient = new QueryClient(queryClientOptions)
-  return {
-    wrapper: ({ children }: { children: React.ReactNode }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    ),
-  }
-}
+const config = { wrapper: Wrapper }
 
 const renderGetOrgs = () =>
-  renderHook(() => useApiQuery('organizationsGet', {}), wrapper())
+  renderHook(() => useApiQuery('organizationsGet', {}), config)
 
 const renderGetNonexistentOrg = () =>
   renderHook(
     () =>
       useApiQuery('organizationsGetOrganization', { orgName: 'nonexistent' }),
-    wrapper()
+    config
   )
 
 const renderCreateOrg = () =>
-  renderHook(() => useApiMutation('organizationsPost'), wrapper())
+  renderHook(() => useApiMutation('organizationsPost'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -111,7 +101,7 @@ describe('useApiMutation', () => {
     it('passes through raw response', async () => {
       const { result } = renderHook(
         () => useApiMutation('organizationProjectsPost'),
-        wrapper()
+        config
       )
 
       act(() => result.current.mutate(projectPost404Params))
@@ -125,7 +115,7 @@ describe('useApiMutation', () => {
     it('parses error json if possible', async () => {
       const { result } = renderHook(
         () => useApiMutation('organizationProjectsPost'),
-        wrapper()
+        config
       )
 
       act(() => result.current.mutate(projectPost404Params))

@@ -5,6 +5,7 @@ import type {
   QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 import { navToLogin } from './nav-to-login'
 
 import type { ErrorResponse, ApiResponse } from './__generated__/Api'
@@ -50,8 +51,9 @@ export const getUseApiQuery =
     method: M,
     params: Params<A[M]>,
     options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
-  ) =>
-    useQuery(
+  ) => {
+    const navigate = useNavigate()
+    return useQuery(
       [method, params] as QueryKey,
       // The generated client parses the json and sticks it in `data` for us, so
       // that's what we want to return from the fetcher. In the case of an
@@ -68,9 +70,14 @@ export const getUseApiQuery =
       () =>
         api[method](params)
           .then((resp) => resp.data)
-          .catch(navToLoginIf401),
+          .catch(navToLoginIf401)
+          .catch((resp) => {
+            if (resp.status === 404) navigate('/404', { replace: true })
+            throw resp
+          }),
       options
     )
+  }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
