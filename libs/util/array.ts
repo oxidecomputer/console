@@ -10,10 +10,10 @@ export function sortBy<T>(arr: T[], by: (t: T) => any = identity) {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-type Key = string | number | symbol
+type GroupKey = string | number | symbol
 
-export function groupBy<T>(arr: T[], by: (t: T) => Key) {
-  const groups: Record<Key, T[]> = {}
+export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
+  const groups: Record<GroupKey, T[]> = {}
   for (const item of arr) {
     const key = by(item)
     if (!(key in groups)) {
@@ -22,13 +22,6 @@ export function groupBy<T>(arr: T[], by: (t: T) => Key) {
     groups[key].push(item)
   }
   return groups
-}
-
-export function reduceBy<T>(arr: T[], by: (t: T) => Key) {
-  return arr.reduce<Record<Key, T>>((acc, curr) => {
-    acc[by(curr)] = curr
-    return acc
-  }, {})
 }
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
