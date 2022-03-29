@@ -14,7 +14,6 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
-import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
 import OrgsPage from './pages/OrgsPage'
 import ToastTestPage from './pages/ToastTestPage'
@@ -127,12 +126,15 @@ export const routes = (
               <Route index element={<VpcsPage />} />
               <Route path=":vpcName" element={<VpcPage />} />
             </Route>
-            <Route
-              path="disks"
-              element={<DisksPage />}
-              crumb="Disks"
-              icon={<Storage24Icon />}
-            />
+            <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>
+              <Route index element={<DisksPage />} />
+              <Route
+                path="new"
+                element={<FormPage id="disk-create" />}
+                title="Create disk"
+                icon={<Storage24Icon />}
+              />
+            </Route>
             <Route
               path="snapshots"
               crumb="Snapshots"

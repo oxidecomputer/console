@@ -19,11 +19,11 @@ import {
 } from '@oxide/ui'
 import { useApiMutation } from '@oxide/api'
 import { INSTANCE_SIZES } from './instance-types'
-import { NewDiskModal } from './modals/new-disk-modal'
 import { ExistingDiskModal } from './modals/existing-disk-modal'
 import { NetworkModal } from './modals/network-modal'
 import { useParams } from 'app/hooks'
 import { Form, NameField, TagsField, TextField } from '@oxide/form'
+import { useForm } from 'app/hooks/use-form'
 
 // TODO: these probably should not both exist
 const headingStyle = 'text-white text-sans-xl'
@@ -38,8 +38,8 @@ const ERROR_CODES = {
 export default function InstanceCreatePage() {
   const navigate = useNavigate()
   const { orgName, projectName } = useParams('orgName', 'projectName')
+  const [diskForm, invokeDiskForm] = useForm('create-disk-form')
 
-  const [showNewDiskModal, setShowNewDiskModal] = useState(false)
   const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)
 
@@ -288,14 +288,11 @@ export default function InstanceCreatePage() {
               <Button
                 variant="secondary"
                 className="mb-3 w-full"
-                onClick={() => setShowNewDiskModal(true)}
+                onClick={() => invokeDiskForm()}
               >
                 Add new disk
               </Button>
-              <NewDiskModal
-                isOpen={showNewDiskModal}
-                onDismiss={() => setShowNewDiskModal(false)}
-              />
+              {diskForm}
               <Button
                 variant="secondary"
                 className="w-full"
