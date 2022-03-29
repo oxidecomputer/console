@@ -12,7 +12,7 @@ export const PageHeader = ({ children }: { children: ReactElement }) => (
   </header>
 )
 
-export const PageHeaderActions = PageHeaderActionsTunnel.In
+export const PageActions = PageHeaderActionsTunnel.In
 
 interface PageTitleProps {
   icon?: ReactElement

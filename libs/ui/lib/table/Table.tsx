@@ -1,7 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
 import './table.css'
-import { addProps } from '@oxide/util'
+import { addProps, classed } from '@oxide/util'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
@@ -92,3 +92,9 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
     </div>
   </td>
 )
+
+/**
+ * Used _outside_ of the `Table`, this element wraps buttons that sit on top
+ * of the table.
+ */
+export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-4`
