@@ -5,7 +5,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import LoginPage from './pages/LoginPage'
 import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
-import OrgPage from './pages/OrgPage'
 import {
   AccessPage,
   DisksPage,
@@ -68,7 +67,7 @@ export const routes = (
       <Route index element={<LoginPage />} />
     </Route>
 
-    <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
+    <Route index element={<Navigate to="/orgs" replace />} />
 
     <Route path="orgs">
       <Route
