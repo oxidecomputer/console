@@ -62,9 +62,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
         type="radio"
         {...inputProps}
       />
-      <span
-        className={cn('ox-radio-card', cardLabelStyles, className, 'divide-y')}
-      >
+      <span className={cn(cardLabelStyles, className, 'divide-y')}>
         {children}
       </span>
     </label>
