@@ -38,7 +38,7 @@ const ERROR_CODES = {
 export default function InstanceCreatePage() {
   const navigate = useNavigate()
   const { orgName, projectName } = useParams('orgName', 'projectName')
-  const [diskForm, invokeDiskForm] = useForm('create-disk-form')
+  const [diskForm, invokeDiskForm] = useForm('disk-create')
 
   const [showExistingDiskModal, setShowExistingDiskModal] = useState(false)
   const [showNetworkModal, setShowNetworkModal] = useState(false)

@@ -10,8 +10,8 @@ export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcSubnetsGet', vpcParams)
-  const [createSubnetForm, showCreateSubnet] = useForm('create-subnet')
-  const [editSubnetForm, showEditSubnet] = useForm('edit-subnet')
+  const [createSubnetForm, showCreateSubnet] = useForm('subnet-create')
+  const [editSubnetForm, showEditSubnet] = useForm('subnet-edit')
 
   const makeActions = (subnet: VpcSubnet): MenuAction[] => [
     {
