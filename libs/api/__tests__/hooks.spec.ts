@@ -82,10 +82,8 @@ describe('useApiQuery', () => {
         config
       )
 
-      // We are trying to catch an error thrown asynchronously by the hook and
-      // propagated up the tree, which means we don't have a particular call to
-      // wrap in try/catch. Fortunately result.error is part of
-      // react-hooks-testing-library.
+      // The error is thrown asynchronously by the hook so it can propagate up
+      // the tree. Fortunately result.error exists for precisely this use case.
       await waitFor(() => {
         const error = result.error as ErrorResponse | undefined
         expect(error?.status).toEqual(404)
