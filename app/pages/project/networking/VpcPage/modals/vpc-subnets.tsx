@@ -72,7 +72,7 @@ export function CreateVpcSubnetModal({
   projectName,
   vpcName,
 }: CreateProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -82,7 +82,7 @@ export function CreateVpcSubnetModal({
 
   const createSubnet = useApiMutation('vpcSubnetsPost', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
       dismiss()
     },
   })
@@ -107,7 +107,7 @@ export function CreateVpcSubnetModal({
         onSubmit={(body) => {
           // XXX body is optional. useApiMutation should be smarter and require body when it's required
           // TODO: validate IP blocks client-side using the patterns. sadly non-trivial
-          createSubnet.mutate({ ...parentIds, body })
+          createSubnet.mutate({ ...parentNames, body })
         }}
       >
         <CommonForm id={formId} error={createSubnet.error} />
@@ -139,7 +139,7 @@ export function EditVpcSubnetModal({
   vpcName,
   originalSubnet,
 }: EditProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -149,7 +149,7 @@ export function EditVpcSubnetModal({
 
   const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
       dismiss()
     },
   })
@@ -172,7 +172,7 @@ export function EditVpcSubnetModal({
         }}
         onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
           updateSubnet.mutate({
-            ...parentIds,
+            ...parentNames,
             subnetName: originalSubnet.name,
             body: {
               name,

@@ -13,12 +13,12 @@ export function EditSubnetForm({
   onError,
   ...props
 }: ExtendedPrebuiltFormProps<typeof CreateSubnetForm>) {
-  const parentIds = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
       onSuccess?.(data)
     },
     onError,
@@ -36,7 +36,7 @@ export function EditSubnetForm({
             'CreateSubnetForm should always receive a name for initialValues'
           )
           updateSubnet.mutate({
-            ...parentIds,
+            ...parentNames,
             subnetName: props.initialValues.name,
             body: {
               name,

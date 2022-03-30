@@ -401,7 +401,7 @@ export function CreateFirewallRuleModal({
   vpcName,
   existingRules,
 }: CreateProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -411,7 +411,7 @@ export function CreateFirewallRuleModal({
 
   const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
+      queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       dismiss()
     },
   })
@@ -468,7 +468,7 @@ export function CreateFirewallRuleModal({
             .filter((r) => r.name !== values.name)
             .map(firewallRuleGetToPut)
           updateRules.mutate({
-            ...parentIds,
+            ...parentNames,
             body: {
               rules: [...otherRules, valuesToRuleUpdate(values)],
             },
@@ -508,7 +508,7 @@ export function EditFirewallRuleModal({
   originalRule,
   existingRules,
 }: EditProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -518,7 +518,7 @@ export function EditFirewallRuleModal({
 
   const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
+      queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       dismiss()
     },
   })
@@ -566,7 +566,7 @@ export function EditFirewallRuleModal({
             .filter((r) => r.name !== originalRule.name)
             .map(firewallRuleGetToPut)
           updateRules.mutate({
-            ...parentIds,
+            ...parentNames,
             body: {
               rules: [...otherRules, valuesToRuleUpdate(values)],
             },

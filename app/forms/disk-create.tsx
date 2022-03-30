@@ -30,12 +30,12 @@ export function CreateDiskForm({
   onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
-  const parentIds = useParams('orgName', 'projectName')
+  const parentNames = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
 
   const createDisk = useApiMutation('projectDisksPost', {
     onSuccess(data) {
-      queryClient.invalidateQueries('projectDisksGet', parentIds)
+      queryClient.invalidateQueries('projectDisksGet', parentNames)
       onSuccess?.(data)
     },
     onError,
@@ -49,7 +49,7 @@ export function CreateDiskForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          createDisk.mutate({ ...parentIds, body })
+          createDisk.mutate({ ...parentNames, body })
         })
       }
       mutation={createDisk}

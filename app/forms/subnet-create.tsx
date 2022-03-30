@@ -21,12 +21,12 @@ export function CreateSubnetForm({
   onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
-  const parentIds = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const createSubnet = useApiMutation('vpcSubnetsPost', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
       onDismiss?.()
     },
     onError,
@@ -39,7 +39,7 @@ export function CreateSubnetForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          createSubnet.mutate({ ...parentIds, body })
+          createSubnet.mutate({ ...parentNames, body })
         })
       }
       mutation={createSubnet}
