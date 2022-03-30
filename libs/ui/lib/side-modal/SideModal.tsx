@@ -44,7 +44,7 @@ export function SideModal({
           // 1.875rem is roughly the space between the close icon and its border
           className="absolute right-[calc(var(--content-gutter)-1.1875rem)] top-[1.8125rem] z-10 h-11 w-11 px-0"
         >
-          <Close12Icon />
+          <Close12Icon className="text-tertiary" />
         </Button>
         {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
         {children}
@@ -59,7 +59,7 @@ interface SideModalTitleProps {
 }
 SideModal.Title = ({ id, children }: SideModalTitleProps) => {
   return (
-    <h2 className="mt-8 mb-6 text-sans-2xl" id={id}>
+    <h2 className="my-8 text-sans-2xl" id={id}>
       {children}
     </h2>
   )
