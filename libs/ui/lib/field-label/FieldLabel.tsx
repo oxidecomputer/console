@@ -9,16 +9,11 @@ import { Info8Icon, Tooltip } from '@oxide/ui'
 type FieldLabelProps<T extends ElementType> = (
   | {
       id: string
-      htmlFor?: never
+      htmlFor?: string
       as?: never
     }
   | {
       as: 'label'
-      htmlFor: string
-      id?: never
-    }
-  | {
-      as?: never
       htmlFor: string
       id?: never
     }

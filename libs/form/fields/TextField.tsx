@@ -53,10 +53,10 @@ export function TextField({
         name={name}
         title={label}
         error={!!error}
-        aria-labelledby={cn(`${id}-title`, {
+        aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
         })}
-        aria-describedby={description ? `${id}-title-tip` : undefined}
+        aria-describedby={description ? `${id}-label-tip` : undefined}
         {...props}
       />
       <TextFieldError name={name} />
