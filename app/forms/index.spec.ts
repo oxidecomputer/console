@@ -2,6 +2,7 @@ import babel from '@babel/core'
 import { traverse } from '@babel/core'
 import fs from 'fs/promises'
 import path from 'path'
+
 test('FormTypes must contain references to all forms', async () => {
   let formIds: string[] = []
 
@@ -18,6 +19,7 @@ test('FormTypes must contain references to all forms', async () => {
       const name = path.node.id.name
       if (name === 'FormTypes') {
         formIds = path.node.body.body
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((def) => (def as any).key.value)
           .sort()
         path.stop()

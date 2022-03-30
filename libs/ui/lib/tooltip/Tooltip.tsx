@@ -1,9 +1,8 @@
 import type { FC } from 'react'
-import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import cn from 'classnames'
 
 import { usePopper } from 'react-popper'
-import { v4 as uuid } from 'uuid'
 
 import './tooltip.css'
 import { KEYS } from '../../util/keys'

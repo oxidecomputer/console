@@ -22,7 +22,8 @@ export type PrebuiltFormProps<Values> = Omit<
  * A utility type for a prebuilt form that extends another form
  */
 export type ExtendedPrebuiltFormProps<C> = C extends ComponentType<infer B>
-  ? B extends PrebuiltFormProps<any>
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    B extends PrebuiltFormProps<any>
     ? B
     : never
   : never
