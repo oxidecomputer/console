@@ -68,17 +68,13 @@ export const getUseApiQuery =
       () =>
         api[method](params)
           .then((resp) => resp.data)
-          .catch(navToLoginIf401)
-          .catch((resp) => {
-            if (resp.status === 404) {
-              throw 404
-            }
-            throw resp
-          }),
+          .catch(navToLoginIf401),
       {
-        useErrorBoundary: (err: ErrorResponse) => {
-          return err.status === 404 ? true : false
-        },
+        // In the case of 404s, let the error bubble up to the error boundary so
+        // we can say Not Found. If you need to allow a 404 and want it to show
+        // up as `error` state instead, pass `useErrorBoundary: false` as an
+        // option from the calling component and it will override this
+        useErrorBoundary: (err) => err.status === 404,
         ...options,
       }
     )

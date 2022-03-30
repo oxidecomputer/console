@@ -3,6 +3,7 @@ import { renderHook, act } from '@testing-library/react-hooks'
 
 import { override, Wrapper } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
+import type { ErrorResponse } from '../'
 import { useApiQuery, useApiMutation } from '../'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -14,10 +15,10 @@ const config = { wrapper: Wrapper }
 const renderGetOrgs = () =>
   renderHook(() => useApiQuery('organizationsGet', {}), config)
 
-const renderGetNonexistentOrg = () =>
+// 503 is a special key in the MSW server that returns a 503
+const renderGetOrg503 = () =>
   renderHook(
-    () =>
-      useApiQuery('organizationsGetOrganization', { orgName: 'nonexistent' }),
+    () => useApiQuery('organizationsGetOrganization', { orgName: '503' }),
     config
   )
 
@@ -39,20 +40,20 @@ describe('useApiQuery', () => {
 
   describe('on error response', () => {
     it('passes through raw response', async () => {
-      const { result } = renderGetNonexistentOrg()
+      const { result } = renderGetOrg503()
 
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
       const response = result.current.error
-      expect(response?.status).toEqual(404)
+      expect(response?.status).toEqual(503)
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderGetNonexistentOrg()
+      const { result } = renderGetOrg503()
 
       await waitFor(() =>
         expect(result.current.error?.error).toEqual({
-          errorCode: 'ObjectNotFound',
+          errorCode: 'ServiceUnavailable',
         })
       )
     })
@@ -60,7 +61,7 @@ describe('useApiQuery', () => {
     // TODO: this test applies to the old generated client. now it's more like
     // data is null. error appears to get the JSON parse error for some reason
     it('sets error.data to null if error body is not json', async () => {
-      override('get', '/api/organizations', 404, 'not json')
+      override('get', '/api/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
@@ -68,6 +69,46 @@ describe('useApiQuery', () => {
         expect(result.current.error).toBeTruthy()
         expect(result.current.error?.data).toBeNull()
       })
+    })
+  })
+
+  describe('on 404 response', () => {
+    it('throws by default', async () => {
+      const { result } = renderHook(
+        () =>
+          useApiQuery('organizationsGetOrganization', {
+            orgName: 'nonexistent',
+          }),
+        config
+      )
+
+      // We are trying to catch an error thrown asynchronously by the hook and
+      // propagated up the tree, which means we don't have a particular call to
+      // wrap in try/catch. Fortunately result.error is part of
+      // react-hooks-testing-library.
+      await waitFor(() => {
+        const error = result.error as ErrorResponse | undefined
+        expect(error?.status).toEqual(404)
+        expect(error?.error).toEqual({ errorCode: 'ObjectNotFound' })
+      })
+    })
+
+    it('default throw behavior can be overridden to use query error state', async () => {
+      const { result } = renderHook(
+        () =>
+          useApiQuery(
+            'organizationsGetOrganization',
+            { orgName: 'nonexistent' },
+            { useErrorBoundary: false } // <----- the point
+          ),
+        config
+      )
+
+      await waitFor(() =>
+        expect(result.current.error?.error).toEqual({
+          errorCode: 'ObjectNotFound',
+        })
+      )
     })
   })
 
