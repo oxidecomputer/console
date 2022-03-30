@@ -18,6 +18,11 @@ type FieldLabelProps<T extends ElementType> = (
       id?: never
     }
   | {
+      as?: never
+      htmlFor: string
+      id?: never
+    }
+  | {
       as: Exclude<T, 'label'>
       htmlFor?: string
       id?: never
