@@ -12,6 +12,7 @@ import type {
   VpcParams,
   VpcSubnetParams,
 } from './db'
+import { lookupDisk } from './db'
 import {
   db,
   lookupInstance,
@@ -232,6 +233,15 @@ export const handlers = [
     }
   ),
 
+  rest.post<never, ProjectParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+    (req, res) => {
+      const [disk, err] = lookupDisk(req)
+      if (err) return res(err)
+      return res(json(disk))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
@@ -239,6 +249,33 @@ export const handlers = [
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
       return res(json({ items: disks }))
+    }
+  ),
+
+  rest.post<Json<Api.DiskCreate>, ProjectParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/disks',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const alreadyExists = db.disks.some(
+        (s) => s.project_id === project.id && s.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      // @ts-expect-error Still need to fill in some fields
+      const newDisk: Json<Api.Disk> = {
+        id: 'disk-' + randomHex(),
+        project_id: project.id,
+        state: { state: 'creating' },
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.disks.push(newDisk)
+      return res(json(newDisk, 201))
     }
   ),
 

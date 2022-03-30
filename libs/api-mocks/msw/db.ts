@@ -30,6 +30,12 @@ export type InstanceParams = {
   projectName: string
   instanceName: string
 }
+export type DiskParams = {
+  orgName: string
+  projectName: string
+  instanceName?: string
+  diskName: string
+}
 export type VpcSubnetParams = {
   orgName: string
   projectName: string
@@ -86,6 +92,18 @@ export function lookupInstance(
   if (!instance) return Err(notFoundErr)
 
   return Ok(instance)
+}
+
+export function lookupDisk(req: Req<DiskParams>): Result<Json<Api.Disk>> {
+  const [project, err] = lookupProject(req)
+  if (err) return Err(err)
+
+  const disk = db.disks.find(
+    (p) => p.project_id === project.id && p.name === req.params.diskName
+  )
+  if (!disk) return Err(notFoundErr)
+
+  return Ok(disk)
 }
 
 export function lookupVpcSubnet(
