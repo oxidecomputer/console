@@ -9,7 +9,7 @@ import {
   FieldLabel,
   Radio,
   RadioGroup,
-  SideModal,
+  SideModal_old as SideModal,
 } from '@oxide/ui'
 
 type Props = {

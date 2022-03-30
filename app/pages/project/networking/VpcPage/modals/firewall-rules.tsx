@@ -11,7 +11,7 @@ import {
   NumberTextField,
   Radio,
   RadioGroup,
-  SideModal,
+  SideModal_old as SideModal,
   Table,
   TextField,
   TextFieldError,

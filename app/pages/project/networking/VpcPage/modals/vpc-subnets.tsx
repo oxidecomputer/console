@@ -1,7 +1,12 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
 
-import { Button, FieldLabel, SideModal, TextField } from '@oxide/ui'
+import {
+  Button,
+  FieldLabel,
+  SideModal_old as SideModal,
+  TextField,
+} from '@oxide/ui'
 import type { VpcSubnet, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
