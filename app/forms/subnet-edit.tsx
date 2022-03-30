@@ -1,18 +1,56 @@
 import React from 'react'
 import { CreateSubnetForm } from './subnet-create'
-import type { ExtendedFormProps } from './helpers/form-types'
-
-EditSubnetForm.defaultProps = {
-  id: 'edit-subnet-form',
-  title: 'Edit subnet',
-}
+import type { ExtendedPrebuiltFormProps } from '@oxide/form'
+import { useParams } from 'app/hooks'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { invariant } from '@oxide/util'
 
 export function EditSubnetForm({
   id = 'edit-subnet-form',
   title = 'Edit subnet',
+  onSubmit,
+  onSuccess,
+  onError,
   ...props
-}: ExtendedFormProps<typeof CreateSubnetForm>) {
-  return <CreateSubnetForm id={id} title={title} {...props} />
+}: ExtendedPrebuiltFormProps<typeof CreateSubnetForm>) {
+  const parentIds = useParams('orgName', 'projectName', 'vpcName')
+  const queryClient = useApiQueryClient()
+
+  const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
+    onSuccess(data) {
+      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      onSuccess?.(data)
+    },
+    onError,
+  })
+
+  return (
+    <CreateSubnetForm
+      id={id}
+      title={title}
+      onSubmit={
+        onSubmit ||
+        (({ name, description, ipv4Block, ipv6Block }) => {
+          invariant(
+            props.initialValues?.name,
+            'CreateSubnetForm should always receive a name for initialValues'
+          )
+          updateSubnet.mutate({
+            ...parentIds,
+            subnetName: props.initialValues.name,
+            body: {
+              name,
+              description,
+              // TODO: validate these client-side using the patterns. sadly non-trivial
+              ipv4Block: ipv4Block || null,
+              ipv6Block: ipv6Block || null,
+            },
+          })
+        })
+      }
+      {...props}
+    />
+  )
 }
 
 export default EditSubnetForm

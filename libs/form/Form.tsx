@@ -45,8 +45,6 @@ export function Form<Values>({
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
 
-  console.log(actions)
-
   return (
     <>
       {title && isSideModal && (

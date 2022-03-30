@@ -1,7 +1,9 @@
 import { DescriptionField, Form, NameField, TextField } from '@oxide/form'
 import { Divider } from '@oxide/ui'
 import React from 'react'
-import type { BaseFormProps } from './helpers/form-types'
+import type { PrebuiltFormProps } from '@oxide/form'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useParams } from 'app/hooks'
 
 const values = {
   name: '',
@@ -10,26 +12,34 @@ const values = {
   ipv6Block: '',
 }
 
-CreateSubnetForm.defaultProps = {
-  id: 'create-subnet-form',
-  title: 'Create subnet',
-  initialValues: values,
-  onSubmit: () => {},
-}
 export function CreateSubnetForm({
-  id,
-  title,
-  initialValues,
+  id = 'create-subnet-form',
+  title = 'Create subnet',
+  initialValues = values,
   onSubmit,
+  onDismiss,
   ...props
-}: BaseFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values>) {
+  const parentIds = useParams('orgName', 'projectName', 'vpcName')
+  const queryClient = useApiQueryClient()
+
+  const createSubnet = useApiMutation('vpcSubnetsPost', {
+    onSuccess() {
+      queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
+      onDismiss?.()
+    },
+  })
   return (
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     <Form
-      id={id!}
+      id={id}
       title={title}
-      initialValues={initialValues!}
-      onSubmit={onSubmit!}
+      initialValues={initialValues}
+      onSubmit={
+        onSubmit ||
+        ((body) => {
+          createSubnet.mutate({ ...parentIds, body })
+        })
+      }
       {...props}
     >
       <NameField id="subnet-name" />
@@ -38,7 +48,7 @@ export function CreateSubnetForm({
       <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" />
       <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
       <Form.Actions>
-        <Form.Submit>{title!}</Form.Submit>
+        <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
     </Form>

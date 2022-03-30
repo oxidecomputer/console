@@ -9,6 +9,8 @@ import {
 import { Divider } from '@oxide/ui'
 import React from 'react'
 import type { PrebuiltFormProps } from '@oxide/form'
+import { useParams } from 'app/hooks'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 const values = {
   name: '',
@@ -24,14 +26,32 @@ export function CreateDiskForm({
   title = 'Create Disk',
   initialValues = values,
   onSubmit,
+  onSuccess,
+  onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
+  const parentIds = useParams('orgName', 'projectName')
+  const queryClient = useApiQueryClient()
+
+  const createDisk = useApiMutation('projectDisksPost', {
+    onSuccess(data) {
+      queryClient.invalidateQueries('projectDisksGet', parentIds)
+      onSuccess?.(data)
+    },
+    onError,
+  })
+
   return (
     <Form
       id={id}
       title={title}
       initialValues={initialValues}
-      onSubmit={onSubmit}
+      onSubmit={
+        onSubmit ||
+        ((body) => {
+          createDisk.mutate({ ...parentIds, body })
+        })
+      }
       {...props}
     >
       <NameField id="disk-name" />

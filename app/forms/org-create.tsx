@@ -2,7 +2,6 @@ import React from 'react'
 import { Form, NameField, DescriptionField } from '@oxide/form'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
-import { useNavigate } from 'react-router-dom'
 import { Success16Icon } from '@oxide/ui'
 import type { PrebuiltFormProps } from '@oxide/form'
 
@@ -11,22 +10,17 @@ const values = {
   description: '',
 }
 
-CreateOrgForm.defaultProps = {
-  id: 'create-org-form',
-  title: 'Create organization',
-  initialValues: values,
-}
-
 export function CreateOrgForm({
-  id,
-  title,
-  initialValues,
+  id = 'create-org-form',
+  title = 'Create organization',
+  initialValues = values,
   onSubmit,
+  onSuccess,
+  onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const navigate = useNavigate()
 
   const createOrg = useApiMutation('organizationsPost', {
     onSuccess(org) {
@@ -43,15 +37,16 @@ export function CreateOrgForm({
         content: 'Your organization has been created.',
         timeout: 5000,
       })
-      navigate(`../`)
+      onSuccess?.(org)
     },
+    onError,
   })
 
   return (
     <Form
-      id={id!}
+      id={id}
       title={title}
-      initialValues={initialValues!}
+      initialValues={initialValues}
       onSubmit={
         onSubmit ??
         (({ name, description }) =>

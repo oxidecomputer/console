@@ -1,3 +1,5 @@
+import type { ErrorResponse } from '@oxide/api'
+import type { ComponentType } from 'react'
 import type { FormProps } from './Form'
 
 /**
@@ -7,4 +9,17 @@ import type { FormProps } from './Form'
 export type PrebuiltFormProps<Values> = Omit<
   Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit'>,
   'children'
-> & { children?: never }
+> & {
+  children?: never
+  onSuccess?: (data: unknown) => void
+  onError?: (err: ErrorResponse) => void
+}
+
+/**
+ * A utility type for a prebuilt form that extends another form
+ */
+export type ExtendedPrebuiltFormProps<C> = C extends ComponentType<infer B>
+  ? B extends PrebuiltFormProps<any>
+    ? B
+    : never
+  : never

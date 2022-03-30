@@ -1,5 +1,6 @@
 import { SideModal } from '@oxide/ui'
 import type { ComponentProps } from 'react'
+import { useCallback } from 'react'
 import { useState, Suspense, useMemo } from 'react'
 import React from 'react'
 import type { FormTypes } from 'app/forms'
@@ -19,16 +20,28 @@ export const useForm = <K extends keyof FormTypes>(
   props?: FormProps<K>
 ) => {
   const [isOpen, setShowForm] = useState(false)
-  const [formProps = {}, setFormProps] = useState<FormProps<K> | undefined>(
-    props
-  )
-  const hideForm = () => setShowForm(false)
-  const showForm = (props?: FormProps<K>) => {
+  const [formProps, setFormProps] = useState<FormProps<K> | undefined>(props)
+
+  const invokeForm = (props?: FormProps<K>) => {
     if (props) {
       setFormProps(props)
     }
     setShowForm(true)
   }
+
+  const onDismiss = useCallback(() => {
+    setShowForm(false)
+    formProps?.onDismiss?.()
+  }, [formProps, setShowForm])
+
+  const onSuccess = useCallback(
+    (data: unknown) => {
+      setShowForm(false)
+      formProps?.onSuccess?.(data)
+    },
+    [formProps, setShowForm]
+  )
+
   const DynForm = useMemo(
     () => React.lazy(() => import(`../forms/${id}.tsx`)),
     [id]
@@ -36,10 +49,10 @@ export const useForm = <K extends keyof FormTypes>(
 
   return [
     <Suspense fallback={null} key={`${id}-key`}>
-      <SideModal id={`${id}-modal`} isOpen={isOpen} onDismiss={hideForm}>
-        <DynForm onDismiss={hideForm} {...formProps} />
+      <SideModal id={`${id}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
+        <DynForm onDismiss={onDismiss} onSuccess={onSuccess} {...formProps} />
       </SideModal>
     </Suspense>,
-    showForm,
+    invokeForm,
   ] as const
 }

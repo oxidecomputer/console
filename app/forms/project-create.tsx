@@ -1,5 +1,4 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { Success16Icon } from '@oxide/ui'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -17,11 +16,12 @@ export function CreateProjectForm({
   title = 'Create project',
   initialValues = values,
   onSubmit,
+  onSuccess,
+  onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const navigate = useNavigate()
 
   const { orgName } = useParams('orgName')
 
@@ -41,8 +41,9 @@ export function CreateProjectForm({
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      navigate(`../`)
+      onSuccess?.(project)
     },
+    onError,
   })
 
   return (
