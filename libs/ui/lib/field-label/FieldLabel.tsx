@@ -45,7 +45,7 @@ export const FieldLabel = <T extends ElementType = 'label'>({
     <Wrap with={<div className="flex space-x-2" />} when={tip}>
       <Component
         id={id}
-        className="flex mb-2 items-center text-sans-sm"
+        className="mb-2 flex items-center text-sans-sm"
         htmlFor={htmlFor}
       >
         {children}
