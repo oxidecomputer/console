@@ -59,7 +59,7 @@ interface SideModalTitleProps {
 }
 SideModal.Title = ({ id, children }: SideModalTitleProps) => {
   return (
-    <h2 className="my-8 text-sans-2xl" id={id}>
+    <h2 className="mt-8 mb-12 text-sans-2xl" id={id}>
       {children}
     </h2>
   )
