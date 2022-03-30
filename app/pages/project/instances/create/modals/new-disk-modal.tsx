@@ -6,7 +6,7 @@ import {
   FieldLabel,
   Radio,
   RadioGroup,
-  SideModal,
+  SideModal_old as SideModal,
   TextField,
 } from '@oxide/ui'
 

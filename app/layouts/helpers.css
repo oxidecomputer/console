@@ -21,7 +21,7 @@
   margin-right: var(--content-gutter);
 }
 .ox-content-pane-actions {
-  @apply sticky bottom-0 flex-shrink-0 overflow-hidden bg-default;
+  @apply sticky bottom-0 flex-shrink-0 justify-between overflow-hidden bg-default;
 }
 
 .ox-content-pane-actions:not(:empty) {

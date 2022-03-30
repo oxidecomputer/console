@@ -90,13 +90,16 @@ export const isOneOf = (
   return React.Children.toArray(children).every(childIsOneOf)
 }
 
-export const pluck = <P extends unknown>(
+const pluck = <P extends unknown>(
   children: ChildArray,
   selector: ChildSelector
-) => {
+): React.ReactElement<P, ComponentType<P>> | null => {
   const childIndex = children.findIndex(selector)
   return childIndex !== -1
-    ? (children.splice(childIndex, 1)[0] as Component<P>)
+    ? (children.splice(childIndex, 1)[0] as React.ReactElement<
+        P,
+        ComponentType<P>
+      >)
     : null
 }
 
@@ -110,11 +113,23 @@ export const pluckAllOfType = <P extends unknown>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) => {
-  const result: Component<P>[] = []
+  const result: React.ReactElement<P, ComponentType<P>>[] = []
   for (let i = children.length - 1; i >= 0; --i) {
     if (matchType(children[i] as ReactElement, componentType)) {
-      result.unshift(children.splice(i, 1)[0] as Component<P>)
+      result.unshift(
+        children.splice(i, 1)[0] as React.ReactElement<P, ComponentType<P>>
+      )
     }
   }
   return result
 }
+
+interface WrapProps {
+  if: boolean
+  wrapper: ReactElement
+  children: ReactNode
+}
+export const Wrap = ({ if: condition, wrapper, children }: WrapProps) =>
+  condition
+    ? React.cloneElement(wrapper, {}, children)
+    : (children as React.ReactElement)

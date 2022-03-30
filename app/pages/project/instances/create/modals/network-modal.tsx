@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Button, Dropdown, SideModal } from '@oxide/ui'
+import { Button, Dropdown, SideModal_old as SideModal } from '@oxide/ui'
 import { useApiQuery } from '@oxide/api'
 
 type Props = {

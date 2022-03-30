@@ -19,7 +19,7 @@ test.describe('VpcPage', () => {
 
     // open modal, fill out form, submit
     await page.click('text=New subnet')
-    await page.fill('text=IPv4 block', '1.1.1.2/24')
+    await page.fill('input[name=ipv4Block]', '1.1.1.2/24')
     await page.fill('input[name=name]', 'mock-subnet-2')
     await page.click('button:has-text("Create subnet")')
 

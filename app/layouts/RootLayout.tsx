@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom'
 import { SkipLinkTarget } from '@oxide/ui'
 import {
   ContentPane,
+  ContentPaneActions,
   ContentPaneWrapper,
   PageContainer,
   Sidebar,
@@ -11,6 +12,8 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { PageHeader } from '../components/PageHeader'
+import { Pagination } from '@oxide/pagination'
+import { Form } from '@oxide/form'
 
 const RootLayout = () => {
   return (
@@ -24,6 +27,10 @@ const RootLayout = () => {
           <PageHeader />
           <Outlet />
         </ContentPane>
+        <ContentPaneActions>
+          <Pagination.Target />
+          <Form.PageActions />
+        </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
   )
