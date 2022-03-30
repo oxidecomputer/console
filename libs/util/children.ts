@@ -124,8 +124,12 @@ export const pluckAllOfType = <P extends unknown>(
   return result
 }
 
-export const wrapIf = (
-  condition: boolean,
-  wrapper: ReactElement,
-  content: ReactElement
-) => (condition ? React.cloneElement(wrapper, {}, content) : content)
+interface WrapProps {
+  if: boolean
+  wrapper: ReactElement
+  children: ReactNode
+}
+export const Wrap = ({ if: condition, wrapper, children }: WrapProps) =>
+  condition
+    ? React.cloneElement(wrapper, {}, children)
+    : (children as React.ReactElement)

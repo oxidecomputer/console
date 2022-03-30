@@ -12,7 +12,7 @@ import {
   kebabCase,
   pluckFirstOfType,
   tunnel,
-  wrapIf,
+  Wrap,
 } from '@oxide/util'
 import type { FormikConfig } from 'formik'
 import { Formik } from 'formik'
@@ -71,9 +71,7 @@ export function Form<Values>({
       {title && isSideModal && (
         <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
       )}
-      {wrapIf(
-        isSideModal,
-        <SideModal.Body />,
+      <Wrap if={isSideModal} wrapper={<SideModal.Body />}>
         <Formik {...formikProps}>
           {(props) => (
             <>
@@ -116,8 +114,7 @@ export function Form<Values>({
             </>
           )}
         </Formik>
-      )}
-
+      </Wrap>
       {actions && isSideModal && (
         <SideModal.Footer>
           <SideModalActionsTunnel.Out />
