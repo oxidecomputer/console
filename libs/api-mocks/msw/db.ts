@@ -99,7 +99,7 @@ export function lookupDisk(req: Req<DiskParams>): Result<Json<Api.Disk>> {
   if (err) return Err(err)
 
   const disk = db.disks.find(
-    (p) => p.project_id === project.id && p.name === req.params.diskName
+    (d) => d.project_id === project.id && d.name === req.params.diskName
   )
   if (!disk) return Err(notFoundErr)
 

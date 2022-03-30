@@ -11,6 +11,7 @@ import type {
   ProjectParams,
   VpcParams,
   VpcSubnetParams,
+  DiskParams,
 } from './db'
 import { lookupDisk } from './db'
 import {
@@ -233,7 +234,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, ProjectParams, Json<Api.Disk> | PostErr>(
+  rest.post<never, DiskParams, Json<Api.Disk> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
     (req, res) => {
       const [disk, err] = lookupDisk(req)
