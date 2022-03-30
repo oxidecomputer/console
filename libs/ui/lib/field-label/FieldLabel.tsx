@@ -42,10 +42,10 @@ export const FieldLabel = <T extends ElementType = 'label'>({
 }: PropsWithChildren<FieldLabelProps<T>>) => {
   const Component = as || 'label'
   return (
-    <Wrap with={<div className="flex space-x-2" />} when={tip}>
+    <Wrap with={<div className="mb-2 flex space-x-2" />} when={tip}>
       <Component
         id={id}
-        className="mb-2 flex items-center text-sans-sm"
+        className="flex items-center text-sans-sm"
         htmlFor={htmlFor}
       >
         {children}
