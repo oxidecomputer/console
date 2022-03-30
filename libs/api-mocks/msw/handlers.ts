@@ -40,6 +40,10 @@ const alreadyExistsBody = { error_code: 'ObjectAlreadyExists' } as const
 type AlreadyExists = typeof alreadyExistsBody
 const alreadyExistsErr = json(alreadyExistsBody, 400)
 
+const unavailableBody = { error_code: 'ServiceUnavailable' } as const
+type Unavailable = typeof unavailableBody
+const unavailableErr = json(unavailableBody, 503)
+
 const badRequest = (msg: string) =>
   compose(
     context.status(400),
@@ -50,7 +54,7 @@ const badRequest = (msg: string) =>
     })
   )
 
-type GetErr = NotFound
+type GetErr = NotFound | Unavailable
 type PostErr = AlreadyExists | NotFound
 
 export const handlers = [
@@ -85,6 +89,10 @@ export const handlers = [
   rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
     '/api/organizations/:orgName',
     (req, res) => {
+      if (req.params.orgName === '503') {
+        return res(unavailableErr)
+      }
+
       const [org, err] = lookupOrg(req)
       if (err) return res(err)
 

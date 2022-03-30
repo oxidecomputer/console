@@ -49,9 +49,9 @@ export const getUseApiQuery =
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
-  ) =>
-    useQuery(
+    options: UseQueryOptions<Result<A[M]>, ErrorResponse> = {}
+  ) => {
+    return useQuery(
       [method, params] as QueryKey,
       // The generated client parses the json and sticks it in `data` for us, so
       // that's what we want to return from the fetcher. In the case of an
@@ -69,8 +69,16 @@ export const getUseApiQuery =
         api[method](params)
           .then((resp) => resp.data)
           .catch(navToLoginIf401),
-      options
+      {
+        // In the case of 404s, let the error bubble up to the error boundary so
+        // we can say Not Found. If you need to allow a 404 and want it to show
+        // up as `error` state instead, pass `useErrorBoundary: false` as an
+        // option from the calling component and it will override this
+        useErrorBoundary: (err) => err.status === 404,
+        ...options,
+      }
     )
+  }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>

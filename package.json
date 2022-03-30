@@ -81,7 +81,7 @@
     "@storybook/theming": "^6.4.12",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.0.0",
+    "@testing-library/react": "^12.1.4",
     "@testing-library/react-hooks": "^7.0.1",
     "@types/babel__core": "^7.1.19",
     "@types/jscodeshift": "^0.11.2",
