@@ -5,7 +5,6 @@ import type {
   QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { useNavigate } from 'react-router-dom'
 import { navToLogin } from './nav-to-login'
 
 import type { ErrorResponse, ApiResponse } from './__generated__/Api'
@@ -50,9 +49,8 @@ export const getUseApiQuery =
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
+    options: UseQueryOptions<Result<A[M]>, ErrorResponse> = {}
   ) => {
-    const navigate = useNavigate()
     return useQuery(
       [method, params] as QueryKey,
       // The generated client parses the json and sticks it in `data` for us, so
@@ -72,10 +70,17 @@ export const getUseApiQuery =
           .then((resp) => resp.data)
           .catch(navToLoginIf401)
           .catch((resp) => {
-            if (resp.status === 404) navigate('/404', { replace: true })
+            if (resp.status === 404) {
+              throw 404
+            }
             throw resp
           }),
-      options
+      {
+        useErrorBoundary: (err: ErrorResponse) => {
+          return err.status === 404 ? true : false
+        },
+        ...options,
+      }
     )
   }
 
