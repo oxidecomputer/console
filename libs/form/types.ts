@@ -7,7 +7,10 @@ import type { FormProps } from './Form'
  * that are expected to be provided by default are set to optional.
  */
 export type PrebuiltFormProps<Values> = Omit<
-  Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit'>,
+  Optional<
+    FormProps<Values>,
+    'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'
+  >,
   'children'
 > & {
   children?: never

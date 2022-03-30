@@ -60,6 +60,7 @@ export function CreateProjectForm({
           })
         })
       }
+      mutation={createProject}
       {...props}
     >
       <NameField id="name" />

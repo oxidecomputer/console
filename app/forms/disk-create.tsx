@@ -52,18 +52,19 @@ export function CreateDiskForm({
           createDisk.mutate({ ...parentIds, body })
         })
       }
+      mutation={createDisk}
       {...props}
     >
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
       <TextField id="disk-type" name="type" />
-      <RadioField id="disk-source-type" name="sourceType">
+      <RadioField column id="disk-source-type" name="sourceType">
         <Radio value="blank">Blank disk</Radio>
         <Radio value="image">Image</Radio>
         <Radio value="snapshot">Snapshot</Radio>
       </RadioField>
-      <RadioField id="disk-deletion-rule" name="deletionRule">
+      <RadioField column id="disk-deletion-rule" name="deletionRule">
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
       </RadioField>

@@ -7,3 +7,8 @@
   margin-left: var(--content-gutter);
   margin-right: var(--content-gutter);
 }
+
+.ox-side-modal > footer {
+  padding-left: var(--content-gutter);
+  padding-right: var(--content-gutter);
+}

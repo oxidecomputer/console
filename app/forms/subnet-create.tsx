@@ -18,6 +18,7 @@ export function CreateSubnetForm({
   initialValues = values,
   onSubmit,
   onDismiss,
+  onError,
   ...props
 }: PrebuiltFormProps<typeof values>) {
   const parentIds = useParams('orgName', 'projectName', 'vpcName')
@@ -28,6 +29,7 @@ export function CreateSubnetForm({
       queryClient.invalidateQueries('vpcSubnetsGet', parentIds)
       onDismiss?.()
     },
+    onError,
   })
   return (
     <Form
@@ -40,6 +42,7 @@ export function CreateSubnetForm({
           createSubnet.mutate({ ...parentIds, body })
         })
       }
+      mutation={createSubnet}
       {...props}
     >
       <NameField id="subnet-name" />

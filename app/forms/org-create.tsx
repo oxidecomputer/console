@@ -54,6 +54,7 @@ export function CreateOrgForm({
             body: { name, description },
           }))
       }
+      mutation={createOrg}
       {...props}
     >
       <NameField id="org-name" />

@@ -48,6 +48,7 @@ export function EditSubnetForm({
           })
         })
       }
+      mutation={updateSubnet}
       {...props}
     />
   )

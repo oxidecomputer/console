@@ -21,23 +21,44 @@ import type { ReactNode } from 'react'
 import React from 'react'
 import './form.css'
 import cn from 'classnames'
+import type { ErrorResponse } from '@oxide/api'
 
 const PageActionsTunnel = tunnel('form-page-actions')
 const SideModalActionsTunnel = tunnel('form-sidebar-actions')
 
 const PageActionsContainer = classed.div`flex h-20 items-center`
 
+type Mutation =
+  | {
+      status: 'idle' | 'loading'
+      data: undefined
+      error: null
+    }
+  | {
+      status: 'success'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: any
+      error: null
+    }
+  | {
+      status: 'error'
+      data: undefined
+      error: ErrorResponse
+    }
+
 export interface FormProps<Values> extends FormikConfig<Values> {
   id: string
   title?: ReactNode
   children: ReactNode
   onDismiss?: () => void
+  mutation: Mutation
 }
 
 export function Form<Values>({
   id,
   title,
   children,
+  mutation,
   onDismiss,
   ...formikProps
 }: FormProps<Values>) {
@@ -58,7 +79,10 @@ export function Form<Values>({
             <>
               <form
                 id={id}
-                className={cn('ox-form space-y-9', { 'pb-20': !isSideModal })}
+                className={cn('ox-form space-y-7', {
+                  'pb-20': !isSideModal,
+                  'is-side-modal': isSideModal,
+                })}
                 onReset={props.handleReset}
                 onSubmit={props.handleSubmit}
               >
@@ -69,7 +93,10 @@ export function Form<Values>({
                   <SideModalActionsTunnel.In>
                     {cloneElement(actions, {
                       formId: id,
-                      submitDisabled: !props.dirty || !props.isValid,
+                      submitDisabled:
+                        !props.dirty ||
+                        !props.isValid ||
+                        mutation.status === 'loading',
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -78,7 +105,10 @@ export function Form<Values>({
                     <PageActionsContainer>
                       {cloneElement(actions, {
                         formId: id,
-                        submitDisabled: !props.dirty || !props.isValid,
+                        submitDisabled:
+                          !props.dirty ||
+                          !props.isValid ||
+                          mutation.status === 'loading',
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -137,7 +167,9 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div className={cn('flex gap-2', { 'flex-row-reverse': isSideModal })}>
+    <div
+      className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}
+    >
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}

@@ -1,7 +1,14 @@
 .ox-form .ox-divider {
-  @apply !my-20;
   width: calc(100% + var(--content-gutter) * 2);
   margin-left: calc(var(--content-gutter) * -1);
+}
+
+.ox-form.is-side-modal .ox-divider {
+  @apply my-10;
+}
+
+.ox-form:not(.is-side-modal) .ox-divider {
+  @apply my-14;
 }
 
 /* TODO: Fix tabs full width behavior broken when in container */
