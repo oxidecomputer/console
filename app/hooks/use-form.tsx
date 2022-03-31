@@ -50,7 +50,7 @@ export const useForm = <K extends keyof FormTypes>(
   return [
     <Suspense fallback={null} key={`${id}-key`}>
       <SideModal id={`${id}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
-        <DynForm onDismiss={onDismiss} onSuccess={onSuccess} {...formProps} />
+        <DynForm {...formProps} onDismiss={onDismiss} onSuccess={onSuccess} />
       </SideModal>
     </Suspense>,
     invokeForm,
