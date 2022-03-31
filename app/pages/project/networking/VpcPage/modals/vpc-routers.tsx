@@ -1,7 +1,12 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
 
-import { Button, FieldLabel, SideModal, TextField } from '@oxide/ui'
+import {
+  Button,
+  FieldLabel,
+  SideModal_old as SideModal,
+  TextField,
+} from '@oxide/ui'
 import type { VpcRouter, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
@@ -56,7 +61,7 @@ export function CreateVpcRouterModal({
   projectName,
   vpcName,
 }: CreateProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -66,7 +71,7 @@ export function CreateVpcRouterModal({
 
   const createRouter = useApiMutation('vpcRoutersPost', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcRoutersGet', parentIds)
+      queryClient.invalidateQueries('vpcRoutersGet', parentNames)
       dismiss()
     },
   })
@@ -84,7 +89,7 @@ export function CreateVpcRouterModal({
         initialValues={{ name: '', description: '' }}
         onSubmit={({ name, description }) => {
           createRouter.mutate({
-            ...parentIds,
+            ...parentNames,
             body: { name, description },
           })
         }}
@@ -118,7 +123,7 @@ export function EditVpcRouterModal({
   vpcName,
   originalRouter,
 }: EditProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -128,7 +133,7 @@ export function EditVpcRouterModal({
 
   const updateRouter = useApiMutation('vpcRoutersPutRouter', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcRoutersGet', parentIds)
+      queryClient.invalidateQueries('vpcRoutersGet', parentNames)
       dismiss()
     },
   })
@@ -149,7 +154,7 @@ export function EditVpcRouterModal({
         }}
         onSubmit={({ name, description }) => {
           updateRouter.mutate({
-            ...parentIds,
+            ...parentNames,
             routerName: originalRouter.name,
             body: { name, description },
           })

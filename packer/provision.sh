@@ -12,6 +12,7 @@ curl -sSL https://pkgs.tailscale.com/stable/debian/buster.gpg | sudo apt-key add
 sudo apt install -y --no-install-recommends \
 	apt-transport-https \
 	ca-certificates \
+	coreutils \
 	software-properties-common \
 	uuid-runtime
 
@@ -48,8 +49,21 @@ sudo mv /tmp/omicron.toml /etc/omicron/config.toml
 # Move the nginx configs to the right directory.
 sudo mv /tmp/nginx /etc/nginx
 
-# Move the oxapi_demo script to the right location.
-sudo mv /tmp/oxapi_demo /usr/local/bin/oxapi_demo
+sudo mv /tmp/populate_omicron_data.sh /usr/local/bin/populate_omicron_data.sh
+
+sudo mv /tmp/bootstrap-omicron.sh /usr/local/bin/bootstrap-omicron.sh
+
+# Download the latest Oxide command line.
+# FROM: https://github.com/oxidecomputer/cli/releases
+
+export OXIDE_CLI_SHA256="930731692776abb931ff69c3fd3eedbc51856f1bab390a0402240efb695e9e0c"
+export OXIDE_CLI_VERSION="v0.1.0-pre.10"
+# Download and check the sha256sum.
+sudo curl -fSL "https://dl.oxide.computer/releases/cli/${OXIDE_CLI_VERSION}/oxide-x86_64-unknown-linux-musl" -o "/usr/local/bin/oxide"
+echo "${OXIDE_CLI_SHA256}  /usr/local/bin/oxide" | sudo sha256sum -c -
+sudo chmod a+x "/usr/local/bin/oxide"
+
+oxide --version
 
 # Login to the GitHub container registry.
 sudo docker login ghcr.io -u jessfraz -p "$GITHUB_TOKEN"
@@ -71,6 +85,7 @@ echo "${CLOUDFLARE_EMAIL}" | sudo tee /etc/cloudflare/email
 echo "${CLOUDFLARE_TOKEN}" | sudo tee /etc/cloudflare/token
 echo "${SSL_CERT}" | sudo tee /etc/cloudflare/certificate
 echo "${SSL_KEY}" | sudo tee /etc/cloudflare/private_key
+echo "${API_VERSION}" | sudo tee /etc/api_version
 
 # Clean up
 sudo apt autoremove -y

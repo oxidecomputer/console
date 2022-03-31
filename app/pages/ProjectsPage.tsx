@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, PageHeader, PageTitle, Folder24Icon } from '@oxide/ui'
 import { useParams, useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
+import { buttonStyle, TableActions } from '@oxide/ui'
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
@@ -33,17 +33,14 @@ const ProjectsPage = () => {
 
   return (
     <>
-      <PageHeader className="mb-10">
-        <PageTitle icon={<Folder24Icon title="Projects" />}>Projects</PageTitle>
-        <div className="flex items-center">
-          <Link
-            to="new"
-            className={buttonStyle({ variant: 'secondary', size: 'xs' })}
-          >
-            New Project
-          </Link>
-        </div>
-      </PageHeader>
+      <TableActions>
+        <Link
+          to={`/orgs/${orgName}/projects/new`}
+          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
+        >
+          New Project
+        </Link>
+      </TableActions>
       <Table>
         <Column
           id="name"

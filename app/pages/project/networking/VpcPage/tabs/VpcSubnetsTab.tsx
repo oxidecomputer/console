@@ -1,23 +1,22 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'app/hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
 import { Button } from '@oxide/ui'
-import { CreateVpcSubnetModal, EditVpcSubnetModal } from '../modals/vpc-subnets'
 import type { VpcSubnet } from '@oxide/api'
+import { useForm } from 'app/hooks/use-form'
 
 export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcSubnetsGet', vpcParams)
-
-  const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<VpcSubnet | null>(null)
+  const [createSubnetForm, showCreateSubnet] = useForm('subnet-create')
+  const [editSubnetForm, showEditSubnet] = useForm('subnet-edit')
 
   const makeActions = (subnet: VpcSubnet): MenuAction[] => [
     {
       label: 'Edit',
-      onActivate: () => setEditing(subnet),
+      onActivate: () => showEditSubnet({ initialValues: subnet }),
     },
   ]
 
@@ -27,20 +26,12 @@ export const VpcSubnetsTab = () => {
         <Button
           size="xs"
           variant="secondary"
-          onClick={() => setCreateModalOpen(true)}
+          onClick={() => showCreateSubnet()}
         >
           New subnet
         </Button>
-        <CreateVpcSubnetModal
-          {...vpcParams}
-          isOpen={createModalOpen}
-          onDismiss={() => setCreateModalOpen(false)}
-        />
-        <EditVpcSubnetModal
-          {...vpcParams}
-          originalSubnet={editing} // modal is open if this is non-null
-          onDismiss={() => setEditing(null)}
-        />
+        {createSubnetForm}
+        {editSubnetForm}
       </div>
       <Table makeActions={makeActions}>
         <Column id="name" />

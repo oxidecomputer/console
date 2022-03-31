@@ -30,7 +30,16 @@ export default defineConfig(({ mode }) => ({
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
   },
-  plugins: [react()],
+  plugins: [
+    react({
+      babel: {
+        plugins:
+          mode === 'development'
+            ? ['./libs/babel-transform-react-display-name']
+            : [],
+      },
+    }),
+  ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
     // replace is there to turn
@@ -58,7 +67,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   test: {
-    global: true,
+    globals: true,
     environment: 'jsdom',
     setupFiles: ['app/test/setup.ts'],
     includeSource: ['libs/util/*.ts'],

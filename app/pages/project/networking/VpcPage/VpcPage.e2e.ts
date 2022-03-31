@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('VpcPage', () => {
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
+    await page.click('table :text("maze-war")')
     await page.click('table :text("mock-project")')
     await page.click('a:has-text("Networking")')
     await page.click('a:has-text("mock-vpc")')
@@ -18,7 +19,7 @@ test.describe('VpcPage', () => {
 
     // open modal, fill out form, submit
     await page.click('text=New subnet')
-    await page.fill('text=IPv4 block', '1.1.1.2/24')
+    await page.fill('input[name=ipv4Block]', '1.1.1.2/24')
     await page.fill('input[name=name]', 'mock-subnet-2')
     await page.click('button:has-text("Create subnet")')
 

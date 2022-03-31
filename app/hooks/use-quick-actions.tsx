@@ -57,12 +57,14 @@ export function QuickActions() {
   // only memoized to avoid render churn in useKey
   const openDialog = useCallback(
     (e) => {
-      if (anyItems) {
+      if (anyItems && !isOpen) {
         e.preventDefault()
         setIsOpen(true)
+      } else {
+        setIsOpen(false)
       }
     },
-    [anyItems]
+    [isOpen, anyItems]
   )
 
   useKey('mod+k', openDialog)

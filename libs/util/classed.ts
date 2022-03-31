@@ -14,6 +14,7 @@ const make =
         children
       )
     // allow arbitrary components to hang off this one, e.g., Table.Body
+    Comp.displayName = `classed.${tag}`
     return Comp as typeof Comp & Record<string, React.ComponentType>
   }
 

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { useParams, useQuickActions } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
@@ -28,10 +27,6 @@ export const VpcsPage = () => {
   const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Networking24Icon title="Vpcs" />}>VPCs</PageTitle>
-      </PageHeader>
-
       <Table>
         <Column
           id="name"

@@ -5,7 +5,6 @@ import {
   SkipLinkTarget,
   Access16Icon,
   Instances16Icon,
-  Metrics16Icon,
   Networking16Icon,
   Storage16Icon,
   Notification16Icon,
@@ -20,8 +19,10 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
+import { PageHeader } from '../components/PageHeader'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
+import { Form } from '@oxide/form'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -37,7 +38,6 @@ const ProjectLayout = () => {
           { value: 'Access & IAM', path: 'access' },
           { value: 'Images', path: 'images' },
           { value: 'Networking', path: 'vpcs' },
-          { value: 'Metrics', path: 'metrics' },
         ]
           // filter out the entry for the path we're currently on
           .filter(
@@ -75,9 +75,6 @@ const ProjectLayout = () => {
           <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking
           </NavLinkItem>
-          <NavLinkItem to="metrics">
-            <Metrics16Icon /> Metrics
-          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPaneWrapper>
@@ -85,10 +82,12 @@ const ProjectLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
+          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
+          <Form.PageActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
