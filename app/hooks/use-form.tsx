@@ -1,8 +1,9 @@
+import type { ComponentProps } from 'react'
 import { SideModal } from '@oxide/ui'
 import { useCallback } from 'react'
 import { useState, Suspense, useMemo } from 'react'
 import React from 'react'
-import type { FormTypes, DynamicFormProps } from 'app/forms'
+import type { FormTypes } from 'app/forms'
 
 /**
  * Dynamically load a form from the `forms` directory where id is the name of the form. It
@@ -10,17 +11,15 @@ import type { FormTypes, DynamicFormProps } from 'app/forms'
  * the form. The invocation can take the form's props to alter the form's behavior.
  */
 export const useForm = <K extends keyof FormTypes>(
-  id: K,
-  props?: DynamicFormProps<K>
+  formType: K,
+  props?: ComponentProps<FormTypes[K]>
 ) => {
   const [isOpen, setShowForm] = useState(false)
-  const [formProps, setFormProps] = useState<DynamicFormProps<K> | undefined>(
-    props
-  )
+  const [formProps, setFormProps] = useState(props)
 
-  const invokeForm = (props?: DynamicFormProps<K>) => {
-    if (props) {
-      setFormProps(props)
+  const invokeForm = (innerProps?: typeof props) => {
+    if (innerProps) {
+      setFormProps(innerProps)
     }
     setShowForm(true)
   }
@@ -39,13 +38,13 @@ export const useForm = <K extends keyof FormTypes>(
   )
 
   const DynForm = useMemo(
-    () => React.lazy<FormTypes[K]>(() => import(`../forms/${id}.tsx`)),
-    [id]
+    () => React.lazy<FormTypes[K]>(() => import(`../forms/${formType}.tsx`)),
+    [formType]
   )
 
   return [
-    <Suspense fallback={null} key={`${id}-key`}>
-      <SideModal id={`${id}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
+    <Suspense fallback={null} key={formType}>
+      <SideModal id={`${formType}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
         {/* @ts-expect-error TODO: Figure out why this is erroring */}
         <DynForm onDismiss={onDismiss} onSuccess={onSuccess} {...formProps} />
       </SideModal>
