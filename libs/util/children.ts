@@ -123,13 +123,3 @@ export const pluckAllOfType = <P extends unknown>(
   }
   return result
 }
-
-interface WrapProps {
-  if: boolean
-  wrapper: ReactElement
-  children: ReactNode
-}
-export const Wrap = ({ if: condition, wrapper, children }: WrapProps) =>
-  condition
-    ? React.cloneElement(wrapper, {}, children)
-    : (children as React.ReactElement)
