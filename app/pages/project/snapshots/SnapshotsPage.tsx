@@ -1,5 +1,5 @@
 import React from 'react'
 
-export const ImagesPage = () => {
+export const SnapshotsPage = () => {
   return <div>Not implemented</div>
 }

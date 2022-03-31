@@ -1,5 +1,5 @@
 import React from 'react'
 
 export const MetricsPage = () => {
-  return <></>
+  return <div>Not implemented</div>
 }

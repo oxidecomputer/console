@@ -11,6 +11,7 @@ import {
   InstancePage,
   InstancesPage,
   ImagesPage,
+  SnapshotsPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
@@ -137,6 +138,7 @@ export const routes = (
             </Route>
             <Route
               path="snapshots"
+              element={<SnapshotsPage />}
               crumb="Snapshots"
               icon={<Snapshots24Icon />}
             />
