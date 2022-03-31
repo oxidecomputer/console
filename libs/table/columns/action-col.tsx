@@ -48,11 +48,11 @@ export function getActionsCol<Item>(actionsCreator: MakeActions<Item>) {
   }
 }
 
-export const actionsCol = <T, U, V, W, X>(makeActions: MakeActions<T>) => ({
+export const actionsCol = <R,>(makeActions: MakeActions<R>) => ({
   id: 'menu',
   header: '', // is this the right way to do this?
   // TODO: fix width at w-12
-  cell: ({ row }: { row: Row2<T, U, V, W, X> }) => {
+  cell: ({ row }: { row: Row2<{ Row: R }> }) => {
     // TODO: control flow here has always confused me, would like to straighten it out
     const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
     return (

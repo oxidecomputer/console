@@ -1,4 +1,7 @@
-import type { ReactTable, Row as Row2 } from '@tanstack/react-table'
+import type {
+  Row as Row2,
+  TableInstance as TableInstance2,
+} from '@tanstack/react-table'
 import type { Row, TableInstance } from 'react-table'
 import React from 'react'
 
@@ -18,13 +21,13 @@ export const getSelectCol = <T extends object>() => ({
 })
 
 // only needs to be a function because of the generic params
-export const selectCol = <T, U, V, W, X>() => ({
+export const selectCol = <R,>() => ({
   id: 'select',
   // TODO: fix width at w-12
-  header: ({ instance }: { instance: ReactTable<T, U, V, W, X> }) => (
+  header: ({ instance }: { instance: TableInstance2<{ Row: R }> }) => (
     <Checkbox {...instance.getToggleAllRowsSelectedProps()} />
   ),
-  cell: ({ row }: { row: Row2<T, U, V, W, X> }) => (
+  cell: ({ row }: { row: Row2<{ Row: R }> }) => (
     <div className="px-1">
       <Checkbox {...row.getToggleSelectedProps()} />
     </div>

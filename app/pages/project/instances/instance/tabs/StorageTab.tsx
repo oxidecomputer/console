@@ -1,5 +1,5 @@
 import React from 'react'
-import { createTable } from '@tanstack/react-table'
+import { createTable, useTable } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -8,7 +8,7 @@ import { Table2 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 
-const table = createTable().RowType<Disk>()
+const table = createTable<Disk>()
 
 const columns = table.createColumns([
   table.createDataColumn('name', {
@@ -38,8 +38,8 @@ export function StorageTab() {
   const bootDisks = React.useMemo(() => data?.items.slice(0, 1) || [], [data])
   const otherDisks = React.useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = table.useTable({ columns, data: bootDisks })
-  const otherDisksTable = table.useTable({ columns, data: otherDisks })
+  const bootDiskTable = useTable(table, { columns, data: bootDisks })
+  const otherDisksTable = useTable(table, { columns, data: otherDisks })
 
   if (!data) return null
 

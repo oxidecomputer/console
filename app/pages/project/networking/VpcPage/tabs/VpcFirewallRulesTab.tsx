@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { createTable } from '@tanstack/react-table'
+import { createTable, useTable } from '@tanstack/react-table'
 import type { MenuAction } from '@oxide/table'
 import {
   actionsCol,
@@ -19,7 +19,7 @@ import {
   EditFirewallRuleModal,
 } from '../modals/firewall-rules'
 
-const tableHelper = createTable().RowType<VpcFirewallRule>()
+const tableHelper = createTable<VpcFirewallRule>()
 
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
@@ -63,7 +63,7 @@ export const VpcFirewallRulesTab = () => {
     ])
   }, [setEditing])
 
-  const table = tableHelper.useTable({
+  const table = useTable(tableHelper, {
     data: rules,
     columns,
     autoResetRowSelection: false,

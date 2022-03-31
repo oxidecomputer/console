@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ReactTable } from '@tanstack/react-table'
+import type { TableInstance as TableInstance2 } from '@tanstack/react-table'
 import type { TableInstance } from 'react-table'
 import { Table as UITable } from '@oxide/ui'
 
@@ -59,7 +59,7 @@ export const Table = <D extends object>({
 export type Table2Props<D> = {
   className?: string
   rowClassName?: string // TODO: decide whether this is the worst idea ever or best
-  table: ReactTable<D, unknown, unknown, unknown, unknown>
+  table: TableInstance2<{ Row: D }>
 }
 
 export function Table2<D>({ className, rowClassName, table }: Table2Props<D>) {
@@ -79,7 +79,7 @@ export function Table2<D>({ className, rowClassName, table }: Table2Props<D>) {
         ))}
       </UITable.Header>
       <UITable.Body {...table.getTableBodyProps()}>
-        {table.getRows().map((row) => (
+        {table.getRowModel().rows.map((row) => (
           <UITable.Row
             {...row.getRowProps()}
             className={rowClassName}
