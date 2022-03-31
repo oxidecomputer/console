@@ -72,7 +72,7 @@ export function Form<Values>({
         <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
       )}
       <Wrap if={isSideModal} wrapper={<SideModal.Body />}>
-        <Formik {...formikProps}>
+        <Formik {...formikProps} validateOnBlur={false}>
           {(props) => (
             <>
               <form
