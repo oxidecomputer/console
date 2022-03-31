@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react'
+
 import type { CreateSubnetForm } from './subnet-create'
 import type { EditSubnetForm } from './subnet-edit'
 import type { CreateOrgForm } from './org-create'
@@ -16,3 +18,8 @@ export interface FormTypes {
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
 }
+
+export type DynamicFormProps<K extends keyof FormTypes> = Omit<
+  ComponentProps<FormTypes[K]>,
+  'id'
+>

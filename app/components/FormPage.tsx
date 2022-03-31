@@ -1,9 +1,10 @@
 import React, { Suspense, useMemo } from 'react'
-import type { FormTypes } from 'app/forms'
+import type { DynamicFormProps, FormTypes } from 'app/forms'
 import { useNavigate } from 'react-router-dom'
-interface FormPageProps<K extends keyof FormTypes> {
+
+type FormPageProps<K extends keyof FormTypes> = {
   id: K
-}
+} & DynamicFormProps<K>
 
 /**
  * Dynamically load a form from the `forms` directory where id is the name of the form.
@@ -14,16 +15,19 @@ export function FormPage<K extends keyof FormTypes>({
   ...props
 }: FormPageProps<K>) {
   const DynForm = useMemo(
-    () => React.lazy(() => import(`../forms/${id}.tsx`)),
+    () => React.lazy<FormTypes[K]>(() => import(`../forms/${id}.tsx`)),
     [id]
   )
   const navigate = useNavigate()
   return (
     // TODO: Add a proper loading state
     <Suspense fallback={null} key={`${id}-key`}>
+      {/* @ts-expect-error TODO: Figure out why this is failing */}
       <DynForm
-        onSuccess={() => {
-          navigate('../')
+        // Should be fixed when the issue above is fixed
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSuccess={(data: any) => {
+          navigate(`../${data?.name ?? ''}`)
         }}
         {...props}
       />
