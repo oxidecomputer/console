@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ElementType, PropsWithChildren } from 'react'
-import { Wrap } from '../../util/wrap'
+import { Wrap } from '@oxide/util'
 import { Info8Icon, Tooltip } from '@oxide/ui'
 
 /**
