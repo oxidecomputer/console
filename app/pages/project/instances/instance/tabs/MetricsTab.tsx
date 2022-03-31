@@ -20,32 +20,35 @@ const data = [
 
 export function MetricsTab() {
   return (
-    <ComposedChart
-      width={600}
-      height={300}
-      data={data}
-      margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-      className="mt-16"
-    >
-      {/* TODO: pull these colors from TW config */}
-      <CartesianGrid stroke="#1D2427" vertical={false} />
-      <Area
-        dataKey="amt"
-        stroke="#2F8865"
-        fillOpacity={1}
-        fill="#112725"
-        isAnimationActive={false}
-      />
-      <Line
-        dataKey="limit"
-        stroke="#48D597"
-        strokeDasharray="3 3"
-        dot={false}
-        type="stepBefore"
-        isAnimationActive={false}
-      />
-      <XAxis dataKey="name" />
-      <YAxis orientation="right" />
-    </ComposedChart>
+    <>
+      <div>⚠️ Hard-coded fake data️ ⚠️</div>
+      <ComposedChart
+        width={600}
+        height={300}
+        data={data}
+        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+        className="mt-16"
+      >
+        {/* TODO: pull these colors from TW config */}
+        <CartesianGrid stroke="#1D2427" vertical={false} />
+        <Area
+          dataKey="amt"
+          stroke="#2F8865"
+          fillOpacity={1}
+          fill="#112725"
+          isAnimationActive={false}
+        />
+        <Line
+          dataKey="limit"
+          stroke="#48D597"
+          strokeDasharray="3 3"
+          dot={false}
+          type="stepBefore"
+          isAnimationActive={false}
+        />
+        <XAxis dataKey="name" />
+        <YAxis orientation="right" />
+      </ComposedChart>
+    </>
   )
 }
