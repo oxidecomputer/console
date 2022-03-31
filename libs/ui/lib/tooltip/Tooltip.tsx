@@ -88,7 +88,7 @@ export const Tooltip: FC<TooltipProps> = ({
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
-        className={cn('svg:pointer-events-none', {
+        className={cn('mt-[2px] h-4 svg:pointer-events-none svg:align-top', {
           'dashed-underline': definition,
         })}
       >

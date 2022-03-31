@@ -1,6 +1,5 @@
 import React from 'react'
 import type { ElementType, PropsWithChildren } from 'react'
-import { Wrap } from '@oxide/util'
 import { Info8Icon, Tooltip } from '@oxide/ui'
 
 /**
@@ -42,7 +41,7 @@ export const FieldLabel = <T extends ElementType = 'label'>({
 }: PropsWithChildren<FieldLabelProps<T>>) => {
   const Component = as || 'label'
   return (
-    <Wrap with={<div className="mb-2 flex space-x-2" />} when={tip}>
+    <div className="mb-2 flex h-4 space-x-2">
       <Component
         id={id}
         className="flex items-center text-sans-sm"
@@ -62,6 +61,6 @@ export const FieldLabel = <T extends ElementType = 'label'>({
           <Info8Icon />
         </Tooltip>
       )}
-    </Wrap>
+    </div>
   )
 }
