@@ -62,7 +62,9 @@ export function TableField<Item extends Record<string, any>>({
       )}
       <Button
         variant="secondary"
+        size="sm"
         onClick={() => onAddItem((item) => setValue(value.concat(item)))}
+        className="mt-4"
       >
         {actionText}
       </Button>
