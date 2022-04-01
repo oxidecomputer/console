@@ -8,7 +8,7 @@ import { Table2 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 
-const table = createTable<Disk>()
+const table = createTable<{ Row: Disk }>()
 
 const columns = table.createColumns([
   table.createDataColumn('name', {

@@ -19,7 +19,7 @@ import {
   EditFirewallRuleModal,
 } from '../modals/firewall-rules'
 
-const tableHelper = createTable<VpcFirewallRule>()
+const tableHelper = createTable<{ Row: VpcFirewallRule }>()
 
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
