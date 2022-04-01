@@ -183,6 +183,10 @@ export type InstanceCpuCount = number
  */
 export type InstanceCreate = {
   description: string
+  /**
+   * The disks to be created or attached for this instance.
+   */
+  disks?: InstanceDiskAttachment[] | null
   hostname: string
   memory: ByteCount
   name: Name
@@ -192,6 +196,31 @@ export type InstanceCreate = {
    */
   networkInterfaces?: InstanceNetworkInterfaceAttachment | null
 }
+
+/**
+ * Describe the instance's disks at creation time
+ */
+export type InstanceDiskAttachment =
+  | {
+      description: string
+      name: Name
+      /**
+       * size of the Disk
+       */
+      size: ByteCount
+      /**
+       * id for snapshot from which the Disk should be created, if any
+       */
+      snapshotId?: string | null
+      type: 'create'
+    }
+  | {
+      /**
+       * A disk name to attach
+       */
+      disk: Name
+      type: 'attach'
+    }
 
 /**
  * Migration parameters for an {@link Instance}
@@ -695,6 +724,59 @@ export type SagaState =
  */
 export type SessionUser = {
   id: string
+}
+
+/**
+ * Client view of a ['Silo']
+ */
+export type Silo = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output.
+   */
+  discoverable: boolean
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a {@link Silo}
+ */
+export type SiloCreate = {
+  description: string
+  discoverable: boolean
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type SiloResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: Silo[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
@@ -1821,6 +1903,24 @@ export interface SagasGetSagaParams {
 }
 
 export interface SessionMeParams {}
+
+export interface SilosGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SilosPostParams {}
+
+export interface SilosGetSiloParams {
+  siloName: Name
+}
+
+export interface SilosDeleteSiloParams {
+  siloName: Name
+}
 
 export interface TimeseriesSchemaGetParams {
   limit?: number | null
@@ -3044,6 +3144,55 @@ export class Api extends HttpClient {
       this.request<SessionUser>({
         path: `/session/me`,
         method: 'GET',
+        ...params,
+      }),
+
+    silosGet: (query: SilosGetParams, params: RequestParams = {}) =>
+      this.request<SiloResultsPage>({
+        path: `/silos`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * Create a new silo.
+     */
+    silosPost: (
+      query: SilosPostParams,
+      data: SiloCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<Silo>({
+        path: `/silos`,
+        method: 'POST',
+        body: data,
+        ...params,
+      }),
+
+    /**
+     * Fetch a specific silo
+     */
+    silosGetSilo: (
+      { siloName }: SilosGetSiloParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<Silo>({
+        path: `/silos/${siloName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Delete a specific silo.
+     */
+    silosDeleteSilo: (
+      { siloName }: SilosDeleteSiloParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/silos/${siloName}`,
+        method: 'DELETE',
         ...params,
       }),
 
