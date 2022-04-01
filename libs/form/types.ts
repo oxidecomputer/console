@@ -27,3 +27,9 @@ export type ExtendedPrebuiltFormProps<C> = C extends ComponentType<infer B>
     ? B
     : never
   : never
+
+export type ExtractFormValues<C> = C extends ComponentType<
+  PrebuiltFormProps<infer V>
+>
+  ? V
+  : never

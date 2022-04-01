@@ -1,6 +1,7 @@
 import type { RadioGroupProps } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextFieldHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
+import cn from 'classnames'
 import React from 'react'
 
 // TODO: Centralize these docstrings perhaps on the `FieldLabel` component?
@@ -32,16 +33,23 @@ export interface RadioFieldProps extends Omit<RadioGroupProps, 'name'> {
 export function RadioField({
   id,
   name = id,
-  label = capitalize(name),
+  label,
   helpText,
   description,
   ...props
 }: RadioFieldProps) {
   return (
-    <fieldset>
-      <FieldLabel as={'legend'} tip={description}>
-        {label}
-      </FieldLabel>
+    <fieldset
+      aria-describedby={cn({
+        [`${id}-help-text`]: !!helpText,
+        [`${id}-label-tip`]: !!description,
+      })}
+    >
+      {label && (
+        <FieldLabel id={`${id}-label`} as={'legend'} tip={description}>
+          {label}
+        </FieldLabel>
+      )}
       {/* TODO: Figure out where this hint field def should live */}
       {helpText && (
         <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>

@@ -22,11 +22,12 @@ export const useForm = <K extends keyof FormTypes>(
   const [isOpen, setShowForm] = useState(false)
   const [formProps, setFormProps] = useState<FormProps<K> | undefined>(props)
 
-  const invokeForm = (props?: FormProps<K>) => {
+  const showForm = (props?: FormProps<K>) => {
     if (props) {
       setFormProps(props)
     }
     setShowForm(true)
+    return () => setShowForm(false)
   }
 
   const onDismiss = useCallback(() => {
@@ -53,6 +54,6 @@ export const useForm = <K extends keyof FormTypes>(
         <DynForm {...formProps} onDismiss={onDismiss} onSuccess={onSuccess} />
       </SideModal>
     </Suspense>,
-    invokeForm,
+    showForm,
   ] as const
 }

@@ -2,14 +2,12 @@ import type { ButtonProps } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { SideModal } from '@oxide/ui'
 import { useIsInSideModal } from '@oxide/ui'
-import { Divider } from '@oxide/ui'
 import {
   addProps,
   classed,
   flattenChildren,
   invariant,
   isOneOf,
-  kebabCase,
   pluckFirstOfType,
   tunnel,
   Wrap,
@@ -77,7 +75,7 @@ export function Form<Values>({
             <>
               <form
                 id={id}
-                className={cn('ox-form space-y-7', {
+                className={cn('ox-form', {
                   'pb-20': !isSideModal,
                   'is-side-modal': isSideModal,
                 })}
@@ -186,18 +184,9 @@ Form.Cancel = (props: ButtonProps) => (
 
 Form.PageActions = PageActionsTunnel.Out
 
-const FormHeading = classed.h2`ox-form-heading text-content text-sans-2xl`
+Form.Heading = classed.h2`ox-form-heading text-content text-sans-2xl`
 export interface FormSectionProps {
   id?: string
   children: React.ReactNode
   title: string
-}
-Form.Section = ({ id, title, children }: FormSectionProps) => {
-  return (
-    <>
-      <Divider />
-      <FormHeading id={id || kebabCase(title)}>{title}</FormHeading>
-      {children}
-    </>
-  )
 }

@@ -6,7 +6,7 @@
  * difference is that label content is handled through children.
  */
 
-import type { PropsWithChildren } from 'react'
+import type { ComponentProps, PropsWithChildren } from 'react'
 import React from 'react'
 import cn from 'classnames'
 import { Field } from 'formik'
@@ -72,6 +72,12 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 }
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
-RadioCard.Unit = ({ children }: PropsWithChildren<unknown>) => (
-  <span className="!m-0 !p-0 opacity-60">{children}</span>
+RadioCard.Unit = ({
+  children,
+  className,
+  ...props
+}: ComponentProps<'span'>) => (
+  <span className={cn('!m-0 !p-0 opacity-60', className)} {...props}>
+    {children}
+  </span>
 )

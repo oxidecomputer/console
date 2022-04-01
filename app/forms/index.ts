@@ -3,6 +3,8 @@ import type { EditSubnetForm } from './subnet-edit'
 import type { CreateOrgForm } from './org-create'
 import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
+import type CreateInstanceForm from './instance-create'
+import type { ExtractFormValues } from '@oxide/form'
 
 /**
  * A map of all existing forms. When a new form is created in the forms directory, a
@@ -12,7 +14,12 @@ import type { CreateProjectForm } from './project-create'
 export interface FormTypes {
   'org-create': typeof CreateOrgForm
   'project-create': typeof CreateProjectForm
+  'instance-create': typeof CreateInstanceForm
   'disk-create': typeof CreateDiskForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
 }
+
+export type FormValues<K extends keyof FormTypes> = ExtractFormValues<
+  FormTypes[K]
+>
