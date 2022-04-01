@@ -12,9 +12,9 @@ import type { ExtractFormValues } from '@oxide/form'
  * and a value of the form's type. There's a test to validate that this happens.
  */
 export interface FormTypes {
+  'instance-create': typeof CreateInstanceForm
   'org-create': typeof CreateOrgForm
   'project-create': typeof CreateProjectForm
-  'instance-create': typeof CreateInstanceForm
   'disk-create': typeof CreateDiskForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm

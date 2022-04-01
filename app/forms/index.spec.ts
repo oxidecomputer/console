@@ -2,6 +2,7 @@ import babel from '@babel/core'
 import { traverse } from '@babel/core'
 import fs from 'fs/promises'
 import path from 'path'
+import './index'
 
 test('FormTypes must contain references to all forms', async () => {
   let formIds: string[] = []
