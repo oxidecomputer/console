@@ -41,7 +41,7 @@ retry 2 gcloud compute instances create "$INSTANCE_NAME" \
 	--description="Machine automatically generated from branch ${BRANCH_NAME} of the oxidecomputer/console git repo." \
 	--hostname="${INSTANCE_NAME}.internal.oxide.computer" \
 	--zone=$ZONE \
-	--image=packer-1648088890 \
+	--image=packer-1648838587 \
 	--maintenance-policy=TERMINATE \
 	--restart-on-failure \
 	--machine-type=$INSTANCE_TYPE \
