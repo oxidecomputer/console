@@ -31,7 +31,7 @@ export function TableField<Item extends Record<string, any>>({
   const [, { value = [] }, { setValue }] = useField<Item[]>({ name })
 
   return (
-    <div>
+    <div className="max-w-lg">
       <FieldLabel id={`${id}-label`}>{label}</FieldLabel>
       {!!value.length && (
         <MiniTable>
@@ -44,7 +44,14 @@ export function TableField<Item extends Record<string, any>>({
           </MiniTable.Header>
           <MiniTable.Body>
             {value.map((item, index) => (
-              <MiniTable.Row key={`item-${index}`}>
+              <MiniTable.Row
+                tabindex="0"
+                aria-rowindex={index + 1}
+                aria-label={columns
+                  .map(([key, name]) => `${name}: ${item[key]}`)
+                  .join(' ')}
+                key={`item-${index}`}
+              >
                 {columns.map(([key]) => (
                   <MiniTable.Cell key={`cell-${key}`}>
                     {item[key]}
@@ -52,7 +59,7 @@ export function TableField<Item extends Record<string, any>>({
                 ))}
                 <MiniTable.Cell>
                   <Button variant="link" onClick={() => onRemoveItem?.(item)}>
-                    <Error16Icon title="remove" />
+                    <Error16Icon title={`remove ${item.name}`} />
                   </Button>
                 </MiniTable.Cell>
               </MiniTable.Row>
