@@ -628,10 +628,6 @@ export type RouterRoute = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
-  /**
-   * The VPC Router to which the route belongs.
-   */
-  routerId: string
   target: RouteTarget
   /**
    * timestamp when this resource was created
@@ -641,6 +637,10 @@ export type RouterRoute = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * The VPC Router to which the route belongs.
+   */
+  vpcRouterId: string
 }
 
 /**
