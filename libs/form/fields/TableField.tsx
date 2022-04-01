@@ -4,12 +4,14 @@ import { Button, FieldLabel, MiniTable } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import React from 'react'
 
+type NamedItem = { name: string; [key: string]: any }
+
 // TODO: Simplify this type
 type Column<K> = K extends keyof (infer Item)
   ? [key: K, name: string, format?: (value: Item[K]) => string]
   : never
 
-export interface TableFieldProps<Item extends Record<string, any>> {
+export interface TableFieldProps<Item extends NamedItem> {
   id: string
   name?: string
   label?: string
@@ -19,7 +21,7 @@ export interface TableFieldProps<Item extends Record<string, any>> {
   columns: Column<keyof Item>[]
 }
 
-export function TableField<Item extends Record<string, any>>({
+export function TableField<Item extends NamedItem>({
   id,
   name = id,
   label = capitalize(name),
@@ -34,7 +36,7 @@ export function TableField<Item extends Record<string, any>>({
     <div className="max-w-lg">
       <FieldLabel id={`${id}-label`}>{label}</FieldLabel>
       {!!value.length && (
-        <MiniTable>
+        <MiniTable className="mb-4">
           <MiniTable.Header>
             {columns.map(([key, display]) => (
               <MiniTable.HeadCell key={`${key}`}>{display}</MiniTable.HeadCell>
@@ -58,7 +60,13 @@ export function TableField<Item extends Record<string, any>>({
                   </MiniTable.Cell>
                 ))}
                 <MiniTable.Cell>
-                  <Button variant="link" onClick={() => onRemoveItem?.(item)}>
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      onRemoveItem?.(item)
+                      setValue(value.filter((i) => i.name !== item.name))
+                    }}
+                  >
                     <Error16Icon title={`remove ${item.name}`} />
                   </Button>
                 </MiniTable.Cell>
@@ -71,7 +79,6 @@ export function TableField<Item extends Record<string, any>>({
         variant="secondary"
         size="sm"
         onClick={() => onAddItem((item) => setValue(value.concat(item)))}
-        className="mt-4"
       >
         {actionText}
       </Button>
