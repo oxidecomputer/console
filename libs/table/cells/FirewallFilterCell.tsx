@@ -1,14 +1,12 @@
 import React from 'react'
 import type {
-  IpNet,
   VpcFirewallRuleFilter,
   VpcFirewallRuleHostFilter,
 } from '@oxide/api'
+import { ipNetToStr } from '@oxide/api'
 import { Badge } from '@oxide/ui'
 import type { Cell, TypeValue } from '.'
 import { TypeValueCell } from '.'
-
-const ipNetToStr = (ipNet: IpNet) => ('V4' in ipNet ? ipNet.V4 : ipNet.V6)
 
 /** The `value` on `ip_net` type is not a string, so we have to make it a string */
 const hostFilterToTypeValue = (h: VpcFirewallRuleHostFilter): TypeValue => ({
