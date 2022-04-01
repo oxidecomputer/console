@@ -183,62 +183,17 @@ export type InstanceCpuCount = number
  */
 export type InstanceCreate = {
   description: string
-  /**
-   * The disks to be created or attached for this instance.
-   */
-  disks?: InstanceDiskAttachment[] | null
   hostname: string
   memory: ByteCount
   name: Name
   ncpus: InstanceCpuCount
-  /**
-   * The network interfaces to be created for this instance.
-   */
-  networkInterfaces?: InstanceNetworkInterfaceAttachment | null
 }
-
-/**
- * Describe the instance's disks at creation time
- */
-export type InstanceDiskAttachment =
-  | {
-      description: string
-      name: Name
-      /**
-       * size of the Disk
-       */
-      size: ByteCount
-      /**
-       * id for snapshot from which the Disk should be created, if any
-       */
-      snapshotId?: string | null
-      type: 'create'
-    }
-  | {
-      /**
-       * A disk name to attach
-       */
-      disk: Name
-      type: 'attach'
-    }
 
 /**
  * Migration parameters for an {@link Instance}
  */
 export type InstanceMigrate = {
   dstSledUuid: string
-}
-
-/**
- * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
- */
-export type InstanceNetworkInterfaceAttachment =
-  | { params: InstanceNetworkInterfaceCreate; type: 'Create' }
-  | { type: 'Default' }
-  | { type: 'None' }
-
-export type InstanceNetworkInterfaceCreate = {
-  params: NetworkInterfaceCreate[]
 }
 
 /**
@@ -273,18 +228,13 @@ export type InstanceState =
   | 'destroyed'
 
 /**
- * An `IpNet` represents an IP network, either IPv4 or IPv6.
- */
-export type IpNet = { V4: Ipv4Net } | { V6: Ipv6Net }
-
-/**
  * An IPv4 subnet, including prefix and subnet mask
  */
 export type Ipv4Net = string
 
 /** Regex pattern for validating Ipv4Net */
 export const ipv4NetPattern =
-  '(^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$)|(^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$)|(^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$)'
+  '^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$'
 
 /**
  * An IPv6 subnet, including prefix and subnet mask
@@ -367,26 +317,6 @@ export type NetworkInterface = {
    * The VPC to which the interface belongs.
    */
   vpcId: string
-}
-
-/**
- * Create-time parameters for a {@link NetworkInterface}
- */
-export type NetworkInterfaceCreate = {
-  description: string
-  /**
-   * The IP address for the interface. One will be auto-assigned if not provided.
-   */
-  ip?: string | null
-  name: Name
-  /**
-   * The VPC Subnet in which to create the interface.
-   */
-  subnetName: Name
-  /**
-   * The VPC in which to create the interface.
-   */
-  vpcName: Name
 }
 
 /**
@@ -587,18 +517,15 @@ export type RoleResultsPage = {
 }
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
- *
- * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding {@link RouterRoute} applies, and traffic will be forward to the {@link RouteTarget} for that rule.
+ * A subset of `NetworkTarget`, `RouteDestination` specifies the kind of network traffic that will be matched to be forwarded to the {@link RouteTarget}.
  */
 export type RouteDestination =
   | { type: 'ip'; value: string }
-  | { type: 'ip_net'; value: IpNet }
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
 
 /**
- * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
+ * A subset of `NetworkTarget`, `RouteTarget` specifies all possible targets that a route can forward to.
  */
 export type RouteTarget =
   | { type: 'ip'; value: string }
@@ -628,6 +555,10 @@ export type RouterRoute = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
+  /**
+   * The VPC Router to which the route belongs.
+   */
+  routerId: string
   target: RouteTarget
   /**
    * timestamp when this resource was created
@@ -637,10 +568,6 @@ export type RouterRoute = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
-  /**
-   * The VPC Router to which the route belongs.
-   */
-  vpcRouterId: string
 }
 
 /**
@@ -727,59 +654,6 @@ export type SessionUser = {
 }
 
 /**
- * Client view of a ['Silo']
- */
-export type Silo = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output.
-   */
-  discoverable: boolean
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
-  /**
-   * timestamp when this resource was created
-   */
-  timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
-  timeModified: Date
-}
-
-/**
- * Create-time parameters for a {@link Silo}
- */
-export type SiloCreate = {
-  description: string
-  discoverable: boolean
-  name: Name
-}
-
-/**
- * A single page of results
- */
-export type SiloResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: Silo[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
-}
-
-/**
  * Client view of an {@link Sled}
  */
 export type Sled = {
@@ -814,61 +688,6 @@ export type SledResultsPage = {
    * list of items on this page of results
    */
   items: Sled[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
-}
-
-/**
- * Client view of a Snapshot
- */
-export type Snapshot = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  diskId: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
-  projectId: string
-  size: ByteCount
-  /**
-   * timestamp when this resource was created
-   */
-  timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
-  timeModified: Date
-}
-
-/**
- * Create-time parameters for a {@link Snapshot}
- */
-export type SnapshotCreate = {
-  description: string
-  /**
-   * The name of the disk to be snapshotted
-   */
-  disk: Name
-  name: Name
-}
-
-/**
- * A single page of results
- */
-export type SnapshotResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: Snapshot[]
   /**
    * token used to fetch the next page of results (if any)
    */
@@ -1084,14 +903,14 @@ export type VpcFirewallRuleFilter = {
 }
 
 /**
- * The `VpcFirewallRuleHostFilter` is used to filter traffic on the basis of its source or destination host.
+ * A subset of `NetworkTarget`, `VpcFirewallRuleHostFilter` specifies all possible targets that a route can forward to.
  */
 export type VpcFirewallRuleHostFilter =
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
   | { type: 'ip'; value: string }
-  | { type: 'ip_net'; value: IpNet }
+  | { type: 'internet_gateway'; value: Name }
 
 /**
  * The protocols that may be specified in a firewall rule's filter
@@ -1101,14 +920,12 @@ export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
- * A `VpcFirewallRuleTarget` is used to specify the set of {@link Instance}s to which a firewall rule applies.
+ * A subset of `NetworkTarget`, `VpcFirewallRuleTarget` specifies all possible targets that a firewall rule can be attached to.
  */
 export type VpcFirewallRuleTarget =
   | { type: 'vpc'; value: Name }
   | { type: 'subnet'; value: Name }
   | { type: 'instance'; value: Name }
-  | { type: 'ip'; value: string }
-  | { type: 'ip_net'; value: IpNet }
 
 /**
  * A single rule in a VPC firewall
@@ -1540,48 +1357,6 @@ export interface ProjectInstancesMigrateInstanceParams {
   projectName: Name
 }
 
-export interface InstanceNetworkInterfacesGetParams {
-  limit?: number | null
-
-  pageToken?: string | null
-
-  sortBy?: NameSortMode
-
-  instanceName: Name
-
-  orgName: Name
-
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfacesPostParams {
-  instanceName: Name
-
-  orgName: Name
-
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfacesGetInterfaceParams {
-  instanceName: Name
-
-  interfaceName: Name
-
-  orgName: Name
-
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfacesDeleteInterfaceParams {
-  instanceName: Name
-
-  interfaceName: Name
-
-  orgName: Name
-
-  projectName: Name
-}
-
 export interface ProjectInstancesInstanceRebootParams {
   instanceName: Name
 
@@ -1604,40 +1379,6 @@ export interface ProjectInstancesInstanceStopParams {
   orgName: Name
 
   projectName: Name
-}
-
-export interface ProjectSnapshotsGetParams {
-  limit?: number | null
-
-  pageToken?: string | null
-
-  sortBy?: NameSortMode
-
-  orgName: Name
-
-  projectName: Name
-}
-
-export interface ProjectSnapshotsPostParams {
-  orgName: Name
-
-  projectName: Name
-}
-
-export interface ProjectSnapshotsGetSnapshotParams {
-  orgName: Name
-
-  projectName: Name
-
-  snapshotName: Name
-}
-
-export interface ProjectSnapshotsDeleteSnapshotParams {
-  orgName: Name
-
-  projectName: Name
-
-  snapshotName: Name
 }
 
 export interface ProjectVpcsGetParams {
@@ -1864,7 +1605,7 @@ export interface VpcSubnetsDeleteSubnetParams {
   vpcName: Name
 }
 
-export interface SubnetNetworkInterfacesGetParams {
+export interface SubnetsIpsGetParams {
   limit?: number | null
 
   pageToken?: string | null
@@ -1903,24 +1644,6 @@ export interface SagasGetSagaParams {
 }
 
 export interface SessionMeParams {}
-
-export interface SilosGetParams {
-  limit?: number | null
-
-  pageToken?: string | null
-
-  sortBy?: NameOrIdSortMode
-}
-
-export interface SilosPostParams {}
-
-export interface SilosGetSiloParams {
-  siloName: Name
-}
-
-export interface SilosDeleteSiloParams {
-  siloName: Name
-}
 
 export interface TimeseriesSchemaGetParams {
   limit?: number | null
@@ -2041,7 +1764,7 @@ export type ApiResponse<Data extends unknown> =
 type CancelToken = Symbol | string | number
 
 const encodeQueryParam = (key: string, value: any) =>
-  `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
+  `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
 
 const toQueryString = (rawQuery?: QueryParamsType): string =>
   Object.entries(rawQuery || {})
@@ -2544,80 +2267,6 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * List network interfaces attached to this instance.
-     */
-    instanceNetworkInterfacesGet: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-        ...query
-      }: InstanceNetworkInterfacesGetParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
-        method: 'GET',
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * Create a network interface for an instance.
-     */
-    instanceNetworkInterfacesPost: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: InstanceNetworkInterfacesPostParams,
-      data: NetworkInterfaceCreate,
-      params: RequestParams = {}
-    ) =>
-      this.request<NetworkInterface>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
-        method: 'POST',
-        body: data,
-        ...params,
-      }),
-
-    /**
-     * Get an interface attached to an instance.
-     */
-    instanceNetworkInterfacesGetInterface: (
-      {
-        instanceName,
-        interfaceName,
-        orgName,
-        projectName,
-      }: InstanceNetworkInterfacesGetInterfaceParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<NetworkInterface>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * Detach a network interface from an instance.
-     */
-    instanceNetworkInterfacesDeleteInterface: (
-      {
-        instanceName,
-        interfaceName,
-        orgName,
-        projectName,
-      }: InstanceNetworkInterfacesDeleteInterfaceParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
-        method: 'DELETE',
-        ...params,
-      }),
-
-    /**
      * Reboot an instance.
      */
     projectInstancesInstanceReboot: (
@@ -2665,65 +2314,6 @@ export class Api extends HttpClient {
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/stop`,
         method: 'POST',
-        ...params,
-      }),
-
-    /**
-     * List snapshots in a project.
-     */
-    projectSnapshotsGet: (
-      { orgName, projectName, ...query }: ProjectSnapshotsGetParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<SnapshotResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
-        method: 'GET',
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * Create a snapshot of a disk.
-     */
-    projectSnapshotsPost: (
-      { orgName, projectName }: ProjectSnapshotsPostParams,
-      data: SnapshotCreate,
-      params: RequestParams = {}
-    ) =>
-      this.request<Snapshot>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
-        method: 'POST',
-        body: data,
-        ...params,
-      }),
-
-    /**
-     * Get a snapshot in a project.
-     */
-    projectSnapshotsGetSnapshot: (
-      { orgName, projectName, snapshotName }: ProjectSnapshotsGetSnapshotParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<Snapshot>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots/${snapshotName}`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * Delete a snapshot from a project.
-     */
-    projectSnapshotsDeleteSnapshot: (
-      {
-        orgName,
-        projectName,
-        snapshotName,
-      }: ProjectSnapshotsDeleteSnapshotParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots/${snapshotName}`,
-        method: 'DELETE',
         ...params,
       }),
 
@@ -2777,7 +2367,7 @@ export class Api extends HttpClient {
       data: VpcUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<Vpc>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'PUT',
         body: data,
@@ -2875,7 +2465,7 @@ export class Api extends HttpClient {
       data: VpcRouterUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<VpcRouter>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'PUT',
         body: data,
@@ -2968,7 +2558,7 @@ export class Api extends HttpClient {
       data: RouterRouteUpdateParams,
       params: RequestParams = {}
     ) =>
-      this.request<RouterRoute>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'PUT',
         body: data,
@@ -3044,7 +2634,7 @@ export class Api extends HttpClient {
       data: VpcSubnetUpdate,
       params: RequestParams = {}
     ) =>
-      this.request<VpcSubnet>({
+      this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'PUT',
         body: data,
@@ -3070,20 +2660,20 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * List network interfaces in a VPC subnet.
+     * List IP addresses on a VPC subnet.
      */
-    subnetNetworkInterfacesGet: (
+    subnetsIpsGet: (
       {
         orgName,
         projectName,
         subnetName,
         vpcName,
         ...query
-      }: SubnetNetworkInterfacesGetParams,
+      }: SubnetsIpsGetParams,
       params: RequestParams = {}
     ) =>
       this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/network-interfaces`,
+        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/ips`,
         method: 'GET',
         query: query,
         ...params,
@@ -3144,55 +2734,6 @@ export class Api extends HttpClient {
       this.request<SessionUser>({
         path: `/session/me`,
         method: 'GET',
-        ...params,
-      }),
-
-    silosGet: (query: SilosGetParams, params: RequestParams = {}) =>
-      this.request<SiloResultsPage>({
-        path: `/silos`,
-        method: 'GET',
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * Create a new silo.
-     */
-    silosPost: (
-      query: SilosPostParams,
-      data: SiloCreate,
-      params: RequestParams = {}
-    ) =>
-      this.request<Silo>({
-        path: `/silos`,
-        method: 'POST',
-        body: data,
-        ...params,
-      }),
-
-    /**
-     * Fetch a specific silo
-     */
-    silosGetSilo: (
-      { siloName }: SilosGetSiloParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<Silo>({
-        path: `/silos/${siloName}`,
-        method: 'GET',
-        ...params,
-      }),
-
-    /**
-     * Delete a specific silo.
-     */
-    silosDeleteSilo: (
-      { siloName }: SilosDeleteSiloParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<void>({
-        path: `/silos/${siloName}`,
-        method: 'DELETE',
         ...params,
       }),
 

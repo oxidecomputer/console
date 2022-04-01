@@ -1,8 +1,10 @@
 import React from 'react'
-import type { Cell, TypeValue } from '.'
+import type { Cell } from '.'
 import { TypeValueCell } from '.'
 
-export const TypeValueListCell = ({ value }: Cell<TypeValue[]>) => (
+export const TypeValueListCell = ({
+  value,
+}: Cell<Array<{ type: string; value: string }>>) => (
   <div>
     {value.map((v, i) => (
       <TypeValueCell key={i} value={v} />

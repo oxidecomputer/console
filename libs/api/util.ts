@@ -1,6 +1,5 @@
 /// Helpers for working with API objects
 import type {
-  IpNet,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -39,6 +38,3 @@ export const firewallRuleGetToPut = (
     'status',
     'targets'
   )
-
-export const ipNetToStr = (ipNet: IpNet) =>
-  'V4' in ipNet ? ipNet.V4 : ipNet.V6
