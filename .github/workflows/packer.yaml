@@ -76,7 +76,7 @@ jobs:
           CLOUDFLARE_TOKEN: ${{secrets.CLOUDFLARE_TOKEN}}
           SSL_CERT: ${{secrets.SSL_CERT}}
           SSL_KEY: ${{secrets.SSL_KEY}}
-          API_VERSION: 9afe1f8560f824a6d11cb529f79cfa277ca25468
+          API_VERSION: 6393e31e763b8f04ccd290c3eeab9c517fa134d6
 
       # get the image information from gcloud
       - name: Get image information
