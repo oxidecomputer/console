@@ -130,6 +130,66 @@ export type FieldSource = 'Target' | 'Metric'
 export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
+ * Client view of Images
+ */
+export type Image = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  projectId?: string | null
+  size: ByteCount
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+  url?: string | null
+}
+
+/**
+ * Create-time parameters for an {@link Image}
+ */
+export type ImageCreate = {
+  description: string
+  name: Name
+  /**
+   * The source of the image's contents.
+   */
+  source: ImageSource
+}
+
+/**
+ * A single page of results
+ */
+export type ImageResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: Image[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * The source of the underlying image.
+ */
+export type ImageSource = { Url: string } | { Snapshot: string }
+
+/**
  * Client view of an {@link Instance}
  */
 export type Instance = {
@@ -628,10 +688,6 @@ export type RouterRoute = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
-  /**
-   * The VPC Router to which the route belongs.
-   */
-  routerId: string
   target: RouteTarget
   /**
    * timestamp when this resource was created
@@ -641,6 +697,10 @@ export type RouterRoute = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * The VPC Router to which the route belongs.
+   */
+  vpcRouterId: string
 }
 
 /**
@@ -1338,19 +1398,19 @@ export type VpcUpdate = {
 export type IdSortMode = 'id-ascending'
 
 /**
+ * Supported set of sort modes for scanning by name only
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type NameSortMode = 'name-ascending'
+
+/**
  * Supported set of sort modes for scanning by name or id
  */
 export type NameOrIdSortMode =
   | 'name-ascending'
   | 'name-descending'
   | 'id-ascending'
-
-/**
- * Supported set of sort modes for scanning by name only
- *
- * Currently, we only support scanning in ascending order.
- */
-export type NameSortMode = 'name-ascending'
 
 export interface HardwareRacksGetParams {
   limit?: number | null
@@ -1374,6 +1434,24 @@ export interface HardwareSledsGetParams {
 
 export interface HardwareSledsGetSledParams {
   sledId: string
+}
+
+export interface ImagesGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameSortMode
+}
+
+export interface ImagesPostParams {}
+
+export interface ImagesGetImageParams {
+  imageName: Name
+}
+
+export interface ImagesDeleteImageParams {
+  imageName: Name
 }
 
 export interface SpoofLoginParams {}
@@ -1462,6 +1540,40 @@ export interface ProjectDisksGetDiskParams {
 
 export interface ProjectDisksDeleteDiskParams {
   diskName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
+export interface ProjectImagesGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameSortMode
+
+  orgName: Name
+
+  projectName: Name
+}
+
+export interface ProjectImagesPostParams {
+  orgName: Name
+
+  projectName: Name
+}
+
+export interface ProjectImagesGetImageParams {
+  imageName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
+export interface ProjectImagesDeleteImageParams {
+  imageName: Name
 
   orgName: Name
 
@@ -2213,6 +2325,58 @@ export class Api extends HttpClient {
         ...params,
       }),
 
+    /**
+     * List global images.
+     */
+    imagesGet: (query: ImagesGetParams, params: RequestParams = {}) =>
+      this.request<ImageResultsPage>({
+        path: `/images`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * Create a global image.
+     */
+    imagesPost: (
+      query: ImagesPostParams,
+      data: ImageCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<Image>({
+        path: `/images`,
+        method: 'POST',
+        body: data,
+        ...params,
+      }),
+
+    /**
+     * Get a global image.
+     */
+    imagesGetImage: (
+      { imageName }: ImagesGetImageParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<Image>({
+        path: `/images/${imageName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Delete a global image.
+     */
+    imagesDeleteImage: (
+      { imageName }: ImagesDeleteImageParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/images/${imageName}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
     spoofLogin: (
       query: SpoofLoginParams,
       data: LoginParams,
@@ -2423,6 +2587,61 @@ export class Api extends HttpClient {
     ) =>
       this.request<void>({
         path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * List images
+     */
+    projectImagesGet: (
+      { orgName, projectName, ...query }: ProjectImagesGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<ImageResultsPage>({
+        path: `/organizations/${orgName}/projects/${projectName}/images`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * Create an image
+     */
+    projectImagesPost: (
+      { orgName, projectName }: ProjectImagesPostParams,
+      data: ImageCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<Image>({
+        path: `/organizations/${orgName}/projects/${projectName}/images`,
+        method: 'POST',
+        body: data,
+        ...params,
+      }),
+
+    /**
+     * Get an image
+     */
+    projectImagesGetImage: (
+      { imageName, orgName, projectName }: ProjectImagesGetImageParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<Image>({
+        path: `/organizations/${orgName}/projects/${projectName}/images/${imageName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Delete an image
+     */
+    projectImagesDeleteImage: (
+      { imageName, orgName, projectName }: ProjectImagesDeleteImageParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/organizations/${orgName}/projects/${projectName}/images/${imageName}`,
         method: 'DELETE',
         ...params,
       }),
