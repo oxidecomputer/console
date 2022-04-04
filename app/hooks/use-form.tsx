@@ -11,7 +11,7 @@ import type { FormTypes } from 'app/forms'
  * the form. The invocation can take the form's props to alter the form's behavior.
  */
 export const useForm = <K extends keyof FormTypes>(
-  formType: K,
+  type: K,
   props?: ComponentProps<FormTypes[K]>
 ) => {
   const [isOpen, setShowForm] = useState(false)
@@ -38,13 +38,13 @@ export const useForm = <K extends keyof FormTypes>(
   )
 
   const DynForm = useMemo(
-    () => React.lazy<FormTypes[K]>(() => import(`../forms/${formType}.tsx`)),
-    [formType]
+    () => React.lazy<FormTypes[K]>(() => import(`../forms/${type}.tsx`)),
+    [type]
   )
 
   return [
-    <Suspense fallback={null} key={formType}>
-      <SideModal id={`${formType}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
+    <Suspense fallback={null} key={type}>
+      <SideModal id={`${type}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
         {/* @ts-expect-error TODO: Figure out why this is erroring */}
         <DynForm onDismiss={onDismiss} onSuccess={onSuccess} {...formProps} />
       </SideModal>

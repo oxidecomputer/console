@@ -18,7 +18,7 @@ export function CreateSubnetForm({
   title = 'Create subnet',
   initialValues = values,
   onSubmit,
-  onDismiss,
+  onSuccess,
   onError,
   ...props
 }: PrebuiltFormProps<typeof values, VpcSubnet>) {
@@ -26,9 +26,9 @@ export function CreateSubnetForm({
   const queryClient = useApiQueryClient()
 
   const createSubnet = useApiMutation('vpcSubnetsPost', {
-    onSuccess() {
+    onSuccess(data) {
       queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
-      onDismiss?.()
+      onSuccess?.(data)
     },
     onError,
   })

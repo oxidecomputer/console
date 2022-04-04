@@ -11,6 +11,7 @@ import {
   InstancePage,
   InstancesPage,
   ImagesPage,
+  SnapshotsPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
@@ -78,7 +79,7 @@ export const routes = (
         <Route
           path="new"
           title="Create Organization"
-          element={<FormPage formType="org-create" />}
+          element={<FormPage type="org-create" />}
         />
       </Route>
 
@@ -90,7 +91,7 @@ export const routes = (
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
-              element={<FormPage formType="project-create" />}
+              element={<FormPage type="project-create" />}
               crumb="Create project"
             />
           </Route>
@@ -130,13 +131,14 @@ export const routes = (
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
-                element={<FormPage formType="disk-create" />}
+                element={<FormPage type="disk-create" />}
                 title="Create disk"
                 icon={<Storage24Icon />}
               />
             </Route>
             <Route
               path="snapshots"
+              element={<SnapshotsPage />}
               crumb="Snapshots"
               icon={<Snapshots24Icon />}
             />

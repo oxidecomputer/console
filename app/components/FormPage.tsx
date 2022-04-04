@@ -4,7 +4,7 @@ import type { FormTypes } from 'app/forms'
 import { useNavigate } from 'react-router-dom'
 
 type FormPageProps<K extends keyof FormTypes> = {
-  formType: K
+  type: K
 } & ComponentProps<FormTypes[K]>
 
 /**
@@ -12,17 +12,17 @@ type FormPageProps<K extends keyof FormTypes> = {
  * This is generally used to render form pages from the routes file.
  */
 export function FormPage<K extends keyof FormTypes>({
-  formType,
+  type,
   ...props
 }: FormPageProps<K>) {
   const DynForm = useMemo(
-    () => React.lazy<FormTypes[K]>(() => import(`../forms/${formType}.tsx`)),
-    [formType]
+    () => React.lazy<FormTypes[K]>(() => import(`../forms/${type}.tsx`)),
+    [type]
   )
   const navigate = useNavigate()
   return (
     // TODO: Add a proper loading state
-    <Suspense fallback={null} key={formType}>
+    <Suspense fallback={null} key={type}>
       {/* @ts-expect-error TODO: Figure out why this is failing */}
       <DynForm
         // Should be fixed when the issue above is fixed
