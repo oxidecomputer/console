@@ -1,14 +1,9 @@
-import { SideModal } from '@oxide/ui'
 import type { ComponentProps } from 'react'
+import { SideModal } from '@oxide/ui'
 import { useCallback } from 'react'
 import { useState, Suspense, useMemo } from 'react'
 import React from 'react'
 import type { FormTypes } from 'app/forms'
-
-type FormProps<K extends keyof FormTypes> = Omit<
-  ComponentProps<FormTypes[K]>,
-  'id'
->
 
 /**
  * Dynamically load a form from the `forms` directory where id is the name of the form. It
@@ -16,15 +11,15 @@ type FormProps<K extends keyof FormTypes> = Omit<
  * the form. The invocation can take the form's props to alter the form's behavior.
  */
 export const useForm = <K extends keyof FormTypes>(
-  id: K,
-  props?: FormProps<K>
+  type: K,
+  props?: ComponentProps<FormTypes[K]>
 ) => {
   const [isOpen, setShowForm] = useState(false)
-  const [formProps, setFormProps] = useState<FormProps<K> | undefined>(props)
+  const [formProps, setFormProps] = useState(props)
 
-  const showForm = (props?: FormProps<K>) => {
-    if (props) {
-      setFormProps(props)
+  const showForm = (innerProps?: typeof props) => {
+    if (innerProps) {
+      setFormProps(innerProps)
     }
     setShowForm(true)
     return () => setShowForm(false)
@@ -36,7 +31,7 @@ export const useForm = <K extends keyof FormTypes>(
   }, [formProps, setShowForm])
 
   const onSuccess = useCallback(
-    (data: unknown) => {
+    (data) => {
       setShowForm(false)
       formProps?.onSuccess?.(data)
     },
@@ -44,14 +39,15 @@ export const useForm = <K extends keyof FormTypes>(
   )
 
   const DynForm = useMemo(
-    () => React.lazy(() => import(`../forms/${id}.tsx`)),
-    [id]
+    () => React.lazy<FormTypes[K]>(() => import(`../forms/${type}.tsx`)),
+    [type]
   )
 
   return [
-    <Suspense fallback={null} key={`${id}-key`}>
-      <SideModal id={`${id}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
-        <DynForm {...formProps} onDismiss={onDismiss} onSuccess={onSuccess} />
+    <Suspense fallback={null} key={type}>
+      <SideModal id={`${type}-modal`} isOpen={isOpen} onDismiss={onDismiss}>
+        {/* @ts-expect-error TODO: Figure out why this is erroring */}
+        <DynForm onDismiss={onDismiss} onSuccess={onSuccess} {...formProps} />
       </SideModal>
     </Suspense>,
     showForm,
