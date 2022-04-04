@@ -119,6 +119,10 @@ build {
         source = "packer/bootstrap-omicron.sh"
         destination = "/tmp/bootstrap-omicron.sh"
     }
+    provisioner "file" {
+        source = "packer/bootstrap-cockroach.sh"
+        destination = "/tmp/bootstrap-cockroach.sh"
+    }
     provisioner "shell" {
         script = "packer/provision.sh"
         pause_before = "10s"
@@ -132,10 +136,5 @@ build {
             "SSL_KEY=${var.ssl_key}",
             "API_VERSION=${var.api_version}"
         ]
-    }
-    provisioner "shell" {
-        script = "packer/bootstrap-cockroach.sh"
-        pause_before = "10s"
-        timeout      = "10s"
     }
 }
