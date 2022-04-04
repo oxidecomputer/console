@@ -2,6 +2,7 @@ import React from 'react'
 import { CreateSubnetForm } from './subnet-create'
 import type { ExtendedPrebuiltFormProps } from '@oxide/form'
 import { useParams } from 'app/hooks'
+import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
 
@@ -12,7 +13,7 @@ export function EditSubnetForm({
   onSuccess,
   onError,
   ...props
-}: ExtendedPrebuiltFormProps<typeof CreateSubnetForm>) {
+}: ExtendedPrebuiltFormProps<typeof CreateSubnetForm, VpcSubnet>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
