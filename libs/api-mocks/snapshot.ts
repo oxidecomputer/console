@@ -10,7 +10,7 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 1000,
+    size: 1024,
     disk_id: 'disk-id-1',
   },
   {
@@ -20,7 +20,7 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 2000,
+    size: 2048,
     disk_id: 'disk-id-1',
   },
   {
@@ -30,7 +30,7 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 3000,
+    size: 3072,
     disk_id: 'disk-id-1',
   },
   {
@@ -40,7 +40,7 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 4000,
+    size: 4096,
     disk_id: 'disk-id-1',
   },
 ]

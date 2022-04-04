@@ -299,7 +299,7 @@ export const handlers = [
   ),
 
   rest.get<never, ProjectParams, Json<Api.SnapshotResultsPage> | GetErr>(
-    '/api/organizations/:orgName/projects/:projectName/images',
+    '/api/organizations/:orgName/projects/:projectName/snapshots',
     (req, res) => {
       const [project, err] = lookupProject(req)
       if (err) return res(err)
