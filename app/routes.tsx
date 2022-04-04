@@ -79,7 +79,7 @@ export const routes = (
         <Route
           path="new"
           title="Create Organization"
-          element={<FormPage id="org-create" />}
+          element={<FormPage type="org-create" />}
         />
       </Route>
 
@@ -91,7 +91,7 @@ export const routes = (
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
-              element={<FormPage id="project-create" />}
+              element={<FormPage type="project-create" />}
               crumb="Create project"
             />
           </Route>
@@ -131,7 +131,7 @@ export const routes = (
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
-                element={<FormPage id="disk-create" />}
+                element={<FormPage type="disk-create" />}
                 title="Create disk"
                 icon={<Storage24Icon />}
               />

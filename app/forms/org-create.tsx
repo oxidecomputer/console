@@ -1,5 +1,6 @@
 import React from 'react'
 import { Form, NameField, DescriptionField } from '@oxide/form'
+import type { Organization } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
 import { Success16Icon } from '@oxide/ui'
@@ -18,7 +19,7 @@ export function CreateOrgForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values, Organization>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
