@@ -1,3 +1,5 @@
+// TODO: Make these just be default exports
+
 import type { CreateSubnetForm } from './subnet-create'
 import type { EditSubnetForm } from './subnet-edit'
 import type { CreateOrgForm } from './org-create'
@@ -5,6 +7,7 @@ import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
 import type CreateInstanceForm from './instance-create'
 import type { ExtractFormValues } from '@oxide/form'
+import type AttachDiskForm from './disk-attach'
 
 /**
  * A map of all existing forms. When a new form is created in the forms directory, a
@@ -15,6 +18,7 @@ export interface FormTypes {
   'instance-create': typeof CreateInstanceForm
   'org-create': typeof CreateOrgForm
   'project-create': typeof CreateProjectForm
+  'disk-attach': typeof AttachDiskForm
   'disk-create': typeof CreateDiskForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm

@@ -11,14 +11,19 @@ type Column<K> = K extends keyof (infer Item)
   ? [key: K, name: string, format?: (value: Item[K]) => string]
   : never
 
+type Action<Item> = [
+  name: string,
+  action: (addItem: (item: Item) => void) => void
+]
+
 export interface TableFieldProps<Item extends NamedItem> {
   id: string
   name?: string
   label?: string
   actionText: string
-  onAddItem: (addItem: (item: Item) => void) => void
   onRemoveItem?: (item: Item) => void
   columns: Column<keyof Item>[]
+  actions: Action<Item>[]
 }
 
 export function TableField<Item extends NamedItem>({

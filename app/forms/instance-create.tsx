@@ -47,7 +47,8 @@ export default function CreateInstanceForm({
 }: PrebuiltFormProps<typeof values>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const [createDiskForm, showDiskForm] = useForm('disk-create')
+  const [createDiskForm, showCreateDiskForm] = useForm('disk-create')
+  const [attachDiskForm, showAttachDiskForm] = useForm('disk-attach')
 
   const { orgName, projectName } = useParams('orgName', 'projectName')
 
@@ -208,35 +209,46 @@ export default function CreateInstanceForm({
       <Divider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <TableField<FormValues<'disk-create'>>
+      <TableField<
+        | (FormValues<'disk-create'> & { type: 'create' })
+        | (FormValues<'disk-attach'> & { type: 'attach'; size: number })
+      >
         id="new-disks"
         name="New disks"
         actionText="Create new disk"
-        onAddItem={(addDisk) => {
-          const hideForm = showDiskForm({
-            onSubmit: (values) => {
-              addDisk(values)
-              hideForm()
+        actions={[
+          [
+            'Create new disk',
+            (addDisk) => {
+              const hideForm = showCreateDiskForm({
+                onSubmit: (values) => {
+                  addDisk({ type: 'create', ...values })
+                  hideForm()
+                },
+              })
             },
-          })
-        }}
+          ],
+          [
+            'Attach existing disk',
+            (addDisk) => {
+              const hideForm = showAttachDiskForm({
+                onSubmit: (values) => {
+                  // TODO fetch disk size
+                  addDisk({ type: 'attach', ...values, size: 0 })
+                  hideForm()
+                },
+              })
+            },
+          ],
+        ]}
         columns={[
           ['name', 'Name'],
+          ['type', 'Type'],
           ['size', 'Size', filesize],
         ]}
       />
       {createDiskForm}
-
-      {/* <TableField
-        id="attach-disks"
-        name="Attach disks"
-        actionText="Attach existing disk"
-        addItem={addDisk}
-        columns={[
-          ['name', 'Name'],
-          ['size', 'Size', filesize],
-        ]}
-      /> */}
+      {attachDiskForm}
 
       <Divider />
       <Form.Heading id="networking">Networking</Form.Heading>

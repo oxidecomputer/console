@@ -17,7 +17,6 @@ const values = {
   name: '',
   description: '',
   size: 0,
-  type: '',
   sourceType: '',
   deletionRule: '',
 }
@@ -59,7 +58,6 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <TextField id="disk-type" name="type" />
       <RadioField column id="disk-source-type" name="sourceType">
         <Radio value="blank">Blank disk</Radio>
         <Radio value="image">Image</Radio>
