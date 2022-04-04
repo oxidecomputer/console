@@ -110,7 +110,7 @@ export const routes = (
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
-                element={<FormPage id="instance-create" />}
+                element={<FormPage type="instance-create" />}
                 title="Create instance"
                 icon={<Instances24Icon />}
               />
