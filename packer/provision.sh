@@ -53,6 +53,8 @@ sudo mv /tmp/populate_omicron_data.sh /usr/local/bin/populate_omicron_data.sh
 
 sudo mv /tmp/bootstrap-omicron.sh /usr/local/bin/bootstrap-omicron.sh
 
+sudo mv /tmp/bootstrap-cockroach.sh /usr/local/bin/bootstrap-cockroach.sh
+
 # Download the latest Oxide command line.
 # FROM: https://github.com/oxidecomputer/cli/releases
 
