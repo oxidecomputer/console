@@ -31,7 +31,7 @@ export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<
   : never
 
 export type ExtractFormValues<C> = C extends ComponentType<
-  PrebuiltFormProps<infer V>
+  PrebuiltFormProps<infer V, any>
 >
   ? V
   : never
