@@ -44,7 +44,8 @@ type Mutation =
       error: ErrorResponse
     }
 
-export interface FormProps<Values> extends FormikConfig<Values> {
+export interface FormProps<Values, Extra = object>
+  extends FormikConfig<Values & Partial<Extra>> {
   id: string
   title?: ReactNode
   children: ReactNode
@@ -52,14 +53,14 @@ export interface FormProps<Values> extends FormikConfig<Values> {
   mutation: Mutation
 }
 
-export function Form<Values>({
+export function Form<Values, Extra>({
   id,
   title,
   children,
   mutation,
   onDismiss,
   ...formikProps
-}: FormProps<Values>) {
+}: FormProps<Values, Extra>) {
   const isSideModal = useIsInSideModal()
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
