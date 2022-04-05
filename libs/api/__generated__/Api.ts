@@ -293,13 +293,9 @@ export type InstanceMigrate = {
  * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export type InstanceNetworkInterfaceAttachment =
-  | { params: InstanceNetworkInterfaceCreate; type: 'Create' }
+  | { params: NetworkInterfaceCreate[]; type: 'Create' }
   | { type: 'Default' }
   | { type: 'None' }
-
-export type InstanceNetworkInterfaceCreate = {
-  params: NetworkInterfaceCreate[]
-}
 
 /**
  * A single page of results
