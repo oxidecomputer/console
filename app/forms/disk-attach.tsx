@@ -12,7 +12,7 @@ const values = {
 
 export function AttachDiskForm({
   id = 'form-disk-attach',
-  title = 'Create Disk',
+  title = 'Attach Disk',
   initialValues = values,
   onSubmit,
   onSuccess,
@@ -60,8 +60,7 @@ export function AttachDiskForm({
         id="form-disk-attach-params"
         params={['orgName', 'projectName', 'instanceName']}
       />
-      <NameField id="form-disk-attach-name" />
-      <TextField id="form-disk-attach-instance" />
+      <NameField id="form-disk-attach-name" label="Disk name" />
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />

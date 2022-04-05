@@ -28,7 +28,7 @@ export function NameField({
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
 export const validateName =
   (label: string, required: boolean) => (name: string) => {
-    if (!required && name.length === 0) return
+    if (!required && !name) return
 
     if (name.length === 0) {
       return `${label} is required`
