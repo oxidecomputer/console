@@ -30,9 +30,9 @@ export const useForm = <K extends keyof FormTypes>(
   }, [formProps, setShowForm])
 
   const onSuccess = useCallback(
-    (data) => {
+    (data, params) => {
       setShowForm(false)
-      formProps?.onSuccess?.(data)
+      formProps?.onSuccess?.(data, params)
     },
     [formProps, setShowForm]
   )

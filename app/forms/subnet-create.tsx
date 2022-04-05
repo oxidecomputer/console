@@ -4,7 +4,7 @@ import React from 'react'
 import type { PrebuiltFormProps } from '@oxide/form'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useParams } from 'app/hooks'
+import { invariant } from '@oxide/util'
 
 const values = {
   name: '',
@@ -21,14 +21,17 @@ export function CreateSubnetForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, VpcSubnet>) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+}: PrebuiltFormProps<
+  typeof values,
+  VpcSubnet,
+  'orgName' | 'projectName' | 'vpcName'
+>) {
   const queryClient = useApiQueryClient()
 
   const createSubnet = useApiMutation('vpcSubnetsPost', {
-    onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
-      onSuccess?.(data)
+    onSuccess(data, { body: _, ...params }) {
+      queryClient.invalidateQueries('vpcSubnetsGet', params)
+      onSuccess?.(data, params)
     },
     onError,
   })
@@ -39,8 +42,12 @@ export function CreateSubnetForm({
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
-        ((body) => {
-          createSubnet.mutate({ ...parentNames, body })
+        (({ orgName, projectName, vpcName, ...body }) => {
+          invariant(
+            orgName && projectName && vpcName,
+            'subnet-create form is missing a path param'
+          )
+          createSubnet.mutate({ orgName, projectName, vpcName, body })
         })
       }
       mutation={createSubnet}

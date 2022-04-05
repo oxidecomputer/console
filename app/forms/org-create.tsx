@@ -24,7 +24,7 @@ export function CreateOrgForm({
   const addToast = useToast()
 
   const createOrg = useApiMutation('organizationsPost', {
-    onSuccess(org) {
+    onSuccess(org, params) {
       queryClient.invalidateQueries('organizationsGet', {})
       // avoid the org fetch when the org page loads since we have the data
       queryClient.setQueryData(
@@ -38,7 +38,7 @@ export function CreateOrgForm({
         content: 'Your organization has been created.',
         timeout: 5000,
       })
-      onSuccess?.(org)
+      onSuccess?.(org, params)
     },
     onError,
   })
