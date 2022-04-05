@@ -288,6 +288,26 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, ProjectParams, Json<Api.ImageResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/images',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const images = db.images.filter((i) => i.project_id === project.id)
+      return res(json({ items: images }))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.SnapshotResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/snapshots',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
+      return res(json({ items: snapshots }))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.VpcResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res) => {

@@ -125,6 +125,8 @@ const initDb = {
   projects: [mock.project],
   instances: [mock.instance],
   disks: [...mock.disks],
+  images: [...mock.images],
+  snapshots: [...mock.snapshots],
   vpcs: [mock.vpc],
   vpcSubnets: [mock.vpcSubnet],
   vpcFirewallRules: [...mock.defaultFirewallRules],
