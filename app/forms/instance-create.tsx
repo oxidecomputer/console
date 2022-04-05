@@ -1,3 +1,4 @@
+import type { Instance } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from '@oxide/form'
 import { TableField } from '@oxide/form'
@@ -20,7 +21,9 @@ import {
   UbuntuResponsiveIcon,
   WindowsResponsiveIcon,
 } from '@oxide/ui'
-import { useParams, useToast } from 'app/hooks'
+import { invariant } from '@oxide/util'
+import { FormParamFields } from 'app/components/FormParamFields'
+import { useToast } from 'app/hooks'
 import { useForm } from 'app/hooks/use-form'
 import filesize from 'filesize'
 import React from 'react'
@@ -44,16 +47,14 @@ export default function CreateInstanceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values, Instance, 'orgName' | 'projectName'>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const [createDiskForm, showCreateDiskForm] = useForm('disk-create')
   const [attachDiskForm, showAttachDiskForm] = useForm('disk-attach')
 
-  const { orgName, projectName } = useParams('orgName', 'projectName')
-
   const createInstance = useApiMutation('projectInstancesPost', {
-    onSuccess(instance) {
+    onSuccess(instance, { orgName, projectName }) {
       // refetch list of instances
       queryClient.invalidateQueries('projectInstancesGet', {
         orgName,
@@ -71,7 +72,10 @@ export default function CreateInstanceForm({
         content: 'Your instance has been created.',
         timeout: 5000,
       })
-      onSuccess?.(instance)
+      onSuccess?.(instance, {
+        orgName,
+        projectName,
+      })
     },
     onError,
   })
@@ -83,7 +87,11 @@ export default function CreateInstanceForm({
       title={title}
       onSubmit={
         onSubmit ||
-        ((values) => {
+        (({ orgName, projectName, ...values }) => {
+          invariant(
+            orgName && projectName,
+            `instance-create form is missing a path param`
+          )
           const instance = INSTANCE_SIZES.find(
             (option) => option.id === values['type']
           ) || { memory: 0, ncpus: 0 }
@@ -104,6 +112,10 @@ export default function CreateInstanceForm({
       mutation={createInstance}
       {...props}
     >
+      <FormParamFields
+        id="form-instance-create-params"
+        params={['orgName', 'projectName']}
+      />
       <NameField id="name" />
       <DescriptionField id="description" />
       <TagsField id="tags" />
@@ -214,8 +226,8 @@ export default function CreateInstanceForm({
         | (FormValues<'disk-attach'> & { type: 'attach'; size: number })
       >
         id="new-disks"
+        label=""
         name="New disks"
-        actionText="Create new disk"
         actions={[
           [
             'Create new disk',
@@ -257,6 +269,11 @@ export default function CreateInstanceForm({
         id="hostname"
         description="Will be generated if not provided"
       />
+
+      <Form.Actions>
+        <Form.Submit>{title}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
     </Form>
   )
 }

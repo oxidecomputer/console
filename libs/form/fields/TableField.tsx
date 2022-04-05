@@ -20,7 +20,6 @@ export interface TableFieldProps<Item extends NamedItem> {
   id: string
   name?: string
   label?: string
-  actionText: string
   onRemoveItem?: (item: Item) => void
   columns: Column<keyof Item>[]
   actions: Action<Item>[]
@@ -30,10 +29,9 @@ export function TableField<Item extends NamedItem>({
   id,
   name = id,
   label = capitalize(name),
-  actionText,
-  onAddItem,
   onRemoveItem,
   columns,
+  actions,
 }: TableFieldProps<Item>) {
   const [, { value = [] }, { setValue }] = useField<Item[]>({ name })
 
@@ -80,13 +78,18 @@ export function TableField<Item extends NamedItem>({
           </MiniTable.Body>
         </MiniTable>
       )}
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => onAddItem((item) => setValue(value.concat(item)))}
-      >
-        {actionText}
-      </Button>
+      <div className="space-x-3">
+        {actions.map(([name, action]) => (
+          <Button
+            key={name}
+            variant="secondary"
+            size="sm"
+            onClick={() => action((item) => setValue(value.concat(item)))}
+          >
+            {name}
+          </Button>
+        ))}
+      </div>
     </div>
   )
 }
