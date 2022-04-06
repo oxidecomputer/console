@@ -4,8 +4,10 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
 
 import { CreateSubnetForm } from './subnet-create'
-import { useParams } from 'app/hooks'
 import type { ExtendedPrebuiltFormProps } from 'app/forms'
+
+import type { params } from './subnet-create'
+export { params } from './subnet-create'
 
 export function EditSubnetForm({
   id = 'edit-subnet-form',
@@ -14,13 +16,16 @@ export function EditSubnetForm({
   onSuccess,
   onError,
   ...props
-}: ExtendedPrebuiltFormProps<typeof CreateSubnetForm, VpcSubnet>) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+}: ExtendedPrebuiltFormProps<
+  typeof CreateSubnetForm,
+  VpcSubnet,
+  typeof params
+>) {
   const queryClient = useApiQueryClient()
 
   const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
-    onSuccess(data, params) {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
+    onSuccess(data, { body: _, ...params }) {
+      queryClient.invalidateQueries('vpcSubnetsGet', params)
       onSuccess?.(data, params)
     },
     onError,
@@ -32,13 +37,27 @@ export function EditSubnetForm({
       title={title}
       onSubmit={
         onSubmit ||
-        (({ name, description, ipv4Block, ipv6Block }) => {
+        (({
+          name,
+          description,
+          ipv4Block,
+          ipv6Block,
+          orgName,
+          projectName,
+          vpcName,
+        }) => {
+          invariant(
+            orgName && projectName && vpcName,
+            'subnet-edit form is missing a path param'
+          )
           invariant(
             props.initialValues?.name,
             'CreateSubnetForm should always receive a name for initialValues'
           )
           updateSubnet.mutate({
-            ...parentNames,
+            orgName,
+            projectName,
+            vpcName,
             subnetName: props.initialValues.name,
             body: {
               name,

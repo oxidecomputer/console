@@ -12,6 +12,8 @@ const values = {
   description: '',
 }
 
+export const params = [] as const
+
 export function CreateOrgForm({
   id = 'create-org-form',
   title = 'Create organization',
@@ -20,7 +22,7 @@ export function CreateOrgForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Organization>) {
+}: PrebuiltFormProps<typeof values, Organization, typeof params>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 

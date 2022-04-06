@@ -24,6 +24,8 @@ const values = {
   deletionRule: '',
 }
 
+export const params = ['orgName', 'projectName'] as const
+
 export function CreateDiskForm({
   id = 'create-disk-form',
   title = 'Create Disk',
@@ -32,7 +34,7 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Disk, 'orgName' | 'projectName'>) {
+}: PrebuiltFormProps<typeof values, Disk, typeof params>) {
   const queryClient = useApiQueryClient()
 
   const createDisk = useApiMutation('projectDisksPost', {
@@ -61,10 +63,7 @@ export function CreateDiskForm({
       mutation={createDisk}
       {...props}
     >
-      <FormParamFields
-        id={`${id}-params`}
-        params={['orgName', 'projectName']}
-      />
+      <FormParamFields id={`${id}-params`} params={params} />
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />

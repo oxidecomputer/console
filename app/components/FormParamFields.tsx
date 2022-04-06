@@ -7,7 +7,7 @@ import React, { useEffect } from 'react'
 
 interface FormParamFieldsProps {
   id: string
-  params: PathParam[]
+  params: readonly PathParam[]
 }
 
 /**

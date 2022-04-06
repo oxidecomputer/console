@@ -15,6 +15,8 @@ const values = {
   description: '',
 }
 
+export const params = ['orgName'] as const
+
 export function CreateProjectForm({
   id = 'create-project-form',
   title = 'Create project',
@@ -23,7 +25,7 @@ export function CreateProjectForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Project, 'orgName'>) {
+}: PrebuiltFormProps<typeof values, Project, typeof params>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -66,7 +68,7 @@ export function CreateProjectForm({
       mutation={createProject}
       {...props}
     >
-      <FormParamFields id={`${id}-params`} params={['orgName']} />
+      <FormParamFields id={`${id}-params`} params={params} />
       <NameField id="name" />
       <DescriptionField id="description" />
       <Form.Actions>
