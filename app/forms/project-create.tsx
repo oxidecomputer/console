@@ -8,6 +8,7 @@ import { invariant } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
+import { FormParamFields } from 'app/components/FormParamFields'
 
 const values = {
   name: '',
@@ -65,6 +66,7 @@ export function CreateProjectForm({
       mutation={createProject}
       {...props}
     >
+      <FormParamFields id={`${id}-params`} params={['orgName']} />
       <NameField id="name" />
       <DescriptionField id="description" />
       <Form.Actions>

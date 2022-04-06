@@ -62,7 +62,7 @@ export function CreateDiskForm({
       {...props}
     >
       <FormParamFields
-        id="disk-create-params"
+        id={`${id}-params`}
         params={['orgName', 'projectName']}
       />
       <NameField id="disk-name" />

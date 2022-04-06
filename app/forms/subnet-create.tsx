@@ -6,6 +6,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
 
 import type { PrebuiltFormProps } from 'app/forms'
+import { FormParamFields } from 'app/components/FormParamFields'
 
 const values = {
   name: '',
@@ -44,16 +45,22 @@ export function CreateSubnetForm({
       onSubmit={
         onSubmit ||
         (({ orgName, projectName, vpcName, ...body }) => {
+          console.log('gets here?', orgName, projectName, vpcName)
           invariant(
             orgName && projectName && vpcName,
             'subnet-create form is missing a path param'
           )
+          console.log('called?')
           createSubnet.mutate({ orgName, projectName, vpcName, body })
         })
       }
       mutation={createSubnet}
       {...props}
     >
+      <FormParamFields
+        id={`${id}-params`}
+        params={['orgName', 'projectName', 'vpcName']}
+      />
       <NameField id="subnet-name" />
       <DescriptionField id="subnet-description" />
       <Divider />
