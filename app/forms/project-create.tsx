@@ -3,10 +3,11 @@ import React from 'react'
 import { Success16Icon } from '@oxide/ui'
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useToast } from '../hooks'
 import { Form, NameField, DescriptionField } from '@oxide/form'
-import type { PrebuiltFormProps } from '@oxide/form'
 import { invariant } from '@oxide/util'
+
+import { useToast } from 'app/hooks'
+import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',

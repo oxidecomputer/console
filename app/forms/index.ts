@@ -4,6 +4,10 @@ import type { CreateOrgForm } from './org-create'
 import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
 
+import type { FormProps } from '@oxide/form'
+import type { ErrorResponse } from '@oxide/api'
+import type { ComponentType } from 'react'
+
 /**
  * A map of all existing forms. When a new form is created in the forms directory, a
  * new entry should be added here with the key of the string name of the form's filename
@@ -16,3 +20,45 @@ export interface FormTypes {
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
 }
+
+export type FormValues<K extends keyof FormTypes> = ExtractFormValues<
+  FormTypes[K]
+>
+
+/**
+ * A form that's built out ahead of time and intended to be re-used dynamically. Fields
+ * that are expected to be provided by default are set to optional.
+ */
+export type PrebuiltFormProps<
+  Values,
+  Data,
+  RouteParams extends string = never
+> = Omit<
+  Optional<
+    FormProps<Values, Record<RouteParams, string>>,
+    'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'
+  >,
+  'children'
+> & {
+  children?: never
+  onSuccess?: (data: Data, params: Record<RouteParams, string>) => void
+  onError?: (err: ErrorResponse) => void
+}
+
+/**
+ * A utility type for a prebuilt form that extends another form
+ */
+export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<
+  infer B
+>
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    B extends PrebuiltFormProps<infer V, any, infer P>
+    ? PrebuiltFormProps<V, D, P>
+    : never
+  : never
+
+export type ExtractFormValues<C> = C extends ComponentType<
+  PrebuiltFormProps<infer V, any, any>
+>
+  ? V
+  : never
