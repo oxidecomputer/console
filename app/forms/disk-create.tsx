@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   DescriptionField,
   Form,
@@ -7,11 +8,11 @@ import {
   Radio,
 } from '@oxide/form'
 import { Divider } from '@oxide/ui'
-import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
+
+import type { PrebuiltFormProps } from 'app/forms'
 import { FormParamFields } from 'app/components/FormParamFields'
 
 const values = {
