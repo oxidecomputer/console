@@ -43,7 +43,6 @@ export function CreateSubnetForm({
       onSubmit={
         onSubmit ||
         (({ orgName, projectName, vpcName, ...body }) => {
-          console.log('gets here?', orgName, projectName, vpcName)
           invariant(
             orgName && projectName && vpcName,
             'subnet-create form is missing a path param'

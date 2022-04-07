@@ -24,7 +24,7 @@ export function FormParamFields({
 
   useEffect(() => {
     for (const param of paramKeys) {
-      if (!initialValues[param] && !params[param]) {
+      if (!initialValues[param] && params[param]) {
         setFieldValue(param, params[param])
       }
     }
