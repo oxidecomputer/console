@@ -102,10 +102,6 @@ export default function CreateInstanceForm({
       mutation={createInstance}
       {...props}
     >
-      <FormParamFields
-        id="form-instance-create-params"
-        params={['orgName', 'projectName']}
-      />
       <NameField id="name" />
       <DescriptionField id="description" />
       <TagsField id="tags" />

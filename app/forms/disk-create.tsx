@@ -57,10 +57,6 @@ export function CreateDiskForm({
       mutation={createDisk}
       {...props}
     >
-      <FormParamFields
-        id="disk-create-params"
-        params={['orgName', 'projectName']}
-      />
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />

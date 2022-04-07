@@ -59,10 +59,6 @@ export function AttachDiskForm({
       mutation={createDisk}
       {...props}
     >
-      <FormParamFields
-        id="form-disk-attach-params"
-        params={['orgName', 'projectName', 'instanceName']}
-      />
       <NameField id="form-disk-attach-name" label="Disk name" />
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
