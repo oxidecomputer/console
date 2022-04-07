@@ -6,7 +6,7 @@
  * difference is that label content is handled through children.
  */
 
-import type { ComponentProps, PropsWithChildren } from 'react'
+import type { ComponentProps } from 'react'
 import React from 'react'
 import cn from 'classnames'
 import { Field } from 'formik'

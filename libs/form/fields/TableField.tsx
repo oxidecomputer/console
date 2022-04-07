@@ -4,6 +4,7 @@ import { Button, FieldLabel, MiniTable } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import React from 'react'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NamedItem = { name: string; [key: string]: any }
 
 // TODO: Simplify this type

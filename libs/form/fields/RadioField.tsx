@@ -1,6 +1,5 @@
 import type { RadioGroupProps } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextFieldHint } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
 import cn from 'classnames'
 import React from 'react'
 

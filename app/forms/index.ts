@@ -60,6 +60,7 @@ export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<
   : never
 
 export type ExtractFormValues<C> = C extends ComponentType<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PrebuiltFormProps<infer V, any>
 >
   ? V
