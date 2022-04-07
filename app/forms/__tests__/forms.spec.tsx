@@ -8,11 +8,12 @@ import { render, cleanup } from '@testing-library/react'
 import { vi } from 'vitest'
 import { useParams } from 'react-router-dom'
 
-vi.mock('react-router-dom', () => {
-  const rr = vi.importActual('react-router-dom')
+vi.mock('react-router-dom', async () => {
+  const rr = await vi.importActual('react-router-dom')
   return {
+    // @ts-expect-error says it's unknown but we know. Oh, do we know.
     ...rr,
-    useParams: vi.fn(() => ({})),
+    useParams: vi.fn(),
   }
 })
 
