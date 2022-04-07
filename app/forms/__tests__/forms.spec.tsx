@@ -1,9 +1,20 @@
-import { VALID_PARAMS } from 'app/routes'
+import { PARAM_DISPLAY, VALID_PARAMS } from 'app/routes'
+import { queryClientOptions } from 'app/test/utils'
 import type { ComponentType } from 'react'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import React from 'react'
+import { render, cleanup } from '@testing-library/react'
 
 const forms = Object.entries(
   import.meta.glob<{ default: ComponentType; params: string[] }>('../*.tsx')
 )
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient(queryClientOptions)
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
 
 test.each(forms)(
   '%s exports params and a default form component',
@@ -16,18 +27,13 @@ test.each(forms)(
   }
 )
 
-// TODO: Figure out whatever the fuck is happening here
-//
-// test.each(forms)(
-//   `%s renders correctly at /`,
-//   async (_, promisedFormModule) => {
-//     const { default: Form, params } = await promisedFormModule()
+test.each(forms)(`%s renders correctly at /`, async (_, promisedFormModule) => {
+  const { default: Form, params } = await promisedFormModule()
 
-//     const { getByLabelText } = render(<Form />, { wrapper: Wrapper })
+  const { getByLabelText } = render(<Form />, { wrapper: Wrapper })
 
-//     for (const param of params) {
-//       expect(getByLabelText(PARAM_DISPLAY[param])).toBeInTheDocument()
-//     }
-//   },
-//   1000
-// )
+  for (const param of params) {
+    expect(getByLabelText(PARAM_DISPLAY[param])).toBeInTheDocument()
+  }
+  cleanup()
+})

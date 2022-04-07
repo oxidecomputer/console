@@ -32,7 +32,7 @@ export function FormParamFields({
   }, [params])
   return (
     <>
-      {VALID_PARAMS.filter((param) => param in params).map((param) => (
+      {VALID_PARAMS.filter((param) => !(param in params)).map((param) => (
         <FormParam id={`${id}-${param}`} key={`${id}-${param}`} param={param} />
       ))}
     </>
