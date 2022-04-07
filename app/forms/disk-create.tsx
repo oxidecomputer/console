@@ -12,7 +12,6 @@ import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
-import { FormParamFields } from 'app/components/FormParamFields'
 import { useParams } from 'app/hooks'
 
 const values = {

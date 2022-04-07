@@ -3,7 +3,6 @@ import React from 'react'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
-import { FormParamFields } from 'app/components/FormParamFields'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
 
@@ -23,7 +22,7 @@ export function AttachDiskForm({
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName', 'instanceName?')
 
-  const createDisk = useApiMutation('instanceDisksAttach', {
+  const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess(data) {
       const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required')
@@ -43,20 +42,17 @@ export function AttachDiskForm({
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
-        (({ orgName, projectName, instanceName, name }) => {
-          invariant(
-            orgName && projectName && instanceName,
-            `disk-attach form is missing a path param`
-          )
-          createDisk.mutate({
-            orgName,
-            projectName,
+        (({ name }) => {
+          const { instanceName, ...others } = pathParams
+          invariant(instanceName, 'instanceName is required')
+          attachDisk.mutate({
             instanceName,
+            ...others,
             body: { disk: name },
           })
         })
       }
-      mutation={createDisk}
+      mutation={attachDisk}
       {...props}
     >
       <NameField id="form-disk-attach-name" label="Disk name" />
