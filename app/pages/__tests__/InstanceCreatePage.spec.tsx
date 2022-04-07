@@ -14,7 +14,7 @@ const formUrl = `/orgs/${org.name}/projects/${project.name}/instances/new`
 describe('InstanceCreatePage', () => {
   it('shows specific message for known server error code', async () => {
     renderAppAt(formUrl)
-    typeByRole('textbox', 'Choose a name', instance.name) // already exists in db
+    typeByRole('textbox', 'Name', instance.name) // already exists in db
 
     clickByRole('button', 'Create instance')
 
@@ -43,7 +43,7 @@ describe('InstanceCreatePage', () => {
     const instancesPage = `/orgs/${org.name}/projects/${project.name}/instances`
     expect(window.location.pathname).not.toEqual(instancesPage)
 
-    typeByRole('textbox', 'Choose a name', 'new-instance')
+    typeByRole('textbox', 'Name', 'new-instance')
     fireEvent.click(screen.getByLabelText(/6 CPUs/))
 
     clickByRole('button', 'Create instance')
