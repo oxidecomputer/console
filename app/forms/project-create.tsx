@@ -3,10 +3,8 @@ import React from 'react'
 import { Success16Icon } from '@oxide/ui'
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useParams, useToast } from '../hooks'
 import { Form, NameField, DescriptionField } from '@oxide/form'
-import { invariant } from '@oxide/util'
-
-import { useToast } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
@@ -22,12 +20,14 @@ export function CreateProjectForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Project, 'orgName'>) {
+}: PrebuiltFormProps<typeof values, Project>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
+  const { orgName } = useParams('orgName')
+
   const createProject = useApiMutation('organizationProjectsPost', {
-    onSuccess(project, { orgName }) {
+    onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('organizationProjectsGet', { orgName })
       // avoid the project fetch when the project page loads since we have the data
@@ -42,7 +42,7 @@ export function CreateProjectForm({
         content: 'Your project has been created.',
         timeout: 5000,
       })
-      onSuccess?.(project, { orgName })
+      onSuccess?.(project)
     },
     onError,
   })
@@ -54,11 +54,10 @@ export function CreateProjectForm({
       title={title}
       onSubmit={
         onSubmit ||
-        (({ orgName, ...body }) => {
-          invariant(orgName, `instance-create form is missing a path param`)
+        (({ name, description }) => {
           createProject.mutate({
             orgName,
-            body,
+            body: { name, description },
           })
         })
       }

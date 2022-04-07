@@ -1,10 +1,11 @@
-import { Form, NameField, TextField } from '@oxide/form'
+import { Form, NameField } from '@oxide/form'
 import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { invariant } from '@oxide/util'
 import { FormParamFields } from 'app/components/FormParamFields'
+import { useParams } from 'app/hooks'
+import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -18,17 +19,19 @@ export function AttachDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<
-  typeof values,
-  Disk,
-  'orgName' | 'projectName' | 'instanceName'
->) {
+}: PrebuiltFormProps<typeof values, Disk>) {
   const queryClient = useApiQueryClient()
+  const pathParams = useParams('orgName', 'projectName', 'instanceName?')
 
   const createDisk = useApiMutation('instanceDisksAttach', {
-    onSuccess(data, { body: _, ...pathParams }) {
-      queryClient.invalidateQueries('instanceDisksGet', pathParams)
-      onSuccess?.(data, pathParams)
+    onSuccess(data) {
+      const { instanceName, ...others } = pathParams
+      invariant(instanceName, 'instanceName is required')
+      queryClient.invalidateQueries('instanceDisksGet', {
+        instanceName,
+        ...others,
+      })
+      onSuccess?.(data)
     },
     onError,
   })

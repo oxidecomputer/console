@@ -19,9 +19,9 @@ export function EditSubnetForm({
   const queryClient = useApiQueryClient()
 
   const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
-    onSuccess(data, params) {
+    onSuccess(data) {
       queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
-      onSuccess?.(data, params)
+      onSuccess?.(data)
     },
     onError,
   })

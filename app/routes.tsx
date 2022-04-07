@@ -34,27 +34,6 @@ import {
 } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
 
-/**
- * All valid dynamic route params. This contents of this
- * array are validated to be in sync with the route config
- * by a test in `routes.spec.tsx`.
- */
-export const VALID_PARAMS = [
-  'orgName',
-  'projectName',
-  'instanceName',
-  'vpcName',
-] as const
-
-export type PathParam = typeof VALID_PARAMS[number]
-
-export const PARAM_DISPLAY: Record<PathParam, string> = {
-  orgName: 'Organization Name',
-  projectName: 'Project Name',
-  instanceName: 'Instance Name',
-  vpcName: 'Vpc Name',
-}
-
 /*
  * We are doing something a little unorthodox with the route config here. We
  * realized that tagging nodes in the route tree with arbitrary data is very

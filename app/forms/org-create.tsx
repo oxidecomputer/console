@@ -2,9 +2,8 @@ import React from 'react'
 import { Form, NameField, DescriptionField } from '@oxide/form'
 import type { Organization } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
-
 import { useToast } from 'app/hooks'
+import { Success16Icon } from '@oxide/ui'
 import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
@@ -25,7 +24,7 @@ export function CreateOrgForm({
   const addToast = useToast()
 
   const createOrg = useApiMutation('organizationsPost', {
-    onSuccess(org, params) {
+    onSuccess(org) {
       queryClient.invalidateQueries('organizationsGet', {})
       // avoid the org fetch when the org page loads since we have the data
       queryClient.setQueryData(
@@ -39,7 +38,7 @@ export function CreateOrgForm({
         content: 'Your organization has been created.',
         timeout: 5000,
       })
-      onSuccess?.(org, params)
+      onSuccess?.(org)
     },
     onError,
   })

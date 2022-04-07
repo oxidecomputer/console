@@ -1,6 +1,6 @@
 import type { Instance } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { PrebuiltFormProps } from '@oxide/form'
+import type { PrebuiltFormProps } from 'app/forms'
 import { TableField } from '@oxide/form'
 import { TextField } from '@oxide/form'
 import { RadioField } from '@oxide/form'
@@ -23,7 +23,7 @@ import {
 } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 import { FormParamFields } from 'app/components/FormParamFields'
-import { useToast } from 'app/hooks'
+import { useParams, useToast } from 'app/hooks'
 import { useForm } from 'app/hooks/use-form'
 import filesize from 'filesize'
 import React from 'react'
@@ -47,23 +47,21 @@ export default function CreateInstanceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Instance, 'orgName' | 'projectName'>) {
+}: PrebuiltFormProps<typeof values, Instance>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const [createDiskForm, showCreateDiskForm] = useForm('disk-create')
   const [attachDiskForm, showAttachDiskForm] = useForm('disk-attach')
+  const pageParams = useParams('orgName', 'projectName')
 
   const createInstance = useApiMutation('projectInstancesPost', {
-    onSuccess(instance, { orgName, projectName }) {
+    onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('projectInstancesGet', {
-        orgName,
-        projectName,
-      })
+      queryClient.invalidateQueries('projectInstancesGet', pageParams)
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'projectInstancesGetInstance',
-        { orgName, projectName, instanceName: instance.name },
+        { ...pageParams, instanceName: instance.name },
         instance
       )
       addToast({
@@ -72,10 +70,7 @@ export default function CreateInstanceForm({
         content: 'Your instance has been created.',
         timeout: 5000,
       })
-      onSuccess?.(instance, {
-        orgName,
-        projectName,
-      })
+      onSuccess?.(instance)
     },
     onError,
   })
@@ -87,21 +82,16 @@ export default function CreateInstanceForm({
       title={title}
       onSubmit={
         onSubmit ||
-        (({ orgName, projectName, ...values }) => {
-          invariant(
-            orgName && projectName,
-            `instance-create form is missing a path param`
-          )
+        ((values) => {
           const instance = INSTANCE_SIZES.find(
             (option) => option.id === values['type']
           ) || { memory: 0, ncpus: 0 }
           createInstance.mutate({
-            orgName,
-            projectName,
+            ...pageParams,
             body: {
               name: values['name'],
               hostname: values.hostname,
-              description: `An instance in project: ${projectName}`,
+              description: `An instance in project: ${pageParams.projectName}`,
               memory: filesize(instance.memory, { output: 'object', base: 2 })
                 .value,
               ncpus: instance.ncpus,

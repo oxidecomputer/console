@@ -10,10 +10,10 @@ import {
 import { Divider } from '@oxide/ui'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { invariant } from '@oxide/util'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { FormParamFields } from 'app/components/FormParamFields'
+import { useParams } from 'app/hooks'
 
 const values = {
   name: '',
@@ -31,13 +31,14 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Disk, 'orgName' | 'projectName'>) {
+}: PrebuiltFormProps<typeof values, Disk>) {
   const queryClient = useApiQueryClient()
+  const pathParams = useParams('orgName', 'projectName')
 
   const createDisk = useApiMutation('projectDisksPost', {
-    onSuccess(data, { body: _, ...pathParams }) {
+    onSuccess(data) {
       queryClient.invalidateQueries('projectDisksGet', pathParams)
-      onSuccess?.(data, pathParams)
+      onSuccess?.(data)
     },
     onError,
   })
@@ -49,12 +50,8 @@ export function CreateDiskForm({
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
-        (({ orgName, projectName, ...body }) => {
-          invariant(
-            orgName && projectName,
-            `disk-create form is missing a path param`
-          )
-          createDisk.mutate({ orgName, projectName, body })
+        ((body) => {
+          createDisk.mutate({ ...pathParams, body })
         })
       }
       mutation={createDisk}
