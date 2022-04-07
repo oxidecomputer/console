@@ -33,6 +33,7 @@ test.each(forms)(`%s renders correctly at /`, async (_, promisedFormModule) => {
   const { getByLabelText } = render(<Form />, { wrapper: Wrapper })
 
   for (const param of params) {
+    // @ts-expect-error it's fine, trust me
     expect(getByLabelText(PARAM_DISPLAY[param])).toBeInTheDocument()
   }
   cleanup()
