@@ -38,7 +38,9 @@ import { FormPage } from './components/FormPage'
 /**
  * All valid dynamic route params. This contents of this
  * array are validated to be in sync with the route config
- * by a test in `routes.spec.tsx`.
+ * by a test in `routes.spec.tsx`. The tests also ensure that
+ * the routes appear in order as they are discovered in a depth-first
+ * search of the route config.
  */
 export const VALID_PARAMS = [
   'orgName',

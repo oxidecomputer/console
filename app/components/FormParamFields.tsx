@@ -29,10 +29,11 @@ export function FormParamFields({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams])
+  }, [routeParams, initialValues])
 
   return (
     <>
+      {/* `VALID_PARAMS` is used here to ensure that inputs are rendered in a consistent order */}
       {VALID_PARAMS.filter((param) => paramKeys.includes(param)).map(
         (param) => {
           return (
