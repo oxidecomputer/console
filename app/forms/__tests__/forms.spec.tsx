@@ -1,9 +1,20 @@
+import type { PathParam } from 'app/routes'
 import { PARAM_DISPLAY, VALID_PARAMS } from 'app/routes'
 import { queryClientOptions } from 'app/test/utils'
 import type { ComponentType } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React from 'react'
 import { render, cleanup } from '@testing-library/react'
+import { vi } from 'vitest'
+import { useParams } from 'react-router-dom'
+
+vi.mock('react-router-dom', () => {
+  const rr = vi.importActual('react-router-dom')
+  return {
+    ...rr,
+    useParams: vi.fn(() => ({})),
+  }
+})
 
 const forms = Object.entries(
   import.meta.glob<{ default: ComponentType; params: string[] }>('../*.tsx')
@@ -16,6 +27,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
+beforeEach(vi.restoreAllMocks)
+
 test.each(forms)(
   '%s exports params and a default form component',
   async (_, promisedFormModule) => {
@@ -27,14 +40,43 @@ test.each(forms)(
   }
 )
 
-test.each(forms)(`%s renders correctly at /`, async (_, promisedFormModule) => {
-  const { default: Form, params } = await promisedFormModule()
+describe.each([
+  {},
+  { orgName: 'maze-war' },
+  { orgName: 'maze-war', projectName: 'mock-project' },
+  {
+    orgName: 'maze-war',
+    projectName: 'mock-project',
+    instanceName: 'mock-instance',
+  },
+  {
+    orgName: 'maze-war',
+    projectName: 'mock-project',
+    vpcName: 'mock-vpc',
+  },
+])('Form with route params %o', (routeParams) => {
+  afterEach(cleanup)
+  beforeEach(() => {
+    vi.mocked(useParams).mockReturnValue(routeParams)
+  })
 
-  const { getByLabelText } = render(<Form />, { wrapper: Wrapper })
+  test.each(forms)(
+    `%s renders inputs for missing route params`,
+    async (_, promisedFormModule) => {
+      const { default: Form, params } = await promisedFormModule()
 
-  for (const param of params) {
-    // @ts-expect-error it's fine, trust me
-    expect(getByLabelText(PARAM_DISPLAY[param])).toBeInTheDocument()
-  }
-  cleanup()
+      const { getByLabelText, queryByLabelText } = render(<Form />, {
+        wrapper: Wrapper,
+      })
+
+      for (const param of params.filter((param) => !(param in routeParams))) {
+        expect(
+          getByLabelText(PARAM_DISPLAY[param as PathParam])
+        ).toBeInTheDocument()
+      }
+      for (const param of params.filter((param) => param in routeParams)) {
+        expect(queryByLabelText(PARAM_DISPLAY[param as PathParam])).toBeNull()
+      }
+    }
+  )
 })
