@@ -20,21 +20,30 @@ export function FormParamFields({
 }: FormParamFieldsProps) {
   const { initialValues, setFieldValue } =
     useFormikContext<Record<PathParam, string | undefined>>()
-  const params = useParams()
+  const routeParams = useParams()
 
   useEffect(() => {
     for (const param of paramKeys) {
-      if (!initialValues[param] && params[param]) {
-        setFieldValue(param, params[param])
+      if (!initialValues[param] && routeParams[param]) {
+        setFieldValue(param, routeParams[param])
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params])
+  }, [routeParams])
+
   return (
     <>
-      {VALID_PARAMS.filter((param) => !(param in params)).map((param) => (
-        <FormParam id={`${id}-${param}`} key={`${id}-${param}`} param={param} />
-      ))}
+      {VALID_PARAMS.filter((param) => paramKeys.includes(param)).map(
+        (param) => {
+          return (
+            <FormParam
+              id={`${id}-${param}`}
+              key={`${id}-${param}`}
+              param={param}
+            />
+          )
+        }
+      )}
     </>
   )
 }
@@ -46,7 +55,7 @@ interface FormParamProps {
 const FormParam = ({ id, param }: FormParamProps) => {
   const { initialValues } =
     useFormikContext<Record<PathParam, string | undefined>>()
-  const params = useParams()
+  const routeParams = useParams()
 
   /**
    * If the param is in initialValues and non-empty that means it was
@@ -55,7 +64,7 @@ const FormParam = ({ id, param }: FormParamProps) => {
    * means it shouldn't be configurable to the user. This may change in
    * the future.
    */
-  if (!initialValues[param] && params[param]) return null
+  if (!initialValues[param] && routeParams[param]) return null
 
   return (
     <TextField id={id} name={param} label={PARAM_DISPLAY[param]} required />
