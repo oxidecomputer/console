@@ -2,9 +2,6 @@ import React from 'react'
 import type { ElementType, PropsWithChildren } from 'react'
 import { Info8Icon, Tooltip } from '@oxide/ui'
 
-/**
- * Ensures that label always has an `htmlFor` prop associated with it
- */
 interface FieldLabelProps {
   id: string
   as?: ElementType
