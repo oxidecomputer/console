@@ -72,7 +72,7 @@ export type DiskCreate = {
  * Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export type DiskIdentifier = {
-  disk: Name
+  name: Name
 }
 
 /**
@@ -278,7 +278,7 @@ export type InstanceDiskAttachment =
       /**
        * A disk name to attach
        */
-      disk: Name
+      name: Name
       type: 'attach'
     }
 
