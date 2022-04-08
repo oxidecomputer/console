@@ -48,7 +48,7 @@ export function AttachDiskForm({
           attachDisk.mutate({
             instanceName,
             ...others,
-            body: { disk: name },
+            body: { name },
           })
         })
       }
