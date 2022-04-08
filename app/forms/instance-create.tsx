@@ -21,8 +21,7 @@ import {
   UbuntuResponsiveIcon,
   WindowsResponsiveIcon,
 } from '@oxide/ui'
-import { useParams, useToast } from 'app/hooks'
-import { useForm } from 'app/hooks/use-form'
+import { useParams, useToast, useForm } from 'app/hooks'
 import filesize from 'filesize'
 import React from 'react'
 import type { FormValues } from '.'
