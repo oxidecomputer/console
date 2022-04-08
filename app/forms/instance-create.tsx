@@ -1,12 +1,15 @@
 import type { Instance } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'
-import { TableField } from '@oxide/form'
-import { TextField } from '@oxide/form'
-import { RadioField } from '@oxide/form'
-import { TagsField } from '@oxide/form'
-import { DescriptionField, NameField } from '@oxide/form'
-import { Form } from '@oxide/form'
+import {
+  DescriptionField,
+  Form,
+  NameField,
+  RadioField,
+  TableField,
+  TagsField,
+  TextField,
+} from '@oxide/form'
 import {
   CentOSResponsiveIcon,
   DebianResponsiveIcon,
