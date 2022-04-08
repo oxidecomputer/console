@@ -28,6 +28,7 @@ import { useParams, useToast, useForm } from 'app/hooks'
 import filesize from 'filesize'
 import React from 'react'
 import type { FormValues } from '.'
+import { capitalize } from '@oxide/util'
 
 const values = {
   name: '',
@@ -210,7 +211,7 @@ export default function CreateInstanceForm({
 
       <TableField<
         | (FormValues<'disk-create'> & { type: 'create' })
-        | (FormValues<'disk-attach'> & { type: 'attach'; size: number })
+        | (FormValues<'disk-attach'> & { type: 'attach' })
       >
         id="new-disks"
         label=""
@@ -233,7 +234,7 @@ export default function CreateInstanceForm({
               const hideForm = showAttachDiskForm({
                 onSubmit: (values) => {
                   // TODO fetch disk size
-                  addDisk({ type: 'attach', ...values, size: 0 })
+                  addDisk({ type: 'attach', ...values })
                   hideForm()
                 },
               })
@@ -242,8 +243,7 @@ export default function CreateInstanceForm({
         ]}
         columns={[
           ['name', 'Name'],
-          ['type', 'Type'],
-          ['size', 'Size', filesize],
+          ['type', 'Type', capitalize],
         ]}
       />
       {createDiskForm}
