@@ -35,7 +35,7 @@ const values = {
   tags: {},
   type: '',
   hostname: '',
-  newDisks: [],
+  disks: [],
   attachedDisks: [],
 }
 
@@ -95,6 +95,7 @@ export default function CreateInstanceForm({
               memory: filesize(instance.memory, { output: 'object', base: 2 })
                 .value,
               ncpus: instance.ncpus,
+              disks: values.disks,
             },
           })
         })
@@ -213,7 +214,7 @@ export default function CreateInstanceForm({
       >
         id="new-disks"
         label=""
-        name="New disks"
+        name="disks"
         actions={[
           [
             'Create new disk',

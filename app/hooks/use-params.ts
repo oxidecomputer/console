@@ -23,7 +23,7 @@ export function useParams<K extends string>(
   if (process.env.NODE_ENV !== 'production') {
     for (const k of paramNames) {
       invariant(
-        k in params,
+        k.endsWith('?') || k in params,
         `Param '${k}' not found in route. You might be rendering a component under the wrong route.`
       )
     }
