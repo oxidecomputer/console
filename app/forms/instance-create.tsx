@@ -234,7 +234,8 @@ export default function CreateInstanceForm({
               const hideForm = showAttachDiskForm({
                 onSubmit: (values) => {
                   // TODO fetch disk size
-                  addDisk({ type: 'attach', ...values })
+                  // @ts-expect-error The API here needs to be updated to be name instead of disk
+                  addDisk({ type: 'attach', disk: values.name })
                   hideForm()
                 },
               })
