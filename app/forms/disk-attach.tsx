@@ -20,7 +20,7 @@ export function AttachDiskForm({
   ...props
 }: PrebuiltFormProps<typeof values, Disk>) {
   const queryClient = useApiQueryClient()
-  const pathParams = useParams('orgName', 'projectName', 'instanceName?')
+  const pathParams = useParams('orgName', 'projectName')
 
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess(data) {
