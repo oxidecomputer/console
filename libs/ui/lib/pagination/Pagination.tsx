@@ -77,7 +77,6 @@ export const Pagination = ({
               )}
               disabled={!hasNext}
               // nextPage will be defined if hasNext is true
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               onClick={onNext.bind(null, nextPage!)}
             >
               next
