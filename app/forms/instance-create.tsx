@@ -9,16 +9,19 @@ import {
   Form,
   NameField,
   RadioField,
-  TableField,
   TagsField,
   TextField,
 } from '@oxide/form'
 import {
+  Button,
   CentOSResponsiveIcon,
   DebianResponsiveIcon,
   Divider,
+  Error16Icon,
   FedoraResponsiveIcon,
+  FieldLabel,
   FreeBSDResponsiveIcon,
+  MiniTable,
   RadioCard,
   SideModal,
   Success16Icon,
@@ -32,7 +35,6 @@ import { useParams, useToast } from 'app/hooks'
 import filesize from 'filesize'
 import React, { useState } from 'react'
 import type { FormValues } from '.'
-import { capitalize } from '@oxide/util'
 
 type DiskTableItem =
   | (FormValues<'disk-create'> & { type: 'create' })
@@ -48,23 +50,59 @@ function DisksTable() {
 
   return (
     <>
-      <TableField<DiskTableItem>
-        id="new-disks"
-        label=""
-        name="disks"
-        actions={[
-          ['Create new disk', () => setShowDiskCreate(true)],
-          ['Attach existing disk', () => setShowDiskAttach(true)],
-        ]}
-        columns={[
-          ['name', 'Name'],
-          ['type', 'Type', capitalize],
-        ]}
-        value={items}
-        onRemoveItem={(item) =>
-          setItems(items.filter((i) => i.name !== item.name))
-        }
-      />
+      <div className="max-w-lg">
+        <FieldLabel id="new-disks-label">{/* this was empty */}</FieldLabel>
+        {!!items.length && (
+          <MiniTable className="mb-4">
+            <MiniTable.Header>
+              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+              {/* For remove button */}
+              <MiniTable.HeadCell className="w-12" />
+            </MiniTable.Header>
+            <MiniTable.Body>
+              {items.map((item, index) => (
+                <MiniTable.Row
+                  tabindex="0"
+                  aria-rowindex={index + 1}
+                  aria-label={`Name: ${item.name}, Type: ${item.type}`}
+                  key={item.name}
+                >
+                  <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                  <MiniTable.Cell>{item.type}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <Button
+                      variant="link"
+                      onClick={() =>
+                        setItems(items.filter((i) => i.name !== item.name))
+                      }
+                    >
+                      <Error16Icon title={`remove ${item.name}`} />
+                    </Button>
+                  </MiniTable.Cell>
+                </MiniTable.Row>
+              ))}
+            </MiniTable.Body>
+          </MiniTable>
+        )}
+
+        <div className="space-x-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskCreate(true)}
+          >
+            Create new disk
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+          >
+            Attach existing disk
+          </Button>
+        </div>
+      </div>
 
       <SideModal
         id="create-disk-modal"
