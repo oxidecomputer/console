@@ -40,7 +40,7 @@ type DiskTableItem =
   | (FormValues<'disk-create'> & { type: 'create' })
   | (FormValues<'disk-attach'> & { type: 'attach' })
 
-function DisksTable() {
+function DisksTableField() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -309,7 +309,7 @@ export default function CreateInstanceForm({
       <Divider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <DisksTable />
+      <DisksTableField />
 
       <Divider />
       <Form.Heading id="networking">Networking</Form.Heading>
