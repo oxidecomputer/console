@@ -1,3 +1,4 @@
+import React from 'react'
 import type { Instance } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'
@@ -6,7 +7,6 @@ import {
   Form,
   NameField,
   RadioField,
-  TableField,
   TagsField,
   TextField,
 } from '@oxide/form'
@@ -24,11 +24,9 @@ import {
   UbuntuResponsiveIcon,
   WindowsResponsiveIcon,
 } from '@oxide/ui'
-import { useParams, useToast, useForm } from 'app/hooks'
+import { useParams, useToast } from 'app/hooks'
+import { DisksTableField } from 'app/components/DisksTableField'
 import filesize from 'filesize'
-import React from 'react'
-import type { FormValues } from '.'
-import { capitalize } from '@oxide/util'
 
 const values = {
   name: '',
@@ -51,8 +49,6 @@ export default function CreateInstanceForm({
 }: PrebuiltFormProps<typeof values, Instance>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const [createDiskForm, showCreateDiskForm] = useForm('disk-create')
-  const [attachDiskForm, showAttachDiskForm] = useForm('disk-attach')
   const pageParams = useParams('orgName', 'projectName')
 
   const createInstance = useApiMutation('projectInstancesPost', {
@@ -209,45 +205,7 @@ export default function CreateInstanceForm({
       <Divider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <TableField<
-        | (FormValues<'disk-create'> & { type: 'create' })
-        | (FormValues<'disk-attach'> & { type: 'attach' })
-      >
-        id="new-disks"
-        label=""
-        name="disks"
-        actions={[
-          [
-            'Create new disk',
-            (addDisk) => {
-              const hideForm = showCreateDiskForm({
-                onSubmit: (values) => {
-                  addDisk({ type: 'create', ...values })
-                  hideForm()
-                },
-              })
-            },
-          ],
-          [
-            'Attach existing disk',
-            (addDisk) => {
-              const hideForm = showAttachDiskForm({
-                onSubmit: (values) => {
-                  // TODO fetch disk size
-                  addDisk({ type: 'attach', ...values })
-                  hideForm()
-                },
-              })
-            },
-          ],
-        ]}
-        columns={[
-          ['name', 'Name'],
-          ['type', 'Type', capitalize],
-        ]}
-      />
-      {createDiskForm}
-      {attachDiskForm}
+      <DisksTableField />
 
       <Divider />
       <Form.Heading id="networking">Networking</Form.Heading>
