@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { matchRoutes } from 'react-router-dom'
 import { renderAppAt } from './test/utils'
 
