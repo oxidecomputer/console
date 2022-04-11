@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeader as Header, PageTitle } from '@oxide/ui'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 import { useMatches } from 'app/hooks/use-matches'
 
 export function PageHeader() {

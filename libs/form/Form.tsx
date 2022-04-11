@@ -6,7 +6,6 @@ import {
   addProps,
   classed,
   flattenChildren,
-  invariant,
   isOneOf,
   pluckFirstOfType,
   tunnel,
@@ -14,9 +13,9 @@ import {
 } from '@oxide/util'
 import type { FormikConfig } from 'formik'
 import { Formik } from 'formik'
-import { cloneElement } from 'react'
 import type { ReactNode } from 'react'
-import React from 'react'
+import React, { cloneElement } from 'react'
+import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'
 import type { ErrorResponse } from '@oxide/api'
