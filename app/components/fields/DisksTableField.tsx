@@ -9,7 +9,7 @@ import {
   MiniTable,
   SideModal,
 } from '@oxide/ui'
-import type { FormValues } from '../forms'
+import type { FormValues } from '../../forms'
 
 type DiskTableItem =
   | (FormValues<'disk-create'> & { type: 'create' })
@@ -38,7 +38,7 @@ export function DisksTableField() {
             <MiniTable.Body>
               {items.map((item, index) => (
                 <MiniTable.Row
-                  tabindex="0"
+                  tabIndex="0"
                   aria-rowindex={index + 1}
                   aria-label={`Name: ${item.name}, Type: ${item.type}`}
                   key={item.name}
