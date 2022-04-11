@@ -1,7 +1,7 @@
 import React from 'react'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 
 import { CreateSubnetForm } from './subnet-create'
 import { useParams } from 'app/hooks'

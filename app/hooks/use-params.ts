@@ -1,6 +1,6 @@
 import type { Params } from 'react-router-dom'
 import { useParams as _useParams } from 'react-router-dom'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 
 /**
  * Wrapper for React Router's `useParams` that throws (in dev) if any of the
