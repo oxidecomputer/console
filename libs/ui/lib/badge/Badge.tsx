@@ -1,6 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 
 export type BadgeColor = 'default' | 'destructive' | 'notice' | 'neutral'
 export type BadgeVariant = 'default' | 'secondary' | 'ghost'

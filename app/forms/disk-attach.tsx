@@ -2,7 +2,7 @@ import { Form, NameField } from '@oxide/form'
 import React from 'react'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
 

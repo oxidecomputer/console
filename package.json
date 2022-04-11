@@ -49,6 +49,7 @@
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.1",
     "recharts": "^2.1.6",
+    "tiny-invariant": "^1.2.0",
     "ts-dedent": "^2.2.0",
     "tslib": "^2.0.0",
     "tunnel-rat": "^0.0.3",

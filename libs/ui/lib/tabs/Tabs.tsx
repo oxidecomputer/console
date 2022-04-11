@@ -14,15 +14,10 @@ import {
   TabPanel as RTabPanel,
 } from '@reach/tabs'
 import cn from 'classnames'
+import invariant from 'tiny-invariant'
 
 import './Tabs.css'
-import {
-  addKey,
-  addProps,
-  flattenChildren,
-  invariant,
-  pluckAllOfType,
-} from '@oxide/util'
+import { addKey, addProps, flattenChildren, pluckAllOfType } from '@oxide/util'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string
