@@ -16,7 +16,7 @@ const values: NetworkInterfaceCreate = {
   vpcName: '',
 }
 
-export function CreateNetworkInterfaceForm({
+export default function CreateNetworkInterfaceForm({
   id = 'create-network-interface-form',
   title = 'Add Network Interface',
   initialValues = values,
@@ -82,5 +82,3 @@ export function CreateNetworkInterfaceForm({
     </Form>
   )
 }
-
-export default CreateNetworkInterfaceForm

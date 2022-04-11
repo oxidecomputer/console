@@ -7,6 +7,7 @@ import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
 import type CreateInstanceForm from './instance-create'
 import type AttachDiskForm from './disk-attach'
+import type CreateNetworkInterfaceForm from './network-interface-create'
 
 import type { FormProps } from '@oxide/form'
 import type { ErrorResponse } from '@oxide/api'
@@ -25,6 +26,7 @@ export interface FormTypes {
   'disk-create': typeof CreateDiskForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
+  'network-interface-create': typeof CreateNetworkInterfaceForm
 }
 
 export type FormValues<K extends keyof FormTypes> = ExtractFormValues<
