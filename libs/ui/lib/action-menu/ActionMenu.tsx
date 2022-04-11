@@ -42,7 +42,7 @@ export function ActionMenu(props: ActionMenuProps) {
   const groupedItems = Object.entries(
     groupBy(
       items.filter((i) => i.navGroup),
-      (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      (i) => i.navGroup!
     )
   )
 

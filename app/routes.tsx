@@ -52,11 +52,9 @@ import { FormPage } from './components/FormPage'
  * `types/react-router.d.ts`
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const orgCrumb = (m: RouteMatch) => m.params.orgName!
 const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
-/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 /** React Router route config in JSX form */
 export const routes = (
