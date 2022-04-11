@@ -6,7 +6,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 
 const values: NetworkInterfaceCreate = {
   name: '',
