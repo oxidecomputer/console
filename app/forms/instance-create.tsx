@@ -38,6 +38,11 @@ const values = {
   disks: [],
   attachedDisks: [],
   networkInterfaces: { type: 'Default' },
+  /**
+   * This is a hack to ensure the network interface radio has a default selection.
+   * We actually don't care about this value outside of that.
+   */
+  networkInterfaceType: 'Default',
 }
 
 export default function CreateInstanceForm({

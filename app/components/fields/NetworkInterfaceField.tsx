@@ -30,8 +30,9 @@ export function NetworkInterfaceField() {
     <>
       <div className="max-w-lg space-y-5">
         <RadioField
-          column
           id="network-interface-type"
+          name="networkInterfaceType"
+          column
           label="Network interface"
           className="pt-1"
           onChange={(event) => {
