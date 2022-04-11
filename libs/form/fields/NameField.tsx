@@ -16,7 +16,7 @@ export function NameField({
 }: NameFieldProps) {
   return (
     <TextField
-      validate={validateName(label, required)}
+      validate={getNameValidator(label, required)}
       required={required}
       label={label}
       name={name}
@@ -26,7 +26,7 @@ export function NameField({
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
-export const validateName =
+export const getNameValidator =
   (label: string, required: boolean) => (name: string) => {
     if (!required && !name) return
 
