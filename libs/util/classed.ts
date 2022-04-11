@@ -15,7 +15,9 @@ const make =
       )
     // allow arbitrary components to hang off this one, e.g., Table.Body
     Comp.displayName = `classed.${tag}`
-    return Comp as typeof Comp & Record<string, React.ComponentType>
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Comp as typeof Comp & Record<string, React.ComponentType<any>>
   }
 
 // JSX.IntrinsicElements[T] ensures same props as the real DOM element. For example,

@@ -4,7 +4,6 @@ import type { RouteMatch, RouteObject } from 'react-router-dom'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import LoginPage from './pages/LoginPage'
-import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
 import {
   AccessPage,
   DisksPage,
@@ -109,7 +108,7 @@ export const routes = (
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
-                element={<InstanceCreatePage />}
+                element={<FormPage type="instance-create" />}
                 title="Create instance"
                 icon={<Instances24Icon />}
               />

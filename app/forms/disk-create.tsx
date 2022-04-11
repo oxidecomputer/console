@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   DescriptionField,
   Form,
@@ -7,17 +8,16 @@ import {
   Radio,
 } from '@oxide/form'
 import { Divider } from '@oxide/ui'
-import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
-import { useParams } from 'app/hooks'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+
+import type { PrebuiltFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 const values = {
   name: '',
   description: '',
   size: 0,
-  type: '',
   sourceType: '',
   deletionRule: '',
 }
@@ -31,12 +31,12 @@ export function CreateDiskForm({
   onError,
   ...props
 }: PrebuiltFormProps<typeof values, Disk>) {
-  const parentNames = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
+  const pathParams = useParams('orgName', 'projectName')
 
   const createDisk = useApiMutation('projectDisksPost', {
     onSuccess(data) {
-      queryClient.invalidateQueries('projectDisksGet', parentNames)
+      queryClient.invalidateQueries('projectDisksGet', pathParams)
       onSuccess?.(data)
     },
     onError,
@@ -50,7 +50,7 @@ export function CreateDiskForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          createDisk.mutate({ ...parentNames, body })
+          createDisk.mutate({ ...pathParams, body })
         })
       }
       mutation={createDisk}
@@ -59,7 +59,6 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <TextField id="disk-type" name="type" />
       <RadioField column id="disk-source-type" name="sourceType">
         <Radio value="blank">Blank disk</Radio>
         <Radio value="image">Image</Radio>

@@ -2,43 +2,22 @@ import React from 'react'
 import type { ElementType, PropsWithChildren } from 'react'
 import { Info8Icon, Tooltip } from '@oxide/ui'
 
-/**
- * Ensures that label always has an `htmlFor` prop associated with it
- */
-type FieldLabelProps<T extends ElementType> = (
-  | {
-      id: string
-      htmlFor?: string
-      as?: never
-    }
-  | {
-      as: 'label'
-      htmlFor: string
-      id?: never
-    }
-  | {
-      as?: never
-      htmlFor: string
-      id?: never
-    }
-  | {
-      as: Exclude<T, 'label'>
-      htmlFor?: string
-      id?: never
-    }
-) & {
+interface FieldLabelProps {
+  id: string
+  as?: ElementType
+  htmlFor?: string
   tip?: string
   optional?: boolean
 }
 
-export const FieldLabel = <T extends ElementType = 'label'>({
+export const FieldLabel = ({
   id,
   children,
   htmlFor,
   tip,
   optional,
   as,
-}: PropsWithChildren<FieldLabelProps<T>>) => {
+}: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
     <div className="mb-2 flex h-4 space-x-2">

@@ -1,10 +1,10 @@
 import { DescriptionField, Form, NameField, TextField } from '@oxide/form'
 import { Divider } from '@oxide/ui'
 import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams } from 'app/hooks'
+import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',

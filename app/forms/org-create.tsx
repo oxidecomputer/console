@@ -4,7 +4,7 @@ import type { Organization } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
 import { Success16Icon } from '@oxide/ui'
-import type { PrebuiltFormProps } from '@oxide/form'
+import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',
