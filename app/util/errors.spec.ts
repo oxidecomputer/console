@@ -27,7 +27,9 @@ const unauthorized = {
 
 describe('getParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getParseError(parseError.error.message)).toEqual('Hello there, you have an error')
+    expect(getParseError(parseError.error.message)).toEqual(
+      'Hello there, you have an error'
+    )
   })
 
   it('returns undefined if error does not match pattern', () => {

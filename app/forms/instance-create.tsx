@@ -87,7 +87,9 @@ export default function CreateInstanceForm({
       onSubmit={
         onSubmit ||
         ((values) => {
-          const instance = INSTANCE_SIZES.find((option) => option.id === values['type']) || {
+          const instance = INSTANCE_SIZES.find(
+            (option) => option.id === values['type']
+          ) || {
             memory: 0,
             ncpus: 0,
           }

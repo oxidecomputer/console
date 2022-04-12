@@ -2061,7 +2061,10 @@ const isObjectOrArray = (o: unknown) =>
  * to decide whether to transform the value.
  */
 const mapObj =
-  (kf: (k: string) => string, vf: (k: string | undefined, v: unknown) => any = (k, v) => v) =>
+  (
+    kf: (k: string) => string,
+    vf: (k: string | undefined, v: unknown) => any = (k, v) => v
+  ) =>
   (o: unknown): unknown => {
     if (!isObjectOrArray(o)) return o
 
@@ -2331,7 +2334,10 @@ export class Api extends HttpClient {
     /**
      * Delete a global image.
      */
-    imagesDeleteImage: ({ imageName }: ImagesDeleteImageParams, params: RequestParams = {}) =>
+    imagesDeleteImage: (
+      { imageName }: ImagesDeleteImageParams,
+      params: RequestParams = {}
+    ) =>
       this.request<void>({
         path: `/images/${imageName}`,
         method: 'DELETE',

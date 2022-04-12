@@ -17,7 +17,10 @@ const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant
   destroyed: { color: 'neutral' },
 }
 
-export const InstanceStatusBadge = (props: { status: InstanceState; className?: string }) => (
+export const InstanceStatusBadge = (props: {
+  status: InstanceState
+  className?: string
+}) => (
   <Badge variant="secondary" {...INSTANCE_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>

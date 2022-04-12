@@ -140,7 +140,11 @@ export function ActionMenu(props: ActionMenuProps) {
 
         {items.length > 0 && (
           <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg">
-            <div className="overflow-y-auto" ref={divRef} style={{ maxHeight: LIST_HEIGHT }}>
+            <div
+              className="overflow-y-auto"
+              ref={divRef}
+              style={{ maxHeight: LIST_HEIGHT }}
+            >
               <ul ref={ulRef}>
                 {allGroups.map(([label, items]) => (
                   <div key={label}>

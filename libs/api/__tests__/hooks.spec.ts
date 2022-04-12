@@ -133,7 +133,10 @@ describe('useApiMutation', () => {
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('organizationProjectsPost'), config)
+      const { result } = renderHook(
+        () => useApiMutation('organizationProjectsPost'),
+        config
+      )
 
       act(() => result.current.mutate(projectPost404Params))
 
@@ -144,7 +147,10 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('organizationProjectsPost'), config)
+      const { result } = renderHook(
+        () => useApiMutation('organizationProjectsPost'),
+        config
+      )
 
       act(() => result.current.mutate(projectPost404Params))
 

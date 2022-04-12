@@ -20,7 +20,11 @@ const CommonForm = ({ error, id }: FormProps) => (
   <Form id={id}>
     <SideModal.Section className="border-t">
       <div className="space-y-0.5">
-        <FieldLabel id="router-name-label" htmlFor="router-name" tip="The name of the router">
+        <FieldLabel
+          id="router-name-label"
+          htmlFor="router-name"
+          tip="The name of the router"
+        >
           Name
         </FieldLabel>
         <TextField id="router-name" name="name" />

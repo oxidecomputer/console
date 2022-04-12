@@ -3,7 +3,12 @@ import { Outlet } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 
-import { ContentPane, ContentPaneWrapper, PageContainer, ContentPaneActions } from './helpers'
+import {
+  ContentPane,
+  ContentPaneWrapper,
+  PageContainer,
+  ContentPaneActions,
+} from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'

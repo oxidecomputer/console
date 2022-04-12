@@ -111,7 +111,11 @@ export const routes = (
             </Route>
             <Route path="vpcs" crumb="VPCs" icon={<Networking24Icon />}>
               <Route index element={<VpcsPage />} />
-              <Route path="new" title="Create VPC" element={<FormPage type="vpc-create" />} />
+              <Route
+                path="new"
+                title="Create VPC"
+                element={<FormPage type="vpc-create" />}
+              />
               <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
             </Route>
             <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>

@@ -50,7 +50,10 @@ export default function CreateNetworkInterfaceForm({
         onSubmit ||
         ((body) => {
           const { instanceName, ...others } = pathParams
-          invariant(instanceName, 'instanceName is required when posting a network interface')
+          invariant(
+            instanceName,
+            'instanceName is required when posting a network interface'
+          )
           createNetworkInterface.mutate({ instanceName, ...others, body })
         })
       }

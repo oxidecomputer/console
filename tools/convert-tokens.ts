@@ -198,8 +198,14 @@ StyleDictionary.registerFormat({
           makeColorUtility('stroke', 'border-r', 'border-right-color'),
           makeColorUtility('stroke', 'border-t', 'border-top-color'),
           makeColorUtility('stroke', 'border-b', 'border-bottom-color'),
-          makeColorUtility('stroke', 'border-x', ['border-left-color', 'border-right-color']),
-          makeColorUtility('stroke', 'border-y', ['border-top-color', 'border-bottom-color']),
+          makeColorUtility('stroke', 'border-x', [
+            'border-left-color',
+            'border-right-color',
+          ]),
+          makeColorUtility('stroke', 'border-y', [
+            'border-top-color',
+            'border-bottom-color',
+          ]),
           makeColorUtility('stroke', 'ring', '--tw-ring-color'),
           makeColorUtility('stroke', 'outline', 'outline-color'),
           makeColorUtility('chart-fill', 'chart-fill', 'fill'),

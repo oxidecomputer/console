@@ -175,7 +175,9 @@
   --surface-destructive-hover: rgb(var(--surface-destructive-hover-rgb));
 
   --surface-destructive-secondary-hover-rgb: var(--theme-destructive-4-rgb);
-  --surface-destructive-secondary-hover: rgb(var(--surface-destructive-secondary-hover-rgb));
+  --surface-destructive-secondary-hover: rgb(
+    var(--surface-destructive-secondary-hover-rgb)
+  );
 
   --surface-success-rgb: var(--theme-success-1-rgb);
   --surface-success: rgb(var(--surface-success-rgb));

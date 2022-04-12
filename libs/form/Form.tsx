@@ -65,7 +65,9 @@ export function Form<Values>({
 
   return (
     <>
-      {title && isSideModal && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
+      {title && isSideModal && (
+        <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
+      )}
       <Wrap with={<SideModal.Body />} when={isSideModal}>
         <Formik {...formikProps} validateOnBlur={false}>
           {(props) => (
@@ -128,7 +130,12 @@ interface FormActionsProps {
  * given a type of "submit." Default styles are applied all buttons but can be
  * overridden.
  */
-Form.Actions = ({ children, formId, submitDisabled = true, onDismiss }: FormActionsProps) => {
+Form.Actions = ({
+  children,
+  formId,
+  submitDisabled = true,
+  onDismiss,
+}: FormActionsProps) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const isSideModal = useIsInSideModal()
   const childArray = flattenChildren(children).map(

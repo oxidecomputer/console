@@ -24,7 +24,9 @@ export const Progress = (props: ProgressProps) => (
       style={{
         width: `${props.value}%`,
         transition:
-          props.transitionTime !== undefined ? `width ${props.transitionTime}ms` : undefined,
+          props.transitionTime !== undefined
+            ? `width ${props.transitionTime}ms`
+            : undefined,
       }}
     />
   </div>

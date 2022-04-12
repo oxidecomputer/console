@@ -6,7 +6,9 @@ import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
 
 const slash = <span className="text-secondary">/</span>
-export const InstanceResourceCell = ({ value }: Cell<Pick<Instance, 'ncpus' | 'memory'>>) => {
+export const InstanceResourceCell = ({
+  value,
+}: Cell<Pick<Instance, 'ncpus' | 'memory'>>) => {
   return (
     <TwoLineCell
       value={[

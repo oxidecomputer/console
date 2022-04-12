@@ -10,7 +10,12 @@ import {
   Notification16Icon,
   Resize16Icon,
 } from '@oxide/ui'
-import { ContentPane, ContentPaneWrapper, PageContainer, ContentPaneActions } from './helpers'
+import {
+  ContentPane,
+  ContentPaneWrapper,
+  PageContainer,
+  ContentPaneActions,
+} from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
