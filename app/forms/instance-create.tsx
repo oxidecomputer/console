@@ -25,8 +25,9 @@ import {
   WindowsResponsiveIcon,
 } from '@oxide/ui'
 import { useParams, useToast } from 'app/hooks'
-import { DisksTableField } from 'app/components/DisksTableField'
+import { DisksTableField } from 'app/components/fields/DisksTableField'
 import filesize from 'filesize'
+import { NetworkInterfaceField } from 'app/components/fields/NetworkInterfaceField'
 
 const values = {
   name: '',
@@ -36,6 +37,12 @@ const values = {
   hostname: '',
   disks: [],
   attachedDisks: [],
+  networkInterfaces: { type: 'Default' },
+  /**
+   * This is a hack to ensure the network interface radio has a default selection.
+   * We actually don't care about this value outside of that.
+   */
+  networkInterfaceType: 'Default',
 }
 
 export default function CreateInstanceForm({
@@ -209,6 +216,8 @@ export default function CreateInstanceForm({
 
       <Divider />
       <Form.Heading id="networking">Networking</Form.Heading>
+
+      <NetworkInterfaceField />
 
       <TextField
         id="hostname"

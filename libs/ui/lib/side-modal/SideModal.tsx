@@ -65,7 +65,7 @@ SideModal.Title = ({ id, children }: SideModalTitleProps) => {
   )
 }
 
-SideModal.Body = classed.div`body relative overflow-y-auto h-full`
+SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
