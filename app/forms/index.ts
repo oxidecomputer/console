@@ -5,6 +5,7 @@ import type { EditSubnetForm } from './subnet-edit'
 import type { CreateOrgForm } from './org-create'
 import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
+import type { CreateVpcForm } from './vpc-create'
 import type CreateInstanceForm from './instance-create'
 import type AttachDiskForm from './disk-attach'
 import type CreateNetworkInterfaceForm from './network-interface-create'
@@ -27,6 +28,7 @@ export interface FormTypes {
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
   'network-interface-create': typeof CreateNetworkInterfaceForm
+  'vpc-create': typeof CreateVpcForm
 }
 
 export type FormValues<K extends keyof FormTypes> = ExtractFormValues<

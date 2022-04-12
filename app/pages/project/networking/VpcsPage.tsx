@@ -2,7 +2,8 @@ import React, { useMemo } from 'react'
 import { useParams, useQuickActions } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { buttonStyle, TableActions } from '@oxide/ui'
 
 export const VpcsPage = () => {
   const projectParams = useParams('orgName', 'projectName')
@@ -27,6 +28,14 @@ export const VpcsPage = () => {
   const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
   return (
     <>
+      <TableActions>
+        <Link
+          to="new"
+          className={buttonStyle({ variant: 'secondary', size: 'xs' })}
+        >
+          New VPC
+        </Link>
+      </TableActions>
       <Table>
         <Column
           id="name"
