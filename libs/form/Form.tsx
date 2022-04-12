@@ -1,4 +1,5 @@
 import type { ButtonProps } from '@oxide/ui'
+import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { SideModal } from '@oxide/ui'
 import { useIsInSideModal } from '@oxide/ui'
@@ -18,7 +19,7 @@ import React, { cloneElement } from 'react'
 import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'
-import type { ErrorResponse } from '@oxide/api'
+import type { Error } from '@oxide/api'
 
 const PageActionsTunnel = tunnel('form-page-actions')
 const SideModalActionsTunnel = tunnel('form-sidebar-actions')
@@ -92,6 +93,7 @@ export function Form<Values>({
                         !props.dirty ||
                         !props.isValid ||
                         mutation.status === 'loading',
+                      error: mutation.error?.error,
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -104,6 +106,7 @@ export function Form<Values>({
                           !props.dirty ||
                           !props.isValid ||
                           mutation.status === 'loading',
+                        error: mutation.error?.error,
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -126,6 +129,7 @@ interface FormActionsProps {
   children: React.ReactNode
   submitDisabled?: boolean
   onDismiss?: () => void
+  error?: Error | null
 }
 
 /**
@@ -139,6 +143,7 @@ Form.Actions = ({
   formId,
   submitDisabled = true,
   onDismiss,
+  error,
 }: FormActionsProps) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const isSideModal = useIsInSideModal()
@@ -167,6 +172,12 @@ Form.Actions = ({
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
+      {error && (
+        <div className="text-error">
+          <Error12Icon />
+          {error}
+        </div>
+      )}
     </div>
   )
 }
