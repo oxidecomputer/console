@@ -89,9 +89,7 @@ export function Form<Values>({
                     {cloneElement(actions, {
                       formId: id,
                       submitDisabled:
-                        !props.dirty ||
-                        !props.isValid ||
-                        mutation.status === 'loading',
+                        !props.dirty || !props.isValid || mutation.status === 'loading',
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -101,9 +99,7 @@ export function Form<Values>({
                       {cloneElement(actions, {
                         formId: id,
                         submitDisabled:
-                          !props.dirty ||
-                          !props.isValid ||
-                          mutation.status === 'loading',
+                          !props.dirty || !props.isValid || mutation.status === 'loading',
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -161,9 +157,7 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div
-      className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}
-    >
+    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
@@ -171,9 +165,7 @@ Form.Actions = ({
   )
 }
 
-Form.Submit = (props: ButtonProps) => (
-  <Button type="submit" variant="default" {...props} />
-)
+Form.Submit = (props: ButtonProps) => <Button type="submit" variant="default" {...props} />
 
 Form.Cancel = (props: ButtonProps) => (
   <Button variant="secondary" {...props}>

@@ -4,9 +4,7 @@ import { capitalize } from '@oxide/util'
 
 export function getParseError(message: string | undefined): string | undefined {
   if (!message) return undefined
-  const inner = /^unable to parse body: (.+) at line \d+ column \d+$/.exec(
-    message
-  )?.[1]
+  const inner = /^unable to parse body: (.+) at line \d+ column \d+$/.exec(message)?.[1]
   return inner && capitalize(inner)
 }
 

@@ -14,9 +14,5 @@ export const Spinner = ({ className }: SpinnerProps) => {
     setIndex((index + 1) % FRAMES.length)
   }, 150)
 
-  return (
-    <span className={cn('text-mono-lg text-accent', className)}>
-      {FRAMES[index]}
-    </span>
-  )
+  return <span className={cn('text-mono-lg text-accent', className)}>{FRAMES[index]}</span>
 }

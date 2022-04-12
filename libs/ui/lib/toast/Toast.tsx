@@ -32,23 +32,14 @@ export const Toast = ({
   timeout,
   variant = 'success',
 }: ToastProps) => (
-  <Alert
-    className={cn(
-      'flex w-96 items-center space-x-2 rounded p-4',
-      color[variant]
-    )}
-  >
+  <Alert className={cn('flex w-96 items-center space-x-2 rounded p-4', color[variant])}>
     {icon}
     <div className="flex-1 space-y-1 pl-2">
       <div className="text-sans-xl">{title}</div>
       <div className="text-sans-md">{content}</div>
     </div>
     <div>
-      <Button
-        className="flex !border-transparent"
-        variant="ghost"
-        onClick={onClose}
-      >
+      <Button className="flex !border-transparent" variant="ghost" onClick={onClose}>
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <Close12Icon />

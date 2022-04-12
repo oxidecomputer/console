@@ -27,9 +27,7 @@ export function Tabs(props: TabsProps) {
   })
 
   const index =
-    searchTabId && tabIds.includes(searchTabId)
-      ? tabIds.indexOf(searchTabId)
-      : 0
+    searchTabId && tabIds.includes(searchTabId) ? tabIds.indexOf(searchTabId) : 0
 
   function onChange(newIdx: number) {
     // no arg is the canonical representation of first tab

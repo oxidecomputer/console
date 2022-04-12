@@ -1,12 +1,7 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
 
-import {
-  Button,
-  FieldLabel,
-  SideModal_old as SideModal,
-  TextField,
-} from '@oxide/ui'
+import { Button, FieldLabel, SideModal_old as SideModal, TextField } from '@oxide/ui'
 import type { VpcRouter, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
@@ -147,11 +142,7 @@ export function EditVpcRouterModal({
 
   const formId = 'edit-vpc-router-form'
   return (
-    <SideModal
-      id="edit-vpc-router-modal"
-      title="Edit router"
-      onDismiss={dismiss}
-    >
+    <SideModal id="edit-vpc-router-modal" title="Edit router" onDismiss={dismiss}>
       <Formik
         initialValues={{
           name: originalRouter.name,

@@ -53,9 +53,7 @@ export function lookupOrg(req: Req<OrgParams>): Result<Json<Api.Organization>> {
   return Ok(org)
 }
 
-export function lookupProject(
-  req: Req<ProjectParams>
-): Result<Json<Api.Project>> {
+export function lookupProject(req: Req<ProjectParams>): Result<Json<Api.Project>> {
   const [org, err] = lookupOrg(req)
   if (err) return Err(err)
 
@@ -80,9 +78,7 @@ export function lookupVpc(req: Req<VpcParams>): Result<Json<Api.Vpc>> {
   return Ok(vpc)
 }
 
-export function lookupInstance(
-  req: Req<InstanceParams>
-): Result<Json<Api.Instance>> {
+export function lookupInstance(req: Req<InstanceParams>): Result<Json<Api.Instance>> {
   const [project, err] = lookupProject(req)
   if (err) return Err(err)
 
@@ -106,9 +102,7 @@ export function lookupDisk(req: Req<DiskParams>): Result<Json<Api.Disk>> {
   return Ok(disk)
 }
 
-export function lookupVpcSubnet(
-  req: Req<VpcSubnetParams>
-): Result<Json<Api.VpcSubnet>> {
+export function lookupVpcSubnet(req: Req<VpcSubnetParams>): Result<Json<Api.VpcSubnet>> {
   const [vpc, err] = lookupVpc(req)
   if (err) return Err(err)
 

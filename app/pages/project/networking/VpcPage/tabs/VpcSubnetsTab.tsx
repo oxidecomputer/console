@@ -24,11 +24,7 @@ export const VpcSubnetsTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button
-          size="xs"
-          variant="secondary"
-          onClick={() => setShowCreate(true)}
-        >
+        <Button size="xs" variant="secondary" onClick={() => setShowCreate(true)}>
           New subnet
         </Button>
         <SideModal
@@ -44,10 +40,7 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         >
           {editing && (
-            <EditSubnetForm
-              initialValues={editing}
-              onSuccess={() => setEditing(null)}
-            />
+            <EditSubnetForm initialValues={editing} onSuccess={() => setEditing(null)} />
           )}
         </SideModal>
       </div>

@@ -49,10 +49,7 @@ export const Dropdown: FC<DropdownProps> = ({
 
   return (
     <div className={cn('relative', className)}>
-      <FieldLabel
-        {...select.getLabelProps()}
-        className={cn(!showLabel && 'sr-only')}
-      >
+      <FieldLabel {...select.getLabelProps()} className={cn(!showLabel && 'sr-only')}>
         {label}
       </FieldLabel>
       <button
@@ -66,9 +63,7 @@ export const Dropdown: FC<DropdownProps> = ({
         aria-describedby={hintId}
         {...select.getToggleButtonProps()}
       >
-        {select.selectedItem
-          ? itemToString(select.selectedItem)
-          : placeholder || label}
+        {select.selectedItem ? itemToString(select.selectedItem) : placeholder || label}
         <DirectionDownIcon title="Select" className="ml-5" />
       </button>
       <ul

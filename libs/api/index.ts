@@ -1,9 +1,5 @@
 import type { ResultItem } from './hooks'
-import {
-  getUseApiMutation,
-  getUseApiQuery,
-  getUseApiQueryClient,
-} from './hooks'
+import { getUseApiMutation, getUseApiQuery, getUseApiQueryClient } from './hooks'
 import { Api } from './__generated__/Api'
 
 const api = new Api({

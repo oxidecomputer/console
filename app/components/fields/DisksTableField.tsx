@@ -2,13 +2,7 @@ import React, { useState } from 'react'
 import { useField } from 'formik'
 import { CreateDiskForm } from 'app/forms/disk-create'
 import { AttachDiskForm } from 'app/forms/disk-attach'
-import {
-  Button,
-  Error16Icon,
-  FieldLabel,
-  MiniTable,
-  SideModal,
-} from '@oxide/ui'
+import { Button, Error16Icon, FieldLabel, MiniTable, SideModal } from '@oxide/ui'
 import type { FormValues } from '../../forms'
 
 type DiskTableItem =
@@ -19,9 +13,9 @@ export function DisksTableField() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  const [, { value: items = [] }, { setValue: setItems }] = useField<
-    DiskTableItem[]
-  >({ name: 'disks' })
+  const [, { value: items = [] }, { setValue: setItems }] = useField<DiskTableItem[]>({
+    name: 'disks',
+  })
 
   return (
     <>
@@ -48,9 +42,7 @@ export function DisksTableField() {
                   <MiniTable.Cell>
                     <Button
                       variant="link"
-                      onClick={() =>
-                        setItems(items.filter((i) => i.name !== item.name))
-                      }
+                      onClick={() => setItems(items.filter((i) => i.name !== item.name))}
                     >
                       <Error16Icon title={`remove ${item.name}`} />
                     </Button>
@@ -62,18 +54,10 @@ export function DisksTableField() {
         )}
 
         <div className="space-x-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDiskCreate(true)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowDiskCreate(true)}>
             Create new disk
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDiskAttach(true)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowDiskAttach(true)}>
             Attach existing disk
           </Button>
         </div>

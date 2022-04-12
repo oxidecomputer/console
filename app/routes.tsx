@@ -68,11 +68,7 @@ export const routes = (
     <Route index element={<Navigate to="/orgs" replace />} />
 
     <Route path="orgs">
-      <Route
-        element={<RootLayout />}
-        icon={<Folder24Icon />}
-        title="Organizations"
-      >
+      <Route element={<RootLayout />} icon={<Folder24Icon />} title="Organizations">
         <Route index element={<OrgsPage />} />
         <Route
           path="new"
@@ -95,17 +91,9 @@ export const routes = (
           </Route>
 
           {/* PROJECT */}
-          <Route
-            path=":projectName"
-            element={<ProjectLayout />}
-            crumb={projectCrumb}
-          >
+          <Route path=":projectName" element={<ProjectLayout />} crumb={projectCrumb}>
             <Route index element={<Navigate to="instances" replace />} />
-            <Route
-              path="instances"
-              crumb="Instances"
-              icon={<Instances24Icon />}
-            >
+            <Route path="instances" crumb="Instances" icon={<Instances24Icon />}>
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"

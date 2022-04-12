@@ -43,11 +43,7 @@ export type TableRowProps = JSX.IntrinsicElements['tr'] & {
 }
 Table.Row = ({ className, selected, ...props }: TableRowProps) => (
   <tr
-    className={cn(
-      'bg-default',
-      className,
-      (selected && 'is-selected') || 'hover:bg-raise'
-    )}
+    className={cn('bg-default', className, (selected && 'is-selected') || 'hover:bg-raise')}
     {...props}
   />
 )

@@ -199,17 +199,13 @@
   --surface-accent-hover: rgb(var(--surface-accent-hover-rgb));
 
   --surface-accent-secondary-hover-rgb: var(--theme-accent-4-rgb);
-  --surface-accent-secondary-hover: rgb(
-    var(--surface-accent-secondary-hover-rgb)
-  );
+  --surface-accent-secondary-hover: rgb(var(--surface-accent-secondary-hover-rgb));
 
   --surface-destructive-rgb: var(--theme-destructive-1-rgb);
   --surface-destructive: rgb(var(--surface-destructive-rgb));
 
   --surface-destructive-secondary-rgb: var(--theme-destructive-5-rgb);
-  --surface-destructive-secondary: rgb(
-    var(--surface-destructive-secondary-rgb)
-  );
+  --surface-destructive-secondary: rgb(var(--surface-destructive-secondary-rgb));
 
   --surface-destructive-raise-rgb: var(--theme-destructive-4-rgb);
   --surface-destructive-raise: rgb(var(--surface-destructive-raise-rgb));
@@ -247,9 +243,7 @@
   --surface-notice-hover: rgb(var(--surface-notice-hover-rgb));
 
   --surface-notice-secondary-hover-rgb: var(--theme-notice-4-rgb);
-  --surface-notice-secondary-hover: rgb(
-    var(--surface-notice-secondary-hover-rgb)
-  );
+  --surface-notice-secondary-hover: rgb(var(--surface-notice-secondary-hover-rgb));
 
   --surface-inverse-rgb: var(--content-default-rgb);
   --surface-inverse: rgb(var(--surface-inverse-rgb));
@@ -288,9 +282,7 @@
   --content-destructive: rgb(var(--content-destructive-rgb));
 
   --content-destructive-secondary-rgb: var(--theme-destructive-2-rgb);
-  --content-destructive-secondary: rgb(
-    var(--content-destructive-secondary-rgb)
-  );
+  --content-destructive-secondary: rgb(var(--content-destructive-secondary-rgb));
 
   --content-destructive-tertiary-rgb: var(--theme-destructive-3-rgb);
   --content-destructive-tertiary: rgb(var(--content-destructive-tertiary-rgb));
@@ -388,18 +380,9 @@
   --stroke-notice-tertiary-rgb: var(--theme-notice-4-rgb);
   --stroke-notice-tertiary: rgb(var(--stroke-notice-tertiary-rgb));
 
-  --chart-fill-area-primary: rgba(
-    var(--theme-accent-3-rgb),
-    0.7019607843137254
-  );
-  --chart-fill-area-secondary: rgba(
-    var(--theme-accent-4-rgb),
-    0.7019607843137254
-  );
-  --chart-fill-area-tertiary: rgba(
-    var(--theme-accent-5-rgb),
-    0.7019607843137254
-  );
+  --chart-fill-area-primary: rgba(var(--theme-accent-3-rgb), 0.7019607843137254);
+  --chart-fill-area-secondary: rgba(var(--theme-accent-4-rgb), 0.7019607843137254);
+  --chart-fill-area-tertiary: rgba(var(--theme-accent-5-rgb), 0.7019607843137254);
   --chart-fill-area-quaternary: rgba(var(--theme-accent-5-rgb), 0.2);
 
   --chart-fill-item-primary-rgb: var(--theme-accent-2-rgb);

@@ -21,7 +21,5 @@ function ErrorFallback({ error }: Props) {
 }
 
 export const ErrorBoundary = (props: { children: React.ReactNode }) => (
-  <BaseErrorBoundary FallbackComponent={ErrorFallback}>
-    {props.children}
-  </BaseErrorBoundary>
+  <BaseErrorBoundary FallbackComponent={ErrorFallback}>{props.children}</BaseErrorBoundary>
 )

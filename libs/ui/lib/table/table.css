@@ -90,17 +90,11 @@ tr:last-of-type td:last-of-type {
 }
 
 /* Ensures subsequent, interior selections have side borders */
-.ox-table
-  .multi-selection:not(.selection-start):not(.selection-end)
-  td:first-child
-  > div {
+.ox-table .multi-selection:not(.selection-start):not(.selection-end) td:first-child > div {
   box-shadow: -1px 0px var(--stroke-accent);
 }
 
-.ox-table
-  .multi-selection:not(.selection-start):not(.selection-end)
-  td:last-child
-  > div {
+.ox-table .multi-selection:not(.selection-start):not(.selection-end) td:last-child > div {
   box-shadow: 1px 0px var(--stroke-accent);
 }
 

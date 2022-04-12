@@ -31,19 +31,14 @@ export interface FormTypes {
   'vpc-create': typeof CreateVpcForm
 }
 
-export type FormValues<K extends keyof FormTypes> = ExtractFormValues<
-  FormTypes[K]
->
+export type FormValues<K extends keyof FormTypes> = ExtractFormValues<FormTypes[K]>
 
 /**
  * A form that's built out ahead of time and intended to be re-used dynamically. Fields
  * that are expected to be provided by default are set to optional.
  */
 export type PrebuiltFormProps<Values, Data> = Omit<
-  Optional<
-    FormProps<Values>,
-    'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'
-  >,
+  Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'>,
   'children'
 > & {
   children?: never
@@ -54,9 +49,7 @@ export type PrebuiltFormProps<Values, Data> = Omit<
 /**
  * A utility type for a prebuilt form that extends another form
  */
-export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<
-  infer B
->
+export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<infer B>
   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
     B extends PrebuiltFormProps<infer V, any>
     ? PrebuiltFormProps<V, D>

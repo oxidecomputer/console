@@ -4,17 +4,12 @@ const tsBaseConfig = require('../../../tsconfig.json')
 
 process.env.IS_STORYBOOK = true
 
-const findStoryPaths = (
-  dir = path.join(__dirname, '../lib'),
-  knownStoryPaths = []
-) => {
+const findStoryPaths = (dir = path.join(__dirname, '../lib'), knownStoryPaths = []) => {
   let files = fs.readdirSync(dir)
 
   files.forEach((file) => {
     let newDir = path.resolve(dir, file)
-    let storyPath = path.dirname(
-      path.relative(__dirname, path.resolve(dir, file))
-    )
+    let storyPath = path.dirname(path.relative(__dirname, path.resolve(dir, file)))
 
     if (fs.statSync(newDir).isDirectory()) {
       // eslint-disable-next-line no-param-reassign

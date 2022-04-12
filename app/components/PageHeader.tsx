@@ -15,10 +15,7 @@ export function PageHeader() {
     typeof iconMatch?.route.icon === 'function'
       ? iconMatch.route.icon(iconMatch)
       : iconMatch?.route.icon
-  invariant(
-    title,
-    'Page missing title, check routes config to ensure one is provided'
-  )
+  invariant(title, 'Page missing title, check routes config to ensure one is provided')
   return (
     (title && (
       <Header>

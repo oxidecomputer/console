@@ -68,26 +68,25 @@ export const handlers = [
     (req, res) => res(json({ items: db.orgs }))
   ),
 
-  rest.post<
-    Json<Api.OrganizationCreate>,
-    never,
-    Json<Api.Organization> | PostErr
-  >('/api/organizations', (req, res) => {
-    const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
-    if (alreadyExists) return res(alreadyExistsErr)
+  rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
+    '/api/organizations',
+    (req, res) => {
+      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+      if (alreadyExists) return res(alreadyExistsErr)
 
-    if (!req.body.name) {
-      return res(badRequest('name requires at least one character'))
-    }
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
 
-    const newOrg: Json<Api.Organization> = {
-      id: genId('org'),
-      ...req.body,
-      ...getTimestamps(),
+      const newOrg: Json<Api.Organization> = {
+        id: genId('org'),
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.orgs.push(newOrg)
+      return res(json(newOrg, 201))
     }
-    db.orgs.push(newOrg)
-    return res(json(newOrg, 201))
-  }),
+  ),
 
   rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
     '/api/organizations/:orgName',
@@ -179,11 +178,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<
-    Json<Api.InstanceCreate>,
-    ProjectParams,
-    Json<Api.Instance> | PostErr
-  >(
+  rest.post<Json<Api.InstanceCreate>, ProjectParams, Json<Api.Instance> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
       const [project, err] = lookupProject(req)
@@ -366,11 +361,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<
-    Json<Api.VpcSubnetCreate>,
-    VpcParams,
-    Json<Api.VpcSubnet> | PostErr
-  >(
+  rest.post<Json<Api.VpcSubnetCreate>, VpcParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
       const [vpc, err] = lookupVpc(req)
@@ -400,11 +391,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<
-    Json<Api.VpcSubnetUpdate>,
-    VpcSubnetParams,
-    Json<Api.VpcSubnet> | PostErr
-  >(
+  rest.put<Json<Api.VpcSubnetUpdate>, VpcSubnetParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
     (req, res, ctx) => {
       const [subnet, err] = lookupVpcSubnet(req)

@@ -12,9 +12,7 @@ test('FormTypes must contain references to all forms', async () => {
     .map((f) => f.slice(0, -4))
     .sort()
 
-  const AST = await parse(
-    await fs.readFile(path.join(__dirname, './index.ts'), 'utf8')
-  )
+  const AST = await parse(await fs.readFile(path.join(__dirname, './index.ts'), 'utf8'))
   traverse(AST, {
     TSInterfaceDeclaration(path) {
       const name = path.node.id.name

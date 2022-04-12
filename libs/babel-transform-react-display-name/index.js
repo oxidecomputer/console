@@ -48,21 +48,16 @@ module.exports = function ({ types: t }) {
         }
 
         if (t.isFunctionDeclaration(componentFn) && componentFn.node.id) {
-          componentFn.insertAfter(
-            genDisplayName(path, componentFn.node.id.name)
-          )
+          componentFn.insertAfter(genDisplayName(path, componentFn.node.id.name))
           return
         }
 
         const isExpressionFn =
-          t.isFunctionExpression(componentFn) ||
-          t.isArrowFunctionExpression(componentFn)
+          t.isFunctionExpression(componentFn) || t.isArrowFunctionExpression(componentFn)
 
         if (!isExpressionFn) return
 
-        const declarator = componentFn.findParent((path) =>
-          t.isVariableDeclarator(path)
-        )
+        const declarator = componentFn.findParent((path) => t.isVariableDeclarator(path))
         if (declarator) {
           const parentStatement = componentFn.getStatementParent()
           const name = declarator.node.id.name
@@ -78,10 +73,7 @@ module.exports = function ({ types: t }) {
           const leftHandSide = assignmentExpression.node.left
 
           // Only want to do this step for top level components
-          if (
-            !t.isProgram(parentStatement.parent) ||
-            !t.isMemberExpression(leftHandSide)
-          ) {
+          if (!t.isProgram(parentStatement.parent) || !t.isMemberExpression(leftHandSide)) {
             return
           }
 
@@ -89,9 +81,7 @@ module.exports = function ({ types: t }) {
             t.assignmentExpression(
               '=',
               t.memberExpression(leftHandSide, t.identifier('displayName')),
-              t.stringLiteral(
-                `${printMemberExpression(leftHandSide)} - ${filePath(path)}`
-              )
+              t.stringLiteral(`${printMemberExpression(leftHandSide)} - ${filePath(path)}`)
             )
           )
           return
@@ -105,9 +95,7 @@ module.exports = function ({ types: t }) {
         if (t.isMemberExpression(path.node.tag)) {
           const memberString = printMemberExpression(path.node.tag)
           if (memberString.startsWith('classed.')) {
-            const declarator = path.findParent((path) =>
-              t.isVariableDeclarator(path)
-            )
+            const declarator = path.findParent((path) => t.isVariableDeclarator(path))
             if (!declarator) return
             const parentStatement = path.getStatementParent()
             parentStatement.insertAfter(

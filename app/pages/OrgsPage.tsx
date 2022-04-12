@@ -30,10 +30,7 @@ const OrgsPage = () => {
   return (
     <>
       <TableActions>
-        <Link
-          to="new"
-          className={buttonStyle({ variant: 'secondary', size: 'xs' })}
-        >
+        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New Organization
         </Link>
       </TableActions>

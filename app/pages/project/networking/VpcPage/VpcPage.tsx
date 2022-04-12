@@ -19,12 +19,8 @@ export const VpcPage = () => {
     <>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">
-            {vpc?.description}
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">
-            {vpc?.dnsName}
-          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{vpc?.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="DNS Name">{vpc?.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">

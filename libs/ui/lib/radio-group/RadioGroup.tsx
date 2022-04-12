@@ -72,11 +72,7 @@ export const RadioGroup = ({
   onChange,
 }: RadioGroupProps) => (
   <div
-    className={cn(
-      'flex',
-      column ? 'flex-col space-y-2' : 'flex-wrap gap-5',
-      className
-    )}
+    className={cn('flex', column ? 'flex-col space-y-2' : 'flex-wrap gap-5', className)}
     role="radiogroup"
     onChange={onChange}
   >

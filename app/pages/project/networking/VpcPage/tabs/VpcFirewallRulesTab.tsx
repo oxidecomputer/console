@@ -14,10 +14,7 @@ import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
-import {
-  CreateFirewallRuleModal,
-  EditFirewallRuleModal,
-} from '../modals/firewall-rules'
+import { CreateFirewallRuleModal, EditFirewallRuleModal } from '../modals/firewall-rules'
 
 const columns = [
   {
@@ -82,11 +79,7 @@ export const VpcFirewallRulesTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button
-          size="xs"
-          variant="secondary"
-          onClick={() => setCreateModalOpen(true)}
-        >
+        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New rule
         </Button>
         <CreateFirewallRuleModal

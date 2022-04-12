@@ -37,9 +37,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span>
       <Badge variant="ghost">{label}</Badge>
     </span>
-    <div className="flex items-center whitespace-nowrap pr-4 text-sans-md">
-      {children}
-    </div>
+    <div className="flex items-center whitespace-nowrap pr-4 text-sans-md">{children}</div>
   </>
 )
 
@@ -48,10 +46,7 @@ interface PropertiesTableGroupProps {
   className?: string
 }
 
-PropertiesTable.Group = ({
-  children,
-  className,
-}: PropertiesTableGroupProps) => {
+PropertiesTable.Group = ({ children, className }: PropertiesTableGroupProps) => {
   invariant(
     isOneOf(children, [PropertiesTable]),
     'PropertiesTable can only have PropertiesTable as a child'

@@ -81,11 +81,7 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
 export const TextFieldError = ({ name }: { name: string }) => (
   <div className="ml-px">
     <ErrorMessage name={name}>
-      {(msg) =>
-        msg && (
-          <Alert className="py-2 text-mono-sm text-destructive">{msg}</Alert>
-        )
-      }
+      {(msg) => msg && <Alert className="py-2 text-mono-sm text-destructive">{msg}</Alert>}
     </ErrorMessage>
   </div>
 )
