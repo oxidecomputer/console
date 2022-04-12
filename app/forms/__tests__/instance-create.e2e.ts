@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Instance Create Form', () => {
-  test('can invoke instance create form from instances page', async ({
-    page,
-  }) => {
+  test('can invoke instance create form from instances page', async ({ page }) => {
     await page.goto('/orgs/maze-war/projects/mock-project/instances')
     await page.locator('text="New Instance"').click()
     await expect(page.locator('h1:has-text("Create instance")')).toBeVisible()

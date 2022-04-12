@@ -714,11 +714,7 @@ export type RouterRouteCreateParams = {
  *
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
-export type RouterRouteKind =
-  | 'default'
-  | 'vpc_subnet'
-  | 'vpc_peering'
-  | 'custom'
+export type RouterRouteKind = 'default' | 'vpc_subnet' | 'vpc_peering' | 'custom'
 
 /**
  * A single page of results
@@ -1403,10 +1399,7 @@ export type NameSortMode = 'name-ascending'
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode =
-  | 'name-ascending'
-  | 'name-descending'
-  | 'id-ascending'
+export type NameOrIdSortMode = 'name-ascending' | 'name-descending' | 'id-ascending'
 
 export interface HardwareRacksGetParams {
   limit?: number | null
@@ -2050,8 +2043,7 @@ export interface UsersGetUserParams {
   userName: Name
 }
 
-const camelToSnake = (s: string) =>
-  s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
+const camelToSnake = (s: string) => s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
 
 const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())
 
@@ -2069,10 +2061,7 @@ const isObjectOrArray = (o: unknown) =>
  * to decide whether to transform the value.
  */
 const mapObj =
-  (
-    kf: (k: string) => string,
-    vf: (k: string | undefined, v: unknown) => any = (k, v) => v
-  ) =>
+  (kf: (k: string) => string, vf: (k: string | undefined, v: unknown) => any = (k, v) => v) =>
   (o: unknown): unknown => {
     if (!isObjectOrArray(o)) return o
 
@@ -2116,10 +2105,7 @@ export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   cancelToken?: CancelToken
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  'body' | 'method' | 'query' | 'path'
->
+export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>
 
 export interface ApiConfig {
   baseUrl?: string
@@ -2142,9 +2128,7 @@ export type SuccessResponse<Data extends unknown> = Response & {
   error: null
 }
 
-export type ApiResponse<Data extends unknown> =
-  | SuccessResponse<Data>
-  | ErrorResponse
+export type ApiResponse<Data extends unknown> = SuccessResponse<Data> | ErrorResponse
 
 type CancelToken = Symbol | string | number
 
@@ -2164,8 +2148,7 @@ const toQueryString = (rawQuery?: QueryParamsType): string =>
 export class HttpClient {
   public baseUrl: string = ''
   private abortControllers = new Map<CancelToken, AbortController>()
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams)
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams)
 
   private baseApiParams: RequestParams = {
     credentials: 'same-origin',
@@ -2189,9 +2172,7 @@ export class HttpClient {
     }
   }
 
-  private createAbortSignal = (
-    cancelToken: CancelToken
-  ): AbortSignal | undefined => {
+  private createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken)
       if (abortController) {
@@ -2270,10 +2251,7 @@ export class Api extends HttpClient {
     /**
      * List racks in the system.
      */
-    hardwareRacksGet: (
-      query: HardwareRacksGetParams,
-      params: RequestParams = {}
-    ) =>
+    hardwareRacksGet: (query: HardwareRacksGetParams, params: RequestParams = {}) =>
       this.request<RackResultsPage>({
         path: `/hardware/racks`,
         method: 'GET',
@@ -2297,10 +2275,7 @@ export class Api extends HttpClient {
     /**
      * List sleds in the system.
      */
-    hardwareSledsGet: (
-      query: HardwareSledsGetParams,
-      params: RequestParams = {}
-    ) =>
+    hardwareSledsGet: (query: HardwareSledsGetParams, params: RequestParams = {}) =>
       this.request<SledResultsPage>({
         path: `/hardware/sleds`,
         method: 'GET',
@@ -2335,11 +2310,7 @@ export class Api extends HttpClient {
     /**
      * Create a global image.
      */
-    imagesPost: (
-      query: ImagesPostParams,
-      data: ImageCreate,
-      params: RequestParams = {}
-    ) =>
+    imagesPost: (query: ImagesPostParams, data: ImageCreate, params: RequestParams = {}) =>
       this.request<Image>({
         path: `/images`,
         method: 'POST',
@@ -2350,10 +2321,7 @@ export class Api extends HttpClient {
     /**
      * Get a global image.
      */
-    imagesGetImage: (
-      { imageName }: ImagesGetImageParams,
-      params: RequestParams = {}
-    ) =>
+    imagesGetImage: ({ imageName }: ImagesGetImageParams, params: RequestParams = {}) =>
       this.request<Image>({
         path: `/images/${imageName}`,
         method: 'GET',
@@ -2363,21 +2331,14 @@ export class Api extends HttpClient {
     /**
      * Delete a global image.
      */
-    imagesDeleteImage: (
-      { imageName }: ImagesDeleteImageParams,
-      params: RequestParams = {}
-    ) =>
+    imagesDeleteImage: ({ imageName }: ImagesDeleteImageParams, params: RequestParams = {}) =>
       this.request<void>({
         path: `/images/${imageName}`,
         method: 'DELETE',
         ...params,
       }),
 
-    spoofLogin: (
-      query: SpoofLoginParams,
-      data: LoginParams,
-      params: RequestParams = {}
-    ) =>
+    spoofLogin: (query: SpoofLoginParams, data: LoginParams, params: RequestParams = {}) =>
       this.request<void>({
         path: `/login`,
         method: 'POST',
@@ -2395,10 +2356,7 @@ export class Api extends HttpClient {
     /**
      * List all organizations.
      */
-    organizationsGet: (
-      query: OrganizationsGetParams,
-      params: RequestParams = {}
-    ) =>
+    organizationsGet: (query: OrganizationsGetParams, params: RequestParams = {}) =>
       this.request<OrganizationResultsPage>({
         path: `/organizations`,
         method: 'GET',
@@ -2688,11 +2646,7 @@ export class Api extends HttpClient {
      * Delete an instance from a project.
      */
     projectInstancesDeleteInstance: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: ProjectInstancesDeleteInstanceParams,
+      { instanceName, orgName, projectName }: ProjectInstancesDeleteInstanceParams,
       params: RequestParams = {}
     ) =>
       this.request<void>({
@@ -2743,11 +2697,7 @@ export class Api extends HttpClient {
      * Migrate an instance to a different propolis-server, possibly on a different sled.
      */
     projectInstancesMigrateInstance: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: ProjectInstancesMigrateInstanceParams,
+      { instanceName, orgName, projectName }: ProjectInstancesMigrateInstanceParams,
       data: InstanceMigrate,
       params: RequestParams = {}
     ) =>
@@ -2762,12 +2712,7 @@ export class Api extends HttpClient {
      * List network interfaces attached to this instance.
      */
     instanceNetworkInterfacesGet: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-        ...query
-      }: InstanceNetworkInterfacesGetParams,
+      { instanceName, orgName, projectName, ...query }: InstanceNetworkInterfacesGetParams,
       params: RequestParams = {}
     ) =>
       this.request<NetworkInterfaceResultsPage>({
@@ -2781,11 +2726,7 @@ export class Api extends HttpClient {
      * Create a network interface for an instance.
      */
     instanceNetworkInterfacesPost: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: InstanceNetworkInterfacesPostParams,
+      { instanceName, orgName, projectName }: InstanceNetworkInterfacesPostParams,
       data: NetworkInterfaceCreate,
       params: RequestParams = {}
     ) =>
@@ -2836,11 +2777,7 @@ export class Api extends HttpClient {
      * Reboot an instance.
      */
     projectInstancesInstanceReboot: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: ProjectInstancesInstanceRebootParams,
+      { instanceName, orgName, projectName }: ProjectInstancesInstanceRebootParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance>({
@@ -2853,11 +2790,7 @@ export class Api extends HttpClient {
      * Boot an instance.
      */
     projectInstancesInstanceStart: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: ProjectInstancesInstanceStartParams,
+      { instanceName, orgName, projectName }: ProjectInstancesInstanceStartParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance>({
@@ -2870,11 +2803,7 @@ export class Api extends HttpClient {
      * Halt an instance.
      */
     projectInstancesInstanceStop: (
-      {
-        instanceName,
-        orgName,
-        projectName,
-      }: ProjectInstancesInstanceStopParams,
+      { instanceName, orgName, projectName }: ProjectInstancesInstanceStopParams,
       params: RequestParams = {}
     ) =>
       this.request<Instance>({
@@ -2929,11 +2858,7 @@ export class Api extends HttpClient {
      * Delete a snapshot from a project.
      */
     projectSnapshotsDeleteSnapshot: (
-      {
-        orgName,
-        projectName,
-        snapshotName,
-      }: ProjectSnapshotsDeleteSnapshotParams,
+      { orgName, projectName, snapshotName }: ProjectSnapshotsDeleteSnapshotParams,
       params: RequestParams = {}
     ) =>
       this.request<void>({
@@ -3101,12 +3026,7 @@ export class Api extends HttpClient {
      * Delete a router from its VPC
      */
     vpcRoutersDeleteRouter: (
-      {
-        orgName,
-        projectName,
-        routerName,
-        vpcName,
-      }: VpcRoutersDeleteRouterParams,
+      { orgName, projectName, routerName, vpcName }: VpcRoutersDeleteRouterParams,
       params: RequestParams = {}
     ) =>
       this.request<void>({
@@ -3119,13 +3039,7 @@ export class Api extends HttpClient {
      * List a Router's routes
      */
     routersRoutesGet: (
-      {
-        orgName,
-        projectName,
-        routerName,
-        vpcName,
-        ...query
-      }: RoutersRoutesGetParams,
+      { orgName, projectName, routerName, vpcName, ...query }: RoutersRoutesGetParams,
       params: RequestParams = {}
     ) =>
       this.request<RouterRouteResultsPage>({
@@ -3154,13 +3068,7 @@ export class Api extends HttpClient {
      * Get a VPC Router route
      */
     routersRoutesGetRoute: (
-      {
-        orgName,
-        projectName,
-        routeName,
-        routerName,
-        vpcName,
-      }: RoutersRoutesGetRouteParams,
+      { orgName, projectName, routeName, routerName, vpcName }: RoutersRoutesGetRouteParams,
       params: RequestParams = {}
     ) =>
       this.request<RouterRoute>({
@@ -3173,13 +3081,7 @@ export class Api extends HttpClient {
      * Update a Router route
      */
     routersRoutesPutRoute: (
-      {
-        orgName,
-        projectName,
-        routeName,
-        routerName,
-        vpcName,
-      }: RoutersRoutesPutRouteParams,
+      { orgName, projectName, routeName, routerName, vpcName }: RoutersRoutesPutRouteParams,
       data: RouterRouteUpdateParams,
       params: RequestParams = {}
     ) =>
@@ -3270,12 +3172,7 @@ export class Api extends HttpClient {
      * Delete a subnet from a VPC.
      */
     vpcSubnetsDeleteSubnet: (
-      {
-        orgName,
-        projectName,
-        subnetName,
-        vpcName,
-      }: VpcSubnetsDeleteSubnetParams,
+      { orgName, projectName, subnetName, vpcName }: VpcSubnetsDeleteSubnetParams,
       params: RequestParams = {}
     ) =>
       this.request<void>({
@@ -3318,10 +3215,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a specific built-in role
      */
-    rolesGetRole: (
-      { roleName }: RolesGetRoleParams,
-      params: RequestParams = {}
-    ) =>
+    rolesGetRole: ({ roleName }: RolesGetRoleParams, params: RequestParams = {}) =>
       this.request<Role>({
         path: `/roles/${roleName}`,
         method: 'GET',
@@ -3342,10 +3236,7 @@ export class Api extends HttpClient {
     /**
      * Fetch information about a single saga (for debugging)
      */
-    sagasGetSaga: (
-      { sagaId }: SagasGetSagaParams,
-      params: RequestParams = {}
-    ) =>
+    sagasGetSaga: ({ sagaId }: SagasGetSagaParams, params: RequestParams = {}) =>
       this.request<Saga>({
         path: `/sagas/${sagaId}`,
         method: 'GET',
@@ -3373,11 +3264,7 @@ export class Api extends HttpClient {
     /**
      * Create a new silo.
      */
-    silosPost: (
-      query: SilosPostParams,
-      data: SiloCreate,
-      params: RequestParams = {}
-    ) =>
+    silosPost: (query: SilosPostParams, data: SiloCreate, params: RequestParams = {}) =>
       this.request<Silo>({
         path: `/silos`,
         method: 'POST',
@@ -3388,10 +3275,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a specific silo
      */
-    silosGetSilo: (
-      { siloName }: SilosGetSiloParams,
-      params: RequestParams = {}
-    ) =>
+    silosGetSilo: ({ siloName }: SilosGetSiloParams, params: RequestParams = {}) =>
       this.request<Silo>({
         path: `/silos/${siloName}`,
         method: 'GET',
@@ -3401,10 +3285,7 @@ export class Api extends HttpClient {
     /**
      * Delete a specific silo.
      */
-    silosDeleteSilo: (
-      { siloName }: SilosDeleteSiloParams,
-      params: RequestParams = {}
-    ) =>
+    silosDeleteSilo: ({ siloName }: SilosDeleteSiloParams, params: RequestParams = {}) =>
       this.request<void>({
         path: `/silos/${siloName}`,
         method: 'DELETE',
@@ -3414,10 +3295,7 @@ export class Api extends HttpClient {
     /**
      * List all timeseries schema
      */
-    timeseriesSchemaGet: (
-      query: TimeseriesSchemaGetParams,
-      params: RequestParams = {}
-    ) =>
+    timeseriesSchemaGet: (query: TimeseriesSchemaGetParams, params: RequestParams = {}) =>
       this.request<TimeseriesSchemaResultsPage>({
         path: `/timeseries/schema`,
         method: 'GET',
@@ -3449,10 +3327,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a specific built-in system user
      */
-    usersGetUser: (
-      { userName }: UsersGetUserParams,
-      params: RequestParams = {}
-    ) =>
+    usersGetUser: ({ userName }: UsersGetUserParams, params: RequestParams = {}) =>
       this.request<User>({
         path: `/users/${userName}`,
         method: 'GET',

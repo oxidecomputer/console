@@ -64,12 +64,7 @@ export function CreateVpcForm({
     >
       <NameField id="vpc-name" />
       <DescriptionField id="vpc-description" />
-      <NameField
-        id="vpc-dns-name"
-        name="dnsName"
-        label="DNS name"
-        required={false}
-      />
+      <NameField id="vpc-dns-name" name="dnsName" label="DNS name" required={false} />
       <TextField id="vpc-ipv6-prefix" name="ipv6Prefix" label="IPV6 prefix" />
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>

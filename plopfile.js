@@ -31,8 +31,7 @@ module.exports = (plop) => {
         validate: (input) => {
           if (/[a-z]/.test(input[0])) return 'Use SentenceCasing'
           if (input.includes(' ')) return "Whitespace isn't allowed"
-          if (input.includes('-'))
-            return '`-` unspported, prefer SentenceCasing'
+          if (input.includes('-')) return '`-` unspported, prefer SentenceCasing'
           return true
         },
       },

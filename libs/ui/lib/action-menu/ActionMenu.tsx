@@ -140,11 +140,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
         {items.length > 0 && (
           <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg">
-            <div
-              className="overflow-y-auto"
-              ref={divRef}
-              style={{ maxHeight: LIST_HEIGHT }}
-            >
+            <div className="overflow-y-auto" ref={divRef} style={{ maxHeight: LIST_HEIGHT }}>
               <ul ref={ulRef}>
                 {allGroups.map(([label, items]) => (
                   <div key={label}>
@@ -152,10 +148,7 @@ export function ActionMenu(props: ActionMenuProps) {
                       {label}
                     </h3>
                     {items.map((item) => (
-                      <div
-                        key={item.value}
-                        className="relative -mt-px first-of-type:mt-0"
-                      >
+                      <div key={item.value} className="relative -mt-px first-of-type:mt-0">
                         {item.value === selectedItem?.value && <Outline />}
 
                         {/*
@@ -189,10 +182,7 @@ export function ActionMenu(props: ActionMenuProps) {
             <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
               <ActionMenuHotkey keys={['Enter']} action="submit" />
 
-              <ActionMenuHotkey
-                keys={['Arrow Up', 'Arrow Down']}
-                action="select"
-              />
+              <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
 
               <ActionMenuHotkey keys={['Esc']} action="close" />
             </div>

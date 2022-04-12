@@ -28,24 +28,18 @@ export default function CreateNetworkInterfaceForm({
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
-  const createNetworkInterface = useApiMutation(
-    'instanceNetworkInterfacesPost',
-    {
-      onSuccess(data) {
-        const { instanceName, ...others } = pathParams
-        invariant(
-          instanceName,
-          'instanceName is required when posting a network interface'
-        )
-        queryClient.invalidateQueries('instanceNetworkInterfacesGet', {
-          instanceName,
-          ...others,
-        })
-        onSuccess?.(data)
-      },
-      onError,
-    }
-  )
+  const createNetworkInterface = useApiMutation('instanceNetworkInterfacesPost', {
+    onSuccess(data) {
+      const { instanceName, ...others } = pathParams
+      invariant(instanceName, 'instanceName is required when posting a network interface')
+      queryClient.invalidateQueries('instanceNetworkInterfacesGet', {
+        instanceName,
+        ...others,
+      })
+      onSuccess?.(data)
+    },
+    onError,
+  })
 
   return (
     <Form
@@ -56,10 +50,7 @@ export default function CreateNetworkInterfaceForm({
         onSubmit ||
         ((body) => {
           const { instanceName, ...others } = pathParams
-          invariant(
-            instanceName,
-            'instanceName is required when posting a network interface'
-          )
+          invariant(instanceName, 'instanceName is required when posting a network interface')
           createNetworkInterface.mutate({ instanceName, ...others, body })
         })
       }

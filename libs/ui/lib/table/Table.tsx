@@ -18,9 +18,7 @@ Table.HeaderRow = (props: TableHeaderRowProps) => <Table.Row {...props} />
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('text-left text-mono-sm text-secondary', className)}>
-    {children}
-  </thead>
+  <thead className={cn('text-left text-mono-sm text-secondary', className)}>{children}</thead>
 )
 
 export type TableHeadCellProps = JSX.IntrinsicElements['th']
@@ -43,11 +41,7 @@ export type TableRowProps = JSX.IntrinsicElements['tr'] & {
 }
 Table.Row = ({ className, selected, ...props }: TableRowProps) => (
   <tr
-    className={cn(
-      'bg-default',
-      className,
-      (selected && 'is-selected') || 'hover:bg-raise'
-    )}
+    className={cn('bg-default', className, (selected && 'is-selected') || 'hover:bg-raise')}
     {...props}
   />
 )

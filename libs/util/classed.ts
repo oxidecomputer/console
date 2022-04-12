@@ -8,11 +8,7 @@ const make =
   // only one argument here means string interpolations are not allowed
   (strings: TemplateStringsArray) => {
     const Comp = ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
-      React.createElement(
-        tag,
-        { className: cn(strings[0], className), ...rest },
-        children
-      )
+      React.createElement(tag, { className: cn(strings[0], className), ...rest }, children)
     // allow arbitrary components to hang off this one, e.g., Table.Body
     Comp.displayName = `classed.${tag}`
 

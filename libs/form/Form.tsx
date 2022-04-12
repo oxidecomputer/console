@@ -65,9 +65,7 @@ export function Form<Values>({
 
   return (
     <>
-      {title && isSideModal && (
-        <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
-      )}
+      {title && isSideModal && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
       <Wrap with={<SideModal.Body />} when={isSideModal}>
         <Formik {...formikProps} validateOnBlur={false}>
           {(props) => (
@@ -89,9 +87,7 @@ export function Form<Values>({
                     {cloneElement(actions, {
                       formId: id,
                       submitDisabled:
-                        !props.dirty ||
-                        !props.isValid ||
-                        mutation.status === 'loading',
+                        !props.dirty || !props.isValid || mutation.status === 'loading',
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -101,9 +97,7 @@ export function Form<Values>({
                       {cloneElement(actions, {
                         formId: id,
                         submitDisabled:
-                          !props.dirty ||
-                          !props.isValid ||
-                          mutation.status === 'loading',
+                          !props.dirty || !props.isValid || mutation.status === 'loading',
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -134,12 +128,7 @@ interface FormActionsProps {
  * given a type of "submit." Default styles are applied all buttons but can be
  * overridden.
  */
-Form.Actions = ({
-  children,
-  formId,
-  submitDisabled = true,
-  onDismiss,
-}: FormActionsProps) => {
+Form.Actions = ({ children, formId, submitDisabled = true, onDismiss }: FormActionsProps) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const isSideModal = useIsInSideModal()
   const childArray = flattenChildren(children).map(
@@ -161,9 +150,7 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div
-      className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}
-    >
+    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
@@ -171,9 +158,7 @@ Form.Actions = ({
   )
 }
 
-Form.Submit = (props: ButtonProps) => (
-  <Button type="submit" variant="default" {...props} />
-)
+Form.Submit = (props: ButtonProps) => <Button type="submit" variant="default" {...props} />
 
 Form.Cancel = (props: ButtonProps) => (
   <Button variant="secondary" {...props}>

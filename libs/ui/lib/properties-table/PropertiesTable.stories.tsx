@@ -29,9 +29,7 @@ export const TwoColumnResponsive: Story = {
         <PropertiesTable.Row label="Description">
           Default network for the project
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Dns Name">
-          frontend-production-vpn
-        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Dns Name">frontend-production-vpn</PropertiesTable.Row>
       </PropertiesTable>
       <PropertiesTable>
         <PropertiesTable.Row label="Creation date">

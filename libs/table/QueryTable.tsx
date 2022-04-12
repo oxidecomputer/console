@@ -11,13 +11,7 @@ import { useCallback } from 'react'
 import { useMemo } from 'react'
 import { useRowSelect, useTable } from 'react-table'
 import type { ComponentType, ReactElement } from 'react'
-import type {
-  ErrorResponse,
-  ApiListMethods,
-  Params,
-  Result,
-  ResultItem,
-} from '@oxide/api'
+import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'

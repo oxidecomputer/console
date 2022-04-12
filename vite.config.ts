@@ -33,10 +33,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react({
       babel: {
-        plugins:
-          mode === 'development'
-            ? ['./libs/babel-transform-react-display-name']
-            : [],
+        plugins: mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
       },
     }),
   ],

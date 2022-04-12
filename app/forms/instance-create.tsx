@@ -87,17 +87,17 @@ export default function CreateInstanceForm({
       onSubmit={
         onSubmit ||
         ((values) => {
-          const instance = INSTANCE_SIZES.find(
-            (option) => option.id === values['type']
-          ) || { memory: 0, ncpus: 0 }
+          const instance = INSTANCE_SIZES.find((option) => option.id === values['type']) || {
+            memory: 0,
+            ncpus: 0,
+          }
           createInstance.mutate({
             ...pageParams,
             body: {
               name: values['name'],
               hostname: values.hostname,
               description: `An instance in project: ${pageParams.projectName}`,
-              memory: filesize(instance.memory, { output: 'object', base: 2 })
-                .value,
+              memory: filesize(instance.memory, { output: 'object', base: 2 }).value,
               ncpus: instance.ncpus,
               disks: values.disks,
             },
@@ -118,8 +118,8 @@ export default function CreateInstanceForm({
         <Tab>General Purpose</Tab>
         <Tab.Panel>
           <TextFieldHint id="hw-gp-help-text" className="mb-12 max-w-xl">
-            General purpose instances provide a good balance of CPU, memory, and
-            high performance storage; well suited for a wide range of use cases.
+            General purpose instances provide a good balance of CPU, memory, and high
+            performance storage; well suited for a wide range of use cases.
           </TextFieldHint>
           <RadioField id="hw-general-purpose" name="instance-type" label="">
             {renderLargeRadioCards('general')}
@@ -219,10 +219,7 @@ export default function CreateInstanceForm({
 
       <NetworkInterfaceField />
 
-      <TextField
-        id="hostname"
-        description="Will be generated if not provided"
-      />
+      <TextField id="hostname" description="Will be generated if not provided" />
 
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
@@ -237,11 +234,7 @@ interface DistroRadioCardProps {
   value: string
   Icon: React.ComponentType<{ className: string }>
 }
-const renderDistroRadioCard = ({
-  label,
-  value,
-  Icon,
-}: DistroRadioCardProps) => {
+const renderDistroRadioCard = ({ label, value, Icon }: DistroRadioCardProps) => {
   return (
     <RadioCard value={value} className="h-44 w-44 pb-6">
       <div className="flex h-full flex-col items-center justify-end space-y-4">
@@ -253,22 +246,19 @@ const renderDistroRadioCard = ({
 }
 
 const renderLargeRadioCards = (category: string) => {
-  return INSTANCE_SIZES.filter((option) => option.category === category).map(
-    (option) => (
-      <RadioCard key={option.id} value={option.id}>
-        <div>
-          {option.ncpus}{' '}
-          <RadioCard.Unit aria-label={`c-p-u${option.ncpus === 1 ? '' : 'se'}`}>
-            CPU{option.ncpus === 1 ? '' : 's'}
-          </RadioCard.Unit>
-        </div>
-        <div>
-          {option.memory}{' '}
-          <RadioCard.Unit aria-label="gigabytes RAM">GB RAM</RadioCard.Unit>
-        </div>
-      </RadioCard>
-    )
-  )
+  return INSTANCE_SIZES.filter((option) => option.category === category).map((option) => (
+    <RadioCard key={option.id} value={option.id}>
+      <div>
+        {option.ncpus}{' '}
+        <RadioCard.Unit aria-label={`c-p-u${option.ncpus === 1 ? '' : 'se'}`}>
+          CPU{option.ncpus === 1 ? '' : 's'}
+        </RadioCard.Unit>
+      </div>
+      <div>
+        {option.memory} <RadioCard.Unit aria-label="gigabytes RAM">GB RAM</RadioCard.Unit>
+      </div>
+    </RadioCard>
+  ))
 }
 
 // This data structure is completely made up for the purposes of demonstration

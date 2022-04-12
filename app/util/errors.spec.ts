@@ -5,8 +5,7 @@ const parseError = {
   error: {
     requestId: '1',
     errorCode: null,
-    message:
-      'unable to parse body: hello there, you have an error at line 129 column 4',
+    message: 'unable to parse body: hello there, you have an error at line 129 column 4',
   },
 } as ErrorResponse
 
@@ -28,9 +27,7 @@ const unauthorized = {
 
 describe('getParseError', () => {
   it('extracts nice part of error message', () => {
-    expect(getParseError(parseError.error.message)).toEqual(
-      'Hello there, you have an error'
-    )
+    expect(getParseError(parseError.error.message)).toEqual('Hello there, you have an error')
   })
 
   it('returns undefined if error does not match pattern', () => {
@@ -52,9 +49,7 @@ describe('getServerError', () => {
   })
 
   it('falls back to server error message if code not found', () => {
-    expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual(
-      'whatever'
-    )
+    expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual('whatever')
   })
 
   it('uses global map of generic codes for, e.g., 403s', () => {

@@ -90,11 +90,5 @@
  */
 .btn-not-implemented {
   @apply cursor-not-allowed text-transparent focus:ring-transparent;
-  background: repeating-linear-gradient(
-    45deg,
-    yellow,
-    yellow 10px,
-    black 10px,
-    black 20px
-  );
+  background: repeating-linear-gradient(45deg, yellow, yellow 10px, black 10px, black 20px);
 }

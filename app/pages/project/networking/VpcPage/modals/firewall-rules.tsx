@@ -17,11 +17,7 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type {
-  ErrorResponse,
-  VpcFirewallRule,
-  VpcFirewallRuleUpdate,
-} from '@oxide/api'
+import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
 import {
   parsePortRange,
   useApiMutation,
@@ -90,14 +86,8 @@ const CommonForm = ({ id, error }: FormProps) => {
           <FieldLabel id="priority-label" htmlFor="priority">
             Priority
           </FieldLabel>
-          <TextFieldHint id="priority-hint">
-            Must be 0&ndash;65535
-          </TextFieldHint>
-          <NumberTextField
-            id="priority"
-            name="priority"
-            aria-describedby="priority-hint"
-          />
+          <TextFieldHint id="priority-hint">Must be 0&ndash;65535</TextFieldHint>
+          <NumberTextField id="priority" name="priority" aria-describedby="priority-hint" />
           <TextFieldError name="priority" />
         </div>
         <fieldset>
@@ -148,9 +138,7 @@ const CommonForm = ({ id, error }: FormProps) => {
                 values.targetType &&
                 values.targetValue && // TODO: validate
                 !values.targets.some(
-                  (t) =>
-                    t.value === values.targetValue &&
-                    t.type === values.targetType
+                  (t) => t.value === values.targetValue && t.type === values.targetType
                 )
               ) {
                 setFieldValue('targets', [
@@ -224,11 +212,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           <TextFieldHint id="hostValue-hint">
             For IP, an address. For the rest, a name. [TODO: copy]
           </TextFieldHint>
-          <TextField
-            id="hostValue"
-            name="hostValue"
-            aria-describedby="hostValue-hint"
-          />
+          <TextField id="hostValue" name="hostValue" aria-describedby="hostValue-hint" />
         </div>
 
         <div className="flex justify-end">
@@ -243,8 +227,7 @@ const CommonForm = ({ id, error }: FormProps) => {
                 values.hostType &&
                 values.hostValue && // TODO: validate
                 !values.hosts.some(
-                  (t) =>
-                    t.value === values.hostValue || t.type === values.hostType
+                  (t) => t.value === values.hostValue || t.type === values.hostType
                 )
               ) {
                 setFieldValue('hosts', [
@@ -300,11 +283,7 @@ const CommonForm = ({ id, error }: FormProps) => {
           <TextFieldHint id="portRange-hint">
             A single port (1234) or a range (1234-2345)
           </TextFieldHint>
-          <TextField
-            id="portRange"
-            name="portRange"
-            aria-describedby="portRange-hint"
-          />
+          <TextField id="portRange" name="portRange" aria-describedby="portRange-hint" />
           <TextFieldError name="portRange" />
           <div className="flex justify-end">
             <Button variant="ghost" color="neutral" className="mr-2.5">
@@ -466,11 +445,7 @@ export function CreateFirewallRuleModal({
           } as Values // best way to tell formik this type
         }
         validationSchema={Yup.object({
-          priority: Yup.number()
-            .integer()
-            .min(0)
-            .max(65535)
-            .required('Required'),
+          priority: Yup.number().integer().min(0).max(65535).required('Required'),
         })}
         validateOnBlur
         onSubmit={(values) => {
@@ -537,11 +512,7 @@ export function EditFirewallRuleModal({
 
   const formId = 'edit-firewall-rule-form'
   return (
-    <SideModal
-      id="edit-firewall-rule-modal"
-      title="Edit firewall rule"
-      onDismiss={dismiss}
-    >
+    <SideModal id="edit-firewall-rule-modal" title="Edit firewall rule" onDismiss={dismiss}>
       <Formik
         initialValues={
           {

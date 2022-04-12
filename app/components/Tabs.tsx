@@ -26,10 +26,7 @@ export function Tabs(props: TabsProps) {
     return name ?? kebabCase(children as string)
   })
 
-  const index =
-    searchTabId && tabIds.includes(searchTabId)
-      ? tabIds.indexOf(searchTabId)
-      : 0
+  const index = searchTabId && tabIds.includes(searchTabId) ? tabIds.indexOf(searchTabId) : 0
 
   function onChange(newIdx: number) {
     // no arg is the canonical representation of first tab

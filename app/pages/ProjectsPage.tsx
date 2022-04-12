@@ -42,10 +42,7 @@ const ProjectsPage = () => {
         </Link>
       </TableActions>
       <Table>
-        <Column
-          id="name"
-          cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}
-        />
+        <Column id="name" cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)} />
         <Column id="description" />
         <Column id="timeModified" header="Last updated" cell={DateCell} />
       </Table>

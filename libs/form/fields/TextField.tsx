@@ -45,9 +45,7 @@ export function TextField({
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
         {label}
       </FieldLabel>
-      {helpText && (
-        <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>
-      )}
+      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <UITextField
         id={id}
         name={name}

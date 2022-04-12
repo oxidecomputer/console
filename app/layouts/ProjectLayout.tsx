@@ -10,12 +10,7 @@ import {
   Notification16Icon,
   Resize16Icon,
 } from '@oxide/ui'
-import {
-  ContentPane,
-  ContentPaneWrapper,
-  PageContainer,
-  ContentPaneActions,
-} from './helpers'
+import { ContentPane, ContentPaneWrapper, PageContainer, ContentPaneActions } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
@@ -40,10 +35,7 @@ const ProjectLayout = () => {
           { value: 'Networking', path: 'vpcs' },
         ]
           // filter out the entry for the path we're currently on
-          .filter(
-            (i) =>
-              !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath)
-          )
+          .filter((i) => !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath))
           .map((i) => ({
             navGroup: `Project '${projectName}'`,
             value: i.value,

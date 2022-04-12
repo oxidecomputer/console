@@ -45,14 +45,10 @@ export const InstancesPage = () => {
     )
   )
 
-  const { Table, Column } = useQueryTable(
-    'projectInstancesGet',
-    projectParams,
-    {
-      refetchInterval: 5000,
-      keepPreviousData: true,
-    }
-  )
+  const { Table, Column } = useQueryTable('projectInstancesGet', projectParams, {
+    refetchInterval: 5000,
+    keepPreviousData: true,
+  })
 
   if (!instances) return null
 
@@ -70,8 +66,7 @@ export const InstancesPage = () => {
         <Column
           id="name"
           cell={linkCell(
-            (name) =>
-              `/orgs/${orgName}/projects/${projectName}/instances/${name}`
+            (name) => `/orgs/${orgName}/projects/${projectName}/instances/${name}`
           )}
         />
         <Column

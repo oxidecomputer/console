@@ -42,12 +42,7 @@ export const All = () => {
           {colors.map((color) => (
             <div key={color} className="mb-2 flex flex-row space-x-2">
               {variants.map((variant) => (
-                <Button
-                  key={variant}
-                  variant={variant}
-                  color={color}
-                  className={`:${state}`}
-                >
+                <Button key={variant} variant={variant} color={color} className={`:${state}`}>
                   {variant}
                 </Button>
               ))}

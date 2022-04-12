@@ -24,18 +24,12 @@ const hexToRGB = (hexColor: string) => {
 const percentToRem = (value: string) => {
   return parseFloat(value) / 100 + 'rem'
 }
-const pxToRem = (value: string | number) =>
-  parseFloat(value as string) / 16 + 'rem'
+const pxToRem = (value: string | number) => parseFloat(value as string) / 16 + 'rem'
 const valueToRem = (value: string | number) =>
-  typeof value === 'string' && value.includes('%')
-    ? percentToRem(value)
-    : pxToRem(value)
+  typeof value === 'string' && value.includes('%') ? percentToRem(value) : pxToRem(value)
 
 const formatFontClass = (name: string) => {
-  return name
-    .replace('-light', '')
-    .replace('-regular', '')
-    .replace('-book', '-semi')
+  return name.replace('-light', '').replace('-regular', '').replace('-book', '-semi')
 }
 
 /**
@@ -85,9 +79,7 @@ StyleDictionary.registerFormat({
 
     ${options.selector} {
       ${dictionary.allProperties
-        .filter(
-          (prop) => typeof prop.value !== 'object' && prop.type === 'color'
-        )
+        .filter((prop) => typeof prop.value !== 'object' && prop.type === 'color')
         .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
         .map((prop) => {
           const color: string = prop.value.slice(1, 7)
@@ -153,9 +145,7 @@ const makeColorUtility = (
   classPrefix: string,
   cssProperties: CSSProperty | CSSProperty[]
 ) => {
-  const properties = Array.isArray(cssProperties)
-    ? cssProperties
-    : [cssProperties]
+  const properties = Array.isArray(cssProperties) ? cssProperties : [cssProperties]
   return (colors: TransformedToken[]) =>
     colors
       .filter((color) => color.name.startsWith(tokenPrefix))
@@ -164,10 +154,7 @@ const makeColorUtility = (
         '${
           (color.original.description &&
             // FIXME: Remove replace once https://github.com/tailwindlabs/tailwindcss/issues/7420 is fixed
-            `/* ${color.original.description.trim()} */ \\n`.replace(
-              /,/g,
-              ';'
-            )) ||
+            `/* ${color.original.description.trim()} */ \\n`.replace(/,/g, ';')) ||
           ''
         }.${color.name.replace(tokenPrefix, classPrefix)}': {
           ${properties.map((prop) => `'${prop}': 'var(--${color.name})'`)}
@@ -178,9 +165,7 @@ const makeColorUtility = (
 StyleDictionary.registerFormat({
   name: 'tailwind',
   formatter({ dictionary }) {
-    const typeStyles = dictionary.allProperties.filter(
-      (prop) => prop.type === 'typography'
-    )
+    const typeStyles = dictionary.allProperties.filter((prop) => prop.type === 'typography')
     const colors = dictionary.allProperties.filter(
       (prop) => prop.type === 'color' && !prop.name.startsWith('base')
     )
@@ -213,14 +198,8 @@ StyleDictionary.registerFormat({
           makeColorUtility('stroke', 'border-r', 'border-right-color'),
           makeColorUtility('stroke', 'border-t', 'border-top-color'),
           makeColorUtility('stroke', 'border-b', 'border-bottom-color'),
-          makeColorUtility('stroke', 'border-x', [
-            'border-left-color',
-            'border-right-color',
-          ]),
-          makeColorUtility('stroke', 'border-y', [
-            'border-top-color',
-            'border-bottom-color',
-          ]),
+          makeColorUtility('stroke', 'border-x', ['border-left-color', 'border-right-color']),
+          makeColorUtility('stroke', 'border-y', ['border-top-color', 'border-bottom-color']),
           makeColorUtility('stroke', 'ring', '--tw-ring-color'),
           makeColorUtility('stroke', 'outline', 'outline-color'),
           makeColorUtility('chart-fill', 'chart-fill', 'fill'),
@@ -232,9 +211,7 @@ StyleDictionary.registerFormat({
         ${borderRadius
           .map(
             ({ name }) =>
-              `'${
-                name.replace(/border-radius-?/, '') || 'DEFAULT'
-              }': 'var(--${name})'`
+              `'${name.replace(/border-radius-?/, '') || 'DEFAULT'}': 'var(--${name})'`
           )
           .join(',')}
       }
@@ -250,9 +227,7 @@ StyleDictionary.registerFormat({
     const colors = dictionary.allProperties
       .filter((prop) => prop.type === 'color')
       .sort(({ name }) => (name.startsWith('base-') ? -1 : 1))
-    const baseColors = colors
-      .filter(({ name }) => name.startsWith('base-'))
-      .reverse()
+    const baseColors = colors.filter(({ name }) => name.startsWith('base-')).reverse()
     const colorGroups = colors.reduce<ColorGroup>((all, current) => {
       const currentGroup = all[current.value] ?? []
       currentGroup.push(current)
@@ -275,8 +250,7 @@ StyleDictionary.registerFormat({
           .map(
             (color) =>
               `  ${color.name} --> ${
-                color.attributes?.ref ??
-                `${color.original.rawValue}:::${groupColor.name}`
+                color.attributes?.ref ?? `${color.original.rawValue}:::${groupColor.name}`
               }`
           )
           .join('\n')}
@@ -328,10 +302,7 @@ StyleDictionary.registerTransform({
   name: 'name/size-convert',
   type: 'name',
   transformer(token) {
-    return token.name
-      .replace('large', 'lg')
-      .replace('small', 'sm')
-      .replace('medium', 'md')
+    return token.name.replace('large', 'lg').replace('small', 'sm').replace('medium', 'md')
   },
 })
 
@@ -340,9 +311,7 @@ StyleDictionary.registerTransform({
   type: 'attribute',
   matcher: (token) => token.original.type === 'color',
   transformer(token) {
-    const ref = token.original.rawValue
-      .match(/{(.+)}/)?.[1]
-      ?.replace(/\./g, '-')
+    const ref = token.original.rawValue.match(/{(.+)}/)?.[1]?.replace(/\./g, '-')
     return { ...token.attributes, ref }
   },
 })

@@ -12,10 +12,7 @@ export interface BadgeProps {
   variant?: BadgeVariant
 }
 
-export const badgeColors: Record<
-  BadgeVariant,
-  Partial<Record<BadgeColor, string>>
-> = {
+export const badgeColors: Record<BadgeVariant, Partial<Record<BadgeColor, string>>> = {
   default: {
     default: 'bg-accent text-inverse',
     destructive: 'bg-destructive text-inverse',
@@ -30,8 +27,7 @@ export const badgeColors: Record<
   },
   ghost: {
     default: 'ring-1 ring-inset ring-accent-secondary text-accent',
-    destructive:
-      'ring-1 ring-inset ring-destructive-secondary text-destructive',
+    destructive: 'ring-1 ring-inset ring-destructive-secondary text-destructive',
     notice: 'ring-1 ring-inset ring-notice-secondary text-notice',
   },
 }
