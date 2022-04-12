@@ -30,8 +30,9 @@ export { json }
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
 
-/// generate random 11 digit hex string
-const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
+/// generate random 11 digit hex string, prefix optional
+const genId = (prefix?: string) =>
+  (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 10e12).toString(16)
 
 function getTimestamps() {
   const now = new Date().toISOString()
@@ -80,7 +81,7 @@ export const handlers = [
     }
 
     const newOrg: Json<Api.Organization> = {
-      id: 'org-' + randomHex(),
+      id: genId('org'),
       ...req.body,
       ...getTimestamps(),
     }
@@ -130,7 +131,7 @@ export const handlers = [
       }
 
       const newProject: Json<Api.Project> = {
-        id: 'project-' + randomHex(),
+        id: genId('project'),
         organization_id: org.id,
         ...req.body,
         ...getTimestamps(),
@@ -198,7 +199,7 @@ export const handlers = [
       }
 
       const newInstance: Json<Api.Instance> = {
-        id: 'instance-' + randomHex(),
+        id: genId('instance'),
         project_id: project.id,
         ...req.body,
         ...getTimestamps(),
@@ -275,11 +276,11 @@ export const handlers = [
         return res(badRequest('name requires at least one character'))
       }
 
-      // @ts-expect-error Still need to fill in some fields
       const newDisk: Json<Api.Disk> = {
-        id: 'disk-' + randomHex(),
+        id: genId('disk'),
         project_id: project.id,
         state: { state: 'creating' },
+        device_path: '/mnt/disk',
         ...req.body,
         ...getTimestamps(),
       }
@@ -327,6 +328,34 @@ export const handlers = [
     }
   ),
 
+  rest.post<Json<Api.VpcCreate>, ProjectParams, Json<Api.Vpc> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const alreadyExists = db.vpcs.some(
+        (s) => s.project_id === project.id && s.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const newVpc: Json<Api.Vpc> = {
+        id: genId('vpc'),
+        project_id: project.id,
+        system_router_id: genId('system-router'),
+        ...req.body,
+        // API is supposed to generate one if none provided. close enough
+        ipv6_prefix: req.body.ipv6_prefix || 'fd2d:4569:88b2::/64',
+        ...getTimestamps(),
+      }
+      db.vpcs.push(newVpc)
+      return res(json(newVpc, 201))
+    }
+  ),
+
   rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
@@ -357,12 +386,12 @@ export const handlers = [
       }
 
       const newSubnet: Json<Api.VpcSubnet> = {
-        id: 'vpc-subnet-' + randomHex(),
+        id: genId('vpc-subnet'),
         vpc_id: vpc.id,
         ...req.body,
-        // required in subnet but not in update, so we need a fallback. API says
-        // "A random `/64` block will be assigned if one is not provided." Our
-        // fallback is not random, but it should be good enough.
+        // required in subnet create but not in update, so we need a fallback.
+        // API says "A random `/64` block will be assigned if one is not
+        // provided." Our fallback is not random, but it should be good enough.
         ipv6_block: req.body.ipv6_block || 'fd2d:4569:88b1::/64',
         ...getTimestamps(),
       }
@@ -419,7 +448,7 @@ export const handlers = [
       if (err) return res(err)
       const rules = req.body.rules.map((rule) => ({
         vpc_id: vpc.id,
-        id: 'firewall-rule-' + randomHex(),
+        id: genId('firewall-rule'),
         ...rule,
         ...getTimestamps(),
       }))

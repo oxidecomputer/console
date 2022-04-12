@@ -55,6 +55,7 @@ import { FormPage } from './components/FormPage'
 const orgCrumb = (m: RouteMatch) => m.params.orgName!
 const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
+const vpcCrumb = (m: RouteMatch) => m.params.vpcName!
 
 /** React Router route config in JSX form */
 export const routes = (
@@ -120,9 +121,14 @@ export const routes = (
                 crumb={instanceCrumb}
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs" icon={<Networking24Icon />}>
+            <Route path="vpcs" crumb="VPCs" icon={<Networking24Icon />}>
               <Route index element={<VpcsPage />} />
-              <Route path=":vpcName" element={<VpcPage />} />
+              <Route
+                path="new"
+                title="Create VPC"
+                element={<FormPage type="vpc-create" />}
+              />
+              <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
             </Route>
             <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>
               <Route index element={<DisksPage />} />
