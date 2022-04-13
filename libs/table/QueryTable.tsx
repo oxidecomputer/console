@@ -17,6 +17,13 @@ import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
+import { EmptyMessage } from '@oxide/ui'
+
+const DefaultEmpty = () => (
+  <EmptyMessage.Outer>
+    <EmptyMessage.Header>No results</EmptyMessage.Header>
+  </EmptyMessage.Outer>
+)
 
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>
@@ -50,6 +57,7 @@ interface QueryTableProps<Item> {
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
+  emptyState?: React.ReactElement
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +72,7 @@ const makeQueryTable = <Item,>(
     debug,
     pagination = 'page',
     pageSize = 10,
+    emptyState,
   }: QueryTableProps<Item>) {
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const columns = useMemo(
@@ -139,7 +148,15 @@ const makeQueryTable = <Item,>(
       [pageSize, tableData.length, (data as any)?.next_page]
     )
 
-    if (isLoading || (tableData.items?.length === 0 && !hasPrev)) return null
+    if (isLoading) return null
+
+    const isEmpty = tableData.length === 0 && !hasPrev
+    if (isEmpty)
+      return (
+        <div className="flex h-full max-h-[480px] items-center justify-center rounded border border-secondary">
+          {emptyState || <DefaultEmpty />}
+        </div>
+      )
 
     return (
       <>

@@ -3,7 +3,20 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useParams, useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
-import { buttonStyle, TableActions } from '@oxide/ui'
+import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
+
+const EmptyState = () => (
+  <EmptyMessage.Outer>
+    <EmptyMessage.Icon>
+      <Folder24Icon />
+    </EmptyMessage.Icon>
+    <EmptyMessage.Header>No projects</EmptyMessage.Header>
+    <EmptyMessage.Body>
+      You need to create a project to be able to see it here
+    </EmptyMessage.Body>
+    <EmptyMessage.Link to="new">New instance</EmptyMessage.Link>
+  </EmptyMessage.Outer>
+)
 
 const ProjectsPage = () => {
   const { orgName } = useParams('orgName')
@@ -41,7 +54,7 @@ const ProjectsPage = () => {
           New Project
         </Link>
       </TableActions>
-      <Table>
+      <Table emptyState={<EmptyState />}>
         <Column id="name" cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)} />
         <Column id="description" />
         <Column id="timeModified" header="Last updated" cell={DateCell} />

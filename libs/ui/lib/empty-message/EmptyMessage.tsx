@@ -9,8 +9,8 @@ import { type ButtonProps, Button, buttonStyle } from '../button/Button'
 const buttonStyleProps = { variant: 'ghost', size: 'xs', color: 'neutral' } as const
 
 export const EmptyMessage = {
-  Outer: classed.div`flex flex-col items-center max-w-54 text-center m-4`,
-  Icon: classed.div`text-accent bg-accent-secondary p-1 leading-[0] rounded-sm mb-4`,
+  Outer: classed.div`flex flex-col items-center max-w-[14rem] text-center m-4`,
+  Icon: classed.div`text-accent bg-accent-secondary p-1 leading-[0] rounded mb-4`,
   Header: classed.h3`text-sans-semi-lg`,
   Body: classed.p`text-sans-sm text-secondary mt-1`,
 

@@ -18,9 +18,6 @@ module.exports = {
   content: ['./libs/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      maxWidth: {
-        54: '216px',
-      },
       screens: {
         'xl-': { max: '1535px' },
         'lg-': { max: '1279px' },
