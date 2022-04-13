@@ -4,25 +4,18 @@ import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
 import { Instances24Icon } from '../icons'
 
-type Story = StoryObj<ComponentProps<typeof EmptyMessage.Outer>>
+type Story = StoryObj<ComponentProps<typeof EmptyMessage>>
 
 export default {
-  component: EmptyMessage.Outer,
+  component: EmptyMessage,
 } as Story
 
 export const Default: Story = {
   args: {
-    children: (
-      <>
-        <EmptyMessage.Icon>
-          <Instances24Icon />
-        </EmptyMessage.Icon>
-        <EmptyMessage.Header>No instances</EmptyMessage.Header>
-        <EmptyMessage.Body>
-          You need to create an instance to be able to see it here
-        </EmptyMessage.Body>
-        <EmptyMessage.Link to="/hello">New instance</EmptyMessage.Link>
-      </>
-    ),
+    icon: <Instances24Icon />,
+    title: 'No instances',
+    body: 'You need to create an instance to be able to see it here',
+    buttonText: 'New instance',
+    buttonTo: 'new',
   },
 }

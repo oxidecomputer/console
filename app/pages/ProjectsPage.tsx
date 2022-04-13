@@ -6,16 +6,13 @@ import { useApiQuery } from '@oxide/api'
 import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
 
 const EmptyState = () => (
-  <EmptyMessage.Outer>
-    <EmptyMessage.Icon>
-      <Folder24Icon />
-    </EmptyMessage.Icon>
-    <EmptyMessage.Header>No projects</EmptyMessage.Header>
-    <EmptyMessage.Body>
-      You need to create a project to be able to see it here
-    </EmptyMessage.Body>
-    <EmptyMessage.Link to="new">New instance</EmptyMessage.Link>
-  </EmptyMessage.Outer>
+  <EmptyMessage
+    icon={<Folder24Icon />}
+    title="No projects"
+    body="You need to create a project to be able to see it here"
+    buttonText="New project"
+    buttonTo="new"
+  />
 )
 
 const ProjectsPage = () => {

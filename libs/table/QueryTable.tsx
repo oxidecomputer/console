@@ -19,12 +19,6 @@ import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage } from '@oxide/ui'
 
-const DefaultEmpty = () => (
-  <EmptyMessage.Outer>
-    <EmptyMessage.Header>No results</EmptyMessage.Header>
-  </EmptyMessage.Outer>
-)
-
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>
   Column: ComponentType<QueryTableColumnProps<Item>>
@@ -154,7 +148,7 @@ const makeQueryTable = <Item,>(
     if (isEmpty)
       return (
         <div className="flex h-full max-h-[480px] items-center justify-center rounded border border-secondary">
-          {emptyState || <DefaultEmpty />}
+          {emptyState || <EmptyMessage title="No results" />}
         </div>
       )
 
