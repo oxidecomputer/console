@@ -9,6 +9,9 @@ const globalCodeMap: Record<string, string> = {
 }
 
 const methodCodeMap: { [key in keyof Partial<ApiMethods>]: Record<string, string> } = {
+  organizationsPost: {
+    ObjectAlreadyExists: 'An organization with that name already exists',
+  },
   projectInstancesPost: {
     ObjectAlreadyExists: 'An instance with that name already exists in this project',
   },

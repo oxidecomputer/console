@@ -162,14 +162,15 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
+    <div className={cn('flex w-full gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
+      <span className="grow" />
       {error && (
-        <div className="text-error">
-          <Error12Icon />
-          {error}
+        <div className="flex items-center text-mono-sm text-error">
+          <Error12Icon className="mx-2" />
+          <span>{error.message}</span>
         </div>
       )}
     </div>
