@@ -21,6 +21,9 @@ const methodCodeMap: { [key in keyof Partial<ApiMethods>]: Record<string, string
   projectVpcsPost: {
     ObjectAlreadyExists: 'A VPC with that name already exists in this project',
   },
+  vpcSubnetsPost: {
+    ObjectAlreadyExists: 'A Subnet with that name already exists in this project',
+  },
 }
 
 export const handleErrors =
