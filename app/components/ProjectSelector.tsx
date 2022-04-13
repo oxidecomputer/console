@@ -8,12 +8,7 @@ import cn from 'classnames'
  */
 const BrandIcon = () => (
   <svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect
-      width="32"
-      height="32"
-      rx="2"
-      fill="var(--surface-accent-secondary)"
-    />
+    <rect width="32" height="32" rx="2" fill="var(--surface-accent-secondary)" />
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -34,9 +29,7 @@ export const ProjectSelector = ({ className }: ProjectSelectorProps) => {
         <BrandIcon />
         <div className="ml-2 pb-0.5 leading-4 text-sans-sm">
           <div>{orgName}</div>
-          <div className="text-secondary">
-            {projectName || 'select a project'}
-          </div>
+          <div className="text-secondary">{projectName || 'select a project'}</div>
         </div>
       </div>
       <SelectArrows6Icon className="text-secondary" />

@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-  Area,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from 'recharts'
 
 const data = [
   { name: '9:50', amt: 200, limit: 600 },

@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { useField } from 'formik'
 import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
-import type {
-  InstanceNetworkInterfaceAttachment,
-  NetworkInterfaceCreate,
-} from '@oxide/api'
+import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
 import { RadioField } from '@oxide/form'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
@@ -17,8 +14,9 @@ export function NetworkInterfaceField() {
    */
   const [oldParams, setOldParams] = useState<NetworkInterfaceCreate[]>([])
 
-  const [, { value }, { setValue }] =
-    useField<InstanceNetworkInterfaceAttachment>({ name: 'networkInterfaces' })
+  const [, { value }, { setValue }] = useField<InstanceNetworkInterfaceAttachment>({
+    name: 'networkInterfaces',
+  })
 
   return (
     <div className="max-w-lg space-y-5">
@@ -29,8 +27,7 @@ export function NetworkInterfaceField() {
         label="Network interface"
         className="pt-1"
         onChange={(event) => {
-          const newType = event.target
-            .value as InstanceNetworkInterfaceAttachment['type']
+          const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
 
           if (value.type === 'Create') {
             setOldParams(value.params)
@@ -75,9 +72,7 @@ export function NetworkInterfaceField() {
                         onClick={() =>
                           setValue({
                             type: 'Create',
-                            params: value.params.filter(
-                              (i) => i.name !== item.name
-                            ),
+                            params: value.params.filter((i) => i.name !== item.name),
                           })
                         }
                       >
@@ -106,11 +101,7 @@ export function NetworkInterfaceField() {
             />
           </SideModal>
           <div className="space-x-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowForm(true)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setShowForm(true)}>
               Add network interface
             </Button>
           </div>

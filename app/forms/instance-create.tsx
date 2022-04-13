@@ -89,7 +89,10 @@ export default function CreateInstanceForm({
         ((values) => {
           const instance = INSTANCE_SIZES.find(
             (option) => option.id === values['type']
-          ) || { memory: 0, ncpus: 0 }
+          ) || {
+            memory: 0,
+            ncpus: 0,
+          }
           createInstance.mutate({
             ...pageParams,
             body: {

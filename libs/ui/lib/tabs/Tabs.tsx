@@ -36,9 +36,7 @@ export function Tabs({
 }: TabsProps) {
   const [tabs, panels] = useMemo(() => {
     const childArray = flattenChildren(children)
-    const tabs = pluckAllOfType(childArray, Tab).map(
-      addKey((i) => `${id}-tab-${i}`)
-    )
+    const tabs = pluckAllOfType(childArray, Tab).map(addKey((i) => `${id}-tab-${i}`))
     const panels = pluckAllOfType(childArray, Tab.Panel).map(
       addProps<typeof Tab.Panel>((i, panelProps) => ({
         key: `${id}-panel-${i}`,
@@ -86,9 +84,7 @@ export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
   name?: string
 }
 export function Tab({ className, ...props }: TabProps) {
-  return (
-    <RTab as="button" className={cn('!no-underline', className)} {...props} />
-  )
+  return <RTab as="button" className={cn('!no-underline', className)} {...props} />
 }
 
 export interface TabPanelProps extends RTabPanelProps {

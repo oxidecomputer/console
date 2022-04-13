@@ -66,10 +66,7 @@ export const MultiSelect = ({
 
   return (
     <div className="relative">
-      <FieldLabel
-        {...select.getLabelProps()}
-        className={showLabel || 'sr-only'}
-      >
+      <FieldLabel {...select.getLabelProps()} className={showLabel || 'sr-only'}>
         {label}
       </FieldLabel>
       <button

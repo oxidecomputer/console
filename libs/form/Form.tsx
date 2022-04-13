@@ -19,7 +19,7 @@ import React, { cloneElement } from 'react'
 import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'
-import type { Error } from '@oxide/api'
+import type { Error, ErrorResponse } from '@oxide/api'
 
 const PageActionsTunnel = tunnel('form-page-actions')
 const SideModalActionsTunnel = tunnel('form-sidebar-actions')
@@ -90,9 +90,7 @@ export function Form<Values>({
                     {cloneElement(actions, {
                       formId: id,
                       submitDisabled:
-                        !props.dirty ||
-                        !props.isValid ||
-                        mutation.status === 'loading',
+                        !props.dirty || !props.isValid || mutation.status === 'loading',
                       error: mutation.error?.error,
                       onDismiss,
                     })}
@@ -103,9 +101,7 @@ export function Form<Values>({
                       {cloneElement(actions, {
                         formId: id,
                         submitDisabled:
-                          !props.dirty ||
-                          !props.isValid ||
-                          mutation.status === 'loading',
+                          !props.dirty || !props.isValid || mutation.status === 'loading',
                         error: mutation.error?.error,
                       })}
                     </PageActionsContainer>
@@ -166,9 +162,7 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div
-      className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}
-    >
+    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
@@ -182,9 +176,7 @@ Form.Actions = ({
   )
 }
 
-Form.Submit = (props: ButtonProps) => (
-  <Button type="submit" variant="default" {...props} />
-)
+Form.Submit = (props: ButtonProps) => <Button type="submit" variant="default" {...props} />
 
 Form.Cancel = (props: ButtonProps) => (
   <Button variant="secondary" {...props}>

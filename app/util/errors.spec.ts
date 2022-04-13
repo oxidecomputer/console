@@ -5,8 +5,7 @@ const parseError = {
   error: {
     requestId: '1',
     errorCode: null,
-    message:
-      'unable to parse body: hello there, you have an error at line 129 column 4',
+    message: 'unable to parse body: hello there, you have an error at line 129 column 4',
   },
 } as ErrorResponse
 
@@ -52,9 +51,7 @@ describe('getServerError', () => {
   })
 
   it('falls back to server error message if code not found', () => {
-    expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual(
-      'whatever'
-    )
+    expect(getServerError(alreadyExists, { NotACode: 'stop that' })).toEqual('whatever')
   })
 
   it('uses global map of generic codes for, e.g., 403s', () => {

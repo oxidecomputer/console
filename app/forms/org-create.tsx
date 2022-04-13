@@ -27,11 +27,7 @@ export function CreateOrgForm({
     onSuccess(org) {
       queryClient.invalidateQueries('organizationsGet', {})
       // avoid the org fetch when the org page loads since we have the data
-      queryClient.setQueryData(
-        'organizationsGetOrganization',
-        { orgName: org.name },
-        org
-      )
+      queryClient.setQueryData('organizationsGetOrganization', { orgName: org.name }, org)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

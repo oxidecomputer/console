@@ -75,8 +75,7 @@ type ButtonStyleProps = {
   color?: Color
 }
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> &
-  ButtonStyleProps
+export type ButtonProps = React.ComponentPropsWithRef<'button'> & ButtonStyleProps
 
 export const buttonStyle = ({
   size = 'base',

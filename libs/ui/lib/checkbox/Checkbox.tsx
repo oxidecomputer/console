@@ -52,9 +52,7 @@ export const Checkbox = ({
       {indeterminate && <Indeterminate />}
     </span>
 
-    {children && (
-      <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
-    )}
+    {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
   </label>
 )
 

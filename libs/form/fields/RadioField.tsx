@@ -50,9 +50,7 @@ export function RadioField({
         </FieldLabel>
       )}
       {/* TODO: Figure out where this hint field def should live */}
-      {helpText && (
-        <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>
-      )}
+      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <RadioGroup name={name} {...props} />
     </fieldset>
   )

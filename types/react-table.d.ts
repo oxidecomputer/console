@@ -12,9 +12,8 @@ declare module 'react-table' {
     D extends Record<string, unknown> = Record<string, unknown>
   > extends UseRowSelectInstanceProps<D> {}
 
-  export interface Row<
-    D extends Record<string, unknown> = Record<string, unknown>
-  > extends UseRowSelectRowProps<D> {}
+  export interface Row<D extends Record<string, unknown> = Record<string, unknown>>
+    extends UseRowSelectRowProps<D> {}
 
   export interface HeaderGroup {
     className?: string

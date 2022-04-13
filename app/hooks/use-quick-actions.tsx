@@ -23,8 +23,7 @@ const useStore = create<StoreState>((set) => ({
   items: [],
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
-  remove: (toRemove) =>
-    set(({ items }) => ({ items: removeByValue(items, toRemove) })),
+  remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
 }))
 
 /**

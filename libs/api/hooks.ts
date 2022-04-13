@@ -15,10 +15,7 @@ export type Params<F> = F extends (p: infer P, r: infer R) => any
       body?: R
     }
   : never
-export type Result<F> = F extends (
-  p: any,
-  r: any
-) => Promise<ApiResponse<infer R>>
+export type Result<F> = F extends (p: any, r: any) => Promise<ApiResponse<infer R>>
   ? R
   : never
 export type ResultItem<F> = F extends (

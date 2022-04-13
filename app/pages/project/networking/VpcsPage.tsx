@@ -29,19 +29,14 @@ export const VpcsPage = () => {
   return (
     <>
       <TableActions>
-        <Link
-          to="new"
-          className={buttonStyle({ variant: 'secondary', size: 'xs' })}
-        >
+        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New VPC
         </Link>
       </TableActions>
       <Table>
         <Column
           id="name"
-          cell={linkCell(
-            (name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`
-          )}
+          cell={linkCell((name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`)}
         />
         <Column id="dnsName" header="dns name" />
         <Column id="description" />
