@@ -47,7 +47,7 @@ export function NetworkInterfaceField() {
       {value.type === 'Create' && (
         <>
           {value.params.length > 0 && (
-            <MiniTable className="mb-4">
+            <MiniTable.Table className="mb-4">
               <MiniTable.Header>
                 <MiniTable.HeadCell>Name</MiniTable.HeadCell>
                 <MiniTable.HeadCell>VPC</MiniTable.HeadCell>
@@ -58,7 +58,7 @@ export function NetworkInterfaceField() {
               <MiniTable.Body>
                 {value.params.map((item, index) => (
                   <MiniTable.Row
-                    tabIndex="0"
+                    tabIndex={0}
                     aria-rowindex={index + 1}
                     aria-label={`Name: ${item.name}, Vpc: ${item.vpcName}, Subnet: ${item.subnetName}`}
                     key={item.name}
@@ -82,7 +82,7 @@ export function NetworkInterfaceField() {
                   </MiniTable.Row>
                 ))}
               </MiniTable.Body>
-            </MiniTable>
+            </MiniTable.Table>
           )}
 
           <SideModal
