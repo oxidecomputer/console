@@ -7,8 +7,8 @@ const EmptyState = () => (
   <EmptyMessage
     title="No system routes"
     body="You need to create a system route to be able to see it here"
-    buttonText="New system route"
-    buttonTo="new"
+    // buttonText="New system route"
+    // onClick={() => {}}
   />
 )
 

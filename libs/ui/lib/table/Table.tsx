@@ -94,3 +94,5 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
  * of the table.
  */
 export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-4`
+
+export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded border border-secondary p-4`
