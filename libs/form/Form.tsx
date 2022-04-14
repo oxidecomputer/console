@@ -163,7 +163,7 @@ Form.Actions = ({
 
   return (
     <div
-      className={cn('flex w-full gap-[0.625rem] children:shrink-0', {
+      className={cn('flex w-full items-center gap-[0.625rem] children:shrink-0', {
         'flex-row-reverse': isSideModal,
       })}
     >
