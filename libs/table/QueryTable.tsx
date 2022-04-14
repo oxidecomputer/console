@@ -103,7 +103,7 @@ const makeQueryTable = <Item,>(
       options
     )
 
-    const tableData = useMemo(() => (data as any)?.items || [], [data])
+    const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
 
     const getRowId = useCallback((row) => row.id, [])
 
