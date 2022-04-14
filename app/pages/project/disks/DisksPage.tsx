@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { buttonStyle, TableActions } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, TableActions, Storage24Icon } from '@oxide/ui'
 
 function AttachedInstance(props: {
   orgName: string
@@ -28,6 +28,16 @@ function AttachedInstance(props: {
   ) : null
 }
 
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Storage24Icon />}
+    title="No disks"
+    body="You need to create a disk to be able to see it here"
+    buttonText="New disk"
+    buttonTo="new"
+  />
+)
+
 export function DisksPage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable(
@@ -46,7 +56,7 @@ export function DisksPage() {
           New Disk
         </Link>
       </TableActions>
-      <Table>
+      <Table emptyState={<EmptyState />}>
         <Column id="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column

@@ -1,9 +1,19 @@
 import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, TableActions } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Folder24Icon, TableActions } from '@oxide/ui'
 import { useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
+
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Folder24Icon />}
+    title="No organizations"
+    body="You need to create an organization to be able to see it here"
+    buttonText="New organization"
+    buttonTo="new"
+  />
+)
 
 const OrgsPage = () => {
   const { Table, Column } = useQueryTable('organizationsGet', {})
@@ -34,7 +44,7 @@ const OrgsPage = () => {
           New Organization
         </Link>
       </TableActions>
-      <Table>
+      <Table emptyState={<EmptyState />}>
         <Column id="name" cell={linkCell((name) => `/orgs/${name}`)} />
         <Column id="description" />
         <Column id="timeModified" header="Last updated" cell={DateCell} />

@@ -51,7 +51,7 @@ interface QueryTableProps<Item> {
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
-  emptyState?: React.ReactElement
+  emptyState: React.ReactElement
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useParams } from 'app/hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
-import { Button, SideModal } from '@oxide/ui'
+import { Button, EmptyMessage, SideModal } from '@oxide/ui'
 import type { VpcSubnet } from '@oxide/api'
 import { CreateSubnetForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'
@@ -20,6 +20,15 @@ export const VpcSubnetsTab = () => {
       onActivate: () => setEditing(subnet),
     },
   ]
+
+  const emptyState = (
+    <EmptyMessage
+      title="No VPC subnets"
+      body="You need to create a subnet to be able to see it here"
+      buttonText="New subnet"
+      onClick={() => setShowCreate(true)}
+    />
+  )
 
   return (
     <>
@@ -44,7 +53,7 @@ export const VpcSubnetsTab = () => {
           )}
         </SideModal>
       </div>
-      <Table makeActions={makeActions}>
+      <Table makeActions={makeActions} emptyState={emptyState}>
         <Column id="name" />
         <Column
           id="ip-block"
