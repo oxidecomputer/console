@@ -170,9 +170,8 @@ Form.Actions = ({
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
-      <span className="grow" />
       {error && (
-        <div className="flex !shrink items-start text-mono-sm text-error">
+        <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
           <Error12Icon className="mx-2 mt-0.5 shrink-0" />
           <span>{error.message}</span>
         </div>
