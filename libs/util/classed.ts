@@ -9,11 +9,8 @@ const make =
   (strings: TemplateStringsArray) => {
     const Comp = ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
       React.createElement(tag, { className: cn(strings[0], className), ...rest }, children)
-    // allow arbitrary components to hang off this one, e.g., Table.Body
     Comp.displayName = `classed.${tag}`
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Comp as typeof Comp & Record<string, React.ComponentType<any>>
+    return Comp
   }
 
 // JSX.IntrinsicElements[T] ensures same props as the real DOM element. For example,
