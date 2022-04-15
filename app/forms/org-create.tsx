@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, NameField, DescriptionField } from '@oxide/form'
+import { Form, NameField, DescriptionField } from 'app/components/form'
 import type { Organization } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'

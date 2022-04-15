@@ -1,4 +1,4 @@
-import { DescriptionField, Form, NameField, TextField } from '@oxide/form'
+import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
 import { Divider } from '@oxide/ui'
 import React from 'react'
 import type { VpcSubnet } from '@oxide/api'
