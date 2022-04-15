@@ -18,8 +18,9 @@ const values = {
   name: '',
   description: '',
   size: 0,
-  sourceType: '',
-  deletionRule: '',
+  sourceType: 'blank',
+  deletionRule: 'keep',
+  blockSize: 2048,
 }
 
 export function CreateDiskForm({
@@ -59,14 +60,19 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <RadioField column id="disk-source-type" name="sourceType">
+      <RadioField column id="disk-source-type" name="sourceType" label="Source type">
         <Radio value="blank">Blank disk</Radio>
         <Radio value="image">Image</Radio>
         <Radio value="snapshot">Snapshot</Radio>
       </RadioField>
-      <RadioField column id="disk-deletion-rule" name="deletionRule">
+      <RadioField column id="disk-deletion-rule" name="deletionRule" label="Deletion Rule">
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
+      </RadioField>
+      <RadioField column id="disk-block-size" name="blockSize" label="Block Size (MiB)">
+        <Radio value={512}>512</Radio>
+        <Radio value={2048}>2048</Radio>
+        <Radio value={4096}>4096</Radio>
       </RadioField>
       <TextField id="disk-size" name="size" label="Size (GiB)" type="number" />
       <Form.Actions>
