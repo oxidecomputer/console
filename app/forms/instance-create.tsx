@@ -96,8 +96,8 @@ export default function CreateInstanceForm({
           createInstance.mutate({
             ...pageParams,
             body: {
-              name: values['name'],
-              hostname: values.hostname,
+              name: values.name,
+              hostname: values.hostname || values.name,
               description: `An instance in project: ${pageParams.projectName}`,
               memory: filesize(instance.memory, { output: 'object', base: 2 }).value,
               ncpus: instance.ncpus,
