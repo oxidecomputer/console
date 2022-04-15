@@ -14,7 +14,7 @@ Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omi
 
 ## Directory structure
 
-The app is in [`app`](app). You can see the route structure in [`app/app.tsx`](app/app.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live (and the Storybook definition) and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
+The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live (and the Storybook definition) and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
 
 ## Try it
 
@@ -36,7 +36,7 @@ yarn storybook
 
 This will start the storybook for the `ui` component library and start it on `http://localhost:4400`.
 
-### Run with [MSW](https://mswjs.io/) mock API
+### Run Vite dev server + [MSW](https://mswjs.io/) mock API
 
 This is the easiest way to run the console locally. Just run:
 
@@ -46,7 +46,7 @@ yarn start:msw
 
 and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
 
-### Run with real API
+### Run Vite dev server + real Nexus API
 
 You can also run the console against a real instance of Nexus, the API.
 
