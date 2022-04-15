@@ -6,7 +6,7 @@ import {
   TextField,
   RadioField,
   Radio,
-} from '@oxide/form'
+} from 'app/components/form'
 import { Divider } from '@oxide/ui'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
