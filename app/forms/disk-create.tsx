@@ -20,6 +20,7 @@ const values = {
   size: 0,
   sourceType: '',
   deletionRule: '',
+  blockSize: 2048,
 }
 
 export function CreateDiskForm({
@@ -69,6 +70,11 @@ export function CreateDiskForm({
         <Radio value="delete">Delete disk</Radio>
       </RadioField>
       <TextField id="disk-size" name="size" label="Size (GiB)" type="number" />
+      <RadioField column id="disk-block-size" name="blockSize">
+        <Radio value={512}>512 MiB</Radio>
+        <Radio value={2048}>2048 MiB</Radio>
+        <Radio value={4096}>4096 MiB</Radio>
+      </RadioField>
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
