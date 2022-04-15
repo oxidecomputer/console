@@ -7,5 +7,6 @@ export * from './session'
 export * from './snapshot'
 export * from './vpc'
 
-export { handlers, json } from './msw/handlers'
+export { handlers } from './msw/handlers'
+export { json } from './msw/util'
 export { resetDb } from './msw/db'

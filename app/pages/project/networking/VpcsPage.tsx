@@ -3,7 +3,17 @@ import { useParams, useQuickActions } from 'app/hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, TableActions } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Networking24Icon, TableActions } from '@oxide/ui'
+
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Networking24Icon />}
+    title="No VPCs"
+    body="You need to create a VPC to be able to see it here"
+    buttonText="New VPC"
+    buttonTo="new"
+  />
+)
 
 export const VpcsPage = () => {
   const projectParams = useParams('orgName', 'projectName')
@@ -33,7 +43,7 @@ export const VpcsPage = () => {
           New VPC
         </Link>
       </TableActions>
-      <Table>
+      <Table emptyState={<EmptyState />}>
         <Column
           id="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`)}

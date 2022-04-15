@@ -12,6 +12,7 @@ import type {
   VpcParams,
   VpcSubnetParams,
   DiskParams,
+  VpcRouterParams,
 } from './db'
 import { lookupDisk } from './db'
 import {
@@ -21,9 +22,8 @@ import {
   lookupProject,
   lookupVpc,
   lookupVpcSubnet,
+  lookupVpcRouter,
 } from './db'
-
-export { json }
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -445,6 +445,26 @@ export const handlers = [
         ...rules,
       ]
       return res(json({ rules: sortBy(rules, (r) => r.name) }))
+    }
+  ),
+
+  rest.get<never, VpcParams, Json<Api.VpcRouterResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
+    (req, res) => {
+      const [vpc, err] = lookupVpc(req)
+      if (err) return res(err)
+      const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
+      return res(json({ items }))
+    }
+  ),
+
+  rest.get<never, VpcRouterParams, Json<Api.RouterRouteResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
+    (req, res) => {
+      const [router, err] = lookupVpcRouter(req)
+      if (err) return res(err)
+      const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
+      return res(json({ items }))
     }
   ),
 ]
