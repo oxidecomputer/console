@@ -1,5 +1,7 @@
 /* eslint-disable */
 
+export type BlockSize = number
+
 /**
  * A count of bytes, typically used either for memory or storage capacity
  *
@@ -25,6 +27,7 @@ export type DatumType =
  * Client view of an {@link Disk}
  */
 export type Disk = {
+  blockSize: ByteCount
   /**
    * human-readable free-form text about a resource
    */
@@ -34,6 +37,7 @@ export type Disk = {
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
+  imageId?: string | null
   /**
    * unique, mutable, user-controlled identifier for each resource
    */
@@ -56,10 +60,18 @@ export type Disk = {
  * Create-time parameters for a {@link Disk}
  */
 export type DiskCreate = {
+  /**
+   * size of blocks for this Disk. valid values are: 512, 2048, or 4096
+   */
+  blockSize: BlockSize
   description: string
+  /**
+   * id for image from which the Disk should be created, if any
+   */
+  imageId?: string | null
   name: Name
   /**
-   * size of the Disk
+   * total size of the Disk in bytes
    */
   size: ByteCount
   /**
@@ -262,10 +274,18 @@ export type InstanceCreate = {
  */
 export type InstanceDiskAttachment =
   | {
+      /**
+       * size of blocks for this Disk. valid values are: 512, 2048, or 4096
+       */
+      blockSize: BlockSize
       description: string
+      /**
+       * id for image from which the Disk should be created, if any
+       */
+      imageId?: string | null
       name: Name
       /**
-       * size of the Disk
+       * total size of the Disk in bytes
        */
       size: ByteCount
       /**
