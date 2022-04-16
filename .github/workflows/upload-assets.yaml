@@ -1,9 +1,9 @@
 name: Upload assets
+# Files are at dl.oxide.computer/console/releases/<sha>.tar.gz
 
 on:
   push:
     branches: [main]
-  pull_request: # TODO: remove before merge
 
 jobs:
   build-and-upload:
