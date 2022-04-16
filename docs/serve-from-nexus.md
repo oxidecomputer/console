@@ -1,6 +1,6 @@
 # Serving the Console from Nexus
 
-## Wait! You might not need to do this
+## Wait! You probably don't need to build anything
 
 Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. The latest `main` is probably what you want and can always be found at https://dl.oxide.computer/releases/console/main.tar.gz in addition to the path with the SHA.
 
