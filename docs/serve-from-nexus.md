@@ -2,7 +2,7 @@
 
 ## Wait! You might not need to do this
 
-Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. The latest `main` is probably what you want and can always be found at https://dl.oxide.computer/releases/console/latest.tar.gz in addition to the path with the SHA.
+Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. The latest `main` is probably what you want and can always be found at https://dl.oxide.computer/releases/console/main.tar.gz in addition to the path with the SHA.
 
 If you want to use a version of the console that's already merged into `main`, just download the tarball and extract the files into the directory configured as `console.static_dir` in the Nexus config (the default in the example config `nexus/static`).
 
