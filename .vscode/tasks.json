@@ -102,7 +102,7 @@
     {
       "label": "Start Sled Agent Sim",
       "type": "shell",
-      "command": "cargo run --bin=sled-agent-sim -- $(uuidgen) [::]:12345 127.0.0.1:12221",
+      "command": "cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221",
       "dependsOn": "Seed Nexus Data",
       "isBackground": true,
       "problemMatcher": {
