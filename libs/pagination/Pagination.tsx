@@ -1,4 +1,3 @@
-import React from 'react'
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
 import { tunnel } from '@oxide/util'

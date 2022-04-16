@@ -1,4 +1,3 @@
-import React from 'react'
 import fileSize from 'filesize'
 import type { Cell } from './Cell'
 

@@ -1,5 +1,4 @@
 import type { Row, TableInstance } from 'react-table'
-import React from 'react'
 
 import { Checkbox } from '@oxide/ui'
 

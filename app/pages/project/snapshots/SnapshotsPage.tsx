@@ -1,4 +1,3 @@
-import React from 'react'
 import { useParams } from 'app/hooks'
 import { SizeCell, DateCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Snapshots24Icon } from '@oxide/ui'

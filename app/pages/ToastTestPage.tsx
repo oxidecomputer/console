@@ -1,5 +1,5 @@
 import { Button, Comment16Icon, Success16Icon } from '@oxide/ui'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useToast } from '../hooks'
 import { classed } from '@oxide/util'
 

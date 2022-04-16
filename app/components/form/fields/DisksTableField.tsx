@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useField } from 'formik'
 import { CreateDiskForm } from 'app/forms/disk-create'
 import { AttachDiskForm } from 'app/forms/disk-attach'

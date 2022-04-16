@@ -1,7 +1,7 @@
 import type { Instance } from '@oxide/api'
 import { UbuntuResponsiveIcon } from '@oxide/ui'
 import fileSize from 'filesize'
-import React from 'react'
+
 import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
 

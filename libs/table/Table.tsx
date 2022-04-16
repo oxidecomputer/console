@@ -1,4 +1,3 @@
-import React from 'react'
 import type { TableInstance } from 'react-table'
 import { Table as UITable } from '@oxide/ui'
 

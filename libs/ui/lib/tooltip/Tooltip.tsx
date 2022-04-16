@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React, { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import cn from 'classnames'
 
 import { usePopper } from 'react-popper'

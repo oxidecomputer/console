@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Instance } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'

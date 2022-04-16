@@ -14,7 +14,7 @@ import {
 import type { FormikConfig } from 'formik'
 import { Formik } from 'formik'
 import type { ReactNode } from 'react'
-import React, { cloneElement } from 'react'
+import { cloneElement } from 'react'
 import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'

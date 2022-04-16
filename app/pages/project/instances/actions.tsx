@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'

@@ -1,4 +1,3 @@
-import React from 'react'
 import { Form, NameField, DescriptionField } from 'app/components/form'
 import type { Organization } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'

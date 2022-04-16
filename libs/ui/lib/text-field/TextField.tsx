@@ -1,4 +1,3 @@
-import React from 'react'
 import cn from 'classnames'
 import { Alert } from '@reach/alert'
 import type { FieldValidator } from 'formik'

@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import React from 'react'
+
 import { Tooltip } from './Tooltip'
 import type { StoryObj } from '@storybook/react'
 import { Filter12Icon } from '../icons'
