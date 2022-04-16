@@ -11,10 +11,7 @@ type FormPageProps<K extends keyof FormTypes> = {
  * Dynamically load a form from the `forms` directory where id is the name of the form.
  * This is generally used to render form pages from the routes file.
  */
-export function FormPage<K extends keyof FormTypes>({
-  type,
-  ...props
-}: FormPageProps<K>) {
+export function FormPage<K extends keyof FormTypes>({ type, ...props }: FormPageProps<K>) {
   const DynForm = useMemo(
     () => React.lazy<FormTypes[K]>(() => import(`../forms/${type}.tsx`)),
     [type]

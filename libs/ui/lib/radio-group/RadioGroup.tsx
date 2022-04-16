@@ -58,6 +58,8 @@ export type RadioGroupProps = {
   // For vertical layout of regular Radios. Leave it off for RadioCards.
   column?: boolean
   className?: string
+
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export const RadioGroup = ({
@@ -67,14 +69,12 @@ export const RadioGroup = ({
   disabled,
   column,
   className,
+  onChange,
 }: RadioGroupProps) => (
   <div
-    className={cn(
-      'flex',
-      column ? 'flex-col space-y-2' : 'flex-wrap gap-5',
-      className
-    )}
+    className={cn('flex', column ? 'flex-col space-y-2' : 'flex-wrap gap-5', className)}
     role="radiogroup"
+    onChange={onChange}
   >
     {React.Children.map(children, (radio) =>
       React.cloneElement(radio, { name, required, disabled })

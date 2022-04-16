@@ -6,9 +6,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
  */
 module.exports = async ({ config }) => {
   const resolvePlugins = config.resolve.plugins || []
-  resolvePlugins.push(
-    new TsconfigPathsPlugin({ configFile: './tsconfig.json' })
-  )
+  resolvePlugins.push(new TsconfigPathsPlugin({ configFile: './tsconfig.json' }))
   config.resolve.extensions.push('.mdx')
   config.resolve.plugins = resolvePlugins
   config.resolve.fallback = {
@@ -21,8 +19,7 @@ module.exports = async ({ config }) => {
   const svgRule = config.module.rules.find((rule) =>
     rule.test?.toString().startsWith('/\\.(svg|ico')
   )
-  svgRule.test =
-    /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|ttf|woff|woff2|cur|ani|pdf)(\?.*)?$/
+  svgRule.test = /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|ttf|woff|woff2|cur|ani|pdf)(\?.*)?$/
 
   config.module.rules.push({
     test: /\.(png|jpe?g|gif|webp)$/,

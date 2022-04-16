@@ -8,14 +8,9 @@ const make =
   // only one argument here means string interpolations are not allowed
   (strings: TemplateStringsArray) => {
     const Comp = ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
-      React.createElement(
-        tag,
-        { className: cn(strings[0], className), ...rest },
-        children
-      )
-    // allow arbitrary components to hang off this one, e.g., Table.Body
+      React.createElement(tag, { className: cn(strings[0], className), ...rest }, children)
     Comp.displayName = `classed.${tag}`
-    return Comp as typeof Comp & Record<string, React.ComponentType>
+    return Comp
   }
 
 // JSX.IntrinsicElements[T] ensures same props as the real DOM element. For example,

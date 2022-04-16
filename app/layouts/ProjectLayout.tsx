@@ -22,7 +22,7 @@ import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { PageHeader } from '../components/PageHeader'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
-import { Form } from '@oxide/form'
+import { Form } from 'app/components/form'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -40,10 +40,7 @@ const ProjectLayout = () => {
           { value: 'Networking', path: 'vpcs' },
         ]
           // filter out the entry for the path we're currently on
-          .filter(
-            (i) =>
-              !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath)
-          )
+          .filter((i) => !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath))
           .map((i) => ({
             navGroup: `Project '${projectName}'`,
             value: i.value,

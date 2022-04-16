@@ -4,7 +4,6 @@ import type { RouteMatch, RouteObject } from 'react-router-dom'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import LoginPage from './pages/LoginPage'
-import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
 import {
   AccessPage,
   DisksPage,
@@ -53,11 +52,10 @@ import { FormPage } from './components/FormPage'
  * `types/react-router.d.ts`
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const orgCrumb = (m: RouteMatch) => m.params.orgName!
 const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
-/* eslint-enable @typescript-eslint/no-non-null-assertion */
+const vpcCrumb = (m: RouteMatch) => m.params.vpcName!
 
 /** React Router route config in JSX form */
 export const routes = (
@@ -70,11 +68,7 @@ export const routes = (
     <Route index element={<Navigate to="/orgs" replace />} />
 
     <Route path="orgs">
-      <Route
-        element={<RootLayout />}
-        icon={<Folder24Icon />}
-        title="Organizations"
-      >
+      <Route element={<RootLayout />} icon={<Folder24Icon />} title="Organizations">
         <Route index element={<OrgsPage />} />
         <Route
           path="new"
@@ -97,21 +91,13 @@ export const routes = (
           </Route>
 
           {/* PROJECT */}
-          <Route
-            path=":projectName"
-            element={<ProjectLayout />}
-            crumb={projectCrumb}
-          >
+          <Route path=":projectName" element={<ProjectLayout />} crumb={projectCrumb}>
             <Route index element={<Navigate to="instances" replace />} />
-            <Route
-              path="instances"
-              crumb="Instances"
-              icon={<Instances24Icon />}
-            >
+            <Route path="instances" crumb="Instances" icon={<Instances24Icon />}>
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
-                element={<InstanceCreatePage />}
+                element={<FormPage type="instance-create" />}
                 title="Create instance"
                 icon={<Instances24Icon />}
               />
@@ -123,9 +109,14 @@ export const routes = (
                 crumb={instanceCrumb}
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs" icon={<Networking24Icon />}>
+            <Route path="vpcs" crumb="VPCs" icon={<Networking24Icon />}>
               <Route index element={<VpcsPage />} />
-              <Route path=":vpcName" element={<VpcPage />} />
+              <Route
+                path="new"
+                title="Create VPC"
+                element={<FormPage type="vpc-create" />}
+              />
+              <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
             </Route>
             <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>
               <Route index element={<DisksPage />} />

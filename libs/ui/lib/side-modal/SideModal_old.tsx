@@ -30,10 +30,7 @@ export function SideModal_old({
       className="absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
       aria-labelledby={titleId}
     >
-      <div
-        style={{ maxHeight: 'calc(100vh - 5rem)' }}
-        className="overflow-y-auto"
-      >
+      <div style={{ maxHeight: 'calc(100vh - 5rem)' }} className="overflow-y-auto">
         {/* Title */}
         <div className="mt-2 mb-8 flex justify-between p-6">
           <h2 className="mt-2 text-sans-2xl" id={titleId}>

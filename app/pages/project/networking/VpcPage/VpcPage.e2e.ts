@@ -32,12 +32,7 @@ test.describe('VpcPage', () => {
     await expect(rows.nth(1).locator('text="1.1.1.2/24"')).toBeVisible()
   })
 
-  const defaultRules = [
-    'allow-internal-inbound',
-    'allow-ssh',
-    'allow-icmp',
-    'allow-rdp',
-  ]
+  const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
   test('can create firewall rule', async ({ page }) => {
     await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
@@ -80,9 +75,7 @@ test.describe('VpcPage', () => {
     await page.locator('text="Add host filter"').click()
 
     // host is added to hosts table
-    await expect(
-      page.locator('td:has-text("host-filter-instance")')
-    ).toBeVisible()
+    await expect(page.locator('td:has-text("host-filter-instance")')).toBeVisible()
 
     // TODO: test invalid port range once I put an error message in there
     await page.fill('text="Port filter"', '123-456')
@@ -105,9 +98,7 @@ test.describe('VpcPage', () => {
     // target shows up in target cell
     await expect(page.locator('text=vpcmy-target-vpc')).toBeVisible()
     // other stuff filled out shows up in the filters column
-    await expect(
-      page.locator('text=instancehost-filter-instanceUDP123-456')
-    ).toBeVisible()
+    await expect(page.locator('text=instancehost-filter-instanceUDP123-456')).toBeVisible()
 
     await expect(rows).toHaveCount(5)
     for (const name of defaultRules) {
@@ -167,9 +158,7 @@ test.describe('VpcPage', () => {
     await page.locator('text="Add host filter"').click()
 
     // new host is added to hosts table
-    await expect(
-      page.locator('td:has-text("edit-filter-instance")')
-    ).toBeVisible()
+    await expect(page.locator('td:has-text("edit-filter-instance")')).toBeVisible()
 
     // submit the form
     await page.locator('text="Update rule"').click()
@@ -184,9 +173,7 @@ test.describe('VpcPage', () => {
     await expect(rows).toHaveCount(4)
 
     // new target shows up in target cell
-    await expect(
-      page.locator('text=instanceedit-filter-instanceICMP')
-    ).toBeVisible()
+    await expect(page.locator('text=instanceedit-filter-instanceICMP')).toBeVisible()
 
     // other 3 rules are still there
     const rest = defaultRules.filter((r) => r !== 'allow-icmp')

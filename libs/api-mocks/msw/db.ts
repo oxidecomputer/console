@@ -1,4 +1,5 @@
 import type { DefaultRequestBody, PathParams, RestRequest } from 'msw'
+import type { Merge } from 'type-fest'
 import type { Json } from '../json-type'
 import { json } from './util'
 
@@ -19,29 +20,12 @@ const Ok = <T>(o: T): Ok<T> => [o, null]
 const Err = (err: LookupError): Err => [null, err]
 
 export type OrgParams = { orgName: string }
-export type ProjectParams = { orgName: string; projectName: string }
-export type VpcParams = {
-  orgName: string
-  projectName: string
-  vpcName: string
-}
-export type InstanceParams = {
-  orgName: string
-  projectName: string
-  instanceName: string
-}
-export type DiskParams = {
-  orgName: string
-  projectName: string
-  instanceName?: string
-  diskName: string
-}
-export type VpcSubnetParams = {
-  orgName: string
-  projectName: string
-  vpcName: string
-  subnetName: string
-}
+export type ProjectParams = Merge<OrgParams, { projectName: string }>
+export type VpcParams = Merge<ProjectParams, { vpcName: string }>
+export type InstanceParams = Merge<ProjectParams, { instanceName: string }>
+export type DiskParams = Merge<ProjectParams, { instanceName?: string; diskName: string }>
+export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
+export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 
 // lets us make sure you're only calling a lookup function from a handler with
 // the required path params
@@ -53,9 +37,7 @@ export function lookupOrg(req: Req<OrgParams>): Result<Json<Api.Organization>> {
   return Ok(org)
 }
 
-export function lookupProject(
-  req: Req<ProjectParams>
-): Result<Json<Api.Project>> {
+export function lookupProject(req: Req<ProjectParams>): Result<Json<Api.Project>> {
   const [org, err] = lookupOrg(req)
   if (err) return Err(err)
 
@@ -80,9 +62,7 @@ export function lookupVpc(req: Req<VpcParams>): Result<Json<Api.Vpc>> {
   return Ok(vpc)
 }
 
-export function lookupInstance(
-  req: Req<InstanceParams>
-): Result<Json<Api.Instance>> {
+export function lookupInstance(req: Req<InstanceParams>): Result<Json<Api.Instance>> {
   const [project, err] = lookupProject(req)
   if (err) return Err(err)
 
@@ -106,9 +86,7 @@ export function lookupDisk(req: Req<DiskParams>): Result<Json<Api.Disk>> {
   return Ok(disk)
 }
 
-export function lookupVpcSubnet(
-  req: Req<VpcSubnetParams>
-): Result<Json<Api.VpcSubnet>> {
+export function lookupVpcSubnet(req: Req<VpcSubnetParams>): Result<Json<Api.VpcSubnet>> {
   const [vpc, err] = lookupVpc(req)
   if (err) return Err(err)
 
@@ -120,6 +98,18 @@ export function lookupVpcSubnet(
   return Ok(subnet)
 }
 
+export function lookupVpcRouter(req: Req<VpcRouterParams>): Result<Json<Api.VpcRouter>> {
+  const [vpc, err] = lookupVpc(req)
+  if (err) return Err(err)
+
+  const router = db.vpcRouters.find(
+    (r) => r.vpc_id === vpc.id && r.name === req.params.routerName
+  )
+  if (!router) return Err(notFoundErr)
+
+  return Ok(router)
+}
+
 const initDb = {
   orgs: [mock.org],
   projects: [mock.project],
@@ -129,6 +119,8 @@ const initDb = {
   snapshots: [...mock.snapshots],
   vpcs: [mock.vpc],
   vpcSubnets: [mock.vpcSubnet],
+  vpcRouters: [mock.vpcRouter],
+  vpcRouterRoutes: [mock.vpcRouterRoute],
   vpcFirewallRules: [...mock.defaultFirewallRules],
 }
 

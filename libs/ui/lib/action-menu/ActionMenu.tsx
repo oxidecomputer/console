@@ -42,7 +42,7 @@ export function ActionMenu(props: ActionMenuProps) {
   const groupedItems = Object.entries(
     groupBy(
       items.filter((i) => i.navGroup),
-      (i) => i.navGroup! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      (i) => i.navGroup!
     )
   )
 
@@ -152,10 +152,7 @@ export function ActionMenu(props: ActionMenuProps) {
                       {label}
                     </h3>
                     {items.map((item) => (
-                      <div
-                        key={item.value}
-                        className="relative -mt-px first-of-type:mt-0"
-                      >
+                      <div key={item.value} className="relative -mt-px first-of-type:mt-0">
                         {item.value === selectedItem?.value && <Outline />}
 
                         {/*
@@ -189,10 +186,7 @@ export function ActionMenu(props: ActionMenuProps) {
             <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
               <ActionMenuHotkey keys={['Enter']} action="submit" />
 
-              <ActionMenuHotkey
-                keys={['Arrow Up', 'Arrow Down']}
-                action="select"
-              />
+              <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
 
               <ActionMenuHotkey keys={['Esc']} action="close" />
             </div>

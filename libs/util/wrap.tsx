@@ -8,8 +8,4 @@ interface WrapProps {
 }
 
 export const Wrap = (props: WrapProps) =>
-  props.when ? (
-    React.cloneElement(props.with, [], props.children)
-  ) : (
-    <>{props.children}</>
-  )
+  props.when ? React.cloneElement(props.with, [], props.children) : <>{props.children}</>

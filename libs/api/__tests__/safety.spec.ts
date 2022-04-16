@@ -4,10 +4,7 @@ import { execSync } from 'child_process'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
-    .readFileSync(
-      path.resolve(__dirname, '../__generated__/OMICRON_VERSION'),
-      'utf8'
-    )
+    .readFileSync(path.resolve(__dirname, '../__generated__/OMICRON_VERSION'), 'utf8')
     .split('\n')[1]
 
   const packerConfig = fs.readFileSync(

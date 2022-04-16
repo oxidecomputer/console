@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams } from 'app/hooks'
-import { Button } from '@oxide/ui'
+import { Button, EmptyMessage } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, DateCell, LabelCell } from '@oxide/table'
 import type { VpcRouter } from '@oxide/api'
@@ -21,14 +21,19 @@ export const VpcRoutersTab = () => {
     },
   ]
 
+  const emptyState = (
+    <EmptyMessage
+      title="No VPC routers"
+      body="You need to create a router to be able to see it here"
+      buttonText="New router"
+      onClick={() => setCreateModalOpen(true)}
+    />
+  )
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button
-          size="xs"
-          variant="secondary"
-          onClick={() => setCreateModalOpen(true)}
-        >
+        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New router
         </Button>
         <CreateVpcRouterModal
@@ -42,15 +47,10 @@ export const VpcRoutersTab = () => {
           onDismiss={() => setEditing(null)}
         />
       </div>
-      <Table makeActions={makeActions}>
+      <Table makeActions={makeActions} emptyState={emptyState}>
         <Column id="name" header="Name" />
         <Column id="kind" header="type" cell={LabelCell} />
-        <Column
-          id="created"
-          header="Created"
-          accessor="timeCreated"
-          cell={DateCell}
-        />
+        <Column id="created" header="Created" accessor="timeCreated" cell={DateCell} />
       </Table>
     </>
   )
