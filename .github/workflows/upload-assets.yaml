@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
+      - run: yarn install
       - name: Build for Nexus
         run: yarn build-for-nexus
       - name: Make tarball

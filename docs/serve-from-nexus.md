@@ -21,7 +21,7 @@ In any case, if the console mostly works but requests to newer parts of the API 
 From Nexus's point of view, the Console is just some static assets it serves at a set of routes, so all you need to do to serve the console from Nexus is build the assets and put them in the right spot. To build the assets, run
 
 ```sh
-yarn build-for-nexus
+yarn install && yarn build-for-nexus
 ```
 
 Note that this script includes a `yarn install` to make sure dependencies are up to date.

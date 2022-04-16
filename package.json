@@ -6,7 +6,7 @@
     "start": "vite",
     "start:msw": "MSW=1 vite",
     "build": "vite build",
-    "build-for-nexus": "yarn install && API_URL='' vite build",
+    "build-for-nexus": "API_URL='' vite build",
     "build:themes": "./tools/build_themes.sh",
     "ci": "yarn tsc && yarn lint && yarn test run && yarn e2e",
     "test": "DEBUG_PRINT_LIMIT=0 vitest",
