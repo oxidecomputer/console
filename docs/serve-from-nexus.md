@@ -1,5 +1,15 @@
 # Serving the Console from Nexus
 
+## Wait! You might not need to do this
+
+Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. If you want to use a version of the console that's already merged into `main`, just download the tarball and extract the files into the directory configured as `console.static_dir` in the Nexus config (the default in the example config `nexus/static`).
+
+Following the rest of the instructions is only necessary if you want to build the assets yourself, for example if you're making a change to the console and want to test it locally against Nexus.
+
+### Choosing a Console version to download
+
+Most of the time you will want the latest commit on `main`. Look at `libs/api/__generated__/OMICRON_VERSION` to see what Omicron SHA that version of the console expects. Often it will work with a newer version of the API, but don't be surprised if it doesn't.
+
 ## Dependencies
 
 - Node.js (tested on 14+, 16+ recommended)
