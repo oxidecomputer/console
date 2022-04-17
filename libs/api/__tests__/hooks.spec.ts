@@ -1,7 +1,5 @@
-import { waitFor } from '@testing-library/react'
-import { renderHook, act } from '@testing-library/react-hooks'
-
-import { override, Wrapper } from 'app/test/utils'
+import { waitFor, act } from '@testing-library/react'
+import { override, Wrapper, renderHook } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
 import type { ErrorResponse } from '../'
 import { useApiQuery, useApiMutation } from '../'
@@ -80,7 +78,7 @@ describe('useApiQuery', () => {
       // The error is thrown asynchronously by the hook so it can propagate up
       // the tree. Fortunately result.error exists for precisely this use case.
       await waitFor(() => {
-        const error = result.error as ErrorResponse | undefined
+        const error = result.current.error
         expect(error?.status).toEqual(404)
         expect(error?.error).toEqual({ errorCode: 'ObjectNotFound' })
       })
