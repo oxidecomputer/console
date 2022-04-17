@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter as Router } from 'react-router-dom'
 
@@ -19,7 +19,8 @@ const queryClient = new QueryClient({
 })
 
 function render() {
-  ReactDOM.render(
+  const root = createRoot(document.getElementById('root')!)
+  root.render(
     <React.StrictMode>
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
@@ -30,8 +31,7 @@ function render() {
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   )
 }
 

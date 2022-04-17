@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { ReactNode } from 'react'
 import React, { useState, createContext, useContext } from 'react'
 import { v4 as uuid } from 'uuid'
 
@@ -11,7 +11,7 @@ const ToastContext = createContext<AddToast>(() => {})
 
 export const useToast = () => useContext(ToastContext)
 
-export const ToastProvider: FC = ({ children }) => {
+export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const addToast: AddToast = (options) => {
