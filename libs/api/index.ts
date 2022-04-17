@@ -1,5 +1,6 @@
 import type { ResultItem } from './hooks'
 import { getUseApiMutation, getUseApiQuery, getUseApiQueryClient } from './hooks'
+import { handleErrors } from './errors'
 import { Api } from './__generated__/Api'
 
 const api = new Api({
@@ -20,8 +21,8 @@ export type ApiListMethods = {
     : M]: ApiMethods[M]
 }
 
-export const useApiQuery = getUseApiQuery(api.methods)
-export const useApiMutation = getUseApiMutation(api.methods)
+export const useApiQuery = getUseApiQuery(api.methods, handleErrors)
+export const useApiMutation = getUseApiMutation(api.methods, handleErrors)
 export const useApiQueryClient = getUseApiQueryClient<ApiMethods>()
 
 export * from './util'

@@ -26,23 +26,21 @@ const methodCodeMap: { [key in keyof Partial<ApiMethods>]: Record<string, string
   },
 }
 
-export const handleErrors =
-  <M>(method: M) =>
-  (resp: ErrorResponse) => {
-    // TODO is this a valid failure condition?
-    if (!resp) throw 'unknown server error'
+export const handleErrors = (method: keyof ApiMethods) => (resp: ErrorResponse) => {
+  // TODO is this a valid failure condition?
+  if (!resp) throw 'unknown server error'
 
-    // if logged out, hit /login to trigger login redirect
-    if (resp.status === 401) {
-      // TODO-usability: for background requests, a redirect to login without
-      // warning could come as a surprise to the user, especially because
-      // sometimes background requests are not directly triggered by a user
-      // action, e.g., polling or refetching when window regains focus
-      navToLogin({ includeCurrent: true })
-    }
-    // we need to rethrow because that's how react-query knows it's an error
-    throw formatServerError(resp, methodCodeMap[method as unknown as keyof ApiMethods])
+  // if logged out, hit /login to trigger login redirect
+  if (resp.status === 401) {
+    // TODO-usability: for background requests, a redirect to login without
+    // warning could come as a surprise to the user, especially because
+    // sometimes background requests are not directly triggered by a user
+    // action, e.g., polling or refetching when window regains focus
+    navToLogin({ includeCurrent: true })
   }
+  // we need to rethrow because that's how react-query knows it's an error
+  throw formatServerError(resp, methodCodeMap[method])
+}
 
 function formatServerError(
   resp: ErrorResponse,

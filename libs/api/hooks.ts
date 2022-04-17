@@ -5,7 +5,6 @@ import type {
   QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { handleErrors } from './errors'
 
 import type { ErrorResponse, ApiResponse } from './__generated__/Api'
 
@@ -29,7 +28,10 @@ type ApiClient = Record<string, (...args: any) => Promise<ApiResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const getUseApiQuery =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+  ) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
@@ -65,7 +67,10 @@ export const getUseApiQuery =
   }
 
 export const getUseApiMutation =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+  ) =>
   <M extends keyof A>(
     method: M,
     options?: UseMutationOptions<Result<A[M]>, ErrorResponse, Params<A[M]>>
