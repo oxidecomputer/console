@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 import tsConfig from './tsconfig.json'
@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
   },
   plugins: [
+    splitVendorChunkPlugin(),
     react({
       babel: {
         plugins:
