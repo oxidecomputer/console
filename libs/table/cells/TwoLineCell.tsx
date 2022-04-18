@@ -2,8 +2,7 @@ import React from 'react'
 import type { Cell } from './Cell'
 import cn from 'classnames'
 
-interface TwoLineCellProps
-  extends Cell<[string | JSX.Element, string | JSX.Element]> {
+interface TwoLineCellProps extends Cell<[string | JSX.Element, string | JSX.Element]> {
   detailsClass?: string
 }
 

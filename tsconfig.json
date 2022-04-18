@@ -21,7 +21,6 @@
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
       "@oxide/ui": ["libs/ui/index.ts"],
       "@oxide/util": ["libs/util/index.ts"],
-      "@oxide/form": ["libs/form/index.ts"],
       "@oxide/table": ["libs/table/index.ts"],
       "@oxide/pagination": ["libs/pagination/index.ts"]
     },

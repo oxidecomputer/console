@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeader as Header, PageTitle } from '@oxide/ui'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 import { useMatches } from 'app/hooks/use-matches'
 
 export function PageHeader() {
@@ -15,10 +15,7 @@ export function PageHeader() {
     typeof iconMatch?.route.icon === 'function'
       ? iconMatch.route.icon(iconMatch)
       : iconMatch?.route.icon
-  invariant(
-    title,
-    'Page missing title, check routes config to ensure one is provided'
-  )
+  invariant(title, 'Page missing title, check routes config to ensure one is provided')
   return (
     (title && (
       <Header>

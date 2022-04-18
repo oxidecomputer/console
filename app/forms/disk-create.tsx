@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   DescriptionField,
   Form,
@@ -5,20 +6,21 @@ import {
   TextField,
   RadioField,
   Radio,
-} from '@oxide/form'
+} from 'app/components/form'
 import { Divider } from '@oxide/ui'
-import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
-import { useParams } from 'app/hooks'
+import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+
+import type { PrebuiltFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 const values = {
   name: '',
   description: '',
   size: 0,
-  type: '',
-  sourceType: '',
-  deletionRule: '',
+  sourceType: 'blank',
+  deletionRule: 'keep',
+  blockSize: 2048,
 }
 
 export function CreateDiskForm({
@@ -29,13 +31,13 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values>) {
-  const parentNames = useParams('orgName', 'projectName')
+}: PrebuiltFormProps<typeof values, Disk>) {
   const queryClient = useApiQueryClient()
+  const pathParams = useParams('orgName', 'projectName')
 
   const createDisk = useApiMutation('projectDisksPost', {
     onSuccess(data) {
-      queryClient.invalidateQueries('projectDisksGet', parentNames)
+      queryClient.invalidateQueries('projectDisksGet', pathParams)
       onSuccess?.(data)
     },
     onError,
@@ -49,7 +51,7 @@ export function CreateDiskForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          createDisk.mutate({ ...parentNames, body })
+          createDisk.mutate({ ...pathParams, body })
         })
       }
       mutation={createDisk}
@@ -58,15 +60,19 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <TextField id="disk-type" name="type" />
-      <RadioField column id="disk-source-type" name="sourceType">
+      <RadioField column id="disk-source-type" name="sourceType" label="Source type">
         <Radio value="blank">Blank disk</Radio>
         <Radio value="image">Image</Radio>
         <Radio value="snapshot">Snapshot</Radio>
       </RadioField>
-      <RadioField column id="disk-deletion-rule" name="deletionRule">
+      <RadioField column id="disk-deletion-rule" name="deletionRule" label="Deletion Rule">
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
+      </RadioField>
+      <RadioField column id="disk-block-size" name="blockSize" label="Block Size (MiB)">
+        <Radio value={512}>512</Radio>
+        <Radio value={2048}>2048</Radio>
+        <Radio value={4096}>4096</Radio>
       </RadioField>
       <TextField id="disk-size" name="size" label="Size (GiB)" type="number" />
       <Form.Actions>

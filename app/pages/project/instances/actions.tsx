@@ -46,8 +46,7 @@ export const useMakeInstanceActions = (
           startInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess: () =>
-                successToast(`Starting instance '${instanceName}'`),
+              onSuccess: () => successToast(`Starting instance '${instanceName}'`),
             }
           )
         },
@@ -59,8 +58,7 @@ export const useMakeInstanceActions = (
           stopInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess: () =>
-                successToast(`Stopping instance '${instanceName}'`),
+              onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
             }
           )
         },
@@ -72,8 +70,7 @@ export const useMakeInstanceActions = (
           rebootInstance.mutate(
             { ...projectParams, instanceName },
             {
-              onSuccess: () =>
-                successToast(`Rebooting instance '${instanceName}'`),
+              onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
             }
           )
         },

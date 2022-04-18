@@ -14,10 +14,7 @@ export interface TagProps {
   onClose?: () => void
 }
 
-export const tagColors: Record<
-  TagVariant,
-  Partial<Record<TagColor, string>>
-> = {
+export const tagColors: Record<TagVariant, Partial<Record<TagColor, string>>> = {
   default: {
     default: 'bg-accent text-inverse',
     destructive: 'bg-destructive text-inverse',
@@ -54,10 +51,7 @@ export const Tag = ({
       {onClose && (
         <button type="button" className="flex cursor-pointer" onClick={onClose}>
           <Close8Icon
-            className={cn(
-              variant === 'default' ? 'text-inverse' : 'text-accent',
-              'ml-1'
-            )}
+            className={cn(variant === 'default' ? 'text-inverse' : 'text-accent', 'ml-1')}
           />
         </button>
       )}

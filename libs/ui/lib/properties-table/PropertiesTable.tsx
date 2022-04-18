@@ -1,6 +1,7 @@
 import React from 'react'
 import type { ReactNode } from 'react'
-import { invariant, isOneOf } from '@oxide/util'
+import invariant from 'tiny-invariant'
+import { isOneOf } from '@oxide/util'
 import { Badge } from '../badge/Badge'
 import cn from 'classnames'
 import './properties-table.css'
@@ -19,7 +20,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid min-w-min flex-grow divide-y rounded border border-default children:p-2 children:border-secondary'
+        'properties-table grid min-w-min flex-grow divide-y rounded border border-default children:p-3 children:border-secondary'
       )}
     >
       {children}
@@ -33,12 +34,10 @@ interface PropertiesTableRowProps {
 }
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
-    <span>
+    <span className="flex items-center">
       <Badge variant="ghost">{label}</Badge>
     </span>
-    <div className="flex items-center whitespace-nowrap pr-4 text-sans-md">
-      {children}
-    </div>
+    <div className="flex items-center whitespace-nowrap pr-4 text-sans-md">{children}</div>
   </>
 )
 
@@ -47,10 +46,7 @@ interface PropertiesTableGroupProps {
   className?: string
 }
 
-PropertiesTable.Group = ({
-  children,
-  className,
-}: PropertiesTableGroupProps) => {
+PropertiesTable.Group = ({ children, className }: PropertiesTableGroupProps) => {
   invariant(
     isOneOf(children, [PropertiesTable]),
     'PropertiesTable can only have PropertiesTable as a child'

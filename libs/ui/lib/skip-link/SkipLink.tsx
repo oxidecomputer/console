@@ -23,11 +23,7 @@ export const SkipLink = ({
   className,
 }: SkipLinkProps) => {
   return (
-    <a
-      id={id}
-      href={`#${target}`}
-      className={cn(skipLinkStyles, 'focus:top-0', className)}
-    >
+    <a id={id} href={`#${target}`} className={cn(skipLinkStyles, 'focus:top-0', className)}>
       {children}
     </a>
   )

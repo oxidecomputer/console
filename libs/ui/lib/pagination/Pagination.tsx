@@ -54,39 +54,26 @@ export const Pagination = ({
         {(hasNext || hasPrev) && (
           <span className="flex space-x-2">
             <button
-              className={cn(
-                !hasPrev && 'text-secondary',
-                'flex items-center text-mono-xs'
-              )}
+              className={cn(!hasPrev && 'text-secondary', 'flex items-center text-mono-xs')}
               disabled={!hasPrev}
               onClick={onPrev}
             >
               <DirectionLeftIcon
                 title="previous page"
-                className={cn(
-                  'mr-0.5',
-                  hasPrev ? 'text-default' : 'text-quaternary'
-                )}
+                className={cn('mr-0.5', hasPrev ? 'text-default' : 'text-quaternary')}
               />
               prev
             </button>
             <button
-              className={cn(
-                !hasNext && 'text-secondary',
-                'flex items-center text-mono-xs'
-              )}
+              className={cn(!hasNext && 'text-secondary', 'flex items-center text-mono-xs')}
               disabled={!hasNext}
               // nextPage will be defined if hasNext is true
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               onClick={onNext.bind(null, nextPage!)}
             >
               next
               <DirectionRightIcon
                 title="next page"
-                className={cn(
-                  'ml-0.5',
-                  hasNext ? 'text-default' : 'text-quaternary'
-                )}
+                className={cn('ml-0.5', hasNext ? 'text-default' : 'text-quaternary')}
               />
             </button>
           </span>

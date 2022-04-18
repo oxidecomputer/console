@@ -12,18 +12,13 @@ import { useApiQuery, useApiMutation } from '../'
 
 const config = { wrapper: Wrapper }
 
-const renderGetOrgs = () =>
-  renderHook(() => useApiQuery('organizationsGet', {}), config)
+const renderGetOrgs = () => renderHook(() => useApiQuery('organizationsGet', {}), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
-  renderHook(
-    () => useApiQuery('organizationsGetOrganization', { orgName: '503' }),
-    config
-  )
+  renderHook(() => useApiQuery('organizationsGetOrganization', { orgName: '503' }), config)
 
-const renderCreateOrg = () =>
-  renderHook(() => useApiMutation('organizationsPost'), config)
+const renderCreateOrg = () => renderHook(() => useApiMutation('organizationsPost'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },

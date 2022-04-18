@@ -14,9 +14,7 @@ export const getSelectCol = <T extends object>() => ({
       <Checkbox {...props.getToggleAllRowsSelectedProps()} />
     </div>
   ),
-  Cell: ({ row }: { row: Row<T> }) => (
-    <Checkbox {...row.getToggleRowSelectedProps()} />
-  ),
+  Cell: ({ row }: { row: Row<T> }) => <Checkbox {...row.getToggleRowSelectedProps()} />,
   className: 'w-10',
 })
 

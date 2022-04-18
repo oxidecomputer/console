@@ -18,21 +18,16 @@ async function enterName(value: string) {
 const formUrl = `/orgs/${org.name}/projects/new`
 
 describe('ProjectCreatePage', () => {
-  it.todo(
-    'shows message for known error code in project create code map',
-    async () => {
-      renderAppAt(formUrl)
-      await enterName(project.name) // already exists
+  it.todo('shows message for known error code in project create code map', async () => {
+    renderAppAt(formUrl)
+    await enterName(project.name) // already exists
 
-      clickByRole('button', 'Create project')
+    clickByRole('button', 'Create project')
 
-      await screen.findByText(
-        'A project with that name already exists in this organization'
-      )
-      // don't nav away
-      expect(window.location.pathname).toEqual(formUrl)
-    }
-  )
+    await screen.findByText('A project with that name already exists in this organization')
+    // don't nav away
+    expect(window.location.pathname).toEqual(formUrl)
+  })
 
   it.todo('shows message for known error code in global code map', async () => {
     override('post', projectsUrl, 403, { error_code: 'Forbidden' })

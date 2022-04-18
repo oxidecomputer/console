@@ -11,18 +11,13 @@ import { useCallback } from 'react'
 import { useMemo } from 'react'
 import { useRowSelect, useTable } from 'react-table'
 import type { ComponentType, ReactElement } from 'react'
-import type {
-  ErrorResponse,
-  ApiListMethods,
-  Params,
-  Result,
-  ResultItem,
-} from '@oxide/api'
+import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
 import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
+import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>
@@ -56,6 +51,7 @@ interface QueryTableProps<Item> {
   pagination?: 'inline' | 'page'
   pageSize?: number
   children: React.ReactNode
+  emptyState: React.ReactElement
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +66,7 @@ const makeQueryTable = <Item,>(
     debug,
     pagination = 'page',
     pageSize = 10,
+    emptyState,
   }: QueryTableProps<Item>) {
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const columns = useMemo(
@@ -106,7 +103,7 @@ const makeQueryTable = <Item,>(
       options
     )
 
-    const tableData = useMemo(() => (data as any)?.items || [], [data])
+    const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
 
     const getRowId = useCallback((row) => row.id, [])
 
@@ -145,7 +142,14 @@ const makeQueryTable = <Item,>(
       [pageSize, tableData.length, (data as any)?.next_page]
     )
 
-    if (isLoading || (tableData.items?.length === 0 && !hasPrev)) return null
+    if (isLoading) return null
+
+    const isEmpty = tableData.length === 0 && !hasPrev
+    if (isEmpty) {
+      return (
+        <TableEmptyBox>{emptyState || <EmptyMessage title="No results" />}</TableEmptyBox>
+      )
+    }
 
     return (
       <>

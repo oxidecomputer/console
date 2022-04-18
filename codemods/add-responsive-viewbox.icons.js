@@ -9,11 +9,7 @@ export default function transformer(file, api) {
   const j = api.jscodeshift
   const source = j(file.source)
 
-  if (
-    !file.path.endsWith('.tsx') ||
-    !file.path.toLowerCase().includes('responsive')
-  )
-    return
+  if (!file.path.endsWith('.tsx') || !file.path.toLowerCase().includes('responsive')) return
 
   // Grab width value and remove width prop
   const widthProp = source.find(j.JSXAttribute, { name: { name: 'width' } })
@@ -30,10 +26,7 @@ export default function transformer(file, api) {
     .find(j.JSXOpeningElement, { name: { name: 'svg' } })
     .map((s) => {
       s.node.attributes.unshift(
-        j.jsxAttribute(
-          j.jsxIdentifier('viewBox'),
-          j.literal(`0 0 ${width} ${height}`)
-        )
+        j.jsxAttribute(j.jsxIdentifier('viewBox'), j.literal(`0 0 ${width} ${height}`))
       )
     })
     .toSource()

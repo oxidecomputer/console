@@ -2,23 +2,20 @@ import type { ButtonProps } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { SideModal } from '@oxide/ui'
 import { useIsInSideModal } from '@oxide/ui'
-import { Divider } from '@oxide/ui'
 import {
   addProps,
   classed,
   flattenChildren,
-  invariant,
   isOneOf,
-  kebabCase,
   pluckFirstOfType,
   tunnel,
   Wrap,
 } from '@oxide/util'
 import type { FormikConfig } from 'formik'
 import { Formik } from 'formik'
-import { cloneElement } from 'react'
 import type { ReactNode } from 'react'
-import React from 'react'
+import React, { cloneElement } from 'react'
+import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'
 import type { ErrorResponse } from '@oxide/api'
@@ -77,7 +74,7 @@ export function Form<Values>({
             <>
               <form
                 id={id}
-                className={cn('ox-form space-y-7', {
+                className={cn('ox-form', {
                   'pb-20': !isSideModal,
                   'is-side-modal': isSideModal,
                 })}
@@ -92,9 +89,7 @@ export function Form<Values>({
                     {cloneElement(actions, {
                       formId: id,
                       submitDisabled:
-                        !props.dirty ||
-                        !props.isValid ||
-                        mutation.status === 'loading',
+                        !props.dirty || !props.isValid || mutation.status === 'loading',
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -104,9 +99,7 @@ export function Form<Values>({
                       {cloneElement(actions, {
                         formId: id,
                         submitDisabled:
-                          !props.dirty ||
-                          !props.isValid ||
-                          mutation.status === 'loading',
+                          !props.dirty || !props.isValid || mutation.status === 'loading',
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -164,9 +157,7 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div
-      className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}
-    >
+    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
@@ -174,9 +165,7 @@ Form.Actions = ({
   )
 }
 
-Form.Submit = (props: ButtonProps) => (
-  <Button type="submit" variant="default" {...props} />
-)
+Form.Submit = (props: ButtonProps) => <Button type="submit" variant="default" {...props} />
 
 Form.Cancel = (props: ButtonProps) => (
   <Button variant="secondary" {...props}>
@@ -186,18 +175,9 @@ Form.Cancel = (props: ButtonProps) => (
 
 Form.PageActions = PageActionsTunnel.Out
 
-const FormHeading = classed.h2`ox-form-heading text-content text-sans-2xl`
+Form.Heading = classed.h2`ox-form-heading text-content text-sans-2xl`
 export interface FormSectionProps {
   id?: string
   children: React.ReactNode
   title: string
-}
-Form.Section = ({ id, title, children }: FormSectionProps) => {
-  return (
-    <>
-      <Divider />
-      <FormHeading id={id || kebabCase(title)}>{title}</FormHeading>
-      {children}
-    </>
-  )
 }

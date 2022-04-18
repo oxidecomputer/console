@@ -5,7 +5,7 @@ import { FieldLabel, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
 import React from 'react'
-import { useError } from '../hooks/useError'
+import { useFieldError } from '../../../hooks/useFieldError'
 
 export interface TextFieldProps extends UITextFieldProps {
   id: string
@@ -39,15 +39,13 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const { description, helpText, required } = props
-  const error = useError(name)
+  const error = useFieldError(name)
   return (
     <div className="max-w-lg">
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
         {label}
       </FieldLabel>
-      {helpText && (
-        <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>
-      )}
+      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <UITextField
         id={id}
         name={name}

@@ -13,18 +13,15 @@ import {
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button } from '@oxide/ui'
-import {
-  CreateFirewallRuleModal,
-  EditFirewallRuleModal,
-} from '../modals/firewall-rules'
+import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { CreateFirewallRuleModal, EditFirewallRuleModal } from '../modals/firewall-rules'
 
 const tableHelper = createTable<{ Row: VpcFirewallRule }>()
 
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { data } = useApiQuery('vpcFirewallRulesGet', vpcParams)
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesGet', vpcParams)
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -69,14 +66,21 @@ export const VpcFirewallRulesTab = () => {
     autoResetRowSelection: false,
   })
 
+  const emptyState = (
+    <TableEmptyBox>
+      <EmptyMessage
+        title="No firewall rules"
+        body="You need to create a rule to be able to see it here"
+        buttonText="New rule"
+        onClick={() => setCreateModalOpen(true)}
+      />
+    </TableEmptyBox>
+  )
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button
-          size="xs"
-          variant="secondary"
-          onClick={() => setCreateModalOpen(true)}
-        >
+        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New rule
         </Button>
         <CreateFirewallRuleModal
@@ -92,7 +96,7 @@ export const VpcFirewallRulesTab = () => {
           originalRule={editing} // modal is open if this is non-null
         />
       </div>
-      <Table2 table={table} />
+      {rules.length > 0 || isLoading ? <Table2 table={table} /> : emptyState}
     </>
   )
 }

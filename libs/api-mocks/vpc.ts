@@ -1,12 +1,7 @@
 import type { Json } from './json-type'
 import { project } from './project'
-import type {
-  Vpc,
-  VpcFirewallRule,
-  VpcResultsPage,
-  VpcSubnet,
-  VpcSubnetResultsPage,
-} from '@oxide/api'
+import type { Vpc, VpcFirewallRule, VpcResultsPage, VpcRouter, VpcSubnet } from '@oxide/api'
+import type { RouterRoute } from 'libs/api/__generated__/Api'
 
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()
@@ -44,10 +39,6 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   name: 'mock-subnet-2',
   vpc_id: vpc.id,
   ipv4_block: '1.1.1.2/24',
-}
-
-export const vpcSubnets: Json<VpcSubnetResultsPage> = {
-  items: [vpcSubnet],
 }
 
 export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
@@ -119,3 +110,25 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc.id,
   },
 ]
+
+export const vpcRouter: Json<VpcRouter> = {
+  description: 'a vpc router',
+  id: 'vpc-router-id',
+  kind: 'system',
+  name: 'system',
+  time_created,
+  time_modified,
+  vpc_id: vpc.id,
+}
+
+export const vpcRouterRoute: Json<RouterRoute> = {
+  description: 'a vpc router route',
+  id: 'vpc-router-router-id',
+  name: 'system',
+  kind: 'default',
+  target: { type: 'instance', value: 'an-instance' },
+  destination: { type: 'vpc', value: 'a-vpc' },
+  time_created,
+  time_modified,
+  vpc_router_id: vpcRouter.id,
+}

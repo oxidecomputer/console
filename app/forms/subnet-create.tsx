@@ -1,9 +1,10 @@
-import { DescriptionField, Form, NameField, TextField } from '@oxide/form'
+import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
 import { Divider } from '@oxide/ui'
 import React from 'react'
-import type { PrebuiltFormProps } from '@oxide/form'
+import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams } from 'app/hooks'
+import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -20,7 +21,7 @@ export function CreateSubnetForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values>) {
+}: PrebuiltFormProps<typeof values, VpcSubnet>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
