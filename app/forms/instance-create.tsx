@@ -119,12 +119,11 @@ export default function CreateInstanceForm({
               description: `An instance in project: ${pageParams.projectName}`,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.disks.map((disk) => {
-                if (disk.type === 'create') {
-                  return { type: disk.type, ...formatDiskCreate(disk) }
-                }
-                return disk
-              }),
+              disks: values.disks.map((disk) =>
+                disk.type === 'create'
+                  ? { type: disk.type, ...formatDiskCreate(disk) }
+                  : disk
+              ),
             },
           })
         })
