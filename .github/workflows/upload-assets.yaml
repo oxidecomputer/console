@@ -29,8 +29,12 @@ jobs:
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
-      - name: Copy <sha>.tar.gz to main.tar.gz
-        run: cp releases/console/${{ github.sha }}.tar.gz releases/console/main.tar.gz
+      - name: Write sha256sum to file
+        run: sha256sum releases/console/${{ github.sha }}.tar.gz | awk '{print $1}' > releases/console/${{ github.sha }}.sha256.txt
+      - name: Copy files to main.*
+        run: |
+          cp releases/console/${{ github.sha }}.tar.gz releases/console/main.tar.gz
+          cp releases/console/${{ github.sha }}.sha256.txt releases/console/main.sha256.txt
       - name: Upload files to GCP bucket
         id: upload-files
         uses: google-github-actions/upload-cloud-storage@v0.9.0
