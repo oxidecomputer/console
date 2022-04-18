@@ -23,6 +23,7 @@ import {
   useApiMutation,
   useApiQueryClient,
   firewallRuleGetToPut,
+  ipNetToStr,
 } from '@oxide/api'
 import { getServerError } from 'app/util/errors'
 
@@ -167,7 +168,9 @@ const CommonForm = ({ id, error }: FormProps) => {
               <Table.Row key={`${t.type}|${t.value}`}>
                 {/* TODO: should be the pretty type label, not the type key */}
                 <Table.Cell>{t.type}</Table.Cell>
-                <Table.Cell>{t.value}</Table.Cell>
+                <Table.Cell>
+                  {typeof t.value === 'string' ? t.value : ipNetToStr(t.value)}
+                </Table.Cell>
                 <Table.Cell>
                   <Delete10Icon
                     className="cursor-pointer"

@@ -1,7 +1,6 @@
 import { waitFor, act } from '@testing-library/react'
 import { override, Wrapper, renderHook } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
-import type { ErrorResponse } from '../'
 import { useApiQuery, useApiMutation } from '../'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers

@@ -53,20 +53,21 @@ export function QuickActions() {
 
   const anyItems = items.length > 0
 
-  // only memoized to avoid render churn in useKey
-  const openDialog = useCallback(
-    (e) => {
-      if (anyItems && !isOpen) {
-        e.preventDefault()
-        setIsOpen(true)
-      } else {
-        setIsOpen(false)
-      }
-    },
-    [isOpen, anyItems]
+  useKey(
+    'mod+k',
+    // memoized to avoid render churn in useKey
+    useCallback(
+      (e: Mousetrap.ExtendedKeyboardEvent) => {
+        if (anyItems && !isOpen) {
+          e.preventDefault()
+          setIsOpen(true)
+        } else {
+          setIsOpen(false)
+        }
+      },
+      [isOpen, anyItems]
+    )
   )
-
-  useKey('mod+k', openDialog)
 
   const closeDialog = useCallback(() => setIsOpen(false), [])
 
