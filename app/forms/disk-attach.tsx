@@ -1,4 +1,4 @@
-import { Form, NameField } from '@oxide/form'
+import { Form, NameField } from 'app/components/form'
 import React from 'react'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'

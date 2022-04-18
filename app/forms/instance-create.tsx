@@ -4,12 +4,14 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'
 import {
   DescriptionField,
+  DisksTableField,
   Form,
   NameField,
+  NetworkInterfaceField,
   RadioField,
   TagsField,
   TextField,
-} from '@oxide/form'
+} from 'app/components/form'
 import {
   CentOSResponsiveIcon,
   DebianResponsiveIcon,
@@ -25,9 +27,7 @@ import {
   WindowsResponsiveIcon,
 } from '@oxide/ui'
 import { useParams, useToast } from 'app/hooks'
-import { DisksTableField } from 'app/components/fields/DisksTableField'
 import filesize from 'filesize'
-import { NetworkInterfaceField } from 'app/components/fields/NetworkInterfaceField'
 
 const values = {
   name: '',
@@ -96,8 +96,8 @@ export default function CreateInstanceForm({
           createInstance.mutate({
             ...pageParams,
             body: {
-              name: values['name'],
-              hostname: values.hostname,
+              name: values.name,
+              hostname: values.hostname || values.name,
               description: `An instance in project: ${pageParams.projectName}`,
               memory: filesize(instance.memory, { output: 'object', base: 2 }).value,
               ncpus: instance.ncpus,

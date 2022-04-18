@@ -12,7 +12,8 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'attached', instance: 'abc123' },
     device_path: '/abc',
-    size: 1000,
+    size: 2048,
+    block_size: 2048,
   },
   {
     id: 'disk-id-2',
@@ -23,7 +24,8 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'attached', instance: 'abc123' },
     device_path: '/def',
-    size: 2000,
+    size: 4096,
+    block_size: 2048,
   },
   {
     id: 'disk-id-3',
@@ -34,7 +36,8 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/ghi',
-    size: 3000,
+    size: 6144,
+    block_size: 2048,
   },
   {
     id: 'disk-id-4',
@@ -45,6 +48,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 4000,
+    size: 8192,
+    block_size: 2048,
   },
 ]

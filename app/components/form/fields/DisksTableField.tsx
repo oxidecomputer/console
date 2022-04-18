@@ -3,7 +3,7 @@ import { useField } from 'formik'
 import { CreateDiskForm } from 'app/forms/disk-create'
 import { AttachDiskForm } from 'app/forms/disk-attach'
 import { Button, Error16Icon, FieldLabel, MiniTable, SideModal } from '@oxide/ui'
-import type { FormValues } from '../../forms'
+import type { FormValues } from 'app/forms'
 
 type DiskTableItem =
   | (FormValues<'disk-create'> & { type: 'create' })
@@ -22,7 +22,7 @@ export function DisksTableField() {
       <div className="max-w-lg">
         <FieldLabel id="new-disks-label">{/* this was empty */}</FieldLabel>
         {!!items.length && (
-          <MiniTable className="mb-4">
+          <MiniTable.Table className="mb-4">
             <MiniTable.Header>
               <MiniTable.HeadCell>Name</MiniTable.HeadCell>
               <MiniTable.HeadCell>Type</MiniTable.HeadCell>
@@ -32,7 +32,7 @@ export function DisksTableField() {
             <MiniTable.Body>
               {items.map((item, index) => (
                 <MiniTable.Row
-                  tabIndex="0"
+                  tabIndex={0}
                   aria-rowindex={index + 1}
                   aria-label={`Name: ${item.name}, Type: ${item.type}`}
                   key={item.name}
@@ -50,7 +50,7 @@ export function DisksTableField() {
                 </MiniTable.Row>
               ))}
             </MiniTable.Body>
-          </MiniTable>
+          </MiniTable.Table>
         )}
 
         <div className="space-x-3">

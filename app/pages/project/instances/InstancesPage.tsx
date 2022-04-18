@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
-import { buttonStyle, TableActions } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Instances24Icon, TableActions } from '@oxide/ui'
 import { useParams, useQuickActions } from 'app/hooks'
 import {
   linkCell,
@@ -12,6 +12,16 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import { useMakeInstanceActions } from './actions'
+
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Instances24Icon />}
+    title="No instances"
+    body="You need to create an instance to be able to see it here"
+    buttonText="New instance"
+    buttonTo="new"
+  />
+)
 
 export const InstancesPage = () => {
   const projectParams = useParams('orgName', 'projectName')
@@ -62,7 +72,7 @@ export const InstancesPage = () => {
           New Instance
         </Link>
       </TableActions>
-      <Table makeActions={makeActions}>
+      <Table makeActions={makeActions} emptyState={<EmptyState />}>
         <Column
           id="name"
           cell={linkCell(

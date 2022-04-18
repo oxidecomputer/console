@@ -10,7 +10,7 @@ import type CreateInstanceForm from './instance-create'
 import type AttachDiskForm from './disk-attach'
 import type CreateNetworkInterfaceForm from './network-interface-create'
 
-import type { FormProps } from '@oxide/form'
+import type { FormProps } from 'app/components/form'
 import type { ErrorResponse } from '@oxide/api'
 import type { ComponentType } from 'react'
 
