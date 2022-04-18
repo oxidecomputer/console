@@ -1,30 +1,27 @@
 import { navToLogin } from './nav-to-login'
-import type { ApiMethods, ErrorResponse } from '.'
-import { capitalize } from '@oxide/util'
+import type { ApiMethods, ErrorResponse, Error } from '.'
+import { camelCaseToWords, capitalize } from '@oxide/util'
 
-// Generic messages that work anywhere. There will probably be few or none of
-// these, but it's convenient for now.
-const globalCodeMap: Record<string, string> = {
-  Forbidden: 'Action not authorized',
-}
+const errorCodeFormatter =
+  (method: keyof ApiMethods) =>
+  (errorCode: string, error: Error): string | undefined => {
+    switch (errorCode) {
+      case 'Forbidden':
+        return 'Action not authorized'
 
-const methodCodeMap: { [key in keyof Partial<ApiMethods>]: Record<string, string> } = {
-  organizationsPost: {
-    ObjectAlreadyExists: 'An organization with that name already exists',
-  },
-  projectInstancesPost: {
-    ObjectAlreadyExists: 'An instance with that name already exists in this project',
-  },
-  projectDisksPost: {
-    ObjectAlreadyExists: 'A disk with that name already exists in this project',
-  },
-  projectVpcsPost: {
-    ObjectAlreadyExists: 'A VPC with that name already exists in this project',
-  },
-  vpcSubnetsPost: {
-    ObjectAlreadyExists: 'A Subnet with that name already exists in this project',
-  },
-}
+      // TODO: This is a temporary fix for the API; better messages should be provided from there
+      case 'ObjectAlreadyExists':
+        console.log(error)
+        if (method.endsWith('Post')) {
+          let resource = camelCaseToWords(method).slice(-2)[0]
+          resource = resource.endsWith('s') ? resource.slice(0, -1) : resource
+          return `${resource} name already exists`
+        }
+        return undefined
+      default:
+        return undefined
+    }
+  }
 
 export const handleErrors = (method: keyof ApiMethods) => (resp: ErrorResponse) => {
   // TODO is this a valid failure condition?
@@ -39,15 +36,15 @@ export const handleErrors = (method: keyof ApiMethods) => (resp: ErrorResponse) 
     navToLogin({ includeCurrent: true })
   }
   // we need to rethrow because that's how react-query knows it's an error
-  throw formatServerError(resp, methodCodeMap[method])
+  throw formatServerError(resp, errorCodeFormatter(method))
 }
 
 function formatServerError(
   resp: ErrorResponse,
-  codeMap: Record<string, string> = {}
+  msgFromCode: (errorCode: string, error: Error) => string | undefined
 ): ErrorResponse {
   const code = resp.error.errorCode
-  const codeMsg = code && (codeMap[code] || globalCodeMap[code])
+  const codeMsg = code && msgFromCode(code, resp.error)
   const serverMsg = resp.error.message
 
   resp.error.message =
@@ -82,14 +79,6 @@ if (import.meta.vitest) {
     },
   } as ErrorResponse
 
-  const unauthorized = {
-    error: {
-      requestId: '3',
-      errorCode: 'Forbidden',
-      message: "I'm afraid you can't do that, Dave",
-    },
-  } as ErrorResponse
-
   describe('getParseError', () => {
     it('extracts nice part of error message', () => {
       expect(getParseError(parseError.error.message)).toEqual(
@@ -104,28 +93,22 @@ if (import.meta.vitest) {
 
   describe('getServerError', () => {
     it('extracts message from parse errors', () => {
-      expect(formatServerError(parseError, {}).error.message).toEqual(
+      expect(formatServerError(parseError, () => undefined).error.message).toEqual(
         'Hello there, you have an error'
       )
     })
 
     it('uses message from code map if error code matches', () => {
       expect(
-        formatServerError(alreadyExists, {
-          ObjectAlreadyExists: 'that already exists',
-        }).error.message
+        formatServerError(alreadyExists, (code) =>
+          code === 'ObjectAlreadyExists' ? 'that already exists' : undefined
+        )
       ).toEqual('that already exists')
     })
 
     it('falls back to server error message if code not found', () => {
-      expect(
-        formatServerError(alreadyExists, { NotACode: 'stop that' }).error.message
-      ).toEqual('whatever')
-    })
-
-    it('uses global map of generic codes for, e.g., 403s', () => {
-      expect(formatServerError(unauthorized, {}).error.message).toEqual(
-        'Action not authorized'
+      expect(formatServerError(alreadyExists, () => undefined).error.message).toEqual(
+        'whatever'
       )
     })
   })
