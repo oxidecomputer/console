@@ -85,7 +85,6 @@ export function CreateDiskForm({
       </RadioField>
       <RadioField column id="disk-block-size" name="blockSize" label="Block Size (MiB)">
         <Radio value="512">512</Radio>
-        <Radio value="2048">2048</Radio>
         <Radio value="4096">4096</Radio>
       </RadioField>
       <DiskSizeField id="disk-size" />
