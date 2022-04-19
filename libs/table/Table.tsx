@@ -80,11 +80,7 @@ export function Table2<D>({ className, rowClassName, table }: Table2Props<D>) {
       </UITable.Header>
       <UITable.Body {...table.getTableBodyProps()}>
         {table.getRowModel().rows.map((row) => (
-          <UITable.Row
-            {...row.getRowProps()}
-            className={rowClassName}
-            key={row.id}
-          >
+          <UITable.Row {...row.getRowProps()} className={rowClassName} key={row.id}>
             {row.getAllCells().map((cell) => (
               <UITable.Cell key={cell.column.id} {...cell.getCellProps()}>
                 {cell.renderCell()}

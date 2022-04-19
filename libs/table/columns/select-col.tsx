@@ -1,7 +1,4 @@
-import type {
-  Row as Row2,
-  TableInstance as TableInstance2,
-} from '@tanstack/react-table'
+import type { Row as Row2, TableInstance as TableInstance2 } from '@tanstack/react-table'
 import type { Row, TableInstance } from 'react-table'
 import React from 'react'
 
