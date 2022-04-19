@@ -4,14 +4,13 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 
 const errorCodeFormatter =
   (method: keyof ApiMethods) =>
-  (errorCode: string, error: Error): string | undefined => {
+  (errorCode: string, _: Error): string | undefined => {
     switch (errorCode) {
       case 'Forbidden':
         return 'Action not authorized'
 
       // TODO: This is a temporary fix for the API; better messages should be provided from there
       case 'ObjectAlreadyExists':
-        console.log(error)
         if (method.endsWith('Post')) {
           let resource = camelCaseToWords(method).slice(-2)[0]
           resource = resource.endsWith('s') ? resource.slice(0, -1) : resource
