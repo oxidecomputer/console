@@ -15,7 +15,7 @@ import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import { GiB } from '@oxide/util'
 
-export type DiskCreateInput = Assign<DiskCreate, { blockSize: string }>
+export type DiskCreateInput = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
 
 const values: DiskCreateInput = {
   name: '',
@@ -30,7 +30,12 @@ export const formatDiskCreate = (input: DiskCreateInput): DiskCreate => {
   return {
     ...input,
     size: Math.ceil((size * GiB) / blockSize) * blockSize,
-    blockSize,
+    // TODO: once there is a source type picker and an image/snapshot picker,
+    // the value here will be generated from those values
+    diskSource: {
+      type: 'Blank',
+      blockSize,
+    },
   }
 }
 
@@ -61,10 +66,10 @@ export function CreateDiskForm({
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
-        (({ blockSize, ...body }) => {
+        ((values) => {
           createDisk.mutate({
             ...pathParams,
-            body: { blockSize: parseInt(blockSize, 10), ...body },
+            body: formatDiskCreate(values),
           })
         })
       }
@@ -74,11 +79,6 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <RadioField column id="disk-source-type" name="sourceType" label="Source type">
-        <Radio value="blank">Blank disk</Radio>
-        <Radio value="image">Image</Radio>
-        <Radio value="snapshot">Snapshot</Radio>
-      </RadioField>
       <RadioField column id="disk-deletion-rule" name="deletionRule" label="Deletion Rule">
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
