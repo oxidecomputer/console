@@ -4,7 +4,7 @@ import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import { actionsCol, selectCol } from './columns'
-import { Table2 } from './Table'
+import { Table } from './Table'
 import { unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
@@ -143,7 +143,7 @@ const makeQueryTable = <Item,>(
 
     return (
       <>
-        <Table2 table={table} />
+        <Table table={table} />
         <Pagination inline={pagination === 'inline'} {...paginationParams} />
       </>
     )

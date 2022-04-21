@@ -4,7 +4,7 @@ import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/re
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
-import { Table2 } from '@oxide/table'
+import { Table } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 
@@ -66,10 +66,10 @@ export function StorageTab() {
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
-      <Table2 table={bootDiskTable} rowClassName="!h-10" />
+      <Table table={bootDiskTable} rowClassName="!h-10" />
       <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
       {otherDisks.length > 0 ? (
-        <Table2 table={otherDisksTable} rowClassName="!h-10" />
+        <Table table={otherDisksTable} rowClassName="!h-10" />
       ) : (
         <OtherDisksEmpty />
       )}

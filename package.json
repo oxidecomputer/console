@@ -47,7 +47,6 @@
     "react-popper": "^2.2.5",
     "react-query": "^4.0.0-alpha.20",
     "react-router-dom": "^6.2.1",
-    "react-table": "^7.7.0",
     "react-transition-group": "^4.4.1",
     "recharts": "^2.1.6",
     "tiny-invariant": "^1.2.0",

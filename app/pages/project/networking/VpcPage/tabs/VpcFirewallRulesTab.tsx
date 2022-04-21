@@ -7,7 +7,7 @@ import {
   EnabledCell,
   FirewallFilterCell,
   TypeValueListCell,
-  Table2,
+  Table,
   selectCol,
 } from '@oxide/table'
 import { useParams } from 'app/hooks'
@@ -99,7 +99,7 @@ export const VpcFirewallRulesTab = () => {
           originalRule={editing} // modal is open if this is non-null
         />
       </div>
-      {rules.length > 0 || isLoading ? <Table2 table={table} /> : emptyState}
+      {rules.length > 0 || isLoading ? <Table table={table} /> : emptyState}
     </>
   )
 }
