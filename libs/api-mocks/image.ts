@@ -11,7 +11,7 @@ export const images: Json<Image>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     size: 1024,
-    block_size: 512,
+    block_size: 4096,
   },
   {
     id: 'image-id-2',
@@ -21,7 +21,7 @@ export const images: Json<Image>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     size: 2048,
-    block_size: 512,
+    block_size: 4096,
   },
   {
     id: 'image-id-3',
@@ -31,7 +31,7 @@ export const images: Json<Image>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     size: 3072,
-    block_size: 512,
+    block_size: 4096,
   },
   {
     id: 'image-id-4',
@@ -41,6 +41,6 @@ export const images: Json<Image>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     size: 4096,
-    block_size: 512,
+    block_size: 4096,
   },
 ]
