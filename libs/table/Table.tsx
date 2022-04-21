@@ -8,37 +8,35 @@ export type TableProps<TGenerics> = {
   table: TableInstance<TGenerics>
 }
 
-export function Table<TGenerics>({
+export const Table = <TGenerics,>({
   className,
   rowClassName,
   table,
-}: TableProps<TGenerics>) {
-  return (
-    <UITable className={className} {...table.getTableProps()}>
-      <UITable.Header>
-        {table.getHeaderGroups().map((headerGroup) => (
-          // headerGroupProps has the key on it
-          // eslint-disable-next-line react/jsx-key
-          <UITable.HeaderRow {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((header) => (
-              <UITable.HeadCell key={header.id} {...header.getHeaderProps()}>
-                {header.renderHeader()}
-              </UITable.HeadCell>
-            ))}
-          </UITable.HeaderRow>
-        ))}
-      </UITable.Header>
-      <UITable.Body {...table.getTableBodyProps()}>
-        {table.getRowModel().rows.map((row) => (
-          <UITable.Row {...row.getRowProps()} className={rowClassName} key={row.id}>
-            {row.getAllCells().map((cell) => (
-              <UITable.Cell key={cell.column.id} {...cell.getCellProps()}>
-                {cell.renderCell()}
-              </UITable.Cell>
-            ))}
-          </UITable.Row>
-        ))}
-      </UITable.Body>
-    </UITable>
-  )
-}
+}: TableProps<TGenerics>) => (
+  <UITable className={className} {...table.getTableProps()}>
+    <UITable.Header>
+      {table.getHeaderGroups().map((headerGroup) => (
+        // headerGroupProps has the key on it
+        // eslint-disable-next-line react/jsx-key
+        <UITable.HeaderRow {...headerGroup.getHeaderGroupProps()}>
+          {headerGroup.headers.map((header) => (
+            <UITable.HeadCell key={header.id} {...header.getHeaderProps()}>
+              {header.renderHeader()}
+            </UITable.HeadCell>
+          ))}
+        </UITable.HeaderRow>
+      ))}
+    </UITable.Header>
+    <UITable.Body {...table.getTableBodyProps()}>
+      {table.getRowModel().rows.map((row) => (
+        <UITable.Row {...row.getRowProps()} className={rowClassName} key={row.id}>
+          {row.getAllCells().map((cell) => (
+            <UITable.Cell key={cell.column.id} {...cell.getCellProps()}>
+              {cell.renderCell()}
+            </UITable.Cell>
+          ))}
+        </UITable.Row>
+      ))}
+    </UITable.Body>
+  </UITable>
+)

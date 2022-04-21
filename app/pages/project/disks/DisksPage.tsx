@@ -79,7 +79,7 @@ export function DisksPage() {
         />
         <Column
           id="status"
-          accessor="state.state"
+          accessor={(row) => row.state.state}
           cell={({ value }) => <DiskStatusBadge status={value} />}
         />
       </Table>

@@ -5,7 +5,6 @@ import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
 import { actionsCol, selectCol } from './columns'
 import { Table } from './Table'
-import { unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
@@ -13,7 +12,6 @@ import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/re
 import type { ComponentType, ReactElement } from 'react'
 import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
-import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
@@ -73,22 +71,18 @@ const makeQueryTable = <Item,>(
     const columns = useMemo(() => {
       const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement).props }
-        console.log(column)
         const options = {
           header: column.header || column.id,
           cell: column.cell || DefaultCell,
           id: column.id,
         }
+
         if (typeof options.header === 'string') {
           const name = options.header
           options.header = <DefaultHeader>{name}</DefaultHeader>
         }
-        let accessor = column.accessor || column.id
-        console.log({ accessor })
-        if (typeof accessor === 'string' && accessor.includes('.')) {
-          accessor = (v: unknown) => unsafe_get(v, options.id)
-        }
 
+        const accessor = column.accessor || column.id
         return tableHelper.createDataColumn(accessor, options)
       })
       if (makeActions) {
@@ -151,7 +145,7 @@ const makeQueryTable = <Item,>(
 
 export interface QueryTableColumnProps<Item, R extends unknown = any> {
   id: string
-  accessor?: Path<Item> | ((item: Item) => R)
+  accessor?: keyof Item | ((item: Item) => R)
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
