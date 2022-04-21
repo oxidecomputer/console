@@ -23,6 +23,8 @@ export type DatumType =
   | 'HistogramI64'
   | 'HistogramF64'
 
+export type Digest = { Sha256: string }
+
 /**
  * Client view of an {@link Disk}
  */
@@ -60,24 +62,16 @@ export type Disk = {
  * Create-time parameters for a {@link Disk}
  */
 export type DiskCreate = {
-  /**
-   * size of blocks for this Disk. valid values are: 512, 2048, or 4096
-   */
-  blockSize: BlockSize
   description: string
   /**
-   * id for image from which the Disk should be created, if any
+   * initial source for this disk
    */
-  imageId?: string | null
+  diskSource: DiskSource
   name: Name
   /**
    * total size of the Disk in bytes
    */
   size: ByteCount
-  /**
-   * id for snapshot from which the Disk should be created, if any
-   */
-  snapshotId?: string | null
 }
 
 /**
@@ -100,6 +94,21 @@ export type DiskResultsPage = {
    */
   nextPage?: string | null
 }
+
+/**
+ * Different sources for a disk
+ */
+export type DiskSource =
+  | {
+      /**
+       * size of blocks for this Disk. valid values are: 512, 2048, or 4096
+       */
+      blockSize: BlockSize
+      type: 'Blank'
+    }
+  | { snapshotId: string; type: 'Snapshot' }
+  | { imageId: string; type: 'Image' }
+  | { imageId: string; type: 'GlobalImage' }
 
 /**
  * State of a Disk (primarily: attached or not)
@@ -142,13 +151,21 @@ export type FieldSource = 'Target' | 'Metric'
 export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
 
 /**
- * Client view of Images
+ * Client view of global Images
  */
-export type Image = {
+export type GlobalImage = {
+  /**
+   * size of blocks in bytes
+   */
+  blockSize: ByteCount
   /**
    * human-readable free-form text about a resource
    */
   description: string
+  /**
+   * Hash of the image contents, if applicable
+   */
+  digest?: Digest | null
   /**
    * unique, immutable, system-controlled identifier for each resource
    */
@@ -157,7 +174,9 @@ export type Image = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
-  projectId?: string | null
+  /**
+   * total size in bytes
+   */
   size: ByteCount
   /**
    * timestamp when this resource was created
@@ -167,13 +186,88 @@ export type Image = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * URL source of this image, if any
+   */
   url?: string | null
+  /**
+   * Version of this, if any
+   */
+  version?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type GlobalImageResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: GlobalImage[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * Client view of project Images
+ */
+export type Image = {
+  /**
+   * size of blocks in bytes
+   */
+  blockSize: ByteCount
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * Hash of the image contents, if applicable
+   */
+  digest?: Digest | null
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * The project the disk belongs to
+   */
+  projectId: string
+  /**
+   * total size in bytes
+   */
+  size: ByteCount
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+  /**
+   * URL source of this image, if any
+   */
+  url?: string | null
+  /**
+   * Version of this, if any
+   */
+  version?: string | null
 }
 
 /**
  * Create-time parameters for an {@link Image}
  */
 export type ImageCreate = {
+  /**
+   * block size in bytes
+   */
+  blockSize: BlockSize
   description: string
   name: Name
   /**
@@ -267,6 +361,10 @@ export type InstanceCreate = {
    * The network interfaces to be created for this instance.
    */
   networkInterfaces?: InstanceNetworkInterfaceAttachment | null
+  /**
+   * User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data.
+   */
+  userData?: string | null
 }
 
 /**
@@ -274,24 +372,16 @@ export type InstanceCreate = {
  */
 export type InstanceDiskAttachment =
   | {
-      /**
-       * size of blocks for this Disk. valid values are: 512, 2048, or 4096
-       */
-      blockSize: BlockSize
       description: string
       /**
-       * id for image from which the Disk should be created, if any
+       * initial source for this disk
        */
-      imageId?: string | null
+      diskSource: DiskSource
       name: Name
       /**
        * total size of the Disk in bytes
        */
       size: ByteCount
-      /**
-       * id for snapshot from which the Disk should be created, if any
-       */
-      snapshotId?: string | null
       type: 'create'
     }
   | {
@@ -2323,7 +2413,7 @@ export class Api extends HttpClient {
      * List global images.
      */
     imagesGet: (query: ImagesGetParams, params: RequestParams = {}) =>
-      this.request<ImageResultsPage>({
+      this.request<GlobalImageResultsPage>({
         path: `/images`,
         method: 'GET',
         query: query,
@@ -2334,7 +2424,7 @@ export class Api extends HttpClient {
      * Create a global image.
      */
     imagesPost: (query: ImagesPostParams, data: ImageCreate, params: RequestParams = {}) =>
-      this.request<Image>({
+      this.request<GlobalImage>({
         path: `/images`,
         method: 'POST',
         body: data,
@@ -2345,7 +2435,7 @@ export class Api extends HttpClient {
      * Get a global image.
      */
     imagesGetImage: ({ imageName }: ImagesGetImageParams, params: RequestParams = {}) =>
-      this.request<Image>({
+      this.request<GlobalImage>({
         path: `/images/${imageName}`,
         method: 'GET',
         ...params,

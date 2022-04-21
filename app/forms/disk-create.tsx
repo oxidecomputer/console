@@ -2,24 +2,40 @@ import {
   DescriptionField,
   Form,
   NameField,
-  TextField,
   RadioField,
   Radio,
+  DiskSizeField,
 } from 'app/components/form'
 import { Divider } from '@oxide/ui'
-import type { Disk } from '@oxide/api'
+import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
+import { GiB } from '@oxide/util'
 
-const values = {
+export type DiskCreateInput = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
+
+const values: DiskCreateInput = {
   name: '',
   description: '',
   size: 0,
-  sourceType: 'blank',
-  deletionRule: 'keep',
-  blockSize: 2048,
+  blockSize: '4096',
+}
+
+export const formatDiskCreate = (input: DiskCreateInput): DiskCreate => {
+  const blockSize = parseInt(input.blockSize, 10)
+  const { size } = input
+  return {
+    ...input,
+    size: Math.ceil((size * GiB) / blockSize) * blockSize,
+    // TODO: once there is a source type picker and an image/snapshot picker,
+    // the value here will be generated from those values
+    diskSource: {
+      type: 'Blank',
+      blockSize,
+    },
+  }
 }
 
 export function CreateDiskForm({
@@ -49,8 +65,11 @@ export function CreateDiskForm({
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
-        ((body) => {
-          createDisk.mutate({ ...pathParams, body })
+        ((values) => {
+          createDisk.mutate({
+            ...pathParams,
+            body: formatDiskCreate(values),
+          })
         })
       }
       mutation={createDisk}
@@ -59,21 +78,15 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <RadioField column id="disk-source-type" name="sourceType" label="Source type">
-        <Radio value="blank">Blank disk</Radio>
-        <Radio value="image">Image</Radio>
-        <Radio value="snapshot">Snapshot</Radio>
-      </RadioField>
       <RadioField column id="disk-deletion-rule" name="deletionRule" label="Deletion Rule">
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
       </RadioField>
       <RadioField column id="disk-block-size" name="blockSize" label="Block Size (MiB)">
-        <Radio value={512}>512</Radio>
-        <Radio value={2048}>2048</Radio>
-        <Radio value={4096}>4096</Radio>
+        <Radio value="512">512</Radio>
+        <Radio value="4096">4096</Radio>
       </RadioField>
-      <TextField id="disk-size" name="size" label="Size (GiB)" type="number" />
+      <DiskSizeField id="disk-size" />
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />

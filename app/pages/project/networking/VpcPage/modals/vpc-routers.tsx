@@ -3,7 +3,6 @@ import { Formik, Form } from 'formik'
 import { Button, FieldLabel, SideModal_old as SideModal, TextField } from '@oxide/ui'
 import type { VpcRouter, ErrorResponse } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { getServerError } from 'app/util/errors'
 
 // this will get a lot more interesting once the API is updated to allow us to
 // put rules in the router, which is the whole point of a router
@@ -40,7 +39,7 @@ const CommonForm = ({ error, id }: FormProps) => (
       </div>
     </SideModal.Section>
     <SideModal.Section>
-      <div className="text-destructive">{getServerError(error)}</div>
+      <div className="text-destructive">{error?.error.message}</div>
     </SideModal.Section>
   </Form>
 )

@@ -1,6 +1,11 @@
-import type { Instance } from '@oxide/api'
+import type {
+  Instance,
+  InstanceCreate,
+  InstanceNetworkInterfaceAttachment,
+} from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'
+import type { DiskTableItem } from 'app/components/form'
 import {
   DescriptionField,
   DisksTableField,
@@ -26,16 +31,33 @@ import {
   WindowsResponsiveIcon,
 } from '@oxide/ui'
 import { useParams, useToast } from 'app/hooks'
-import filesize from 'filesize'
+import invariant from 'tiny-invariant'
+import { GiB } from '@oxide/util'
+import { formatDiskCreate } from './disk-create'
 
-const values = {
+type InstanceCreateInput = Assign<
+  InstanceCreate,
+  {
+    tags: object
+    networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
+    type: typeof INSTANCE_SIZES[number]['id']
+    disks: DiskTableItem[]
+  }
+>
+
+const values: InstanceCreateInput = {
   name: '',
   description: '',
   tags: {},
-  type: '',
+  /**
+   * This value controls the selector which drives memory and ncpus. It's not actually
+   * submitted to the API.
+   */
+  type: 'general-xs',
+  memory: 0,
+  ncpus: 1,
   hostname: '',
   disks: [],
-  attachedDisks: [],
   networkInterfaces: { type: 'Default' },
   /**
    * This is a hack to ensure the network interface radio has a default selection.
@@ -86,21 +108,21 @@ export default function CreateInstanceForm({
       onSubmit={
         onSubmit ||
         ((values) => {
-          const instance = INSTANCE_SIZES.find(
-            (option) => option.id === values['type']
-          ) || {
-            memory: 0,
-            ncpus: 0,
-          }
+          const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
+          invariant(instance, 'Expected instance type to be defined')
           createInstance.mutate({
             ...pageParams,
             body: {
               name: values.name,
               hostname: values.hostname || values.name,
               description: `An instance in project: ${pageParams.projectName}`,
-              memory: filesize(instance.memory, { output: 'object', base: 2 }).value,
+              memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.disks,
+              disks: values.disks.map((disk) =>
+                disk.type === 'create'
+                  ? { type: disk.type, ...formatDiskCreate(disk) }
+                  : disk
+              ),
             },
           })
         })
@@ -122,7 +144,7 @@ export default function CreateInstanceForm({
             General purpose instances provide a good balance of CPU, memory, and high
             performance storage; well suited for a wide range of use cases.
           </TextFieldHint>
-          <RadioField id="hw-general-purpose" name="instance-type" label="">
+          <RadioField id="hw-general-purpose" name="type" label="">
             {renderLargeRadioCards('general')}
           </RadioField>
         </Tab.Panel>
@@ -132,7 +154,7 @@ export default function CreateInstanceForm({
           <TextFieldHint id="hw-cpu-help-text" className="mb-12 max-w-xl">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
-          <RadioField id="hw-cpu-optimized" name="instance-type" label="">
+          <RadioField id="hw-cpu-optimized" name="type" label="">
             {renderLargeRadioCards('cpuOptimized')}
           </RadioField>
         </Tab.Panel>
@@ -142,7 +164,7 @@ export default function CreateInstanceForm({
           <TextFieldHint id="hw-mem-help-text" className="mb-12 max-w-xl">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
-          <RadioField id="hw-mem-optimized" name="instance-type" label="">
+          <RadioField id="hw-mem-optimized" name="type" label="">
             {renderLargeRadioCards('memoryOptimized')}
           </RadioField>
         </Tab.Panel>
@@ -152,7 +174,7 @@ export default function CreateInstanceForm({
           <TextFieldHint id="hw-custom-help-text" className="mb-12 max-w-xl">
             Custom instances...
           </TextFieldHint>
-          <RadioField id="hw-custom" name="instance-type" label="">
+          <RadioField id="hw-custom" name="type" label="">
             {renderLargeRadioCards('custom')}
           </RadioField>
         </Tab.Panel>
@@ -350,4 +372,4 @@ const INSTANCE_SIZES = [
     memory: 16,
     ncpus: 4,
   },
-]
+] as const
