@@ -1,5 +1,10 @@
 /// Helpers for working with API objects
-import type { IpNet, VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
+import type {
+  IpNet,
+  VpcFirewallRule,
+  VpcFirewallRuleTarget,
+  VpcFirewallRuleUpdate,
+} from './__generated__/Api'
 import { pick } from '@oxide/util'
 
 type PortRange = [number, number]
@@ -37,3 +42,11 @@ export const firewallRuleGetToPut = (
   )
 
 export const ipNetToStr = (ipNet: IpNet) => ('V4' in ipNet ? ipNet.V4 : ipNet.V6)
+
+export const firewallTargetToTypeValue = ({
+  type,
+  value,
+}: VpcFirewallRuleTarget): { type: string; value: string } => ({
+  type,
+  value: type === 'ip_net' ? ipNetToStr(value) : value,
+})

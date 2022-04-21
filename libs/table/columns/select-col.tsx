@@ -16,13 +16,13 @@ export const getSelectCol = <T extends object>() => ({
 })
 
 // only needs to be a function because of the generic params
-export const selectCol = <R,>() => ({
+export const selectCol = <TGenerics,>() => ({
   id: 'select',
   // TODO: fix width at w-12
-  header: ({ instance }: { instance: TableInstance2<{ Row: R }> }) => (
+  header: ({ instance }: { instance: TableInstance2<TGenerics> }) => (
     <Checkbox {...instance.getToggleAllRowsSelectedProps()} />
   ),
-  cell: ({ row }: { row: Row2<{ Row: R }> }) => (
+  cell: ({ row }: { row: Row2<TGenerics> }) => (
     <div className="px-1">
       <Checkbox {...row.getToggleSelectedProps()} />
     </div>

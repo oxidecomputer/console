@@ -56,13 +56,17 @@ export const Table = <D extends object>({
   </UITable>
 )
 
-export type Table2Props<D> = {
+export type Table2Props<TGenerics> = {
   className?: string
   rowClassName?: string // TODO: decide whether this is the worst idea ever or best
-  table: TableInstance2<{ Row: D }>
+  table: TableInstance2<TGenerics>
 }
 
-export function Table2<D>({ className, rowClassName, table }: Table2Props<D>) {
+export function Table2<TGenerics>({
+  className,
+  rowClassName,
+  table,
+}: Table2Props<TGenerics>) {
   return (
     <UITable className={className} {...table.getTableProps()}>
       <UITable.Header>

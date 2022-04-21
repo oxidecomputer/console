@@ -1,5 +1,5 @@
 import React from 'react'
-import { createTable, useTable } from '@tanstack/react-table'
+import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -47,8 +47,16 @@ export function StorageTab() {
   const bootDisks = React.useMemo(() => data?.items.slice(0, 1) || [], [data])
   const otherDisks = React.useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = useTable(table, { columns, data: bootDisks })
-  const otherDisksTable = useTable(table, { columns, data: otherDisks })
+  const bootDiskTable = useTableInstance(table, {
+    columns,
+    data: bootDisks,
+    getCoreRowModel: getCoreRowModelSync(),
+  })
+  const otherDisksTable = useTableInstance(table, {
+    columns,
+    data: otherDisks,
+    getCoreRowModel: getCoreRowModelSync(),
+  })
 
   if (!data) return null
 

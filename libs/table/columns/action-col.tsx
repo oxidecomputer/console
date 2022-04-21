@@ -1,7 +1,7 @@
 import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { Row } from 'react-table'
-import type { Row as Row2 } from '@tanstack/react-table'
+import type { AnyGenerics, Row as Row2 } from '@tanstack/react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
 
@@ -48,11 +48,13 @@ export function getActionsCol<Item>(actionsCreator: MakeActions<Item>) {
   }
 }
 
-export const actionsCol = <R,>(makeActions: MakeActions<R>) => ({
+export const actionsCol = <TGenerics extends AnyGenerics>(
+  makeActions: MakeActions<TGenerics['Row']>
+) => ({
   id: 'menu',
   header: '', // is this the right way to do this?
   // TODO: fix width at w-12
-  cell: ({ row }: { row: Row2<{ Row: R }> }) => {
+  cell: ({ row }: { row: Row2<TGenerics> }) => {
     // TODO: control flow here has always confused me, would like to straighten it out
     const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
     return (

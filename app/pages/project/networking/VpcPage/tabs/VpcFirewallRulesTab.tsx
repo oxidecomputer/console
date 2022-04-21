@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { createTable, useTable } from '@tanstack/react-table'
+import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
 import type { MenuAction } from '@oxide/table'
 import {
   actionsCol,
@@ -12,7 +12,7 @@ import {
 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, firewallTargetToTypeValue } from '@oxide/api'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleModal, EditFirewallRuleModal } from '../modals/firewall-rules'
 
@@ -39,7 +39,9 @@ export const VpcFirewallRulesTab = () => {
       tableHelper.createDisplayColumn(selectCol()),
       tableHelper.createDataColumn('name', { header: 'Name' }),
       tableHelper.createDataColumn('action', { header: 'Action' }),
-      tableHelper.createDataColumn('targets', {
+      // map() fixes the fact that IpNets aren't strings
+      tableHelper.createDataColumn((rule) => rule.targets.map(firewallTargetToTypeValue), {
+        id: 'targets',
         header: 'Targets',
         cell: TypeValueListCell,
       }),
@@ -60,10 +62,11 @@ export const VpcFirewallRulesTab = () => {
     ])
   }, [setEditing])
 
-  const table = useTable(tableHelper, {
+  const table = useTableInstance(tableHelper, {
     data: rules,
     columns,
     autoResetRowSelection: false,
+    getCoreRowModel: getCoreRowModelSync(),
   })
 
   const emptyState = (
