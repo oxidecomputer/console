@@ -47,7 +47,7 @@ describe('useApiQuery', () => {
       const { result } = renderGetOrg503()
 
       await waitFor(() =>
-        expect(result.current.error?.error).toEqual({
+        expect(result.current.error?.error).toMatchObject({
           errorCode: 'ServiceUnavailable',
         })
       )
@@ -82,7 +82,7 @@ describe('useApiQuery', () => {
       await waitFor(() => {
         const error = result.error as ErrorResponse | undefined
         expect(error?.status).toEqual(404)
-        expect(error?.error).toEqual({ errorCode: 'ObjectNotFound' })
+        expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
       })
     })
 
@@ -98,7 +98,7 @@ describe('useApiQuery', () => {
       )
 
       await waitFor(() =>
-        expect(result.current.error?.error).toEqual({
+        expect(result.current.error?.error).toMatchObject({
           errorCode: 'ObjectNotFound',
         })
       )
@@ -155,7 +155,7 @@ describe('useApiMutation', () => {
       act(() => result.current.mutate(projectPost404Params))
 
       await waitFor(() =>
-        expect(result.current.error?.error).toEqual({
+        expect(result.current.error?.error).toMatchObject({
           errorCode: 'ObjectNotFound',
         })
       )

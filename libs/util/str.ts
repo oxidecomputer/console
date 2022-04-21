@@ -23,3 +23,7 @@ export const kebabCase = (s: string) =>
   camelCase(s)
     .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
     .toLowerCase()
+
+export const camelCaseToWords = (s: string): string[] => {
+  return s.split(/(?=[A-Z])/).map((w) => w.toLowerCase())
+}

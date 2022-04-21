@@ -24,7 +24,6 @@ import {
   useApiQueryClient,
   firewallRuleGetToPut,
 } from '@oxide/api'
-import { getServerError } from 'app/util/errors'
 
 type FormProps = {
   error: ErrorResponse | null
@@ -352,7 +351,7 @@ const CommonForm = ({ id, error }: FormProps) => {
         </fieldset>
       </SideModal.Section>
       <SideModal.Section>
-        <div className="text-destructive">{getServerError(error)}</div>
+        <div className="text-destructive">{error?.error.message}</div>
       </SideModal.Section>
     </Form>
   )
