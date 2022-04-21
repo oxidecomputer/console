@@ -1,6 +1,6 @@
 import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { AnyGenerics, Row as Row2 } from '@tanstack/react-table'
+import type { AnyGenerics, Row } from '@tanstack/react-table'
 import React from 'react'
 import { kebabCase } from '@oxide/util'
 
@@ -18,7 +18,7 @@ export const actionsCol = <TGenerics extends AnyGenerics>(
   id: 'menu',
   header: '', // is this the right way to do this?
   // TODO: fix width at w-12
-  cell: ({ row }: { row: Row2<TGenerics> }) => {
+  cell: ({ row }: { row: Row<TGenerics> }) => {
     // TODO: control flow here has always confused me, would like to straighten it out
     const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
     return (
