@@ -3,13 +3,13 @@
 import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
-import { getSelectCol, getActionsCol } from './columns'
-import { Table } from './Table'
+import { actionsCol, selectCol } from './columns'
+import { Table2 } from './Table'
 import { unsafe_get } from '@oxide/util'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
-import { useRowSelect, useTable } from 'react-table'
+import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
 import type { ComponentType, ReactElement } from 'react'
 import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
@@ -69,33 +69,35 @@ const makeQueryTable = <Item,>(
     emptyState,
   }: QueryTableProps<Item>) {
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const columns = useMemo(
-      () =>
-        React.Children.toArray(children).map((child) => {
-          const column = { ...(child as ReactElement).props }
-          if (!column.accessor) {
-            column.accessor = column.id
-          }
-          if (typeof column.accessor === 'string') {
-            const accessorPath = column.accessor
-            column.accessor = (v: unknown) => unsafe_get(v, accessorPath)
-          }
-          if (!column.header) {
-            column.header = column.id
-          }
-          if (typeof column.header === 'string') {
-            const name = column.header
-            column.header = <DefaultHeader>{name}</DefaultHeader>
-          }
-          if (!column.cell) {
-            column.cell = DefaultCell
-          }
-          column.Cell = column.cell
-          column.Header = column.header
-          return column
-        }),
-      [children]
-    )
+    const tableHelper = useMemo(() => createTable(), [])
+    const columns = useMemo(() => {
+      const columns = React.Children.toArray(children).map((child) => {
+        const column = { ...(child as ReactElement).props }
+        console.log(column)
+        const options = {
+          header: column.header || column.id,
+          cell: column.cell || DefaultCell,
+          id: column.id,
+        }
+        if (typeof options.header === 'string') {
+          const name = options.header
+          options.header = <DefaultHeader>{name}</DefaultHeader>
+        }
+        let accessor = column.accessor || column.id
+        console.log({ accessor })
+        if (typeof accessor === 'string' && accessor.includes('.')) {
+          accessor = (v: unknown) => unsafe_get(v, options.id)
+        }
+
+        return tableHelper.createDataColumn(accessor, options)
+      })
+      if (makeActions) {
+        columns.unshift(selectCol())
+        columns.push(actionsCol(makeActions))
+      }
+
+      return tableHelper.createColumns(columns)
+    }, [children, tableHelper, makeActions])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -107,25 +109,13 @@ const makeQueryTable = <Item,>(
 
     const getRowId = useCallback((row) => row.id, [])
 
-    const table = useTable(
-      {
-        columns,
-        data: tableData,
-        getRowId,
-        autoResetSelectedRows: false,
-      },
-      useRowSelect,
-      (hooks) => {
-        hooks.visibleColumns.push((columns) => {
-          const visibleColumns = []
-          if (makeActions) visibleColumns.push(getSelectCol())
-          visibleColumns.push(...columns)
-          if (makeActions) visibleColumns.push(getActionsCol(makeActions))
-
-          return visibleColumns
-        })
-      }
-    )
+    const table = useTableInstance(tableHelper, {
+      columns,
+      data: tableData,
+      getRowId,
+      getCoreRowModel: getCoreRowModelSync(),
+      // autoResetSelectedRows: false,
+    })
 
     if (debug) console.table(data)
 
@@ -153,7 +143,7 @@ const makeQueryTable = <Item,>(
 
     return (
       <>
-        <Table table={table} />
+        <Table2 table={table} />
         <Pagination inline={pagination === 'inline'} {...paginationParams} />
       </>
     )
