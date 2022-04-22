@@ -11,7 +11,10 @@ interface DiskSizeProps extends Omit<TextFieldProps, 'validate'> {
 
 export function DiskSizeField({
   required = true,
-  name = 'size',
+  name = 'diskSize',
+  // TODO: combine disk size and block size fields into one component so we
+  // don't have to sync them this way. (Or constrain disk size to integer GiB so
+  // we don't have to validate — all integer GiB are multiples of 4096 bytes.)
   blockSizeField = 'blockSize',
   ...props
 }: DiskSizeProps) {

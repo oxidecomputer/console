@@ -249,6 +249,7 @@ export default function CreateInstanceForm({
             id="boot-disk-block-size"
             name="bootDiskBlockSize"
             label="Block Size"
+            units="Bytes"
           >
             <Radio value="512">512</Radio>
             <Radio value="4096">4096</Radio>
@@ -257,6 +258,7 @@ export default function CreateInstanceForm({
             id="disk-size"
             label="Disk Size"
             blockSizeField="bootDiskBlockSize"
+            name="bootDiskSize"
           />
         </Tab.Panel>
         <Tab>Images</Tab>
