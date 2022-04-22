@@ -26,6 +26,7 @@ export interface RadioFieldProps extends Omit<RadioGroupProps, 'name'> {
    */
   description?: string
   placeholder?: string
+  units?: string
 }
 
 export function RadioField({
@@ -34,6 +35,7 @@ export function RadioField({
   label,
   helpText,
   description,
+  units,
   ...props
 }: RadioFieldProps) {
   return (
@@ -45,7 +47,7 @@ export function RadioField({
     >
       {label && (
         <FieldLabel id={`${id}-label`} as={'legend'} tip={description}>
-          {label}
+          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
       )}
       {/* TODO: Figure out where this hint field def should live */}

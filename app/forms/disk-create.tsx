@@ -82,7 +82,7 @@ export function CreateDiskForm({
         <Radio value="keep">Keep disk</Radio>
         <Radio value="delete">Delete disk</Radio>
       </RadioField>
-      <RadioField column id="disk-block-size" name="blockSize" label="Block Size (MiB)">
+      <RadioField column id="disk-block-size" name="blockSize" label="Block Size">
         <Radio value="512">512</Radio>
         <Radio value="4096">4096</Radio>
       </RadioField>
