@@ -86,7 +86,7 @@ export function CreateDiskForm({
         <Radio value="512">512</Radio>
         <Radio value="4096">4096</Radio>
       </RadioField>
-      <DiskSizeField id="disk-size" />
+      <DiskSizeField id="disk-size" name="size" />
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
