@@ -1,4 +1,3 @@
-import React from 'react'
 import type { VpcFirewallRuleFilter, VpcFirewallRuleHostFilter } from '@oxide/api'
 import { ipNetToStr } from '@oxide/api'
 import { Badge } from '@oxide/ui'

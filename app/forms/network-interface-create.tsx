@@ -1,4 +1,3 @@
-import React from 'react'
 import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
 import { Divider } from '@oxide/ui'
 import type { NetworkInterfaceCreate, NetworkInterface } from '@oxide/api'

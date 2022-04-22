@@ -1,5 +1,4 @@
 import React from 'react'
-
 import type { RouteMatch, RouteObject } from 'react-router-dom'
 import { Navigate, Route, Routes } from 'react-router-dom'
 

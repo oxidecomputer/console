@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTable } from 'react-table'
 
 import type { Disk } from '@oxide/api'

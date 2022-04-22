@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'app/hooks'
 import { Button, EmptyMessage } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'

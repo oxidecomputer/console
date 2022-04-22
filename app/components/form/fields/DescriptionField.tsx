@@ -1,6 +1,5 @@
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
-import React from 'react'
 
 // TODO: Pull this from generated types
 const MAX_LEN = 512

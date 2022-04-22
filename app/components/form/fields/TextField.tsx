@@ -4,7 +4,7 @@ import { TextFieldHint } from '@oxide/ui'
 import { FieldLabel, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
-import React from 'react'
+
 import { useFieldError } from '../../../hooks/useFieldError'
 
 export interface TextFieldProps extends UITextFieldProps {

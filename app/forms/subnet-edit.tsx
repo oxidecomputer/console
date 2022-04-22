@@ -1,4 +1,3 @@
-import React from 'react'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import invariant from 'tiny-invariant'

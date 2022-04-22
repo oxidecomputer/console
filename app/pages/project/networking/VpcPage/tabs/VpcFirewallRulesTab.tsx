@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useTable, useRowSelect } from 'react-table'
 import type { MenuAction } from '@oxide/table'
 import {

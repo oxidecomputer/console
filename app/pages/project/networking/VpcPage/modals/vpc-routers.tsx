@@ -1,4 +1,3 @@
-import React from 'react'
 import { Formik, Form } from 'formik'
 
 import { Button, FieldLabel, SideModal_old as SideModal, TextField } from '@oxide/ui'

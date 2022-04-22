@@ -1,4 +1,4 @@
-import React from 'react'
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter as Router } from 'react-router-dom'
@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 
 function render() {
   ReactDOM.render(
-    <React.StrictMode>
+    <StrictMode>
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
@@ -30,7 +30,7 @@ function render() {
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
-    </React.StrictMode>,
+    </StrictMode>,
     document.getElementById('root')
   )
 }

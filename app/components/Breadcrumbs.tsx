@@ -1,5 +1,3 @@
-import React from 'react'
-
 import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
 import { useMatches } from '../hooks/use-matches'

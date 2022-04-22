@@ -1,4 +1,3 @@
-import React from 'react'
 import { Form, NameField, DescriptionField, TextField } from 'app/components/form'
 import type { Vpc } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'

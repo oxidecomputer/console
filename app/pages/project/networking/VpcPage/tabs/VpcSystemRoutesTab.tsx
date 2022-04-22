@@ -1,4 +1,3 @@
-import React from 'react'
 import { useParams } from 'app/hooks'
 import { useQueryTable, TypeValueCell } from '@oxide/table'
 import { EmptyMessage } from '@oxide/ui'

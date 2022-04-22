@@ -1,5 +1,5 @@
 import { flattenChildren } from '@oxide/util'
-import React from 'react'
+
 import type { ButtonProps } from '../button/Button'
 import { Button } from '../button/Button'
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
 import cn from 'classnames'
 

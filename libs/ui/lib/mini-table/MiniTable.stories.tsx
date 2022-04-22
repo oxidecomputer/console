@@ -1,7 +1,6 @@
 import * as MiniTable from './MiniTable'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof MiniTable.Table>>
 

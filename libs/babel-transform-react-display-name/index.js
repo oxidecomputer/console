@@ -34,9 +34,6 @@ module.exports = function ({ types: t }) {
     name: 'react-display-name',
     visitor: {
       JSXElement(path) {
-        // Stop deeper traversal
-        path.skip()
-
         const componentFn = path.getFunctionParent()
 
         // Bail if JSX isn't in return statement or implicit arrow fn

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useField } from 'formik'
 import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'

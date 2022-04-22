@@ -1,4 +1,3 @@
-import React from 'react'
 import { Badge, badgeColors } from './Badge'
 import type { BadgeColor, BadgeVariant } from './Badge'
 import type { StoryObj } from '@storybook/react'

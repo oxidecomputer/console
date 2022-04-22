@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import React from 'react'
+
 import cn from 'classnames'
 import Alert from '@reach/alert'
 
