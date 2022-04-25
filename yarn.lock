@@ -3318,17 +3318,17 @@
     "@svgr/hast-util-to-babel-ast" "^5.5.0"
     svg-parser "^2.0.2"
 
-"@tanstack/react-table@^8.0.0-alpha.40":
-  version "8.0.0-alpha.42"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-alpha.42.tgz#5d8ec05e9096971e78669eb1513a67009f53a140"
-  integrity sha512-ZXmn1OdPZ3Giy6mmXIVg122d5DkKfib6D7BYeuKCFcAyr//ZsWw1BYoWohB1mcKI8XywzInJyYLj4/x2PqFE9Q==
+"@tanstack/react-table@^8.0.0-alpha.48":
+  version "8.0.0-alpha.48"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-alpha.48.tgz#b49cdf34dd0cbecb30d51e2e69378bc618d0bd70"
+  integrity sha512-FzCr58TRywFpUQ2mfO+6WIlibutqfONb3BGIGLQ13iulDohgZgn6njI6hUoBOTk75OFYSz+OePDWaPV8YCpZpQ==
   dependencies:
-    "@tanstack/table-core" "8.0.0-alpha.42"
+    "@tanstack/table-core" "8.0.0-alpha.48"
 
-"@tanstack/table-core@8.0.0-alpha.42":
-  version "8.0.0-alpha.42"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.0.0-alpha.42.tgz#7035189f29b6d12366b2dd3a1984517b8361c37a"
-  integrity sha512-2EOHsSIUgZqwo+1HmIAeY4xW3I8U7ikBECxu/y/QIMihs0NknmolIxWR8Yyf0mKVrb3PC6KP4jcQifoEY3C4Bw==
+"@tanstack/table-core@8.0.0-alpha.48":
+  version "8.0.0-alpha.48"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.0.0-alpha.48.tgz#f161a59ac5e0f772cac1a8f2b8d73e998b3dd794"
+  integrity sha512-esJOeJUTh8IhgpvQzJ7mrUSZ79WL7Hhkd/SekEf4MfDaEJ/3TvrtsQwNTJPD13pVpRxYR4xgGV7iWHjki+035Q==
 
 "@testing-library/dom@^8.0.0":
   version "8.1.0"

@@ -17,7 +17,7 @@ const OtherDisksEmpty = () => (
   </TableEmptyBox>
 )
 
-const table = createTable<{ Row: Disk }>()
+const table = createTable().setRowType<Disk>()
 
 const columns = table.createColumns([
   table.createDataColumn('name', {

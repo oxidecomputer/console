@@ -67,7 +67,7 @@ const makeQueryTable = <Item,>(
     emptyState,
   }: QueryTableProps<Item>) {
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const tableHelper = useMemo(() => createTable(), [])
+    const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
       const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement).props }
@@ -83,7 +83,8 @@ const makeQueryTable = <Item,>(
         }
 
         const accessor = column.accessor || column.id
-        return tableHelper.createDataColumn(accessor, options)
+        // it doesn't like the type of options here but the error is opaque
+        return tableHelper.createDataColumn(accessor, options as any)
       })
       if (makeActions) {
         columns.unshift(selectCol())

@@ -16,7 +16,7 @@ import { useApiQuery, firewallTargetToTypeValue } from '@oxide/api'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleModal, EditFirewallRuleModal } from '../modals/firewall-rules'
 
-const tableHelper = createTable<{ Row: VpcFirewallRule }>()
+const tableHelper = createTable().setRowType<VpcFirewallRule>()
 
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
