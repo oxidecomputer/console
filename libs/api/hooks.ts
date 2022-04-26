@@ -5,7 +5,6 @@ import type {
   QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { navToLogin } from './nav-to-login'
 
 import type { ErrorResponse, ApiResponse } from './__generated__/Api'
 
@@ -28,21 +27,11 @@ export type ResultItem<F> = F extends (
 type ApiClient = Record<string, (...args: any) => Promise<ApiResponse<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-function navToLoginIf401(resp: ErrorResponse) {
-  // if logged out, hit /login to trigger login redirect
-  if (resp.status === 401) {
-    // TODO-usability: for background requests, a redirect to login without
-    // warning could come as a surprise to the user, especially because
-    // sometimes background requests are not directly triggered by a user
-    // action, e.g., polling or refetching when window regains focus
-    navToLogin({ includeCurrent: true })
-  }
-  // we need to rethrow because that's how react-query knows it's an error
-  throw resp
-}
-
 export const getUseApiQuery =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+  ) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
@@ -65,7 +54,7 @@ export const getUseApiQuery =
       () =>
         api[method](params)
           .then((resp) => resp.data)
-          .catch(navToLoginIf401),
+          .catch(handleErrors(method)),
       {
         // In the case of 404s, let the error bubble up to the error boundary so
         // we can say Not Found. If you need to allow a 404 and want it to show
@@ -78,7 +67,10 @@ export const getUseApiQuery =
   }
 
 export const getUseApiMutation =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+  ) =>
   <M extends keyof A>(
     method: M,
     options?: UseMutationOptions<Result<A[M]>, ErrorResponse, Params<A[M]>>
@@ -87,7 +79,7 @@ export const getUseApiMutation =
       ({ body, ...params }) =>
         api[method](params, body)
           .then((resp) => resp.data)
-          .catch(navToLoginIf401),
+          .catch(handleErrors(method)),
       options
     )
 

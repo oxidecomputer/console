@@ -1,5 +1,5 @@
 import { Form, NameField } from 'app/components/form'
-import React from 'react'
+
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import invariant from 'tiny-invariant'

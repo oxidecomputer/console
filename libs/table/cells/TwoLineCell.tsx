@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Cell } from './Cell'
 import cn from 'classnames'
 

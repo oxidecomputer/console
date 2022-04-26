@@ -1,4 +1,3 @@
-import React from 'react'
 import { flattenChildren, isOneOf, pluckAllOfType, pluckFirstOfType } from './children'
 
 const TestA = () => (

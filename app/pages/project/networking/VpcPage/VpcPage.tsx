@@ -1,4 +1,3 @@
-import React from 'react'
 import { format } from 'date-fns'
 import { PropertiesTable } from '@oxide/ui'
 import { Tabs, Tab } from 'app/components/Tabs'

@@ -1,4 +1,3 @@
-import React from 'react'
 import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from 'recharts'
 
 const data = [

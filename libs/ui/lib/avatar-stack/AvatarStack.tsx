@@ -1,5 +1,3 @@
-import React from 'react'
-
 import type { AvatarSize, AvatarProps } from '../avatar/Avatar'
 import { Avatar } from '../avatar/Avatar'
 

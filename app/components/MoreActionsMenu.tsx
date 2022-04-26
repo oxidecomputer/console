@@ -1,4 +1,3 @@
-import React from 'react'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import { More12Icon } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'

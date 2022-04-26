@@ -271,12 +271,18 @@ export const handlers = [
         return res(badRequest('name requires at least one character'))
       }
 
+      const { name, description, size, disk_source } = req.body
       const newDisk: Json<Api.Disk> = {
         id: genId('disk'),
         project_id: project.id,
         state: { state: 'creating' },
         device_path: '/mnt/disk',
-        ...req.body,
+        name,
+        description,
+        size,
+        // TODO: for non-blank disk sources, look up image or snapshot by ID and
+        // pull block size from there
+        block_size: disk_source.type === 'Blank' ? disk_source.block_size : 4096,
         ...getTimestamps(),
       }
       db.disks.push(newDisk)

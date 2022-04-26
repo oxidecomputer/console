@@ -1,4 +1,3 @@
-import React from 'react'
 import { Badge } from '@oxide/ui'
 import type { Cell } from './Cell'
 

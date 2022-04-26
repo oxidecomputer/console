@@ -1,4 +1,3 @@
-import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { TabsProps } from '@oxide/ui'
 import { Tabs as UITabs, Tab as UITab } from '@oxide/ui'

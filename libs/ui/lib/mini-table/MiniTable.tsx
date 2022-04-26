@@ -1,5 +1,5 @@
 import { classed } from '@oxide/util'
-import React from 'react'
+
 import { Table as BigTable } from '../table/Table'
 import './mini-table.css'
 

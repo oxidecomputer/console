@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { buttonStyle, EmptyMessage, Folder24Icon, TableActions } from '@oxide/ui'
 import { useQuickActions } from '../hooks'

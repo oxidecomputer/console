@@ -1,4 +1,3 @@
-import React from 'react'
 // @ts-ignore
 import twConfig from '../../../../tailwind.config'
 
@@ -30,7 +29,7 @@ const Color = ({ name, value }: ColorProps) => (
   </div>
 )
 
-export const AllColors: React.FC = () => (
+export const AllColors = () => (
   <div className="flex flex-wrap">
     {groups.map(([group, colors]) => (
       <div

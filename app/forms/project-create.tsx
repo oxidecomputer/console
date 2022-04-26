@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { Success16Icon } from '@oxide/ui'
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'

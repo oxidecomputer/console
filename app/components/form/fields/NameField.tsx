@@ -1,6 +1,6 @@
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
-import React from 'react'
+
 import { capitalize } from '@oxide/util'
 
 export interface NameFieldProps extends Omit<TextFieldProps, 'name' | 'validate'> {

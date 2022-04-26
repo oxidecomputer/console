@@ -23,19 +23,19 @@ describe('functions returning JSX', () => {
 
     expect(results).toContain('MyComponent.displayName = ')
     expect(results).toMatchInlineSnapshot(`
-    "\\"use strict\\";
-    
-    Object.defineProperty(exports, \\"__esModule\\", {
-      value: true
-    });
-    exports.MyComponent = MyComponent;
-    
-    function MyComponent() {
-      return <h1 />;
-    }
-    
-    MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\";"
-  `)
+      "\\"use strict\\";
+      
+      Object.defineProperty(exports, \\"__esModule\\", {
+        value: true
+      });
+      exports.MyComponent = MyComponent;
+      
+      function MyComponent() {
+        return /*#__PURE__*/React.createElement(\\"h1\\", null);
+      }
+      
+      MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\";"
+    `)
   })
 
   it('adds a display name to a top level function expression component', () => {
@@ -62,18 +62,18 @@ describe('functions returning JSX', () => {
   `
     expect(results).toContain('MyComponent.displayName =')
     expect(results).toMatchInlineSnapshot(`
-    "\\"use strict\\";
-    
-    Object.defineProperty(exports, \\"__esModule\\", {
-      value: true
-    });
-    exports.MyComponent = void 0;
-    
-    const MyComponent = () => <h1 />;
-    
-    exports.MyComponent = MyComponent;
-    MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\""
-  `)
+      "\\"use strict\\";
+      
+      Object.defineProperty(exports, \\"__esModule\\", {
+        value: true
+      });
+      exports.MyComponent = void 0;
+      
+      const MyComponent = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
+      
+      exports.MyComponent = MyComponent;
+      MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\""
+    `)
   })
 
   it('adds a display name to associated components', () => {
@@ -84,28 +84,28 @@ describe('functions returning JSX', () => {
     Foo.Booz = function Nope() { return <h1/> }
   `
     expect(result).toMatchInlineSnapshot(`
-    "\\"use strict\\";
-    
-    Foo.Bar = () => <h1 />;
-    
-    Foo.Bar.displayName = \\"Foo.Bar - libs/babel-transform-react-display-name/index.spec.tsx\\"
-    
-    Foo.Bar.Bow = () => <h1 />;
-    
-    Foo.Bar.Bow.displayName = \\"Foo.Bar.Bow - libs/babel-transform-react-display-name/index.spec.tsx\\"
-    
-    Foo.Baz = function () {
-      return <h1 />;
-    };
-    
-    Foo.Baz.displayName = \\"Foo.Baz - libs/babel-transform-react-display-name/index.spec.tsx\\"
-    
-    Foo.Booz = function Nope() {
-      return <h1 />;
-    };
-    
-    Foo.Booz.displayName = \\"Foo.Booz - libs/babel-transform-react-display-name/index.spec.tsx\\""
-  `)
+      "\\"use strict\\";
+      
+      Foo.Bar = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
+      
+      Foo.Bar.displayName = \\"Foo.Bar - libs/babel-transform-react-display-name/index.spec.tsx\\"
+      
+      Foo.Bar.Bow = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
+      
+      Foo.Bar.Bow.displayName = \\"Foo.Bar.Bow - libs/babel-transform-react-display-name/index.spec.tsx\\"
+      
+      Foo.Baz = function () {
+        return /*#__PURE__*/React.createElement(\\"h1\\", null);
+      };
+      
+      Foo.Baz.displayName = \\"Foo.Baz - libs/babel-transform-react-display-name/index.spec.tsx\\"
+      
+      Foo.Booz = function Nope() {
+        return /*#__PURE__*/React.createElement(\\"h1\\", null);
+      };
+      
+      Foo.Booz.displayName = \\"Foo.Booz - libs/babel-transform-react-display-name/index.spec.tsx\\""
+    `)
     expect(result).toContain('Foo.Bar.displayName = ')
     expect(result).toContain('Foo.Bar.Bow.displayName = ')
     expect(result).toContain('Foo.Baz.displayName = ')
@@ -117,10 +117,10 @@ describe('functions returning JSX', () => {
     callback(() => <h1/>)
   `
     expect(result).toMatchInlineSnapshot(`
-    "\\"use strict\\";
-    
-    callback(() => <h1 />);"
-  `)
+      "\\"use strict\\";
+      
+      callback(() => /*#__PURE__*/React.createElement(\\"h1\\", null));"
+    `)
   })
 
   it('should add displayName to forwardRef components', () => {
@@ -141,23 +141,29 @@ describe('functions returning JSX', () => {
   `
 
     expect(result).toMatchInlineSnapshot(`
-    "\\"use strict\\";
-    
-    Object.defineProperty(exports, \\"__esModule\\", {
-      value: true
-    });
-    exports.Button = void 0;
-    const Button = forwardRef(({
-      children,
-      ...props
-    }, ref) => {
-      return <button ref={ref} type=\\"button\\" {...props}>
-                {children}
-              </button>;
-    });
-    exports.Button = Button;
-    Button.displayName = \\"Button - libs/babel-transform-react-display-name/index.spec.tsx\\""
-  `)
+      "\\"use strict\\";
+      
+      var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+      
+      Object.defineProperty(exports, \\"__esModule\\", {
+        value: true
+      });
+      exports.Button = void 0;
+      
+      var _extends2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/extends\\"));
+      
+      const Button = forwardRef(({
+        children,
+        ...props
+      }, ref) => {
+        return /*#__PURE__*/React.createElement(\\"button\\", (0, _extends2.default)({
+          ref: ref,
+          type: \\"button\\"
+        }, props), children);
+      });
+      exports.Button = Button;
+      Button.displayName = \\"Button - libs/babel-transform-react-display-name/index.spec.tsx\\""
+    `)
     expect(result).toContain('Button.displayName = ')
   })
 })
@@ -183,7 +189,7 @@ describe('classed template tag literals', () => {
  */
 function transform(strings: TemplateStringsArray) {
   return babel.transformSync(strings.join(''), {
-    plugins: ['@babel/plugin-syntax-jsx', plugin],
+    plugins: [plugin],
     filename: __filename,
   })?.code
 }

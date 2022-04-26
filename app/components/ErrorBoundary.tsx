@@ -1,5 +1,5 @@
 import NotFound from 'app/pages/NotFound'
-import React from 'react'
+
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 
 type Props = { error: Error | Response }

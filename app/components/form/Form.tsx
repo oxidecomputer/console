@@ -1,4 +1,5 @@
 import type { ButtonProps } from '@oxide/ui'
+import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { SideModal } from '@oxide/ui'
 import { useIsInSideModal } from '@oxide/ui'
@@ -14,11 +15,11 @@ import {
 import type { FormikConfig } from 'formik'
 import { Formik } from 'formik'
 import type { ReactNode } from 'react'
-import React, { cloneElement } from 'react'
+import { cloneElement } from 'react'
 import invariant from 'tiny-invariant'
 import './form.css'
 import cn from 'classnames'
-import type { ErrorResponse } from '@oxide/api'
+import type { Error, ErrorResponse } from '@oxide/api'
 
 const PageActionsTunnel = tunnel('form-page-actions')
 const SideModalActionsTunnel = tunnel('form-sidebar-actions')
@@ -90,6 +91,7 @@ export function Form<Values>({
                       formId: id,
                       submitDisabled:
                         !props.dirty || !props.isValid || mutation.status === 'loading',
+                      error: mutation.error?.error,
                       onDismiss,
                     })}
                   </SideModalActionsTunnel.In>
@@ -100,6 +102,7 @@ export function Form<Values>({
                         formId: id,
                         submitDisabled:
                           !props.dirty || !props.isValid || mutation.status === 'loading',
+                        error: mutation.error?.error,
                       })}
                     </PageActionsContainer>
                   </PageActionsTunnel.In>
@@ -122,6 +125,7 @@ interface FormActionsProps {
   children: React.ReactNode
   submitDisabled?: boolean
   onDismiss?: () => void
+  error?: Error | null
 }
 
 /**
@@ -135,6 +139,7 @@ Form.Actions = ({
   formId,
   submitDisabled = true,
   onDismiss,
+  error,
 }: FormActionsProps) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const isSideModal = useIsInSideModal()
@@ -157,10 +162,20 @@ Form.Actions = ({
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
-    <div className={cn('flex gap-[0.625rem]', { 'flex-row-reverse': isSideModal })}>
+    <div
+      className={cn('flex w-full items-center gap-[0.625rem] children:shrink-0', {
+        'flex-row-reverse': isSideModal,
+      })}
+    >
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
       {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
+      {error && (
+        <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
+          <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+          <span>{error.message}</span>
+        </div>
+      )}
     </div>
   )
 }

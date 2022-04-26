@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
 import type { MenuAction } from '@oxide/table'
 import {

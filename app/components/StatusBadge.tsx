@@ -1,5 +1,3 @@
-import React from 'react'
-
 import type { BadgeColor, BadgeProps } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
 import type { DiskState, InstanceState } from '@oxide/api'

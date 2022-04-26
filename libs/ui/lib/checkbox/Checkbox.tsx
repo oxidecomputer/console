@@ -1,4 +1,3 @@
-import React from 'react'
 import type { FieldAttributes } from 'formik'
 import { Field } from 'formik'
 

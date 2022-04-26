@@ -1,4 +1,4 @@
-import React from 'react'
+import { useMemo } from 'react'
 import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
@@ -44,8 +44,8 @@ export function StorageTab() {
     { refetchInterval: 5000 }
   )
 
-  const bootDisks = React.useMemo(() => data?.items.slice(0, 1) || [], [data])
-  const otherDisks = React.useMemo(() => data?.items.slice(1) || [], [data])
+  const bootDisks = useMemo(() => data?.items.slice(0, 1) || [], [data])
+  const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
   const bootDiskTable = useTableInstance(table, {
     columns,

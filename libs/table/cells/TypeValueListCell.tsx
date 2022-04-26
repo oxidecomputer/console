@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Cell, TypeValue } from '.'
 import { TypeValueCell } from '.'
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import type { ReactNode } from 'react'
 import invariant from 'tiny-invariant'
 import { isOneOf } from '@oxide/util'

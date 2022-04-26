@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React, { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext } from 'react'
 import { v4 as uuid } from 'uuid'
 
 import type { Toast } from './types'

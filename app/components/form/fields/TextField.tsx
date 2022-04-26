@@ -4,7 +4,7 @@ import { TextFieldHint } from '@oxide/ui'
 import { FieldLabel, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 import cn from 'classnames'
-import React from 'react'
+
 import { useFieldError } from '../../../hooks/useFieldError'
 
 export interface TextFieldProps extends UITextFieldProps {
@@ -30,12 +30,14 @@ export interface TextFieldProps extends UITextFieldProps {
    */
   description?: string
   placeholder?: string
+  units?: string
 }
 
 export function TextField({
   id,
   name = id,
   label = capitalize(name),
+  units,
   ...props
 }: TextFieldProps) {
   const { description, helpText, required } = props
@@ -43,7 +45,7 @@ export function TextField({
   return (
     <div className="max-w-lg">
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-        {label}
+        {label} {units && <span className="ml-1 text-secondary">({units})</span>}
       </FieldLabel>
       {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <UITextField

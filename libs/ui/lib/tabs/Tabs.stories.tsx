@@ -1,15 +1,15 @@
 import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Tabs, Tab } from './Tabs'
-import React, { Fragment } from 'react'
+import { Fragment } from 'react'
 import { Badge } from '@oxide/ui'
 import { flattenChildren } from '@oxide/util'
 
 type Story = StoryObj<
   ComponentProps<typeof Tabs> & {
     label: string
-    tabs: React.ReactNode[] | React.ReactElement
-    panels: React.ReactNode[]
+    tabs: ReactNode[] | ReactElement
+    panels: ReactNode[]
   }
 >
 

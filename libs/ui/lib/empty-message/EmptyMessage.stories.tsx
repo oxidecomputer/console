@@ -1,4 +1,3 @@
-import React from 'react'
 import { EmptyMessage } from './EmptyMessage'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'

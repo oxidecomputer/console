@@ -1,6 +1,6 @@
 import type { VpcFirewallRuleStatus } from '@oxide/api'
 import { Badge, Success12Icon } from '@oxide/ui'
-import React from 'react'
+
 import type { Cell } from '.'
 
 export const EnabledCell = ({ value }: Cell<VpcFirewallRuleStatus>) =>

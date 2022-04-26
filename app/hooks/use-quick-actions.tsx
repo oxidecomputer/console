@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useCallback, useState } from 'react'
 import { useKey } from './use-key'
 import invariant from 'tiny-invariant'

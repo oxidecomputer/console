@@ -1,4 +1,3 @@
-import React from 'react'
 import { NavLink as RRNavLink } from 'react-router-dom'
 import cn from 'classnames'
 import { ProjectSelector } from './ProjectSelector'

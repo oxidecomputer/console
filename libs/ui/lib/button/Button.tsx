@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 import cn from 'classnames'
 import './button.css'
 import { assertUnreachable } from '@oxide/util'

@@ -9,6 +9,9 @@ test.describe('Instance Create Form', () => {
     await page.fill('input[name=name]', 'mock-instance')
     await page.locator('.ox-radio-card').nth(0).click()
 
+    await page.fill('input[name=bootDiskName]', 'my-boot-disk')
+    await page.fill('input[name=bootDiskSize]', '20')
+
     await page.locator('input[value=ubuntu] ~ .ox-radio-card').click()
 
     await page.locator('button:has-text("Create instance")').click()
