@@ -42,7 +42,6 @@ export type PrebuiltFormProps<Values, Data> = Omit<
   Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'>,
   'children'
 > & {
-  children?: never
   onSuccess?: (data: Data) => void
   onError?: (err: ErrorResponse) => void
 }
