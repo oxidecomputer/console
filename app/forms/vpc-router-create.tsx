@@ -10,15 +10,13 @@ const values = {
   description: '',
 }
 
+export type VpcRouterFieldValues = typeof values
+
 export function CreateVpcRouterForm({
-  id = 'create-vpc-router-form',
-  title = 'Create VPC router',
-  initialValues = values,
-  onSubmit,
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, VpcRouter>) {
+}: PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -43,15 +41,15 @@ export function CreateVpcRouterForm({
     onError,
   })
 
+  const title = 'Create VPC router'
+
   return (
     <Form
-      id={id}
+      id="create-vpc-router-form"
       title={title}
-      initialValues={initialValues}
-      onSubmit={
-        onSubmit ??
-        (({ name, description }) =>
-          createRouter.mutate({ ...parentNames, body: { name, description } }))
+      initialValues={values}
+      onSubmit={({ name, description }) =>
+        createRouter.mutate({ ...parentNames, body: { name, description } })
       }
       mutation={createRouter}
       {...props}

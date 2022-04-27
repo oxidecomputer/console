@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useField } from 'formik'
+import type { DiskCreateValues } from 'app/forms/disk-create'
+import type { DiskAttachValues } from 'app/forms/disk-attach'
 import { CreateDiskForm } from 'app/forms/disk-create'
 import { AttachDiskForm } from 'app/forms/disk-attach'
 import { Button, Error16Icon, FieldLabel, MiniTable, SideModal } from '@oxide/ui'
-import type { FormValues } from 'app/forms'
 
 export type DiskTableItem =
-  | (FormValues<'disk-create'> & { type: 'create' })
-  | (FormValues<'disk-attach'> & { type: 'attach' })
+  | (DiskCreateValues & { type: 'create' })
+  | (DiskAttachValues & { type: 'attach' })
 
 export function DisksTableField() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)

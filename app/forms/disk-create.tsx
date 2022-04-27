@@ -14,16 +14,16 @@ import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import { GiB } from '@oxide/util'
 
-export type DiskCreateInput = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
+export type DiskCreateValues = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
 
-const values: DiskCreateInput = {
+const values: DiskCreateValues = {
   name: '',
   description: '',
   size: 0,
   blockSize: '4096',
 }
 
-export const formatDiskCreate = (input: DiskCreateInput): DiskCreate => {
+export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
   const blockSize = parseInt(input.blockSize, 10)
   const { size } = input
   return {
@@ -46,7 +46,7 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Disk>) {
+}: PrebuiltFormProps<DiskCreateValues, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
