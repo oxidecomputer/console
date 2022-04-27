@@ -1,19 +1,20 @@
+import type { SetRequired } from 'type-fest'
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import invariant from 'tiny-invariant'
 
-import { CreateSubnetForm } from './subnet-create'
+import type { VpcSubnetFieldValues } from './subnet-create'
+import { VpcSubnetFields } from './subnet-create'
 import { useParams } from 'app/hooks'
-import type { ExtendedPrebuiltFormProps } from 'app/forms'
+import type { PrebuiltFormProps } from 'app/forms'
+import { Form } from 'app/components/form'
 
 export function EditSubnetForm({
   id = 'edit-subnet-form',
   title = 'Edit subnet',
-  onSubmit,
   onSuccess,
   onError,
   ...props
-}: ExtendedPrebuiltFormProps<typeof CreateSubnetForm, VpcSubnet>) {
+}: SetRequired<PrebuiltFormProps<VpcSubnetFieldValues, VpcSubnet>, 'initialValues'>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -26,32 +27,27 @@ export function EditSubnetForm({
   })
 
   return (
-    <CreateSubnetForm
+    <Form
       id={id}
       title={title}
-      onSubmit={
-        onSubmit ||
-        (({ name, description, ipv4Block, ipv6Block }) => {
-          invariant(
-            props.initialValues?.name,
-            'CreateSubnetForm should always receive a name for initialValues'
-          )
-          updateSubnet.mutate({
-            ...parentNames,
-            subnetName: props.initialValues.name,
-            body: {
-              name,
-              description,
-              // TODO: validate these client-side using the patterns. sadly non-trivial
-              ipv4Block: ipv4Block || null,
-              ipv6Block: ipv6Block || null,
-            },
-          })
+      onSubmit={({ name, description, ipv4Block, ipv6Block }) => {
+        updateSubnet.mutate({
+          ...parentNames,
+          subnetName: props.initialValues.name,
+          body: {
+            name,
+            description,
+            // TODO: validate these client-side using the patterns. sadly non-trivial
+            ipv4Block: ipv4Block || null,
+            ipv6Block: ipv6Block || null,
+          },
         })
-      }
+      }}
       mutation={updateSubnet}
       {...props}
-    />
+    >
+      <VpcSubnetFields submitLabel={title} />
+    </Form>
   )
 }
 

@@ -6,9 +6,9 @@ import invariant from 'tiny-invariant'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
 
-const values = {
-  name: '',
-}
+const values = { name: '' }
+
+export type DiskAttachValues = typeof values
 
 export function AttachDiskForm({
   id = 'form-disk-attach',
@@ -18,7 +18,7 @@ export function AttachDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Disk>) {
+}: PrebuiltFormProps<DiskAttachValues, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 

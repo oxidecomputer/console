@@ -14,7 +14,6 @@ import type CreateNetworkInterfaceForm from './network-interface-create'
 
 import type { FormProps } from 'app/components/form'
 import type { ErrorResponse } from '@oxide/api'
-import type { ComponentType } from 'react'
 
 /**
  * A map of all existing forms. When a new form is created in the forms directory, a
@@ -35,8 +34,6 @@ export interface FormTypes {
   'vpc-router-edit': typeof EditVpcRouterForm
 }
 
-export type FormValues<K extends keyof FormTypes> = ExtractFormValues<FormTypes[K]>
-
 /**
  * A form that's built out ahead of time and intended to be re-used dynamically. Fields
  * that are expected to be provided by default are set to optional.
@@ -49,20 +46,3 @@ export type PrebuiltFormProps<Values, Data> = Omit<
   onSuccess?: (data: Data) => void
   onError?: (err: ErrorResponse) => void
 }
-
-/**
- * A utility type for a prebuilt form that extends another form
- */
-export type ExtendedPrebuiltFormProps<C, D = void> = C extends ComponentType<infer B>
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    B extends PrebuiltFormProps<infer V, any>
-    ? PrebuiltFormProps<V, D>
-    : never
-  : never
-
-export type ExtractFormValues<C> = C extends ComponentType<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  PrebuiltFormProps<infer V, any>
->
-  ? V
-  : never

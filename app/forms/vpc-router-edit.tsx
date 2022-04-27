@@ -1,19 +1,20 @@
+import type { SetRequired } from 'type-fest'
+
 import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import invariant from 'tiny-invariant'
 
-import { CreateVpcRouterForm } from './vpc-router-create'
+import type { VpcRouterFieldValues } from './vpc-router-create'
+import { VpcRouterFields } from './vpc-router-create'
 import { useParams } from 'app/hooks'
-import type { ExtendedPrebuiltFormProps } from 'app/forms'
+import { Form } from 'app/components/form'
+import type { PrebuiltFormProps } from 'app/forms'
 
 export function EditVpcRouterForm({
-  id = 'edit-vpc-router-form',
   title = 'Edit VPC router',
-  onSubmit,
   onSuccess,
   onError,
   ...props
-}: ExtendedPrebuiltFormProps<typeof CreateVpcRouterForm, VpcRouter>) {
+}: SetRequired<PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>, 'initialValues'>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -26,25 +27,20 @@ export function EditVpcRouterForm({
   })
 
   return (
-    <CreateVpcRouterForm
-      id={id}
+    <Form
+      id="edit-vpc-router-form"
       title={title}
-      onSubmit={
-        onSubmit ||
-        (({ name, description }) => {
-          invariant(
-            props.initialValues?.name,
-            'CreateVpcRouterForm should always receive a name for initialValues'
-          )
-          updateRouter.mutate({
-            ...parentNames,
-            routerName: props.initialValues.name,
-            body: { name, description },
-          })
+      onSubmit={({ name, description }) => {
+        updateRouter.mutate({
+          ...parentNames,
+          routerName: props.initialValues.name,
+          body: { name, description },
         })
-      }
+      }}
       mutation={updateRouter}
       {...props}
-    />
+    >
+      <VpcRouterFields submitLabel={title} />
+    </Form>
   )
 }

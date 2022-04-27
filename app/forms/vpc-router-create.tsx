@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Form, NameField, DescriptionField } from 'app/components/form'
 import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -10,15 +11,26 @@ const values = {
   description: '',
 }
 
+export type VpcRouterFieldValues = typeof values
+
+export function VpcRouterFields({ submitLabel }: { submitLabel: ReactNode }) {
+  return (
+    <>
+      <NameField id="router-name" />
+      <DescriptionField id="router-description" />
+      <Form.Actions>
+        <Form.Submit>{submitLabel}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
+    </>
+  )
+}
+
 export function CreateVpcRouterForm({
-  id = 'create-vpc-router-form',
-  title = 'Create VPC router',
-  initialValues = values,
-  onSubmit,
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, VpcRouter>) {
+}: PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -43,25 +55,20 @@ export function CreateVpcRouterForm({
     onError,
   })
 
+  const title = 'Create VPC router'
+
   return (
     <Form
-      id={id}
+      id="create-vpc-router-form"
       title={title}
-      initialValues={initialValues}
-      onSubmit={
-        onSubmit ??
-        (({ name, description }) =>
-          createRouter.mutate({ ...parentNames, body: { name, description } }))
+      initialValues={values}
+      onSubmit={({ name, description }) =>
+        createRouter.mutate({ ...parentNames, body: { name, description } })
       }
       mutation={createRouter}
       {...props}
     >
-      <NameField id="router-name" />
-      <DescriptionField id="router-description" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
+      <VpcRouterFields submitLabel={title} />
     </Form>
   )
 }
