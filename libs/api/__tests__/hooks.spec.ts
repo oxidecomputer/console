@@ -1,7 +1,7 @@
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { override, Wrapper } from 'app/test/utils'
+import { overrideOnce, Wrapper } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
 import type { ErrorResponse } from '../'
 import { useApiQuery, useApiMutation } from '../'
@@ -56,7 +56,7 @@ describe('useApiQuery', () => {
     // TODO: this test applies to the old generated client. now it's more like
     // data is null. error appears to get the JSON parse error for some reason
     it('sets error.data to null if error body is not json', async () => {
-      override('get', '/api/organizations', 503, 'not json')
+      overrideOnce('get', '/api/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
@@ -162,7 +162,7 @@ describe('useApiMutation', () => {
     })
 
     it('sets error.data to null if error body is not json', async () => {
-      override('post', '/api/organizations', 404, 'not json')
+      overrideOnce('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))

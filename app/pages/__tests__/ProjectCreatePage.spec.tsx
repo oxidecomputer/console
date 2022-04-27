@@ -1,7 +1,7 @@
 import {
   clickByRole,
   fireEvent,
-  override,
+  overrideOnce,
   renderAppAt,
   screen,
   waitFor,
@@ -30,7 +30,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it.todo('shows message for known error code in global code map', async () => {
-    override('post', projectsUrl, 403, { error_code: 'Forbidden' })
+    overrideOnce('post', projectsUrl, 403, { error_code: 'Forbidden' })
     renderAppAt(formUrl)
     await enterName('mock-project-2')
 
@@ -53,7 +53,7 @@ describe('ProjectCreatePage', () => {
   })
 
   it.todo('shows generic message for unknown server error', async () => {
-    override('post', projectsUrl, 400, { error_code: 'UnknownCode' })
+    overrideOnce('post', projectsUrl, 400, { error_code: 'UnknownCode' })
     renderAppAt(formUrl)
     await enterName('mock-project-2')
 
