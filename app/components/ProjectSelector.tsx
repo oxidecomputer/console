@@ -10,8 +10,8 @@ const BrandIcon = () => (
   <svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="32" height="32" rx="2" fill="var(--base-grey-800)" />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M10 4H4V10V28H10V10H22V28H28V4H24H22H10ZM13 13H19V28H13V13Z"
       fill="var(--base-black-700)"
     />
