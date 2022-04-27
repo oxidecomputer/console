@@ -72,3 +72,5 @@ export function CreateVpcForm({
     </Form>
   )
 }
+
+export default CreateVpcForm
