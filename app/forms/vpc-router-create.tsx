@@ -33,7 +33,7 @@ export function CreateVpcRouterForm({
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
-        content: 'Your VPC has been created.',
+        content: 'Your VPC router has been created.',
         timeout: 5000,
       })
       onSuccess?.(router)
