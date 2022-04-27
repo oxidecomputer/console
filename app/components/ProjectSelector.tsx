@@ -8,7 +8,7 @@ import cn from 'classnames'
  */
 const BrandIcon = () => (
   <svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="32" height="32" rx="2" fill="var(--base-grey-800)"/>
+    <rect width="32" height="32" rx="2" fill="var(--base-grey-800)" />
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
