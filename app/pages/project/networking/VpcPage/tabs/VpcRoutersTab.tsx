@@ -42,7 +42,10 @@ export const VpcRoutersTab = () => {
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
         >
-          <CreateVpcRouterForm onSuccess={() => setCreateModalOpen(false)} />
+          <CreateVpcRouterForm
+            onSuccess={() => setCreateModalOpen(false)}
+            onDismiss={() => setCreateModalOpen(false)}
+          />
         </SideModal>
         <SideModal
           id="edit-router-modal"
@@ -50,7 +53,11 @@ export const VpcRoutersTab = () => {
           onDismiss={() => setEditing(null)}
         >
           {editing && (
-            <EditVpcRouterForm initialValues={editing} onSuccess={() => setEditing(null)} />
+            <EditVpcRouterForm
+              initialValues={editing}
+              onSuccess={() => setEditing(null)}
+              onDismiss={() => setEditing(null)}
+            />
           )}
         </SideModal>
       </div>

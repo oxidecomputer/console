@@ -41,7 +41,10 @@ export const VpcSubnetsTab = () => {
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
         >
-          <CreateSubnetForm onSuccess={() => setCreateModalOpen(false)} />
+          <CreateSubnetForm
+            onSuccess={() => setCreateModalOpen(false)}
+            onDismiss={() => setCreateModalOpen(false)}
+          />
         </SideModal>
         <SideModal
           id="edit-subnet-modal"
@@ -49,7 +52,11 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         >
           {editing && (
-            <EditSubnetForm initialValues={editing} onSuccess={() => setEditing(null)} />
+            <EditSubnetForm
+              initialValues={editing}
+              onDismiss={() => setEditing(null)}
+              onSuccess={() => setEditing(null)}
+            />
           )}
         </SideModal>
       </div>
