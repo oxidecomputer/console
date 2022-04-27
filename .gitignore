@@ -32,6 +32,7 @@
 *.log
 /typings
 .env
+.eslintcache
 
 # System Files
 .DS_Store
