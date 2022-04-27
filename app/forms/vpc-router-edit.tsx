@@ -4,9 +4,8 @@ import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { VpcRouterFieldValues } from './vpc-router-create'
-import { VpcRouterFields } from './vpc-router-create'
 import { useParams } from 'app/hooks'
-import { Form } from 'app/components/form'
+import { DescriptionField, Form, NameField } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
 
 export function EditVpcRouterForm({
@@ -40,7 +39,12 @@ export function EditVpcRouterForm({
       mutation={updateRouter}
       {...props}
     >
-      <VpcRouterFields submitLabel={title} />
+      <NameField id="router-name" />
+      <DescriptionField id="router-description" />
+      <Form.Actions>
+        <Form.Submit>{title}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
     </Form>
   )
 }

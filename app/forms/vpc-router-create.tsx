@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Form, NameField, DescriptionField } from 'app/components/form'
 import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -12,19 +11,6 @@ const values = {
 }
 
 export type VpcRouterFieldValues = typeof values
-
-export function VpcRouterFields({ submitLabel }: { submitLabel: ReactNode }) {
-  return (
-    <>
-      <NameField id="router-name" />
-      <DescriptionField id="router-description" />
-      <Form.Actions>
-        <Form.Submit>{submitLabel}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </>
-  )
-}
 
 export function CreateVpcRouterForm({
   onSuccess,
@@ -68,7 +54,12 @@ export function CreateVpcRouterForm({
       mutation={createRouter}
       {...props}
     >
-      <VpcRouterFields submitLabel={title} />
+      <NameField id="router-name" />
+      <DescriptionField id="router-description" />
+      <Form.Actions>
+        <Form.Submit>{title}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
     </Form>
   )
 }

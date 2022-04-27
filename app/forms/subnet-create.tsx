@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
 import { Divider } from '@oxide/ui'
 
@@ -15,22 +14,6 @@ const values = {
 }
 
 export type VpcSubnetFieldValues = typeof values
-
-export function VpcSubnetFields({ submitLabel }: { submitLabel: ReactNode }) {
-  return (
-    <>
-      <NameField id="subnet-name" />
-      <DescriptionField id="subnet-description" />
-      <Divider />
-      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" />
-      <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
-      <Form.Actions>
-        <Form.Submit>{submitLabel}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </>
-  )
-}
 
 export function CreateSubnetForm({
   id = 'create-subnet-form',
@@ -59,7 +42,15 @@ export function CreateSubnetForm({
       mutation={createSubnet}
       {...props}
     >
-      <VpcSubnetFields submitLabel={title} />
+      <NameField id="subnet-name" />
+      <DescriptionField id="subnet-description" />
+      <Divider />
+      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" />
+      <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
+      <Form.Actions>
+        <Form.Submit>{title}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
     </Form>
   )
 }

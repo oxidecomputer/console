@@ -3,10 +3,10 @@ import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { VpcSubnetFieldValues } from './subnet-create'
-import { VpcSubnetFields } from './subnet-create'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
-import { Form } from 'app/components/form'
+import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
+import { Divider } from '@oxide/ui'
 
 export function EditSubnetForm({
   id = 'edit-subnet-form',
@@ -46,7 +46,15 @@ export function EditSubnetForm({
       mutation={updateSubnet}
       {...props}
     >
-      <VpcSubnetFields submitLabel={title} />
+      <NameField id="subnet-name" />
+      <DescriptionField id="subnet-description" />
+      <Divider />
+      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" />
+      <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
+      <Form.Actions>
+        <Form.Submit>{title}</Form.Submit>
+        <Form.Cancel />
+      </Form.Actions>
     </Form>
   )
 }
