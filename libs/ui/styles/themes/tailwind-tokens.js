@@ -173,6 +173,9 @@ module.exports.colorUtilities = {
   '.bg-default': {
     'background-color': 'var(--surface-default)',
   },
+  '.bg-hover': {
+    'background-color': 'var(--surface-hover)',
+  },
   '.bg-secondary': {
     'background-color': 'var(--surface-secondary)',
   },

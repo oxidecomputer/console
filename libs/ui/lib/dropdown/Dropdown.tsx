@@ -57,7 +57,7 @@ export const Dropdown: FC<DropdownProps> = ({
         className={cn(
           `mt-1 flex w-full items-center justify-between rounded border
           py-2 px-4 text-sans-md bg-default border-default
-          hover:bg-raise focus:ring-1 focus:ring-accent-secondary`,
+          hover:bg-hover focus:ring-1 focus:ring-accent-secondary`,
           select.isOpen ? 'text-secondary' : 'text-default'
         )}
         aria-describedby={hintId}
