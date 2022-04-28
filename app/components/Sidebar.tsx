@@ -69,9 +69,7 @@ export const NavLinkItem = (props: {
       className={({ isActive }) =>
         cn(
           'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary',
-          isActive
-            ? 'text-accent !bg-accent-secondary svg:!text-accent'
-            : 'text-default'
+          isActive ? 'text-accent !bg-accent-secondary svg:!text-accent' : 'text-default'
         )
       }
       end={props.end}
