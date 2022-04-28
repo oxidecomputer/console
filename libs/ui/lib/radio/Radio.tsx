@@ -17,7 +17,7 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 const fieldStyles = `
   peer appearance-none absolute outline-none
   border border-default h-4 w-4 rounded-full
-  hover:bg-secondary hover:checked:bg-accent-secondary-hover
+  hover:bg-hover hover:checked:bg-accent-secondary-hover
   focus:ring-2 focus:ring-accent-secondary
   checked:bg-accent-secondary checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
@@ -40,9 +40,9 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
 )
 
 const cardLabelStyles = `
-  py-2 px-4 text-sm border rounded border-default bg-default hover:bg-raise
+  py-2 px-4 text-sm border rounded border-default bg-default hover:bg-hover
   peer-focus:ring-2 peer-focus:ring-accent-secondary
-  peer-checked:bg-accent-secondary peer-checked:border-accent peer-checked:hover:bg-accent-raise 
+  peer-checked:bg-accent-secondary peer-checked:border-accent peer-checked:hover:bg-accent-raise
   peer-checked:border-accent peer-checked:text-accent
   peer-disabled:bg-disabled peer-disabled:text-secondary
 
