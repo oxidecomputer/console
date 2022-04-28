@@ -13,13 +13,11 @@ GEN_DIR='libs/api/__generated__'
 git -C '../omicron' fetch --all
 git -C '../omicron' checkout "$OMICRON_SHA"
 
-cp ../omicron/tools/oxapi_demo packer/oxapi_demo
-
 # copy nexus config with some minor modifications...
 cat ../omicron/nexus/examples/config.toml |
   sed 's/127.0.0.1:12220/0.0.0.0:8888/' |
   sed 's/127.0.0.1:12221/0.0.0.0:12221/' |
-  sed 's/127.0.0.1:32221/0.0.0.0:26257/' > packer/omicron.toml 
+  sed 's/127.0.0.1:32221/0.0.0.0:26257/' > packer/omicron.toml
 
 # path to spec needs to be absolute
 cd ../omicron

@@ -1,7 +1,7 @@
 import { SideModal } from './SideModal'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
-import React from 'react'
+
 import { Button } from '../button/Button'
 
 type Story = StoryObj<ComponentProps<typeof SideModal>>

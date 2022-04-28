@@ -1,23 +1,20 @@
 import React from 'react'
-
 import type { RouteMatch, RouteObject } from 'react-router-dom'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import LoginPage from './pages/LoginPage'
-import InstanceCreatePage from './pages/project/instances/create/InstancesCreatePage'
-import OrgPage from './pages/OrgPage'
 import {
   AccessPage,
   DisksPage,
   InstancePage,
   InstancesPage,
   ImagesPage,
-  MetricsPage,
+  SnapshotsPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
-import ProjectCreatePage from './pages/ProjectCreatePage'
 import ProjectsPage from './pages/ProjectsPage'
+import OrgsPage from './pages/OrgsPage'
 import ToastTestPage from './pages/ToastTestPage'
 import NotFound from './pages/NotFound'
 
@@ -25,6 +22,16 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
+import {
+  Access24Icon,
+  Instances24Icon,
+  Image24Icon,
+  Snapshots24Icon,
+  Storage24Icon,
+  Networking24Icon,
+  Folder24Icon,
+} from '@oxide/ui'
+import { FormPage } from './components/FormPage'
 
 /*
  * We are doing something a little unorthodox with the route config here. We
@@ -44,11 +51,10 @@ import AuthLayout from './layouts/AuthLayout'
  * `types/react-router.d.ts`
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const orgCrumb = (m: RouteMatch) => m.params.orgName!
 const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
-/* eslint-enable @typescript-eslint/no-non-null-assertion */
+const vpcCrumb = (m: RouteMatch) => m.params.vpcName!
 
 /** React Router route config in JSX form */
 export const routes = (
@@ -58,40 +64,42 @@ export const routes = (
       <Route index element={<LoginPage />} />
     </Route>
 
-    <Route index element={<Navigate to="/orgs/maze-war/projects" replace />} />
+    <Route index element={<Navigate to="/orgs" replace />} />
 
     <Route path="orgs">
-      <Route path=":orgName" element={<RootLayout />} crumb={orgCrumb}>
-        <Route index element={<OrgPage />} />
+      <Route element={<RootLayout />} icon={<Folder24Icon />} title="Organizations">
+        <Route index element={<OrgsPage />} />
+        <Route
+          path="new"
+          title="Create Organization"
+          element={<FormPage type="org-create" />}
+        />
       </Route>
 
-      <Route path=":orgName" crumb={orgCrumb}>
+      <Route path=":orgName" crumb={orgCrumb} icon={<Folder24Icon />}>
+        <Route index element={<Navigate to="projects" replace />} />
         <Route path="projects" crumb="Projects">
           {/* ORG */}
           <Route element={<OrgLayout />}>
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
-              element={<ProjectCreatePage />}
+              element={<FormPage type="project-create" />}
               crumb="Create project"
             />
           </Route>
 
           {/* PROJECT */}
-          <Route
-            path=":projectName"
-            element={<ProjectLayout />}
-            crumb={projectCrumb}
-          >
+          <Route path=":projectName" element={<ProjectLayout />} crumb={projectCrumb}>
             <Route index element={<Navigate to="instances" replace />} />
-            {/* This is separate from the other instances routes because we want a different crumb */}
-            <Route
-              path="instances/new"
-              element={<InstanceCreatePage />}
-              crumb="Create instance"
-            />
-            <Route path="instances" crumb="Instances">
+            <Route path="instances" crumb="Instances" icon={<Instances24Icon />}>
               <Route index element={<InstancesPage />} />
+              <Route
+                path="new"
+                element={<FormPage type="instance-create" />}
+                title="Create instance"
+                icon={<Instances24Icon />}
+              />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
@@ -100,19 +108,42 @@ export const routes = (
                 crumb={instanceCrumb}
               />
             </Route>
-            <Route path="vpcs" crumb="Vpcs">
+            <Route path="vpcs" crumb="VPCs" icon={<Networking24Icon />}>
               <Route index element={<VpcsPage />} />
-              <Route path=":vpcName" element={<VpcPage />} />
+              <Route
+                path="new"
+                title="Create VPC"
+                element={<FormPage type="vpc-create" />}
+              />
+              <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
             </Route>
-            <Route path="disks" element={<DisksPage />} crumb="Disks" />
-            <Route path="metrics" element={<MetricsPage />} crumb="Metrics" />
-            <Route path="snapshots" crumb="Snapshots" />
+            <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>
+              <Route index element={<DisksPage />} />
+              <Route
+                path="new"
+                element={<FormPage type="disk-create" />}
+                title="Create disk"
+                icon={<Storage24Icon />}
+              />
+            </Route>
+            <Route
+              path="snapshots"
+              element={<SnapshotsPage />}
+              crumb="Snapshots"
+              icon={<Snapshots24Icon />}
+            />
             <Route path="audit" crumb="Audit" />
-            <Route path="images" element={<ImagesPage />} crumb="Images" />
+            <Route
+              path="images"
+              element={<ImagesPage />}
+              crumb="Images"
+              icon={<Image24Icon />}
+            />
             <Route
               path="access"
               element={<AccessPage />}
               crumb="Access & IAM"
+              icon={<Access24Icon />}
             />
             <Route path="settings" crumb="Settings" />
           </Route>

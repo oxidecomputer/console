@@ -50,6 +50,7 @@ tmux set -t omicron-console pane-active-border-style "bg=green fg=black"
 tmux split-window
 tmux split-window
 tmux split-window
+tmux select-layout even-vertical
 
 # run populate explicitly later so we can tell when it's done
 run_in_pane 0 "$UTILS"
@@ -66,11 +67,13 @@ run_in_pane 2 "$UTILS"
 run_in_pane 2 "set_pane_title sled-agent-sim"
 run_in_pane 2 "wait_for_up 12220"
 run_in_pane 2 "wait_for_up 12221"
-run_in_pane 2 "cargo run --bin=sled-agent-sim -- $(uuidgen) 127.0.0.1:12345 127.0.0.1:12221"
+run_in_pane 2 "cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221"
 
 run_in_pane 3 "$UTILS"
 run_in_pane 3 "set_pane_title 'seed data'"
 run_in_pane 3 "wait_for_up 12345"
+run_in_pane 3 "export OXIDE_HOST='http://127.0.0.1:12220'"
+run_in_pane 3 "export OXIDE_TOKEN='oxide-spoof-001de000-05e4-4000-8000-000000004007'"
 run_in_pane 3 "../console/tools/populate_omicron_data.sh"
 
 tmux attach -t omicron-console

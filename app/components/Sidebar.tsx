@@ -1,4 +1,3 @@
-import React from 'react'
 import { NavLink as RRNavLink } from 'react-router-dom'
 import cn from 'classnames'
 import { ProjectSelector } from './ProjectSelector'
@@ -34,9 +33,7 @@ interface SidebarNav {
 Sidebar.Nav = ({ children, heading }: SidebarNav) => {
   return (
     <div className="mt-8 space-y-1">
-      {heading ? (
-        <span className="ml-2 text-mono-sm text-secondary">{heading}</span>
-      ) : null}
+      {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
       <nav>
         <ul className="space-y-0.5">{children}</ul>
       </nav>
@@ -50,9 +47,7 @@ interface SidebarFooter {
 Sidebar.Footer = ({ children }: SidebarFooter) => {
   return (
     // TODO: The `w-[12.5rem] is hand calculated and very likely isn't what we want. Do something better here
-    <ul className="absolute bottom-0 w-[12.5rem] space-y-0.5 pb-3">
-      {children}
-    </ul>
+    <ul className="absolute bottom-0 w-[12.5rem] space-y-0.5 pb-3">{children}</ul>
   )
 }
 

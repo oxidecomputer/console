@@ -1,12 +1,20 @@
-import React from 'react'
 import { useTable } from 'react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button } from '@oxide/ui'
+import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { Table } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
+
+const OtherDisksEmpty = () => (
+  <TableEmptyBox>
+    <EmptyMessage
+      title="No other attached disks"
+      body="You need to attach another disk to this instance to see it here"
+    />
+  </TableEmptyBox>
+)
 
 const columns = [
   {
@@ -54,7 +62,11 @@ export function StorageTab() {
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} rowClassName="!h-10" />
       <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
-      <Table table={otherDisksTable} rowClassName="!h-10" />
+      {otherDisks.length > 0 ? (
+        <Table table={otherDisksTable} rowClassName="!h-10" />
+      ) : (
+        <OtherDisksEmpty />
+      )}
       <div className="mt-4">
         <Button variant="secondary" size="sm">
           Create new disk

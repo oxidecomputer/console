@@ -1,5 +1,4 @@
 import type { Row, TableInstance } from 'react-table'
-import React from 'react'
 
 import { Checkbox } from '@oxide/ui'
 
@@ -10,8 +9,6 @@ export const getSelectCol = <T extends object>() => ({
       <Checkbox {...props.getToggleAllRowsSelectedProps()} />
     </div>
   ),
-  Cell: ({ row }: { row: Row<T> }) => (
-    <Checkbox {...row.getToggleRowSelectedProps()} />
-  ),
+  Cell: ({ row }: { row: Row<T> }) => <Checkbox {...row.getToggleRowSelectedProps()} />,
   className: 'w-10',
 })

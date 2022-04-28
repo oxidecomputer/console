@@ -1,4 +1,3 @@
-import React from 'react'
 import cn from 'classnames'
 import { Alert } from '@reach/alert'
 import type { FieldValidator } from 'formik'
@@ -78,19 +77,10 @@ export const TextFieldHint = ({ id, children, className }: HintProps) => (
   </div>
 )
 
-// min-h so when error is one line (hopefully almost all the time) there is
-// already space for the error to appear in, and following content doesn't get
-// pushed down
 export const TextFieldError = ({ name }: { name: string }) => (
-  <div className="ml-px min-h-[2.25rem]">
+  <div className="ml-px">
     <ErrorMessage name={name}>
-      {(msg) =>
-        msg && (
-          <Alert className="py-2 px-3 text-mono-xs text-destructive">
-            {msg}
-          </Alert>
-        )
-      }
+      {(msg) => msg && <Alert className="py-2 text-mono-sm text-destructive">{msg}</Alert>}
     </ErrorMessage>
   </div>
 )

@@ -1,7 +1,6 @@
 import { Checkbox } from './Checkbox'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
-import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof Checkbox>>
 

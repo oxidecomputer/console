@@ -1,4 +1,3 @@
-import React from 'react'
 import { Form, Formik, useFormikContext } from 'formik'
 import * as Yup from 'yup'
 
@@ -11,24 +10,19 @@ import {
   NumberTextField,
   Radio,
   RadioGroup,
-  SideModal,
+  SideModal_old as SideModal,
   Table,
   TextField,
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type {
-  ErrorResponse,
-  VpcFirewallRule,
-  VpcFirewallRuleUpdate,
-} from '@oxide/api'
+import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
 import {
   parsePortRange,
   useApiMutation,
   useApiQueryClient,
   firewallRuleGetToPut,
 } from '@oxide/api'
-import { getServerError } from 'app/util/errors'
 
 type FormProps = {
   error: ErrorResponse | null
@@ -73,11 +67,13 @@ const CommonForm = ({ id, error }: FormProps) => {
         {/* TODO: better text or heading or tip or something on this checkbox */}
         <CheckboxField name="enabled">Enabled</CheckboxField>
         <div className="space-y-0.5">
-          <FieldLabel htmlFor="rule-name">Name</FieldLabel>
+          <FieldLabel id="rule-name-label" htmlFor="rule-name">
+            Name
+          </FieldLabel>
           <TextField id="rule-name" name="name" />
         </div>
         <div className="space-y-0.5">
-          <FieldLabel htmlFor="rule-description">
+          <FieldLabel id="rule-description-label" htmlFor="rule-description">
             Description {/* TODO: indicate optional */}
           </FieldLabel>
           <TextField id="rule-description" name="description" />
@@ -85,15 +81,11 @@ const CommonForm = ({ id, error }: FormProps) => {
       </SideModal.Section>
       <SideModal.Section>
         <div className="space-y-0.5">
-          <FieldLabel htmlFor="priority">Priority</FieldLabel>
-          <TextFieldHint id="priority-hint">
-            Must be 0&ndash;65535
-          </TextFieldHint>
-          <NumberTextField
-            id="priority"
-            name="priority"
-            aria-describedby="priority-hint"
-          />
+          <FieldLabel id="priority-label" htmlFor="priority">
+            Priority
+          </FieldLabel>
+          <TextFieldHint id="priority-hint">Must be 0&ndash;65535</TextFieldHint>
+          <NumberTextField id="priority" name="priority" aria-describedby="priority-hint" />
           <TextFieldError name="priority" />
         </div>
         <fieldset>
@@ -125,7 +117,9 @@ const CommonForm = ({ id, error }: FormProps) => {
           }}
         />
         <div className="space-y-0.5">
-          <FieldLabel htmlFor="targetValue">Target name</FieldLabel>
+          <FieldLabel id="targetValue-label" htmlFor="targetValue">
+            Target name
+          </FieldLabel>
           <TextField id="targetValue" name="targetValue" />
         </div>
 
@@ -142,9 +136,7 @@ const CommonForm = ({ id, error }: FormProps) => {
                 values.targetType &&
                 values.targetValue && // TODO: validate
                 !values.targets.some(
-                  (t) =>
-                    t.value === values.targetValue &&
-                    t.type === values.targetType
+                  (t) => t.value === values.targetValue && t.type === values.targetType
                 )
               ) {
                 setFieldValue('targets', [
@@ -212,15 +204,13 @@ const CommonForm = ({ id, error }: FormProps) => {
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and 
           not a block. */}
-          <FieldLabel htmlFor="hostValue">Value</FieldLabel>
+          <FieldLabel id="hostValue-label" htmlFor="hostValue">
+            Value
+          </FieldLabel>
           <TextFieldHint id="hostValue-hint">
             For IP, an address. For the rest, a name. [TODO: copy]
           </TextFieldHint>
-          <TextField
-            id="hostValue"
-            name="hostValue"
-            aria-describedby="hostValue-hint"
-          />
+          <TextField id="hostValue" name="hostValue" aria-describedby="hostValue-hint" />
         </div>
 
         <div className="flex justify-end">
@@ -235,8 +225,7 @@ const CommonForm = ({ id, error }: FormProps) => {
                 values.hostType &&
                 values.hostValue && // TODO: validate
                 !values.hosts.some(
-                  (t) =>
-                    t.value === values.hostValue || t.type === values.hostType
+                  (t) => t.value === values.hostValue || t.type === values.hostType
                 )
               ) {
                 setFieldValue('hosts', [
@@ -286,15 +275,13 @@ const CommonForm = ({ id, error }: FormProps) => {
       </SideModal.Section>
       <SideModal.Section className="border-t">
         <div className="space-y-0.5">
-          <FieldLabel htmlFor="portRange">Port filter</FieldLabel>
+          <FieldLabel id="portRange-label" htmlFor="portRange">
+            Port filter
+          </FieldLabel>
           <TextFieldHint id="portRange-hint">
             A single port (1234) or a range (1234-2345)
           </TextFieldHint>
-          <TextField
-            id="portRange"
-            name="portRange"
-            aria-describedby="portRange-hint"
-          />
+          <TextField id="portRange" name="portRange" aria-describedby="portRange-hint" />
           <TextFieldError name="portRange" />
           <div className="flex justify-end">
             <Button variant="ghost" color="neutral" className="mr-2.5">
@@ -363,7 +350,7 @@ const CommonForm = ({ id, error }: FormProps) => {
         </fieldset>
       </SideModal.Section>
       <SideModal.Section>
-        <div className="text-destructive">{getServerError(error)}</div>
+        <div className="text-destructive">{error?.error.message}</div>
       </SideModal.Section>
     </Form>
   )
@@ -401,7 +388,7 @@ export function CreateFirewallRuleModal({
   vpcName,
   existingRules,
 }: CreateProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -411,7 +398,7 @@ export function CreateFirewallRuleModal({
 
   const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
+      queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       dismiss()
     },
   })
@@ -456,11 +443,7 @@ export function CreateFirewallRuleModal({
           } as Values // best way to tell formik this type
         }
         validationSchema={Yup.object({
-          priority: Yup.number()
-            .integer()
-            .min(0)
-            .max(65535)
-            .required('Required'),
+          priority: Yup.number().integer().min(0).max(65535).required('Required'),
         })}
         validateOnBlur
         onSubmit={(values) => {
@@ -468,7 +451,7 @@ export function CreateFirewallRuleModal({
             .filter((r) => r.name !== values.name)
             .map(firewallRuleGetToPut)
           updateRules.mutate({
-            ...parentIds,
+            ...parentNames,
             body: {
               rules: [...otherRules, valuesToRuleUpdate(values)],
             },
@@ -508,7 +491,7 @@ export function EditFirewallRuleModal({
   originalRule,
   existingRules,
 }: EditProps) {
-  const parentIds = { orgName, projectName, vpcName }
+  const parentNames = { orgName, projectName, vpcName }
   const queryClient = useApiQueryClient()
 
   function dismiss() {
@@ -518,7 +501,7 @@ export function EditFirewallRuleModal({
 
   const updateRules = useApiMutation('vpcFirewallRulesPut', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesGet', parentIds)
+      queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       dismiss()
     },
   })
@@ -527,11 +510,7 @@ export function EditFirewallRuleModal({
 
   const formId = 'edit-firewall-rule-form'
   return (
-    <SideModal
-      id="edit-firewall-rule-modal"
-      title="Edit firewall rule"
-      onDismiss={dismiss}
-    >
+    <SideModal id="edit-firewall-rule-modal" title="Edit firewall rule" onDismiss={dismiss}>
       <Formik
         initialValues={
           {
@@ -566,7 +545,7 @@ export function EditFirewallRuleModal({
             .filter((r) => r.name !== originalRule.name)
             .map(firewallRuleGetToPut)
           updateRules.mutate({
-            ...parentIds,
+            ...parentNames,
             body: {
               rules: [...otherRules, valuesToRuleUpdate(values)],
             },

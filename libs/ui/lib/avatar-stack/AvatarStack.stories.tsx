@@ -1,7 +1,6 @@
 import { AvatarStack } from './AvatarStack'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
-import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof AvatarStack>>
 

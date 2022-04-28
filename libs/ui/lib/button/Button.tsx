@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 import cn from 'classnames'
 import './button.css'
 import { assertUnreachable } from '@oxide/util'
@@ -75,8 +75,7 @@ type ButtonStyleProps = {
   color?: Color
 }
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> &
-  ButtonStyleProps
+export type ButtonProps = React.ComponentPropsWithRef<'button'> & ButtonStyleProps
 
 export const buttonStyle = ({
   size = 'base',

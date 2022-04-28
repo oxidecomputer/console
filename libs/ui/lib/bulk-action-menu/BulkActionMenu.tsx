@@ -1,5 +1,5 @@
 import { flattenChildren } from '@oxide/util'
-import React from 'react'
+
 import type { ButtonProps } from '../button/Button'
 import { Button } from '../button/Button'
 
@@ -9,20 +9,13 @@ export interface BulkActionMenuProps {
   onSelectAll: () => void
 }
 
-export function BulkActionMenu({
-  children,
-  selectedCount,
-}: BulkActionMenuProps) {
+export function BulkActionMenu({ children, selectedCount }: BulkActionMenuProps) {
   const actionButtons = flattenChildren(children)
   return (
     <div className="flex w-fit rounded border bg-accent-secondary border-accent children:items-center children:space-x-2 children:p-3">
-      <div className="flex border-r border-accent-tertiary">
-        {actionButtons}
-      </div>
+      <div className="flex border-r border-accent-tertiary">{actionButtons}</div>
       <div className="flex">
-        <span className="text-sans-sm text-accent">
-          {selectedCount} selected
-        </span>
+        <span className="text-sans-sm text-accent">{selectedCount} selected</span>
       </div>
     </div>
   )

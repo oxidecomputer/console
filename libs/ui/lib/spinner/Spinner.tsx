@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import cn from 'classnames'
 
 import useInterval from '../hooks/use-interval'
@@ -14,9 +14,5 @@ export const Spinner = ({ className }: SpinnerProps) => {
     setIndex((index + 1) % FRAMES.length)
   }, 150)
 
-  return (
-    <span className={cn('text-mono-lg text-accent', className)}>
-      {FRAMES[index]}
-    </span>
-  )
+  return <span className={cn('text-mono-lg text-accent', className)}>{FRAMES[index]}</span>
 }

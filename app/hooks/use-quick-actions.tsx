@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useCallback, useState } from 'react'
 import { useKey } from './use-key'
-import { invariant } from '@oxide/util'
+import invariant from 'tiny-invariant'
 import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'
 import create from 'zustand'
@@ -23,8 +23,7 @@ const useStore = create<StoreState>((set) => ({
   items: [],
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
-  remove: (toRemove) =>
-    set(({ items }) => ({ items: removeByValue(items, toRemove) })),
+  remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
 }))
 
 /**
@@ -57,12 +56,14 @@ export function QuickActions() {
   // only memoized to avoid render churn in useKey
   const openDialog = useCallback(
     (e) => {
-      if (anyItems) {
+      if (anyItems && !isOpen) {
         e.preventDefault()
         setIsOpen(true)
+      } else {
+        setIsOpen(false)
       }
     },
-    [anyItems]
+    [isOpen, anyItems]
   )
 
   useKey('mod+k', openDialog)

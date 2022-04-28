@@ -36,8 +36,7 @@
 
 @font-face {
   font-family: 'SuisseIntl';
-  src: url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff2')
-      format('woff2'),
+  src: url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff2') format('woff2'),
     url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff') format('woff');
   font-weight: 400;
   font-style: italic;

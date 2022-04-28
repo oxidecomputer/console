@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import cn from 'classnames'
 
 export const avatarSizes = ['sm', 'base', 'lg'] as const

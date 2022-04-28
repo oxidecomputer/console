@@ -11,7 +11,10 @@ import type {
   ProjectParams,
   VpcParams,
   VpcSubnetParams,
+  DiskParams,
+  VpcRouterParams,
 } from './db'
+import { lookupDisk } from './db'
 import {
   db,
   lookupInstance,
@@ -19,17 +22,17 @@ import {
   lookupProject,
   lookupVpc,
   lookupVpcSubnet,
+  lookupVpcRouter,
 } from './db'
-
-export { json }
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
 
-/// generate random 11 digit hex string
-const randomHex = () => Math.floor(Math.random() * 10e12).toString(16)
+/// generate random 11 digit hex string, prefix optional
+const genId = (prefix?: string) =>
+  (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 10e12).toString(16)
 
 function getTimestamps() {
   const now = new Date().toISOString()
@@ -39,6 +42,10 @@ function getTimestamps() {
 const alreadyExistsBody = { error_code: 'ObjectAlreadyExists' } as const
 type AlreadyExists = typeof alreadyExistsBody
 const alreadyExistsErr = json(alreadyExistsBody, 400)
+
+const unavailableBody = { error_code: 'ServiceUnavailable' } as const
+type Unavailable = typeof unavailableBody
+const unavailableErr = json(unavailableBody, 503)
 
 const badRequest = (msg: string) =>
   compose(
@@ -50,7 +57,7 @@ const badRequest = (msg: string) =>
     })
   )
 
-type GetErr = NotFound
+type GetErr = NotFound | Unavailable
 type PostErr = AlreadyExists | NotFound
 
 export const handlers = [
@@ -61,30 +68,33 @@ export const handlers = [
     (req, res) => res(json({ items: db.orgs }))
   ),
 
-  rest.post<
-    Json<Api.OrganizationCreate>,
-    never,
-    Json<Api.Organization> | PostErr
-  >('/api/organizations', (req, res) => {
-    const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
-    if (alreadyExists) return res(alreadyExistsErr)
+  rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
+    '/api/organizations',
+    (req, res) => {
+      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+      if (alreadyExists) return res(alreadyExistsErr)
 
-    if (!req.body.name) {
-      return res(badRequest('name requires at least one character'))
-    }
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
 
-    const newOrg: Json<Api.Organization> = {
-      id: 'org-' + randomHex(),
-      ...req.body,
-      ...getTimestamps(),
+      const newOrg: Json<Api.Organization> = {
+        id: genId('org'),
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.orgs.push(newOrg)
+      return res(json(newOrg, 201))
     }
-    db.orgs.push(newOrg)
-    return res(json(newOrg, 201))
-  }),
+  ),
 
   rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
     '/api/organizations/:orgName',
     (req, res) => {
+      if (req.params.orgName === '503') {
+        return res(unavailableErr)
+      }
+
       const [org, err] = lookupOrg(req)
       if (err) return res(err)
 
@@ -120,7 +130,7 @@ export const handlers = [
       }
 
       const newProject: Json<Api.Project> = {
-        id: 'project-' + randomHex(),
+        id: genId('project'),
         organization_id: org.id,
         ...req.body,
         ...getTimestamps(),
@@ -168,11 +178,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<
-    Json<Api.InstanceCreate>,
-    ProjectParams,
-    Json<Api.Instance> | PostErr
-  >(
+  rest.post<Json<Api.InstanceCreate>, ProjectParams, Json<Api.Instance> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
       const [project, err] = lookupProject(req)
@@ -188,7 +194,7 @@ export const handlers = [
       }
 
       const newInstance: Json<Api.Instance> = {
-        id: 'instance-' + randomHex(),
+        id: genId('instance'),
         project_id: project.id,
         ...req.body,
         ...getTimestamps(),
@@ -232,6 +238,15 @@ export const handlers = [
     }
   ),
 
+  rest.post<never, DiskParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+    (req, res) => {
+      const [disk, err] = lookupDisk(req)
+      if (err) return res(err)
+      return res(json(disk))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
@@ -239,6 +254,59 @@ export const handlers = [
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
       return res(json({ items: disks }))
+    }
+  ),
+
+  rest.post<Json<Api.DiskCreate>, ProjectParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/disks',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const alreadyExists = db.disks.some(
+        (s) => s.project_id === project.id && s.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const { name, description, size, disk_source } = req.body
+      const newDisk: Json<Api.Disk> = {
+        id: genId('disk'),
+        project_id: project.id,
+        state: { state: 'creating' },
+        device_path: '/mnt/disk',
+        name,
+        description,
+        size,
+        // TODO: for non-blank disk sources, look up image or snapshot by ID and
+        // pull block size from there
+        block_size: disk_source.type === 'Blank' ? disk_source.block_size : 4096,
+        ...getTimestamps(),
+      }
+      db.disks.push(newDisk)
+      return res(json(newDisk, 201))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.ImageResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/images',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const images = db.images.filter((i) => i.project_id === project.id)
+      return res(json({ items: images }))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.SnapshotResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/snapshots',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
+      return res(json({ items: snapshots }))
     }
   ),
 
@@ -261,6 +329,34 @@ export const handlers = [
     }
   ),
 
+  rest.post<Json<Api.VpcCreate>, ProjectParams, Json<Api.Vpc> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs',
+    (req, res) => {
+      const [project, err] = lookupProject(req)
+      if (err) return res(err)
+      const alreadyExists = db.vpcs.some(
+        (s) => s.project_id === project.id && s.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const newVpc: Json<Api.Vpc> = {
+        id: genId('vpc'),
+        project_id: project.id,
+        system_router_id: genId('system-router'),
+        ...req.body,
+        // API is supposed to generate one if none provided. close enough
+        ipv6_prefix: req.body.ipv6_prefix || 'fd2d:4569:88b2::/64',
+        ...getTimestamps(),
+      }
+      db.vpcs.push(newVpc)
+      return res(json(newVpc, 201))
+    }
+  ),
+
   rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
@@ -271,11 +367,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<
-    Json<Api.VpcSubnetCreate>,
-    VpcParams,
-    Json<Api.VpcSubnet> | PostErr
-  >(
+  rest.post<Json<Api.VpcSubnetCreate>, VpcParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
       const [vpc, err] = lookupVpc(req)
@@ -291,12 +383,12 @@ export const handlers = [
       }
 
       const newSubnet: Json<Api.VpcSubnet> = {
-        id: 'vpc-subnet-' + randomHex(),
+        id: genId('vpc-subnet'),
         vpc_id: vpc.id,
         ...req.body,
-        // required in subnet but not in update, so we need a fallback. API says
-        // "A random `/64` block will be assigned if one is not provided." Our
-        // fallback is not random, but it should be good enough.
+        // required in subnet create but not in update, so we need a fallback.
+        // API says "A random `/64` block will be assigned if one is not
+        // provided." Our fallback is not random, but it should be good enough.
         ipv6_block: req.body.ipv6_block || 'fd2d:4569:88b1::/64',
         ...getTimestamps(),
       }
@@ -305,17 +397,12 @@ export const handlers = [
     }
   ),
 
-  rest.put<
-    Json<Api.VpcSubnetUpdate>,
-    VpcSubnetParams,
-    Json<Api.VpcSubnet> | PostErr
-  >(
+  rest.put<Json<Api.VpcSubnetUpdate>, VpcSubnetParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
     (req, res, ctx) => {
       const [subnet, err] = lookupVpcSubnet(req)
       if (err) return res(err)
 
-      // modify object in place for now. TODO: improve this
       if (req.body.name) {
         subnet.name = req.body.name
       }
@@ -353,7 +440,7 @@ export const handlers = [
       if (err) return res(err)
       const rules = req.body.rules.map((rule) => ({
         vpc_id: vpc.id,
-        id: 'firewall-rule-' + randomHex(),
+        id: genId('firewall-rule'),
         ...rule,
         ...getTimestamps(),
       }))
@@ -363,6 +450,69 @@ export const handlers = [
         ...rules,
       ]
       return res(json({ rules: sortBy(rules, (r) => r.name) }))
+    }
+  ),
+
+  rest.get<never, VpcParams, Json<Api.VpcRouterResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
+    (req, res) => {
+      const [vpc, err] = lookupVpc(req)
+      if (err) return res(err)
+      const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
+      return res(json({ items }))
+    }
+  ),
+
+  rest.post<Json<Api.VpcRouterCreate>, VpcParams, Json<Api.VpcRouter> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
+    (req, res) => {
+      const [vpc, err] = lookupVpc(req)
+      if (err) return res(err)
+
+      const alreadyExists = db.vpcRouters.some(
+        (x) => x.vpc_id === vpc.id && x.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const newRouter: Json<Api.VpcRouter> = {
+        id: genId('vpc-router'),
+        vpc_id: vpc.id,
+        kind: 'custom',
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.vpcRouters.push(newRouter)
+      return res(json(newRouter, 201))
+    }
+  ),
+
+  rest.put<Json<Api.VpcRouterUpdate>, VpcRouterParams, Json<Api.VpcRouter> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
+    (req, res, ctx) => {
+      const [router, err] = lookupVpcRouter(req)
+      if (err) return res(err)
+
+      if (req.body.name) {
+        router.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        router.description = req.body.description
+      }
+      return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, VpcRouterParams, Json<Api.RouterRouteResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
+    (req, res) => {
+      const [router, err] = lookupVpcRouter(req)
+      if (err) return res(err)
+      const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
+      return res(json({ items }))
     }
   ),
 ]

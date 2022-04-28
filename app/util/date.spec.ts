@@ -43,11 +43,7 @@ describe('timeAgoAbbr', () => {
   })
 
   it("addSuffix option adds 'ago'", () => {
-    expect(timeAgoAbbr(subDays(baseDate, 200), { addSuffix: true })).toEqual(
-      '7mo ago'
-    )
-    expect(timeAgoAbbr(subDays(baseDate, 3), { addSuffix: true })).toEqual(
-      '3d ago'
-    )
+    expect(timeAgoAbbr(subDays(baseDate, 200), { addSuffix: true })).toEqual('7mo ago')
+    expect(timeAgoAbbr(subDays(baseDate, 3), { addSuffix: true })).toEqual('3d ago')
   })
 })

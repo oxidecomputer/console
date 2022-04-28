@@ -1,5 +1,4 @@
 import type { ComponentProps } from 'react'
-import React from 'react'
 
 import { FormikDecorator } from '../../util/formik-decorator'
 import { RadioGroup } from './RadioGroup'

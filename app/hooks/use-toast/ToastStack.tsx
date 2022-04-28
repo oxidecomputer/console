@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Toast as ToastModel } from './types'
 import { Toast } from '@oxide/ui'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'

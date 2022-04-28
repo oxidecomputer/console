@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useQueryTable } from '@oxide/table'
@@ -6,7 +5,7 @@ import { useApiQuery } from '@oxide/api'
 
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { PageHeader, PageTitle, Storage24Icon } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, TableActions, Storage24Icon } from '@oxide/ui'
 
 function AttachedInstance(props: {
   orgName: string
@@ -28,6 +27,16 @@ function AttachedInstance(props: {
   ) : null
 }
 
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Storage24Icon />}
+    title="No disks"
+    body="You need to create a disk to be able to see it here"
+    buttonText="New disk"
+    buttonTo="new"
+  />
+)
+
 export function DisksPage() {
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable(
@@ -38,10 +47,15 @@ export function DisksPage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Storage24Icon title="Vpcs" />}>Disks</PageTitle>
-      </PageHeader>
-      <Table>
+      <TableActions>
+        <Link
+          to={`/orgs/${orgName}/projects/${projectName}/disks/new`}
+          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
+        >
+          New Disk
+        </Link>
+      </TableActions>
+      <Table emptyState={<EmptyState />}>
         <Column id="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
