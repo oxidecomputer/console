@@ -1,11 +1,15 @@
 import { useTable } from 'react-table'
 
 import type { Disk } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
 import { Table } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
+import { useState } from 'react'
+import AttachDiskForm from 'app/forms/disk-attach'
+import CreateDiskForm from 'app/forms/disk-create'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -35,16 +39,31 @@ const columns = [
 ]
 
 export function StorageTab() {
+  const [showDiskCreate, setShowDiskCreate] = useState(false)
+  const [showDiskAttach, setShowDiskAttach] = useState(false)
+
+  const queryClient = useApiQueryClient()
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',
     'instanceName'
   )
+
   const { data } = useApiQuery(
     'instanceDisksGet',
     { orgName, projectName, instanceName },
     { refetchInterval: 5000 }
   )
+
+  const attachDisk = useApiMutation('instanceDisksAttach', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceDisksGet', {
+        orgName,
+        projectName,
+        instanceName,
+      })
+    },
+  })
 
   const bootDisks = data?.items.slice(0, 1) || []
   const otherDisks = data?.items.slice(1) || []
@@ -68,13 +87,48 @@ export function StorageTab() {
         <OtherDisksEmpty />
       )}
       <div className="mt-4">
-        <Button variant="secondary" size="sm">
+        <Button variant="secondary" size="sm" onClick={() => setShowDiskCreate(true)}>
           Create new disk
         </Button>
-        <Button variant="secondary" size="sm" className="ml-3">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="ml-3"
+          onClick={() => setShowDiskAttach(true)}
+        >
           Attach existing disk
         </Button>
       </div>
+      <SideModal
+        id="create-disk-modal"
+        isOpen={showDiskCreate}
+        onDismiss={() => setShowDiskCreate(false)}
+      >
+        <CreateDiskForm
+          onSuccess={async (disk) => {
+            await attachDisk.mutateAsync({
+              instanceName,
+              orgName,
+              projectName,
+              body: {
+                name: disk.name,
+              },
+            })
+            setShowDiskCreate(false)
+          }}
+        />
+      </SideModal>
+      <SideModal
+        id="attach-disk-modal"
+        isOpen={showDiskAttach}
+        onDismiss={() => setShowDiskAttach(false)}
+      >
+        <AttachDiskForm
+          onSuccess={() => {
+            setShowDiskAttach(false)
+          }}
+        />
+      </SideModal>
     </div>
   )
 }
