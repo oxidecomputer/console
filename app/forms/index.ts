@@ -7,6 +7,8 @@ import type { CreateDiskForm } from './disk-create'
 import type { CreateProjectForm } from './project-create'
 import type { CreateVpcForm } from './vpc-create'
 import type { CreateVpcRouterForm } from './vpc-router-create'
+import type { CreateFirewallRuleForm } from './firewall-rules-create'
+import type { EditFirewallRuleForm } from './firewall-rules-edit'
 import type { EditVpcRouterForm } from './vpc-router-edit'
 import type CreateInstanceForm from './instance-create'
 import type AttachDiskForm from './disk-attach'
@@ -26,6 +28,8 @@ export interface FormTypes {
   'project-create': typeof CreateProjectForm
   'disk-attach': typeof AttachDiskForm
   'disk-create': typeof CreateDiskForm
+  'firewall-rules-create': typeof CreateFirewallRuleForm
+  'firewall-rules-edit': typeof EditFirewallRuleForm
   'subnet-create': typeof CreateSubnetForm
   'subnet-edit': typeof EditSubnetForm
   'network-interface-create': typeof CreateNetworkInterfaceForm
