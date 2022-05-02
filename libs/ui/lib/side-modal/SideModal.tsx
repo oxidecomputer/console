@@ -7,8 +7,6 @@ import type { ChildrenProp } from '@oxide/util'
 import { Close12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
-export { SideModal_old } from './SideModal_old'
-
 const SideModalContext = createContext(false)
 
 export const useIsInSideModal = () => {
