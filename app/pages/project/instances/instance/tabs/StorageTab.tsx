@@ -43,25 +43,15 @@ export function StorageTab() {
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
+  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
-  const { data } = useApiQuery(
-    'instanceDisksGet',
-    { orgName, projectName, instanceName },
-    { refetchInterval: 5000 }
-  )
+  const { data } = useApiQuery('instanceDisksGet', instanceParams, {
+    refetchInterval: 5000,
+  })
 
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDisksGet', {
-        orgName,
-        projectName,
-        instanceName,
-      })
+      queryClient.invalidateQueries('instanceDisksGet', instanceParams)
     },
   })
 
@@ -107,9 +97,7 @@ export function StorageTab() {
         <CreateDiskForm
           onSuccess={async (disk) => {
             await attachDisk.mutateAsync({
-              instanceName,
-              orgName,
-              projectName,
+              ...instanceParams,
               body: {
                 name: disk.name,
               },
