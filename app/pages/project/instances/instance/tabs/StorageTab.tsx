@@ -104,6 +104,7 @@ export function StorageTab() {
             })
             setShowDiskCreate(false)
           }}
+          onDismiss={() => setShowDiskCreate(false)}
         />
       </SideModal>
       <SideModal
@@ -115,6 +116,7 @@ export function StorageTab() {
           onSuccess={() => {
             setShowDiskAttach(false)
           }}
+          onDismiss={() => setShowDiskAttach(false)}
         />
       </SideModal>
     </div>
