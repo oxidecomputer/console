@@ -109,7 +109,6 @@ const makeQueryTable = <Item,>(
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModelSync(),
-      // autoResetSelectedRows: false,
     })
 
     if (debug) console.table(data)

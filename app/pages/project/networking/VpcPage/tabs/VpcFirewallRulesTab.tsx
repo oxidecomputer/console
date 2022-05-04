@@ -66,7 +66,6 @@ export const VpcFirewallRulesTab = () => {
   const table = useTableInstance(tableHelper, {
     data: rules,
     columns,
-    autoResetRowSelection: false,
     getCoreRowModel: getCoreRowModelSync(),
   })
 
