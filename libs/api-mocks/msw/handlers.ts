@@ -403,7 +403,6 @@ export const handlers = [
       const [subnet, err] = lookupVpcSubnet(req)
       if (err) return res(err)
 
-      // modify object in place for now. TODO: improve this
       if (req.body.name) {
         subnet.name = req.body.name
       }
@@ -461,6 +460,49 @@ export const handlers = [
       if (err) return res(err)
       const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
       return res(json({ items }))
+    }
+  ),
+
+  rest.post<Json<Api.VpcRouterCreate>, VpcParams, Json<Api.VpcRouter> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
+    (req, res) => {
+      const [vpc, err] = lookupVpc(req)
+      if (err) return res(err)
+
+      const alreadyExists = db.vpcRouters.some(
+        (x) => x.vpc_id === vpc.id && x.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const newRouter: Json<Api.VpcRouter> = {
+        id: genId('vpc-router'),
+        vpc_id: vpc.id,
+        kind: 'custom',
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.vpcRouters.push(newRouter)
+      return res(json(newRouter, 201))
+    }
+  ),
+
+  rest.put<Json<Api.VpcRouterUpdate>, VpcRouterParams, Json<Api.VpcRouter> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
+    (req, res, ctx) => {
+      const [router, err] = lookupVpcRouter(req)
+      if (err) return res(err)
+
+      if (req.body.name) {
+        router.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        router.description = req.body.description
+      }
+      return res(ctx.status(204))
     }
   ),
 

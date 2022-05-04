@@ -169,6 +169,9 @@
   --surface-default-rgb: var(--base-black-700-rgb);
   --surface-default: rgb(var(--surface-default-rgb));
 
+  --surface-hover-rgb: var(--base-black-500-rgb);
+  --surface-hover: rgb(var(--surface-hover-rgb));
+
   --surface-secondary-rgb: var(--base-black-500-rgb);
   --surface-secondary: rgb(var(--surface-secondary-rgb));
 

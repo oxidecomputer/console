@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useParams } from 'app/hooks'
-import { Button, EmptyMessage } from '@oxide/ui'
+import { Button, EmptyMessage, SideModal } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, DateCell, LabelCell } from '@oxide/table'
 import type { VpcRouter } from '@oxide/api'
-import { CreateVpcRouterModal, EditVpcRouterModal } from '../modals/vpc-routers'
+import { CreateVpcRouterForm } from 'app/forms/vpc-router-create'
+import { EditVpcRouterForm } from 'app/forms/vpc-router-edit'
 
 export const VpcRoutersTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
@@ -36,16 +37,29 @@ export const VpcRoutersTab = () => {
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New router
         </Button>
-        <CreateVpcRouterModal
-          {...vpcParams}
+        <SideModal
+          id="create-router-modal"
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-        />
-        <EditVpcRouterModal
-          {...vpcParams}
-          originalRouter={editing} // modal is open if this is non-null
+        >
+          <CreateVpcRouterForm
+            onSuccess={() => setCreateModalOpen(false)}
+            onDismiss={() => setCreateModalOpen(false)}
+          />
+        </SideModal>
+        <SideModal
+          id="edit-router-modal"
+          isOpen={!!editing}
           onDismiss={() => setEditing(null)}
-        />
+        >
+          {editing && (
+            <EditVpcRouterForm
+              initialValues={editing}
+              onSuccess={() => setEditing(null)}
+              onDismiss={() => setEditing(null)}
+            />
+          )}
+        </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column id="name" header="Name" />

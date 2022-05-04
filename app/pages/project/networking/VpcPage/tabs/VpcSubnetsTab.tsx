@@ -11,7 +11,7 @@ export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcSubnetsGet', vpcParams)
-  const [showCreate, setShowCreate] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
   const makeActions = (subnet: VpcSubnet): MenuAction[] => [
@@ -26,22 +26,25 @@ export const VpcSubnetsTab = () => {
       title="No VPC subnets"
       body="You need to create a subnet to be able to see it here"
       buttonText="New subnet"
-      onClick={() => setShowCreate(true)}
+      onClick={() => setCreateModalOpen(true)}
     />
   )
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="xs" variant="secondary" onClick={() => setShowCreate(true)}>
+        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New subnet
         </Button>
         <SideModal
           id="create-subnet-modal"
-          isOpen={showCreate}
-          onDismiss={() => setShowCreate(false)}
+          isOpen={createModalOpen}
+          onDismiss={() => setCreateModalOpen(false)}
         >
-          <CreateSubnetForm onSuccess={() => setShowCreate(false)} />
+          <CreateSubnetForm
+            onSuccess={() => setCreateModalOpen(false)}
+            onDismiss={() => setCreateModalOpen(false)}
+          />
         </SideModal>
         <SideModal
           id="edit-subnet-modal"
@@ -49,7 +52,11 @@ export const VpcSubnetsTab = () => {
           onDismiss={() => setEditing(null)}
         >
           {editing && (
-            <EditSubnetForm initialValues={editing} onSuccess={() => setEditing(null)} />
+            <EditSubnetForm
+              initialValues={editing}
+              onDismiss={() => setEditing(null)}
+              onSuccess={() => setEditing(null)}
+            />
           )}
         </SideModal>
       </div>

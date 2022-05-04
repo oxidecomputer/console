@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 import { routes } from '../routes'
-export { override } from './server'
+export { overrideOnce } from './server'
 
 export const queryClientOptions = {
   defaultOptions: { queries: { retry: false } },

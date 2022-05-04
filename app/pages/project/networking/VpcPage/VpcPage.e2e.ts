@@ -45,7 +45,7 @@ test.describe('VpcPage', () => {
     const rows = page.locator('tbody >> tr')
     await expect(rows).toHaveCount(4)
 
-    const modal = page.locator('text="Create firewall rule"')
+    const modal = page.locator('text="Add firewall rule"')
     await expect(modal).not.toBeVisible()
 
     // open modal
@@ -88,7 +88,7 @@ test.describe('VpcPage', () => {
     await page.locator('text=UDP').click()
 
     // submit the form
-    await page.locator('text="Create rule"').click()
+    await page.locator('text="Add rule"').click()
 
     // modal closes again
     await expect(modal).not.toBeVisible()
@@ -120,7 +120,7 @@ test.describe('VpcPage', () => {
     const newNameCell = page.locator('td >> text="new-rule-name"')
     expect(newNameCell).not.toBeVisible()
 
-    const modal = page.locator('text="Edit firewall rule"')
+    const modal = page.locator('text="Edit rule"')
     await expect(modal).not.toBeVisible()
 
     // click more button on allow-icmp row to get menu, then click Edit

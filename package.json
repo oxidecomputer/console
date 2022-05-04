@@ -22,7 +22,8 @@
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
     "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {
@@ -108,9 +109,11 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-storybook": "^0.5.8",
+    "husky": "^7.0.4",
     "identity-obj-proxy": "^3.0.0",
     "jscodeshift": "^0.13.0",
     "jsdom": "^19.0.0",
+    "lint-staged": "^12.4.1",
     "msw": "^0.39.2",
     "patch-package": "^6.4.7",
     "plop": "^2.7.6",
@@ -126,7 +129,7 @@
     "ts-unused-exports": "^7.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "type-fest": "^2.10.0",
-    "typescript": "4.6.3",
+    "typescript": "4.6.4",
     "url-loader": "^4.1.1",
     "vite": "^2.9.4",
     "vitest": "^0.9.3",
@@ -142,5 +145,8 @@
   ],
   "msw": {
     "workerDirectory": "app"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,json}": "eslint --cache --fix"
   }
 }

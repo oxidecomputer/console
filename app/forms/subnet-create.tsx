@@ -13,15 +13,16 @@ const values = {
   ipv6Block: '',
 }
 
+export type VpcSubnetFieldValues = typeof values
+
 export function CreateSubnetForm({
   id = 'create-subnet-form',
   title = 'Create subnet',
   initialValues = values,
-  onSubmit,
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, VpcSubnet>) {
+}: PrebuiltFormProps<VpcSubnetFieldValues, VpcSubnet>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -37,12 +38,7 @@ export function CreateSubnetForm({
       id={id}
       title={title}
       initialValues={initialValues}
-      onSubmit={
-        onSubmit ||
-        ((body) => {
-          createSubnet.mutate({ ...parentNames, body })
-        })
-      }
+      onSubmit={(body) => createSubnet.mutate({ ...parentNames, body })}
       mutation={createSubnet}
       {...props}
     >
