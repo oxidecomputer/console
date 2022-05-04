@@ -19,7 +19,7 @@ const OtherDisksEmpty = () => (
 
 const table = createTable().setRowType<Disk>()
 
-const columns = table.createColumns([
+const columns = [
   table.createDataColumn('name', {
     header: 'Name',
     cell: ({ value }) => <div>{value}</div>,
@@ -30,7 +30,7 @@ const columns = table.createColumns([
     cell: ({ value }) => <DiskStatusBadge status={value} />,
     // TODO: need to figure out how to specify width on a column
   }),
-])
+]
 
 export function StorageTab() {
   const { orgName, projectName, instanceName } = useParams(

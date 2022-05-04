@@ -1,6 +1,6 @@
 import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { AnyGenerics, Row } from '@tanstack/react-table'
+import type { TableGenerics, Row } from '@tanstack/react-table'
 import { kebabCase } from '@oxide/util'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
@@ -11,7 +11,7 @@ export type MenuAction = {
   disabled?: boolean
 }
 
-export const actionsCol = <TGenerics extends AnyGenerics>(
+export const actionsCol = <TGenerics extends TableGenerics>(
   makeActions: MakeActions<TGenerics['Row']>
 ) => ({
   id: 'menu',

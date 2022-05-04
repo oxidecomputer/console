@@ -35,7 +35,7 @@ export const VpcFirewallRulesTab = () => {
       },
     ]
 
-    return tableHelper.createColumns([
+    return [
       tableHelper.createDisplayColumn(selectCol()),
       tableHelper.createDataColumn('name', { header: 'Name' }),
       tableHelper.createDataColumn('action', { header: 'Action' }),
@@ -59,7 +59,7 @@ export const VpcFirewallRulesTab = () => {
         cell: DateCell,
       }),
       tableHelper.createDisplayColumn(actionsCol(actions)),
-    ])
+    ]
   }, [setEditing])
 
   const table = useTableInstance(tableHelper, {

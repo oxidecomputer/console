@@ -7,11 +7,15 @@ export const selectCol = <TGenerics,>() => ({
   id: 'select',
   // TODO: fix width at w-12
   header: ({ instance }: { instance: TableInstance<TGenerics> }) => (
-    <Checkbox {...instance.getToggleAllRowsSelectedProps()} />
+    <Checkbox
+      checked={instance.getIsAllRowsSelected()}
+      indeterminate={instance.getIsSomeRowsSelected()}
+      onChange={instance.getToggleAllRowsSelectedHandler()}
+    />
   ),
   cell: ({ row }: { row: Row<TGenerics> }) => (
     <div className="px-1">
-      <Checkbox {...row.getToggleSelectedProps()} />
+      <Checkbox checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
     </div>
   ),
 })

@@ -91,7 +91,7 @@ const makeQueryTable = <Item,>(
         columns.push(actionsCol(makeActions))
       }
 
-      return tableHelper.createColumns(columns)
+      return columns
     }, [children, tableHelper, makeActions])
 
     const { data, isLoading } = useApiQuery(

@@ -12,27 +12,23 @@ export const Table = <TGenerics,>({
   rowClassName,
   table,
 }: TableProps<TGenerics>) => (
-  <UITable className={className} {...table.getTableProps()}>
+  <UITable className={className}>
     <UITable.Header>
       {table.getHeaderGroups().map((headerGroup) => (
         // headerGroupProps has the key on it
         // eslint-disable-next-line react/jsx-key
-        <UITable.HeaderRow {...headerGroup.getHeaderGroupProps()}>
+        <UITable.HeaderRow>
           {headerGroup.headers.map((header) => (
-            <UITable.HeadCell key={header.id} {...header.getHeaderProps()}>
-              {header.renderHeader()}
-            </UITable.HeadCell>
+            <UITable.HeadCell key={header.id}>{header.renderHeader()}</UITable.HeadCell>
           ))}
         </UITable.HeaderRow>
       ))}
     </UITable.Header>
-    <UITable.Body {...table.getTableBodyProps()}>
+    <UITable.Body>
       {table.getRowModel().rows.map((row) => (
-        <UITable.Row {...row.getRowProps()} className={rowClassName} key={row.id}>
+        <UITable.Row className={rowClassName} key={row.id}>
           {row.getAllCells().map((cell) => (
-            <UITable.Cell key={cell.column.id} {...cell.getCellProps()}>
-              {cell.renderCell()}
-            </UITable.Cell>
+            <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
           ))}
         </UITable.Row>
       ))}
