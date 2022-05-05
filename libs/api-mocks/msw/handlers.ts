@@ -6,15 +6,13 @@ import { json } from './util'
 import { sessionMe } from '../session'
 import type {
   NotFound,
-  InstanceParams,
   OrgParams,
   ProjectParams,
   VpcParams,
   VpcSubnetParams,
-  DiskParams,
   VpcRouterParams,
+  InstanceParams,
 } from './db'
-import { lookupDisk } from './db'
 import {
   db,
   lookupInstance,
@@ -238,11 +236,41 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, DiskParams, Json<Api.Disk> | PostErr>(
-    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
     (req, res) => {
-      const [disk, err] = lookupDisk(req)
-      if (err) return res(err)
+      const [instance, instanceErr] = lookupInstance(req)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'attached',
+        instance: instance.id,
+      }
+      return res(json(disk))
+    }
+  ),
+
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
+    (req, res) => {
+      const [instance, instanceErr] = lookupInstance(req)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'detached',
+      }
       return res(json(disk))
     }
   ),
