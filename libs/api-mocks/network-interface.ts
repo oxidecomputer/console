@@ -7,7 +7,7 @@ export const networkInterface: Json<NetworkInterface> = {
   description: 'a network interface',
   id: 'nic-id',
   instance_id: instance.id,
-  ip: '',
+  ip: '172.30.0.10',
   mac: '',
   name: 'my-nic',
   subnet_id: vpcSubnet.id,

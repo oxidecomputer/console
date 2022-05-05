@@ -9,6 +9,7 @@ import { useParams, useQuickActions } from 'app/hooks'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { StorageTab } from './tabs/StorageTab'
 import { MetricsTab } from './tabs/MetricsTab'
+import { NetworkingTab } from './tabs/NetworkingTab'
 import { useMakeInstanceActions } from '../actions'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 
@@ -83,6 +84,10 @@ export const InstancePage = () => {
         <Tab>Metrics</Tab>
         <Tab.Panel>
           <MetricsTab />
+        </Tab.Panel>
+        <Tab>Networking</Tab>
+        <Tab.Panel>
+          <NetworkingTab />
         </Tab.Panel>
       </Tabs>
     </>
