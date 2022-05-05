@@ -33,6 +33,12 @@ import {
 } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
 
+const OrgCreateForm = React.lazy(() => import('./forms/org-create'))
+const ProjectCreateForm = React.lazy(() => import('./forms/project-create'))
+const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
+const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
+const DiskCreateForm = React.lazy(() => import('./forms/disk-create'))
+
 /*
  * We are doing something a little unorthodox with the route config here. We
  * realized that tagging nodes in the route tree with arbitrary data is very
@@ -72,7 +78,7 @@ export const routes = (
         <Route
           path="new"
           title="Create Organization"
-          element={<FormPage type="org-create" />}
+          element={<FormPage Form={OrgCreateForm} />}
         />
       </Route>
 
@@ -84,7 +90,7 @@ export const routes = (
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
-              element={<FormPage type="project-create" />}
+              element={<FormPage Form={ProjectCreateForm} />}
               crumb="Create project"
             />
           </Route>
@@ -96,7 +102,7 @@ export const routes = (
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
-                element={<FormPage type="instance-create" />}
+                element={<FormPage Form={InstanceCreateForm} />}
                 title="Create instance"
                 icon={<Instances24Icon />}
               />
@@ -113,7 +119,7 @@ export const routes = (
               <Route
                 path="new"
                 title="Create VPC"
-                element={<FormPage type="vpc-create" />}
+                element={<FormPage Form={VpcCreateForm} />}
               />
               <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
             </Route>
@@ -121,7 +127,7 @@ export const routes = (
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
-                element={<FormPage type="disk-create" />}
+                element={<FormPage Form={DiskCreateForm} />}
                 title="Create disk"
                 icon={<Storage24Icon />}
               />
