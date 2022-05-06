@@ -3,9 +3,16 @@ import { useTable } from 'react-table'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
+import {
+  Button,
+  EmptyMessage,
+  Error16Icon,
+  OpenLink12Icon,
+  SideModal,
+  TableEmptyBox,
+} from '@oxide/ui'
 import { Table } from '@oxide/table'
-import { useParams } from 'app/hooks'
+import { useParams, useToast } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
 import AttachDiskForm from 'app/forms/disk-attach'
@@ -42,6 +49,7 @@ export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
+  const addToast = useToast()
   const queryClient = useApiQueryClient()
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
@@ -49,9 +57,20 @@ export function StorageTab() {
     refetchInterval: 5000,
   })
 
+  const { data: instance } = useApiQuery('projectInstancesGetInstance', instanceParams)
+
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess() {
       queryClient.invalidateQueries('instanceDisksGet', instanceParams)
+    },
+    onError(err) {
+      addToast({
+        icon: <Error16Icon />,
+        title: 'Failed to attach disk',
+        content: err.error.message,
+        variant: 'error',
+        timeout: 20000,
+      })
     },
   })
 
@@ -62,6 +81,8 @@ export function StorageTab() {
   const otherDisksTable = useTable({ columns, data: otherDisks })
 
   if (!data) return null
+
+  const instanceStopped = instance?.runState === 'stopped'
 
   return (
     <div className="mt-8">
@@ -76,18 +97,34 @@ export function StorageTab() {
       ) : (
         <OtherDisksEmpty />
       )}
-      <div className="mt-4">
-        <Button variant="secondary" size="sm" onClick={() => setShowDiskCreate(true)}>
-          Create new disk
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="ml-3"
-          onClick={() => setShowDiskAttach(true)}
-        >
-          Attach existing disk
-        </Button>
+      <div className="mt-4 flex flex-col gap-3">
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskCreate(true)}
+            disabled={!instanceStopped}
+          >
+            Create new disk
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+            disabled={!instanceStopped}
+          >
+            Attach existing disk
+          </Button>
+        </div>
+        {!instanceStopped && (
+          <span className="max-w-xs text-sans-sm text-secondary">
+            A disk cannot be added or attached without first{' '}
+            <a href="#/" className="text-accent-secondary">
+              powering down the instance
+              <OpenLink12Icon className="ml-1 pt-[1px]" />
+            </a>
+          </span>
+        )}
       </div>
       <SideModal
         id="create-disk-modal"
@@ -95,14 +132,14 @@ export function StorageTab() {
         onDismiss={() => setShowDiskCreate(false)}
       >
         <CreateDiskForm
-          onSuccess={async (disk) => {
-            await attachDisk.mutateAsync({
+          onSuccess={(disk) => {
+            setShowDiskCreate(false)
+            attachDisk.mutate({
               ...instanceParams,
               body: {
                 name: disk.name,
               },
             })
-            setShowDiskCreate(false)
           }}
           onDismiss={() => setShowDiskCreate(false)}
         />
