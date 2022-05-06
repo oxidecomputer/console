@@ -246,6 +246,15 @@ export const handlers = [
       return res(json(disk))
     }
   ),
+  rest.get<never, InstanceParams, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
+    (req, res) => {
+      const [instance, err] = lookupInstance(req)
+      if (err) return res(err)
+      const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
+      return res(json({ items: nics }))
+    }
+  ),
 
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
