@@ -22,6 +22,7 @@ export type OrgParams = { orgName: string }
 export type ProjectParams = Merge<OrgParams, { projectName: string }>
 export type VpcParams = Merge<ProjectParams, { vpcName: string }>
 export type InstanceParams = Merge<ProjectParams, { instanceName: string }>
+export type NetworkInterfaceParams = Merge<InstanceParams, { interfaceName: string }>
 export type DiskParams = Merge<ProjectParams, { instanceName?: string; diskName: string }>
 export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
@@ -65,6 +66,20 @@ export function lookupInstance(params: InstanceParams): Result<Json<Api.Instance
   if (!instance) return Err(notFoundErr)
 
   return Ok(instance)
+}
+
+export function lookupNetworkInterface(
+  params: NetworkInterfaceParams
+): Result<Json<Api.NetworkInterface>> {
+  const [instance, err] = lookupInstance(params)
+  if (err) return Err(err)
+
+  const nic = db.networkInterfaces.find(
+    (n) => n.instance_id === instance.id && n.name === params.interfaceName
+  )
+  if (!nic) return Err(notFoundErr)
+
+  return Ok(nic)
 }
 
 export function lookupDisk(params: DiskParams): Result<Json<Api.Disk>> {

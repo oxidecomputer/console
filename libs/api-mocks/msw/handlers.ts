@@ -7,6 +7,7 @@ import { sessionMe } from '../session'
 import type {
   NotFound,
   InstanceParams,
+  NetworkInterfaceParams,
   OrgParams,
   ProjectParams,
   VpcParams,
@@ -14,6 +15,7 @@ import type {
   DiskParams,
   VpcRouterParams,
 } from './db'
+import { lookupNetworkInterface } from './db'
 import { lookupDisk } from './db'
 import {
   db,
@@ -304,6 +306,25 @@ export const handlers = [
       db.networkInterfaces.push(newNic)
 
       return res(json(newNic))
+    }
+  ),
+
+  rest.get<never, NetworkInterfaceParams, Json<Api.NetworkInterface> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      return res(json(nic))
+    }
+  ),
+
+  rest.delete<never, NetworkInterfaceParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res, ctx) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
+      return res(ctx.status(204))
     }
   ),
 
