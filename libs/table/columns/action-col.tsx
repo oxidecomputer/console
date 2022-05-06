@@ -15,8 +15,8 @@ export const actionsCol = <TGenerics extends TableGenerics>(
   makeActions: MakeActions<TGenerics['Row']>
 ) => ({
   id: 'menu',
-  header: '', // is this the right way to do this?
-  // TODO: fix width at w-12
+  header: '',
+  meta: { thClassName: 'w-12' },
   cell: ({ row }: { row: Row<TGenerics> }) => {
     // TODO: control flow here has always confused me, would like to straighten it out
     const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion

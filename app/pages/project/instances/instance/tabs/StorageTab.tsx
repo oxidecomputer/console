@@ -28,7 +28,7 @@ const columns = [
     id: 'status',
     header: 'Status',
     cell: ({ value }) => <DiskStatusBadge status={value} />,
-    // TODO: need to figure out how to specify width on a column
+    meta: { thClassName: 'w-40' },
   }),
 ]
 
