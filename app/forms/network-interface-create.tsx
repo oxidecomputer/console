@@ -17,7 +17,7 @@ const values: NetworkInterfaceCreate = {
 
 export default function CreateNetworkInterfaceForm({
   id = 'create-network-interface-form',
-  title = 'Add Network Interface',
+  title = 'Add network interface',
   initialValues = values,
   onSubmit,
   onSuccess,
