@@ -43,7 +43,7 @@ module.exports.textUtilities = {
     'font-weight': 300,
     'line-height': '2.025rem',
     'font-size': '1.5625rem',
-    'letter-spacing': '0rem',
+    'letter-spacing': '0.015rem',
   },
   '.text-sans-3xl': {
     'font-family':
