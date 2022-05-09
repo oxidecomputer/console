@@ -20,7 +20,7 @@ export interface ToastProps {
 
 const color: Record<Variant, string> = {
   success: 'bg-accent-secondary text-accent',
-  error: 'bg-accent-secondary text-accent',
+  error: 'bg-error-secondary text-error',
   info: 'bg-accent-secondary text-accent',
 }
 
@@ -39,7 +39,12 @@ export const Toast = ({
       <div className="text-sans-md">{content}</div>
     </div>
     <div>
-      <Button className="flex !border-transparent" variant="ghost" onClick={onClose}>
+      <Button
+        className="flex !border-transparent"
+        variant="ghost"
+        onClick={onClose}
+        color={variant === 'error' ? 'destructive' : 'accent'}
+      >
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
             <Close12Icon />
