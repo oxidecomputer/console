@@ -5,26 +5,24 @@ import type { Json } from '../json-type'
 import { json } from './util'
 import { sessionMe } from '../session'
 import type {
-  NotFound,
   InstanceParams,
   NetworkInterfaceParams,
+  NotFound,
   OrgParams,
   ProjectParams,
   VpcParams,
-  VpcSubnetParams,
-  DiskParams,
   VpcRouterParams,
+  VpcSubnetParams,
 } from './db'
-import { lookupNetworkInterface } from './db'
-import { lookupDisk } from './db'
 import {
   db,
   lookupInstance,
+  lookupNetworkInterface,
   lookupOrg,
   lookupProject,
   lookupVpc,
-  lookupVpcSubnet,
   lookupVpcRouter,
+  lookupVpcSubnet,
 } from './db'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -240,11 +238,41 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, DiskParams, Json<Api.Disk> | PostErr>(
-    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
     (req, res) => {
-      const [disk, err] = lookupDisk(req.params)
-      if (err) return res(err)
+      const [instance, instanceErr] = lookupInstance(req.params)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'attached',
+        instance: instance.id,
+      }
+      return res(json(disk))
+    }
+  ),
+
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
+    (req, res) => {
+      const [instance, instanceErr] = lookupInstance(req.params)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'detached',
+      }
       return res(json(disk))
     }
   ),

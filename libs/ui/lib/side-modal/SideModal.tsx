@@ -16,6 +16,8 @@ export const useIsInSideModal = () => {
 export interface SideModalProps extends DialogProps, ChildrenProp {
   id: string
   title?: string
+  // it's optional on DialogProps but we want to require it
+  onDismiss: DialogProps['onDismiss']
 }
 
 export function SideModal({

@@ -87,6 +87,8 @@ export default function CreateInstanceForm({
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
 
+  const createDisk = useApiMutation('projectDisksPost')
+
   const createInstance = useApiMutation('projectInstancesPost', {
     onSuccess(instance) {
       // refetch list of instances
@@ -115,9 +117,20 @@ export default function CreateInstanceForm({
       title={title}
       onSubmit={
         onSubmit ||
-        ((values) => {
+        (async (values) => {
           const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
           invariant(instance, 'Expected instance type to be defined')
+          await createDisk.mutateAsync({
+            ...pageParams,
+            body: {
+              ...formatDiskCreate({
+                name: values.bootDiskName || 'boot-disk',
+                description: '',
+                size: values.bootDiskSize,
+                blockSize: values.bootDiskBlockSize,
+              }),
+            },
+          })
           createInstance.mutate({
             ...pageParams,
             body: {
@@ -128,13 +141,8 @@ export default function CreateInstanceForm({
               ncpus: instance.ncpus,
               disks: [
                 {
-                  type: 'create',
-                  ...formatDiskCreate({
-                    name: values.bootDiskName || 'boot-disk',
-                    description: '',
-                    size: values.bootDiskSize,
-                    blockSize: values.bootDiskBlockSize,
-                  }),
+                  type: 'attach',
+                  name: values.bootDiskName || 'boot-disk',
                 },
                 ...values.disks.map((disk) =>
                   disk.type === 'create'
