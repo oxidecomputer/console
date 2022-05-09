@@ -78,11 +78,13 @@ export function CreateDiskForm({
       <NameField id="disk-name" />
       <DescriptionField id="disk-description" />
       <Divider />
-      <RadioField column id="disk-deletion-rule" name="deletionRule" label="Deletion Rule">
-        <Radio value="keep">Keep disk</Radio>
-        <Radio value="delete">Delete disk</Radio>
-      </RadioField>
-      <RadioField column id="disk-block-size" name="blockSize" label="Block Size">
+      <RadioField
+        column
+        id="disk-block-size"
+        name="blockSize"
+        label="Block Size"
+        units="Bytes"
+      >
         <Radio value="512">512</Radio>
         <Radio value="4096">4096</Radio>
       </RadioField>
