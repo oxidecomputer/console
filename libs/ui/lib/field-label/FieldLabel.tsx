@@ -19,7 +19,7 @@ export const FieldLabel = ({
 }: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
-    <div className="mb-2 flex h-4 space-x-2">
+    <div className="mb-2 flex h-4 items-center space-x-2">
       <Component id={id} className="flex items-center text-sans-sm" htmlFor={htmlFor}>
         {children}
         {optional && (

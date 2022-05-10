@@ -37,3 +37,6 @@ export const firewallRuleGetToPut = (
   )
 
 export const ipNetToStr = (ipNet: IpNet) => ('V4' in ipNet ? ipNet.V4 : ipNet.V6)
+
+export const nullIfEmpty = (s: string): string | null =>
+  typeof s === 'string' && s.trim().length === 0 ? null : s

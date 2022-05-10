@@ -1,13 +1,13 @@
 import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
 import { Divider } from '@oxide/ui'
-import type { NetworkInterfaceCreate, NetworkInterface } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { NetworkInterface } from '@oxide/api'
+import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import invariant from 'tiny-invariant'
 
-const values: NetworkInterfaceCreate = {
+const values = {
   name: '',
   description: '',
   ip: '',
@@ -17,13 +17,13 @@ const values: NetworkInterfaceCreate = {
 
 export default function CreateNetworkInterfaceForm({
   id = 'create-network-interface-form',
-  title = 'Add Network Interface',
+  title = 'Add network interface',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<NetworkInterfaceCreate, NetworkInterface>) {
+}: PrebuiltFormProps<typeof values, NetworkInterface>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -53,7 +53,12 @@ export default function CreateNetworkInterfaceForm({
             instanceName,
             'instanceName is required when posting a network interface'
           )
-          createNetworkInterface.mutate({ instanceName, ...others, body })
+
+          createNetworkInterface.mutate({
+            instanceName,
+            ...others,
+            body: { ...body, ip: nullIfEmpty(body.ip) },
+          })
         })
       }
       mutation={createNetworkInterface}

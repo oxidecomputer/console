@@ -5,22 +5,24 @@ import type { Json } from '../json-type'
 import { json } from './util'
 import { sessionMe } from '../session'
 import type {
+  InstanceParams,
+  NetworkInterfaceParams,
   NotFound,
   OrgParams,
   ProjectParams,
   VpcParams,
-  VpcSubnetParams,
   VpcRouterParams,
-  InstanceParams,
+  VpcSubnetParams,
 } from './db'
 import {
   db,
   lookupInstance,
+  lookupNetworkInterface,
   lookupOrg,
   lookupProject,
   lookupVpc,
-  lookupVpcSubnet,
   lookupVpcRouter,
+  lookupVpcSubnet,
 } from './db'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -272,6 +274,84 @@ export const handlers = [
         state: 'detached',
       }
       return res(json(disk))
+    }
+  ),
+
+  rest.get<never, InstanceParams, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
+    (req, res) => {
+      const [instance, err] = lookupInstance(req.params)
+      if (err) return res(err)
+      const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
+      return res(json({ items: nics }))
+    }
+  ),
+
+  rest.post<
+    Json<Api.NetworkInterfaceCreate>,
+    InstanceParams,
+    Json<Api.NetworkInterface> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
+    (req, res) => {
+      const [instance, err] = lookupInstance(req.params)
+      if (err) return res(err)
+      const alreadyExists = db.networkInterfaces.some(
+        (n) => n.instance_id === instance.id && n.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const { name, description, subnet_name, vpc_name, ip } = req.body
+
+      const [vpc, vpcErr] = lookupVpc({ ...req.params, vpcName: vpc_name })
+      if (vpcErr) return res(vpcErr)
+
+      const [subnet, subnetErr] = lookupVpcSubnet({
+        ...req.params,
+        vpcName: vpc_name,
+        subnetName: subnet_name,
+      })
+      if (subnetErr) return res(subnetErr)
+
+      // TODO: validate IP
+
+      const newNic: Json<Api.NetworkInterface> = {
+        id: genId('nic'),
+        instance_id: instance.id,
+        name,
+        description,
+        ip: ip || '123.45.68.8',
+        vpc_id: vpc.id,
+        subnet_id: subnet.id,
+        mac: '',
+        ...getTimestamps(),
+      }
+      db.networkInterfaces.push(newNic)
+
+      return res(json(newNic))
+    }
+  ),
+
+  rest.get<never, NetworkInterfaceParams, Json<Api.NetworkInterface> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      return res(json(nic))
+    }
+  ),
+
+  rest.delete<never, NetworkInterfaceParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res, ctx) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
+      return res(ctx.status(204))
     }
   ),
 
