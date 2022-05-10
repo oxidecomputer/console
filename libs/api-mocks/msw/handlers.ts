@@ -518,12 +518,6 @@ export const handlers = [
       if (typeof req.body.description === 'string') {
         subnet.description = req.body.description
       }
-      if (req.body.ipv4_block) {
-        subnet.ipv4_block = req.body.ipv4_block
-      }
-      if (req.body.ipv6_block) {
-        subnet.ipv6_block = req.body.ipv6_block
-      }
       return res(ctx.status(204))
     }
   ),
