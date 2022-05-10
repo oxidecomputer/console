@@ -1,8 +1,16 @@
 import type { NetworkInterface } from '@oxide/api'
-import { useApiQueryClient, useApiMutation } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
-import { Button, Delete16Icon, EmptyMessage, Networking24Icon, SideModal } from '@oxide/ui'
+import {
+  Button,
+  Delete16Icon,
+  EmptyMessage,
+  Question16Icon,
+  Networking24Icon,
+  SideModal,
+  Tooltip,
+} from '@oxide/ui'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import { useParams, useToast } from 'app/hooks'
 import { useState } from 'react'
@@ -46,11 +54,34 @@ export function NetworkingTab() {
     />
   )
 
+  const instanceStopped =
+    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+
   const { Table, Column } = useQueryTable(...getQuery)
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-4">
-        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
+      <div className="mb-3 flex items-center justify-end space-x-4">
+        {
+          // TODO: update icon color
+          // TODO: the tooltip pops up on the right edge of the icon instead of
+          // the middle, wtf. not worth fixing because we're going to redo
+          // Tooltip anyway
+          // TODO: would be cool to also show the tooltip on button hover when it's disabled
+          !instanceStopped && (
+            <Tooltip
+              id="add-nic-tooltip"
+              content="A network interface cannot be added unless the instance is stopped."
+            >
+              <Question16Icon className="cursor-default text-secondary" />
+            </Tooltip>
+          )
+        }
+        <Button
+          size="xs"
+          variant="secondary"
+          onClick={() => setCreateModalOpen(true)}
+          disabled={!instanceStopped}
+        >
           Add network interface
         </Button>
         <SideModal

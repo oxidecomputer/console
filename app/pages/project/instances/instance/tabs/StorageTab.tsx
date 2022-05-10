@@ -57,7 +57,8 @@ export function StorageTab() {
     refetchInterval: 5000,
   })
 
-  const { data: instance } = useApiQuery('projectInstancesGetInstance', instanceParams)
+  const instanceStopped =
+    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
 
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess() {
@@ -81,8 +82,6 @@ export function StorageTab() {
   const otherDisksTable = useTable({ columns, data: otherDisks })
 
   if (!data) return null
-
-  const instanceStopped = instance?.runState === 'stopped'
 
   return (
     <div className="mt-8">
