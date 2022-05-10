@@ -319,7 +319,6 @@ export const handlers = [
 
       // TODO: validate IP
 
-      // TODO: look up vpc and subnet to make sure they exist and get the IDs off them
       const newNic: Json<Api.NetworkInterface> = {
         id: genId('nic'),
         instance_id: instance.id,
