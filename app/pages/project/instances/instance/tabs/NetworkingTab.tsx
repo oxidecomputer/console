@@ -1,9 +1,10 @@
 import type { NetworkInterface } from '@oxide/api'
+import { useApiQueryClient, useApiMutation } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
-import { Button, EmptyMessage, Networking24Icon, SideModal } from '@oxide/ui'
+import { Button, Delete16Icon, EmptyMessage, Networking24Icon, SideModal } from '@oxide/ui'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
-import { useParams } from 'app/hooks'
+import { useParams, useToast } from 'app/hooks'
 import { useState } from 'react'
 
 const EmptyState = () => (
@@ -19,18 +20,34 @@ const EmptyState = () => (
 
 export function NetworkingTab() {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<NetworkInterface | null>(null)
+
+  const getQuery = ['instanceNetworkInterfacesGet', instanceParams] as const
+
+  const deleteNic = useApiMutation('instanceNetworkInterfacesDeleteInterface', {
+    onSuccess() {
+      queryClient.invalidateQueries(...getQuery)
+      addToast({
+        icon: <Delete16Icon />,
+        title: 'Network interface deleted',
+        timeout: 5000,
+      })
+    },
+  })
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {
-      label: 'Edit',
-      onActivate: () => setEditing(nic),
+      label: 'Delete',
+      onActivate: () => {
+        deleteNic.mutate({ ...instanceParams, interfaceName: nic.name })
+      },
     },
   ]
 
-  const { Table, Column } = useQueryTable('instanceNetworkInterfacesGet', instanceParams)
+  const { Table, Column } = useQueryTable(...getQuery)
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
@@ -46,13 +63,6 @@ export function NetworkingTab() {
             onSuccess={() => setCreateModalOpen(false)}
             onDismiss={() => setCreateModalOpen(false)}
           />
-        </SideModal>
-        <SideModal
-          id="edit-nic-modal"
-          isOpen={!!editing}
-          onDismiss={() => setEditing(null)}
-        >
-          {editing && null}
         </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={<EmptyState />}>
