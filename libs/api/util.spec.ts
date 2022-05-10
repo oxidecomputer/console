@@ -1,15 +1,15 @@
-import { parsePortRange } from './util'
+import { nullIfEmpty, parsePortRange } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
-    it('parses single ports up to 5 digits', () => {
+    it('single ports up to 5 digits', () => {
       expect(parsePortRange('0')).toEqual([0, 0])
       expect(parsePortRange('1')).toEqual([1, 1])
       expect(parsePortRange('123')).toEqual([123, 123])
       expect(parsePortRange('12356')).toEqual([12356, 12356])
     })
 
-    it('parses ranges', () => {
+    it('ranges', () => {
       expect(parsePortRange('123-456')).toEqual([123, 456])
       expect(parsePortRange('1-45690')).toEqual([1, 45690])
       expect(parsePortRange('5-5')).toEqual([5, 5])
@@ -30,4 +30,14 @@ describe('parsePortRange', () => {
       expect(parsePortRange('239032')).toEqual(null)
     })
   })
+})
+
+test('nullIfEmpty', () => {
+  expect(nullIfEmpty('abc')).toEqual('abc')
+  expect(nullIfEmpty('  a')).toEqual('  a')
+  expect(nullIfEmpty(' a ')).toEqual(' a ')
+  expect(nullIfEmpty('a  ')).toEqual('a  ')
+
+  expect(nullIfEmpty('')).toBeNull()
+  expect(nullIfEmpty('  ')).toBeNull()
 })
