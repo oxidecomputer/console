@@ -342,7 +342,7 @@ graph RL
   base-black-500 --> #141A1C:::base-black-500
   surface-hover --> base-black-500
   surface-secondary --> base-black-500
-  surface-disabled --> base-black-500
+  surface-raise-hover --> base-black-500
   content-inverse-secondary --> surface-secondary
   stroke-tertiary --> base-black-500
 
@@ -354,7 +354,6 @@ graph RL
 ```mermaid
 graph RL
   base-black-550 --> #0F1618:::base-black-550
-  surface-raise-hover --> base-black-550
 
   classDef base-black-550 stroke-width:5,stroke:#0F1618
 ```
@@ -366,6 +365,7 @@ graph RL
   base-black-600 --> #0E1416:::base-black-600
   chart-fill-inactive --> base-black-600
   surface-raise --> base-black-600
+  surface-disabled --> base-black-600
 
   classDef base-black-600 stroke-width:5,stroke:#0E1416
 ```

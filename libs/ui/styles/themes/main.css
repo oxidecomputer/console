@@ -178,10 +178,10 @@
   --surface-raise-rgb: var(--base-black-600-rgb);
   --surface-raise: rgb(var(--surface-raise-rgb));
 
-  --surface-disabled-rgb: var(--base-black-500-rgb);
+  --surface-disabled-rgb: var(--base-black-600-rgb);
   --surface-disabled: rgb(var(--surface-disabled-rgb));
 
-  --surface-raise-hover-rgb: var(--base-black-550-rgb);
+  --surface-raise-hover-rgb: var(--base-black-500-rgb);
   --surface-raise-hover: rgb(var(--surface-raise-hover-rgb));
 
   --surface-scrim: rgba(var(--base-black-700-rgb), 0.4);
