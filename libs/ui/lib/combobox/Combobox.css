@@ -1,24 +1,19 @@
-[data-reach-combobox-popover] {
-  @apply bg-default;
-}
-
-[data-reach-combobox-input] {
-  @apply bg-default;
-}
-
-[data-reach-combobox-list] {
+/* 
+ * Make Reach not whine about us not importing their CSS file, which doesn't do
+ * anything useful
+ */
+:root {
+  --reach-combobox: 1;
 }
 
 [data-reach-combobox-option] {
-}
+  @apply rounded border border-transparent;
 
-[data-reach-combobox-option][aria-selected='true'] {
-  @apply bg-accent-secondary;
-}
+  &:hover {
+  }
 
-[data-reach-combobox-option]:hover {
-  @apply bg-accent-secondary-hover;
-}
-
-[data-reach-combobox-option][aria-selected='true']:hover {
+  &[aria-selected='true'],
+  &[data-highlighted] {
+    @apply text-accent bg-accent-secondary border-accent;
+  }
 }
