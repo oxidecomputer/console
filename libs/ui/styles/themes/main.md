@@ -317,6 +317,7 @@ graph RL
 ```mermaid
 graph RL
   base-grey-900 --> #292F31:::base-grey-900
+  surface-secondary-hover --> base-grey-900
   content-quaternary --> base-grey-900
   stroke-default --> base-grey-900
 
@@ -328,7 +329,8 @@ graph RL
 ```mermaid
 graph RL
   base-grey-1000 --> #1C2325:::base-grey-1000
-  surface-secondary-hover --> base-grey-1000
+  surface-secondary --> base-grey-1000
+  content-inverse-secondary --> surface-secondary
   stroke-secondary --> base-grey-1000
   chart-stroke-item-inactive --> base-grey-1000
 
@@ -341,9 +343,7 @@ graph RL
 graph RL
   base-black-500 --> #141A1C:::base-black-500
   surface-hover --> base-black-500
-  surface-secondary --> base-black-500
   surface-raise-hover --> base-black-500
-  content-inverse-secondary --> surface-secondary
   stroke-tertiary --> base-black-500
 
   classDef base-black-500 stroke-width:5,stroke:#141A1C

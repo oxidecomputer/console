@@ -133,7 +133,7 @@
   --surface-hover-rgb: var(--base-black-500-rgb);
   --surface-hover: rgb(var(--surface-hover-rgb));
 
-  --surface-secondary-rgb: var(--base-black-500-rgb);
+  --surface-secondary-rgb: var(--base-grey-1000-rgb);
   --surface-secondary: rgb(var(--surface-secondary-rgb));
 
   --surface-raise-rgb: var(--base-black-600-rgb);
@@ -147,7 +147,7 @@
 
   --surface-scrim: rgba(var(--base-black-700-rgb), 0.4);
 
-  --surface-secondary-hover-rgb: var(--base-grey-1000-rgb);
+  --surface-secondary-hover-rgb: var(--base-grey-900-rgb);
   --surface-secondary-hover: rgb(var(--surface-secondary-hover-rgb));
 
   --surface-accent-rgb: var(--theme-accent-1-rgb);
