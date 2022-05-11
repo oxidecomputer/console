@@ -1,8 +1,9 @@
-import { Form, NameField } from 'app/components/form'
+import invariant from 'tiny-invariant'
 
 import type { Disk } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import invariant from 'tiny-invariant'
+import { Form, ComboboxField } from 'app/components/form'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
 
@@ -35,6 +36,15 @@ export function AttachDiskForm({
     onError,
   })
 
+  // TODO: loading state? because this fires when the modal opens and not when
+  // they focus the combobox, it will almost always be done by the time they
+  // click in
+  // TODO: error handling
+  const detachedDisks =
+    useApiQuery('projectDisksGet', { ...pathParams, limit: 50 }).data?.items.filter(
+      (d) => d.state.state === 'detached'
+    ) || []
+
   return (
     <Form
       id={id}
@@ -55,7 +65,13 @@ export function AttachDiskForm({
       mutation={attachDisk}
       {...props}
     >
-      <NameField id="form-disk-attach-name" label="Disk name" />
+      <ComboboxField
+        label="Disk name"
+        id="disk-name"
+        name="name"
+        items={detachedDisks.map((d) => d.name) || []}
+      />
+
       <Form.Actions>
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />

@@ -1,0 +1,24 @@
+[data-reach-combobox-popover] {
+  @apply bg-default;
+}
+
+[data-reach-combobox-input] {
+  @apply bg-default;
+}
+
+[data-reach-combobox-list] {
+}
+
+[data-reach-combobox-option] {
+}
+
+[data-reach-combobox-option][aria-selected='true'] {
+  @apply bg-accent-secondary;
+}
+
+[data-reach-combobox-option]:hover {
+  @apply bg-accent-secondary-hover;
+}
+
+[data-reach-combobox-option][aria-selected='true']:hover {
+}
