@@ -179,6 +179,9 @@ module.exports.colorUtilities = {
   '.bg-secondary': {
     'background-color': 'var(--surface-secondary)',
   },
+  '.bg-tertiary': {
+    'background-color': 'var(--surface-tertiary)',
+  },
   '.bg-raise': {
     'background-color': 'var(--surface-raise)',
   },
