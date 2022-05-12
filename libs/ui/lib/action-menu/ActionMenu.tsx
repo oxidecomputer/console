@@ -25,7 +25,7 @@ export interface ActionMenuProps {
 
 const LIST_HEIGHT = 384
 
-const Outline = classed.div`absolute z-10 h-full w-full rounded-lg border border-accent`
+const Outline = classed.div`absolute z-10 h-full w-full rounded-lg border border-accent pointer-events-none`
 
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
