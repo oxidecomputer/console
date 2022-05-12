@@ -46,12 +46,15 @@ export function Combobox({ items, onChange, onSelect, value }: ComboboxProps) {
           </p>
         ) : (
           <ComboboxList persistSelection className="rounded border border-default">
-            {matches.map((item) => (
+            {matches.map((item, i) => (
               <ComboboxOption
                 // TODO: make border overlap container border like Justin's beautiful tables
                 className="cursor-pointer rounded border px-3 py-2 text-sans-sm border-default hover:bg-hover"
                 key={item}
                 value={item}
+                // looks pointless but is needed to prevent weird ordering bugs
+                // when using arrow keys. See https://github.com/reach/reach-ui/issues/840
+                index={i}
               />
             ))}
           </ComboboxList>
