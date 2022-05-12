@@ -26,6 +26,7 @@ export type NetworkInterfaceParams = Merge<InstanceParams, { interfaceName: stri
 export type DiskParams = Merge<ProjectParams, { instanceName?: string; diskName: string }>
 export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
+export type SshKeyParams = { sshKeyName: string }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)
@@ -126,6 +127,7 @@ const initDb = {
   orgs: [mock.org],
   projects: [mock.project],
   snapshots: [...mock.snapshots],
+  sshKeys: [...mock.sshKeys],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],
   vpcRouters: [mock.vpcRouter],

@@ -26,7 +26,7 @@ const SideModalActionsTunnel = tunnel('form-sidebar-actions')
 
 const PageActionsContainer = classed.div`flex h-20 items-center`
 
-type Mutation =
+export type Mutation =
   | {
       status: 'idle' | 'loading'
       data: undefined
