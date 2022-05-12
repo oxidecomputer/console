@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
+import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { MenuAction } from '@oxide/table'
 import {
   actionsCol,
@@ -41,23 +41,24 @@ export const VpcFirewallRulesTab = () => {
       tableHelper.createDataColumn('name', { header: 'Name' }),
       tableHelper.createDataColumn('action', { header: 'Action' }),
       // map() fixes the fact that IpNets aren't strings
-      tableHelper.createDataColumn((rule) => rule.targets.map(firewallTargetToTypeValue), {
-        id: 'targets',
+      tableHelper.createDataColumn('targets', {
         header: 'Targets',
-        cell: TypeValueListCell,
+        cell: (info) => (
+          <TypeValueListCell value={info.getValue().map(firewallTargetToTypeValue)} />
+        ),
       }),
       tableHelper.createDataColumn('filters', {
         header: 'Filters',
-        cell: FirewallFilterCell,
+        cell: (info) => <FirewallFilterCell value={info.getValue()} />,
       }),
       tableHelper.createDataColumn('status', {
         header: 'Status',
-        cell: EnabledCell,
+        cell: (info) => <EnabledCell value={info.getValue()} />,
       }),
       tableHelper.createDataColumn('timeCreated', {
         id: 'created',
         header: 'Created',
-        cell: DateCell,
+        cell: (info) => <DateCell value={info.getValue()} />,
       }),
       tableHelper.createDisplayColumn(actionsCol(actions)),
     ]
@@ -66,7 +67,7 @@ export const VpcFirewallRulesTab = () => {
   const table = useTableInstance(tableHelper, {
     data: rules,
     columns,
-    getCoreRowModel: getCoreRowModelSync(),
+    getCoreRowModel: getCoreRowModel(),
   })
 
   const emptyState = (

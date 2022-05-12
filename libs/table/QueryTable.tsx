@@ -8,7 +8,7 @@ import { Table } from './Table'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
-import { createTable, getCoreRowModelSync, useTableInstance } from '@tanstack/react-table'
+import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { ComponentType, ReactElement } from 'react'
 import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
@@ -73,7 +73,10 @@ const makeQueryTable = <Item,>(
         const column = { ...(child as ReactElement).props }
         const options = {
           header: column.header || column.id,
-          cell: column.cell || DefaultCell,
+          cell: (info: any) => {
+            const Comp = column.cell || DefaultCell
+            return <Comp value={info.getValue()} />
+          },
           id: column.id,
         }
 
@@ -108,7 +111,7 @@ const makeQueryTable = <Item,>(
       columns,
       data: tableData,
       getRowId,
-      getCoreRowModel: getCoreRowModelSync(),
+      getCoreRowModel: getCoreRowModel(),
     })
 
     if (debug) console.table(data)
