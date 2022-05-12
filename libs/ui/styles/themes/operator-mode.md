@@ -329,6 +329,7 @@ graph RL
 graph RL
   base-grey-1000 --> #1C2325:::base-grey-1000
   chart-stroke-item-inactive --> base-grey-1000
+  surface-hover --> base-grey-1000
   surface-tertiary --> base-grey-1000
   surface-secondary-hover --> base-grey-1000
   stroke-secondary --> base-grey-1000
@@ -341,7 +342,6 @@ graph RL
 ```mermaid
 graph RL
   base-black-500 --> #141A1C:::base-black-500
-  surface-hover --> base-black-500
   surface-secondary --> base-black-500
   surface-disabled --> base-black-500
   surface-raise-hover --> base-black-500
