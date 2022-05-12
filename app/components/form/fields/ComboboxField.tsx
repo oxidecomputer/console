@@ -1,14 +1,15 @@
 import { useField } from 'formik'
 import { Combobox, FieldLabel } from '@oxide/ui'
 
-type ComboboxFieldProps = {
+export type ComboboxFieldProps = {
   name: string
   id: string
   label: string
   items: string[]
+  disabled?: boolean
 }
 
-export function ComboboxField({ id, items, label, name }: ComboboxFieldProps) {
+export function ComboboxField({ id, items, label, name, disabled }: ComboboxFieldProps) {
   const [, { value }, { setValue }] = useField({ name })
   return (
     <>
@@ -20,6 +21,7 @@ export function ComboboxField({ id, items, label, name }: ComboboxFieldProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onSelect={(value) => setValue(value)}
+        disabled={disabled}
       />
     </>
   )

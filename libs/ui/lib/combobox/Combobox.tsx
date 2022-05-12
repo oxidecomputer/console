@@ -12,6 +12,7 @@ import './Combobox.css'
 type ComboboxProps = {
   items: string[]
   value: string
+  disabled?: boolean
   onSelect: (value: string) => void
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
@@ -19,7 +20,7 @@ type ComboboxProps = {
 /**
  * Reach Combobox with match filtering and sorting powered by match-sorter.
  */
-export function Combobox({ items, onChange, onSelect, value }: ComboboxProps) {
+export function Combobox({ items, onChange, onSelect, value, disabled }: ComboboxProps) {
   const matches = matchSorter(items, value)
   return (
     <RCombobox
@@ -30,8 +31,10 @@ export function Combobox({ items, onChange, onSelect, value }: ComboboxProps) {
       <ComboboxInput
         className={`w-full border-none bg-transparent
         py-[0.5625rem] px-3
-        text-sans-md text-default focus:outline-none`}
+        text-sans-md text-default focus:outline-none disabled:cursor-not-allowed`}
         onChange={onChange}
+        // TODO: better disabled styling
+        disabled={disabled}
         // Note that unlike with a plain <input>, passing `onChange` does not
         // also require passing in `value`, and in fact passing in `value`
         // causes weird behavior. Our `onChange` is called in addition to the
