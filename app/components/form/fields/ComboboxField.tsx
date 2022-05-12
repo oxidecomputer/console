@@ -5,15 +5,25 @@ export type ComboboxFieldProps = {
   name: string
   id: string
   label: string
-  items: string[]
+  items: string[] // TODO: accept ReactElement[] probably
   disabled?: boolean
+  required?: boolean
 }
 
-export function ComboboxField({ id, items, label, name, disabled }: ComboboxFieldProps) {
+// TODO: description passed to aria-describedby and FieldLabel `tip`
+
+export function ComboboxField({
+  id,
+  items,
+  label,
+  name,
+  disabled,
+  required,
+}: ComboboxFieldProps) {
   const [, { value }, { setValue }] = useField({ name })
   return (
     <>
-      <FieldLabel id={`${id}-label`} /*tip={description} optional={!required}*/>
+      <FieldLabel id={`${id}-label`} /*tip={description}*/ optional={!required}>
         {label}
       </FieldLabel>
       <Combobox

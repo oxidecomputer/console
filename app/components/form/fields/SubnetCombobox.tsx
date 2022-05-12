@@ -6,10 +6,14 @@ import type { ComboboxFieldProps } from './ComboboxField'
 import { ComboboxField } from './ComboboxField'
 
 type SubnetComboboxProps = Omit<ComboboxFieldProps, 'items'> & {
+  /** `name` of the Formik field to read the `vpcName` from */
   vpcNameField: string
-  // used to only fetch subnets when the vpcName is real. we could fetch the
-  // list in here too, but we'd have to make sure the params match exactly to
-  // ensure RQ dedupes the request
+  /**
+   * We use this to check that the `vpcName` is real so we can avoid trying to
+   * fetch subnets for nonexistent VPCs. We could fetch the list in the
+   * component instead, but we'd have to make sure the params match exactly to
+   * ensure RQ dedupes the request
+   */
   vpcs: Vpc[]
 }
 
