@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import React from 'react'
+
 import cn from 'classnames'
 import Alert from '@reach/alert'
 
@@ -20,7 +20,7 @@ export interface ToastProps {
 
 const color: Record<Variant, string> = {
   success: 'bg-accent-secondary text-accent',
-  error: 'bg-accent-secondary text-accent',
+  error: 'bg-error-secondary text-error',
   info: 'bg-accent-secondary text-accent',
 }
 
@@ -32,12 +32,7 @@ export const Toast = ({
   timeout,
   variant = 'success',
 }: ToastProps) => (
-  <Alert
-    className={cn(
-      'flex w-96 items-center space-x-2 rounded p-4',
-      color[variant]
-    )}
-  >
+  <Alert className={cn('flex w-96 items-center space-x-2 rounded p-4', color[variant])}>
     {icon}
     <div className="flex-1 space-y-1 pl-2">
       <div className="text-sans-xl">{title}</div>
@@ -48,6 +43,7 @@ export const Toast = ({
         className="flex !border-transparent"
         variant="ghost"
         onClick={onClose}
+        color={variant === 'error' ? 'destructive' : 'accent'}
       >
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>

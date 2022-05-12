@@ -284,90 +284,90 @@ graph RL
 
 ```mermaid
 graph RL
-  base-grey-600 --> #9ea1a3:::base-grey-600
+  base-grey-600 --> #989A9B:::base-grey-600
   surface-inverse-secondary --> content-secondary
   content-secondary --> base-grey-600
 
-  classDef base-grey-600 stroke-width:5,stroke:#9ea1a3
+  classDef base-grey-600 stroke-width:5,stroke:#989A9B
 ```
 
 ## base-grey-700
 
 ```mermaid
 graph RL
-  base-grey-700 --> #6c7174:::base-grey-700
+  base-grey-700 --> #626668:::base-grey-700
   surface-inverse-tertiary --> content-tertiary
   content-tertiary --> base-grey-700
   stroke-raise --> base-grey-700
 
-  classDef base-grey-700 stroke-width:5,stroke:#6c7174
+  classDef base-grey-700 stroke-width:5,stroke:#626668
 ```
 
 ## base-grey-800
 
 ```mermaid
 graph RL
-  base-grey-800 --> #4b5255:::base-grey-800
+  base-grey-800 --> #3F4446:::base-grey-800
 
-  classDef base-grey-800 stroke-width:5,stroke:#4b5255
+  classDef base-grey-800 stroke-width:5,stroke:#3F4446
 ```
 
 ## base-grey-900
 
 ```mermaid
 graph RL
-  base-grey-900 --> #353c40:::base-grey-900
+  base-grey-900 --> #292F31:::base-grey-900
+  surface-secondary-hover --> base-grey-900
   content-quaternary --> base-grey-900
   stroke-default --> base-grey-900
 
-  classDef base-grey-900 stroke-width:5,stroke:#353c40
+  classDef base-grey-900 stroke-width:5,stroke:#292F31
 ```
 
 ## base-grey-1000
 
 ```mermaid
 graph RL
-  base-grey-1000 --> #252d31:::base-grey-1000
+  base-grey-1000 --> #1C2325:::base-grey-1000
   chart-stroke-item-inactive --> base-grey-1000
-  surface-secondary-hover --> base-grey-1000
+  surface-secondary --> base-grey-1000
+  content-inverse-secondary --> surface-secondary
   stroke-secondary --> base-grey-1000
 
-  classDef base-grey-1000 stroke-width:5,stroke:#252d31
+  classDef base-grey-1000 stroke-width:5,stroke:#1C2325
 ```
 
 ## base-black-500
 
 ```mermaid
 graph RL
-  base-black-500 --> #182024:::base-black-500
+  base-black-500 --> #141A1C:::base-black-500
   surface-hover --> base-black-500
-  surface-secondary --> base-black-500
-  surface-disabled --> base-black-500
-  content-inverse-secondary --> surface-secondary
+  surface-raise-hover --> base-black-500
   stroke-tertiary --> base-black-500
 
-  classDef base-black-500 stroke-width:5,stroke:#182024
+  classDef base-black-500 stroke-width:5,stroke:#141A1C
 ```
 
 ## base-black-550
 
 ```mermaid
 graph RL
-  base-black-550 --> #0E1A1F:::base-black-550
-  surface-raise-hover --> base-black-550
+  base-black-550 --> #0F1618:::base-black-550
 
-  classDef base-black-550 stroke-width:5,stroke:#0E1A1F
+  classDef base-black-550 stroke-width:5,stroke:#0F1618
 ```
 
 ## base-black-600
 
 ```mermaid
 graph RL
-  base-black-600 --> #0b1418:::base-black-600
+  base-black-600 --> #0E1416:::base-black-600
   chart-fill-inactive --> base-black-600
   surface-raise --> base-black-600
+  surface-disabled --> base-black-600
 
-  classDef base-black-600 stroke-width:5,stroke:#0b1418
+  classDef base-black-600 stroke-width:5,stroke:#0E1416
 ```
 
 ## base-black-700

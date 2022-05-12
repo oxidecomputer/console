@@ -1,4 +1,3 @@
-import React from 'react'
 import { Badge, badgeColors } from './Badge'
 import type { BadgeColor, BadgeVariant } from './Badge'
 import type { StoryObj } from '@storybook/react'
@@ -18,10 +17,7 @@ export const All = () => {
         <Section title={variant}>
           {Object.keys(colors).map((color) => (
             <div key={`${variant}-${color}`}>
-              <Badge
-                variant={variant as BadgeVariant}
-                color={color as BadgeColor}
-              >
+              <Badge variant={variant as BadgeVariant} color={color as BadgeColor}>
                 {color}
               </Badge>
             </div>

@@ -1,7 +1,6 @@
 import { PropertiesTable } from './PropertiesTable'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import React from 'react'
 
 type Story = StoryObj<ComponentProps<typeof PropertiesTable>>
 
@@ -29,9 +28,7 @@ export const TwoColumnResponsive: Story = {
         <PropertiesTable.Row label="Description">
           Default network for the project
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Dns Name">
-          frontend-production-vpn
-        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Dns Name">frontend-production-vpn</PropertiesTable.Row>
       </PropertiesTable>
       <PropertiesTable>
         <PropertiesTable.Row label="Creation date">

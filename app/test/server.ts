@@ -5,7 +5,7 @@ import { handlers, json } from '@oxide/api-mocks'
 export const server = setupServer(...handlers)
 
 // Override request handlers in order to test special cases
-export function override(
+export function overrideOnce(
   method: keyof typeof rest,
   path: string,
   status: number,
@@ -13,9 +13,10 @@ export function override(
 ) {
   server.use(
     rest[method](path, (_req, res, ctx) =>
+      // https://mswjs.io/docs/api/response/once
       typeof body === 'string'
-        ? res(ctx.status(status), ctx.text(body))
-        : res(json(body, status))
+        ? res.once(ctx.status(status), ctx.text(body))
+        : res.once(json(body, status))
     )
   )
 }

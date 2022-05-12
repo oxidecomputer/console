@@ -1,12 +1,11 @@
-import { MiniTable } from './MiniTable'
+import * as MiniTable from './MiniTable'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import React from 'react'
 
-type Story = StoryObj<ComponentProps<typeof MiniTable>>
+type Story = StoryObj<ComponentProps<typeof MiniTable.Table>>
 
 export default {
-  component: MiniTable,
+  component: MiniTable.Table,
 } as Story
 
 export const Default: Story = {

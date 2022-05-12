@@ -33,9 +33,9 @@ module.exports = {
         lg: { min: '1024px', max: '1279px' },
         xl: { min: '1280px', max: '1535px' },
       },
-      borderRadius: {
-        ...borderRadiusTokens,
-      },
+    },
+    borderRadius: {
+      ...borderRadiusTokens,
     },
     colors: {
       transparent: 'transparent',

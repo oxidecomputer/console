@@ -16,9 +16,7 @@ describe('loginUrl', () => {
   describe('includeCurrent = true', () => {
     it('includes state param', () => {
       window.history.pushState({}, '', '/abc/def')
-      expect(loginUrl({ includeCurrent: true })).toEqual(
-        '/login?state=%2Fabc%2Fdef'
-      )
+      expect(loginUrl({ includeCurrent: true })).toEqual('/login?state=%2Fabc%2Fdef')
     })
 
     it('includes query params from redirect url', () => {

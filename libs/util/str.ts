@@ -1,9 +1,6 @@
-// TODO: should this even accept undefined? kind of weird
-export const capitalize = (s: string | undefined) =>
-  s && s.charAt(0).toUpperCase() + s.slice(1)
+export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
-export const pluralize = (s: string, n: number) =>
-  `${n} ${s}${n === 1 ? '' : 's'}`
+export const pluralize = (s: string, n: number) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 export const camelCase = (s: string) =>
   s
@@ -26,3 +23,7 @@ export const kebabCase = (s: string) =>
   camelCase(s)
     .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
     .toLowerCase()
+
+export const camelCaseToWords = (s: string): string[] => {
+  return s.split(/(?=[A-Z])/).map((w) => w.toLowerCase())
+}

@@ -1,7 +1,7 @@
 import { PageHeader, PageTitle } from './PageHeader'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import React from 'react'
+
 import { Folder24Icon } from '../icons'
 
 type Story = StoryObj<ComponentProps<typeof PageHeader>>

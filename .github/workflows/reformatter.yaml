@@ -26,5 +26,5 @@ jobs:
       - uses: EndBug/add-and-commit@v7
         with:
           add: .
-          message: 'LOOK ON MY REFORMAT, YE MIGHTY, AND DESPAIR!' # At this point it's almost traditional
+          message: 'Bot commit: format with prettier'
           default_author: github_actions

@@ -11,6 +11,9 @@ type OmitByValue<T, V> = {
 /** Make `K` optional on `T` */
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 
+/** Make `K` required on `T` */
+type RequiredByKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+
 /** Join types for `P1` and `P2` where `P2` takes precedence in conflicts */
 type Assign<P1, P2> = Omit<P1, keyof P2> & P2
 

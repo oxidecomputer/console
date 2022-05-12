@@ -1,4 +1,3 @@
-import React from 'react'
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
 import { tunnel } from '@oxide/util'
@@ -14,8 +13,7 @@ export function Pagination({ inline = false, ...props }: PaginationProps) {
 
   return (
     <Tunnel.In>
-      <hr className="ox-pagination-border" />
-      <UIPagination className="py-5" {...props} />
+      <UIPagination className="h-14 py-5" {...props} />
     </Tunnel.In>
   )
 }

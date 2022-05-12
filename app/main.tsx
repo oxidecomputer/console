@@ -1,4 +1,4 @@
-import React from 'react'
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter as Router } from 'react-router-dom'
@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 
 function render() {
   ReactDOM.render(
-    <React.StrictMode>
+    <StrictMode>
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
@@ -30,7 +30,7 @@ function render() {
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
-    </React.StrictMode>,
+    </StrictMode>,
     document.getElementById('root')
   )
 }
@@ -40,9 +40,26 @@ async function startMockAPI() {
   const { handlers } = await import('@oxide/api-mocks')
   const { setupWorker } = await import('msw')
   const { default: workerUrl } = await import('./mockServiceWorker.js?url')
+  // https://mswjs.io/docs/api/setup-worker/start#options
   await setupWorker(...handlers).start({
-    serviceWorker: {
-      url: workerUrl,
+    quiet: true, // don't log successfully handled requests
+    serviceWorker: { url: workerUrl },
+    // custom handler only to make logging less noisy. unhandled requests still
+    // pass through to the server
+    onUnhandledRequest(req) {
+      const path = req.url.pathname
+      const ignore = [
+        path.includes('libs/ui/assets'), // assets obviously loaded from file system
+        path.startsWith('/forms/'), // lazy loaded forms
+      ].some(Boolean)
+      if (!ignore) {
+        // message format copied from MSW source
+        console.warn(`[MSW] Warning: captured an API request without a matching request handler:
+
+  • ${req.method} ${req.url.pathname} 
+
+If you want to intercept this unhandled request, create a request handler for it.`)
+      }
     },
   })
 }

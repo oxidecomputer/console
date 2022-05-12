@@ -1,10 +1,9 @@
-import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 import { routes } from '../routes'
-export { override } from './server'
+export { overrideOnce } from './server'
 
 export const queryClientOptions = {
   defaultOptions: { queries: { retry: false } },
@@ -18,17 +17,19 @@ export const queryClientOptions = {
   },
 }
 
+export function Wrapper({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient(queryClientOptions)
+  return (
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </BrowserRouter>
+  )
+}
+
 export function renderAppAt(url: string) {
   window.history.pushState({}, 'Test page', url)
-  const queryClient = new QueryClient(queryClientOptions)
   return render(routes, {
-    wrapper: ({ children }) => (
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </BrowserRouter>
-    ),
+    wrapper: Wrapper,
   })
 }
 

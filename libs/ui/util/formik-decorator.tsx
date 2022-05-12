@@ -14,7 +14,6 @@
  * story definition
  */
 
-import React from 'react'
 import type { Story } from '@storybook/react'
 import { Formik, Form } from 'formik'
 

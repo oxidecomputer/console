@@ -1,4 +1,3 @@
-import React from 'react'
 import cn from 'classnames'
 
 import { useMultipleSelection, useSelect } from 'downshift'
@@ -66,10 +65,7 @@ export const MultiSelect = ({
 
   return (
     <div className="relative">
-      <FieldLabel
-        {...select.getLabelProps()}
-        className={showLabel || 'sr-only'}
-      >
+      <FieldLabel {...select.getLabelProps()} className={showLabel || 'sr-only'}>
         {label}
       </FieldLabel>
       <button

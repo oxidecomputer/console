@@ -1,4 +1,3 @@
-import React from 'react'
 import { BulkActionMenu } from './BulkActionMenu'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'

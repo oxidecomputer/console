@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 import tsConfig from './tsconfig.json'
@@ -30,7 +30,15 @@ export default defineConfig(({ mode }) => ({
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
   },
-  plugins: [react()],
+  plugins: [
+    splitVendorChunkPlugin(),
+    react({
+      babel: {
+        plugins:
+          mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
+      },
+    }),
+  ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
     // replace is there to turn
@@ -58,8 +66,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   test: {
-    global: true,
+    globals: true,
     environment: 'jsdom',
     setupFiles: ['app/test/setup.ts'],
+    includeSource: ['libs/util/*.ts'],
   },
 }))

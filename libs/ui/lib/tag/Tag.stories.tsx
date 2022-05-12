@@ -1,4 +1,3 @@
-import React from 'react'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
 import type { TagVariant, TagColor } from './Tag'
@@ -18,10 +17,7 @@ export const All = () => {
         <div className="grid w-max grid-flow-col grid-cols-2 gap-y-1 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
-              <span
-                key={`${variant}-${color}`}
-                style={{ gridColumn: index + 1 }}
-              >
+              <span key={`${variant}-${color}`} style={{ gridColumn: index + 1 }}>
                 <Tag variant={variant as TagVariant} color={color as TagColor}>
                   {variant} {color}
                 </Tag>
@@ -34,15 +30,8 @@ export const All = () => {
         <div className="grid w-max grid-flow-col grid-cols-2 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
-              <span
-                key={`${variant}-${color}`}
-                style={{ gridColumn: index + 1 }}
-              >
-                <Tag
-                  narrow
-                  variant={variant as TagVariant}
-                  color={color as TagColor}
-                >
+              <span key={`${variant}-${color}`} style={{ gridColumn: index + 1 }}>
+                <Tag narrow variant={variant as TagVariant} color={color as TagColor}>
                   {variant} {color}
                 </Tag>
               </span>
@@ -54,10 +43,7 @@ export const All = () => {
         <div className="grid w-max grid-flow-col grid-cols-2 gap-y-1 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
-              <span
-                key={`${variant}-${color}`}
-                style={{ gridColumn: index + 1 }}
-              >
+              <span key={`${variant}-${color}`} style={{ gridColumn: index + 1 }}>
                 <Tag
                   variant={variant as TagVariant}
                   color={color as TagColor}
@@ -74,10 +60,7 @@ export const All = () => {
         <div className="grid w-max grid-flow-col grid-cols-2 gap-x-6">
           {Object.entries(tagColors).flatMap(([variant, colors], index) =>
             Object.keys(colors).map((color) => (
-              <span
-                key={`${variant}-${color}`}
-                style={{ gridColumn: index + 1 }}
-              >
+              <span key={`${variant}-${color}`} style={{ gridColumn: index + 1 }}>
                 <Tag
                   narrow
                   variant={variant as TagVariant}

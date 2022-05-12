@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import React from 'react'
+
 import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
 
