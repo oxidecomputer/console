@@ -7,15 +7,14 @@ it('Generated API client version matches API version specified for deployment', 
     .readFileSync(path.resolve(__dirname, '../__generated__/OMICRON_VERSION'), 'utf8')
     .split('\n')[1]
 
-  const packerConfig = fs.readFileSync(
-    path.resolve(__dirname, '../../../.github/workflows/packer.yaml'),
+  const pinnedVersion = fs.readFileSync(
+    path.resolve(__dirname, '../../../OMICRON_VERSION'),
     'utf8'
   )
-  const deployedVersion = /API_VERSION: ([0-9a-f]+)/.exec(packerConfig)?.[1]
 
-  // if this test fails, most likely you have updated the API_VERSION in packer.yaml
-  // without re-running `yarn gen-api`
-  expect(generatedVersion).toEqual(deployedVersion)
+  // if this test fails, most likely you have updated the API_VERSION in
+  // console/OMICRON_VERSION without re-running `yarn gen-api`
+  expect(generatedVersion).toEqual(pinnedVersion)
 })
 
 const grepFiles = (s: string) =>
