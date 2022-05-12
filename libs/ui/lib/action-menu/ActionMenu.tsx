@@ -148,7 +148,7 @@ export function ActionMenu(props: ActionMenuProps) {
               <ul ref={ulRef}>
                 {allGroups.map(([label, items]) => (
                   <div key={label}>
-                    <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-secondary">
+                    <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-tertiary">
                       {label}
                     </h3>
                     {items.map((item) => (
@@ -165,7 +165,7 @@ export function ActionMenu(props: ActionMenuProps) {
                         <li
                           role="option"
                           className={cn(
-                            'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-tertiary hover:bg-raise-hover',
+                            'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-raise-hover',
                             item.value === selectedItem?.value &&
                               'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
                           )}
@@ -183,7 +183,7 @@ export function ActionMenu(props: ActionMenuProps) {
                 ))}
               </ul>
             </div>
-            <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-secondary">
+            <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-tertiary">
               <ActionMenuHotkey keys={['Enter']} action="submit" />
 
               <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
@@ -208,7 +208,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default border-default"
+          className="mr-1 inline-block rounded border border-white/[.15] py-1 px-2 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>
