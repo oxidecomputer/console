@@ -38,7 +38,7 @@ yarn install && yarn build-for-nexus
 
 Note that this script includes a `yarn install` to make sure dependencies are up to date.
 
-The only difference between this build and the one for GCP deploy or local dev is that the latter need an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `yarn build-for-nexus` makes the prefix `""`, i.e., no prefix.
+The only difference between this build and the one for local dev is that the latter needs an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `yarn build-for-nexus` makes the prefix `""`, i.e., no prefix.
 
 ### Set `console.static_dir` and copy files there (if necessary)
 
