@@ -5,24 +5,24 @@ import type { Json } from '../json-type'
 import { json } from './util'
 import { sessionMe } from '../session'
 import type {
-  NotFound,
   InstanceParams,
+  NetworkInterfaceParams,
+  NotFound,
   OrgParams,
   ProjectParams,
   VpcParams,
-  VpcSubnetParams,
-  DiskParams,
   VpcRouterParams,
+  VpcSubnetParams,
 } from './db'
-import { lookupDisk } from './db'
 import {
   db,
   lookupInstance,
+  lookupNetworkInterface,
   lookupOrg,
   lookupProject,
   lookupVpc,
-  lookupVpcSubnet,
   lookupVpcRouter,
+  lookupVpcSubnet,
 } from './db'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -95,7 +95,7 @@ export const handlers = [
         return res(unavailableErr)
       }
 
-      const [org, err] = lookupOrg(req)
+      const [org, err] = lookupOrg(req.params)
       if (err) return res(err)
 
       return res(json(org))
@@ -105,7 +105,7 @@ export const handlers = [
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
-      const [org, err] = lookupOrg(req)
+      const [org, err] = lookupOrg(req.params)
       if (err) return res(err)
 
       const projects = db.projects.filter((p) => p.organization_id === org.id)
@@ -116,7 +116,7 @@ export const handlers = [
   rest.post<Json<Api.ProjectCreate>, OrgParams, Json<Api.Project> | PostErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
-      const [org, err] = lookupOrg(req)
+      const [org, err] = lookupOrg(req.params)
       if (err) return res(err)
 
       const alreadyExists = db.projects.some(
@@ -143,7 +143,7 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.Project> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       return res(json(project))
     }
@@ -152,7 +152,7 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const instances = db.instances.filter((i) => i.project_id === project.id)
       return res(json({ items: instances }))
@@ -162,7 +162,7 @@ export const handlers = [
   rest.get<never, InstanceParams, Json<Api.Instance> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res) => {
-      const [instance, err] = lookupInstance(req)
+      const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       return res(json(instance))
     }
@@ -171,7 +171,7 @@ export const handlers = [
   rest.delete<never, InstanceParams, GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res, ctx) => {
-      const [instance, err] = lookupInstance(req)
+      const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       db.instances = db.instances.filter((i) => i.id !== instance.id)
       return res(ctx.status(204))
@@ -181,7 +181,7 @@ export const handlers = [
   rest.post<Json<Api.InstanceCreate>, ProjectParams, Json<Api.Instance> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
 
       const alreadyExists = db.instances.some(
@@ -209,7 +209,7 @@ export const handlers = [
   rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
     (req, res) => {
-      const [instance, err] = lookupInstance(req)
+      const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       instance.run_state = 'running'
       return res(json(instance, 202))
@@ -219,7 +219,7 @@ export const handlers = [
   rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
     (req, res) => {
-      const [instance, err] = lookupInstance(req)
+      const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       instance.run_state = 'stopped'
       return res(json(instance, 202))
@@ -229,7 +229,7 @@ export const handlers = [
   rest.get<never, InstanceParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
     (req, res) => {
-      const [instance, err] = lookupInstance(req)
+      const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       const disks = db.disks.filter(
         (d) => 'instance' in d.state && d.state.instance === instance.id
@@ -238,19 +238,127 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, DiskParams, Json<Api.Disk> | PostErr>(
-    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
     (req, res) => {
-      const [disk, err] = lookupDisk(req)
-      if (err) return res(err)
+      const [instance, instanceErr] = lookupInstance(req.params)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'attached',
+        instance: instance.id,
+      }
       return res(json(disk))
+    }
+  ),
+
+  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
+    (req, res) => {
+      const [instance, instanceErr] = lookupInstance(req.params)
+      if (instanceErr) return res(instanceErr)
+      if (instance.run_state !== 'stopped') {
+        return res(badRequest('instance must be stopped'))
+      }
+      const disk = db.disks.find((d) => d.name === req.body.name)
+      if (!disk) {
+        return res(badRequest('disk not found'))
+      }
+      disk.state = {
+        state: 'detached',
+      }
+      return res(json(disk))
+    }
+  ),
+
+  rest.get<never, InstanceParams, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
+    (req, res) => {
+      const [instance, err] = lookupInstance(req.params)
+      if (err) return res(err)
+      const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
+      return res(json({ items: nics }))
+    }
+  ),
+
+  rest.post<
+    Json<Api.NetworkInterfaceCreate>,
+    InstanceParams,
+    Json<Api.NetworkInterface> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
+    (req, res) => {
+      const [instance, err] = lookupInstance(req.params)
+      if (err) return res(err)
+      const alreadyExists = db.networkInterfaces.some(
+        (n) => n.instance_id === instance.id && n.name === req.body.name
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      const { name, description, subnet_name, vpc_name, ip } = req.body
+
+      const [vpc, vpcErr] = lookupVpc({ ...req.params, vpcName: vpc_name })
+      if (vpcErr) return res(vpcErr)
+
+      const [subnet, subnetErr] = lookupVpcSubnet({
+        ...req.params,
+        vpcName: vpc_name,
+        subnetName: subnet_name,
+      })
+      if (subnetErr) return res(subnetErr)
+
+      // TODO: validate IP
+
+      const newNic: Json<Api.NetworkInterface> = {
+        id: genId('nic'),
+        instance_id: instance.id,
+        name,
+        description,
+        ip: ip || '123.45.68.8',
+        vpc_id: vpc.id,
+        subnet_id: subnet.id,
+        mac: '',
+        ...getTimestamps(),
+      }
+      db.networkInterfaces.push(newNic)
+
+      return res(json(newNic))
+    }
+  ),
+
+  rest.get<never, NetworkInterfaceParams, Json<Api.NetworkInterface> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      return res(json(nic))
+    }
+  ),
+
+  rest.delete<never, NetworkInterfaceParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res, ctx) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+      db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
+      return res(ctx.status(204))
     }
   ),
 
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
       return res(json({ items: disks }))
@@ -260,7 +368,7 @@ export const handlers = [
   rest.post<Json<Api.DiskCreate>, ProjectParams, Json<Api.Disk> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const alreadyExists = db.disks.some(
         (s) => s.project_id === project.id && s.name === req.body.name
@@ -293,7 +401,7 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.ImageResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/images',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const images = db.images.filter((i) => i.project_id === project.id)
       return res(json({ items: images }))
@@ -303,7 +411,7 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.SnapshotResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/snapshots',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
       return res(json({ items: snapshots }))
@@ -313,7 +421,7 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.VpcResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
       return res(json({ items: vpcs }))
@@ -323,7 +431,7 @@ export const handlers = [
   rest.get<never, VpcParams, Json<Api.Vpc> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
       return res(json(vpc))
     }
@@ -332,7 +440,7 @@ export const handlers = [
   rest.post<Json<Api.VpcCreate>, ProjectParams, Json<Api.Vpc> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs',
     (req, res) => {
-      const [project, err] = lookupProject(req)
+      const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const alreadyExists = db.vpcs.some(
         (s) => s.project_id === project.id && s.name === req.body.name
@@ -360,7 +468,7 @@ export const handlers = [
   rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
       const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
       return res(json({ items }))
@@ -370,7 +478,7 @@ export const handlers = [
   rest.post<Json<Api.VpcSubnetCreate>, VpcParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
 
       const alreadyExists = db.vpcSubnets.some(
@@ -400,7 +508,7 @@ export const handlers = [
   rest.put<Json<Api.VpcSubnetUpdate>, VpcSubnetParams, Json<Api.VpcSubnet> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
     (req, res, ctx) => {
-      const [subnet, err] = lookupVpcSubnet(req)
+      const [subnet, err] = lookupVpcSubnet(req.params)
       if (err) return res(err)
 
       if (req.body.name) {
@@ -409,12 +517,6 @@ export const handlers = [
       if (typeof req.body.description === 'string') {
         subnet.description = req.body.description
       }
-      if (req.body.ipv4_block) {
-        subnet.ipv4_block = req.body.ipv4_block
-      }
-      if (req.body.ipv6_block) {
-        subnet.ipv6_block = req.body.ipv6_block
-      }
       return res(ctx.status(204))
     }
   ),
@@ -422,7 +524,7 @@ export const handlers = [
   rest.get<never, VpcParams, Json<Api.VpcFirewallRules> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
       const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
       return res(json({ rules: sortBy(rules, (r) => r.name) }))
@@ -436,7 +538,7 @@ export const handlers = [
   >(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
       const rules = req.body.rules.map((rule) => ({
         vpc_id: vpc.id,
@@ -456,7 +558,7 @@ export const handlers = [
   rest.get<never, VpcParams, Json<Api.VpcRouterResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
       const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
       return res(json({ items }))
@@ -466,7 +568,7 @@ export const handlers = [
   rest.post<Json<Api.VpcRouterCreate>, VpcParams, Json<Api.VpcRouter> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req)
+      const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
 
       const alreadyExists = db.vpcRouters.some(
@@ -493,7 +595,7 @@ export const handlers = [
   rest.put<Json<Api.VpcRouterUpdate>, VpcRouterParams, Json<Api.VpcRouter> | PostErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
     (req, res, ctx) => {
-      const [router, err] = lookupVpcRouter(req)
+      const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
 
       if (req.body.name) {
@@ -509,7 +611,7 @@ export const handlers = [
   rest.get<never, VpcRouterParams, Json<Api.RouterRouteResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
     (req, res) => {
-      const [router, err] = lookupVpcRouter(req)
+      const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
       const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
       return res(json({ items }))

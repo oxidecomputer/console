@@ -50,3 +50,6 @@ export const firewallTargetToTypeValue = ({
   type,
   value: type === 'ip_net' ? ipNetToStr(value) : value,
 })
+
+export const nullIfEmpty = (s: string): string | null =>
+  typeof s === 'string' && s.trim().length === 0 ? null : s

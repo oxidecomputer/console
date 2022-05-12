@@ -7,17 +7,11 @@ set -o xtrace
 # script assumes omicron and oxide.ts are cloned under the same parent dir as
 # console and have run `npm install` inside oxide.ts/generator
 
-OMICRON_SHA=$(awk '/API_VERSION/ {print $2}' .github/workflows/packer.yaml)
+OMICRON_SHA=$(cat OMICRON_VERSION)
 GEN_DIR='libs/api/__generated__'
 
 git -C '../omicron' fetch --all
 git -C '../omicron' checkout "$OMICRON_SHA"
-
-# copy nexus config with some minor modifications...
-cat ../omicron/nexus/examples/config.toml |
-  sed 's/127.0.0.1:12220/0.0.0.0:8888/' |
-  sed 's/127.0.0.1:12221/0.0.0.0:12221/' |
-  sed 's/127.0.0.1:32221/0.0.0.0:26257/' > packer/omicron.toml
 
 # path to spec needs to be absolute
 cd ../omicron

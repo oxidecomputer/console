@@ -10,7 +10,7 @@ Following the rest of the instructions is only necessary if you want to build th
 
 ### Choosing a Console version to download
 
-Most of the time you will want the latest commit on `main`. Look at `libs/api/__generated__/OMICRON_VERSION` to see what Omicron SHA that version of the console expects. Often it will work with a newer version of the API, but don't be surprised if it doesn't.
+Most of the time you will want the latest commit on `main`. Look at [`OMICRON_VERSION`](/OMICRON_VERSION) to see what Omicron SHA that version of the console expects. Often it will work with a newer version of the API, but don't be surprised if it doesn't.
 
 ## Dependencies
 
@@ -19,7 +19,7 @@ Most of the time you will want the latest commit on `main`. Look at `libs/api/__
 
 ## Note about pinned omicron version
 
-The API client in the console is generated from a specific omicron commit (see [`OMICRON_VERSION`](/libs/api/__generated__/OMICRON_VERSION)), which means we can only be sure the API calls will work if you're running that version of Nexus. However, this shouldn't be a big issue for dev/testing because:
+The API client in the console is generated from a specific omicron commit (see [`OMICRON_VERSION`](/OMICRON_VERSION)), which means we can only be sure the API calls will work if you're running that version of Nexus. However, this shouldn't be a big issue for dev/testing because:
 
 - We update the generated API client in console frequently
 - Most API changes are additive, so if you're not running _too_ new a Nexus you'll probably be fine
@@ -38,7 +38,7 @@ yarn install && yarn build-for-nexus
 
 Note that this script includes a `yarn install` to make sure dependencies are up to date.
 
-The only difference between this build and the one for GCP deploy or local dev is that the latter need an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `yarn build-for-nexus` makes the prefix `""`, i.e., no prefix.
+The only difference between this build and the one for local dev is that the latter needs an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `yarn build-for-nexus` makes the prefix `""`, i.e., no prefix.
 
 ### Set `console.static_dir` and copy files there (if necessary)
 

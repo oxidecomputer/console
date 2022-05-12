@@ -1,6 +1,7 @@
 export * from './disk'
 export * from './image'
 export * from './instance'
+export * from './network-interface'
 export * from './org'
 export * from './project'
 export * from './session'

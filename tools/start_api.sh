@@ -31,7 +31,7 @@ run_in_pane() {
 
 # unless -f flag is present, refuse to start if we're not on the right omicron commit
 if [ -z "$f_flag" ]; then
-  PINNED_API_VERSION=$(awk '/API_VERSION/ {print $2}' ../console/.github/workflows/packer.yaml)
+  PINNED_API_VERSION=$(cat ../console/OMICRON_VERSION)
   CURRENT_API_VERSION=$(git rev-parse HEAD)
 
   if [ "$CURRENT_API_VERSION" != "$PINNED_API_VERSION" ]; then

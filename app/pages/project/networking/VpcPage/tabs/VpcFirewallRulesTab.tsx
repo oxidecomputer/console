@@ -86,14 +86,22 @@ export const VpcFirewallRulesTab = () => {
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New rule
         </Button>
-        <SideModal id="create-firewall-rule-modal" isOpen={createModalOpen}>
+        <SideModal
+          id="create-firewall-rule-modal"
+          isOpen={createModalOpen}
+          onDismiss={() => setCreateModalOpen(false)}
+        >
           <CreateFirewallRuleForm
             existingRules={rules}
             onSuccess={() => setCreateModalOpen(false)}
             onDismiss={() => setCreateModalOpen(false)}
           />
         </SideModal>
-        <SideModal id="create-firewall-rule-modal" isOpen={!!editing}>
+        <SideModal
+          id="create-firewall-rule-modal"
+          isOpen={!!editing}
+          onDismiss={() => setEditing(null)}
+        >
           {editing && (
             <EditFirewallRuleForm
               existingRules={rules}

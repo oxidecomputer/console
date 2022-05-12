@@ -88,7 +88,7 @@ export const Tooltip: FC<TooltipProps> = ({
         onMouseLeave={closeTooltip}
         onFocus={openTooltip}
         onBlur={closeTooltip}
-        className={cn('mt-[2px] h-4 svg:pointer-events-none svg:align-top', {
+        className={cn('h-4 svg:pointer-events-none svg:align-top', {
           'dashed-underline': definition,
         })}
       >
@@ -102,7 +102,7 @@ export const Tooltip: FC<TooltipProps> = ({
         style={styles.popper}
         {...attributes.popper}
       >
-        <div className="rounded border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
+        <div className="max-w-xs rounded border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
           {content}
         </div>
         <div className="TooltipArrow" ref={arrowElement} style={styles.arrow} />
