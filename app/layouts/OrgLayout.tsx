@@ -16,6 +16,7 @@ import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { Form } from 'app/components/form'
+import { UserSettingsModal } from 'app/components/UserSettingsModal'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
@@ -24,30 +25,33 @@ const OrgLayout = () => {
     limit: 10,
   })
   return (
-    <PageContainer>
-      <Sidebar>
-        <Sidebar.Nav heading="projects">
-          {projects?.items.map((project) => (
-            <NavLinkItem key={project.id} to={project.name}>
-              {project.name}
-            </NavLinkItem>
-          ))}
-        </Sidebar.Nav>
-      </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <Breadcrumbs />
-          <SkipLinkTarget />
-          <PageHeader />
-          <Outlet />
-        </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <Form.PageActions />
-        </ContentPaneActions>
-      </ContentPaneWrapper>
-    </PageContainer>
+    <>
+      <PageContainer>
+        <Sidebar>
+          <Sidebar.Nav heading="projects">
+            {projects?.items.map((project) => (
+              <NavLinkItem key={project.id} to={project.name}>
+                {project.name}
+              </NavLinkItem>
+            ))}
+          </Sidebar.Nav>
+        </Sidebar>
+        <ContentPaneWrapper>
+          <ContentPane>
+            <TopBar />
+            <Breadcrumbs />
+            <SkipLinkTarget />
+            <PageHeader />
+            <Outlet />
+          </ContentPane>
+          <ContentPaneActions>
+            <Pagination.Target />
+            <Form.PageActions />
+          </ContentPaneActions>
+        </ContentPaneWrapper>
+      </PageContainer>
+      <UserSettingsModal />
+    </>
   )
 }
 

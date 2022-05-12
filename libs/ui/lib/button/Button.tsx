@@ -12,7 +12,7 @@ export type Variant = typeof variants[number]
 export type Color = typeof colors[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
-  xs: 'h-8 px-2 text-mono-sm svg:w-4',
+  xs: ' h-6 px-2 text-mono-sm svg:w-4',
   sm: 'h-9 px-3 text-mono-md svg:w-4',
   base: 'h-10 px-3 text-mono-lg svg:w-5',
 }

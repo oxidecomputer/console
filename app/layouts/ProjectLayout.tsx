@@ -23,6 +23,7 @@ import { PageHeader } from '../components/PageHeader'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
 import { Form } from 'app/components/form'
+import { UserSettingsModal } from 'app/components/UserSettingsModal'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -51,43 +52,46 @@ const ProjectLayout = () => {
   )
 
   return (
-    <PageContainer>
-      <Sidebar>
-        <Sidebar.Nav heading="project">
-          <NavLinkItem to="instances">
-            <Instances16Icon /> Instances
-          </NavLinkItem>
-          <NavLinkItem to="snapshots">
-            <Notification16Icon /> Snapshots
-          </NavLinkItem>
-          <NavLinkItem to="disks">
-            <Storage16Icon /> Disks
-          </NavLinkItem>
-          <NavLinkItem to="access">
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
-          </NavLinkItem>
-          <NavLinkItem to="images">
-            <Resize16Icon title="images" /> Images
-          </NavLinkItem>
-          <NavLinkItem to="vpcs">
-            <Networking16Icon /> Networking
-          </NavLinkItem>
-        </Sidebar.Nav>
-      </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <Breadcrumbs />
-          <SkipLinkTarget />
-          <PageHeader />
-          <Outlet />
-        </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <Form.PageActions />
-        </ContentPaneActions>
-      </ContentPaneWrapper>
-    </PageContainer>
+    <>
+      <PageContainer>
+        <Sidebar>
+          <Sidebar.Nav heading="project">
+            <NavLinkItem to="instances">
+              <Instances16Icon /> Instances
+            </NavLinkItem>
+            <NavLinkItem to="snapshots">
+              <Notification16Icon /> Snapshots
+            </NavLinkItem>
+            <NavLinkItem to="disks">
+              <Storage16Icon /> Disks
+            </NavLinkItem>
+            <NavLinkItem to="access">
+              <Access16Icon title="Access & IAM" /> Access &amp; IAM
+            </NavLinkItem>
+            <NavLinkItem to="images">
+              <Resize16Icon title="images" /> Images
+            </NavLinkItem>
+            <NavLinkItem to="vpcs">
+              <Networking16Icon /> Networking
+            </NavLinkItem>
+          </Sidebar.Nav>
+        </Sidebar>
+        <ContentPaneWrapper>
+          <ContentPane>
+            <TopBar />
+            <Breadcrumbs />
+            <SkipLinkTarget />
+            <PageHeader />
+            <Outlet />
+          </ContentPane>
+          <ContentPaneActions>
+            <Pagination.Target />
+            <Form.PageActions />
+          </ContentPaneActions>
+        </ContentPaneWrapper>
+      </PageContainer>
+      <UserSettingsModal />
+    </>
   )
 }
 
