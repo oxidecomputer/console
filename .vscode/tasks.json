@@ -3,7 +3,7 @@
   "tasks": [
     {
       "label": "Switch Omicron to Pinned Version",
-      "detail": "Checks out the pinned version as specified in packer.yaml",
+      "detail": "Checks out the pinned version as specified in OMICRON_VERSION",
       "type": "shell",
       "command": "tools/checkout_pinned_omicron.sh"
     },

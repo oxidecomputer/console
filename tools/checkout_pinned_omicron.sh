@@ -2,15 +2,7 @@
 set -e
 set -o pipefail
 
-function get_api_version() {
-  local version
-  IFS=':'
-  read -ra version <<< "$(grep API_VERSION .github/workflows/packer.yaml)"
-  echo "${version[1]}" | xargs
-  IFS=' '
-}
-
-VERSION="$(get_api_version)"
+VERSION="$(cat OMICRON_VERSION)"
 cd ../omicron
 
 if ! git diff --quiet
