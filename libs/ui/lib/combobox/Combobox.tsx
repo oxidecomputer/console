@@ -20,6 +20,7 @@ type ComboboxProps = {
  * Reach Combobox with match filtering and sorting powered by match-sorter.
  */
 export function Combobox({ items, onChange, onSelect, value }: ComboboxProps) {
+  const matches = matchSorter(items, value)
   return (
     <RCombobox
       openOnFocus
@@ -38,16 +39,23 @@ export function Combobox({ items, onChange, onSelect, value }: ComboboxProps) {
         // callback does not replace theirs. In short, do not pass `value` here.
       />
       <ComboboxPopover className="mt-2 bg-default">
-        <ComboboxList persistSelection className="rounded border border-default">
-          {matchSorter(items, value).map((item) => (
-            <ComboboxOption
-              // TODO: make border overlap container border like Justin's beautiful tables
-              className="cursor-pointer rounded border px-3 py-2 text-sans-sm border-default hover:bg-hover"
-              key={item}
-              value={item}
-            />
-          ))}
-        </ComboboxList>
+        {matches.length === 0 ? (
+          <p className="rounded border px-3 py-2 italic text-sans-sm text-secondary border-default">
+            {/* TODO: would be nicer to say something custom like "No matching disks found" */}
+            No matches found
+          </p>
+        ) : (
+          <ComboboxList persistSelection className="rounded border border-default">
+            {matches.map((item) => (
+              <ComboboxOption
+                // TODO: make border overlap container border like Justin's beautiful tables
+                className="cursor-pointer rounded border px-3 py-2 text-sans-sm border-default hover:bg-hover"
+                key={item}
+                value={item}
+              />
+            ))}
+          </ComboboxList>
+        )}
       </ComboboxPopover>
     </RCombobox>
   )
