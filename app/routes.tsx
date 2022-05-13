@@ -162,7 +162,8 @@ export const routes = (
     </Route>
 
     <Route path="settings" crumb="settings" element={<SettingsLayout />}>
-      <Route index path="profile" element={<ProfilePage />} title="Profile" />
+      <Route index element={<Navigate to="profile" replace />} />
+      <Route path="profile" element={<ProfilePage />} title="Profile" />
       <Route path="appearance" element={<AppearancePage />} title="Appearance" />
       <Route path="ssh-keys" element={<SSHKeysPage />} title="SSH Keys" />
     </Route>
