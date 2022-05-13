@@ -69,7 +69,7 @@ export function AttachDiskForm({
         label="Disk name"
         id="disk-name"
         name="name"
-        items={detachedDisks.map((d) => d.name) || []}
+        items={detachedDisks.map((d) => d.name)}
       />
 
       <Form.Actions>
