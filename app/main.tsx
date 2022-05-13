@@ -39,7 +39,9 @@ function render() {
 async function startMockAPI() {
   const { handlers } = await import('@oxide/api-mocks')
   const { setupWorker } = await import('msw')
-  const { default: workerUrl } = await import('./mockServiceWorker.js?url')
+  // mockServiceWorker.js needs to live at root, couldn't get app/ to work with
+  // Vite. ugh don't ask
+  const { default: workerUrl } = await import('../mockServiceWorker.js?url')
   // https://mswjs.io/docs/api/setup-worker/start#options
   await setupWorker(...handlers).start({
     quiet: true, // don't log successfully handled requests
