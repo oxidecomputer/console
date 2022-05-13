@@ -10,7 +10,7 @@ import {
   Key16Icon,
 } from '@oxide/ui'
 import Dialog from '@reach/dialog'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Formik } from 'formik'
 import { classed } from '@oxide/util'
@@ -36,13 +36,18 @@ export function UserSettingsModal() {
   }, [searchParams])
 
   const settingsId = searchParams.get('settings')
-  if (typeof settingsId === 'string' && !settingsId) {
-    navTo('profile')()
-  }
 
-  if (settingsId && !showDialog) {
-    setShowDialog(true)
-  }
+  useEffect(() => {
+    if (typeof settingsId === 'string' && !settingsId) {
+      navTo('profile')()
+    }
+  }, [navTo, settingsId])
+
+  useEffect(() => {
+    if (settingsId && !showDialog) {
+      setShowDialog(true)
+    }
+  }, [settingsId, showDialog])
 
   const active = (isActive: boolean) => (isActive ? 'text-accent bg-accent-secondary' : '')
 
@@ -102,7 +107,7 @@ export function UserSettingsModal() {
 function Profile() {
   return (
     <>
-      <Formik initialValues={{}}>
+      <Formik initialValues={{}} onSubmit={() => {}}>
         <form className="max-w-md space-y-3 py-8 px-9">
           <div>
             <FieldLabel id="profile-name-field" htmlFor="profile-name">
