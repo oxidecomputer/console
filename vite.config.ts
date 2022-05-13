@@ -14,16 +14,10 @@ const mapObj = <V0, V>(
 // see https://vitejs.dev/config/
 
 export default defineConfig(({ mode }) => ({
-  root: './app',
   build: {
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'app/index.html'),
-      },
-    },
     // minify: false, // uncomment for debugging
   },
   define: {
