@@ -1,0 +1,19 @@
+/* 
+ * Make Reach not whine about us not importing their CSS file, which doesn't do
+ * anything useful
+ */
+:root {
+  --reach-combobox: 1;
+}
+
+[data-reach-combobox-option] {
+  @apply rounded border border-transparent;
+
+  &:hover {
+  }
+
+  &[aria-selected='true'],
+  &[data-highlighted] {
+    @apply text-accent bg-accent-secondary border-accent;
+  }
+}
