@@ -1,11 +1,19 @@
-import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
+import {
+  ComboboxField,
+  DescriptionField,
+  Form,
+  NameField,
+  TextField,
+} from 'app/components/form'
 import { Divider } from '@oxide/ui'
 import type { NetworkInterface } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import invariant from 'tiny-invariant'
+import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
 
 const values = {
   name: '',
@@ -40,6 +48,8 @@ export default function CreateNetworkInterfaceForm({
     onError,
   })
 
+  const vpcs = useApiQuery('projectVpcsGet', { ...pathParams, limit: 50 }).data?.items || []
+
   return (
     <Form
       id={id}
@@ -68,9 +78,21 @@ export default function CreateNetworkInterfaceForm({
       <DescriptionField id="nic-description" />
       <Divider />
 
-      {/* TODO: Convert these into combo boxes */}
-      <TextField id="nic-vpc" name="vpcName" label="VPC" required />
-      <TextField id="nic-subnet" name="subnetName" label="Subnet" required />
+      <ComboboxField
+        id="nic-vpc"
+        name="vpcName"
+        label="VPC"
+        items={vpcs.map((x) => x.name)}
+        // required
+      />
+      <SubnetCombobox
+        id="nic-subnet"
+        name="subnetName"
+        label="Subnet"
+        vpcNameField="vpcName"
+        vpcs={vpcs}
+        // required
+      />
       <TextField id="nic-ip" name="ip" label="IP Address" />
 
       <Form.Actions>

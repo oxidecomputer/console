@@ -98,6 +98,7 @@ export function NetworkInterfaceField() {
                 })
                 setShowForm(false)
               }}
+              onDismiss={() => setShowForm(false)}
             />
           </SideModal>
           <div className="space-x-3">

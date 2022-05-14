@@ -29,6 +29,7 @@
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "@reach/alert": "^0.16.0",
+    "@reach/combobox": "^0.17.0",
     "@reach/dialog": "^0.16.2",
     "@reach/menu-button": "^0.16.2",
     "@reach/tabs": "^0.16.4",
@@ -129,10 +130,10 @@
     "ts-unused-exports": "^7.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "type-fest": "^2.10.0",
-    "typescript": "^4.7.1-rc",
+    "typescript": "4.7.1-rc",
     "url-loader": "^4.1.1",
-    "vite": "^2.9.4",
-    "vitest": "^0.9.3",
+    "vite": "^2.9.9",
+    "vitest": "^0.12.6",
     "webpack": "^5.40.0",
     "whatwg-fetch": "^3.6.2"
   },
@@ -144,7 +145,7 @@
     "not IE 11"
   ],
   "msw": {
-    "workerDirectory": "app"
+    "workerDirectory": "."
   },
   "lint-staged": {
     "*.{js,ts,tsx,json}": "eslint --cache --fix"
