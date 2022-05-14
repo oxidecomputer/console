@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
-import type { MenuAction } from '@oxide/table'
 import {
   getActionsCol,
   getSelectCol,
@@ -19,6 +18,33 @@ import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 
 const tableHelper = createTable().setRowType<VpcFirewallRule>()
 
+/** columns that don't depend on anything in `render` */
+const staticColumns = [
+  tableHelper.createDisplayColumn(getSelectCol()),
+  tableHelper.createDataColumn('name', { header: 'Name' }),
+  tableHelper.createDataColumn('action', { header: 'Action' }),
+  // map() fixes the fact that IpNets aren't strings
+  tableHelper.createDataColumn('targets', {
+    header: 'Targets',
+    cell: (info) => (
+      <TypeValueListCell value={info.getValue().map(firewallTargetToTypeValue)} />
+    ),
+  }),
+  tableHelper.createDataColumn('filters', {
+    header: 'Filters',
+    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+  }),
+  tableHelper.createDataColumn('status', {
+    header: 'Status',
+    cell: (info) => <EnabledCell value={info.getValue()} />,
+  }),
+  tableHelper.createDataColumn('timeCreated', {
+    id: 'created',
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
@@ -28,39 +54,13 @@ export const VpcFirewallRulesTab = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
+  // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
-    const actions = (rule: VpcFirewallRule): MenuAction[] => [
-      {
-        label: 'Edit',
-        onActivate: () => setEditing(rule),
-      },
-    ]
-
     return [
-      tableHelper.createDisplayColumn(getSelectCol()),
-      tableHelper.createDataColumn('name', { header: 'Name' }),
-      tableHelper.createDataColumn('action', { header: 'Action' }),
-      // map() fixes the fact that IpNets aren't strings
-      tableHelper.createDataColumn('targets', {
-        header: 'Targets',
-        cell: (info) => (
-          <TypeValueListCell value={info.getValue().map(firewallTargetToTypeValue)} />
-        ),
-      }),
-      tableHelper.createDataColumn('filters', {
-        header: 'Filters',
-        cell: (info) => <FirewallFilterCell value={info.getValue()} />,
-      }),
-      tableHelper.createDataColumn('status', {
-        header: 'Status',
-        cell: (info) => <EnabledCell value={info.getValue()} />,
-      }),
-      tableHelper.createDataColumn('timeCreated', {
-        id: 'created',
-        header: 'Created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
-      tableHelper.createDisplayColumn(getActionsCol(actions)),
+      ...staticColumns,
+      tableHelper.createDisplayColumn(
+        getActionsCol((rule) => [{ label: 'Edit', onActivate: () => setEditing(rule) }])
+      ),
     ]
   }, [setEditing])
 
