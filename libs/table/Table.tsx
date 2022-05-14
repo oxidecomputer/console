@@ -51,9 +51,7 @@ export const Table = <TGenerics,>({
   <UITable className={className}>
     <UITable.Header>
       {table.getHeaderGroups().map((headerGroup) => (
-        // headerGroupProps has the key on it
-        // eslint-disable-next-line react/jsx-key
-        <UITable.HeaderRow>
+        <UITable.HeaderRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
             <UITable.HeadCell
               key={header.id}

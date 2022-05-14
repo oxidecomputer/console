@@ -7,7 +7,7 @@ export const selectCol = <TGenerics,>() => ({
   id: 'select',
   meta: { thClassName: 'w-10' },
   header: ({ instance }: { instance: TableInstance<TGenerics> }) => (
-    <div>
+    <div className="flex">
       <Checkbox
         checked={instance.getIsAllRowsSelected()}
         indeterminate={instance.getIsSomeRowsSelected()}
@@ -16,8 +16,6 @@ export const selectCol = <TGenerics,>() => ({
     </div>
   ),
   cell: ({ row }: { row: Row<TGenerics> }) => (
-    <div>
-      <Checkbox checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
-    </div>
+    <Checkbox checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
   ),
 })
