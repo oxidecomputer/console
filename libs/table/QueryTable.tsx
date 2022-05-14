@@ -3,7 +3,7 @@
 import React from 'react'
 import { DefaultCell } from './cells'
 import { DefaultHeader } from './headers'
-import { actionsCol, selectCol } from './columns'
+import { getActionsCol, getSelectCol } from './columns'
 import { Table } from './Table'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
@@ -90,8 +90,8 @@ const makeQueryTable = <Item,>(
         return tableHelper.createDataColumn(accessor, options as any)
       })
       if (makeActions) {
-        columns.unshift(selectCol())
-        columns.push(actionsCol(makeActions))
+        columns.unshift(getSelectCol())
+        columns.push(getActionsCol(makeActions))
       }
 
       return columns

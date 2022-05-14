@@ -11,7 +11,7 @@ export type MenuAction = {
   disabled?: boolean
 }
 
-export const actionsCol = <TGenerics extends TableGenerics>(
+export const getActionsCol = <TGenerics extends TableGenerics>(
   makeActions: MakeActions<TGenerics['Row']>
 ) => ({
   id: 'menu',

@@ -2,13 +2,13 @@ import { useState, useMemo } from 'react'
 import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { MenuAction } from '@oxide/table'
 import {
-  actionsCol,
+  getActionsCol,
+  getSelectCol,
   DateCell,
   EnabledCell,
   FirewallFilterCell,
   TypeValueListCell,
   Table,
-  selectCol,
 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
@@ -37,7 +37,7 @@ export const VpcFirewallRulesTab = () => {
     ]
 
     return [
-      tableHelper.createDisplayColumn(selectCol()),
+      tableHelper.createDisplayColumn(getSelectCol()),
       tableHelper.createDataColumn('name', { header: 'Name' }),
       tableHelper.createDataColumn('action', { header: 'Action' }),
       // map() fixes the fact that IpNets aren't strings
@@ -60,7 +60,7 @@ export const VpcFirewallRulesTab = () => {
         header: 'Created',
         cell: (info) => <DateCell value={info.getValue()} />,
       }),
-      tableHelper.createDisplayColumn(actionsCol(actions)),
+      tableHelper.createDisplayColumn(getActionsCol(actions)),
     ]
   }, [setEditing])
 

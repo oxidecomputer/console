@@ -3,7 +3,7 @@ import type { Row, TableInstance } from '@tanstack/react-table'
 import { Checkbox } from '@oxide/ui'
 
 // only needs to be a function because of the generic params
-export const selectCol = <TGenerics,>() => ({
+export const getSelectCol = <TGenerics,>() => ({
   id: 'select',
   meta: { thClassName: 'w-10' },
   header: ({ instance }: { instance: TableInstance<TGenerics> }) => (
