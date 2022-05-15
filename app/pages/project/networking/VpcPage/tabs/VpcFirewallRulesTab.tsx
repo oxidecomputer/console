@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
-import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import {
+  createTable,
   getActionsCol,
   getSelectCol,
   DateCell,

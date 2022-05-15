@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { createTable, getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -12,7 +12,7 @@ import {
   SideModal,
   TableEmptyBox,
 } from '@oxide/ui'
-import { Table } from '@oxide/table'
+import { createTable, Table } from '@oxide/table'
 import { useParams, useToast } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
