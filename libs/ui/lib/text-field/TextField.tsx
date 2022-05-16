@@ -37,7 +37,8 @@ export const TextField = ({
       className={cn(
         `w-full border-none bg-transparent
         py-[0.5625rem] px-3
-        text-sans-md text-default focus:outline-none disabled:text-tertiary disabled:bg-disabled`,
+        text-sans-md text-default focus:outline-none
+        disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
         fieldClassName
       )}
       aria-invalid={error}
