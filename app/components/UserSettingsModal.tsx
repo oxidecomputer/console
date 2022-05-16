@@ -11,9 +11,11 @@ import {
 } from '@oxide/ui'
 import Dialog from '@reach/dialog'
 import { useEffect, useMemo, useState } from 'react'
+import type { MouseEventHandler } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Formik } from 'formik'
 import { classed } from '@oxide/util'
+import cn from 'classnames'
 
 const Footer = classed.div`h-14 flex items-center px-4 border-t border-tertiary text-sans-sm text-secondary`
 
@@ -49,16 +51,14 @@ export function UserSettingsModal() {
     }
   }, [settingsId, showDialog])
 
-  const active = (isActive: boolean) => (isActive ? 'text-accent bg-accent-secondary' : '')
-
   return (
     <Dialog
       isOpen={showDialog}
       onDismiss={close}
-      className="min-w-[35rem] rounded-lg border p-0 bg-raise border-secondary"
+      className="h-full max-h-[38rem] w-full max-w-[55rem] rounded-lg bg-transparent p-10"
     >
-      <div className="flex">
-        <div className="flex w-56 flex-shrink-0  flex-col border-r px-4 py-6 border-tertiary">
+      <div className="flex h-full border bg-raise border-secondary">
+        <div className="flex w-[15rem] flex-shrink-0  flex-col border-r px-4 py-6 border-tertiary">
           <header className="mb-9 flex items-center justify-between">
             <span className="text-sans-lg">User Settings</span>
             <Button
@@ -70,25 +70,43 @@ export function UserSettingsModal() {
               <Close12Icon className="ml-0.5" />
             </Button>
           </header>
-          <ul className="w-40 space-y-1 text-sans-sm text-secondary children:rounded children:px-2 children:py-1">
-            <li className={active(settingsId === 'profile')}>
-              <button onClick={navTo('profile')}>Profile</button>
-            </li>
-            <li className={active(settingsId === 'appearance')}>
-              <button onClick={navTo('appearance')}>Appearance</button>
-            </li>
-            <li className={active(settingsId === 'hotkeys')}>
-              <button onClick={navTo('hotkeys')}>Hotkeys</button>
-            </li>
-            <li className={active(settingsId === 'ssh-keys')}>
-              <button onClick={navTo('ssh-keys')}>SSH Keys</button>
-            </li>
-            <li className={active(settingsId === 'access-keys')}>
-              <button onClick={navTo('access-keys')}>Access Keys</button>
-            </li>
-            <li className={active(settingsId === 'rdp-keys')}>
-              <button onClick={navTo('rdp-keys')}>RDP Keys</button>
-            </li>
+          <ul className="w-full space-y-1 text-secondary">
+            <SidebarItem
+              link="profile"
+              label="Profile"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
+            <SidebarItem
+              link="appearance"
+              label="Appearance"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
+            <SidebarItem
+              link="hotkeys"
+              label="Hotkeys"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
+            <SidebarItem
+              link="ssh-keys"
+              label="SSH Keys"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
+            <SidebarItem
+              link="access-keys"
+              label="Access Keys"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
+            <SidebarItem
+              link="rdp-keys"
+              label="RDP Keys"
+              settingsId={settingsId}
+              handleClick={navTo}
+            />
           </ul>
         </div>
         <div className="flex flex-1 flex-col">
@@ -104,11 +122,35 @@ export function UserSettingsModal() {
   )
 }
 
+export interface SidebarItemProps {
+  link: string
+  label: string
+  settingsId: string | null
+  handleClick: (label: string) => MouseEventHandler<HTMLButtonElement> | undefined
+}
+
+function SidebarItem(props: SidebarItemProps) {
+  const { settingsId, label, handleClick, link } = props
+  const active = (isActive: boolean) =>
+    isActive ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover' : ''
+
+  return (
+    <button
+      className="block w-full rounded text-left text-sans-sm"
+      onClick={handleClick(link)}
+    >
+      <li className={cn(active(settingsId === link), 'px-2 py-[5px] hover:bg-hover')}>
+        {label}
+      </li>
+    </button>
+  )
+}
+
 function Profile() {
   return (
     <>
       <Formik initialValues={{}} onSubmit={() => {}}>
-        <form className="max-w-md space-y-3 py-8 px-9">
+        <form className="max-w-[38rem] space-y-6 py-8 px-9">
           <div>
             <FieldLabel id="profile-name-field" htmlFor="profile-name">
               Name
@@ -146,7 +188,9 @@ function Profile() {
             />
           </div>
           <span className="inline-block text-sans-sm text-secondary">
-            Your user information is managed by your organization. To update, contact your{' '}
+            Your user information is managed by your organization.{' '}
+            <br className="hidden md+:block" />
+            To update, contact your{' '}
             <a className="external-link" href="#/">
               IDP admin
             </a>
