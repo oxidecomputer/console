@@ -42,6 +42,6 @@
   }
 
   .external-link {
-    @apply text-accent;
+    @apply text-accent-secondary hover:text-accent;
   }
 }
