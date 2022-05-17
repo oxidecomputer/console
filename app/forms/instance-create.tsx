@@ -256,7 +256,7 @@ export default function CreateInstanceForm({
             column
             id="boot-disk-block-size"
             name="bootDiskBlockSize"
-            label="Block Size"
+            label="Block size"
             units="Bytes"
           >
             <Radio value="512">512</Radio>
@@ -264,7 +264,7 @@ export default function CreateInstanceForm({
           </RadioField>
           <DiskSizeField
             id="disk-size"
-            label="Disk Size"
+            label="Disk size"
             blockSizeField="bootDiskBlockSize"
             name="bootDiskSize"
           />
