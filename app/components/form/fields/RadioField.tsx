@@ -39,21 +39,23 @@ export function RadioField({
   ...props
 }: RadioFieldProps) {
   return (
-    <fieldset
-      aria-describedby={cn({
-        [`${id}-help-text`]: !!helpText,
-        [`${id}-label-tip`]: !!description,
-      })}
-    >
+    <div>
       {label && (
-        <FieldLabel id={`${id}-label`} as={'legend'} tip={description}>
+        <FieldLabel id={`${id}-label`} tip={description}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
       )}
       {/* TODO: Figure out where this hint field def should live */}
       {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
-      <RadioGroup name={name} {...props} />
-    </fieldset>
+      <RadioGroup
+        name={name}
+        aria-labelledby={cn(`${id}-label`, {
+          [`${id}-help-text`]: !!description,
+        })}
+        aria-describedby={description ? `${id}-label-tip` : undefined}
+        {...props}
+      />
+    </div>
   )
 }
 
