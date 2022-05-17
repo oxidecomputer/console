@@ -22,15 +22,12 @@ const SAMPLE_OPTIONS = [
 
 export const Default: Story = {
   args: {
-    label: 'Choose an Operator',
     items: SAMPLE_OPTIONS,
   },
 }
 
 export const HideLabel: Story = {
   args: {
-    showLabel: false,
-    label: 'Choose an Operator',
     items: SAMPLE_OPTIONS,
   },
 }
@@ -38,16 +35,6 @@ export const HideLabel: Story = {
 export const WithDefaultValue: Story = {
   args: {
     defaultValue: 'de',
-    label: 'Choose an Operator',
     items: SAMPLE_OPTIONS,
-  },
-}
-
-export const WithHint: Story = {
-  args: {
-    showLabel: false,
-    label: 'Choose an Operator',
-    items: SAMPLE_OPTIONS,
-    hint: 'Hint text appears like this',
   },
 }
