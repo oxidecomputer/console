@@ -16,6 +16,8 @@ import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import invariant from 'tiny-invariant'
+import { isOneOf } from '@oxide/util'
 
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>
@@ -66,6 +68,11 @@ const makeQueryTable = <Item,>(
     pageSize = 10,
     emptyState,
   }: QueryTableProps<Item>) {
+    invariant(
+      isOneOf(children, [QueryTableColumn]),
+      'QueryTable can only have Column as a child'
+    )
+
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
