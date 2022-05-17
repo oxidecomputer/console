@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik'
 import * as Yup from 'yup'
 
-import { Form } from 'app/components/form'
+import { Form, ListboxField } from 'app/components/form'
 import type { VpcFirewallRules } from '@oxide/api'
 import {
   firewallRuleGetToPut,
@@ -14,7 +14,6 @@ import {
   CheckboxField,
   Delete10Icon,
   Divider,
-  Listbox,
   FieldLabel,
   NumberTextField,
   Radio,
@@ -144,16 +143,15 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       <Divider />
 
       <h3 className="mb-4 text-sans-xl">Targets</h3>
-      <Listbox
+      <ListboxField
+        id="target-type-field"
+        name="targetType"
         label="Target type"
         items={[
           { value: 'vpc', label: 'VPC' },
           { value: 'subnet', label: 'VPC Subnet' },
           { value: 'instance', label: 'Instance' },
         ]}
-        onChange={(item) => {
-          setFieldValue('targetType', item?.value)
-        }}
       />
       <div className="space-y-0.5">
         <FieldLabel id="targetValue-label" htmlFor="targetValue">
@@ -226,7 +224,9 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       <Divider />
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
-      <Listbox
+      <ListboxField
+        id="host-type-field"
+        name="hostType"
         label="Host type"
         items={[
           { value: 'vpc', label: 'VPC' },
@@ -235,9 +235,6 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
           { value: 'ip', label: 'IP' },
           { value: 'internet_gateway', label: 'Internet Gateway' },
         ]}
-        onChange={(item) => {
-          setFieldValue('hostType', item?.value)
-        }}
       />
       <div className="space-y-0.5">
         {/* For everything but IP this is a name, but for IP it's an IP. 
