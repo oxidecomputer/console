@@ -34,7 +34,7 @@ const SettingsLayout = () => {
           // filter out the entry for the path we're currently on
           .filter((i) => !matchPath(`/settings/${i.path}`, currentPath))
           .map((i) => ({
-            navGroup: `${i.value} Settings`,
+            navGroup: `Settings`,
             value: i.value,
             onSelect: () => navigate(i.path),
           })),

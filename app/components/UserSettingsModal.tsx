@@ -8,48 +8,64 @@ import {
   FieldLabel,
   EmptyMessage,
   Key16Icon,
+  RadioCard,
 } from '@oxide/ui'
 import Dialog from '@reach/dialog'
 import { useEffect, useMemo, useState } from 'react'
-import type { MouseEventHandler } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Formik } from 'formik'
+import { Formik, Form } from 'formik'
 import { classed } from '@oxide/util'
 import cn from 'classnames'
+import { formatDistanceToNow } from 'date-fns/esm'
+import type { Mutation } from './form'
+import { ComboboxField } from './form'
+import { RadioField } from './form'
 
 const Footer = classed.div`h-14 flex items-center px-4 border-t border-tertiary text-sans-sm text-secondary`
 
+const manualMutation: Mutation = {
+  status: 'idle',
+  data: undefined,
+  error: null,
+}
+
+const useModalNav = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const settings = searchParams.get('settings')
+  const navTo = useMemo(() => {
+    return (...params: string[]) => {
+      searchParams.delete('settings')
+      searchParams.set('settings', params.join('~'))
+      setSearchParams(searchParams, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+  return [settings?.split('~'), navTo] as const
+}
+
 export function UserSettingsModal() {
   const [showDialog, setShowDialog] = useState(false)
+  const [route, navTo] = useModalNav()
+  const [searchParams, setSearchParams] = useSearchParams()
   const close = () => {
     searchParams.delete('settings')
     setShowDialog(false)
     setSearchParams(searchParams, { replace: true })
   }
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const navTo = useMemo(() => {
-    return (param: string) => () => {
-      searchParams.delete('settings')
-      searchParams.set('settings', param)
-      setSearchParams(searchParams, { replace: true })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
-
-  const settingsId = searchParams.get('settings')
+  const view = route?.[0]
 
   useEffect(() => {
-    if (typeof settingsId === 'string' && !settingsId) {
-      navTo('profile')()
+    if (view === '') {
+      navTo('profile')
     }
-  }, [navTo, settingsId])
+  }, [navTo, view])
 
   useEffect(() => {
-    if (settingsId && !showDialog) {
+    console.log(view)
+    if (view && !showDialog) {
       setShowDialog(true)
     }
-  }, [settingsId, showDialog])
+  }, [view, showDialog])
 
   return (
     <Dialog
@@ -74,48 +90,48 @@ export function UserSettingsModal() {
             <SidebarItem
               link="profile"
               label="Profile"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
             <SidebarItem
               link="appearance"
               label="Appearance"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
             <SidebarItem
               link="hotkeys"
               label="Hotkeys"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
             <SidebarItem
               link="ssh-keys"
               label="SSH Keys"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
             <SidebarItem
               link="access-keys"
               label="Access Keys"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
             <SidebarItem
               link="rdp-keys"
               label="RDP Keys"
-              settingsId={settingsId}
+              activeLink={view}
               handleClick={navTo}
             />
           </ul>
         </div>
         <div className="flex flex-1 flex-col">
-          {settingsId === 'profile' && <Profile />}
-          {settingsId === 'appearance' && <Appearance />}
-          {settingsId === 'hotkeys' && <Hotkeys />}
-          {settingsId === 'ssh-keys' && <SshKeys />}
-          {settingsId === 'access-keys' && <AccessKeys />}
-          {settingsId === 'rdp-keys' && <RdpKeys />}
+          {view === 'profile' && <Profile />}
+          {view === 'appearance' && <Appearance />}
+          {view === 'hotkeys' && <Hotkeys />}
+          {view === 'ssh-keys' && <SshKeys />}
+          {view === 'access-keys' && <AccessKeys />}
+          {view === 'rdp-keys' && <RdpKeys />}
         </div>
       </div>
     </Dialog>
@@ -125,19 +141,19 @@ export function UserSettingsModal() {
 export interface SidebarItemProps {
   link: string
   label: string
-  settingsId: string | null
-  handleClick: (label: string) => MouseEventHandler<HTMLButtonElement> | undefined
+  activeLink: string | undefined
+  handleClick: (label: string) => void
 }
 
 function SidebarItem(props: SidebarItemProps) {
-  const { settingsId, label, handleClick, link } = props
+  const { activeLink: settingsId, label, handleClick, link } = props
   const active = (isActive: boolean) =>
     isActive ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover' : ''
 
   return (
     <button
       className="block w-full rounded text-left text-sans-sm"
-      onClick={handleClick(link)}
+      onClick={() => handleClick(link)}
     >
       <li className={cn(active(settingsId === link), 'px-2 py-[5px] hover:bg-hover')}>
         {label}
@@ -204,7 +220,86 @@ function Profile() {
 
 /** TODO: Implement appearance settings */
 function Appearance() {
-  return <h1>Not yet implemented</h1>
+  return (
+    <Formik
+      id="appearance-form"
+      title="Appearance"
+      initialValues={{ theme: 'dark', contrast: '', motion: '' }}
+      onSubmit={() => {}}
+      mutation={manualMutation}
+    >
+      <Form className="space-y-4 py-5 px-8">
+        <RadioField
+          id="theme-select"
+          name="theme"
+          label="Theme mode"
+          className="w-fit flex-nowrap text-sans-md"
+        >
+          <RadioCard value="dark">
+            <div className="flex flex-col space-y-2">
+              <svg
+                className="max-h-[137px] max-w-[237px]"
+                viewBox="0 0 237 137"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="237" height="137" rx="1" fill="#080F11" />
+                <line x1="45.5" y1="-2.18557e-08" x2="45.5" y2="138" stroke="#1C2325" />
+                <rect x="60" y="16" width="59" height="6" rx="1" fill="#2E8160" />
+                <rect x="60" y="37" width="161" height="12" rx="1" fill="#102422" />
+                <rect x="108" y="77" width="113" height="12" rx="1" fill="#1C2325" />
+                <rect x="108" y="61" width="113" height="12" rx="1" fill="#1C2325" />
+                <rect x="108" y="93" width="113" height="12" rx="1" fill="#1C2325" />
+              </svg>
+              <span>Default (Dark)</span>
+            </div>
+          </RadioCard>
+          <RadioCard value="light">
+            <div className="flex flex-col space-y-2">
+              <svg
+                className="max-h-[137px] max-w-[237px]"
+                viewBox="0 0 237 137"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="237" height="137" rx="1" fill="#DBDBDC" />
+                <rect x="60" y="16" width="59" height="6" rx="1" fill="#141A1C" />
+                <rect
+                  opacity="0.6"
+                  x="60"
+                  y="37"
+                  width="161"
+                  height="12"
+                  rx="1"
+                  fill="#48D597"
+                />
+                <rect x="108" y="77" width="113" height="12" rx="1" fill="#AEB0B2" />
+                <rect x="108" y="61" width="113" height="12" rx="1" fill="#AEB0B2" />
+                <rect x="108" y="93" width="113" height="12" rx="1" fill="#AEB0B2" />
+                <rect x="60" y="61" width="32" height="32" rx="1" fill="#AEB0B2" />
+                <line x1="45.5" y1="2.18557e-08" x2="45.5" y2="137" stroke="#AEB0B2" />
+              </svg>
+              <span>Light</span>
+            </div>
+          </RadioCard>
+        </RadioField>
+        <ComboboxField
+          id="theme-contrast"
+          name="contrast"
+          label="Theme contrast"
+          items={['Default', 'High Contrast']}
+          required
+        ></ComboboxField>
+        <ComboboxField
+          id="reduce-motion"
+          name="motion"
+          label="Reduce Motion"
+          items={['Use system settings', 'Low motion', 'High motion']}
+          required
+        ></ComboboxField>
+      </Form>
+    </Formik>
+  )
 }
 
 /** TODO: Implement hotkey settings */
@@ -238,14 +333,16 @@ function SshKeys() {
           <Divider className="px-0" />
           {sshKeys.map((sshKey) => (
             <>
-              <div key={sshKey.id}>
-                <header>
+              <div key={sshKey.id} className="mx-5 my-3">
+                <header className="flex justify-between text-sans-md">
                   <span>{sshKey.name}</span>
-                  <Button>
-                    <More12Icon />
+                  <Button variant="ghost" color="neutral" className="!border-0" size="xs">
+                    <More12Icon className="pl-0.5" />
                   </Button>
                 </header>
-                <span>Added {sshKey.timeCreated}</span>
+                <span className="text-sans-sm text-secondary">
+                  Added {formatDistanceToNow(sshKey.timeCreated, { addSuffix: true })}
+                </span>
               </div>
               <Divider className="px-0" />
             </>
