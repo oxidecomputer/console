@@ -14,7 +14,7 @@ import {
   CheckboxField,
   Delete10Icon,
   Divider,
-  Dropdown,
+  Listbox,
   FieldLabel,
   NumberTextField,
   Radio,
@@ -144,7 +144,7 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       <Divider />
 
       <h3 className="mb-4 text-sans-xl">Targets</h3>
-      <Dropdown
+      <Listbox
         label="Target type"
         items={[
           { value: 'vpc', label: 'VPC' },
@@ -226,7 +226,7 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       <Divider />
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
-      <Dropdown
+      <Listbox
         label="Host type"
         items={[
           { value: 'vpc', label: 'VPC' },

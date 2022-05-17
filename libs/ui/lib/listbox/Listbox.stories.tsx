@@ -1,11 +1,11 @@
-import { Dropdown } from './Dropdown'
+import { Listbox } from './Listbox'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
-type Story = StoryObj<ComponentProps<typeof Dropdown>>
+type Story = StoryObj<ComponentProps<typeof Listbox>>
 
 export default {
-  component: Dropdown,
+  component: Listbox,
 } as Story
 
 const SAMPLE_OPTIONS = [

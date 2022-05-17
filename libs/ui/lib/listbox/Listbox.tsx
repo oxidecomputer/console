@@ -9,7 +9,7 @@ import { FieldLabel } from '../field-label/FieldLabel'
 
 type Item = { value: string; label: string }
 
-export interface DropdownProps {
+export interface ListboxProps {
   defaultValue?: string
   hint?: string | React.ReactNode
   /**
@@ -26,7 +26,7 @@ export interface DropdownProps {
   onChange?: (value: Item | null | undefined) => void
 }
 
-export const Dropdown: FC<DropdownProps> = ({
+export const Listbox: FC<ListboxProps> = ({
   defaultValue,
   hint,
   label,
