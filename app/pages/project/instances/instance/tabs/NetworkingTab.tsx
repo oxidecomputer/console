@@ -96,10 +96,10 @@ export function NetworkingTab() {
         </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column id="name" />
-        <Column id="description" />
+        <Column accessor="name" />
+        <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
-        <Column id="ip" />
+        <Column accessor="ip" />
       </Table>
     </>
   )

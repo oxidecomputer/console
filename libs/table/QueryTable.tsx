@@ -2,12 +2,12 @@
 
 import React from 'react'
 import { DefaultCell } from './cells'
-import { DefaultHeader } from './headers'
 import { getActionsCol, getSelectCol } from './columns'
 import { createTable, Table } from './Table'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
+import type { AccessorFn } from '@tanstack/react-table'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { ComponentType, ReactElement } from 'react'
 import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
@@ -69,29 +69,32 @@ const makeQueryTable = <Item,>(
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
-      const columns = React.Children.toArray(children).map((child) => {
-        const column = { ...(child as ReactElement).props }
-        const options = {
-          header: column.header || column.id,
-          cell: (info: any) => {
-            const Comp = column.cell || DefaultCell
-            return <Comp value={info.getValue()} />
-          },
-          id: column.id,
-        }
+      let columns = React.Children.toArray(children).map((child) => {
+        const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
 
-        if (typeof options.header === 'string') {
-          const name = options.header
-          options.header = <DefaultHeader>{name}</DefaultHeader>
-        }
+        // QueryTableColumnProps ensures `id` is passed in if and only if
+        // `accessor` is not a string
+        const id = 'id' in column ? column.id : column.accessor
 
-        const accessor = column.accessor || column.id
-        // it doesn't like the type of options here but the error is opaque
-        return tableHelper.createDataColumn(accessor, options as any)
+        return tableHelper.createDataColumn(
+          column.accessor,
+          // I think passing variables here messes with RT's ability to infer
+          // the relationships between these keys. The type error is useless.
+          // This is fine though: it's simple enough and it's correct.
+          // @ts-expect-error
+          {
+            id,
+            header: typeof column.header === 'string' ? column.header : id,
+            cell: (info: any) => {
+              const Comp = column.cell || DefaultCell
+              return <Comp value={info.getValue()} />
+            },
+          }
+        )
       })
+
       if (makeActions) {
-        columns.unshift(getSelectCol())
-        columns.push(getActionsCol(makeActions))
+        columns = [getSelectCol(), ...columns, getActionsCol(makeActions)]
       }
 
       return columns
@@ -146,15 +149,17 @@ const makeQueryTable = <Item,>(
     )
   }
 
-export interface QueryTableColumnProps<Item, R extends unknown = any> {
-  id: string
-  accessor?: keyof Item | ((item: Item) => R)
+export type QueryTableColumnProps<Item> = {
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
-  cell?: ComponentType<R>
-}
+  cell?: ComponentType<{ value: any }>
+} & ( // imitate the way RT works: only pass id if accessor is not a string
+  | { accessor: keyof Item }
+  | {
+      accessor: AccessorFn<Item>
+      id: string
+    }
+)
 
-const QueryTableColumn = <Item, R extends unknown = any>(
-  _props: QueryTableColumnProps<Item, R>
-) => null
+const QueryTableColumn = <Item,>(_props: QueryTableColumnProps<Item>) => null
