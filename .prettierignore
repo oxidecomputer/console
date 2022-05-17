@@ -4,4 +4,4 @@
 /coverage
 /templates
 
-app/mockServiceWorker.js
+mockServiceWorker.js
