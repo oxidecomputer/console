@@ -13,25 +13,29 @@ import { TopBar } from '../components/TopBar'
 import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { Form } from 'app/components/form'
+import { UserSettingsModal } from 'app/components/UserSettingsModal'
 
 const RootLayout = () => {
   return (
-    <PageContainer>
-      <Sidebar>TBD</Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <Breadcrumbs />
-          <SkipLinkTarget />
-          <PageHeader />
-          <Outlet />
-        </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <Form.PageActions />
-        </ContentPaneActions>
-      </ContentPaneWrapper>
-    </PageContainer>
+    <>
+      <PageContainer>
+        <Sidebar>TBD</Sidebar>
+        <ContentPaneWrapper>
+          <ContentPane>
+            <TopBar />
+            <Breadcrumbs />
+            <SkipLinkTarget />
+            <PageHeader />
+            <Outlet />
+          </ContentPane>
+          <ContentPaneActions>
+            <Pagination.Target />
+            <Form.PageActions />
+          </ContentPaneActions>
+        </ContentPaneWrapper>
+      </PageContainer>
+      <UserSettingsModal />
+    </>
   )
 }
 
