@@ -5,36 +5,26 @@ import cn from 'classnames'
 import { useSelect } from 'downshift'
 
 import { DirectionDownIcon } from '../icons'
-import { FieldLabel } from '../field-label/FieldLabel'
 
 type Item = { value: string; label: string }
 
-export interface DropdownProps {
+export interface ListboxProps {
   defaultValue?: string
-  hint?: string | React.ReactNode
-  /**
-   * Required for accessibility. Description of the dropdown.
-   */
-  label: string
   items: Item[]
   placeholder?: string
-  /**
-   * Whether to show label to sighted users
-   */
-  showLabel?: boolean
   className?: string
+  disabled?: boolean
   onChange?: (value: Item | null | undefined) => void
+  name?: string
 }
 
-export const Dropdown: FC<DropdownProps> = ({
+export const Listbox: FC<ListboxProps> = ({
   defaultValue,
-  hint,
-  label,
   items,
   placeholder,
-  showLabel = true,
   className,
   onChange,
+  ...props
 }) => {
   const itemToString = (item: Item | null) => (item ? item.label : '')
   const select = useSelect({
@@ -45,25 +35,22 @@ export const Dropdown: FC<DropdownProps> = ({
       onChange?.(changes.selectedItem)
     },
   })
-  const hintId = hint ? `${select.getLabelProps().id}-hint` : null
 
   return (
     <div className={cn('relative', className)}>
-      <FieldLabel {...select.getLabelProps()} className={cn(!showLabel && 'sr-only')}>
-        {label}
-      </FieldLabel>
       <button
         type="button"
         className={cn(
           `mt-1 flex w-full items-center justify-between rounded border
           py-2 px-4 text-sans-md bg-default border-default
-          hover:bg-hover focus:ring-1 focus:ring-accent-secondary`,
+          hover:bg-hover focus:ring-1 focus:ring-accent-secondary
+          disabled:cursor-not-allowed disabled:bg-disabled`,
           select.isOpen ? 'text-secondary' : 'text-default'
         )}
-        aria-describedby={hintId}
         {...select.getToggleButtonProps()}
+        {...props}
       >
-        {select.selectedItem ? itemToString(select.selectedItem) : placeholder || label}
+        <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
         <DirectionDownIcon title="Select" className="ml-5" />
       </button>
       <ul
@@ -89,11 +76,6 @@ export const Dropdown: FC<DropdownProps> = ({
             </li>
           ))}
       </ul>
-      {hint && hintId && (
-        <div id={hintId} className="mt-1 text-mono-sm text-secondary">
-          {hint}
-        </div>
-      )}
     </div>
   )
 }
