@@ -69,7 +69,7 @@ test.describe('VpcPage', () => {
     await expect(page.locator('td:has-text("my-target-vpc")')).toBeVisible()
 
     // add host filter instance "host-filter-instance"
-    await page.locator('button:has-text("Host type")').click()
+    await page.locator('role=combobox[name=hostType]').click()
     await page.locator('[role=option] >> text="Instance"').click()
     await page.fill('text="Value"', 'host-filter-instance')
     await page.locator('text="Add host filter"').click()
@@ -152,7 +152,7 @@ test.describe('VpcPage', () => {
     await page.fill('input[name=name]', 'new-rule-name')
 
     // add host filter
-    await page.locator('button:has-text("Host type")').click()
+    await page.locator('role=combobox[name=hostType]').click()
     await page.locator('[role=option] >> text="Instance"').click()
     await page.fill('text="Value"', 'edit-filter-instance')
     await page.locator('text="Add host filter"').click()

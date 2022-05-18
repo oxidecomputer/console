@@ -15,6 +15,7 @@ export interface ListboxProps {
   className?: string
   disabled?: boolean
   onChange?: (value: Item | null | undefined) => void
+  name?: string
 }
 
 export const Listbox: FC<ListboxProps> = ({

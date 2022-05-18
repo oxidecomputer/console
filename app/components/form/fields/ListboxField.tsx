@@ -39,6 +39,7 @@ export function ListboxField({
           [`${id}-help-text`]: !!description,
         })}
         aria-describedby={description ? `${id}-label-tip` : undefined}
+        name={name}
       />
     </div>
   )
