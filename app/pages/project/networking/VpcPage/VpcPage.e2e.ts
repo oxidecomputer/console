@@ -60,8 +60,8 @@ test.describe('VpcPage', () => {
     await page.fill('text="Priority"', '5')
 
     // add target VPC "my-target-vpc"
-    await page.locator('button:has-text("Target type")').click()
-    await page.locator('[role=option] >> text="VPC"').click()
+    await page.locator('role=button[name="Target type"]').click()
+    await page.locator('role=option[name="VPC"]').click()
     await page.fill('text="Target name"', 'my-target-vpc')
     await page.locator('text="Add target"').click()
 
@@ -69,8 +69,8 @@ test.describe('VpcPage', () => {
     await expect(page.locator('td:has-text("my-target-vpc")')).toBeVisible()
 
     // add host filter instance "host-filter-instance"
-    await page.locator('button:has-text("Host type")').click()
-    await page.locator('[role=option] >> text="Instance"').click()
+    await page.locator('role=button[name="Host type"]').click()
+    await page.locator('role=option[name="Instance"]').click()
     await page.fill('text="Value"', 'host-filter-instance')
     await page.locator('text="Add host filter"').click()
 
@@ -152,8 +152,8 @@ test.describe('VpcPage', () => {
     await page.fill('input[name=name]', 'new-rule-name')
 
     // add host filter
-    await page.locator('button:has-text("Host type")').click()
-    await page.locator('[role=option] >> text="Instance"').click()
+    await page.locator('role=button[name="Host type"]').click()
+    await page.locator('role=option[name="Instance"]').click()
     await page.fill('text="Value"', 'edit-filter-instance')
     await page.locator('text="Add host filter"').click()
 
