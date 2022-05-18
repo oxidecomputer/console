@@ -81,24 +81,35 @@ export function StorageTab() {
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
+  const bootLabelId = 'boot-disk-label'
+
   const otherDisksTable = useTableInstance(table, {
     columns,
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
   })
+  const attachedLabelId = 'attached-disks-label'
 
   if (!data) return null
 
   return (
     <div className="mt-8">
-      <h2 className="mb-4 text-mono-sm text-secondary">Boot disk</h2>
+      <h2 id={bootLabelId} className="mb-4 text-mono-sm text-secondary">
+        Boot disk
+      </h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
       {/* TODO: figure out how to align the columns of the two tables. simple 
         way is just to explicitly specify the widths for both tables */}
-      <Table table={bootDiskTable} rowClassName="!h-10" />
-      <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Attached Disks</h2>
+      <Table table={bootDiskTable} rowClassName="!h-10" aria-labelledby={bootLabelId} />
+      <h2 id={attachedLabelId} className="mt-12 mb-4 text-mono-sm text-secondary">
+        Attached disks
+      </h2>
       {otherDisks.length > 0 ? (
-        <Table table={otherDisksTable} rowClassName="!h-10" />
+        <Table
+          table={otherDisksTable}
+          rowClassName="!h-10"
+          aria-labelledby={attachedLabelId}
+        />
       ) : (
         <OtherDisksEmpty />
       )}

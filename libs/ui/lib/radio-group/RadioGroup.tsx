@@ -70,11 +70,13 @@ export const RadioGroup = ({
   column,
   className,
   onChange,
+  ...props
 }: RadioGroupProps) => (
   <div
     className={cn('flex', column ? 'flex-col space-y-2' : 'flex-wrap gap-5', className)}
     role="radiogroup"
     onChange={onChange}
+    {...props}
   >
     {React.Children.map(children, (radio) =>
       React.cloneElement(radio, { name, required, disabled })

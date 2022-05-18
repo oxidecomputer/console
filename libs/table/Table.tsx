@@ -2,8 +2,7 @@ import type { TableInstance } from '@tanstack/react-table'
 import { createTable as _createTable } from '@tanstack/react-table'
 import { Table as UITable } from '@oxide/ui'
 
-export type TableProps<TGenerics> = {
-  className?: string
+export type TableProps<TGenerics> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string
   table: TableInstance<TGenerics>
 }
@@ -26,10 +25,14 @@ type OurTableGenerics = ReturnType<typeof createTable>['generics']
  * Render a React Table table instance. Will get mad if `table` comes from the
  * built-in `createTable` instead of our {@link createTable}.
  */
-export const Table = <TGenerics extends OurTableGenerics>(props: TableProps<TGenerics>) => (
-  <UITable className={props.className}>
+export const Table = <TGenerics extends OurTableGenerics>({
+  rowClassName,
+  table,
+  ...tableProps
+}: TableProps<TGenerics>) => (
+  <UITable {...tableProps}>
     <UITable.Header>
-      {props.table.getHeaderGroups().map((headerGroup) => (
+      {table.getHeaderGroups().map((headerGroup) => (
         <UITable.HeaderRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
             <UITable.HeadCell key={header.id} className={header.column.meta?.thClassName}>
@@ -40,8 +43,8 @@ export const Table = <TGenerics extends OurTableGenerics>(props: TableProps<TGen
       ))}
     </UITable.Header>
     <UITable.Body>
-      {props.table.getRowModel().rows.map((row) => (
-        <UITable.Row className={props.rowClassName} key={row.id}>
+      {table.getRowModel().rows.map((row) => (
+        <UITable.Row className={rowClassName} key={row.id}>
           {row.getAllCells().map((cell) => (
             <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
           ))}

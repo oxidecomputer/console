@@ -70,7 +70,7 @@
     "@figma-export/cli": "^3.5.0",
     "@figma-export/output-components-as-svgr": "^3.4.0",
     "@figma-export/transform-svg-with-svgo": "^3.5.0",
-    "@playwright/test": "^1.19.1",
+    "@playwright/test": "^1.22.1",
     "@storybook/addon-docs": "^6.4.21",
     "@storybook/addon-essentials": "^6.4.21",
     "@storybook/addon-links": "^6.4.21",

@@ -20,13 +20,21 @@ type ComboboxProps = {
 /**
  * Reach Combobox with match filtering and sorting powered by match-sorter.
  */
-export function Combobox({ items, onChange, onSelect, value, disabled }: ComboboxProps) {
+export function Combobox({
+  items,
+  onChange,
+  onSelect,
+  value,
+  disabled,
+  ...props
+}: ComboboxProps) {
   const matches = matchSorter(items, value)
   return (
     <RCombobox
       openOnFocus
       className="rounded border bg-default border-default focus-within:border-accent hover:focus-within:border-accent"
       onSelect={onSelect}
+      {...props}
     >
       <ComboboxInput
         className={`w-full border-none bg-transparent

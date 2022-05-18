@@ -82,7 +82,7 @@ export function CreateDiskForm({
         column
         id="disk-block-size"
         name="blockSize"
-        label="Block Size"
+        label="Block size"
         units="Bytes"
       >
         <Radio value="512">512</Radio>

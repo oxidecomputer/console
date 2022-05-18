@@ -47,7 +47,7 @@ export function EditSubnetForm({
       <DescriptionField id="subnet-description" />
       <Divider />
       <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
+        <Form.Submit>Update subnet</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
     </Form>
