@@ -120,11 +120,7 @@ Playwright tests match the filename pattern `.e2e.ts`. The basic command to run 
 
 Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) for more details):
 
-- Add `--headed` to run the full tests in visible browsers (but they go by too fast to really see anything)
-- (Requires `--headed`) The simplest way to debug at a particular spot is to add `await page.pause();` right before it. This runs the test in a headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) and pauses the debugger. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
-- `PWDEBUG=1 yarn playwright test` starts the tests in headed browser with the inspector, paused on the first line of the first test
-- Add `--project=chromium` to only run the tests in a single browser
-  - Useful in combination with the inspector options because 3 browsers and 3 inspectors is not very useful (and it doesn't say which inspector goes with which browser)
+- Add `await page.pause()` to a test and run `yarn e2e <test file> --headed --project=chromium` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
 
 ### Other useful commands
 
