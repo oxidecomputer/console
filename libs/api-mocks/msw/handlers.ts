@@ -10,10 +10,12 @@ import type {
   NotFound,
   OrgParams,
   ProjectParams,
+  SshKeyParams,
   VpcParams,
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
+import { notFoundErr } from './db'
 import {
   db,
   lookupInstance,
@@ -62,6 +64,56 @@ type PostErr = AlreadyExists | NotFound
 
 export const handlers = [
   rest.get('/api/session/me', (req, res) => res(json(sessionMe))),
+
+  rest.get<never, never, Json<Api.SshKeyResultsPage>>(
+    '/api/session/me/sshkeys',
+    (req, res) =>
+      res(
+        json({
+          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
+        })
+      )
+  ),
+
+  rest.post<Json<Api.SshKeyCreate>, never, Json<Api.SshKey> | PostErr>(
+    '/api/session/me/sshkeys',
+    (req, res) => {
+      const alreadyExists = db.sshKeys.some(
+        (key) => key.name === req.body.name && key.silo_user_id === sessionMe.id
+      )
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      // TODO: validate public_key
+      if (!req.body.public_key) {
+        return res(badRequest('expected public key'))
+      }
+
+      const newSshKey: Json<Api.SshKey> = {
+        id: genId('ssh-key'),
+        silo_user_id: sessionMe.id,
+        ...req.body,
+        ...getTimestamps(),
+      }
+      db.sshKeys.push(newSshKey)
+      return res(json(newSshKey, 201))
+    }
+  ),
+
+  rest.delete<never, SshKeyParams, GetErr>(
+    '/api/session/me/sshkeys/:sshKeyName',
+    (req, res, ctx) => {
+      const sshKey = db.sshKeys.find(
+        (key) => key.name === req.params.sshKeyName && key.silo_user_id === sessionMe.id
+      )
+      if (!sshKey) return res(notFoundErr)
+      db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
+      return res(ctx.status(204))
+    }
+  ),
 
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
