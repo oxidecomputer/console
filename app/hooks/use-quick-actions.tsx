@@ -74,7 +74,7 @@ export function QuickActions() {
     <ActionMenu
       isOpen={isOpen}
       onDismiss={closeDialog}
-      ariaLabel="Quick actions"
+      aria-label="Quick actions"
       items={items}
     />
   )

@@ -19,7 +19,7 @@ export interface ActionMenuProps {
   onDismiss: () => void
   className?: string
   inputClassName?: string
-  ariaLabel: string
+  'aria-label': string
   items: QuickActionItem[]
 }
 
@@ -73,7 +73,7 @@ export function ActionMenu(props: ActionMenuProps) {
   return (
     <Dialog
       className="ActionMenu mt-[20vh] !w-[46rem] bg-transparent p-0"
-      aria-label={props.ariaLabel}
+      aria-label={props['aria-label']}
       isOpen={props.isOpen}
       onDismiss={onDismiss}
     >

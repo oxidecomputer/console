@@ -70,7 +70,7 @@ export const handlers = [
     (req, res) =>
       res(
         json({
-          items: db.sshKeys,
+          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
         })
       )
   ),
@@ -78,7 +78,9 @@ export const handlers = [
   rest.post<Json<Api.SshKeyCreate>, never, Json<Api.SshKey> | PostErr>(
     '/api/session/me/sshkeys',
     (req, res) => {
-      const alreadyExists = db.sshKeys.some((o) => o.name === req.body.name)
+      const alreadyExists = db.sshKeys.some(
+        (key) => key.name === req.body.name && key.silo_user_id === sessionMe.id
+      )
       if (alreadyExists) return res(alreadyExistsErr)
 
       if (!req.body.name) {
@@ -104,7 +106,9 @@ export const handlers = [
   rest.delete<never, SshKeyParams, GetErr>(
     '/api/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
-      const sshKey = db.sshKeys.find((o) => o.name === req.params.sshKeyName)
+      const sshKey = db.sshKeys.find(
+        (key) => key.name === req.params.sshKeyName && key.silo_user_id === sessionMe.id
+      )
       if (!sshKey) return res(notFoundErr)
       db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
       return res(ctx.status(204))
