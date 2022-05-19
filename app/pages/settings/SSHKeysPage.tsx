@@ -58,7 +58,6 @@ export function SSHKeysPage() {
             onClick={() => setCreateModalOpen(true)}
           />
         }
-        debug
       >
         <Column id="name" header="Name" />
         <Column id="description" header="Description" />

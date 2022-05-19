@@ -19,12 +19,15 @@ export function ProfilePage() {
       <TextField id="profile-name" name="name" required disabled />
       <TextField id="profile-username" name="username" required disabled />
       <TextField id="profile-email" name="email" required disabled />
-      <span className="inline-block">
-        Your user information is managed on Okta. <br className="hidden md+:block" /> To
-        update, contact your{' '}
-        <a className="external-link" href="#/">
-          IDP admin
-        </a>
+      <span className="inline-block text-secondary">
+        <span>Your user information is managed on Okta. </span>
+        <span className="md+:block">
+          To update, contact your{' '}
+          <a className="external-link" href="#/">
+            IDP admin
+          </a>
+          .
+        </span>
       </span>
       <Form.Actions>
         <Form.Submit disabled>Save</Form.Submit>

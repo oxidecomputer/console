@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
 
-import { SkipLinkTarget } from '@oxide/ui'
+import { Button, DirectionLeftIcon, SkipLinkTarget } from '@oxide/ui'
 import {
   ContentPane,
   ContentPaneWrapper,
@@ -19,6 +19,7 @@ import { Form } from 'app/components/form'
 const SettingsLayout = () => {
   const navigate = useNavigate()
   const currentPath = useLocation().pathname
+
   useQuickActions(
     useMemo(
       () =>
@@ -44,13 +45,16 @@ const SettingsLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
+        {/* TODO: Make the back nav here smarter to return you to the previous non-settings screen */}
+        <Button variant="link" onClick={() => navigate('/')}>
+          <DirectionLeftIcon />
+          Back
+        </Button>
         <Sidebar.Nav heading="User">
           <NavLinkItem to="profile">Profile</NavLinkItem>
           <NavLinkItem to="appearance">Appearance</NavLinkItem>
           <NavLinkItem to="hotkeys">Hotkeys</NavLinkItem>
           <NavLinkItem to="ssh-keys">SSH Keys</NavLinkItem>
-          <NavLinkItem to="access-keys">Access Keys</NavLinkItem>
-          <NavLinkItem to="rdp-keys">RDP Keys</NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPaneWrapper>

@@ -23,6 +23,7 @@ import { PageHeader } from '../components/PageHeader'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
 import { Form } from 'app/components/form'
+import { ProjectSelector } from 'app/components/ProjectSelector'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -53,6 +54,7 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
+        <ProjectSelector />
         <Sidebar.Nav heading="project">
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
