@@ -1,8 +1,8 @@
-import { RadioCard } from '@oxide/ui'
-import type { Mutation } from 'app/components/form'
+import { Radio, RadioCard } from '@oxide/ui'
+import type { FormMutation } from 'app/components/form'
 import { Form, RadioField } from 'app/components/form'
 
-const manualMutation: Mutation = {
+const manualMutation: FormMutation = {
   status: 'idle',
   data: undefined,
   error: null,
@@ -13,7 +13,7 @@ export function AppearancePage() {
     <Form
       id="appearance-form"
       title="Appearance"
-      initialValues={{ theme: 'dark' }}
+      initialValues={{ theme: 'dark', contrast: 'default', reducedMotion: 'system' }}
       onSubmit={() => {}}
       mutation={manualMutation}
     >
@@ -67,6 +67,22 @@ export function AppearancePage() {
             <span>Light</span>
           </div>
         </RadioCard>
+      </RadioField>
+
+      <RadioField id="contrast-select" name="contrast" label="Theme Contrast" column>
+        <Radio value="default">Default</Radio>
+        <Radio value="high">High Contrast</Radio>
+      </RadioField>
+
+      <RadioField
+        id="reduced-motion-select"
+        name="reducedMotion"
+        label="Reduced Motion"
+        column
+      >
+        <Radio value="system">Use system settings</Radio>
+        <Radio value="enabled">Enabled</Radio>
+        <Radio value="disabled">Disabled</Radio>
       </RadioField>
 
       <Form.Actions>
