@@ -1,7 +1,6 @@
 import { PageHeader as Header, PageTitle } from '@oxide/ui'
 import invariant from 'tiny-invariant'
 import { useMatches } from 'app/hooks/use-matches'
-import { capitalize } from '@oxide/util'
 
 export function PageHeader() {
   const matches = useMatches()?.reverse()
@@ -19,7 +18,7 @@ export function PageHeader() {
   return (
     (title && (
       <Header>
-        <PageTitle icon={icon}>{capitalize(title)}</PageTitle>
+        <PageTitle icon={icon}>{title}</PageTitle>
       </Header>
     )) ||
     null
