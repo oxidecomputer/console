@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Combobox as RCombobox,
   ComboboxInput,
@@ -6,48 +7,49 @@ import {
   ComboboxOption,
 } from '@reach/combobox'
 import { matchSorter } from 'match-sorter'
-import type { ChangeEvent } from 'react'
 import './Combobox.css'
 
 type ComboboxProps = {
   items: string[]
-  value: string
   disabled?: boolean
   onSelect: (value: string) => void
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  'aria-label'?: string
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
 }
 
 /**
  * Reach Combobox with match filtering and sorting powered by match-sorter.
  */
-export function Combobox({
-  items,
-  onChange,
-  onSelect,
-  value,
-  disabled,
-  ...props
-}: ComboboxProps) {
-  const matches = matchSorter(items, value)
+export function Combobox({ items, onSelect, disabled, ...props }: ComboboxProps) {
+  // only local input state, not the value considered "selected" by the combobox
+  const [inputValue, setInputValue] = useState('')
+
+  const matches = matchSorter(items, inputValue)
+
+  function setValue(value: string) {
+    onSelect(value)
+    setInputValue(value)
+  }
+
   return (
     <RCombobox
       openOnFocus
       className="rounded border bg-default border-default focus-within:border-accent hover:focus-within:border-accent"
-      onSelect={onSelect}
+      // assume value is allowed since it was selected
+      onSelect={setValue}
       {...props}
     >
       <ComboboxInput
         className={`w-full border-none bg-transparent
         py-[0.5625rem] px-3
         text-sans-md text-default focus:outline-none disabled:cursor-not-allowed`}
-        onChange={onChange}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        // if value is in items, select it for real. otherwise reset the input
+        onBlur={() => setValue(items.includes(inputValue.trim()) ? inputValue.trim() : '')}
         // TODO: better disabled styling
         disabled={disabled}
-        // Note that unlike with a plain <input>, passing `onChange` does not
-        // also require passing in `value`, and in fact passing in `value`
-        // causes weird behavior. Our `onChange` is called in addition to the
-        // built-in one that allows it to manage its own state internally; our
-        // callback does not replace theirs. In short, do not pass `value` here.
       />
       <ComboboxPopover className="mt-2 bg-default">
         {matches.length === 0 ? (

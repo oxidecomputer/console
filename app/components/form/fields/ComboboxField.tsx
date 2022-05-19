@@ -13,8 +13,6 @@ export type ComboboxFieldProps = {
   description?: string
 }
 
-// TODO: description passed to aria-describedby and FieldLabel `tip`
-
 export function ComboboxField({
   id,
   items,
@@ -25,7 +23,7 @@ export function ComboboxField({
   description,
   helpText,
 }: ComboboxFieldProps) {
-  const [, { value }, { setValue }] = useField({ name })
+  const { setValue } = useField({ name })[2]
   return (
     <div>
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
@@ -34,9 +32,7 @@ export function ComboboxField({
       {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <Combobox
         items={items}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onSelect={(value) => setValue(value)}
+        onSelect={setValue}
         disabled={disabled}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
