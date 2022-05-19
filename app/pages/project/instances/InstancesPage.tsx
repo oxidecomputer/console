@@ -74,7 +74,7 @@ export const InstancesPage = () => {
       </TableActions>
       <Table makeActions={makeActions} emptyState={<EmptyState />}>
         <Column
-          id="name"
+          accessor="name"
           cell={linkCell(
             (name) => `/orgs/${orgName}/projects/${projectName}/instances/${name}`
           )}
@@ -93,8 +93,8 @@ export const InstancesPage = () => {
           })}
           cell={InstanceStatusCell}
         />
-        <Column id="hostname" />
-        <Column id="created" accessor="timeCreated" cell={DateCell} />
+        <Column accessor="hostname" />
+        <Column accessor="timeCreated" header="created" cell={DateCell} />
       </Table>
     </>
   )

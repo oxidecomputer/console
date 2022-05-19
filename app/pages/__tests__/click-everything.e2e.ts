@@ -1,17 +1,5 @@
-import type { Page } from '@playwright/test'
-import { test, expect } from '@playwright/test'
-
-async function expectVisible(page: Page, selectors: string[]) {
-  for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeVisible()
-  }
-}
-
-async function expectNotVisible(page: Page, selectors: string[]) {
-  for (const selector of selectors) {
-    await expect(page.locator(selector)).not.toBeVisible()
-  }
-}
+import { test } from '@playwright/test'
+import { expectVisible, expectNotVisible } from 'app/util/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
   await page.goto('/')
@@ -290,6 +278,4 @@ test("Click through everything and make it's all there", async ({ page }) => {
   // Gateways
   await page.click('role=tab[name="Gateways"]')
   // not implemeneted
-
-  // TODO: test table row selection and indeterminate stuff somewhere
 })

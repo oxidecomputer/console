@@ -62,9 +62,9 @@ export const VpcRoutersTab = () => {
         </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column id="name" header="Name" />
-        <Column id="kind" header="type" cell={LabelCell} />
-        <Column id="created" header="Created" accessor="timeCreated" cell={DateCell} />
+        <Column accessor="name" />
+        <Column accessor="kind" header="type" cell={LabelCell} />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>
   )
