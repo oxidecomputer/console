@@ -10,7 +10,6 @@ const Email16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVG
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const Email16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVG
         fillRule="evenodd"
         clipRule="evenodd"
         d="M7.99998 7L1.59998 3H14.4L7.99998 7ZM0 13V4L8 9L16 4V13H0Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

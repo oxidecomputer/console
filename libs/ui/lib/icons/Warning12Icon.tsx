@@ -14,7 +14,6 @@ const Warning12Icon = ({
     width={12}
     height={12}
     viewBox="0 0 12 12"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Warning12Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6 0L12 12H0L6 0ZM5.25 4.00001H6.75V8.00001H5.25V4.00001ZM5.25 9.00001H6.75V10.5H5.25V9.00001Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

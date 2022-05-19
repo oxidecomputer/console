@@ -14,7 +14,6 @@ const Gateway24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Gateway24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M5 2H19V22H5V2ZM17 4L10 7V16.7525L17 20V4Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

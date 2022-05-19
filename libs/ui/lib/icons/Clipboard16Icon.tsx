@@ -14,7 +14,6 @@ const Clipboard16Icon = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Clipboard16Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10 1H6V3H10V1ZM2 2H4V5H12V2H14V15H2V2Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

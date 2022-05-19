@@ -14,7 +14,6 @@ const Terminal16Icon = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Terminal16Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M16 1H0V15H16V1ZM2 11V9L6 7L2 5V3L8 6V8L2 11ZM8 11H14V13H8V11Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

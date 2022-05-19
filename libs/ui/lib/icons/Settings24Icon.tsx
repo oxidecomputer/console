@@ -14,7 +14,6 @@ const Settings24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -25,7 +24,7 @@ const Settings24Icon = ({
       <path
         id="Vector"
         d="M12 2L3 7V17L12 22L21 17V7L12 2ZM12 17C9.2 17 7 14.8 7 12C7 9.2 9.2 7 12 7C14.8 7 17 9.2 17 12C17 14.8 14.8 17 12 17Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

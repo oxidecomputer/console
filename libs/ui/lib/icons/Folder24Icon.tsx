@@ -14,7 +14,6 @@ const Folder24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Folder24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M1 3H14V6H1V3ZM1 8H23V21H1V8Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

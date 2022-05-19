@@ -15,12 +15,12 @@ rm -rf $ICONS_DIR
 # This command requires a FIGMA_TOKEN env var with read access to Oxide's DS to be set
 yarn figma-export use-config
 
-# for file in $ICONS_DIR/*.js $ICONS_DIR/**/*.js; do
-#   mv -- "$file" "${file%.js}.ts"
-# done
+for file in $ICONS_DIR/*.js $ICONS_DIR/**/*.js; do
+  mv -- "$file" "${file%.js}.ts"
+done
 
-# for file in $CODEMOD_DIR/*.icons.js; do
-#     yarn jscodeshift -t $file --extensions=ts,tsx --parser=tsx $ICONS_DIR
-# done
+for file in $CODEMOD_DIR/*.icons.js; do
+    yarn jscodeshift -t $file --extensions=ts,tsx --parser=tsx $ICONS_DIR
+done
 
-# yarn fmt .
+yarn fmt .

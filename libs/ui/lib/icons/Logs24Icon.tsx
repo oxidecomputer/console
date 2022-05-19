@@ -10,7 +10,6 @@ const Logs24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const Logs24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         fillRule="evenodd"
         clipRule="evenodd"
         d="M2 4H6V8H5L5 11H8V10H22V14H8V13H5L5 17H8V16H22V20H8V19H5H4H3L3 8H2V4ZM8 4H22V8H8V4Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

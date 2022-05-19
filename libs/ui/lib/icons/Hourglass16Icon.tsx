@@ -14,7 +14,6 @@ const Hourglass16Icon = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Hourglass16Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4 0H12V5L8 8L4 5V0ZM8 8L4 11V14V16H6H10H12V14V11L8 8ZM6 12V14H10V12L8 10.5L6 12Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

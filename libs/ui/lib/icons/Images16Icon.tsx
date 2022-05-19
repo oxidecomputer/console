@@ -14,7 +14,6 @@ const Images16Icon = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Images16Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M1 5.08799V11.9565L7 14.5652V7.65941L1 5.08799ZM9 14.5652L15 11.9565V5.08798L9 7.65941V14.5652ZM13.6895 3.47369L8 1L2.3105 3.47369L8 5.91205L13.6895 3.47369Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

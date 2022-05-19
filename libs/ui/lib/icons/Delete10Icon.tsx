@@ -14,7 +14,6 @@ const Delete10Icon = ({
     width={10}
     height={10}
     viewBox="0 0 10 10"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Delete10Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6.33333 0H3.66667L3 1H1V2H9V1H7L6.33333 0ZM2 3H8V10H2V3Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

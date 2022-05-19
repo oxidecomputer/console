@@ -10,7 +10,6 @@ const Edit16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const Edit16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 16V12L9 3L13 7L4 16H0ZM14 6L16 4L12 0L10 2L14 6Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

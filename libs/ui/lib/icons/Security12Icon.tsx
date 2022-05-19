@@ -14,7 +14,6 @@ const Security12Icon = ({
     width={12}
     height={12}
     viewBox="0 0 12 12"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Security12Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4 5H8V4C8 2.89543 7.10457 2 6 2C4.89543 2 4 2.89543 4 4V5ZM2 5H1V12H11V5H10V4C10 1.79086 8.20914 0 6 0C3.79086 0 2 1.79086 2 4V5Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

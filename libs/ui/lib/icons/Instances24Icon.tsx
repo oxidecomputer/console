@@ -14,7 +14,6 @@ const Instances24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Instances24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M7 5V2H22V17H19V5H7ZM2 7H17V22H2V7Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

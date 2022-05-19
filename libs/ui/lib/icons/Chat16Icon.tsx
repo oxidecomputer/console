@@ -10,7 +10,6 @@ const Chat16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const Chat16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 2H16V11H5L2 14V11H0V2Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

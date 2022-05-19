@@ -14,7 +14,6 @@ const Speaker24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Speaker24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10.3724 7L21 0V24L10.3724 17H3V7H10.3724Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

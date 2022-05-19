@@ -10,7 +10,6 @@ const More12Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     width={12}
     height={12}
     viewBox="0 0 12 12"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const More12Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         fillRule="evenodd"
         clipRule="evenodd"
         d="M5 1H7V3H5V1ZM5 5H7V7H5V5ZM7 9H5V11H7V9Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

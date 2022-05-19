@@ -14,7 +14,6 @@ const SelectArrows6Icon = ({
     width={6}
     height={14}
     viewBox="0 0 6 14"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const SelectArrows6Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6 5L3 0L0 5L6 5ZM0 9L3 14L6 9H0Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

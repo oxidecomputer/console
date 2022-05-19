@@ -14,7 +14,6 @@ const Compatibility24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Compatibility24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M3 9V1H21V9H15V5H9V9H3ZM15 12V16H21V23H3V16H9V12H15Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

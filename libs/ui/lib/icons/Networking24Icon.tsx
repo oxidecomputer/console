@@ -14,7 +14,6 @@ const Networking24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Networking24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M11 3H3V11H11V3ZM21 3H13V11H21V3ZM13 13H21V21H13V13ZM8 13H6V16V18H8H11V16H8V13Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

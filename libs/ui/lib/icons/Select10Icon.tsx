@@ -14,7 +14,6 @@ const Select10Icon = ({
     width={10}
     height={10}
     viewBox="0 0 10 10"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Select10Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 0H10V2H0V0ZM0 4H10V6H0V4ZM10 8H0V10H10V8Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

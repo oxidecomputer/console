@@ -14,7 +14,6 @@ const Issues16Icon = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Issues16Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M2 1H4H9V3L14 3V10H7V8L4 8V15H2V8V1Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

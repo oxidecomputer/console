@@ -14,7 +14,6 @@ const Subnet24Icon = ({
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Subnet24Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10 2H2V10H5V14H2V22H10V19H14V22H22V14H19V10H22V2H14V5L10 5V2ZM17 14V10H14V7L10 7V10H7V14H10V17H14V14H17Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

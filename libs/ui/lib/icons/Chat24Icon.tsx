@@ -10,7 +10,6 @@ const Chat24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     width={24}
     height={24}
     viewBox="0 0 24 24"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -23,7 +22,7 @@ const Chat24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         fillRule="evenodd"
         clipRule="evenodd"
         d="M0 3H24V17H8L3 22V17H0V3Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>

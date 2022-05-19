@@ -14,7 +14,6 @@ const Terminal10Icon = ({
     width={10}
     height={10}
     viewBox="0 0 10 10"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby={titleId}
@@ -27,7 +26,7 @@ const Terminal10Icon = ({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10 1H0V9H10V1ZM1 7V5.75L3.66667 4.5L1 3.25V2L5 3.875V5.125L1 7ZM5 7H9V8H5V7Z"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>
