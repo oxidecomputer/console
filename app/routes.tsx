@@ -25,7 +25,7 @@ import AuthLayout from './layouts/AuthLayout'
 import {
   Access24Icon,
   Instances24Icon,
-  Image24Icon,
+  Images24Icon,
   Snapshots24Icon,
   Storage24Icon,
   Networking24Icon,
@@ -143,7 +143,7 @@ export const routes = (
               path="images"
               element={<ImagesPage />}
               crumb="Images"
-              icon={<Image24Icon />}
+              icon={<Images24Icon />}
             />
             <Route
               path="access"

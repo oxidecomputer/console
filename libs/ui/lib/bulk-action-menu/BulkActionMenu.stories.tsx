@@ -1,7 +1,7 @@
 import { BulkActionMenu } from './BulkActionMenu'
 import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import { Delete10Icon, Spanner12Icon, Terminal10Icon } from '../icons'
+import { Delete10Icon, Edit16Icon, Terminal10Icon } from '../icons'
 
 type Story = StoryObj<ComponentProps<typeof BulkActionMenu>>
 
@@ -18,7 +18,7 @@ export const Default: Story = {
           <Delete10Icon /> delete
         </BulkActionMenu.Button>
         <BulkActionMenu.Button>
-          <Spanner12Icon /> edit
+          <Edit16Icon /> edit
         </BulkActionMenu.Button>
         <BulkActionMenu.Button>
           <Terminal10Icon /> more

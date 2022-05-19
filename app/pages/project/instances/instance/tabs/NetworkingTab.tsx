@@ -6,7 +6,7 @@ import {
   Button,
   Delete16Icon,
   EmptyMessage,
-  Question16Icon,
+  Info16Icon,
   Networking24Icon,
   SideModal,
   Tooltip,
@@ -72,7 +72,7 @@ export function NetworkingTab() {
               id="add-nic-tooltip"
               content="A network interface cannot be added unless the instance is stopped."
             >
-              <Question16Icon className="cursor-default text-secondary" />
+              <Info16Icon className="cursor-default text-secondary" />
             </Tooltip>
           )
         }

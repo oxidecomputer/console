@@ -7,8 +7,8 @@ import {
   Instances16Icon,
   Networking16Icon,
   Storage16Icon,
-  Notification16Icon,
-  Resize16Icon,
+  Snapshots16Icon,
+  Images16Icon,
 } from '@oxide/ui'
 import {
   ContentPane,
@@ -58,7 +58,7 @@ const ProjectLayout = () => {
             <Instances16Icon /> Instances
           </NavLinkItem>
           <NavLinkItem to="snapshots">
-            <Notification16Icon /> Snapshots
+            <Snapshots16Icon /> Snapshots
           </NavLinkItem>
           <NavLinkItem to="disks">
             <Storage16Icon /> Disks
@@ -67,7 +67,7 @@ const ProjectLayout = () => {
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to="images">
-            <Resize16Icon title="images" /> Images
+            <Images16Icon title="images" /> Images
           </NavLinkItem>
           <NavLinkItem to="vpcs">
             <Networking16Icon /> Networking

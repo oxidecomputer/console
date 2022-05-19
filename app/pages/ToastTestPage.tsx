@@ -1,4 +1,4 @@
-import { Button, Comment16Icon, Success16Icon } from '@oxide/ui'
+import { Button, Info16Icon, Success16Icon } from '@oxide/ui'
 import { useState } from 'react'
 import { useToast } from '../hooks'
 import { classed } from '@oxide/util'
@@ -36,7 +36,7 @@ const ToastTestPage = () => {
     addToast({
       variant: 'info',
       title: 'Some info here',
-      icon: <Comment16Icon />,
+      icon: <Info16Icon />,
       timeout: shouldHaveTimeout ? 5000 : undefined,
     })
   }

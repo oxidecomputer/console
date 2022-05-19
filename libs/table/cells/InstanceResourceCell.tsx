@@ -1,5 +1,5 @@
 import type { Instance } from '@oxide/api'
-import { UbuntuResponsiveIcon } from '@oxide/ui'
+import { UbuntuDistroIcon } from '@oxide/ui'
 import fileSize from 'filesize'
 
 import type { Cell } from './Cell'
@@ -16,7 +16,7 @@ export const InstanceResourceCell = ({
           {value.ncpus} vCPU {slash} {fileSize(value.memory, { base: 2 })} SSD
         </span>,
         <span className="flex items-center text-secondary" key="second-row">
-          <UbuntuResponsiveIcon className="mr-1 w-5" /> FakeOS 12.04
+          <UbuntuDistroIcon className="mr-1 w-5" /> FakeOS 12.04
         </span>,
       ]}
     ></TwoLineCell>
