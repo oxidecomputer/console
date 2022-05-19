@@ -1,6 +1,7 @@
+import type { FormMutation } from 'app/components/form'
 import { Form, TextField } from 'app/components/form'
 
-const manualMutation: Mutation = {
+const manualMutation: FormMutation = {
   status: 'idle',
   data: undefined,
   error: null,
@@ -18,10 +19,9 @@ export function ProfilePage() {
       <TextField id="profile-name" name="name" required disabled />
       <TextField id="profile-username" name="username" required disabled />
       <TextField id="profile-email" name="email" required disabled />
-      <span>
-        Your user information is managed on Okta
-        <br />
-        To update, contact your{' '}
+      <span className="inline-block">
+        Your user information is managed on Okta. <br className="hidden md+:block" /> To
+        update, contact your{' '}
         <a className="external-link" href="#/">
           IDP admin
         </a>

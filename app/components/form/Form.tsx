@@ -26,7 +26,7 @@ const SideModalActionsTunnel = tunnel('form-sidebar-actions')
 
 const PageActionsContainer = classed.div`flex h-20 items-center`
 
-type Mutation =
+export type FormMutation =
   | {
       status: 'idle' | 'loading'
       data: undefined
@@ -49,7 +49,7 @@ export interface FormProps<Values> extends FormikConfig<Values> {
   title?: ReactNode
   children: ReactNode
   onDismiss?: () => void
-  mutation: Mutation
+  mutation: FormMutation
 }
 
 export function Form<Values>({
