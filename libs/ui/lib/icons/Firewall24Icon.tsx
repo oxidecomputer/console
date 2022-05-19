@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Firewall24Icon({
-  title = 'Firewall',
+const Firewall24Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={24}
-      height={24}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="24/firewall">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M2 2h9v5H2V2zm0 15h9v5H2v-5zm5-8H2v6h5V9zm10 0h5v6h-5V9zm5-7h-9v5h9V2zm-9 15h9v5h-9v-5zm-2.4-1.91L12 16l1.4-.91c1-.69 1.6-1.854 1.6-3.126V9H9v2.964c0 1.272.6 2.472 1.6 3.127z"
-        fill="currentColor"
+        d="M2 2H11V7H2V2ZM2 17H11V22H2V17ZM7 9H2V15H7V9ZM17 9H22V15H17V9ZM22 2H13V7H22V2ZM13 17H22V22H13V17ZM10.6 15.0909L12 16L13.4 15.0909C14.4 14.4 15 13.2364 15 11.9636V9H12H9V11.9636C9 13.2364 9.6 14.4364 10.6 15.0909Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Firewall24Icon

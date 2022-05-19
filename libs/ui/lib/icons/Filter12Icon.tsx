@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Filter12Icon({
-  title = 'Filter',
+const Filter12Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={12}
-      height={12}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={12}
+    height={12}
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="12/filter">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M0 1h12v2H0V1zm2 4h8v2H2V5zm6 4H4v2h4V9z"
-        fill="currentColor"
+        d="M0 1H12V3H0V1ZM2 5H10V7H2V5ZM8 9H4V11H8V9Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Filter12Icon

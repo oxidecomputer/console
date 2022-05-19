@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Resize16Icon({
-  title = 'Resize',
+const Resize16Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={16}
-      height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={16}
+    height={16}
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="16/resize">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M11 0v2h3v3h2V0h-5zM0 11h2v3h3v2H0v-5zm4-7h8v8H4V4z"
-        fill="currentColor"
+        d="M11 0V2L14 2V5H16V2V0H14H11ZM0 11H2L2 14L5 14L5 16H2H0V14V11ZM4 4H12V12H4V4Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Resize16Icon

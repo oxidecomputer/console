@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Folder24Icon({
-  title = 'Folder',
+const Folder24Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={24}
-      height={24}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="24/folder">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M1 3h13v3H1V3zm0 5h22v13H1V8z"
-        fill="currentColor"
+        d="M1 3H14V6H1V3ZM1 8H23V21H1V8Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Folder24Icon

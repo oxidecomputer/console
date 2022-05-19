@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Compatibility24Icon({
-  title = 'Compatibility',
+const Compatibility24Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={24}
-      height={24}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="24/compatibility">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M3 9V1h18v8h-6V5H9v4H3zm12 3v4h6v7H3v-7h6v-4h6z"
-        fill="currentColor"
+        d="M3 9V1H21V9H15V5H9V9H3ZM15 12V16H21V23H3V16H9V12H15Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Compatibility24Icon

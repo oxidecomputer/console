@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Networking16Icon({
-  title = 'Networking',
+const Networking16Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={16}
-      height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={16}
+    height={16}
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="16/networking">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M7 1H1v6h6V1zm8 0H9v6h6V1zM9 9h6v6H9V9zM4 9H2v5h5v-2H4V9z"
-        fill="currentColor"
+        d="M7 1H1V7H7V1ZM15 1H9V7H15V1ZM9 9H15V15H9V9ZM4 9H2V12V14H4H7V12H4V9Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Networking16Icon

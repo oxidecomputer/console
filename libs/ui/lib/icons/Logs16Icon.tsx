@@ -1,34 +1,37 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Logs16Icon({
-  title = 'Logs',
-  titleId,
-  ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={16}
-      height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
-      <g fill="currentColor">
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M4 3H0v4h4V3zm12 0H6v4h10V3zM6 9h10v4H6V9zm-5 3h2V7H1v5z"
-        />
-        <path d="M6 10H1v2h5v-2z" />
-      </g>
-    </svg>
-  )
-}
+const Logs16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={16}
+    height={16}
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="16/logs">
+      <path
+        id="Union"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M4 3H0V7H4V3ZM16 3H6V7H16V3ZM6 9H16V13H6V9ZM1 12H3L3 7.00002H1L1 12Z"
+        fill="#989A9B"
+      />
+      <path
+        id="Rectangle 64"
+        d="M6 9.99999L1 9.99999L1 12L6 12L6 9.99999Z"
+        fill="#989A9B"
+      />
+    </g>
+  </svg>
+)
 
 export default Logs16Icon

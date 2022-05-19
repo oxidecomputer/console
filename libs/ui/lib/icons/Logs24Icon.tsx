@@ -1,32 +1,32 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Logs24Icon({
-  title = 'Logs',
-  titleId,
-  ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={24}
-      height={24}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+const Logs24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="24/logs">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M2 4h4v4H5v3h3v-1h14v4H8v-1H5v4h3v-1h14v4H8v-1H3V8H2V4zm6 0h14v4H8V4z"
-        fill="currentColor"
+        d="M2 4H6V8H5L5 11H8V10H22V14H8V13H5L5 17H8V16H22V20H8V19H5H4H3L3 8H2V4ZM8 4H22V8H8V4Z"
+        fill="#989A9B"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Logs24Icon
