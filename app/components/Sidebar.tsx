@@ -1,4 +1,4 @@
-import { NavLink as RRNavLink, useLocation } from 'react-router-dom'
+import { NavLink as RRNavLink } from 'react-router-dom'
 import cn from 'classnames'
 import { ProjectSelector } from './ProjectSelector'
 import { Chat16Icon, Document16Icon, Settings16Icon } from '@oxide/ui'
@@ -7,7 +7,6 @@ interface SidebarProps {
   children: React.ReactNode
 }
 export function Sidebar({ children }: SidebarProps) {
-  const { pathname } = useLocation()
   return (
     <div className="ox-sidebar overflow-auto border-r px-3 pb-6 pt-5 text-sans-md text-default border-secondary">
       <ProjectSelector className="mb-10" />
@@ -19,11 +18,9 @@ export function Sidebar({ children }: SidebarProps) {
         <NavLinkItem to="help">
           <Chat16Icon /> Help & Feedback
         </NavLinkItem>
-        {!pathname.startsWith('/settings') && (
-          <NavLinkItem to="/settings">
-            <Settings16Icon /> Settings
-          </NavLinkItem>
-        )}
+        <NavLinkItem to="settings">
+          <Settings16Icon /> Settings
+        </NavLinkItem>
       </Sidebar.Footer>
     </div>
   )

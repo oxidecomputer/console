@@ -32,10 +32,6 @@ import {
   Folder24Icon,
 } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
-import { ProfilePage } from './pages/settings/ProfilePage'
-import SettingsLayout from './layouts/SettingsLayout'
-import { AppearancePage } from './pages/settings/AppearancePage'
-import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 
 const OrgCreateForm = React.lazy(() => import('./forms/org-create'))
 const ProjectCreateForm = React.lazy(() => import('./forms/project-create'))
@@ -159,13 +155,6 @@ export const routes = (
           </Route>
         </Route>
       </Route>
-    </Route>
-
-    <Route path="settings" crumb="settings" element={<SettingsLayout />}>
-      <Route index element={<Navigate to="profile" replace />} />
-      <Route path="profile" element={<ProfilePage />} title="Profile" />
-      <Route path="appearance" element={<AppearancePage />} title="Appearance" />
-      <Route path="ssh-keys" element={<SSHKeysPage />} title="SSH Keys" />
     </Route>
 
     <Route path="__debug" element={<RootLayout />}>
