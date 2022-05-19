@@ -158,7 +158,7 @@ export const routes = (
     </Route>
 
     <Route path="__debug" element={<RootLayout />}>
-      <Route path="toasts" element={<ToastTestPage />} />
+      <Route path="toasts" element={<ToastTestPage />} title="toasts" />
     </Route>
   </Routes>
 )

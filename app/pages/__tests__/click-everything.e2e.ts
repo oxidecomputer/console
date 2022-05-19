@@ -77,10 +77,10 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
 
   // Stop instance
-  await page.click('role=button[name="Row actions"]')
+  await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Close"]')
+  await page.click('role=button[name="Dismiss notification"]')
 
   // New disk form
   await page.click('role=button[name="Create new disk"]')
@@ -91,7 +91,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=spinbutton[name="Size (GiB)"]',
     'role=button[name="Create Disk"][disabled]',
   ])
-  await page.click('role=button[name="Close"]')
+  await page.click('role=button[name="Close form"]')
 
   await page.click('role=button[name="Create new disk"]')
   await page.click('role=button[name="Cancel"]')
@@ -135,11 +135,11 @@ test("Click through everything and make it's all there", async ({ page }) => {
   // Delete just-added network interface
   await page
     .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="More"]')
+    .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Close"]')
+  await page.click('role=button[name="Dismiss notification"]')
   await expectNotVisible(page, ['role=cell[name="nic-2"]'])
 
   // Snapshots page
@@ -235,7 +235,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectVisible(page, ['role=cell[name="new-subnet"]'])
   await page
     .locator('role=row', { hasText: 'new-subnet' })
-    .locator('role=button[name="More"]')
+    .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Edit"]')
 

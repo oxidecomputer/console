@@ -24,7 +24,7 @@ export const getActionsCol = <TGenerics extends TableGenerics>(
       <div className="flex justify-center">
         <Menu>
           {/* TODO: This name should not suck; future us, make it so! */}
-          <MenuButton name="Row actions">
+          <MenuButton aria-label="Row actions">
             <More12Icon className="text-tertiary" />
           </MenuButton>
           <MenuList>

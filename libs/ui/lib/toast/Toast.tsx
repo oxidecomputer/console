@@ -40,6 +40,7 @@ export const Toast = ({
     </div>
     <div>
       <Button
+        aria-label="Dismiss notification"
         className="flex !border-transparent"
         variant="ghost"
         onClick={onClose}
