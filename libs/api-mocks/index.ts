@@ -6,6 +6,7 @@ export * from './org'
 export * from './project'
 export * from './session'
 export * from './snapshot'
+export * from './sshKeys'
 export * from './vpc'
 
 export { handlers } from './msw/handlers'
