@@ -23,7 +23,8 @@ export const getActionsCol = <TGenerics extends TableGenerics>(
     return (
       <div className="flex justify-center">
         <Menu>
-          <MenuButton>
+          {/* TODO: This name should not suck; future us, make it so! */}
+          <MenuButton name="Row actions">
             <More12Icon className="text-tertiary" />
           </MenuButton>
           <MenuList>

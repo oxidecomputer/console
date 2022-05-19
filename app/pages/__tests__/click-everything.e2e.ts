@@ -77,7 +77,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
 
   // Stop instance
-  await page.click('role=button[name="More"]')
+  await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Stop"]')
   // Close toast, it holds up the test for some reason
   await page.click('role=button[name="Close"]')
