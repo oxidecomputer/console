@@ -2,22 +2,22 @@
 
 import React from 'react'
 import { DefaultCell } from './cells'
-import { DefaultHeader } from './headers'
-import { getSelectCol, getActionsCol } from './columns'
-import { Table } from './Table'
-import { unsafe_get } from '@oxide/util'
+import { getActionsCol, getSelectCol } from './columns'
+import { createTable, Table } from './Table'
 import { useApiQuery } from '@oxide/api'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
-import { useRowSelect, useTable } from 'react-table'
+import type { AccessorFn } from '@tanstack/react-table'
+import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { ComponentType, ReactElement } from 'react'
 import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import type { MakeActions } from './columns'
-import type { Path } from '@oxide/util'
 import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import invariant from 'tiny-invariant'
+import { isOneOf } from '@oxide/util'
 
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>
@@ -68,34 +68,44 @@ const makeQueryTable = <Item,>(
     pageSize = 10,
     emptyState,
   }: QueryTableProps<Item>) {
-    const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const columns = useMemo(
-      () =>
-        React.Children.toArray(children).map((child) => {
-          const column = { ...(child as ReactElement).props }
-          if (!column.accessor) {
-            column.accessor = column.id
-          }
-          if (typeof column.accessor === 'string') {
-            const accessorPath = column.accessor
-            column.accessor = (v: unknown) => unsafe_get(v, accessorPath)
-          }
-          if (!column.header) {
-            column.header = column.id
-          }
-          if (typeof column.header === 'string') {
-            const name = column.header
-            column.header = <DefaultHeader>{name}</DefaultHeader>
-          }
-          if (!column.cell) {
-            column.cell = DefaultCell
-          }
-          column.Cell = column.cell
-          column.Header = column.header
-          return column
-        }),
-      [children]
+    invariant(
+      isOneOf(children, [QueryTableColumn]),
+      'QueryTable can only have Column as a child'
     )
+
+    const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
+    const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
+    const columns = useMemo(() => {
+      let columns = React.Children.toArray(children).map((child) => {
+        const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
+
+        // QueryTableColumnProps ensures `id` is passed in if and only if
+        // `accessor` is not a string
+        const id = 'id' in column ? column.id : column.accessor
+
+        return tableHelper.createDataColumn(
+          column.accessor,
+          // I think passing variables here messes with RT's ability to infer
+          // the relationships between these keys. The type error is useless.
+          // This is fine though: it's simple enough and it's correct.
+          // @ts-expect-error
+          {
+            id,
+            header: typeof column.header === 'string' ? column.header : id,
+            cell: (info: any) => {
+              const Comp = column.cell || DefaultCell
+              return <Comp value={info.getValue()} />
+            },
+          }
+        )
+      })
+
+      if (makeActions) {
+        columns = [getSelectCol(), ...columns, getActionsCol(makeActions)]
+      }
+
+      return columns
+    }, [children, tableHelper, makeActions])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -107,25 +117,12 @@ const makeQueryTable = <Item,>(
 
     const getRowId = useCallback((row) => row.id, [])
 
-    const table = useTable(
-      {
-        columns,
-        data: tableData,
-        getRowId,
-        autoResetSelectedRows: false,
-      },
-      useRowSelect,
-      (hooks) => {
-        hooks.visibleColumns.push((columns) => {
-          const visibleColumns = []
-          if (makeActions) visibleColumns.push(getSelectCol())
-          visibleColumns.push(...columns)
-          if (makeActions) visibleColumns.push(getActionsCol(makeActions))
-
-          return visibleColumns
-        })
-      }
-    )
+    const table = useTableInstance(tableHelper, {
+      columns,
+      data: tableData,
+      getRowId,
+      getCoreRowModel: getCoreRowModel(),
+    })
 
     if (debug) console.table(data)
 
@@ -159,15 +156,17 @@ const makeQueryTable = <Item,>(
     )
   }
 
-export interface QueryTableColumnProps<Item, R extends unknown = any> {
-  id: string
-  accessor?: Path<Item> | ((item: Item) => R)
+export type QueryTableColumnProps<Item> = {
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
-  cell?: ComponentType<R>
-}
+  cell?: ComponentType<{ value: any }>
+} & ( // imitate the way RT works: only pass id if accessor is not a string
+  | { accessor: keyof Item }
+  | {
+      accessor: AccessorFn<Item>
+      id: string
+    }
+)
 
-const QueryTableColumn = <Item, R extends unknown = any>(
-  _props: QueryTableColumnProps<Item, R>
-) => null
+const QueryTableColumn = <Item,>(_props: QueryTableColumnProps<Item>) => null

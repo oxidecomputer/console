@@ -61,14 +61,14 @@ export const VpcSubnetsTab = () => {
         </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column id="name" />
+        <Column accessor="name" />
         <Column
           id="ip-block"
           header="IP Block"
           accessor={(vpc) => [vpc.ipv4Block, vpc.ipv6Block]}
           cell={TwoLineCell}
         />
-        <Column id="created" accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" cell={DateCell} />
       </Table>
     </>
   )

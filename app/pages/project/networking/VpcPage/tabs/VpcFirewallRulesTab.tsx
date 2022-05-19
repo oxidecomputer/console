@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { useTable, useRowSelect } from 'react-table'
-import type { MenuAction } from '@oxide/table'
+import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import {
+  createTable,
   getActionsCol,
   getSelectCol,
   DateCell,
@@ -12,41 +12,38 @@ import {
 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, firewallTargetToTypeValue } from '@oxide/api'
 import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 
-const columns = [
-  {
-    accessor: 'name' as const,
-    Header: 'Name',
-  },
-  {
-    accessor: 'action' as const,
-    Header: 'Action',
-  },
-  {
-    accessor: 'targets' as const,
-    Header: 'Targets',
-    Cell: TypeValueListCell,
-  },
-  {
-    accessor: 'filters' as const,
-    Header: 'Filters',
-    Cell: FirewallFilterCell,
-  },
-  {
-    accessor: 'status' as const,
-    Header: 'Status',
-    Cell: EnabledCell,
-  },
-  {
+const tableHelper = createTable().setRowType<VpcFirewallRule>()
+
+/** columns that don't depend on anything in `render` */
+const staticColumns = [
+  tableHelper.createDisplayColumn(getSelectCol()),
+  tableHelper.createDataColumn('name', { header: 'Name' }),
+  tableHelper.createDataColumn('action', { header: 'Action' }),
+  // map() fixes the fact that IpNets aren't strings
+  tableHelper.createDataColumn('targets', {
+    header: 'Targets',
+    cell: (info) => (
+      <TypeValueListCell value={info.getValue().map(firewallTargetToTypeValue)} />
+    ),
+  }),
+  tableHelper.createDataColumn('filters', {
+    header: 'Filters',
+    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+  }),
+  tableHelper.createDataColumn('status', {
+    header: 'Status',
+    cell: (info) => <EnabledCell value={info.getValue()} />,
+  }),
+  tableHelper.createDataColumn('timeCreated', {
     id: 'created',
-    accessor: 'timeCreated' as const,
-    Header: 'Created',
-    Cell: DateCell,
-  },
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
 ]
 
 export const VpcFirewallRulesTab = () => {
@@ -58,24 +55,21 @@ export const VpcFirewallRulesTab = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
-  const actions = (rule: VpcFirewallRule): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate: () => setEditing(rule),
-    },
-  ]
+  // the whole thing can't be static because the action depends on setEditing
+  const columns = useMemo(() => {
+    return [
+      ...staticColumns,
+      tableHelper.createDisplayColumn(
+        getActionsCol((rule) => [{ label: 'Edit', onActivate: () => setEditing(rule) }])
+      ),
+    ]
+  }, [setEditing])
 
-  const table = useTable(
-    { data: rules, columns, autoResetSelectedRows: false },
-    useRowSelect,
-    (hooks) => {
-      hooks.visibleColumns.push((columns) => [
-        getSelectCol(),
-        ...columns,
-        getActionsCol(actions),
-      ])
-    }
-  )
+  const table = useTableInstance(tableHelper, {
+    data: rules,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   const emptyState = (
     <TableEmptyBox>

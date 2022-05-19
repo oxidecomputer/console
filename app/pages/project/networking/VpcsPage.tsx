@@ -45,12 +45,12 @@ export const VpcsPage = () => {
       </TableActions>
       <Table emptyState={<EmptyState />}>
         <Column
-          id="name"
+          accessor="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`)}
         />
-        <Column id="dnsName" header="dns name" />
-        <Column id="description" />
-        <Column id="created" accessor="timeCreated" cell={DateCell} />
+        <Column accessor="dnsName" header="dns name" />
+        <Column accessor="description" />
+        <Column accessor="timeCreated" cell={DateCell} />
       </Table>
     </>
   )

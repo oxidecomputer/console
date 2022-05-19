@@ -56,7 +56,7 @@ export function DisksPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        <Column id="name" header="Disk" />
+        <Column accessor="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
           id="attached-to"
@@ -78,7 +78,7 @@ export function DisksPage() {
         />
         <Column
           id="status"
-          accessor="state.state"
+          accessor={(row) => row.state.state}
           cell={({ value }) => <DiskStatusBadge status={value} />}
         />
       </Table>
