@@ -70,7 +70,7 @@ export const handlers = [
     (req, res) =>
       res(
         json({
-          items: db.sshKeys.filter((k) => k.silo_user_id === sessionMe.id),
+          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
         })
       )
   ),
@@ -79,7 +79,7 @@ export const handlers = [
     '/api/session/me/sshkeys',
     (req, res) => {
       const alreadyExists = db.sshKeys.some(
-        (o) => o.name === req.body.name && o.silo_user_id === sessionMe.id
+        (key) => key.name === req.body.name && key.silo_user_id === sessionMe.id
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
@@ -107,7 +107,7 @@ export const handlers = [
     '/api/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
       const sshKey = db.sshKeys.find(
-        (o) => o.name === req.params.sshKeyName && o.silo_user_id === sessionMe.id
+        (key) => key.name === req.params.sshKeyName && key.silo_user_id === sessionMe.id
       )
       if (!sshKey) return res(notFoundErr)
       db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
