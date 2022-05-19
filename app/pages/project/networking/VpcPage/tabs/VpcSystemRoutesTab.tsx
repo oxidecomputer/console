@@ -21,10 +21,10 @@ export const VpcSystemRoutesTab = () => {
 
   return (
     <Table emptyState={<EmptyState />}>
-      <Column id="name" header="Name" />
-      <Column id="destination" header="destination" cell={TypeValueCell} />
-      <Column id="target" header="target" cell={TypeValueCell} />
-      <Column id="description" header="description" />
+      <Column accessor="name" />
+      <Column accessor="destination" cell={TypeValueCell} />
+      <Column accessor="target" cell={TypeValueCell} />
+      <Column accessor="description" />
     </Table>
   )
 }

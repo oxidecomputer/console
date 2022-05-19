@@ -17,10 +17,10 @@ export const SnapshotsPage = () => {
   const { Table, Column } = useQueryTable('projectSnapshotsGet', projectParams)
   return (
     <Table emptyState={<EmptyState />}>
-      <Column id="name" />
-      <Column id="description" />
-      <Column id="size" cell={SizeCell} />
-      <Column id="created" accessor="timeCreated" cell={DateCell} />
+      <Column accessor="name" />
+      <Column accessor="description" />
+      <Column accessor="size" cell={SizeCell} />
+      <Column accessor="timeCreated" cell={DateCell} />
     </Table>
   )
 }

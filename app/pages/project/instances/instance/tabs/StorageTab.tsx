@@ -1,4 +1,5 @@
-import { useTable } from 'react-table'
+import { useMemo } from 'react'
+import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -11,7 +12,7 @@ import {
   SideModal,
   TableEmptyBox,
 } from '@oxide/ui'
-import { Table } from '@oxide/table'
+import { createTable, Table } from '@oxide/table'
 import { useParams, useToast } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
@@ -27,22 +28,19 @@ const OtherDisksEmpty = () => (
   </TableEmptyBox>
 )
 
+const table = createTable().setRowType<Disk>()
+
 const columns = [
-  {
-    accessor: 'name' as const,
-    // TODO: there might be a better way to add this margin to both
-    Header: 'Name',
-    Cell: ({ value }: { value: string }) => <div>{value}</div>,
-  },
-  {
+  table.createDataColumn('name', {
+    header: 'Name',
+    cell: (info) => <div>{info.getValue()}</div>,
+  }),
+  table.createDataColumn((d) => d.state.state, {
     id: 'status',
-    accessor: (d: Disk) => d.state.state,
-    Header: 'Status',
-    Cell: ({ value }: { value: Disk['state']['state'] }) => (
-      <DiskStatusBadge status={value} />
-    ),
-    className: 'w-56',
-  },
+    header: 'Status',
+    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    meta: { thClassName: 'w-40' },
+  }),
 ]
 
 export function StorageTab() {
@@ -75,13 +73,22 @@ export function StorageTab() {
     },
   })
 
-  const bootDisks = data?.items.slice(0, 1) || []
-  const otherDisks = data?.items.slice(1) || []
+  const bootDisks = useMemo(() => data?.items.slice(0, 1) || [], [data])
+  const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = useTable({ columns, data: bootDisks })
+  const bootDiskTable = useTableInstance(table, {
+    columns,
+    data: bootDisks,
+    getCoreRowModel: getCoreRowModel(),
+  })
   const bootLabelId = 'boot-disk-label'
+
+  const otherDisksTable = useTableInstance(table, {
+    columns,
+    data: otherDisks,
+    getCoreRowModel: getCoreRowModel(),
+  })
   const attachedLabelId = 'attached-disks-label'
-  const otherDisksTable = useTable({ columns, data: otherDisks })
 
   if (!data) return null
 
