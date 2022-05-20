@@ -1,32 +1,35 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Instances24Icon({
-  title = 'Instances',
+const Instances24Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={24}
-      height={24}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="24/instances">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M7 5V2h15v15h-3V5H7zM2 7h15v15H2V7z"
+        d="M7 5V2H22V17H19V5H7ZM2 7H17V22H2V7Z"
         fill="currentColor"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Instances24Icon

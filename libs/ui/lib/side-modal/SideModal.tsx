@@ -43,6 +43,7 @@ export function SideModal({
           onClick={onDismiss}
           // 1.875rem is roughly the space between the close icon and its border
           className="absolute right-[calc(var(--content-gutter)-1.1875rem)] top-[1.8125rem] z-10 h-11 w-11 px-0"
+          aria-label="Close form"
         >
           <Close12Icon className="text-tertiary" />
         </Button>

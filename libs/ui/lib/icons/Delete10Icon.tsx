@@ -1,32 +1,35 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Delete10Icon({
-  title = 'Delete',
+const Delete10Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={10}
-      height={10}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={10}
+    height={10}
+    viewBox="0 0 10 10"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="10/delete">
       <path
+        id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M6.333 0H3.667L3 1H1v1h8V1H7l-.667-1zM2 3h6v7H2V3z"
+        d="M6.33333 0H3.66667L3 1H1V2H9V1H7L6.33333 0ZM2 3H8V10H2V3Z"
         fill="currentColor"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Delete10Icon

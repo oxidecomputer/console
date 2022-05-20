@@ -18,19 +18,19 @@ import {
   TextField,
 } from 'app/components/form'
 import {
-  CentOSResponsiveIcon,
-  DebianResponsiveIcon,
   Divider,
-  FedoraResponsiveIcon,
-  FreeBSDResponsiveIcon,
   Radio,
   RadioCard,
-  Success16Icon,
   Tab,
   Tabs,
   TextFieldHint,
-  UbuntuResponsiveIcon,
-  WindowsResponsiveIcon,
+  CentosDistroIcon,
+  DebianDistroIcon,
+  FedoraDistroIcon,
+  FreebsdDistroIcon,
+  UbuntuDistroIcon,
+  WindowsDistroIcon,
+  Success16Icon,
 } from '@oxide/ui'
 import { useParams, useToast } from 'app/hooks'
 import invariant from 'tiny-invariant'
@@ -217,32 +217,32 @@ export default function CreateInstanceForm({
             {renderDistroRadioCard({
               label: 'Ubuntu',
               value: 'ubuntu',
-              Icon: UbuntuResponsiveIcon,
+              Icon: UbuntuDistroIcon,
             })}
             {renderDistroRadioCard({
               label: 'FreeBSD',
               value: 'freeBsd',
-              Icon: FreeBSDResponsiveIcon,
+              Icon: FreebsdDistroIcon,
             })}
             {renderDistroRadioCard({
               label: 'Fedora',
               value: 'fedora',
-              Icon: FedoraResponsiveIcon,
+              Icon: FedoraDistroIcon,
             })}
             {renderDistroRadioCard({
               label: 'Debian',
               value: 'debian',
-              Icon: DebianResponsiveIcon,
+              Icon: DebianDistroIcon,
             })}
             {renderDistroRadioCard({
               label: 'CentOS',
               value: 'centos',
-              Icon: CentOSResponsiveIcon,
+              Icon: CentosDistroIcon,
             })}
             {renderDistroRadioCard({
               label: 'Windows',
               value: 'windows',
-              Icon: WindowsResponsiveIcon,
+              Icon: WindowsDistroIcon,
             })}
           </RadioField>
 

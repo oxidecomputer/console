@@ -1,10 +1,10 @@
 import { useParams } from 'app/hooks'
 import { SizeCell, DateCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Image24Icon } from '@oxide/ui'
+import { EmptyMessage, Images24Icon } from '@oxide/ui'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Image24Icon />}
+    icon={<Images24Icon />}
     title="No images"
     body="You need to create an image to be able to see it here"
     // buttonText="New image"

@@ -1,32 +1,35 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function LoadBalancer16Icon({
-  title = 'LoadBalancer',
+const LoadBalancer16Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={16}
-      height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={16}
+    height={16}
+    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="16/load-balancer">
       <path
+        id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M11 0H5v5h2v2H2v4H0v5h6v-5H4V9h8v2h-2v5h6v-5h-2V7H9V5h2V0z"
+        d="M11 0H5V5H7V7H2V8L2 9L2 11H0V16H6V11H4V9H7H9H12V11H10V16H16V11H14V9V8V7H9V5H11V0Z"
         fill="currentColor"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default LoadBalancer16Icon
