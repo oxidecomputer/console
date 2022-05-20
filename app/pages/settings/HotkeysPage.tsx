@@ -6,9 +6,12 @@ import { Form } from 'app/components/form'
 const Meta = navigator.userAgent.match(/Mac/i) ? '⌘' : 'Ctrl'
 
 const manualMutation: FormMutation = {
-  status: 'idle',
+  status: 'error',
   data: undefined,
-  error: null,
+  error: {
+    // @ts-expect-error Just let folks know this doesn't work yet
+    error: new Error('This form is not yet implemented'),
+  },
 }
 
 export function HotkeysPage() {

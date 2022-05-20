@@ -20,7 +20,7 @@ export function ProfilePage() {
       <TextField id="profile-username" name="username" required disabled />
       <TextField id="profile-email" name="email" required disabled />
       <span className="inline-block text-secondary">
-        <span>Your user information is managed on Okta. </span>
+        <span>Your user information is managed by your organization. </span>
         <span className="md+:block">
           To update, contact your{' '}
           <a className="external-link" href="#/">
@@ -29,9 +29,6 @@ export function ProfilePage() {
           .
         </span>
       </span>
-      <Form.Actions>
-        <Form.Submit disabled>Save</Form.Submit>
-      </Form.Actions>
     </Form>
   )
 }

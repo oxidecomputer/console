@@ -4,9 +4,12 @@ import { Form, RadioField } from 'app/components/form'
 import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
 
 const manualMutation: FormMutation = {
-  status: 'idle',
+  status: 'error',
   data: undefined,
-  error: null,
+  error: {
+    // @ts-expect-error Just let folks know this doesn't work yet
+    error: new Error('This form is not yet implemented'),
+  },
 }
 
 export function AppearancePage() {
@@ -50,7 +53,7 @@ export function AppearancePage() {
       </RadioField>
 
       <Form.Actions>
-        <Form.Submit>Save</Form.Submit>
+        <Form.Submit disabled>Save</Form.Submit>
       </Form.Actions>
     </Form>
   )
