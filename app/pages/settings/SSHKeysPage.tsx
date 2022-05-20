@@ -59,9 +59,9 @@ export function SSHKeysPage() {
           />
         }
       >
-        <Column id="name" header="Name" />
-        <Column id="description" header="Description" />
-        <Column id="timeModified" header="Last updated" cell={DateCell} />
+        <Column accessor="name" header="Name" />
+        <Column accessor="description" header="Description" />
+        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
     </>
   )
