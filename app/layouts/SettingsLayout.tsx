@@ -28,8 +28,6 @@ const SettingsLayout = () => {
           { value: 'Appearance', path: 'appearance' },
           { value: 'Hotkeys', path: 'hotkeys' },
           { value: 'SSH Keys', path: 'ssh-keys' },
-          { value: 'Access Keys', path: 'access-keys' },
-          { value: 'RDP Keys', path: 'rdp-keys' },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => !matchPath(`/settings/${i.path}`, currentPath))
