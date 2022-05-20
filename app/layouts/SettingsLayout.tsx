@@ -46,7 +46,7 @@ const SettingsLayout = () => {
         {/* TODO: Make the back nav here smarter to return you to the previous non-settings screen */}
         <Button variant="link" onClick={() => navigate('/')}>
           <DirectionLeftIcon />
-          Back
+          Home
         </Button>
         <Sidebar.Nav heading="User">
           <NavLinkItem to="profile">Profile</NavLinkItem>
