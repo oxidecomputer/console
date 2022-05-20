@@ -1,8 +1,17 @@
-import { Link } from 'react-router-dom'
 import { navToLogin, useApiQuery, useApiMutation } from '@oxide/api'
-import { buttonStyle, Button } from '@oxide/ui'
+import {
+  Button,
+  Profile16Icon,
+  DirectionDownIcon,
+  Notifications16Icon,
+  Info16Icon,
+} from '@oxide/ui'
+
+import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
+import { useSearchParams } from 'react-router-dom'
 
 export function TopBar() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
       // server will respond to /login with a login redirect
@@ -17,23 +26,38 @@ export function TopBar() {
     { cacheTime: 0, refetchOnWindowFocus: false }
   )
 
-  let contents = (
-    <Link to="/login" className={buttonStyle({ variant: 'link' })}>
-      Log in
-    </Link>
-  )
-
-  if (user || !error) {
-    contents = (
-      <Button variant="link" onClick={() => logout.mutate({})}>
-        Log out
-      </Button>
-    )
-  }
+  const loggedIn = user && !error
 
   return (
-    <div className="flex h-10 justify-end">
-      <div>{contents}</div>
+    <div className="flex h-10 items-center justify-end">
+      <Button variant="link" size="xs" className="-mr-1 !text-tertiary">
+        <Info16Icon />
+      </Button>
+      <Button variant="link" size="xs" className="!text-tertiary">
+        <Notifications16Icon />
+      </Button>
+      <Menu>
+        <MenuButton aria-label="User menu" className="ml-1 text-tertiary">
+          <Profile16Icon /> <DirectionDownIcon className="!w-2.5" />
+        </MenuButton>
+        <MenuList>
+          <MenuItem
+            onSelect={() => {
+              searchParams.set('settings', 'profile')
+              setSearchParams(searchParams, { replace: true })
+            }}
+          >
+            User settings
+          </MenuItem>
+          {loggedIn ? (
+            <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
+          ) : (
+            <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
+              Sign In
+            </MenuItem>
+          )}
+        </MenuList>
+      </Menu>
     </div>
   )
 }
