@@ -52,9 +52,12 @@ const ProjectsPage = () => {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        <Column id="name" cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)} />
-        <Column id="description" />
-        <Column id="timeModified" header="Last updated" cell={DateCell} />
+        <Column
+          accessor="name"
+          cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}
+        />
+        <Column accessor="description" />
+        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
     </>
   )

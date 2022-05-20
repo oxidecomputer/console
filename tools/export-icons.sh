@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit 
+set -e
 set -o pipefail
 shopt -s nullglob
 

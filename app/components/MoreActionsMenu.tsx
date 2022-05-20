@@ -3,12 +3,14 @@ import { More12Icon } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 
 interface MoreActionsMenuProps {
+  /** The accessible name for the menu button */
+  label: string
   actions: MenuAction[]
 }
-export const MoreActionsMenu = ({ actions }: MoreActionsMenuProps) => {
+export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
   return (
     <Menu>
-      <MenuButton>
+      <MenuButton aria-label={label}>
         <More12Icon className="text-tertiary" />
       </MenuButton>
       <MenuList>

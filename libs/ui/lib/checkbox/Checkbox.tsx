@@ -6,10 +6,10 @@ import { classed } from '@oxide/util'
 import cn from 'classnames'
 
 const Check = () => (
-  <Checkmark12Icon className="absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
+  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
 )
 
-const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent`
+const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
 
 const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded absolute left-0 outline-none

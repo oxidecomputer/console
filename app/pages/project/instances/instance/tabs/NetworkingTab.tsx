@@ -6,7 +6,7 @@ import {
   Button,
   Delete16Icon,
   EmptyMessage,
-  Question16Icon,
+  Info16Icon,
   Networking24Icon,
   SideModal,
   Tooltip,
@@ -72,7 +72,7 @@ export function NetworkingTab() {
               id="add-nic-tooltip"
               content="A network interface cannot be added unless the instance is stopped."
             >
-              <Question16Icon className="cursor-default text-secondary" />
+              <Info16Icon className="cursor-default text-secondary" />
             </Tooltip>
           )
         }
@@ -96,10 +96,10 @@ export function NetworkingTab() {
         </SideModal>
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column id="name" />
-        <Column id="description" />
+        <Column accessor="name" />
+        <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
-        <Column id="ip" />
+        <Column accessor="ip" />
       </Table>
     </>
   )

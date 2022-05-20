@@ -45,9 +45,9 @@ const OrgsPage = () => {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        <Column id="name" cell={linkCell((name) => `/orgs/${name}`)} />
-        <Column id="description" />
-        <Column id="timeModified" header="Last updated" cell={DateCell} />
+        <Column accessor="name" cell={linkCell((name) => `/orgs/${name}`)} />
+        <Column accessor="description" />
+        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
     </>
   )

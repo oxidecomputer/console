@@ -2,23 +2,12 @@
 
 const { pascalCase } = require('@figma-export/utils')
 
-/** @type {(str: string) => string} */
-const toTrainCase = (str) => {
-  return str
-    .split('')
-    .map((char, i) => {
-      if (i === 0) return char.toLowerCase()
-      return /[A-Z]/.test(char) ? `-${char.toLowerCase()}` : char
-    })
-    .join('')
-}
-
 module.exports = {
   commands: [
     [
       'components',
       {
-        fileId: 'D5ukCJbedrlGkUIh0E6QtX',
+        fileId: 'iMVpYGoNGpwMEL9gd0oeYF',
         onlyFromPages: ['Icons'],
         transformers: [
           require('@figma-export/transform-svg-with-svgo')({
@@ -31,7 +20,13 @@ module.exports = {
             getFileExtension: () => '.tsx',
             getDirname: () => '',
             getComponentName: ({ componentName }) =>
-              pascalCase(componentName.split('/').reverse().join('') + 'Icon'),
+              pascalCase(
+                componentName
+                  .split('/')
+                  .map((n) => `${n[0].toUpperCase()}${n.slice(1)}`)
+                  .reverse()
+                  .join('') + 'Icon'
+              ),
             getSvgrConfig: () => {
               return {
                 typescript: true,
