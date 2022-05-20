@@ -55,7 +55,7 @@ export const InstancePage = () => {
   return (
     <>
       <PageActions>
-        <MoreActionsMenu type="instance" actions={actions} />
+        <MoreActionsMenu label="Instance actions" actions={actions} />
       </PageActions>
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
