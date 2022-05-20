@@ -16,6 +16,7 @@ import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { Form } from 'app/components/form'
+import { ProjectSelector } from 'app/components/ProjectSelector'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
@@ -26,6 +27,7 @@ const OrgLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
+        <ProjectSelector />
         <Sidebar.Nav heading="projects">
           {projects?.items.map((project) => (
             <NavLinkItem key={project.id} to={project.name}>

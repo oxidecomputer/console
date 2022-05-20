@@ -25,7 +25,7 @@ export function ListboxField({
 }: ListboxFieldProps) {
   const [, { value }, { setValue }] = useField({ name })
   return (
-    <div>
+    <div className="max-w-lg">
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
         {label}
       </FieldLabel>

@@ -40,4 +40,8 @@
     text-decoration: underline;
     text-decoration-style: dashed;
   }
+
+  .external-link {
+    @apply text-accent-secondary hover:text-accent;
+  }
 }
