@@ -1,17 +1,16 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import { More12Icon } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
-import { capitalize } from '@oxide/util'
 
 interface MoreActionsMenuProps {
-  /** The type of resource being acted on for accessibility purposes. E.g. instance, disk, etc */
-  type: string
+  /** The accessible name for the menu button */
+  label: string
   actions: MenuAction[]
 }
-export const MoreActionsMenu = ({ actions, type }: MoreActionsMenuProps) => {
+export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
   return (
     <Menu>
-      <MenuButton aria-label={`${capitalize(type)} actions`}>
+      <MenuButton aria-label={label}>
         <More12Icon className="text-tertiary" />
       </MenuButton>
       <MenuList>
