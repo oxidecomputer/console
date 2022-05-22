@@ -442,7 +442,7 @@ export const handlers = [
         size,
         // TODO: for non-blank disk sources, look up image or snapshot by ID and
         // pull block size from there
-        block_size: disk_source.type === 'Blank' ? disk_source.block_size : 4096,
+        block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
         ...getTimestamps(),
       }
       db.disks.push(newDisk)

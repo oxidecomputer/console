@@ -32,7 +32,7 @@ export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
     // TODO: once there is a source type picker and an image/snapshot picker,
     // the value here will be generated from those values
     diskSource: {
-      type: 'Blank',
+      type: 'blank',
       blockSize,
     },
   }
