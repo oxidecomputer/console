@@ -13,17 +13,17 @@ export type ByteCount = number
  * The type of an individual datum of a metric.
  */
 export type DatumType =
-  | 'Bool'
-  | 'I64'
-  | 'F64'
-  | 'String'
-  | 'Bytes'
-  | 'CumulativeI64'
-  | 'CumulativeF64'
-  | 'HistogramI64'
-  | 'HistogramF64'
+  | 'bool'
+  | 'i64'
+  | 'f64'
+  | 'string'
+  | 'bytes'
+  | 'cumulative_i64'
+  | 'cumulative_f64'
+  | 'histogram_i64'
+  | 'histogram_f64'
 
-export type Digest = { Sha256: string }
+export type Digest = { type: 'sha256'; value: string }
 
 /**
  * Client view of an {@link Disk}
@@ -104,11 +104,11 @@ export type DiskSource =
        * size of blocks for this Disk. valid values are: 512, 2048, or 4096
        */
       blockSize: BlockSize
-      type: 'Blank'
+      type: 'blank'
     }
-  | { snapshotId: string; type: 'Snapshot' }
-  | { imageId: string; type: 'Image' }
-  | { imageId: string; type: 'GlobalImage' }
+  | { snapshotId: string; type: 'snapshot' }
+  | { imageId: string; type: 'image' }
+  | { imageId: string; type: 'global_image' }
 
 /**
  * State of a Disk (primarily: attached or not)
@@ -143,12 +143,37 @@ export type FieldSchema = {
 /**
  * The source from which a field is derived, the target or metric.
  */
-export type FieldSource = 'Target' | 'Metric'
+export type FieldSource = 'target' | 'metric'
 
 /**
  * The `FieldType` identifies the data type of a target or metric field.
  */
-export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
+export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
+
+export type FleetRoles = 'admin' | 'collaborator' | 'viewer'
+
+/**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type FleetRolesPolicy = {
+  /**
+   * Roles directly assigned on this resource
+   */
+  roleAssignments: FleetRolesRoleAssignment[]
+}
+
+/**
+ * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
+ *
+ * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
+ */
+export type FleetRolesRoleAssignment = {
+  identityId: string
+  identityType: IdentityType
+  roleName: FleetRoles
+}
 
 /**
  * Client view of global Images
@@ -213,7 +238,7 @@ export type GlobalImageResultsPage = {
 /**
  * Describes what kind of identity is described by an id
  */
-export type IdentityType = 'user_builtin' | 'silo_user'
+export type IdentityType = 'silo_user'
 
 /**
  * Client view of project Images
@@ -298,7 +323,7 @@ export type ImageResultsPage = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource = { Url: string } | { Snapshot: string }
+export type ImageSource = { src: string; type: 'url' } | { src: string; type: 'snapshot' }
 
 /**
  * Client view of an {@link Instance}
@@ -408,9 +433,9 @@ export type InstanceMigrate = {
  * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export type InstanceNetworkInterfaceAttachment =
-  | { params: NetworkInterfaceCreate[]; type: 'Create' }
-  | { type: 'Default' }
-  | { type: 'None' }
+  | { params: NetworkInterfaceCreate[]; type: 'create' }
+  | { type: 'default' }
+  | { type: 'none' }
 
 /**
  * A single page of results
@@ -443,10 +468,7 @@ export type InstanceState =
   | 'failed'
   | 'destroyed'
 
-/**
- * An `IpNet` represents an IP network, either IPv4 or IPv6.
- */
-export type IpNet = { V4: Ipv4Net } | { V6: Ipv6Net }
+export type IpNet = Ipv4Net | Ipv6Net
 
 /**
  * An IPv4 subnet, including prefix and subnet mask
@@ -622,7 +644,7 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'Admin' | 'Collaborator'
+export type OrganizationRoles = 'admin' | 'collaborator'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -704,7 +726,7 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRoles = 'Admin' | 'Collaborator' | 'Viewer'
+export type ProjectRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -996,7 +1018,7 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRoles = 'Admin' | 'Collaborator' | 'Viewer'
+export type SiloRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -1635,19 +1657,19 @@ export type VpcUpdate = {
  *
  * Currently, we only support scanning in ascending order.
  */
-export type IdSortMode = 'id-ascending'
+export type IdSortMode = 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by name only
  *
  * Currently, we only support scanning in ascending order.
  */
-export type NameSortMode = 'name-ascending'
+export type NameSortMode = 'name_ascending'
 
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode = 'name-ascending' | 'name-descending' | 'id-ascending'
+export type NameOrIdSortMode = 'name_ascending' | 'name_descending' | 'id_ascending'
 
 export interface HardwareRacksGetParams {
   limit?: number | null
@@ -2248,6 +2270,10 @@ export interface SubnetNetworkInterfacesGetParams {
 
   vpcName: Name
 }
+
+export interface PolicyGetParams {}
+
+export interface PolicyPutParams {}
 
 export interface RolesGetParams {
   limit?: number | null
@@ -3554,6 +3580,31 @@ export class Api extends HttpClient {
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/network-interfaces`,
         method: 'GET',
         query: query,
+        ...params,
+      }),
+
+    /**
+     * Fetch the top-level IAM policy
+     */
+    policyGet: (query: PolicyGetParams, params: RequestParams = {}) =>
+      this.request<FleetRolesPolicy>({
+        path: `/policy`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update the top-level IAM policy
+     */
+    policyPut: (
+      query: PolicyPutParams,
+      data: FleetRolesPolicy,
+      params: RequestParams = {}
+    ) =>
+      this.request<FleetRolesPolicy>({
+        path: `/policy`,
+        method: 'PUT',
+        body: data,
         ...params,
       }),
 

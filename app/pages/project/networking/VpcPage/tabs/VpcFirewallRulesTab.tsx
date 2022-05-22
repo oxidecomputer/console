@@ -12,7 +12,7 @@ import {
 } from '@oxide/table'
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
-import { useApiQuery, firewallTargetToTypeValue } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
@@ -27,9 +27,7 @@ const staticColumns = [
   // map() fixes the fact that IpNets aren't strings
   tableHelper.createDataColumn('targets', {
     header: 'Targets',
-    cell: (info) => (
-      <TypeValueListCell value={info.getValue().map(firewallTargetToTypeValue)} />
-    ),
+    cell: (info) => <TypeValueListCell value={info.getValue()} />,
   }),
   tableHelper.createDataColumn('filters', {
     header: 'Filters',
