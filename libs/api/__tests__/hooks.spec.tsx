@@ -1,14 +1,20 @@
 import { waitFor } from '@testing-library/react'
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { overrideOnce, Wrapper } from 'app/test/utils'
+import { overrideOnce, queryClientOptions } from 'app/test/utils'
 import { org } from '@oxide/api-mocks'
-import type { ErrorResponse } from '../'
-import { useApiQuery, useApiMutation } from '../'
+import type { ErrorResponse } from '..'
+import { useApiQuery, useApiMutation } from '..'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
 // testing the one bit of real logic in there: error parsing
+
+export function Wrapper({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient(queryClientOptions)
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+}
 
 const config = { wrapper: Wrapper }
 
