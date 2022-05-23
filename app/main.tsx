@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { DataBrowserRouter } from 'react-router-dom'
 
 import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -26,7 +26,9 @@ function render() {
           <ErrorBoundary>
             <QuickActions />
             <SkipLink id="skip-nav" />
-            <Router>{routes}</Router>
+            <DataBrowserRouter fallbackElement={<span>error</span>}>
+              {routes}
+            </DataBrowserRouter>
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>

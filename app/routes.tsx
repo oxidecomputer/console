@@ -1,7 +1,8 @@
 import React from 'react'
-import type { RouteMatch, RouteObject } from 'react-router-dom'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import type { RouteMatch } from 'react-router-dom'
+import { Navigate, Route } from 'react-router-dom'
 
+import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import LoginPage from './pages/LoginPage'
 import {
   AccessPage,
@@ -67,9 +68,8 @@ const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
 const vpcCrumb = (m: RouteMatch) => m.params.vpcName!
 
-/** React Router route config in JSX form */
 export const routes = (
-  <Routes>
+  <>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
@@ -77,140 +77,110 @@ export const routes = (
 
     <Route index element={<Navigate to="/orgs" replace />} />
 
-    <Route path="orgs">
-      <Route element={<RootLayout />} icon={<Folder24Icon />} title="Organizations">
+    <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
+      <Route
+        element={<RootLayout />}
+        handle={{ icon: <Folder24Icon />, title: 'Organizations' }}
+      >
         <Route index element={<OrgsPage />} />
         <Route
           path="new"
-          title="Create Organization"
+          handle={{ title: 'Create Organization' }}
           element={<FormPage Form={OrgCreateForm} />}
         />
       </Route>
 
-      <Route path=":orgName" crumb={orgCrumb} icon={<Folder24Icon />}>
+      <Route path=":orgName" handle={{ crumb: orgCrumb, icon: <Folder24Icon /> }}>
         <Route index element={<Navigate to="projects" replace />} />
-        <Route path="projects" crumb="Projects">
+        <Route path="projects" handle={{ crumb: 'Projects' }}>
           {/* ORG */}
           <Route element={<OrgLayout />}>
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
               element={<FormPage Form={ProjectCreateForm} />}
-              crumb="Create project"
+              handle={{ crumb: 'Create project' }}
             />
           </Route>
 
           {/* PROJECT */}
-          <Route path=":projectName" element={<ProjectLayout />} crumb={projectCrumb}>
+          <Route
+            path=":projectName"
+            element={<ProjectLayout />}
+            handle={{ crumb: projectCrumb }}
+          >
             <Route index element={<Navigate to="instances" replace />} />
-            <Route path="instances" crumb="Instances" icon={<Instances24Icon />}>
+            <Route
+              path="instances"
+              handle={{ crumb: 'Instances', icon: <Instances24Icon /> }}
+            >
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
                 element={<FormPage Form={InstanceCreateForm} />}
-                title="Create instance"
-                icon={<Instances24Icon />}
+                handle={{ title: 'Create instance', icon: <Instances24Icon /> }}
               />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
                 element={<InstancePage />}
-                crumb={instanceCrumb}
+                handle={{ crumb: instanceCrumb }}
               />
             </Route>
-            <Route path="vpcs" crumb="VPCs" icon={<Networking24Icon />}>
+            <Route path="vpcs" handle={{ crumb: 'VPCs', icon: <Networking24Icon /> }}>
               <Route index element={<VpcsPage />} />
               <Route
                 path="new"
-                title="Create VPC"
+                handle={{ title: 'Create VPC' }}
                 element={<FormPage Form={VpcCreateForm} />}
               />
-              <Route path=":vpcName" element={<VpcPage />} title={vpcCrumb} />
+              <Route path=":vpcName" element={<VpcPage />} handle={{ title: vpcCrumb }} />
             </Route>
-            <Route path="disks" crumb="Disks" icon={<Storage24Icon />}>
+            <Route path="disks" handle={{ crumb: 'Disks', icon: <Storage24Icon /> }}>
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
                 element={<FormPage Form={DiskCreateForm} />}
-                title="Create disk"
-                icon={<Storage24Icon />}
+                handle={{ title: 'Create disk', icon: <Storage24Icon /> }}
               />
             </Route>
             <Route
               path="snapshots"
               element={<SnapshotsPage />}
-              crumb="Snapshots"
-              icon={<Snapshots24Icon />}
+              handle={{ crumb: 'Snapshots', icon: <Snapshots24Icon /> }}
             />
-            <Route path="audit" crumb="Audit" />
+            <Route path="audit" handle={{ crumb: 'Audit' }} />
             <Route
               path="images"
               element={<ImagesPage />}
-              crumb="Images"
-              icon={<Images24Icon />}
+              handle={{ crumb: 'Images', icon: <Images24Icon /> }}
             />
             <Route
               path="access"
               element={<AccessPage />}
-              crumb="Access & IAM"
-              icon={<Access24Icon />}
+              handle={{ crumb: 'Access & IAM', icon: <Access24Icon /> }}
             />
-            <Route path="settings" crumb="Settings" />
+            <Route path="settings" handle={{ crumb: 'Settings' }} />
           </Route>
         </Route>
       </Route>
     </Route>
 
-    <Route path="settings" crumb="settings" element={<SettingsLayout />}>
+    <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
       <Route index element={<Navigate to="profile" replace />} />
-      <Route path="profile" element={<ProfilePage />} title="Profile" />
-      <Route path="appearance" element={<AppearancePage />} title="Appearance" />
-      <Route path="ssh-keys" element={<SSHKeysPage />} title="SSH Keys" />
-      <Route path="hotkeys" element={<HotkeysPage />} title="Hotkeys" />
+      <Route path="profile" element={<ProfilePage />} handle={{ title: 'Profile' }} />
+      <Route
+        path="appearance"
+        element={<AppearancePage />}
+        handle={{ title: 'Appearance' }}
+      />
+      <Route path="ssh-keys" element={<SSHKeysPage />} handle={{ title: 'SSH Keys' }} />
+      <Route path="hotkeys" element={<HotkeysPage />} handle={{ title: 'Hotkeys' }} />
     </Route>
 
     <Route path="__debug" element={<RootLayout />}>
-      <Route path="toasts" element={<ToastTestPage />} title="toasts" />
+      <Route path="toasts" element={<ToastTestPage />} handle={{ title: 'toasts' }} />
     </Route>
-  </Routes>
+  </>
 )
-
-/**
- * Turn JSX route config info object config.
- *
- * Copied from React Router with one modification: use a custom RouteObject type
- * in order to be able to put `crumb` prop directly on the <Route> elements
- * https://github.com/remix-run/react-router/blob/174fb105ee/packages/react-router/index.tsx#L685
- * */
-function createRoutesFromChildren(children: React.ReactNode): RouteObject[] {
-  const routes: RouteObject[] = []
-
-  React.Children.forEach(children, (element) => {
-    if (!React.isValidElement(element)) {
-      // Ignore non-elements. This allows people to more easily inline
-      // conditionals in their route config.
-      return
-    }
-
-    if (element.type === React.Fragment) {
-      // Transparently support React.Fragment and its children.
-      routes.push(...createRoutesFromChildren(element.props.children))
-      return
-    }
-
-    // only real difference from the original: allow arbitrary props
-    const route: RouteObject = { ...element.props }
-
-    if (element.props.children) {
-      route.children = createRoutesFromChildren(element.props.children)
-    }
-
-    routes.push(route)
-  })
-
-  return routes
-}
-
-/** React Router route config in object form. Used by useMatches. */
-export const getRouteConfig = () => createRoutesFromChildren(routes)
