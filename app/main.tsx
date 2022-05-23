@@ -26,7 +26,7 @@ function render() {
           <ErrorBoundary>
             <QuickActions />
             <SkipLink id="skip-nav" />
-            <DataBrowserRouter fallbackElement={<span>error</span>}>
+            <DataBrowserRouter fallbackElement={<span>loading</span>}>
               {routes}
             </DataBrowserRouter>
           </ErrorBoundary>

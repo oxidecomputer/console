@@ -9,7 +9,7 @@
     "build-for-nexus": "API_URL='' vite build",
     "build:themes": "./tools/build_themes.sh",
     "ci": "yarn tsc && yarn lint && yarn test run && yarn e2e",
-    "test": "DEBUG_PRINT_LIMIT=0 vitest",
+    "test": "vitest",
     "e2e": "playwright test",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",

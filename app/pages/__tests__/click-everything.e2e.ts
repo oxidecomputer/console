@@ -13,7 +13,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   // create org form
   await page.click('role=link[name="New Organization"]')
   await expectVisible(page, [
-    'role=heading[name*="Create Organization"]',
+    'role=heading[name*="Create organization"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=button[name="Create organization"][disabled]',

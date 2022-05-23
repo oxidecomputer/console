@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom'
+import { DataBrowserRouter } from 'react-router-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
@@ -20,9 +20,11 @@ export const queryClientOptions = {
 export function Wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient(queryClientOptions)
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <DataBrowserRouter fallbackElement={<span>loading</span>}>
+        {children}
+      </DataBrowserRouter>
+    </QueryClientProvider>
   )
 }
 
