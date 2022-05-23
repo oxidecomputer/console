@@ -4,9 +4,9 @@ import { useMatches } from 'react-router-dom'
 
 export function PageHeader() {
   const matches = useMatches()?.reverse()
-  const titleMatch = matches?.find((m) => m.handle?.title || m.handle?.crumb)
+  const titleMatch = matches?.find((m) => m.handle?.title)
   const iconMatch = matches?.find((m) => m.handle?.icon)
-  let title = titleMatch?.handle.title || titleMatch?.handle.crumb
+  let title = titleMatch?.handle.title
   if (typeof title === 'function') {
     title = title(titleMatch)
   }

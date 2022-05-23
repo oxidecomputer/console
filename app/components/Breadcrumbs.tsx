@@ -6,11 +6,11 @@ import { useMatches } from 'react-router-dom'
 type Matches = ReturnType<typeof useMatches>
 
 export function matchesToCrumbs(matches: Matches): Crumb[] {
-  const filtered = matches.filter((m) => m.handle?.crumb)
+  const filtered = matches.filter((m) => m.handle?.title)
   return filtered.map((m, i) => ({
     label:
-      // at this point we've already filtered out all falsy crumbs
-      typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb!,
+      // at this point we've already filtered out all falsy titles
+      typeof m.handle.title === 'function' ? m.handle.title(m) : m.handle.title!,
     // last one is the page we're on, so no link
     href: i < filtered.length - 1 ? m.pathname : undefined,
   }))

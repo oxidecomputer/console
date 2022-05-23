@@ -80,26 +80,26 @@ export const routes = (
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
       <Route
         element={<RootLayout />}
-        handle={{ icon: <Folder24Icon />, crumb: 'Organizations' }}
+        handle={{ icon: <Folder24Icon />, title: 'Organizations' }}
       >
         <Route index element={<OrgsPage />} />
         <Route
           path="new"
-          handle={{ crumb: 'Create organization' }}
+          handle={{ title: 'Create organization' }}
           element={<FormPage Form={OrgCreateForm} />}
         />
       </Route>
 
-      <Route path=":orgName" handle={{ crumb: orgCrumb, icon: <Folder24Icon /> }}>
+      <Route path=":orgName" handle={{ title: orgCrumb, icon: <Folder24Icon /> }}>
         <Route index element={<Navigate to="projects" replace />} />
-        <Route path="projects" handle={{ crumb: 'Projects' }}>
+        <Route path="projects" handle={{ title: 'Projects' }}>
           {/* ORG */}
           <Route element={<OrgLayout />}>
             <Route index element={<ProjectsPage />} />
             <Route
               path="new"
               element={<FormPage Form={ProjectCreateForm} />}
-              handle={{ crumb: 'Create project' }}
+              handle={{ title: 'Create project' }}
             />
           </Route>
 
@@ -107,80 +107,80 @@ export const routes = (
           <Route
             path=":projectName"
             element={<ProjectLayout />}
-            handle={{ crumb: projectCrumb }}
+            handle={{ title: projectCrumb }}
           >
             <Route index element={<Navigate to="instances" replace />} />
             <Route
               path="instances"
-              handle={{ crumb: 'Instances', icon: <Instances24Icon /> }}
+              handle={{ title: 'Instances', icon: <Instances24Icon /> }}
             >
               <Route index element={<InstancesPage />} />
               <Route
                 path="new"
                 element={<FormPage Form={InstanceCreateForm} />}
-                handle={{ crumb: 'Create instance', icon: <Instances24Icon /> }}
+                handle={{ title: 'Create instance', icon: <Instances24Icon /> }}
               />
               <Route
                 path=":instanceName"
                 // layout has to be here instead of one up because it handles
                 // the breadcrumbs, which need instanceName to be defined
                 element={<InstancePage />}
-                handle={{ crumb: instanceCrumb }}
+                handle={{ title: instanceCrumb }}
               />
             </Route>
-            <Route path="vpcs" handle={{ crumb: 'VPCs', icon: <Networking24Icon /> }}>
+            <Route path="vpcs" handle={{ title: 'VPCs', icon: <Networking24Icon /> }}>
               <Route index element={<VpcsPage />} />
               <Route
                 path="new"
-                handle={{ crumb: 'Create VPC' }}
+                handle={{ title: 'Create VPC' }}
                 element={<FormPage Form={VpcCreateForm} />}
               />
-              <Route path=":vpcName" element={<VpcPage />} handle={{ crumb: vpcCrumb }} />
+              <Route path=":vpcName" element={<VpcPage />} handle={{ title: vpcCrumb }} />
             </Route>
-            <Route path="disks" handle={{ crumb: 'Disks', icon: <Storage24Icon /> }}>
+            <Route path="disks" handle={{ title: 'Disks', icon: <Storage24Icon /> }}>
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
                 element={<FormPage Form={DiskCreateForm} />}
-                handle={{ crumb: 'Create disk', icon: <Storage24Icon /> }}
+                handle={{ title: 'Create disk', icon: <Storage24Icon /> }}
               />
             </Route>
             <Route
               path="snapshots"
               element={<SnapshotsPage />}
-              handle={{ crumb: 'Snapshots', icon: <Snapshots24Icon /> }}
+              handle={{ title: 'Snapshots', icon: <Snapshots24Icon /> }}
             />
-            <Route path="audit" handle={{ crumb: 'Audit' }} />
+            <Route path="audit" handle={{ title: 'Audit' }} />
             <Route
               path="images"
               element={<ImagesPage />}
-              handle={{ crumb: 'Images', icon: <Images24Icon /> }}
+              handle={{ title: 'Images', icon: <Images24Icon /> }}
             />
             <Route
               path="access"
               element={<AccessPage />}
-              handle={{ crumb: 'Access & IAM', icon: <Access24Icon /> }}
+              handle={{ title: 'Access & IAM', icon: <Access24Icon /> }}
             />
-            <Route path="settings" handle={{ crumb: 'Settings' }} />
+            <Route path="settings" handle={{ title: 'Settings' }} />
           </Route>
         </Route>
       </Route>
     </Route>
 
-    <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
+    <Route path="settings" handle={{ title: 'settings' }} element={<SettingsLayout />}>
       <Route index element={<Navigate to="profile" replace />} />
-      <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
+      <Route path="profile" element={<ProfilePage />} handle={{ title: 'Profile' }} />
       <Route
         path="appearance"
         element={<AppearancePage />}
-        handle={{ crumb: 'Appearance' }}
+        handle={{ title: 'Appearance' }}
       />
-      <Route path="ssh-keys" element={<SSHKeysPage />} handle={{ crumb: 'SSH Keys' }} />
-      <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
+      <Route path="ssh-keys" element={<SSHKeysPage />} handle={{ title: 'SSH Keys' }} />
+      <Route path="hotkeys" element={<HotkeysPage />} handle={{ title: 'Hotkeys' }} />
     </Route>
 
     <Route path="__debug" element={<RootLayout />}>
-      <Route path="toasts" element={<ToastTestPage />} handle={{ crumb: 'toasts' }} />
+      <Route path="toasts" element={<ToastTestPage />} handle={{ title: 'toasts' }} />
     </Route>
   </>
 )
