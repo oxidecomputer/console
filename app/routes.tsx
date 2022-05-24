@@ -45,24 +45,6 @@ const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
 const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
 const DiskCreateForm = React.lazy(() => import('./forms/disk-create'))
 
-/*
- * We are doing something a little unorthodox with the route config here. We
- * realized that tagging nodes in the route tree with arbitrary data is very
- * powerful. It lets us handle breadcrumbs in a very straightforward way. Every
- * chunk of route that we want to be represented in the breadcrumbs gets a
- * `crumb` prop. Then, in order to get the breadcrumbs for a route, all we need
- * to do is find the path down the tree to the current route, and each node
- * becomes a crumb, where the `crumb` prop gives the label, and the path for
- * that node gives the path.
- *
- * The config ends up being a bit more complicated that it would otherwise be
- * because, e.g., we have to do `orgs` and `:orgName` separately in order to get
- * a crumb for each; `orgs/:orgName` would otherwise be ok.
- *
- * Note that `crumb` is defined via patched react-router types in
- * `types/react-router.d.ts`
- */
-
 const orgCrumb = (m: RouteMatch) => m.params.orgName!
 const projectCrumb = (m: RouteMatch) => m.params.projectName!
 const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
