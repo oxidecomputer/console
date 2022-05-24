@@ -7,7 +7,7 @@ set -o xtrace
 # script assumes omicron and oxide.ts are cloned under the same parent dir as
 # console and have run `npm install` inside oxide.ts/generator
 
-OMICRON_SHA=$(cat OMICRON_VERSION)
+OMICRON_SHA=$(head -n 1 OMICRON_VERSION)
 GEN_DIR='libs/api/__generated__'
 
 # this will be less horrific when the package is published? or maybe not
