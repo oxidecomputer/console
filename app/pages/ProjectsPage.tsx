@@ -3,7 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useParams, useQuickActions } from '../hooks'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
-import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
+import {
+  buttonStyle,
+  TableActions,
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+} from '@oxide/ui'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -43,6 +50,9 @@ const ProjectsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/new`}

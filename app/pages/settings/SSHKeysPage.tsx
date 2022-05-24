@@ -3,7 +3,15 @@ import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, useQueryTable } from '@oxide/table'
-import { Button, EmptyMessage, Key16Icon, SideModal, TableActions } from '@oxide/ui'
+import {
+  Button,
+  EmptyMessage,
+  Key16Icon,
+  PageHeader,
+  PageTitle,
+  SideModal,
+  TableActions,
+} from '@oxide/ui'
 import { CreateSSHKeyForm } from 'app/forms/ssh-key-create'
 import { useState } from 'react'
 
@@ -32,6 +40,9 @@ export function SSHKeysPage() {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle>SSH Keys</PageTitle>
+      </PageHeader>
       <TableActions>
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           Add SSH Key

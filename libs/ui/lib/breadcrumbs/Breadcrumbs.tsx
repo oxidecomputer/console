@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export type Crumb = { href?: string; label: string }
+type Crumb = { href?: string; label: string }
 
 export interface BreadcrumbsProps {
   data: Crumb[]
