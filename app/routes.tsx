@@ -1,5 +1,5 @@
 import React from 'react'
-import type { RouteMatch } from 'react-router-dom'
+import type { UseMatchesMatch } from '@remix-run/router'
 import { Navigate, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -45,10 +45,10 @@ const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
 const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
 const DiskCreateForm = React.lazy(() => import('./forms/disk-create'))
 
-const orgCrumb = (m: RouteMatch) => m.params.orgName!
-const projectCrumb = (m: RouteMatch) => m.params.projectName!
-const instanceCrumb = (m: RouteMatch) => m.params.instanceName!
-const vpcCrumb = (m: RouteMatch) => m.params.vpcName!
+const orgCrumb = (m: UseMatchesMatch) => m.params.orgName!
+const projectCrumb = (m: UseMatchesMatch) => m.params.projectName!
+const instanceCrumb = (m: UseMatchesMatch) => m.params.instanceName!
+const vpcCrumb = (m: UseMatchesMatch) => m.params.vpcName!
 
 export const routes = (
   <>

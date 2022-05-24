@@ -1,0 +1,47 @@
+diff --git a/node_modules/@remix-run/router/index.d.ts b/node_modules/@remix-run/router/index.d.ts
+index e66a5e8..a2cf48e 100644
+--- a/node_modules/@remix-run/router/index.d.ts
++++ b/node_modules/@remix-run/router/index.d.ts
+@@ -4,7 +4,7 @@ declare function createMemoryRouter({ initialEntries, initialIndex, ...routerIni
+ declare function createBrowserRouter({ window, ...routerInit }: BrowserHistoryOptions & Omit<RouterInit, "history">): Router;
+ declare function createHashRouter({ window, ...routerInit }: HashHistoryOptions & Omit<RouterInit, "history">): Router;
+ export * from "./router";
+-export type { ActionFunction, DataRouteObject, FormEncType, FormMethod, JsonFunction, LoaderFunction, ParamParseKey, Params, PathMatch, PathPattern, RedirectFunction, RouteMatch, RouteObject, ShouldRevalidateFunction, Submission, } from "./utils";
++export type { ActionFunction, DataRouteObject, FormEncType, FormMethod, JsonFunction, LoaderFunction, ParamParseKey, Params, PathMatch, PathPattern, RedirectFunction, RouteMatch, RouteObject, ShouldRevalidateFunction, Submission, UseMatchesMatch, } from "./utils";
+ export { generatePath, getToPathname, invariant, isRouteErrorResponse, joinPaths, json, matchPath, matchRoutes, normalizePathname, redirect, resolvePath, resolveTo, stripBasename, warning, } from "./utils";
+ export type { BrowserHistory, HashHistory, History, InitialEntry, Location, MemoryHistory, Path, To, } from "./history";
+ export { Action, createBrowserHistory, createPath, createHashHistory, createMemoryHistory, parsePath, } from "./history";
+diff --git a/node_modules/@remix-run/router/utils.d.ts b/node_modules/@remix-run/router/utils.d.ts
+index 20f0c5d..f01c04c 100644
+--- a/node_modules/@remix-run/router/utils.d.ts
++++ b/node_modules/@remix-run/router/utils.d.ts
+@@ -59,6 +59,20 @@ export interface ShouldRevalidateFunction {
+         defaultShouldRevalidate: boolean;
+     }): boolean;
+ }
++
++interface Handle {
++    title?: string | ((m: UseMatchesMatch) => string);
++    icon?: JSX.Element;
++}
++
++export interface UseMatchesMatch {
++    id: string;
++    pathname: string;
++    params: Params<string>;
++    data: any;
++    handle: Handle;
++}
++
+ /**
+  * A route object represents a logical route, with (optionally) its child
+  * routes organized in a tree-like structure.
+@@ -74,7 +88,7 @@ export interface RouteObject {
+     action?: ActionFunction;
+     errorElement?: React.ReactNode;
+     shouldRevalidate?: ShouldRevalidateFunction;
+-    handle?: any;
++    handle?: Handle; 
+ }
+ /**
+  * A data route object, which is just a RouteObject with a required unique ID

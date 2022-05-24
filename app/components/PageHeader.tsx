@@ -7,14 +7,14 @@ export function PageHeader() {
   const titleMatch = matches?.find((m) => m.handle?.title)
   const iconMatch = matches?.find((m) => m.handle?.icon)
   let title = titleMatch?.handle.title
+  invariant(
+    titleMatch && title,
+    'Page missing title, check routes config to ensure one is provided'
+  )
   if (typeof title === 'function') {
     title = title(titleMatch)
   }
-  const icon =
-    typeof iconMatch?.handle.icon === 'function'
-      ? iconMatch.handle.icon(iconMatch)
-      : iconMatch?.handle.icon
-  invariant(title, 'Page missing title, check routes config to ensure one is provided')
+  const icon = iconMatch?.handle.icon
   return (
     (title && (
       <Header>

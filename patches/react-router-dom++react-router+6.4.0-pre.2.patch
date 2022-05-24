@@ -1,0 +1,27 @@
+diff --git a/node_modules/react-router-dom/node_modules/react-router/lib/hooks.d.ts b/node_modules/react-router-dom/node_modules/react-router/lib/hooks.d.ts
+index 390d784..14a4683 100644
+--- a/node_modules/react-router-dom/node_modules/react-router/lib/hooks.d.ts
++++ b/node_modules/react-router-dom/node_modules/react-router/lib/hooks.d.ts
+@@ -1,6 +1,6 @@
+ import * as React from "react";
+ import type { Location, ParamParseKey, Params, Path, PathMatch, PathPattern, RouteMatch, RouteObject, Router as DataRouter, To } from "@remix-run/router";
+-import { Action as NavigationType } from "@remix-run/router";
++import { Action as NavigationType, UseMatchesMatch } from "@remix-run/router";
+ /**
+  * Returns the full href for the given "to" value. This is useful for building
+  * custom links that are also accessible and preserve right-click behavior.
+@@ -134,13 +134,7 @@ export declare function useRevalidator(): {
+  * Returns the active route matches, useful for accessing loaderData for
+  * parent/child routes or the route "handle" property
+  */
+-export declare function useMatches(): {
+-    id: string;
+-    pathname: string;
+-    params: Params<string>;
+-    data: any;
+-    handle: any;
+-}[];
++export declare function useMatches(): UseMatchesMatch[];
+ /**
+  * Returns the loader data for the nearest ancestor Route loader
+  */

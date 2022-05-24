@@ -1,11 +1,9 @@
 import type { Crumb } from '@oxide/ui'
 import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
+import type { UseMatchesMatch } from '@remix-run/router'
 import { useMatches } from 'react-router-dom'
 
-// TODO: fix this when they export a type for it
-type Matches = ReturnType<typeof useMatches>
-
-export function matchesToCrumbs(matches: Matches): Crumb[] {
+export function matchesToCrumbs(matches: UseMatchesMatch[]): Crumb[] {
   const filtered = matches.filter((m) => m.handle?.title)
   return filtered.map((m, i) => ({
     label:
