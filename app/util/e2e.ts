@@ -9,13 +9,17 @@ export async function forEach(loc: Locator, fn: (loc0: Locator) => void) {
 }
 
 export async function expectVisible(page: Page, selectors: string[]) {
-  for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeVisible()
-  }
+  await Promise.all(
+    selectors.map((selector) => async () => {
+      await expect(page.locator(selector)).toBeVisible()
+    })
+  )
 }
 
 export async function expectNotVisible(page: Page, selectors: string[]) {
-  for (const selector of selectors) {
-    await expect(page.locator(selector)).not.toBeVisible()
-  }
+  await Promise.all(
+    selectors.map((selector) => async () => {
+      await expect(page.locator(selector)).not.toBeVisible()
+    })
+  )
 }
