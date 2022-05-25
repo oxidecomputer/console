@@ -1,37 +1,6 @@
-import { BrowserRouter } from 'react-router-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { fireEvent, screen } from '@testing-library/react'
 
-import { routes } from '../routes'
 export { overrideOnce } from './server'
-
-export const queryClientOptions = {
-  defaultOptions: { queries: { retry: false } },
-  // react-query calls console.error whenever a request fails.
-  // this is annoying and we don't need it. leave log and warn there
-  // just in case they tell us something useful
-  logger: {
-    log: console.log,
-    warn: console.warn,
-    error: () => {},
-  },
-}
-
-export function Wrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient(queryClientOptions)
-  return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </BrowserRouter>
-  )
-}
-
-export function renderAppAt(url: string) {
-  window.history.pushState({}, 'Test page', url)
-  return render(routes, {
-    wrapper: Wrapper,
-  })
-}
 
 export * from '@testing-library/react'
 

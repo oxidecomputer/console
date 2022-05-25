@@ -14,7 +14,7 @@ const errorCodeFormatter =
         if (method.endsWith('Post')) {
           let resource = camelCaseToWords(method).slice(-2)[0]
           resource = resource.endsWith('s') ? resource.slice(0, -1) : resource
-          return `${resource} name already exists`
+          return `${capitalize(resource)} name already exists`
         }
         return undefined
       default:

@@ -1,14 +1,6 @@
 import { matchRoutes } from 'react-router-dom'
-import { renderAppAt } from './test/utils'
 
 import { getRouteConfig } from './routes'
-
-describe('routes', () => {
-  it('should render successfully', async () => {
-    const { findAllByText } = renderAppAt('/')
-    await findAllByText('Organizations')
-  })
-})
 
 describe('routeConfig', () => {
   it('should send non-existent routes to the 404 splat', () => {
