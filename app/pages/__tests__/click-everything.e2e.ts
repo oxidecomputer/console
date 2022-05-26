@@ -180,9 +180,9 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await page.goBack()
 
   // Test pagination
-  await page.click('role=button[name*="NEXT"]')
+  await page.click('role=button[name="next"]')
   await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
-  await page.click('role=button[name*="PREV"]')
+  await page.click('role=button[name*="prev"]')
   await expectVisible(page, [
     'role=heading[name*="Disks"]',
     'role=cell[name="disk-1"]',

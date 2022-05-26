@@ -1,16 +1,23 @@
 import React, { Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-type FormType = React.ComponentType<{
-  onSuccess: (data: { name: string }) => void
-}>
+interface FormPageProps {
+  Form: React.ComponentType<{
+    onSuccess: (data: { name: string }) => void
+  }>
+  goToCreatedPage?: boolean
+}
 
-export function FormPage({ Form }: { Form: FormType }) {
+export function FormPage({ Form, goToCreatedPage = true }: FormPageProps) {
   const navigate = useNavigate()
   return (
     // TODO: Add a proper loading state
     <Suspense fallback={null}>
-      <Form onSuccess={() => navigate(`..`)} />
+      <Form
+        onSuccess={(data) =>
+          goToCreatedPage ? navigate(`../${data.name}`) : navigate('..')
+        }
+      />
     </Suspense>
   )
 }

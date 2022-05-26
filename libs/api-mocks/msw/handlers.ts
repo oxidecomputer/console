@@ -410,7 +410,6 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
-      console.log('REQ', req)
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)

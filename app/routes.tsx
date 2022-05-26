@@ -132,7 +132,7 @@ export const routes = (
               <Route index element={<DisksPage />} />
               <Route
                 path="new"
-                element={<FormPage Form={DiskCreateForm} />}
+                element={<FormPage Form={DiskCreateForm} goToCreatedPage={false} />}
                 title="Create disk"
                 icon={<Storage24Icon />}
               />
