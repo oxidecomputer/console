@@ -179,6 +179,18 @@ test("Click through everything and make it's all there", async ({ page }) => {
   ])
   await page.goBack()
 
+  // Test pagination
+  await page.click('role=button[name*="NEXT"]')
+  await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
+  await page.click('role=button[name*="PREV"]')
+  await expectVisible(page, [
+    'role=heading[name*="Disks"]',
+    'role=cell[name="disk-1"]',
+    'role=cell[name="disk-2"]',
+    'role=cell[name="disk-3"]',
+    'role=cell[name="disk-4"]',
+  ])
+
   // Access & IAM
   await page.click('role=link[name*="Access & IAM"]')
   // not implemented
