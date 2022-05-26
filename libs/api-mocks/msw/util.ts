@@ -10,34 +10,38 @@ import { context, compose } from 'msw'
 export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
   compose(context.status(status), context.json(body))
 
-export interface ResultsPage<I> {
+export interface ResultsPage<I extends { id: string }> {
   items: I[]
   nextPage: string | null
 }
 
-export const paginated = <I>(req: RestRequest<any, any>, items: I[]): ResultsPage<I> => {
+export const paginated = <I extends { id: string }>(
+  req: RestRequest<any, any>,
+  items: I[]
+): ResultsPage<I> => {
   const params = new URLSearchParams(req.url.search)
   const limit = parseInt(params.get('limit') || '10', 10)
-  const pageToken = parseInt(params.get('page_token') || '0', 10)
+  let startIndex = params.get('page_token')
+    ? items.findIndex((i) => i.id === params.get('page_token'))
+    : 0
+  startIndex = startIndex < 0 ? 0 : startIndex
 
-  console.log('limit', limit)
-
-  if (pageToken > items.length) {
+  if (startIndex > items.length) {
     return {
       items: [],
       nextPage: null,
     }
   }
 
-  if (limit + pageToken > items.length) {
+  if (limit + startIndex > items.length) {
     return {
-      items: items.slice(pageToken),
+      items: items.slice(startIndex),
       nextPage: null,
     }
   }
 
   return {
-    items: items.slice(pageToken, pageToken + limit),
-    nextPage: `${pageToken + limit}`,
+    items: items.slice(startIndex, startIndex + limit),
+    nextPage: `${items[startIndex + limit].id}`,
   }
 }
