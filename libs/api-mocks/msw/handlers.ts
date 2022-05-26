@@ -2,7 +2,7 @@ import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
 import { sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
-import { json } from './util'
+import { json, paginated } from './util'
 import { sessionMe } from '../session'
 import type {
   InstanceParams,
@@ -410,10 +410,11 @@ export const handlers = [
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
+      console.log('REQ', req)
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
-      return res(json({ items: disks }))
+      return res(json(paginated(req, disks)))
     }
   ),
 
