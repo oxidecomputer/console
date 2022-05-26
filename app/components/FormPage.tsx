@@ -10,7 +10,7 @@ export function FormPage({ Form }: { Form: FormType }) {
   return (
     // TODO: Add a proper loading state
     <Suspense fallback={null}>
-      <Form onSuccess={(data) => navigate(`../${data.name}`)} />
+      <Form onSuccess={() => navigate(`..`)} />
     </Suspense>
   )
 }
