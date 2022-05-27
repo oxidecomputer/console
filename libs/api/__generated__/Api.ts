@@ -26,7 +26,7 @@ export type DatumType =
 export type Digest = { type: 'sha256'; value: string }
 
 /**
- * Client view of an {@link Disk}
+ * Client view of a {@link Disk}
  */
 export type Disk = {
   blockSize: ByteCount
@@ -644,7 +644,7 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'admin' | 'collaborator'
+export type OrganizationRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
