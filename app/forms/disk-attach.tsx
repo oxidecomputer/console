@@ -3,13 +3,18 @@ import invariant from 'tiny-invariant'
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Form, ComboboxField } from 'app/components/form'
+import { ComboboxField } from 'app/components/form'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
+import { SideModalForm } from 'app/components/form/SideModalForm'
+import type { SideModalProps } from '@oxide/ui'
 
 const values = { name: '' }
 
 export type DiskAttachValues = typeof values
+
+type AttachDiskFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<DiskAttachValues, Disk>
 
 export function AttachDiskForm({
   id = 'form-disk-attach',
@@ -19,7 +24,7 @@ export function AttachDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<DiskAttachValues, Disk>) {
+}: AttachDiskFormProps) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -46,7 +51,8 @@ export function AttachDiskForm({
     ) || []
 
   return (
-    <Form
+    <SideModalForm
+      isOpen={false}
       id={id}
       title={title}
       initialValues={initialValues}
@@ -62,7 +68,6 @@ export function AttachDiskForm({
           })
         })
       }
-      mutation={attachDisk}
       {...props}
     >
       <ComboboxField
@@ -71,12 +76,7 @@ export function AttachDiskForm({
         name="name"
         items={detachedDisks.map((d) => d.name)}
       />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
