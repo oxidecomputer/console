@@ -122,6 +122,7 @@ const makeQueryTable = <Item,>(
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
+      manualPagination: true,
     })
 
     if (debug) console.table(data)
@@ -131,12 +132,12 @@ const makeQueryTable = <Item,>(
         pageSize,
         hasNext: tableData.length === pageSize,
         hasPrev,
-        nextPage: (data as any)?.next_page,
+        nextPage: (data as any)?.nextPage,
         onNext: goToNextPage,
         onPrev: goToPrevPage,
       }),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [pageSize, tableData.length, (data as any)?.next_page]
+      [pageSize, tableData.length, (data as any)?.nextPage]
     )
 
     if (isLoading) return null

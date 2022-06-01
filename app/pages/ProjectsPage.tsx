@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useParams, useQuickActions } from '../hooks'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
+import type { Project } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
   buttonStyle,
   TableActions,
@@ -23,6 +25,7 @@ const EmptyState = () => (
 )
 
 const ProjectsPage = () => {
+  const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
     orgName,
@@ -32,6 +35,21 @@ const ProjectsPage = () => {
     orgName,
     limit: 10, // to have same params as QueryTable
   })
+
+  const deleteProject = useApiMutation('organizationProjectsDeleteProject', {
+    onSuccess() {
+      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
+    },
+  })
+
+  const makeActions = (project: Project): MenuAction[] => [
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteProject.mutate({ orgName, projectName: project.name })
+      },
+    },
+  ]
 
   const navigate = useNavigate()
   useQuickActions(
@@ -61,7 +79,7 @@ const ProjectsPage = () => {
           New Project
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}

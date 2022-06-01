@@ -2,17 +2,16 @@ import { PageHeader, PageTitle } from '@oxide/ui'
 import React, { Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-type FormType = React.ComponentType<{
-  onSuccess: (data: { name: string }) => void
-}>
-
-type FormPageProps = {
-  Form: FormType
+interface FormPageProps {
+  Form: React.ComponentType<{
+    onSuccess: (data: { name: string }) => void
+  }>
+  goToCreatedPage?: boolean
   title: string
   icon?: React.ReactElement
 }
 
-export function FormPage({ Form, title, icon }: FormPageProps) {
+export function FormPage({ Form, title, icon, goToCreatedPage = true }: FormPageProps) {
   const navigate = useNavigate()
   return (
     // TODO: Add a proper loading state
@@ -22,7 +21,11 @@ export function FormPage({ Form, title, icon }: FormPageProps) {
           <PageTitle icon={icon}>{title}</PageTitle>
         </PageHeader>
       )}
-      <Form onSuccess={(data) => navigate(`../${data.name}`)} />
+      <Form
+        onSuccess={(data) =>
+          goToCreatedPage ? navigate(`../${data.name}`) : navigate('..')
+        }
+      />
     </Suspense>
   )
 }

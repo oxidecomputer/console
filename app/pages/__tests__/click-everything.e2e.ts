@@ -161,6 +161,9 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=cell[name="disk-3"]',
     'role=cell[name="disk-4"]',
   ])
+  await page.click('role=cell[name="db1"] >> role=link')
+  await expectVisible(page, ["role=heading[name*='db1']"])
+  await page.goBack()
 
   // TODO: assert that disks 1-3 are attached and 4 is not
 
@@ -175,6 +178,18 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=button[name="Create Disk"][disabled]',
   ])
   await page.goBack()
+
+  // Test pagination
+  await page.click('role=button[name="next"]')
+  await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
+  await page.click('role=button[name*="prev"]')
+  await expectVisible(page, [
+    'role=heading[name*="Disks"]',
+    'role=cell[name="disk-1"]',
+    'role=cell[name="disk-2"]',
+    'role=cell[name="disk-3"]',
+    'role=cell[name="disk-4"]',
+  ])
 
   // Access & IAM
   await page.click('role=link[name*="Access & IAM"]')

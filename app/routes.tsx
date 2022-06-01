@@ -124,6 +124,7 @@ export const routes = (
                 element={
                   <FormPage
                     Form={DiskCreateForm}
+                    goToCreatedPage={false}
                     title="Create disk"
                     icon={<Storage24Icon />}
                   />
