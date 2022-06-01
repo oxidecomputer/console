@@ -69,9 +69,12 @@ export const handlers = [
     '/api/session/me/sshkeys',
     (req, res) =>
       res(
-        json({
-          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
-        })
+        json(
+          paginated(
+            req,
+            db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id)
+          )
+        )
       )
   ),
 
@@ -117,7 +120,7 @@ export const handlers = [
 
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
-    (req, res) => res(json({ items: db.orgs }))
+    (req, res) => res(json(paginated(req, db.orgs)))
   ),
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
@@ -161,7 +164,7 @@ export const handlers = [
       if (err) return res(err)
 
       const projects = db.projects.filter((p) => p.organization_id === org.id)
-      return res(json({ items: projects }))
+      return res(json(paginated(req, projects)))
     }
   ),
 
@@ -207,7 +210,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const instances = db.instances.filter((i) => i.project_id === project.id)
-      return res(json({ items: instances }))
+      return res(json(paginated(req, instances)))
     }
   ),
 
@@ -286,7 +289,7 @@ export const handlers = [
       const disks = db.disks.filter(
         (d) => 'instance' in d.state && d.state.instance === instance.id
       )
-      return res(json({ items: disks }))
+      return res(json(paginated(req, disks)))
     }
   ),
 
@@ -335,7 +338,7 @@ export const handlers = [
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-      return res(json({ items: nics }))
+      return res(json(paginated(req, nics)))
     }
   ),
 
@@ -456,7 +459,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const images = db.images.filter((i) => i.project_id === project.id)
-      return res(json({ items: images }))
+      return res(json(paginated(req, images)))
     }
   ),
 
@@ -466,7 +469,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
-      return res(json({ items: snapshots }))
+      return res(json(paginated(req, snapshots)))
     }
   ),
 
@@ -476,7 +479,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-      return res(json({ items: vpcs }))
+      return res(json(paginated(req, vpcs)))
     }
   ),
 
@@ -522,8 +525,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req, subnets)))
     }
   ),
 
@@ -612,8 +615,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const routers = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req, routers)))
     }
   ),
 
@@ -665,8 +668,8 @@ export const handlers = [
     (req, res) => {
       const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
-      const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-      return res(json({ items }))
+      const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
+      return res(json(paginated(req, routers)))
     }
   ),
 ]
