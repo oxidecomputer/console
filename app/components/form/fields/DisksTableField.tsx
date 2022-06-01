@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useField } from 'formik'
 import type { DiskCreateValues } from 'app/forms/disk-create'
 import type { DiskAttachValues } from 'app/forms/disk-attach'
-import { CreateDiskForm } from 'app/forms/disk-create'
+import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { AttachDiskForm } from 'app/forms/disk-attach'
 import { Button, Error16Icon, FieldLabel, MiniTable, SideModal } from '@oxide/ui'
 
@@ -64,18 +64,14 @@ export function DisksTableField() {
         </div>
       </div>
 
-      <SideModal
-        id="create-disk-modal"
+      <CreateDiskSideModalForm
         isOpen={showDiskCreate}
+        onSubmit={(values) => {
+          setItems([...items, { type: 'create', ...values }])
+          setShowDiskCreate(false)
+        }}
         onDismiss={() => setShowDiskCreate(false)}
-      >
-        <CreateDiskForm
-          onSubmit={(values) => {
-            setItems([...items, { type: 'create', ...values }])
-            setShowDiskCreate(false)
-          }}
-        />
-      </SideModal>
+      />
       <SideModal
         id="attach-disk-modal"
         isOpen={showDiskAttach}

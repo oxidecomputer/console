@@ -1,11 +1,12 @@
 import {
   DescriptionField,
-  Form,
   NameField,
   RadioField,
   Radio,
   DiskSizeField,
+  SideModalForm,
 } from 'app/components/form'
+import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -38,7 +39,10 @@ export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
   }
 }
 
-export function CreateDiskForm({
+type CreateDiskSideModalFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<DiskCreateValues, Disk>
+
+export function CreateDiskSideModalForm({
   id = 'create-disk-form',
   title = 'Create Disk',
   initialValues = values,
@@ -46,7 +50,7 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<DiskCreateValues, Disk>) {
+}: CreateDiskSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -59,7 +63,7 @@ export function CreateDiskForm({
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -72,7 +76,6 @@ export function CreateDiskForm({
           })
         })
       }
-      mutation={createDisk}
       {...props}
     >
       <NameField id="disk-name" />
@@ -89,12 +92,8 @@ export function CreateDiskForm({
         <Radio value="4096">4096</Radio>
       </RadioField>
       <DiskSizeField id="disk-size" name="size" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateDiskForm
+export default CreateDiskSideModalForm

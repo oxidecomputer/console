@@ -18,7 +18,7 @@ import { useParams, useToast } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
 import AttachDiskForm from 'app/forms/disk-attach'
-import CreateDiskForm from 'app/forms/disk-create'
+import CreateDiskSideModalForm from 'app/forms/disk-create'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -169,24 +169,19 @@ export function StorageTab() {
           </span>
         )}
       </div>
-      <SideModal
-        id="create-disk-modal"
+      <CreateDiskSideModalForm
         isOpen={showDiskCreate}
         onDismiss={() => setShowDiskCreate(false)}
-      >
-        <CreateDiskForm
-          onSuccess={(disk) => {
-            setShowDiskCreate(false)
-            attachDisk.mutate({
-              ...instanceParams,
-              body: {
-                name: disk.name,
-              },
-            })
-          }}
-          onDismiss={() => setShowDiskCreate(false)}
-        />
-      </SideModal>
+        onSuccess={(disk) => {
+          setShowDiskCreate(false)
+          attachDisk.mutate({
+            ...instanceParams,
+            body: {
+              name: disk.name,
+            },
+          })
+        }}
+      />
       <SideModal
         id="attach-disk-modal"
         isOpen={showDiskAttach}
