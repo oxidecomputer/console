@@ -1,12 +1,13 @@
 import {
   ComboboxField,
   DescriptionField,
-  Form,
   NameField,
+  SideModalForm,
   TextField,
 } from 'app/components/form'
+import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
-import type { NetworkInterface } from '@oxide/api'
+import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 
@@ -23,7 +24,10 @@ const values = {
   vpcName: '',
 }
 
-export default function CreateNetworkInterfaceForm({
+type CreateNetworkInterfaceSideModalFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<NetworkInterfaceCreate, NetworkInterface>
+
+export default function CreateNetworkInterfaceSideModalForm({
   id = 'create-network-interface-form',
   title = 'Add network interface',
   initialValues = values,
@@ -31,7 +35,7 @@ export default function CreateNetworkInterfaceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, NetworkInterface>) {
+}: CreateNetworkInterfaceSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -51,7 +55,7 @@ export default function CreateNetworkInterfaceForm({
   const vpcs = useApiQuery('projectVpcsGet', { ...pathParams, limit: 50 }).data?.items || []
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -71,7 +75,6 @@ export default function CreateNetworkInterfaceForm({
           })
         })
       }
-      mutation={createNetworkInterface}
       {...props}
     >
       <NameField id="nic-name" />
@@ -94,11 +97,6 @@ export default function CreateNetworkInterfaceForm({
         // required
       />
       <TextField id="nic-ip" name="ip" label="IP Address" />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }

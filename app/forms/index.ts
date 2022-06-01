@@ -6,7 +6,7 @@ import type { ErrorResponse } from '@oxide/api'
  * that are expected to be provided by default are set to optional.
  */
 export type PrebuiltFormProps<Values, Data> = Omit<
-  Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'>,
+  Optional<FormProps<Values>, 'id' | 'initialValues' | 'onSubmit'>,
   'children'
 > & {
   onSuccess?: (data: Data) => void
