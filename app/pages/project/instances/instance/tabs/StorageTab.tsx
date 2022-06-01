@@ -4,20 +4,13 @@ import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import {
-  Button,
-  EmptyMessage,
-  Error16Icon,
-  OpenLink12Icon,
-  SideModal,
-  TableEmptyBox,
-} from '@oxide/ui'
+import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
 import { createTable, DateCell, getActionsCol, SizeCell, Table } from '@oxide/table'
 import { useParams, useToast } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
-import AttachDiskForm from 'app/forms/disk-attach'
+import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
 
 const OtherDisksEmpty = () => (
@@ -182,18 +175,13 @@ export function StorageTab() {
           })
         }}
       />
-      <SideModal
-        id="attach-disk-modal"
+      <AttachDiskSideModalForm
         isOpen={showDiskAttach}
+        onSuccess={() => {
+          setShowDiskAttach(false)
+        }}
         onDismiss={() => setShowDiskAttach(false)}
-      >
-        <AttachDiskForm
-          onSuccess={() => {
-            setShowDiskAttach(false)
-          }}
-          onDismiss={() => setShowDiskAttach(false)}
-        />
-      </SideModal>
+      />
     </div>
   )
 }

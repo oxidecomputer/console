@@ -16,7 +16,7 @@ export type DiskAttachValues = typeof values
 type AttachDiskFormProps = Omit<SideModalProps, 'id'> &
   PrebuiltFormProps<DiskAttachValues, Disk>
 
-export function AttachDiskForm({
+export function AttachDiskSideModalForm({
   id = 'form-disk-attach',
   title = 'Attach Disk',
   initialValues = values,
@@ -52,7 +52,6 @@ export function AttachDiskForm({
 
   return (
     <SideModalForm
-      isOpen={false}
       id={id}
       title={title}
       initialValues={initialValues}
@@ -80,4 +79,4 @@ export function AttachDiskForm({
   )
 }
 
-export default AttachDiskForm
+export default AttachDiskSideModalForm
