@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate, Route } from 'react-router-dom'
+import { DataBrowserRouter, Navigate, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import type { CrumbFunc } from './components/Breadcrumbs'
@@ -41,8 +41,8 @@ const projectCrumb: CrumbFunc = (m) => m.params.projectName!
 const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
 
-export const routes = (
-  <>
+export const Router = () => (
+  <DataBrowserRouter fallbackElement={<span>loading</span>}>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
@@ -158,5 +158,5 @@ export const routes = (
       <Route path="ssh-keys" element={<SSHKeysPage />} handle={{ crumb: 'SSH Keys' }} />
       <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
     </Route>
-  </>
+  </DataBrowserRouter>
 )

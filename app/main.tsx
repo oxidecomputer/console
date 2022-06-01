@@ -1,11 +1,10 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { DataBrowserRouter } from 'react-router-dom'
 
 import { SkipLink } from '@oxide/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { routes } from './routes'
+import { Router } from './routes'
 import { QuickActions, ToastProvider } from './hooks'
 
 const queryClient = new QueryClient({
@@ -26,9 +25,7 @@ function render() {
           <ErrorBoundary>
             <QuickActions />
             <SkipLink id="skip-nav" />
-            <DataBrowserRouter fallbackElement={<span>loading</span>}>
-              {routes}
-            </DataBrowserRouter>
+            <Router />
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
