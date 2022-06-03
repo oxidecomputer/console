@@ -1,4 +1,4 @@
-import type { ResponseTransformer, RestRequest } from 'msw'
+import type { ResponseTransformer } from 'msw'
 import { context, compose } from 'msw'
 
 /**
@@ -16,10 +16,10 @@ export interface ResultsPage<I extends { id: string }> {
 }
 
 export const paginated = <I extends { id: string }>(
-  req: RestRequest<any, any>,
+  urlParams: string,
   items: I[]
 ): ResultsPage<I> => {
-  const params = new URLSearchParams(req.url.search)
+  const params = new URLSearchParams(urlParams)
   const limit = parseInt(params.get('limit') || '10', 10)
   let startIndex = params.get('page_token')
     ? items.findIndex((i) => i.id === params.get('page_token'))

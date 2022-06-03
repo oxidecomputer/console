@@ -2,7 +2,14 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
-import { buttonStyle, EmptyMessage, Instances24Icon, TableActions } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  Instances24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+} from '@oxide/ui'
 import { useParams, useQuickActions } from 'app/hooks'
 import {
   linkCell,
@@ -64,6 +71,9 @@ export const InstancesPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}

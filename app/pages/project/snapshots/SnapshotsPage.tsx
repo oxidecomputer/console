@@ -1,6 +1,6 @@
 import { useParams } from 'app/hooks'
 import { SizeCell, DateCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Snapshots24Icon } from '@oxide/ui'
+import { EmptyMessage, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -16,11 +16,16 @@ export const SnapshotsPage = () => {
   const projectParams = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('projectSnapshotsGet', projectParams)
   return (
-    <Table emptyState={<EmptyState />}>
-      <Column accessor="name" />
-      <Column accessor="description" />
-      <Column accessor="size" cell={SizeCell} />
-      <Column accessor="timeCreated" cell={DateCell} />
-    </Table>
+    <>
+      <PageHeader>
+        <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
+      </PageHeader>
+      <Table emptyState={<EmptyState />}>
+        <Column accessor="name" />
+        <Column accessor="description" />
+        <Column accessor="size" cell={SizeCell} />
+        <Column accessor="timeCreated" cell={DateCell} />
+      </Table>
+    </>
   )
 }

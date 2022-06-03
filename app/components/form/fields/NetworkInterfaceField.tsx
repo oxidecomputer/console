@@ -38,9 +38,9 @@ export function NetworkInterfaceField() {
             : setValue({ type: newType })
         }}
       >
-        <Radio value="None">None</Radio>
-        <Radio value="Default">Default</Radio>
-        <Radio value="Create">Custom</Radio>
+        <Radio value="none">None</Radio>
+        <Radio value="default">Default</Radio>
+        <Radio value="create">Custom</Radio>
       </RadioField>
       {value.type === 'create' && (
         <>

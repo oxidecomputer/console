@@ -19,7 +19,6 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { PageHeader } from '../components/PageHeader'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
 import { Form } from 'app/components/form'
@@ -81,7 +80,6 @@ const ProjectLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

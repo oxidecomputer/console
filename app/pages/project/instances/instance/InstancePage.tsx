@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import filesize from 'filesize'
 import { useNavigate } from 'react-router-dom'
 
-import { PropertiesTable, Tab, PageActions } from '@oxide/ui'
+import { PropertiesTable, Tab, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 import { Tabs } from 'app/components/Tabs'
@@ -54,9 +54,10 @@ export const InstancePage = () => {
 
   return (
     <>
-      <PageActions>
+      <PageHeader>
+        <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <MoreActionsMenu label="Instance actions" actions={actions} />
-      </PageActions>
+      </PageHeader>
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
