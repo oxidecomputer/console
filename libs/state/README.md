@@ -2,18 +2,12 @@
 
 **Table of Contents**
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 - [Example](#example)
 - [API](#api)
   - [`createStore<State>(intialState: State): [Store<State>, useStore<Value>(selector: (state: State) => Value): Value]`](#createstorestateintialstate-state-storestate-usestorevalueselector-state-state--value-value)
     - [`store`](#store)
     - [`useStore<Value>(selector: (state: State) => Value): Value`](#usestorevalueselector-state-state--value-value)
-- [Author](#author)
-- [Inspiration](#inspiration)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+- [History](#history)
 
 ## Example
 
