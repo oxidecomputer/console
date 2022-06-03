@@ -15,7 +15,10 @@ it('uses the store with no args', async () => {
 
   function Counter() {
     const { count } = useStore()
-    useEffect(() => store.set({ count: count + 1 }), [count])
+
+    // Adding count will cause it to be an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => store.set({ count: count + 1 }), [])
     return <div>count: {count}</div>
   }
 
@@ -31,7 +34,10 @@ it('uses the store with selectors', async () => {
 
   function Counter() {
     const count = useStore((state) => state.count)
-    useEffect(() => store.set({ count: count + 1 }), [count])
+
+    // Adding count will cause it to be an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => store.set({ count: count + 1 }), [])
     return <div>count: {count}</div>
   }
 
