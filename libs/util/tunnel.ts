@@ -26,13 +26,14 @@
  */
 
 import { createStore } from '@oxide/state'
+import type { ReactElement, ReactNode } from 'react'
 import { useEffect } from 'react'
 
 interface TunnelStore {
-  tunnels: Record<string, React.ReactNode>
+  tunnels: Record<string, ReactNode>
 }
 
-type Props = { children: React.ReactNode }
+type Props = { children: ReactNode }
 
 const [tunnelStore, useTunnelStore] = createStore<TunnelStore>({
   tunnels: {},
@@ -40,7 +41,7 @@ const [tunnelStore, useTunnelStore] = createStore<TunnelStore>({
 
 export const tunnel = (key: string) => {
   return {
-    In: ({ children }: Props) => {
+    In({ children }: Props) {
       useEffect(() => {
         tunnelStore.mutate((store) => {
           store.tunnels[key] = children
@@ -53,9 +54,9 @@ export const tunnel = (key: string) => {
       }, [children])
       return null
     },
-    Out: () => {
+    Out() {
       const tunnel = useTunnelStore((store) => store.tunnels[key])
-      return tunnel || null
+      return (tunnel as ReactElement) || null
     },
   }
 }
