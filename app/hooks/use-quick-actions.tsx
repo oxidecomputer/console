@@ -4,14 +4,12 @@ import { useKey } from './use-key'
 import invariant from 'tiny-invariant'
 import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'
-import create from 'zustand'
+import { createStore } from '@oxide/state'
 
 type Items = QuickActionItem[]
 
-type StoreState = {
+type QuickActionsStoreState = {
   items: Items
-  add: (toAdd: Items) => void
-  remove: (toRemove: Items) => void
 }
 
 const removeByValue = (items: Items, toRemove: Items) => {
@@ -19,12 +17,21 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-const useStore = create<StoreState>((set) => ({
+const [store, useStore] = createStore<QuickActionsStoreState>({
   items: [],
-  add: (toAdd) =>
-    set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
-  remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
-}))
+})
+
+const addActions = (toAdd: Items) => {
+  store.set(({ items }) => ({
+    items: removeByValue(items, toAdd).concat(toAdd),
+  }))
+}
+
+const removeActions = (toRemove: Items) => {
+  store.set(({ items }) => ({
+    items: removeByValue(items, toRemove),
+  }))
+}
 
 /**
  * Register action items with the global quick actions menu. `itemsToAdd` must
@@ -35,16 +42,14 @@ const useStore = create<StoreState>((set) => ({
  * when the component is unmounted Just Works.
  */
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
-  const add = useStore((state) => state.add)
-  const remove = useStore((state) => state.remove)
   useEffect(() => {
     invariant(
       itemsToAdd.length === new Set(itemsToAdd.map((i) => i.value)).size,
       'Items being added to the list of quick actions must have unique `value` values.'
     )
-    add(itemsToAdd)
-    return () => remove(itemsToAdd)
-  }, [itemsToAdd, add, remove])
+    addActions(itemsToAdd)
+    return () => removeActions(itemsToAdd)
+  }, [itemsToAdd])
 }
 
 export function QuickActions() {

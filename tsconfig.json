@@ -22,7 +22,8 @@
       "@oxide/ui": ["libs/ui/index.ts"],
       "@oxide/util": ["libs/util/index.ts"],
       "@oxide/table": ["libs/table/index.ts"],
-      "@oxide/pagination": ["libs/pagination/index.ts"]
+      "@oxide/pagination": ["libs/pagination/index.ts"],
+      "@oxide/state": ["libs/state/index.ts"]
     },
     "resolveJsonModule": true,
     "rootDir": ".",
