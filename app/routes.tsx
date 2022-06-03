@@ -22,7 +22,7 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
-import { Instances24Icon, Storage24Icon, Networking24Icon, Folder24Icon } from '@oxide/ui'
+import { Instances24Icon, Storage24Icon, Networking24Icon } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -30,7 +30,6 @@ import { AppearancePage } from './pages/settings/AppearancePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 
-const OrgCreateForm = React.lazy(() => import('./forms/org-create'))
 const ProjectCreateForm = React.lazy(() => import('./forms/project-create'))
 const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
 const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
@@ -53,16 +52,6 @@ export const Router = () => (
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
       <Route element={<RootLayout />}>
         <Route index element={<OrgsPage />} />
-        <Route
-          path="new"
-          element={
-            <FormPage
-              Form={OrgCreateForm}
-              title="Create organization"
-              icon={<Folder24Icon />}
-            />
-          }
-        />
       </Route>
 
       <Route path=":orgName" handle={{ crumb: orgCrumb }}>

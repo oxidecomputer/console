@@ -45,4 +45,4 @@ export function FullPageModal<Values>({
   )
 }
 
-FullPageModal.PageActions = PageActionsTunnel.Out
+export const PageFormActions = PageActionsTunnel.Out

@@ -11,7 +11,7 @@ import {
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { Pagination } from '@oxide/pagination'
-import { Form } from 'app/components/form'
+import { PageFormActions } from 'app/components/form'
 
 const RootLayout = () => {
   return (
@@ -26,7 +26,7 @@ const RootLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageFormActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

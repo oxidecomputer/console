@@ -1,7 +1,8 @@
-import { Form, NameField, DescriptionField } from 'app/components/form'
-import type { Organization } from '@oxide/api'
+import { NameField, DescriptionField, SideModalForm } from 'app/components/form'
+import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
+import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 import type { PrebuiltFormProps } from 'app/forms'
 
@@ -10,7 +11,10 @@ const values = {
   description: '',
 }
 
-export function CreateOrgForm({
+type CreateOrgSideModalFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<OrganizationCreate, Organization>
+
+export function CreateOrgSideModalForm({
   id = 'create-org-form',
   title = 'Create organization',
   initialValues = values,
@@ -18,7 +22,7 @@ export function CreateOrgForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Organization>) {
+}: CreateOrgSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -39,7 +43,7 @@ export function CreateOrgForm({
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -50,17 +54,10 @@ export function CreateOrgForm({
             body: { name, description },
           }))
       }
-      mutation={createOrg}
       {...props}
     >
       <NameField id="org-name" />
       <DescriptionField id="org-description" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
-
-export default CreateOrgForm

@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  buttonStyle,
+  Button,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
@@ -14,6 +14,7 @@ import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import type { Organization } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery } from '@oxide/api'
+import { CreateOrgSideModalForm } from 'app/forms/org-create'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -26,8 +27,9 @@ const EmptyState = () => (
 )
 
 const OrgsPage = () => {
-  const queryClient = useApiQueryClient()
+  const [showCreateOrg, setShowCreateOrg] = useState(false)
   const { Table, Column } = useQueryTable('organizationsGet', {})
+  const queryClient = useApiQueryClient()
 
   const { data: orgs } = useApiQuery('organizationsGet', {
     limit: 10, // to have same params as QueryTable
@@ -69,15 +71,19 @@ const OrgsPage = () => {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
+        <Button variant="secondary" size="xs" onClick={() => setShowCreateOrg(true)}>
           New Organization
-        </Link>
+        </Button>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((name) => `/orgs/${name}`)} />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateOrgSideModalForm
+        isOpen={showCreateOrg}
+        onDismiss={() => setShowCreateOrg(false)}
+      />
     </>
   )
 }
