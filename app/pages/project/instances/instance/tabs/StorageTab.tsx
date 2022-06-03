@@ -19,6 +19,7 @@ import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { useState } from 'react'
 import AttachDiskForm from 'app/forms/disk-attach'
 import CreateDiskForm from 'app/forms/disk-create'
+import { useLoaderData } from 'react-router-dom'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -59,9 +60,7 @@ export function StorageTab() {
   const queryClient = useApiQueryClient()
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
-  const { data } = useApiQuery('instanceDisksGet', instanceParams, {
-    refetchInterval: 5000,
-  })
+  const data = useLoaderData()
 
   const detachDisk = useApiMutation('instanceDisksDetach', {})
 

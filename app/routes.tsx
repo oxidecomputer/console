@@ -100,6 +100,7 @@ export const Router = () => (
               <Route
                 path=":instanceName"
                 element={<InstancePage />}
+                loader={InstancePage.loader}
                 handle={{ crumb: instanceCrumb }}
               />
             </Route>

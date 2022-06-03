@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import filesize from 'filesize'
+import type { LoaderFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { PropertiesTable, Tab, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
-import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { api, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 import { Tabs } from 'app/components/Tabs'
 import { useParams, useQuickActions } from 'app/hooks'
@@ -13,6 +14,20 @@ import { MetricsTab } from './tabs/MetricsTab'
 import { NetworkingTab } from './tabs/NetworkingTab'
 import { useMakeInstanceActions } from '../actions'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import invariant from 'tiny-invariant'
+
+export const loader: LoaderFunction = async ({
+  params: { orgName, projectName, instanceName },
+}) => {
+  invariant(orgName && projectName && instanceName, 'params required')
+  const response = await api.methods.instanceDisksGet({
+    orgName,
+    projectName,
+    instanceName,
+  })
+  if (!response.data) throw Error('whoops')
+  return response.data
+}
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -95,3 +110,5 @@ export const InstancePage = () => {
     </>
   )
 }
+
+InstancePage.loader = loader

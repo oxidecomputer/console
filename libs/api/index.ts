@@ -3,7 +3,7 @@ import { getUseApiMutation, getUseApiQuery, getUseApiQueryClient } from './hooks
 import { handleErrors } from './errors'
 import { Api } from './__generated__/Api'
 
-const api = new Api({
+export const api = new Api({
   baseUrl: process.env.API_URL,
 })
 
