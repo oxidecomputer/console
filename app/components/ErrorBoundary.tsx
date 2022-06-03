@@ -1,6 +1,7 @@
 import NotFound from 'app/pages/NotFound'
 
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
+import { useRouteError } from 'react-router-dom'
 
 type Props = { error: Error | Response }
 
@@ -23,3 +24,8 @@ function ErrorFallback({ error }: Props) {
 export const ErrorBoundary = (props: { children: React.ReactNode }) => (
   <BaseErrorBoundary FallbackComponent={ErrorFallback}>{props.children}</BaseErrorBoundary>
 )
+
+export function RouterDataErrorBoundary() {
+  const error = useRouteError()
+  return <ErrorFallback error={error} />
+}

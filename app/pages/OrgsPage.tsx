@@ -1,6 +1,13 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, EmptyMessage, Folder24Icon, TableActions } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+} from '@oxide/ui'
 import { useQuickActions } from '../hooks'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
@@ -58,6 +65,9 @@ const OrgsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New Organization

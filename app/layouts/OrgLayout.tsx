@@ -12,7 +12,6 @@ import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import { useParams } from '../hooks'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { Form } from 'app/components/form'
@@ -41,7 +40,6 @@ const OrgLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

@@ -10,7 +10,6 @@ import {
 } from './helpers'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
-import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { Form } from 'app/components/form'
 
@@ -23,7 +22,6 @@ const RootLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

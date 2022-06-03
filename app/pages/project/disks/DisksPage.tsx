@@ -5,7 +5,14 @@ import { useApiQuery } from '@oxide/api'
 
 import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { buttonStyle, EmptyMessage, TableActions, Storage24Icon } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  TableActions,
+  Storage24Icon,
+  PageTitle,
+  PageHeader,
+} from '@oxide/ui'
 
 function AttachedInstance(props: {
   orgName: string
@@ -47,6 +54,9 @@ export function DisksPage() {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/disks/new`}

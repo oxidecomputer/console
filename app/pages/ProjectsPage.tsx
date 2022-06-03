@@ -4,9 +4,15 @@ import { useParams, useQuickActions } from '../hooks'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import type { Project } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery } from '@oxide/api'
-import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  buttonStyle,
+  TableActions,
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+} from '@oxide/ui'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -62,6 +68,9 @@ const ProjectsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/new`}

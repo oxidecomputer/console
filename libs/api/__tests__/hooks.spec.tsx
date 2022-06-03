@@ -21,6 +21,7 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient(queryClientOptions)
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
+
 const config = { wrapper: Wrapper }
 
 const renderGetOrgs = () => renderHook(() => useApiQuery('organizationsGet', {}), config)

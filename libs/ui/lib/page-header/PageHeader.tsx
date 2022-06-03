@@ -1,17 +1,8 @@
 import type { ReactElement } from 'react'
 
-import { tunnel } from '@oxide/util'
+import { classed } from '@oxide/util'
 
-const PageHeaderActionsTunnel = tunnel('page-header-actions')
-
-export const PageHeader = ({ children }: { children: ReactElement }) => (
-  <header className="mb-24 mt-4 flex items-center justify-between">
-    {children}
-    <PageHeaderActionsTunnel.Out />
-  </header>
-)
-
-export const PageActions = PageHeaderActionsTunnel.In
+export const PageHeader = classed.header`mb-24 mt-4 flex items-center justify-between`
 
 interface PageTitleProps {
   icon?: ReactElement
