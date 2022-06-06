@@ -5,7 +5,8 @@ import type {
 } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { PrebuiltFormProps } from 'app/forms'
-import type { DiskTableItem } from 'app/components/form'
+import type { DiskTableItem, FullPageFormProps } from 'app/components/form'
+import { FullPageForm } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
   DescriptionField,
@@ -31,6 +32,7 @@ import {
   UbuntuDistroIcon,
   WindowsDistroIcon,
   Success16Icon,
+  Instances24Icon,
 } from '@oxide/ui'
 import { useParams, useToast } from 'app/hooks'
 import invariant from 'tiny-invariant'
@@ -74,6 +76,9 @@ const values: InstanceCreateInput = {
   networkInterfaceType: 'default',
 }
 
+type CreateInstanceFormProps = PrebuiltFormProps<InstanceCreateInput, Instance> &
+  Omit<FullPageFormProps<InstanceCreateInput>, 'icon'>
+
 export default function CreateInstanceForm({
   id = 'create-instance-form',
   title = 'Create instance',
@@ -82,7 +87,7 @@ export default function CreateInstanceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Instance>) {
+}: CreateInstanceFormProps) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
@@ -111,10 +116,11 @@ export default function CreateInstanceForm({
   })
 
   return (
-    <Form
+    <FullPageForm
       id={id}
       initialValues={initialValues}
       title={title}
+      icon={<Instances24Icon />}
       onSubmit={
         onSubmit ||
         (async (values) => {
@@ -154,7 +160,6 @@ export default function CreateInstanceForm({
           })
         })
       }
-      mutation={createInstance}
       {...props}
     >
       <NameField id="name" />
@@ -290,7 +295,7 @@ export default function CreateInstanceForm({
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
-    </Form>
+    </FullPageForm>
   )
 }
 
