@@ -22,7 +22,7 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
-import { Instances24Icon, Storage24Icon, Networking24Icon } from '@oxide/ui'
+import { Instances24Icon, Networking24Icon } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -30,10 +30,8 @@ import { AppearancePage } from './pages/settings/AppearancePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 
-const ProjectCreateForm = React.lazy(() => import('./forms/project-create'))
 const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
 const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
-const DiskCreateForm = React.lazy(() => import('./forms/disk-create'))
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -60,11 +58,6 @@ export const Router = () => (
           {/* ORG */}
           <Route element={<OrgLayout />}>
             <Route index element={<ProjectsPage />} />
-            <Route
-              path="new"
-              element={<FormPage Form={ProjectCreateForm} title="Create project" />}
-              handle={{ crumb: 'Create project' }}
-            />
           </Route>
 
           {/* PROJECT */}
@@ -108,17 +101,6 @@ export const Router = () => (
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>
               <Route index element={<DisksPage />} />
-              <Route
-                path="new"
-                element={
-                  <FormPage
-                    Form={DiskCreateForm}
-                    goToCreatedPage={false}
-                    title="Create disk"
-                    icon={<Storage24Icon />}
-                  />
-                }
-              />
             </Route>
             <Route
               path="snapshots"
