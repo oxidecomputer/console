@@ -22,7 +22,6 @@ import RootLayout from './layouts/RootLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import AuthLayout from './layouts/AuthLayout'
-import { Instances24Icon, Networking24Icon } from '@oxide/ui'
 import { FormPage } from './components/FormPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -69,16 +68,7 @@ export const Router = () => (
             <Route index element={<Navigate to="instances" replace />} />
             <Route path="instances" handle={{ crumb: 'Instances' }}>
               <Route index element={<InstancesPage />} />
-              <Route
-                path="new"
-                element={
-                  <FormPage
-                    Form={InstanceCreateForm}
-                    title="Create instance"
-                    icon={<Instances24Icon />}
-                  />
-                }
-              />
+              <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
               <Route
                 path=":instanceName"
                 element={<InstancePage />}
@@ -87,16 +77,7 @@ export const Router = () => (
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
               <Route index element={<VpcsPage />} />
-              <Route
-                path="new"
-                element={
-                  <FormPage
-                    Form={VpcCreateForm}
-                    title="Create VPC"
-                    icon={<Networking24Icon />}
-                  />
-                }
-              />
+              <Route path="new" element={<FormPage Form={VpcCreateForm} />} />
               <Route path=":vpcName" element={<VpcPage />} handle={{ crumb: vpcCrumb }} />
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>
