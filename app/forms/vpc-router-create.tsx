@@ -1,7 +1,8 @@
-import { Form, NameField, DescriptionField } from 'app/components/form'
-import type { VpcRouter } from '@oxide/api'
+import { NameField, DescriptionField, SideModalForm } from 'app/components/form'
+import type { VpcRouter, VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from 'app/hooks'
+import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 import type { CreateFormProps } from 'app/forms'
 
@@ -10,13 +11,17 @@ const values = {
   description: '',
 }
 
-export type VpcRouterFieldValues = typeof values
+type CreateVpcRouterSideModalFormProps = CreateFormProps<VpcRouterCreate, VpcRouter> &
+  Omit<SideModalProps, 'id'>
 
 export function CreateVpcRouterForm({
+  id = 'create-vpc-router-form',
+  title = 'Create VPC Router',
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: CreateFormProps<VpcRouterFieldValues, VpcRouter>) {
+}: CreateVpcRouterSideModalFormProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -37,29 +42,24 @@ export function CreateVpcRouterForm({
         timeout: 5000,
       })
       onSuccess?.(router)
+      onDismiss()
     },
     onError,
   })
 
-  const title = 'Create VPC router'
-
   return (
-    <Form
-      id="create-vpc-router-form"
+    <SideModalForm
+      id={id}
       title={title}
       initialValues={values}
+      onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         createRouter.mutate({ ...parentNames, body: { name, description } })
       }
-      mutation={createRouter}
       {...props}
     >
       <NameField id="router-name" />
       <DescriptionField id="router-description" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }

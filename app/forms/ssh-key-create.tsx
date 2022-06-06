@@ -21,6 +21,7 @@ export function CreateSSHKeySideModalForm({
   onSuccess,
   onError,
   onSubmit,
+  onDismiss,
   ...props
 }: CreateSSHKeyFormProps) {
   const queryClient = useApiQueryClient()
@@ -29,6 +30,7 @@ export function CreateSSHKeySideModalForm({
     onSuccess(data) {
       queryClient.invalidateQueries('sshkeysGet', {})
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
@@ -38,6 +40,7 @@ export function CreateSSHKeySideModalForm({
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={onSubmit || ((body) => createSshKey.mutate({ body }))}
       {...props}
     >
