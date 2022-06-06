@@ -1,8 +1,9 @@
+import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
-import type { Project } from '@oxide/api'
+import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
-import { Form, NameField, DescriptionField } from 'app/components/form'
+import { NameField, DescriptionField, SideModalForm } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
@@ -10,15 +11,19 @@ const values = {
   description: '',
 }
 
-export function CreateProjectForm({
+type CreateProjectSideModalFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<ProjectCreate, Project>
+
+export function CreateProjectSideModalForm({
   id = 'create-project-form',
   title = 'Create project',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<typeof values, Project>) {
+}: CreateProjectSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -41,15 +46,17 @@ export function CreateProjectForm({
         timeout: 5000,
       })
       onSuccess?.(project)
+      onDismiss()
     },
     onError,
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       initialValues={initialValues}
       title={title}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         (({ name, description }) => {
@@ -59,17 +66,12 @@ export function CreateProjectForm({
           })
         })
       }
-      mutation={createProject}
       {...props}
     >
       <NameField id="name" />
       <DescriptionField id="description" />
-      <Form.Actions>
-        <Form.Submit>Create project</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateProjectForm
+export default CreateProjectSideModalForm

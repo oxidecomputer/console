@@ -1,18 +1,19 @@
-import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useParams, useQuickActions } from '../hooks'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
-  buttonStyle,
   TableActions,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
   PageTitle,
+  Button,
 } from '@oxide/ui'
+import CreateProjectSideModalForm from 'app/forms/project-create'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -25,6 +26,7 @@ const EmptyState = () => (
 )
 
 const ProjectsPage = () => {
+  const [showProjectCreate, setShowProjectCreate] = useState(false)
   const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
@@ -72,12 +74,9 @@ const ProjectsPage = () => {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={`/orgs/${orgName}/projects/new`}
-          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
-        >
+        <Button variant="secondary" size="xs" onClick={() => setShowProjectCreate(true)}>
           New Project
-        </Link>
+        </Button>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
@@ -87,6 +86,10 @@ const ProjectsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateProjectSideModalForm
+        isOpen={showProjectCreate}
+        onDismiss={() => setShowProjectCreate(false)}
+      />
     </>
   )
 }
