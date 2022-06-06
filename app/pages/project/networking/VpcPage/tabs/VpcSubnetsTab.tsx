@@ -4,7 +4,7 @@ import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
 import { Button, EmptyMessage, SideModal } from '@oxide/ui'
 import type { VpcSubnet } from '@oxide/api'
-import { CreateSubnetForm } from 'app/forms/subnet-create'
+import { CreateSubnetSideModalForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'
 
 export const VpcSubnetsTab = () => {
@@ -36,16 +36,11 @@ export const VpcSubnetsTab = () => {
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New subnet
         </Button>
-        <SideModal
+        <CreateSubnetSideModalForm
           id="create-subnet-modal"
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateSubnetForm
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
+        />
         <SideModal
           id="edit-subnet-modal"
           isOpen={!!editing}

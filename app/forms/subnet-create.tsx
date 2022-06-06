@@ -1,7 +1,14 @@
-import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
+import {
+  DescriptionField,
+  Form,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/form'
+import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 
-import type { VpcSubnet } from '@oxide/api'
+import type { VpcSubnet, VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams } from 'app/hooks'
 import type { PrebuiltFormProps } from 'app/forms'
@@ -13,16 +20,18 @@ const values = {
   ipv6Block: '',
 }
 
-export type VpcSubnetFieldValues = typeof values
+type CreateSubnetSideModalFormProps = Omit<SideModalProps, 'id'> &
+  PrebuiltFormProps<VpcSubnetCreate, VpcSubnet>
 
-export function CreateSubnetForm({
+export function CreateSubnetSideModalForm({
   id = 'create-subnet-form',
   title = 'Create subnet',
   initialValues = values,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<VpcSubnetFieldValues, VpcSubnet>) {
+}: CreateSubnetSideModalFormProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -30,16 +39,17 @@ export function CreateSubnetForm({
     onSuccess(data) {
       queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ ...parentNames, body })}
-      mutation={createSubnet}
       {...props}
     >
       <NameField id="subnet-name" />
@@ -51,8 +61,8 @@ export function CreateSubnetForm({
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateSubnetForm
+export default CreateSubnetSideModalForm
