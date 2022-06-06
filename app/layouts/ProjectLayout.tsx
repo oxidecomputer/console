@@ -21,7 +21,7 @@ import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { useParams, useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
-import { Form } from 'app/components/form'
+import { PageFormActions } from 'app/components/form'
 import { ProjectSelector } from 'app/components/ProjectSelector'
 
 const ProjectLayout = () => {
@@ -84,7 +84,7 @@ const ProjectLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageFormActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
