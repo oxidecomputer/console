@@ -1,7 +1,8 @@
-import { Form, NameField, DescriptionField, TextField } from 'app/components/form'
-import type { Vpc } from '@oxide/api'
+import { NameField, DescriptionField, TextField, SideModalForm } from 'app/components/form'
+import type { Vpc, VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from 'app/hooks'
+import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 import type { CreateFormProps } from 'app/forms'
 
@@ -12,7 +13,10 @@ const values = {
   ipv6Prefix: '',
 }
 
-export function CreateVpcForm({
+type CreateVPCSideModalFormProps = Omit<SideModalProps, 'id'> &
+  CreateFormProps<VpcCreate, Vpc>
+
+export function CreateVpcSideModalForm({
   id = 'create-vpc-form',
   title = 'Create VPC',
   initialValues = values,
@@ -20,7 +24,7 @@ export function CreateVpcForm({
   onSuccess,
   onError,
   ...props
-}: CreateFormProps<typeof values, Vpc>) {
+}: CreateVPCSideModalFormProps) {
   const parentNames = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -46,7 +50,7 @@ export function CreateVpcForm({
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -58,19 +62,14 @@ export function CreateVpcForm({
             body: { name, description, dnsName, ipv6Prefix },
           }))
       }
-      mutation={createVpc}
       {...props}
     >
       <NameField id="vpc-name" />
       <DescriptionField id="vpc-description" />
       <NameField id="vpc-dns-name" name="dnsName" label="DNS name" required={false} />
       <TextField id="vpc-ipv6-prefix" name="ipv6Prefix" label="IPV6 prefix" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateVpcForm
+export default CreateVpcSideModalForm
