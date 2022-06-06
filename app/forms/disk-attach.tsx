@@ -5,7 +5,7 @@ import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { ComboboxField } from 'app/components/form'
 import { useParams } from 'app/hooks'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import { SideModalForm } from 'app/components/form/SideModalForm'
 import type { SideModalProps } from '@oxide/ui'
 
@@ -14,7 +14,7 @@ const values = { name: '' }
 export type DiskAttachValues = typeof values
 
 type AttachDiskFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<DiskAttachValues, Disk>
+  CreateFormProps<DiskAttachValues, Disk>
 
 export function AttachDiskSideModalForm({
   id = 'form-disk-attach',

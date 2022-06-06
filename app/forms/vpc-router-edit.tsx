@@ -6,14 +6,14 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { VpcRouterFieldValues } from './vpc-router-create'
 import { useParams } from 'app/hooks'
 import { DescriptionField, Form, NameField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 
 export function EditVpcRouterForm({
   title = 'Edit VPC router',
   onSuccess,
   onError,
   ...props
-}: SetRequired<PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>, 'initialValues'>) {
+}: SetRequired<CreateFormProps<VpcRouterFieldValues, VpcRouter>, 'initialValues'>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 

@@ -11,7 +11,7 @@ import { Divider } from '@oxide/ui'
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import { GiB } from '@oxide/util'
 
@@ -40,7 +40,7 @@ export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
 }
 
 type CreateDiskSideModalFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<DiskCreateValues, Disk>
+  CreateFormProps<DiskCreateValues, Disk>
 
 export function CreateDiskSideModalForm({
   id = 'create-disk-form',

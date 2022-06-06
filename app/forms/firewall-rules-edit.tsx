@@ -2,11 +2,11 @@ import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
 import { useApiMutation, useApiQueryClient, firewallRuleGetToPut } from '@oxide/api'
 import { Form } from 'app/components/form'
 import { useParams } from 'app/hooks'
-import type { PrebuiltFormProps } from '.'
+import type { CreateFormProps } from '.'
 import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
 
-type Props = PrebuiltFormProps<FirewallRuleValues, VpcFirewallRules> & {
+type Props = CreateFormProps<FirewallRuleValues, VpcFirewallRules> & {
   originalRule: VpcFirewallRule
   existingRules: VpcFirewallRule[]
 }

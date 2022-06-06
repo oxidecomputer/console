@@ -4,7 +4,7 @@ import type {
   InstanceNetworkInterfaceAttachment,
 } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import type { DiskTableItem, FullPageFormProps } from 'app/components/form'
 import { FullPageForm } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
@@ -76,7 +76,7 @@ const values: InstanceCreateInput = {
   networkInterfaceType: 'default',
 }
 
-type CreateInstanceFormProps = PrebuiltFormProps<InstanceCreateInput, Instance> &
+type CreateInstanceFormProps = CreateFormProps<InstanceCreateInput, Instance> &
   Omit<FullPageFormProps<InstanceCreateInput>, 'icon'>
 
 export default function CreateInstanceForm({

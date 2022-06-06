@@ -11,7 +11,7 @@ import { Divider } from '@oxide/ui'
 import type { VpcSubnet, VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams } from 'app/hooks'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -21,7 +21,7 @@ const values = {
 }
 
 type CreateSubnetSideModalFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<VpcSubnetCreate, VpcSubnet>
+  CreateFormProps<VpcSubnetCreate, VpcSubnet>
 
 export function CreateSubnetSideModalForm({
   id = 'create-subnet-form',

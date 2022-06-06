@@ -4,7 +4,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useToast } from 'app/hooks'
 import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -12,7 +12,7 @@ const values = {
 }
 
 type CreateOrgSideModalFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<OrganizationCreate, Organization>
+  CreateFormProps<OrganizationCreate, Organization>
 
 export function CreateOrgSideModalForm({
   id = 'create-org-form',

@@ -10,6 +10,7 @@ const PageActionsTunnel = tunnel('form-page-actions')
 
 export interface FullPageFormProps<Values>
   extends Omit<FormProps<Values>, 'setSubmitState'> {
+  id: string
   title: string
   icon: ReactElement
   submitDisabled?: boolean

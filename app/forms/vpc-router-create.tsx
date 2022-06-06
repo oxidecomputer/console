@@ -3,7 +3,7 @@ import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from 'app/hooks'
 import { Success16Icon } from '@oxide/ui'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -16,7 +16,7 @@ export function CreateVpcRouterForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>) {
+}: CreateFormProps<VpcRouterFieldValues, VpcRouter>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()

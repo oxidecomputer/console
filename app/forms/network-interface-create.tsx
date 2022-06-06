@@ -11,7 +11,7 @@ import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 import invariant from 'tiny-invariant'
 import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
@@ -25,7 +25,7 @@ const values = {
 }
 
 type CreateNetworkInterfaceSideModalFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<NetworkInterfaceCreate, NetworkInterface>
+  CreateFormProps<NetworkInterfaceCreate, NetworkInterface>
 
 export default function CreateNetworkInterfaceSideModalForm({
   id = 'create-network-interface-form',

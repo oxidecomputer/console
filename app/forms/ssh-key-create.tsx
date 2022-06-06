@@ -2,7 +2,7 @@ import type { SshKey, SshKeyCreate } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
-import type { PrebuiltFormProps } from '.'
+import type { CreateFormProps } from '.'
 
 const values: SshKeyCreate = {
   name: '',
@@ -17,7 +17,7 @@ export function CreateSSHKeyForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<SshKeyCreate, SshKey>) {
+}: CreateFormProps<SshKeyCreate, SshKey>) {
   const queryClient = useApiQueryClient()
 
   const createSshKey = useApiMutation('sshkeysPost', {

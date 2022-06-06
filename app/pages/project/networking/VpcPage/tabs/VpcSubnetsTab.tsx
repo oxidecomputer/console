@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useParams } from 'app/hooks'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
-import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+import { Button, EmptyMessage } from '@oxide/ui'
 import type { VpcSubnet } from '@oxide/api'
 import { CreateSubnetSideModalForm } from 'app/forms/subnet-create'
-import { EditSubnetForm } from 'app/forms/subnet-edit'
+import { EditSubnetSideModalForm } from 'app/forms/subnet-edit'
 
 export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
@@ -37,23 +37,14 @@ export const VpcSubnetsTab = () => {
           New subnet
         </Button>
         <CreateSubnetSideModalForm
-          id="create-subnet-modal"
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
         />
-        <SideModal
-          id="edit-subnet-modal"
+        <EditSubnetSideModalForm
           isOpen={!!editing}
+          initialValues={editing || {}}
           onDismiss={() => setEditing(null)}
-        >
-          {editing && (
-            <EditSubnetForm
-              initialValues={editing}
-              onDismiss={() => setEditing(null)}
-              onSuccess={() => setEditing(null)}
-            />
-          )}
-        </SideModal>
+        />
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />

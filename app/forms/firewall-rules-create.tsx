@@ -23,7 +23,7 @@ import {
   TextFieldError,
   TextFieldHint,
 } from '@oxide/ui'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
 import { useParams } from 'app/hooks'
 
@@ -399,7 +399,7 @@ export const validationSchema = Yup.object({
   priority: Yup.number().integer().min(0).max(65535).required('Required'),
 })
 
-type Props = PrebuiltFormProps<FirewallRuleValues, VpcFirewallRules> & {
+type Props = CreateFormProps<FirewallRuleValues, VpcFirewallRules> & {
   existingRules: VpcFirewallRule[]
 }
 

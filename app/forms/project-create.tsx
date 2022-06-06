@@ -4,7 +4,7 @@ import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useParams, useToast } from '../hooks'
 import { NameField, DescriptionField, SideModalForm } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 
 const values = {
   name: '',
@@ -12,7 +12,7 @@ const values = {
 }
 
 type CreateProjectSideModalFormProps = Omit<SideModalProps, 'id'> &
-  PrebuiltFormProps<ProjectCreate, Project>
+  CreateFormProps<ProjectCreate, Project>
 
 export function CreateProjectSideModalForm({
   id = 'create-project-form',
