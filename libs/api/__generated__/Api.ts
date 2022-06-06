@@ -123,6 +123,14 @@ export type DiskState =
   | { state: 'faulted' }
 
 /**
+ * Distribution must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ */
+export type Distribution = string
+
+/** Regex pattern for validating Distribution */
+export const distributionPattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
+
+/**
  * Error information from a response.
  */
 export type Error = {
@@ -192,6 +200,10 @@ export type GlobalImage = {
    */
   digest?: Digest | null
   /**
+   * Image distribution
+   */
+  distribution: string
+  /**
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
@@ -216,9 +228,33 @@ export type GlobalImage = {
    */
   url?: string | null
   /**
-   * Version of this, if any
+   * Image version
    */
-  version?: string | null
+  version: string
+}
+
+/**
+ * Create-time parameters for an {@link GlobalImage}
+ */
+export type GlobalImageCreate = {
+  /**
+   * block size in bytes
+   */
+  blockSize: BlockSize
+  description: string
+  /**
+   * OS image distribution
+   */
+  distribution: Distribution
+  name: Name
+  /**
+   * The source of the image's contents.
+   */
+  source: ImageSource
+  /**
+   * image version
+   */
+  version: string
 }
 
 /**
@@ -323,7 +359,10 @@ export type ImageResultsPage = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource = { src: string; type: 'url' } | { src: string; type: 'snapshot' }
+export type ImageSource =
+  | { type: 'url'; url: string }
+  | { id: string; type: 'snapshot' }
+  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
 
 /**
  * Client view of an {@link Instance}
@@ -544,6 +583,10 @@ export type NetworkInterface = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
+  /**
+   * True if this interface is the primary for the instance to which it's attached.
+   */
+  primary: boolean
   /**
    * The subnet to which the interface belongs.
    */
@@ -2633,7 +2676,11 @@ export class Api extends HttpClient {
     /**
      * Create a global image.
      */
-    imagesPost: (query: ImagesPostParams, data: ImageCreate, params: RequestParams = {}) =>
+    imagesPost: (
+      query: ImagesPostParams,
+      data: GlobalImageCreate,
+      params: RequestParams = {}
+    ) =>
       this.request<GlobalImage>({
         path: `/images`,
         method: 'POST',

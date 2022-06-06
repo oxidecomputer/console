@@ -6,6 +6,7 @@ import { vpc, vpcSubnet } from './vpc'
 export const networkInterface: Json<NetworkInterface> = {
   description: 'a network interface',
   id: 'nic-id',
+  primary: true,
   instance_id: instance.id,
   ip: '172.30.0.10',
   mac: '',
