@@ -351,9 +351,11 @@ export const handlers = [
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
-      const alreadyExists = db.networkInterfaces.some(
-        (n) => n.instance_id === instance.id && n.name === req.body.name
+      const nicsForInstance = db.networkInterfaces.filter(
+        (n) => n.instance_id === instance.id
       )
+
+      const alreadyExists = nicsForInstance.some((n) => n.name === req.body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
       if (!req.body.name) {
@@ -376,6 +378,8 @@ export const handlers = [
 
       const newNic: Json<Api.NetworkInterface> = {
         id: genId('nic'),
+        // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
+        primary: nicsForInstance.length === 0,
         instance_id: instance.id,
         name,
         description,
