@@ -1,10 +1,11 @@
 import { SideModal } from '@oxide/ui'
 import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 import type { FormProps } from './Form'
 import { Form } from './Form'
 
-interface SideModalFormProps<Values> extends FormProps<Values> {
+interface SideModalFormProps<Values> extends Omit<FormProps<Values>, 'setSubmitState'> {
   isOpen: boolean
   onDismiss: () => void
   submitDisabled?: boolean
@@ -17,11 +18,12 @@ export function SideModalForm<Values>({
   children,
   onDismiss,
   isOpen,
-  submitDisabled,
+  submitDisabled = false,
   error,
   title,
   ...formProps
 }: SideModalFormProps<Values>) {
+  const [submitState, setSubmitState] = useState(true)
   const childArray = flattenChildren(children)
   const submit = pluckFirstOfType(childArray, Form.Submit)
 
@@ -29,12 +31,21 @@ export function SideModalForm<Values>({
     <SideModal id={`${id}-modal`} onDismiss={onDismiss} isOpen={isOpen}>
       {title && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
       <SideModal.Body>
-        <Form id={id} className="is-side-modal" {...formProps}>
+        <Form
+          id={id}
+          className="is-side-modal"
+          setSubmitState={setSubmitState}
+          {...formProps}
+        >
           {childArray}
         </Form>
       </SideModal.Body>
       <SideModal.Footer>
-        <Form.Actions formId={id} submitDisabled={submitDisabled} error={error}>
+        <Form.Actions
+          formId={id}
+          submitDisabled={submitDisabled || !submitState}
+          error={error}
+        >
           {submit || <Form.Submit>{title}</Form.Submit>}
           <Form.Cancel onClick={onDismiss} />
         </Form.Actions>

@@ -21,6 +21,7 @@ export function CreateOrgSideModalForm({
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
 }: CreateOrgSideModalFormProps) {
   const queryClient = useApiQueryClient()
@@ -38,6 +39,7 @@ export function CreateOrgSideModalForm({
         timeout: 5000,
       })
       onSuccess?.(org)
+      onDismiss()
     },
     onError,
   })
@@ -47,6 +49,7 @@ export function CreateOrgSideModalForm({
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ??
         (({ name, description }) =>
@@ -55,6 +58,8 @@ export function CreateOrgSideModalForm({
           }))
       }
       {...props}
+      submitDisabled={createOrg.isLoading}
+      error={createOrg.error?.error as Error | undefined}
     >
       <NameField id="org-name" />
       <DescriptionField id="org-description" />

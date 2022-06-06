@@ -3,8 +3,10 @@ import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { addProps, classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
 import type { FormikConfig } from 'formik'
-import { Formik } from 'formik'
+import { useFormikContext } from 'formik'
+import { Formik, Form as FormikForm } from 'formik'
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { cloneElement } from 'react'
 import invariant from 'tiny-invariant'
 import './form.css'
@@ -14,31 +16,43 @@ export interface FormProps<Values> extends FormikConfig<Values> {
   id: string
   className?: string
   children: ReactNode
+  /** true if submission can happen, false otherwise */
+  setSubmitState?: (state: boolean) => void
 }
 
 export function Form<Values>({
   id,
   children,
   className,
+  setSubmitState,
   ...formikProps
 }: FormProps<Values>) {
   // Coerce container so it can be used in wrap
   return (
     <Formik {...formikProps} validateOnBlur={false}>
-      {(props) => (
-        <>
-          <form
-            id={id}
-            className={cn('ox-form', className)}
-            onReset={props.handleReset}
-            onSubmit={props.handleSubmit}
-          >
-            {children}
-          </form>
-        </>
-      )}
+      <FormikForm id={id} className={cn('ox-form', className)}>
+        {children}
+        <FormSubmitState setSubmitState={setSubmitState} />
+      </FormikForm>
     </Formik>
   )
+}
+
+/**
+ * This annoying little component exists solely to inform the parent when the submit state changes.
+ */
+const FormSubmitState = ({
+  setSubmitState,
+}: {
+  setSubmitState?: (state: boolean) => void
+}) => {
+  const context = useFormikContext()
+  useEffect(() => {
+    if (setSubmitState) {
+      setSubmitState(context.dirty && context.isValid)
+    }
+  }, [context.dirty, context.isValid, setSubmitState])
+  return null
 }
 
 interface FormActionsProps {
