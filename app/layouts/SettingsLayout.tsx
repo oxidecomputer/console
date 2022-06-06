@@ -13,7 +13,7 @@ import { TopBar } from '../components/TopBar'
 import { Sidebar, NavLinkItem } from '../components/Sidebar'
 import { useQuickActions } from 'app/hooks'
 import { Pagination } from '@oxide/pagination'
-import { Form } from 'app/components/form'
+import { PageFormActions } from 'app/components/form'
 
 const SettingsLayout = () => {
   const navigate = useNavigate()
@@ -63,7 +63,7 @@ const SettingsLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageFormActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>
