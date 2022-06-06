@@ -3206,17 +3206,17 @@
     "@svgr/hast-util-to-babel-ast" "^6.2.1"
     svg-parser "^2.0.2"
 
-"@tanstack/react-table@^8.0.0-alpha.82":
-  version "8.0.0-alpha.82"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-alpha.82.tgz#13a1d7b440898af30e3ff8894cc1eb71389c5890"
-  integrity sha512-LlxfQihrSS8k/N1wrPffQCFs8fZ+lhiRin/Q5Sh0howpUeb0bNVA9KTsEq4v7I4ZgK7wGUCUUZQ39i/ihKuZeA==
+"@tanstack/react-table@^8.0.0-beta.4":
+  version "8.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-beta.4.tgz#3c2be1cb247ebbdde46484bd769994937ce28f83"
+  integrity sha512-0GM6V+eupU8/0ja+rQ0F9d7UCq4kA9D0UBSdZMjv1MJryTu2apDc8bOTyOkwmQiqNl2JMj3pBg7A9izXM6ozzA==
   dependencies:
-    "@tanstack/table-core" "8.0.0-alpha.82"
+    "@tanstack/table-core" "8.0.0-beta.4"
 
-"@tanstack/table-core@8.0.0-alpha.82":
-  version "8.0.0-alpha.82"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.0.0-alpha.82.tgz#ba015050b101eb4aae2e06ad364e127f130c9204"
-  integrity sha512-43jCulE/PS0rsR81ORf8WW60G6VXlBAZxA87pO00RxO7SVutyPa8pRn/QW9vEDpkf5ACrxgRFzqhCB9ci9Q/BA==
+"@tanstack/table-core@8.0.0-beta.4":
+  version "8.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.0.0-beta.4.tgz#afcdae6131b60212221b6b6ee8e9dde1f7365a6b"
+  integrity sha512-BIQtkIaYFTkE4+ymhOMNe3kMiiPavhltK9Ik9nFni4wnIt1mRHaQFfBZ9dLwMqeaNW8bBLJ8Je2CNnUf7Dl8/Q==
 
 "@testing-library/dom@^8.0.0":
   version "8.1.0"
@@ -13889,10 +13889,10 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@4.7.2:
-  version "4.7.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.2.tgz#1f9aa2ceb9af87cca227813b4310fff0b51593c4"
-  integrity sha512-Mamb1iX2FDUpcTRzltPxgWMKy3fhg0TN378ylbktPGPK/99KbDtMQ4W1hwgsbPAsG3a0xKa1vmw4VKZQbkvz5A==
+typescript@4.7.3:
+  version "4.7.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.3.tgz#8364b502d5257b540f9de4c40be84c98e23a129d"
+  integrity sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==
 
 uglify-js@^3.1.4:
   version "3.14.1"

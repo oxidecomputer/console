@@ -1,6 +1,6 @@
 import { NavLink as RRNavLink, useLocation } from 'react-router-dom'
 import cn from 'classnames'
-import { Chat16Icon, Document16Icon, Settings16Icon } from '@oxide/ui'
+import { Document16Icon, Settings16Icon } from '@oxide/ui'
 
 interface SidebarProps {
   children: React.ReactNode
@@ -13,9 +13,6 @@ export function Sidebar({ children }: SidebarProps) {
       <Sidebar.Footer>
         <NavLinkItem to="https://docs.oxide.computer">
           <Document16Icon /> Documentation
-        </NavLinkItem>
-        <NavLinkItem to="help">
-          <Chat16Icon /> Help & Feedback
         </NavLinkItem>
         {!pathname.startsWith('/settings') && (
           <NavLinkItem to="/settings">

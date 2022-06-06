@@ -35,7 +35,10 @@ export const Table = <TGenerics extends OurTableGenerics>({
       {table.getHeaderGroups().map((headerGroup) => (
         <UITable.HeaderRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
-            <UITable.HeadCell key={header.id} className={header.column.meta?.thClassName}>
+            <UITable.HeadCell
+              key={header.id}
+              className={header.column.columnDef.meta?.thClassName}
+            >
               {header.renderHeader()}
             </UITable.HeadCell>
           ))}
