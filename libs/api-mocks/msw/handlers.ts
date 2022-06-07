@@ -1,6 +1,6 @@
 import { rest, context, compose } from 'msw'
 import type { ApiTypes as Api } from '@oxide/api'
-import { sortBy } from '@oxide/util'
+import { pick, sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
 import { json, paginated } from './util'
 import { sessionMe } from '../session'
@@ -203,6 +203,44 @@ export const handlers = [
       return res(json(project))
     }
   ),
+
+  rest.get<never, ProjectParams, Json<Api.ProjectRolesPolicy> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/policy',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.ProjectRolesPolicy>,
+    ProjectParams,
+    Json<Api.ProjectRolesPolicy> | PostErr
+  >('/api/organizations/:orgName/projects/:projectName/policy', (req, res) => {
+    const [project, err] = lookupProject(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'project' as const,
+      resource_id: project.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'project' && r.resource_id === project.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
 
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',

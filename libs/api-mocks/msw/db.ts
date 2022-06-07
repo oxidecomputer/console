@@ -126,6 +126,7 @@ const initDb = {
   networkInterfaces: [mock.networkInterface],
   orgs: [mock.org],
   projects: [mock.project],
+  roleAssignments: [...mock.roleAssignments],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   vpcFirewallRules: [...mock.defaultFirewallRules],
