@@ -75,6 +75,8 @@ export default function CreateNetworkInterfaceSideModalForm({
           })
         })
       }
+      submitDisabled={createNetworkInterface.isLoading}
+      error={createNetworkInterface.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="nic-name" />

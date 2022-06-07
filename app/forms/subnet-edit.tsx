@@ -50,6 +50,8 @@ export function EditSubnetSideModalForm({
           },
         })
       }}
+      submitDisabled={updateSubnet.isLoading}
+      error={updateSubnet.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="subnet-name" />

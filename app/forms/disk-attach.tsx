@@ -67,6 +67,8 @@ export function AttachDiskSideModalForm({
           })
         })
       }
+      submitDisabled={attachDisk.isLoading}
+      error={attachDisk.error?.error as Error | undefined}
       {...props}
     >
       <ComboboxField

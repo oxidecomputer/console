@@ -76,6 +76,8 @@ export function CreateDiskSideModalForm({
           })
         })
       }
+      submitDisabled={createDisk.isLoading}
+      error={createDisk.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="disk-name" />

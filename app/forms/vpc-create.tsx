@@ -62,6 +62,8 @@ export function CreateVpcSideModalForm({
             body: { name, description, dnsName, ipv6Prefix },
           }))
       }
+      submitDisabled={createVpc.isLoading}
+      error={createVpc.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="vpc-name" />

@@ -50,6 +50,8 @@ export function CreateSubnetSideModalForm({
       initialValues={initialValues}
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ ...parentNames, body })}
+      submitDisabled={createSubnet.isLoading}
+      error={createSubnet.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="subnet-name" />

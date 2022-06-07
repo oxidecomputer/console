@@ -20,7 +20,6 @@ export function CreateSSHKeySideModalForm({
   initialValues = values,
   onSuccess,
   onError,
-  onSubmit,
   onDismiss,
   ...props
 }: CreateSSHKeyFormProps) {
@@ -41,7 +40,9 @@ export function CreateSSHKeySideModalForm({
       title={title}
       initialValues={initialValues}
       onDismiss={onDismiss}
-      onSubmit={onSubmit || ((body) => createSshKey.mutate({ body }))}
+      onSubmit={(body) => createSshKey.mutate({ body })}
+      submitDisabled={createSshKey.isLoading}
+      error={createSshKey.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="ssh-key-name" />

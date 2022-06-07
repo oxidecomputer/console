@@ -57,9 +57,9 @@ export function CreateOrgSideModalForm({
             body: { name, description },
           }))
       }
-      {...props}
       submitDisabled={createOrg.isLoading}
       error={createOrg.error?.error as Error | undefined}
+      {...props}
     >
       <NameField id="org-name" />
       <DescriptionField id="org-description" />

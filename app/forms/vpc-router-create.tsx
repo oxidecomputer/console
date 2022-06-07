@@ -56,6 +56,8 @@ export function CreateVpcRouterForm({
       onSubmit={({ name, description }) =>
         createRouter.mutate({ ...parentNames, body: { name, description } })
       }
+      submitDisabled={createRouter.isLoading}
+      error={createRouter.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="router-name" />
