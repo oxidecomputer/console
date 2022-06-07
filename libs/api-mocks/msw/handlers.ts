@@ -204,6 +204,32 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      project.name = req.body.name
+      project.description = req.body.description || ''
+
+      return res(json(project, 200))
+    }
+  ),
+
+  rest.delete<never, ProjectParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res, ctx) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+      db.projects = db.projects.filter((p) => p.id !== project.id)
+      return res(ctx.status(204))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {

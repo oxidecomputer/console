@@ -56,6 +56,10 @@ export const Router = () => (
           {/* ORG */}
           <Route element={<OrgLayout />}>
             <Route index element={<ProjectsPage />} />
+            <Route path="new" element={<ProjectsPage modal="createProject" />} />
+            <Route path="edit">
+              <Route path=":projectName" element={<ProjectsPage modal="editProject" />} />
+            </Route>
           </Route>
 
           {/* PROJECT */}
