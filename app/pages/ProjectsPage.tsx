@@ -34,8 +34,6 @@ const ProjectsPage = ({ modal }: ProjectsPageProps) => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  console.log('location', location)
-
   const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
