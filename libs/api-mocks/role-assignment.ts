@@ -3,7 +3,9 @@ import type {
   ProjectRolesRoleAssignment,
 } from 'libs/api/__generated__/Api'
 import type { Json } from './json-type'
-import { org, project, user } from './'
+import { org } from './org'
+import { project } from './project'
+import { user } from './user'
 
 // For most other resources, we can store the API types directly in the DB. But
 // in this case the API response doesn't have the resource ID on it, and we need

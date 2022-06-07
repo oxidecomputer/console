@@ -714,4 +714,8 @@ export const handlers = [
       return res(json(paginated(req.url.search, routers)))
     }
   ),
+
+  rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
+    return res(json(paginated(req.url.search, db.users)))
+  }),
 ]

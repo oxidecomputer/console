@@ -129,6 +129,7 @@ const initDb = {
   roleAssignments: [...mock.roleAssignments],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
+  users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],
   vpcRouters: [mock.vpcRouter],

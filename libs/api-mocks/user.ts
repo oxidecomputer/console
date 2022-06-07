@@ -8,3 +8,5 @@ export const user: Json<User> = {
   time_created: new Date(2021, 1, 1).toISOString(),
   time_modified: new Date(2021, 1, 2).toISOString(),
 }
+
+export const users = [user]
