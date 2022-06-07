@@ -1,0 +1,65 @@
+import { NameField, DescriptionField, SideModalForm, Form } from 'app/components/form'
+import type { Organization, OrganizationCreate } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useToast } from 'app/hooks'
+import type { SideModalProps } from '@oxide/ui'
+import { Success16Icon } from '@oxide/ui'
+import type { EditFormProps } from 'app/forms'
+
+type EditOrgSideModalFormProps = Omit<SideModalProps, 'id'> &
+  EditFormProps<OrganizationCreate, Organization>
+
+export function EditOrgSideModalForm({
+  id = 'edit-org-form',
+  title = 'Edit organization',
+  initialValues,
+  onSubmit,
+  onSuccess,
+  onError,
+  onDismiss,
+  ...props
+}: EditOrgSideModalFormProps) {
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
+
+  const updateOrg = useApiMutation('organizationsPutOrganization', {
+    onSuccess(org) {
+      queryClient.invalidateQueries('organizationsGet', {})
+      // avoid the org fetch when the org page loads since we have the data
+      queryClient.setQueryData('organizationsGetOrganization', { orgName: org.name }, org)
+      addToast({
+        icon: <Success16Icon />,
+        title: 'Success!',
+        content: 'Your organization has been updated.',
+        timeout: 5000,
+      })
+      onSuccess?.(org)
+      onDismiss()
+    },
+    onError,
+  })
+
+  return (
+    <SideModalForm
+      id={id}
+      title={title}
+      initialValues={initialValues}
+      onDismiss={onDismiss}
+      onSubmit={
+        onSubmit ??
+        (({ name, description }) =>
+          updateOrg.mutate({
+            orgName: initialValues.name,
+            body: { name, description },
+          }))
+      }
+      submitDisabled={updateOrg.isLoading}
+      error={updateOrg.error?.error as Error | undefined}
+      {...props}
+    >
+      <NameField id="org-name" />
+      <DescriptionField id="org-description" />
+      <Form.Submit>Save changes</Form.Submit>
+    </SideModalForm>
+  )
+}

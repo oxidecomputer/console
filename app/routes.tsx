@@ -48,6 +48,10 @@ export const Router = () => (
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
       <Route element={<RootLayout />}>
         <Route index element={<OrgsPage />} />
+        <Route path="new" element={<OrgsPage modal="createOrg" />} />
+        <Route path="edit">
+          <Route path=":orgName" element={<OrgsPage modal="editOrg" />} />
+        </Route>
       </Route>
 
       <Route path=":orgName" handle={{ crumb: orgCrumb }}>

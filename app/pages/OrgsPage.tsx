@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Button,
   EmptyMessage,
@@ -15,6 +15,7 @@ import type { Organization } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery } from '@oxide/api'
 import { CreateOrgSideModalForm } from 'app/forms/org-create'
+import { EditOrgSideModalForm } from 'app/forms/org-edit'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -26,8 +27,14 @@ const EmptyState = () => (
   />
 )
 
-const OrgsPage = () => {
-  const [showCreateOrg, setShowCreateOrg] = useState(false)
+interface OrgsPageProps {
+  modal?: 'createOrg' | 'editOrg'
+}
+
+const OrgsPage = ({ modal }: OrgsPageProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const { Table, Column } = useQueryTable('organizationsGet', {})
   const queryClient = useApiQueryClient()
 
@@ -43,6 +50,12 @@ const OrgsPage = () => {
 
   const makeActions = (org: Organization): MenuAction[] => [
     {
+      label: 'Edit',
+      onActivate() {
+        navigate(`edit/${org.name}`, { state: org })
+      },
+    },
+    {
       label: 'Delete',
       onActivate: () => {
         deleteOrg.mutate({ orgName: org.name })
@@ -50,7 +63,6 @@ const OrgsPage = () => {
     },
   ]
 
-  const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
@@ -71,7 +83,7 @@ const OrgsPage = () => {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button variant="secondary" size="xs" onClick={() => setShowCreateOrg(true)}>
+        <Button variant="secondary" size="xs" onClick={() => navigate('new')}>
           New Organization
         </Button>
       </TableActions>
@@ -81,8 +93,13 @@ const OrgsPage = () => {
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
       <CreateOrgSideModalForm
-        isOpen={showCreateOrg}
-        onDismiss={() => setShowCreateOrg(false)}
+        isOpen={modal === 'createOrg'}
+        onDismiss={() => navigate('..')}
+      />
+      <EditOrgSideModalForm
+        isOpen={modal === 'editOrg'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
       />
     </>
   )

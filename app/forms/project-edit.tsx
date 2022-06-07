@@ -24,7 +24,7 @@ export function EditProjectSideModalForm({
 
   const { orgName } = useParams('orgName')
 
-  const createProject = useApiMutation('organizationProjectsPutProject', {
+  const editProject = useApiMutation('organizationProjectsPutProject', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('organizationProjectsGet', { orgName })
@@ -55,15 +55,15 @@ export function EditProjectSideModalForm({
       onSubmit={
         onSubmit ||
         (({ name, description }) => {
-          createProject.mutate({
+          editProject.mutate({
             projectName: initialValues.name,
             orgName,
             body: { name, description },
           })
         })
       }
-      submitDisabled={createProject.isLoading}
-      error={createProject.error?.error as Error | undefined}
+      submitDisabled={editProject.isLoading}
+      error={editProject.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="name" />
