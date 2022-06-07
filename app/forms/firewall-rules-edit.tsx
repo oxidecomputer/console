@@ -1,22 +1,27 @@
 import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
 import { useApiMutation, useApiQueryClient, firewallRuleGetToPut } from '@oxide/api'
-import { Form } from 'app/components/form'
+import { Form, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
-import type { CreateFormProps } from '.'
+import type { EditFormProps } from '.'
 import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
+import type { SideModalProps } from '@oxide/ui'
 
-type Props = CreateFormProps<FirewallRuleValues, VpcFirewallRules> & {
-  originalRule: VpcFirewallRule
-  existingRules: VpcFirewallRule[]
-}
+type EditFirewallRuleSideModalFormProps = Omit<
+  EditFormProps<FirewallRuleValues, VpcFirewallRules>,
+  'initialValues'
+> &
+  Omit<SideModalProps, 'id'> & {
+    originalRule: VpcFirewallRule
+    existingRules: VpcFirewallRule[]
+  }
 
 export function EditFirewallRuleForm({
   onSuccess,
   existingRules,
   originalRule,
   ...props
-}: Props) {
+}: EditFirewallRuleSideModalFormProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -54,7 +59,7 @@ export function EditFirewallRuleForm({
   }
 
   return (
-    <Form
+    <SideModalForm
       id="create-firewall-rule-form"
       title="Edit rule"
       initialValues={initialValues}
@@ -71,16 +76,14 @@ export function EditFirewallRuleForm({
           },
         })
       }}
-      mutation={updateRules}
       validationSchema={validationSchema}
       validateOnBlur
+      submitDisabled={updateRules.isLoading}
+      error={updateRules.error?.error as Error | undefined}
       {...props}
     >
       <CommonFields error={updateRules.error} />
-      <Form.Actions>
-        <Form.Submit>Update rule</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+      <Form.Submit>Update rule</Form.Submit>
+    </SideModalForm>
   )
 }

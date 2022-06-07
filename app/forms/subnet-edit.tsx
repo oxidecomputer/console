@@ -57,10 +57,7 @@ export function EditSubnetSideModalForm({
       <NameField id="subnet-name" />
       <DescriptionField id="subnet-description" />
       <Divider />
-      <Form.Actions>
-        <Form.Submit>Update subnet</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
+      <Form.Submit>Update subnet</Form.Submit>
     </SideModalForm>
   )
 }

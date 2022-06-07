@@ -13,7 +13,7 @@ import {
 import { useParams } from 'app/hooks'
 import type { VpcFirewallRule } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
+import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleSideModalForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 
@@ -91,20 +91,12 @@ export const VpcFirewallRulesTab = () => {
           existingRules={rules}
           onDismiss={() => setCreateModalOpen(false)}
         />
-        <SideModal
-          id="create-firewall-rule-modal"
+        <EditFirewallRuleForm
           isOpen={!!editing}
+          existingRules={rules}
+          originalRule={editing || ({} as VpcFirewallRule)}
           onDismiss={() => setEditing(null)}
-        >
-          {editing && (
-            <EditFirewallRuleForm
-              existingRules={rules}
-              originalRule={editing}
-              onSuccess={() => setEditing(null)}
-              onDismiss={() => setEditing(null)}
-            />
-          )}
-        </SideModal>
+        />
       </div>
       {rules.length > 0 || isLoading ? <Table table={table} /> : emptyState}
     </>
