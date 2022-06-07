@@ -30,7 +30,6 @@ import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 
 const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
-const VpcCreateForm = React.lazy(() => import('./forms/vpc-create'))
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -77,7 +76,6 @@ export const Router = () => (
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
               <Route index element={<VpcsPage />} />
-              <Route path="new" element={<FormPage Form={VpcCreateForm} />} />
               <Route path=":vpcName" element={<VpcPage />} handle={{ crumb: vpcCrumb }} />
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>

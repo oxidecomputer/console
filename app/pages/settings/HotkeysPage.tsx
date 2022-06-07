@@ -1,35 +1,23 @@
-import { PageHeader, PageTitle } from '@oxide/ui'
-import type { FormMutation } from 'app/components/form'
-import { Radio, RadioField } from 'app/components/form'
+import { Settings24Icon } from '@oxide/ui'
+import { FullPageForm, Radio, RadioField } from 'app/components/form'
 import { ListboxField } from 'app/components/form'
 import { Form } from 'app/components/form'
 
 const Meta = navigator.userAgent.match(/Mac/i) ? '⌘' : 'Ctrl'
 
-const manualMutation: FormMutation = {
-  status: 'error',
-  data: undefined,
-  error: {
-    // @ts-expect-error Just let folks know this doesn't work yet
-    error: new Error('This form is not yet implemented'),
-  },
-}
-
 export function HotkeysPage() {
   return (
     <>
-      <PageHeader>
-        <PageTitle>Hotkeys</PageTitle>
-      </PageHeader>
-      <Form
-        id="profile-form"
-        title="Profile"
+      <FullPageForm
+        id="hotkeys-form"
+        title="Hotkeys"
         initialValues={{
           actionMenuHotkey: 'cmd+k',
           hotkeys: 'enabled',
         }}
         onSubmit={() => {}}
-        mutation={manualMutation}
+        icon={<Settings24Icon />}
+        error={new Error('This form is not yet implemented')}
       >
         <ListboxField
           id="action-menu-hotkey"
@@ -43,10 +31,8 @@ export function HotkeysPage() {
           <Radio value="enabled">Enabled</Radio>
           <Radio value="disabled">Disabled</Radio>
         </RadioField>
-        <Form.Actions>
-          <Form.Submit>Save</Form.Submit>
-        </Form.Actions>
-      </Form>
+        <Form.Submit>Save</Form.Submit>
+      </FullPageForm>
     </>
   )
 }
