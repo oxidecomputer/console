@@ -2,7 +2,7 @@ import type { Project, ProjectResultsPage, ProjectRolesPolicy } from '@oxide/api
 
 import type { Json } from './json-type'
 import { org } from './org'
-import { user } from './user'
+import { user1 } from './user'
 
 export const project: Json<Project> = {
   id: 'mock-project-uuid',
@@ -18,7 +18,7 @@ export const projects: Json<ProjectResultsPage> = { items: [project] }
 export const projectRolePolicy: Json<ProjectRolesPolicy> = {
   role_assignments: [
     {
-      identity_id: user.id,
+      identity_id: user1.id,
       identity_type: 'silo_user',
       role_name: 'admin',
     },

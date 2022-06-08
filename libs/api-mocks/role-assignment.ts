@@ -6,7 +6,7 @@ import type {
 import type { Json } from './json-type'
 import { org } from './org'
 import { project } from './project'
-import { user } from './user'
+import { user1 } from './user'
 
 // For most other resources, we can store the API types directly in the DB. But
 // in this case the API response doesn't have the resource ID on it, and we need
@@ -23,14 +23,14 @@ export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'organization',
     resource_id: org.id,
-    identity_id: user.id,
+    identity_id: user1.id,
     identity_type: 'silo_user',
     role_name: 'admin',
   },
   {
     resource_type: 'project',
     resource_id: project.id,
-    identity_id: user.id,
+    identity_id: user1.id,
     identity_type: 'silo_user',
     role_name: 'admin',
   },

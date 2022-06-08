@@ -88,7 +88,7 @@ export const AccessPage = () => {
         onDismiss={() => setAddModalOpen(false)}
       >
         <AddUserToProjectForm
-          onSubmit={() => setAddModalOpen(false)}
+          onSuccess={() => setAddModalOpen(false)}
           onDismiss={() => setAddModalOpen(false)}
         />
       </SideModal>

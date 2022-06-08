@@ -6,12 +6,14 @@ import {
   Combobox as RCombobox,
 } from '@reach/combobox'
 import { matchSorter } from 'match-sorter'
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 
 import './Combobox.css'
 
+export type ComboboxItem = string | { value: string; label: ReactNode }
+
 type ComboboxProps = {
-  items: string[]
+  items: ComboboxItem[]
   value: string
   disabled?: boolean
   onSelect: (value: string) => void
@@ -58,17 +60,23 @@ export function Combobox({
           </p>
         ) : (
           <ComboboxList persistSelection className="rounded border border-default">
-            {matches.map((item, i) => (
-              <ComboboxOption
-                // TODO: make border overlap container border like Justin's beautiful tables
-                className="cursor-pointer rounded border px-3 py-2 text-sans-sm border-default hover:bg-hover"
-                key={item}
-                value={item}
-                // looks pointless but is needed to prevent weird ordering bugs
-                // when using arrow keys. See https://github.com/reach/reach-ui/issues/840
-                index={i}
-              />
-            ))}
+            {matches.map((item, i) => {
+              const value = typeof item === 'string' ? item : item.value
+              const label = typeof item === 'string' ? item : item.label
+              return (
+                <ComboboxOption
+                  // TODO: make border overlap container border like Justin's beautiful tables
+                  className="cursor-pointer rounded border px-3 py-2 text-sans-sm border-default hover:bg-hover"
+                  key={value}
+                  value={value}
+                  // looks pointless but is needed to prevent weird ordering bugs
+                  // when using arrow keys. See https://github.com/reach/reach-ui/issues/840
+                  index={i}
+                >
+                  {label}
+                </ComboboxOption>
+              )
+            })}
           </ComboboxList>
         )}
       </ComboboxPopover>
