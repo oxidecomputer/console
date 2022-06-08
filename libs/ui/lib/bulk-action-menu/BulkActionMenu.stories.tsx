@@ -1,7 +1,8 @@
-import { BulkActionMenu } from './BulkActionMenu'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
 import { Delete10Icon, Edit16Icon, Terminal10Icon } from '../icons'
+import { BulkActionMenu } from './BulkActionMenu'
 
 type Story = StoryObj<ComponentProps<typeof BulkActionMenu>>
 

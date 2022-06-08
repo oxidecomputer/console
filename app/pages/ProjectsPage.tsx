@@ -1,18 +1,20 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useParams, useQuickActions } from '../hooks'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
-  buttonStyle,
-  TableActions,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
   PageTitle,
+  TableActions,
+  buttonStyle,
 } from '@oxide/ui'
+
+import { useParams, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage

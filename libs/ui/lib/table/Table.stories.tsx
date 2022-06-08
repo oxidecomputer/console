@@ -1,6 +1,7 @@
-import { Table } from './Table'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+import { Table } from './Table'
 
 type Story = StoryObj<ComponentProps<typeof Table>>
 

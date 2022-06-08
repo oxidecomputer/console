@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useParams } from 'app/hooks'
-import { Button, EmptyMessage, SideModal } from '@oxide/ui'
-import type { MenuAction } from '@oxide/table'
-import { useQueryTable, DateCell, LabelCell } from '@oxide/table'
+
 import type { VpcRouter } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, LabelCell, useQueryTable } from '@oxide/table'
+import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+
 import { CreateVpcRouterForm } from 'app/forms/vpc-router-create'
 import { EditVpcRouterForm } from 'app/forms/vpc-router-edit'
+import { useParams } from 'app/hooks'
 
 export const VpcRoutersTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')

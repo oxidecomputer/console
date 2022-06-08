@@ -1,6 +1,7 @@
-import { FieldLabel } from './FieldLabel'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { FieldLabel } from './FieldLabel'
 
 type Story = StoryObj<ComponentProps<typeof FieldLabel>>
 

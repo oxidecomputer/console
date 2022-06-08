@@ -1,7 +1,8 @@
-import { FormikDecorator } from '../../util/formik-decorator'
-import { TextField } from './TextField'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { FormikDecorator } from '../../util/formik-decorator'
+import { TextField } from './TextField'
 
 type Story = StoryObj<ComponentProps<typeof TextField>>
 

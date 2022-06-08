@@ -1,6 +1,7 @@
-import { subSeconds, subMinutes, subHours, subDays } from 'date-fns'
-import { timeAgoAbbr } from './date'
+import { subDays, subHours, subMinutes, subSeconds } from 'date-fns'
 import { vi } from 'vitest'
+
+import { timeAgoAbbr } from './date'
 
 const baseDate = new Date(2021, 5, 7)
 

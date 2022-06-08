@@ -1,6 +1,7 @@
 /// Helpers for working with API objects
-import type { VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
 import { pick } from '@oxide/util'
+
+import type { VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
 
 type PortRange = [number, number]
 

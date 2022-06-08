@@ -1,4 +1,5 @@
 import type { VpcSubnet } from '@oxide/api'
+
 import type { Json } from './json-type'
 
 // Tests of a sort. These expectType calls will fail to typecheck if the types

@@ -1,6 +1,7 @@
 import type { NetworkInterface } from '@oxide/api'
-import type { Json } from './json-type'
+
 import { instance } from './instance'
+import type { Json } from './json-type'
 import { vpc, vpcSubnet } from './vpc'
 
 export const networkInterface: Json<NetworkInterface> = {

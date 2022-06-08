@@ -1,6 +1,7 @@
-import { navToLogin } from './nav-to-login'
-import type { ApiMethods, ErrorResponse, Error } from '.'
 import { camelCaseToWords, capitalize } from '@oxide/util'
+
+import type { ApiMethods, Error, ErrorResponse } from '.'
+import { navToLogin } from './nav-to-login'
 
 const errorCodeFormatter =
   (method: keyof ApiMethods) =>

@@ -1,5 +1,6 @@
 import type { TableInstance } from '@tanstack/react-table'
 import { createTable as _createTable } from '@tanstack/react-table'
+
 import { Table as UITable } from '@oxide/ui'
 
 export type TableProps<TGenerics> = JSX.IntrinsicElements['table'] & {

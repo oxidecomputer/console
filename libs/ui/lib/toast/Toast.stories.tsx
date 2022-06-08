@@ -1,8 +1,9 @@
 import { action } from '@storybook/addon-actions'
-import { Toast } from './Toast'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
 import { Success16Icon } from '../icons'
+import { Toast } from './Toast'
 
 type Story = StoryObj<ComponentProps<typeof Toast>>
 

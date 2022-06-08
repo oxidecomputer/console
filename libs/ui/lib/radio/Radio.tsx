@@ -5,11 +5,9 @@
  * explicitly. Instead rely on the parent RadioGroup to do that. The other
  * difference is that label content is handled through children.
  */
-
-import type { ComponentProps } from 'react'
-
 import cn from 'classnames'
 import { Field } from 'formik'
+import type { ComponentProps } from 'react'
 
 // input type is fixed to "radio"
 export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>

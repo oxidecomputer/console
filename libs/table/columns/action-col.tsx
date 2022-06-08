@@ -1,6 +1,7 @@
-import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { TableGenerics, Row } from '@tanstack/react-table'
+import type { Row, TableGenerics } from '@tanstack/react-table'
+
+import { More12Icon } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>

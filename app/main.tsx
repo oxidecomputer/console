@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 import { SkipLink } from '@oxide/ui'
+
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { Router } from './routes'
 import { QuickActions, ToastProvider } from './hooks'
+import { Router } from './routes'
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1,6 +1,7 @@
-import { useParams } from 'app/hooks'
-import { SizeCell, DateCell, useQueryTable } from '@oxide/table'
+import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
+
+import { useParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage

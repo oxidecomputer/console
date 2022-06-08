@@ -1,34 +1,34 @@
 import React from 'react'
 import { DataBrowserRouter, Navigate, Route } from 'react-router-dom'
 
-import { RouterDataErrorBoundary } from './components/ErrorBoundary'
+import { Folder24Icon, Instances24Icon, Networking24Icon, Storage24Icon } from '@oxide/ui'
+
 import type { CrumbFunc } from './components/Breadcrumbs'
+import { RouterDataErrorBoundary } from './components/ErrorBoundary'
+import { FormPage } from './components/FormPage'
+import AuthLayout from './layouts/AuthLayout'
+import OrgLayout from './layouts/OrgLayout'
+import ProjectLayout from './layouts/ProjectLayout'
+import RootLayout from './layouts/RootLayout'
+import SettingsLayout from './layouts/SettingsLayout'
 import LoginPage from './pages/LoginPage'
+import NotFound from './pages/NotFound'
+import OrgsPage from './pages/OrgsPage'
+import ProjectsPage from './pages/ProjectsPage'
 import {
   AccessPage,
   DisksPage,
+  ImagesPage,
   InstancePage,
   InstancesPage,
-  ImagesPage,
   SnapshotsPage,
   VpcPage,
   VpcsPage,
 } from './pages/project'
-import ProjectsPage from './pages/ProjectsPage'
-import OrgsPage from './pages/OrgsPage'
-import NotFound from './pages/NotFound'
-
-import RootLayout from './layouts/RootLayout'
-import OrgLayout from './layouts/OrgLayout'
-import ProjectLayout from './layouts/ProjectLayout'
-import AuthLayout from './layouts/AuthLayout'
-import { Instances24Icon, Storage24Icon, Networking24Icon, Folder24Icon } from '@oxide/ui'
-import { FormPage } from './components/FormPage'
-import { ProfilePage } from './pages/settings/ProfilePage'
-import SettingsLayout from './layouts/SettingsLayout'
 import { AppearancePage } from './pages/settings/AppearancePage'
-import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
+import { ProfilePage } from './pages/settings/ProfilePage'
+import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 
 const OrgCreateForm = React.lazy(() => import('./forms/org-create'))
 const ProjectCreateForm = React.lazy(() => import('./forms/project-create'))

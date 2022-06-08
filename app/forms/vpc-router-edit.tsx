@@ -3,10 +3,11 @@ import type { SetRequired } from 'type-fest'
 import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import type { VpcRouterFieldValues } from './vpc-router-create'
-import { useParams } from 'app/hooks'
 import { DescriptionField, Form, NameField } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
+
+import type { VpcRouterFieldValues } from './vpc-router-create'
 
 export function EditVpcRouterForm({
   title = 'Edit VPC router',

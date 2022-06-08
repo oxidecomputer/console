@@ -1,9 +1,11 @@
-import { Success16Icon } from '@oxide/ui'
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useParams, useToast } from '../hooks'
-import { Form, NameField, DescriptionField } from 'app/components/form'
+import { Success16Icon } from '@oxide/ui'
+
+import { DescriptionField, Form, NameField } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
+
+import { useParams, useToast } from '../hooks'
 
 const values = {
   name: '',

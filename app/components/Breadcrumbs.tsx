@@ -1,7 +1,8 @@
-import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
 import { useMatches } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import type { Merge, SetRequired } from 'type-fest'
+
+import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
 
 type UseMatchesMatch = ReturnType<typeof useMatches>[number]
 

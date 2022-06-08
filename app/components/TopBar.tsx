@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { navToLogin, useApiQuery, useApiMutation } from '@oxide/api'
-import { buttonStyle, Button } from '@oxide/ui'
+
+import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
+import { Button, buttonStyle } from '@oxide/ui'
 
 export function TopBar() {
   const logout = useApiMutation('logout', {

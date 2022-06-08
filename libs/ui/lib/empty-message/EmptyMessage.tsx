@@ -1,7 +1,6 @@
-import type { ReactElement } from 'react'
-
-import { Link } from 'react-router-dom'
 import cn from 'classnames'
+import type { ReactElement } from 'react'
+import { Link } from 'react-router-dom'
 
 import { Button, buttonStyle } from '../button/Button'
 

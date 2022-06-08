@@ -1,6 +1,7 @@
+import cn from 'classnames'
+
 import type { RadioGroupProps } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextFieldHint } from '@oxide/ui'
-import cn from 'classnames'
 
 // TODO: Centralize these docstrings perhaps on the `FieldLabel` component?
 export interface RadioFieldProps extends Omit<RadioGroupProps, 'name'> {

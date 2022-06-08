@@ -1,6 +1,7 @@
-import { useParams } from 'app/hooks'
-import { useQueryTable, TypeValueCell } from '@oxide/table'
+import { TypeValueCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage } from '@oxide/ui'
+
+import { useParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage

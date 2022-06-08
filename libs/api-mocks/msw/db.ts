@@ -1,9 +1,10 @@
 import type { Merge } from 'type-fest'
-import type { Json } from '../json-type'
-import { json } from './util'
 
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
+
+import type { Json } from '../json-type'
+import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
