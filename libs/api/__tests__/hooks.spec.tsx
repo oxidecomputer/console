@@ -1,11 +1,13 @@
 import { waitFor } from '@testing-library/react'
-import { renderHook, act } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react-hooks'
+import { QueryClient, QueryClientProvider } from 'react-query'
+
+import { org } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/utils'
-import { org } from '@oxide/api-mocks'
+
 import type { ErrorResponse } from '..'
-import { useApiQuery, useApiMutation } from '..'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { useApiMutation, useApiQuery } from '..'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about

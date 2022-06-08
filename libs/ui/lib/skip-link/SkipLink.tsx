@@ -1,6 +1,5 @@
-import type { PropsWithChildren } from 'react'
-
 import cn from 'classnames'
+import type { PropsWithChildren } from 'react'
 
 const skipLinkStyles = `
     absolute -top-10 z-10 p-2

@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useParams } from 'app/hooks'
-import type { MenuAction } from '@oxide/table'
-import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
-import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+
 import type { VpcSubnet } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, TwoLineCell, useQueryTable } from '@oxide/table'
+import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+
 import { CreateSubnetForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'
+import { useParams } from 'app/hooks'
 
 export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')

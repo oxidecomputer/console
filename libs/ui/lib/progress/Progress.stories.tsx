@@ -1,6 +1,7 @@
-import { Progress } from './Progress'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Progress } from './Progress'
 
 type Story = StoryObj<ComponentProps<typeof Progress>>
 

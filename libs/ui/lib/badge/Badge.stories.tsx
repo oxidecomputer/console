@@ -1,8 +1,9 @@
-import { Badge, badgeColors } from './Badge'
-import type { BadgeColor, BadgeVariant } from './Badge'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
 import { Section } from '../../util/story-section'
+import { Badge, badgeColors } from './Badge'
+import type { BadgeColor, BadgeVariant } from './Badge'
 
 type Story = StoryObj<ComponentProps<typeof Badge>>
 

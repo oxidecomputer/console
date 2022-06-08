@@ -1,6 +1,6 @@
+import type { DiskState, InstanceState } from '@oxide/api'
 import type { BadgeColor, BadgeProps } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
-import type { DiskState, InstanceState } from '@oxide/api'
 
 const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant'>> = {
   creating: { color: 'notice' },

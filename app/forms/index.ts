@@ -1,5 +1,6 @@
-import type { FormProps } from 'app/components/form'
 import type { ErrorResponse } from '@oxide/api'
+
+import type { FormProps } from 'app/components/form'
 
 /**
  * A form that's built out ahead of time and intended to be re-used dynamically. Fields

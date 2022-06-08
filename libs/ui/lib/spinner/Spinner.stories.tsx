@@ -1,6 +1,7 @@
-import { Spinner } from './Spinner'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Spinner } from './Spinner'
 
 type Story = StoryObj<ComponentProps<typeof Spinner>>
 

@@ -1,7 +1,9 @@
-import React from 'react'
 import cn from 'classnames'
-import './table.css'
+import React from 'react'
+
 import { addProps, classed } from '@oxide/util'
+
+import './table.css'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {

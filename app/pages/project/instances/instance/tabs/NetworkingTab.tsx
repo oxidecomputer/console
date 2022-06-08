@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import type { NetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
@@ -11,9 +13,9 @@ import {
   SideModal,
   Tooltip,
 } from '@oxide/ui'
+
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import { useParams, useToast } from 'app/hooks'
-import { useState } from 'react'
 
 export function NetworkingTab() {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')

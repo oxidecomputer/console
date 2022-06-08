@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/orgs/nonexistent')

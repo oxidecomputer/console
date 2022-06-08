@@ -1,7 +1,9 @@
-import { useState } from 'react'
 import { useField } from 'formik'
-import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
+import { useState } from 'react'
+
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
+import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
+
 import { RadioField } from 'app/components/form'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 

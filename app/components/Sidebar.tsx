@@ -1,5 +1,6 @@
-import { NavLink as RRNavLink, useLocation } from 'react-router-dom'
 import cn from 'classnames'
+import { NavLink as RRNavLink, useLocation } from 'react-router-dom'
+
 import { Document16Icon, Settings16Icon } from '@oxide/ui'
 
 interface SidebarProps {

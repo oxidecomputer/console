@@ -1,10 +1,12 @@
 import Dialog from '@reach/dialog'
-import React, { useState } from 'react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { classed, groupBy } from '@oxide/util'
-import { useSteppedScroll } from '../hooks/use-stepped-scroll'
+import React, { useState } from 'react'
+
 import { Close12Icon } from '@oxide/ui'
+import { classed, groupBy } from '@oxide/util'
+
+import { useSteppedScroll } from '../hooks/use-stepped-scroll'
 
 export interface QuickActionItem {
   value: string

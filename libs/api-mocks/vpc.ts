@@ -1,7 +1,9 @@
+import type { RouterRoute } from 'libs/api/__generated__/Api'
+
+import type { Vpc, VpcFirewallRule, VpcResultsPage, VpcRouter, VpcSubnet } from '@oxide/api'
+
 import type { Json } from './json-type'
 import { project } from './project'
-import type { Vpc, VpcFirewallRule, VpcResultsPage, VpcRouter, VpcSubnet } from '@oxide/api'
-import type { RouterRoute } from 'libs/api/__generated__/Api'
 
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()

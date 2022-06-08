@@ -1,12 +1,14 @@
 import type { SetRequired } from 'type-fest'
+
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Divider } from '@oxide/ui'
+
+import { DescriptionField, Form, NameField } from 'app/components/form'
+import type { PrebuiltFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 import type { VpcSubnetFieldValues } from './subnet-create'
-import { useParams } from 'app/hooks'
-import type { PrebuiltFormProps } from 'app/forms'
-import { DescriptionField, Form, NameField } from 'app/components/form'
-import { Divider } from '@oxide/ui'
 
 export function EditSubnetForm({
   id = 'edit-subnet-form',

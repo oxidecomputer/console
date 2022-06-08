@@ -1,9 +1,11 @@
-import React, { createContext, useContext } from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
-import { Button } from '../button/Button'
+import React, { createContext, useContext } from 'react'
+
 import { classed } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
+
+import { Button } from '../button/Button'
 import { Close12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 

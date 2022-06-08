@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+
 import type { Cell } from './Cell'
 
 export const linkCell =
