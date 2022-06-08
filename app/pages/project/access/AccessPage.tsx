@@ -87,7 +87,10 @@ export const AccessPage = () => {
         isOpen={addModalOpen}
         onDismiss={() => setAddModalOpen(false)}
       >
-        <AddUserToProjectForm onSubmit={() => setAddModalOpen(false)} />
+        <AddUserToProjectForm
+          onSubmit={() => setAddModalOpen(false)}
+          onDismiss={() => setAddModalOpen(false)}
+        />
       </SideModal>
       <Table table={tableInstance} />
     </>
