@@ -44,6 +44,8 @@ This is the easiest way to run the console locally. Just run:
 yarn start:msw
 ```
 
+dummy change
+
 and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
 
 ### Run Vite dev server + real Nexus API
