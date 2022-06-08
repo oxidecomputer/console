@@ -1,8 +1,9 @@
-import { rest, context, compose } from 'msw'
+import { compose, context, rest } from 'msw'
+
 import type { ApiTypes as Api } from '@oxide/api'
 import { sortBy } from '@oxide/util'
+
 import type { Json } from '../json-type'
-import { json, paginated } from './util'
 import { sessionMe } from '../session'
 import type {
   InstanceParams,
@@ -26,6 +27,7 @@ import {
   lookupVpcRouter,
   lookupVpcSubnet,
 } from './db'
+import { json, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated

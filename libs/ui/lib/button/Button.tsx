@@ -1,7 +1,9 @@
-import { forwardRef } from 'react'
 import cn from 'classnames'
-import './button.css'
+import { forwardRef } from 'react'
+
 import { assertUnreachable } from '@oxide/util'
+
+import './button.css'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
 export const variants = ['default', 'secondary', 'ghost', 'link'] as const

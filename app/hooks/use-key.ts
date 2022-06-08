@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import Mousetrap from 'mousetrap'
+import { useEffect } from 'react'
 
 type Key = Parameters<typeof Mousetrap.bind>[0]
 type Callback = Parameters<typeof Mousetrap.bind>[1]

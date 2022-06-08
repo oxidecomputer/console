@@ -1,6 +1,7 @@
-import { PropertiesTable } from './PropertiesTable'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+import { PropertiesTable } from './PropertiesTable'
 
 type Story = StoryObj<ComponentProps<typeof PropertiesTable>>
 

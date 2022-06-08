@@ -1,5 +1,6 @@
 import { test } from '@playwright/test'
-import { expectVisible, expectNotVisible } from 'app/util/e2e'
+
+import { expectNotVisible, expectVisible } from 'app/util/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
   await page.goto('/')

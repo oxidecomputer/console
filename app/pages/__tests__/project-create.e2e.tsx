@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+
 import { expectVisible } from 'app/util/e2e'
 
 test.describe('Project create', () => {

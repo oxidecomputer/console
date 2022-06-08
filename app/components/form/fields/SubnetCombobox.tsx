@@ -1,7 +1,10 @@
+import { useField } from 'formik'
+
 import type { Vpc } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
+
 import { useParams } from 'app/hooks'
-import { useField } from 'formik'
+
 import type { ComboboxFieldProps } from './ComboboxField'
 import { ComboboxField } from './ComboboxField'
 

@@ -1,8 +1,9 @@
-import type { Toast as ToastModel } from './types'
-import { Toast } from '@oxide/ui'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
+import { Toast } from '@oxide/ui'
+
 import './toast-anim.css'
+import type { Toast as ToastModel } from './types'
 
 interface ToastStackProps {
   toasts: ToastModel[]

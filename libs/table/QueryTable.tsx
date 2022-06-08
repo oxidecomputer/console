@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import React from 'react'
-import { DefaultCell } from './cells'
-import { getActionsCol, getSelectCol } from './columns'
-import { createTable, Table } from './Table'
-import { useApiQuery } from '@oxide/api'
-import { useCallback } from 'react'
-import { useMemo } from 'react'
 import type { AccessorFn } from '@tanstack/react-table'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import React from 'react'
+import { useCallback } from 'react'
+import { useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
-import type { ErrorResponse, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
-import type { MakeActions } from './columns'
 import type { UseQueryOptions } from 'react-query'
 import { hashQueryKey } from 'react-query'
+import invariant from 'tiny-invariant'
+
+import { useApiQuery } from '@oxide/api'
+import type { ApiListMethods, ErrorResponse, Params, Result, ResultItem } from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
-import invariant from 'tiny-invariant'
 import { isOneOf } from '@oxide/util'
+
+import { Table, createTable } from './Table'
+import { DefaultCell } from './cells'
+import { getActionsCol, getSelectCol } from './columns'
+import type { MakeActions } from './columns'
 
 interface UseQueryTableResult<Item> {
   Table: ComponentType<QueryTableProps<Item>>

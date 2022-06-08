@@ -1,9 +1,9 @@
 import type { FC } from 'react'
-import { useState, createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 
-import type { Toast } from './types'
 import { ToastStack } from './ToastStack'
+import type { Toast } from './types'
 
 type AddToast = (options: Toast['options']) => void
 

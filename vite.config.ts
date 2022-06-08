@@ -1,6 +1,6 @@
+import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
-import react from '@vitejs/plugin-react'
 
 import tsConfig from './tsconfig.json'
 

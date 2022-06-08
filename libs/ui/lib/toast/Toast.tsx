@@ -1,11 +1,10 @@
+import Alert from '@reach/alert'
+import cn from 'classnames'
 import type { ReactElement } from 'react'
 
-import cn from 'classnames'
-import Alert from '@reach/alert'
-
-import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
-import { Close12Icon } from '../icons'
 import { Button } from '../button/Button'
+import { Close12Icon } from '../icons'
+import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
 type Variant = 'success' | 'error' | 'info'
 

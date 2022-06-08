@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Instance Create Form', () => {
   test('can invoke instance create form from instances page', async ({ page }) => {

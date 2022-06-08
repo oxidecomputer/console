@@ -1,3 +1,10 @@
+import invariant from 'tiny-invariant'
+
+import type { NetworkInterface } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
+import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Divider } from '@oxide/ui'
+
 import {
   ComboboxField,
   DescriptionField,
@@ -5,15 +12,9 @@ import {
   NameField,
   TextField,
 } from 'app/components/form'
-import { Divider } from '@oxide/ui'
-import type { NetworkInterface } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
-
+import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-import invariant from 'tiny-invariant'
-import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
 
 const values = {
   name: '',

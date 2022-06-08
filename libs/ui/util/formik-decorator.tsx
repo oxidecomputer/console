@@ -13,9 +13,8 @@
  * you want to pass other props to Formik, just use <Formik> directly in the
  * story definition
  */
-
 import type { Story } from '@storybook/react'
-import { Formik, Form } from 'formik'
+import { Form, Formik } from 'formik'
 
 export const FormikDecorator =
   (initialValues = {}) =>

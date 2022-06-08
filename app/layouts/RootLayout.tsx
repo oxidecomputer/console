@@ -1,6 +1,12 @@
 import { Outlet } from 'react-router-dom'
 
+import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
+
+import { Form } from 'app/components/form'
+
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { TopBar } from '../components/TopBar'
 import {
   ContentPane,
   ContentPaneActions,
@@ -8,10 +14,6 @@ import {
   PageContainer,
   Sidebar,
 } from './helpers'
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { TopBar } from '../components/TopBar'
-import { Pagination } from '@oxide/pagination'
-import { Form } from 'app/components/form'
 
 const RootLayout = () => {
   return (

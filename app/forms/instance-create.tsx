@@ -1,10 +1,28 @@
+import invariant from 'tiny-invariant'
+
 import type {
   Instance,
   InstanceCreate,
   InstanceNetworkInterfaceAttachment,
 } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { PrebuiltFormProps } from 'app/forms'
+import {
+  CentosDistroIcon,
+  DebianDistroIcon,
+  Divider,
+  FedoraDistroIcon,
+  FreebsdDistroIcon,
+  Radio,
+  RadioCard,
+  Success16Icon,
+  Tab,
+  Tabs,
+  TextFieldHint,
+  UbuntuDistroIcon,
+  WindowsDistroIcon,
+} from '@oxide/ui'
+import { GiB } from '@oxide/util'
+
 import type { DiskTableItem } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
@@ -17,24 +35,9 @@ import {
   TagsField,
   TextField,
 } from 'app/components/form'
-import {
-  Divider,
-  Radio,
-  RadioCard,
-  Tab,
-  Tabs,
-  TextFieldHint,
-  CentosDistroIcon,
-  DebianDistroIcon,
-  FedoraDistroIcon,
-  FreebsdDistroIcon,
-  UbuntuDistroIcon,
-  WindowsDistroIcon,
-  Success16Icon,
-} from '@oxide/ui'
+import type { PrebuiltFormProps } from 'app/forms'
 import { useParams, useToast } from 'app/hooks'
-import invariant from 'tiny-invariant'
-import { GiB } from '@oxide/util'
+
 import { formatDiskCreate } from './disk-create'
 
 type InstanceCreateInput = Assign<

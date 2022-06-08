@@ -1,4 +1,5 @@
 import type { Organization, OrganizationResultsPage } from '@oxide/api'
+
 import type { Json } from './json-type'
 
 export const org: Json<Organization> = {

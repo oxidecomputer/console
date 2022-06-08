@@ -1,7 +1,7 @@
-import { SelectArrows6Icon } from '@oxide/ui'
-
-import { useParams as useRRParams } from 'react-router-dom'
 import cn from 'classnames'
+import { useParams as useRRParams } from 'react-router-dom'
+
+import { SelectArrows6Icon } from '@oxide/ui'
 
 /**
  * This is mostly temporary until we figure out the proper thing to go here

@@ -1,23 +1,23 @@
-import React, { useMemo } from 'react'
-
 import type {
+  TabPanelProps as RTabPanelProps,
   TabProps as RTabProps,
   TabsProps as RTabsProps,
-  TabPanelProps as RTabPanelProps,
 } from '@reach/tabs'
 import { useTabsContext } from '@reach/tabs'
 import {
-  Tabs as RTabs,
-  TabList as RTabList,
   Tab as RTab,
-  TabPanels as RTabPanels,
+  TabList as RTabList,
   TabPanel as RTabPanel,
+  TabPanels as RTabPanels,
+  Tabs as RTabs,
 } from '@reach/tabs'
 import cn from 'classnames'
+import React, { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 
-import './Tabs.css'
 import { addKey, addProps, flattenChildren, pluckAllOfType } from '@oxide/util'
+
+import './Tabs.css'
 
 export type TabsProps = Assign<JSX.IntrinsicElements['div'], RTabsProps> & {
   id: string

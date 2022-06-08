@@ -1,6 +1,7 @@
+import { formatDistanceToNow } from 'date-fns'
+
 import type { Instance } from '@oxide/api'
 import { Badge } from '@oxide/ui'
-import { formatDistanceToNow } from 'date-fns'
 
 import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'

@@ -1,6 +1,7 @@
+import fileSize from 'filesize'
+
 import type { Instance } from '@oxide/api'
 import { UbuntuDistroIcon } from '@oxide/ui'
-import fileSize from 'filesize'
 
 import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
