@@ -12,30 +12,15 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-import { GiB } from '@oxide/util'
 
-export type DiskCreateValues = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
-
-const values: DiskCreateValues = {
+const values: DiskCreate = {
   name: '',
   description: '',
   size: 0,
-  blockSize: '4096',
-}
-
-export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
-  const blockSize = parseInt(input.blockSize, 10)
-  const { size } = input
-  return {
-    ...input,
-    size: Math.ceil((size * GiB) / blockSize) * blockSize,
-    // TODO: once there is a source type picker and an image/snapshot picker,
-    // the value here will be generated from those values
-    diskSource: {
-      type: 'blank',
-      blockSize,
-    },
-  }
+  diskSource: {
+    blockSize: 4096,
+    type: 'blank',
+  },
 }
 
 export function CreateDiskForm({
@@ -46,7 +31,7 @@ export function CreateDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<DiskCreateValues, Disk>) {
+}: PrebuiltFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -68,7 +53,7 @@ export function CreateDiskForm({
         ((values) => {
           createDisk.mutate({
             ...pathParams,
-            body: formatDiskCreate(values),
+            body: values,
           })
         })
       }
