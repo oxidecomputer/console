@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
 
 import type { ProjectRolesRoleAssignment } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { createTable, Table } from '@oxide/table'
+import { Table, createTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -12,8 +12,9 @@ import {
   SideModal,
   TableActions,
 } from '@oxide/ui'
-import { useParams } from 'app/hooks'
+
 import { AddUserToProjectForm } from 'app/forms/add-user-to-project'
+import { useParams } from 'app/hooks'
 
 type Row = ProjectRolesRoleAssignment & { name: string | undefined }
 

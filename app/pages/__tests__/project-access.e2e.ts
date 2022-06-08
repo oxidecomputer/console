@@ -1,4 +1,5 @@
 import { test } from '@playwright/test'
+
 import { expectVisible } from 'app/util/e2e'
 
 test('Click through project access page', async ({ page }) => {

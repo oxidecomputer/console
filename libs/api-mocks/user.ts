@@ -1,4 +1,5 @@
 import type { User } from '@oxide/api'
+
 import type { Json } from './json-type'
 
 export const user: Json<User> = {
