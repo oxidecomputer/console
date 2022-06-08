@@ -16,17 +16,7 @@ import {
 import { AddUserToProjectForm } from 'app/forms/add-user-to-project'
 import { useParams } from 'app/hooks'
 
-type Row = ProjectRolesRoleAssignment & { name: string | undefined }
-
-const table = createTable().setRowType<Row>()
-
-const columns = [
-  table.createDataColumn('identityId', { header: 'ID' }),
-  table.createDataColumn('name', { header: 'Name' }),
-  table.createDataColumn('roleName', {
-    header: 'Role',
-  }),
-]
+const table = createTable().setRowType<ProjectRolesRoleAssignment>()
 
 // when you build this page for real, check the git history of this file. there
 // might be something useful in the old placeholder
@@ -47,13 +37,17 @@ export const AccessPage = () => {
 
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const data = useMemo(
-    () =>
-      (policy?.roleAssignments || []).map((ra) => ({
-        ...ra,
-        name: usersDict[ra.identityId]?.name || undefined,
-      })),
-    [policy, usersDict]
+  const columns = useMemo(
+    () => [
+      table.createDataColumn('identityId', { header: 'ID' }),
+      table.createDisplayColumn({
+        id: 'name',
+        header: 'Name',
+        cell: (info) => usersDict[info.row.original!.identityId]?.name || '',
+      }),
+      table.createDataColumn('roleName', { header: 'Role' }),
+    ],
+    [usersDict]
   )
 
   // TODO: to match the design, rather than listing every role a user has on a
@@ -69,6 +63,8 @@ export const AccessPage = () => {
   // TODO: checkboxes and bulk delete? not sure
 
   // TODO: disable delete on permissions you can't delete, like your own?
+
+  const data = useMemo(() => policy?.roleAssignments || [], [policy])
 
   const tableInstance = useTableInstance(table, {
     columns,
