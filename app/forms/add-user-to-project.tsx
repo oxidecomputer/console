@@ -5,7 +5,7 @@ import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
-import { ComboboxField, Form, ListboxField } from 'app/components/form'
+import { Form, ListboxField } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
@@ -77,7 +77,7 @@ export function AddUserToProjectForm({
       mutation={updatePolicy}
       {...props}
     >
-      <ComboboxField id="userId" name="userId" items={userItems} label="User" required />
+      <ListboxField id="userId" name="userId" items={userItems} label="User" required />
       <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
       <Form.Actions>
         <Form.Submit>Add user</Form.Submit>

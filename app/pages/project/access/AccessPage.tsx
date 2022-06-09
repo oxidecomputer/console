@@ -1,7 +1,6 @@
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
-import type { ProjectRolesRoleAssignment } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, createTable } from '@oxide/table'
 import {
@@ -10,13 +9,51 @@ import {
   PageHeader,
   PageTitle,
   SideModal,
+  Success16Icon,
   TableActions,
+  Unauthorized12Icon,
 } from '@oxide/ui'
+import { groupBy } from '@oxide/util'
 
 import { AddUserToProjectForm } from 'app/forms/add-user-to-project'
 import { useParams } from 'app/hooks'
 
-const table = createTable().setRowType<ProjectRolesRoleAssignment>()
+const AccessIcon = ({ value }: { value: boolean }) => (
+  <div className="text-center">
+    {value ? (
+      <Success16Icon title="Permitted" className="text-accent" />
+    ) : (
+      <Unauthorized12Icon title="Prohibited" className="text-error" />
+    )}
+  </div>
+)
+
+type RoleRow = {
+  id: string
+  name: string
+  admin: boolean
+  collaborator: boolean
+  viewer: boolean
+}
+
+const table = createTable().setRowType<RoleRow>()
+
+const columns = [
+  table.createDataColumn('id', { header: 'ID' }),
+  table.createDataColumn('name', { header: 'Name' }),
+  table.createDataColumn('viewer', {
+    header: 'Viewer',
+    cell: (info) => <AccessIcon value={info.getValue()} />,
+  }),
+  table.createDataColumn('collaborator', {
+    header: 'Collaborator',
+    cell: (info) => <AccessIcon value={info.getValue()} />,
+  }),
+  table.createDataColumn('admin', {
+    header: 'Admin',
+    cell: (info) => <AccessIcon value={info.getValue()} />,
+  }),
+]
 
 // when you build this page for real, check the git history of this file. there
 // might be something useful in the old placeholder
@@ -30,47 +67,35 @@ export const AccessPage = () => {
 
   const { data: users } = useApiQuery('usersGet', { limit: 200 })
 
+  // HACK: because the policy has no names, we are fetching ~all the users,
+  // putting them in a dictionary, and adding the names to the rows
   const usersDict = useMemo(
     () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
     [users]
   )
 
-  // HACK: because the policy has no names, we are fetching ~all the users,
-  // putting them in a dictionary, and adding the names to the rows
-  const columns = useMemo(
-    () => [
-      table.createDataColumn('identityId', { header: 'ID' }),
-      table.createDisplayColumn({
-        id: 'name',
-        header: 'Name',
-        cell: (info) => usersDict[info.row.original!.identityId]?.name || '',
-      }),
-      table.createDataColumn('roleName', { header: 'Role' }),
-    ],
-    [usersDict]
-  )
-
-  // TODO: to match the design, rather than listing every role a user has on a
-  // project we need to aggregate all the roles for each user into one row, with
-  // checkmarks indicating which roles they have. One interesting consequence of
-  // this is that QueryTable will not work as-is for this purpose because it
-  // doesn't support aggregation. We could extend the API of useQueryTable to
-  // include this, but I think it would make more sense to break it up into
-  // composable pieces instead.
+  const rows: RoleRow[] = useMemo(() => {
+    // each group represents a user with multiple role assignments
+    const groups = groupBy(policy?.roleAssignments || [], (u) => u.identityId)
+    return Object.entries(groups).map(([userId, roleAssignments]) => ({
+      id: userId,
+      name: usersDict[userId]?.name || '',
+      admin: roleAssignments.some((ra) => ra.roleName === 'admin'),
+      collaborator: roleAssignments.some((ra) => ra.roleName === 'collaborator'),
+      viewer: roleAssignments.some((ra) => ra.roleName === 'viewer'),
+    }))
+  }, [policy, usersDict])
 
   // TODO: delete action on table rows
-
   // TODO: checkboxes and bulk delete? not sure
-
-  // TODO: disable delete on permissions you can't delete, like your own?
-
-  const data = useMemo(() => policy?.roleAssignments || [], [policy])
+  // TODO: disable delete on permissions you can't delete
 
   const tableInstance = useTableInstance(table, {
     columns,
-    data,
+    data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
+
   return (
     <>
       <PageHeader>
