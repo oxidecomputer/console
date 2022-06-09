@@ -23,6 +23,17 @@ export type DatumType =
   | 'histogram_i64'
   | 'histogram_f64'
 
+export type DerEncodedKeyPair = {
+  /**
+   * request signing private key (base64 encoded der file)
+   */
+  privateKey: string
+  /**
+   * request signing public certificate (base64 encoded der file)
+   */
+  publicCert: string
+}
+
 export type Digest = { type: 'sha256'; value: string }
 
 /**
@@ -272,9 +283,59 @@ export type GlobalImageResultsPage = {
 }
 
 /**
+ * Client view of an {@link IdentityProvider}
+ */
+export type IdentityProvider = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * Identity provider type
+   */
+  providerType: IdentityProviderType
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IdentityProviderResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IdentityProvider[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+export type IdentityProviderType = 'saml'
+
+/**
  * Describes what kind of identity is described by an id
  */
 export type IdentityType = 'silo_user'
+
+export type IdpMetadataSource =
+  | { type: 'url'; url: string }
+  | { data: string; type: 'base64_encoded_xml' }
 
 /**
  * Client view of project Images
@@ -465,7 +526,7 @@ export type InstanceDiskAttachment =
  * Migration parameters for an {@link Instance}
  */
 export type InstanceMigrate = {
-  dstSledUuid: string
+  dstSledId: string
 }
 
 /**
@@ -534,10 +595,6 @@ export type L4PortRange = string
 
 /** Regex pattern for validating L4PortRange */
 export const l4PortRangePattern = '^[0-9]{1,5}(-[0-9]{1,5})?$'
-
-export type LoginParams = {
-  username: string
-}
 
 /**
  * A Media Access Control address, in EUI-48 format
@@ -1002,6 +1059,92 @@ export type SagaState =
   | { errorInfo: SagaErrorInfo; errorNodeName: string; state: 'failed' }
 
 /**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type SamlIdentityProvider = {
+  /**
+   * service provider endpoint where the response will be sent
+   */
+  acsUrl: string
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * idp's entity id
+   */
+  idpEntityId: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * optional request signing public certificate (base64 encoded der file)
+   */
+  publicCert?: string | null
+  /**
+   * service provider endpoint where the idp should send log out requests
+   */
+  sloUrl: string
+  /**
+   * sp's client id
+   */
+  spClientId: string
+  /**
+   * customer's technical contact for saml configuration
+   */
+  technicalContactEmail: string
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * Create-time identity-related parameters
+ */
+export type SamlIdentityProviderCreate = {
+  /**
+   * service provider endpoint where the response will be sent
+   */
+  acsUrl: string
+  description: string
+  /**
+   * idp's entity id
+   */
+  idpEntityId: string
+  /**
+   * the source of an identity provider metadata descriptor
+   */
+  idpMetadataSource: IdpMetadataSource
+  name: Name
+  /**
+   * optional request signing key pair
+   */
+  signingKeypair?: DerEncodedKeyPair | null
+  /**
+   * service provider endpoint where the idp should send log out requests
+   */
+  sloUrl: string
+  /**
+   * sp's client id
+   */
+  spClientId: string
+  /**
+   * customer's technical contact for saml configuration
+   */
+  technicalContactEmail: string
+}
+
+/**
  * Client view of currently authed user.
  */
 export type SessionUser = {
@@ -1180,6 +1323,10 @@ export type SnapshotResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
+}
+
+export type SpoofLoginBody = {
+  username: string
 }
 
 /**
@@ -1757,6 +1904,18 @@ export interface ImagesDeleteImageParams {
 }
 
 export interface SpoofLoginParams {}
+
+export interface LoginParams {
+  providerName: Name
+
+  siloName: Name
+}
+
+export interface ConsumeCredentialsParams {
+  providerName: Name
+
+  siloName: Name
+}
 
 export interface LogoutParams {}
 
@@ -2378,11 +2537,31 @@ export interface SilosDeleteSiloParams {
   siloName: Name
 }
 
+export interface SilosGetIdentityProvidersParams {
+  siloName: Name
+
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameSortMode
+}
+
 export interface SilosGetSiloPolicyParams {
   siloName: Name
 }
 
 export interface SilosPutSiloPolicyParams {
+  siloName: Name
+}
+
+export interface SiloSamlIdpCreateParams {
+  siloName: Name
+}
+
+export interface SiloSamlIdpFetchParams {
+  providerName: Name
+
   siloName: Name
 }
 
@@ -2711,11 +2890,38 @@ export class Api extends HttpClient {
         ...params,
       }),
 
-    spoofLogin: (query: SpoofLoginParams, body: LoginParams, params: RequestParams = {}) =>
+    spoofLogin: (
+      query: SpoofLoginParams,
+      body: SpoofLoginBody,
+      params: RequestParams = {}
+    ) =>
       this.request<void>({
         path: `/login`,
         method: 'POST',
         body,
+        ...params,
+      }),
+
+    /**
+     * Ask the user to login to their identity provider
+     */
+    login: ({ providerName, siloName }: LoginParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/login/${siloName}/${providerName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Consume some sort of credentials, and authenticate a user.
+     */
+    consumeCredentials: (
+      { providerName, siloName }: ConsumeCredentialsParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/login/${siloName}/${providerName}`,
+        method: 'POST',
         ...params,
       }),
 
@@ -3796,6 +4002,20 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * List Silo identity providers
+     */
+    silosGetIdentityProviders: (
+      { siloName, ...query }: SilosGetIdentityProvidersParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<IdentityProviderResultsPage>({
+        path: `/silos/${siloName}/identity_providers`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
      * Fetch the IAM policy for this Silo
      */
     silosGetSiloPolicy: (
@@ -3820,6 +4040,34 @@ export class Api extends HttpClient {
         path: `/silos/${siloName}/policy`,
         method: 'PUT',
         body,
+        ...params,
+      }),
+
+    /**
+     * Create a new SAML identity provider for a silo.
+     */
+    siloSamlIdpCreate: (
+      { siloName }: SiloSamlIdpCreateParams,
+      body: SamlIdentityProviderCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/silos/${siloName}/saml_identity_providers`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * GET a silo's SAML identity provider
+     */
+    siloSamlIdpFetch: (
+      { providerName, siloName }: SiloSamlIdpFetchParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/silos/${siloName}/saml_identity_providers/${providerName}`,
+        method: 'GET',
         ...params,
       }),
 
