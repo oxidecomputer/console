@@ -14,15 +14,9 @@ import {
 import type { RadioFieldProps } from './RadioField'
 import { RadioField } from './RadioField'
 
-const ArchDistroIcon = () => {
+const ArchDistroIcon = (props: { className?: string }) => {
   return (
-    <svg
-      width="16"
-      height="17"
-      viewBox="0 0 16 17"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"
