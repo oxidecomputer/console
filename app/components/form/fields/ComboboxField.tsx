@@ -1,14 +1,13 @@
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import type { ComboboxItem } from '@oxide/ui'
 import { Combobox, FieldLabel, TextFieldHint } from '@oxide/ui'
 
 export type ComboboxFieldProps = {
   name: string
   id: string
   label: string
-  items: ComboboxItem[]
+  items: string[] // TODO: accept ReactElement[] probably
   disabled?: boolean
   required?: boolean
   helpText?: string
