@@ -6,6 +6,7 @@ import { pick, sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
 import { sessionMe } from '../session'
 import type {
+  GlobalImageParams,
   InstanceParams,
   NetworkInterfaceParams,
   NotFound,
@@ -16,6 +17,7 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
+import { lookupGlobalImage } from './db'
 import { notFoundErr } from './db'
 import {
   db,
@@ -714,6 +716,22 @@ export const handlers = [
       if (err) return res(err)
       const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
       return res(json(paginated(req.url.search, routers)))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
+    '/api/images',
+    (req, res) => {
+      return res(json(paginated(req.url.search, db.globalImages)))
+    }
+  ),
+
+  rest.get<never, GlobalImageParams, Json<Api.GlobalImage> | GetErr>(
+    '/api/images/:imageName',
+    (req, res) => {
+      const [image, err] = lookupGlobalImage(req.params)
+      if (err) return res(err)
+      return res(json(image))
     }
   ),
 

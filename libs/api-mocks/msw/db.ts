@@ -28,6 +28,7 @@ export type DiskParams = Merge<ProjectParams, { instanceName?: string; diskName:
 export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 export type SshKeyParams = { sshKeyName: string }
+export type GlobalImageParams = { imageName: string }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)
@@ -120,8 +121,17 @@ export function lookupVpcRouter(params: VpcRouterParams): Result<Json<Api.VpcRou
   return Ok(router)
 }
 
+export function lookupGlobalImage(
+  params: GlobalImageParams
+): Result<Json<Api.GlobalImage>> {
+  const image = db.globalImages.find((o) => o.name === params.imageName)
+  if (!image) return Err(notFoundErr)
+  return Ok(image)
+}
+
 const initDb = {
   disks: [...mock.disks],
+  globalImages: [...mock.globalImages],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
