@@ -11,6 +11,7 @@
     "ci": "yarn tsc && yarn lint && yarn test run && yarn e2e",
     "test": "vitest",
     "e2e": "playwright test",
+    "e2ec": "playwright test --project=chromium",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",
     "gen": "plop",

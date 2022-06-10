@@ -121,6 +121,14 @@ export function lookupVpcRouter(params: VpcRouterParams): Result<Json<Api.VpcRou
   return Ok(router)
 }
 
+export function lookupGlobalImage(
+  params: GlobalImageParams
+): Result<Json<Api.GlobalImage>> {
+  const image = db.globalImages.find((o) => o.name === params.imageName)
+  if (!image) return Err(notFoundErr)
+  return Ok(image)
+}
+
 const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
@@ -129,8 +137,10 @@ const initDb = {
   networkInterfaces: [mock.networkInterface],
   orgs: [mock.org],
   projects: [mock.project],
+  roleAssignments: [...mock.roleAssignments],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
+  users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],
   vpcRouters: [mock.vpcRouter],
