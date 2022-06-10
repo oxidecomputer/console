@@ -93,7 +93,7 @@ export const InstancesPage = () => {
         />
         <Column
           id="resources"
-          header="CPU, RAM / IMAGE"
+          header="CPU, RAM"
           accessor={(i) => ({ ncpus: i.ncpus, memory: i.memory })}
           cell={InstanceResourceCell}
         />
