@@ -1,15 +1,15 @@
-import {
-  DescriptionField,
-  Form,
-  NameField,
-  RadioField,
-  Radio,
-  DiskSizeField,
-} from 'app/components/form'
-import { Divider } from '@oxide/ui'
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Divider } from '@oxide/ui'
 
+import {
+  DescriptionField,
+  DiskSizeField,
+  Form,
+  NameField,
+  Radio,
+  RadioField,
+} from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 

@@ -1,6 +1,7 @@
-import { Listbox } from './Listbox'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Listbox } from './Listbox'
 
 type Story = StoryObj<ComponentProps<typeof Listbox>>
 

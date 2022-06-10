@@ -1,7 +1,7 @@
-import NotFound from 'app/pages/NotFound'
-
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
+
+import NotFound from 'app/pages/NotFound'
 
 type Props = { error: Error | Response }
 

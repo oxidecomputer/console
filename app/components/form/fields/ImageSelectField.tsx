@@ -1,3 +1,5 @@
+import type { ComponentType } from 'react'
+
 import type { GlobalImage } from '@oxide/api'
 import {
   CentosDistroIcon,
@@ -8,7 +10,7 @@ import {
   UbuntuDistroIcon,
   WindowsDistroIcon,
 } from '@oxide/ui'
-import type { ComponentType } from 'react'
+
 import type { RadioFieldProps } from './RadioField'
 import { RadioField } from './RadioField'
 

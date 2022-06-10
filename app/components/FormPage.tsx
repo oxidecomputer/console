@@ -1,6 +1,7 @@
-import { PageHeader, PageTitle } from '@oxide/ui'
 import React, { Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+import { PageHeader, PageTitle } from '@oxide/ui'
 
 interface FormPageProps {
   Form: React.ComponentType<{

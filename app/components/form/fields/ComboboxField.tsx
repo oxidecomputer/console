@@ -1,6 +1,7 @@
-import { useField } from 'formik'
-import { Combobox, FieldLabel, TextFieldHint } from '@oxide/ui'
 import cn from 'classnames'
+import { useField } from 'formik'
+
+import { Combobox, FieldLabel, TextFieldHint } from '@oxide/ui'
 
 export type ComboboxFieldProps = {
   name: string

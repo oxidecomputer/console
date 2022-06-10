@@ -1,12 +1,13 @@
 import {
-  Combobox as RCombobox,
   ComboboxInput,
-  ComboboxPopover,
   ComboboxList,
   ComboboxOption,
+  ComboboxPopover,
+  Combobox as RCombobox,
 } from '@reach/combobox'
 import { matchSorter } from 'match-sorter'
 import type { ChangeEvent } from 'react'
+
 import './Combobox.css'
 
 type ComboboxProps = {

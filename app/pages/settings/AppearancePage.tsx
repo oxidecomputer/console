@@ -1,7 +1,8 @@
 import { PageHeader, PageTitle, Radio, RadioCard } from '@oxide/ui'
+
+import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
 import type { FormMutation } from 'app/components/form'
 import { Form, RadioField } from 'app/components/form'
-import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
 
 const manualMutation: FormMutation = {
   status: 'error',

@@ -1,18 +1,20 @@
-import { useMemo } from 'react'
 import filesize from 'filesize'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { PropertiesTable, Tab, PageHeader, PageTitle, Instances24Icon } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { Instances24Icon, PageHeader, PageTitle, PropertiesTable, Tab } from '@oxide/ui'
 import { pick } from '@oxide/util'
+
+import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { Tabs } from 'app/components/Tabs'
 import { useParams, useQuickActions } from 'app/hooks'
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { StorageTab } from './tabs/StorageTab'
+
+import { useMakeInstanceActions } from '../actions'
 import { MetricsTab } from './tabs/MetricsTab'
 import { NetworkingTab } from './tabs/NetworkingTab'
-import { useMakeInstanceActions } from '../actions'
-import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import { StorageTab } from './tabs/StorageTab'
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')

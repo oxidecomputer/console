@@ -1,4 +1,5 @@
 import fileSize from 'filesize'
+
 import type { Cell } from './Cell'
 
 /** Human-readable format for size in bytes */

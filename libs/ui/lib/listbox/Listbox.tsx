@@ -1,8 +1,6 @@
-import type { FC } from 'react'
-
 import cn from 'classnames'
-
 import { useSelect } from 'downshift'
+import type { FC } from 'react'
 
 import { DirectionDownIcon } from '../icons'
 

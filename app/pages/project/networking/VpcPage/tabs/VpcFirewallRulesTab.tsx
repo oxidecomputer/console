@@ -1,21 +1,23 @@
-import { useState, useMemo } from 'react'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
+
+import type { VpcFirewallRule } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import {
-  createTable,
-  getActionsCol,
-  getSelectCol,
   DateCell,
   EnabledCell,
   FirewallFilterCell,
-  TypeValueListCell,
   Table,
+  TypeValueListCell,
+  createTable,
+  getActionsCol,
+  getSelectCol,
 } from '@oxide/table'
-import { useParams } from 'app/hooks'
-import type { VpcFirewallRule } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
 import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
+
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
+import { useParams } from 'app/hooks'
 
 const tableHelper = createTable().setRowType<VpcFirewallRule>()
 

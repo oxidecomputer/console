@@ -1,13 +1,13 @@
 /**
  * Utilized by `build_themes.sh` to convert theme token files to generate the files in `libs/ui/styles/themes`
  */
-
-import { kebabCase } from '@oxide/util'
 import type { CSSProperties } from 'react'
 import type { Config, TransformedToken } from 'style-dictionary'
-import type { KebabCase } from 'type-fest'
 import StyleDictionary from 'style-dictionary'
 import dedent from 'ts-dedent'
+import type { KebabCase } from 'type-fest'
+
+import { kebabCase } from '@oxide/util'
 
 const THEMES = ['main', 'operator-mode'] as const
 

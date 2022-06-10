@@ -1,6 +1,7 @@
-import { Avatar } from './Avatar'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Avatar } from './Avatar'
 
 type Story = StoryObj<ComponentProps<typeof Avatar>>
 

@@ -1,5 +1,5 @@
 import type { ResponseTransformer } from 'msw'
-import { context, compose } from 'msw'
+import { compose, context } from 'msw'
 
 /**
  * Custom transformer: convenience function for less typing. Equivalent to

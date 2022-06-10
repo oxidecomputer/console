@@ -1,7 +1,8 @@
-import { Button, buttonSizes, variants, colors } from './Button'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
 import { Section } from '../../util/story-section'
+import { Button, buttonSizes, colors, variants } from './Button'
 
 type Story = StoryObj<ComponentProps<typeof Button>>
 

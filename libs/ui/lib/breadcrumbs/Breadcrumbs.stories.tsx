@@ -1,6 +1,7 @@
-import { Breadcrumbs } from './Breadcrumbs'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Breadcrumbs } from './Breadcrumbs'
 
 type Story = StoryObj<ComponentProps<typeof Breadcrumbs>>
 

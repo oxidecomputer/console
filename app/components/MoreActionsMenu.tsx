@@ -1,6 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { More12Icon } from '@oxide/ui'
+
 import type { MenuAction } from '@oxide/table'
+import { More12Icon } from '@oxide/ui'
 
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
