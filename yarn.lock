@@ -2199,10 +2199,10 @@
     prop-types "^15.7.2"
     tslib "^2.3.0"
 
-"@remix-run/router@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.1.0.tgz#9dee1610f5ba730e4c67e5de517912f71c627031"
-  integrity sha512-mK2wZWAFsijTGIk7ZhKvEAzU7qIS6F6RhPy5AiEosaEs3mB3J2NvUWRoN3W74V+5Jju/AisT5NaM2pIbnfGXWg==
+"@remix-run/router@0.2.0-pre.2":
+  version "0.2.0-pre.2"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.2.0-pre.2.tgz#66ac8e95fcbf8a2cc48cd25823f3df29040ca83c"
+  integrity sha512-DRgTrJZ7R1nGI0EUNsEYYcXU+AASz6CE7rnksTYnIdVEBztygwbOlKRNnPyufQIcQs2kV/0cKf1FpfZfPMhMjQ==
 
 "@rollup/pluginutils@^4.1.2":
   version "4.1.2"
@@ -12020,12 +12020,12 @@ react-router-dom@^6.0.0:
     history "^5.2.0"
     react-router "6.2.1"
 
-react-router-dom@^6.4.0-pre.2:
-  version "6.4.0-pre.2"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.2.tgz#6c34e3a96db3712a79dd78416b01dbb40f18aae7"
-  integrity sha512-Y6tOV4zs7uS+7pTbMoOcMWP9H5hVKINIyLIO1oWVVQEKv2KDEQx0njyPnhso4LkbOK6l7JhUMNO5DLwMqZVWFQ==
+react-router-dom@^6.4.0-pre.7:
+  version "6.4.0-pre.7"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.7.tgz#50824b38bd966b56d918d28de8359692d9e9fe0c"
+  integrity sha512-xoaXhd58Up5/yLFEhHnyB3uKFR4M5kLXirC17jDxotI+b5XXE2lVZ+pCkMiS4uei3Z2ymLjT/gi+V+X1DVMHwA==
   dependencies:
-    react-router "6.4.0-pre.2"
+    react-router "6.4.0-pre.7"
 
 react-router@6.2.1, react-router@^6.0.0:
   version "6.2.1"
@@ -12034,13 +12034,12 @@ react-router@6.2.1, react-router@^6.0.0:
   dependencies:
     history "^5.2.0"
 
-react-router@6.4.0-pre.2:
-  version "6.4.0-pre.2"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.2.tgz#f80856faae0a1163ca58aad6ddf82e00a03264a3"
-  integrity sha512-JFwatrS+QFmyoOrjUNpHFeAO72Y1FUZ9wOfQoCm1a6cRglAbLXAdKll/WEGUtGUb3LwLx3uAZ57kPXHQX5vutw==
+react-router@6.4.0-pre.7:
+  version "6.4.0-pre.7"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.7.tgz#54f54430a956a408d23f243b117fb8e84d036488"
+  integrity sha512-b9D5X7ibScbdXIUHp0+0Z83ygLpPyI8gJs2hcIp1YyqqCHGrpj+DtuQBPN7nxKfbr9vjipcdpStp6IXK0XUD0g==
   dependencies:
-    "@remix-run/router" "^0.1.0"
-    use-sync-external-store "1.1.0"
+    "@remix-run/router" "0.2.0-pre.2"
 
 react-sizeme@^3.0.1:
   version "3.0.2"
@@ -14237,11 +14236,6 @@ use-sidecar@^1.0.1, use-sidecar@^1.0.5:
   dependencies:
     detect-node-es "^1.1.0"
     tslib "^1.9.3"
-
-use-sync-external-store@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.1.0.tgz#3343c3fe7f7e404db70f8c687adf5c1652d34e82"
-  integrity sha512-SEnieB2FPKEVne66NpXPd1Np4R1lTNKfjuy3XdIoPQKYBAFdzbzSZlSn1KJZUiihQLQC5Znot4SBz1EOTBwQAQ==
 
 use@^3.1.0:
   version "3.1.1"
