@@ -1,6 +1,7 @@
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
+import { GiB } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -53,7 +54,10 @@ export function CreateDiskForm({
         ((values) => {
           createDisk.mutate({
             ...pathParams,
-            body: values,
+            body: {
+              ...values,
+              size: values.size * GiB,
+            },
           })
         })
       }
