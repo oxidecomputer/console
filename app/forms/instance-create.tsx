@@ -41,6 +41,7 @@ type InstanceCreateInput = Assign<
     networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
     type: typeof INSTANCE_SIZES[number]['id']
     disks: DiskTableItem[]
+    globalImage: string
   }
 >
 
@@ -57,6 +58,7 @@ const values: InstanceCreateInput = {
   ncpus: 1,
   hostname: '',
   disks: [],
+  globalImage: '',
   networkInterfaces: { type: 'default' },
   /**
    * This is a hack to ensure the network interface radio has a default selection.
@@ -196,7 +198,7 @@ export default function CreateInstanceForm({
       <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
         <Tab>Distros</Tab>
         <Tab.Panel className="space-y-4">
-          <ImageSelectField id="boot-disk-image" name="disk-image" images={images} />
+          <ImageSelectField id="boot-disk-image" name="globalImage" images={images} />
 
           <NameField
             id="boot-disk-name"

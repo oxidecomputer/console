@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { useState } from 'react'
 
 import type { GlobalImage } from '@oxide/api'
 import {
@@ -6,10 +7,12 @@ import {
   DebianDistroIcon,
   FedoraDistroIcon,
   Images24Icon,
+  Listbox,
   RadioCard,
   UbuntuDistroIcon,
   WindowsDistroIcon,
 } from '@oxide/ui'
+import { groupBy } from '@oxide/util'
 
 import type { RadioFieldProps } from './RadioField'
 import { RadioField } from './RadioField'
@@ -27,7 +30,7 @@ const ArchDistroIcon = (props: { className?: string }) => {
   )
 }
 
-function distroDisplay(image: GlobalImage): {
+function distroDisplay(image: GlobalImage): GlobalImage & {
   label: string
   Icon: ComponentType<{ className?: string }>
 } {
@@ -36,41 +39,48 @@ function distroDisplay(image: GlobalImage): {
     return {
       label: 'Ubuntu',
       Icon: UbuntuDistroIcon,
+      ...image,
     }
   }
   if (distro.includes('debian')) {
     return {
       label: 'Debian',
       Icon: DebianDistroIcon,
+      ...image,
     }
   }
   if (distro.includes('centos')) {
     return {
       label: 'CentOS',
       Icon: CentosDistroIcon,
+      ...image,
     }
   }
   if (distro.includes('fedora')) {
     return {
       label: 'Fedora',
       Icon: FedoraDistroIcon,
+      ...image,
     }
   }
   if (distro.includes('arch')) {
     return {
       label: 'Arch',
       Icon: ArchDistroIcon,
+      ...image,
     }
   }
   if (distro.includes('windows')) {
     return {
       label: 'Windows',
       Icon: WindowsDistroIcon,
+      ...image,
     }
   }
   return {
     label: distro.replace(/-/g, ' ').replace(/(?:\s)[a-z]/g, (x) => x.toUpperCase()),
     Icon: Images24Icon,
+    ...image,
   }
 }
 
@@ -81,24 +91,45 @@ interface ImageSelectFieldProps extends Omit<RadioFieldProps, 'children'> {
 export function ImageSelectField({ images, ...props }: ImageSelectFieldProps) {
   return (
     <RadioField {...props}>
-      {images.map((image) => (
-        <ImageSelect key={image.id} image={image} />
-      ))}
+      {Object.entries(groupBy(images, (i) => i.distribution)).map(
+        ([distroName, distroValues]) => (
+          <ImageSelect key={distroName} images={distroValues} />
+        )
+      )}
     </RadioField>
   )
 }
 
 interface ImageSelectProps {
-  image: GlobalImage
+  images: GlobalImage[]
 }
-function ImageSelect({ image }: ImageSelectProps) {
-  const { label, Icon } = distroDisplay(image)
+function ImageSelect({ images, ...props }: ImageSelectProps) {
+  const distros = images.map(distroDisplay)
+  const { label, id, Icon } = distros[0]
+  const [value, setValue] = useState(id)
   return (
-    <RadioCard value={image.id} className="h-44 w-44 pb-6">
-      <div className="flex h-full flex-col items-center justify-end space-y-4">
-        <Icon className="h-12 w-12 text-tertiary" />
-        <span className="text-sans-xl text-secondary">{label}</span>
-      </div>
-    </RadioCard>
+    <>
+      {distros.length > 1 ? (
+        <RadioCard key={label} value={value} className="h-44 w-44 pb-5" {...props}>
+          <div className="relative flex h-full flex-col items-center justify-end space-y-4 children:border-secondary first:children:border-b peer-checked:children:border-accent-secondary">
+            <Listbox
+              items={distros.map((d) => ({ label: d.version, value: d.id }))}
+              onChange={(item) => item && setValue(item.value)}
+              defaultValue={id}
+              className="!absolute top-0 -mt-1 w-full text-mono-xs children:rounded-none children:border-0"
+            ></Listbox>
+            <Icon className="h-12 w-12 text-tertiary" />
+            <span className="text-sans-xl text-secondary">{label}</span>
+          </div>
+        </RadioCard>
+      ) : (
+        <RadioCard key={label} value={value} className="h-44 w-44 pb-5" {...props}>
+          <div className="flex h-full flex-col items-center justify-end space-y-4">
+            <Icon className="h-12 w-12 text-tertiary" />
+            <span className="text-sans-xl text-secondary">{label}</span>
+          </div>
+        </RadioCard>
+      )}
+    </>
   )
 }
