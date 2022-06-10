@@ -92,9 +92,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=spinbutton[name="Size (GiB)"]',
     'role=button[name="Create Disk"][disabled]',
   ])
-  await page.click('role=button[name="Close form"]')
-
-  await page.click('role=button[name="Create new disk"]')
   await page.click('role=button[name="Cancel"]')
 
   // Attach existing disk form
