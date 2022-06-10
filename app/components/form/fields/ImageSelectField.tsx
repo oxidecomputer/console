@@ -109,27 +109,18 @@ function ImageSelect({ images, ...props }: ImageSelectProps) {
   const [value, setValue] = useState(id)
   return (
     <>
-      {distros.length > 1 ? (
-        <RadioCard key={label} value={value} className="h-44 w-44 pb-5" {...props}>
-          <div className="relative flex h-full flex-col items-center justify-end space-y-4 children:border-secondary first:children:border-b peer-checked:children:border-accent-secondary">
-            <Listbox
-              items={distros.map((d) => ({ label: d.version, value: d.id }))}
-              onChange={(item) => item && setValue(item.value)}
-              defaultValue={id}
-              className="!absolute top-0 -mt-1 w-full text-mono-xs children:rounded-none children:border-0"
-            ></Listbox>
-            <Icon className="h-12 w-12 text-tertiary" />
-            <span className="text-sans-xl text-secondary">{label}</span>
-          </div>
-        </RadioCard>
-      ) : (
-        <RadioCard key={label} value={value} className="h-44 w-44 pb-5" {...props}>
-          <div className="flex h-full flex-col items-center justify-end space-y-4">
-            <Icon className="h-12 w-12 text-tertiary" />
-            <span className="text-sans-xl text-secondary">{label}</span>
-          </div>
-        </RadioCard>
-      )}
+      <RadioCard key={label} value={value} className="h-44 w-44 pb-2" {...props}>
+        <div className="relative flex h-full flex-col items-center justify-end space-y-4 children:border-secondary first:children:border-b peer-checked:children:border-accent-secondary">
+          <Listbox
+            items={distros.map((d) => ({ label: d.version, value: d.id }))}
+            onChange={(item) => item && setValue(item.value)}
+            defaultValue={id}
+            className="!absolute top-0 -mt-1 w-full text-mono-xs children:rounded-none children:border-0"
+          ></Listbox>
+          <Icon className="h-12 w-12 text-tertiary" />
+          <span className="text-sans-xl text-secondary">{label}</span>
+        </div>
+      </RadioCard>
     </>
   )
 }
