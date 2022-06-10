@@ -41,6 +41,9 @@ type InstanceCreateInput = Assign<
     networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
     type: typeof INSTANCE_SIZES[number]['id']
     disks: DiskTableItem[]
+    bootDiskName: string
+    bootDiskSize: number
+    bootDiskBlockSize: '512' | '4096'
     globalImage: string
   }
 >
@@ -57,8 +60,13 @@ const values: InstanceCreateInput = {
   memory: 0,
   ncpus: 1,
   hostname: '',
-  disks: [],
+
+  bootDiskName: '',
+  bootDiskSize: 0,
+  bootDiskBlockSize: '4096',
   globalImage: '',
+
+  disks: [],
   networkInterfaces: { type: 'default' },
   /**
    * This is a hack to ensure the network interface radio has a default selection.
@@ -115,10 +123,17 @@ export default function CreateInstanceForm({
         (async (values) => {
           const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
           invariant(instance, 'Expected instance type to be defined')
-          const bootDisk = values.disks.pop()
           await createDisk.mutateAsync({
             ...pageParams,
-            body: bootDisk,
+            body: {
+              name: values.bootDiskName,
+              description: `Created as a boot disk for ${values.bootDiskName}`,
+              size: values.bootDiskSize * GiB,
+              diskSource: {
+                type: 'global_image',
+                imageId: values.globalImage,
+              },
+            },
           })
           createInstance.mutate({
             ...pageParams,
@@ -131,7 +146,7 @@ export default function CreateInstanceForm({
               disks: [
                 {
                   type: 'attach',
-                  name: bootDisk.name,
+                  name: values.bootDiskName,
                 },
                 ...values.disks,
               ],

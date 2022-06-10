@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik'
 import React from 'react'
+import invariant from 'tiny-invariant'
 
 import { GiB } from '@oxide/util'
 
@@ -20,7 +21,7 @@ export function DiskSizeField({
   ...props
 }: DiskSizeProps) {
   const { values } = useFormikContext<Record<string, number>>()
-  // invariant(blockSizeField in values, `expected form values to contain ${blockSizeField}`)
+  invariant(blockSizeField in values, `expected form values to contain ${blockSizeField}`)
   const blockSize = values[blockSizeField]
   return (
     <TextField
