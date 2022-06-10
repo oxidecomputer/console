@@ -6,13 +6,13 @@ import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
-  ComboboxField,
   DescriptionField,
   Form,
+  ListboxField,
   NameField,
   TextField,
 } from 'app/components/form'
-import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
+import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
 import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
@@ -79,14 +79,14 @@ export default function CreateNetworkInterfaceForm({
       <DescriptionField id="nic-description" />
       <Divider />
 
-      <ComboboxField
+      <ListboxField
         id="nic-vpc"
         name="vpcName"
         label="VPC"
-        items={vpcs.map((x) => x.name)}
+        items={vpcs.map(({ name }) => ({ label: name, value: name }))}
         // required
       />
-      <SubnetCombobox
+      <SubnetListbox
         id="nic-subnet"
         name="subnetName"
         label="Subnet"

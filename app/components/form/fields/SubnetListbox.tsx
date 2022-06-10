@@ -5,10 +5,10 @@ import { useApiQuery } from '@oxide/api'
 
 import { useParams } from 'app/hooks'
 
-import type { ComboboxFieldProps } from './ComboboxField'
-import { ComboboxField } from './ComboboxField'
+import type { ListboxFieldProps } from './ListboxField'
+import { ListboxField } from './ListboxField'
 
-type SubnetComboboxProps = Omit<ComboboxFieldProps, 'items'> & {
+type SubnetListboxProps = Omit<ListboxFieldProps, 'items'> & {
   /** `name` of the Formik field to read the `vpcName` from */
   vpcNameField: string
   /**
@@ -27,7 +27,7 @@ type SubnetComboboxProps = Omit<ComboboxFieldProps, 'items'> & {
  * Needs to be its own component so it can go *inside* the `<Formik>` element in
  * order to have access to the context.
  */
-export function SubnetCombobox({ vpcNameField, vpcs, ...fieldProps }: SubnetComboboxProps) {
+export function SubnetListbox({ vpcNameField, vpcs, ...fieldProps }: SubnetListboxProps) {
   const pathParams = useParams('orgName', 'projectName')
   const [, { value: vpcNameRaw }] = useField<string>({ name: vpcNameField })
 
@@ -47,9 +47,9 @@ export function SubnetCombobox({ vpcNameField, vpcs, ...fieldProps }: SubnetComb
     ).data?.items || []
 
   return (
-    <ComboboxField
+    <ListboxField
       {...fieldProps}
-      items={subnets.map((x) => x.name)}
+      items={subnets.map(({ name }) => ({ value: name, label: name }))}
       disabled={!vpcExists}
     />
   )
