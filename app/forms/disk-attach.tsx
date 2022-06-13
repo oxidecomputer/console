@@ -1,21 +1,15 @@
 import invariant from 'tiny-invariant'
 
-import type { Disk } from '@oxide/api'
+import type { Disk, DiskIdentifier } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 
 import { ListboxField } from 'app/components/form'
 import { SideModalForm } from 'app/components/form/SideModalForm'
-import type { CreateFormProps } from 'app/forms'
+import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
 const values = { name: '' }
-
-export type DiskAttachValues = typeof values
-
-type AttachDiskFormProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<DiskAttachValues, Disk>
 
 export function AttachDiskSideModalForm({
   id = 'form-disk-attach',
@@ -25,7 +19,7 @@ export function AttachDiskSideModalForm({
   onSuccess,
   onError,
   ...props
-}: AttachDiskFormProps) {
+}: CreateSideModalFormProps<DiskIdentifier, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 

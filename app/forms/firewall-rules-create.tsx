@@ -9,7 +9,6 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import {
   Button,
   CheckboxField,
@@ -26,8 +25,9 @@ import {
 } from '@oxide/ui'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
-import type { CreateFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -401,10 +401,12 @@ export const validationSchema = Yup.object({
   priority: Yup.number().integer().min(0).max(65535).required('Required'),
 })
 
-type CreateFirewallRuleSideModalProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<FirewallRuleValues, VpcFirewallRules> & {
-    existingRules: VpcFirewallRule[]
-  }
+type CreateFirewallRuleSideModalProps = CreateSideModalFormProps<
+  FirewallRuleValues,
+  VpcFirewallRules
+> & {
+  existingRules: VpcFirewallRule[]
+}
 
 export function CreateFirewallRuleSideModalForm({
   id = 'create-firewall-rule-form',

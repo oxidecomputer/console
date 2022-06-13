@@ -3,7 +3,6 @@ import invariant from 'tiny-invariant'
 import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 
 import {
@@ -14,7 +13,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
-import type { CreateFormProps } from 'app/forms'
+import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
 const values = {
@@ -25,9 +24,6 @@ const values = {
   vpcName: '',
 }
 
-type CreateNetworkInterfaceSideModalFormProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<NetworkInterfaceCreate, NetworkInterface>
-
 export default function CreateNetworkInterfaceSideModalForm({
   id = 'create-network-interface-form',
   title = 'Add network interface',
@@ -36,7 +32,7 @@ export default function CreateNetworkInterfaceSideModalForm({
   onSuccess,
   onError,
   ...props
-}: CreateNetworkInterfaceSideModalFormProps) {
+}: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 

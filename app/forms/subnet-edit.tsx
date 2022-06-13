@@ -2,15 +2,11 @@ import invariant from 'tiny-invariant'
 
 import type { VpcSubnet, VpcSubnetUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditFormProps } from 'app/forms'
+import type { EditSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-
-type EditSubnetSideModalFormProps = Omit<SideModalProps, 'id'> &
-  EditFormProps<VpcSubnetUpdate, VpcSubnet>
 
 export function EditSubnetSideModalForm({
   id = 'edit-subnet-form',
@@ -19,7 +15,7 @@ export function EditSubnetSideModalForm({
   onError,
   onDismiss,
   ...props
-}: EditSubnetSideModalFormProps) {
+}: EditSideModalFormProps<VpcSubnetUpdate, VpcSubnet>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 

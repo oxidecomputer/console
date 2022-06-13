@@ -1,15 +1,11 @@
 import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditFormProps } from 'app/forms'
 
+import type { EditSideModalFormProps } from '.'
 import { useParams, useToast } from '../hooks'
-
-type EditProjectSideModalFormProps = Omit<SideModalProps, 'id'> &
-  EditFormProps<ProjectCreate, Project>
 
 export function EditProjectSideModalForm({
   id = 'edit-project-form',
@@ -20,7 +16,7 @@ export function EditProjectSideModalForm({
   onError,
   onDismiss,
   ...props
-}: EditProjectSideModalFormProps) {
+}: EditSideModalFormProps<ProjectCreate, Project>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 

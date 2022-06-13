@@ -2,14 +2,11 @@ import invariant from 'tiny-invariant'
 
 import type { VpcRouter, VpcRouterUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import type { EditFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
-type EditVpcRouterSideModalFormProps = Omit<SideModalProps, 'id'> &
-  EditFormProps<VpcRouterUpdate, VpcRouter>
+import type { EditSideModalFormProps } from '.'
 
 export function EditVpcRouterForm({
   id = 'edit-vpc-router-form',
@@ -18,7 +15,7 @@ export function EditVpcRouterForm({
   onError,
   onDismiss,
   ...props
-}: EditVpcRouterSideModalFormProps) {
+}: EditSideModalFormProps<VpcRouterUpdate, VpcRouter>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 

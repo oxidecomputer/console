@@ -1,14 +1,11 @@
 import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditFormProps } from 'app/forms'
 import { useToast } from 'app/hooks'
 
-type EditOrgSideModalFormProps = Omit<SideModalProps, 'id'> &
-  EditFormProps<OrganizationCreate, Organization>
+import type { EditSideModalFormProps } from '.'
 
 export function EditOrgSideModalForm({
   id = 'edit-org-form',
@@ -19,7 +16,7 @@ export function EditOrgSideModalForm({
   onError,
   onDismiss,
   ...props
-}: EditOrgSideModalFormProps) {
+}: EditSideModalFormProps<OrganizationCreate, Organization>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 

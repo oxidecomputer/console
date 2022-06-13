@@ -4,12 +4,11 @@ import type { ProjectRoles, ProjectRolesPolicy } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
 
-import type { CreateFormProps } from '.'
+import type { CreateSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
@@ -29,15 +28,12 @@ const roles: RoleItem[] = [
   { value: 'viewer', label: 'Viewer' },
 ]
 
-type AddUserToProjectFormProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<AddUserValues, ProjectRolesPolicy>
-
 export function AddUserToProjectForm({
   onSubmit,
   onSuccess,
   onDismiss,
   ...props
-}: AddUserToProjectFormProps) {
+}: CreateSideModalFormProps<AddUserValues, ProjectRolesPolicy>) {
   const projectParams = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
   const { data: users } = useApiQuery('usersGet', {})

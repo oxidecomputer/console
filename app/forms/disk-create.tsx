@@ -1,6 +1,5 @@
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 import { Divider } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
@@ -12,8 +11,9 @@ import {
   Radio,
   RadioField,
 } from 'app/components/form'
-import type { CreateFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 const values: DiskCreate = {
   name: '',
@@ -25,9 +25,6 @@ const values: DiskCreate = {
   },
 }
 
-type CreateDiskSideModalFormProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<DiskCreate, Disk>
-
 export function CreateDiskSideModalForm({
   id = 'create-disk-form',
   title = 'Create Disk',
@@ -36,7 +33,7 @@ export function CreateDiskSideModalForm({
   onSuccess,
   onError,
   ...props
-}: CreateDiskSideModalFormProps) {
+}: CreateSideModalFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 

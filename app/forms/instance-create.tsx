@@ -19,7 +19,7 @@ import {
 } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
-import type { DiskTableItem, FullPageFormProps } from 'app/components/form'
+import type { DiskTableItem } from 'app/components/form'
 import { FullPageForm } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
@@ -33,7 +33,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
-import type { CreateFormProps } from 'app/forms'
+import type { CreateFullPageFormProps } from 'app/forms'
 import { useParams, useToast } from 'app/hooks'
 
 type InstanceCreateInput = Assign<
@@ -77,9 +77,6 @@ const values: InstanceCreateInput = {
   networkInterfaceType: 'default',
 }
 
-type CreateInstanceFormProps = CreateFormProps<InstanceCreateInput, Instance> &
-  Omit<FullPageFormProps<InstanceCreateInput>, 'icon'>
-
 export default function CreateInstanceForm({
   id = 'create-instance-form',
   title = 'Create instance',
@@ -88,7 +85,7 @@ export default function CreateInstanceForm({
   onSuccess,
   onError,
   ...props
-}: CreateInstanceFormProps) {
+}: CreateFullPageFormProps<InstanceCreateInput, Instance>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
