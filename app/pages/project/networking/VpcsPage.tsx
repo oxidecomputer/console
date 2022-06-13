@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { useParams, useQuickActions } from 'app/hooks'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
 import { useNavigate } from 'react-router-dom'
+
+import { useApiQuery } from '@oxide/api'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Button,
   EmptyMessage,
@@ -11,7 +11,9 @@ import {
   PageTitle,
   TableActions,
 } from '@oxide/ui'
+
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
+import { useParams, useQuickActions } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage

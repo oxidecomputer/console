@@ -1,3 +1,8 @@
+import type { VpcSubnet, VpcSubnetCreate } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { SideModalProps } from '@oxide/ui'
+import { Divider } from '@oxide/ui'
+
 import {
   DescriptionField,
   Form,
@@ -5,13 +10,8 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import type { SideModalProps } from '@oxide/ui'
-import { Divider } from '@oxide/ui'
-
-import type { VpcSubnet, VpcSubnetCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useParams } from 'app/hooks'
 import type { CreateFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 const values = {
   name: '',

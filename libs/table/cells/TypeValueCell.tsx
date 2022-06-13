@@ -1,4 +1,5 @@
 import { Badge } from '@oxide/ui'
+
 import type { Cell } from './Cell'
 
 export type TypeValue = {

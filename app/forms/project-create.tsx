@@ -1,10 +1,12 @@
-import type { SideModalProps } from '@oxide/ui'
-import { Success16Icon } from '@oxide/ui'
 import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useParams, useToast } from '../hooks'
-import { NameField, DescriptionField, SideModalForm } from 'app/components/form'
+import type { SideModalProps } from '@oxide/ui'
+import { Success16Icon } from '@oxide/ui'
+
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import type { CreateFormProps } from 'app/forms'
+
+import { useParams, useToast } from '../hooks'
 
 const values = {
   name: '',

@@ -1,8 +1,10 @@
 import { useCallback } from 'react'
+
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
+
 import { useToast } from 'app/hooks'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {

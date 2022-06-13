@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import type { SshKey } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
@@ -11,8 +13,8 @@ import {
   PageTitle,
   TableActions,
 } from '@oxide/ui'
+
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
-import { useState } from 'react'
 
 export function SSHKeysPage() {
   const { Table, Column } = useQueryTable('sshkeysGet', {})

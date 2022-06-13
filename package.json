@@ -11,6 +11,7 @@
     "ci": "yarn tsc && yarn lint && yarn test run && yarn e2e",
     "test": "vitest",
     "e2e": "playwright test",
+    "e2ec": "playwright test --project=chromium",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --write .",
     "gen": "plop",
@@ -29,7 +30,6 @@
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "@reach/alert": "^0.16.0",
-    "@reach/combobox": "^0.17.0",
     "@reach/dialog": "^0.16.2",
     "@reach/menu-button": "^0.16.2",
     "@reach/tabs": "^0.16.4",
@@ -85,6 +85,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/react-hooks": "^7.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/babel__core": "^7.1.19",
     "@types/jscodeshift": "^0.11.2",
     "@types/mousetrap": "^1.6.8",

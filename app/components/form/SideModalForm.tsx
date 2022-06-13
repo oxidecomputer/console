@@ -1,7 +1,9 @@
-import { SideModal } from '@oxide/ui'
-import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
+
+import { SideModal } from '@oxide/ui'
+import { flattenChildren, pluckFirstOfType } from '@oxide/util'
+
 import type { FormProps } from './Form'
 import { Form } from './Form'
 

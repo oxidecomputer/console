@@ -1,11 +1,12 @@
+import invariant from 'tiny-invariant'
+
 import type { VpcRouter, VpcRouterUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { SideModalProps } from '@oxide/ui'
 
-import { useParams } from 'app/hooks'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import type { EditFormProps } from 'app/forms'
-import type { SideModalProps } from '@oxide/ui'
-import invariant from 'tiny-invariant'
+import { useParams } from 'app/hooks'
 
 type EditVpcRouterSideModalFormProps = Omit<SideModalProps, 'id'> &
   EditFormProps<VpcRouterUpdate, VpcRouter>

@@ -1,28 +1,30 @@
 import { useMemo } from 'react'
-import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
+import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
+import { Pagination } from '@oxide/pagination'
 import {
-  SkipLinkTarget,
   Access16Icon,
+  Images16Icon,
   Instances16Icon,
   Networking16Icon,
-  Storage16Icon,
+  SkipLinkTarget,
   Snapshots16Icon,
-  Images16Icon,
+  Storage16Icon,
 } from '@oxide/ui'
+
+import { ProjectSelector } from 'app/components/ProjectSelector'
+import { PageFormActions } from 'app/components/form'
+import { useParams, useQuickActions } from 'app/hooks'
+
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { TopBar } from '../components/TopBar'
 import {
   ContentPane,
+  ContentPaneActions,
   ContentPaneWrapper,
   PageContainer,
-  ContentPaneActions,
 } from './helpers'
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { TopBar } from '../components/TopBar'
-import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { useParams, useQuickActions } from 'app/hooks'
-import { Pagination } from '@oxide/pagination'
-import { PageFormActions } from 'app/components/form'
-import { ProjectSelector } from 'app/components/ProjectSelector'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()

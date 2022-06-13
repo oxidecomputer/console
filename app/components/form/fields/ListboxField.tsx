@@ -1,6 +1,7 @@
-import { useField } from 'formik'
-import { Listbox, FieldLabel, TextFieldHint } from '@oxide/ui'
 import cn from 'classnames'
+import { useField } from 'formik'
+
+import { FieldLabel, Listbox, TextFieldHint } from '@oxide/ui'
 
 export type ListboxFieldProps = {
   name: string

@@ -1,17 +1,17 @@
-import { useMemo } from 'react'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
 import type { MenuAction } from '@oxide/table'
-import { createTable, DateCell, getActionsCol, SizeCell, Table } from '@oxide/table'
-import { useParams, useToast } from 'app/hooks'
+import { DateCell, SizeCell, Table, createTable, getActionsCol } from '@oxide/table'
+import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
+
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { useState } from 'react'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
+import { useParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>

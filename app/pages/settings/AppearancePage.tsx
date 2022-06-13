@@ -1,7 +1,8 @@
 import { Radio, RadioCard, Settings24Icon } from '@oxide/ui'
+
+import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
 import { FullPageForm } from 'app/components/form'
 import { Form, RadioField } from 'app/components/form'
-import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
 
 export function AppearancePage() {
   return (

@@ -1,11 +1,10 @@
-import type { FC } from 'react'
-import { useRef, useState, useEffect, useCallback } from 'react'
 import cn from 'classnames'
-
+import type { FC } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 
-import './tooltip.css'
 import { KEYS } from '../../util/keys'
+import './tooltip.css'
 
 export interface TooltipProps {
   id: string

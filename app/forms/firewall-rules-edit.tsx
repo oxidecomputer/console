@@ -1,11 +1,13 @@
 import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
-import { useApiMutation, useApiQueryClient, firewallRuleGetToPut } from '@oxide/api'
+import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { SideModalProps } from '@oxide/ui'
+
 import { Form, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
+
 import type { EditFormProps } from '.'
 import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
-import type { SideModalProps } from '@oxide/ui'
 
 type EditFirewallRuleSideModalFormProps = Omit<
   EditFormProps<FirewallRuleValues, VpcFirewallRules>,

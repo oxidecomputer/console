@@ -1,46 +1,32 @@
-import {
-  DescriptionField,
-  NameField,
-  RadioField,
-  Radio,
-  DiskSizeField,
-  SideModalForm,
-} from 'app/components/form'
-import type { SideModalProps } from '@oxide/ui'
-import { Divider } from '@oxide/ui'
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-
-import type { CreateFormProps } from 'app/forms'
-import { useParams } from 'app/hooks'
+import type { SideModalProps } from '@oxide/ui'
+import { Divider } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
-export type DiskCreateValues = Omit<Assign<DiskCreate, { blockSize: string }>, 'diskSource'>
+import { SideModalForm } from 'app/components/form'
+import {
+  DescriptionField,
+  DiskSizeField,
+  NameField,
+  Radio,
+  RadioField,
+} from 'app/components/form'
+import type { CreateFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
-const values: DiskCreateValues = {
+const values: DiskCreate = {
   name: '',
   description: '',
   size: 0,
-  blockSize: '4096',
-}
-
-export const formatDiskCreate = (input: DiskCreateValues): DiskCreate => {
-  const blockSize = parseInt(input.blockSize, 10)
-  const { size } = input
-  return {
-    ...input,
-    size: Math.ceil((size * GiB) / blockSize) * blockSize,
-    // TODO: once there is a source type picker and an image/snapshot picker,
-    // the value here will be generated from those values
-    diskSource: {
-      type: 'blank',
-      blockSize,
-    },
-  }
+  diskSource: {
+    blockSize: 4096,
+    type: 'blank',
+  },
 }
 
 type CreateDiskSideModalFormProps = Omit<SideModalProps, 'id'> &
-  CreateFormProps<DiskCreateValues, Disk>
+  CreateFormProps<DiskCreate, Disk>
 
 export function CreateDiskSideModalForm({
   id = 'create-disk-form',
@@ -72,7 +58,10 @@ export function CreateDiskSideModalForm({
         ((values) => {
           createDisk.mutate({
             ...pathParams,
-            body: formatDiskCreate(values),
+            body: {
+              ...values,
+              size: values.size * GiB,
+            },
           })
         })
       }

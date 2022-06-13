@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Instance Create Form', () => {
   test('can invoke instance create form from instances page', async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Instance Create Form', () => {
     await page.fill('input[name=bootDiskName]', 'my-boot-disk')
     await page.fill('input[name=bootDiskSize]', '20')
 
-    await page.locator('input[value=ubuntu] ~ .ox-radio-card').click()
+    await page.locator('input[value=ubuntu-1] ~ .ox-radio-card').click()
 
     await page.locator('button:has-text("Create instance")').click()
 

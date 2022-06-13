@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+
 import { forEach } from 'app/util/e2e'
 
 // this could easily be done as a testing-lib test but I want it in a real table

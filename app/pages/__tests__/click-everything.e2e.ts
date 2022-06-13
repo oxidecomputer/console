@@ -1,5 +1,6 @@
 import { test } from '@playwright/test'
-import { expectVisible, expectNotVisible } from 'app/util/e2e'
+
+import { expectNotVisible, expectVisible } from 'app/util/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
   await page.goto('/')
@@ -91,14 +92,11 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=spinbutton[name="Size (GiB)"]',
     'role=button[name="Create Disk"][disabled]',
   ])
-  await page.click('role=button[name="Close form"]')
-
-  await page.click('role=button[name="Create new disk"]')
   await page.click('role=button[name="Cancel"]')
 
   // Attach existing disk form
   await page.click('role=button[name="Attach existing disk"]')
-  await page.click('role=combobox[name="Disk name"]')
+  await page.click('role=button[name="Disk name"]')
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
 
   // Attach disk-3
@@ -119,15 +117,15 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=combobox[name="VPC"]',
-    'role=combobox[name="Subnet"]',
+    'role=button[name="VPC"]', // listbox
+    'role=button[name="Subnet"]', // listbox
     'role=textbox[name="IP Address"]',
   ])
 
   await page.fill('role=textbox[name="Name"]', 'nic-2')
-  await page.click('role=combobox[name="VPC"]')
+  await page.click('role=button[name="VPC"]')
   await page.click('role=option[name="mock-vpc"]')
-  await page.click('role=combobox[name="Subnet"]')
+  await page.click('role=button[name="Subnet"]')
   await page.click('role=option[name="mock-subnet"]')
   await page.click('role=button[name="Add network interface"]')
   await expectVisible(page, ['role=cell[name="nic-2"]'])

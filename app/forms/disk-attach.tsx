@@ -3,11 +3,12 @@ import invariant from 'tiny-invariant'
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { ComboboxField } from 'app/components/form'
-import { useParams } from 'app/hooks'
-import type { CreateFormProps } from 'app/forms'
-import { SideModalForm } from 'app/components/form/SideModalForm'
 import type { SideModalProps } from '@oxide/ui'
+
+import { ListboxField } from 'app/components/form'
+import { SideModalForm } from 'app/components/form/SideModalForm'
+import type { CreateFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 const values = { name: '' }
 
@@ -71,11 +72,11 @@ export function AttachDiskSideModalForm({
       error={attachDisk.error?.error as Error | undefined}
       {...props}
     >
-      <ComboboxField
+      <ListboxField
         label="Disk name"
         id="disk-name"
         name="name"
-        items={detachedDisks.map((d) => d.name)}
+        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
       />
     </SideModalForm>
   )

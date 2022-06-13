@@ -1,4 +1,5 @@
 import { Settings24Icon } from '@oxide/ui'
+
 import { FullPageForm, TextField } from 'app/components/form'
 
 export function ProfilePage() {

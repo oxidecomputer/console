@@ -1,4 +1,4 @@
-import type { AvatarSize, AvatarProps } from '../avatar/Avatar'
+import type { AvatarProps, AvatarSize } from '../avatar/Avatar'
 import { Avatar } from '../avatar/Avatar'
 
 export interface AvatarStackProps {

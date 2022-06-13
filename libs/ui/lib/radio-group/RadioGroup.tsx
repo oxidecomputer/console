@@ -39,9 +39,8 @@
  *   more confusing than helpful.
  *   https://www.a11yproject.com/posts/2021-01-28-how-to-use-the-tabindex-attribute/#making-non-interactive-elements-focusable
  */
-
-import React from 'react'
 import cn from 'classnames'
+import React from 'react'
 
 import { classed } from '@oxide/util'
 

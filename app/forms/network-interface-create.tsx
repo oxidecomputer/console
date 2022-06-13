@@ -1,20 +1,21 @@
+import invariant from 'tiny-invariant'
+
+import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
+import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { SideModalProps } from '@oxide/ui'
+import { Divider } from '@oxide/ui'
+
 import {
-  ComboboxField,
   DescriptionField,
+  ListboxField,
   NameField,
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import type { SideModalProps } from '@oxide/ui'
-import { Divider } from '@oxide/ui'
-import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
-
+import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
 import type { CreateFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-import invariant from 'tiny-invariant'
-import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
 
 const values = {
   name: '',
@@ -83,14 +84,14 @@ export default function CreateNetworkInterfaceSideModalForm({
       <DescriptionField id="nic-description" />
       <Divider />
 
-      <ComboboxField
+      <ListboxField
         id="nic-vpc"
         name="vpcName"
         label="VPC"
-        items={vpcs.map((x) => x.name)}
+        items={vpcs.map(({ name }) => ({ label: name, value: name }))}
         // required
       />
-      <SubnetCombobox
+      <SubnetListbox
         id="nic-subnet"
         name="subnetName"
         label="Subnet"

@@ -1,18 +1,18 @@
 import { Link } from 'react-router-dom'
 
-import { useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
-
-import { useParams } from 'app/hooks'
-import { DiskStatusBadge } from 'app/components/StatusBadge'
+import { useQueryTable } from '@oxide/table'
 import {
-  buttonStyle,
   EmptyMessage,
-  TableActions,
-  Storage24Icon,
-  PageTitle,
   PageHeader,
+  PageTitle,
+  Storage24Icon,
+  TableActions,
+  buttonStyle,
 } from '@oxide/ui'
+
+import { DiskStatusBadge } from 'app/components/StatusBadge'
+import { useParams } from 'app/hooks'
 
 function AttachedInstance(props: {
   orgName: string
