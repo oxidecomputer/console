@@ -7,7 +7,6 @@ import { cloneElement } from 'react'
 import { useEffect } from 'react'
 import invariant from 'tiny-invariant'
 
-import type { Error } from '@oxide/api'
 import type { ButtonProps } from '@oxide/ui'
 import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'

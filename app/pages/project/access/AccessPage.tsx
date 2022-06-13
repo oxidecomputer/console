@@ -8,7 +8,6 @@ import {
   Button,
   PageHeader,
   PageTitle,
-  SideModal,
   Success16Icon,
   TableActions,
   Unauthorized12Icon,
@@ -107,16 +106,11 @@ export const AccessPage = () => {
           Add user to project
         </Button>
       </TableActions>
-      <SideModal
-        id="add-user-to-project-modal"
+      <AddUserToProjectForm
         isOpen={addModalOpen}
         onDismiss={() => setAddModalOpen(false)}
-      >
-        <AddUserToProjectForm
-          onSuccess={() => setAddModalOpen(false)}
-          onDismiss={() => setAddModalOpen(false)}
-        />
-      </SideModal>
+        onSuccess={() => setAddModalOpen(false)}
+      />
       <Table table={tableInstance} />
     </>
   )
