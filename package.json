@@ -13,7 +13,7 @@
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chromium",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
-    "fmt": "prettier --write .",
+    "fmt": "prettier --cache --write .",
     "gen": "plop",
     "gen-api": "./tools/generate_api_client.sh",
     "storybook": "start-storybook --ci -c libs/ui/.storybook -p 4400",
