@@ -87,6 +87,7 @@ export const Router = () => (
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>
               <Route index element={<DisksPage />} />
+              <Route path="new" element={<DisksPage modal="createDisk" />} />
             </Route>
             <Route
               path="snapshots"

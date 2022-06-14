@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Organization } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -7,12 +7,12 @@ import { useApiMutation, useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
-  Button,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
   PageTitle,
   TableActions,
+  buttonStyle,
 } from '@oxide/ui'
 
 import { CreateOrgSideModalForm } from 'app/forms/org-create'
@@ -86,9 +86,9 @@ const OrgsPage = ({ modal }: OrgsPageProps) => {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button variant="secondary" size="xs" onClick={() => navigate('new')}>
+        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New Organization
-        </Button>
+        </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((name) => `/orgs/${name}`)} />

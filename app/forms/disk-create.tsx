@@ -32,6 +32,7 @@ export function CreateDiskSideModalForm({
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
 }: CreateSideModalFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
@@ -41,6 +42,7 @@ export function CreateDiskSideModalForm({
     onSuccess(data) {
       queryClient.invalidateQueries('projectDisksGet', pathParams)
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
@@ -50,6 +52,7 @@ export function CreateDiskSideModalForm({
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         ((values) => {

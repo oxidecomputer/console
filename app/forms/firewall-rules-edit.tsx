@@ -18,6 +18,7 @@ type EditFirewallRuleSideModalFormProps = Omit<
 
 export function EditFirewallRuleForm({
   onSuccess,
+  onDismiss,
   existingRules,
   originalRule,
   ...props
@@ -29,8 +30,11 @@ export function EditFirewallRuleForm({
     onSuccess(data) {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
   })
+
+  if (Object.keys(originalRule).length === 0) return null
 
   const initialValues = {
     enabled: originalRule.status === 'enabled',
@@ -63,6 +67,7 @@ export function EditFirewallRuleForm({
       id="create-firewall-rule-form"
       title="Edit rule"
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
