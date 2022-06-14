@@ -1,10 +1,23 @@
+import invariant from 'tiny-invariant'
+
 import type {
   Instance,
   InstanceCreate,
   InstanceNetworkInterfaceAttachment,
 } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { PrebuiltFormProps } from 'app/forms'
+import {
+  Divider,
+  Radio,
+  RadioCard,
+  Success16Icon,
+  Tab,
+  Tabs,
+  TextFieldHint,
+} from '@oxide/ui'
+import { GiB } from '@oxide/util'
+
 import type { DiskTableItem } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
@@ -17,25 +30,9 @@ import {
   TagsField,
   TextField,
 } from 'app/components/form'
-import {
-  Divider,
-  Radio,
-  RadioCard,
-  Tab,
-  Tabs,
-  TextFieldHint,
-  CentosDistroIcon,
-  DebianDistroIcon,
-  FedoraDistroIcon,
-  FreebsdDistroIcon,
-  UbuntuDistroIcon,
-  WindowsDistroIcon,
-  Success16Icon,
-} from '@oxide/ui'
+import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
+import type { PrebuiltFormProps } from 'app/forms'
 import { useParams, useToast } from 'app/hooks'
-import invariant from 'tiny-invariant'
-import { GiB } from '@oxide/util'
-import { formatDiskCreate } from './disk-create'
 
 type InstanceCreateInput = Assign<
   InstanceCreate,
@@ -46,7 +43,8 @@ type InstanceCreateInput = Assign<
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
-    bootDiskBlockSize: string
+    bootDiskBlockSize: '512' | '4096'
+    globalImage: string
   }
 >
 
@@ -62,16 +60,19 @@ const values: InstanceCreateInput = {
   memory: 0,
   ncpus: 1,
   hostname: '',
+
   bootDiskName: '',
   bootDiskSize: 0,
   bootDiskBlockSize: '4096',
+  globalImage: '',
+
   disks: [],
-  networkInterfaces: { type: 'Default' },
+  networkInterfaces: { type: 'default' },
   /**
    * This is a hack to ensure the network interface radio has a default selection.
    * We actually don't care about this value outside of that.
    */
-  networkInterfaceType: 'Default',
+  networkInterfaceType: 'default',
 }
 
 export default function CreateInstanceForm({
@@ -110,6 +111,8 @@ export default function CreateInstanceForm({
     onError,
   })
 
+  const images = useApiQuery('imagesGet', {}).data?.items || []
+
   return (
     <Form
       id={id}
@@ -123,12 +126,13 @@ export default function CreateInstanceForm({
           await createDisk.mutateAsync({
             ...pageParams,
             body: {
-              ...formatDiskCreate({
-                name: values.bootDiskName || 'boot-disk',
-                description: '',
-                size: values.bootDiskSize,
-                blockSize: values.bootDiskBlockSize,
-              }),
+              name: values.bootDiskName,
+              description: `Created as a boot disk for ${values.bootDiskName}`,
+              size: values.bootDiskSize * GiB,
+              diskSource: {
+                type: 'global_image',
+                imageId: values.globalImage,
+              },
             },
           })
           createInstance.mutate({
@@ -142,13 +146,9 @@ export default function CreateInstanceForm({
               disks: [
                 {
                   type: 'attach',
-                  name: values.bootDiskName || 'boot-disk',
+                  name: values.bootDiskName,
                 },
-                ...values.disks.map((disk) =>
-                  disk.type === 'create'
-                    ? { type: disk.type, ...formatDiskCreate(disk) }
-                    : disk
-                ),
+                ...values.disks,
               ],
             },
           })
@@ -213,38 +213,7 @@ export default function CreateInstanceForm({
       <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
         <Tab>Distros</Tab>
         <Tab.Panel className="space-y-4">
-          <RadioField id="boot-disk-distro" name="disk-image">
-            {renderDistroRadioCard({
-              label: 'Ubuntu',
-              value: 'ubuntu',
-              Icon: UbuntuDistroIcon,
-            })}
-            {renderDistroRadioCard({
-              label: 'FreeBSD',
-              value: 'freeBsd',
-              Icon: FreebsdDistroIcon,
-            })}
-            {renderDistroRadioCard({
-              label: 'Fedora',
-              value: 'fedora',
-              Icon: FedoraDistroIcon,
-            })}
-            {renderDistroRadioCard({
-              label: 'Debian',
-              value: 'debian',
-              Icon: DebianDistroIcon,
-            })}
-            {renderDistroRadioCard({
-              label: 'CentOS',
-              value: 'centos',
-              Icon: CentosDistroIcon,
-            })}
-            {renderDistroRadioCard({
-              label: 'Windows',
-              value: 'windows',
-              Icon: WindowsDistroIcon,
-            })}
-          </RadioField>
+          <ImageSelectField id="boot-disk-image" name="globalImage" images={images} />
 
           <NameField
             id="boot-disk-name"
@@ -291,22 +260,6 @@ export default function CreateInstanceForm({
         <Form.Cancel />
       </Form.Actions>
     </Form>
-  )
-}
-
-interface DistroRadioCardProps {
-  label: string
-  value: string
-  Icon: React.ComponentType<{ className: string }>
-}
-const renderDistroRadioCard = ({ label, value, Icon }: DistroRadioCardProps) => {
-  return (
-    <RadioCard value={value} className="h-44 w-44 pb-6">
-      <div className="flex h-full flex-col items-center justify-end space-y-4">
-        <Icon className="h-12 w-12 text-tertiary" />
-        <span className="text-sans-xl text-secondary">{label}</span>
-      </div>
-    </RadioCard>
   )
 }
 

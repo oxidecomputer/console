@@ -13,20 +13,31 @@ export type ByteCount = number
  * The type of an individual datum of a metric.
  */
 export type DatumType =
-  | 'Bool'
-  | 'I64'
-  | 'F64'
-  | 'String'
-  | 'Bytes'
-  | 'CumulativeI64'
-  | 'CumulativeF64'
-  | 'HistogramI64'
-  | 'HistogramF64'
+  | 'bool'
+  | 'i64'
+  | 'f64'
+  | 'string'
+  | 'bytes'
+  | 'cumulative_i64'
+  | 'cumulative_f64'
+  | 'histogram_i64'
+  | 'histogram_f64'
 
-export type Digest = { Sha256: string }
+export type DerEncodedKeyPair = {
+  /**
+   * request signing private key (base64 encoded der file)
+   */
+  privateKey: string
+  /**
+   * request signing public certificate (base64 encoded der file)
+   */
+  publicCert: string
+}
+
+export type Digest = { type: 'sha256'; value: string }
 
 /**
- * Client view of an {@link Disk}
+ * Client view of a {@link Disk}
  */
 export type Disk = {
   blockSize: ByteCount
@@ -104,11 +115,11 @@ export type DiskSource =
        * size of blocks for this Disk. valid values are: 512, 2048, or 4096
        */
       blockSize: BlockSize
-      type: 'Blank'
+      type: 'blank'
     }
-  | { snapshotId: string; type: 'Snapshot' }
-  | { imageId: string; type: 'Image' }
-  | { imageId: string; type: 'GlobalImage' }
+  | { snapshotId: string; type: 'snapshot' }
+  | { imageId: string; type: 'image' }
+  | { imageId: string; type: 'global_image' }
 
 /**
  * State of a Disk (primarily: attached or not)
@@ -121,6 +132,14 @@ export type DiskState =
   | { instance: string; state: 'detaching' }
   | { state: 'destroyed' }
   | { state: 'faulted' }
+
+/**
+ * Distribution must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ */
+export type Distribution = string
+
+/** Regex pattern for validating Distribution */
+export const distributionPattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
 
 /**
  * Error information from a response.
@@ -143,12 +162,37 @@ export type FieldSchema = {
 /**
  * The source from which a field is derived, the target or metric.
  */
-export type FieldSource = 'Target' | 'Metric'
+export type FieldSource = 'target' | 'metric'
 
 /**
  * The `FieldType` identifies the data type of a target or metric field.
  */
-export type FieldType = 'String' | 'I64' | 'IpAddr' | 'Uuid' | 'Bool'
+export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
+
+export type FleetRoles = 'admin' | 'collaborator' | 'viewer'
+
+/**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type FleetRolesPolicy = {
+  /**
+   * Roles directly assigned on this resource
+   */
+  roleAssignments: FleetRolesRoleAssignment[]
+}
+
+/**
+ * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
+ *
+ * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
+ */
+export type FleetRolesRoleAssignment = {
+  identityId: string
+  identityType: IdentityType
+  roleName: FleetRoles
+}
 
 /**
  * Client view of global Images
@@ -166,6 +210,10 @@ export type GlobalImage = {
    * Hash of the image contents, if applicable
    */
   digest?: Digest | null
+  /**
+   * Image distribution
+   */
+  distribution: string
   /**
    * unique, immutable, system-controlled identifier for each resource
    */
@@ -191,9 +239,33 @@ export type GlobalImage = {
    */
   url?: string | null
   /**
-   * Version of this, if any
+   * Image version
    */
-  version?: string | null
+  version: string
+}
+
+/**
+ * Create-time parameters for an {@link GlobalImage}
+ */
+export type GlobalImageCreate = {
+  /**
+   * block size in bytes
+   */
+  blockSize: BlockSize
+  description: string
+  /**
+   * OS image distribution
+   */
+  distribution: Distribution
+  name: Name
+  /**
+   * The source of the image's contents.
+   */
+  source: ImageSource
+  /**
+   * image version
+   */
+  version: string
 }
 
 /**
@@ -211,9 +283,59 @@ export type GlobalImageResultsPage = {
 }
 
 /**
+ * Client view of an {@link IdentityProvider}
+ */
+export type IdentityProvider = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * Identity provider type
+   */
+  providerType: IdentityProviderType
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IdentityProviderResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IdentityProvider[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+export type IdentityProviderType = 'saml'
+
+/**
  * Describes what kind of identity is described by an id
  */
-export type IdentityType = 'user_builtin' | 'silo_user'
+export type IdentityType = 'silo_user'
+
+export type IdpMetadataSource =
+  | { type: 'url'; url: string }
+  | { data: string; type: 'base64_encoded_xml' }
 
 /**
  * Client view of project Images
@@ -298,7 +420,10 @@ export type ImageResultsPage = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource = { Url: string } | { Snapshot: string }
+export type ImageSource =
+  | { type: 'url'; url: string }
+  | { id: string; type: 'snapshot' }
+  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
 
 /**
  * Client view of an {@link Instance}
@@ -401,16 +526,16 @@ export type InstanceDiskAttachment =
  * Migration parameters for an {@link Instance}
  */
 export type InstanceMigrate = {
-  dstSledUuid: string
+  dstSledId: string
 }
 
 /**
  * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export type InstanceNetworkInterfaceAttachment =
-  | { params: NetworkInterfaceCreate[]; type: 'Create' }
-  | { type: 'Default' }
-  | { type: 'None' }
+  | { params: NetworkInterfaceCreate[]; type: 'create' }
+  | { type: 'default' }
+  | { type: 'none' }
 
 /**
  * A single page of results
@@ -443,10 +568,7 @@ export type InstanceState =
   | 'failed'
   | 'destroyed'
 
-/**
- * An `IpNet` represents an IP network, either IPv4 or IPv6.
- */
-export type IpNet = { V4: Ipv4Net } | { V6: Ipv6Net }
+export type IpNet = Ipv4Net | Ipv6Net
 
 /**
  * An IPv4 subnet, including prefix and subnet mask
@@ -473,10 +595,6 @@ export type L4PortRange = string
 
 /** Regex pattern for validating L4PortRange */
 export const l4PortRangePattern = '^[0-9]{1,5}(-[0-9]{1,5})?$'
-
-export type LoginParams = {
-  username: string
-}
 
 /**
  * A Media Access Control address, in EUI-48 format
@@ -522,6 +640,10 @@ export type NetworkInterface = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
+  /**
+   * True if this interface is the primary for the instance to which it's attached.
+   */
+  primary: boolean
   /**
    * The subnet to which the interface belongs.
    */
@@ -622,7 +744,7 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'Admin' | 'Collaborator'
+export type OrganizationRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -704,7 +826,7 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRoles = 'Admin' | 'Collaborator' | 'Viewer'
+export type ProjectRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -937,6 +1059,92 @@ export type SagaState =
   | { errorInfo: SagaErrorInfo; errorNodeName: string; state: 'failed' }
 
 /**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type SamlIdentityProvider = {
+  /**
+   * service provider endpoint where the response will be sent
+   */
+  acsUrl: string
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * idp's entity id
+   */
+  idpEntityId: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * optional request signing public certificate (base64 encoded der file)
+   */
+  publicCert?: string | null
+  /**
+   * service provider endpoint where the idp should send log out requests
+   */
+  sloUrl: string
+  /**
+   * sp's client id
+   */
+  spClientId: string
+  /**
+   * customer's technical contact for saml configuration
+   */
+  technicalContactEmail: string
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * Create-time identity-related parameters
+ */
+export type SamlIdentityProviderCreate = {
+  /**
+   * service provider endpoint where the response will be sent
+   */
+  acsUrl: string
+  description: string
+  /**
+   * idp's entity id
+   */
+  idpEntityId: string
+  /**
+   * the source of an identity provider metadata descriptor
+   */
+  idpMetadataSource: IdpMetadataSource
+  name: Name
+  /**
+   * optional request signing key pair
+   */
+  signingKeypair?: DerEncodedKeyPair | null
+  /**
+   * service provider endpoint where the idp should send log out requests
+   */
+  sloUrl: string
+  /**
+   * sp's client id
+   */
+  spClientId: string
+  /**
+   * customer's technical contact for saml configuration
+   */
+  technicalContactEmail: string
+}
+
+/**
  * Client view of currently authed user.
  */
 export type SessionUser = {
@@ -996,7 +1204,7 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRoles = 'Admin' | 'Collaborator' | 'Viewer'
+export type SiloRoles = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
@@ -1115,6 +1323,10 @@ export type SnapshotResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
+}
+
+export type SpoofLoginBody = {
+  username: string
 }
 
 /**
@@ -1635,19 +1847,19 @@ export type VpcUpdate = {
  *
  * Currently, we only support scanning in ascending order.
  */
-export type IdSortMode = 'id-ascending'
+export type IdSortMode = 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by name only
  *
  * Currently, we only support scanning in ascending order.
  */
-export type NameSortMode = 'name-ascending'
+export type NameSortMode = 'name_ascending'
 
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode = 'name-ascending' | 'name-descending' | 'id-ascending'
+export type NameOrIdSortMode = 'name_ascending' | 'name_descending' | 'id_ascending'
 
 export interface HardwareRacksGetParams {
   limit?: number | null
@@ -1692,6 +1904,18 @@ export interface ImagesDeleteImageParams {
 }
 
 export interface SpoofLoginParams {}
+
+export interface LoginParams {
+  providerName: Name
+
+  siloName: Name
+}
+
+export interface ConsumeCredentialsParams {
+  providerName: Name
+
+  siloName: Name
+}
 
 export interface LogoutParams {}
 
@@ -2249,6 +2473,10 @@ export interface SubnetNetworkInterfacesGetParams {
   vpcName: Name
 }
 
+export interface PolicyGetParams {}
+
+export interface PolicyPutParams {}
+
 export interface RolesGetParams {
   limit?: number | null
 
@@ -2309,11 +2537,31 @@ export interface SilosDeleteSiloParams {
   siloName: Name
 }
 
+export interface SilosGetIdentityProvidersParams {
+  siloName: Name
+
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameSortMode
+}
+
 export interface SilosGetSiloPolicyParams {
   siloName: Name
 }
 
 export interface SilosPutSiloPolicyParams {
+  siloName: Name
+}
+
+export interface SiloSamlIdpCreateParams {
+  siloName: Name
+}
+
+export interface SiloSamlIdpFetchParams {
+  providerName: Name
+
   siloName: Name
 }
 
@@ -2552,7 +2800,7 @@ export class Api extends HttpClient {
       this.request<RackResultsPage>({
         path: `/hardware/racks`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2576,7 +2824,7 @@ export class Api extends HttpClient {
       this.request<SledResultsPage>({
         path: `/hardware/sleds`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2600,18 +2848,22 @@ export class Api extends HttpClient {
       this.request<GlobalImageResultsPage>({
         path: `/images`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
     /**
      * Create a global image.
      */
-    imagesPost: (query: ImagesPostParams, data: ImageCreate, params: RequestParams = {}) =>
+    imagesPost: (
+      query: ImagesPostParams,
+      body: GlobalImageCreate,
+      params: RequestParams = {}
+    ) =>
       this.request<GlobalImage>({
         path: `/images`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2638,11 +2890,38 @@ export class Api extends HttpClient {
         ...params,
       }),
 
-    spoofLogin: (query: SpoofLoginParams, data: LoginParams, params: RequestParams = {}) =>
+    spoofLogin: (
+      query: SpoofLoginParams,
+      body: SpoofLoginBody,
+      params: RequestParams = {}
+    ) =>
       this.request<void>({
         path: `/login`,
         method: 'POST',
-        body: data,
+        body,
+        ...params,
+      }),
+
+    /**
+     * Ask the user to login to their identity provider
+     */
+    login: ({ providerName, siloName }: LoginParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/login/${siloName}/${providerName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Consume some sort of credentials, and authenticate a user.
+     */
+    consumeCredentials: (
+      { providerName, siloName }: ConsumeCredentialsParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/login/${siloName}/${providerName}`,
+        method: 'POST',
         ...params,
       }),
 
@@ -2660,7 +2939,7 @@ export class Api extends HttpClient {
       this.request<OrganizationResultsPage>({
         path: `/organizations`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2669,13 +2948,13 @@ export class Api extends HttpClient {
      */
     organizationsPost: (
       query: OrganizationsPostParams,
-      data: OrganizationCreate,
+      body: OrganizationCreate,
       params: RequestParams = {}
     ) =>
       this.request<Organization>({
         path: `/organizations`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2697,13 +2976,13 @@ export class Api extends HttpClient {
      */
     organizationsPutOrganization: (
       { orgName }: OrganizationsPutOrganizationParams,
-      data: OrganizationUpdate,
+      body: OrganizationUpdate,
       params: RequestParams = {}
     ) =>
       this.request<Organization>({
         path: `/organizations/${orgName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2738,13 +3017,13 @@ export class Api extends HttpClient {
      */
     organizationPutPolicy: (
       { orgName }: OrganizationPutPolicyParams,
-      data: OrganizationRolesPolicy,
+      body: OrganizationRolesPolicy,
       params: RequestParams = {}
     ) =>
       this.request<OrganizationRolesPolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2758,7 +3037,7 @@ export class Api extends HttpClient {
       this.request<ProjectResultsPage>({
         path: `/organizations/${orgName}/projects`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2767,13 +3046,13 @@ export class Api extends HttpClient {
      */
     organizationProjectsPost: (
       { orgName }: OrganizationProjectsPostParams,
-      data: ProjectCreate,
+      body: ProjectCreate,
       params: RequestParams = {}
     ) =>
       this.request<Project>({
         path: `/organizations/${orgName}/projects`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2795,13 +3074,13 @@ export class Api extends HttpClient {
      */
     organizationProjectsPutProject: (
       { orgName, projectName }: OrganizationProjectsPutProjectParams,
-      data: ProjectUpdate,
+      body: ProjectUpdate,
       params: RequestParams = {}
     ) =>
       this.request<Project>({
         path: `/organizations/${orgName}/projects/${projectName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2828,7 +3107,7 @@ export class Api extends HttpClient {
       this.request<DiskResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2837,13 +3116,13 @@ export class Api extends HttpClient {
      */
     projectDisksPost: (
       { orgName, projectName }: ProjectDisksPostParams,
-      data: DiskCreate,
+      body: DiskCreate,
       params: RequestParams = {}
     ) =>
       this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/disks`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2883,7 +3162,7 @@ export class Api extends HttpClient {
       this.request<ImageResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/images`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2892,13 +3171,13 @@ export class Api extends HttpClient {
      */
     projectImagesPost: (
       { orgName, projectName }: ProjectImagesPostParams,
-      data: ImageCreate,
+      body: ImageCreate,
       params: RequestParams = {}
     ) =>
       this.request<Image>({
         path: `/organizations/${orgName}/projects/${projectName}/images`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2938,7 +3217,7 @@ export class Api extends HttpClient {
       this.request<InstanceResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -2947,13 +3226,13 @@ export class Api extends HttpClient {
      */
     projectInstancesPost: (
       { orgName, projectName }: ProjectInstancesPostParams,
-      data: InstanceCreate,
+      body: InstanceCreate,
       params: RequestParams = {}
     ) =>
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -2993,31 +3272,31 @@ export class Api extends HttpClient {
       this.request<DiskResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
     instanceDisksAttach: (
       { instanceName, orgName, projectName }: InstanceDisksAttachParams,
-      data: DiskIdentifier,
+      body: DiskIdentifier,
       params: RequestParams = {}
     ) =>
       this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/attach`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
     instanceDisksDetach: (
       { instanceName, orgName, projectName }: InstanceDisksDetachParams,
-      data: DiskIdentifier,
+      body: DiskIdentifier,
       params: RequestParams = {}
     ) =>
       this.request<Disk>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3026,13 +3305,13 @@ export class Api extends HttpClient {
      */
     projectInstancesMigrateInstance: (
       { instanceName, orgName, projectName }: ProjectInstancesMigrateInstanceParams,
-      data: InstanceMigrate,
+      body: InstanceMigrate,
       params: RequestParams = {}
     ) =>
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/migrate`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3046,7 +3325,7 @@ export class Api extends HttpClient {
       this.request<NetworkInterfaceResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3055,13 +3334,13 @@ export class Api extends HttpClient {
      */
     instanceNetworkInterfacesPost: (
       { instanceName, orgName, projectName }: InstanceNetworkInterfacesPostParams,
-      data: NetworkInterfaceCreate,
+      body: NetworkInterfaceCreate,
       params: RequestParams = {}
     ) =>
       this.request<NetworkInterface>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3158,13 +3437,13 @@ export class Api extends HttpClient {
      */
     organizationProjectsPutProjectPolicy: (
       { orgName, projectName }: OrganizationProjectsPutProjectPolicyParams,
-      data: ProjectRolesPolicy,
+      body: ProjectRolesPolicy,
       params: RequestParams = {}
     ) =>
       this.request<ProjectRolesPolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3178,7 +3457,7 @@ export class Api extends HttpClient {
       this.request<SnapshotResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3187,13 +3466,13 @@ export class Api extends HttpClient {
      */
     projectSnapshotsPost: (
       { orgName, projectName }: ProjectSnapshotsPostParams,
-      data: SnapshotCreate,
+      body: SnapshotCreate,
       params: RequestParams = {}
     ) =>
       this.request<Snapshot>({
         path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3233,7 +3512,7 @@ export class Api extends HttpClient {
       this.request<VpcResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3242,13 +3521,13 @@ export class Api extends HttpClient {
      */
     projectVpcsPost: (
       { orgName, projectName }: ProjectVpcsPostParams,
-      data: VpcCreate,
+      body: VpcCreate,
       params: RequestParams = {}
     ) =>
       this.request<Vpc>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3270,13 +3549,13 @@ export class Api extends HttpClient {
      */
     projectVpcsPutVpc: (
       { orgName, projectName, vpcName }: ProjectVpcsPutVpcParams,
-      data: VpcUpdate,
+      body: VpcUpdate,
       params: RequestParams = {}
     ) =>
       this.request<Vpc>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3311,13 +3590,13 @@ export class Api extends HttpClient {
      */
     vpcFirewallRulesPut: (
       { orgName, projectName, vpcName }: VpcFirewallRulesPutParams,
-      data: VpcFirewallRuleUpdateParams,
+      body: VpcFirewallRuleUpdateParams,
       params: RequestParams = {}
     ) =>
       this.request<VpcFirewallRules>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3331,7 +3610,7 @@ export class Api extends HttpClient {
       this.request<VpcRouterResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3340,13 +3619,13 @@ export class Api extends HttpClient {
      */
     vpcRoutersPost: (
       { orgName, projectName, vpcName }: VpcRoutersPostParams,
-      data: VpcRouterCreate,
+      body: VpcRouterCreate,
       params: RequestParams = {}
     ) =>
       this.request<VpcRouter>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3368,13 +3647,13 @@ export class Api extends HttpClient {
      */
     vpcRoutersPutRouter: (
       { orgName, projectName, routerName, vpcName }: VpcRoutersPutRouterParams,
-      data: VpcRouterUpdate,
+      body: VpcRouterUpdate,
       params: RequestParams = {}
     ) =>
       this.request<VpcRouter>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3401,7 +3680,7 @@ export class Api extends HttpClient {
       this.request<RouterRouteResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3410,13 +3689,13 @@ export class Api extends HttpClient {
      */
     routersRoutesPost: (
       { orgName, projectName, routerName, vpcName }: RoutersRoutesPostParams,
-      data: RouterRouteCreateParams,
+      body: RouterRouteCreateParams,
       params: RequestParams = {}
     ) =>
       this.request<RouterRoute>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3438,13 +3717,13 @@ export class Api extends HttpClient {
      */
     routersRoutesPutRoute: (
       { orgName, projectName, routeName, routerName, vpcName }: RoutersRoutesPutRouteParams,
-      data: RouterRouteUpdateParams,
+      body: RouterRouteUpdateParams,
       params: RequestParams = {}
     ) =>
       this.request<RouterRoute>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3477,7 +3756,7 @@ export class Api extends HttpClient {
       this.request<VpcSubnetResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3486,13 +3765,13 @@ export class Api extends HttpClient {
      */
     vpcSubnetsPost: (
       { orgName, projectName, vpcName }: VpcSubnetsPostParams,
-      data: VpcSubnetCreate,
+      body: VpcSubnetCreate,
       params: RequestParams = {}
     ) =>
       this.request<VpcSubnet>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3514,13 +3793,13 @@ export class Api extends HttpClient {
      */
     vpcSubnetsPutSubnet: (
       { orgName, projectName, subnetName, vpcName }: VpcSubnetsPutSubnetParams,
-      data: VpcSubnetUpdate,
+      body: VpcSubnetUpdate,
       params: RequestParams = {}
     ) =>
       this.request<VpcSubnet>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
         method: 'PUT',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3553,7 +3832,32 @@ export class Api extends HttpClient {
       this.request<NetworkInterfaceResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/network-interfaces`,
         method: 'GET',
-        query: query,
+        query,
+        ...params,
+      }),
+
+    /**
+     * Fetch the top-level IAM policy
+     */
+    policyGet: (query: PolicyGetParams, params: RequestParams = {}) =>
+      this.request<FleetRolesPolicy>({
+        path: `/policy`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update the top-level IAM policy
+     */
+    policyPut: (
+      query: PolicyPutParams,
+      body: FleetRolesPolicy,
+      params: RequestParams = {}
+    ) =>
+      this.request<FleetRolesPolicy>({
+        path: `/policy`,
+        method: 'PUT',
+        body,
         ...params,
       }),
 
@@ -3564,7 +3868,7 @@ export class Api extends HttpClient {
       this.request<RoleResultsPage>({
         path: `/roles`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3585,7 +3889,7 @@ export class Api extends HttpClient {
       this.request<SagaResultsPage>({
         path: `/sagas`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3616,7 +3920,7 @@ export class Api extends HttpClient {
       this.request<SshKeyResultsPage>({
         path: `/session/me/sshkeys`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3625,13 +3929,13 @@ export class Api extends HttpClient {
      */
     sshkeysPost: (
       query: SshkeysPostParams,
-      data: SshKeyCreate,
+      body: SshKeyCreate,
       params: RequestParams = {}
     ) =>
       this.request<SshKey>({
         path: `/session/me/sshkeys`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3662,18 +3966,18 @@ export class Api extends HttpClient {
       this.request<SiloResultsPage>({
         path: `/silos`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
     /**
      * Create a new silo.
      */
-    silosPost: (query: SilosPostParams, data: SiloCreate, params: RequestParams = {}) =>
+    silosPost: (query: SilosPostParams, body: SiloCreate, params: RequestParams = {}) =>
       this.request<Silo>({
         path: `/silos`,
         method: 'POST',
-        body: data,
+        body,
         ...params,
       }),
 
@@ -3698,6 +4002,20 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * List Silo identity providers
+     */
+    silosGetIdentityProviders: (
+      { siloName, ...query }: SilosGetIdentityProvidersParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<IdentityProviderResultsPage>({
+        path: `/silos/${siloName}/identity_providers`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
      * Fetch the IAM policy for this Silo
      */
     silosGetSiloPolicy: (
@@ -3715,13 +4033,41 @@ export class Api extends HttpClient {
      */
     silosPutSiloPolicy: (
       { siloName }: SilosPutSiloPolicyParams,
-      data: SiloRolesPolicy,
+      body: SiloRolesPolicy,
       params: RequestParams = {}
     ) =>
       this.request<SiloRolesPolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'PUT',
-        body: data,
+        body,
+        ...params,
+      }),
+
+    /**
+     * Create a new SAML identity provider for a silo.
+     */
+    siloSamlIdpCreate: (
+      { siloName }: SiloSamlIdpCreateParams,
+      body: SamlIdentityProviderCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/silos/${siloName}/saml_identity_providers`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * GET a silo's SAML identity provider
+     */
+    siloSamlIdpFetch: (
+      { providerName, siloName }: SiloSamlIdpFetchParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/silos/${siloName}/saml_identity_providers/${providerName}`,
+        method: 'GET',
         ...params,
       }),
 
@@ -3732,7 +4078,7 @@ export class Api extends HttpClient {
       this.request<TimeseriesSchemaResultsPage>({
         path: `/timeseries/schema`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 
@@ -3753,7 +4099,7 @@ export class Api extends HttpClient {
       this.request<UserResultsPage>({
         path: `/users`,
         method: 'GET',
-        query: query,
+        query,
         ...params,
       }),
 

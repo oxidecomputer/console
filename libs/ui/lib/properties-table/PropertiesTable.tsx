@@ -1,8 +1,10 @@
+import cn from 'classnames'
 import type { ReactNode } from 'react'
 import invariant from 'tiny-invariant'
+
 import { isOneOf } from '@oxide/util'
+
 import { Badge } from '../badge/Badge'
-import cn from 'classnames'
 import './properties-table.css'
 
 export interface PropertiesTableProps {

@@ -1,16 +1,16 @@
+import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
     .readFileSync(path.resolve(__dirname, '../__generated__/OMICRON_VERSION'), 'utf8')
     .split('\n')[1]
+    .trim()
 
-  const pinnedVersion = fs.readFileSync(
-    path.resolve(__dirname, '../../../OMICRON_VERSION'),
-    'utf8'
-  )
+  const pinnedVersion = fs
+    .readFileSync(path.resolve(__dirname, '../../../OMICRON_VERSION'), 'utf8')
+    .trim()
 
   // if this test fails, most likely you have updated the API_VERSION in
   // console/OMICRON_VERSION without re-running `yarn gen-api`

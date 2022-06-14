@@ -1,10 +1,11 @@
-import React, { createContext, useContext } from 'react'
 import type { DialogProps } from '@reach/dialog'
 import Dialog from '@reach/dialog'
-import { Button } from '../button/Button'
+import React, { createContext, useContext } from 'react'
+
 import { classed } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
-import { Close12Icon, OpenLink12Icon } from '../icons'
+
+import { OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
 const SideModalContext = createContext(false)
@@ -38,15 +39,6 @@ export function SideModal({
         className="ox-side-modal absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
         aria-labelledby={titleId}
       >
-        <Button
-          variant="link"
-          onClick={onDismiss}
-          // 1.875rem is roughly the space between the close icon and its border
-          className="absolute right-[calc(var(--content-gutter)-1.1875rem)] top-[1.8125rem] z-10 h-11 w-11 px-0"
-          aria-label="Close form"
-        >
-          <Close12Icon className="text-tertiary" />
-        </Button>
         {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
         {children}
       </Dialog>

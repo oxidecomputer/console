@@ -1,5 +1,6 @@
-import type { Cell } from './Cell'
 import cn from 'classnames'
+
+import type { Cell } from './Cell'
 
 interface TwoLineCellProps extends Cell<[string | JSX.Element, string | JSX.Element]> {
   detailsClass?: string

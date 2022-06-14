@@ -1,7 +1,8 @@
-import { EmptyMessage } from './EmptyMessage'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
 import { Instances24Icon } from '../icons'
+import { EmptyMessage } from './EmptyMessage'
 
 type Story = StoryObj<ComponentProps<typeof EmptyMessage>>
 

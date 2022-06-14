@@ -1,8 +1,9 @@
-import { BrowserRouter as Router } from 'react-router-dom'
 import { DocsContainer } from '@storybook/addon-docs'
-import { darkUI } from './theme'
+import { BrowserRouter as Router } from 'react-router-dom'
+
 import '../styles/index.css'
 import './docs-style-overrides.css'
+import { darkUI } from './theme'
 
 // Global Parameters
 export const parameters = {

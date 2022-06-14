@@ -1,9 +1,9 @@
+import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
 import { FormikDecorator } from '../../util/formik-decorator'
-import { RadioGroup } from './RadioGroup'
 import { Radio, RadioCard } from '../radio/Radio'
-import type { StoryObj } from '@storybook/react'
+import { RadioGroup } from './RadioGroup'
 
 type Story = StoryObj<ComponentProps<typeof RadioGroup>>
 

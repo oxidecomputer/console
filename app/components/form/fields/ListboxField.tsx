@@ -1,6 +1,7 @@
-import { useField } from 'formik'
-import { Listbox, FieldLabel, TextFieldHint } from '@oxide/ui'
 import cn from 'classnames'
+import { useField } from 'formik'
+
+import { FieldLabel, Listbox, TextFieldHint } from '@oxide/ui'
 
 export type ListboxFieldProps = {
   name: string
@@ -25,7 +26,7 @@ export function ListboxField({
 }: ListboxFieldProps) {
   const [, { value }, { setValue }] = useField({ name })
   return (
-    <div>
+    <div className="max-w-lg">
       <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
         {label}
       </FieldLabel>

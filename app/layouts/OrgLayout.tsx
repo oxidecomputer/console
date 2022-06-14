@@ -1,21 +1,22 @@
 import { Outlet } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-
-import {
-  ContentPane,
-  ContentPaneWrapper,
-  PageContainer,
-  ContentPaneActions,
-} from './helpers'
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { TopBar } from '../components/TopBar'
-import { useParams } from '../hooks'
-import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { PageHeader } from '../components/PageHeader'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
+
+import { ProjectSelector } from 'app/components/ProjectSelector'
 import { Form } from 'app/components/form'
+
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { TopBar } from '../components/TopBar'
+import { useParams } from '../hooks'
+import {
+  ContentPane,
+  ContentPaneActions,
+  ContentPaneWrapper,
+  PageContainer,
+} from './helpers'
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
@@ -26,6 +27,7 @@ const OrgLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
+        <ProjectSelector />
         <Sidebar.Nav heading="projects">
           {projects?.items.map((project) => (
             <NavLinkItem key={project.id} to={project.name}>
@@ -39,7 +41,6 @@ const OrgLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

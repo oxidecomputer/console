@@ -3,9 +3,10 @@ import invariant from 'tiny-invariant'
 import type { Disk } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Form, ComboboxField } from 'app/components/form'
-import { useParams } from 'app/hooks'
+
+import { Form, ListboxField } from 'app/components/form'
 import type { PrebuiltFormProps } from 'app/forms'
+import { useParams } from 'app/hooks'
 
 const values = { name: '' }
 
@@ -65,11 +66,11 @@ export function AttachDiskForm({
       mutation={attachDisk}
       {...props}
     >
-      <ComboboxField
+      <ListboxField
         label="Disk name"
         id="disk-name"
         name="name"
-        items={detachedDisks.map((d) => d.name)}
+        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
       />
 
       <Form.Actions>

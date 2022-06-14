@@ -1,9 +1,12 @@
-import { useMemo } from 'react'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { useMemo } from 'react'
+import { useState } from 'react'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, SizeCell, Table, createTable, getActionsCol } from '@oxide/table'
 import {
   Button,
   EmptyMessage,
@@ -12,12 +15,11 @@ import {
   SideModal,
   TableEmptyBox,
 } from '@oxide/ui'
-import { createTable, Table } from '@oxide/table'
-import { useParams, useToast } from 'app/hooks'
+
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { useState } from 'react'
 import AttachDiskForm from 'app/forms/disk-attach'
 import CreateDiskForm from 'app/forms/disk-create'
+import { useParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -35,11 +37,18 @@ const columns = [
     header: 'Name',
     cell: (info) => <div>{info.getValue()}</div>,
   }),
+  table.createDataColumn('size', {
+    header: 'Size',
+    cell: (info) => <SizeCell value={info.getValue()} />,
+  }),
   table.createDataColumn((d) => d.state.state, {
     id: 'status',
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
-    meta: { thClassName: 'w-40' },
+  }),
+  table.createDataColumn('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 
@@ -55,8 +64,27 @@ export function StorageTab() {
     refetchInterval: 5000,
   })
 
+  const detachDisk = useApiMutation('instanceDisksDetach', {})
+
   const instanceStopped =
     useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+
+  const makeActions = (disk: Disk): MenuAction[] => [
+    {
+      label: 'Detach',
+      disabled: !instanceStopped,
+      onActivate() {
+        detachDisk.mutate(
+          { body: { name: disk.name }, ...instanceParams },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries('instanceDisksGet', instanceParams)
+            },
+          }
+        )
+      },
+    },
+  ]
 
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess() {
@@ -77,14 +105,14 @@ export function StorageTab() {
   const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
   const bootDiskTable = useTableInstance(table, {
-    columns,
+    columns: [...columns, getActionsCol(makeActions)],
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
   const bootLabelId = 'boot-disk-label'
 
   const otherDisksTable = useTableInstance(table, {
-    columns,
+    columns: [...columns, getActionsCol(makeActions)],
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -136,7 +164,7 @@ export function StorageTab() {
           <span className="max-w-xs text-sans-sm text-secondary">
             A disk cannot be added or attached without first{' '}
             <a href="#/" className="text-accent-secondary">
-              powering down the instance
+              stopping the instance
               <OpenLink12Icon className="ml-1 pt-[1px]" />
             </a>
           </span>

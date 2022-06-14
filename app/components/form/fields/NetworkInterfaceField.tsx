@@ -1,7 +1,9 @@
-import { useState } from 'react'
 import { useField } from 'formik'
-import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
+import { useState } from 'react'
+
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
+import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
+
 import { RadioField } from 'app/components/form'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
@@ -29,22 +31,20 @@ export function NetworkInterfaceField() {
         onChange={(event) => {
           const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
 
-          if (value.type === 'Create') {
+          if (value.type === 'create') {
             setOldParams(value.params)
           }
 
-          newType === 'Create'
+          newType === 'create'
             ? setValue({ type: newType, params: oldParams })
-            : setValue({
-                type: newType,
-              })
+            : setValue({ type: newType })
         }}
       >
-        <Radio value="None">None</Radio>
-        <Radio value="Default">Default</Radio>
-        <Radio value="Create">Custom</Radio>
+        <Radio value="none">None</Radio>
+        <Radio value="default">Default</Radio>
+        <Radio value="create">Custom</Radio>
       </RadioField>
-      {value.type === 'Create' && (
+      {value.type === 'create' && (
         <>
           {value.params.length > 0 && (
             <MiniTable.Table className="mb-4">
@@ -71,7 +71,7 @@ export function NetworkInterfaceField() {
                         variant="link"
                         onClick={() =>
                           setValue({
-                            type: 'Create',
+                            type: 'create',
                             params: value.params.filter((i) => i.name !== item.name),
                           })
                         }
@@ -93,7 +93,7 @@ export function NetworkInterfaceField() {
             <CreateNetworkInterfaceForm
               onSubmit={(networkInterface) => {
                 setValue({
-                  type: 'Create',
+                  type: 'create',
                   params: [...value.params, networkInterface],
                 })
                 setShowForm(false)

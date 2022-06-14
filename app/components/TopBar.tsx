@@ -1,17 +1,17 @@
-import { navToLogin, useApiQuery, useApiMutation } from '@oxide/api'
+import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
+import { useNavigate } from 'react-router-dom'
+
+import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
   Button,
-  Profile16Icon,
   DirectionDownIcon,
-  Notifications16Icon,
   Info16Icon,
+  Notifications16Icon,
+  Profile16Icon,
 } from '@oxide/ui'
 
-import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useSearchParams } from 'react-router-dom'
-
 export function TopBar() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
       // server will respond to /login with a login redirect
@@ -43,8 +43,7 @@ export function TopBar() {
         <MenuList>
           <MenuItem
             onSelect={() => {
-              searchParams.set('settings', 'profile')
-              setSearchParams(searchParams, { replace: true })
+              navigate('/settings')
             }}
           >
             User settings

@@ -1,9 +1,20 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useParams, useQuickActions } from '../hooks'
+
+import type { Project } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
-import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
+import {
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import { useParams, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -16,6 +27,7 @@ const EmptyState = () => (
 )
 
 const ProjectsPage = () => {
+  const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
     orgName,
@@ -25,6 +37,21 @@ const ProjectsPage = () => {
     orgName,
     limit: 10, // to have same params as QueryTable
   })
+
+  const deleteProject = useApiMutation('organizationProjectsDeleteProject', {
+    onSuccess() {
+      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
+    },
+  })
+
+  const makeActions = (project: Project): MenuAction[] => [
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteProject.mutate({ orgName, projectName: project.name })
+      },
+    },
+  ]
 
   const navigate = useNavigate()
   useQuickActions(
@@ -43,6 +70,9 @@ const ProjectsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/new`}
@@ -51,7 +81,7 @@ const ProjectsPage = () => {
           New Project
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}

@@ -1,12 +1,12 @@
 import type {
   InvalidateQueryFilters,
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-  QueryKey,
 } from 'react-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import type { ErrorResponse, ApiResponse } from './__generated__/Api'
+import type { ApiResponse, ErrorResponse } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P, r: infer R) => any

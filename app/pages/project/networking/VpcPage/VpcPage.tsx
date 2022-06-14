@@ -1,12 +1,15 @@
 import { format } from 'date-fns'
-import { PropertiesTable } from '@oxide/ui'
-import { Tabs, Tab } from 'app/components/Tabs'
+
+import { useApiQuery } from '@oxide/api'
+import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+
+import { Tab, Tabs } from 'app/components/Tabs'
+import { useParams } from 'app/hooks'
+
+import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
+import { VpcRoutersTab } from './tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
-import { VpcRoutersTab } from './tabs/VpcRoutersTab'
-import { useParams } from 'app/hooks'
-import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
-import { useApiQuery } from '@oxide/api'
 
 const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
@@ -16,6 +19,9 @@ export const VpcPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>{vpc?.name || ''}</PageTitle>
+      </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">{vpc?.description}</PropertiesTable.Row>

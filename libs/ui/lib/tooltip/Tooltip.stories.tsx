@@ -1,8 +1,8 @@
+import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
-import { Tooltip } from './Tooltip'
-import type { StoryObj } from '@storybook/react'
 import { Filter12Icon } from '../icons'
+import { Tooltip } from './Tooltip'
 
 type Story = StoryObj<ComponentProps<typeof Tooltip>>
 

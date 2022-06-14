@@ -1,10 +1,12 @@
-import { rest, context, compose } from 'msw'
+import { compose, context, rest } from 'msw'
+
 import type { ApiTypes as Api } from '@oxide/api'
-import { sortBy } from '@oxide/util'
+import { pick, sortBy } from '@oxide/util'
+
 import type { Json } from '../json-type'
-import { json } from './util'
 import { sessionMe } from '../session'
 import type {
+  GlobalImageParams,
   InstanceParams,
   NetworkInterfaceParams,
   NotFound,
@@ -15,6 +17,7 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
+import { lookupGlobalImage } from './db'
 import { notFoundErr } from './db'
 import {
   db,
@@ -26,6 +29,7 @@ import {
   lookupVpcRouter,
   lookupVpcSubnet,
 } from './db'
+import { json, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -69,9 +73,12 @@ export const handlers = [
     '/api/session/me/sshkeys',
     (req, res) =>
       res(
-        json({
-          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
-        })
+        json(
+          paginated(
+            req.url.search,
+            db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id)
+          )
+        )
       )
   ),
 
@@ -117,7 +124,7 @@ export const handlers = [
 
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
-    (req, res) => res(json({ items: db.orgs }))
+    (req, res) => res(json(paginated(req.url.search, db.orgs)))
   ),
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
@@ -161,7 +168,7 @@ export const handlers = [
       if (err) return res(err)
 
       const projects = db.projects.filter((p) => p.organization_id === org.id)
-      return res(json({ items: projects }))
+      return res(json(paginated(req.url.search, projects)))
     }
   ),
 
@@ -201,13 +208,51 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, ProjectParams, Json<Api.ProjectRolesPolicy> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/policy',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.ProjectRolesPolicy>,
+    ProjectParams,
+    Json<Api.ProjectRolesPolicy> | PostErr
+  >('/api/organizations/:orgName/projects/:projectName/policy', (req, res) => {
+    const [project, err] = lookupProject(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'project' as const,
+      resource_id: project.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'project' && r.resource_id === project.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
+
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const instances = db.instances.filter((i) => i.project_id === project.id)
-      return res(json({ items: instances }))
+      return res(json(paginated(req.url.search, instances)))
     }
   ),
 
@@ -286,7 +331,7 @@ export const handlers = [
       const disks = db.disks.filter(
         (d) => 'instance' in d.state && d.state.instance === instance.id
       )
-      return res(json({ items: disks }))
+      return res(json(paginated(req.url.search, disks)))
     }
   ),
 
@@ -335,7 +380,7 @@ export const handlers = [
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-      return res(json({ items: nics }))
+      return res(json(paginated(req.url.search, nics)))
     }
   ),
 
@@ -348,9 +393,11 @@ export const handlers = [
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
-      const alreadyExists = db.networkInterfaces.some(
-        (n) => n.instance_id === instance.id && n.name === req.body.name
+      const nicsForInstance = db.networkInterfaces.filter(
+        (n) => n.instance_id === instance.id
       )
+
+      const alreadyExists = nicsForInstance.some((n) => n.name === req.body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
       if (!req.body.name) {
@@ -373,6 +420,8 @@ export const handlers = [
 
       const newNic: Json<Api.NetworkInterface> = {
         id: genId('nic'),
+        // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
+        primary: nicsForInstance.length === 0,
         instance_id: instance.id,
         name,
         description,
@@ -413,7 +462,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
-      return res(json({ items: disks }))
+      return res(json(paginated(req.url.search, disks)))
     }
   ),
 
@@ -442,7 +491,7 @@ export const handlers = [
         size,
         // TODO: for non-blank disk sources, look up image or snapshot by ID and
         // pull block size from there
-        block_size: disk_source.type === 'Blank' ? disk_source.block_size : 4096,
+        block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
         ...getTimestamps(),
       }
       db.disks.push(newDisk)
@@ -456,7 +505,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const images = db.images.filter((i) => i.project_id === project.id)
-      return res(json({ items: images }))
+      return res(json(paginated(req.url.search, images)))
     }
   ),
 
@@ -466,7 +515,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
-      return res(json({ items: snapshots }))
+      return res(json(paginated(req.url.search, snapshots)))
     }
   ),
 
@@ -476,7 +525,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-      return res(json({ items: vpcs }))
+      return res(json(paginated(req.url.search, vpcs)))
     }
   ),
 
@@ -522,8 +571,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req.url.search, subnets)))
     }
   ),
 
@@ -612,8 +661,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const routers = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req.url.search, routers)))
     }
   ),
 
@@ -665,8 +714,28 @@ export const handlers = [
     (req, res) => {
       const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
-      const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-      return res(json({ items }))
+      const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
+      return res(json(paginated(req.url.search, routers)))
     }
   ),
+
+  rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
+    '/api/images',
+    (req, res) => {
+      return res(json(paginated(req.url.search, db.globalImages)))
+    }
+  ),
+
+  rest.get<never, GlobalImageParams, Json<Api.GlobalImage> | GetErr>(
+    '/api/images/:imageName',
+    (req, res) => {
+      const [image, err] = lookupGlobalImage(req.params)
+      if (err) return res(err)
+      return res(json(image))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
+    return res(json(paginated(req.url.search, db.users)))
+  }),
 ]

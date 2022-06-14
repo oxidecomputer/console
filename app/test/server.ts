@@ -1,5 +1,6 @@
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+
 import { handlers, json } from '@oxide/api-mocks'
 
 export const server = setupServer(...handlers)

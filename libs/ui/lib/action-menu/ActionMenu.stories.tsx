@@ -1,6 +1,7 @@
-import { ActionMenu } from './ActionMenu'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+import { ActionMenu } from './ActionMenu'
 
 type Story = StoryObj<ComponentProps<typeof ActionMenu>>
 

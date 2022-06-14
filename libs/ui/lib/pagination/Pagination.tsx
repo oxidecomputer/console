@@ -1,5 +1,6 @@
-import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
 import cn from 'classnames'
+
+import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
 
 interface PageInputProps {
   number: number
@@ -58,7 +59,6 @@ export const Pagination = ({
               onClick={onPrev}
             >
               <DirectionLeftIcon
-                title="previous page"
                 className={cn('mr-0.5', hasPrev ? 'text-default' : 'text-quaternary')}
               />
               prev
@@ -71,7 +71,6 @@ export const Pagination = ({
             >
               next
               <DirectionRightIcon
-                title="next page"
                 className={cn('ml-0.5', hasNext ? 'text-default' : 'text-quaternary')}
               />
             </button>

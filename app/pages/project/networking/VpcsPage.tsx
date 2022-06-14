@@ -1,9 +1,18 @@
 import { useMemo } from 'react'
-import { useParams, useQuickActions } from 'app/hooks'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, EmptyMessage, Networking24Icon, TableActions } from '@oxide/ui'
+
+import { useApiQuery } from '@oxide/api'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import {
+  EmptyMessage,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import { useParams, useQuickActions } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -38,6 +47,9 @@ export const VpcsPage = () => {
   const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New VPC

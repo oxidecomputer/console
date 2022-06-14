@@ -1,11 +1,18 @@
 import { Link } from 'react-router-dom'
 
-import { useQueryTable } from '@oxide/table'
 import { useApiQuery } from '@oxide/api'
+import { useQueryTable } from '@oxide/table'
+import {
+  EmptyMessage,
+  PageHeader,
+  PageTitle,
+  Storage24Icon,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
 
-import { useParams } from 'app/hooks'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { buttonStyle, EmptyMessage, TableActions, Storage24Icon } from '@oxide/ui'
+import { useParams } from 'app/hooks'
 
 function AttachedInstance(props: {
   orgName: string
@@ -21,7 +28,7 @@ function AttachedInstance(props: {
   })
   const instance = instances?.items.find((i) => i.id === props.instanceId)
   return instance ? (
-    <Link className="text-accent" to={`../instances/${instance.name}`}>
+    <Link className="text-accent" to={`../../instances/${instance.name}`}>
       {instance.name}
     </Link>
   ) : null
@@ -47,6 +54,9 @@ export function DisksPage() {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/disks/new`}

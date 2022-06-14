@@ -1,8 +1,9 @@
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
-import type { TagVariant, TagColor } from './Tag'
-import { Tag, tagColors } from './Tag'
+import type { ComponentProps } from 'react'
+
 import { Section } from '../../util/story-section'
+import type { TagColor, TagVariant } from './Tag'
+import { Tag, tagColors } from './Tag'
 
 type Story = StoryObj<ComponentProps<typeof Tag>>
 

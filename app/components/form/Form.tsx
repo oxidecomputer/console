@@ -1,32 +1,34 @@
+import cn from 'classnames'
+import type { FormikConfig } from 'formik'
+import { Formik } from 'formik'
+import type { ReactNode } from 'react'
+import { cloneElement } from 'react'
+import invariant from 'tiny-invariant'
+
+import type { Error, ErrorResponse } from '@oxide/api'
 import type { ButtonProps } from '@oxide/ui'
 import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { SideModal } from '@oxide/ui'
 import { useIsInSideModal } from '@oxide/ui'
 import {
+  Wrap,
   addProps,
   classed,
   flattenChildren,
   isOneOf,
   pluckFirstOfType,
   tunnel,
-  Wrap,
 } from '@oxide/util'
-import type { FormikConfig } from 'formik'
-import { Formik } from 'formik'
-import type { ReactNode } from 'react'
-import { cloneElement } from 'react'
-import invariant from 'tiny-invariant'
+
 import './form.css'
-import cn from 'classnames'
-import type { Error, ErrorResponse } from '@oxide/api'
 
 const PageActionsTunnel = tunnel('form-page-actions')
 const SideModalActionsTunnel = tunnel('form-sidebar-actions')
 
 const PageActionsContainer = classed.div`flex h-20 items-center`
 
-type Mutation =
+export type FormMutation =
   | {
       status: 'idle' | 'loading'
       data: undefined
@@ -49,7 +51,7 @@ export interface FormProps<Values> extends FormikConfig<Values> {
   title?: ReactNode
   children: ReactNode
   onDismiss?: () => void
-  mutation: Mutation
+  mutation: FormMutation
 }
 
 export function Form<Values>({

@@ -1,6 +1,7 @@
-import { Pagination } from './Pagination'
-import type { ComponentProps } from 'react'
 import type { StoryObj } from '@storybook/react'
+import type { ComponentProps } from 'react'
+
+import { Pagination } from './Pagination'
 
 type Story = StoryObj<ComponentProps<typeof Pagination>>
 

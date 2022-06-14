@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import cn from 'classnames'
+import { useState } from 'react'
 
 import useInterval from '../hooks/use-interval'
 

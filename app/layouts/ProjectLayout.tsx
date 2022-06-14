@@ -1,28 +1,30 @@
 import { useMemo } from 'react'
-import { Outlet, useNavigate, useLocation, matchPath } from 'react-router-dom'
+import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
+import { Pagination } from '@oxide/pagination'
 import {
-  SkipLinkTarget,
   Access16Icon,
+  Images16Icon,
   Instances16Icon,
   Networking16Icon,
-  Storage16Icon,
+  SkipLinkTarget,
   Snapshots16Icon,
-  Images16Icon,
+  Storage16Icon,
 } from '@oxide/ui'
+
+import { ProjectSelector } from 'app/components/ProjectSelector'
+import { Form } from 'app/components/form'
+import { useParams, useQuickActions } from 'app/hooks'
+
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { TopBar } from '../components/TopBar'
 import {
   ContentPane,
+  ContentPaneActions,
   ContentPaneWrapper,
   PageContainer,
-  ContentPaneActions,
 } from './helpers'
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { TopBar } from '../components/TopBar'
-import { Sidebar, NavLinkItem } from '../components/Sidebar'
-import { PageHeader } from '../components/PageHeader'
-import { useParams, useQuickActions } from 'app/hooks'
-import { Pagination } from '@oxide/pagination'
-import { Form } from 'app/components/form'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -53,6 +55,7 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
+        <ProjectSelector />
         <Sidebar.Nav heading="project">
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
@@ -79,7 +82,6 @@ const ProjectLayout = () => {
           <TopBar />
           <Breadcrumbs />
           <SkipLinkTarget />
-          <PageHeader />
           <Outlet />
         </ContentPane>
         <ContentPaneActions>

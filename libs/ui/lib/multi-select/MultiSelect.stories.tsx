@@ -1,7 +1,7 @@
-import { MultiSelect } from './MultiSelect'
-
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { MultiSelect } from './MultiSelect'
 
 type Story = StoryObj<ComponentProps<typeof MultiSelect>>
 
