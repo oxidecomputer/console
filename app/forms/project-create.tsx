@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom'
+
 import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
@@ -22,6 +24,7 @@ export function CreateProjectSideModalForm({
   onDismiss,
   ...props
 }: CreateSideModalFormProps<ProjectCreate, Project>) {
+  const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -44,7 +47,7 @@ export function CreateProjectSideModalForm({
         timeout: 5000,
       })
       onSuccess?.(project)
-      onDismiss()
+      navigate(`/orgs/${orgName}/projects/${project.name}/instances`)
     },
     onError,
   })

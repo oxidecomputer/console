@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
-  Button,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
   PageTitle,
   TableActions,
+  buttonStyle,
 } from '@oxide/ui'
 
 import CreateProjectSideModalForm from 'app/forms/project-create'
@@ -89,9 +89,9 @@ const ProjectsPage = ({ modal }: ProjectsPageProps) => {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button variant="secondary" size="xs" onClick={() => navigate('./new')}>
+        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
           New Project
-        </Button>
+        </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column

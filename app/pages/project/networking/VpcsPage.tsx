@@ -1,15 +1,15 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
-  Button,
   EmptyMessage,
   Networking24Icon,
   PageHeader,
   PageTitle,
   TableActions,
+  buttonStyle,
 } from '@oxide/ui'
 
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
@@ -25,8 +25,11 @@ const EmptyState = () => (
   />
 )
 
-export const VpcsPage = () => {
-  const [showVpcCreate, setShowVpcCreate] = useState(false)
+interface VpcsPageProps {
+  modal?: 'createVpc'
+}
+
+export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const projectParams = useParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
   const { data: vpcs } = useApiQuery('projectVpcsGet', {
@@ -53,9 +56,9 @@ export const VpcsPage = () => {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button variant="secondary" size="xs" onClick={() => setShowVpcCreate(true)}>
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'secondary' })}>
           New Vpc
-        </Button>
+        </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
         <Column
@@ -67,8 +70,8 @@ export const VpcsPage = () => {
         <Column accessor="timeCreated" cell={DateCell} />
       </Table>
       <CreateVpcSideModalForm
-        isOpen={showVpcCreate}
-        onDismiss={() => setShowVpcCreate(false)}
+        isOpen={modal === 'createVpc'}
+        onDismiss={() => navigate('..')}
       />
     </>
   )

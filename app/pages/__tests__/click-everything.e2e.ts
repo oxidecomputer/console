@@ -168,7 +168,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   // Create disk form
   await page.click('role=link[name="New Disk"]')
   await expectVisible(page, [
-    'role=heading[name*="Create disk"]',
+    'role=heading[name*="Create Disk"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=radiogroup[name="Block size (Bytes)"]',
@@ -211,7 +211,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   ])
 
   // New VPC form
-  await page.click('role=link[name="New VPC"]')
+  await page.click('role=link[name="New Vpc"]')
   await expectVisible(page, [
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
@@ -272,11 +272,11 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectVisible(page, ['role=cell[name="system"] >> nth=0'])
   await page.click('role=button[name="New router"]')
   await expectVisible(page, [
-    'role=heading[name="Create VPC router"]',
-    'role=button[name="Create VPC router"][disabled]',
+    'role=heading[name="Create VPC Router"]',
+    'role=button[name="Create VPC Router"][disabled]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-router')
-  await page.click('role=button[name="Create VPC router"]')
+  await page.click('role=button[name="Create VPC Router"]')
   await expectVisible(page, ['role=cell[name="new-router"]', 'role=cell[name="custom"]'])
 
   // Firewall rules

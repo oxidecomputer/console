@@ -83,6 +83,7 @@ export const Router = () => (
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
               <Route index element={<VpcsPage />} />
+              <Route path="new" element={<VpcsPage modal="createVpc" />} />
               <Route path=":vpcName" element={<VpcPage />} handle={{ crumb: vpcCrumb }} />
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>
