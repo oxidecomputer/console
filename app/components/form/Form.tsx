@@ -31,7 +31,7 @@ export function Form<Values>({
 }: FormProps<Values>) {
   // Coerce container so it can be used in wrap
   return (
-    <Formik {...formikProps} validateOnBlur={false}>
+    <Formik {...formikProps} validateOnBlur={false} isInitialValid={false}>
       <FormikForm id={id} className={cn('ox-form', className)}>
         {children}
         <FormSubmitState setSubmitState={setSubmitState} />
