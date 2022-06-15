@@ -2,9 +2,9 @@ import type { SshKey, SshKeyCreate } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 
-import { DescriptionField, Form, NameField, TextField } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 
-import type { PrebuiltFormProps } from '.'
+import type { CreateSideModalFormProps } from '.'
 
 const values: SshKeyCreate = {
   name: '',
@@ -12,31 +12,35 @@ const values: SshKeyCreate = {
   publicKey: '',
 }
 
-export function CreateSSHKeyForm({
+export function CreateSSHKeySideModalForm({
   id = 'create-ssh-key-form',
   title = 'Add SSH key',
   initialValues = values,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<SshKeyCreate, SshKey>) {
+}: CreateSideModalFormProps<SshKeyCreate, SshKey>) {
   const queryClient = useApiQueryClient()
 
   const createSshKey = useApiMutation('sshkeysPost', {
     onSuccess(data) {
       queryClient.invalidateQueries('sshkeysGet', {})
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
-      mutation={createSshKey}
+      submitDisabled={createSshKey.isLoading}
+      error={createSshKey.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="ssh-key-name" />
@@ -48,11 +52,6 @@ export function CreateSSHKeyForm({
         label="SSH key content"
         required
       />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }

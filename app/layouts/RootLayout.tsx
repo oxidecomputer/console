@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 
-import { Form } from 'app/components/form'
+import { PageFormActions } from 'app/components/form'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
@@ -28,7 +28,7 @@ const RootLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageFormActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

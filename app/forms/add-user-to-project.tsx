@@ -5,9 +5,10 @@ import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
-import { Form, ListboxField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
@@ -30,8 +31,9 @@ const roles: RoleItem[] = [
 export function AddUserToProjectForm({
   onSubmit,
   onSuccess,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<AddUserValues, ProjectRolesPolicy>) {
+}: CreateSideModalFormProps<AddUserValues, ProjectRolesPolicy>) {
   const projectParams = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
   const { data: users } = useApiQuery('usersGet', {})
@@ -48,11 +50,13 @@ export function AddUserToProjectForm({
     onSuccess: (data) => {
       queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
       onSuccess?.(data)
+      onDismiss()
     },
   })
 
   return (
-    <Form
+    <SideModalForm
+      onDismiss={onDismiss}
       title="Add user to project"
       id="add-user-to-project-form"
       initialValues={initialValues}
@@ -74,15 +78,13 @@ export function AddUserToProjectForm({
           })
         })
       }
-      mutation={updatePolicy}
+      submitDisabled={updatePolicy.isLoading}
+      error={updatePolicy.error?.error as Error | undefined}
       {...props}
     >
       <ListboxField id="userId" name="userId" items={userItems} label="User" required />
       <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
-      <Form.Actions>
-        <Form.Submit>Add user</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+      <Form.Submit>Add user</Form.Submit>
+    </SideModalForm>
   )
 }

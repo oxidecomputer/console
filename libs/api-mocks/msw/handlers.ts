@@ -161,6 +161,29 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.OrganizationUpdate>, OrgParams, Json<Api.Organization> | PostErr>(
+    '/api/organizations/:orgName',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      org.name = req.body.name
+      org.description = req.body.description || ''
+
+      return res(json(org, 200))
+    }
+  ),
+
+  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    return res(ctx.status(204))
+  }),
+
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
@@ -208,12 +231,37 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      project.name = req.body.name
+      project.description = req.body.description || ''
+
+      return res(json(project, 200))
+    }
+  ),
+
+  rest.delete<never, ProjectParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res, ctx) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+      db.projects = db.projects.filter((p) => p.id !== project.id)
+      return res(ctx.status(204))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.ProjectRolesPolicy> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/policy',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
-
       const role_assignments = db.roleAssignments
         .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
         .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))

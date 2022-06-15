@@ -12,6 +12,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import CreateVpcSideModalForm from 'app/forms/vpc-create'
 import { useParams, useQuickActions } from 'app/hooks'
 
 const EmptyState = () => (
@@ -24,7 +25,11 @@ const EmptyState = () => (
   />
 )
 
-export const VpcsPage = () => {
+interface VpcsPageProps {
+  modal?: 'createVpc'
+}
+
+export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const projectParams = useParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
   const { data: vpcs } = useApiQuery('projectVpcsGet', {
@@ -51,8 +56,8 @@ export const VpcsPage = () => {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
-          New VPC
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'secondary' })}>
+          New Vpc
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
@@ -64,6 +69,10 @@ export const VpcsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeCreated" cell={DateCell} />
       </Table>
+      <CreateVpcSideModalForm
+        isOpen={modal === 'createVpc'}
+        onDismiss={() => navigate('..')}
+      />
     </>
   )
 }

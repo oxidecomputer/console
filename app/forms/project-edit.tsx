@@ -1,36 +1,28 @@
-import { useNavigate } from 'react-router-dom'
-
 import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import type { CreateSideModalFormProps } from 'app/forms'
+import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 
+import type { EditSideModalFormProps } from '.'
 import { useParams, useToast } from '../hooks'
 
-const values = {
-  name: '',
-  description: '',
-}
-
-export function CreateProjectSideModalForm({
-  id = 'create-project-form',
-  title = 'Create project',
-  initialValues = values,
+export function EditProjectSideModalForm({
+  id = 'edit-project-form',
+  title = 'Edit project',
+  initialValues,
   onSubmit,
   onSuccess,
   onError,
   onDismiss,
   ...props
-}: CreateSideModalFormProps<ProjectCreate, Project>) {
-  const navigate = useNavigate()
+}: EditSideModalFormProps<ProjectCreate, Project>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const { orgName } = useParams('orgName')
 
-  const createProject = useApiMutation('organizationProjectsPost', {
+  const editProject = useApiMutation('organizationProjectsPutProject', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('organizationProjectsGet', { orgName })
@@ -43,11 +35,11 @@ export function CreateProjectSideModalForm({
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
-        content: 'Your project has been created.',
+        content: 'Your project has been updated.',
         timeout: 5000,
       })
       onSuccess?.(project)
-      navigate(`/orgs/${orgName}/projects/${project.name}/instances`)
+      onDismiss()
     },
     onError,
   })
@@ -61,20 +53,22 @@ export function CreateProjectSideModalForm({
       onSubmit={
         onSubmit ||
         (({ name, description }) => {
-          createProject.mutate({
+          editProject.mutate({
+            projectName: initialValues.name,
             orgName,
             body: { name, description },
           })
         })
       }
-      submitDisabled={createProject.isLoading}
-      error={createProject.error?.error as Error | undefined}
+      submitDisabled={editProject.isLoading}
+      error={editProject.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="name" />
       <DescriptionField id="description" />
+      <Form.Submit>Save changes</Form.Submit>
     </SideModalForm>
   )
 }
 
-export default CreateProjectSideModalForm
+export default EditProjectSideModalForm

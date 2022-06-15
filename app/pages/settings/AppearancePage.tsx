@@ -1,30 +1,19 @@
-import { PageHeader, PageTitle, Radio, RadioCard } from '@oxide/ui'
+import { Radio, RadioCard, Settings24Icon } from '@oxide/ui'
 
 import { DarkTheme, LightTheme } from 'app/components/ThemeIcons'
-import type { FormMutation } from 'app/components/form'
+import { FullPageForm } from 'app/components/form'
 import { Form, RadioField } from 'app/components/form'
-
-const manualMutation: FormMutation = {
-  status: 'error',
-  data: undefined,
-  error: {
-    // @ts-expect-error Just let folks know this doesn't work yet
-    error: new Error('This form is not yet implemented'),
-  },
-}
 
 export function AppearancePage() {
   return (
     <>
-      <PageHeader>
-        <PageTitle>Appearance</PageTitle>
-      </PageHeader>
-      <Form
+      <FullPageForm
         id="appearance-form"
         title="Appearance"
         initialValues={{ theme: 'dark', contrast: 'default', reducedMotion: 'system' }}
         onSubmit={() => {}}
-        mutation={manualMutation}
+        icon={<Settings24Icon />}
+        error={new Error('This form is not yet implemented')}
       >
         <RadioField id="theme-select" name="theme" label="Theme mode">
           <RadioCard value="dark">
@@ -57,10 +46,8 @@ export function AppearancePage() {
           <Radio value="disabled">Disabled</Radio>
         </RadioField>
 
-        <Form.Actions>
-          <Form.Submit disabled>Save</Form.Submit>
-        </Form.Actions>
-      </Form>
+        <Form.Submit disabled>Save</Form.Submit>
+      </FullPageForm>
     </>
   )
 }

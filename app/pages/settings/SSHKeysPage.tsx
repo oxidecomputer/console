@@ -11,11 +11,10 @@ import {
   Key16Icon,
   PageHeader,
   PageTitle,
-  SideModal,
   TableActions,
 } from '@oxide/ui'
 
-import { CreateSSHKeyForm } from 'app/forms/ssh-key-create'
+import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
 export function SSHKeysPage() {
   const { Table, Column } = useQueryTable('sshkeysGet', {})
@@ -49,16 +48,10 @@ export function SSHKeysPage() {
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           Add SSH Key
         </Button>
-        <SideModal
-          id="create-ssh-key-modal"
+        <CreateSSHKeySideModalForm
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateSSHKeyForm
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
+        />
       </TableActions>
       <Table
         makeActions={makeActions}

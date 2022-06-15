@@ -13,9 +13,9 @@ import {
   getActionsCol,
   getSelectCol,
 } from '@oxide/table'
-import { Button, EmptyMessage, SideModal, TableEmptyBox } from '@oxide/ui'
+import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
-import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
+import { CreateFirewallRuleSideModalForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useParams } from 'app/hooks'
 
@@ -88,31 +88,17 @@ export const VpcFirewallRulesTab = () => {
         <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
           New rule
         </Button>
-        <SideModal
-          id="create-firewall-rule-modal"
+        <CreateFirewallRuleSideModalForm
           isOpen={createModalOpen}
+          existingRules={rules}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateFirewallRuleForm
-            existingRules={rules}
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
-        <SideModal
-          id="create-firewall-rule-modal"
+        />
+        <EditFirewallRuleForm
           isOpen={!!editing}
+          existingRules={rules}
+          originalRule={editing || ({} as VpcFirewallRule)}
           onDismiss={() => setEditing(null)}
-        >
-          {editing && (
-            <EditFirewallRuleForm
-              existingRules={rules}
-              originalRule={editing}
-              onSuccess={() => setEditing(null)}
-              onDismiss={() => setEditing(null)}
-            />
-          )}
-        </SideModal>
+        />
       </div>
       {rules.length > 0 || isLoading ? <Table table={table} /> : emptyState}
     </>
