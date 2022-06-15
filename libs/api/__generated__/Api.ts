@@ -134,12 +134,18 @@ export type DiskState =
   | { state: 'faulted' }
 
 /**
- * Distribution must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ * OS image distribution
  */
-export type Distribution = string
-
-/** Regex pattern for validating Distribution */
-export const distributionPattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
+export type Distribution = {
+  /**
+   * The name of the distribution (e.g. "alpine" or "ubuntu")
+   */
+  name: Name
+  /**
+   * The version of the distribution (e.g. "3.10" or "18.04")
+   */
+  version: string
+}
 
 /**
  * Error information from a response.
@@ -262,10 +268,6 @@ export type GlobalImageCreate = {
    * The source of the image's contents.
    */
   source: ImageSource
-  /**
-   * image version
-   */
-  version: string
 }
 
 /**
@@ -552,6 +554,20 @@ export type InstanceResultsPage = {
 }
 
 /**
+ * Contents of an Instance's serial console buffer.
+ */
+export type InstanceSerialConsoleData = {
+  /**
+   * The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8.
+   */
+  data: number[]
+  /**
+   * The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`.
+   */
+  lastByteOffset: number
+}
+
+/**
  * Running state of an Instance (primarily: booted or stopped)
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
@@ -694,6 +710,24 @@ export type NetworkInterfaceResultsPage = {
    * token used to fetch the next page of results (if any)
    */
   nextPage?: string | null
+}
+
+/**
+ * Parameters for updating a {@link NetworkInterface}.
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export type NetworkInterfaceUpdate = {
+  description?: string | null
+  /**
+   * Make a secondary interface the instance's primary interface.
+   *
+   * If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+   *
+   * Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error.
+   */
+  makePrimary?: boolean | null
+  name?: Name | null
 }
 
 /**
@@ -2153,6 +2187,16 @@ export interface InstanceNetworkInterfacesGetInterfaceParams {
   projectName: Name
 }
 
+export interface InstanceNetworkInterfacesPutInterfaceParams {
+  instanceName: Name
+
+  interfaceName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
 export interface InstanceNetworkInterfacesDeleteInterfaceParams {
   instanceName: Name
 
@@ -2169,6 +2213,20 @@ export interface ProjectInstancesInstanceRebootParams {
   orgName: Name
 
   projectName: Name
+}
+
+export interface ProjectInstancesInstanceSerialGetParams {
+  instanceName: Name
+
+  orgName: Name
+
+  projectName: Name
+
+  fromStart?: number | null
+
+  maxBytes?: number | null
+
+  mostRecent?: number | null
 }
 
 export interface ProjectInstancesInstanceStartParams {
@@ -3363,6 +3421,26 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Update information about an instance's network interface
+     */
+    instanceNetworkInterfacesPutInterface: (
+      {
+        instanceName,
+        interfaceName,
+        orgName,
+        projectName,
+      }: InstanceNetworkInterfacesPutInterfaceParams,
+      body: NetworkInterfaceUpdate,
+      params: RequestParams = {}
+    ) =>
+      this.request<NetworkInterface>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        method: 'PUT',
+        body,
+        ...params,
+      }),
+
+    /**
      * Detach a network interface from an instance.
      */
     instanceNetworkInterfacesDeleteInterface: (
@@ -3390,6 +3468,25 @@ export class Api extends HttpClient {
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Get contents of an instance's serial console.
+     */
+    projectInstancesInstanceSerialGet: (
+      {
+        instanceName,
+        orgName,
+        projectName,
+        ...query
+      }: ProjectInstancesInstanceSerialGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<InstanceSerialConsoleData>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial`,
+        method: 'GET',
+        query,
         ...params,
       }),
 
