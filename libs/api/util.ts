@@ -38,4 +38,4 @@ export const firewallRuleGetToPut = (
   )
 
 export const nullIfEmpty = (s: string | null | undefined): string | null =>
-  typeof s !== 'string' ? null : s.trim().length === 0 ? null : s
+  typeof s === 'string' && s.trim().length > 0 ? s : null
