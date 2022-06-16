@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import type { ProjectRoles, ProjectRolesPolicy } from '@oxide/api'
+import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -12,7 +12,7 @@ import type { CreateSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
-  roleName: ProjectRoles | ''
+  roleName: ProjectRole | ''
 }
 
 const initialValues: AddUserValues = {
@@ -20,7 +20,7 @@ const initialValues: AddUserValues = {
   roleName: '',
 }
 
-type RoleItem = { value: ProjectRoles; label: string }
+type RoleItem = { value: ProjectRole; label: string }
 
 const roles: RoleItem[] = [
   { value: 'admin', label: 'Admin' },
@@ -33,7 +33,7 @@ export function AddUserToProjectForm({
   onSuccess,
   onDismiss,
   ...props
-}: CreateSideModalFormProps<AddUserValues, ProjectRolesPolicy>) {
+}: CreateSideModalFormProps<AddUserValues, ProjectRolePolicy>) {
   const projectParams = useParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
   const { data: users } = useApiQuery('usersGet', {})

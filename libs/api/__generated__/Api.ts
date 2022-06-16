@@ -175,18 +175,18 @@ export type FieldSource = 'target' | 'metric'
  */
 export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
 
-export type FleetRoles = 'admin' | 'collaborator' | 'viewer'
+export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type FleetRolesPolicy = {
+export type FleetRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: FleetRolesRoleAssignment[]
+  roleAssignments: FleetRoleRoleAssignment[]
 }
 
 /**
@@ -194,10 +194,10 @@ export type FleetRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type FleetRolesRoleAssignment = {
+export type FleetRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: FleetRoles
+  roleName: FleetRole
 }
 
 /**
@@ -778,18 +778,18 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'admin' | 'collaborator' | 'viewer'
+export type OrganizationRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type OrganizationRolesPolicy = {
+export type OrganizationRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: OrganizationRolesRoleAssignment[]
+  roleAssignments: OrganizationRoleRoleAssignment[]
 }
 
 /**
@@ -797,10 +797,10 @@ export type OrganizationRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type OrganizationRolesRoleAssignment = {
+export type OrganizationRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: OrganizationRoles
+  roleName: OrganizationRole
 }
 
 /**
@@ -860,18 +860,18 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRoles = 'admin' | 'collaborator' | 'viewer'
+export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type ProjectRolesPolicy = {
+export type ProjectRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: ProjectRolesRoleAssignment[]
+  roleAssignments: ProjectRoleRoleAssignment[]
 }
 
 /**
@@ -879,10 +879,10 @@ export type ProjectRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type ProjectRolesRoleAssignment = {
+export type ProjectRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: ProjectRoles
+  roleName: ProjectRole
 }
 
 /**
@@ -1238,18 +1238,18 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRoles = 'admin' | 'collaborator' | 'viewer'
+export type SiloRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type SiloRolesPolicy = {
+export type SiloRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: SiloRolesRoleAssignment[]
+  roleAssignments: SiloRoleRoleAssignment[]
 }
 
 /**
@@ -1257,10 +1257,10 @@ export type SiloRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type SiloRolesRoleAssignment = {
+export type SiloRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: SiloRoles
+  roleName: SiloRole
 }
 
 /**
@@ -3064,7 +3064,7 @@ export class Api extends HttpClient {
       { orgName }: OrganizationGetPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'GET',
         ...params,
@@ -3075,10 +3075,10 @@ export class Api extends HttpClient {
      */
     organizationPutPolicy: (
       { orgName }: OrganizationPutPolicyParams,
-      body: OrganizationRolesPolicy,
+      body: OrganizationRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'PUT',
         body,
@@ -3523,7 +3523,7 @@ export class Api extends HttpClient {
       { orgName, projectName }: OrganizationProjectsGetProjectPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'GET',
         ...params,
@@ -3534,10 +3534,10 @@ export class Api extends HttpClient {
      */
     organizationProjectsPutProjectPolicy: (
       { orgName, projectName }: OrganizationProjectsPutProjectPolicyParams,
-      body: ProjectRolesPolicy,
+      body: ProjectRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'PUT',
         body,
@@ -3937,7 +3937,7 @@ export class Api extends HttpClient {
      * Fetch the top-level IAM policy
      */
     policyGet: (query: PolicyGetParams, params: RequestParams = {}) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'GET',
         ...params,
@@ -3948,10 +3948,10 @@ export class Api extends HttpClient {
      */
     policyPut: (
       query: PolicyPutParams,
-      body: FleetRolesPolicy,
+      body: FleetRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'PUT',
         body,
@@ -4119,7 +4119,7 @@ export class Api extends HttpClient {
       { siloName }: SilosGetSiloPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'GET',
         ...params,
@@ -4130,10 +4130,10 @@ export class Api extends HttpClient {
      */
     silosPutSiloPolicy: (
       { siloName }: SilosPutSiloPolicyParams,
-      body: SiloRolesPolicy,
+      body: SiloRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'PUT',
         body,
