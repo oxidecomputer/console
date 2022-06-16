@@ -1,38 +1,20 @@
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
+import { getProjectRole } from '@oxide/api'
+import type { ProjectRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, createTable } from '@oxide/table'
-import {
-  Access24Icon,
-  Button,
-  PageHeader,
-  PageTitle,
-  Success16Icon,
-  TableActions,
-  Unauthorized12Icon,
-} from '@oxide/ui'
+import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 import { groupBy } from '@oxide/util'
 
 import { AddUserToProjectForm } from 'app/forms/add-user-to-project'
 import { useParams } from 'app/hooks'
 
-const AccessIcon = ({ value }: { value: boolean }) => (
-  <div className="text-center">
-    {value ? (
-      <Success16Icon title="Permitted" className="text-accent" />
-    ) : (
-      <Unauthorized12Icon title="Prohibited" className="text-error" />
-    )}
-  </div>
-)
-
 type RoleRow = {
   id: string
   name: string
-  admin: boolean
-  collaborator: boolean
-  viewer: boolean
+  role: ProjectRole
 }
 
 const table = createTable().setRowType<RoleRow>()
@@ -40,17 +22,9 @@ const table = createTable().setRowType<RoleRow>()
 const columns = [
   table.createDataColumn('id', { header: 'ID' }),
   table.createDataColumn('name', { header: 'Name' }),
-  table.createDataColumn('viewer', {
-    header: 'Viewer',
-    cell: (info) => <AccessIcon value={info.getValue()} />,
-  }),
-  table.createDataColumn('collaborator', {
-    header: 'Collaborator',
-    cell: (info) => <AccessIcon value={info.getValue()} />,
-  }),
-  table.createDataColumn('admin', {
-    header: 'Admin',
-    cell: (info) => <AccessIcon value={info.getValue()} />,
+  table.createDataColumn('role', {
+    header: 'Role',
+    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
 ]
 
@@ -79,9 +53,9 @@ export const AccessPage = () => {
     return Object.entries(groups).map(([userId, roleAssignments]) => ({
       id: userId,
       name: usersDict[userId]?.name || '',
-      admin: roleAssignments.some((ra) => ra.roleName === 'admin'),
-      collaborator: roleAssignments.some((ra) => ra.roleName === 'collaborator'),
-      viewer: roleAssignments.some((ra) => ra.roleName === 'viewer'),
+      // assert non-null because we know there has to be one, otherwise there
+      // wouldn't be a group
+      role: getProjectRole(roleAssignments.map((ra) => ra.roleName))!,
     }))
   }, [policy, usersDict])
 
