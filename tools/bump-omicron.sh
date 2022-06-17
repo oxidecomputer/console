@@ -1,10 +1,20 @@
 #!/bin/bash
 
+# Requirements/assumptions:
+#
+# - GitHub CLI
+# - Omicron is a sibling dir to console
+
 set -o errexit
 set -o pipefail
 
 if ! command -v gh &> /dev/null; then
-  echo "GitHub CLI not found. This script needs it to create a PR. Please install it and try again."
+  echo "Error: GitHub CLI not found. This script needs it to create a PR. Please install it and try again."
+  exit
+fi
+
+if [ ! -d "../omicron" ]; then
+  echo "Error: This script assumes omicron shares a parent directory with console."
   exit
 fi
 
