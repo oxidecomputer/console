@@ -8,8 +8,10 @@ import { Table, createTable, getActionsCol } from '@oxide/table'
 import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 import { groupBy } from '@oxide/util'
 
-import { ProjectAccessAddUserSideModal } from 'app/forms/project-access-add'
-import { ProjectAccessEditUserSideModal } from 'app/forms/project-access-edit'
+import {
+  ProjectAccessAddUserSideModal,
+  ProjectAccessEditUserSideModal,
+} from 'app/forms/project-access'
 import { useParams } from 'app/hooks'
 
 type UserRow = {

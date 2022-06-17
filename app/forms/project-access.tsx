@@ -9,7 +9,7 @@ import { useApiQuery } from '@oxide/api'
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
 
-import type { CreateSideModalFormProps } from '.'
+import type { CreateSideModalFormProps, EditSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
@@ -29,7 +29,7 @@ const roles: RoleItem[] = [
   { value: 'viewer', label: 'Viewer' },
 ]
 
-type Props = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
+type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
   policy: ProjectRolePolicy
 }
 
@@ -39,7 +39,7 @@ export function ProjectAccessAddUserSideModal({
   onDismiss,
   policy,
   ...props
-}: Props) {
+}: AddRoleModalProps) {
   const projectParams = useParams('orgName', 'projectName')
   const { data: users } = useApiQuery('usersGet', {})
 
@@ -88,6 +88,62 @@ export function ProjectAccessAddUserSideModal({
       <ListboxField id="userId" name="userId" items={userItems} label="User" required />
       <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
       <Form.Submit>Add user</Form.Submit>
+    </SideModalForm>
+  )
+}
+
+type EditUserValues = {
+  roleName: ProjectRole | ''
+}
+
+type EditRoleModalProps = EditSideModalFormProps<EditUserValues, ProjectRolePolicy> & {
+  userId: string
+  policy: ProjectRolePolicy
+}
+
+export function ProjectAccessEditUserSideModal({
+  onSubmit,
+  onSuccess,
+  onDismiss,
+  userId,
+  policy,
+  ...props
+}: EditRoleModalProps) {
+  const projectParams = useParams('orgName', 'projectName')
+
+  const queryClient = useApiQueryClient()
+  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
+      onSuccess?.(data)
+      onDismiss()
+    },
+  })
+
+  return (
+    <SideModalForm
+      onDismiss={onDismiss}
+      // TODO: show user name in header or SOMEWHERE
+      title="Change user role"
+      id="project-access-edit-user"
+      onSubmit={
+        onSubmit ||
+        (({ roleName }) => {
+          // TODO: validate properly so you can't submit if it's ''
+          if (roleName === '') return
+
+          updatePolicy.mutate({
+            ...projectParams,
+            body: setUserRole(userId, roleName, policy),
+          })
+        })
+      }
+      submitDisabled={updatePolicy.isLoading || !policy}
+      error={updatePolicy.error?.error as Error | undefined}
+      {...props}
+    >
+      <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
+      <Form.Submit>Update role</Form.Submit>
     </SideModalForm>
   )
 }

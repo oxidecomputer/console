@@ -44,14 +44,14 @@ test('Click through project access page', async ({ page }) => {
     .locator('role=row', { hasText: 'user-2' })
     .locator('role=button[name="Row actions"]')
     .click()
-
   await page.click('role=menuitem[name="Change role"]')
 
+  await expectVisible(page, ['role=heading[name*="Change user role"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name="Role"]')
   await page.click('role=option[name="Viewer"]')
-  await page.click('role=button[name="Update user"]')
+  await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(page, 'user-2', ['user-2', 'Franklin Delano Roosevelt', 'viewer'])
 })
