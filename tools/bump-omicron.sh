@@ -8,12 +8,10 @@ if ! command -v gh &> /dev/null; then
   exit
 fi
 
-# only works with console main because those are the only published releases
-git checkout main
-git pull
-
+# note that this will fail unless the current console commit has a release on
+# dl.oxide.computer, i.e., it is a commit on main that has been pushed to GH.
 CONSOLE_VERSION=$(git rev-parse HEAD)
-SHA2=$(curl https://dl.oxide.computer/releases/console/$CONSOLE_VERSION.sha256.txt)
+SHA2=$(curl --fail-with-body https://dl.oxide.computer/releases/console/$CONSOLE_VERSION.sha256.txt)
 
 cd ../omicron
 git checkout main
