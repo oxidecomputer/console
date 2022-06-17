@@ -24,12 +24,14 @@ fi
 # note that this will fail unless the current console commit has a release on
 # dl.oxide.computer, i.e., it is a commit on main that has been pushed to GH.
 CONSOLE_VERSION=$(git rev-parse HEAD)
+# short hash used in branch name to avoid collisions
+CONSOLE_VERSION_SHORT=$(git rev-parse --short HEAD)
 SHA2=$(curl --fail-with-body "https://dl.oxide.computer/releases/console/$CONSOLE_VERSION.sha256.txt")
 
 cd ../omicron
 git checkout main
 git pull
-git checkout -b bump-console
+git checkout -b "bump-console-$CONSOLE_VERSION_SHORT"
 
 cat <<EOF > tools/console_version
 COMMIT="$CONSOLE_VERSION"
