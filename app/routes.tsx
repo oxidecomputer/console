@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { DataBrowserRouter, Navigate, Route } from 'react-router-dom'
 
 import type { CrumbFunc } from './components/Breadcrumbs'
@@ -29,6 +29,11 @@ import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 
 const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
+
+// This route is loaded in asynchronously specifically to avoid `xterm.js` being included in the main bundle
+const SerialConsolePage = React.lazy(
+  () => import('./pages/project/instances/instance/SerialConsolePage')
+)
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -75,11 +80,17 @@ export const Router = () => (
             <Route path="instances" handle={{ crumb: 'Instances' }}>
               <Route index element={<InstancesPage />} />
               <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
-              <Route
-                path=":instanceName"
-                element={<InstancePage />}
-                handle={{ crumb: instanceCrumb }}
-              />
+              <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
+                <Route index element={<InstancePage />} />
+                <Route
+                  path="serial"
+                  element={
+                    <Suspense fallback={<>loading</>}>
+                      <SerialConsolePage />
+                    </Suspense>
+                  }
+                />
+              </Route>
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
               <Route index element={<VpcsPage />} />
