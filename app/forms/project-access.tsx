@@ -1,3 +1,4 @@
+import * as Yup from 'yup'
 import { useMemo } from 'react'
 
 import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
@@ -72,7 +73,8 @@ export function ProjectAccessAddUserSideModal({
       onSubmit={
         onSubmit ||
         (({ userId, roleName }) => {
-          // TODO: validate properly so you can't submit if it's ''
+          // can't happen because roleName is validated not to be '', but TS
+          // wants to be sure
           if (roleName === '') return
 
           updatePolicy.mutate({
@@ -81,6 +83,10 @@ export function ProjectAccessAddUserSideModal({
           })
         })
       }
+      validationSchema={Yup.object({
+        userId: Yup.string().required(),
+        roleName: Yup.string().required(),
+      })}
       submitDisabled={updatePolicy.isLoading}
       error={updatePolicy.error?.error as Error | undefined}
       {...props}
