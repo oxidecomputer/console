@@ -42,7 +42,11 @@ type RoleAssignment<Role> = {
 }
 type Policy<Role extends string> = { roleAssignments: RoleAssignment<Role>[] }
 
-/** Set user role. Pass `null` to delete the user. */
+/**
+ * Returns a new updated policy. Does not modify the passed-in policy.
+ *
+ * @param roleName Pass `null` to delete the user from the policy.
+ */
 export function setUserRole<Role extends string>(
   userId: string,
   roleName: Role | null,

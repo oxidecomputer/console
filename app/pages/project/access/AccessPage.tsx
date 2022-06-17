@@ -8,21 +8,23 @@ import { Table, createTable, getActionsCol } from '@oxide/table'
 import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 import { groupBy } from '@oxide/util'
 
-import { AddUserToProjectForm } from 'app/forms/add-user-to-project'
+import { ProjectAccessAddUserSideModal } from 'app/forms/project-access-add'
+import { ProjectAccessEditUserSideModal } from 'app/forms/project-access-edit'
 import { useParams } from 'app/hooks'
 
-type RoleRow = {
+type UserRow = {
   id: string
   name: string
-  role: ProjectRole
+  roleName: ProjectRole
 }
 
-const table = createTable().setRowType<RoleRow>()
+const table = createTable().setRowType<UserRow>()
 
 // when you build this page for real, check the git history of this file. there
 // might be something useful in the old placeholder
 export const AccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
+  const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useParams('orgName', 'projectName')
   const { data: policy } = useApiQuery(
     'organizationProjectsGetProjectPolicy',
@@ -38,7 +40,7 @@ export const AccessPage = () => {
     [users]
   )
 
-  const rows: RoleRow[] = useMemo(() => {
+  const rows: UserRow[] = useMemo(() => {
     // each group represents a user with multiple role assignments
     const groups = groupBy(policy?.roleAssignments || [], (u) => u.identityId)
     return Object.entries(groups).map(([userId, roleAssignments]) => ({
@@ -46,7 +48,7 @@ export const AccessPage = () => {
       name: usersDict[userId]?.name || '',
       // assert non-null because we know there has to be one, otherwise there
       // wouldn't be a group
-      role: getProjectRole(roleAssignments.map((ra) => ra.roleName))!,
+      roleName: getProjectRole(roleAssignments.map((ra) => ra.roleName))!,
     }))
   }, [policy, usersDict])
 
@@ -57,7 +59,6 @@ export const AccessPage = () => {
     // TODO: handle 403
   })
 
-  // TODO: delete action on table rows
   // TODO: checkboxes and bulk delete? not sure
   // TODO: disable delete on permissions you can't delete
 
@@ -65,17 +66,15 @@ export const AccessPage = () => {
     () => [
       table.createDataColumn('id', { header: 'ID' }),
       table.createDataColumn('name', { header: 'Name' }),
-      table.createDataColumn('role', {
+      table.createDataColumn('roleName', {
         header: 'Role',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
       table.createDisplayColumn(
         getActionsCol((row) => [
           {
-            label: 'Edit',
-            onActivate() {
-              // TODO: open side modal for editing
-            },
+            label: 'Change role',
+            onActivate: () => setEditingUserRow(row),
           },
           // TODO: only show if you have permission to do this
           {
@@ -112,11 +111,24 @@ export const AccessPage = () => {
           Add user to project
         </Button>
       </TableActions>
-      <AddUserToProjectForm
-        isOpen={addModalOpen}
-        onDismiss={() => setAddModalOpen(false)}
-        onSuccess={() => setAddModalOpen(false)}
-      />
+      {policy && (
+        <ProjectAccessAddUserSideModal
+          isOpen={addModalOpen}
+          onDismiss={() => setAddModalOpen(false)}
+          onSuccess={() => setAddModalOpen(false)}
+          policy={policy}
+        />
+      )}
+      {policy && editingUserRow && (
+        <ProjectAccessEditUserSideModal
+          isOpen={!!editingUserRow}
+          onDismiss={() => setEditingUserRow(null)}
+          onSuccess={() => setEditingUserRow(null)}
+          policy={policy}
+          userId={editingUserRow.id}
+          initialValues={{ roleName: editingUserRow.roleName }}
+        />
+      )}
       <Table table={tableInstance} />
     </>
   )

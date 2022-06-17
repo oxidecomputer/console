@@ -29,18 +29,19 @@ const roles: RoleItem[] = [
   { value: 'viewer', label: 'Viewer' },
 ]
 
-export function AddUserToProjectForm({
+type Props = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
+  policy: ProjectRolePolicy
+}
+
+export function ProjectAccessAddUserSideModal({
   onSubmit,
   onSuccess,
   onDismiss,
+  policy,
   ...props
-}: CreateSideModalFormProps<AddUserValues, ProjectRolePolicy>) {
+}: Props) {
   const projectParams = useParams('orgName', 'projectName')
   const { data: users } = useApiQuery('usersGet', {})
-  const { data: policy } = useApiQuery(
-    'organizationProjectsGetProjectPolicy',
-    projectParams
-  )
 
   const userItems = useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
@@ -66,7 +67,7 @@ export function AddUserToProjectForm({
     <SideModalForm
       onDismiss={onDismiss}
       title="Add user to project"
-      id="add-user-to-project-form"
+      id="project-access-add-user"
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
@@ -76,13 +77,11 @@ export function AddUserToProjectForm({
 
           updatePolicy.mutate({
             ...projectParams,
-            // assume policy is present because submit is disabled otherwise
-            // TODO: is there a better way to ensure policy is present at submit time?
-            body: setUserRole(userId, roleName, policy!),
+            body: setUserRole(userId, roleName, policy),
           })
         })
       }
-      submitDisabled={updatePolicy.isLoading || !policy}
+      submitDisabled={updatePolicy.isLoading}
       error={updatePolicy.error?.error as Error | undefined}
       {...props}
     >
