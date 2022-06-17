@@ -93,7 +93,7 @@ export function ProjectAccessAddUserSideModal({
 }
 
 type EditUserValues = {
-  roleName: ProjectRole | ''
+  roleName: ProjectRole
 }
 
 type EditRoleModalProps = EditSideModalFormProps<EditUserValues, ProjectRolePolicy> & {
@@ -129,9 +129,6 @@ export function ProjectAccessEditUserSideModal({
       onSubmit={
         onSubmit ||
         (({ roleName }) => {
-          // TODO: validate properly so you can't submit if it's ''
-          if (roleName === '') return
-
           updatePolicy.mutate({
             ...projectParams,
             body: setUserRole(userId, roleName, policy),
