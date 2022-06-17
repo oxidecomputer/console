@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Automatically update tools/console_version in ../omicron with current console
+# commit hash and tarball hash. Then create PR in Omicron with that change.
+#
 # Requirements/assumptions:
 #
 # - GitHub CLI
