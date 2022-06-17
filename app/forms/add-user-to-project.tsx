@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
+import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -35,17 +36,24 @@ export function AddUserToProjectForm({
   ...props
 }: CreateSideModalFormProps<AddUserValues, ProjectRolePolicy>) {
   const projectParams = useParams('orgName', 'projectName')
-  const queryClient = useApiQueryClient()
   const { data: users } = useApiQuery('usersGet', {})
   const { data: policy } = useApiQuery(
     'organizationProjectsGetProjectPolicy',
     projectParams
   )
-  const userItems = useMemo(
-    () => users?.items.map((u) => ({ value: u.id, label: u.name })) || [],
-    [users]
-  )
 
+  const userItems = useMemo(() => {
+    // IDs are UUIDs, so no need to include identity type in set value to disambiguate
+    const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
+    return (
+      users?.items
+        // only show users for adding if they're not already in the policy
+        .filter((u) => !usersInPolicy.has(u.id))
+        .map((u) => ({ value: u.id, label: u.name })) || []
+    )
+  }, [users, policy])
+
+  const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
     onSuccess: (data) => {
       queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
@@ -68,17 +76,13 @@ export function AddUserToProjectForm({
 
           updatePolicy.mutate({
             ...projectParams,
-            body: {
-              // TODO: this is Not Entirely Right
-              roleAssignments: [
-                ...(policy?.roleAssignments || []),
-                { identityId: userId, identityType: 'silo_user', roleName },
-              ],
-            },
+            // assume policy is present because submit is disabled otherwise
+            // TODO: is there a better way to ensure policy is present at submit time?
+            body: setUserRole(userId, roleName, policy!),
           })
         })
       }
-      submitDisabled={updatePolicy.isLoading}
+      submitDisabled={updatePolicy.isLoading || !policy}
       error={updatePolicy.error?.error as Error | undefined}
       {...props}
     >

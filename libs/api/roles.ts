@@ -5,7 +5,7 @@
  */
 import { sortBy } from '@oxide/util'
 
-import type { OrganizationRole, ProjectRole } from './__generated__/Api'
+import type { IdentityType, OrganizationRole, ProjectRole } from './__generated__/Api'
 
 /** Given a role order and a list of roles, get the one that sorts earliest */
 export const getMainRole =
@@ -32,3 +32,30 @@ export const orgRoleOrder: Record<OrganizationRole, number> = projectRoleOrder
 
 /** Given a user ID and a policy, get the most permissive role for that user */
 export const getOrgRole = getMainRole(orgRoleOrder)
+
+// generic policy, used to represent org and project policies while agnostic
+// about the roles enum
+type RoleAssignment<Role> = {
+  identityId: string
+  identityType: IdentityType
+  roleName: Role
+}
+type Policy<Role extends string> = { roleAssignments: RoleAssignment<Role>[] }
+
+/** Set user role. Pass `null` to delete the user. */
+export function setUserRole<Role extends string>(
+  userId: string,
+  roleName: Role | null,
+  policy: Policy<Role>
+): Policy<Role> {
+  // filter out any existing role assignments — we're pretending for now that you can only
+  const roleAssignments = policy.roleAssignments.filter((ra) => ra.identityId !== userId)
+  if (roleName !== null) {
+    roleAssignments.push({
+      identityId: userId,
+      identityType: 'silo_user',
+      roleName,
+    })
+  }
+  return { roleAssignments }
+}

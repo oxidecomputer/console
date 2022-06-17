@@ -7,13 +7,7 @@ test('Click through project access page', async ({ page }) => {
 
   await page.click('role=link[name*="Access & IAM"]')
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
-  await expectRowVisible(page, 'user-1', [
-    'user-1',
-    'Abraham Lincoln',
-    'Prohibited',
-    'Prohibited',
-    'Permitted',
-  ])
+  await expectRowVisible(page, 'user-1', ['user-1', 'Abraham Lincoln', 'admin'])
 
   await expectNotVisible(page, ['role=cell[name="Franklin Delano Roosevelt"]'])
 
@@ -21,10 +15,9 @@ test('Click through project access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Add user to project"]'])
 
   await page.click('role=button[name="User"]')
-  await expectVisible(page, [
-    'role=option[name="Abraham Lincoln"]',
-    'role=option[name="Franklin Delano Roosevelt"]',
-  ])
+  // only users not already on the project should be visible
+  await expectNotVisible(page, ['role=option[name="Abraham Lincoln"]'])
+  await expectVisible(page, ['role=option[name="Franklin Delano Roosevelt"]'])
 
   await page.click('role=option[name="Franklin Delano Roosevelt"]')
 
@@ -42,8 +35,6 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(page, 'user-2', [
     'user-2',
     'Franklin Delano Roosevelt',
-    'Prohibited',
-    'Permitted',
-    'Prohibited',
+    'collaborator',
   ])
 })

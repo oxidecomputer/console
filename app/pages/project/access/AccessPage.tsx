@@ -1,10 +1,10 @@
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
-import { getProjectRole } from '@oxide/api'
+import { getProjectRole, setUserRole, useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { ProjectRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Table, createTable } from '@oxide/table'
+import { Table, createTable, getActionsCol } from '@oxide/table'
 import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 import { groupBy } from '@oxide/util'
 
@@ -18,15 +18,6 @@ type RoleRow = {
 }
 
 const table = createTable().setRowType<RoleRow>()
-
-const columns = [
-  table.createDataColumn('id', { header: 'ID' }),
-  table.createDataColumn('name', { header: 'Name' }),
-  table.createDataColumn('role', {
-    header: 'Role',
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-  }),
-]
 
 // when you build this page for real, check the git history of this file. there
 // might be something useful in the old placeholder
@@ -59,9 +50,50 @@ export const AccessPage = () => {
     }))
   }, [policy, usersDict])
 
+  const queryClient = useApiQueryClient()
+  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+    onSuccess: () =>
+      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams),
+    // TODO: handle 403
+  })
+
   // TODO: delete action on table rows
   // TODO: checkboxes and bulk delete? not sure
   // TODO: disable delete on permissions you can't delete
+
+  const columns = useMemo(
+    () => [
+      table.createDataColumn('id', { header: 'ID' }),
+      table.createDataColumn('name', { header: 'Name' }),
+      table.createDataColumn('role', {
+        header: 'Role',
+        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      }),
+      table.createDisplayColumn(
+        getActionsCol((row) => [
+          {
+            label: 'Edit',
+            onActivate() {
+              // TODO: open side modal for editing
+            },
+          },
+          // TODO: only show if you have permission to do this
+          {
+            label: 'Delete',
+            onActivate() {
+              // TODO: confirm delete
+              updatePolicy.mutate({
+                ...projectParams,
+                // we know policy is there, otherwise there's no row to display
+                body: setUserRole(row.id, null, policy!),
+              })
+            },
+          },
+        ])
+      ),
+    ],
+    [policy, projectParams, updatePolicy]
+  )
 
   const tableInstance = useTableInstance(table, {
     columns,
