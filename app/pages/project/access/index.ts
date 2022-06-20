@@ -1,1 +1,1 @@
-export * from './AccessPage'
+export * from './ProjectAccessPage'

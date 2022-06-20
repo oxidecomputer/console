@@ -14,11 +14,11 @@ import NotFound from './pages/NotFound'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import {
-  AccessPage,
   DisksPage,
   ImagesPage,
   InstancePage,
   InstancesPage,
+  ProjectAccessPage,
   SnapshotsPage,
   VpcPage,
   VpcsPage,
@@ -98,7 +98,7 @@ export const Router = () => (
             <Route path="images" element={<ImagesPage />} handle={{ crumb: 'Images' }} />
             <Route
               path="access"
-              element={<AccessPage />}
+              element={<ProjectAccessPage />}
               handle={{ crumb: 'Access & IAM' }}
             />
           </Route>

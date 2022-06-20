@@ -783,6 +783,9 @@ export const handlers = [
     }
   ),
 
+  // note that in the API this is meant for system users, but that could change.
+  // kind of a hack to pretend it's about normal users.
+  // see https://github.com/oxidecomputer/omicron/issues/1235
   rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
     return res(json(paginated(req.url.search, db.users)))
   }),
