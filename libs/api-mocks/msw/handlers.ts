@@ -4,6 +4,7 @@ import type { ApiTypes as Api } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
+import { serial } from '../serial'
 import { sessionMe } from '../session'
 import type {
   GlobalImageParams,
@@ -501,6 +502,14 @@ export const handlers = [
       if (err) return res(err)
       db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
       return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, InstanceParams, Json<Api.InstanceSerialConsoleData> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/serial',
+    (req, res) => {
+      // TODO: Add support for query params
+      return res(json(serial))
     }
   ),
 
