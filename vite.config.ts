@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:12220',
         configure(proxy) {
           proxy.on('error', (_, req) => {
-            console.error('    to', req.url)
+            console.error('    to', '/api' + req.url)
           })
         },
         rewrite: (path) => path.replace(/^\/api/, ''),
