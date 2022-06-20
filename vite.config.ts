@@ -51,6 +51,11 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       '/api': {
         target: 'http://localhost:12220',
+        configure(proxy) {
+          proxy.on('error', (_, req) => {
+            console.error('    to', req.url)
+          })
+        },
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       // We want to actually hit Nexus for this because it gives us a login redirect
