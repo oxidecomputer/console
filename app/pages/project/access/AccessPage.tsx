@@ -33,6 +33,9 @@ export const AccessPage = () => {
     projectParams
   )
 
+  // TODO: this hits /users, which returns system users, not silo users. We need
+  // an endpoint to list silo users. I'm hoping we might end up using /users for
+  // that. See https://github.com/oxidecomputer/omicron/issues/1235
   const { data: users } = useApiQuery('usersGet', { limit: 200 })
 
   // HACK: because the policy has no names, we are fetching ~all the users,
