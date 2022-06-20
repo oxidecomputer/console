@@ -54,4 +54,13 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(page, 'user-2', ['user-2', 'Franklin Delano Roosevelt', 'viewer'])
+
+  // now delete FDR
+  await page
+    .locator('role=row', { hasText: 'user-2' })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await expectVisible(page, ['role=cell[name=user-2]'])
+  await page.click('role=menuitem[name="Delete"]')
+  await expectNotVisible(page, ['role=cell[name=user-2]'])
 })

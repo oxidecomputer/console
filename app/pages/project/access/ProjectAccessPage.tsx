@@ -120,7 +120,6 @@ export const ProjectAccessPage = () => {
         <ProjectAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          onSuccess={() => setAddModalOpen(false)}
           policy={policy}
         />
       )}
@@ -128,7 +127,6 @@ export const ProjectAccessPage = () => {
         <ProjectAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
-          onSuccess={() => setEditingUserRow(null)}
           policy={policy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
