@@ -11,6 +11,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import LoginPage from './pages/LoginPage'
 import NotFound from './pages/NotFound'
+import { OrgAccessPage } from './pages/OrgAccessPage'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import {
@@ -55,6 +56,13 @@ export const Router = () => (
 
       <Route path=":orgName" handle={{ crumb: orgCrumb }}>
         <Route index element={<Navigate to="projects" replace />} />
+        <Route element={<OrgLayout />}>
+          <Route
+            path="access"
+            element={<OrgAccessPage />}
+            handle={{ crumb: 'Access & IAM' }}
+          />
+        </Route>
         <Route path="projects" handle={{ crumb: 'Projects' }}>
           {/* ORG */}
           <Route element={<OrgLayout />}>

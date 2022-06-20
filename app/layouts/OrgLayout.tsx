@@ -35,6 +35,9 @@ const OrgLayout = () => {
             </NavLinkItem>
           ))}
         </Sidebar.Nav>
+        <Sidebar.Nav heading="Organization">
+          <NavLinkItem to="../../access">Access &amp; IAM</NavLinkItem>
+        </Sidebar.Nav>
       </Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
