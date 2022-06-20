@@ -258,7 +258,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.ProjectRolesPolicy> | GetErr>(
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/policy',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -272,9 +272,9 @@ export const handlers = [
   ),
 
   rest.put<
-    Json<Api.ProjectRolesPolicy>,
+    Json<Api.ProjectRolePolicy>,
     ProjectParams,
-    Json<Api.ProjectRolesPolicy> | PostErr
+    Json<Api.ProjectRolePolicy> | PostErr
   >('/api/organizations/:orgName/projects/:projectName/policy', (req, res) => {
     const [project, err] = lookupProject(req.params)
     if (err) return res(err)
