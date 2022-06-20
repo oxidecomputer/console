@@ -24,7 +24,7 @@ const table = createTable().setRowType<UserRow>()
 
 // when you build this page for real, check the git history of this file. there
 // might be something useful in the old placeholder
-export const AccessPage = () => {
+export const ProjectAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useParams('orgName', 'projectName')
