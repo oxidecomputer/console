@@ -3,8 +3,11 @@
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
  */
-import { sortBy } from '@oxide/util'
+import { useMemo } from 'react'
 
+import { groupBy, sortBy } from '@oxide/util'
+
+import { useApiQuery } from '.'
 import type { IdentityType, OrganizationRole, ProjectRole } from './__generated__/Api'
 
 /** Given a role order and a list of roles, get the one that sorts earliest */
@@ -62,4 +65,47 @@ export function setUserRole<Role extends string>(
     })
   }
   return { roleAssignments }
+}
+
+export type UserAccessRow<Role extends string> = {
+  id: string
+  name: string
+  roleName: Role
+}
+
+/**
+ * Role assignments come from the API in (user, role) pairs without display
+ * names. This groups those pairs into one row per user, picks the strongest
+ * role as that user's "main" role, and uses a fetched list of "all" users to
+ * add a display name for each user. It's a bit awkward, but the logic is
+ * identical between projects and orgs so it is worth sharing.
+ */
+export function useUserAccessRows<Role extends string>(
+  // allow undefined because this is fetched with RQ
+  policy: Policy<Role> | undefined,
+  roleOrder: Record<Role, number>
+): UserAccessRow<Role>[] {
+  // TODO: this hits /users, which returns system users, not silo users. We need
+  // an endpoint to list silo users. I'm hoping we might end up using /users for
+  // that. See https://github.com/oxidecomputer/omicron/issues/1235
+  const { data: users } = useApiQuery('usersGet', { limit: 200 })
+
+  // HACK: because the policy has no names, we are fetching ~all the users,
+  // putting them in a dictionary, and adding the names to the rows
+  const usersDict = useMemo(
+    () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
+    [users]
+  )
+
+  return useMemo(() => {
+    const roleAssignments = policy?.roleAssignments || []
+    const groups = groupBy(roleAssignments, (u) => u.identityId)
+    return Object.entries(groups).map(([userId, groupRoleAssignments]) => ({
+      id: userId,
+      name: usersDict[userId]?.name || '',
+      // assert non-null because we know there has to be one, otherwise there
+      // wouldn't be a group
+      roleName: getMainRole(roleOrder)(groupRoleAssignments.map((ra) => ra.roleName))!,
+    }))
+  }, [policy, usersDict, roleOrder])
 }
