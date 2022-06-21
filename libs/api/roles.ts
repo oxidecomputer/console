@@ -109,3 +109,23 @@ export function useUserAccessRows<Role extends string>(
     }))
   }, [policy, usersDict, roleOrder])
 }
+
+/**
+ * Fetch list of users and filter out the ones that are already in the given
+ * policy.
+ */
+export function useUsersNotInPolicy<Role extends string>(
+  // allow undefined because this is fetched with RQ
+  policy: Policy<Role> | undefined
+) {
+  const { data: users } = useApiQuery('usersGet', {})
+  return useMemo(() => {
+    // IDs are UUIDs, so no need to include identity type in set value to disambiguate
+    const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
+    return (
+      users?.items
+        // only show users for adding if they're not already in the policy
+        .filter((u) => !usersInPolicy.has(u.id)) || []
+    )
+  }, [users, policy])
+}

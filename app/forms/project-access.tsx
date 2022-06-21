@@ -1,11 +1,10 @@
 import * as Yup from 'yup'
-import { useMemo } from 'react'
 
 import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
+import { useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
@@ -42,18 +41,9 @@ export function ProjectAccessAddUserSideModal({
   ...props
 }: AddRoleModalProps) {
   const projectParams = useParams('orgName', 'projectName')
-  const { data: users } = useApiQuery('usersGet', {})
 
-  const userItems = useMemo(() => {
-    // IDs are UUIDs, so no need to include identity type in set value to disambiguate
-    const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    return (
-      users?.items
-        // only show users for adding if they're not already in the policy
-        .filter((u) => !usersInPolicy.has(u.id))
-        .map((u) => ({ value: u.id, label: u.name })) || []
-    )
-  }, [users, policy])
+  const users = useUsersNotInPolicy(policy)
+  const userItems = users.map((u) => ({ value: u.id, label: u.name }))
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {

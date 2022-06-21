@@ -206,7 +206,7 @@ export const handlers = [
     }))
 
     const unrelatedAssignments = db.roleAssignments.filter(
-      (r) => !(r.resource_type === 'project' && r.resource_id === org.id)
+      (r) => !(r.resource_type === 'organization' && r.resource_id === org.id)
     )
 
     db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
