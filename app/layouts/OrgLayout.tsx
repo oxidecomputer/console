@@ -18,25 +18,29 @@ import {
   PageContainer,
 } from './helpers'
 
+// absolute paths are a workaround for
+// https://github.com/remix-run/react-router/pull/8985 not being released yet
+
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
   const { data: projects } = useApiQuery('organizationProjectsGet', {
     orgName,
     limit: 10,
   })
+
   return (
     <PageContainer>
       <Sidebar>
         <ProjectSelector />
         <Sidebar.Nav heading="projects">
           {projects?.items.map((project) => (
-            <NavLinkItem key={project.id} to={project.name}>
+            <NavLinkItem key={project.id} to={`/orgs/${orgName}/projects/${project.name}`}>
               {project.name}
             </NavLinkItem>
           ))}
         </Sidebar.Nav>
         <Sidebar.Nav heading="Organization">
-          <NavLinkItem to="../../access">Access &amp; IAM</NavLinkItem>
+          <NavLinkItem to={`/orgs/${orgName}/access`}>Access &amp; IAM</NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPaneWrapper>
