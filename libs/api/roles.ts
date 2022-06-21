@@ -20,9 +20,9 @@ export const getMainRole =
 const flatRoles = <Role extends string>(roleOrder: Record<Role, number>): Role[] =>
   sortBy(Object.entries(roleOrder), ([_role, order]) => order).map(([role]) => role as Role)
 
-// right now orgs and projects are identical, so this feels a bit silly
-
-// using Record for the orders ensures the ordering includes all roles
+////////////////////////////
+// Project roles
+////////////////////////////
 
 /** Project roles from most to least permissive */
 export const projectRoleOrder: Record<ProjectRole, number> = {
@@ -37,14 +37,29 @@ export const getProjectRole = getMainRole(projectRoleOrder)
 /** `projectRoleOrder` record converted to a sorted array of roles. */
 export const projectRoles = flatRoles(projectRoleOrder)
 
+////////////////////////////
+// Org roles
+////////////////////////////
+
+// right now orgs and projects are identical, so the below feels a bit silly
+// using Record for the orders ensures the ordering includes all roles
+
 /** Org roles from most to least permissive */
-export const orgRoleOrder: Record<OrganizationRole, number> = projectRoleOrder
+export const orgRoleOrder: Record<OrganizationRole, number> = {
+  admin: 0,
+  collaborator: 1,
+  viewer: 2,
+}
 
 /** `orgRoleOrder` record converted to a sorted array of roles. */
 export const orgRoles = flatRoles(orgRoleOrder)
 
 /** Given a user ID and a policy, get the most permissive role for that user */
 export const getOrgRole = getMainRole(orgRoleOrder)
+
+////////////////////////////
+// Policy helpers
+////////////////////////////
 
 // generic policy, used to represent org and project policies while agnostic
 // about the roles enum
