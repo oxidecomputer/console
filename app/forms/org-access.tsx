@@ -1,10 +1,11 @@
 import * as Yup from 'yup'
 
 import type { OrganizationRole, OrganizationRolePolicy } from '@oxide/api'
-import { useUsersNotInPolicy } from '@oxide/api'
+import { orgRoles, useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
+import { capitalize } from '@oxide/util'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
@@ -21,13 +22,7 @@ const initialValues: AddUserValues = {
   roleName: '',
 }
 
-type RoleItem = { value: OrganizationRole; label: string }
-
-const roles: RoleItem[] = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'collaborator', label: 'Collaborator' },
-  { value: 'viewer', label: 'Viewer' },
-]
+const roleItems = orgRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
 type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, OrganizationRolePolicy> & {
   policy: OrganizationRolePolicy
@@ -82,7 +77,7 @@ export function OrgAccessAddUserSideModal({
       {...props}
     >
       <ListboxField id="userId" name="userId" items={userItems} label="User" required />
-      <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
+      <ListboxField id="roleName" name="roleName" label="Role" items={roleItems} required />
       <Form.Submit>Add user</Form.Submit>
     </SideModalForm>
   )
@@ -135,7 +130,7 @@ export function OrgAccessEditUserSideModal({
       error={updatePolicy.error?.error as Error | undefined}
       {...props}
     >
-      <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
+      <ListboxField id="roleName" name="roleName" label="Role" items={roleItems} required />
       <Form.Submit>Update role</Form.Submit>
     </SideModalForm>
   )

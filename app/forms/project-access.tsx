@@ -1,10 +1,12 @@
 import * as Yup from 'yup'
 
 import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
+import { projectRoles } from '@oxide/api'
 import { useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
+import { capitalize } from '@oxide/util'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
@@ -21,13 +23,7 @@ const initialValues: AddUserValues = {
   roleName: '',
 }
 
-type RoleItem = { value: ProjectRole; label: string }
-
-const roles: RoleItem[] = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'collaborator', label: 'Collaborator' },
-  { value: 'viewer', label: 'Viewer' },
-]
+const roleItems = projectRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
 type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
   policy: ProjectRolePolicy
@@ -82,7 +78,7 @@ export function ProjectAccessAddUserSideModal({
       {...props}
     >
       <ListboxField id="userId" name="userId" items={userItems} label="User" required />
-      <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
+      <ListboxField id="roleName" name="roleName" label="Role" items={roleItems} required />
       <Form.Submit>Add user</Form.Submit>
     </SideModalForm>
   )
@@ -135,7 +131,7 @@ export function ProjectAccessEditUserSideModal({
       error={updatePolicy.error?.error as Error | undefined}
       {...props}
     >
-      <ListboxField id="roleName" name="roleName" label="Role" items={roles} required />
+      <ListboxField id="roleName" name="roleName" label="Role" items={roleItems} required />
       <Form.Submit>Update role</Form.Submit>
     </SideModalForm>
   )

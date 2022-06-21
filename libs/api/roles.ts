@@ -16,6 +16,10 @@ export const getMainRole =
   (userRoles: Role[]): Role | null =>
     userRoles.length > 0 ? sortBy(userRoles, (r) => roleOrder[r])[0] : null
 
+/** Turn a role order record into a sorted array of strings. */
+const flatRoles = <Role extends string>(roleOrder: Record<Role, number>): Role[] =>
+  sortBy(Object.entries(roleOrder), ([_role, order]) => order).map(([role]) => role as Role)
+
 // right now orgs and projects are identical, so this feels a bit silly
 
 // using Record for the orders ensures the ordering includes all roles
@@ -30,8 +34,14 @@ export const projectRoleOrder: Record<ProjectRole, number> = {
 /** Given a user ID and a policy, get the most permissive role for that user */
 export const getProjectRole = getMainRole(projectRoleOrder)
 
+/** `projectRoleOrder` record converted to a sorted array of roles. */
+export const projectRoles = flatRoles(projectRoleOrder)
+
 /** Org roles from most to least permissive */
 export const orgRoleOrder: Record<OrganizationRole, number> = projectRoleOrder
+
+/** `orgRoleOrder` record converted to a sorted array of roles. */
+export const orgRoles = flatRoles(orgRoleOrder)
 
 /** Given a user ID and a policy, get the most permissive role for that user */
 export const getOrgRole = getMainRole(orgRoleOrder)
