@@ -177,6 +177,43 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+    '/api/organizations/:orgName/policy',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.OrganizationRolePolicy>,
+    ProjectParams,
+    Json<Api.OrganizationRolePolicy> | PostErr
+  >('/api/organizations/:orgName/policy', (req, res) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'organization' as const,
+      resource_id: org.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'organization' && r.resource_id === org.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
+
   rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
     const [org, err] = lookupOrg(req.params)
     if (err) return res(err)

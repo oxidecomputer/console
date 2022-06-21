@@ -1,8 +1,7 @@
 import * as Yup from 'yup'
 
-import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
-import { projectRoles } from '@oxide/api'
-import { useUsersNotInPolicy } from '@oxide/api'
+import type { OrganizationRole, OrganizationRolePolicy } from '@oxide/api'
+import { orgRoles, useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
@@ -15,7 +14,7 @@ import type { CreateSideModalFormProps, EditSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
-  roleName: ProjectRole | ''
+  roleName: OrganizationRole | ''
 }
 
 const initialValues: AddUserValues = {
@@ -23,28 +22,28 @@ const initialValues: AddUserValues = {
   roleName: '',
 }
 
-const roleItems = projectRoles.map((role) => ({ value: role, label: capitalize(role) }))
+const roleItems = orgRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
-type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
-  policy: ProjectRolePolicy
+type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, OrganizationRolePolicy> & {
+  policy: OrganizationRolePolicy
 }
 
-export function ProjectAccessAddUserSideModal({
+export function OrgAccessAddUserSideModal({
   onSubmit,
   onSuccess,
   onDismiss,
   policy,
   ...props
 }: AddRoleModalProps) {
-  const projectParams = useParams('orgName', 'projectName')
+  const orgParams = useParams('orgName')
 
   const users = useUsersNotInPolicy(policy)
   const userItems = users.map((u) => ({ value: u.id, label: u.name }))
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+  const updatePolicy = useApiMutation('organizationPutPolicy', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
+      queryClient.invalidateQueries('organizationGetPolicy', orgParams)
       onSuccess?.(data)
       onDismiss()
     },
@@ -53,8 +52,8 @@ export function ProjectAccessAddUserSideModal({
   return (
     <SideModalForm
       onDismiss={onDismiss}
-      title="Add user to project"
-      id="project-access-add-user"
+      title="Add user to organization"
+      id="org-access-add-user"
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
@@ -64,7 +63,7 @@ export function ProjectAccessAddUserSideModal({
           if (roleName === '') return
 
           updatePolicy.mutate({
-            ...projectParams,
+            ...orgParams,
             body: setUserRole(userId, roleName, policy),
           })
         })
@@ -85,15 +84,15 @@ export function ProjectAccessAddUserSideModal({
 }
 
 type EditUserValues = {
-  roleName: ProjectRole
+  roleName: OrganizationRole
 }
 
-type EditRoleModalProps = EditSideModalFormProps<EditUserValues, ProjectRolePolicy> & {
+type EditRoleModalProps = EditSideModalFormProps<EditUserValues, OrganizationRolePolicy> & {
   userId: string
-  policy: ProjectRolePolicy
+  policy: OrganizationRolePolicy
 }
 
-export function ProjectAccessEditUserSideModal({
+export function OrgAccessEditUserSideModal({
   onSubmit,
   onSuccess,
   onDismiss,
@@ -101,12 +100,12 @@ export function ProjectAccessEditUserSideModal({
   policy,
   ...props
 }: EditRoleModalProps) {
-  const projectParams = useParams('orgName', 'projectName')
+  const orgParams = useParams('orgName')
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+  const updatePolicy = useApiMutation('organizationPutPolicy', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
+      queryClient.invalidateQueries('organizationGetPolicy', orgParams)
       onSuccess?.(data)
       onDismiss()
     },
@@ -117,12 +116,12 @@ export function ProjectAccessEditUserSideModal({
       onDismiss={onDismiss}
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
-      id="project-access-edit-user"
+      id="org-access-edit-user"
       onSubmit={
         onSubmit ||
         (({ roleName }) => {
           updatePolicy.mutate({
-            ...projectParams,
+            ...orgParams,
             body: setUserRole(userId, roleName, policy),
           })
         })

@@ -2,42 +2,35 @@ import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
-  projectRoleOrder,
+  orgRoleOrder,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
   useUserAccessRows,
 } from '@oxide/api'
-import type { ProjectRole, UserAccessRow } from '@oxide/api'
+import type { OrganizationRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, createTable, getActionsCol } from '@oxide/table'
 import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
-import {
-  ProjectAccessAddUserSideModal,
-  ProjectAccessEditUserSideModal,
-} from 'app/forms/project-access'
+import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { useParams } from 'app/hooks'
 
-type UserRow = UserAccessRow<ProjectRole>
+type UserRow = UserAccessRow<OrganizationRole>
 
 const table = createTable().setRowType<UserRow>()
 
-export const ProjectAccessPage = () => {
+export const OrgAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const projectParams = useParams('orgName', 'projectName')
-  const { data: policy } = useApiQuery(
-    'organizationProjectsGetProjectPolicy',
-    projectParams
-  )
+  const orgParams = useParams('orgName')
+  const { data: policy } = useApiQuery('organizationGetPolicy', orgParams)
 
-  const rows = useUserAccessRows(policy, projectRoleOrder)
+  const rows = useUserAccessRows(policy, orgRoleOrder)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
-    onSuccess: () =>
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams),
+  const updatePolicy = useApiMutation('organizationPutPolicy', {
+    onSuccess: () => queryClient.invalidateQueries('organizationGetPolicy', orgParams),
     // TODO: handle 403
   })
 
@@ -64,7 +57,7 @@ export const ProjectAccessPage = () => {
             onActivate() {
               // TODO: confirm delete
               updatePolicy.mutate({
-                ...projectParams,
+                ...orgParams,
                 // we know policy is there, otherwise there's no row to display
                 body: setUserRole(row.id, null, policy!),
               })
@@ -73,7 +66,7 @@ export const ProjectAccessPage = () => {
         ])
       ),
     ],
-    [policy, projectParams, updatePolicy]
+    [policy, orgParams, updatePolicy]
   )
 
   const tableInstance = useTableInstance(table, {
@@ -90,20 +83,22 @@ export const ProjectAccessPage = () => {
 
       <TableActions>
         <Button size="xs" variant="secondary" onClick={() => setAddModalOpen(true)}>
-          Add user to project
+          Add user to organization
         </Button>
       </TableActions>
       {policy && (
-        <ProjectAccessAddUserSideModal
+        <OrgAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
+          onSuccess={() => setAddModalOpen(false)}
           policy={policy}
         />
       )}
       {policy && editingUserRow && (
-        <ProjectAccessEditUserSideModal
+        <OrgAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
+          onSuccess={() => setEditingUserRow(null)}
           policy={policy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
