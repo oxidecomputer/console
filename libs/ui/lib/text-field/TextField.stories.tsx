@@ -22,3 +22,11 @@ export const WithValue: Story = {
     value: 'Something here',
   },
 }
+
+export const AsTextArea: Story = {
+  args: {
+    value: 'Something here',
+    as: 'textarea',
+    rows: 10,
+  },
+}
