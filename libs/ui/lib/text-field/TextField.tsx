@@ -3,36 +3,44 @@ import cn from 'classnames'
 import type { FieldValidator } from 'formik'
 import { ErrorMessage, Field } from 'formik'
 
+/**
+ * This is a little complicated. We only want to allow the `rows` prop if
+ * `as="textarea"`. But the derivatives of `TextField`, like `NameField`, etc.,
+ * can't use `as` no matter what. So we have them only use `TextFieldBaseProps`,
+ * which doesn't know about `as`. But `TextField` itself secretly takes
+ * `TextFieldBaseProps & TextAreaProps`.
+ */
+export type TextAreaProps =
+  | {
+      as: 'textarea'
+      /** Only used with `as="textarea"` */
+      rows?: number
+    }
+  | {
+      as?: never
+      rows?: never
+    }
+
 // would prefer to refer directly to the props of Field and pass them all
 // through, but couldn't get it to work. FieldAttributes<string> is closest but
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextFieldProps = React.ComponentProps<'input'> & {
+export type TextFieldBaseProps = React.ComponentProps<'input'> & {
   validate?: FieldValidator
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean
   disabled?: boolean
   className?: string
   fieldClassName?: string
-} & (
-    | {
-        as: 'textarea'
-        /** Only used with `as="textarea"` */
-        rows?: number
-      }
-    | {
-        as?: never
-        rows?: never
-      }
-  )
+}
 
 export const TextField = ({
   error,
   className,
   fieldClassName,
   ...fieldProps
-}: TextFieldProps) => (
+}: TextFieldBaseProps & TextAreaProps) => (
   <div
     className={cn(
       'flex rounded border border-default',
@@ -64,7 +72,7 @@ export const TextField = ({
 export const NumberTextField = ({
   fieldClassName,
   ...props
-}: Omit<TextFieldProps, 'type' | 'as' | 'rows'>) => (
+}: Omit<TextFieldBaseProps, 'type'>) => (
   <TextField
     type="number"
     {...props}
