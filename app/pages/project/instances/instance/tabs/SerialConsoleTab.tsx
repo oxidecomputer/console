@@ -7,9 +7,9 @@ import { MiB } from '@oxide/util'
 import { PageActions } from 'app/components/PageActions'
 import { useParams } from 'app/hooks'
 
-export function SerialConsoleTab() {
-  const Terminal = lazy(() => import('app/components/Terminal'))
+const Terminal = lazy(() => import('app/components/Terminal'))
 
+export function SerialConsoleTab() {
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',

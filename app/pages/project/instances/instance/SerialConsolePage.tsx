@@ -8,8 +8,9 @@ import { MiB } from '@oxide/util'
 import { PageActions } from 'app/components/PageActions'
 import { useParams } from 'app/hooks'
 
+const Terminal = React.lazy(() => import('app/components/Terminal'))
+
 export function SerialConsolePage() {
-  const Terminal = React.lazy(() => import('app/components/Terminal'))
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',
