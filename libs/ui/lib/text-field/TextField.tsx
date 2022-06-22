@@ -1,8 +1,7 @@
 import { Alert } from '@reach/alert'
 import cn from 'classnames'
-import type { FieldAttributes, FieldValidator } from 'formik'
+import type { FieldValidator } from 'formik'
 import { ErrorMessage, Field } from 'formik'
-import invariant from 'tiny-invariant'
 
 // would prefer to refer directly to the props of Field and pass them all
 // through, but couldn't get it to work. FieldAttributes<string> is closest but
@@ -16,48 +15,48 @@ export type TextFieldProps = React.ComponentProps<'input'> & {
   disabled?: boolean
   className?: string
   fieldClassName?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  as?: FieldAttributes<any>['as']
-  /** Used when it's `as="textarea"`, otherwise ignored */
-  rows?: number
-}
+} & (
+    | {
+        as: 'textarea'
+        /** Only used with `as="textarea"` */
+        rows?: number
+      }
+    | {
+        as?: never
+        rows?: never
+      }
+  )
 
-export function TextField({
+export const TextField = ({
   error,
   className,
   fieldClassName,
   ...fieldProps
-}: TextFieldProps) {
-  invariant(
-    typeof fieldProps.rows === 'undefined' || fieldProps.as === 'textarea',
-    '`rows` prop on <TextField> can only be used when as="textarea"'
-  )
-  return (
-    <div
+}: TextFieldProps) => (
+  <div
+    className={cn(
+      'flex rounded border border-default',
+      'focus-within:border-accent hover:focus-within:border-accent',
+      error && '!border-destructive',
+      !fieldProps.disabled && 'hover:border-raise',
+      className
+    )}
+  >
+    <Field
+      type="text"
       className={cn(
-        'flex rounded border border-default',
-        'focus-within:border-accent hover:focus-within:border-accent',
-        error && '!border-destructive',
-        !fieldProps.disabled && 'hover:border-raise',
-        className
-      )}
-    >
-      <Field
-        type="text"
-        className={cn(
-          `w-full border-none bg-transparent
+        `w-full border-none bg-transparent
         py-[0.5625rem] px-3
         text-sans-md text-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
-          fieldClassName
-        )}
-        aria-invalid={error}
-        placeholder=""
-        {...fieldProps}
-      />
-    </div>
-  )
-}
+        fieldClassName
+      )}
+      aria-invalid={error}
+      placeholder=""
+      {...fieldProps}
+    />
+  </div>
+)
 
 // TODO: do this properly: extract a NumberField that styles the up and down
 // buttons for when we do want them *and* add a flag to hide them using
@@ -65,7 +64,7 @@ export function TextField({
 export const NumberTextField = ({
   fieldClassName,
   ...props
-}: Omit<TextFieldProps, 'type'>) => (
+}: Omit<TextFieldProps, 'type' | 'as' | 'rows'>) => (
   <TextField
     type="number"
     {...props}

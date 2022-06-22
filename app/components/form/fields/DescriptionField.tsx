@@ -4,7 +4,8 @@ import { TextField } from './TextField'
 // TODO: Pull this from generated types
 const MAX_LEN = 512
 
-export interface DescriptionFieldProps extends Omit<TextFieldProps, 'name' | 'validate'> {
+export interface DescriptionFieldProps
+  extends Omit<TextFieldProps, 'name' | 'validate' | 'as' | 'rows'> {
   name?: string
 }
 

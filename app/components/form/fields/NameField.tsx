@@ -3,7 +3,8 @@ import { capitalize } from '@oxide/util'
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
 
-export interface NameFieldProps extends Omit<TextFieldProps, 'name' | 'validate'> {
+export interface NameFieldProps
+  extends Omit<TextFieldProps, 'name' | 'validate' | 'as' | 'rows'> {
   name?: string
 }
 

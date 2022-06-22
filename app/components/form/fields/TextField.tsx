@@ -8,7 +8,7 @@ import { capitalize } from '@oxide/util'
 
 import { useFieldError } from '../../../hooks/useFieldError'
 
-export interface TextFieldProps extends UITextFieldProps {
+export type TextFieldProps = UITextFieldProps & {
   id: string
   /** Will default to id if not provided */
   name?: string

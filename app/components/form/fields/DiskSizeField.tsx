@@ -5,7 +5,7 @@ import { GiB } from '@oxide/util'
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
 
-interface DiskSizeProps extends Omit<TextFieldProps, 'validate'> {
+interface DiskSizeProps extends Omit<TextFieldProps, 'validate' | 'as' | 'rows'> {
   blockSizeField?: string
 }
 
