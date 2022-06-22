@@ -2,9 +2,10 @@ import { Suspense } from 'react'
 import React from 'react'
 
 import { useApiQuery } from '@oxide/api'
-import { PageHeader, PageTitle, Terminal24Icon } from '@oxide/ui'
+import { Button, PageHeader, PageTitle, Terminal24Icon } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
+import { PageActions } from 'app/components/PageActions'
 import { useParams } from 'app/hooks'
 
 export function SerialConsolePage() {
@@ -15,13 +16,14 @@ export function SerialConsolePage() {
     'instanceName'
   )
 
-  const { data } = useApiQuery('projectInstancesInstanceSerialGet', {
+  const { data, refetch } = useApiQuery('projectInstancesInstanceSerialGet', {
     maxBytes: 10 * MiB,
     fromStart: 0,
     orgName,
     projectName,
     instanceName,
   })
+
   return (
     <>
       <PageHeader>
@@ -30,6 +32,13 @@ export function SerialConsolePage() {
       <Suspense fallback={<>Loading</>}>
         <Terminal data={data?.data} />
       </Suspense>
+      <PageActions>
+        <div className="flex h-20 items-center">
+          <Button variant="secondary" size="sm" onClick={() => refetch()}>
+            Refresh
+          </Button>
+        </div>
+      </PageActions>
     </>
   )
 }
