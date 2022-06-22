@@ -50,7 +50,7 @@ export function CreateSSHKeySideModalForm({
         as="textarea"
         id="ssh-key-public-key"
         name="publicKey"
-        label="SSH key content"
+        label="Public key"
         required
       />
     </SideModalForm>

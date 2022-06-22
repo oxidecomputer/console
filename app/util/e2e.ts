@@ -23,7 +23,8 @@ export async function expectNotVisible(page: Page, selectors: string[]) {
 /**
  * Assert about the values of a row, identified by `rowSelectorText`. It doesn't
  * need to be the entire row; the test will pass as long as the identified row
- * exists and the first N cells match the N values in `cellTexts`.
+ * exists and the first N cells match the N values in `cellTexts`. Pass `''` for
+ * a checkbox cell.
  *
  * @param rowSelectorText Text that should uniquely identify the row, like an ID
  * @param cellTexts Text to match in each cell of that row
