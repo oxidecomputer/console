@@ -18,8 +18,6 @@ const options: ITerminalOptions = {
     refreshWin: true,
   },
 }
-const fitAddon = new FitAddon()
-const addons: ITerminalAddon[] = [fitAddon]
 
 export const Terminal = ({ data }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
@@ -48,20 +46,27 @@ export const Terminal = ({ data }: TerminalProps) => {
       },
       ...options,
     })
+
+    // Persist terminal instance, initialize terminal
     setTerm(newTerm)
     if (terminalRef.current) {
       newTerm.open(terminalRef.current)
     }
+
+    // Setup terminal addons
+    const fitAddon = new FitAddon()
+    const addons: ITerminalAddon[] = [fitAddon]
     for (const addon of addons) {
       newTerm.loadAddon(addon)
     }
+    // Handle window resizing
     const resize = () => {
       fitAddon.fit()
     }
     resize()
     window.addEventListener('resize', resize)
     return () => {
-      term?.dispose()
+      newTerm.dispose()
       window.removeEventListener('resize', resize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,6 +74,7 @@ export const Terminal = ({ data }: TerminalProps) => {
 
   useEffect(() => {
     if (data) {
+      term?.clear()
       term?.write(new Uint8Array(data))
     }
   }, [term, data])
