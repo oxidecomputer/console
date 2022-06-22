@@ -1,15 +1,15 @@
-import { Suspense } from 'react'
-import React from 'react'
+import { Suspense, lazy } from 'react'
 
 import { useApiQuery } from '@oxide/api'
-import { Button, Divider, PageHeader, PageTitle, Terminal24Icon } from '@oxide/ui'
+import { Button } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { PageActions } from 'app/components/PageActions'
 import { useParams } from 'app/hooks'
 
-export function SerialConsolePage() {
-  const Terminal = React.lazy(() => import('app/components/Terminal'))
+export function SerialConsoleTab() {
+  const Terminal = lazy(() => import('app/components/Terminal'))
+
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',
@@ -26,13 +26,11 @@ export function SerialConsolePage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Terminal24Icon />}>Serial Console</PageTitle>
-      </PageHeader>
-      <Divider className="!m-0 !w-full !-mt-12" />
-      <Suspense fallback={<>Loading</>}>
-        <Terminal className="w-full h-full -mb-10 mt-1" data={data?.data} />
-      </Suspense>
+      <div className="-mb-10 !w-[calc(100%-var(--content-gutter))] relative">
+        <Suspense fallback={<>Loading</>}>
+          <Terminal className="mb-2 w-full" data={data?.data} />
+        </Suspense>
+      </div>
       <PageActions>
         <div className="flex h-20 items-center">
           <Button variant="secondary" size="sm" onClick={() => refetch()}>

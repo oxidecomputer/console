@@ -6,6 +6,7 @@ import 'xterm/css/xterm.css'
 
 interface TerminalProps {
   data?: number[]
+  className?: string
 }
 
 const options: ITerminalOptions = {
@@ -19,7 +20,7 @@ const options: ITerminalOptions = {
   },
 }
 
-export const Terminal = ({ data }: TerminalProps) => {
+export const Terminal = ({ data, className }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
   const terminalRef = useRef(null)
 
@@ -79,7 +80,7 @@ export const Terminal = ({ data }: TerminalProps) => {
     }
   }, [term, data])
 
-  return <div className="h-full w-full" ref={terminalRef} />
+  return <div className={className} ref={terminalRef} />
 }
 
 export default Terminal
