@@ -17,6 +17,8 @@ export type TextFieldProps = React.ComponentProps<'input'> & {
   fieldClassName?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   as?: FieldAttributes<any>['as']
+  /** Used when it's `as="textarea"`, otherwise ignored */
+  rows?: number
 }
 
 export const TextField = ({

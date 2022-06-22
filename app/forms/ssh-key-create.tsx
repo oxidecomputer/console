@@ -45,13 +45,13 @@ export function CreateSSHKeySideModalForm({
     >
       <NameField id="ssh-key-name" />
       <DescriptionField id="ssh-key-description" />
-      {/* TODO: Turn into a text area */}
       <TextField
         as="textarea"
         id="ssh-key-public-key"
         name="publicKey"
         label="Public key"
         required
+        rows={8}
       />
     </SideModalForm>
   )
