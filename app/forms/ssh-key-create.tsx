@@ -47,6 +47,7 @@ export function CreateSSHKeySideModalForm({
       <DescriptionField id="ssh-key-description" />
       {/* TODO: Turn into a text area */}
       <TextField
+        as="textarea"
         id="ssh-key-public-key"
         name="publicKey"
         label="SSH key content"

@@ -1,6 +1,6 @@
 import { Alert } from '@reach/alert'
 import cn from 'classnames'
-import type { FieldValidator } from 'formik'
+import type { FieldAttributes, FieldValidator } from 'formik'
 import { ErrorMessage, Field } from 'formik'
 
 // would prefer to refer directly to the props of Field and pass them all
@@ -15,6 +15,8 @@ export type TextFieldProps = React.ComponentProps<'input'> & {
   disabled?: boolean
   className?: string
   fieldClassName?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  as?: FieldAttributes<any>['as']
 }
 
 export const TextField = ({
