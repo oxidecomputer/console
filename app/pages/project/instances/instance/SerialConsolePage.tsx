@@ -1,11 +1,14 @@
+import { Suspense } from 'react'
+import React from 'react'
+
 import { useApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, Terminal24Icon } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
-import { Terminal } from 'app/components/Terminal'
 import { useParams } from 'app/hooks'
 
 export function SerialConsolePage() {
+  const Terminal = React.lazy(() => import('app/components/Terminal'))
   const { orgName, projectName, instanceName } = useParams(
     'orgName',
     'projectName',
@@ -24,9 +27,9 @@ export function SerialConsolePage() {
       <PageHeader>
         <PageTitle icon={<Terminal24Icon />}>Serial Console</PageTitle>
       </PageHeader>
-      <Terminal data={data?.data} />
+      <Suspense fallback={<>Loading</>}>
+        <Terminal data={data?.data} />
+      </Suspense>
     </>
   )
 }
-
-export default SerialConsolePage

@@ -81,3 +81,5 @@ export const Terminal = ({ data }: TerminalProps) => {
 
   return <div className="h-full w-full" ref={terminalRef} />
 }
+
+export default Terminal
