@@ -1,6 +1,6 @@
 import type {
-  OrganizationRolesRoleAssignment,
-  ProjectRolesRoleAssignment,
+  OrganizationRoleRoleAssignment,
+  ProjectRoleRoleAssignment,
 } from 'libs/api/__generated__/Api'
 
 import type { Json } from './json-type'
@@ -15,8 +15,8 @@ import { user1 } from './user'
 // assignments and then collecting them into a policy object at request time.
 // See https://github.com/oxidecomputer/omicron/issues/1165
 type DbRoleAssignment = { resource_id: string } & (
-  | ({ resource_type: 'project' } & Json<ProjectRolesRoleAssignment>)
-  | ({ resource_type: 'organization' } & Json<OrganizationRolesRoleAssignment>)
+  | ({ resource_type: 'project' } & Json<ProjectRoleRoleAssignment>)
+  | ({ resource_type: 'organization' } & Json<OrganizationRoleRoleAssignment>)
 )
 
 export const roleAssignments: DbRoleAssignment[] = [

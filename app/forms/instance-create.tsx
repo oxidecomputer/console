@@ -9,6 +9,7 @@ import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Divider,
+  Instances24Icon,
   Radio,
   RadioCard,
   Success16Icon,
@@ -19,6 +20,7 @@ import {
 import { GiB } from '@oxide/util'
 
 import type { DiskTableItem } from 'app/components/form'
+import { FullPageForm } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
   DescriptionField,
@@ -31,7 +33,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateFullPageFormProps } from 'app/forms'
 import { useParams, useToast } from 'app/hooks'
 
 type InstanceCreateInput = Assign<
@@ -83,7 +85,7 @@ export default function CreateInstanceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, Instance>) {
+}: CreateFullPageFormProps<InstanceCreateInput, Instance>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
@@ -114,10 +116,11 @@ export default function CreateInstanceForm({
   const images = useApiQuery('imagesGet', {}).data?.items || []
 
   return (
-    <Form
+    <FullPageForm
       id={id}
       initialValues={initialValues}
       title={title}
+      icon={<Instances24Icon />}
       onSubmit={
         onSubmit ||
         (async (values) => {
@@ -154,7 +157,6 @@ export default function CreateInstanceForm({
           })
         })
       }
-      mutation={createInstance}
       {...props}
     >
       <NameField id="name" />
@@ -259,7 +261,7 @@ export default function CreateInstanceForm({
         <Form.Submit>{title}</Form.Submit>
         <Form.Cancel />
       </Form.Actions>
-    </Form>
+    </FullPageForm>
   )
 }
 

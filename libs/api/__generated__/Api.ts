@@ -134,12 +134,18 @@ export type DiskState =
   | { state: 'faulted' }
 
 /**
- * Distribution must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ * OS image distribution
  */
-export type Distribution = string
-
-/** Regex pattern for validating Distribution */
-export const distributionPattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
+export type Distribution = {
+  /**
+   * The name of the distribution (e.g. "alpine" or "ubuntu")
+   */
+  name: Name
+  /**
+   * The version of the distribution (e.g. "3.10" or "18.04")
+   */
+  version: string
+}
 
 /**
  * Error information from a response.
@@ -169,18 +175,18 @@ export type FieldSource = 'target' | 'metric'
  */
 export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
 
-export type FleetRoles = 'admin' | 'collaborator' | 'viewer'
+export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type FleetRolesPolicy = {
+export type FleetRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: FleetRolesRoleAssignment[]
+  roleAssignments: FleetRoleRoleAssignment[]
 }
 
 /**
@@ -188,10 +194,10 @@ export type FleetRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type FleetRolesRoleAssignment = {
+export type FleetRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: FleetRoles
+  roleName: FleetRole
 }
 
 /**
@@ -262,10 +268,6 @@ export type GlobalImageCreate = {
    * The source of the image's contents.
    */
   source: ImageSource
-  /**
-   * image version
-   */
-  version: string
 }
 
 /**
@@ -552,6 +554,20 @@ export type InstanceResultsPage = {
 }
 
 /**
+ * Contents of an Instance's serial console buffer.
+ */
+export type InstanceSerialConsoleData = {
+  /**
+   * The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8.
+   */
+  data: number[]
+  /**
+   * The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`.
+   */
+  lastByteOffset: number
+}
+
+/**
  * Running state of an Instance (primarily: booted or stopped)
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
@@ -697,6 +713,24 @@ export type NetworkInterfaceResultsPage = {
 }
 
 /**
+ * Parameters for updating a {@link NetworkInterface}.
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export type NetworkInterfaceUpdate = {
+  description?: string | null
+  /**
+   * Make a secondary interface the instance's primary interface.
+   *
+   * If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+   *
+   * Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error.
+   */
+  makePrimary?: boolean | null
+  name?: Name | null
+}
+
+/**
  * Client view of an {@link Organization}
  */
 export type Organization = {
@@ -744,18 +778,18 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'admin' | 'collaborator' | 'viewer'
+export type OrganizationRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type OrganizationRolesPolicy = {
+export type OrganizationRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: OrganizationRolesRoleAssignment[]
+  roleAssignments: OrganizationRoleRoleAssignment[]
 }
 
 /**
@@ -763,10 +797,10 @@ export type OrganizationRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type OrganizationRolesRoleAssignment = {
+export type OrganizationRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: OrganizationRoles
+  roleName: OrganizationRole
 }
 
 /**
@@ -826,18 +860,18 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRoles = 'admin' | 'collaborator' | 'viewer'
+export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type ProjectRolesPolicy = {
+export type ProjectRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: ProjectRolesRoleAssignment[]
+  roleAssignments: ProjectRoleRoleAssignment[]
 }
 
 /**
@@ -845,10 +879,10 @@ export type ProjectRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type ProjectRolesRoleAssignment = {
+export type ProjectRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: ProjectRoles
+  roleName: ProjectRole
 }
 
 /**
@@ -1204,18 +1238,18 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRoles = 'admin' | 'collaborator' | 'viewer'
+export type SiloRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type SiloRolesPolicy = {
+export type SiloRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: SiloRolesRoleAssignment[]
+  roleAssignments: SiloRoleRoleAssignment[]
 }
 
 /**
@@ -1223,10 +1257,10 @@ export type SiloRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type SiloRolesRoleAssignment = {
+export type SiloRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: SiloRoles
+  roleName: SiloRole
 }
 
 /**
@@ -2153,6 +2187,16 @@ export interface InstanceNetworkInterfacesGetInterfaceParams {
   projectName: Name
 }
 
+export interface InstanceNetworkInterfacesPutInterfaceParams {
+  instanceName: Name
+
+  interfaceName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
 export interface InstanceNetworkInterfacesDeleteInterfaceParams {
   instanceName: Name
 
@@ -2169,6 +2213,20 @@ export interface ProjectInstancesInstanceRebootParams {
   orgName: Name
 
   projectName: Name
+}
+
+export interface ProjectInstancesInstanceSerialGetParams {
+  instanceName: Name
+
+  orgName: Name
+
+  projectName: Name
+
+  fromStart?: number | null
+
+  maxBytes?: number | null
+
+  mostRecent?: number | null
 }
 
 export interface ProjectInstancesInstanceStartParams {
@@ -3006,7 +3064,7 @@ export class Api extends HttpClient {
       { orgName }: OrganizationGetPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'GET',
         ...params,
@@ -3017,10 +3075,10 @@ export class Api extends HttpClient {
      */
     organizationPutPolicy: (
       { orgName }: OrganizationPutPolicyParams,
-      body: OrganizationRolesPolicy,
+      body: OrganizationRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'PUT',
         body,
@@ -3363,6 +3421,26 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Update information about an instance's network interface
+     */
+    instanceNetworkInterfacesPutInterface: (
+      {
+        instanceName,
+        interfaceName,
+        orgName,
+        projectName,
+      }: InstanceNetworkInterfacesPutInterfaceParams,
+      body: NetworkInterfaceUpdate,
+      params: RequestParams = {}
+    ) =>
+      this.request<NetworkInterface>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        method: 'PUT',
+        body,
+        ...params,
+      }),
+
+    /**
      * Detach a network interface from an instance.
      */
     instanceNetworkInterfacesDeleteInterface: (
@@ -3390,6 +3468,25 @@ export class Api extends HttpClient {
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Get contents of an instance's serial console.
+     */
+    projectInstancesInstanceSerialGet: (
+      {
+        instanceName,
+        orgName,
+        projectName,
+        ...query
+      }: ProjectInstancesInstanceSerialGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<InstanceSerialConsoleData>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial`,
+        method: 'GET',
+        query,
         ...params,
       }),
 
@@ -3426,7 +3523,7 @@ export class Api extends HttpClient {
       { orgName, projectName }: OrganizationProjectsGetProjectPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'GET',
         ...params,
@@ -3437,10 +3534,10 @@ export class Api extends HttpClient {
      */
     organizationProjectsPutProjectPolicy: (
       { orgName, projectName }: OrganizationProjectsPutProjectPolicyParams,
-      body: ProjectRolesPolicy,
+      body: ProjectRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'PUT',
         body,
@@ -3840,7 +3937,7 @@ export class Api extends HttpClient {
      * Fetch the top-level IAM policy
      */
     policyGet: (query: PolicyGetParams, params: RequestParams = {}) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'GET',
         ...params,
@@ -3851,10 +3948,10 @@ export class Api extends HttpClient {
      */
     policyPut: (
       query: PolicyPutParams,
-      body: FleetRolesPolicy,
+      body: FleetRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'PUT',
         body,
@@ -4022,7 +4119,7 @@ export class Api extends HttpClient {
       { siloName }: SilosGetSiloPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'GET',
         ...params,
@@ -4033,10 +4130,10 @@ export class Api extends HttpClient {
      */
     silosPutSiloPolicy: (
       { siloName }: SilosPutSiloPolicyParams,
-      body: SiloRolesPolicy,
+      body: SiloRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'PUT',
         body,

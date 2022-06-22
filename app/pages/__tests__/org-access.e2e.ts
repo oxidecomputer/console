@@ -2,8 +2,8 @@ import { test } from '@playwright/test'
 
 import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
 
-test('Click through project access page', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
+test('Click through org access page', async ({ page }) => {
+  await page.goto('/orgs/maze-war')
 
   // page is there, we see AL but not FDR
   await page.click('role=link[name*="Access & IAM"]')
@@ -12,11 +12,11 @@ test('Click through project access page', async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="Franklin Delano Roosevelt"]'])
 
   // Add FDR as collab
-  await page.click('role=button[name="Add user to project"]')
-  await expectVisible(page, ['role=heading[name*="Add user to project"]'])
+  await page.click('role=button[name="Add user to organization"]')
+  await expectVisible(page, ['role=heading[name*="Add user to organization"]'])
 
   await page.click('role=button[name="User"]')
-  // only users not already on the project should be visible
+  // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Abraham Lincoln"]'])
   await expectVisible(page, ['role=option[name="Franklin Delano Roosevelt"]'])
 

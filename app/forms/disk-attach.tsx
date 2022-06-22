@@ -1,18 +1,17 @@
 import invariant from 'tiny-invariant'
 
-import type { Disk } from '@oxide/api'
+import type { Disk, DiskIdentifier } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { Form, ListboxField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import { ListboxField } from 'app/components/form'
+import { SideModalForm } from 'app/components/form/SideModalForm'
+import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
 const values = { name: '' }
 
-export type DiskAttachValues = typeof values
-
-export function AttachDiskForm({
+export function AttachDiskSideModalForm({
   id = 'form-disk-attach',
   title = 'Attach Disk',
   initialValues = values,
@@ -20,7 +19,7 @@ export function AttachDiskForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<DiskAttachValues, Disk>) {
+}: CreateSideModalFormProps<DiskIdentifier, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -47,7 +46,7 @@ export function AttachDiskForm({
     ) || []
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -63,7 +62,8 @@ export function AttachDiskForm({
           })
         })
       }
-      mutation={attachDisk}
+      submitDisabled={attachDisk.isLoading}
+      error={attachDisk.error?.error as Error | undefined}
       {...props}
     >
       <ListboxField
@@ -72,13 +72,8 @@ export function AttachDiskForm({
         name="name"
         items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
       />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default AttachDiskForm
+export default AttachDiskSideModalForm
