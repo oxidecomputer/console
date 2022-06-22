@@ -26,61 +26,52 @@ export const Terminal = ({ data }: TerminalProps) => {
   const terminalRef = useRef(null)
 
   useEffect(() => {
-    if (!term) {
-      const style = getComputedStyle(document.body)
-      console.log(style.getPropertyValue('--surface-default'))
-      setTerm(
-        new XTerm({
-          theme: {
-            background: style.getPropertyValue('--surface-default'),
-            foreground: style.getPropertyValue('--content-default'),
-            black: style.getPropertyValue('--surface-default'),
-            brightBlack: style.getPropertyValue('--surface-secondary'),
-            white: style.getPropertyValue('--content-default'),
-            brightWhite: style.getPropertyValue('--content-secondary'),
-            blue: style.getPropertyValue('--base-blue-500'),
-            brightBlue: style.getPropertyValue('--base-blue-900'),
-            green: style.getPropertyValue('--content-success'),
-            brightGreen: style.getPropertyValue('--content-success-secondary'),
-            red: style.getPropertyValue('--content-error'),
-            brightRed: style.getPropertyValue('--content-error-secondary'),
-            yellow: style.getPropertyValue('--content-notice'),
-            brightYellow: style.getPropertyValue('--content-notice-secondary'),
-            cursor: style.getPropertyValue('--content-default'),
-            cursorAccent: style.getPropertyValue('--content-accent'),
-          },
-          ...options,
-        })
-      )
-    } else {
-      for (const addon of addons) {
-        term.loadAddon(addon)
-      }
+    const style = getComputedStyle(document.body)
+    const newTerm = new XTerm({
+      theme: {
+        background: style.getPropertyValue('--surface-default'),
+        foreground: style.getPropertyValue('--content-default'),
+        black: style.getPropertyValue('--surface-default'),
+        brightBlack: style.getPropertyValue('--surface-secondary'),
+        white: style.getPropertyValue('--content-default'),
+        brightWhite: style.getPropertyValue('--content-secondary'),
+        blue: style.getPropertyValue('--base-blue-500'),
+        brightBlue: style.getPropertyValue('--base-blue-900'),
+        green: style.getPropertyValue('--content-success'),
+        brightGreen: style.getPropertyValue('--content-success-secondary'),
+        red: style.getPropertyValue('--content-error'),
+        brightRed: style.getPropertyValue('--content-error-secondary'),
+        yellow: style.getPropertyValue('--content-notice'),
+        brightYellow: style.getPropertyValue('--content-notice-secondary'),
+        cursor: style.getPropertyValue('--content-default'),
+        cursorAccent: style.getPropertyValue('--content-accent'),
+      },
+      ...options,
+    })
+    setTerm(newTerm)
+    if (terminalRef.current) {
+      newTerm.open(terminalRef.current)
     }
-    return () => term?.dispose()
-  }, [term])
-
-  // Register term in the dom
-  useEffect(() => {
-    if (terminalRef.current && term) {
-      term.open(terminalRef.current)
+    for (const addon of addons) {
+      newTerm.loadAddon(addon)
+    }
+    const resize = () => {
       fitAddon.fit()
     }
-  }, [term])
+    resize()
+    window.addEventListener('resize', resize)
+    return () => {
+      term?.dispose()
+      window.removeEventListener('resize', resize)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (data) {
       term?.write(new Uint8Array(data))
     }
   }, [term, data])
-
-  useEffect(() => {
-    const resize = () => {
-      fitAddon.fit()
-    }
-    window.addEventListener('resize', resize)
-    return () => window.removeEventListener('resize', resize)
-  }, [])
 
   return <div className="h-full w-full" ref={terminalRef} />
 }
