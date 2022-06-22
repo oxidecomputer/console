@@ -18,8 +18,9 @@ import {
   PageContainer,
 } from './helpers'
 
-// absolute paths are a workaround for
-// https://github.com/remix-run/react-router/pull/8985 not being released yet
+// We need to use absolute paths here because sometimes this layout is rendered
+// at `/orgs/:orgName` and other times it's rendered at `/orgs/:orgName/access`.
+// Relative paths would resolve differently in the two locations.
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
