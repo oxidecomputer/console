@@ -1,15 +1,32 @@
+import type { SetRequired } from 'type-fest'
+
 import type { ErrorResponse } from '@oxide/api'
+import type { SideModalProps } from '@oxide/ui'
 
-import type { FormProps } from 'app/components/form'
+import type { FormProps, FullPageFormProps } from 'app/components/form'
 
-/**
- * A form that's built out ahead of time and intended to be re-used dynamically. Fields
- * that are expected to be provided by default are set to optional.
- */
-export type PrebuiltFormProps<Values, Data> = Omit<
-  Optional<FormProps<Values>, 'id' | 'title' | 'initialValues' | 'onSubmit' | 'mutation'>,
+type CreateFormProps<Values, Data> = Omit<
+  Optional<FormProps<Values>, 'id' | 'initialValues' | 'onSubmit'>,
   'children'
 > & {
   onSuccess?: (data: Data) => void
   onError?: (err: ErrorResponse) => void
 }
+
+export type CreateSideModalFormProps<Values, Data> = CreateFormProps<Values, Data> &
+  Omit<SideModalProps, 'id'>
+
+export type CreateFullPageFormProps<Values, Data> = CreateFormProps<Values, Data> &
+  Omit<FullPageFormProps<Values>, 'icon'>
+
+export type EditSideModalFormProps<Values, Data> = SetRequired<
+  CreateFormProps<Values, Data>,
+  'initialValues'
+> &
+  CreateSideModalFormProps<Values, Data>
+
+export type EditFullPageFormProps<Values, Data> = SetRequired<
+  CreateFormProps<Values, Data>,
+  'initialValues'
+> &
+  CreateFullPageFormProps<Values, Data>

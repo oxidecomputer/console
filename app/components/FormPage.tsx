@@ -1,29 +1,20 @@
 import React, { Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { PageHeader, PageTitle } from '@oxide/ui'
-
 interface FormPageProps {
-  Form: React.ComponentType<{
-    onSuccess: (data: { name: string }) => void
-  }>
+  // TODO: This obviously shouldn't be any, but the lower form types are fucked
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Form: React.ComponentType<any>
   goToCreatedPage?: boolean
-  title: string
-  icon?: React.ReactElement
 }
 
-export function FormPage({ Form, title, icon, goToCreatedPage = true }: FormPageProps) {
+export function FormPage({ Form, goToCreatedPage = true }: FormPageProps) {
   const navigate = useNavigate()
   return (
     // TODO: Add a proper loading state
     <Suspense fallback={null}>
-      {title && (
-        <PageHeader>
-          <PageTitle icon={icon}>{title}</PageTitle>
-        </PageHeader>
-      )}
       <Form
-        onSuccess={(data) =>
+        onSuccess={(data: { name: string }) =>
           goToCreatedPage ? navigate(`../${data.name}`) : navigate('..')
         }
       />

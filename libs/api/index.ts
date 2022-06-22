@@ -27,6 +27,7 @@ export const useApiQuery = getUseApiQuery(api.methods, handleErrors)
 export const useApiMutation = getUseApiMutation(api.methods, handleErrors)
 export const useApiQueryClient = getUseApiQueryClient<ApiMethods>()
 
+export * from './roles'
 export * from './util'
 export * from './__generated__/Api'
 

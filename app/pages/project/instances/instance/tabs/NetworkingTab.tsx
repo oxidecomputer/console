@@ -10,11 +10,10 @@ import {
   EmptyMessage,
   Info16Icon,
   Networking24Icon,
-  SideModal,
   Tooltip,
 } from '@oxide/ui'
 
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
+import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
 import { useParams, useToast } from 'app/hooks'
 
 export function NetworkingTab() {
@@ -86,16 +85,11 @@ export function NetworkingTab() {
         >
           Add network interface
         </Button>
-        <SideModal
-          id="create-nic-modal"
+        <CreateNetworkInterfaceSideModalForm
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateNetworkInterfaceForm
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
+          onSuccess={() => setCreateModalOpen(false)}
+        />
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />

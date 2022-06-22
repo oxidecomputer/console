@@ -14,11 +14,12 @@ export const useIsInSideModal = () => {
   return useContext(SideModalContext)
 }
 
-export interface SideModalProps extends DialogProps, ChildrenProp {
+export interface SideModalProps extends Omit<DialogProps, 'isOpen'>, ChildrenProp {
   id: string
   title?: string
   // it's optional on DialogProps but we want to require it
-  onDismiss: DialogProps['onDismiss']
+  onDismiss: () => void
+  isOpen: boolean
 }
 
 export function SideModal({

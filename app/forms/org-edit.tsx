@@ -1,34 +1,26 @@
-import { useNavigate } from 'react-router-dom'
-
 import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 import { useToast } from 'app/hooks'
 
-import type { CreateSideModalFormProps } from '.'
+import type { EditSideModalFormProps } from '.'
 
-const values = {
-  name: '',
-  description: '',
-}
-
-export function CreateOrgSideModalForm({
-  id = 'create-org-form',
-  title = 'Create organization',
-  initialValues = values,
+export function EditOrgSideModalForm({
+  id = 'edit-org-form',
+  title = 'Edit organization',
+  initialValues,
   onSubmit,
   onSuccess,
   onError,
   onDismiss,
   ...props
-}: CreateSideModalFormProps<OrganizationCreate, Organization>) {
-  const navigate = useNavigate()
+}: EditSideModalFormProps<OrganizationCreate, Organization>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createOrg = useApiMutation('organizationsPost', {
+  const updateOrg = useApiMutation('organizationsPutOrganization', {
     onSuccess(org) {
       queryClient.invalidateQueries('organizationsGet', {})
       // avoid the org fetch when the org page loads since we have the data
@@ -36,11 +28,11 @@ export function CreateOrgSideModalForm({
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
-        content: 'Your organization has been created.',
+        content: 'Your organization has been updated.',
         timeout: 5000,
       })
       onSuccess?.(org)
-      navigate(`/orgs/${org.name}/projects`)
+      onDismiss()
     },
     onError,
   })
@@ -54,16 +46,18 @@ export function CreateOrgSideModalForm({
       onSubmit={
         onSubmit ??
         (({ name, description }) =>
-          createOrg.mutate({
+          updateOrg.mutate({
+            orgName: initialValues.name,
             body: { name, description },
           }))
       }
-      submitDisabled={createOrg.isLoading}
-      error={createOrg.error?.error as Error | undefined}
+      submitDisabled={updateOrg.isLoading}
+      error={updateOrg.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="org-name" />
       <DescriptionField id="org-description" />
+      <Form.Submit>Save changes</Form.Submit>
     </SideModalForm>
   )
 }

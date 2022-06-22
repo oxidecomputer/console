@@ -2,10 +2,10 @@ import { useField } from 'formik'
 import { useState } from 'react'
 
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
-import { Button, Error16Icon, MiniTable, Radio, SideModal } from '@oxide/ui'
+import { Button, Error16Icon, MiniTable, Radio } from '@oxide/ui'
 
 import { RadioField } from 'app/components/form'
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
+import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
 
 export function NetworkInterfaceField() {
   const [showForm, setShowForm] = useState(false)
@@ -85,22 +85,17 @@ export function NetworkInterfaceField() {
             </MiniTable.Table>
           )}
 
-          <SideModal
-            id="create-disk-modal"
+          <CreateNetworkInterfaceSideModalForm
             isOpen={showForm}
+            onSubmit={(networkInterface) => {
+              setValue({
+                type: 'create',
+                params: [...value.params, networkInterface],
+              })
+              setShowForm(false)
+            }}
             onDismiss={() => setShowForm(false)}
-          >
-            <CreateNetworkInterfaceForm
-              onSubmit={(networkInterface) => {
-                setValue({
-                  type: 'create',
-                  params: [...value.params, networkInterface],
-                })
-                setShowForm(false)
-              }}
-              onDismiss={() => setShowForm(false)}
-            />
-          </SideModal>
+          />
           <div className="space-x-3">
             <Button variant="secondary" size="sm" onClick={() => setShowForm(true)}>
               Add network interface

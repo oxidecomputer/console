@@ -24,9 +24,10 @@ import {
   TextFieldHint,
 } from '@oxide/ui'
 
-import { Form, ListboxField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -400,11 +401,21 @@ export const validationSchema = Yup.object({
   priority: Yup.number().integer().min(0).max(65535).required('Required'),
 })
 
-type Props = PrebuiltFormProps<FirewallRuleValues, VpcFirewallRules> & {
+type CreateFirewallRuleSideModalProps = CreateSideModalFormProps<
+  FirewallRuleValues,
+  VpcFirewallRules
+> & {
   existingRules: VpcFirewallRule[]
 }
 
-export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: Props) {
+export function CreateFirewallRuleSideModalForm({
+  id = 'create-firewall-rule-form',
+  title = 'Add firewall rule',
+  onSuccess,
+  onDismiss,
+  existingRules,
+  ...props
+}: CreateFirewallRuleSideModalProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -412,14 +423,16 @@ export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: P
     onSuccess(data) {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
   })
 
   return (
-    <Form
-      id="create-firewall-rule-form"
-      title="Add firewall rule"
+    <SideModalForm
+      id={id}
+      title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.
         // we should probably at least warn and confirm, if not reject as invalid
@@ -433,16 +446,14 @@ export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: P
           },
         })
       }}
-      mutation={updateRules}
       validationSchema={validationSchema}
       validateOnBlur
+      submitDisabled={updateRules.isLoading}
+      error={updateRules.error?.error as Error | undefined}
       {...props}
     >
       <CommonFields error={updateRules.error} />
-      <Form.Actions>
-        <Form.Submit>Add rule</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+      <Form.Submit>Add rule</Form.Submit>
+    </SideModalForm>
   )
 }

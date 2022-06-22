@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Organization } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -15,6 +15,9 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { CreateOrgSideModalForm } from 'app/forms/org-create'
+import { EditOrgSideModalForm } from 'app/forms/org-edit'
+
 import { useQuickActions } from '../hooks'
 
 const EmptyState = () => (
@@ -27,9 +30,16 @@ const EmptyState = () => (
   />
 )
 
-const OrgsPage = () => {
-  const queryClient = useApiQueryClient()
+interface OrgsPageProps {
+  modal?: 'createOrg' | 'editOrg'
+}
+
+const OrgsPage = ({ modal }: OrgsPageProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const { Table, Column } = useQueryTable('organizationsGet', {})
+  const queryClient = useApiQueryClient()
 
   const { data: orgs } = useApiQuery('organizationsGet', {
     limit: 10, // to have same params as QueryTable
@@ -43,6 +53,12 @@ const OrgsPage = () => {
 
   const makeActions = (org: Organization): MenuAction[] => [
     {
+      label: 'Edit',
+      onActivate() {
+        navigate(`edit/${org.name}`, { state: org })
+      },
+    },
+    {
       label: 'Delete',
       onActivate: () => {
         deleteOrg.mutate({ orgName: org.name })
@@ -50,7 +66,6 @@ const OrgsPage = () => {
     },
   ]
 
-  const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
@@ -80,6 +95,15 @@ const OrgsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateOrgSideModalForm
+        isOpen={modal === 'createOrg'}
+        onDismiss={() => navigate('..')}
+      />
+      <EditOrgSideModalForm
+        isOpen={modal === 'editOrg'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
+      />
     </>
   )
 }

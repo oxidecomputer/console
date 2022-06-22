@@ -29,15 +29,6 @@ test.describe('Breadcrumbs', () => {
     await expectCrumbs(page, [])
   })
 
-  test('work on new project', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/new')
-    await expectCrumbs(page, [
-      { text: 'maze-war', href: '/orgs/maze-war' },
-      { text: 'Projects', href: '/orgs/maze-war/projects' },
-      { text: 'Create project' },
-    ])
-  })
-
   test('works on VPC detail', async ({ page }) => {
     await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc/')
     await expectCrumbs(page, [

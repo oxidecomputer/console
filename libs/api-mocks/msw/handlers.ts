@@ -161,6 +161,66 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.OrganizationUpdate>, OrgParams, Json<Api.Organization> | PostErr>(
+    '/api/organizations/:orgName',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      org.name = req.body.name
+      org.description = req.body.description || ''
+
+      return res(json(org, 200))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+    '/api/organizations/:orgName/policy',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.OrganizationRolePolicy>,
+    ProjectParams,
+    Json<Api.OrganizationRolePolicy> | PostErr
+  >('/api/organizations/:orgName/policy', (req, res) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'organization' as const,
+      resource_id: org.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'organization' && r.resource_id === org.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
+
+  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    return res(ctx.status(204))
+  }),
+
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
@@ -208,12 +268,37 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.ProjectRolesPolicy> | GetErr>(
-    '/api/organizations/:orgName/projects/:projectName/policy',
+  rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
 
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      project.name = req.body.name
+      project.description = req.body.description || ''
+
+      return res(json(project, 200))
+    }
+  ),
+
+  rest.delete<never, ProjectParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res, ctx) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+      db.projects = db.projects.filter((p) => p.id !== project.id)
+      return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/policy',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
       const role_assignments = db.roleAssignments
         .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
         .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
@@ -223,9 +308,9 @@ export const handlers = [
   ),
 
   rest.put<
-    Json<Api.ProjectRolesPolicy>,
+    Json<Api.ProjectRolePolicy>,
     ProjectParams,
-    Json<Api.ProjectRolesPolicy> | PostErr
+    Json<Api.ProjectRolePolicy> | PostErr
   >('/api/organizations/:orgName/projects/:projectName/policy', (req, res) => {
     const [project, err] = lookupProject(req.params)
     if (err) return res(err)
@@ -735,6 +820,9 @@ export const handlers = [
     }
   ),
 
+  // note that in the API this is meant for system users, but that could change.
+  // kind of a hack to pretend it's about normal users.
+  // see https://github.com/oxidecomputer/omicron/issues/1235
   rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
     return res(json(paginated(req.url.search, db.users)))
   }),

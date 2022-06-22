@@ -1,20 +1,21 @@
-import type { SetRequired } from 'type-fest'
+import invariant from 'tiny-invariant'
 
-import type { VpcRouter } from '@oxide/api'
+import type { VpcRouter, VpcRouterUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { DescriptionField, Form, NameField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
 
-import type { VpcRouterFieldValues } from './vpc-router-create'
+import type { EditSideModalFormProps } from '.'
 
 export function EditVpcRouterForm({
+  id = 'edit-vpc-router-form',
   title = 'Edit VPC router',
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: SetRequired<PrebuiltFormProps<VpcRouterFieldValues, VpcRouter>, 'initialValues'>) {
+}: EditSideModalFormProps<VpcRouterUpdate, VpcRouter>) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -22,30 +23,33 @@ export function EditVpcRouterForm({
     onSuccess(data) {
       queryClient.invalidateQueries('vpcRoutersGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
 
   return (
-    <Form
-      id="edit-vpc-router-form"
+    <SideModalForm
+      id={id}
       title={title}
+      onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
+        invariant(
+          props.initialValues.name,
+          'Expected initial name to be passed to update router'
+        )
         updateRouter.mutate({
           ...parentNames,
           routerName: props.initialValues.name,
           body: { name, description },
         })
       }}
-      mutation={updateRouter}
+      submitDisabled={updateRouter.isLoading}
+      error={updateRouter.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="router-name" />
       <DescriptionField id="router-description" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }

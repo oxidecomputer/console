@@ -13,7 +13,7 @@ import {
 } from '@oxide/ui'
 
 import { ProjectSelector } from 'app/components/ProjectSelector'
-import { Form } from 'app/components/form'
+import { PageFormActions } from 'app/components/form'
 import { useParams, useQuickActions } from 'app/hooks'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -86,7 +86,7 @@ const ProjectLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageFormActions />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

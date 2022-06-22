@@ -1,19 +1,19 @@
 import invariant from 'tiny-invariant'
 
-import type { NetworkInterface } from '@oxide/api'
+import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
   DescriptionField,
-  Form,
   ListboxField,
   NameField,
+  SideModalForm,
   TextField,
 } from 'app/components/form'
 import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
-import type { PrebuiltFormProps } from 'app/forms'
+import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
 const values = {
@@ -24,7 +24,7 @@ const values = {
   vpcName: '',
 }
 
-export default function CreateNetworkInterfaceForm({
+export default function CreateNetworkInterfaceSideModalForm({
   id = 'create-network-interface-form',
   title = 'Add network interface',
   initialValues = values,
@@ -32,7 +32,7 @@ export default function CreateNetworkInterfaceForm({
   onSuccess,
   onError,
   ...props
-}: PrebuiltFormProps<typeof values, NetworkInterface>) {
+}: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -52,7 +52,7 @@ export default function CreateNetworkInterfaceForm({
   const vpcs = useApiQuery('projectVpcsGet', { ...pathParams, limit: 50 }).data?.items || []
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
@@ -72,7 +72,8 @@ export default function CreateNetworkInterfaceForm({
           })
         })
       }
-      mutation={createNetworkInterface}
+      submitDisabled={createNetworkInterface.isLoading}
+      error={createNetworkInterface.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="nic-name" />
@@ -95,11 +96,6 @@ export default function CreateNetworkInterfaceForm({
         // required
       />
       <TextField id="nic-ip" name="ip" label="IP Address" />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
