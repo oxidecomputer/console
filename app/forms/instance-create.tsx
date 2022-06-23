@@ -112,7 +112,7 @@ export default function CreateInstanceForm({
 
   const images = useApiQuery('imagesGet', {}).data?.items || []
 
-  initialValues.globalImage = images[0]?.id
+  initialValues.globalImage = images[0]?.id || ''
 
   return (
     <FullPageForm
