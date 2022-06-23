@@ -7,6 +7,7 @@ import type { Json } from '../json-type'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import type {
+  DiskParams,
   GlobalImageParams,
   InstanceParams,
   NetworkInterfaceParams,
@@ -590,6 +591,16 @@ export const handlers = [
       }
       db.disks.push(newDisk)
       return res(json(newDisk, 201))
+    }
+  ),
+
+  rest.delete<never, DiskParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/disks/:diskName',
+    (req, res, ctx) => {
+      const disk = db.disks.find((d) => d.name === req.params.diskName)
+      if (!disk) return res(notFoundErr)
+      db.disks = db.disks.filter((d) => d.id !== disk.id)
+      return res(ctx.status(204))
     }
   ),
 
