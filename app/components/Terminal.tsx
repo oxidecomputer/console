@@ -12,7 +12,10 @@ interface TerminalProps {
 const options: ITerminalOptions = {
   allowTransparency: false,
   screenReaderMode: true,
-  // rendererType: 'dom',
+  rendererType: 'dom',
+  fontFamily: '"GT America Mono", monospace',
+  fontSize: 14,
+  lineHeight: 1.2,
   minimumContrastRatio: 21,
   windowOptions: {
     fullscreenWin: true,
