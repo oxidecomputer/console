@@ -39,7 +39,7 @@ export function TopBar() {
       <Menu>
         <MenuButton
           aria-label="User menu"
-          className="ml-1.5 text-tertiary items-center"
+          className="flex ml-1.5 text-tertiary items-center"
           title="User menu"
         >
           <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
