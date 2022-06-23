@@ -8,6 +8,13 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { QuickActions, ToastProvider } from './hooks'
 import { Router } from './routes'
 
+if (process.env.SHA) {
+  console.info(
+    'Oxide Web Console version',
+    `https://github.com/oxidecomputer/console/commits/${process.env.SHA}`
+  )
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

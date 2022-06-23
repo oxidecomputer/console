@@ -4,8 +4,8 @@ import { useApiQuery } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 
+import { PageActionsTarget } from 'app/components/PageActions'
 import { ProjectSelector } from 'app/components/ProjectSelector'
-import { PageFormActions } from 'app/components/form'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -53,7 +53,7 @@ const OrgLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <PageFormActions />
+          <PageActionsTarget />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

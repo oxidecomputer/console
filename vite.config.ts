@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
+    'process.env.SHA': JSON.stringify(process.env.SHA),
   },
   plugins: [
     splitVendorChunkPlugin(),

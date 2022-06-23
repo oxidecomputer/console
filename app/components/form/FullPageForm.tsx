@@ -3,12 +3,11 @@ import { useState } from 'react'
 import { cloneElement } from 'react'
 
 import { PageHeader, PageTitle } from '@oxide/ui'
-import { classed, flattenChildren, pluckFirstOfType, tunnel } from '@oxide/util'
+import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
+import { PageActions } from '../PageActions'
 import type { FormProps } from './Form'
 import { Form } from './Form'
-
-const PageActionsTunnel = tunnel('form-page-actions')
 
 export interface FullPageFormProps<Values>
   extends Omit<FormProps<Values>, 'setSubmitState'> {
@@ -42,7 +41,7 @@ export function FullPageForm<Values>({
         {childArray}
       </Form>
       {actions && (
-        <PageActionsTunnel.In>
+        <PageActions>
           <PageActionsContainer>
             {cloneElement(actions, {
               formId: formProps.id,
@@ -50,10 +49,8 @@ export function FullPageForm<Values>({
               error,
             })}
           </PageActionsContainer>
-        </PageActionsTunnel.In>
+        </PageActions>
       )}
     </>
   )
 }
-
-export const PageFormActions = PageActionsTunnel.Out

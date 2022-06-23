@@ -24,6 +24,7 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
@@ -83,11 +84,10 @@ export const Router = () => (
             <Route path="instances" handle={{ crumb: 'Instances' }}>
               <Route index element={<InstancesPage />} />
               <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
-              <Route
-                path=":instanceName"
-                element={<InstancePage />}
-                handle={{ crumb: instanceCrumb }}
-              />
+              <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
+                <Route index element={<InstancePage />} />
+                <Route path="serial-console" element={<SerialConsolePage />} />
+              </Route>
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
               <Route index element={<VpcsPage />} />

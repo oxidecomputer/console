@@ -1,5 +1,5 @@
 import filesize from 'filesize'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -14,7 +14,29 @@ import { useParams, useQuickActions } from 'app/hooks'
 import { useMakeInstanceActions } from '../actions'
 import { MetricsTab } from './tabs/MetricsTab'
 import { NetworkingTab } from './tabs/NetworkingTab'
+import { SerialConsoleTab } from './tabs/SerialConsoleTab'
 import { StorageTab } from './tabs/StorageTab'
+
+const InstanceTabs = memo(() => (
+  <Tabs id="tabs-instance" fullWidth>
+    <Tab>Storage</Tab>
+    <Tab.Panel>
+      <StorageTab />
+    </Tab.Panel>
+    <Tab>Metrics</Tab>
+    <Tab.Panel>
+      <MetricsTab />
+    </Tab.Panel>
+    <Tab>Networking</Tab>
+    <Tab.Panel>
+      <NetworkingTab />
+    </Tab.Panel>
+    <Tab>Serial Console</Tab>
+    <Tab.Panel>
+      <SerialConsoleTab />
+    </Tab.Panel>
+  </Tabs>
+))
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -80,20 +102,7 @@ export const InstancePage = () => {
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
-      <Tabs id="tabs-instance" fullWidth>
-        <Tab>Storage</Tab>
-        <Tab.Panel>
-          <StorageTab />
-        </Tab.Panel>
-        <Tab>Metrics</Tab>
-        <Tab.Panel>
-          <MetricsTab />
-        </Tab.Panel>
-        <Tab>Networking</Tab>
-        <Tab.Panel>
-          <NetworkingTab />
-        </Tab.Panel>
-      </Tabs>
+      <InstanceTabs />
     </>
   )
 }
