@@ -30,15 +30,19 @@ export function TopBar() {
 
   return (
     <div className="flex h-10 items-center justify-end">
-      <Button variant="link" size="xs" className="-mr-1 !text-tertiary">
+      <Button variant="link" size="xs" className="-mr-0.5 !text-tertiary" title="Info">
         <Info16Icon />
       </Button>
-      <Button variant="link" size="xs" className="!text-tertiary">
+      <Button variant="link" size="xs" className="!text-tertiary" title="Notifications">
         <Notifications16Icon />
       </Button>
       <Menu>
-        <MenuButton aria-label="User menu" className="ml-1 text-tertiary">
-          <Profile16Icon /> <DirectionDownIcon className="!w-2.5" />
+        <MenuButton
+          aria-label="User menu"
+          className="ml-1.5 text-tertiary items-center"
+          title="User menu"
+        >
+          <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
         </MenuButton>
         <MenuList>
           <MenuItem
