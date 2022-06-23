@@ -50,7 +50,7 @@ export function TopBar() {
               navigate('/settings')
             }}
           >
-            User settings
+            Settings
           </MenuItem>
           {loggedIn ? (
             <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
