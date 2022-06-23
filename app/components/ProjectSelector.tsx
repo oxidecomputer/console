@@ -1,7 +1,10 @@
-import cn from 'classnames'
-import { useParams as useRRParams } from 'react-router-dom'
+import { Menu, MenuButton, MenuLink, MenuList } from '@reach/menu-button'
+import { Link } from 'react-router-dom'
 
+import { useApiQuery } from '@oxide/api'
 import { SelectArrows6Icon } from '@oxide/ui'
+
+import { useParams } from 'app/hooks'
 
 /**
  * This is mostly temporary until we figure out the proper thing to go here
@@ -18,21 +21,34 @@ const BrandIcon = () => (
   </svg>
 )
 
-interface ProjectSelectorProps {
-  className?: string
-}
-export const ProjectSelector = ({ className }: ProjectSelectorProps) => {
-  const { orgName, projectName } = useRRParams()
+export const ProjectSelector = () => {
+  const { orgName, projectName } = useParams('orgName')
+  const projects =
+    useApiQuery('organizationProjectsGet', { orgName, limit: 20 }).data?.items || []
   return (
-    <div className={cn('mt-1 flex items-center justify-between', className)}>
-      <div className="flex items-center">
-        <BrandIcon />
-        <div className="ml-2 pb-0.5 leading-4 text-sans-sm">
-          <div>{orgName}</div>
-          <div className="text-secondary">{projectName || 'select a project'}</div>
+    <Menu>
+      <MenuButton className="mt-1 flex items-center justify-between w-full">
+        <div className="flex items-center">
+          <BrandIcon />
+          <div className="ml-2 pb-0.5 leading-4 text-sans-sm text-left">
+            <div>{orgName}</div>
+            <div className="text-secondary">{projectName || 'select a project'}</div>
+          </div>
         </div>
-      </div>
-      <SelectArrows6Icon className="text-secondary" />
-    </div>
+        {/* aria-hidden is a tip from the Reach docs */}
+        <SelectArrows6Icon className="text-secondary" aria-hidden />
+      </MenuButton>
+      <MenuList className="w-48 mt-2">
+        {projects.map((project) => (
+          <MenuLink
+            key={project.name}
+            as={Link}
+            to={`/orgs/${orgName}/projects/${project.name}`}
+          >
+            {project.name}
+          </MenuLink>
+        ))}
+      </MenuList>
+    </Menu>
   )
 }
