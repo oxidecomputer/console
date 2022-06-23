@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
@@ -27,6 +28,7 @@ export const useMakeInstanceActions = (
   projectParams: { orgName: string; projectName: string },
   options: Options = {}
 ): MakeActions<Instance> => {
+  const navigate = useNavigate()
   const addToast = useToast()
   const successToast = (title: string) =>
     addToast({ icon: <Success16Icon />, title, timeout: 5000 })
@@ -92,6 +94,12 @@ export const useMakeInstanceActions = (
           )
         },
         disabled: !instanceCan.delete(instance),
+      },
+      {
+        label: 'Serial Console',
+        onActivate() {
+          navigate('serial-console')
+        },
       },
     ]
     // TODO: fix this lol
