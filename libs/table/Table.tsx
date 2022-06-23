@@ -48,7 +48,7 @@ export const Table = <TGenerics extends OurTableGenerics>({
     </UITable.Header>
     <UITable.Body>
       {table.getRowModel().rows.map((row) => (
-        <UITable.Row className={rowClassName} key={row.id}>
+        <UITable.Row className={rowClassName} selected={row.getIsSelected()} key={row.id}>
           {row.getAllCells().map((cell) => (
             <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
           ))}
