@@ -29,7 +29,6 @@ import {
   NameField,
   NetworkInterfaceField,
   RadioField,
-  TagsField,
   TextField,
 } from 'app/components/form'
 import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
@@ -39,7 +38,6 @@ import { useParams, useToast } from 'app/hooks'
 type InstanceCreateInput = Assign<
   InstanceCreate,
   {
-    tags: object
     networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
     type: typeof INSTANCE_SIZES[number]['id']
     disks: DiskTableItem[]
@@ -53,7 +51,6 @@ type InstanceCreateInput = Assign<
 const values: InstanceCreateInput = {
   name: '',
   description: '',
-  tags: {},
   /**
    * This value controls the selector which drives memory and ncpus. It's not actually
    * submitted to the API.
@@ -161,7 +158,6 @@ export default function CreateInstanceForm({
     >
       <NameField id="name" />
       <DescriptionField id="description" />
-      <TagsField id="tags" />
 
       <Divider />
 
