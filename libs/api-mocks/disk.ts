@@ -1,4 +1,5 @@
 import type { Disk } from '@oxide/api'
+import { GiB } from '@oxide/util'
 
 import type { Json } from './json-type'
 import { project } from './project'
@@ -13,7 +14,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'attached', instance: 'abc123' },
     device_path: '/abc',
-    size: 2048,
+    size: 2 * GiB,
     block_size: 2048,
   },
   {
@@ -25,7 +26,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'attached', instance: 'abc123' },
     device_path: '/def',
-    size: 4096,
+    size: 4 * GiB,
     block_size: 2048,
   },
   {
@@ -37,7 +38,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/ghi',
-    size: 6144,
+    size: 6 * GiB,
     block_size: 2048,
   },
   {
@@ -49,7 +50,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 64 * GiB,
     block_size: 2048,
   },
   {
@@ -61,7 +62,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 128 * GiB,
     block_size: 2048,
   },
   {
@@ -73,7 +74,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 20 * GiB,
     block_size: 2048,
   },
   {
@@ -85,7 +86,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 24 * GiB,
     block_size: 2048,
   },
   {
@@ -97,7 +98,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 16 * GiB,
     block_size: 2048,
   },
   {
@@ -109,7 +110,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 32 * GiB,
     block_size: 2048,
   },
   {
@@ -121,7 +122,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 24 * GiB,
     block_size: 2048,
   },
   {
@@ -133,7 +134,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/jkl',
-    size: 8192,
+    size: 12 * GiB,
     block_size: 2048,
   },
 ]
