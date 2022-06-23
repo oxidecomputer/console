@@ -4,6 +4,8 @@ import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
+import { DateCell } from '@oxide/table'
+import { SizeCell } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
@@ -109,11 +111,13 @@ export function DisksPage({ modal }: DisksPageProps) {
             ) : null
           }
         />
+        <Column header="Size" accessor="size" cell={SizeCell} />
         <Column
           id="status"
           accessor={(row) => row.state.state}
           cell={({ value }) => <DiskStatusBadge status={value} />}
         />
+        <Column header="Created" accessor="timeCreated" cell={DateCell} />
       </Table>
       <CreateDiskSideModalForm
         isOpen={modal === 'createDisk'}

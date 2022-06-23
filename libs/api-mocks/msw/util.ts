@@ -33,7 +33,7 @@ export const paginated = <I extends { id: string }>(
     }
   }
 
-  if (limit + startIndex > items.length) {
+  if (limit + startIndex >= items.length) {
     return {
       items: items.slice(startIndex),
       nextPage: null,
