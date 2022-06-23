@@ -53,7 +53,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="Disk name"]',
-    'role=radiogroup[name="Block size (Bytes)"]',
     'role=spinbutton[name="Disk size (GiB)"]',
     'role=radiogroup[name="Network interface"]',
     'role=textbox[name="Hostname"]',
