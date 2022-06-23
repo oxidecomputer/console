@@ -2199,10 +2199,10 @@
     prop-types "^15.7.2"
     tslib "^2.3.0"
 
-"@remix-run/router@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.1.0.tgz#9dee1610f5ba730e4c67e5de517912f71c627031"
-  integrity sha512-mK2wZWAFsijTGIk7ZhKvEAzU7qIS6F6RhPy5AiEosaEs3mB3J2NvUWRoN3W74V+5Jju/AisT5NaM2pIbnfGXWg==
+"@remix-run/router@0.2.0-pre.3":
+  version "0.2.0-pre.3"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.2.0-pre.3.tgz#2864cf275433ec39d2370a1aec28a5957060f47a"
+  integrity sha512-/1vRiMh8j31PBgLgB2lqcwDDEBEwsnucOouZ8GvJTRNHULkPOU3kvQ1ZUpt9IPd1lS5AVC93I9pVLnFhlNA4Mw==
 
 "@rollup/pluginutils@^4.1.2":
   version "4.1.2"
@@ -6360,6 +6360,13 @@ debug@^4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
   integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
+  dependencies:
+    ms "2.1.2"
+
+debug@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
+  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
   dependencies:
     ms "2.1.2"
 
@@ -11544,11 +11551,6 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier-plugin-tailwindcss@0.1.11:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/prettier-plugin-tailwindcss/-/prettier-plugin-tailwindcss-0.1.11.tgz#6112da68d9d022b7f896d35c070464931c99c35f"
-  integrity sha512-a28+1jvpIZQdZ/W97wOXb6VqI762MKE/TxMMuibMEHhyYsSxQA8Ek30KObd5kJI2HF1ldtSYprFayXJXi3pz8Q==
-
 prettier@2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.0.tgz#a4fdae07e5596c51c9857ea676cd41a0163879d6"
@@ -12020,12 +12022,12 @@ react-router-dom@^6.0.0:
     history "^5.2.0"
     react-router "6.2.1"
 
-react-router-dom@^6.4.0-pre.2:
-  version "6.4.0-pre.2"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.2.tgz#6c34e3a96db3712a79dd78416b01dbb40f18aae7"
-  integrity sha512-Y6tOV4zs7uS+7pTbMoOcMWP9H5hVKINIyLIO1oWVVQEKv2KDEQx0njyPnhso4LkbOK6l7JhUMNO5DLwMqZVWFQ==
+react-router-dom@^6.4.0-pre.8:
+  version "6.4.0-pre.8"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.8.tgz#1f784fa09719801250070431703dd02c5fdcde6e"
+  integrity sha512-5hxQdiPOG98YOANbJ8IBUKbRgU6k4/TSX4VyO6jRWoG6KY0K2EG5wjEZgZ0tlAN9fXFgnHsro/HKi/r+HxugAg==
   dependencies:
-    react-router "6.4.0-pre.2"
+    react-router "6.4.0-pre.8"
 
 react-router@6.2.1, react-router@^6.0.0:
   version "6.2.1"
@@ -12034,13 +12036,12 @@ react-router@6.2.1, react-router@^6.0.0:
   dependencies:
     history "^5.2.0"
 
-react-router@6.4.0-pre.2:
-  version "6.4.0-pre.2"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.2.tgz#f80856faae0a1163ca58aad6ddf82e00a03264a3"
-  integrity sha512-JFwatrS+QFmyoOrjUNpHFeAO72Y1FUZ9wOfQoCm1a6cRglAbLXAdKll/WEGUtGUb3LwLx3uAZ57kPXHQX5vutw==
+react-router@6.4.0-pre.8:
+  version "6.4.0-pre.8"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.8.tgz#90ce4cc590b453fc26ad2d131f51d908783c9091"
+  integrity sha512-xwt2s9jW5NaakymlSRG0hZoGda6E/Skfgmj/4vlwvRX/kqoO8jU0g+Vi3sHDCatH/V+GjDyTQkdMEDm8qGsBsQ==
   dependencies:
-    "@remix-run/router" "^0.1.0"
-    use-sync-external-store "1.1.0"
+    "@remix-run/router" "0.2.0-pre.3"
 
 react-sizeme@^3.0.1:
   version "3.0.2"
@@ -13685,10 +13686,10 @@ tinypool@^0.1.3:
   resolved "https://registry.yarnpkg.com/tinypool/-/tinypool-0.1.3.tgz#b5570b364a1775fd403de5e7660b325308fee26b"
   integrity sha512-2IfcQh7CP46XGWGGbdyO4pjcKqsmVqFAPcXfPxcPXmOWt9cYkTP9HcDmGgsfijYoAEc4z9qcpM/BaBz46Y9/CQ==
 
-tinyspy@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/tinyspy/-/tinyspy-0.3.2.tgz#2f95cb14c38089ca690385f339781cd35faae566"
-  integrity sha512-2+40EP4D3sFYy42UkgkFFB+kiX2Tg3URG/lVvAZFfLxgGpnWl5qQJuBw1gaLttq8UOS+2p3C0WrhJnQigLTT2Q==
+tinyspy@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/tinyspy/-/tinyspy-0.3.3.tgz#8b57f8aec7fe1bf583a3a49cb9ab30c742f69237"
+  integrity sha512-gRiUR8fuhUf0W9lzojPf1N1euJYA30ISebSfgca8z76FOvXtVXqd5ojEIaKLWbDQhAaC3ibxZIjqbyi4ybjcTw==
 
 title-case@^2.1.0:
   version "2.1.1"
@@ -14238,11 +14239,6 @@ use-sidecar@^1.0.1, use-sidecar@^1.0.5:
     detect-node-es "^1.1.0"
     tslib "^1.9.3"
 
-use-sync-external-store@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.1.0.tgz#3343c3fe7f7e404db70f8c687adf5c1652d34e82"
-  integrity sha512-SEnieB2FPKEVne66NpXPd1Np4R1lTNKfjuy3XdIoPQKYBAFdzbzSZlSn1KJZUiihQLQC5Znot4SBz1EOTBwQAQ==
-
 use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.npmjs.org/use/-/use-3.1.1.tgz"
@@ -14362,10 +14358,10 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite@^2.9.8, vite@^2.9.9:
-  version "2.9.9"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.9.tgz#8b558987db5e60fedec2f4b003b73164cb081c5e"
-  integrity sha512-ffaam+NgHfbEmfw/Vuh6BHKKlI/XIAhxE5QSS7gFLIngxg171mg1P3a4LSRME0z2ZU1ScxoKzphkipcYwSD5Ew==
+vite@^2.9.12:
+  version "2.9.12"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.12.tgz#b1d636b0a8ac636afe9d83e3792d4895509a941b"
+  integrity sha512-suxC36dQo9Rq1qMB2qiRorNJtJAdxguu5TMvBHOc/F370KvqAe9t48vYp+/TbPKRNrMh/J55tOUmkuIqstZaew==
   dependencies:
     esbuild "^0.14.27"
     postcss "^8.4.13"
@@ -14374,18 +14370,20 @@ vite@^2.9.8, vite@^2.9.9:
   optionalDependencies:
     fsevents "~2.3.2"
 
-vitest@^0.12.6:
-  version "0.12.6"
-  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.12.6.tgz#9de2cca78e97effe5395230486ebd3830d0721dd"
-  integrity sha512-YWbCTv0XKBuBw5YtuW/iufuguoi8QhGpYyi2g57Oo7akpscMkkWTAaZGgY0ux1oJJtO/pc/8GFt0EF32WFBUUQ==
+vitest@^0.15.2:
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.15.2.tgz#3931c390685ff03331298c7719d27d691f79e782"
+  integrity sha512-cMabuUqu+nNHafkdN7H8Z20+UZTrrUfqjGwAoLwUwrqFGWBz3gXwxndjbLf6mgSFs9lF/JWjKeNM1CXKwtk26w==
   dependencies:
     "@types/chai" "^4.3.1"
     "@types/chai-subset" "^1.3.3"
+    "@types/node" "*"
     chai "^4.3.6"
+    debug "^4.3.4"
     local-pkg "^0.4.1"
     tinypool "^0.1.3"
-    tinyspy "^0.3.2"
-    vite "^2.9.8"
+    tinyspy "^0.3.3"
+    vite "^2.9.12"
 
 vm-browserify@^1.0.1:
   version "1.1.2"
