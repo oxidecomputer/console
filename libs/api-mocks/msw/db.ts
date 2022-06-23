@@ -2,6 +2,7 @@ import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
+import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
 import { json } from './util'
@@ -127,6 +128,14 @@ export function lookupGlobalImage(
   const image = db.globalImages.find((o) => o.name === params.imageName)
   if (!image) return Err(notFoundErr)
   return Ok(image)
+}
+
+export function lookupSshKey(params: SshKeyParams): Result<Json<Api.SshKey>> {
+  const sshKey = db.sshKeys.find(
+    (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
+  )
+  if (!sshKey) return Err(notFoundErr)
+  return Ok(sshKey)
 }
 
 const initDb = {

@@ -19,8 +19,9 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
+import { lookupSshKey } from './db'
+import { lookupDisk } from './db'
 import { lookupGlobalImage } from './db'
-import { notFoundErr } from './db'
 import {
   db,
   lookupInstance,
@@ -115,10 +116,8 @@ export const handlers = [
   rest.delete<never, SshKeyParams, GetErr>(
     '/api/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
-      const sshKey = db.sshKeys.find(
-        (key) => key.name === req.params.sshKeyName && key.silo_user_id === sessionMe.id
-      )
-      if (!sshKey) return res(notFoundErr)
+      const [sshKey, err] = lookupSshKey(req.params)
+      if (err) return res(err)
       db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
       return res(ctx.status(204))
     }
@@ -430,10 +429,8 @@ export const handlers = [
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const disk = db.disks.find((d) => d.name === req.body.name)
-      if (!disk) {
-        return res(badRequest('disk not found'))
-      }
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+      if (diskErr) return res(diskErr)
       disk.state = {
         state: 'attached',
         instance: instance.id,
@@ -450,10 +447,8 @@ export const handlers = [
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const disk = db.disks.find((d) => d.name === req.body.name)
-      if (!disk) {
-        return res(badRequest('disk not found'))
-      }
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+      if (diskErr) return res(diskErr)
       disk.state = {
         state: 'detached',
       }
@@ -597,8 +592,8 @@ export const handlers = [
   rest.delete<never, DiskParams, GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks/:diskName',
     (req, res, ctx) => {
-      const disk = db.disks.find((d) => d.name === req.params.diskName)
-      if (!disk) return res(notFoundErr)
+      const [disk, err] = lookupDisk(req.params)
+      if (err) return res(err)
       db.disks = db.disks.filter((d) => d.id !== disk.id)
       return res(ctx.status(204))
     }
