@@ -54,8 +54,6 @@ export const VpcPage = () => {
         <Tab.Panel>
           <VpcFirewallRulesTab />
         </Tab.Panel>
-        <Tab>Gateways</Tab>
-        <Tab.Panel>Not implemented</Tab.Panel>
       </Tabs>
     </>
   )

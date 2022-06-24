@@ -229,7 +229,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=tab[name="System Routes"]',
     'role=tab[name="Routers"]',
     'role=tab[name="Firewall Rules"]',
-    'role=tab[name="Gateways"]',
     'role=cell[name="mock-subnet"]',
     // TODO: assert minitable contents
   ])
@@ -286,8 +285,4 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=cell[name="allow-rdp"]',
     'role=cell[name="allow-ssh"]',
   ])
-
-  // Gateways
-  await page.click('role=tab[name="Gateways"]')
-  // not implemeneted
 })
