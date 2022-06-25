@@ -27,7 +27,10 @@ export const ProjectSelector = () => {
     useApiQuery('organizationProjectsGet', { orgName, limit: 20 }).data?.items || []
   return (
     <Menu>
-      <MenuButton className="mt-1 flex items-center justify-between w-full">
+      <MenuButton
+        aria-label="Switch project"
+        className="mt-1 flex items-center justify-between w-full"
+      >
         <div className="flex items-center">
           <BrandIcon />
           <div className="ml-2 pb-0.5 leading-4 text-sans-sm text-left">
