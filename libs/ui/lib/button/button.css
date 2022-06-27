@@ -22,20 +22,27 @@
  * Ghost
  */
 .btn-primary-ghost {
-  @apply border text-accent border-accent-tertiary hover:bg-accent-secondary-hover disabled:bg-transparent;
+  @apply border text-accent border-accent-tertiary hover:bg-accent-secondary disabled:bg-transparent;
 }
 
 /* Removing `-ghost` so this version is default `btn-secondary` */
 .btn-secondary {
-  @apply border text-secondary border-default hover:bg-raise disabled:bg-transparent;
+  @apply border text-secondary border-default hover:bg-secondary disabled:bg-transparent;
 }
 
 .btn-destructive-ghost {
-  @apply border text-destructive border-destructive-secondary hover:bg-destructive-secondary-hover disabled:bg-transparent;
+  @apply border text-destructive border-destructive-secondary hover:bg-destructive-secondary disabled:bg-transparent;
 }
 
 .btn-notice-ghost {
-  @apply border text-notice border-notice-secondary hover:bg-notice-secondary-hover disabled:bg-transparent;
+  @apply border text-notice border-notice-secondary hover:bg-notice-secondary disabled:bg-transparent;
+}
+
+/**
+ * Link
+ */
+.btn-link-accent {
+  @apply text-accent hover:underline disabled:no-underline;
 }
 
 /**

@@ -86,7 +86,7 @@ const OrgsPage = ({ modal }: OrgsPageProps) => {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
+        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Organization
         </Link>
       </TableActions>

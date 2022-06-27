@@ -6,7 +6,7 @@ import { assertUnreachable } from '@oxide/util'
 import './button.css'
 
 export const buttonSizes = ['xs', 'sm', 'base'] as const
-export const variants = ['default', 'ghost'] as const
+export const variants = ['default', 'ghost', 'link'] as const
 export const colors = ['primary', 'secondary', 'destructive', 'notice'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
@@ -38,6 +38,14 @@ const colorStyle = (variant: Variant, color: Color): string => {
       return 'btn-destructive-ghost'
     case 'ghost notice':
       return 'btn-notice-ghost'
+    case 'link primary':
+      return 'btn-primary-link'
+    case 'link secondary':
+      return 'btn-secondary-link'
+    case 'link notice':
+      return 'btn-notice-link'
+    case 'link destructive':
+      return 'btn-destructive-link'
     default:
       assertUnreachable(`Invalid button state ${style}`, style)
   }
