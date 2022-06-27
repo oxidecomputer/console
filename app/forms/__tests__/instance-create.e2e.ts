@@ -18,9 +18,7 @@ test.describe('Instance Create Form', () => {
 
     await page.waitForNavigation()
 
-    expect(page.url()).toContain(
-      '/orgs/maze-war/projects/mock-project/instances/mock-instance'
-    )
+    expect(page).toHaveURL('/orgs/maze-war/projects/mock-project/instances/mock-instance')
 
     await expect(page.locator('h1:has-text("mock-instance")')).toBeVisible()
   })
