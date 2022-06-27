@@ -23,8 +23,13 @@ const BrandIcon = () => (
 
 export const ProjectSelector = () => {
   const { orgName, projectName } = useParams('orgName')
-  const projects =
-    useApiQuery('organizationProjectsGet', { orgName, limit: 20 }).data?.items || []
+
+  const { data } = useApiQuery('organizationProjectsGet', { orgName, limit: 20 })
+
+  // filter out current project if there is one. if there isn't one, it'll be
+  // undefined and it won't match any
+  const projects = (data?.items || []).filter((p) => p.name !== projectName)
+
   return (
     <Menu>
       <MenuButton
