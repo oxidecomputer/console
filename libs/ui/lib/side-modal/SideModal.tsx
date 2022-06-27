@@ -36,11 +36,12 @@ export function SideModal({
   const AnimatedDialogOverlay = animated(DialogOverlay)
   const [status, setStatus] = useState('focus-unlocked')
 
-  const config = { tension: 400, mass: 0.125 }
+  const config = { tension: 500, mass: 0.125 }
 
   const transitions = useTransition(isOpen, {
     from: { opacity: 0, x: 100 },
     enter: { opacity: 0.6, x: 0 },
+    leave: { opacity: 0, x: 100 },
     onRest: () => {
       setStatus(isOpen ? 'focus-locked' : 'focus-unlocked') // if done opening, lock focus. if done closing, unlock focus
     },
@@ -64,7 +65,7 @@ export function SideModal({
               <AnimatedDialogContent
                 id={id}
                 {...dialogProps}
-                className="ox-side-modal absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
+                className="ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
                 aria-labelledby={titleId}
                 style={{
                   transform: styles.x.to((value) => `translate3d(${value}%, 0px, 0px)`),
