@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet'
 import { useMatches } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import type { Merge, SetRequired } from 'type-fest'
@@ -33,5 +34,23 @@ const useCrumbs = () =>
     }))
 
 export function Breadcrumbs() {
-  return <BreadcrumbsPure data={useCrumbs()} />
+  const crumbs = useCrumbs()
+  // output
+  // non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
+  // top-level route: Oxide Console
+  const titleCrumbs = crumbs
+    .slice() // avoid mutating original with reverse()
+    .reverse()
+    .map((item) => item.label)
+    .join(' / ')
+    .concat(crumbs.length > 0 ? ' / ' : '')
+
+  return (
+    <>
+      <Helmet>
+        <title>{titleCrumbs}Oxide Console</title>
+      </Helmet>
+      <BreadcrumbsPure data={crumbs} />
+    </>
+  )
 }
