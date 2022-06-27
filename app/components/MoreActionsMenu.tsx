@@ -11,10 +11,13 @@ interface MoreActionsMenuProps {
 export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
   return (
     <Menu>
-      <MenuButton aria-label={label}>
+      <MenuButton
+        aria-label={label}
+        className="w-6 h-6 border border-default flex rounded items-center justify-center hover:bg-hover"
+      >
         <More12Icon className="text-tertiary" />
       </MenuButton>
-      <MenuList>
+      <MenuList className="mt-2">
         {actions.map((a) => (
           <MenuItem disabled={a.disabled} key={a.label} onSelect={a.onActivate}>
             {a.label}
