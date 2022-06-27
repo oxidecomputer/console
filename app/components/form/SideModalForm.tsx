@@ -47,6 +47,7 @@ export function SideModalForm<Values>({
           formId={id}
           submitDisabled={submitDisabled || !submitState}
           error={error}
+          className="flex-row-reverse"
         >
           {submit || <Form.Submit>{title}</Form.Submit>}
           <Form.Cancel onClick={onDismiss} />
