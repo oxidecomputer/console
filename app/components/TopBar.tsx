@@ -44,7 +44,7 @@ export function TopBar() {
         >
           <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
         </MenuButton>
-        <MenuList>
+        <MenuList className="mt-2">
           <MenuItem
             onSelect={() => {
               navigate('/settings')
