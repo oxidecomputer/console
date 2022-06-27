@@ -1,92 +1,45 @@
 /**
  * Default
  */
-.btn-accent {
-  @apply text-inverse bg-accent hover:bg-accent-hover disabled:text-accent-disabled disabled:bg-accent;
-}
-
-.btn-notice {
-  @apply text-inverse bg-notice hover:bg-notice-hover disabled:text-notice-disabled disabled:bg-notice;
-}
-
-.btn-destructive {
-  @apply text-inverse bg-destructive hover:bg-destructive-hover disabled:text-destructive-disabled disabled:bg-destructive;
-}
-
-.btn-secondary {
-  @apply text-secondary bg-secondary hover:bg-secondary-hover disabled:bg-secondary;
-}
-
-/**
- * Secondary
- */
-.btn-accent-secondary {
+.btn-primary {
   @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover disabled:text-accent-disabled disabled:bg-accent-secondary;
 }
 
-.btn-destructive-secondary {
+/* Using `-solid` since ghost version is used as default secondary button state */
+.btn-secondary-solid {
+  @apply text-secondary bg-secondary hover:bg-secondary-hover disabled:text-quaternary disabled:bg-secondary;
+}
+
+.btn-destructive {
   @apply text-destructive bg-destructive-secondary hover:bg-destructive-secondary-hover disabled:text-destructive-disabled disabled:bg-destructive-secondary;
 }
 
-.btn-notice-secondary {
+.btn-notice {
   @apply text-notice bg-notice-secondary hover:bg-notice-secondary-hover disabled:text-notice-disabled disabled:bg-notice-secondary;
 }
 
 /**
  * Ghost
  */
-.btn-ghost-accent {
+.btn-primary-ghost {
   @apply border text-accent border-accent-tertiary hover:bg-accent-secondary-hover disabled:bg-transparent;
 }
-.btn-ghost-notice {
-  @apply border text-notice border-notice-secondary hover:bg-notice-secondary-hover disabled:bg-transparent;
-}
-.btn-ghost-destructive {
-  @apply border text-destructive border-destructive-secondary hover:bg-destructive-secondary-hover disabled:bg-transparent;
-}
-.btn-ghost-secondary {
+
+/* Removing `-ghost` so this version is default `btn-secondary` */
+.btn-secondary {
   @apply border text-secondary border-default hover:bg-raise disabled:bg-transparent;
 }
 
-/**
- * Link
- */
-.btn-link-accent {
-  @apply text-accent hover:underline disabled:no-underline;
+.btn-destructive-ghost {
+  @apply border text-destructive border-destructive-secondary hover:bg-destructive-secondary-hover disabled:bg-transparent;
 }
 
-.btn-link-notice {
-  @apply text-notice hover:underline disabled:no-underline;
-}
-
-.btn-link-destructive {
-  @apply text-destructive hover:underline disabled:no-underline;
-}
-
-.btn-link-secondary {
-  @apply text-secondary hover:underline disabled:no-underline;
+.btn-notice-ghost {
+  @apply border text-notice border-notice-secondary hover:bg-notice-secondary-hover disabled:bg-transparent;
 }
 
 /**
- * Disabled
- */
-.btn-accent:disabled,
-.btn-accent-secondary:disabled {
-  @apply text-accent-disabled bg-accent-secondary;
-}
-
-.btn-notice:disabled,
-.btn-notice-secondary:disabled {
-  @apply text-notice-disabled bg-notice-secondary;
-}
-
-.btn-destructive:disabled,
-.btn-destructive-secondary:disabled {
-  @apply text-destructive-disabled bg-destructive-secondary;
-}
-
-/**
- * A class to make it very visually obvious that a button style is missing 
+ * A class to make it very visually obvious that a button style is missing
  */
 .btn-not-implemented {
   @apply cursor-not-allowed text-transparent focus:ring-transparent;
