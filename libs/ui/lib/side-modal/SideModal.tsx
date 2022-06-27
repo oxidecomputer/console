@@ -1,6 +1,7 @@
 import type { DialogProps } from '@reach/dialog'
-import Dialog from '@reach/dialog'
-import React, { createContext, useContext } from 'react'
+import { DialogContent, DialogOverlay } from '@reach/dialog'
+import React, { createContext, useContext, useState } from 'react'
+import { animated, useTransition } from 'react-spring'
 
 import { classed } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
@@ -27,22 +28,52 @@ export function SideModal({
   children,
   onDismiss,
   title,
+  isOpen,
   ...dialogProps
 }: SideModalProps) {
   const titleId = `${id}-title`
+  const AnimatedDialogContent = animated(DialogContent)
+  const AnimatedDialogOverlay = animated(DialogOverlay)
+  const [status, setStatus] = useState('focus-unlocked')
+
+  const config = { tension: 400, mass: 0.125 }
+
+  const transitions = useTransition(isOpen, {
+    from: { opacity: 0, x: 100 },
+    enter: { opacity: 0.6, x: 0 },
+    onRest: () => {
+      setStatus(isOpen ? 'focus-locked' : 'focus-unlocked') // if done opening, lock focus. if done closing, unlock focus
+    },
+    config: isOpen ? config : { duration: 0 },
+  })
 
   return (
     <SideModalContext.Provider value={true}>
-      <Dialog
-        id={id}
-        onDismiss={onDismiss}
-        {...dialogProps}
-        className="ox-side-modal absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
-        aria-labelledby={titleId}
-      >
-        {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
-        {children}
-      </Dialog>
+      {transitions(
+        (styles, item) =>
+          item && (
+            <AnimatedDialogOverlay
+              onDismiss={onDismiss}
+              dangerouslyBypassFocusLock={status === 'focus-unlocked'}
+              style={{
+                backgroundColor: styles.opacity.to((value) => `rgba(8, 15, 17, ${value})`),
+              }}
+            >
+              <AnimatedDialogContent
+                id={id}
+                {...dialogProps}
+                className="ox-side-modal absolute right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
+                aria-labelledby={titleId}
+                style={{
+                  transform: styles.x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+                }}
+              >
+                {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
+                {children}
+              </AnimatedDialogContent>
+            </AnimatedDialogOverlay>
+          )
+      )}
     </SideModalContext.Provider>
   )
 }
