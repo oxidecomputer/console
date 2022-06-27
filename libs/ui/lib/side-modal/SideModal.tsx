@@ -56,7 +56,9 @@ export function SideModal({
               onDismiss={onDismiss}
               dangerouslyBypassFocusLock={status === 'focus-unlocked'}
               style={{
-                backgroundColor: styles.opacity.to((value) => `rgba(8, 15, 17, ${value})`),
+                backgroundColor: styles.opacity.to(
+                  (value) => `rgba(var(--base-black-700-rgb), ${value})`
+                ),
               }}
             >
               <AnimatedDialogContent
