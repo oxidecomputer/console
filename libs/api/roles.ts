@@ -94,6 +94,7 @@ export function setUserRole<Role extends string>(
 
 export type UserAccessRow<Role extends string> = {
   id: string
+  name: string
   roleName: Role
 }
 
@@ -114,6 +115,7 @@ export function useUserAccessRows<Role extends string>(
     const groups = groupBy(roleAssignments, (u) => u.identityId)
     return Object.entries(groups).map(([userId, groupRoleAssignments]) => ({
       id: userId,
+      name: '', // placeholder until we get names, obviously
       // assert non-null because we know there has to be one, otherwise there
       // wouldn't be a group
       roleName: getMainRole(roleOrder)(groupRoleAssignments.map((ra) => ra.roleName))!,
