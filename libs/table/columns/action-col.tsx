@@ -10,6 +10,7 @@ export type MenuAction = {
   label: string
   onActivate: () => void
   disabled?: boolean
+  className?: string
 }
 
 export const getActionsCol = <TGenerics extends TableGenerics>(

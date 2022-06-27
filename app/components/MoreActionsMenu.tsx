@@ -19,7 +19,12 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
       </MenuButton>
       <MenuList className="mt-2">
         {actions.map((a) => (
-          <MenuItem disabled={a.disabled} key={a.label} onSelect={a.onActivate}>
+          <MenuItem
+            className={a.className}
+            disabled={a.disabled}
+            key={a.label}
+            onSelect={a.onActivate}
+          >
             {a.label}
           </MenuItem>
         ))}

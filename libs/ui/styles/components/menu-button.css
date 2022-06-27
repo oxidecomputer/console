@@ -1,8 +1,16 @@
 [data-reach-menu-list] {
-  @apply rounded border py-2 bg-default border-default;
+  @apply rounded border p-0 bg-raise border-default;
 
   & [data-reach-menu-item] {
-    @apply px-4 py-2 text-left text-sans-sm;
+    @apply min-w-[14rem] border-b py-2 pl-3 pr-6 text-left text-sans-sm text-secondary border-secondary last-of-type:border-b-0;
+
+    &.destructive {
+      @apply text-destructive;
+    }
+
+    &[aria-disabled] {
+      @apply opacity-100 text-quaternary;
+    }
 
     &[data-selected] {
       @apply bg-secondary;
