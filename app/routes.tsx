@@ -11,7 +11,7 @@ import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
-import ClientVerifyPage from './pages/ClientVerifyPage'
+import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
 import NotFound from './pages/NotFound'
 import OrgsPage from './pages/OrgsPage'
@@ -49,8 +49,8 @@ export const Router = () => (
       <Route index element={<LoginPage />} />
     </Route>
 
-    <Route path="/client/verify" element={<AuthLayout />}>
-      <Route index element={<ClientVerifyPage />} />
+    <Route path="/device/verify" element={<AuthLayout />}>
+      <Route index element={<DeviceAuthVerifyPage />} />
     </Route>
 
     <Route index element={<Navigate to="/orgs" replace />} />

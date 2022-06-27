@@ -6,22 +6,22 @@ import { Button, Success16Icon, Warning12Icon } from '@oxide/ui'
 import { useToast } from '../hooks'
 
 /**
- * Client verification success page
+ * Device authorization verification page
  */
-export default function ClientVerifyPage() {
+export default function DeviceAuthVerifyPage() {
   const [searchParams] = useSearchParams()
   const addToast = useToast()
-  const confirmPost = useApiMutation('clientConfirm', {
+  const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {
       addToast({
-        title: 'Client verified',
+        title: 'Token authorized',
         icon: <Success16Icon />,
         timeout: 4000,
       })
     },
     onError: () => {
       addToast({
-        title: 'Verification failed',
+        title: 'Token denied',
         icon: <Warning12Icon />,
         variant: 'error',
         timeout: 4000,
@@ -32,7 +32,7 @@ export default function ClientVerifyPage() {
 
   return (
     <div className="space-y-4 bg-default">
-      <h3 className="mb-2 text-center text-sans-2xl">Client verification</h3>
+      <h3 className="mb-2 text-center text-sans-2xl">Device authorization</h3>
       <h2 className="mb-2 text-center text-sans-2xl">User code: {userCode}</h2>
       <Button
         type="submit"
