@@ -10,6 +10,8 @@ set -o xtrace
 
 # The CLI manual is here: https://docs.oxide.computer/cli/manual
 
+GiB='1073741824'
+
 oxide org create maze-war \
 	-D "The Maze War organization."
 oxide org create enron \
@@ -40,14 +42,14 @@ oxide instance create db1 \
 	-p prod-online \
 	--hostname "db1.maze-war.com" \
 	--ncpus 1 \
-	--memory 8
+	--memory $GiB
 oxide instance create db2 \
 	-D "The second production database instance." \
 	-o maze-war \
 	-p prod-online \
 	--hostname "db2.maze-war.com" \
 	--ncpus 1 \
-	--memory 8
+	--memory $GiB
 
 # Create disks in prod-online
 
@@ -55,22 +57,26 @@ oxide disk create nginx \
 	-D "The nginx disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+	--disk-source blank=512
 oxide disk create grafana \
 	-D "The grafana disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+	--disk-source blank=512
 oxide disk create grafana-state \
 	-D "The grafana state disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+	--disk-source blank=512
 oxide disk create vault \
 	-D "The vault disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+	--disk-source blank=512
 
 # Attach disks to instance db1
 
@@ -93,12 +99,12 @@ oxide disk create vol1 \
 	-D "The vol1 disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB
 oxide disk create vol2 \
 	-D "The vol2 disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB
 
 # Create VPCs in prod-online
 
