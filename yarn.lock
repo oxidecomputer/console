@@ -3259,7 +3259,7 @@
     "@svgr/hast-util-to-babel-ast" "^6.2.1"
     svg-parser "^2.0.2"
 
-"@tanstack/react-table@^8.0.0-beta.4":
+"@tanstack/react-table@8.0.0-beta.4":
   version "8.0.0-beta.4"
   resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.0-beta.4.tgz#3c2be1cb247ebbdde46484bd769994937ce28f83"
   integrity sha512-0GM6V+eupU8/0ja+rQ0F9d7UCq4kA9D0UBSdZMjv1MJryTu2apDc8bOTyOkwmQiqNl2JMj3pBg7A9izXM6ozzA==
