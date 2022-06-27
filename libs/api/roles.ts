@@ -94,7 +94,6 @@ export function setUserRole<Role extends string>(
 
 export type UserAccessRow<Role extends string> = {
   id: string
-  name: string
   roleName: Role
 }
 
@@ -110,29 +109,16 @@ export function useUserAccessRows<Role extends string>(
   policy: Policy<Role> | undefined,
   roleOrder: Record<Role, number>
 ): UserAccessRow<Role>[] {
-  // TODO: this hits /users, which returns system users, not silo users. We need
-  // an endpoint to list silo users. I'm hoping we might end up using /users for
-  // that. See https://github.com/oxidecomputer/omicron/issues/1235
-  const { data: users } = useApiQuery('usersGet', { limit: 200 })
-
-  // HACK: because the policy has no names, we are fetching ~all the users,
-  // putting them in a dictionary, and adding the names to the rows
-  const usersDict = useMemo(
-    () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
-    [users]
-  )
-
   return useMemo(() => {
     const roleAssignments = policy?.roleAssignments || []
     const groups = groupBy(roleAssignments, (u) => u.identityId)
     return Object.entries(groups).map(([userId, groupRoleAssignments]) => ({
       id: userId,
-      name: usersDict[userId]?.name || '',
       // assert non-null because we know there has to be one, otherwise there
       // wouldn't be a group
       roleName: getMainRole(roleOrder)(groupRoleAssignments.map((ra) => ra.roleName))!,
     }))
-  }, [policy, usersDict, roleOrder])
+  }, [policy, roleOrder])
 }
 
 /**
@@ -143,7 +129,7 @@ export function useUsersNotInPolicy<Role extends string>(
   // allow undefined because this is fetched with RQ
   policy: Policy<Role> | undefined
 ) {
-  const { data: users } = useApiQuery('usersGet', {})
+  const { data: users } = useApiQuery('siloUsersGet', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])

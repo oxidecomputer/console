@@ -47,7 +47,6 @@ export const ProjectAccessPage = () => {
   const columns = useMemo(
     () => [
       table.createDataColumn('id', { header: 'ID' }),
-      table.createDataColumn('name', { header: 'Name' }),
       table.createDataColumn('roleName', {
         header: 'Role',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,

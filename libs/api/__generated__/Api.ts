@@ -587,6 +587,86 @@ export type InstanceState =
 export type IpNet = Ipv4Net | Ipv6Net
 
 /**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type IpPool = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an IP Pool.
+ *
+ * See {@link IpPool}
+ */
+export type IpPoolCreate = {
+  description: string
+  name: Name
+}
+
+export type IpPoolRange = {
+  id: string
+  range: IpRange
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolRangeResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IpPoolRange[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IpPool[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * Parameters for updating an IP Pool
+ */
+export type IpPoolUpdate = {
+  description?: string | null
+  name?: Name | null
+}
+
+export type IpRange = Ipv4Range | Ipv6Range
+
+/**
  * An IPv4 subnet, including prefix and subnet mask
  */
 export type Ipv4Net = string
@@ -596,6 +676,16 @@ export const ipv4NetPattern =
   '(^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$)|(^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$)|(^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$)'
 
 /**
+ * A non-decreasing IPv4 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv4Range = {
+  first: string
+  last: string
+}
+
+/**
  * An IPv6 subnet, including prefix and subnet mask
  */
 export type Ipv6Net = string
@@ -603,6 +693,16 @@ export type Ipv6Net = string
 /** Regex pattern for validating Ipv6Net */
 export const ipv6NetPattern =
   '^(fd|FD)[0-9a-fA-F]{2}:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+
+/**
+ * A non-decreasing IPv6 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv6Range = {
+  first: string
+  last: string
+}
 
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
@@ -898,17 +998,9 @@ export type ProjectUpdate = {
  */
 export type Rack = {
   /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
   /**
    * timestamp when this resource was created
    */
@@ -1268,17 +1360,9 @@ export type SiloRoleRoleAssignment = {
  */
 export type Sled = {
   /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
   serviceAddress: string
   /**
    * timestamp when this resource was created
@@ -1462,6 +1546,13 @@ export type TimeseriesSchemaResultsPage = {
  * Client view of a {@link User}
  */
 export type User = {
+  id: string
+}
+
+/**
+ * Client view of a {@link UserBuiltin}
+ */
+export type UserBuiltin = {
   /**
    * human-readable free-form text about a resource
    */
@@ -1482,6 +1573,20 @@ export type User = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type UserBuiltinResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: UserBuiltin[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
@@ -1935,6 +2040,44 @@ export interface ImagesGetImageParams {
 
 export interface ImagesDeleteImageParams {
   imageName: Name
+}
+
+export interface IpPoolsGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameOrIdSortMode
+}
+
+export interface IpPoolsPostParams {}
+
+export interface IpPoolsGetIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolsPutIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolsDeleteIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolRangesGetParams {
+  poolName: Name
+
+  limit?: number | null
+
+  pageToken?: string | null
+}
+
+export interface IpPoolRangesAddParams {
+  poolName: Name
+}
+
+export interface IpPoolRangesDeleteParams {
+  poolName: Name
 }
 
 export interface SpoofLoginParams {}
@@ -2631,7 +2774,15 @@ export interface TimeseriesSchemaGetParams {
 
 export interface UpdatesRefreshParams {}
 
-export interface UsersGetParams {
+export interface SiloUsersGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: IdSortMode
+}
+
+export interface BuiltinUsersGetParams {
   limit?: number | null
 
   pageToken?: string | null
@@ -2639,7 +2790,7 @@ export interface UsersGetParams {
   sortBy?: NameSortMode
 }
 
-export interface UsersGetUserParams {
+export interface BuiltinUsersGetUserParams {
   userName: Name
 }
 
@@ -2945,6 +3096,114 @@ export class Api extends HttpClient {
       this.request<void>({
         path: `/images/${imageName}`,
         method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * List IP Pools.
+     */
+    ipPoolsGet: (query: IpPoolsGetParams, params: RequestParams = {}) =>
+      this.request<IpPoolResultsPage>({
+        path: `/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
+     * Create a new IP Pool.
+     */
+    ipPoolsPost: (
+      query: IpPoolsPostParams,
+      body: IpPoolCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPool>({
+        path: `/ip-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Fetch a single IP Pool.
+     */
+    ipPoolsGetIpPool: ({ poolName }: IpPoolsGetIpPoolParams, params: RequestParams = {}) =>
+      this.request<IpPool>({
+        path: `/ip-pools/${poolName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update an IP Pool.
+     */
+    ipPoolsPutIpPool: (
+      { poolName }: IpPoolsPutIpPoolParams,
+      body: IpPoolUpdate,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPool>({
+        path: `/ip-pools/${poolName}`,
+        method: 'PUT',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Delete an IP Pool.
+     */
+    ipPoolsDeleteIpPool: (
+      { poolName }: IpPoolsDeleteIpPoolParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/ip-pools/${poolName}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * List the ranges of IP addresses within an existing IP Pool.
+     */
+    ipPoolRangesGet: (
+      { poolName, ...query }: IpPoolRangesGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPoolRangeResultsPage>({
+        path: `/ip-pools/${poolName}/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
+     * Add a new range to an existing IP Pool.
+     */
+    ipPoolRangesAdd: (
+      { poolName }: IpPoolRangesAddParams,
+      body: IpRange,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPoolRange>({
+        path: `/ip-pools/${poolName}/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Remove a range from an existing IP Pool.
+     */
+    ipPoolRangesDelete: (
+      { poolName }: IpPoolRangesDeleteParams,
+      body: IpRange,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/ip-pools/${poolName}/ranges/delete`,
+        method: 'POST',
+        body,
         ...params,
       }),
 
@@ -4190,9 +4449,9 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * List the built-in system users
+     * List users
      */
-    usersGet: (query: UsersGetParams, params: RequestParams = {}) =>
+    siloUsersGet: (query: SiloUsersGetParams, params: RequestParams = {}) =>
       this.request<UserResultsPage>({
         path: `/users`,
         method: 'GET',
@@ -4201,11 +4460,25 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * List the built-in system users
+     */
+    builtinUsersGet: (query: BuiltinUsersGetParams, params: RequestParams = {}) =>
+      this.request<UserBuiltinResultsPage>({
+        path: `/users_builtin`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
      * Fetch a specific built-in system user
      */
-    usersGetUser: ({ userName }: UsersGetUserParams, params: RequestParams = {}) =>
-      this.request<User>({
-        path: `/users/${userName}`,
+    builtinUsersGetUser: (
+      { userName }: BuiltinUsersGetUserParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<UserBuiltin>({
+        path: `/users_builtin/${userName}`,
         method: 'GET',
         ...params,
       }),
