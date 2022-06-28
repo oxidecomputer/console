@@ -63,7 +63,7 @@ export const ProjectSelector = () => {
           ))
         ) : (
           <MenuItem
-            className="!text-center hover:cursor-default !pr-3"
+            className="!text-center hover:cursor-default !pr-3 !text-secondary"
             onSelect={() => {}}
             disabled
           >
