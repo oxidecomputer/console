@@ -9,10 +9,9 @@ import {
   Button,
   Delete16Icon,
   EmptyMessage,
-  Info16Icon,
   Networking24Icon,
+  OpenLink12Icon,
   Success12Icon,
-  Tooltip,
 } from '@oxide/ui'
 
 import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
@@ -46,6 +45,9 @@ export function NetworkingTab() {
     },
   })
 
+  const instanceStopped =
+    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {
       label: 'Make primary',
@@ -56,7 +58,7 @@ export function NetworkingTab() {
           body: { ...nic, makePrimary: true },
         })
       },
-      disabled: nic.primary,
+      disabled: nic.primary || !instanceStopped,
     },
     {
       label: 'Edit',
@@ -64,12 +66,15 @@ export function NetworkingTab() {
         // TODO: Revisit after https://github.com/oxidecomputer/omicron/pull/1288 is merged
         setEditing({ ...nic, makePrimary: nic.primary })
       },
+      disabled: !instanceStopped,
     },
     {
       label: 'Delete',
+      className: 'destructive',
       onActivate: () => {
         deleteNic.mutate({ ...instanceParams, interfaceName: nic.name })
       },
+      disabled: !instanceStopped,
     },
   ]
 
@@ -83,46 +88,12 @@ export function NetworkingTab() {
     />
   )
 
-  const instanceStopped =
-    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
-
   const { Table, Column } = useQueryTable(...getQuery)
   return (
     <>
-      <div className="mb-3 flex items-center justify-end space-x-4">
-        {
-          // TODO: update icon color
-          // TODO: the tooltip pops up on the right edge of the icon instead of
-          // the middle, wtf. not worth fixing because we're going to redo
-          // Tooltip anyway
-          // TODO: would be cool to also show the tooltip on button hover when it's disabled
-          !instanceStopped && (
-            <Tooltip
-              id="add-nic-tooltip"
-              content="A network interface cannot be added unless the instance is stopped."
-            >
-              <Info16Icon className="cursor-default text-secondary" />
-            </Tooltip>
-          )
-        }
-        <Button
-          size="xs"
-          variant="default"
-          onClick={() => setCreateModalOpen(true)}
-          disabled={!instanceStopped}
-        >
-          Add network interface
-        </Button>
-        <CreateNetworkInterfaceSideModalForm
-          isOpen={createModalOpen}
-          onDismiss={() => setCreateModalOpen(false)}
-        />
-        <EditNetworkInterfaceSideModalForm
-          isOpen={!!editing}
-          initialValues={editing || {}}
-          onDismiss={() => setEditing(null)}
-        />
-      </div>
+      <h2 id="network-interfaces" className="mb-4 text-mono-sm text-secondary">
+        Network Interfaces
+      </h2>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
@@ -140,6 +111,37 @@ export function NetworkingTab() {
           }
         />
       </Table>
+      <div className="mt-4 flex flex-col gap-3">
+        <div className="flex gap-3">
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => setCreateModalOpen(true)}
+            disabled={!instanceStopped}
+          >
+            Add network interface
+          </Button>
+        </div>
+        {!instanceStopped && (
+          <span className="max-w-xs text-sans-sm text-secondary">
+            A network interface cannot be created or edited without{' '}
+            <a href="#/" className="text-accent-secondary">
+              stopping the instance
+              <OpenLink12Icon className="ml-1 pt-[1px]" />
+            </a>
+          </span>
+        )}
+      </div>
+
+      <CreateNetworkInterfaceSideModalForm
+        isOpen={createModalOpen}
+        onDismiss={() => setCreateModalOpen(false)}
+      />
+      <EditNetworkInterfaceSideModalForm
+        isOpen={!!editing}
+        initialValues={editing || {}}
+        onDismiss={() => setEditing(null)}
+      />
     </>
   )
 }
