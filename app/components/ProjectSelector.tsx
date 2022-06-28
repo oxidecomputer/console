@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuLink, MenuList } from '@reach/menu-button'
+import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
@@ -46,16 +46,22 @@ export const ProjectSelector = () => {
         {/* aria-hidden is a tip from the Reach docs */}
         <SelectArrows6Icon className="text-secondary" aria-hidden />
       </MenuButton>
-      <MenuList className="w-48 mt-2">
-        {projects.map((project) => (
-          <MenuLink
-            key={project.name}
-            as={Link}
-            to={`/orgs/${orgName}/projects/${project.name}`}
-          >
-            {project.name}
-          </MenuLink>
-        ))}
+      <MenuList className="mt-2">
+        {projects.length > 0 ? (
+          projects.map((project) => (
+            <MenuLink
+              key={project.name}
+              as={Link}
+              to={`/orgs/${orgName}/projects/${project.name}`}
+            >
+              {project.name}
+            </MenuLink>
+          ))
+        ) : (
+          <MenuItem className="!text-center hover:!bg-raise !pr-3" onSelect={() => {}}>
+            No other projects found
+          </MenuItem>
+        )}
       </MenuList>
     </Menu>
   )
