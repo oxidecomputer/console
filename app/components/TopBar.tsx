@@ -29,7 +29,8 @@ export function TopBar() {
   const loggedIn = user && !error
 
   return (
-    <div className="flex h-10 items-center justify-end">
+    // shrink-0 is needed to prevent getting squished by body content
+    <div className="flex shrink-0 h-10 items-center justify-end">
       <Button variant="link" size="xs" className="-mr-0.5 !text-tertiary" title="Info">
         <Info16Icon />
       </Button>

@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 10000,
-    baseURL: 'http://localhost:4001',
+    baseURL: 'http://localhost:4009',
     trace: 'on-first-retry',
   },
 
@@ -37,8 +37,8 @@ const config: PlaywrightTestConfig = {
 
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'yarn start:msw --port 4001',
-    port: 4001,
+    command: 'yarn start:msw --port 4009',
+    port: 4009,
   },
 }
 

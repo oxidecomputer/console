@@ -23,10 +23,15 @@ async function expectCrumbs(page: Page, crumbs: Crumb[]) {
   }
 }
 
+async function expectTitle(page: Page, title: string) {
+  await expect(await page.title()).toEqual(title)
+}
+
 test.describe('Breadcrumbs', () => {
   test('not present on unmatched route', async ({ page }) => {
     await page.goto('/abc/def')
     await expectCrumbs(page, [])
+    await expectTitle(page, 'Oxide Console')
   })
 
   test('works on VPC detail', async ({ page }) => {
@@ -44,5 +49,10 @@ test.describe('Breadcrumbs', () => {
       },
       { text: 'mock-vpc' },
     ])
+
+    await expectTitle(
+      page,
+      'mock-vpc / VPCs / mock-project / Projects / maze-war / Oxide Console'
+    )
   })
 })
