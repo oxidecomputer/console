@@ -18,7 +18,7 @@ import {
 const RootLayout = () => {
   return (
     <PageContainer>
-      <Sidebar>TBD</Sidebar>
+      <Sidebar></Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
