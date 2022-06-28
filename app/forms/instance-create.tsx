@@ -158,6 +158,8 @@ export default function CreateInstanceForm({
         })
       }
       {...props}
+      submitDisabled={createDisk.isLoading || createInstance.isLoading}
+      error={(createDisk.error?.error || createInstance.error?.error) as Error | undefined}
     >
       <NameField id="name" />
       <DescriptionField id="description" />
@@ -214,7 +216,12 @@ export default function CreateInstanceForm({
       <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
         <Tab>Distros</Tab>
         <Tab.Panel className="space-y-4">
-          <ImageSelectField id="boot-disk-image" name="globalImage" images={images} />
+          <ImageSelectField
+            id="boot-disk-image"
+            name="globalImage"
+            images={images}
+            required={true}
+          />
 
           <NameField
             id="boot-disk-name"
