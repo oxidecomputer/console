@@ -5,6 +5,7 @@ import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
+  Badge,
   Button,
   Delete16Icon,
   EmptyMessage,
@@ -129,7 +130,14 @@ export function NetworkingTab() {
         <Column accessor="ip" />
         <Column
           accessor="primary"
-          cell={({ value }) => value && <Success12Icon className="text-accent" />}
+          cell={({ value }) =>
+            value && (
+              <>
+                <Success12Icon className="text-accent mr-1" />
+                <Badge variant="secondary">primary</Badge>
+              </>
+            )
+          }
         />
       </Table>
     </>
