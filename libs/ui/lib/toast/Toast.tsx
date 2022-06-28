@@ -43,7 +43,7 @@ export const Toast = ({
         className="flex !border-transparent"
         variant="ghost"
         onClick={onClose}
-        color={variant === 'error' ? 'destructive' : 'accent'}
+        color={variant === 'error' ? 'destructive' : 'primary'}
       >
         {timeout !== undefined ? (
           <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
