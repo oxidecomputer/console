@@ -164,11 +164,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
-        <Button variant="ghost" color="neutral" className="mr-2.5">
+        <Button variant="ghost" color="secondary" className="mr-2.5">
           Clear
         </Button>
         <Button
-          variant="secondary"
+          variant="default"
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
@@ -239,9 +239,9 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
         ]}
       />
       <div className="space-y-0.5">
-        {/* For everything but IP this is a name, but for IP it's an IP. 
+        {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and 
+          host type changes. Also need to confirm that it's just an IP and
           not a block. */}
         <FieldLabel id="hostValue-label" htmlFor="hostValue">
           Value
@@ -253,11 +253,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       </div>
 
       <div className="flex justify-end">
-        <Button variant="ghost" color="neutral" className="mr-2.5">
+        <Button variant="ghost" color="secondary" className="mr-2.5">
           Clear
         </Button>
         <Button
-          variant="secondary"
+          variant="default"
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
@@ -324,11 +324,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
         <TextField id="portRange" name="portRange" aria-describedby="portRange-hint" />
         <TextFieldError name="portRange" />
         <div className="flex justify-end">
-          <Button variant="ghost" color="neutral" className="mr-2.5">
+          <Button variant="ghost" color="secondary" className="mr-2.5">
             Clear
           </Button>
           <Button
-            variant="secondary"
+            variant="default"
             onClick={() => {
               const portRange = values.portRange.trim()
               // TODO: show error instead of ignoring the click

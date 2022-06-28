@@ -86,7 +86,11 @@ export const Router = () => (
               <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
               <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
                 <Route index element={<InstancePage />} />
-                <Route path="serial-console" element={<SerialConsolePage />} />
+                <Route
+                  path="serial-console"
+                  element={<SerialConsolePage />}
+                  handle={{ crumb: 'serial-console' }}
+                />
               </Route>
             </Route>
             <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
