@@ -2,7 +2,6 @@ import invariant from 'tiny-invariant'
 
 import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { CheckboxField } from '@oxide/ui'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 import type { EditSideModalFormProps } from 'app/forms'
@@ -69,15 +68,6 @@ export default function EditNetworkInterfaceSideModalForm({
     >
       <NameField id="nic-name" />
       <DescriptionField id="nic-description" />
-      {
-        <CheckboxField
-          id="nic-primary"
-          name="makePrimary"
-          disabled={!!initialValues.makePrimary}
-        >
-          Primary
-        </CheckboxField>
-      }
       <Form.Submit>Save Changes</Form.Submit>
     </SideModalForm>
   )

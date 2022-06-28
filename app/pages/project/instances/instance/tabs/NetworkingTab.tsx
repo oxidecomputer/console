@@ -39,7 +39,24 @@ export function NetworkingTab() {
     },
   })
 
+  const editNic = useApiMutation('instanceNetworkInterfacesPutInterface', {
+    onSuccess() {
+      queryClient.invalidateQueries(...getQuery)
+    },
+  })
+
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
+    {
+      label: 'Make primary',
+      onActivate() {
+        editNic.mutate({
+          ...instanceParams,
+          interfaceName: nic.name,
+          body: { ...nic, makePrimary: true },
+        })
+      },
+      disabled: nic.primary,
+    },
     {
       label: 'Edit',
       onActivate() {
