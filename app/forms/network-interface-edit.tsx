@@ -68,7 +68,7 @@ export default function EditNetworkInterfaceSideModalForm({
     >
       <NameField id="nic-name" />
       <DescriptionField id="nic-description" />
-      <Form.Submit>Save Changes</Form.Submit>
+      <Form.Submit>Save changes</Form.Submit>
     </SideModalForm>
   )
 }
