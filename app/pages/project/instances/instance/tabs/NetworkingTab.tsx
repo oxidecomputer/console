@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import type { NetworkInterface } from '@oxide/api'
+import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
@@ -10,10 +10,12 @@ import {
   EmptyMessage,
   Info16Icon,
   Networking24Icon,
+  Success12Icon,
   Tooltip,
 } from '@oxide/ui'
 
 import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
+import EditNetworkInterfaceSideModalForm from 'app/forms/network-interface-edit'
 import { useParams, useToast } from 'app/hooks'
 
 export function NetworkingTab() {
@@ -22,6 +24,7 @@ export function NetworkingTab() {
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [editing, setEditing] = useState<NetworkInterfaceUpdate | null>(null)
 
   const getQuery = ['instanceNetworkInterfacesGet', instanceParams] as const
 
@@ -37,6 +40,13 @@ export function NetworkingTab() {
   })
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
+    {
+      label: 'Edit',
+      onActivate() {
+        // TODO: Revisit after https://github.com/oxidecomputer/omicron/pull/1288 is merged
+        setEditing({ ...nic, makePrimary: nic.primary })
+      },
+    },
     {
       label: 'Delete',
       onActivate: () => {
@@ -88,7 +98,11 @@ export function NetworkingTab() {
         <CreateNetworkInterfaceSideModalForm
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-          onSuccess={() => setCreateModalOpen(false)}
+        />
+        <EditNetworkInterfaceSideModalForm
+          isOpen={!!editing}
+          initialValues={editing || {}}
+          onDismiss={() => setEditing(null)}
         />
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
@@ -96,6 +110,10 @@ export function NetworkingTab() {
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
+        <Column
+          accessor="primary"
+          cell={({ value }) => value && <Success12Icon className="text-accent" />}
+        />
       </Table>
     </>
   )

@@ -16,7 +16,7 @@ import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
 import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
 
-const values = {
+const values: NetworkInterfaceCreate = {
   name: '',
   description: '',
   ip: '',
@@ -31,6 +31,7 @@ export default function CreateNetworkInterfaceSideModalForm({
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
 }: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
@@ -45,6 +46,7 @@ export default function CreateNetworkInterfaceSideModalForm({
         ...others,
       })
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
@@ -56,6 +58,7 @@ export default function CreateNetworkInterfaceSideModalForm({
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         ((body) => {

@@ -528,6 +528,40 @@ export const handlers = [
     }
   ),
 
+  rest.put<
+    Json<Api.NetworkInterfaceUpdate>,
+    NetworkInterfaceParams,
+    Json<Api.NetworkInterface> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res, ctx) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+
+      if (req.body.name) {
+        nic.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        nic.description = req.body.description
+      }
+      if (
+        typeof req.body.make_primary === 'boolean' &&
+        req.body.make_primary !== nic.primary
+      ) {
+        if (nic.primary) {
+          return res(badRequest('Cannot remove the primary interface'))
+        }
+        db.networkInterfaces
+          .filter((n) => n.instance_id === nic.instance_id)
+          .forEach((n) => {
+            n.primary = false
+          })
+        nic.primary = !!req.body.make_primary
+      }
+      return res(ctx.status(204))
+    }
+  ),
+
   rest.delete<never, NetworkInterfaceParams, GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res, ctx) => {
