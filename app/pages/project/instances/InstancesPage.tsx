@@ -79,7 +79,7 @@ export const InstancesPage = () => {
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
-          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
+          className={buttonStyle({ size: 'xs', variant: 'default' })}
         >
           New Instance
         </Link>

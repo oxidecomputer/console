@@ -22,7 +22,7 @@ export const Default: Story = {
       { href: '/', label: 'Home' },
       { href: '/first', label: 'First page' },
       { href: '/second', label: 'Second page' },
-      { label: 'Third page' },
+      { href: '/third', label: 'Third page' },
     ],
   },
 }

@@ -34,7 +34,10 @@ function AttachedInstance(props: {
   })
   const instance = instances?.items.find((i) => i.id === props.instanceId)
   return instance ? (
-    <Link className="text-accent" to={`../instances/${instance.name}`}>
+    <Link
+      className="text-sans-semi-md text-accent hover:underline"
+      to={`../instances/${instance.name}`}
+    >
       {instance.name}
     </Link>
   ) : null
@@ -86,7 +89,7 @@ export function DisksPage({ modal }: DisksPageProps) {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'secondary' })}>
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
           New Disk
         </Link>
       </TableActions>

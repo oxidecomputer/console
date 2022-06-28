@@ -2,9 +2,7 @@ import Alert from '@reach/alert'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 
-import { Button } from '../button/Button'
 import { Close12Icon } from '../icons'
-import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -18,9 +16,15 @@ export interface ToastProps {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary text-accent',
-  error: 'bg-error-secondary text-error',
-  info: 'bg-accent-secondary text-accent',
+  success: 'bg-accent-secondary',
+  error: 'bg-error-secondary',
+  info: 'bg-notice-secondary',
+}
+
+const textColor: Record<Variant, string> = {
+  success: 'text-accent children:text-accent',
+  error: 'text-error children:text-error',
+  info: 'text-notice children:text-notice',
 }
 
 export const Toast = ({
@@ -28,31 +32,22 @@ export const Toast = ({
   content,
   icon,
   onClose,
-  timeout,
   variant = 'success',
 }: ToastProps) => (
-  <Alert className={cn('flex w-96 items-center space-x-2 rounded p-4', color[variant])}>
+  <Alert
+    className={cn('flex w-96 items-start rounded p-4', color[variant], textColor[variant])}
+  >
     {icon}
-    <div className="flex-1 space-y-1 pl-2">
-      <div className="text-sans-xl">{title}</div>
+    <div className="flex-1 pl-2.5">
+      <div className="text-sans-semi-md">{title}</div>
       <div className="text-sans-md">{content}</div>
     </div>
-    <div>
-      <Button
-        aria-label="Dismiss notification"
-        className="flex !border-transparent"
-        variant="ghost"
-        onClick={onClose}
-        color={variant === 'error' ? 'destructive' : 'accent'}
-      >
-        {timeout !== undefined ? (
-          <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose}>
-            <Close12Icon />
-          </TimeoutIndicator>
-        ) : (
-          <Close12Icon />
-        )}
-      </Button>
-    </div>
+    <button
+      aria-label="Dismiss notification"
+      className={cn('flex !border-transparent p-2 -m-2 h-auto', textColor[variant])}
+      onClick={onClose}
+    >
+      <Close12Icon />
+    </button>
   </Alert>
 )

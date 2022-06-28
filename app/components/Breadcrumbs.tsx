@@ -27,10 +27,9 @@ const useCrumbs = () =>
     // hasCrumb could be inline (m) => m.handle?.crumb, but it's extracted so we can
     // give it a guard type so the typing is nice around filter()
     .filter(hasCrumb)
-    .map((m, i, arr) => ({
+    .map((m) => ({
       label: typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb,
-      // last one is the page we're on, so no link
-      href: i < arr.length - 1 ? m.pathname : undefined,
+      href: m.pathname,
     }))
 
 export function Breadcrumbs() {
@@ -49,5 +48,6 @@ export function Breadcrumbs() {
     document.title = title
   }, [title])
 
-  return <BreadcrumbsPure data={crumbs} />
+  // remove last crumb which is the page we are on
+  return <BreadcrumbsPure data={crumbs.slice(0, -1)} />
 }

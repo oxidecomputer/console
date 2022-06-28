@@ -3,7 +3,34 @@
 }
 
 .ox-sidebar {
-  @apply overflow-auto border-r px-3 pb-6 pt-6 bg-default border-secondary;
+  @apply overflow-auto border-r px-3 pt-6 bg-default border-secondary;
+}
+
+.ox-sidebar .ox-sidebar-nav:last-of-type {
+  @apply flex-grow;
+}
+
+.ox-sidebar-nav {
+  @apply mt-6;
+}
+
+.ox-sidebar .ox-sidebar-nav:first-of-type {
+  @apply mt-0;
+}
+
+@media screen and (max-height: 600px) {
+  .ox-sidebar-nav,
+  .ox-sidebar .ox-sidebar-nav:last-of-type {
+    @apply flex-grow-0;
+  }
+
+  .ox-sidebar-footer {
+    @apply mt-4 pb-6;
+
+    & .hidden {
+      display: block;
+    }
+  }
 }
 
 .ox-content-pane-wrapper {
