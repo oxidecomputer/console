@@ -8,9 +8,11 @@ type Crumb = {
 
 async function expectCrumbs(page: Page, crumbs: Crumb[]) {
   const crumbsInPage = page.locator(`data-testid=Breadcrumbs >> role=listitem`)
-  await expect(crumbsInPage).toHaveCount(crumbs.length)
+  // crumbs should be shorter by one
+  // since that is the page we are already on
+  await expect(crumbsInPage).toHaveCount(Math.max(crumbs.length - 1, 0)) // unmatched route should = 0 not -1
 
-  for (let i = 0; i < crumbs.length; i++) {
+  for (let i = 0; i < crumbs.length - 1; i++) {
     const { text, href } = crumbs[i]
     const listItem = crumbsInPage.nth(i)
     await expect(listItem).toHaveText(text)
@@ -24,7 +26,7 @@ async function expectCrumbs(page: Page, crumbs: Crumb[]) {
 }
 
 async function expectTitle(page: Page, title: string) {
-  await expect(await page.title()).toEqual(title)
+  expect(await page.title()).toEqual(title)
 }
 
 test.describe('Breadcrumbs', () => {
