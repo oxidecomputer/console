@@ -2,7 +2,6 @@ import Alert from '@reach/alert'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 
-import { Button } from '../button/Button'
 import { Close12Icon } from '../icons'
 
 type Variant = 'success' | 'error' | 'info'
@@ -43,15 +42,12 @@ export const Toast = ({
       <div className="text-sans-semi-md">{title}</div>
       <div className="text-sans-md">{content}</div>
     </div>
-    <div>
-      <Button
-        aria-label="Dismiss notification"
-        className={cn('flex !border-transparent px-0 h-auto', textColor[variant])}
-        variant="ghost"
-        onClick={onClose}
-      >
-        <Close12Icon />
-      </Button>
-    </div>
+    <button
+      aria-label="Dismiss notification"
+      className={cn('flex !border-transparent p-2 -m-2 h-auto', textColor[variant])}
+      onClick={onClose}
+    >
+      <Close12Icon />
+    </button>
   </Alert>
 )
