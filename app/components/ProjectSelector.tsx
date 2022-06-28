@@ -34,17 +34,21 @@ export const ProjectSelector = () => {
     <Menu>
       <MenuButton
         aria-label="Switch project"
-        className="mt-1 flex items-center justify-between w-full"
+        className="mt-1 flex items-center justify-between w-full group"
       >
         <div className="flex items-center">
           <BrandIcon />
           <div className="ml-2 pb-0.5 leading-4 text-sans-sm text-left">
             <div>{orgName}</div>
-            <div className="text-secondary">{projectName || 'select a project'}</div>
+            <div className="text-secondary w-[140px] text-ellipsis whitespace-nowrap overflow-hidden">
+              {projectName || 'select a project'}
+            </div>
           </div>
         </div>
         {/* aria-hidden is a tip from the Reach docs */}
-        <SelectArrows6Icon className="text-secondary" aria-hidden />
+        <div className="flex flex-shrink-0 w-[1.125rem] h-[1.625rem] rounded border border-secondary justify-center items-center group-hover:bg-hover">
+          <SelectArrows6Icon className="text-secondary" aria-hidden />
+        </div>
       </MenuButton>
       <MenuList className="w-48 mt-2">
         {projects.map((project) => (
