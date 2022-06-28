@@ -44,9 +44,8 @@ export const TextField = ({
   <div
     className={cn(
       'flex rounded border border-default',
-      'focus-within:border-accent hover:focus-within:border-accent',
+      'focus-within:ring-2 focus-within:ring-accent-secondary',
       error && '!border-destructive',
-      !fieldProps.disabled && 'hover:border-raise',
       className
     )}
   >
@@ -54,7 +53,7 @@ export const TextField = ({
       type="text"
       className={cn(
         `w-full border-none bg-transparent
-        py-[0.5625rem] px-3
+        py-[0.75rem] px-3
         text-sans-md text-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
         fieldClassName
