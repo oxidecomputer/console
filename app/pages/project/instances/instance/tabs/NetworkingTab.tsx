@@ -79,7 +79,7 @@ export function NetworkingTab() {
         }
         <Button
           size="xs"
-          variant="secondary"
+          variant="default"
           onClick={() => setCreateModalOpen(true)}
           disabled={!instanceStopped}
         >

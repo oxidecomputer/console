@@ -3715,13 +3715,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-table@^7.7.8":
-  version "7.7.8"
-  resolved "https://registry.yarnpkg.com/@types/react-table/-/react-table-7.7.8.tgz#b1aa5fb7a54432969262d2306b87fdbb9a5ee647"
-  integrity sha512-OMhbPlf+uUGte3M1WdArEKeBkyQ1XJxKvFYs+o1dGGGyaSVIqxPPQmBZ6Skkw0V9y0F/kOY7rnTD8r9GbfpBOg==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-test-renderer@>=16.9.0":
   version "17.0.1"
   resolved "https://registry.npmjs.org/@types/react-test-renderer/-/react-test-renderer-17.0.1.tgz"

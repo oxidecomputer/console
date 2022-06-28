@@ -136,7 +136,7 @@ export function StorageTab() {
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             onClick={() => setShowDiskCreate(true)}
             disabled={!instanceStopped}
@@ -144,7 +144,7 @@ export function StorageTab() {
             Create new disk
           </Button>
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={!instanceStopped}

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useMatches } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import type { Merge, SetRequired } from 'type-fest'
@@ -34,5 +35,20 @@ const useCrumbs = () =>
     }))
 
 export function Breadcrumbs() {
-  return <BreadcrumbsPure data={useCrumbs()} />
+  const crumbs = useCrumbs()
+  // output
+  // non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
+  // top-level route: Oxide Console
+  const title = crumbs
+    .slice() // avoid mutating original with reverse()
+    .reverse()
+    .map((item) => item.label)
+    .concat('Oxide Console')
+    .join(' / ')
+
+  useEffect(() => {
+    document.title = title
+  }, [title])
+
+  return <BreadcrumbsPure data={crumbs} />
 }

@@ -89,7 +89,7 @@ export function DisksPage({ modal }: DisksPageProps) {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'secondary' })}>
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
           New Disk
         </Link>
       </TableActions>

@@ -13,7 +13,7 @@ export const InstanceStatusCell = ({
     <TwoLineCell
       detailsClass="text-mono-sm !lowercase"
       value={[
-        <Badge variant="secondary" key="run-state">
+        <Badge variant="default" key="run-state">
           {value.runState}
         </Badge>,
         timeAgoAbbr(value.timeRunStateUpdated),

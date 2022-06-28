@@ -89,7 +89,7 @@ export const ProjectAccessPage = () => {
       </PageHeader>
 
       <TableActions>
-        <Button size="xs" variant="secondary" onClick={() => setAddModalOpen(true)}>
+        <Button size="xs" variant="default" onClick={() => setAddModalOpen(true)}>
           Add user to project
         </Button>
       </TableActions>

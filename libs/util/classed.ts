@@ -19,6 +19,7 @@ const make =
 export const classed = {
   button: make('button'),
   div: make('div'),
+  footer: make('footer'),
   h1: make('h1'),
   h2: make('h2'),
   h3: make('h3'),
