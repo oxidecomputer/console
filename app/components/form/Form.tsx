@@ -82,7 +82,6 @@ Form.Actions = ({
   const childArray = flattenChildren(children).map(
     addProps<typeof Button>((i, props) => ({
       size: 'sm',
-      color: 'primary',
       ...props,
     }))
   )
