@@ -39,7 +39,7 @@ export function ProjectAccessAddUserSideModal({
   const projectParams = useParams('orgName', 'projectName')
 
   const users = useUsersNotInPolicy(policy)
-  const userItems = users.map((u) => ({ value: u.id, label: u.id }))
+  const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {

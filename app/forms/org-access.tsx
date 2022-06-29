@@ -38,7 +38,7 @@ export function OrgAccessAddUserSideModal({
   const orgParams = useParams('orgName')
 
   const users = useUsersNotInPolicy(policy)
-  const userItems = users.map((u) => ({ value: u.id, label: u.id }))
+  const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPutPolicy', {
