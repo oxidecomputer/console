@@ -3,7 +3,7 @@ import type { FormikConfig } from 'formik'
 import { Formik, Form as FormikForm } from 'formik'
 import { useFormikContext } from 'formik'
 import type { ReactNode } from 'react'
-import { cloneElement } from 'react'
+import { cloneElement, useState } from 'react'
 import { useEffect } from 'react'
 import invariant from 'tiny-invariant'
 
@@ -11,6 +11,8 @@ import type { ButtonProps } from '@oxide/ui'
 import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { addProps, classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
+
+import { usePrompt } from 'app/hooks'
 
 import './form.css'
 
@@ -35,9 +37,23 @@ export function Form<Values>({
       <FormikForm id={id} className={cn('ox-form', className)}>
         {children}
         <FormSubmitState setSubmitState={setSubmitState} />
+        <FormPrompt />
       </FormikForm>
     </Formik>
   )
+}
+
+const FormPrompt = () => {
+  const context = useFormikContext()
+  const [dirty, setDirty] = useState(false)
+
+  useEffect(() => {
+    setDirty(context.dirty)
+  }, [context.dirty])
+
+  usePrompt('Leave screen?', dirty)
+
+  return null
 }
 
 /**
