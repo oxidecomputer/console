@@ -1,6 +1,7 @@
 import cn from 'classnames'
 import { forwardRef } from 'react'
 
+import { Spinner } from '@oxide/ui'
 import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
@@ -69,7 +70,10 @@ type ButtonStyleProps = {
   color?: Color
 }
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> & ButtonStyleProps
+export type ButtonProps = React.ComponentPropsWithRef<'button'> &
+  ButtonStyleProps & {
+    loading?: boolean
+  }
 
 export const buttonStyle = ({
   size = 'base',
@@ -89,7 +93,7 @@ export const buttonStyle = ({
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, size, variant, color, className, ...rest }, ref) => {
+  ({ children, size, variant, color, className, loading, ...rest }, ref) => {
     return (
       <button
         className={cn(buttonStyle({ size, variant, color }), className)}
@@ -97,7 +101,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type="button"
         {...rest}
       >
-        {children}
+        <>
+          {loading && <Spinner className="absolute" />}
+          <span className={cn({ invisible: loading })}>{children}</span>
+        </>
       </button>
     )
   }
