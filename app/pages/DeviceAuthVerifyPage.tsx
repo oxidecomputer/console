@@ -1,7 +1,7 @@
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Button, Success16Icon, Warning12Icon } from '@oxide/ui'
+import { Button, Warning12Icon } from '@oxide/ui'
 
 import { useToast } from '../hooks'
 
@@ -10,14 +10,11 @@ import { useToast } from '../hooks'
  */
 export default function DeviceAuthVerifyPage() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const addToast = useToast()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {
-      addToast({
-        title: 'Token authorized',
-        icon: <Success16Icon />,
-        timeout: 4000,
-      })
+      navigate('/device/success')
     },
     onError: () => {
       addToast({
@@ -31,19 +28,20 @@ export default function DeviceAuthVerifyPage() {
   const userCode = searchParams.get('user_code')
 
   return (
-    <div className="space-y-4 bg-default">
-      <h3 className="mb-2 text-center text-sans-2xl">Device authorization</h3>
-      <h2 className="mb-2 text-center text-sans-2xl">User code: {userCode}</h2>
+    <div className="space-y-4 max-w-sm text-center">
+      <h1 className="text-sans-2xl">Device authentication</h1>
+      <p>Make sure this code matches the one shown on the device you are authenticating.</p>
+      <h2 className="text-sans-3xl border p-4">{userCode}</h2>
       <Button
         className="w-full"
-        disabled={confirmPost.isLoading || !userCode}
+        disabled={confirmPost.isLoading || confirmPost.isSuccess || !userCode}
         onClick={() => {
           // we know `userCode` is non-null because the button is disabled
           // otherwise, but let's make TS happy
           if (userCode) confirmPost.mutate({ body: { userCode } })
         }}
       >
-        Verify
+        Log in on device
       </Button>
     </div>
   )

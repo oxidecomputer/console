@@ -9,6 +9,7 @@ import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
+import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
 import NotFound from './pages/NotFound'
@@ -45,8 +46,9 @@ export const Router = () => (
       <Route index element={<LoginPage />} />
     </Route>
 
-    <Route path="/device/verify" element={<AuthLayout />}>
-      <Route index element={<DeviceAuthVerifyPage />} />
+    <Route path="device" element={<AuthLayout />}>
+      <Route path="verify" element={<DeviceAuthVerifyPage />} />
+      <Route path="success" element={<DeviceAuthSuccessPage />} />
     </Route>
 
     <Route index element={<Navigate to="/orgs" replace />} />

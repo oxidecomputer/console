@@ -841,4 +841,14 @@ export const handlers = [
   rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
     return res(json(paginated(req.url.search, db.users)))
   }),
+
+  rest.post<Json<Api.DeviceAuthVerify>, never, PostErr>(
+    '/api/device/confirm',
+    (req, res, ctx) => {
+      if (req.body.user_code === 'BADD-CODE') {
+        return res(ctx.status(404))
+      }
+      return res(ctx.status(200))
+    }
+  ),
 ]
