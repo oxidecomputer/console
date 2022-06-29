@@ -19,7 +19,7 @@ export function TagsField(props: TagsFieldProps) {
       {/* TODO: Should TextFieldHint be grouped with FieldLabel? */}
       {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
       <Button
-        variant="secondary"
+        variant="default"
         size="sm"
         onClick={() => {
           // TODO: Replace with toast. Toast is grouped in app, probably shouldn't be?

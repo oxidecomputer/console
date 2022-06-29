@@ -1,9 +1,13 @@
-import type { TextFieldProps as UITextFieldProps } from '@oxide/ui'
+import cn from 'classnames'
+
+import type {
+  TextAreaProps as UITextAreaProps,
+  TextFieldBaseProps as UITextFieldProps,
+} from '@oxide/ui'
 import { TextFieldError } from '@oxide/ui'
 import { TextFieldHint } from '@oxide/ui'
 import { FieldLabel, TextField as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
-import cn from 'classnames'
 
 import { useFieldError } from '../../../hooks/useFieldError'
 
@@ -39,7 +43,7 @@ export function TextField({
   label = capitalize(name),
   units,
   ...props
-}: TextFieldProps) {
+}: TextFieldProps & UITextAreaProps) {
   const { description, helpText, required } = props
   const error = useFieldError(name)
   return (

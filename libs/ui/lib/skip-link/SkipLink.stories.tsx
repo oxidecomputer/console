@@ -1,6 +1,7 @@
-import { SkipLink } from './SkipLink'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { SkipLink } from './SkipLink'
 
 type Story = StoryObj<ComponentProps<typeof SkipLink>>
 

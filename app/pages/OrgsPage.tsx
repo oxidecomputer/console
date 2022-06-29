@@ -1,9 +1,24 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, EmptyMessage, Folder24Icon, TableActions } from '@oxide/ui'
-import { useQuickActions } from '../hooks'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+
+import type { Organization } from '@oxide/api'
+import { useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQuery } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
+import {
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import { CreateOrgSideModalForm } from 'app/forms/org-create'
+import { EditOrgSideModalForm } from 'app/forms/org-edit'
+
+import { useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -15,14 +30,42 @@ const EmptyState = () => (
   />
 )
 
-const OrgsPage = () => {
+interface OrgsPageProps {
+  modal?: 'createOrg' | 'editOrg'
+}
+
+const OrgsPage = ({ modal }: OrgsPageProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const { Table, Column } = useQueryTable('organizationsGet', {})
+  const queryClient = useApiQueryClient()
 
   const { data: orgs } = useApiQuery('organizationsGet', {
     limit: 10, // to have same params as QueryTable
   })
 
-  const navigate = useNavigate()
+  const deleteOrg = useApiMutation('organizationsDeleteOrganization', {
+    onSuccess() {
+      queryClient.invalidateQueries('organizationsGet', {})
+    },
+  })
+
+  const makeActions = (org: Organization): MenuAction[] => [
+    {
+      label: 'Edit',
+      onActivate() {
+        navigate(`edit/${org.name}`, { state: org })
+      },
+    },
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteOrg.mutate({ orgName: org.name })
+      },
+    },
+  ]
+
   useQuickActions(
     useMemo(
       () => [
@@ -39,16 +82,28 @@ const OrgsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
+      </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
+        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Organization
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((name) => `/orgs/${name}`)} />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateOrgSideModalForm
+        isOpen={modal === 'createOrg'}
+        onDismiss={() => navigate('..')}
+      />
+      <EditOrgSideModalForm
+        isOpen={modal === 'editOrg'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
+      />
     </>
   )
 }

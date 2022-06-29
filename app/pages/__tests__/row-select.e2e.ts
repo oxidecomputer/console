@@ -1,7 +1,11 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+
 import { forEach } from 'app/util/e2e'
 
-// this could easily be done as a testing-lib test but I want it in a real table
+// This could easily be done as a testing-lib test but I want it in a real
+// table. The .is-selected asserts are slightly brittle (and contrary to our
+// usual testing philosophy), but they let us make sure selection is being
+// passed through to the UI Table.
 
 test('Row select works as expected', async ({ page }) => {
   // SETUP
@@ -36,19 +40,23 @@ test('Row select works as expected', async ({ page }) => {
 
   await expect(bodyCheckboxes).toHaveCount(4)
   await expectRowsAllUnchecked()
+  await expect(page.locator('.is-selected')).toHaveCount(0)
 
   // check first row, header is now mixed
   await bodyCheckboxes.first().check()
+  await expect(page.locator('.is-selected')).toHaveCount(1)
   await expectHeadMixed()
 
   // uncheck first row, header goes back to empty
   await bodyCheckboxes.first().uncheck()
   await expectHeadNotMixed()
+  await expect(page.locator('.is-selected')).toHaveCount(0)
 
   // can also uncheck the row by checking and unchecking the header checkbox
   await bodyCheckboxes.first().check()
   await headCheckbox.click() // first click selects all
   await expectRowsAllChecked()
+  await expect(page.locator('.is-selected')).toHaveCount(4)
   await headCheckbox.click() // second click unselects all
   await expectRowsAllUnchecked()
 
@@ -56,9 +64,11 @@ test('Row select works as expected', async ({ page }) => {
   await bodyCheckboxes.nth(0).check()
   await bodyCheckboxes.nth(1).check()
   await bodyCheckboxes.nth(2).check()
+  await expect(page.locator('.is-selected')).toHaveCount(3)
   await expectHeadMixed()
 
   // check the 4th and it switches to checked
   await bodyCheckboxes.nth(3).check()
   await expect(headCheckbox).toBeChecked()
+  await expect(page.locator('.is-selected')).toHaveCount(4)
 })

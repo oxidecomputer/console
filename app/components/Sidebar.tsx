@@ -1,27 +1,29 @@
-import { NavLink as RRNavLink } from 'react-router-dom'
 import cn from 'classnames'
-import { ProjectSelector } from './ProjectSelector'
-import { Chat16Icon, Document16Icon, Settings16Icon } from '@oxide/ui'
+import { NavLink as RRNavLink } from 'react-router-dom'
+
+import { Document16Icon } from '@oxide/ui'
+import { flattenChildren, pluckFirstOfType } from '@oxide/util'
+
+import { ProjectSelector } from 'app/components/ProjectSelector'
 
 interface SidebarProps {
   children: React.ReactNode
 }
 export function Sidebar({ children }: SidebarProps) {
+  const childArray = flattenChildren(children)
+  const projectSelector = pluckFirstOfType(childArray, ProjectSelector)
+
   return (
-    <div className="ox-sidebar overflow-auto border-r px-3 pb-6 pt-5 text-sans-md text-default border-secondary">
-      <ProjectSelector className="mb-10" />
-      {children}
-      <Sidebar.Footer>
-        <NavLinkItem to="https://docs.oxide.computer">
-          <Document16Icon /> Documentation
-        </NavLinkItem>
-        <NavLinkItem to="help">
-          <Chat16Icon /> Help & Feedback
-        </NavLinkItem>
-        <NavLinkItem to="settings">
-          <Settings16Icon /> Settings
-        </NavLinkItem>
-      </Sidebar.Footer>
+    <div className="ox-sidebar relative flex flex-col border-r px-3 pt-5 text-sans-md text-default border-secondary">
+      {projectSelector}
+      <div className="overflow-y-auto mt-10 flex flex-col flex-grow">
+        {childArray}
+        <Sidebar.Footer>
+          <NavLinkItem to="https://docs.oxide.computer">
+            <Document16Icon /> Documentation
+          </NavLinkItem>
+        </Sidebar.Footer>
+      </div>
     </div>
   )
 }
@@ -32,7 +34,7 @@ interface SidebarNav {
 }
 Sidebar.Nav = ({ children, heading }: SidebarNav) => {
   return (
-    <div className="mt-8 space-y-1">
+    <div className="ox-sidebar-nav space-y-1">
       {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
       <nav>
         <ul className="space-y-0.5">{children}</ul>
@@ -46,8 +48,11 @@ interface SidebarFooter {
 }
 Sidebar.Footer = ({ children }: SidebarFooter) => {
   return (
-    // TODO: The `w-[12.5rem] is hand calculated and very likely isn't what we want. Do something better here
-    <ul className="absolute bottom-0 w-[12.5rem] space-y-0.5 pb-3">{children}</ul>
+    <ul className="ox-sidebar-footer w-full pb-3">
+      <span className="heading hidden ml-2 text-mono-sm text-secondary">More</span>
+
+      <div>{children}</div>
+    </ul>
   )
 }
 

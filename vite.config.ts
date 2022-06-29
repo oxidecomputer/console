@@ -1,6 +1,6 @@
+import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
-import react from '@vitejs/plugin-react'
 
 import tsConfig from './tsconfig.json'
 
@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
+    'process.env.SHA': JSON.stringify(process.env.SHA),
   },
   plugins: [
     splitVendorChunkPlugin(),
@@ -51,6 +52,11 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       '/api': {
         target: 'http://localhost:12220',
+        configure(proxy) {
+          proxy.on('error', (_, req) => {
+            console.error('    to', '/api' + req.url)
+          })
+        },
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       // We want to actually hit Nexus for this because it gives us a login redirect

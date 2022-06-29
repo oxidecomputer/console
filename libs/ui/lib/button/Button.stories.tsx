@@ -1,7 +1,8 @@
-import { Button, buttonSizes, variants, colors } from './Button'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
 import { Section } from '../../util/story-section'
+import { Button, buttonSizes, colors, variants } from './Button'
 
 type Story = StoryObj<ComponentProps<typeof Button>>
 
@@ -41,14 +42,25 @@ export const All = () => {
           {colors.map((color) => (
             <div key={color} className="mb-2 flex flex-row space-x-2">
               {variants.map((variant) => (
-                <Button
-                  key={variant}
-                  variant={variant}
-                  color={color}
-                  className={`:${state}`}
-                >
-                  {variant}
-                </Button>
+                <>
+                  <Button
+                    key={variant}
+                    variant={variant}
+                    color={color}
+                    className={`:${state}`}
+                  >
+                    {variant}
+                  </Button>
+                  <Button
+                    key={variant}
+                    variant={variant}
+                    color={color}
+                    className={`:${state}`}
+                    loading={true}
+                  >
+                    {variant}
+                  </Button>
+                </>
               ))}
             </div>
           ))}
@@ -57,12 +69,3 @@ export const All = () => {
     </div>
   )
 }
-
-export const Selected = () => {
-  return (
-    <div className="is-selected -m-4 p-4 bg-accent-secondary">
-      <All />
-    </div>
-  )
-}
-Selected.storyName = `Theme/Selected`

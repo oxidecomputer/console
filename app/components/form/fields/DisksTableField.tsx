@@ -1,14 +1,15 @@
-import { useState } from 'react'
 import { useField } from 'formik'
-import type { DiskCreateValues } from 'app/forms/disk-create'
-import type { DiskAttachValues } from 'app/forms/disk-attach'
-import { CreateDiskForm } from 'app/forms/disk-create'
-import { AttachDiskForm } from 'app/forms/disk-attach'
-import { Button, Error16Icon, FieldLabel, MiniTable, SideModal } from '@oxide/ui'
+import { useState } from 'react'
+
+import type { DiskCreate, DiskIdentifier } from '@oxide/api'
+import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
+
+import AttachDiskSideModalForm from 'app/forms/disk-attach'
+import CreateDiskSideModalForm from 'app/forms/disk-create'
 
 export type DiskTableItem =
-  | (DiskCreateValues & { type: 'create' })
-  | (DiskAttachValues & { type: 'attach' })
+  | (DiskCreate & { type: 'create' })
+  | (DiskIdentifier & { type: 'attach' })
 
 export function DisksTableField() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
@@ -55,39 +56,31 @@ export function DisksTableField() {
         )}
 
         <div className="space-x-3">
-          <Button variant="secondary" size="sm" onClick={() => setShowDiskCreate(true)}>
+          <Button variant="default" size="sm" onClick={() => setShowDiskCreate(true)}>
             Create new disk
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => setShowDiskAttach(true)}>
+          <Button variant="default" size="sm" onClick={() => setShowDiskAttach(true)}>
             Attach existing disk
           </Button>
         </div>
       </div>
 
-      <SideModal
-        id="create-disk-modal"
+      <CreateDiskSideModalForm
         isOpen={showDiskCreate}
+        onSubmit={(values) => {
+          setItems([...items, { type: 'create', ...values }])
+          setShowDiskCreate(false)
+        }}
         onDismiss={() => setShowDiskCreate(false)}
-      >
-        <CreateDiskForm
-          onSubmit={(values) => {
-            setItems([...items, { type: 'create', ...values }])
-            setShowDiskCreate(false)
-          }}
-        />
-      </SideModal>
-      <SideModal
-        id="attach-disk-modal"
+      />
+      <AttachDiskSideModalForm
         isOpen={showDiskAttach}
         onDismiss={() => setShowDiskAttach(false)}
-      >
-        <AttachDiskForm
-          onSubmit={(values) => {
-            setItems([...items, { type: 'attach', ...values }])
-            setShowDiskAttach(false)
-          }}
-        />
-      </SideModal>
+        onSubmit={(values) => {
+          setItems([...items, { type: 'attach', ...values }])
+          setShowDiskAttach(false)
+        }}
+      />
     </>
   )
 }

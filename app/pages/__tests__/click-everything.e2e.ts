@@ -1,5 +1,6 @@
 import { test } from '@playwright/test'
-import { expectVisible, expectNotVisible } from 'app/util/e2e'
+
+import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
   await page.goto('/')
@@ -13,7 +14,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   // create org form
   await page.click('role=link[name="New Organization"]')
   await expectVisible(page, [
-    'role=heading[name*="Create Organization"]',
+    'role=heading[name*="Create organization"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=button[name="Create organization"][disabled]',
@@ -52,7 +53,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="Disk name"]',
-    'role=radiogroup[name="Block size (Bytes)"]',
     'role=spinbutton[name="Disk size (GiB)"]',
     'role=radiogroup[name="Network interface"]',
     'role=textbox[name="Hostname"]',
@@ -77,10 +77,10 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
 
   // Stop instance
-  await page.click('role=button[name="More"]')
+  await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Close"]')
+  await page.click('role=button[name="Dismiss notification"]')
 
   // New disk form
   await page.click('role=button[name="Create new disk"]')
@@ -91,14 +91,11 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=spinbutton[name="Size (GiB)"]',
     'role=button[name="Create Disk"][disabled]',
   ])
-  await page.click('role=button[name="Close"]')
-
-  await page.click('role=button[name="Create new disk"]')
   await page.click('role=button[name="Cancel"]')
 
   // Attach existing disk form
   await page.click('role=button[name="Attach existing disk"]')
-  await page.click('role=combobox[name="Disk name"]')
+  await page.click('role=button[name="Disk name"]')
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
 
   // Attach disk-3
@@ -110,7 +107,13 @@ test("Click through everything and make it's all there", async ({ page }) => {
 
   // Instance networking tab
   await page.click('role=tab[name="Networking"]')
-  await expectVisible(page, ['role=cell[name="my-nic"]'])
+  await expectRowVisible(page, 'my-nic', [
+    '',
+    'my-nic',
+    'a network interface',
+    '172.30.0.10',
+    'primary',
+  ])
   await page.click('role=button[name="Add network interface"]')
 
   // Add network interface
@@ -119,28 +122,54 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=combobox[name="VPC"]',
-    'role=combobox[name="Subnet"]',
+    'role=button[name="VPC"]', // listbox
+    'role=button[name="Subnet"]', // listbox
     'role=textbox[name="IP Address"]',
   ])
 
   await page.fill('role=textbox[name="Name"]', 'nic-2')
-  await page.click('role=combobox[name="VPC"]')
+  await page.click('role=button[name="VPC"]')
   await page.click('role=option[name="mock-vpc"]')
-  await page.click('role=combobox[name="Subnet"]')
+  await page.click('role=button[name="Subnet"]')
   await page.click('role=option[name="mock-subnet"]')
   await page.click('role=button[name="Add network interface"]')
   await expectVisible(page, ['role=cell[name="nic-2"]'])
 
-  // Delete just-added network interface
+  // Make this interface primary
   await page
     .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="More"]')
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Make primary"]')
+  await expectRowVisible(page, 'my-nic', [
+    '',
+    'my-nic',
+    'a network interface',
+    '172.30.0.10',
+    '',
+  ])
+  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, 'primary'])
+
+  // Make an edit to the network interface
+  await page
+    .locator('role=row', { hasText: 'nic-2' })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Edit"]')
+  await page.fill('role=textbox[name="Name"]', 'nic-3')
+  await page.click('role=button[name="Save changes"]')
+  await expectNotVisible(page, ['role=cell[name="nic-2"]'])
+  await expectVisible(page, ['role=cell[name="nic-3"]'])
+
+  // Delete just-added network interface
+  await page
+    .locator('role=row', { hasText: 'nic-3' })
+    .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Close"]')
-  await expectNotVisible(page, ['role=cell[name="nic-2"]'])
+  await page.click('role=button[name="Dismiss notification"]')
+  await expectNotVisible(page, ['role=cell[name="nic-3"]'])
 
   // Snapshots page
   await page.click('role=link[name*="Snapshots"]')
@@ -161,13 +190,16 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=cell[name="disk-3"]',
     'role=cell[name="disk-4"]',
   ])
+  await page.click('role=cell[name="db1"] >> role=link')
+  await expectVisible(page, ["role=heading[name*='db1']"])
+  await page.goBack()
 
   // TODO: assert that disks 1-3 are attached and 4 is not
 
   // Create disk form
   await page.click('role=link[name="New Disk"]')
   await expectVisible(page, [
-    'role=heading[name*="Create disk"]',
+    'role=heading[name*="Create Disk"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=radiogroup[name="Block size (Bytes)"]',
@@ -175,6 +207,18 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=button[name="Create Disk"][disabled]',
   ])
   await page.goBack()
+
+  // Test pagination
+  await page.click('role=button[name="next"]')
+  await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
+  await page.click('role=button[name*="prev"]')
+  await expectVisible(page, [
+    'role=heading[name*="Disks"]',
+    'role=cell[name="disk-1"]',
+    'role=cell[name="disk-2"]',
+    'role=cell[name="disk-3"]',
+    'role=cell[name="disk-4"]',
+  ])
 
   // Access & IAM
   await page.click('role=link[name*="Access & IAM"]')
@@ -198,7 +242,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   ])
 
   // New VPC form
-  await page.click('role=link[name="New VPC"]')
+  await page.click('role=link[name="New Vpc"]')
   await expectVisible(page, [
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
@@ -217,7 +261,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=tab[name="System Routes"]',
     'role=tab[name="Routers"]',
     'role=tab[name="Firewall Rules"]',
-    'role=tab[name="Gateways"]',
     'role=cell[name="mock-subnet"]',
     // TODO: assert minitable contents
   ])
@@ -235,7 +278,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectVisible(page, ['role=cell[name="new-subnet"]'])
   await page
     .locator('role=row', { hasText: 'new-subnet' })
-    .locator('role=button[name="More"]')
+    .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Edit"]')
 
@@ -259,11 +302,11 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await expectVisible(page, ['role=cell[name="system"] >> nth=0'])
   await page.click('role=button[name="New router"]')
   await expectVisible(page, [
-    'role=heading[name="Create VPC router"]',
-    'role=button[name="Create VPC router"][disabled]',
+    'role=heading[name="Create VPC Router"]',
+    'role=button[name="Create VPC Router"][disabled]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-router')
-  await page.click('role=button[name="Create VPC router"]')
+  await page.click('role=button[name="Create VPC Router"]')
   await expectVisible(page, ['role=cell[name="new-router"]', 'role=cell[name="custom"]'])
 
   // Firewall rules
@@ -274,8 +317,4 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=cell[name="allow-rdp"]',
     'role=cell[name="allow-ssh"]',
   ])
-
-  // Gateways
-  await page.click('role=tab[name="Gateways"]')
-  // not implemeneted
 })

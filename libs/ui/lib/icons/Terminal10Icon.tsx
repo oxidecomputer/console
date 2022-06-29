@@ -1,32 +1,36 @@
 import * as React from 'react'
+import type { SVGProps } from 'react'
+
 interface SVGRProps {
   title?: string
   titleId?: string
 }
 
-function Terminal10Icon({
-  title = 'Terminal',
+const Terminal10Icon = ({
+  title,
   titleId,
   ...props
-}: React.SVGProps<SVGSVGElement> & SVGRProps) {
-  return (
-    <svg
-      width={10}
-      height={10}
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-labelledby={titleId}
-      {...props}
-    >
-      {title ? <title id={titleId}>{title}</title> : null}
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
+  <svg
+    width={10}
+    height={10}
+    viewBox="0 0 10 10"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-labelledby={titleId}
+    {...props}
+  >
+    {title ? <title id={titleId}>{title}</title> : null}
+    <g id="10/terminal">
       <path
+        id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M10 1H0v8h10V1zM1 7V5.75L3.667 4.5 1 3.25V2l4 1.875v1.25L1 7zm4 0h4v1H5V7z"
+        d="M10 1H0V9H10V1ZM1 7V5.75L3.66667 4.5L1 3.25V2L5 3.875V5.125L1 7ZM5 7H9V8H5V7Z"
         fill="currentColor"
       />
-    </svg>
-  )
-}
+    </g>
+  </svg>
+)
 
 export default Terminal10Icon

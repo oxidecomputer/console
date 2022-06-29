@@ -1,6 +1,7 @@
-import { navToLogin } from './nav-to-login'
-import type { ApiMethods, ErrorResponse, Error } from '.'
 import { camelCaseToWords, capitalize } from '@oxide/util'
+
+import type { ApiMethods, Error, ErrorResponse } from '.'
+import { navToLogin } from './nav-to-login'
 
 const errorCodeFormatter =
   (method: keyof ApiMethods) =>
@@ -14,7 +15,7 @@ const errorCodeFormatter =
         if (method.endsWith('Post')) {
           let resource = camelCaseToWords(method).slice(-2)[0]
           resource = resource.endsWith('s') ? resource.slice(0, -1) : resource
-          return `${resource} name already exists`
+          return `${capitalize(resource)} name already exists`
         }
         return undefined
       default:

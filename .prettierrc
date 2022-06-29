@@ -1,5 +1,9 @@
 {
   "printWidth": 92,
   "singleQuote": true,
-  "semi": false
+  "semi": false,
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^@oxide/(.*)$", "^app/(.*)$", "^[./]"],
+  "importOrderGroupNamespaceSpecifiers": true,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }

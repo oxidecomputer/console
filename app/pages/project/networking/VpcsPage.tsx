@@ -1,9 +1,19 @@
 import { useMemo } from 'react'
-import { useParams, useQuickActions } from 'app/hooks'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
 import { Link, useNavigate } from 'react-router-dom'
-import { buttonStyle, EmptyMessage, Networking24Icon, TableActions } from '@oxide/ui'
+
+import { useApiQuery } from '@oxide/api'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import {
+  EmptyMessage,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import CreateVpcSideModalForm from 'app/forms/vpc-create'
+import { useParams, useQuickActions } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -15,7 +25,11 @@ const EmptyState = () => (
   />
 )
 
-export const VpcsPage = () => {
+interface VpcsPageProps {
+  modal?: 'createVpc'
+}
+
+export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const projectParams = useParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
   const { data: vpcs } = useApiQuery('projectVpcsGet', {
@@ -38,9 +52,12 @@ export const VpcsPage = () => {
   const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
+      </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'secondary', size: 'xs' })}>
-          New VPC
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
+          New Vpc
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
@@ -52,6 +69,10 @@ export const VpcsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeCreated" cell={DateCell} />
       </Table>
+      <CreateVpcSideModalForm
+        isOpen={modal === 'createVpc'}
+        onDismiss={() => navigate('..')}
+      />
     </>
   )
 }

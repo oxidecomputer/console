@@ -1,10 +1,14 @@
-import { rest, context, compose } from 'msw'
+import { compose, context, rest } from 'msw'
+
 import type { ApiTypes as Api } from '@oxide/api'
-import { sortBy } from '@oxide/util'
+import { pick, sortBy } from '@oxide/util'
+
 import type { Json } from '../json-type'
-import { json } from './util'
+import { serial } from '../serial'
 import { sessionMe } from '../session'
 import type {
+  DiskParams,
+  GlobalImageParams,
   InstanceParams,
   NetworkInterfaceParams,
   NotFound,
@@ -15,7 +19,9 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
-import { notFoundErr } from './db'
+import { lookupSshKey } from './db'
+import { lookupDisk } from './db'
+import { lookupGlobalImage } from './db'
 import {
   db,
   lookupInstance,
@@ -26,6 +32,7 @@ import {
   lookupVpcRouter,
   lookupVpcSubnet,
 } from './db'
+import { json, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -69,9 +76,12 @@ export const handlers = [
     '/api/session/me/sshkeys',
     (req, res) =>
       res(
-        json({
-          items: db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id),
-        })
+        json(
+          paginated(
+            req.url.search,
+            db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id)
+          )
+        )
       )
   ),
 
@@ -106,10 +116,8 @@ export const handlers = [
   rest.delete<never, SshKeyParams, GetErr>(
     '/api/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
-      const sshKey = db.sshKeys.find(
-        (key) => key.name === req.params.sshKeyName && key.silo_user_id === sessionMe.id
-      )
-      if (!sshKey) return res(notFoundErr)
+      const [sshKey, err] = lookupSshKey(req.params)
+      if (err) return res(err)
       db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
       return res(ctx.status(204))
     }
@@ -117,7 +125,7 @@ export const handlers = [
 
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
-    (req, res) => res(json({ items: db.orgs }))
+    (req, res) => res(json(paginated(req.url.search, db.orgs)))
   ),
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
@@ -154,6 +162,66 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.OrganizationUpdate>, OrgParams, Json<Api.Organization> | PostErr>(
+    '/api/organizations/:orgName',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      org.name = req.body.name
+      org.description = req.body.description || ''
+
+      return res(json(org, 200))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+    '/api/organizations/:orgName/policy',
+    (req, res) => {
+      const [org, err] = lookupOrg(req.params)
+      if (err) return res(err)
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.OrganizationRolePolicy>,
+    ProjectParams,
+    Json<Api.OrganizationRolePolicy> | PostErr
+  >('/api/organizations/:orgName/policy', (req, res) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'organization' as const,
+      resource_id: org.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'organization' && r.resource_id === org.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
+
+  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    return res(ctx.status(204))
+  }),
+
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
@@ -161,7 +229,7 @@ export const handlers = [
       if (err) return res(err)
 
       const projects = db.projects.filter((p) => p.organization_id === org.id)
-      return res(json({ items: projects }))
+      return res(json(paginated(req.url.search, projects)))
     }
   ),
 
@@ -201,13 +269,76 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      if (!req.body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      project.name = req.body.name
+      project.description = req.body.description || ''
+
+      return res(json(project, 200))
+    }
+  ),
+
+  rest.delete<never, ProjectParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName',
+    (req, res, ctx) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+      db.projects = db.projects.filter((p) => p.id !== project.id)
+      return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/policy',
+    (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+      return res(json({ role_assignments }))
+    }
+  ),
+
+  rest.put<
+    Json<Api.ProjectRolePolicy>,
+    ProjectParams,
+    Json<Api.ProjectRolePolicy> | PostErr
+  >('/api/organizations/:orgName/projects/:projectName/policy', (req, res) => {
+    const [project, err] = lookupProject(req.params)
+    if (err) return res(err)
+
+    // TODO: validate input lol
+    const newAssignments = req.body.role_assignments.map((r) => ({
+      resource_type: 'project' as const,
+      resource_id: project.id,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'project' && r.resource_id === project.id)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return res(json(req.body))
+  }),
+
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const instances = db.instances.filter((i) => i.project_id === project.id)
-      return res(json({ items: instances }))
+      return res(json(paginated(req.url.search, instances)))
     }
   ),
 
@@ -254,7 +385,7 @@ export const handlers = [
         time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
-      return res(json(newInstance, 201))
+      return res(json(newInstance, 201, 2000))
     }
   ),
 
@@ -286,7 +417,7 @@ export const handlers = [
       const disks = db.disks.filter(
         (d) => 'instance' in d.state && d.state.instance === instance.id
       )
-      return res(json({ items: disks }))
+      return res(json(paginated(req.url.search, disks)))
     }
   ),
 
@@ -298,10 +429,8 @@ export const handlers = [
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const disk = db.disks.find((d) => d.name === req.body.name)
-      if (!disk) {
-        return res(badRequest('disk not found'))
-      }
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+      if (diskErr) return res(diskErr)
       disk.state = {
         state: 'attached',
         instance: instance.id,
@@ -318,10 +447,8 @@ export const handlers = [
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const disk = db.disks.find((d) => d.name === req.body.name)
-      if (!disk) {
-        return res(badRequest('disk not found'))
-      }
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+      if (diskErr) return res(diskErr)
       disk.state = {
         state: 'detached',
       }
@@ -335,7 +462,7 @@ export const handlers = [
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-      return res(json({ items: nics }))
+      return res(json(paginated(req.url.search, nics)))
     }
   ),
 
@@ -348,9 +475,11 @@ export const handlers = [
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
-      const alreadyExists = db.networkInterfaces.some(
-        (n) => n.instance_id === instance.id && n.name === req.body.name
+      const nicsForInstance = db.networkInterfaces.filter(
+        (n) => n.instance_id === instance.id
       )
+
+      const alreadyExists = nicsForInstance.some((n) => n.name === req.body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
       if (!req.body.name) {
@@ -373,6 +502,8 @@ export const handlers = [
 
       const newNic: Json<Api.NetworkInterface> = {
         id: genId('nic'),
+        // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
+        primary: nicsForInstance.length === 0,
         instance_id: instance.id,
         name,
         description,
@@ -397,6 +528,40 @@ export const handlers = [
     }
   ),
 
+  rest.put<
+    Json<Api.NetworkInterfaceUpdate>,
+    NetworkInterfaceParams,
+    Json<Api.NetworkInterface> | PostErr
+  >(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
+    (req, res, ctx) => {
+      const [nic, err] = lookupNetworkInterface(req.params)
+      if (err) return res(err)
+
+      if (req.body.name) {
+        nic.name = req.body.name
+      }
+      if (typeof req.body.description === 'string') {
+        nic.description = req.body.description
+      }
+      if (
+        typeof req.body.make_primary === 'boolean' &&
+        req.body.make_primary !== nic.primary
+      ) {
+        if (nic.primary) {
+          return res(badRequest('Cannot remove the primary interface'))
+        }
+        db.networkInterfaces
+          .filter((n) => n.instance_id === nic.instance_id)
+          .forEach((n) => {
+            n.primary = false
+          })
+        nic.primary = !!req.body.make_primary
+      }
+      return res(ctx.status(204))
+    }
+  ),
+
   rest.delete<never, NetworkInterfaceParams, GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res, ctx) => {
@@ -407,13 +572,21 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, InstanceParams, Json<Api.InstanceSerialConsoleData> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/serial',
+    (req, res) => {
+      // TODO: Add support for query params
+      return res(json(serial))
+    }
+  ),
+
   rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const disks = db.disks.filter((d) => d.project_id === project.id)
-      return res(json({ items: disks }))
+      return res(json(paginated(req.url.search, disks)))
     }
   ),
 
@@ -442,11 +615,21 @@ export const handlers = [
         size,
         // TODO: for non-blank disk sources, look up image or snapshot by ID and
         // pull block size from there
-        block_size: disk_source.type === 'Blank' ? disk_source.block_size : 4096,
+        block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
         ...getTimestamps(),
       }
       db.disks.push(newDisk)
       return res(json(newDisk, 201))
+    }
+  ),
+
+  rest.delete<never, DiskParams, GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/disks/:diskName',
+    (req, res, ctx) => {
+      const [disk, err] = lookupDisk(req.params)
+      if (err) return res(err)
+      db.disks = db.disks.filter((d) => d.id !== disk.id)
+      return res(ctx.status(204))
     }
   ),
 
@@ -456,7 +639,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const images = db.images.filter((i) => i.project_id === project.id)
-      return res(json({ items: images }))
+      return res(json(paginated(req.url.search, images)))
     }
   ),
 
@@ -466,7 +649,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
-      return res(json({ items: snapshots }))
+      return res(json(paginated(req.url.search, snapshots)))
     }
   ),
 
@@ -476,7 +659,7 @@ export const handlers = [
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
       const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-      return res(json({ items: vpcs }))
+      return res(json(paginated(req.url.search, vpcs)))
     }
   ),
 
@@ -522,8 +705,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req.url.search, subnets)))
     }
   ),
 
@@ -612,8 +795,8 @@ export const handlers = [
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const items = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
-      return res(json({ items }))
+      const routers = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
+      return res(json(paginated(req.url.search, routers)))
     }
   ),
 
@@ -665,8 +848,41 @@ export const handlers = [
     (req, res) => {
       const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
-      const items = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-      return res(json({ items }))
+      const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
+      return res(json(paginated(req.url.search, routers)))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
+    '/api/images',
+    (req, res) => {
+      return res(json(paginated(req.url.search, db.globalImages)))
+    }
+  ),
+
+  rest.get<never, GlobalImageParams, Json<Api.GlobalImage> | GetErr>(
+    '/api/images/:imageName',
+    (req, res) => {
+      const [image, err] = lookupGlobalImage(req.params)
+      if (err) return res(err)
+      return res(json(image))
+    }
+  ),
+
+  // note that in the API this is meant for system users, but that could change.
+  // kind of a hack to pretend it's about normal users.
+  // see https://github.com/oxidecomputer/omicron/issues/1235
+  rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/api/users', (req, res) => {
+    return res(json(paginated(req.url.search, db.users)))
+  }),
+
+  rest.post<Json<Api.DeviceAuthVerify>, never, PostErr>(
+    '/api/device/confirm',
+    (req, res, ctx) => {
+      if (req.body.user_code === 'BADD-CODE') {
+        return res(ctx.status(404))
+      }
+      return res(ctx.status(200))
     }
   ),
 ]

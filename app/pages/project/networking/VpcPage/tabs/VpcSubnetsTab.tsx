@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useParams } from 'app/hooks'
-import type { MenuAction } from '@oxide/table'
-import { useQueryTable, TwoLineCell, DateCell } from '@oxide/table'
-import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+
 import type { VpcSubnet } from '@oxide/api'
-import { CreateSubnetForm } from 'app/forms/subnet-create'
-import { EditSubnetForm } from 'app/forms/subnet-edit'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, TwoLineCell, useQueryTable } from '@oxide/table'
+import { Button, EmptyMessage } from '@oxide/ui'
+
+import { CreateSubnetSideModalForm } from 'app/forms/subnet-create'
+import { EditSubnetSideModalForm } from 'app/forms/subnet-edit'
+import { useParams } from 'app/hooks'
 
 export const VpcSubnetsTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
@@ -33,32 +35,18 @@ export const VpcSubnetsTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
+        <Button size="xs" variant="default" onClick={() => setCreateModalOpen(true)}>
           New subnet
         </Button>
-        <SideModal
-          id="create-subnet-modal"
+        <CreateSubnetSideModalForm
           isOpen={createModalOpen}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateSubnetForm
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
-        <SideModal
-          id="edit-subnet-modal"
+        />
+        <EditSubnetSideModalForm
           isOpen={!!editing}
+          initialValues={editing || {}}
           onDismiss={() => setEditing(null)}
-        >
-          {editing && (
-            <EditSubnetForm
-              initialValues={editing}
-              onDismiss={() => setEditing(null)}
-              onSuccess={() => setEditing(null)}
-            />
-          )}
-        </SideModal>
+        />
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />

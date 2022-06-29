@@ -1,11 +1,14 @@
-import { forwardRef } from 'react'
 import cn from 'classnames'
-import './button.css'
+import { forwardRef } from 'react'
+
+import { Spinner } from '@oxide/ui'
 import { assertUnreachable } from '@oxide/util'
 
+import './button.css'
+
 export const buttonSizes = ['xs', 'sm', 'base'] as const
-export const variants = ['default', 'secondary', 'ghost', 'link'] as const
-export const colors = ['accent', 'destructive', 'notice', 'neutral'] as const
+export const variants = ['default', 'ghost', 'link'] as const
+export const colors = ['primary', 'secondary', 'destructive', 'notice'] as const
 
 export type ButtonSize = typeof buttonSizes[number]
 export type Variant = typeof variants[number]
@@ -20,38 +23,30 @@ const sizeStyle: Record<ButtonSize, string> = {
 const colorStyle = (variant: Variant, color: Color): string => {
   const style: `${Variant} ${Color}` = `${variant} ${color}`
   switch (style) {
-    case 'default accent':
-      return 'btn-accent'
-    case 'default notice':
-      return 'btn-notice'
+    case 'default primary':
+      return 'btn-primary'
+    case 'default secondary':
+      return 'btn-secondary-solid'
     case 'default destructive':
       return 'btn-destructive'
-    case 'default neutral':
+    case 'default notice':
+      return 'btn-notice'
+    case 'ghost primary':
+      return 'btn-primary-ghost'
+    case 'ghost secondary':
       return 'btn-secondary'
-    case 'secondary accent':
-      return 'btn-accent-secondary'
-    case 'secondary notice':
-      return 'btn-notice-secondary'
-    case 'secondary destructive':
-      return 'btn-destructive-secondary'
-    case 'secondary neutral':
-      return 'btn-not-implemented'
-    case 'ghost accent':
-      return 'btn-ghost-accent'
-    case 'ghost notice':
-      return 'btn-ghost-notice'
     case 'ghost destructive':
-      return 'btn-ghost-destructive'
-    case 'ghost neutral':
-      return 'btn-ghost-secondary'
-    case 'link accent':
-      return 'btn-link-accent'
+      return 'btn-destructive-ghost'
+    case 'ghost notice':
+      return 'btn-notice-ghost'
+    case 'link primary':
+      return 'btn-primary-link'
+    case 'link secondary':
+      return 'btn-secondary-link'
     case 'link notice':
-      return 'btn-link-notice'
+      return 'btn-notice-link'
     case 'link destructive':
-      return 'btn-link-destructive'
-    case 'link neutral':
-      return 'btn-link-secondary'
+      return 'btn-destructive-link'
     default:
       assertUnreachable(`Invalid button state ${style}`, style)
   }
@@ -75,12 +70,15 @@ type ButtonStyleProps = {
   color?: Color
 }
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> & ButtonStyleProps
+export type ButtonProps = React.ComponentPropsWithRef<'button'> &
+  ButtonStyleProps & {
+    loading?: boolean
+  }
 
 export const buttonStyle = ({
   size = 'base',
   variant = 'default',
-  color = 'accent',
+  color = 'primary',
 }: ButtonStyleProps = {}) => {
   return cn(
     'ox-button',
@@ -95,7 +93,7 @@ export const buttonStyle = ({
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, size, variant, color, className, ...rest }, ref) => {
+  ({ children, size, variant, color, className, loading, ...rest }, ref) => {
     return (
       <button
         className={cn(buttonStyle({ size, variant, color }), className)}
@@ -103,7 +101,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type="button"
         {...rest}
       >
-        {children}
+        <>
+          {loading && <Spinner className="absolute" />}
+          <span className={cn({ invisible: loading })}>{children}</span>
+        </>
       </button>
     )
   }

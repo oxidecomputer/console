@@ -1,24 +1,30 @@
-import { Success16Icon } from '@oxide/ui'
-import type { Project } from '@oxide/api'
+import { useNavigate } from 'react-router-dom'
+
+import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Success16Icon } from '@oxide/ui'
+
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import type { CreateSideModalFormProps } from 'app/forms'
+
 import { useParams, useToast } from '../hooks'
-import { Form, NameField, DescriptionField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
 
 const values = {
   name: '',
   description: '',
 }
 
-export function CreateProjectForm({
+export function CreateProjectSideModalForm({
   id = 'create-project-form',
   title = 'Create project',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<typeof values, Project>) {
+}: CreateSideModalFormProps<ProjectCreate, Project>) {
+  const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -41,15 +47,17 @@ export function CreateProjectForm({
         timeout: 5000,
       })
       onSuccess?.(project)
+      navigate(`/orgs/${orgName}/projects/${project.name}/instances`)
     },
     onError,
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       initialValues={initialValues}
       title={title}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         (({ name, description }) => {
@@ -59,17 +67,14 @@ export function CreateProjectForm({
           })
         })
       }
-      mutation={createProject}
+      submitDisabled={createProject.isLoading}
+      error={createProject.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="name" />
       <DescriptionField id="description" />
-      <Form.Actions>
-        <Form.Submit>Create project</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateProjectForm
+export default CreateProjectSideModalForm

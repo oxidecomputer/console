@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
 import cn from 'classnames'
+import { useMemo } from 'react'
 
 export const avatarSizes = ['sm', 'base', 'lg'] as const
 export type AvatarSize = typeof avatarSizes[number]

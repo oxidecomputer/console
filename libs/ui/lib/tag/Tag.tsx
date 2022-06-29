@@ -1,4 +1,5 @@
 import cn from 'classnames'
+
 import { Close8Icon } from '../icons'
 
 export type TagColor = 'default' | 'destructive' | 'notice' | 'neutral'

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('VpcPage', () => {
   test('can nav to VpcPage from /', async ({ page }) => {
@@ -124,7 +124,11 @@ test.describe('VpcPage', () => {
     await expect(modal).not.toBeVisible()
 
     // click more button on allow-icmp row to get menu, then click Edit
-    page.locator('tr:has-text("allow-icmp") button:has-text("More")').click()
+    await page
+      .locator('role=row', { hasText: 'allow-icmp' })
+      .locator('role=button[name="Row actions"]')
+      .click()
+
     // filter visible to distinguish from all the hidden menus' Edit button
     await page.locator('text="Edit" >> visible=true').click()
 

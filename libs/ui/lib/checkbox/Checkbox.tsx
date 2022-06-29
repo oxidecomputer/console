@@ -1,9 +1,9 @@
+import cn from 'classnames'
 import type { FieldAttributes } from 'formik'
 import { Field } from 'formik'
 
 import { Checkmark12Icon } from '@oxide/ui'
 import { classed } from '@oxide/util'
-import cn from 'classnames'
 
 const Check = () => (
   <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
@@ -15,7 +15,7 @@ const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded absolute left-0 outline-none
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-accent-secondary
-  hover:bg-secondary
+  hover:bg-secondary hover:cursor-pointer
   checked:bg-accent-secondary checked:border-accent hover:checked:bg-accent-secondary-hover
   indeterminate:bg-accent-secondary indeterminate:border-accent hover:indeterminate:bg-accent-secondary-hover
 `

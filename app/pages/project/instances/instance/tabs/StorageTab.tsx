@@ -1,23 +1,17 @@
-import { useMemo } from 'react'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import {
-  Button,
-  EmptyMessage,
-  Error16Icon,
-  OpenLink12Icon,
-  SideModal,
-  TableEmptyBox,
-} from '@oxide/ui'
-import { createTable, Table } from '@oxide/table'
-import { useParams, useToast } from 'app/hooks'
+import type { MenuAction } from '@oxide/table'
+import { DateCell, SizeCell, Table, createTable, getActionsCol } from '@oxide/table'
+import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
+
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { useState } from 'react'
-import AttachDiskForm from 'app/forms/disk-attach'
-import CreateDiskForm from 'app/forms/disk-create'
+import AttachDiskSideModalForm from 'app/forms/disk-attach'
+import CreateDiskSideModalForm from 'app/forms/disk-create'
+import { useParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -35,11 +29,18 @@ const columns = [
     header: 'Name',
     cell: (info) => <div>{info.getValue()}</div>,
   }),
+  table.createDataColumn('size', {
+    header: 'Size',
+    cell: (info) => <SizeCell value={info.getValue()} />,
+  }),
   table.createDataColumn((d) => d.state.state, {
     id: 'status',
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
-    meta: { thClassName: 'w-40' },
+  }),
+  table.createDataColumn('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 
@@ -55,8 +56,27 @@ export function StorageTab() {
     refetchInterval: 5000,
   })
 
+  const detachDisk = useApiMutation('instanceDisksDetach', {})
+
   const instanceStopped =
     useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+
+  const makeActions = (disk: Disk): MenuAction[] => [
+    {
+      label: 'Detach',
+      disabled: !instanceStopped,
+      onActivate() {
+        detachDisk.mutate(
+          { body: { name: disk.name }, ...instanceParams },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries('instanceDisksGet', instanceParams)
+            },
+          }
+        )
+      },
+    },
+  ]
 
   const attachDisk = useApiMutation('instanceDisksAttach', {
     onSuccess() {
@@ -77,14 +97,14 @@ export function StorageTab() {
   const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
   const bootDiskTable = useTableInstance(table, {
-    columns,
+    columns: [...columns, getActionsCol(makeActions)],
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
   const bootLabelId = 'boot-disk-label'
 
   const otherDisksTable = useTableInstance(table, {
-    columns,
+    columns: [...columns, getActionsCol(makeActions)],
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -116,7 +136,7 @@ export function StorageTab() {
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             onClick={() => setShowDiskCreate(true)}
             disabled={!instanceStopped}
@@ -124,7 +144,7 @@ export function StorageTab() {
             Create new disk
           </Button>
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={!instanceStopped}
@@ -136,42 +156,32 @@ export function StorageTab() {
           <span className="max-w-xs text-sans-sm text-secondary">
             A disk cannot be added or attached without first{' '}
             <a href="#/" className="text-accent-secondary">
-              powering down the instance
+              stopping the instance
               <OpenLink12Icon className="ml-1 pt-[1px]" />
             </a>
           </span>
         )}
       </div>
-      <SideModal
-        id="create-disk-modal"
+      <CreateDiskSideModalForm
         isOpen={showDiskCreate}
         onDismiss={() => setShowDiskCreate(false)}
-      >
-        <CreateDiskForm
-          onSuccess={(disk) => {
-            setShowDiskCreate(false)
-            attachDisk.mutate({
-              ...instanceParams,
-              body: {
-                name: disk.name,
-              },
-            })
-          }}
-          onDismiss={() => setShowDiskCreate(false)}
-        />
-      </SideModal>
-      <SideModal
-        id="attach-disk-modal"
+        onSuccess={(disk) => {
+          setShowDiskCreate(false)
+          attachDisk.mutate({
+            ...instanceParams,
+            body: {
+              name: disk.name,
+            },
+          })
+        }}
+      />
+      <AttachDiskSideModalForm
         isOpen={showDiskAttach}
+        onSuccess={() => {
+          setShowDiskAttach(false)
+        }}
         onDismiss={() => setShowDiskAttach(false)}
-      >
-        <AttachDiskForm
-          onSuccess={() => {
-            setShowDiskAttach(false)
-          }}
-          onDismiss={() => setShowDiskAttach(false)}
-        />
-      </SideModal>
+      />
     </div>
   )
 }

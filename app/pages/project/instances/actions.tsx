@@ -1,8 +1,11 @@
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import type { Instance } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
+
 import { useToast } from 'app/hooks'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
@@ -25,6 +28,7 @@ export const useMakeInstanceActions = (
   projectParams: { orgName: string; projectName: string },
   options: Options = {}
 ): MakeActions<Instance> => {
+  const navigate = useNavigate()
   const addToast = useToast()
   const successToast = (title: string) =>
     addToast({ icon: <Success16Icon />, title, timeout: 5000 })
@@ -77,6 +81,12 @@ export const useMakeInstanceActions = (
         disabled: !instanceCan.reboot(instance),
       },
       {
+        label: 'View serial console',
+        onActivate() {
+          navigate('serial-console')
+        },
+      },
+      {
         label: 'Delete',
         onActivate() {
           deleteInstance.mutate(
@@ -90,6 +100,7 @@ export const useMakeInstanceActions = (
           )
         },
         disabled: !instanceCan.delete(instance),
+        className: 'destructive',
       },
     ]
     // TODO: fix this lol

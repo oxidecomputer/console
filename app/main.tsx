@@ -1,12 +1,19 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { BrowserRouter as Router } from 'react-router-dom'
 
 import { SkipLink } from '@oxide/ui'
+
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { routes } from './routes'
-import { QuickActions, ToastProvider } from './hooks'
+import { QuickActions, ReduceMotion, ToastProvider } from './hooks'
+import { Router } from './routes'
+
+if (process.env.SHA) {
+  console.info(
+    'Oxide Web Console version',
+    `https://github.com/oxidecomputer/console/commits/${process.env.SHA}`
+  )
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,7 +33,8 @@ function render() {
           <ErrorBoundary>
             <QuickActions />
             <SkipLink id="skip-nav" />
-            <Router>{routes}</Router>
+            <ReduceMotion />
+            <Router />
           </ErrorBoundary>
         </QueryClientProvider>
       </ToastProvider>
@@ -58,7 +66,7 @@ async function startMockAPI() {
         // message format copied from MSW source
         console.warn(`[MSW] Warning: captured an API request without a matching request handler:
 
-  • ${req.method} ${req.url.pathname} 
+  • ${req.method} ${req.url.pathname}
 
 If you want to intercept this unhandled request, create a request handler for it.`)
       }

@@ -1,5 +1,5 @@
-import React from 'react'
 import cn from 'classnames'
+import React from 'react'
 
 // all the cuteness of tw.span`text-green-500 uppercase` with zero magic
 
@@ -19,6 +19,7 @@ const make =
 export const classed = {
   button: make('button'),
   div: make('div'),
+  footer: make('footer'),
   h1: make('h1'),
   h2: make('h2'),
   h3: make('h3'),

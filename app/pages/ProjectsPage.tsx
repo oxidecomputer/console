@@ -1,9 +1,23 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useParams, useQuickActions } from '../hooks'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+
+import type { Project } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { useApiQuery } from '@oxide/api'
-import { buttonStyle, TableActions, EmptyMessage, Folder24Icon } from '@oxide/ui'
+import {
+  EmptyMessage,
+  Folder24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import CreateProjectSideModalForm from 'app/forms/project-create'
+import EditProjectSideModalForm from 'app/forms/project-edit'
+
+import { useParams, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -15,7 +29,15 @@ const EmptyState = () => (
   />
 )
 
-const ProjectsPage = () => {
+interface ProjectsPageProps {
+  modal?: 'createProject' | 'editProject'
+}
+
+const ProjectsPage = ({ modal }: ProjectsPageProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
     orgName,
@@ -26,7 +48,27 @@ const ProjectsPage = () => {
     limit: 10, // to have same params as QueryTable
   })
 
-  const navigate = useNavigate()
+  const deleteProject = useApiMutation('organizationProjectsDeleteProject', {
+    onSuccess() {
+      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
+    },
+  })
+
+  const makeActions = (project: Project): MenuAction[] => [
+    {
+      label: 'Edit',
+      onActivate: () => {
+        navigate(`./edit/${project.name}`, { state: project })
+      },
+    },
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteProject.mutate({ orgName, projectName: project.name })
+      },
+    },
+  ]
+
   useQuickActions(
     useMemo(
       () => [
@@ -43,15 +85,15 @@ const ProjectsPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+      </PageHeader>
       <TableActions>
-        <Link
-          to={`/orgs/${orgName}/projects/new`}
-          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
-        >
+        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Project
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}
@@ -59,6 +101,15 @@ const ProjectsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateProjectSideModalForm
+        isOpen={modal === 'createProject'}
+        onDismiss={() => navigate('..')}
+      />
+      <EditProjectSideModalForm
+        isOpen={modal === 'editProject'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
+      />
     </>
   )
 }

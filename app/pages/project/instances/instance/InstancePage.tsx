@@ -1,18 +1,42 @@
-import { useMemo } from 'react'
 import filesize from 'filesize'
+import { memo, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { PropertiesTable, Tab, PageActions } from '@oxide/ui'
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { Instances24Icon, PageHeader, PageTitle, PropertiesTable, Tab } from '@oxide/ui'
 import { pick } from '@oxide/util'
+
+import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { Tabs } from 'app/components/Tabs'
 import { useParams, useQuickActions } from 'app/hooks'
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { StorageTab } from './tabs/StorageTab'
+
+import { useMakeInstanceActions } from '../actions'
 import { MetricsTab } from './tabs/MetricsTab'
 import { NetworkingTab } from './tabs/NetworkingTab'
-import { useMakeInstanceActions } from '../actions'
-import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import { SerialConsoleTab } from './tabs/SerialConsoleTab'
+import { StorageTab } from './tabs/StorageTab'
+
+const InstanceTabs = memo(() => (
+  <Tabs id="tabs-instance" fullWidth>
+    <Tab>Storage</Tab>
+    <Tab.Panel>
+      <StorageTab />
+    </Tab.Panel>
+    <Tab>Metrics</Tab>
+    <Tab.Panel>
+      <MetricsTab />
+    </Tab.Panel>
+    <Tab>Networking</Tab>
+    <Tab.Panel>
+      <NetworkingTab />
+    </Tab.Panel>
+    <Tab>Serial Console</Tab>
+    <Tab.Panel>
+      <SerialConsoleTab />
+    </Tab.Panel>
+  </Tabs>
+))
 
 export const InstancePage = () => {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -54,9 +78,10 @@ export const InstancePage = () => {
 
   return (
     <>
-      <PageActions>
-        <MoreActionsMenu actions={actions} />
-      </PageActions>
+      <PageHeader>
+        <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
+        <MoreActionsMenu label="Instance actions" actions={actions} />
+      </PageHeader>
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
@@ -77,20 +102,7 @@ export const InstancePage = () => {
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
-      <Tabs id="tabs-instance" fullWidth>
-        <Tab>Storage</Tab>
-        <Tab.Panel>
-          <StorageTab />
-        </Tab.Panel>
-        <Tab>Metrics</Tab>
-        <Tab.Panel>
-          <MetricsTab />
-        </Tab.Panel>
-        <Tab>Networking</Tab>
-        <Tab.Panel>
-          <NetworkingTab />
-        </Tab.Panel>
-      </Tabs>
+      <InstanceTabs />
     </>
   )
 }

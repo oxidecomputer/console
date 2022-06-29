@@ -1,6 +1,7 @@
-import { Breadcrumbs } from './Breadcrumbs'
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
+
+import { Breadcrumbs } from './Breadcrumbs'
 
 type Story = StoryObj<ComponentProps<typeof Breadcrumbs>>
 
@@ -21,7 +22,7 @@ export const Default: Story = {
       { href: '/', label: 'Home' },
       { href: '/first', label: 'First page' },
       { href: '/second', label: 'Second page' },
-      { label: 'Third page' },
+      { href: '/third', label: 'Third page' },
     ],
   },
 }

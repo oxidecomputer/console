@@ -1,22 +1,28 @@
 import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
-import { useApiMutation, useApiQueryClient, firewallRuleGetToPut } from '@oxide/api'
-import { Form } from 'app/components/form'
+import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
+
+import { Form, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
-import type { PrebuiltFormProps } from '.'
+
+import type { EditSideModalFormProps } from '.'
 import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
 
-type Props = PrebuiltFormProps<FirewallRuleValues, VpcFirewallRules> & {
+type EditFirewallRuleSideModalFormProps = Omit<
+  EditSideModalFormProps<FirewallRuleValues, VpcFirewallRules>,
+  'initialValues'
+> & {
   originalRule: VpcFirewallRule
   existingRules: VpcFirewallRule[]
 }
 
 export function EditFirewallRuleForm({
   onSuccess,
+  onDismiss,
   existingRules,
   originalRule,
   ...props
-}: Props) {
+}: EditFirewallRuleSideModalFormProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -24,8 +30,11 @@ export function EditFirewallRuleForm({
     onSuccess(data) {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
   })
+
+  if (Object.keys(originalRule).length === 0) return null
 
   const initialValues = {
     enabled: originalRule.status === 'enabled',
@@ -54,10 +63,11 @@ export function EditFirewallRuleForm({
   }
 
   return (
-    <Form
+    <SideModalForm
       id="create-firewall-rule-form"
       title="Edit rule"
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
@@ -71,16 +81,14 @@ export function EditFirewallRuleForm({
           },
         })
       }}
-      mutation={updateRules}
       validationSchema={validationSchema}
       validateOnBlur
+      submitDisabled={updateRules.isLoading}
+      error={updateRules.error?.error as Error | undefined}
       {...props}
     >
       <CommonFields error={updateRules.error} />
-      <Form.Actions>
-        <Form.Submit>Update rule</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+      <Form.Submit>Update rule</Form.Submit>
+    </SideModalForm>
   )
 }

@@ -1,7 +1,10 @@
+import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
+import { Link } from 'react-router-dom'
+
+import { useApiQuery } from '@oxide/api'
 import { SelectArrows6Icon } from '@oxide/ui'
 
-import { useParams as useRRParams } from 'react-router-dom'
-import cn from 'classnames'
+import { useParams } from 'app/hooks'
 
 /**
  * This is mostly temporary until we figure out the proper thing to go here
@@ -18,21 +21,56 @@ const BrandIcon = () => (
   </svg>
 )
 
-interface ProjectSelectorProps {
-  className?: string
-}
-export const ProjectSelector = ({ className }: ProjectSelectorProps) => {
-  const { orgName, projectName } = useRRParams()
+export const ProjectSelector = () => {
+  const { orgName, projectName } = useParams('orgName')
+
+  const { data } = useApiQuery('organizationProjectsGet', { orgName, limit: 20 })
+
+  // filter out current project if there is one. if there isn't one, it'll be
+  // undefined and it won't match any
+  const projects = (data?.items || []).filter((p) => p.name !== projectName)
+
   return (
-    <div className={cn('mt-1 flex items-center justify-between', className)}>
-      <div className="flex items-center">
-        <BrandIcon />
-        <div className="ml-2 pb-0.5 leading-4 text-sans-sm">
-          <div>{orgName}</div>
-          <div className="text-secondary">{projectName || 'select a project'}</div>
+    <Menu>
+      <MenuButton
+        aria-label="Switch project"
+        className="mt-1 flex items-center justify-between w-full group"
+      >
+        <div className="flex items-center">
+          <BrandIcon />
+          <div className="ml-2 pb-0.5 leading-4 text-sans-sm text-left">
+            <div>{orgName}</div>
+            <div className="text-secondary w-[140px] text-ellipsis whitespace-nowrap overflow-hidden">
+              {projectName || 'select a project'}
+            </div>
+          </div>
         </div>
-      </div>
-      <SelectArrows6Icon className="text-secondary" />
-    </div>
+        {/* aria-hidden is a tip from the Reach docs */}
+        <div className="flex flex-shrink-0 w-[1.125rem] h-[1.625rem] rounded border border-secondary justify-center items-center group-hover:bg-hover">
+          <SelectArrows6Icon className="text-secondary" aria-hidden />
+        </div>
+      </MenuButton>
+      <MenuList className="mt-2">
+        {projects.length > 0 ? (
+          projects.map((project) => (
+            <MenuLink
+              key={project.name}
+              as={Link}
+              to={`/orgs/${orgName}/projects/${project.name}`}
+            >
+              {project.name}
+            </MenuLink>
+          ))
+        ) : (
+          <MenuItem
+            className="!text-center hover:cursor-default !pr-3 !text-secondary"
+            onSelect={() => {}}
+            disabled
+          >
+            No other projects found
+          </MenuItem>
+        )}
+      </MenuList>
+    </Menu>
   )
 }

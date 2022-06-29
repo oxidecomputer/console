@@ -1,6 +1,7 @@
-import { More12Icon } from '@oxide/ui'
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { TableGenerics, Row } from '@tanstack/react-table'
+import type { Row, TableGenerics } from '@tanstack/react-table'
+
+import { More12Icon } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
@@ -9,6 +10,7 @@ export type MenuAction = {
   label: string
   onActivate: () => void
   disabled?: boolean
+  className?: string
 }
 
 export const getActionsCol = <TGenerics extends TableGenerics>(
@@ -23,13 +25,15 @@ export const getActionsCol = <TGenerics extends TableGenerics>(
     return (
       <div className="flex justify-center">
         <Menu>
-          <MenuButton>
+          {/* TODO: This name should not suck; future us, make it so! */}
+          <MenuButton aria-label="Row actions">
             <More12Icon className="text-tertiary" />
           </MenuButton>
           <MenuList>
             {actions.map((action) => {
               return (
                 <MenuItem
+                  className={action.className}
                   key={kebabCase(`action-${action.label}`)}
                   onSelect={action.onActivate}
                   disabled={action.disabled}

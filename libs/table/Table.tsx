@@ -1,5 +1,6 @@
 import type { TableInstance } from '@tanstack/react-table'
 import { createTable as _createTable } from '@tanstack/react-table'
+
 import { Table as UITable } from '@oxide/ui'
 
 export type TableProps<TGenerics> = JSX.IntrinsicElements['table'] & {
@@ -35,7 +36,10 @@ export const Table = <TGenerics extends OurTableGenerics>({
       {table.getHeaderGroups().map((headerGroup) => (
         <UITable.HeaderRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
-            <UITable.HeadCell key={header.id} className={header.column.meta?.thClassName}>
+            <UITable.HeadCell
+              key={header.id}
+              className={header.column.columnDef.meta?.thClassName}
+            >
               {header.renderHeader()}
             </UITable.HeadCell>
           ))}
@@ -44,7 +48,7 @@ export const Table = <TGenerics extends OurTableGenerics>({
     </UITable.Header>
     <UITable.Body>
       {table.getRowModel().rows.map((row) => (
-        <UITable.Row className={rowClassName} key={row.id}>
+        <UITable.Row className={rowClassName} selected={row.getIsSelected()} key={row.id}>
           {row.getAllCells().map((cell) => (
             <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
           ))}

@@ -1,4 +1,4 @@
-import { capitalize, camelCase, kebabCase } from './str'
+import { camelCase, capitalize, kebabCase } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {

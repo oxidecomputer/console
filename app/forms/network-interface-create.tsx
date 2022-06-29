@@ -1,21 +1,22 @@
-import {
-  ComboboxField,
-  DescriptionField,
-  Form,
-  NameField,
-  TextField,
-} from 'app/components/form'
-import { Divider } from '@oxide/ui'
-import type { NetworkInterface } from '@oxide/api'
+import invariant from 'tiny-invariant'
+
+import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Divider } from '@oxide/ui'
 
-import type { PrebuiltFormProps } from 'app/forms'
+import {
+  DescriptionField,
+  ListboxField,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/form'
+import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
+import type { CreateSideModalFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
-import invariant from 'tiny-invariant'
-import { SubnetCombobox } from 'app/components/form/fields/SubnetCombobox'
 
-const values = {
+const values: NetworkInterfaceCreate = {
   name: '',
   description: '',
   ip: '',
@@ -23,15 +24,16 @@ const values = {
   vpcName: '',
 }
 
-export default function CreateNetworkInterfaceForm({
+export default function CreateNetworkInterfaceSideModalForm({
   id = 'create-network-interface-form',
   title = 'Add network interface',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<typeof values, NetworkInterface>) {
+}: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -44,6 +46,7 @@ export default function CreateNetworkInterfaceForm({
         ...others,
       })
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
@@ -51,10 +54,11 @@ export default function CreateNetworkInterfaceForm({
   const vpcs = useApiQuery('projectVpcsGet', { ...pathParams, limit: 50 }).data?.items || []
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         ((body) => {
@@ -71,21 +75,22 @@ export default function CreateNetworkInterfaceForm({
           })
         })
       }
-      mutation={createNetworkInterface}
+      submitDisabled={createNetworkInterface.isLoading}
+      error={createNetworkInterface.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="nic-name" />
       <DescriptionField id="nic-description" />
       <Divider />
 
-      <ComboboxField
+      <ListboxField
         id="nic-vpc"
         name="vpcName"
         label="VPC"
-        items={vpcs.map((x) => x.name)}
+        items={vpcs.map(({ name }) => ({ label: name, value: name }))}
         // required
       />
-      <SubnetCombobox
+      <SubnetListbox
         id="nic-subnet"
         name="subnetName"
         label="Subnet"
@@ -94,11 +99,6 @@ export default function CreateNetworkInterfaceForm({
         // required
       />
       <TextField id="nic-ip" name="ip" label="IP Address" />
-
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }

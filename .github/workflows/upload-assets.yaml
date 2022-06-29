@@ -25,7 +25,7 @@ jobs:
           cache: 'yarn'
       - run: yarn install
       - name: Build for Nexus
-        run: yarn build-for-nexus
+        run: SHA=${{ github.sha }} yarn build-for-nexus
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .

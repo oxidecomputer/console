@@ -1,131 +1,68 @@
+import cn from 'classnames'
+import type { FormikConfig } from 'formik'
+import { Formik, Form as FormikForm } from 'formik'
+import { useFormikContext } from 'formik'
+import type { ReactNode } from 'react'
+import { cloneElement } from 'react'
+import { useEffect } from 'react'
+import invariant from 'tiny-invariant'
+
 import type { ButtonProps } from '@oxide/ui'
 import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
-import { SideModal } from '@oxide/ui'
-import { useIsInSideModal } from '@oxide/ui'
-import {
-  addProps,
-  classed,
-  flattenChildren,
-  isOneOf,
-  pluckFirstOfType,
-  tunnel,
-  Wrap,
-} from '@oxide/util'
-import type { FormikConfig } from 'formik'
-import { Formik } from 'formik'
-import type { ReactNode } from 'react'
-import { cloneElement } from 'react'
-import invariant from 'tiny-invariant'
+import { addProps, classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
+
 import './form.css'
-import cn from 'classnames'
-import type { Error, ErrorResponse } from '@oxide/api'
-
-const PageActionsTunnel = tunnel('form-page-actions')
-const SideModalActionsTunnel = tunnel('form-sidebar-actions')
-
-const PageActionsContainer = classed.div`flex h-20 items-center`
-
-export type Mutation =
-  | {
-      status: 'idle' | 'loading'
-      data: undefined
-      error: null
-    }
-  | {
-      status: 'success'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: any
-      error: null
-    }
-  | {
-      status: 'error'
-      data: undefined
-      error: ErrorResponse
-    }
 
 export interface FormProps<Values> extends FormikConfig<Values> {
   id: string
-  title?: ReactNode
+  className?: string
   children: ReactNode
-  onDismiss?: () => void
-  mutation: Mutation
+  /** true if submission can happen, false otherwise */
+  setSubmitState?: (state: boolean) => void
 }
 
 export function Form<Values>({
   id,
-  title,
   children,
-  mutation,
-  onDismiss,
+  className,
+  setSubmitState,
   ...formikProps
 }: FormProps<Values>) {
-  const isSideModal = useIsInSideModal()
-  const childArray = flattenChildren(children)
-  const actions = pluckFirstOfType(childArray, Form.Actions)
-
+  // Coerce container so it can be used in wrap
   return (
-    <>
-      {title && isSideModal && (
-        <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>
-      )}
-      <Wrap with={<SideModal.Body />} when={isSideModal}>
-        <Formik {...formikProps} validateOnBlur={false}>
-          {(props) => (
-            <>
-              <form
-                id={id}
-                className={cn('ox-form', {
-                  'pb-20': !isSideModal,
-                  'is-side-modal': isSideModal,
-                })}
-                onReset={props.handleReset}
-                onSubmit={props.handleSubmit}
-              >
-                <>{childArray}</>
-              </form>
-              {actions &&
-                (isSideModal ? (
-                  <SideModalActionsTunnel.In>
-                    {cloneElement(actions, {
-                      formId: id,
-                      submitDisabled:
-                        !props.dirty || !props.isValid || mutation.status === 'loading',
-                      error: mutation.error?.error,
-                      onDismiss,
-                    })}
-                  </SideModalActionsTunnel.In>
-                ) : (
-                  <PageActionsTunnel.In>
-                    <PageActionsContainer>
-                      {cloneElement(actions, {
-                        formId: id,
-                        submitDisabled:
-                          !props.dirty || !props.isValid || mutation.status === 'loading',
-                        error: mutation.error?.error,
-                      })}
-                    </PageActionsContainer>
-                  </PageActionsTunnel.In>
-                ))}
-            </>
-          )}
-        </Formik>
-      </Wrap>
-      {actions && isSideModal && (
-        <SideModal.Footer>
-          <SideModalActionsTunnel.Out />
-        </SideModal.Footer>
-      )}
-    </>
+    <Formik {...formikProps} validateOnBlur={false} isInitialValid={false}>
+      <FormikForm id={id} className={cn('ox-form', className)}>
+        {children}
+        <FormSubmitState setSubmitState={setSubmitState} />
+      </FormikForm>
+    </Formik>
   )
+}
+
+/**
+ * This annoying little component exists solely to inform the parent when the submit state changes.
+ */
+const FormSubmitState = ({
+  setSubmitState,
+}: {
+  setSubmitState?: (state: boolean) => void
+}) => {
+  const context = useFormikContext()
+  useEffect(() => {
+    if (setSubmitState) {
+      setSubmitState(context.dirty && context.isValid)
+    }
+  }, [context.dirty, context.isValid, setSubmitState])
+  return null
 }
 
 interface FormActionsProps {
   formId?: string
   children: React.ReactNode
   submitDisabled?: boolean
-  onDismiss?: () => void
   error?: Error | null
+  className?: string
 }
 
 /**
@@ -138,15 +75,13 @@ Form.Actions = ({
   children,
   formId,
   submitDisabled = true,
-  onDismiss,
   error,
+  className,
 }: FormActionsProps) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const isSideModal = useIsInSideModal()
   const childArray = flattenChildren(children).map(
     addProps<typeof Button>((i, props) => ({
       size: 'sm',
-      color: 'accent',
       ...props,
     }))
   )
@@ -157,18 +92,14 @@ Form.Actions = ({
   )
 
   const submit = pluckFirstOfType(childArray, Form.Submit)
-  const cancel = pluckFirstOfType(childArray, Form.Cancel)
 
   invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
   return (
     <div
-      className={cn('flex w-full items-center gap-[0.625rem] children:shrink-0', {
-        'flex-row-reverse': isSideModal,
-      })}
+      className={cn('flex w-full items-center gap-[0.625rem] children:shrink-0', className)}
     >
       {cloneElement(submit, { form: formId, disabled: submitDisabled })}
-      {isSideModal && cancel && cloneElement(cancel, { onClick: onDismiss })}
       {childArray}
       {error && (
         <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
@@ -183,12 +114,10 @@ Form.Actions = ({
 Form.Submit = (props: ButtonProps) => <Button type="submit" variant="default" {...props} />
 
 Form.Cancel = (props: ButtonProps) => (
-  <Button variant="secondary" {...props}>
+  <Button variant="ghost" color="secondary" {...props}>
     Cancel
   </Button>
 )
-
-Form.PageActions = PageActionsTunnel.Out
 
 Form.Heading = classed.h2`ox-form-heading text-content text-sans-2xl`
 export interface FormSectionProps {

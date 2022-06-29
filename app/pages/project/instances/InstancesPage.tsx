@@ -2,15 +2,24 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useApiQuery, useApiQueryClient } from '@oxide/api'
-import { buttonStyle, EmptyMessage, Instances24Icon, TableActions } from '@oxide/ui'
-import { useParams, useQuickActions } from 'app/hooks'
 import {
-  linkCell,
   DateCell,
   InstanceResourceCell,
   InstanceStatusCell,
+  linkCell,
   useQueryTable,
 } from '@oxide/table'
+import {
+  EmptyMessage,
+  Instances24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
+
+import { useParams, useQuickActions } from 'app/hooks'
+
 import { useMakeInstanceActions } from './actions'
 
 const EmptyState = () => (
@@ -64,10 +73,13 @@ export const InstancesPage = () => {
 
   return (
     <>
+      <PageHeader>
+        <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
+      </PageHeader>
       <TableActions>
         <Link
           to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
-          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
+          className={buttonStyle({ size: 'xs', variant: 'default' })}
         >
           New Instance
         </Link>
@@ -81,7 +93,7 @@ export const InstancesPage = () => {
         />
         <Column
           id="resources"
-          header="CPU, RAM / IMAGE"
+          header="CPU, RAM"
           accessor={(i) => ({ ncpus: i.ncpus, memory: i.memory })}
           cell={InstanceResourceCell}
         />

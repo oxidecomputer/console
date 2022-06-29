@@ -1,4 +1,5 @@
 import type { SshKey } from '@oxide/api'
+
 import type { Json } from './json-type'
 
 export const sshKeys: Json<SshKey>[] = [

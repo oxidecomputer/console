@@ -1,9 +1,11 @@
 import type { Merge } from 'type-fest'
-import type { Json } from '../json-type'
-import { json } from './util'
 
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api } from '@oxide/api'
+import { sessionMe } from '@oxide/api-mocks'
+
+import type { Json } from '../json-type'
+import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -27,6 +29,7 @@ export type DiskParams = Merge<ProjectParams, { instanceName?: string; diskName:
 export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 export type SshKeyParams = { sshKeyName: string }
+export type GlobalImageParams = { imageName: string }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)
@@ -119,15 +122,34 @@ export function lookupVpcRouter(params: VpcRouterParams): Result<Json<Api.VpcRou
   return Ok(router)
 }
 
+export function lookupGlobalImage(
+  params: GlobalImageParams
+): Result<Json<Api.GlobalImage>> {
+  const image = db.globalImages.find((o) => o.name === params.imageName)
+  if (!image) return Err(notFoundErr)
+  return Ok(image)
+}
+
+export function lookupSshKey(params: SshKeyParams): Result<Json<Api.SshKey>> {
+  const sshKey = db.sshKeys.find(
+    (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
+  )
+  if (!sshKey) return Err(notFoundErr)
+  return Ok(sshKey)
+}
+
 const initDb = {
   disks: [...mock.disks],
+  globalImages: [...mock.globalImages],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
   orgs: [mock.org],
   projects: [mock.project],
+  roleAssignments: [...mock.roleAssignments],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
+  users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],
   vpcRouters: [mock.vpcRouter],
