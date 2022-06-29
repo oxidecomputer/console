@@ -22,8 +22,13 @@ export function useReduceMotion() {
   return matches
 }
 
+Globals.assign({
+  skipAnimation: true,
+})
+
 export function ReduceMotion() {
   const prefersReducedMotion = useReduceMotion()
+
   useEffect(() => {
     Globals.assign({
       skipAnimation: prefersReducedMotion,

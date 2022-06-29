@@ -33,14 +33,13 @@ export function SideModal({
 }: SideModalProps) {
   const titleId = `${id}-title`
   const AnimatedDialogContent = animated(DialogContent)
-  const AnimatedDialogOverlay = animated(DialogOverlay)
   const [status, setStatus] = useState('focus-unlocked')
 
   const config = { tension: 650, mass: 0.125 }
 
   const transitions = useTransition(isOpen, {
-    from: { opacity: 0, x: 50 },
-    enter: { opacity: 0.6, x: 0 },
+    from: { x: 50 },
+    enter: { x: 0 },
     onRest: () => {
       setStatus(isOpen ? 'focus-locked' : 'focus-unlocked') // if done opening, lock focus. if done closing, unlock focus
     },
@@ -50,16 +49,11 @@ export function SideModal({
   return (
     <SideModalContext.Provider value={true}>
       {transitions(
-        (styles, item) =>
+        ({ x }, item) =>
           item && (
-            <AnimatedDialogOverlay
+            <DialogOverlay
               onDismiss={onDismiss}
               dangerouslyBypassFocusLock={status === 'focus-unlocked'}
-              style={{
-                backgroundColor: styles.opacity.to(
-                  (value) => `rgba(var(--base-black-700-rgb), ${value})`
-                ),
-              }}
             >
               <AnimatedDialogContent
                 id={id}
@@ -67,13 +61,13 @@ export function SideModal({
                 className="ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
                 aria-labelledby={titleId}
                 style={{
-                  transform: styles.x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+                  transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
                 }}
               >
                 {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
                 {children}
               </AnimatedDialogContent>
-            </AnimatedDialogOverlay>
+            </DialogOverlay>
           )
       )}
     </SideModalContext.Provider>
