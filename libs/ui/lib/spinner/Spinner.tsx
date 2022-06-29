@@ -13,13 +13,14 @@ export const Spinner = ({ className }: SpinnerProps) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-labelledby="Spinner"
-      className={cn('animate-spin text-accent fill-green-800', className)}
+      className={cn('animate-spin', className)}
     >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6 10.5C8.48528 10.5 10.5 8.48528 10.5 6C10.5 3.51472 8.48528 1.5 6 1.5C3.51472 1.5 1.5 3.51472 1.5 6C1.5 8.48528 3.51472 10.5 6 10.5ZM6 12C9.31371 12 12 9.31371 12 6C12 2.68629 9.31371 0 6 0C2.68629 0 0 2.68629 0 6C0 9.31371 2.68629 12 6 12Z"
-        fill="currentFill"
+        fill="currentColor"
+        fillOpacity={0.5}
       />
       <path
         fillRule="evenodd"
