@@ -1565,6 +1565,10 @@ export type TimeseriesSchemaResultsPage = {
  * Client view of a {@link User}
  */
 export type User = {
+  /**
+   * Human-readable name that can identify the user
+   */
+  displayName: string
   id: string
 }
 

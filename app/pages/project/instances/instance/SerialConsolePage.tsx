@@ -17,13 +17,17 @@ export function SerialConsolePage() {
     'instanceName'
   )
 
-  const { data, refetch } = useApiQuery('projectInstancesInstanceSerialGet', {
-    maxBytes: 10 * MiB,
-    fromStart: 0,
-    orgName,
-    projectName,
-    instanceName,
-  })
+  const { data, refetch } = useApiQuery(
+    'projectInstancesInstanceSerialGet',
+    {
+      maxBytes: 10 * MiB,
+      fromStart: 0,
+      orgName,
+      projectName,
+      instanceName,
+    },
+    { refetchOnWindowFocus: false }
+  )
 
   return (
     <>

@@ -7,8 +7,8 @@ import { compose, context } from 'msw'
  *
  * https://mswjs.io/docs/basics/response-transformer#custom-transformer
  */
-export const json = <B>(body: B, status = 200): ResponseTransformer<B> =>
-  compose(context.status(status), context.json(body))
+export const json = <B>(body: B, status = 200, delay = 0): ResponseTransformer<B> =>
+  compose(context.status(status), context.json(body), context.delay(delay))
 
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
