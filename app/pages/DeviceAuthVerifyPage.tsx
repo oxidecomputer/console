@@ -35,10 +35,13 @@ export default function DeviceAuthVerifyPage() {
       <h3 className="mb-2 text-center text-sans-2xl">Device authorization</h3>
       <h2 className="mb-2 text-center text-sans-2xl">User code: {userCode}</h2>
       <Button
-        type="submit"
         className="w-full"
-        disabled={confirmPost.isLoading}
-        onClick={() => confirmPost.mutate({ body: { user_code: userCode } })}
+        disabled={confirmPost.isLoading || !userCode}
+        onClick={() => {
+          // we know `userCode` is non-null because the button is disabled
+          // otherwise, but let's make TS happy
+          if (userCode) confirmPost.mutate({ body: { userCode } })
+        }}
       >
         Verify
       </Button>
