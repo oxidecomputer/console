@@ -41,13 +41,11 @@ export const VpcRoutersTab = () => {
         </Button>
         <CreateVpcRouterForm
           isOpen={createModalOpen}
-          onSuccess={() => setCreateModalOpen(false)}
           onDismiss={() => setCreateModalOpen(false)}
         />
         <EditVpcRouterForm
           isOpen={!!editing}
           initialValues={editing || {}}
-          onSuccess={() => setEditing(null)}
           onDismiss={() => setEditing(null)}
         />
       </div>
