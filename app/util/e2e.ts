@@ -32,11 +32,15 @@ export async function expectNotVisible(page: Page, selectors: string[]) {
 export async function expectRowVisible(
   page: Page,
   rowSelectorText: string,
-  cellTexts: string[]
+  cellTexts: Array<string | null>
 ) {
   const row = page.locator(`tr:has-text("${rowSelectorText}")`)
   await expect(row).toBeVisible()
   for (let i = 0; i < cellTexts.length; i++) {
-    await expect(row.locator(`role=cell >> nth=${i}`)).toHaveText(cellTexts[i])
+    const text = cellTexts[i]
+    if (text === null) {
+      continue
+    }
+    await expect(row.locator(`role=cell >> nth=${i}`)).toHaveText(text)
   }
 }

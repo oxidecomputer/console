@@ -82,7 +82,7 @@ export const OrgAccessPage = () => {
       </PageHeader>
 
       <TableActions>
-        <Button size="xs" variant="secondary" onClick={() => setAddModalOpen(true)}>
+        <Button size="xs" variant="default" onClick={() => setAddModalOpen(true)}>
           Add user to organization
         </Button>
       </TableActions>

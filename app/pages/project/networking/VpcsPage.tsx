@@ -56,7 +56,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'secondary' })}>
+        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
           New Vpc
         </Link>
       </TableActions>

@@ -36,18 +36,16 @@ export const VpcRoutersTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
+        <Button size="xs" variant="default" onClick={() => setCreateModalOpen(true)}>
           New router
         </Button>
         <CreateVpcRouterForm
           isOpen={createModalOpen}
-          onSuccess={() => setCreateModalOpen(false)}
           onDismiss={() => setCreateModalOpen(false)}
         />
         <EditVpcRouterForm
           isOpen={!!editing}
           initialValues={editing || {}}
-          onSuccess={() => setEditing(null)}
           onDismiss={() => setEditing(null)}
         />
       </div>

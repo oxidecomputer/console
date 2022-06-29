@@ -113,8 +113,4 @@ SideModal.Docs = ({ children }: ChildrenProp) => (
   </SideModal.Section>
 )
 
-SideModal.Footer = ({ children }: ChildrenProp) => (
-  <footer className="flex flex-row-reverse items-center justify-between border-t py-5 border-secondary">
-    {children}
-  </footer>
-)
+SideModal.Footer = classed.footer`flex py-5 border-t border-secondary`

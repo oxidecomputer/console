@@ -81,6 +81,12 @@ export const useMakeInstanceActions = (
         disabled: !instanceCan.reboot(instance),
       },
       {
+        label: 'View serial console',
+        onActivate() {
+          navigate('serial-console')
+        },
+      },
+      {
         label: 'Delete',
         onActivate() {
           deleteInstance.mutate(
@@ -94,12 +100,7 @@ export const useMakeInstanceActions = (
           )
         },
         disabled: !instanceCan.delete(instance),
-      },
-      {
-        label: 'Serial Console',
-        onActivate() {
-          navigate('serial-console')
-        },
+        className: 'destructive',
       },
     ]
     // TODO: fix this lol
