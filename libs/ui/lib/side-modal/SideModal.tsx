@@ -36,12 +36,11 @@ export function SideModal({
   const AnimatedDialogOverlay = animated(DialogOverlay)
   const [status, setStatus] = useState('focus-unlocked')
 
-  const config = { tension: 500, mass: 0.125 }
+  const config = { tension: 650, mass: 0.125 }
 
   const transitions = useTransition(isOpen, {
-    from: { opacity: 0, x: 100 },
+    from: { opacity: 0, x: 50 },
     enter: { opacity: 0.6, x: 0 },
-    leave: { opacity: 0, x: 100 },
     onRest: () => {
       setStatus(isOpen ? 'focus-locked' : 'focus-unlocked') // if done opening, lock focus. if done closing, unlock focus
     },
