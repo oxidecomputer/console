@@ -250,7 +250,9 @@ export default function CreateInstanceForm({
       <TextField id="hostname" description="Will be generated if not provided" />
 
       <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
+        <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
+          {title}
+        </Form.Submit>
         <Form.Cancel />
       </Form.Actions>
     </FullPageForm>

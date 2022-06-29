@@ -1,4 +1,10 @@
-export const Spinner = () => {
+import cn from 'classnames'
+
+interface SpinnerProps {
+  className?: string
+}
+
+export const Spinner = ({ className }: SpinnerProps) => {
   return (
     <svg
       width={12}
@@ -7,7 +13,7 @@ export const Spinner = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-labelledby="Spinner"
-      className="animate-spin text-accent fill-green-800"
+      className={cn('animate-spin text-accent fill-green-800', className)}
     >
       <path
         fillRule="evenodd"

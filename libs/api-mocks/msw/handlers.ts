@@ -385,7 +385,7 @@ export const handlers = [
         time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
-      return res(json(newInstance, 201))
+      return res(json(newInstance, 201, 2000))
     }
   ),
 
