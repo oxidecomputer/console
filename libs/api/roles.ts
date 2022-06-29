@@ -110,17 +110,29 @@ export function useUserAccessRows<Role extends string>(
   policy: Policy<Role> | undefined,
   roleOrder: Record<Role, number>
 ): UserAccessRow<Role>[] {
+  // TODO: this hits /users, which returns system users, not silo users. We need
+  // an endpoint to list silo users. I'm hoping we might end up using /users for
+  // that. See https://github.com/oxidecomputer/omicron/issues/1235
+  const { data: users } = useApiQuery('siloUsersGet', { limit: 200 })
+
+  // HACK: because the policy has no names, we are fetching ~all the users,
+  // putting them in a dictionary, and adding the names to the rows
+  const usersDict = useMemo(
+    () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
+    [users]
+  )
+
   return useMemo(() => {
     const roleAssignments = policy?.roleAssignments || []
     const groups = groupBy(roleAssignments, (u) => u.identityId)
     return Object.entries(groups).map(([userId, groupRoleAssignments]) => ({
       id: userId,
-      name: '', // placeholder until we get names, obviously
+      name: usersDict[userId]?.displayName || '', // placeholder until we get names, obviously
       // assert non-null because we know there has to be one, otherwise there
       // wouldn't be a group
       roleName: getMainRole(roleOrder)(groupRoleAssignments.map((ra) => ra.roleName))!,
     }))
-  }, [policy, roleOrder])
+  }, [policy, usersDict, roleOrder])
 }
 
 /**

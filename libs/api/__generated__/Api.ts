@@ -34,6 +34,20 @@ export type DerEncodedKeyPair = {
   publicCert: string
 }
 
+export type DeviceAccessTokenRequest = {
+  clientId: string
+  deviceCode: string
+  grantType: string
+}
+
+export type DeviceAuthRequest = {
+  clientId: string
+}
+
+export type DeviceAuthVerify = {
+  userCode: string
+}
+
 export type Digest = { type: 'sha256'; value: string }
 
 /**
@@ -1305,6 +1319,10 @@ export type Silo = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+  /**
+   * User provision type
+   */
+  userProvisionType: UserProvisionType
 }
 
 /**
@@ -1314,6 +1332,7 @@ export type SiloCreate = {
   description: string
   discoverable: boolean
   name: Name
+  userProvisionType: UserProvisionType
 }
 
 /**
@@ -1546,6 +1565,10 @@ export type TimeseriesSchemaResultsPage = {
  * Client view of a {@link User}
  */
 export type User = {
+  /**
+   * Human-readable name that can identify the user
+   */
+  displayName: string
   id: string
 }
 
@@ -1588,6 +1611,11 @@ export type UserBuiltinResultsPage = {
    */
   nextPage?: string | null
 }
+
+/**
+ * How users will be provisioned in a silo during authentication.
+ */
+export type UserProvisionType = 'fixed' | 'jit'
 
 /**
  * A single page of results
@@ -1999,6 +2027,16 @@ export type NameSortMode = 'name_ascending'
  * Supported set of sort modes for scanning by name or id
  */
 export type NameOrIdSortMode = 'name_ascending' | 'name_descending' | 'id_ascending'
+
+export interface DeviceAuthRequestParams {}
+
+export interface DeviceAuthConfirmParams {}
+
+export interface DeviceAccessTokenParams {}
+
+export interface DeviceAuthVerifyParams {
+  userCode?: string
+}
 
 export interface HardwareRacksGetParams {
   limit?: number | null
@@ -3002,6 +3040,52 @@ export class HttpClient {
 
 export class Api extends HttpClient {
   methods = {
+    /**
+     * Start an OAuth 2.0 Device Authorization Grant
+     */
+    deviceAuthRequest: (query: DeviceAuthRequestParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/device/auth`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Confirm an OAuth 2.0 Device Authorization Grant
+     */
+    deviceAuthConfirm: (
+      query: DeviceAuthConfirmParams,
+      body: DeviceAuthVerify,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/device/confirm`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Request a device access token
+     */
+    deviceAccessToken: (query: DeviceAccessTokenParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/device/token`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Verify an OAuth 2.0 Device Authorization Grant
+     */
+    deviceAuthVerify: (query: DeviceAuthVerifyParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/device/verify`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
     /**
      * List racks in the system.
      */
