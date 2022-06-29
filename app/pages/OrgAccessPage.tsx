@@ -34,7 +34,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
     <EmptyMessage
       icon={<Access24Icon />}
       title="No authorized users"
-      body="Add users to give them permissions to view, edit, or administer this organization"
+      body="Give permission to view, edit, or administer this organization"
       buttonText="Add user to organization"
       onClick={onClick}
     />
