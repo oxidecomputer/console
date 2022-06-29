@@ -1,3 +1,9 @@
 [data-reach-dialog-overlay] {
   @apply bg-scrim;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reach-dialog-overlay] {
+    @apply !bg-scrim;
+  }
+}
