@@ -43,7 +43,10 @@ export function TopBar() {
           className="flex ml-1.5 text-tertiary items-center"
           title="User menu"
         >
-          <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
+          {/* span needed to make the button align with the other ones */}
+          <span>
+            <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
+          </span>
         </MenuButton>
         <MenuList className="mt-2">
           <MenuItem
