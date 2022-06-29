@@ -11,7 +11,16 @@ import {
 import type { OrganizationRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, createTable, getActionsCol } from '@oxide/table'
-import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import {
+  Access24Icon,
+  Badge,
+  Button,
+  EmptyMessage,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  TableEmptyBox,
+} from '@oxide/ui'
 
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { useParams } from 'app/hooks'
@@ -19,6 +28,18 @@ import { useParams } from 'app/hooks'
 type UserRow = UserAccessRow<OrganizationRole>
 
 const table = createTable().setRowType<UserRow>()
+
+const EmptyState = ({ onClick }: { onClick: () => void }) => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Access24Icon />}
+      title="No authorized users"
+      body="Give permission to view, edit, or administer this organization"
+      buttonText="Add user to organization"
+      onClick={onClick}
+    />
+  </TableEmptyBox>
+)
 
 export const OrgAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -104,7 +125,11 @@ export const OrgAccessPage = () => {
           initialValues={{ roleName: editingUserRow.roleName }}
         />
       )}
-      <Table table={tableInstance} />
+      {rows.length === 0 ? (
+        <EmptyState onClick={() => setAddModalOpen(true)} />
+      ) : (
+        <Table table={tableInstance} />
+      )}
     </>
   )
 }
