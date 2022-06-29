@@ -3,12 +3,30 @@ import cn from 'classnames'
 import type { FieldValidator } from 'formik'
 import { ErrorMessage, Field } from 'formik'
 
+/**
+ * This is a little complicated. We only want to allow the `rows` prop if
+ * `as="textarea"`. But the derivatives of `TextField`, like `NameField`, etc.,
+ * can't use `as` no matter what. So we have them only use `TextFieldBaseProps`,
+ * which doesn't know about `as`. But `TextField` itself secretly takes
+ * `TextFieldBaseProps & TextAreaProps`.
+ */
+export type TextAreaProps =
+  | {
+      as: 'textarea'
+      /** Only used with `as="textarea"` */
+      rows?: number
+    }
+  | {
+      as?: never
+      rows?: never
+    }
+
 // would prefer to refer directly to the props of Field and pass them all
 // through, but couldn't get it to work. FieldAttributes<string> is closest but
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextFieldProps = React.ComponentProps<'input'> & {
+export type TextFieldBaseProps = React.ComponentProps<'input'> & {
   validate?: FieldValidator
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean
@@ -22,13 +40,12 @@ export const TextField = ({
   className,
   fieldClassName,
   ...fieldProps
-}: TextFieldProps) => (
+}: TextFieldBaseProps & TextAreaProps) => (
   <div
     className={cn(
       'flex rounded border border-default',
-      'focus-within:border-accent hover:focus-within:border-accent',
+      'focus-within:ring-2 focus-within:ring-accent-secondary',
       error && '!border-destructive',
-      !fieldProps.disabled && 'hover:border-raise',
       className
     )}
   >
@@ -36,7 +53,7 @@ export const TextField = ({
       type="text"
       className={cn(
         `w-full border-none bg-transparent
-        py-[0.5625rem] px-3
+        py-[0.6875rem] px-3
         text-sans-md text-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
         fieldClassName
@@ -54,7 +71,7 @@ export const TextField = ({
 export const NumberTextField = ({
   fieldClassName,
   ...props
-}: Omit<TextFieldProps, 'type'>) => (
+}: Omit<TextFieldBaseProps, 'type'>) => (
   <TextField
     type="number"
     {...props}

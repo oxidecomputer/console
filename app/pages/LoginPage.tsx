@@ -63,7 +63,7 @@ export default function LoginPage() {
       </Button>
       <Button
         type="submit"
-        variant="secondary"
+        variant="default"
         className="w-full"
         disabled={loginPost.isLoading}
         onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}

@@ -4,7 +4,7 @@ import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Pagination } from '@oxide/pagination'
 import { Button, DirectionLeftIcon, SkipLinkTarget } from '@oxide/ui'
 
-import { Form } from 'app/components/form'
+import { PageActionsTarget } from 'app/components/PageActions'
 import { useQuickActions } from 'app/hooks'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -65,7 +65,7 @@ const SettingsLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageActionsTarget />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

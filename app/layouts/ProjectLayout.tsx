@@ -12,8 +12,8 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
+import { PageActionsTarget } from 'app/components/PageActions'
 import { ProjectSelector } from 'app/components/ProjectSelector'
-import { Form } from 'app/components/form'
 import { useParams, useQuickActions } from 'app/hooks'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -86,7 +86,7 @@ const ProjectLayout = () => {
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
-          <Form.PageActions />
+          <PageActionsTarget />
         </ContentPaneActions>
       </ContentPaneWrapper>
     </PageContainer>

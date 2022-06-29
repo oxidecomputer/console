@@ -11,7 +11,7 @@ export const FirewallFilterCell = ({
     {hosts && hosts.map((tv, i) => <TypeValueCell key={`${tv}-${i}`} value={tv} />)}
     {protocols &&
       protocols.map((p, i) => (
-        <Badge key={`${p}-${i}`} variant="secondary">
+        <Badge key={`${p}-${i}`} variant="default">
           {p}
         </Badge>
       ))}

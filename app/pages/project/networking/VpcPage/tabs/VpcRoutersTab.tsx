@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { VpcRouter } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, LabelCell, useQueryTable } from '@oxide/table'
-import { Button, EmptyMessage, SideModal } from '@oxide/ui'
+import { Button, EmptyMessage } from '@oxide/ui'
 
 import { CreateVpcRouterForm } from 'app/forms/vpc-router-create'
 import { EditVpcRouterForm } from 'app/forms/vpc-router-edit'
@@ -36,32 +36,20 @@ export const VpcRoutersTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="xs" variant="secondary" onClick={() => setCreateModalOpen(true)}>
+        <Button size="xs" variant="default" onClick={() => setCreateModalOpen(true)}>
           New router
         </Button>
-        <SideModal
-          id="create-router-modal"
+        <CreateVpcRouterForm
           isOpen={createModalOpen}
+          onSuccess={() => setCreateModalOpen(false)}
           onDismiss={() => setCreateModalOpen(false)}
-        >
-          <CreateVpcRouterForm
-            onSuccess={() => setCreateModalOpen(false)}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        </SideModal>
-        <SideModal
-          id="edit-router-modal"
+        />
+        <EditVpcRouterForm
           isOpen={!!editing}
+          initialValues={editing || {}}
+          onSuccess={() => setEditing(null)}
           onDismiss={() => setEditing(null)}
-        >
-          {editing && (
-            <EditVpcRouterForm
-              initialValues={editing}
-              onSuccess={() => setEditing(null)}
-              onDismiss={() => setEditing(null)}
-            />
-          )}
-        </SideModal>
+        />
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />

@@ -3,16 +3,17 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
+import { SideModalForm } from 'app/components/form'
 import {
   DescriptionField,
   DiskSizeField,
-  Form,
   NameField,
   Radio,
   RadioField,
 } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 const values: DiskCreate = {
   name: '',
@@ -24,15 +25,16 @@ const values: DiskCreate = {
   },
 }
 
-export function CreateDiskForm({
+export function CreateDiskSideModalForm({
   id = 'create-disk-form',
   title = 'Create Disk',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
+  onDismiss,
   ...props
-}: PrebuiltFormProps<DiskCreate, Disk>) {
+}: CreateSideModalFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
@@ -40,15 +42,17 @@ export function CreateDiskForm({
     onSuccess(data) {
       queryClient.invalidateQueries('projectDisksGet', pathParams)
       onSuccess?.(data)
+      onDismiss()
     },
     onError,
   })
 
   return (
-    <Form
+    <SideModalForm
       id={id}
       title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
         ((values) => {
@@ -61,7 +65,8 @@ export function CreateDiskForm({
           })
         })
       }
-      mutation={createDisk}
+      submitDisabled={createDisk.isLoading}
+      error={createDisk.error?.error as Error | undefined}
       {...props}
     >
       <NameField id="disk-name" />
@@ -78,12 +83,8 @@ export function CreateDiskForm({
         <Radio value="4096">4096</Radio>
       </RadioField>
       <DiskSizeField id="disk-size" name="size" />
-      <Form.Actions>
-        <Form.Submit>{title}</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+    </SideModalForm>
   )
 }
 
-export default CreateDiskForm
+export default CreateDiskSideModalForm

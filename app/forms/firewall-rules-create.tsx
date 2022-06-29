@@ -24,9 +24,10 @@ import {
   TextFieldHint,
 } from '@oxide/ui'
 
-import { Form, ListboxField } from 'app/components/form'
-import type { PrebuiltFormProps } from 'app/forms'
+import { Form, ListboxField, SideModalForm } from 'app/components/form'
 import { useParams } from 'app/hooks'
+
+import type { CreateSideModalFormProps } from '.'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -163,11 +164,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
-        <Button variant="ghost" color="neutral" className="mr-2.5">
+        <Button variant="ghost" color="secondary" className="mr-2.5">
           Clear
         </Button>
         <Button
-          variant="secondary"
+          variant="default"
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
@@ -238,9 +239,9 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
         ]}
       />
       <div className="space-y-0.5">
-        {/* For everything but IP this is a name, but for IP it's an IP. 
+        {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and 
+          host type changes. Also need to confirm that it's just an IP and
           not a block. */}
         <FieldLabel id="hostValue-label" htmlFor="hostValue">
           Value
@@ -252,11 +253,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       </div>
 
       <div className="flex justify-end">
-        <Button variant="ghost" color="neutral" className="mr-2.5">
+        <Button variant="ghost" color="secondary" className="mr-2.5">
           Clear
         </Button>
         <Button
-          variant="secondary"
+          variant="default"
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
@@ -323,11 +324,11 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
         <TextField id="portRange" name="portRange" aria-describedby="portRange-hint" />
         <TextFieldError name="portRange" />
         <div className="flex justify-end">
-          <Button variant="ghost" color="neutral" className="mr-2.5">
+          <Button variant="ghost" color="secondary" className="mr-2.5">
             Clear
           </Button>
           <Button
-            variant="secondary"
+            variant="default"
             onClick={() => {
               const portRange = values.portRange.trim()
               // TODO: show error instead of ignoring the click
@@ -400,11 +401,21 @@ export const validationSchema = Yup.object({
   priority: Yup.number().integer().min(0).max(65535).required('Required'),
 })
 
-type Props = PrebuiltFormProps<FirewallRuleValues, VpcFirewallRules> & {
+type CreateFirewallRuleSideModalProps = CreateSideModalFormProps<
+  FirewallRuleValues,
+  VpcFirewallRules
+> & {
   existingRules: VpcFirewallRule[]
 }
 
-export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: Props) {
+export function CreateFirewallRuleSideModalForm({
+  id = 'create-firewall-rule-form',
+  title = 'Add firewall rule',
+  onSuccess,
+  onDismiss,
+  existingRules,
+  ...props
+}: CreateFirewallRuleSideModalProps) {
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
@@ -412,14 +423,16 @@ export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: P
     onSuccess(data) {
       queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
       onSuccess?.(data)
+      onDismiss()
     },
   })
 
   return (
-    <Form
-      id="create-firewall-rule-form"
-      title="Add firewall rule"
+    <SideModalForm
+      id={id}
+      title={title}
       initialValues={initialValues}
+      onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.
         // we should probably at least warn and confirm, if not reject as invalid
@@ -433,16 +446,14 @@ export function CreateFirewallRuleForm({ onSuccess, existingRules, ...props }: P
           },
         })
       }}
-      mutation={updateRules}
       validationSchema={validationSchema}
       validateOnBlur
+      submitDisabled={updateRules.isLoading}
+      error={updateRules.error?.error as Error | undefined}
       {...props}
     >
       <CommonFields error={updateRules.error} />
-      <Form.Actions>
-        <Form.Submit>Add rule</Form.Submit>
-        <Form.Cancel />
-      </Form.Actions>
-    </Form>
+      <Form.Submit>Add rule</Form.Submit>
+    </SideModalForm>
   )
 }

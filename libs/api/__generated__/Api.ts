@@ -134,12 +134,18 @@ export type DiskState =
   | { state: 'faulted' }
 
 /**
- * Distribution must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ * OS image distribution
  */
-export type Distribution = string
-
-/** Regex pattern for validating Distribution */
-export const distributionPattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
+export type Distribution = {
+  /**
+   * The name of the distribution (e.g. "alpine" or "ubuntu")
+   */
+  name: Name
+  /**
+   * The version of the distribution (e.g. "3.10" or "18.04")
+   */
+  version: string
+}
 
 /**
  * Error information from a response.
@@ -169,18 +175,18 @@ export type FieldSource = 'target' | 'metric'
  */
 export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
 
-export type FleetRoles = 'admin' | 'collaborator' | 'viewer'
+export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type FleetRolesPolicy = {
+export type FleetRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: FleetRolesRoleAssignment[]
+  roleAssignments: FleetRoleRoleAssignment[]
 }
 
 /**
@@ -188,10 +194,10 @@ export type FleetRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type FleetRolesRoleAssignment = {
+export type FleetRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: FleetRoles
+  roleName: FleetRole
 }
 
 /**
@@ -262,10 +268,6 @@ export type GlobalImageCreate = {
    * The source of the image's contents.
    */
   source: ImageSource
-  /**
-   * image version
-   */
-  version: string
 }
 
 /**
@@ -552,6 +554,20 @@ export type InstanceResultsPage = {
 }
 
 /**
+ * Contents of an Instance's serial console buffer.
+ */
+export type InstanceSerialConsoleData = {
+  /**
+   * The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8.
+   */
+  data: number[]
+  /**
+   * The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`.
+   */
+  lastByteOffset: number
+}
+
+/**
  * Running state of an Instance (primarily: booted or stopped)
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
@@ -571,6 +587,86 @@ export type InstanceState =
 export type IpNet = Ipv4Net | Ipv6Net
 
 /**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type IpPool = {
+  /**
+   * human-readable free-form text about a resource
+   */
+  description: string
+  /**
+   * unique, immutable, system-controlled identifier for each resource
+   */
+  id: string
+  /**
+   * unique, mutable, user-controlled identifier for each resource
+   */
+  name: Name
+  /**
+   * timestamp when this resource was created
+   */
+  timeCreated: Date
+  /**
+   * timestamp when this resource was last modified
+   */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an IP Pool.
+ *
+ * See {@link IpPool}
+ */
+export type IpPoolCreate = {
+  description: string
+  name: Name
+}
+
+export type IpPoolRange = {
+  id: string
+  range: IpRange
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolRangeResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IpPoolRange[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: IpPool[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
+ * Parameters for updating an IP Pool
+ */
+export type IpPoolUpdate = {
+  description?: string | null
+  name?: Name | null
+}
+
+export type IpRange = Ipv4Range | Ipv6Range
+
+/**
  * An IPv4 subnet, including prefix and subnet mask
  */
 export type Ipv4Net = string
@@ -580,6 +676,16 @@ export const ipv4NetPattern =
   '(^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$)|(^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$)|(^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$)'
 
 /**
+ * A non-decreasing IPv4 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv4Range = {
+  first: string
+  last: string
+}
+
+/**
  * An IPv6 subnet, including prefix and subnet mask
  */
 export type Ipv6Net = string
@@ -587,6 +693,16 @@ export type Ipv6Net = string
 /** Regex pattern for validating Ipv6Net */
 export const ipv6NetPattern =
   '^(fd|FD)[0-9a-fA-F]{2}:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+
+/**
+ * A non-decreasing IPv6 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv6Range = {
+  first: string
+  last: string
+}
 
 /**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
@@ -697,6 +813,24 @@ export type NetworkInterfaceResultsPage = {
 }
 
 /**
+ * Parameters for updating a {@link NetworkInterface}.
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export type NetworkInterfaceUpdate = {
+  description?: string | null
+  /**
+   * Make a secondary interface the instance's primary interface.
+   *
+   * If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+   *
+   * Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error.
+   */
+  makePrimary?: boolean | null
+  name?: Name | null
+}
+
+/**
  * Client view of an {@link Organization}
  */
 export type Organization = {
@@ -744,18 +878,18 @@ export type OrganizationResultsPage = {
   nextPage?: string | null
 }
 
-export type OrganizationRoles = 'admin' | 'collaborator' | 'viewer'
+export type OrganizationRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type OrganizationRolesPolicy = {
+export type OrganizationRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: OrganizationRolesRoleAssignment[]
+  roleAssignments: OrganizationRoleRoleAssignment[]
 }
 
 /**
@@ -763,10 +897,10 @@ export type OrganizationRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type OrganizationRolesRoleAssignment = {
+export type OrganizationRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: OrganizationRoles
+  roleName: OrganizationRole
 }
 
 /**
@@ -826,18 +960,18 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRoles = 'admin' | 'collaborator' | 'viewer'
+export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type ProjectRolesPolicy = {
+export type ProjectRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: ProjectRolesRoleAssignment[]
+  roleAssignments: ProjectRoleRoleAssignment[]
 }
 
 /**
@@ -845,10 +979,10 @@ export type ProjectRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type ProjectRolesRoleAssignment = {
+export type ProjectRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: ProjectRoles
+  roleName: ProjectRole
 }
 
 /**
@@ -864,17 +998,9 @@ export type ProjectUpdate = {
  */
 export type Rack = {
   /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
   /**
    * timestamp when this resource was created
    */
@@ -1204,18 +1330,18 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRoles = 'admin' | 'collaborator' | 'viewer'
+export type SiloRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
  * Client view of a `Policy`, which describes how this resource may be accessed
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
-export type SiloRolesPolicy = {
+export type SiloRolePolicy = {
   /**
    * Roles directly assigned on this resource
    */
-  roleAssignments: SiloRolesRoleAssignment[]
+  roleAssignments: SiloRoleRoleAssignment[]
 }
 
 /**
@@ -1223,10 +1349,10 @@ export type SiloRolesPolicy = {
  *
  * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
  */
-export type SiloRolesRoleAssignment = {
+export type SiloRoleRoleAssignment = {
   identityId: string
   identityType: IdentityType
-  roleName: SiloRoles
+  roleName: SiloRole
 }
 
 /**
@@ -1234,17 +1360,9 @@ export type SiloRolesRoleAssignment = {
  */
 export type Sled = {
   /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
    * unique, immutable, system-controlled identifier for each resource
    */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
   serviceAddress: string
   /**
    * timestamp when this resource was created
@@ -1428,6 +1546,13 @@ export type TimeseriesSchemaResultsPage = {
  * Client view of a {@link User}
  */
 export type User = {
+  id: string
+}
+
+/**
+ * Client view of a {@link UserBuiltin}
+ */
+export type UserBuiltin = {
   /**
    * human-readable free-form text about a resource
    */
@@ -1448,6 +1573,20 @@ export type User = {
    * timestamp when this resource was last modified
    */
   timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type UserBuiltinResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: UserBuiltin[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
 }
 
 /**
@@ -1903,6 +2042,44 @@ export interface ImagesDeleteImageParams {
   imageName: Name
 }
 
+export interface IpPoolsGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: NameOrIdSortMode
+}
+
+export interface IpPoolsPostParams {}
+
+export interface IpPoolsGetIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolsPutIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolsDeleteIpPoolParams {
+  poolName: Name
+}
+
+export interface IpPoolRangesGetParams {
+  poolName: Name
+
+  limit?: number | null
+
+  pageToken?: string | null
+}
+
+export interface IpPoolRangesAddParams {
+  poolName: Name
+}
+
+export interface IpPoolRangesDeleteParams {
+  poolName: Name
+}
+
 export interface SpoofLoginParams {}
 
 export interface LoginParams {
@@ -2153,6 +2330,16 @@ export interface InstanceNetworkInterfacesGetInterfaceParams {
   projectName: Name
 }
 
+export interface InstanceNetworkInterfacesPutInterfaceParams {
+  instanceName: Name
+
+  interfaceName: Name
+
+  orgName: Name
+
+  projectName: Name
+}
+
 export interface InstanceNetworkInterfacesDeleteInterfaceParams {
   instanceName: Name
 
@@ -2169,6 +2356,20 @@ export interface ProjectInstancesInstanceRebootParams {
   orgName: Name
 
   projectName: Name
+}
+
+export interface ProjectInstancesInstanceSerialGetParams {
+  instanceName: Name
+
+  orgName: Name
+
+  projectName: Name
+
+  fromStart?: number | null
+
+  maxBytes?: number | null
+
+  mostRecent?: number | null
 }
 
 export interface ProjectInstancesInstanceStartParams {
@@ -2573,7 +2774,15 @@ export interface TimeseriesSchemaGetParams {
 
 export interface UpdatesRefreshParams {}
 
-export interface UsersGetParams {
+export interface SiloUsersGetParams {
+  limit?: number | null
+
+  pageToken?: string | null
+
+  sortBy?: IdSortMode
+}
+
+export interface BuiltinUsersGetParams {
   limit?: number | null
 
   pageToken?: string | null
@@ -2581,7 +2790,7 @@ export interface UsersGetParams {
   sortBy?: NameSortMode
 }
 
-export interface UsersGetUserParams {
+export interface BuiltinUsersGetUserParams {
   userName: Name
 }
 
@@ -2890,6 +3099,114 @@ export class Api extends HttpClient {
         ...params,
       }),
 
+    /**
+     * List IP Pools.
+     */
+    ipPoolsGet: (query: IpPoolsGetParams, params: RequestParams = {}) =>
+      this.request<IpPoolResultsPage>({
+        path: `/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
+     * Create a new IP Pool.
+     */
+    ipPoolsPost: (
+      query: IpPoolsPostParams,
+      body: IpPoolCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPool>({
+        path: `/ip-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Fetch a single IP Pool.
+     */
+    ipPoolsGetIpPool: ({ poolName }: IpPoolsGetIpPoolParams, params: RequestParams = {}) =>
+      this.request<IpPool>({
+        path: `/ip-pools/${poolName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update an IP Pool.
+     */
+    ipPoolsPutIpPool: (
+      { poolName }: IpPoolsPutIpPoolParams,
+      body: IpPoolUpdate,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPool>({
+        path: `/ip-pools/${poolName}`,
+        method: 'PUT',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Delete an IP Pool.
+     */
+    ipPoolsDeleteIpPool: (
+      { poolName }: IpPoolsDeleteIpPoolParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/ip-pools/${poolName}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * List the ranges of IP addresses within an existing IP Pool.
+     */
+    ipPoolRangesGet: (
+      { poolName, ...query }: IpPoolRangesGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPoolRangeResultsPage>({
+        path: `/ip-pools/${poolName}/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
+     * Add a new range to an existing IP Pool.
+     */
+    ipPoolRangesAdd: (
+      { poolName }: IpPoolRangesAddParams,
+      body: IpRange,
+      params: RequestParams = {}
+    ) =>
+      this.request<IpPoolRange>({
+        path: `/ip-pools/${poolName}/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Remove a range from an existing IP Pool.
+     */
+    ipPoolRangesDelete: (
+      { poolName }: IpPoolRangesDeleteParams,
+      body: IpRange,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/ip-pools/${poolName}/ranges/delete`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
     spoofLogin: (
       query: SpoofLoginParams,
       body: SpoofLoginBody,
@@ -3006,7 +3323,7 @@ export class Api extends HttpClient {
       { orgName }: OrganizationGetPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'GET',
         ...params,
@@ -3017,10 +3334,10 @@ export class Api extends HttpClient {
      */
     organizationPutPolicy: (
       { orgName }: OrganizationPutPolicyParams,
-      body: OrganizationRolesPolicy,
+      body: OrganizationRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<OrganizationRolesPolicy>({
+      this.request<OrganizationRolePolicy>({
         path: `/organizations/${orgName}/policy`,
         method: 'PUT',
         body,
@@ -3363,6 +3680,26 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Update information about an instance's network interface
+     */
+    instanceNetworkInterfacesPutInterface: (
+      {
+        instanceName,
+        interfaceName,
+        orgName,
+        projectName,
+      }: InstanceNetworkInterfacesPutInterfaceParams,
+      body: NetworkInterfaceUpdate,
+      params: RequestParams = {}
+    ) =>
+      this.request<NetworkInterface>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        method: 'PUT',
+        body,
+        ...params,
+      }),
+
+    /**
      * Detach a network interface from an instance.
      */
     instanceNetworkInterfacesDeleteInterface: (
@@ -3390,6 +3727,25 @@ export class Api extends HttpClient {
       this.request<Instance>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Get contents of an instance's serial console.
+     */
+    projectInstancesInstanceSerialGet: (
+      {
+        instanceName,
+        orgName,
+        projectName,
+        ...query
+      }: ProjectInstancesInstanceSerialGetParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<InstanceSerialConsoleData>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial`,
+        method: 'GET',
+        query,
         ...params,
       }),
 
@@ -3426,7 +3782,7 @@ export class Api extends HttpClient {
       { orgName, projectName }: OrganizationProjectsGetProjectPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'GET',
         ...params,
@@ -3437,10 +3793,10 @@ export class Api extends HttpClient {
      */
     organizationProjectsPutProjectPolicy: (
       { orgName, projectName }: OrganizationProjectsPutProjectPolicyParams,
-      body: ProjectRolesPolicy,
+      body: ProjectRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<ProjectRolesPolicy>({
+      this.request<ProjectRolePolicy>({
         path: `/organizations/${orgName}/projects/${projectName}/policy`,
         method: 'PUT',
         body,
@@ -3840,7 +4196,7 @@ export class Api extends HttpClient {
      * Fetch the top-level IAM policy
      */
     policyGet: (query: PolicyGetParams, params: RequestParams = {}) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'GET',
         ...params,
@@ -3851,10 +4207,10 @@ export class Api extends HttpClient {
      */
     policyPut: (
       query: PolicyPutParams,
-      body: FleetRolesPolicy,
+      body: FleetRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<FleetRolesPolicy>({
+      this.request<FleetRolePolicy>({
         path: `/policy`,
         method: 'PUT',
         body,
@@ -4022,7 +4378,7 @@ export class Api extends HttpClient {
       { siloName }: SilosGetSiloPolicyParams,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'GET',
         ...params,
@@ -4033,10 +4389,10 @@ export class Api extends HttpClient {
      */
     silosPutSiloPolicy: (
       { siloName }: SilosPutSiloPolicyParams,
-      body: SiloRolesPolicy,
+      body: SiloRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<SiloRolesPolicy>({
+      this.request<SiloRolePolicy>({
         path: `/silos/${siloName}/policy`,
         method: 'PUT',
         body,
@@ -4093,9 +4449,9 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * List the built-in system users
+     * List users
      */
-    usersGet: (query: UsersGetParams, params: RequestParams = {}) =>
+    siloUsersGet: (query: SiloUsersGetParams, params: RequestParams = {}) =>
       this.request<UserResultsPage>({
         path: `/users`,
         method: 'GET',
@@ -4104,11 +4460,25 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * List the built-in system users
+     */
+    builtinUsersGet: (query: BuiltinUsersGetParams, params: RequestParams = {}) =>
+      this.request<UserBuiltinResultsPage>({
+        path: `/users_builtin`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    /**
      * Fetch a specific built-in system user
      */
-    usersGetUser: ({ userName }: UsersGetUserParams, params: RequestParams = {}) =>
-      this.request<User>({
-        path: `/users/${userName}`,
+    builtinUsersGetUser: (
+      { userName }: BuiltinUsersGetUserParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<UserBuiltin>({
+        path: `/users_builtin/${userName}`,
         method: 'GET',
         ...params,
       }),

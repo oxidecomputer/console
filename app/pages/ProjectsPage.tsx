@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -14,6 +14,9 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import CreateProjectSideModalForm from 'app/forms/project-create'
+import EditProjectSideModalForm from 'app/forms/project-edit'
+
 import { useParams, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
@@ -26,7 +29,14 @@ const EmptyState = () => (
   />
 )
 
-const ProjectsPage = () => {
+interface ProjectsPageProps {
+  modal?: 'createProject' | 'editProject'
+}
+
+const ProjectsPage = ({ modal }: ProjectsPageProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
   const { Table, Column } = useQueryTable('organizationProjectsGet', {
@@ -46,6 +56,12 @@ const ProjectsPage = () => {
 
   const makeActions = (project: Project): MenuAction[] => [
     {
+      label: 'Edit',
+      onActivate: () => {
+        navigate(`./edit/${project.name}`, { state: project })
+      },
+    },
+    {
       label: 'Delete',
       onActivate: () => {
         deleteProject.mutate({ orgName, projectName: project.name })
@@ -53,7 +69,6 @@ const ProjectsPage = () => {
     },
   ]
 
-  const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
@@ -74,10 +89,7 @@ const ProjectsPage = () => {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={`/orgs/${orgName}/projects/new`}
-          className={buttonStyle({ size: 'xs', variant: 'secondary' })}
-        >
+        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Project
         </Link>
       </TableActions>
@@ -89,6 +101,15 @@ const ProjectsPage = () => {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
+      <CreateProjectSideModalForm
+        isOpen={modal === 'createProject'}
+        onDismiss={() => navigate('..')}
+      />
+      <EditProjectSideModalForm
+        isOpen={modal === 'editProject'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
+      />
     </>
   )
 }
