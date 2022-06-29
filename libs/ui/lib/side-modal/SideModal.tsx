@@ -1,7 +1,7 @@
 import type { DialogProps } from '@reach/dialog'
 import { DialogContent, DialogOverlay } from '@reach/dialog'
+import { animated, useTransition } from '@react-spring/web'
 import React, { createContext, useContext, useState } from 'react'
-import { animated, useTransition } from 'react-spring'
 
 import { classed } from '@oxide/util'
 import type { ChildrenProp } from '@oxide/util'
