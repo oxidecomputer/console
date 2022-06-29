@@ -1,39 +1,31 @@
 import { Globals } from '@react-spring/web'
 import { useEffect, useState } from 'react'
 
+Globals.assign({ skipAnimation: true })
+
+const motionQuery = () => window.matchMedia('(prefers-reduced-motion: reduce)')
+
 /**
  * Pulled from [react-reduce-motion](https://github.com/infiniteluke/react-reduce-motion).
  */
-export function useReduceMotion() {
-  const [matches, setMatch] = useState(
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
+function useReducedMotion() {
+  const [reducedMotion, setReducedMotion] = useState(motionQuery().matches)
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = () => {
-      setMatch(mq.matches)
-    }
+    const mq = motionQuery()
+    const handleChange = () => setReducedMotion(mq.matches)
     handleChange()
     mq.addEventListener('change', handleChange)
-    return () => {
-      mq.removeEventListener('change', handleChange)
-    }
+    return () => mq.removeEventListener('change', handleChange)
   }, [])
-  return matches
+  return reducedMotion
 }
 
-Globals.assign({
-  skipAnimation: true,
-})
-
 export function ReduceMotion() {
-  const prefersReducedMotion = useReduceMotion()
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
-    Globals.assign({
-      skipAnimation: prefersReducedMotion,
-    })
+    Globals.assign({ skipAnimation: prefersReducedMotion })
   }, [prefersReducedMotion])
 
-  return <></>
+  return null
 }
