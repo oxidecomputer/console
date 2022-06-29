@@ -27,10 +27,12 @@ export function ListboxField({
   const [, { value }, { setValue }] = useField({ name })
   return (
     <div className="max-w-lg">
-      <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-        {label}
-      </FieldLabel>
-      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+      <div className="mb-2">
+        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+          {label}
+        </FieldLabel>
+        {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+      </div>
       <Listbox
         defaultValue={value}
         items={items}

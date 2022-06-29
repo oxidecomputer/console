@@ -48,9 +48,11 @@ export function TextField({
   const error = useFieldError(name)
   return (
     <div className="max-w-lg">
-      <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-        {label} {units && <span className="ml-1 text-secondary">({units})</span>}
-      </FieldLabel>
+      <div className="mb-2">
+        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+        </FieldLabel>
+      </div>
       {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
       <UITextField
         id={id}

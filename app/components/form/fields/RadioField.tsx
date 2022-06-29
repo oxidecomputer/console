@@ -41,13 +41,15 @@ export function RadioField({
 }: RadioFieldProps) {
   return (
     <div>
-      {label && (
-        <FieldLabel id={`${id}-label`} tip={description}>
-          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
-        </FieldLabel>
-      )}
-      {/* TODO: Figure out where this hint field def should live */}
-      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+      <div className="mb-2">
+        {label && (
+          <FieldLabel id={`${id}-label`} tip={description}>
+            {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+          </FieldLabel>
+        )}
+        {/* TODO: Figure out where this hint field def should live */}
+        {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+      </div>
       <RadioGroup
         name={name}
         aria-labelledby={cn(`${id}-label`, {

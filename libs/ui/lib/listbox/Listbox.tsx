@@ -59,7 +59,7 @@ export const Listbox: FC<ListboxProps> = ({
       </button>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-3 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem]',
+          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-3 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem] shadow-2xl',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
