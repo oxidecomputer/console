@@ -13,7 +13,7 @@ export const Spinner = ({ className }: SpinnerProps) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-labelledby="Spinner"
-      className={cn('animate-spin', className)}
+      className={cn('spinner animate-spin', className)}
     >
       <path
         fillRule="evenodd"
