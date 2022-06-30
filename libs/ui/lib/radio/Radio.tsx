@@ -36,13 +36,13 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
 const cardLabelStyles = `
   py-2 px-4 text-sm border rounded border-default bg-default hover:bg-hover
   peer-focus:ring-2 peer-focus:ring-accent-secondary
-  peer-checked:bg-accent-secondary peer-checked:border-accent peer-checked:hover:bg-accent-raise
+  peer-checked:bg-accent-secondary peer-checked:hover:bg-accent-raise
   peer-checked:border-accent peer-checked:text-accent
-  peer-disabled:bg-disabled peer-disabled:text-secondary
+  peer-disabled:bg-disabled peer-disabled:text-secondary w-44
 
-  children:py-2 children:px-4 children:-mx-4 children:border-secondary
+  children:py-3 children:px-3 children:-mx-4 children:border-secondary
   first:children:-mt-2 last:children:-mb-2
-  peer-checked:children:border-accent
+  peer-checked:children:border-accent peer-checked:children:border-accent-secondary
   cursor-pointer peer-disabled:cursor-default
 `
 
