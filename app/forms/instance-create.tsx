@@ -170,7 +170,7 @@ export default function CreateInstanceForm({
       <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
         <Tab>General Purpose</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-gp-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
             General purpose instances provide a good balance of CPU, memory, and high
             performance storage; well suited for a wide range of use cases.
           </TextFieldHint>
@@ -181,7 +181,7 @@ export default function CreateInstanceForm({
 
         <Tab>CPU Optimized</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-cpu-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
           <RadioField id="hw-cpu-optimized" name="type" label="">
@@ -191,7 +191,7 @@ export default function CreateInstanceForm({
 
         <Tab>Memory optimized</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-mem-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
           <RadioField id="hw-mem-optimized" name="type" label="">
@@ -201,7 +201,7 @@ export default function CreateInstanceForm({
 
         <Tab>Custom</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-custom-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-custom-help-text" className="mb-12 max-w-xl  text-sans-md">
             Custom instances...
           </TextFieldHint>
           <RadioField id="hw-custom" name="type" label="">
