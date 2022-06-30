@@ -41,5 +41,5 @@ SHA2="$SHA2"
 EOF
 
 git add --all
-git commit -m "Bump console to latest main\n\nhttps://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
+git commit -m "Bump console to latest main\n\nChanges: https://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
 gh pr create --fill
