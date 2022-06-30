@@ -88,7 +88,7 @@ export default function CreateNetworkInterfaceSideModalForm({
         name="vpcName"
         label="VPC"
         items={vpcs.map(({ name }) => ({ label: name, value: name }))}
-        // required
+        required={true}
       />
       <SubnetListbox
         id="nic-subnet"
@@ -96,7 +96,7 @@ export default function CreateNetworkInterfaceSideModalForm({
         label="Subnet"
         vpcNameField="vpcName"
         vpcs={vpcs}
-        // required
+        required={true}
       />
       <TextField id="nic-ip" name="ip" label="IP Address" />
     </SideModalForm>
