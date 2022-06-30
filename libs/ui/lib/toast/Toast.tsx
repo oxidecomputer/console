@@ -13,7 +13,7 @@ export interface ToastProps {
   icon: ReactElement
   onClose: () => void
   variant?: Variant
-  timeout?: number | undefined | null
+  timeout?: number | null
 }
 
 const color: Record<Variant, string> = {
@@ -57,9 +57,7 @@ export const Toast = ({
         <Close12Icon />
       </button>
 
-      {timeout !== undefined && timeout !== null ? (
-        <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose} />
-      ) : null}
+      {timeout !== null && <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose} />}
     </Alert>
   )
 }

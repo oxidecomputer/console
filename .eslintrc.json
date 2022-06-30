@@ -27,7 +27,7 @@
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-unnecessary-type-constraint": "off",
     "arrow-body-style": "off",
-    "eqeqeq": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-param-reassign": "error",
     "no-return-assign": "error",
     "no-unused-vars": "off",
