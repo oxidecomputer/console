@@ -1,6 +1,6 @@
 import { animated, useTransition } from '@react-spring/web'
+import { Globals } from '@react-spring/web'
 import { useEffect } from 'react'
-import { Globals } from 'react-spring'
 
 export interface TimeoutIndicatorProps {
   timeout: number
