@@ -146,15 +146,15 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       <RadioCard
         name={fieldName}
         value={currentDistro}
-        className="h-44 w-44 pb-2 relative"
+        className="h-44 w-44 pb-0 relative"
         onClick={onClick}
       >
-        <div className="relative flex h-full flex-col items-center justify-end space-y-4 peer-checked:children:border-accent-secondary">
+        <div className="relative flex h-full flex-col items-center justify-end !pb-4 space-y-3 peer-checked:children:border-accent-secondary">
           <button
             type="button"
             {...select.getToggleButtonProps()}
             className={cn(
-              'absolute top-0 w-full flex items-center border-b border-secondary h-8 justify-between px-3 text-sans-sm text-secondary',
+              'absolute top-0 w-full flex items-center border-b border-secondary h-10 justify-between px-3 text-sans-sm text-secondary',
               selected ? 'text-accent' : 'text-secondary'
             )}
           >
