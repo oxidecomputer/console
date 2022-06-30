@@ -220,7 +220,7 @@ export default function CreateInstanceForm({
             id="boot-disk-image"
             name="globalImage"
             images={images}
-            required={true}
+            required
           />
 
           <NameField

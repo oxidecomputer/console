@@ -47,7 +47,7 @@ export function SideModal({
   })
 
   return (
-    <SideModalContext.Provider value={true}>
+    <SideModalContext.Provider value>
       {transitions(
         ({ x }, item) =>
           item && (
