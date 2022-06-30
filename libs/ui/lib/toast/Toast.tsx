@@ -1,6 +1,7 @@
 import Alert from '@reach/alert'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
+import { useEffect } from 'react'
 
 import { Close12Icon } from '../icons'
 
@@ -33,21 +34,34 @@ export const Toast = ({
   icon,
   onClose,
   variant = 'success',
-}: ToastProps) => (
-  <Alert
-    className={cn('flex w-96 items-start rounded p-4', color[variant], textColor[variant])}
-  >
-    {icon}
-    <div className="flex-1 pl-2.5">
-      <div className="text-sans-semi-md">{title}</div>
-      <div className="text-sans-md">{content}</div>
-    </div>
-    <button
-      aria-label="Dismiss notification"
-      className={cn('flex !border-transparent p-2 -m-2 h-auto', textColor[variant])}
-      onClick={onClose}
+  timeout,
+}: ToastProps) => {
+  useEffect(() => {
+    if (timeout) {
+      const t = setTimeout(onClose, timeout)
+      return () => clearTimeout(t)
+    }
+  }, [timeout, onClose])
+  return (
+    <Alert
+      className={cn(
+        'flex w-96 items-start rounded p-4',
+        color[variant],
+        textColor[variant]
+      )}
     >
-      <Close12Icon />
-    </button>
-  </Alert>
-)
+      {icon}
+      <div className="flex-1 pl-2.5">
+        <div className="text-sans-semi-md">{title}</div>
+        <div className="text-sans-md">{content}</div>
+      </div>
+      <button
+        aria-label="Dismiss notification"
+        className={cn('flex !border-transparent p-2 -m-2 h-auto', textColor[variant])}
+        onClick={onClose}
+      >
+        <Close12Icon />
+      </button>
+    </Alert>
+  )
+}
