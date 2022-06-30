@@ -40,4 +40,4 @@ EOF
 
 git add --all
 git commit -m "Bump console to latest main"
-gh pr create --fill --web
+gh pr create --fill
