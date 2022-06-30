@@ -88,7 +88,6 @@ export function StorageTab() {
         title: 'Failed to attach disk',
         content: err.error.message,
         variant: 'error',
-        timeout: 5000,
       })
     },
   })
