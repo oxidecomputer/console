@@ -628,6 +628,15 @@ export const handlers = [
     (req, res, ctx) => {
       const [disk, err] = lookupDisk(req.params)
       if (err) return res(err)
+      // Governed by https://github.com/oxidecomputer/omicron/blob/e5704d7f343fa0633751527dedf276409647ad4e/nexus/src/db/datastore.rs#L2103
+      switch (disk.state.state) {
+        case 'creating':
+        case 'detached':
+        case 'faulted':
+          break
+        default:
+          return res(badRequest('Cannot delete disk in state ' + disk.state.state))
+      }
       db.disks = db.disks.filter((d) => d.id !== disk.id)
       return res(ctx.status(204))
     }
