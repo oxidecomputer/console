@@ -10,10 +10,10 @@ import type { GlobalImage } from '@oxide/api'
 import {
   CentosDistroIcon,
   DebianDistroIcon,
-  DirectionDownIcon,
   FedoraDistroIcon,
   Images24Icon,
   RadioCard,
+  SelectArrows6Icon,
   UbuntuDistroIcon,
   WindowsDistroIcon,
 } from '@oxide/ui'
@@ -146,20 +146,20 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       <RadioCard
         name={fieldName}
         value={currentDistro}
-        className="h-44 w-44 pb-2 relative"
+        className="h-44 w-44 pb-0 relative"
         onClick={onClick}
       >
-        <div className="relative flex h-full flex-col items-center justify-end space-y-4 peer-checked:children:border-accent-secondary">
+        <div className="relative flex h-full flex-col items-center justify-end !pb-4 space-y-3 peer-checked:children:border-accent-secondary">
           <button
             type="button"
             {...select.getToggleButtonProps()}
             className={cn(
-              'absolute top-0 w-full flex items-center border-b border-secondary h-8 justify-between px-3 text-mono-md text-secondary',
+              'absolute top-0 w-full flex items-center border-b border-secondary h-10 justify-between px-3 text-sans-sm text-secondary',
               selected ? 'text-accent' : 'text-secondary'
             )}
           >
             <span>{select.selectedItem?.version}</span>
-            <DirectionDownIcon />
+            <SelectArrows6Icon title="Select" />
           </button>
           <Icon className="h-12 w-12 text-tertiary" />
           <span className={cn('text-sans-xl', selected ? 'text-accent' : 'text-secondary')}>
@@ -169,7 +169,7 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       </RadioCard>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute top-8 left-0.5 right-0.5 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem] shadow-2xl',
+          '!children:border-b-secondary absolute -top-2 left-0 right-0 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem] shadow-2xl -translate-y-full',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}

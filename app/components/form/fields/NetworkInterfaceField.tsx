@@ -67,8 +67,7 @@ export function NetworkInterfaceField() {
                     <MiniTable.Cell>{item.vpcName}</MiniTable.Cell>
                     <MiniTable.Cell>{item.subnetName}</MiniTable.Cell>
                     <MiniTable.Cell>
-                      <Button
-                        variant="link"
+                      <button
                         onClick={() =>
                           setValue({
                             type: 'create',
@@ -77,7 +76,7 @@ export function NetworkInterfaceField() {
                         }
                       >
                         <Error16Icon title={`remove ${item.name}`} />
-                      </Button>
+                      </button>
                     </MiniTable.Cell>
                   </MiniTable.Row>
                 ))}
