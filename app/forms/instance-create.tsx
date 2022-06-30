@@ -123,11 +123,14 @@ export default function CreateInstanceForm({
           invariant(instance, 'Expected instance type to be defined')
           const image = images.find((i) => values.globalImage === i.id)
           invariant(image, 'Expected image to be defined')
+
+          const bootDiskName = values.bootDiskName || `${values.name}-${image.name}`
+
           await createDisk.mutateAsync({
             ...pageParams,
             body: {
               // TODO: Determine the pattern of the default boot disk name
-              name: values.bootDiskName || `${values.name}-${image.name}-boot-disk`,
+              name: bootDiskName,
               description: `Created as a boot disk for ${values.bootDiskName}`,
               // TODO: Verify size is larger than the minimum image size
               size: values.bootDiskSize * GiB,
@@ -148,7 +151,7 @@ export default function CreateInstanceForm({
               disks: [
                 {
                   type: 'attach',
-                  name: values.bootDiskName,
+                  name: bootDiskName,
                 },
                 ...values.disks,
               ],
