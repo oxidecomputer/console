@@ -100,7 +100,6 @@ export default function CreateInstanceForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your instance has been created.',
-        timeout: 5000,
       })
       onSuccess?.(instance)
     },

@@ -1,6 +1,7 @@
 import type { Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
+import { Success16Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
@@ -11,7 +12,7 @@ import {
   Radio,
   RadioField,
 } from 'app/components/form'
-import { useParams } from 'app/hooks'
+import { useParams, useToast } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
@@ -37,10 +38,16 @@ export function CreateDiskSideModalForm({
 }: CreateSideModalFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
+  const addToast = useToast()
 
   const createDisk = useApiMutation('projectDisksPost', {
     onSuccess(data) {
       queryClient.invalidateQueries('projectDisksGet', pathParams)
+      addToast({
+        icon: <Success16Icon />,
+        title: 'Success!',
+        content: 'Your disk has been created.',
+      })
       onSuccess?.(data)
       onDismiss()
     },

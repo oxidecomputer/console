@@ -34,7 +34,6 @@ export function NetworkingTab() {
       addToast({
         icon: <Delete16Icon />,
         title: 'Network interface deleted',
-        timeout: 5000,
       })
     },
   })

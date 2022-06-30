@@ -21,7 +21,6 @@ export default function DeviceAuthVerifyPage() {
         title: 'Token denied',
         icon: <Warning12Icon />,
         variant: 'error',
-        timeout: 4000,
       })
     },
   })

@@ -39,7 +39,6 @@ export function CreateVpcSideModalForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your VPC has been created.',
-        timeout: 5000,
       })
       onSuccess?.(vpc)
     },

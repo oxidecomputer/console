@@ -1,49 +1,30 @@
-import { useEffect, useState } from 'react'
+import { animated, useTransition } from '@react-spring/web'
+import { Globals } from '@react-spring/web'
 
-import useInterval from '../hooks/use-interval'
-import './TimeoutIndicator.css'
-
-// r = 45 (see `r` on TimerPathRemaining)
-const FULL_DASH = 2 * Math.PI * 45
+import useTimeout from '../hooks/use-timeout'
 
 export interface TimeoutIndicatorProps {
   timeout: number
   onTimeoutEnd: () => void
-  children: React.ReactNode
 }
 
-export const TimeoutIndicator = ({
-  timeout,
-  onTimeoutEnd,
-  children,
-}: TimeoutIndicatorProps) => {
-  const [timeElapsed, setTimeElapsed] = useState(0)
-  const timedOut = timeElapsed >= timeout
-  useInterval(() => setTimeElapsed((t) => t + 1000), timedOut ? null : 1000)
+export const TimeoutIndicator = ({ timeout, onTimeoutEnd }: TimeoutIndicatorProps) => {
+  const transitions = useTransition(true, {
+    from: { width: '0%' },
+    enter: { width: '100%' },
+    leave: { width: '100%' },
+    config: { duration: timeout },
+  })
 
-  const timeLeftFraction = (timeout - timeElapsed) / timeout
-  const strokeDash = Math.max(Math.round(timeLeftFraction * FULL_DASH), 0)
+  useTimeout(onTimeoutEnd, timeout)
 
-  useEffect(() => {
-    timedOut && onTimeoutEnd()
-  }, [timedOut, onTimeoutEnd])
+  // Don't show progress bar if reduce motion is turned on
+  if (Globals.skipAnimation) return null
 
-  return (
-    <div className="TimeoutIndicator relative h-6 w-6">
-      <svg fill="none" viewBox="-2 -2 100 100">
-        <g>
-          <path
-            className="remaining"
-            strokeDasharray={`${strokeDash} ${FULL_DASH}`}
-            d="
-              M 5, 50
-              a 45,45 0 1,1 90,0
-              a 45,45 0 1,1 -90,0
-            "
-          />
-        </g>
-      </svg>
-      <span className="content">{children}</span>
-    </div>
-  )
+  return transitions((styles) => (
+    <animated.div
+      className="w-0 h-0.5 bg-green-700 absolute bottom-0 left-0"
+      style={styles}
+    />
+  ))
 }

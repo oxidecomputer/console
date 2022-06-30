@@ -36,7 +36,6 @@ export function CreateVpcRouterForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your VPC router has been created.',
-        timeout: 5000,
       })
       onSuccess?.(router)
       onDismiss()

@@ -36,7 +36,6 @@ export function EditProjectSideModalForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been updated.',
-        timeout: 5000,
       })
       onSuccess?.(project)
       onDismiss()

@@ -1,9 +1,9 @@
 import Alert from '@reach/alert'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
-import { useEffect } from 'react'
 
 import { Close12Icon } from '../icons'
+import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -13,7 +13,7 @@ export interface ToastProps {
   icon: ReactElement
   onClose: () => void
   variant?: Variant
-  timeout?: number
+  timeout?: number | null
 }
 
 const color: Record<Variant, string> = {
@@ -34,18 +34,12 @@ export const Toast = ({
   icon,
   onClose,
   variant = 'success',
-  timeout,
+  timeout = 5000,
 }: ToastProps) => {
-  useEffect(() => {
-    if (timeout) {
-      const t = setTimeout(onClose, timeout)
-      return () => clearTimeout(t)
-    }
-  }, [timeout, onClose])
   return (
     <Alert
       className={cn(
-        'flex w-96 items-start rounded p-4',
+        'flex w-96 items-start rounded p-4 relative overflow-hidden',
         color[variant],
         textColor[variant]
       )}
@@ -53,7 +47,7 @@ export const Toast = ({
       {icon}
       <div className="flex-1 pl-2.5">
         <div className="text-sans-semi-md">{title}</div>
-        <div className="text-sans-md">{content}</div>
+        <div className="text-sans-md text-accent-secondary">{content}</div>
       </div>
       <button
         aria-label="Dismiss notification"
@@ -62,6 +56,8 @@ export const Toast = ({
       >
         <Close12Icon />
       </button>
+
+      {timeout !== null && <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose} />}
     </Alert>
   )
 }
