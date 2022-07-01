@@ -1,3 +1,5 @@
+import * as Yup from 'yup'
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type {
@@ -80,6 +82,7 @@ export default function CreateInstanceForm({
   onError,
   ...props
 }: CreateFullPageFormProps<InstanceCreateInput, Instance>) {
+  const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
@@ -116,6 +119,12 @@ export default function CreateInstanceForm({
       initialValues={initialValues}
       title={title}
       icon={<Instances24Icon />}
+      validationSchema={Yup.object({
+        // needed to cover case where there are no images, in which case there
+        // are no individual radio fields marked required, which unfortunately
+        // is how required radio fields work
+        globalImage: Yup.string().required(),
+      })}
       onSubmit={
         onSubmit ||
         (async (values) => {
@@ -218,6 +227,7 @@ export default function CreateInstanceForm({
       <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
         <Tab>Distros</Tab>
         <Tab.Panel className="space-y-4">
+          {images.length === 0 && <span>No images found</span>}
           <ImageSelectField
             id="boot-disk-image"
             name="globalImage"
@@ -235,9 +245,13 @@ export default function CreateInstanceForm({
           <DiskSizeField id="disk-size" label="Disk size" name="bootDiskSize" />
         </Tab.Panel>
         <Tab>Images</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <span>No images found</span>
+        </Tab.Panel>
         <Tab>Snapshots</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <span>No snapshots found</span>
+        </Tab.Panel>
       </Tabs>
       <Divider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
@@ -255,7 +269,8 @@ export default function CreateInstanceForm({
         <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
           {title}
         </Form.Submit>
-        <Form.Cancel />
+        {/* TODO: this nav may not always be correct. Could get rid of the button instead. */}
+        <Form.Cancel onClick={() => navigate('..')} />
       </Form.Actions>
     </FullPageForm>
   )
