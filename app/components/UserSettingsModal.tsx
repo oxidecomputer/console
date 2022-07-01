@@ -1,33 +1,27 @@
+import Dialog from '@reach/dialog'
+import cn from 'classnames'
+import { formatDistanceToNow } from 'date-fns/esm'
+import { Form, Formik } from 'formik'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
 import { useApiQuery } from '@oxide/api'
 import {
   Button,
   Close12Icon,
   Divider,
-  More12Icon,
-  TextField,
-  FieldLabel,
   EmptyMessage,
+  FieldLabel,
   Key16Icon,
+  More12Icon,
   RadioCard,
+  TextField,
 } from '@oxide/ui'
-import Dialog from '@reach/dialog'
-import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Formik, Form } from 'formik'
 import { classed } from '@oxide/util'
-import cn from 'classnames'
-import { formatDistanceToNow } from 'date-fns/esm'
-import type { Mutation } from './form'
-import { ComboboxField } from './form'
+
 import { RadioField } from './form'
 
 const Footer = classed.div`h-14 flex items-center px-4 border-t border-tertiary text-sans-sm text-secondary`
-
-const manualMutation: Mutation = {
-  status: 'idle',
-  data: undefined,
-  error: null,
-}
 
 const useModalNav = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -44,7 +38,7 @@ const useModalNav = () => {
 }
 
 export function UserSettingsModal() {
-  const [showDialog, setShowDialog] = useState(false)
+  const [showDialog, setShowDialog] = useState(true)
   const [route, navTo] = useModalNav()
   const [searchParams, setSearchParams] = useSearchParams()
   const close = () => {
@@ -77,12 +71,7 @@ export function UserSettingsModal() {
         <div className="flex w-[15rem] flex-shrink-0  flex-col border-r px-4 py-6 border-tertiary">
           <header className="mb-9 flex items-center justify-between">
             <span className="text-sans-lg">User Settings</span>
-            <Button
-              color="neutral"
-              variant="ghost"
-              className="!h-6 !w-6 !p-0"
-              onClick={close}
-            >
+            <Button variant="ghost" className="!h-6 !w-6 !p-0" onClick={close}>
               <Close12Icon className="ml-0.5" />
             </Button>
           </header>
@@ -171,13 +160,7 @@ function Profile() {
             <FieldLabel id="profile-name-field" htmlFor="profile-name">
               Name
             </FieldLabel>
-            <TextField
-              id="profile-name"
-              name="name"
-              required
-              disabled={true}
-              value="Jane Doe"
-            />
+            <TextField id="profile-name" name="name" required disabled value="Jane Doe" />
           </div>
           <div>
             <FieldLabel id="profile-username-field" htmlFor="profile-username">
@@ -187,7 +170,7 @@ function Profile() {
               id="profile-username"
               name="username"
               required
-              disabled={true}
+              disabled
               value="JaneDoe"
             />
           </div>
@@ -199,7 +182,7 @@ function Profile() {
               id="profile-email"
               name="email"
               required
-              disabled={true}
+              disabled
               value="jane@doe.com"
             />
           </div>
@@ -226,7 +209,6 @@ function Appearance() {
       title="Appearance"
       initialValues={{ theme: 'dark', contrast: '', motion: '' }}
       onSubmit={() => {}}
-      mutation={manualMutation}
     >
       <Form className="space-y-4 py-5 px-8">
         <RadioField
@@ -283,7 +265,7 @@ function Appearance() {
             </div>
           </RadioCard>
         </RadioField>
-        <ComboboxField
+        {/* <ComboboxField
           id="theme-contrast"
           name="contrast"
           label="Theme contrast"
@@ -296,7 +278,7 @@ function Appearance() {
           label="Reduce Motion"
           items={['Use system settings', 'Low motion', 'High motion']}
           required
-        ></ComboboxField>
+        ></ComboboxField> */}
       </Form>
     </Formik>
   )
@@ -326,7 +308,7 @@ function SshKeys() {
       {sshKeys && (
         <>
           <div className="flex items-center justify-end py-6 px-9">
-            <Button variant="secondary" size="xs">
+            <Button color="secondary" size="xs">
               New SSH Key
             </Button>
           </div>
@@ -336,7 +318,7 @@ function SshKeys() {
               <div key={sshKey.id} className="mx-5 my-3">
                 <header className="flex justify-between text-sans-md">
                   <span>{sshKey.name}</span>
-                  <Button variant="ghost" color="neutral" className="!border-0" size="xs">
+                  <Button variant="ghost" className="!border-0" size="xs">
                     <More12Icon className="pl-0.5" />
                   </Button>
                 </header>

@@ -1,10 +1,20 @@
-import { useMemo } from 'react'
-import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { useContext, useMemo } from 'react'
+import type { Location } from 'react-router-dom'
+import { UNSAFE_DataRouterContext } from 'react-router-dom'
+import {
+  Outlet,
+  matchPath,
+  matchRoutes,
+  renderMatches,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 
 import { Pagination } from '@oxide/pagination'
 import { Button, DirectionLeftIcon, SkipLinkTarget } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
+import { UserSettingsModal } from 'app/components/UserSettingsModal'
 import { useQuickActions } from 'app/hooks'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
@@ -18,8 +28,20 @@ import {
 } from './helpers'
 
 const SettingsLayout = () => {
+  const locationContext = useContext(UNSAFE_DataRouterContext)
   const navigate = useNavigate()
-  const currentPath = useLocation().pathname
+  const testLocation: Location = {
+    hash: '',
+    key: 'default',
+    pathname: '/orgs',
+    search: '',
+    state: null,
+  }
+  const location = useLocation()
+  const currentPath = location.pathname
+  const backgroundLocation: Location = location.state?.backgroundLocation || testLocation
+
+  console.log('ctx', locationContext)
 
   useQuickActions(
     useMemo(
@@ -40,6 +62,15 @@ const SettingsLayout = () => {
       [currentPath, navigate]
     )
   )
+
+  if (backgroundLocation) {
+    return (
+      <>
+        {renderMatches(matchRoutes(locationContext?.routes, backgroundLocation))}
+        <UserSettingsModal />
+      </>
+    )
+  }
 
   return (
     <PageContainer>
