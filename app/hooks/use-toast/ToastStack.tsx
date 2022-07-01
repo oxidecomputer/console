@@ -1,8 +1,7 @@
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { animated, useTransition } from '@react-spring/web'
 
 import { Toast } from '@oxide/ui'
 
-import './toast-anim.css'
 import type { Toast as ToastModel } from './types'
 
 interface ToastStackProps {
@@ -10,18 +9,34 @@ interface ToastStackProps {
   onRemoveToast: (id: string) => void
 }
 
-export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => (
-  <TransitionGroup className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-2">
-    {toasts.map(({ id, options }: ToastModel) => (
-      <CSSTransition key={id} timeout={300} classNames="toast">
-        <Toast
-          {...options}
-          onClose={() => {
-            onRemoveToast(id)
-            options.onClose?.()
+export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => {
+  const transition = useTransition(toasts, {
+    keys: (toast) => toast.id,
+    from: { opacity: 0, y: 10, scale: 95 },
+    enter: { opacity: 1, y: 0, scale: 100 },
+    leave: { opacity: 0, y: 10, scale: 95 },
+  })
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-2">
+      {transition((style, item) => (
+        <animated.div
+          style={{
+            opacity: style.opacity,
+            y: style.y,
+            transform: style.scale.to((val) => `scale(${val}%, ${val}%)`),
           }}
-        />
-      </CSSTransition>
-    ))}
-  </TransitionGroup>
-)
+        >
+          <Toast
+            key={item.id}
+            {...item.options}
+            onClose={() => {
+              onRemoveToast(item.id)
+              item.options.onClose?.()
+            }}
+          />
+        </animated.div>
+      ))}
+    </div>
+  )
+}

@@ -37,7 +37,6 @@ export function CreateOrgSideModalForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your organization has been created.',
-        timeout: 5000,
       })
       onSuccess?.(org)
       navigate(`/orgs/${org.name}/projects`)

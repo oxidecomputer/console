@@ -44,7 +44,6 @@ export function CreateProjectSideModalForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
-        timeout: 5000,
       })
       onSuccess?.(project)
       navigate(`/orgs/${orgName}/projects/${project.name}/instances`)

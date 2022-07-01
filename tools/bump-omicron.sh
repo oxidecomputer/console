@@ -33,11 +33,13 @@ git checkout main
 git pull
 git checkout -b "bump-console-$CONSOLE_VERSION_SHORT"
 
+source tools/console_version
+
 cat <<EOF > tools/console_version
 COMMIT="$CONSOLE_VERSION"
 SHA2="$SHA2"
 EOF
 
 git add --all
-git commit -m "Bump console to latest main"
-gh pr create --fill --web
+git commit -m "Bump console to latest main\n\nChanges: https://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
+gh pr create --fill

@@ -56,7 +56,7 @@ export const All = () => {
                     variant={variant}
                     color={color}
                     className={`:${state}`}
-                    loading={true}
+                    loading
                   >
                     {variant}
                   </Button>

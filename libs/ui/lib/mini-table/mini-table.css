@@ -31,7 +31,7 @@
   @apply w-12 justify-center pl-0 pr-0;
 }
 .ox-mini-table td:last-child > div > button {
-  @apply pl-4;
+  @apply flex items-center justify-center;
 }
 
 .ox-mini-table tr:hover td > div {

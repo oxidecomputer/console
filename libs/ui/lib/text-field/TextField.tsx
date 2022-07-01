@@ -90,7 +90,7 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextFieldHint = ({ id, children, className }: HintProps) => (
-  <div id={id} className={cn('mb-2 text-sans-sm text-secondary', className)}>
+  <div id={id} className={cn('mt-1 text-sans-sm text-secondary', className)}>
     {children}
   </div>
 )

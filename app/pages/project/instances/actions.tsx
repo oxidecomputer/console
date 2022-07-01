@@ -30,8 +30,7 @@ export const useMakeInstanceActions = (
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const successToast = (title: string) =>
-    addToast({ icon: <Success16Icon />, title, timeout: 5000 })
+  const successToast = (title: string) => addToast({ icon: <Success16Icon />, title })
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()

@@ -11,13 +11,34 @@ import {
 import type { ProjectRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, createTable, getActionsCol } from '@oxide/table'
-import { Access24Icon, Badge, Button, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import {
+  Access24Icon,
+  Badge,
+  Button,
+  EmptyMessage,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  TableEmptyBox,
+} from '@oxide/ui'
 
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
 import { useParams } from 'app/hooks'
+
+const EmptyState = ({ onClick }: { onClick: () => void }) => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Access24Icon />}
+      title="No authorized users"
+      body="Give permission to view, edit, or administer this project"
+      buttonText="Add user to project"
+      onClick={onClick}
+    />
+  </TableEmptyBox>
+)
 
 type UserRow = UserAccessRow<ProjectRole>
 
@@ -109,7 +130,11 @@ export const ProjectAccessPage = () => {
           initialValues={{ roleName: editingUserRow.roleName }}
         />
       )}
-      <Table table={tableInstance} />
+      {rows.length === 0 ? (
+        <EmptyState onClick={() => setAddModalOpen(true)} />
+      ) : (
+        <Table table={tableInstance} />
+      )}
     </>
   )
 }

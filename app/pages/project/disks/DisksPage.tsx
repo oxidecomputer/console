@@ -80,6 +80,7 @@ export function DisksPage({ modal }: DisksPageProps) {
       onActivate: () => {
         deleteDisk.mutate({ orgName, projectName, diskName: disk.name })
       },
+      disabled: !['detached', 'creating', 'faulted'].includes(disk.state.state),
     },
   ]
 

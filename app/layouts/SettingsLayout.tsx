@@ -45,7 +45,11 @@ const SettingsLayout = () => {
     <PageContainer>
       <Sidebar>
         {/* TODO: Make the back nav here smarter to return you to the previous non-settings screen */}
-        <Button variant="link" onClick={() => navigate('/')}>
+        <Button
+          className="!justify-start -ml-2 mt-6 mb-4"
+          variant="link"
+          onClick={() => navigate('/')}
+        >
           <DirectionLeftIcon />
           Home
         </Button>

@@ -27,7 +27,6 @@ export default function LoginPage() {
       addToast({
         title: 'Logged in',
         icon: <Success16Icon />,
-        timeout: 4000,
       })
       navigate(searchParams.get('state') || '/')
     },
@@ -36,7 +35,6 @@ export default function LoginPage() {
         title: 'Bad credentials',
         icon: <Warning12Icon />,
         variant: 'error',
-        timeout: 4000,
       })
     },
   })
@@ -46,7 +44,6 @@ export default function LoginPage() {
       addToast({
         title: 'Logged out',
         icon: <Success16Icon />,
-        timeout: 4000,
       })
     },
   })

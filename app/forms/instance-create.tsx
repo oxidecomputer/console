@@ -1,3 +1,5 @@
+import * as Yup from 'yup'
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type {
@@ -80,6 +82,7 @@ export default function CreateInstanceForm({
   onError,
   ...props
 }: CreateFullPageFormProps<InstanceCreateInput, Instance>) {
+  const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
@@ -100,7 +103,6 @@ export default function CreateInstanceForm({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your instance has been created.',
-        timeout: 5000,
       })
       onSuccess?.(instance)
     },
@@ -117,6 +119,12 @@ export default function CreateInstanceForm({
       initialValues={initialValues}
       title={title}
       icon={<Instances24Icon />}
+      validationSchema={Yup.object({
+        // needed to cover case where there are no images, in which case there
+        // are no individual radio fields marked required, which unfortunately
+        // is how required radio fields work
+        globalImage: Yup.string().required(),
+      })}
       onSubmit={
         onSubmit ||
         (async (values) => {
@@ -124,11 +132,14 @@ export default function CreateInstanceForm({
           invariant(instance, 'Expected instance type to be defined')
           const image = images.find((i) => values.globalImage === i.id)
           invariant(image, 'Expected image to be defined')
+
+          const bootDiskName = values.bootDiskName || `${values.name}-${image.name}`
+
           await createDisk.mutateAsync({
             ...pageParams,
             body: {
               // TODO: Determine the pattern of the default boot disk name
-              name: values.bootDiskName || `${values.name}-${image.name}-boot-disk`,
+              name: bootDiskName,
               description: `Created as a boot disk for ${values.bootDiskName}`,
               // TODO: Verify size is larger than the minimum image size
               size: values.bootDiskSize * GiB,
@@ -149,7 +160,7 @@ export default function CreateInstanceForm({
               disks: [
                 {
                   type: 'attach',
-                  name: values.bootDiskName,
+                  name: bootDiskName,
                 },
                 ...values.disks,
               ],
@@ -170,7 +181,7 @@ export default function CreateInstanceForm({
       <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
         <Tab>General Purpose</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-gp-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
             General purpose instances provide a good balance of CPU, memory, and high
             performance storage; well suited for a wide range of use cases.
           </TextFieldHint>
@@ -181,7 +192,7 @@ export default function CreateInstanceForm({
 
         <Tab>CPU Optimized</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-cpu-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
           <RadioField id="hw-cpu-optimized" name="type" label="">
@@ -191,7 +202,7 @@ export default function CreateInstanceForm({
 
         <Tab>Memory optimized</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-mem-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
             CPU optimized instances provide a good balance of...
           </TextFieldHint>
           <RadioField id="hw-mem-optimized" name="type" label="">
@@ -201,7 +212,7 @@ export default function CreateInstanceForm({
 
         <Tab>Custom</Tab>
         <Tab.Panel>
-          <TextFieldHint id="hw-custom-help-text" className="mb-12 max-w-xl">
+          <TextFieldHint id="hw-custom-help-text" className="mb-12 max-w-xl  text-sans-md">
             Custom instances...
           </TextFieldHint>
           <RadioField id="hw-custom" name="type" label="">
@@ -216,11 +227,12 @@ export default function CreateInstanceForm({
       <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
         <Tab>Distros</Tab>
         <Tab.Panel className="space-y-4">
+          {images.length === 0 && <span>No images found</span>}
           <ImageSelectField
             id="boot-disk-image"
             name="globalImage"
             images={images}
-            required={true}
+            required
           />
 
           <NameField
@@ -233,9 +245,13 @@ export default function CreateInstanceForm({
           <DiskSizeField id="disk-size" label="Disk size" name="bootDiskSize" />
         </Tab.Panel>
         <Tab>Images</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <span>No images found</span>
+        </Tab.Panel>
         <Tab>Snapshots</Tab>
-        <Tab.Panel></Tab.Panel>
+        <Tab.Panel>
+          <span>No snapshots found</span>
+        </Tab.Panel>
       </Tabs>
       <Divider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
@@ -253,7 +269,8 @@ export default function CreateInstanceForm({
         <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
           {title}
         </Form.Submit>
-        <Form.Cancel />
+        {/* TODO: this nav may not always be correct. Could get rid of the button instead. */}
+        <Form.Cancel onClick={() => navigate('..')} />
       </Form.Actions>
     </FullPageForm>
   )

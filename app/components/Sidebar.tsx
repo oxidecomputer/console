@@ -2,7 +2,7 @@ import cn from 'classnames'
 import { NavLink as RRNavLink } from 'react-router-dom'
 
 import { Document16Icon } from '@oxide/ui'
-import { flattenChildren, pluckFirstOfType } from '@oxide/util'
+import { Wrap, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { ProjectSelector } from 'app/components/ProjectSelector'
 
@@ -16,14 +16,17 @@ export function Sidebar({ children }: SidebarProps) {
   return (
     <div className="ox-sidebar relative flex flex-col border-r px-3 pt-5 text-sans-md text-default border-secondary">
       {projectSelector}
-      <div className="overflow-y-auto mt-10 flex flex-col flex-grow">
+      <Wrap
+        when={projectSelector}
+        with={<div className="overflow-y-auto mt-10 flex flex-col flex-grow" />}
+      >
         {childArray}
         <Sidebar.Footer>
           <NavLinkItem to="https://docs.oxide.computer">
             <Document16Icon /> Documentation
           </NavLinkItem>
         </Sidebar.Footer>
-      </div>
+      </Wrap>
     </div>
   )
 }
