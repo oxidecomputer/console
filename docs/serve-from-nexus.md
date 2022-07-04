@@ -1,16 +1,12 @@
 # Serving the Console from Nexus
 
-## Wait! You probably don't need to build anything
+## Wait! You probably don't need to do anything
 
-Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. The latest `main` is probably what you want and can always be found at https://dl.oxide.computer/releases/console/main.tar.gz in addition to the path with the SHA.
+Assets from commits on `main` are available at `dl.oxide.computer/releases/console/<sha>.tar.gz`. A console version is pinned in Omicron in the file `tools/console_version`, and the prereqs script `./tools/install_prerequisites.sh` will download the tarball and extract it in the right place.
 
-If you want to use a version of the console that's already merged into `main`, just download the tarball and extract the files into the directory configured as `console.static_dir` in the Nexus config (the default in the example config `nexus/static`).
+If you want to use a different commit than the one that's pinned, just change the commmit hash and SHA256 in that file (get the SHA256 at `https://dl.oxide.computer/releases/console/<commit>.sha256.txt`) and re-run the script.
 
 Following the rest of the instructions is only necessary if you want to build the assets yourself, for example if you're making a change to the console and want to test it locally against Nexus.
-
-### Choosing a Console version to download
-
-Most of the time you will want the latest commit on `main`. Look at [`OMICRON_VERSION`](/OMICRON_VERSION) to see what Omicron SHA that version of the console expects. Often it will work with a newer version of the API, but don't be surprised if it doesn't.
 
 ## Dependencies
 
@@ -44,7 +40,7 @@ The only difference between this build and the one for local dev is that the lat
 
 The build output lands in the `dist` directory. Now all you need to do is make `console.static_dir` in the Nexus config point to a directory containing these files.
 
-If you're using the example Nexus config, `static_dir` is set there to `nexus/static` (treated as relative to CWD), so that's a reasonable default location for the files. Another option is to point Nexus directly at `dist` so you don't even have to copy them. Nexus accepts both absolute and relative paths.
+If you're using the example Nexus config, `static_dir` is set there to `out/console-assets` (treated as relative to CWD), so that's a reasonable default location for the files. Another option is to point Nexus directly at `dist` so you don't even have to copy them. Nexus accepts both absolute and relative paths.
 
 Whatever the directory is, the files need to be at top level, just like they are in `dist`:
 
@@ -67,13 +63,13 @@ If I have `console` and `omicron` sitting next to each other in the same directo
 
 ```toml
 [console]
-static_dir = "nexus/static"
+static_dir = "out/console-assets"
 ```
 
 I would run `yarn build-for-nexus` in `console` and then use the following command to copy the files over:
 
 ```bash
-cp -R dist/ ../omicron/nexus/static
+cp -R dist/ ../omicron/out/console-assets
 ```
 
 The `/` after `dist` is there on purpose — if the target directory already exists, if I leave off the `/` it will copy `dist` into the target with its contents inside rather than the copying only the contents.
