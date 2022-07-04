@@ -26,6 +26,8 @@ jobs:
       - run: yarn install
       - name: Build for Nexus
         run: SHA=${{ github.sha }} yarn build-for-nexus
+      - name: Gzip individual files (keep originals)
+        run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
