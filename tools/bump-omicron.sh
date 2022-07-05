@@ -40,6 +40,9 @@ COMMIT="$CONSOLE_VERSION"
 SHA2="$SHA2"
 EOF
 
+TITLE="Bump console to latest main"
+BODY="Changes: https://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
+
 git add --all
-git commit -m "Bump console to latest main\n\nChanges: https://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
-gh pr create --fill
+git commit -m "$TITLE\n\n$BODY"
+gh pr create --title "$TITLE" --body "$BODY"
