@@ -45,5 +45,5 @@ TITLE="Bump console to latest main"
 BODY="Changes: https://github.com/oxidecomputer/console/compare/$COMMIT...$NEW_CONSOLE_VERSION"
 
 git add --all
-git commit -m "$TITLE\n\n$BODY"
+git commit -m "$TITLE" -m "$BODY"
 gh pr create --title "$TITLE" --body "$BODY"
