@@ -1,6 +1,5 @@
 name: Upload assets to dl.oxide.computer
 # Files are at dl.oxide.computer/console/releases/<sha>.tar.gz
-# Latest main is at dl.oxide.computer/console/releases/main.tar.gz
 
 on:
   push:
@@ -28,6 +27,8 @@ jobs:
         run: SHA=${{ github.sha }} yarn build-for-nexus
       - name: Gzip individual files (keep originals)
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
+      - name: add console_version file
+        run: echo ${{ github.sha }} > dist/VERSION
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
