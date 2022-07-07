@@ -2040,9 +2040,7 @@ export interface DeviceAuthVerifyParams {
 
 export interface RackListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: IdSortMode
 }
 
@@ -2052,9 +2050,7 @@ export interface RackViewParams {
 
 export interface SledListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: IdSortMode
 }
 
@@ -2064,9 +2060,7 @@ export interface SledViewParams {
 
 export interface ImageGlobalListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
 }
 
@@ -2082,9 +2076,7 @@ export interface ImageGlobalDeleteParams {
 
 export interface IpPoolListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameOrIdSortMode
 }
 
@@ -2104,9 +2096,7 @@ export interface IpPoolDeleteParams {
 
 export interface IpPoolRangeListParams {
   poolName: Name
-
   limit?: number | null
-
   pageToken?: string | null
 }
 
@@ -2122,13 +2112,11 @@ export interface SpoofLoginParams {}
 
 export interface LoginParams {
   providerName: Name
-
   siloName: Name
 }
 
 export interface ConsumeCredentialsParams {
   providerName: Name
-
   siloName: Name
 }
 
@@ -2136,9 +2124,7 @@ export interface LogoutParams {}
 
 export interface OrganizationListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameOrIdSortMode
 }
 
@@ -2166,11 +2152,8 @@ export interface OrganizationPolicyUpdateParams {
 
 export interface ProjectListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameOrIdSortMode
-
   orgName: Name
 }
 
@@ -2180,535 +2163,382 @@ export interface ProjectCreateParams {
 
 export interface ProjectViewParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface ProjectUpdateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface ProjectDeleteParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface DiskListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface DiskCreateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface DiskViewParams {
   diskName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface DiskDeleteParams {
   diskName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface ImageListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface ImageCreateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface ImageViewParams {
   imageName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface ImageDeleteParams {
   imageName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceCreateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceViewParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceDeleteParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceDiskListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceDiskAttachParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceDiskDetachParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceMigrateParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceNetworkInterfaceListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceNetworkInterfaceCreateParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceNetworkInterfaceViewParams {
   instanceName: Name
-
   interfaceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceNetworkInterfaceUpdateParams {
   instanceName: Name
-
   interfaceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceNetworkInterfaceDeleteParams {
   instanceName: Name
-
   interfaceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceRebootParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceSerialConsoleParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
-
   fromStart?: number | null
-
   maxBytes?: number | null
-
   mostRecent?: number | null
 }
 
 export interface InstanceStartParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface InstanceStopParams {
   instanceName: Name
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface ProjectPolicyViewParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface ProjectPolicyUpdateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface SnapshotListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface SnapshotCreateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface SnapshotViewParams {
   orgName: Name
-
   projectName: Name
-
   snapshotName: Name
 }
 
 export interface SnapshotDeleteParams {
   orgName: Name
-
   projectName: Name
-
   snapshotName: Name
 }
 
 export interface VpcListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
 }
 
 export interface VpcCreateParams {
   orgName: Name
-
   projectName: Name
 }
 
 export interface VpcViewParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcUpdateParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcDeleteParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcFirewallRulesViewParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcFirewallRulesUpdateParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterCreateParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterViewParams {
   orgName: Name
-
   projectName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterUpdateParams {
   orgName: Name
-
   projectName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterDeleteParams {
   orgName: Name
-
   projectName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterRouteListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterRouteCreateParams {
   orgName: Name
-
   projectName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterRouteViewParams {
   orgName: Name
-
   projectName: Name
-
   routeName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterRouteUpdateParams {
   orgName: Name
-
   projectName: Name
-
   routeName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcRouterRouteDeleteParams {
   orgName: Name
-
   projectName: Name
-
   routeName: Name
-
   routerName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetCreateParams {
   orgName: Name
-
   projectName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetViewParams {
   orgName: Name
-
   projectName: Name
-
   subnetName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetUpdateParams {
   orgName: Name
-
   projectName: Name
-
   subnetName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetDeleteParams {
   orgName: Name
-
   projectName: Name
-
   subnetName: Name
-
   vpcName: Name
 }
 
 export interface VpcSubnetListNetworkInterfacesParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
-
   orgName: Name
-
   projectName: Name
-
   subnetName: Name
-
   vpcName: Name
 }
 
@@ -2718,7 +2548,6 @@ export interface PolicyUpdateParams {}
 
 export interface RoleListParams {
   limit?: number | null
-
   pageToken?: string | null
 }
 
@@ -2728,9 +2557,7 @@ export interface RoleViewParams {
 
 export interface SagaListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: IdSortMode
 }
 
@@ -2742,9 +2569,7 @@ export interface SessionMeParams {}
 
 export interface SessionSshkeyListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
 }
 
@@ -2760,9 +2585,7 @@ export interface SessionSshkeyDeleteParams {
 
 export interface SiloListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameOrIdSortMode
 }
 
@@ -2778,11 +2601,8 @@ export interface SiloDeleteParams {
 
 export interface SiloIdentityProviderListParams {
   siloName: Name
-
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
 }
 
@@ -2800,15 +2620,12 @@ export interface SiloIdentityProviderCreateParams {
 
 export interface SiloIdentityProviderViewParams {
   providerName: Name
-
   siloName: Name
 }
 
 export interface SystemUserListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: NameSortMode
 }
 
@@ -2818,7 +2635,6 @@ export interface SystemUserViewParams {
 
 export interface TimeseriesSchemaGetParams {
   limit?: number | null
-
   pageToken?: string | null
 }
 
@@ -2826,9 +2642,7 @@ export interface UpdatesRefreshParams {}
 
 export interface UserListParams {
   limit?: number | null
-
   pageToken?: string | null
-
   sortBy?: IdSortMode
 }
 
