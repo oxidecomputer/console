@@ -49,8 +49,22 @@ export const ProjectAccessPage = () => {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useParams('orgName', 'projectName')
   const { data: policy } = useApiQuery('projectPolicyView', projectParams)
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', {
+    orgName: projectParams.orgName,
+  })
 
-  const rows = useUserAccessRows(policy, projectRoleOrder)
+  // user can also get roles from the silo (and possibly the fleet?) but the
+  // silo policy view endpoint is `/silos/:siloName/policy`, and we don't have
+  // the silo name, so we can't fetch it yet. need to think about this
+
+  const combinedPolicy = {
+    roleAssignments: [
+      ...(policy?.roleAssignments || []),
+      ...(orgPolicy?.roleAssignments || []),
+    ],
+  }
+
+  const rows = useUserAccessRows(combinedPolicy, projectRoleOrder)
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
