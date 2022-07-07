@@ -19,9 +19,9 @@ export function EditSubnetSideModalForm({
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
-  const updateSubnet = useApiMutation('vpcSubnetsPutSubnet', {
+  const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
+      queryClient.invalidateQueries('vpcSubnetList', parentNames)
       onSuccess?.(data)
       onDismiss()
     },

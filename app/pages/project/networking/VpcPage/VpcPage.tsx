@@ -15,7 +15,7 @@ const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
 export const VpcPage = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
-  const { data: vpc } = useApiQuery('projectVpcsGetVpc', vpcParams)
+  const { data: vpc } = useApiQuery('vpcView', vpcParams)
 
   return (
     <>

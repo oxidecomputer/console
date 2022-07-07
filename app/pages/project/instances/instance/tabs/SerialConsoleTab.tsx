@@ -10,21 +10,11 @@ import { useParams } from 'app/hooks'
 const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsoleTab() {
-  const { orgName, projectName, instanceName } = useParams(
-    'orgName',
-    'projectName',
-    'instanceName'
-  )
+  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
   const { data, refetch } = useApiQuery(
-    'projectInstancesInstanceSerialGet',
-    {
-      maxBytes: 10 * MiB,
-      fromStart: 0,
-      orgName,
-      projectName,
-      instanceName,
-    },
+    'instanceSerialConsole',
+    { maxBytes: 10 * MiB, fromStart: 0, ...instanceParams },
     { refetchOnWindowFocus: false }
   )
 

@@ -26,13 +26,13 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderGetOrgs = () => renderHook(() => useApiQuery('organizationsGet', {}), config)
+const renderGetOrgs = () => renderHook(() => useApiQuery('organizationList', {}), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
-  renderHook(() => useApiQuery('organizationsGetOrganization', { orgName: '503' }), config)
+  renderHook(() => useApiQuery('organizationView', { orgName: '503' }), config)
 
-const renderCreateOrg = () => renderHook(() => useApiMutation('organizationsPost'), config)
+const renderCreateOrg = () => renderHook(() => useApiMutation('organizationCreate'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -85,7 +85,7 @@ describe('useApiQuery', () => {
     it('throws by default', async () => {
       const { result } = renderHook(
         () =>
-          useApiQuery('organizationsGetOrganization', {
+          useApiQuery('organizationView', {
             orgName: 'nonexistent',
           }),
         config
@@ -104,7 +104,7 @@ describe('useApiQuery', () => {
       const { result } = renderHook(
         () =>
           useApiQuery(
-            'organizationsGetOrganization',
+            'organizationView',
             { orgName: 'nonexistent' },
             { useErrorBoundary: false } // <----- the point
           ),
@@ -147,10 +147,7 @@ describe('useApiMutation', () => {
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(
-        () => useApiMutation('organizationProjectsPost'),
-        config
-      )
+      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 
@@ -161,10 +158,7 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(
-        () => useApiMutation('organizationProjectsPost'),
-        config
-      )
+      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 

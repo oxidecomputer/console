@@ -26,9 +26,9 @@ export function NetworkingTab() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterfaceUpdate | null>(null)
 
-  const getQuery = ['instanceNetworkInterfacesGet', instanceParams] as const
+  const getQuery = ['instanceNetworkInterfaceList', instanceParams] as const
 
-  const deleteNic = useApiMutation('instanceNetworkInterfacesDeleteInterface', {
+  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
       addToast({
@@ -38,14 +38,14 @@ export function NetworkingTab() {
     },
   })
 
-  const editNic = useApiMutation('instanceNetworkInterfacesPutInterface', {
+  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
     },
   })
 
   const instanceStopped =
-    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+    useApiQuery('instanceView', instanceParams).data?.runState === 'stopped'
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {

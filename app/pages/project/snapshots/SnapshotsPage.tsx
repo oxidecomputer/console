@@ -15,7 +15,7 @@ const EmptyState = () => (
 
 export const SnapshotsPage = () => {
   const projectParams = useParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('projectSnapshotsGet', projectParams)
+  const { Table, Column } = useQueryTable('snapshotList', projectParams)
   return (
     <>
       <PageHeader>

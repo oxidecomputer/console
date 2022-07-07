@@ -39,18 +39,18 @@ const ProjectsPage = ({ modal }: ProjectsPageProps) => {
 
   const queryClient = useApiQueryClient()
   const { orgName } = useParams('orgName')
-  const { Table, Column } = useQueryTable('organizationProjectsGet', {
+  const { Table, Column } = useQueryTable('projectList', {
     orgName,
   })
 
-  const { data: projects } = useApiQuery('organizationProjectsGet', {
+  const { data: projects } = useApiQuery('projectList', {
     orgName,
     limit: 10, // to have same params as QueryTable
   })
 
-  const deleteProject = useApiMutation('organizationProjectsDeleteProject', {
+  const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
+      queryClient.invalidateQueries('projectList', { orgName })
     },
   })
 

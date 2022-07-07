@@ -38,7 +38,7 @@ export function SubnetListbox({ vpcNameField, vpcs, ...fieldProps }: SubnetListb
   // TODO: error handling other than fallback to empty list?
   const subnets =
     useApiQuery(
-      'vpcSubnetsGet',
+      'vpcSubnetList',
       { ...pathParams, vpcName, limit: 50 },
       {
         enabled: vpcExists,

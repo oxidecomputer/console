@@ -26,9 +26,9 @@ export function EditFirewallRuleForm({
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
-  const updateRules = useApiMutation('vpcFirewallRulesPut', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcFirewallRulesGet', parentNames)
+      queryClient.invalidateQueries('vpcFirewallRulesView', parentNames)
       onSuccess?.(data)
       onDismiss()
     },

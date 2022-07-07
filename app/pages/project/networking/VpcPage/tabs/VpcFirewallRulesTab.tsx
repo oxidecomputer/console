@@ -49,7 +49,7 @@ const staticColumns = [
 export const VpcFirewallRulesTab = () => {
   const vpcParams = useParams('orgName', 'projectName', 'vpcName')
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesGet', vpcParams)
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', vpcParams)
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)

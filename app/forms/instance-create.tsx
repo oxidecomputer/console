@@ -87,15 +87,15 @@ export default function CreateInstanceForm({
   const addToast = useToast()
   const pageParams = useParams('orgName', 'projectName')
 
-  const createDisk = useApiMutation('projectDisksPost')
+  const createDisk = useApiMutation('diskCreate')
 
-  const createInstance = useApiMutation('projectInstancesPost', {
+  const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('projectInstancesGet', pageParams)
+      queryClient.invalidateQueries('instanceList', pageParams)
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
-        'projectInstancesGetInstance',
+        'instanceView',
         { ...pageParams, instanceName: instance.name },
         instance
       )
@@ -109,7 +109,7 @@ export default function CreateInstanceForm({
     onError,
   })
 
-  const images = useApiQuery('imagesGet', {}).data?.items || []
+  const images = useApiQuery('imageGlobalList', {}).data?.items || []
 
   initialValues.globalImage = images[0]?.id || ''
 

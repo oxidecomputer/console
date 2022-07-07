@@ -17,11 +17,11 @@ import {
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
 export function SSHKeysPage() {
-  const { Table, Column } = useQueryTable('sshkeysGet', {})
+  const { Table, Column } = useQueryTable('sessionSshkeyList', {})
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('sshkeysDeleteKey', {})
+  const deleteSshKey = useApiMutation('sessionSshkeyDelete', {})
 
   const makeActions = (sshKey: SshKey): MenuAction[] => [
     {
@@ -31,7 +31,7 @@ export function SSHKeysPage() {
           { sshKeyName: sshKey.name },
           {
             onSuccess: () => {
-              queryClient.invalidateQueries('sshkeysGet', {})
+              queryClient.invalidateQueries('sessionSshkeyList', {})
             },
           }
         )

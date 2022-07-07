@@ -52,14 +52,14 @@ export function StorageTab() {
   const queryClient = useApiQueryClient()
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
-  const { data } = useApiQuery('instanceDisksGet', instanceParams, {
+  const { data } = useApiQuery('instanceDiskList', instanceParams, {
     refetchInterval: 5000,
   })
 
-  const detachDisk = useApiMutation('instanceDisksDetach', {})
+  const detachDisk = useApiMutation('instanceDiskDetach', {})
 
   const instanceStopped =
-    useApiQuery('projectInstancesGetInstance', instanceParams).data?.runState === 'stopped'
+    useApiQuery('instanceView', instanceParams).data?.runState === 'stopped'
 
   const makeActions = (disk: Disk): MenuAction[] => [
     {
@@ -70,7 +70,7 @@ export function StorageTab() {
           { body: { name: disk.name }, ...instanceParams },
           {
             onSuccess: () => {
-              queryClient.invalidateQueries('instanceDisksGet', instanceParams)
+              queryClient.invalidateQueries('instanceDiskList', instanceParams)
             },
           }
         )
@@ -78,9 +78,9 @@ export function StorageTab() {
     },
   ]
 
-  const attachDisk = useApiMutation('instanceDisksAttach', {
+  const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDisksGet', instanceParams)
+      queryClient.invalidateQueries('instanceDiskList', instanceParams)
     },
     onError(err) {
       addToast({

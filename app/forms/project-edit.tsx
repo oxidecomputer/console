@@ -22,13 +22,13 @@ export function EditProjectSideModalForm({
 
   const { orgName } = useParams('orgName')
 
-  const editProject = useApiMutation('organizationProjectsPutProject', {
+  const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('organizationProjectsGet', { orgName })
+      queryClient.invalidateQueries('projectList', { orgName })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'organizationProjectsGetProject',
+        'projectView',
         { orgName, projectName: project.name },
         project
       )
