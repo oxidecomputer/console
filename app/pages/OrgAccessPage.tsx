@@ -45,13 +45,13 @@ export const OrgAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const orgParams = useParams('orgName')
-  const { data: policy } = useApiQuery('organizationGetPolicy', orgParams)
+  const { data: policy } = useApiQuery('organizationPolicyView', orgParams)
 
   const rows = useUserAccessRows(policy, orgRoleOrder)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPutPolicy', {
-    onSuccess: () => queryClient.invalidateQueries('organizationGetPolicy', orgParams),
+  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
+    onSuccess: () => queryClient.invalidateQueries('organizationPolicyView', orgParams),
     // TODO: handle 403
   })
 

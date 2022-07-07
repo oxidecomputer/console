@@ -41,9 +41,9 @@ export function OrgAccessAddUserSideModal({
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPutPolicy', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationGetPolicy', orgParams)
+      queryClient.invalidateQueries('organizationPolicyView', orgParams)
       onSuccess?.(data)
       onDismiss()
     },
@@ -103,9 +103,9 @@ export function OrgAccessEditUserSideModal({
   const orgParams = useParams('orgName')
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPutPolicy', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationGetPolicy', orgParams)
+      queryClient.invalidateQueries('organizationPolicyView', orgParams)
       onSuccess?.(data)
       onDismiss()
     },

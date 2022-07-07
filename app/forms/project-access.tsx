@@ -42,9 +42,9 @@ export function ProjectAccessAddUserSideModal({
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
+      queryClient.invalidateQueries('projectPolicyView', projectParams)
       onSuccess?.(data)
       onDismiss()
     },
@@ -104,9 +104,9 @@ export function ProjectAccessEditUserSideModal({
   const projectParams = useParams('orgName', 'projectName')
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams)
+      queryClient.invalidateQueries('projectPolicyView', projectParams)
       onSuccess?.(data)
       onDismiss()
     },

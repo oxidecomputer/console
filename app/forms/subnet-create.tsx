@@ -26,9 +26,9 @@ export function CreateSubnetSideModalForm({
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
-  const createSubnet = useApiMutation('vpcSubnetsPost', {
+  const createSubnet = useApiMutation('vpcSubnetCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetsGet', parentNames)
+      queryClient.invalidateQueries('vpcSubnetList', parentNames)
       onSuccess?.(data)
       onDismiss()
     },

@@ -28,7 +28,7 @@ function AttachedInstance(props: {
   // HACK: workaround because there's no other way to go from an instance ID to
   // name. Fetch the whole list (default page size is 100 I think) and find the
   // instance client-side. Fortunately, React Query dedupes the request.
-  const { data: instances } = useApiQuery('projectInstancesGet', {
+  const { data: instances } = useApiQuery('instanceList', {
     orgName: props.orgName,
     projectName: props.projectName,
   })
@@ -63,14 +63,14 @@ export function DisksPage({ modal }: DisksPageProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable(
-    'projectDisksGet',
+    'diskList',
     { orgName, projectName },
     { refetchInterval: 5000 }
   )
 
-  const deleteDisk = useApiMutation('projectDisksDeleteDisk', {
+  const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('projectDisksGet', { orgName, projectName })
+      queryClient.invalidateQueries('diskList', { orgName, projectName })
     },
   })
 

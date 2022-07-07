@@ -15,7 +15,7 @@ const EmptyState = () => (
 
 export const ImagesPage = () => {
   const projectParams = useParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('projectImagesGet', projectParams)
+  const { Table, Column } = useQueryTable('imageList', projectParams)
   return (
     <>
       <PageHeader>

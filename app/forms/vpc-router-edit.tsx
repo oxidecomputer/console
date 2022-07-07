@@ -19,9 +19,9 @@ export function EditVpcRouterForm({
   const parentNames = useParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
-  const updateRouter = useApiMutation('vpcRoutersPutRouter', {
+  const updateRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcRoutersGet', parentNames)
+      queryClient.invalidateQueries('vpcRouterList', parentNames)
       onSuccess?.(data)
       onDismiss()
     },

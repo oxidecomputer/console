@@ -113,7 +113,7 @@ export function useUserAccessRows<Role extends string>(
   // TODO: this hits /users, which returns system users, not silo users. We need
   // an endpoint to list silo users. I'm hoping we might end up using /users for
   // that. See https://github.com/oxidecomputer/omicron/issues/1235
-  const { data: users } = useApiQuery('siloUsersGet', { limit: 200 })
+  const { data: users } = useApiQuery('userList', { limit: 200 })
 
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
@@ -143,7 +143,7 @@ export function useUsersNotInPolicy<Role extends string>(
   // allow undefined because this is fetched with RQ
   policy: Policy<Role> | undefined
 ) {
-  const { data: users } = useApiQuery('siloUsersGet', {})
+  const { data: users } = useApiQuery('userList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
