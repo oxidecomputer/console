@@ -1,4 +1,4 @@
-import { nullIfEmpty, parsePortRange } from './util'
+import { genName, nullIfEmpty, parsePortRange } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
@@ -40,4 +40,22 @@ test('nullIfEmpty', () => {
 
   expect(nullIfEmpty('')).toBeNull()
   expect(nullIfEmpty('  ')).toBeNull()
+})
+
+test('genName', () => {
+  expect(genName('a'.repeat(64), 'b'.repeat(64))).toMatch(/^a{28}-b{28}-[0-9a-f]{6}$/)
+  expect(genName('a'.repeat(64), 'b'.repeat(64), 'c'.repeat(64))).toMatch(
+    /^a{18}-b{18}-c{18}-[0-9a-f]{6}$/
+  )
+
+  // Test a bunch of lengths to make sure we don't overflow the max length
+  for (let i = 2; i <= 128; i = 2 ** i) {
+    const singlePartName = genName('a'.repeat(i))
+    expect(singlePartName.length).toBeLessThanOrEqual(63)
+    expect(singlePartName).toMatch(/^a+-[0-9a-f]{6}$/)
+
+    const doublePartName = genName('a'.repeat(i / 2), 'b'.repeat(i / 2))
+    expect(doublePartName.length).toBeLessThanOrEqual(63)
+    expect(doublePartName).toMatch(/^a+-b+-[0-9a-f]{6}$/)
+  }
 })
