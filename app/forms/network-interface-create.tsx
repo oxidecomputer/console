@@ -37,11 +37,11 @@ export default function CreateNetworkInterfaceSideModalForm({
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
-  const createNetworkInterface = useApiMutation('instanceNetworkInterfacesPost', {
+  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess(data) {
       const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfacesGet', {
+      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         instanceName,
         ...others,
       })
@@ -51,7 +51,7 @@ export default function CreateNetworkInterfaceSideModalForm({
     onError,
   })
 
-  const vpcs = useApiQuery('projectVpcsGet', { ...pathParams, limit: 50 }).data?.items || []
+  const vpcs = useApiQuery('vpcList', { ...pathParams, limit: 50 }).data?.items || []
 
   return (
     <SideModalForm

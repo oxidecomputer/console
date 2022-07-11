@@ -23,6 +23,7 @@ export function ProfilePage() {
         required
         disabled
         fieldClassName="!cursor-default"
+        value={user?.id}
       />
       <span className="inline-block text-secondary">
         <span>Your user information is managed by your organization. </span>

@@ -40,9 +40,9 @@ export function CreateDiskSideModalForm({
   const pathParams = useParams('orgName', 'projectName')
   const addToast = useToast()
 
-  const createDisk = useApiMutation('projectDisksPost', {
+  const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('projectDisksGet', pathParams)
+      queryClient.invalidateQueries('diskList', pathParams)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

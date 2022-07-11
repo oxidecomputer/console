@@ -23,11 +23,11 @@ export function AttachDiskSideModalForm({
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
-  const attachDisk = useApiMutation('instanceDisksAttach', {
+  const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess(data) {
       const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required')
-      queryClient.invalidateQueries('instanceDisksGet', {
+      queryClient.invalidateQueries('instanceDiskList', {
         instanceName,
         ...others,
       })
@@ -41,7 +41,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('projectDisksGet', { ...pathParams, limit: 50 }).data?.items.filter(
+    useApiQuery('diskList', { ...pathParams, limit: 50 }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 

@@ -23,9 +23,9 @@ export function CreateSSHKeySideModalForm({
 }: CreateSideModalFormProps<SshKeyCreate, SshKey>) {
   const queryClient = useApiQueryClient()
 
-  const createSshKey = useApiMutation('sshkeysPost', {
+  const createSshKey = useApiMutation('sessionSshkeyCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('sshkeysGet', {})
+      queryClient.invalidateQueries('sessionSshkeyList', {})
       onSuccess?.(data)
       onDismiss()
     },

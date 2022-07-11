@@ -24,7 +24,7 @@ import {
 
 const OrgLayout = () => {
   const { orgName } = useParams('orgName')
-  const { data: projects } = useApiQuery('organizationProjectsGet', {
+  const { data: projects } = useApiQuery('projectList', {
     orgName,
     limit: 10,
   })

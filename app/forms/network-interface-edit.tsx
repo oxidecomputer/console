@@ -20,11 +20,11 @@ export default function EditNetworkInterfaceSideModalForm({
   const queryClient = useApiQueryClient()
   const pathParams = useParams('orgName', 'projectName')
 
-  const editNetworkInterface = useApiMutation('instanceNetworkInterfacesPutInterface', {
+  const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess(data) {
       const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfacesGet', {
+      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         instanceName,
         ...others,
       })

@@ -573,7 +573,7 @@ export const handlers = [
   ),
 
   rest.get<never, InstanceParams, Json<Api.InstanceSerialConsoleData> | GetErr>(
-    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/serial',
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console',
     (req, res) => {
       // TODO: Add support for query params
       return res(json(serial))

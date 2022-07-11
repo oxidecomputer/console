@@ -38,13 +38,13 @@ export const InstancesPage = () => {
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
-    queryClient.invalidateQueries('projectInstancesGet', projectParams)
+    queryClient.invalidateQueries('instanceList', projectParams)
 
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: refetchInstances,
   })
 
-  const { data: instances } = useApiQuery('projectInstancesGet', {
+  const { data: instances } = useApiQuery('instanceList', {
     ...projectParams,
     limit: 10, // to have same params as QueryTable
   })
@@ -64,7 +64,7 @@ export const InstancesPage = () => {
     )
   )
 
-  const { Table, Column } = useQueryTable('projectInstancesGet', projectParams, {
+  const { Table, Column } = useQueryTable('instanceList', projectParams, {
     refetchInterval: 5000,
     keepPreviousData: true,
   })

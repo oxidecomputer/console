@@ -20,11 +20,11 @@ export function EditOrgSideModalForm({
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const updateOrg = useApiMutation('organizationsPutOrganization', {
+  const updateOrg = useApiMutation('organizationUpdate', {
     onSuccess(org) {
-      queryClient.invalidateQueries('organizationsGet', {})
+      queryClient.invalidateQueries('organizationList', {})
       // avoid the org fetch when the org page loads since we have the data
-      queryClient.setQueryData('organizationsGetOrganization', { orgName: org.name }, org)
+      queryClient.setQueryData('organizationView', { orgName: org.name }, org)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

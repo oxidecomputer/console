@@ -26,15 +26,11 @@ export function CreateVpcSideModalForm({
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createVpc = useApiMutation('projectVpcsPost', {
+  const createVpc = useApiMutation('vpcCreate', {
     onSuccess(vpc) {
-      queryClient.invalidateQueries('projectVpcsGet', parentNames)
+      queryClient.invalidateQueries('vpcList', parentNames)
       // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData(
-        'projectVpcsGetVpc',
-        { ...parentNames, vpcName: vpc.name },
-        vpc
-      )
+      queryClient.setQueryData('vpcView', { ...parentNames, vpcName: vpc.name }, vpc)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

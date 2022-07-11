@@ -46,13 +46,13 @@ export const InstancePage = () => {
   const projectParams = pick(instanceParams, 'projectName', 'orgName')
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectInstancesGetInstance', instanceParams)
+      queryClient.invalidateQueries('instanceView', instanceParams)
     },
     // go to project instances list since there's no more instance
     onDelete: () => navigate('..'),
   })
 
-  const { data: instance } = useApiQuery('projectInstancesGetInstance', instanceParams, {
+  const { data: instance } = useApiQuery('instanceView', instanceParams, {
     refetchInterval: 5000,
   })
   const actions = useMemo(

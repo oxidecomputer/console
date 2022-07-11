@@ -35,10 +35,10 @@ export const useMakeInstanceActions = (
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
   const opts = { onSuccess: options.onSuccess }
-  const startInstance = useApiMutation('projectInstancesInstanceStart', opts)
-  const stopInstance = useApiMutation('projectInstancesInstanceStop', opts)
-  const rebootInstance = useApiMutation('projectInstancesInstanceReboot', opts)
-  const deleteInstance = useApiMutation('projectInstancesDeleteInstance', opts)
+  const startInstance = useApiMutation('instanceStart', opts)
+  const stopInstance = useApiMutation('instanceStop', opts)
+  const rebootInstance = useApiMutation('instanceReboot', opts)
+  const deleteInstance = useApiMutation('instanceDelete', opts)
 
   return useCallback((instance) => {
     const { name: instanceName } = instance

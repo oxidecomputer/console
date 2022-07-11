@@ -38,16 +38,16 @@ const OrgsPage = ({ modal }: OrgsPageProps) => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { Table, Column } = useQueryTable('organizationsGet', {})
+  const { Table, Column } = useQueryTable('organizationList', {})
   const queryClient = useApiQueryClient()
 
-  const { data: orgs } = useApiQuery('organizationsGet', {
+  const { data: orgs } = useApiQuery('organizationList', {
     limit: 10, // to have same params as QueryTable
   })
 
-  const deleteOrg = useApiMutation('organizationsDeleteOrganization', {
+  const deleteOrg = useApiMutation('organizationDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('organizationsGet', {})
+      queryClient.invalidateQueries('organizationList', {})
     },
   })
 

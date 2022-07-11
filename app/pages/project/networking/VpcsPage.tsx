@@ -32,7 +32,7 @@ interface VpcsPageProps {
 export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const projectParams = useParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
-  const { data: vpcs } = useApiQuery('projectVpcsGet', {
+  const { data: vpcs } = useApiQuery('vpcList', {
     ...projectParams,
     limit: 10, // to have same params as QueryTable
   })
@@ -49,7 +49,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
     )
   )
 
-  const { Table, Column } = useQueryTable('projectVpcsGet', projectParams)
+  const { Table, Column } = useQueryTable('vpcList', projectParams)
   return (
     <>
       <PageHeader>

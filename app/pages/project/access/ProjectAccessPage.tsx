@@ -48,17 +48,13 @@ export const ProjectAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useParams('orgName', 'projectName')
-  const { data: policy } = useApiQuery(
-    'organizationProjectsGetProjectPolicy',
-    projectParams
-  )
+  const { data: policy } = useApiQuery('projectPolicyView', projectParams)
 
   const rows = useUserAccessRows(policy, projectRoleOrder)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationProjectsPutProjectPolicy', {
-    onSuccess: () =>
-      queryClient.invalidateQueries('organizationProjectsGetProjectPolicy', projectParams),
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+    onSuccess: () => queryClient.invalidateQueries('projectPolicyView', projectParams),
     // TODO: handle 403
   })
 

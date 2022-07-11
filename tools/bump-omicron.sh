@@ -23,23 +23,27 @@ fi
 
 # note that this will fail unless the current console commit has a release on
 # dl.oxide.computer, i.e., it is a commit on main that has been pushed to GH.
-CONSOLE_VERSION=$(git rev-parse HEAD)
+NEW_CONSOLE_VERSION=$(git rev-parse HEAD)
 # short hash used in branch name to avoid collisions
-CONSOLE_VERSION_SHORT=$(git rev-parse --short HEAD)
-SHA2=$(curl --fail-with-body "https://dl.oxide.computer/releases/console/$CONSOLE_VERSION.sha256.txt")
+NEW_CONSOLE_VERSION_SHORT=$(git rev-parse --short HEAD)
+NEW_SHA2=$(curl --fail-with-body "https://dl.oxide.computer/releases/console/$NEW_CONSOLE_VERSION.sha256.txt")
 
 cd ../omicron
 git checkout main
 git pull
-git checkout -b "bump-console-$CONSOLE_VERSION_SHORT"
+git checkout -b "bump-console-$NEW_CONSOLE_VERSION_SHORT"
 
+# set COMMIT and SHA2 to old values so we can use COMMIT in the PR body
 source tools/console_version
 
 cat <<EOF > tools/console_version
-COMMIT="$CONSOLE_VERSION"
-SHA2="$SHA2"
+COMMIT="$NEW_CONSOLE_VERSION"
+SHA2="$NEW_SHA2"
 EOF
 
+TITLE="Bump console to latest main"
+BODY="Changes: https://github.com/oxidecomputer/console/compare/$COMMIT...$NEW_CONSOLE_VERSION"
+
 git add --all
-git commit -m "Bump console to latest main\n\nChanges: https://github.com/oxidecomputer/console/compare/$COMMIT...$CONSOLE_VERSION"
-gh pr create --fill
+git commit -m "$TITLE" -m "$BODY"
+gh pr create --title "$TITLE" --body "$BODY"

@@ -12,9 +12,8 @@ const errorCodeFormatter =
 
       // TODO: This is a temporary fix for the API; better messages should be provided from there
       case 'ObjectAlreadyExists':
-        if (method.endsWith('Post')) {
-          let resource = camelCaseToWords(method).slice(-2)[0]
-          resource = resource.endsWith('s') ? resource.slice(0, -1) : resource
+        if (method.endsWith('Create')) {
+          const resource = camelCaseToWords(method).slice(-2)[0].replace(/s$/, '')
           return `${capitalize(resource)} name already exists`
         }
         return undefined
