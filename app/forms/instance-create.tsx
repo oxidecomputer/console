@@ -7,6 +7,7 @@ import type {
   InstanceCreate,
   InstanceNetworkInterfaceAttachment,
 } from '@oxide/api'
+import { genName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
@@ -133,7 +134,7 @@ export default function CreateInstanceForm({
           const image = images.find((i) => values.globalImage === i.id)
           invariant(image, 'Expected image to be defined')
 
-          const bootDiskName = values.bootDiskName || `${values.name}-${image.name}`
+          const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
           await createDisk.mutateAsync({
             ...pageParams,

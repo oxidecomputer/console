@@ -39,3 +39,21 @@ export const firewallRuleGetToPut = (
 
 export const nullIfEmpty = (s: string | null | undefined): string | null =>
   typeof s === 'string' && s.trim().length > 0 ? s : null
+
+/**
+ * Generates a valid name given a list of strings. Must be given at least
+ * one string. If multiple strings are given, they will be truncated to
+ * equal lengths (if the result would be over the maximum 63 character limit)
+ * and a 6-character random string will be appended to the end.
+ */
+export const genName = (...parts: [string, ...string[]]) => {
+  const numParts = parts.length
+  const partLength = Math.floor(63 / numParts) - Math.ceil(6 / numParts) - 1
+  return (
+    parts
+      .map((part) => part.substring(0, partLength))
+      .join('-')
+      // generate random hex string of 6 characters
+      .concat(`-${Math.random().toString(16).substring(2, 8)}`)
+  )
+}
