@@ -2028,15 +2028,59 @@ export type NameSortMode = 'name_ascending'
  */
 export type NameOrIdSortMode = 'name_ascending' | 'name_descending' | 'id_ascending'
 
+export interface DiskViewByIdParams {
+  id: string
+}
+
+export interface ImageGlobalViewByIdParams {
+  id: string
+}
+
+export interface ImageViewByIdParams {
+  id: string
+}
+
+export interface InstanceViewByIdParams {
+  id: string
+}
+
+export interface InstanceNetworkInterfaceViewByIdParams {
+  id: string
+}
+
+export interface OrganizationViewByIdParams {
+  id: string
+}
+
+export interface ProjectViewByIdParams {
+  id: string
+}
+
+export interface SnapshotViewByIdParams {
+  id: string
+}
+
+export interface VpcRouterRouteViewByIdParams {
+  id: string
+}
+
+export interface VpcRouterViewByIdParams {
+  id: string
+}
+
+export interface VpcSubnetViewByIdParams {
+  id: string
+}
+
+export interface VpcViewByIdParams {
+  id: string
+}
+
 export interface DeviceAuthRequestParams {}
 
 export interface DeviceAuthConfirmParams {}
 
 export interface DeviceAccessTokenParams {}
-
-export interface DeviceAuthVerifyParams {
-  userCode?: string
-}
 
 export interface RackListParams {
   limit?: number | null
@@ -2855,6 +2899,135 @@ export class HttpClient {
 export class Api extends HttpClient {
   methods = {
     /**
+     * Get a disk by id
+     */
+    diskViewById: ({ id }: DiskViewByIdParams, params: RequestParams = {}) =>
+      this.request<Disk>({
+        path: `/by-id/disks/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a global image by id.
+     */
+    imageGlobalViewById: ({ id }: ImageGlobalViewByIdParams, params: RequestParams = {}) =>
+      this.request<GlobalImage>({
+        path: `/by-id/global-images/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Fetch an image by id
+     */
+    imageViewById: ({ id }: ImageViewByIdParams, params: RequestParams = {}) =>
+      this.request<Image>({
+        path: `/by-id/images/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get an instance by id.
+     */
+    instanceViewById: ({ id }: InstanceViewByIdParams, params: RequestParams = {}) =>
+      this.request<Instance>({
+        path: `/by-id/instances/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get an instance's network interface by id.
+     */
+    instanceNetworkInterfaceViewById: (
+      { id }: InstanceNetworkInterfaceViewByIdParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<NetworkInterface>({
+        path: `/by-id/network-interfaces/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get an organization by id
+     */
+    organizationViewById: (
+      { id }: OrganizationViewByIdParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<Organization>({
+        path: `/by-id/organizations/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a project by id
+     */
+    projectViewById: ({ id }: ProjectViewByIdParams, params: RequestParams = {}) =>
+      this.request<Project>({
+        path: `/by-id/projects/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a snapshot by id.
+     */
+    snapshotViewById: ({ id }: SnapshotViewByIdParams, params: RequestParams = {}) =>
+      this.request<Snapshot>({
+        path: `/by-id/snapshots/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a vpc router route by id
+     */
+    vpcRouterRouteViewById: (
+      { id }: VpcRouterRouteViewByIdParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<RouterRoute>({
+        path: `/by-id/vpc-router-routes/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a VPC Router by id
+     */
+    vpcRouterViewById: ({ id }: VpcRouterViewByIdParams, params: RequestParams = {}) =>
+      this.request<VpcRouter>({
+        path: `/by-id/vpc-routers/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a VPC subnet by id.
+     */
+    vpcSubnetViewById: ({ id }: VpcSubnetViewByIdParams, params: RequestParams = {}) =>
+      this.request<VpcSubnet>({
+        path: `/by-id/vpc-subnets/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Get a VPC by id.
+     */
+    vpcViewById: ({ id }: VpcViewByIdParams, params: RequestParams = {}) =>
+      this.request<Vpc>({
+        path: `/by-id/vpcs/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
      * Start an OAuth 2.0 Device Authorization Grant
      */
     deviceAuthRequest: (query: DeviceAuthRequestParams, params: RequestParams = {}) =>
@@ -2886,17 +3059,6 @@ export class Api extends HttpClient {
       this.request<void>({
         path: `/device/token`,
         method: 'POST',
-        ...params,
-      }),
-
-    /**
-     * Verify an OAuth 2.0 Device Authorization Grant
-     */
-    deviceAuthVerify: (query: DeviceAuthVerifyParams, params: RequestParams = {}) =>
-      this.request<void>({
-        path: `/device/verify`,
-        method: 'GET',
-        query,
         ...params,
       }),
 
@@ -3327,7 +3489,7 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * Fetch a single disk in a project.
+     * Get a single disk in a project.
      */
     diskView: (
       { diskName, orgName, projectName }: DiskViewParams,
