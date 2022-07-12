@@ -41,16 +41,17 @@ export const nullIfEmpty = (s: string | null | undefined): string | null =>
   typeof s === 'string' && s.trim().length > 0 ? s : null
 
 /**
- * Generates a valid name given a list of strings. Tries to balance the length of
- * each string to stay within the max length. Also appends a random 6 character hex
- * suffix to avoid name collisions.
+ * Generates a valid name given a list of strings. Must be given at least
+ * one string. If multiple strings are given, they will be truncated to
+ * equal lengths (if the result would be over the maximum 63 character limit)
+ * and a 6-character random string will be appended to the end.
  */
-export const genName = (firstPart: string, ...parts: string[]) => {
+export const genName = (...parts: [string, ...string[]]) => {
   const numParts = 1 + parts.length
   // 62 to account for the separator character which joins each part
   const partLength = Math.floor(62 / numParts) - Math.ceil(6 / numParts)
   return (
-    [firstPart, ...parts]
+    parts
       .map((part) => part.substring(0, partLength))
       .join('-')
       // generate random hex string of 6 characters
