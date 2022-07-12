@@ -43,7 +43,7 @@ test('nullIfEmpty', () => {
 })
 
 test('genName', () => {
-  expect(genName('a'.repeat(64), 'b'.repeat(64))).toMatch(/^a{28}-b{28}-[0-9a-f]{6}$/)
+  expect(genName('a'.repeat(64), 'b'.repeat(64))).toMatch(/^a{27}-b{27}-[0-9a-f]{6}$/)
   expect(genName('a'.repeat(64), 'b'.repeat(64), 'c'.repeat(64))).toMatch(
     /^a{18}-b{18}-c{18}-[0-9a-f]{6}$/
   )

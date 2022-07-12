@@ -47,9 +47,8 @@ export const nullIfEmpty = (s: string | null | undefined): string | null =>
  * and a 6-character random string will be appended to the end.
  */
 export const genName = (...parts: [string, ...string[]]) => {
-  const numParts = 1 + parts.length
-  // 62 to account for the separator character which joins each part
-  const partLength = Math.floor(62 / numParts) - Math.ceil(6 / numParts)
+  const numParts = parts.length
+  const partLength = Math.floor(63 / numParts) - Math.ceil(6 / numParts) - 1
   return (
     parts
       .map((part) => part.substring(0, partLength))
