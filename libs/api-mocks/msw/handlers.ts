@@ -20,7 +20,8 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
-import { lookupSshKey, notFoundErr } from './db'
+import { lookupById } from './db'
+import { lookupSshKey } from './db'
 import { lookupDisk } from './db'
 import { lookupGlobalImage } from './db'
 import {
@@ -898,9 +899,6 @@ export const handlers = [
 
   rest.get<never, IdParams, Json<Api.Instance> | GetErr>(
     '/api/by-id/instances/:id',
-    (req, res) => {
-      const instance = db.instances.find((i) => i.id === req.params.id)
-      return instance ? res(json(instance)) : res(notFoundErr)
-    }
+    lookupById(db.instances)
   ),
 ]

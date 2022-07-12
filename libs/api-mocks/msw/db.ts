@@ -1,3 +1,4 @@
+import { response } from 'msw'
 import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
@@ -31,6 +32,13 @@ export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 export type SshKeyParams = { sshKeyName: string }
 export type GlobalImageParams = { imageName: string }
 export type IdParams = { id: string }
+
+export const lookupById =
+  <T extends { id: string }>(table: T[]) =>
+  (req: { params: { id: string } }) => {
+    const item = table.find((i) => i.id === req.params.id) || notFoundErr
+    return response(item ? json(item) : notFoundErr)
+  }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)
