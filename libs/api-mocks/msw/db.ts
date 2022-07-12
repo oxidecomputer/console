@@ -32,7 +32,7 @@ export type SshKeyParams = { sshKeyName: string }
 export type GlobalImageParams = { imageName: string }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
-  const org = db.orgs.find((o) => o.name === params.orgName)
+  const org = db.organizations.find((o) => o.name === params.orgName)
   if (!org) return Err(notFoundErr)
   return Ok(org)
 }
@@ -144,7 +144,7 @@ const initDb = {
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
-  orgs: [mock.org],
+  organizations: [mock.org],
   projects: [mock.project],
   roleAssignments: [...mock.roleAssignments],
   snapshots: [...mock.snapshots],

@@ -126,13 +126,13 @@ export const handlers = [
 
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
-    (req, res) => res(json(paginated(req.url.search, db.orgs)))
+    (req, res) => res(json(paginated(req.url.search, db.organizations)))
   ),
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
     '/api/organizations',
     (req, res) => {
-      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+      const alreadyExists = db.organizations.some((o) => o.name === req.body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
       if (!req.body.name) {
@@ -144,7 +144,7 @@ export const handlers = [
         ...req.body,
         ...getTimestamps(),
       }
-      db.orgs.push(newOrg)
+      db.organizations.push(newOrg)
       return res(json(newOrg, 201))
     }
   ),
@@ -219,7 +219,7 @@ export const handlers = [
   rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
     const [org, err] = lookupOrg(req.params)
     if (err) return res(err)
-    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    db.organizations = db.organizations.filter((o) => o.id !== org.id)
     return res(ctx.status(204))
   }),
 
