@@ -49,7 +49,7 @@ test('genName', () => {
   )
 
   // Test a bunch of lengths to make sure we don't overflow the max length
-  for (let i = 2; i <= 128; i = 2 ** i) {
+  for (let i = 2; i <= 128; i = 2 * i) {
     const singlePartName = genName('a'.repeat(i))
     expect(singlePartName.length).toBeLessThanOrEqual(63)
     expect(singlePartName).toMatch(/^a+-[0-9a-f]{6}$/)
