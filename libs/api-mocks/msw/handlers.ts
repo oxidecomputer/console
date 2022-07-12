@@ -1,7 +1,8 @@
 import { compose, context, rest } from 'msw'
+import type { KebabCase } from 'type-fest'
 
 import type { ApiTypes as Api } from '@oxide/api'
-import { pick, sortBy } from '@oxide/util'
+import { camelCase, pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
 import { serial } from '../serial'
@@ -19,7 +20,7 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
-import { lookupSshKey } from './db'
+import { lookupSshKey, notFoundErr } from './db'
 import { lookupDisk } from './db'
 import { lookupGlobalImage } from './db'
 import {
@@ -894,4 +895,20 @@ export const handlers = [
       return res(ctx.status(200))
     }
   ),
+
+  rest.get<
+    never,
+    { resource: KebabCase<keyof typeof db>; id: string },
+    Json<typeof db[keyof typeof db][number]> | GetErr
+  >('/api/by-id/:resource/:id', (req, res) => {
+    const resource = camelCase(req.params.resource) as keyof typeof db
+    if (resource in db && db[resource]) {
+      const id = req.params.id
+      // @ts-expect-error TODO: Fix issue with find not being valid across the db resource types
+      const item: typeof db[keyof typeof db][number] = db[resource].find((x) => x.id === id)
+      return item ? res(json(item)) : res(notFoundErr)
+    } else {
+      return res(notFoundErr)
+    }
+  }),
 ]
