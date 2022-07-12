@@ -30,6 +30,7 @@ export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 export type SshKeyParams = { sshKeyName: string }
 export type GlobalImageParams = { imageName: string }
+export type IdParams = { id: string }
 
 export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)

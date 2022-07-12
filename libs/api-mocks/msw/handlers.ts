@@ -9,6 +9,7 @@ import { sessionMe } from '../session'
 import type {
   DiskParams,
   GlobalImageParams,
+  IdParams,
   InstanceParams,
   NetworkInterfaceParams,
   NotFound,
@@ -895,7 +896,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, { id: string }, Json<Api.Instance> | GetErr>(
+  rest.get<never, IdParams, Json<Api.Instance> | GetErr>(
     '/api/by-id/instances/:id',
     (req, res) => {
       const instance = db.instances.find((i) => i.id === req.params.id)
