@@ -9,6 +9,7 @@ import { sessionMe } from '../session'
 import type {
   DiskParams,
   GlobalImageParams,
+  IdParams,
   InstanceParams,
   NetworkInterfaceParams,
   NotFound,
@@ -19,6 +20,7 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
+import { lookupById } from './db'
 import { lookupSshKey } from './db'
 import { lookupDisk } from './db'
 import { lookupGlobalImage } from './db'
@@ -42,6 +44,10 @@ import { json, paginated } from './util'
 /// generate random 11 digit hex string, prefix optional
 const genId = (prefix?: string) =>
   (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 10e12).toString(16)
+
+// Helper function to remove some of the boilerplate from /by-id/ requests
+const getById = <T extends { id: string }>(path: string, table: T[]) =>
+  rest.get<never, IdParams, T | GetErr>(path, lookupById(table))
 
 function getTimestamps() {
   const now = new Date().toISOString()
@@ -894,4 +900,17 @@ export const handlers = [
       return res(ctx.status(200))
     }
   ),
+
+  getById('/api/by-id/organizations/:id', db.orgs),
+  getById('/api/by-id/projects/:id', db.projects),
+  getById('/api/by-id/instances/:id', db.instances),
+  getById('/api/by-id/network-interfaces/:id', db.networkInterfaces),
+  getById('/api/by-id/vpcs/:id', db.vpcs),
+  getById('/api/by-id/vpc-subnets/:id', db.vpcSubnets),
+  getById('/api/by-id/vpc-routers/:id', db.vpcRouters),
+  getById('/api/by-id/vpc-router-routes/:id', db.vpcRouterRoutes),
+  getById('/api/by-id/disks/:id', db.disks),
+  getById('/api/by-id/global-images/:id', db.globalImages),
+  getById('/api/by-id/images/:id', db.images),
+  getById('/api/by-id/snapshots/:id', db.snapshots),
 ]

@@ -25,14 +25,7 @@ function AttachedInstance(props: {
   projectName: string
   instanceId: string
 }) {
-  // HACK: workaround because there's no other way to go from an instance ID to
-  // name. Fetch the whole list (default page size is 100 I think) and find the
-  // instance client-side. Fortunately, React Query dedupes the request.
-  const { data: instances } = useApiQuery('instanceList', {
-    orgName: props.orgName,
-    projectName: props.projectName,
-  })
-  const instance = instances?.items.find((i) => i.id === props.instanceId)
+  const { data: instance } = useApiQuery('instanceViewById', { id: props.instanceId })
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
