@@ -1,13 +1,14 @@
 import React from 'react'
+import type { AsyncReturnType } from 'type-fest'
 
-import type { ApiMethods, ApiViewByIdMethods } from '@oxide/api'
+import type { ApiViewByIdMethods } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
 import type { Cell } from './Cell'
 
 interface IdLookupCellProps<M extends keyof ApiViewByIdMethods> {
   type: M
-  field: keyof Parameters<ApiViewByIdMethods[M]>[0]
+  field: keyof NonNullable<AsyncReturnType<ApiViewByIdMethods[M]>['data']>
   value: string
 }
 function IdLookupCell<M extends keyof ApiViewByIdMethods>({
@@ -15,18 +16,15 @@ function IdLookupCell<M extends keyof ApiViewByIdMethods>({
   field,
   value,
 }: IdLookupCellProps<M>) {
-  const { data } = useApiQuery(type, { id: value })
+  const { data } = useApiQuery<M>(type, { id: value })
   return (data && <span className="text-default">{data[field]}</span>) || null
 }
 
-type ByIdMethod<M> = M extends keyof ApiMethods
-  ? M extends `${string}ViewById`
-    ? M
-    : never
-  : never
-
 export const byIdCell =
-  <M,>(type: ByIdMethod<M>, field: keyof ApiMethods[ByIdMethod<M>]) =>
+  <M extends keyof ApiViewByIdMethods>(
+    type: IdLookupCellProps<M>['type'],
+    field: IdLookupCellProps<M>['field']
+  ) =>
   ({ value }: Cell<string>) => {
     return <IdLookupCell type={type} field={field} value={value} />
   }
