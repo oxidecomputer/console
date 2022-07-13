@@ -10,8 +10,6 @@ const api = new Api({
 
 export type ApiMethods = typeof api.methods
 
-export { ApiListMethods, ApiViewByIdMethods } from './__generated__/Api'
-
 export const useApiQuery = getUseApiQuery(api.methods, handleErrors)
 export const useApiMutation = getUseApiMutation(api.methods, handleErrors)
 export const useApiQueryClient = getUseApiQueryClient<ApiMethods>()
