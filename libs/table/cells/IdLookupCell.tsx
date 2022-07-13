@@ -16,7 +16,9 @@ function IdLookupCell<M extends keyof ApiViewByIdMethods>({
   field,
   value,
 }: IdLookupCellProps<M>) {
+  // @ts-expect-error TODO M isn't correctly narrowing the type down
   const { data } = useApiQuery<M>(type, { id: value })
+  // @ts-expect-error TODO Because data isn't narrowed correctly above this is an error too
   return (data && <span className="text-default">{data[field]}</span>) || null
 }
 
