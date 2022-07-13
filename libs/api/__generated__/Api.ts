@@ -2690,6 +2690,50 @@ export interface UserListParams {
   sortBy?: IdSortMode
 }
 
+export type ApiViewByIdMethods = Pick<
+  InstanceType<typeof Api>['methods'],
+  | 'diskViewById'
+  | 'imageGlobalViewById'
+  | 'imageViewById'
+  | 'instanceViewById'
+  | 'instanceNetworkInterfaceViewById'
+  | 'organizationViewById'
+  | 'projectViewById'
+  | 'snapshotViewById'
+  | 'vpcRouterRouteViewById'
+  | 'vpcRouterViewById'
+  | 'vpcSubnetViewById'
+  | 'vpcViewById'
+>
+
+export type ApiListMethods = Pick<
+  InstanceType<typeof Api>['methods'],
+  | 'rackList'
+  | 'sledList'
+  | 'imageGlobalList'
+  | 'ipPoolList'
+  | 'ipPoolRangeList'
+  | 'organizationList'
+  | 'projectList'
+  | 'diskList'
+  | 'imageList'
+  | 'instanceList'
+  | 'instanceDiskList'
+  | 'instanceNetworkInterfaceList'
+  | 'snapshotList'
+  | 'vpcList'
+  | 'vpcRouterList'
+  | 'vpcRouterRouteList'
+  | 'vpcSubnetList'
+  | 'roleList'
+  | 'sagaList'
+  | 'sessionSshkeyList'
+  | 'siloList'
+  | 'siloIdentityProviderList'
+  | 'systemUserList'
+  | 'userList'
+>
+
 const camelToSnake = (s: string) => s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
 
 const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())

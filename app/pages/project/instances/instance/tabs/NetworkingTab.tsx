@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
-import { useQueryTable } from '@oxide/table'
+import { byIdCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   Button,
@@ -93,11 +93,17 @@ export function NetworkingTab() {
       <h2 id="network-interfaces" className="mb-4 text-mono-sm text-secondary">
         Network Interfaces
       </h2>
-      <Table makeActions={makeActions} emptyState={emptyState}>
+      <Table debug makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
+        <Column header="vpc" accessor="vpcId" cell={byIdCell('vpcViewById', 'name')} />
+        <Column
+          header="subnet"
+          accessor="subnetId"
+          cell={byIdCell('vpcSubnetViewById', 'name')}
+        />
         <Column
           accessor="primary"
           cell={({ value }) =>
