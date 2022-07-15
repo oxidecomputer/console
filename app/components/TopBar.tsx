@@ -49,6 +49,14 @@ export function TopBar() {
           </span>
         </MenuButton>
         <MenuList className="mt-2">
+          {user?.displayName && (
+            <MenuItem
+              onSelect={() => {}}
+              className="cursor-default !text-default hover:!bg-raise"
+            >
+              {user.displayName}
+            </MenuItem>
+          )}
           <MenuItem
             onSelect={() => {
               navigate('/settings')
