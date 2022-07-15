@@ -93,7 +93,7 @@ export function NetworkingTab() {
       <h2 id="network-interfaces" className="mb-4 text-mono-sm text-secondary">
         Network Interfaces
       </h2>
-      <Table debug makeActions={makeActions} emptyState={emptyState}>
+      <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
