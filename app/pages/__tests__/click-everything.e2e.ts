@@ -152,7 +152,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'mock-subnet',
     '',
   ])
-  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, null, 'primary'])
+  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, null, null, 'primary'])
 
   // Make an edit to the network interface
   await page
