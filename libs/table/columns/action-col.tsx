@@ -15,36 +15,49 @@ export type MenuAction = {
 
 export const getActionsCol = <TGenerics extends TableGenerics>(
   makeActions: MakeActions<TGenerics['Row']>
-) => ({
-  id: 'menu',
-  header: '',
-  meta: { thClassName: 'w-12' },
-  cell: ({ row }: { row: Row<TGenerics> }) => {
-    // TODO: control flow here has always confused me, would like to straighten it out
-    const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
-    return (
-      <div className="flex justify-center">
-        <Menu>
-          {/* TODO: This name should not suck; future us, make it so! */}
-          <MenuButton aria-label="Row actions">
-            <More12Icon className="text-tertiary" />
-          </MenuButton>
-          <MenuList>
-            {actions.map((action) => {
-              return (
+) => {
+  return {
+    id: 'menu',
+    header: '',
+    meta: { thClassName: 'w-12' },
+
+    cell: ({ row }: { row: Row<TGenerics> }) => {
+      // TODO: control flow here has always confused me, would like to straighten it out
+      const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      const id = row.original?.id
+      return (
+        <div className="flex justify-center">
+          <Menu>
+            {/* TODO: This name should not suck; future us, make it so! */}
+            <MenuButton aria-label="Row actions">
+              <More12Icon className="text-tertiary" />
+            </MenuButton>
+            <MenuList>
+              {id && (
                 <MenuItem
-                  className={action.className}
-                  key={kebabCase(`action-${action.label}`)}
-                  onSelect={action.onActivate}
-                  disabled={action.disabled}
+                  onSelect={() => {
+                    window.navigator.clipboard.writeText(id)
+                  }}
                 >
-                  {action.label}
+                  Copy ID
                 </MenuItem>
-              )
-            })}
-          </MenuList>
-        </Menu>
-      </div>
-    )
-  },
-})
+              )}
+              {actions.map((action) => {
+                return (
+                  <MenuItem
+                    className={action.className}
+                    key={kebabCase(`action-${action.label}`)}
+                    onSelect={action.onActivate}
+                    disabled={action.disabled}
+                  >
+                    {action.label}
+                  </MenuItem>
+                )
+              })}
+            </MenuList>
+          </Menu>
+        </div>
+      )
+    },
+  }
+}
