@@ -687,7 +687,7 @@ export type Ipv4Net = string
 
 /** Regex pattern for validating Ipv4Net */
 export const ipv4NetPattern =
-  '(^(10.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9].){2}(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[0-9]|2[0-8]|[8-9]))$)|(^(172.16.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[2-9]|2[0-8]))$)|(^(192.168.(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9]).(25[0-5]|[1-2][0-4][0-9]|[1-9][0-9]|[0-9])/(1[6-9]|2[0-8]))$)'
+  '^(10.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/([8-9]|1[0-9]|2[0-9]|3[0-2])|172.(1[6-9]|2[0-9]|3[0-1]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(1[2-9]|2[0-9]|3[0-2])|192.168.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(1[6-9]|2[0-9]|3[0-2]))$'
 
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
@@ -706,7 +706,7 @@ export type Ipv6Net = string
 
 /** Regex pattern for validating Ipv6Net */
 export const ipv6NetPattern =
-  '^(fd|FD)[0-9a-fA-F]{2}:((([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,6}:))/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+  '^([fF][dD])[0-9a-fA-F]{2}:(([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:)/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
 
 /**
  * A non-decreasing IPv6 address range, inclusive of both ends.
@@ -740,7 +740,7 @@ export const macAddrPattern = '^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$'
 export type Name = string
 
 /** Regex pattern for validating Name */
-export const namePattern = '[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])'
+export const namePattern = '^[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])$'
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.
@@ -1282,13 +1282,6 @@ export type SamlIdentityProviderCreate = {
    * customer's technical contact for saml configuration
    */
   technicalContactEmail: string
-}
-
-/**
- * Client view of currently authed user.
- */
-export type SessionUser = {
-  id: string
 }
 
 /**
@@ -2689,6 +2682,50 @@ export interface UserListParams {
   pageToken?: string | null
   sortBy?: IdSortMode
 }
+
+export type ApiViewByIdMethods = Pick<
+  InstanceType<typeof Api>['methods'],
+  | 'diskViewById'
+  | 'imageGlobalViewById'
+  | 'imageViewById'
+  | 'instanceViewById'
+  | 'instanceNetworkInterfaceViewById'
+  | 'organizationViewById'
+  | 'projectViewById'
+  | 'snapshotViewById'
+  | 'vpcRouterRouteViewById'
+  | 'vpcRouterViewById'
+  | 'vpcSubnetViewById'
+  | 'vpcViewById'
+>
+
+export type ApiListMethods = Pick<
+  InstanceType<typeof Api>['methods'],
+  | 'rackList'
+  | 'sledList'
+  | 'imageGlobalList'
+  | 'ipPoolList'
+  | 'ipPoolRangeList'
+  | 'organizationList'
+  | 'projectList'
+  | 'diskList'
+  | 'imageList'
+  | 'instanceList'
+  | 'instanceDiskList'
+  | 'instanceNetworkInterfaceList'
+  | 'snapshotList'
+  | 'vpcList'
+  | 'vpcRouterList'
+  | 'vpcRouterRouteList'
+  | 'vpcSubnetList'
+  | 'roleList'
+  | 'sagaList'
+  | 'sessionSshkeyList'
+  | 'siloList'
+  | 'siloIdentityProviderList'
+  | 'systemUserList'
+  | 'userList'
+>
 
 const camelToSnake = (s: string) => s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
 
@@ -4297,7 +4334,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
-      this.request<SessionUser>({
+      this.request<User>({
         path: `/session/me`,
         method: 'GET',
         ...params,
@@ -4402,7 +4439,7 @@ export class Api extends HttpClient {
       params: RequestParams = {}
     ) =>
       this.request<IdentityProviderResultsPage>({
-        path: `/silos/${siloName}/identity_providers`,
+        path: `/silos/${siloName}/identity-providers`,
         method: 'GET',
         query,
         ...params,
@@ -4442,7 +4479,7 @@ export class Api extends HttpClient {
       params: RequestParams = {}
     ) =>
       this.request<SamlIdentityProvider>({
-        path: `/silos/${siloName}/saml_identity_providers`,
+        path: `/silos/${siloName}/saml-identity-providers`,
         method: 'POST',
         body,
         ...params,
@@ -4456,7 +4493,7 @@ export class Api extends HttpClient {
       params: RequestParams = {}
     ) =>
       this.request<SamlIdentityProvider>({
-        path: `/silos/${siloName}/saml_identity_providers/${providerName}`,
+        path: `/silos/${siloName}/saml-identity-providers/${providerName}`,
         method: 'GET',
         ...params,
       }),
