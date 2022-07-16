@@ -715,6 +715,27 @@ export const handlers = [
     }
   ),
 
+  rest.put<Json<Api.Vpc>, VpcParams, Json<Api.Vpc> | PostErr>(
+    '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
+    (req, res) => {
+      const [vpc, err] = lookupVpc(req.params)
+      if (err) return res(err)
+
+      if (req.body.name) {
+        vpc.name = req.body.name
+      }
+
+      if (typeof req.body.description === 'string') {
+        vpc.description = req.body.description
+      }
+
+      if (req.body.dns_name) {
+        vpc.dns_name = req.body.dns_name
+      }
+      return res(json(vpc, 200))
+    }
+  ),
+
   rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
