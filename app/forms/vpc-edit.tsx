@@ -30,10 +30,7 @@ export function EditVpcSideModalForm({
 
   const editVpc = useApiMutation('vpcUpdate', {
     onSuccess(vpc) {
-      console.log('vpc?', vpc)
       queryClient.invalidateQueries('vpcList', parentNames)
-      // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData('vpcView', { ...parentNames, vpcName: vpc.name }, vpc)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -55,7 +52,7 @@ export function EditVpcSideModalForm({
         onSubmit ??
         (({ name, description, dnsName }) => {
           invariant(initialValues.name, 'Initial vpc name is required to update the VPC')
-          return editVpc.mutate({
+          editVpc.mutate({
             ...parentNames,
             vpcName: initialValues.name,
             body: { name, description, dnsName },

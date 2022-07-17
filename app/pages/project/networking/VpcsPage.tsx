@@ -34,18 +34,18 @@ interface VpcsPageProps {
 
 export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const queryClient = useApiQueryClient()
-  const projectParams = useParams('orgName', 'projectName')
+  const { orgName, projectName } = useParams('orgName', 'projectName')
   const location = useLocation()
-  const { orgName, projectName } = projectParams
   const { data: vpcs } = useApiQuery('vpcList', {
-    ...projectParams,
+    orgName,
+    projectName,
     limit: 10, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList', projectParams)
+      queryClient.invalidateQueries('vpcList', { orgName, projectName })
     },
   })
 
@@ -59,7 +59,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
     {
       label: 'Delete',
       onActivate() {
-        deleteVpc.mutate({ ...projectParams, vpcName: vpc.name })
+        deleteVpc.mutate({ orgName, projectName, vpcName: vpc.name })
       },
     },
   ]
@@ -76,7 +76,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', projectParams)
+  const { Table, Column } = useQueryTable('vpcList', { orgName, projectName })
   return (
     <>
       <PageHeader>

@@ -268,6 +268,9 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await page.fill('role=textbox[name="Name"]', 'new-vpc')
   await page.click('role=button[name="Save changes"]')
 
+  // Close toast, it holds up the test for some reason
+  await page.click('role=button[name="Dismiss notification"]')
+
   await expectVisible(page, ['role=link[name="new-vpc"]'])
 
   await page.click('role=link[name="new-vpc"]')
