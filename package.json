@@ -117,7 +117,7 @@
     "jscodeshift": "^0.13.0",
     "jsdom": "^19.0.0",
     "lint-staged": "^12.4.1",
-    "msw": "^0.39.2",
+    "msw": "^0.44.2",
     "patch-package": "^6.4.7",
     "plop": "^2.7.6",
     "postcss": "^8.2.9",
