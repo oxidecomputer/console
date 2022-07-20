@@ -706,7 +706,7 @@ export type Ipv6Net = string
 
 /** Regex pattern for validating Ipv6Net */
 export const ipv6NetPattern =
-  '^([fF][dD])[0-9a-fA-F]{2}:(([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:)/(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-6])$'
+  '^([fF][dD])[0-9a-fA-F]{2}:(([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:)/([1-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])$'
 
 /**
  * A non-decreasing IPv6 address range, inclusive of both ends.
@@ -735,12 +735,13 @@ export type MacAddr = string
 export const macAddrPattern = '^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$'
 
 /**
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'.
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
  */
 export type Name = string
 
 /** Regex pattern for validating Name */
-export const namePattern = '^[a-z](|[a-zA-Z0-9-]*[a-zA-Z0-9])$'
+export const namePattern =
+  '^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$'
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.

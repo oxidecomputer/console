@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { UseQueryOptions } from '@tanstack/react-query'
+import { hashQueryKey } from '@tanstack/react-query'
 import type { AccessorFn } from '@tanstack/react-table'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
 import React from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
-import type { UseQueryOptions } from 'react-query'
-import { hashQueryKey } from 'react-query'
 import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'

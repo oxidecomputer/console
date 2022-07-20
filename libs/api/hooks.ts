@@ -3,8 +3,8 @@ import type {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-} from 'react-query'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
+} from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { ApiResponse, ErrorResponse } from './__generated__/Api'
 

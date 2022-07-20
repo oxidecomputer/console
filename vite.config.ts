@@ -1,8 +1,13 @@
 import react from '@vitejs/plugin-react'
+import dns from 'dns'
 import { resolve } from 'path'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import tsConfig from './tsconfig.json'
+
+// Make Vite say localhost instead of 127.0.0.1 in startup message.
+// See https://vitejs.dev/config/server-options.html#server-host
+dns.setDefaultResultOrder('verbatim')
 
 const mapObj = <V0, V>(
   obj: Record<string, V0>,

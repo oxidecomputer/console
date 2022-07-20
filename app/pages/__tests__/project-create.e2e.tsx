@@ -7,6 +7,15 @@ test.describe('Project create', () => {
     await page.goto('/orgs/maze-war/projects/new')
   })
 
+  test('contains expected elements', async ({ page }) => {
+    await expectVisible(page, [
+      'role=heading[name*="Create project"]', // TODO: standardize capitalization
+      'role=textbox[name="Name"]',
+      'role=textbox[name="Description"]',
+      'role=button[name="Create project"][disabled]',
+    ])
+  })
+
   test('navigates back to project instances page on success', async ({ page }) => {
     await page.fill('role=textbox[name="Name"]', 'mock-project-2')
     await page.click('role=button[name="Create project"]')
