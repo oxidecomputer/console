@@ -1,66 +1,14 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
+import { expectNotVisible, expectVisible } from 'app/util/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
-  await page.goto('/')
-  await expectVisible(page, [
-    // note substring matcher bc headers have icons that mess with accessible name
-    // TODO: maybe that's bad and we should fix it in the code
-    'role=heading[name*="Organizations"]',
-    'role=cell[name="maze-war"]',
-  ])
-
-  // create org form
-  await page.click('role=link[name="New Organization"]')
-  await expectVisible(page, [
-    'role=heading[name*="Create organization"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="Create organization"][disabled]',
-  ])
-  await page.goBack()
-
-  // org page (redirects to /org/org-name/projects)
-  await page.click('role=link[name="maze-war"]')
-  await expectVisible(page, [
-    'role=heading[name*="Projects"]',
-    'role=cell[name="mock-project"]',
-  ])
-
-  // create project form
-  await page.click('role=link[name="New Project"]')
-  await expectVisible(page, [
-    'role=heading[name*="Create project"]', // TODO: standardize capitalization
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="Create project"][disabled]',
-  ])
-  await page.goBack()
+  await page.goto('/orgs/maze-war/projects')
 
   // Project page (instances list)
   await page.click('role=link[name="mock-project"]')
   await expectVisible(page, ['role=heading[name*="Instances"]', 'role=cell[name="db1"]'])
 
-  // Instance create form
-  await page.click('role=link[name="New Instance"]')
-  await expectVisible(page, [
-    'role=heading[name*="Create instance"]',
-    'role=heading[name="Hardware"]',
-    'role=heading[name="Boot disk"]',
-    'role=heading[name="Additional disks"]',
-    'role=heading[name="Networking"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=textbox[name="Disk name"]',
-    'role=spinbutton[name="Disk size (GiB)"]',
-    'role=radiogroup[name="Network interface"]',
-    'role=textbox[name="Hostname"]',
-    'role=button[name="Create instance"][disabled]',
-  ])
-  await page.goBack()
-
-  // Instance detail
   await page.click('role=link[name="db1"]')
   await expectVisible(page, [
     'role=heading[name*=db1]',
@@ -75,101 +23,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     // TODO: assert minitable contents
   ])
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
-
-  // Stop instance
-  await page.click('role=button[name="Instance actions"]')
-  await page.click('role=menuitem[name="Stop"]')
-  // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Dismiss notification"]')
-
-  // New disk form
-  await page.click('role=button[name="Create new disk"]')
-  await expectVisible(page, [
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=radiogroup[name="Block size (Bytes)"]',
-    'role=spinbutton[name="Size (GiB)"]',
-    'role=button[name="Create Disk"][disabled]',
-  ])
-  await page.click('role=button[name="Cancel"]')
-
-  // Attach existing disk form
-  await page.click('role=button[name="Attach existing disk"]')
-  await page.click('role=button[name="Disk name"]')
-  await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
-
-  // Attach disk-3
-  await page.click('role=option[name="disk-3"]')
-  await page.click('role=button[name="Attach Disk"]')
-  await expectVisible(page, [
-    'role=table[name="Attached disks"] >> role=cell[name="disk-3"]',
-  ])
-
-  // Instance networking tab
-  await page.click('role=tab[name="Networking"]')
-  await expectRowVisible(page, 'my-nic', [
-    '',
-    'my-nic',
-    'a network interface',
-    '172.30.0.10',
-    'primary',
-  ])
-  await page.click('role=button[name="Add network interface"]')
-
-  // Add network interface
-  // TODO: modal title is not getting hooked up, IDs are wrong
-  await expectVisible(page, [
-    'role=heading[name="Add network interface"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="VPC"]', // listbox
-    'role=button[name="Subnet"]', // listbox
-    'role=textbox[name="IP Address"]',
-  ])
-
-  await page.fill('role=textbox[name="Name"]', 'nic-2')
-  await page.click('role=button[name="VPC"]')
-  await page.click('role=option[name="mock-vpc"]')
-  await page.click('role=button[name="Subnet"]')
-  await page.click('role=option[name="mock-subnet"]')
-  await page.click('role=button[name="Add network interface"]')
-  await expectVisible(page, ['role=cell[name="nic-2"]'])
-
-  // Make this interface primary
-  await page
-    .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Make primary"]')
-  await expectRowVisible(page, 'my-nic', [
-    '',
-    'my-nic',
-    'a network interface',
-    '172.30.0.10',
-    '',
-  ])
-  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, 'primary'])
-
-  // Make an edit to the network interface
-  await page
-    .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Edit"]')
-  await page.fill('role=textbox[name="Name"]', 'nic-3')
-  await page.click('role=button[name="Save changes"]')
-  await expectNotVisible(page, ['role=cell[name="nic-2"]'])
-  await expectVisible(page, ['role=cell[name="nic-3"]'])
-
-  // Delete just-added network interface
-  await page
-    .locator('role=row', { hasText: 'nic-3' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Dismiss notification"]')
-  await expectNotVisible(page, ['role=cell[name="nic-3"]'])
 
   // Snapshots page
   await page.click('role=link[name*="Snapshots"]')
