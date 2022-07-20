@@ -14,6 +14,8 @@ test('Instance networking tab', async ({ page }) => {
     'my-nic',
     'a network interface',
     '172.30.0.10',
+    'mock-vpc',
+    'mock-subnet',
     'primary',
   ])
 
@@ -52,9 +54,11 @@ test('Instance networking tab', async ({ page }) => {
     'my-nic',
     'a network interface',
     '172.30.0.10',
+    'mock-vpc',
+    'mock-subnet',
     '',
   ])
-  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, 'primary'])
+  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, null, null, 'primary'])
 
   // Make an edit to the network interface
   await page
