@@ -87,7 +87,11 @@ export function DisksPage({ modal }: DisksPageProps) {
           New Disk
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
+      <Table
+        emptyState={<EmptyState />}
+        makeActions={makeActions}
+        onSelect={(item) => console.log(item)}
+      >
         <Column accessor="name" header="Disk" />
         {/* TODO: show info about the instance it's attached to */}
         <Column

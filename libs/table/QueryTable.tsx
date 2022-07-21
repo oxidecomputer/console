@@ -17,7 +17,7 @@ import { isOneOf } from '@oxide/util'
 
 import { Table, createTable } from './Table'
 import { DefaultCell } from './cells'
-import { getActionsCol, getSelectCol } from './columns'
+import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
 
 interface UseQueryTableResult<Item> {
@@ -44,7 +44,7 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   return { Table, Column: QueryTableColumn }
 }
 
-interface QueryTableProps<Item> {
+type QueryTableProps<Item> = {
   /** Prints table data in the console when enabled */
   debug?: boolean
   /** Function that produces a list of actions from a row item */
@@ -53,7 +53,20 @@ interface QueryTableProps<Item> {
   pageSize?: number
   children: React.ReactNode
   emptyState: React.ReactElement
-}
+} & (
+  | {
+      onSelect: (selection: Item) => void
+      onMultiSelect?: never
+    }
+  | {
+      onSelect?: never
+      onMultiSelect: (selections: Item[]) => void
+    }
+  | {
+      onSelect?: never
+      onMultiSelect?: never
+    }
+)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item,>(
@@ -68,6 +81,8 @@ const makeQueryTable = <Item,>(
     pagination = 'page',
     pageSize = 10,
     emptyState,
+    onSelect,
+    onMultiSelect,
   }: QueryTableProps<Item>) {
     invariant(
       isOneOf(children, [QueryTableColumn]),
@@ -101,12 +116,18 @@ const makeQueryTable = <Item,>(
         )
       })
 
+      if (onSelect) {
+        columns = [getSelectCol(), ...columns]
+      } else if (onMultiSelect) {
+        columns = [getMultiSelectCol(), ...columns]
+      }
+
       if (makeActions) {
-        columns = [getSelectCol(), ...columns, getActionsCol(makeActions)]
+        columns = [...columns, getActionsCol(makeActions)]
       }
 
       return columns
-    }, [children, tableHelper, makeActions])
+    }, [children, tableHelper, makeActions, onSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -124,6 +145,8 @@ const makeQueryTable = <Item,>(
       getRowId,
       getCoreRowModel: getCoreRowModel(),
       manualPagination: true,
+      enableRowSelection: !!onSelect,
+      enableMultiRowSelection: !!onMultiSelect,
     })
 
     if (debug) console.table((data as { items?: any[] })?.items || data)

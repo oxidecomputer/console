@@ -1,9 +1,17 @@
 import type { Row, TableInstance } from '@tanstack/react-table'
 
-import { Checkbox } from '@oxide/ui'
+import { Checkbox, Radio } from '@oxide/ui'
 
 // only needs to be a function because of the generic params
 export const getSelectCol = <TGenerics,>() => ({
+  id: 'select',
+  meta: { thClassName: 'w-10' },
+  cell: ({ row }: { row: Row<TGenerics> }) => (
+    <Radio checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
+  ),
+})
+
+export const getMultiSelectCol = <TGenerics,>() => ({
   id: 'select',
   meta: { thClassName: 'w-10' },
   header: ({ instance }: { instance: TableInstance<TGenerics> }) => (
