@@ -142,20 +142,21 @@ describe('functions returning JSX', () => {
 
     expect(result).toMatchInlineSnapshot(`
       "\\"use strict\\";
-      
+
       var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
-      
+
       Object.defineProperty(exports, \\"__esModule\\", {
         value: true
       });
       exports.Button = void 0;
-      
+
       var _extends2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/extends\\"));
-      
-      const Button = forwardRef(({
-        children,
-        ...props
-      }, ref) => {
+
+      const Button = forwardRef((_ref, ref) => {
+        let {
+          children,
+          ...props
+        } = _ref;
         return /*#__PURE__*/React.createElement(\\"button\\", (0, _extends2.default)({
           ref: ref,
           type: \\"button\\"

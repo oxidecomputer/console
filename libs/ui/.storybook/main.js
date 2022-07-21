@@ -31,6 +31,7 @@ module.exports = {
   },
   core: {
     builder: 'webpack5',
+    disableTelemetry: true,
   },
   stories: findStoryPaths().map((storyPath) => ({
     directory: storyPath,
