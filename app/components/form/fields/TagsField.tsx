@@ -1,4 +1,4 @@
-import { Button, FieldLabel, TextFieldHint } from '@oxide/ui'
+import { Button, FieldLabel, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 export interface TagsFieldProps {
@@ -17,7 +17,7 @@ export function TagsField(props: TagsFieldProps) {
         {title || capitalize(name)}
       </FieldLabel>
       {/* TODO: Should TextFieldHint be grouped with FieldLabel? */}
-      {hint && <TextFieldHint id={`${id}-hint`}>{hint}</TextFieldHint>}
+      {hint && <TextInputHint id={`${id}-hint`}>{hint}</TextInputHint>}
       <Button
         variant="default"
         size="sm"

@@ -1,7 +1,7 @@
 import cn from 'classnames'
 
 import type { RadioGroupProps } from '@oxide/ui'
-import { FieldLabel, RadioGroup, TextFieldHint } from '@oxide/ui'
+import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
 
 // TODO: Centralize these docstrings perhaps on the `FieldLabel` component?
 export interface RadioFieldProps extends Omit<RadioGroupProps, 'name'> {
@@ -48,7 +48,7 @@ export function RadioField({
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
       <RadioGroup
         name={name}
