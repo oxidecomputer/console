@@ -57,12 +57,12 @@ test.describe('VpcPage', () => {
     await page.fill('input[name=name]', 'my-new-rule')
     await page.locator('text=Outgoing').click()
 
-    await page.fill('text="Priority"', '5')
+    await page.fill('role=spinbutton[name="Priority"]', '5')
 
     // add target VPC "my-target-vpc"
     await page.locator('role=button[name="Target type"]').click()
     await page.locator('role=option[name="VPC"]').click()
-    await page.fill('text="Target name"', 'my-target-vpc')
+    await page.fill('role=textbox[name="Target name"]', 'my-target-vpc')
     await page.locator('text="Add target"').click()
 
     // target is added to targets table
@@ -71,14 +71,14 @@ test.describe('VpcPage', () => {
     // add host filter instance "host-filter-instance"
     await page.locator('role=button[name="Host type"]').click()
     await page.locator('role=option[name="Instance"]').click()
-    await page.fill('text="Value"', 'host-filter-instance')
+    await page.fill('role=textbox[name="Value"]', 'host-filter-instance')
     await page.locator('text="Add host filter"').click()
 
     // host is added to hosts table
     await expect(page.locator('td:has-text("host-filter-instance")')).toBeVisible()
 
     // TODO: test invalid port range once I put an error message in there
-    await page.fill('text="Port filter"', '123-456')
+    await page.fill('role=textbox[name="Port filter"]', '123-456')
     await page.locator('text="Add port filter"').click()
 
     // port range is added to port ranges table
@@ -158,7 +158,7 @@ test.describe('VpcPage', () => {
     // add host filter
     await page.locator('role=button[name="Host type"]').click()
     await page.locator('role=option[name="Instance"]').click()
-    await page.fill('text="Value"', 'edit-filter-instance')
+    await page.fill('role=textbox[name="Value"]', 'edit-filter-instance')
     await page.locator('text="Add host filter"').click()
 
     // new host is added to hosts table

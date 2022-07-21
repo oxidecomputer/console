@@ -1,3 +1,4 @@
+export * from './CheckboxField'
 export * from './DescriptionField'
 export * from './DiskSizeField'
 export * from './DisksTableField'

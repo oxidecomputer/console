@@ -1,6 +1,4 @@
 import cn from 'classnames'
-import type { FieldAttributes } from 'formik'
-import { Field } from 'formik'
 
 import { Checkmark12Icon } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -53,12 +51,4 @@ export const Checkbox = ({
 
     {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
   </label>
-)
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CheckboxFieldProps = CheckboxProps & Omit<FieldAttributes<any>, 'type'>
-
-/** Formik Field version of Checkbox */
-export const CheckboxField = (props: CheckboxFieldProps) => (
-  <Field type="checkbox" as={Checkbox} {...props} />
 )
