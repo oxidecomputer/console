@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -17,6 +18,26 @@ import {
 import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceSideModalForm from 'app/forms/network-interface-edit'
 import { useParams, useToast } from 'app/hooks'
+
+const VpcNameFromId = ({ value }: { value: string }) => {
+  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { data: vpc } = useApiQuery('vpcViewById', { id: value })
+  if (!vpc) return null
+  return (
+    <Link
+      className="text-sans-semi-md text-accent hover:underline"
+      to={`/orgs/${orgName}/projects/${projectName}/vpcs/${vpc.name}`}
+    >
+      {vpc.name}
+    </Link>
+  )
+}
+
+const SubnetNameFromId = ({ value }: { value: string }) => (
+  <span className="text-default">
+    {useApiQuery('vpcSubnetViewById', { id: value }).data?.name}
+  </span>
+)
 
 export function NetworkingTab() {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
@@ -98,6 +119,8 @@ export function NetworkingTab() {
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
+        <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
+        <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
         <Column
           accessor="primary"
           cell={({ value }) =>

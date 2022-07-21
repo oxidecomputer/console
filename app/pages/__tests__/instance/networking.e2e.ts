@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
 
@@ -14,8 +14,16 @@ test('Instance networking tab', async ({ page }) => {
     'my-nic',
     'a network interface',
     '172.30.0.10',
+    'mock-vpc',
+    'mock-subnet',
     'primary',
   ])
+
+  // check VPC link in table points to the right page
+  await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
+    'href',
+    '/orgs/maze-war/projects/mock-project/vpcs/mock-vpc'
+  )
 
   // Have to stop instance to edit NICs
   await stopInstance(page)
@@ -52,9 +60,11 @@ test('Instance networking tab', async ({ page }) => {
     'my-nic',
     'a network interface',
     '172.30.0.10',
+    'mock-vpc',
+    'mock-subnet',
     '',
   ])
-  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, 'primary'])
+  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, null, null, 'primary'])
 
   // Make an edit to the network interface
   await page

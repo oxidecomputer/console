@@ -126,7 +126,7 @@ const makeQueryTable = <Item,>(
       manualPagination: true,
     })
 
-    if (debug) console.table(data)
+    if (debug) console.table((data as { items?: any[] })?.items || data)
 
     const paginationParams = useMemo(
       () => ({
