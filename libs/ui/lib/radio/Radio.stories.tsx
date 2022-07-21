@@ -1,7 +1,6 @@
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
-import { FormikDecorator } from '../../util/formik-decorator'
 import { Radio, RadioCard } from './Radio'
 
 type Story = StoryObj<ComponentProps<typeof Radio>>
@@ -12,7 +11,6 @@ export default {
     checked: { control: 'boolean' },
     children: { control: 'text' },
   },
-  decorators: [FormikDecorator()],
 } as Story
 
 export const All = () => {

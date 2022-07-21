@@ -1,20 +1,22 @@
 import cn from 'classnames'
+import type { FieldValidator } from 'formik'
+import { useField } from 'formik'
 
 import type {
   TextAreaProps as UITextAreaProps,
-  TextFieldBaseProps as UITextFieldProps,
+  TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextFieldError } from '@oxide/ui'
-import { TextFieldHint } from '@oxide/ui'
-import { FieldLabel, TextField as UITextField } from '@oxide/ui'
+import { TextInputError } from '@oxide/ui'
+import { TextInputHint } from '@oxide/ui'
+import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
-
-import { useFieldError } from '../../../hooks/useFieldError'
 
 export interface TextFieldProps extends UITextFieldProps {
   id: string
   /** Will default to id if not provided */
   name?: string
+  /** HTML type attribute, defaults to text */
+  type?: string
   /** Will default to name if not provided */
   label?: string
   /**
@@ -35,17 +37,20 @@ export interface TextFieldProps extends UITextFieldProps {
   description?: string
   placeholder?: string
   units?: string
+  validate?: FieldValidator
 }
 
 export function TextField({
   id,
   name = id,
+  type = 'text',
   label = capitalize(name),
   units,
+  validate,
   ...props
 }: TextFieldProps & UITextAreaProps) {
   const { description, helpText, required } = props
-  const error = useFieldError(name)
+  const [field, meta] = useField({ name, validate, type })
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -53,19 +58,20 @@ export function TextField({
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
       </div>
-      {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+      {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       <UITextField
         id={id}
-        name={name}
         title={label}
-        error={!!error}
+        type={type}
+        error={!!meta.error}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
         })}
         aria-describedby={description ? `${id}-label-tip` : undefined}
         {...props}
+        {...field}
       />
-      <TextFieldError name={name} />
+      <TextInputError>{meta.error}</TextInputError>
     </div>
   )
 }

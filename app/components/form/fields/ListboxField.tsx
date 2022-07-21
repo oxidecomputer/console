@@ -1,7 +1,7 @@
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import { FieldLabel, Listbox, TextFieldHint } from '@oxide/ui'
+import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 
 export type ListboxFieldProps = {
   name: string
@@ -35,7 +35,7 @@ export function ListboxField({
         <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
           {label}
         </FieldLabel>
-        {helpText && <TextFieldHint id={`${id}-help-text`}>{helpText}</TextFieldHint>}
+        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
       <Listbox
         defaultValue={value}

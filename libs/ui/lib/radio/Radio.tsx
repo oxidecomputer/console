@@ -6,7 +6,6 @@
  * difference is that label content is handled through children.
  */
 import cn from 'classnames'
-import { Field } from 'formik'
 import type { ComponentProps } from 'react'
 
 // input type is fixed to "radio"
@@ -24,7 +23,7 @@ const fieldStyles = `
 export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
   <label className="inline-flex items-center">
     <span className="relative h-4 w-4">
-      <Field className={cn(fieldStyles, className)} type="radio" {...inputProps} />
+      <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
       <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
     </span>
@@ -51,7 +50,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   const focus = className?.includes(':focus') ? ':focus' : ''
   return (
     <label className="inline-flex items-center">
-      <Field className={cn(focus, 'peer sr-only')} type="radio" {...inputProps} />
+      <input className={cn(focus, 'peer sr-only')} type="radio" {...inputProps} />
       <span className={cn('ox-radio-card divide-y', cardLabelStyles, className)}>
         {children}
       </span>
