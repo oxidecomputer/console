@@ -3,7 +3,7 @@ import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashQueryKey } from '@tanstack/react-query'
 import type { AccessorFn } from '@tanstack/react-table'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
@@ -55,12 +55,12 @@ type QueryTableProps<Item> = {
   emptyState: React.ReactElement
 } & (
   | {
-      onSelect: (selection: Item) => void
+      onSelect: (selection: string) => void
       onMultiSelect?: never
     }
   | {
       onSelect?: never
-      onMultiSelect: (selections: Item[]) => void
+      onMultiSelect: (selections: string[]) => void
     }
   | {
       onSelect?: never
@@ -89,6 +89,13 @@ const makeQueryTable = <Item,>(
       'QueryTable can only have Column as a child'
     )
 
+    const [rowSelection, setRowSelection] = React.useState({})
+    useEffect(() => {
+      const selected = Object.keys(rowSelection)
+      onSelect?.(selected[0])
+      onMultiSelect?.(selected)
+    }, [rowSelection, onSelect, onMultiSelect])
+
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
@@ -116,10 +123,8 @@ const makeQueryTable = <Item,>(
         )
       })
 
-      if (onSelect) {
-        columns = [getSelectCol(), ...columns]
-      } else if (onMultiSelect) {
-        columns = [getMultiSelectCol(), ...columns]
+      if (onSelect || onMultiSelect) {
+        columns = [onSelect ? getSelectCol() : getMultiSelectCol(), ...columns]
       }
 
       if (makeActions) {
@@ -137,16 +142,20 @@ const makeQueryTable = <Item,>(
 
     const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
 
-    const getRowId = useCallback((row) => row.id, [])
+    const getRowId = useCallback((row) => row.name, [])
 
     const table = useTableInstance(tableHelper, {
       columns,
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
+      state: {
+        rowSelection,
+      },
       manualPagination: true,
       enableRowSelection: !!onSelect,
       enableMultiRowSelection: !!onMultiSelect,
+      onRowSelectionChange: setRowSelection,
     })
 
     if (debug) console.table((data as { items?: any[] })?.items || data)

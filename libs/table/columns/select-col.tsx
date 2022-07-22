@@ -6,9 +6,11 @@ import { Checkbox, Radio } from '@oxide/ui'
 export const getSelectCol = <TGenerics,>() => ({
   id: 'select',
   meta: { thClassName: 'w-10' },
-  cell: ({ row }: { row: Row<TGenerics> }) => (
-    <Radio checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
-  ),
+  header: '',
+  cell: ({ row }: { row: Row<TGenerics>; instance: TableInstance<TGenerics> }) => {
+    // `onChange` is empty to suppress react warning. Actual trigger happens in `Table.tsx`
+    return <Radio checked={row.getIsSelected()} onChange={() => {}} />
+  },
 })
 
 export const getMultiSelectCol = <TGenerics,>() => ({
@@ -24,6 +26,7 @@ export const getMultiSelectCol = <TGenerics,>() => ({
     </div>
   ),
   cell: ({ row }: { row: Row<TGenerics> }) => (
-    <Checkbox checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
+    // `onChange` is empty to suppress react warning. Actual trigger happens in `Table.tsx`
+    <Checkbox checked={row.getIsSelected()} onChange={() => {}} />
   ),
 })

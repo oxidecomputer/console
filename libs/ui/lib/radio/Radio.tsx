@@ -28,7 +28,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
       <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
     </span>
 
-    <span className="ml-2.5 text-sans-md text-secondary">{children}</span>
+    {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
   </label>
 )
 

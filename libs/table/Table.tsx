@@ -1,5 +1,6 @@
 import type { TableInstance } from '@tanstack/react-table'
 import { createTable as _createTable } from '@tanstack/react-table'
+import cn from 'classnames'
 
 import { Table as UITable } from '@oxide/ui'
 
@@ -47,13 +48,36 @@ export const Table = <TGenerics extends OurTableGenerics>({
       ))}
     </UITable.Header>
     <UITable.Body>
-      {table.getRowModel().rows.map((row) => (
-        <UITable.Row className={rowClassName} selected={row.getIsSelected()} key={row.id}>
-          {row.getAllCells().map((cell) => (
-            <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
-          ))}
-        </UITable.Row>
-      ))}
+      {table.getRowModel().rows.map((row) => {
+        const onSingleSelect = row.getCanSelect()
+          ? () => {
+              table.resetRowSelection()
+              row.toggleSelected()
+            }
+          : undefined
+        const onMultiSelect = row.getCanMultiSelect()
+          ? () => row.toggleSelected()
+          : undefined
+        const [firstCell, ...cells] = row.getAllCells()
+        return (
+          <UITable.Row
+            className={cn(rowClassName, { 'cursor-pointer': !!onSingleSelect })}
+            selected={row.getIsSelected()}
+            key={row.id}
+            onClick={onSingleSelect}
+          >
+            <UITable.Cell
+              onClick={onMultiSelect}
+              className={cn({ 'cursor-pointer': !!onMultiSelect })}
+            >
+              {firstCell.renderCell()}
+            </UITable.Cell>
+            {cells.map((cell) => (
+              <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
+            ))}
+          </UITable.Row>
+        )
+      })}
     </UITable.Body>
   </UITable>
 )
