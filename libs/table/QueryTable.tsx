@@ -3,7 +3,7 @@ import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashQueryKey } from '@tanstack/react-query'
 import type { AccessorFn } from '@tanstack/react-table'
 import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
@@ -17,7 +17,7 @@ import { isOneOf } from '@oxide/util'
 
 import { Table, createTable } from './Table'
 import { DefaultCell } from './cells'
-import { getActionsCol, getSelectCol } from './columns'
+import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
 
 interface UseQueryTableResult<Item> {
@@ -44,7 +44,7 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   return { Table, Column: QueryTableColumn }
 }
 
-interface QueryTableProps<Item> {
+type QueryTableProps<Item> = {
   /** Prints table data in the console when enabled */
   debug?: boolean
   /** Function that produces a list of actions from a row item */
@@ -53,7 +53,20 @@ interface QueryTableProps<Item> {
   pageSize?: number
   children: React.ReactNode
   emptyState: React.ReactElement
-}
+} & (
+  | {
+      onSelect: (selection: string) => void
+      onMultiSelect?: never
+    }
+  | {
+      onSelect?: never
+      onMultiSelect: (selections: string[]) => void
+    }
+  | {
+      onSelect?: never
+      onMultiSelect?: never
+    }
+)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item,>(
@@ -68,16 +81,25 @@ const makeQueryTable = <Item,>(
     pagination = 'page',
     pageSize = 10,
     emptyState,
+    onSelect,
+    onMultiSelect,
   }: QueryTableProps<Item>) {
     invariant(
       isOneOf(children, [QueryTableColumn]),
       'QueryTable can only have Column as a child'
     )
 
+    const [rowSelection, setRowSelection] = React.useState({})
+    useEffect(() => {
+      const selected = Object.keys(rowSelection)
+      onSelect?.(selected[0])
+      onMultiSelect?.(selected)
+    }, [rowSelection, onSelect, onMultiSelect])
+
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
-      let columns = React.Children.toArray(children).map((child) => {
+      const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
 
         // QueryTableColumnProps ensures `id` is passed in if and only if
@@ -101,12 +123,18 @@ const makeQueryTable = <Item,>(
         )
       })
 
+      if (onSelect) {
+        columns.unshift(getSelectCol())
+      } else if (onMultiSelect) {
+        columns.unshift(getMultiSelectCol())
+      }
+
       if (makeActions) {
-        columns = [getSelectCol(), ...columns, getActionsCol(makeActions)]
+        columns.push(getActionsCol(makeActions))
       }
 
       return columns
-    }, [children, tableHelper, makeActions])
+    }, [children, tableHelper, makeActions, onSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -116,14 +144,20 @@ const makeQueryTable = <Item,>(
 
     const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
 
-    const getRowId = useCallback((row) => row.id, [])
+    const getRowId = useCallback((row) => row.name, [])
 
     const table = useTableInstance(tableHelper, {
       columns,
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
+      state: {
+        rowSelection,
+      },
       manualPagination: true,
+      enableRowSelection: !!onSelect,
+      enableMultiRowSelection: !!onMultiSelect,
+      onRowSelectionChange: setRowSelection,
     })
 
     if (debug) console.table((data as { items?: any[] })?.items || data)

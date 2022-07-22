@@ -11,7 +11,6 @@ import {
   TypeValueListCell,
   createTable,
   getActionsCol,
-  getSelectCol,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
@@ -23,7 +22,6 @@ const tableHelper = createTable().setRowType<VpcFirewallRule>()
 
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
-  tableHelper.createDisplayColumn(getSelectCol()),
   tableHelper.createDataColumn('name', { header: 'Name' }),
   tableHelper.createDataColumn('action', { header: 'Action' }),
   // map() fixes the fact that IpNets aren't strings

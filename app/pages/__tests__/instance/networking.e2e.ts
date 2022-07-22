@@ -10,7 +10,6 @@ test('Instance networking tab', async ({ page }) => {
   // Instance networking tab
   await page.click('role=tab[name="Networking"]')
   await expectRowVisible(page, 'my-nic', [
-    '',
     'my-nic',
     'a network interface',
     '172.30.0.10',
@@ -56,7 +55,6 @@ test('Instance networking tab', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Make primary"]')
   await expectRowVisible(page, 'my-nic', [
-    '',
     'my-nic',
     'a network interface',
     '172.30.0.10',
@@ -64,7 +62,7 @@ test('Instance networking tab', async ({ page }) => {
     'mock-subnet',
     '',
   ])
-  await expectRowVisible(page, 'nic-2', ['', 'nic-2', null, null, null, null, 'primary'])
+  await expectRowVisible(page, 'nic-2', ['nic-2', null, null, null, null, 'primary'])
 
   // Make an edit to the network interface
   await page
