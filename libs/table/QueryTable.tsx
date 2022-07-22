@@ -55,15 +55,23 @@ type QueryTableProps<Item> = {
   emptyState: React.ReactElement
 } & (
   | {
-      onSelect: (selection: string) => void
+      /**
+       * If present, the table will include a select column and make rows
+       * selectable one at a time.
+       */
+      onSingleSelect: (selection: string) => void
       onMultiSelect?: never
     }
   | {
-      onSelect?: never
+      onSingleSelect?: never
+      /**
+       * If present, the table will include a select column and make rows
+       * selectable.
+       */
       onMultiSelect: (selections: string[]) => void
     }
   | {
-      onSelect?: never
+      onSingleSelect?: never
       onMultiSelect?: never
     }
 )
@@ -81,7 +89,7 @@ const makeQueryTable = <Item,>(
     pagination = 'page',
     pageSize = 10,
     emptyState,
-    onSelect,
+    onSingleSelect,
     onMultiSelect,
   }: QueryTableProps<Item>) {
     invariant(
@@ -92,9 +100,9 @@ const makeQueryTable = <Item,>(
     const [rowSelection, setRowSelection] = React.useState({})
     useEffect(() => {
       const selected = Object.keys(rowSelection)
-      onSelect?.(selected[0])
+      onSingleSelect?.(selected[0])
       onMultiSelect?.(selected)
-    }, [rowSelection, onSelect, onMultiSelect])
+    }, [rowSelection, onSingleSelect, onMultiSelect])
 
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
@@ -123,7 +131,7 @@ const makeQueryTable = <Item,>(
         )
       })
 
-      if (onSelect) {
+      if (onSingleSelect) {
         columns.unshift(getSelectCol())
       } else if (onMultiSelect) {
         columns.unshift(getMultiSelectCol())
@@ -134,7 +142,7 @@ const makeQueryTable = <Item,>(
       }
 
       return columns
-    }, [children, tableHelper, makeActions, onSelect, onMultiSelect])
+    }, [children, tableHelper, makeActions, onSingleSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -155,7 +163,7 @@ const makeQueryTable = <Item,>(
         rowSelection,
       },
       manualPagination: true,
-      enableRowSelection: !!onSelect,
+      enableRowSelection: !!onSingleSelect,
       enableMultiRowSelection: !!onMultiSelect,
       onRowSelectionChange: setRowSelection,
     })

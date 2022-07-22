@@ -49,29 +49,29 @@ export const Table = <TGenerics extends OurTableGenerics>({
     </UITable.Header>
     <UITable.Body>
       {table.getRowModel().rows.map((row) => {
-        const onSingleSelect = row.getCanSelect()
-          ? () => {
-              table.resetRowSelection()
-              row.toggleSelected()
+        // For single-select, the entire row is clickable
+        const rowProps = row.getCanSelect() // this means single-select only
+          ? {
+              className: cn(rowClassName, 'cursor-pointer'),
+              selected: row.getIsSelected(),
+              // select only this row
+              onClick: () => table.setRowSelection(() => ({ [row.id]: true })),
             }
-          : undefined
-        const onMultiSelect = row.getCanMultiSelect()
-          ? () => row.toggleSelected()
-          : undefined
+          : { className: rowClassName }
+
+        // For multi-select, assume the first cell is the checkbox and make the
+        // whole cell clickable
+        const firstCellProps = row.getCanMultiSelect()
+          ? {
+              className: 'cursor-pointer',
+              onClick: () => row.toggleSelected(),
+            }
+          : {}
+
         const [firstCell, ...cells] = row.getAllCells()
         return (
-          <UITable.Row
-            className={cn(rowClassName, { 'cursor-pointer': !!onSingleSelect })}
-            selected={row.getIsSelected()}
-            key={row.id}
-            onClick={onSingleSelect}
-          >
-            <UITable.Cell
-              onClick={onMultiSelect}
-              className={cn({ 'cursor-pointer': !!onMultiSelect })}
-            >
-              {firstCell.renderCell()}
-            </UITable.Cell>
+          <UITable.Row key={row.id} {...rowProps}>
+            <UITable.Cell {...firstCellProps}>{firstCell.renderCell()}</UITable.Cell>
             {cells.map((cell) => (
               <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
             ))}
