@@ -29,7 +29,8 @@ export const getActionsCol = <TGenerics extends TableGenerics>(
         <div className="flex justify-center">
           <Menu>
             {/* TODO: This name should not suck; future us, make it so! */}
-            <MenuButton aria-label="Row actions">
+            {/* stopPropagation prevents clicks from toggling row select in a single select table */}
+            <MenuButton aria-label="Row actions" onClick={(e) => e.stopPropagation()}>
               <More12Icon className="text-tertiary" />
             </MenuButton>
             <MenuList>

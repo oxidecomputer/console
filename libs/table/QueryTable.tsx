@@ -99,7 +99,7 @@ const makeQueryTable = <Item,>(
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
     const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
     const columns = useMemo(() => {
-      let columns = React.Children.toArray(children).map((child) => {
+      const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
 
         // QueryTableColumnProps ensures `id` is passed in if and only if
@@ -123,12 +123,14 @@ const makeQueryTable = <Item,>(
         )
       })
 
-      if (onSelect || onMultiSelect) {
-        columns = [onSelect ? getSelectCol() : getMultiSelectCol(), ...columns]
+      if (onSelect) {
+        columns.unshift(getSelectCol())
+      } else if (onMultiSelect) {
+        columns.unshift(getMultiSelectCol())
       }
 
       if (makeActions) {
-        columns = [...columns, getActionsCol(makeActions)]
+        columns.push(getActionsCol(makeActions))
       }
 
       return columns
