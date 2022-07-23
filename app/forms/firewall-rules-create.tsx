@@ -9,22 +9,18 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
-import {
-  Button,
-  CheckboxField,
-  Delete10Icon,
-  Divider,
-  FieldLabel,
-  NumberTextField,
-  Radio,
-  RadioGroup,
-  Table,
-  TextField,
-  TextFieldError,
-  TextFieldHint,
-} from '@oxide/ui'
+import { Button, Delete10Icon, Divider, Radio, Table } from '@oxide/ui'
 
-import { Form, ListboxField, SideModalForm } from 'app/components/form'
+import {
+  CheckboxField,
+  DescriptionField,
+  Form,
+  ListboxField,
+  NameField,
+  RadioField,
+  SideModalForm,
+  TextField,
+} from 'app/components/form'
 import { useParams } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
@@ -104,43 +100,20 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
       {/* omitting value prop makes it a boolean value. beautiful */}
       {/* TODO: better text or heading or tip or something on this checkbox */}
       <CheckboxField name="enabled">Enabled</CheckboxField>
-      <div className="space-y-0.5">
-        <FieldLabel id="rule-name-label" htmlFor="rule-name">
-          Name
-        </FieldLabel>
-        <TextField id="rule-name" name="name" />
-      </div>
-      <div className="space-y-0.5">
-        <FieldLabel id="rule-description-label" htmlFor="rule-description">
-          Description {/* TODO: indicate optional */}
-        </FieldLabel>
-        <TextField id="rule-description" name="description" />
-      </div>
+      <NameField id="rule-name" />
+      <DescriptionField id="rule-description" />
 
       <Divider />
 
-      <div className="space-y-0.5">
-        <FieldLabel id="priority-label" htmlFor="priority">
-          Priority
-        </FieldLabel>
-        <TextFieldHint id="priority-hint">Must be 0&ndash;65535</TextFieldHint>
-        <NumberTextField id="priority" name="priority" aria-describedby="priority-hint" />
-        <TextFieldError name="priority" />
-      </div>
-      <fieldset>
-        <legend>Action</legend>
-        <RadioGroup column name="action">
-          <Radio value="allow">Allow</Radio>
-          <Radio value="deny">Deny</Radio>
-        </RadioGroup>
-      </fieldset>
-      <fieldset>
-        <legend>Direction of traffic</legend>
-        <RadioGroup column name="direction">
-          <Radio value="inbound">Incoming</Radio>
-          <Radio value="outbound">Outgoing</Radio>
-        </RadioGroup>
-      </fieldset>
+      <TextField type="number" id="priority" helpText="Must be 0&ndash;65535" />
+      <RadioField id="action" label="Action" column>
+        <Radio value="allow">Allow</Radio>
+        <Radio value="deny">Deny</Radio>
+      </RadioField>
+      <RadioField id="direction" label="Direction of traffic" column>
+        <Radio value="inbound">Incoming</Radio>
+        <Radio value="outbound">Outgoing</Radio>
+      </RadioField>
 
       <Divider />
 
@@ -155,12 +128,9 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
           { value: 'instance', label: 'Instance' },
         ]}
       />
-      <div className="space-y-0.5">
-        <FieldLabel id="targetValue-label" htmlFor="targetValue">
-          Target name
-        </FieldLabel>
-        <TextField id="targetValue" name="targetValue" />
-      </div>
+      {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
+      subform which means it likely should be a custom field */}
+      <NameField id="targetValue" name="targetValue" label="Target name" required={false} />
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
@@ -238,19 +208,15 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
           { value: 'internet_gateway', label: 'Internet Gateway' },
         ]}
       />
-      <div className="space-y-0.5">
-        {/* For everything but IP this is a name, but for IP it's an IP.
+      {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
-        <FieldLabel id="hostValue-label" htmlFor="hostValue">
-          Value
-        </FieldLabel>
-        <TextFieldHint id="hostValue-hint">
-          For IP, an address. For the rest, a name. [TODO: copy]
-        </TextFieldHint>
-        <TextField id="hostValue" name="hostValue" aria-describedby="hostValue-hint" />
-      </div>
+      <TextField
+        id="hostValue"
+        label="Value"
+        helpText="For IP, an address. For the rest, a name. [TODO: copy]"
+      />
 
       <div className="flex justify-end">
         <Button variant="ghost" color="secondary" className="mr-2.5">
@@ -314,32 +280,27 @@ export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
 
       <Divider />
 
-      <div className="space-y-0.5">
-        <FieldLabel id="portRange-label" htmlFor="portRange">
-          Port filter
-        </FieldLabel>
-        <TextFieldHint id="portRange-hint">
-          A single port (1234) or a range (1234-2345)
-        </TextFieldHint>
-        <TextField id="portRange" name="portRange" aria-describedby="portRange-hint" />
-        <TextFieldError name="portRange" />
-        <div className="flex justify-end">
-          <Button variant="ghost" color="secondary" className="mr-2.5">
-            Clear
-          </Button>
-          <Button
-            variant="default"
-            onClick={() => {
-              const portRange = values.portRange.trim()
-              // TODO: show error instead of ignoring the click
-              if (!parsePortRange(portRange)) return
-              setFieldValue('ports', [...values.ports, portRange])
-              setFieldValue('portRange', '')
-            }}
-          >
-            Add port filter
-          </Button>
-        </div>
+      <TextField
+        id="portRange"
+        label="Port filter"
+        helpText="A single port (1234) or a range (1234-2345)"
+      />
+      <div className="flex justify-end">
+        <Button variant="ghost" color="secondary" className="mr-2.5">
+          Clear
+        </Button>
+        <Button
+          variant="default"
+          onClick={() => {
+            const portRange = values.portRange.trim()
+            // TODO: show error instead of ignoring the click
+            if (!parsePortRange(portRange)) return
+            setFieldValue('ports', [...values.ports, portRange])
+            setFieldValue('portRange', '')
+          }}
+        >
+          Add port filter
+        </Button>
       </div>
       <Table className="w-full">
         <Table.Header>

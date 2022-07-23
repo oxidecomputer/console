@@ -1,5 +1,6 @@
 import type { TableInstance } from '@tanstack/react-table'
 import { createTable as _createTable } from '@tanstack/react-table'
+import cn from 'classnames'
 
 import { Table as UITable } from '@oxide/ui'
 
@@ -47,13 +48,36 @@ export const Table = <TGenerics extends OurTableGenerics>({
       ))}
     </UITable.Header>
     <UITable.Body>
-      {table.getRowModel().rows.map((row) => (
-        <UITable.Row className={rowClassName} selected={row.getIsSelected()} key={row.id}>
-          {row.getAllCells().map((cell) => (
-            <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
-          ))}
-        </UITable.Row>
-      ))}
+      {table.getRowModel().rows.map((row) => {
+        // For single-select, the entire row is clickable
+        const rowProps = row.getCanSelect() // this means single-select only
+          ? {
+              className: cn(rowClassName, 'cursor-pointer'),
+              selected: row.getIsSelected(),
+              // select only this row
+              onClick: () => table.setRowSelection(() => ({ [row.id]: true })),
+            }
+          : { className: rowClassName }
+
+        // For multi-select, assume the first cell is the checkbox and make the
+        // whole cell clickable
+        const firstCellProps = row.getCanMultiSelect()
+          ? {
+              className: 'cursor-pointer',
+              onClick: () => row.toggleSelected(),
+            }
+          : {}
+
+        const [firstCell, ...cells] = row.getAllCells()
+        return (
+          <UITable.Row key={row.id} {...rowProps}>
+            <UITable.Cell {...firstCellProps}>{firstCell.renderCell()}</UITable.Cell>
+            {cells.map((cell) => (
+              <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
+            ))}
+          </UITable.Row>
+        )
+      })}
     </UITable.Body>
   </UITable>
 )

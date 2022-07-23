@@ -170,6 +170,16 @@ export type Error = {
   requestId: string
 }
 
+export type ExternalIp = {
+  ip: string
+  kind: IpKind
+}
+
+/**
+ * Parameters for creating an external IP address for instances.
+ */
+export type ExternalIpCreate = { poolName?: Name | null; type: 'ephemeral' }
+
 /**
  * The name and type information for a field of a timeseries schema.
  */
@@ -499,6 +509,12 @@ export type InstanceCreate = {
    * The disks to be created or attached for this instance.
    */
   disks?: InstanceDiskAttachment[] | null
+  /**
+   * The external IP addresses provided to this instance.
+   *
+   * By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance.
+   */
+  externalIps?: ExternalIpCreate[] | null
   hostname: string
   memory: ByteCount
   name: Name
@@ -598,6 +614,11 @@ export type InstanceState =
   | 'failed'
   | 'destroyed'
 
+/**
+ * The kind of an external IP address for an instance
+ */
+export type IpKind = 'ephemeral' | 'floating'
+
 export type IpNet = Ipv4Net | Ipv6Net
 
 /**
@@ -616,6 +637,7 @@ export type IpPool = {
    * unique, mutable, user-controlled identifier for each resource
    */
   name: Name
+  projectId?: string | null
   /**
    * timestamp when this resource was created
    */
@@ -634,6 +656,8 @@ export type IpPool = {
 export type IpPoolCreate = {
   description: string
   name: Name
+  organization?: Name | null
+  project?: Name | null
 }
 
 export type IpPoolRange = {
@@ -2310,6 +2334,12 @@ export interface InstanceDiskDetachParams {
   projectName: Name
 }
 
+export interface InstanceExternalIpListParams {
+  instanceName: Name
+  orgName: Name
+  projectName: Name
+}
+
 export interface InstanceMigrateParams {
   instanceName: Name
   orgName: Name
@@ -2713,6 +2743,7 @@ export type ApiListMethods = Pick<
   | 'imageList'
   | 'instanceList'
   | 'instanceDiskList'
+  | 'instanceExternalIpList'
   | 'instanceNetworkInterfaceList'
   | 'snapshotList'
   | 'vpcList'
@@ -3697,6 +3728,19 @@ export class Api extends HttpClient {
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
         method: 'POST',
         body,
+        ...params,
+      }),
+
+    /**
+     * List external IP addresses associated with an instance
+     */
+    instanceExternalIpList: (
+      { instanceName, orgName, projectName }: InstanceExternalIpListParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/external-ips`,
+        method: 'GET',
         ...params,
       }),
 

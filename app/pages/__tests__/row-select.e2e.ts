@@ -7,7 +7,9 @@ import { forEach } from 'app/util/e2e'
 // usual testing philosophy), but they let us make sure selection is being
 // passed through to the UI Table.
 
-test('Row select works as expected', async ({ page }) => {
+// skipped for now because we no longer have any live multiselect tables to test
+// with. TODO: make it a testing-lib test instead?
+test.skip('Row multiselect works as expected', async ({ page }) => {
   // SETUP
 
   const headCheckbox = page.locator('thead >> role=checkbox')

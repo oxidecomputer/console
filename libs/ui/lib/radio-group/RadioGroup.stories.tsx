@@ -1,7 +1,6 @@
 import type { StoryObj } from '@storybook/react'
 import type { ComponentProps } from 'react'
 
-import { FormikDecorator } from '../../util/formik-decorator'
 import { Radio, RadioCard } from '../radio/Radio'
 import { RadioGroup } from './RadioGroup'
 
@@ -17,7 +16,6 @@ export const Default = () => (
     <Radio value="do-not-notify">Nothing</Radio>
   </RadioGroup>
 )
-Default.decorators = [FormikDecorator({ group1: 'notify' })]
 
 export const DefaultColumn = () => (
   <RadioGroup name="group2" column>
@@ -30,7 +28,6 @@ export const DefaultColumn = () => (
     <Radio value="600">600 GB</Radio>
   </RadioGroup>
 )
-DefaultColumn.decorators = [FormikDecorator({ group2: '100' })]
 
 export const Cards = () => (
   <RadioGroup name="group3">
@@ -43,7 +40,6 @@ export const Cards = () => (
     <RadioCard value="600">600 GB</RadioCard>
   </RadioGroup>
 )
-Cards.decorators = [FormikDecorator({ group3: '100' })]
 
 export const Disabled = () => (
   <RadioGroup name="group4" column disabled>
@@ -56,4 +52,3 @@ export const Disabled = () => (
     <Radio value="600">600 GB</Radio>
   </RadioGroup>
 )
-Disabled.decorators = [FormikDecorator()]

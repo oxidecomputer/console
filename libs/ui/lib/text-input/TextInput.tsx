@@ -1,7 +1,7 @@
 import { Alert } from '@reach/alert'
 import cn from 'classnames'
-import type { FieldValidator } from 'formik'
-import { ErrorMessage, Field } from 'formik'
+
+import type { ChildrenProp } from '@oxide/util'
 
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
@@ -26,8 +26,7 @@ export type TextAreaProps =
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextFieldBaseProps = React.ComponentProps<'input'> & {
-  validate?: FieldValidator
+export type TextInputBaseProps = React.ComponentProps<'input'> & {
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean
   disabled?: boolean
@@ -35,12 +34,13 @@ export type TextFieldBaseProps = React.ComponentProps<'input'> & {
   fieldClassName?: string
 }
 
-export const TextField = ({
+export const TextInput = ({
+  type = 'text',
   error,
   className,
   fieldClassName,
   ...fieldProps
-}: TextFieldBaseProps & TextAreaProps) => (
+}: TextInputBaseProps & TextAreaProps) => (
   <div
     className={cn(
       'flex rounded border border-default',
@@ -49,8 +49,8 @@ export const TextField = ({
       className
     )}
   >
-    <Field
-      type="text"
+    <input
+      type={type}
       className={cn(
         `w-full border-none bg-transparent
         py-[0.6875rem] px-3
@@ -68,11 +68,11 @@ export const TextField = ({
 // TODO: do this properly: extract a NumberField that styles the up and down
 // buttons for when we do want them *and* add a flag to hide them using
 // appearance-textfield
-export const NumberTextField = ({
+export const NumberInput = ({
   fieldClassName,
   ...props
-}: Omit<TextFieldBaseProps, 'type'>) => (
-  <TextField
+}: Omit<TextInputBaseProps, 'type'>) => (
+  <TextInput
     type="number"
     {...props}
     fieldClassName={cn(fieldClassName, 'appearance-textfield')}
@@ -89,16 +89,14 @@ type HintProps = {
 /**
  * Pass id here and include that ID in aria-describedby on the TextField
  */
-export const TextFieldHint = ({ id, children, className }: HintProps) => (
+export const TextInputHint = ({ id, children, className }: HintProps) => (
   <div id={id} className={cn('mt-1 text-sans-sm text-secondary', className)}>
     {children}
   </div>
 )
 
-export const TextFieldError = ({ name }: { name: string }) => (
+export const TextInputError = ({ children }: ChildrenProp) => (
   <div className="ml-px">
-    <ErrorMessage name={name}>
-      {(msg) => msg && <Alert className="py-2 text-mono-sm text-destructive">{msg}</Alert>}
-    </ErrorMessage>
+    {children && <Alert className="py-2 text-mono-sm text-destructive">{children}</Alert>}
   </div>
 )
