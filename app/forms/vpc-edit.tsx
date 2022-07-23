@@ -31,6 +31,7 @@ export function EditVpcSideModalForm({
   const editVpc = useApiMutation('vpcUpdate', {
     onSuccess(vpc) {
       queryClient.invalidateQueries('vpcList', parentNames)
+      queryClient.setQueryData('vpcView', { ...parentNames, vpcName: vpc.name }, vpc)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
