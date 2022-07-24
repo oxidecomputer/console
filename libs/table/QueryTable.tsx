@@ -2,7 +2,7 @@
 import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashQueryKey } from '@tanstack/react-query'
 import type { AccessorFn } from '@tanstack/react-table'
-import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
@@ -15,7 +15,7 @@ import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { isOneOf } from '@oxide/util'
 
-import { Table, createTable } from './Table'
+import { Table } from './Table'
 import { DefaultCell } from './cells'
 import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
@@ -105,7 +105,7 @@ const makeQueryTable = <Item,>(
     }, [rowSelection, onSingleSelect, onMultiSelect])
 
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
+    const colHelper = createColumnHelper<Item>()
     const columns = useMemo(() => {
       const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
@@ -114,7 +114,7 @@ const makeQueryTable = <Item,>(
         // `accessor` is not a string
         const id = 'id' in column ? column.id : column.accessor
 
-        return tableHelper.createDataColumn(
+        return colHelper.accessor(
           column.accessor,
           // I think passing variables here messes with RT's ability to infer
           // the relationships between these keys. The type error is useless.
@@ -142,7 +142,7 @@ const makeQueryTable = <Item,>(
       }
 
       return columns
-    }, [children, tableHelper, makeActions, onSingleSelect, onMultiSelect])
+    }, [children, colHelper, makeActions, onSingleSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -154,7 +154,7 @@ const makeQueryTable = <Item,>(
 
     const getRowId = useCallback((row) => row.name, [])
 
-    const table = useTableInstance(tableHelper, {
+    const table = useReactTable({
       columns,
       data: tableData,
       getRowId,

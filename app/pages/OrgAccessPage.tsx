@@ -1,4 +1,5 @@
-import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { createColumnHelper } from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
@@ -10,7 +11,7 @@ import {
 } from '@oxide/api'
 import type { OrganizationRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Table, createTable, getActionsCol } from '@oxide/table'
+import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
   Badge,
@@ -27,8 +28,6 @@ import { useParams } from 'app/hooks'
 
 type UserRow = UserAccessRow<OrganizationRole>
 
-const table = createTable().setRowType<UserRow>()
-
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
     <EmptyMessage
@@ -40,6 +39,8 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
     />
   </TableEmptyBox>
 )
+
+const colHelper = createColumnHelper<UserRow>()
 
 export const OrgAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -60,37 +61,35 @@ export const OrgAccessPage = () => {
 
   const columns = useMemo(
     () => [
-      table.createDataColumn('id', { header: 'ID' }),
-      table.createDataColumn('name', { header: 'Name' }),
-      table.createDataColumn('roleName', {
+      colHelper.accessor('id', { header: 'ID' }),
+      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('roleName', {
         header: 'Role',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
-      table.createDisplayColumn(
-        getActionsCol((row) => [
-          {
-            label: 'Change role',
-            onActivate: () => setEditingUserRow(row),
+      getActionsCol((row: UserRow) => [
+        {
+          label: 'Change role',
+          onActivate: () => setEditingUserRow(row),
+        },
+        // TODO: only show if you have permission to do this
+        {
+          label: 'Delete',
+          onActivate() {
+            // TODO: confirm delete
+            updatePolicy.mutate({
+              ...orgParams,
+              // we know policy is there, otherwise there's no row to display
+              body: setUserRole(row.id, null, policy!),
+            })
           },
-          // TODO: only show if you have permission to do this
-          {
-            label: 'Delete',
-            onActivate() {
-              // TODO: confirm delete
-              updatePolicy.mutate({
-                ...orgParams,
-                // we know policy is there, otherwise there's no row to display
-                body: setUserRole(row.id, null, policy!),
-              })
-            },
-          },
-        ])
-      ),
+        },
+      ]),
     ],
     [policy, orgParams, updatePolicy]
   )
 
-  const tableInstance = useTableInstance(table, {
+  const tableInstance = useReactTable({
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),
