@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashQueryKey } from '@tanstack/react-query'
-import type { AccessorFn } from '@tanstack/react-table'
+import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { useCallback } from 'react'
@@ -112,23 +112,21 @@ const makeQueryTable = <Item,>(
 
         // QueryTableColumnProps ensures `id` is passed in if and only if
         // `accessor` is not a string
-        const id = 'id' in column ? column.id : column.accessor
+        const id =
+          'id' in column
+            ? column.id
+            : typeof column.accessor === 'string'
+            ? column.accessor
+            : undefined // should never happen due to described constraint
 
-        return colHelper.accessor(
-          column.accessor,
-          // I think passing variables here messes with RT's ability to infer
-          // the relationships between these keys. The type error is useless.
-          // This is fine though: it's simple enough and it's correct.
-          // @ts-expect-error
-          {
-            id,
-            header: typeof column.header === 'string' ? column.header : id,
-            cell: (info: any) => {
-              const Comp = column.cell || DefaultCell
-              return <Comp value={info.getValue()} />
-            },
-          }
-        )
+        return colHelper.accessor(column.accessor, {
+          id,
+          header: typeof column.header === 'string' ? column.header : id,
+          cell: (info: any) => {
+            const Comp = column.cell || DefaultCell
+            return <Comp value={info.getValue()} />
+          },
+        })
       })
 
       if (onSingleSelect) {
@@ -200,13 +198,13 @@ const makeQueryTable = <Item,>(
     )
   }
 
-export type QueryTableColumnProps<Item> = {
+export type QueryTableColumnProps<Item extends Record<string, any>> = {
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
   cell?: ComponentType<{ value: any }>
 } & ( // imitate the way RT works: only pass id if accessor is not a string
-  | { accessor: keyof Item }
+  | { accessor: DeepKeys<Item> }
   | {
       accessor: AccessorFn<Item>
       id: string
