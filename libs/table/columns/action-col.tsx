@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import type { Row, TableGenerics } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 
 import { More12Icon } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
@@ -13,18 +13,18 @@ export type MenuAction = {
   className?: string
 }
 
-export const getActionsCol = <TGenerics extends TableGenerics>(
-  makeActions: MakeActions<TGenerics['Row']>
-) => {
+export const getActionsCol = <TData extends { id?: string }>(
+  makeActions: MakeActions<TData>
+): ColumnDef<TData> => {
   return {
     id: 'menu',
     header: '',
     meta: { thClassName: 'w-12' },
 
-    cell: ({ row }: { row: Row<TGenerics> }) => {
+    cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out
-      const actions = makeActions(row.original!) // eslint-disable-line @typescript-eslint/no-non-null-assertion
-      const id = row.original?.id
+      const actions = makeActions(row.original)
+      const id = row.original.id
       return (
         <div className="flex justify-center">
           <Menu>

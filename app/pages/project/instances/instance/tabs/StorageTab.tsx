@@ -1,11 +1,11 @@
-import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import type { Disk } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
-import { DateCell, SizeCell, Table, createTable, getActionsCol } from '@oxide/table'
+import { DateCell, SizeCell, Table, getActionsCol } from '@oxide/table'
 import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
@@ -22,23 +22,23 @@ const OtherDisksEmpty = () => (
   </TableEmptyBox>
 )
 
-const table = createTable().setRowType<Disk>()
+const colHelper = createColumnHelper<Disk>()
 
 const columns = [
-  table.createDataColumn('name', {
+  colHelper.accessor('name', {
     header: 'Name',
     cell: (info) => <div>{info.getValue()}</div>,
   }),
-  table.createDataColumn('size', {
+  colHelper.accessor('size', {
     header: 'Size',
     cell: (info) => <SizeCell value={info.getValue()} />,
   }),
-  table.createDataColumn((d) => d.state.state, {
+  colHelper.accessor('state.state', {
     id: 'status',
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  table.createDataColumn('timeCreated', {
+  colHelper.accessor('timeCreated', {
     header: 'Created',
     cell: (info) => <DateCell value={info.getValue()} />,
   }),
@@ -95,14 +95,14 @@ export function StorageTab() {
   const bootDisks = useMemo(() => data?.items.slice(0, 1) || [], [data])
   const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = useTableInstance(table, {
+  const bootDiskTable = useReactTable({
     columns: [...columns, getActionsCol(makeActions)],
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
   const bootLabelId = 'boot-disk-label'
 
-  const otherDisksTable = useTableInstance(table, {
+  const otherDisksTable = useReactTable({
     columns: [...columns, getActionsCol(makeActions)],
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
