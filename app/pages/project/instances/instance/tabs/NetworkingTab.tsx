@@ -39,6 +39,16 @@ const SubnetNameFromId = ({ value }: { value: string }) => (
   </span>
 )
 
+function ExternalIpsFromInstanceName({ value: instanceName }: { value: string }) {
+  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { data } = useApiQuery('instanceExternalIpList', {
+    orgName,
+    projectName,
+    instanceName,
+  })
+  return <span className="text-default">{data?.items.map((eip) => eip.ip).join(', ')}</span>
+}
+
 export function NetworkingTab() {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
   const queryClient = useApiQueryClient()
@@ -121,6 +131,7 @@ export function NetworkingTab() {
         <Column accessor="ip" />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
+        <Column header="External IP" accessor="id" cell={ExternalIpsFromInstanceName} />
         <Column
           accessor="primary"
           cell={({ value }) =>
