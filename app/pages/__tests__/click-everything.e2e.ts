@@ -119,9 +119,6 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=button[name="Save changes"][disabled]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-vpc')
-  // TODO: Figure out the race condition that's causing the edit not
-  // to show up in the page table if this form is filled out too fast
-  await page.waitForTimeout(2000)
   await page.click('role=button[name="Save changes"]')
 
   // Close toast, it holds up the test for some reason
