@@ -29,6 +29,8 @@ export default defineConfig(({ mode }) => ({
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
     'process.env.SHA': JSON.stringify(process.env.SHA),
+    // used by MSW — number for % likelihood of API request failure (decimals allowed)
+    'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
   plugins: [
     splitVendorChunkPlugin(),
