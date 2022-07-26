@@ -68,9 +68,13 @@ jobs:
           cache: 'yarn'
       - name: Get node_modules from cache
         uses: actions/cache@v3
-        id: cache-node-modules
         with:
           path: node_modules
           key: modules-${{ hashFiles('yarn.lock') }}
+      - name: Get Playwright binaries from cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('yarn.lock') }}
       - name: Run Playwright tests
         run: yarn playwright test --workers=2
