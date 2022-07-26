@@ -58,9 +58,14 @@ jobs:
       - name: Build for Nexus
         run: yarn build-for-nexus
   playwright:
+    name: Playwright (${{ matrix.shard }}/${{ strategy.job-total }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: install
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -77,4 +82,4 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('yarn.lock') }}
       - name: Run Playwright tests
-        run: yarn playwright test --workers=2
+        run: yarn playwright test --workers=2 --shard=${{ matrix.shard }}/${{ strategy.job-total }}
