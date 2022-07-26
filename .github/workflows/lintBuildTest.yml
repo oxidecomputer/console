@@ -46,4 +46,4 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn playwright test --workers=3
+        run: yarn playwright test --workers=2
