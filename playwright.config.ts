@@ -15,7 +15,6 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
-    actionTimeout: 10000,
     baseURL: 'http://localhost:4009',
     trace: 'on-first-retry',
   },
