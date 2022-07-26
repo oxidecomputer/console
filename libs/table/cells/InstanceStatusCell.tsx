@@ -1,6 +1,6 @@
 import type { Instance } from '@oxide/api'
-import { Badge } from '@oxide/ui'
 
+import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { timeAgoAbbr } from 'app/util/date'
 
 import type { Cell } from './Cell'
@@ -13,9 +13,7 @@ export const InstanceStatusCell = ({
     <TwoLineCell
       detailsClass="text-mono-sm !lowercase"
       value={[
-        <Badge variant="default" key="run-state">
-          {value.runState}
-        </Badge>,
+        <InstanceStatusBadge key="run-state" status={value.runState} />,
         timeAgoAbbr(value.timeRunStateUpdated),
       ]}
     ></TwoLineCell>
