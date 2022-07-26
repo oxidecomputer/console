@@ -18,7 +18,8 @@ test('SSH keys', async ({ page }) => {
 
   // it's there in the table
   await expectNotVisible(page, ['text="No SSH keys"'])
-  await expectRowVisible(page, 'my-key', ['my-key', 'definitely a key'])
+  const table = page.locator('role=table')
+  await expectRowVisible(table, { Name: 'my-key', Description: 'definitely a key' })
 
   // now delete it
   await page.click('role=button[name="Row actions"]')
