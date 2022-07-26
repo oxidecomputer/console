@@ -31,7 +31,7 @@ jobs:
         run: yarn install
       - name: Install Playwright
         if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install
   ci:
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -71,6 +71,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
+      # system deps don't seem to be coming along with the cache
       - name: Install Playwright system deps
         run: npx playwright install-deps
       - name: Get node_modules from cache
