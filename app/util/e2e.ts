@@ -53,15 +53,20 @@ export async function expectRowVisible(
     async (cell) => await cell.textContent()
   )
 
-  const rows = await map(table.locator('tbody >> role=row'), async (row) => {
-    const rowPairs = await map(row.locator('role=cell'), async (cell, i) => [
-      headerKeys[i],
-      // accessible name would be better but it's not in yet
-      // https://github.com/microsoft/playwright/issues/13517
-      await cell.textContent(),
-    ])
-    return Object.fromEntries(rowPairs.filter(([k]) => k && k.length > 0))
-  })
+  const getRows = async () =>
+    await map(table.locator('tbody >> role=row'), async (row) => {
+      const rowPairs = await map(row.locator('role=cell'), async (cell, i) => [
+        headerKeys[i],
+        // accessible name would be better but it's not in yet
+        // https://github.com/microsoft/playwright/issues/13517
+        await cell.textContent(),
+      ])
+      return Object.fromEntries(rowPairs.filter(([k]) => k && k.length > 0))
+    })
 
-  await expect(rows).toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
+  // wait up to 5s for the row to be there
+  // https://playwright.dev/docs/test-assertions#polling
+  await expect
+    .poll(getRows)
+    .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
