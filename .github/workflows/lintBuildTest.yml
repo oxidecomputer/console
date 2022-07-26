@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  install: 
+  install:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +41,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
+      - name: Get node_modules from cache
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
       - name: Typecheck
         run: yarn tsc
       - name: Lint
@@ -60,7 +66,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
-      - name: Install dependencies
-        run: yarn
+      - name: Get node_modules from cache
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
       - name: Run Playwright tests
         run: yarn playwright test --workers=2
