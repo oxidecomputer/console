@@ -41,7 +41,12 @@ export async function expectRowVisible(
   table: Locator,
   expectedRow: Record<string, string>
 ) {
-  await table.waitFor() // sometimes the table is re-rendering and the tests flake
+  // wait for header and rows to avoid flake town
+  const headerLoc = table.locator('thead >> role=cell')
+  await headerLoc.locator('nth=0').waitFor() // nth=0 bc error if there's more than 1
+
+  const rowLoc = table.locator('tbody >> role=row')
+  await rowLoc.locator('nth=0').waitFor()
 
   const headerKeys = await map(
     table.locator('thead >> role=cell'),
