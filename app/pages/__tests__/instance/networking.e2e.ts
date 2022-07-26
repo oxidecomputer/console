@@ -9,15 +9,9 @@ test('Instance networking tab', async ({ page }) => {
 
   // Instance networking tab
   await page.click('role=tab[name="Networking"]')
-  await expectRowVisible(page, 'my-nic', [
-    'my-nic',
-    'a network interface',
-    '172.30.0.10',
-    '123.4.56.7',
-    'mock-vpc',
-    'mock-subnet',
-    'primary',
-  ])
+
+  const table = page.locator('table')
+  await expectRowVisible(table, { name: 'my-nic', primary: 'primary' })
 
   // check VPC link in table points to the right page
   await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
@@ -55,16 +49,8 @@ test('Instance networking tab', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Make primary"]')
-  await expectRowVisible(page, 'my-nic', [
-    'my-nic',
-    'a network interface',
-    '172.30.0.10',
-    '—',
-    'mock-vpc',
-    'mock-subnet',
-    '',
-  ])
-  await expectRowVisible(page, 'nic-2', ['nic-2', null, null, null, null, null, 'primary'])
+  await expectRowVisible(table, { name: 'my-nic', primary: '' })
+  await expectRowVisible(table, { name: 'nic-2', primary: 'primary' })
 
   // Make an edit to the network interface
   await page
