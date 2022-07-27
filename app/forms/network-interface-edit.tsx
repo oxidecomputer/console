@@ -5,7 +5,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 import type { EditSideModalFormProps } from 'app/forms'
-import { useParams } from 'app/hooks'
+import { useAllParams } from 'app/hooks'
 
 export default function EditNetworkInterfaceSideModalForm({
   id = 'edit-network-interface-form',
@@ -18,15 +18,15 @@ export default function EditNetworkInterfaceSideModalForm({
   ...props
 }: EditSideModalFormProps<NetworkInterfaceUpdate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
-  const pathParams = useParams('orgName', 'projectName')
+  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess(data) {
-      const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         instanceName,
-        ...others,
+        orgName,
+        projectName,
       })
       onSuccess?.(data)
       onDismiss()
@@ -43,7 +43,6 @@ export default function EditNetworkInterfaceSideModalForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          const { instanceName, ...others } = pathParams
           const interfaceName = initialValues.name
           invariant(
             interfaceName,
@@ -55,9 +54,10 @@ export default function EditNetworkInterfaceSideModalForm({
           )
 
           editNetworkInterface.mutate({
+            orgName,
+            projectName,
             instanceName,
             interfaceName,
-            ...others,
             body,
           })
         })

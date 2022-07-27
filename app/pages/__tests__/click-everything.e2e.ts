@@ -105,11 +105,32 @@ test("Click through everything and make it's all there", async ({ page }) => {
   ])
   await page.goBack()
 
-  await page.click('role=link[name="mock-vpc"]')
+  // Edit VPC form
+  await expectVisible(page, ['role=link[name="mock-vpc"]'])
+  await page
+    .locator('role=row', { hasText: 'mock-vpc' })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Edit"]')
+  await expectVisible(page, [
+    'role=textbox[name="Name"]',
+    'role=textbox[name="Description"]',
+    'role=textbox[name="DNS name"]',
+    'role=button[name="Save changes"][disabled]',
+  ])
+  await page.fill('role=textbox[name="Name"]', 'new-vpc')
+  await page.click('role=button[name="Save changes"]')
+
+  // Close toast, it holds up the test for some reason
+  await page.click('role=button[name="Dismiss notification"]')
+
+  await expectVisible(page, ['role=link[name="new-vpc"]'])
+
+  await page.click('role=link[name="new-vpc"]')
 
   // VPC detail, subnets tab
   await expectVisible(page, [
-    'role=heading[name*="mock-vpc"]',
+    'role=heading[name*="new-vpc"]',
     'role=tab[name="Subnets"]',
     'role=tab[name="System Routes"]',
     'role=tab[name="Routers"]',

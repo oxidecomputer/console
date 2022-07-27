@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
+import type { Vpc } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
@@ -13,6 +15,7 @@ import {
 } from '@oxide/ui'
 
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
+import EditVpcSideModalForm from 'app/forms/vpc-edit'
 import { useParams, useQuickActions } from 'app/hooks'
 
 const EmptyState = () => (
@@ -26,17 +29,41 @@ const EmptyState = () => (
 )
 
 interface VpcsPageProps {
-  modal?: 'createVpc'
+  modal?: 'createVpc' | 'editVpc'
 }
 
 export const VpcsPage = ({ modal }: VpcsPageProps) => {
-  const projectParams = useParams('orgName', 'projectName')
-  const { orgName, projectName } = projectParams
+  const queryClient = useApiQueryClient()
+  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const location = useLocation()
   const { data: vpcs } = useApiQuery('vpcList', {
-    ...projectParams,
+    orgName,
+    projectName,
     limit: 10, // to have same params as QueryTable
   })
   const navigate = useNavigate()
+
+  const deleteVpc = useApiMutation('vpcDelete', {
+    onSuccess() {
+      queryClient.invalidateQueries('vpcList', { orgName, projectName })
+    },
+  })
+
+  const makeActions = (vpc: Vpc): MenuAction[] => [
+    {
+      label: 'Edit',
+      onActivate() {
+        navigate(`edit/${vpc.name}`, { state: vpc })
+      },
+    },
+    {
+      label: 'Delete',
+      onActivate() {
+        deleteVpc.mutate({ orgName, projectName, vpcName: vpc.name })
+      },
+    },
+  ]
+
   useQuickActions(
     useMemo(
       () =>
@@ -49,7 +76,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', projectParams)
+  const { Table, Column } = useQueryTable('vpcList', { orgName, projectName })
   return (
     <>
       <PageHeader>
@@ -60,7 +87,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
           New Vpc
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
           cell={linkCell((name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`)}
@@ -73,6 +100,11 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
         isOpen={modal === 'createVpc'}
         onDismiss={() => navigate('..')}
         onSuccess={() => navigate('..')}
+      />
+      <EditVpcSideModalForm
+        isOpen={modal === 'editVpc'}
+        onDismiss={() => navigate('../..')}
+        initialValues={location.state}
       />
     </>
   )
