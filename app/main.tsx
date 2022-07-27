@@ -5,7 +5,8 @@ import ReactDOM from 'react-dom'
 import { SkipLink } from '@oxide/ui'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { QuickActions, ReduceMotion, ToastProvider } from './hooks'
+import { QuickActions, ReduceMotion } from './hooks'
+import { ToastStack } from './hooks/use-toast/ToastStack'
 import { Router } from './routes'
 
 if (process.env.SHA) {
@@ -28,16 +29,15 @@ const queryClient = new QueryClient({
 function render() {
   ReactDOM.render(
     <StrictMode>
-      <ToastProvider>
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            <QuickActions />
-            <SkipLink id="skip-nav" />
-            <ReduceMotion />
-            <Router />
-          </ErrorBoundary>
-        </QueryClientProvider>
-      </ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <QuickActions />
+          <SkipLink id="skip-nav" />
+          <ReduceMotion />
+          <Router />
+        </ErrorBoundary>
+      </QueryClientProvider>
+      <ToastStack />
     </StrictMode>,
     document.getElementById('root')
   )
