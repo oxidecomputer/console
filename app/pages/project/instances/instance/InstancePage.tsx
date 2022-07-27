@@ -52,9 +52,7 @@ export const InstancePage = () => {
     onDelete: () => navigate('..'),
   })
 
-  const { data: instance } = useApiQuery('instanceView', instanceParams, {
-    refetchInterval: 5000,
-  })
+  const { data: instance } = useApiQuery('instanceView', instanceParams)
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]

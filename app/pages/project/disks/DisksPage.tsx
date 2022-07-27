@@ -55,11 +55,7 @@ export function DisksPage({ modal }: DisksPageProps) {
 
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable(
-    'diskList',
-    { orgName, projectName },
-    { refetchInterval: 5000 }
-  )
+  const { Table, Column } = useQueryTable('diskList', { orgName, projectName })
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
