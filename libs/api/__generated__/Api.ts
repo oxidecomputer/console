@@ -181,6 +181,20 @@ export type ExternalIp = {
 export type ExternalIpCreate = { poolName?: Name | null; type: 'ephemeral' }
 
 /**
+ * A single page of results
+ */
+export type ExternalIpResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: ExternalIp[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
  * The name and type information for a field of a timeseries schema.
  */
 export type FieldSchema = {
@@ -3704,7 +3718,7 @@ export class Api extends HttpClient {
       { instanceName, orgName, projectName }: InstanceExternalIpListParams,
       params: RequestParams = {}
     ) =>
-      this.request<void>({
+      this.request<ExternalIpResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/external-ips`,
         method: 'GET',
         ...params,

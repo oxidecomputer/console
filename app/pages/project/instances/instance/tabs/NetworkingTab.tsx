@@ -39,6 +39,13 @@ const SubnetNameFromId = ({ value }: { value: string }) => (
   </span>
 )
 
+function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
+  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const { data } = useApiQuery('instanceExternalIpList', instanceParams)
+  const ips = data?.items.map((eip) => eip.ip).join(', ')
+  return <span className="text-default">{primary ? ips : <>&mdash;</>}</span>
+}
+
 export function NetworkingTab() {
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
   const queryClient = useApiQueryClient()
@@ -119,6 +126,12 @@ export function NetworkingTab() {
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
+        <Column
+          header="External IP"
+          // we use primary to decide whether to show the IP in that row
+          accessor="primary"
+          cell={ExternalIpsFromInstanceName}
+        />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
         <Column
