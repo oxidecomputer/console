@@ -4,10 +4,12 @@ import type { ApiTypes as Api } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
+import { genI64Data } from '../metrics'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
 import type {
+  DiskMetricParams,
   DiskParams,
   GlobalImageParams,
   IdParams,
@@ -669,6 +671,18 @@ export const handlers = [
       }
       db.disks = db.disks.filter((d) => d.id !== disk.id)
       return res(ctx.status(204))
+    }
+  ),
+
+  rest.get<never, DiskMetricParams, Json<Api.MeasurementResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName',
+    (req, res) => {
+      const [, err] = lookupDisk(req.params)
+      if (err) return res(err)
+
+      return res(
+        json({ items: genI64Data([5, 6, 6, 7, 7, 9, 12, 6, 8], new Date(2022, 3, 4)) })
+      )
     }
   ),
 
