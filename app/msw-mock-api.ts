@@ -3,16 +3,10 @@ function getChaos() {
   return Number.isNaN(chaos) ? null : chaos
 }
 
-/** Return true for failure with a given likelihood */
-function shouldFail(likelihoodPct: number | null): boolean {
-  if (likelihoodPct == null || Number.isNaN(likelihoodPct)) return false
-  return likelihoodPct > Math.random() * 100
-}
-
 /** Percentage representing likelihood of random failure */
 const chaos = getChaos()
 
-if (chaos != null && chaos > 0) {
+if (process.env.NODE_ENV !== 'production' && chaos) {
   console.log(`
    ██████╗██╗  ██╗ █████╗  ██████╗ ███████╗    ███╗   ███╗ ██████╗ ██████╗ ███████╗
   ██╔════╝██║  ██║██╔══██╗██╔═══██╗██╔════╝    ████╗ ████║██╔═══██╗██╔══██╗██╔════╝
@@ -22,6 +16,12 @@ if (chaos != null && chaos > 0) {
    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
   `)
   console.log(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
+}
+
+/** Return true for failure with a given likelihood */
+function shouldFail(likelihoodPct: number | null): boolean {
+  if (likelihoodPct == null || Number.isNaN(likelihoodPct)) return false
+  return likelihoodPct > Math.random() * 100
 }
 
 const randomStatus = () => {
