@@ -5,7 +5,8 @@ import ReactDOM from 'react-dom'
 import { SkipLink } from '@oxide/ui'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { QuickActions, ReduceMotion, ToastProvider } from './hooks'
+import { QuickActions, ReduceMotion } from './hooks'
+import { ToastStack } from './hooks/use-toast/ToastStack'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { Router } from './routes'
@@ -30,16 +31,15 @@ const queryClient = new QueryClient({
 function render() {
   ReactDOM.render(
     <StrictMode>
-      <ToastProvider>
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            <QuickActions />
-            <SkipLink id="skip-nav" />
-            <ReduceMotion />
-            <Router />
-          </ErrorBoundary>
-        </QueryClientProvider>
-      </ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <QuickActions />
+          <SkipLink id="skip-nav" />
+          <ReduceMotion />
+          <Router />
+        </ErrorBoundary>
+      </QueryClientProvider>
+      <ToastStack />
     </StrictMode>,
     document.getElementById('root')
   )

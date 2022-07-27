@@ -2,19 +2,18 @@ import { animated, useTransition } from '@react-spring/web'
 
 import { Toast } from '@oxide/ui'
 
-import type { Toast as ToastModel } from './types'
+import { useToastStore } from './index'
 
-interface ToastStackProps {
-  toasts: ToastModel[]
-  onRemoveToast: (id: string) => void
-}
+export function ToastStack() {
+  const toasts = useToastStore((state) => state.toasts)
+  const remove = useToastStore((state) => state.remove)
 
-export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => {
   const transition = useTransition(toasts, {
     keys: (toast) => toast.id,
     from: { opacity: 0, y: 10, scale: 95 },
     enter: { opacity: 1, y: 0, scale: 100 },
     leave: { opacity: 0, y: 10, scale: 95 },
+    config: { duration: 100 },
   })
 
   return (
@@ -31,7 +30,7 @@ export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => {
             key={item.id}
             {...item.options}
             onClose={() => {
-              onRemoveToast(item.id)
+              remove(item.id)
               item.options.onClose?.()
             }}
           />

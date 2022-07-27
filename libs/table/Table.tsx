@@ -7,12 +7,16 @@ import { Table as UITable } from '@oxide/ui'
 export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string
   table: TableInstance<TData>
+  singleSelect?: boolean
+  multiSelect?: boolean
 }
 
 /** Render a React Table table instance */
 export const Table = <TData,>({
   rowClassName,
   table,
+  singleSelect,
+  multiSelect,
   ...tableProps
 }: TableProps<TData>) => (
   <UITable {...tableProps}>
@@ -33,23 +37,25 @@ export const Table = <TData,>({
     <UITable.Body>
       {table.getRowModel().rows.map((row) => {
         // For single-select, the entire row is clickable
-        const rowProps = row.getCanSelect() // this means single-select only
-          ? {
-              className: cn(rowClassName, 'cursor-pointer'),
-              selected: row.getIsSelected(),
-              // select only this row
-              onClick: () => table.setRowSelection(() => ({ [row.id]: true })),
-            }
-          : { className: rowClassName }
+        const rowProps =
+          singleSelect && row.getCanSelect() // this means single-select only
+            ? {
+                className: cn(rowClassName, 'cursor-pointer'),
+                selected: row.getIsSelected(),
+                // select only this row
+                onClick: () => table.setRowSelection(() => ({ [row.id]: true })),
+              }
+            : { className: rowClassName }
 
         // For multi-select, assume the first cell is the checkbox and make the
         // whole cell clickable
-        const firstCellProps = row.getCanMultiSelect()
-          ? {
-              className: 'cursor-pointer',
-              onClick: () => row.toggleSelected(),
-            }
-          : {}
+        const firstCellProps =
+          multiSelect && row.getCanMultiSelect()
+            ? {
+                className: 'cursor-pointer',
+                onClick: () => row.toggleSelected(),
+              }
+            : {}
 
         return (
           <UITable.Row key={row.id} {...rowProps}>

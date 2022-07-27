@@ -192,7 +192,11 @@ const makeQueryTable = <Item,>(
 
     return (
       <>
-        <Table table={table} />
+        <Table
+          table={table}
+          singleSelect={!!onSingleSelect}
+          multiSelect={!!onMultiSelect}
+        />
         <Pagination inline={pagination === 'inline'} {...paginationParams} />
       </>
     )
