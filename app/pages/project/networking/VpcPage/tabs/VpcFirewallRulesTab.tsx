@@ -15,7 +15,7 @@ import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
 import { CreateFirewallRuleSideModalForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
@@ -43,7 +43,7 @@ const staticColumns = [
 ]
 
 export const VpcFirewallRulesTab = () => {
-  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
   const { data, isLoading } = useApiQuery('vpcFirewallRulesView', vpcParams)
   const rules = useMemo(() => data?.rules || [], [data])

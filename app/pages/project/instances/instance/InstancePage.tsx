@@ -9,7 +9,7 @@ import { pick } from '@oxide/util'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { Tabs } from 'app/components/Tabs'
-import { useParams, useQuickActions } from 'app/hooks'
+import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { useMakeInstanceActions } from '../actions'
 import { MetricsTab } from './tabs/MetricsTab'
@@ -39,7 +39,7 @@ const InstanceTabs = memo(() => (
 ))
 
 export const InstancePage = () => {
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()

@@ -7,10 +7,10 @@ import { Button, EmptyMessage } from '@oxide/ui'
 
 import { CreateSubnetSideModalForm } from 'app/forms/subnet-create'
 import { EditSubnetSideModalForm } from 'app/forms/subnet-edit'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 export const VpcSubnetsTab = () => {
-  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcSubnetList', vpcParams)
   const [createModalOpen, setCreateModalOpen] = useState(false)

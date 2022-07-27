@@ -27,7 +27,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -48,7 +48,7 @@ const colHelper = createColumnHelper<UserRow>()
 export const ProjectAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const projectParams = useParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
   const { data: policy } = useApiQuery('projectPolicyView', projectParams)
 
   const rows = useUserAccessRows(policy, projectRoleOrder)

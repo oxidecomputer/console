@@ -18,7 +18,7 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 function AttachedInstance(props: {
   orgName: string
@@ -54,7 +54,7 @@ export function DisksPage({ modal }: DisksPageProps) {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
-  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('diskList', { orgName, projectName })
 
   const deleteDisk = useApiMutation('diskDelete', {

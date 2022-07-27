@@ -9,7 +9,7 @@ import { useApiMutation } from '@oxide/api'
 import { capitalize } from '@oxide/util'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import type { CreateSideModalFormProps, EditSideModalFormProps } from '.'
 
@@ -36,7 +36,7 @@ export function ProjectAccessAddUserSideModal({
   policy,
   ...props
 }: AddRoleModalProps) {
-  const projectParams = useParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
 
   const users = useUsersNotInPolicy(policy)
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
@@ -101,7 +101,7 @@ export function ProjectAccessEditUserSideModal({
   policy,
   ...props
 }: EditRoleModalProps) {
-  const projectParams = useParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {

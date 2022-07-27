@@ -14,7 +14,7 @@ import {
 
 import { PageActionsTarget } from 'app/components/PageActions'
 import { ProjectSelector } from 'app/components/ProjectSelector'
-import { useParams, useQuickActions } from 'app/hooks'
+import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -28,7 +28,7 @@ import {
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const { projectName } = useParams('orgName', 'projectName')
+  const { projectName } = useRequiredParams('orgName', 'projectName')
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(

@@ -4,7 +4,7 @@ import type { VpcRouter, VpcRouterUpdate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import type { EditSideModalFormProps } from '.'
 
@@ -16,7 +16,7 @@ export function EditVpcRouterForm({
   onDismiss,
   ...props
 }: EditSideModalFormProps<VpcRouterUpdate, VpcRouter>) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRouter = useApiMutation('vpcRouterUpdate', {

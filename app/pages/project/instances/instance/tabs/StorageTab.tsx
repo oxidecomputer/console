@@ -11,7 +11,7 @@ import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
-import { useParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -50,7 +50,7 @@ export function StorageTab() {
 
   const addToast = useToast()
   const queryClient = useApiQueryClient()
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
 
   const { data } = useApiQuery('instanceDiskList', instanceParams)
 

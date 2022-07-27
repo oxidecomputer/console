@@ -24,7 +24,7 @@ import {
 } from '@oxide/ui'
 
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 type UserRow = UserAccessRow<OrganizationRole>
 
@@ -45,7 +45,7 @@ const colHelper = createColumnHelper<UserRow>()
 export const OrgAccessPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const orgParams = useParams('orgName')
+  const orgParams = useRequiredParams('orgName')
   const { data: policy } = useApiQuery('organizationPolicyView', orgParams)
 
   const rows = useUserAccessRows(policy, orgRoleOrder)

@@ -7,10 +7,10 @@ import { Button, EmptyMessage } from '@oxide/ui'
 
 import { CreateVpcRouterForm } from 'app/forms/vpc-router-create'
 import { EditVpcRouterForm } from 'app/forms/vpc-router-edit'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 export const VpcRoutersTab = () => {
-  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcRouterList', vpcParams)
 

@@ -17,10 +17,10 @@ import {
 
 import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceSideModalForm from 'app/forms/network-interface-edit'
-import { useParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
-  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const { data: vpc } = useApiQuery('vpcViewById', { id: value })
   if (!vpc) return null
   return (
@@ -40,14 +40,14 @@ const SubnetNameFromId = ({ value }: { value: string }) => (
 )
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { data } = useApiQuery('instanceExternalIpList', instanceParams)
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-default">{primary ? ips : <>&mdash;</>}</span>
 }
 
 export function NetworkingTab() {
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 

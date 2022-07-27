@@ -1,53 +1,45 @@
 import type { Params } from 'react-router-dom'
-import { useParams as _useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
+const err = (param: string) =>
+  `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
+
 /**
- * Wrapper for React Router's `useParams` that throws (in dev) if any of the
- * specified params is missing. The specified params are guaranteed by TS to be
- * present on the resulting params object. NO OTHER PARAMS are present.
- *
- * @returns an object where the specified params are guaranteed (in dev) to be
- * present (with no other args present)
+ * Wrapper for RR's `useParams` that guarantees (in dev) that the specified
+ * params are present. No keys besides those specified are present on the result
+ * object, but we do not error if there are other params present on the page.
  */
 // default of never is required to prevent the highly undesirable property that if
 // you don't pass any arguments, the result object thinks every property is defined
-export function useParams<K extends string = never>(...requiredParams: K[]) {
-  const params = _useParams()
-  const resultParams: Record<string, string> = {}
+export function useRequiredParams<K extends string = never>(...requiredKeys: K[]) {
+  const params = useParams()
+  // same as below except we build an object with only the specified keys
+  const requiredParams: { [k in K]?: string } = {}
   if (process.env.NODE_ENV !== 'production') {
-    for (const k of requiredParams) {
+    for (const k of requiredKeys) {
       const value = params[k]
-      invariant(
-        k in params && value,
-        `Param '${k}' not found in route. You might be rendering a component under the wrong route.`
-      )
-      resultParams[k] = value
+      invariant(k in params && value, err(k))
+      requiredParams[k] = value
     }
   }
-  return resultParams as { readonly [k in K]: string }
+  return requiredParams as { readonly [k in K]: string }
 }
 
 /**
- * Wrapper for React Router's `useParams` that throws (in dev) if any of the
- * specified params is missing. The specified params are guaranteed by TS to be
- * present on the resulting params object. Any other param is allowed to be
- * pulled off the object, but TS will require you to check if it's undefined.
- *
- * @returns an object where the specified params are guaranteed (in dev) to be
- * present, any other key optionally present
+ * Wrapper for RR's `useParams` that guarantees (in dev) that the specified
+ * params are present. Includes all other string keys optionally — caller
+ * has to check if they're undefined.
  */
 // default of never is required to prevent the highly undesirable property that if
 // you don't pass any arguments, the result object thinks every property is defined
-export function useAllParams<K extends string = never>(...requiredParams: K[]) {
-  const params = _useParams()
+export function useAllParams<K extends string = never>(...requiredKeys: K[]) {
+  const params = useParams()
   if (process.env.NODE_ENV !== 'production') {
-    for (const k of requiredParams) {
-      invariant(
-        k in params,
-        `Param '${k}' not found in route. You might be rendering a component under the wrong route.`
-      )
+    for (const k of requiredKeys) {
+      invariant(k in params, err(k))
     }
   }
+  // same as above except we return everything useParams() gives us
   return params as { readonly [k in K]: string } & Params
 }

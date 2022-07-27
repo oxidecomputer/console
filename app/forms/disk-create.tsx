@@ -12,7 +12,7 @@ import {
   Radio,
   RadioField,
 } from 'app/components/form'
-import { useParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
@@ -37,7 +37,7 @@ export function CreateDiskSideModalForm({
   ...props
 }: CreateSideModalFormProps<DiskCreate, Disk>) {
   const queryClient = useApiQueryClient()
-  const pathParams = useParams('orgName', 'projectName')
+  const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
 
   const createDisk = useApiMutation('diskCreate', {

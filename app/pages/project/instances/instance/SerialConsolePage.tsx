@@ -6,12 +6,12 @@ import { Button, Divider, PageHeader, PageTitle, Terminal24Icon } from '@oxide/u
 import { MiB } from '@oxide/util'
 
 import { PageActions } from 'app/components/PageActions'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const Terminal = React.lazy(() => import('app/components/Terminal'))
 
 export function SerialConsolePage() {
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
 
   const { data, refetch } = useApiQuery(
     'instanceSerialConsole',
