@@ -3830,17 +3830,17 @@
     "@types/use-sync-external-store" "^0.0.3"
     use-sync-external-store "^1.2.0"
 
-"@tanstack/react-table@^8.0.13":
-  version "8.0.13"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.0.13.tgz#47020beeaddac0c64d215a3463fc536a9589410b"
-  integrity sha512-4arYr+cGvpLiGSeAeLSTSlzuIB884pCFGzKI/MAX8/aFz7QZvkdu9AyWt9owCs/CYuPjd9iQoSwjfe3VK4yNPg==
+"@tanstack/react-table@^8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.3.3.tgz#bcad6e4ec8e34c96ec50c9d7df14190042fc54ce"
+  integrity sha512-Zvp40XmxJgage/GKzqQVH38gVRtF5rmLV7WIWE4WZUtKsZgPhU3ZUt7ijc2Nyej8v/KGkF4ja8FA/UITevZA4A==
   dependencies:
-    "@tanstack/table-core" "8.0.13"
+    "@tanstack/table-core" "8.3.3"
 
-"@tanstack/table-core@8.0.13":
-  version "8.0.13"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.0.13.tgz#e5dc7ab9a5ca8224e128251b55749a13b81bd421"
-  integrity sha512-2G9DVpeIarsCkWNFe4ZPDDQQHK6XEqGr8C+G8eoSiPvM077LRg+oK150get3kRjbNUaHUT6RUEjc0lXNC6V83w==
+"@tanstack/table-core@8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.3.3.tgz#c01103ffd7cdc070f470c79b2c14401c7d7ca5ae"
+  integrity sha512-Y9lVatqOsQaQBmoKynWIkThC9MN+z4RCP8hSyGPlxI4K1MINFUBswpi3mEg157g0Q9UOXtmt13s7wnoHHfe+2Q==
 
 "@testing-library/dom@^8.0.0":
   version "8.1.0"
@@ -14925,10 +14925,10 @@ type-fest@^1.2.2:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
 
-type-fest@^2.16.0:
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.16.0.tgz#1250fbd64dafaf4c8e405e393ef3fb16d9651db2"
-  integrity sha512-qpaThT2HQkFb83gMOrdKVsfCN7LKxP26Yq+smPzY1FqoHRjqmjqHXA7n5Gkxi8efirtbeEUxzfEdePthQWCuHw==
+type-fest@^2.17.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.17.0.tgz#c677030ce61e5be0c90c077d52571eb73c506ea9"
+  integrity sha512-U+g3/JVXnOki1kLSc+xZGPRll3Ah9u2VIG6Sn9iH9YX6UkPERmt6O/0fIyTgsd2/whV0+gAaHAg8fz6sG1QzMA==
 
 type-is@~1.6.17, type-is@~1.6.18:
   version "1.6.18"

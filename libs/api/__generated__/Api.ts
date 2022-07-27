@@ -181,6 +181,20 @@ export type ExternalIp = {
 export type ExternalIpCreate = { poolName?: Name | null; type: 'ephemeral' }
 
 /**
+ * A single page of results
+ */
+export type ExternalIpResultsPage = {
+  /**
+   * list of items on this page of results
+   */
+  items: ExternalIp[]
+  /**
+   * token used to fetch the next page of results (if any)
+   */
+  nextPage?: string | null
+}
+
+/**
  * The name and type information for a field of a timeseries schema.
  */
 export type FieldSchema = {
@@ -2820,15 +2834,13 @@ export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   body?: unknown
   /** base url */
   baseUrl?: string
-  /** request cancellation token */
-  cancelToken?: CancelToken
 }
 
 export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>
 
 export interface ApiConfig {
   baseUrl?: string
-  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>
+  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'signal'>
   customFetch?: typeof fetch
 }
 
@@ -2849,8 +2861,6 @@ export type SuccessResponse<Data extends unknown> = Response & {
 
 export type ApiResponse<Data extends unknown> = SuccessResponse<Data> | ErrorResponse
 
-type CancelToken = Symbol | string | number
-
 const encodeQueryParam = (key: string, value: any) =>
   `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
 
@@ -2866,7 +2876,6 @@ const toQueryString = (rawQuery?: QueryParamsType): string =>
 
 export class HttpClient {
   public baseUrl: string = ''
-  private abortControllers = new Map<CancelToken, AbortController>()
   private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams)
 
   private baseApiParams: RequestParams = {
@@ -2891,35 +2900,11 @@ export class HttpClient {
     }
   }
 
-  private createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
-    if (this.abortControllers.has(cancelToken)) {
-      const abortController = this.abortControllers.get(cancelToken)
-      if (abortController) {
-        return abortController.signal
-      }
-      return void 0
-    }
-
-    const abortController = new AbortController()
-    this.abortControllers.set(cancelToken, abortController)
-    return abortController.signal
-  }
-
-  public abortRequest = (cancelToken: CancelToken) => {
-    const abortController = this.abortControllers.get(cancelToken)
-
-    if (abortController) {
-      abortController.abort()
-      this.abortControllers.delete(cancelToken)
-    }
-  }
-
   public request = async <Data extends unknown>({
     body,
     path,
     query,
     baseUrl,
-    cancelToken,
     ...params
   }: FullRequestParams): Promise<ApiResponse<Data>> => {
     const requestParams = this.mergeRequestParams(params)
@@ -2937,7 +2922,6 @@ export class HttpClient {
         'Content-Type': 'application/json',
         ...requestParams.headers,
       },
-      signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
       body: JSON.stringify(snakeify(body)),
     })
 
@@ -2954,10 +2938,6 @@ export class HttpClient {
       }
     } catch (e) {
       r.error = e as Error
-    }
-
-    if (cancelToken) {
-      this.abortControllers.delete(cancelToken)
     }
 
     if (!r.ok) throw r
@@ -3738,7 +3718,7 @@ export class Api extends HttpClient {
       { instanceName, orgName, projectName }: InstanceExternalIpListParams,
       params: RequestParams = {}
     ) =>
-      this.request<void>({
+      this.request<ExternalIpResultsPage>({
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/external-ips`,
         method: 'GET',
         ...params,

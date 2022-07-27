@@ -1,4 +1,4 @@
-import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import type { VpcFirewallRule } from '@oxide/api'
@@ -9,7 +9,6 @@ import {
   FirewallFilterCell,
   Table,
   TypeValueListCell,
-  createTable,
   getActionsCol,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
@@ -18,26 +17,25 @@ import { CreateFirewallRuleSideModalForm } from 'app/forms/firewall-rules-create
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useParams } from 'app/hooks'
 
-const tableHelper = createTable().setRowType<VpcFirewallRule>()
+const colHelper = createColumnHelper<VpcFirewallRule>()
 
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
-  tableHelper.createDataColumn('name', { header: 'Name' }),
-  tableHelper.createDataColumn('action', { header: 'Action' }),
-  // map() fixes the fact that IpNets aren't strings
-  tableHelper.createDataColumn('targets', {
+  colHelper.accessor('name', { header: 'Name' }),
+  colHelper.accessor('action', { header: 'Action' }),
+  colHelper.accessor('targets', {
     header: 'Targets',
     cell: (info) => <TypeValueListCell value={info.getValue()} />,
   }),
-  tableHelper.createDataColumn('filters', {
+  colHelper.accessor('filters', {
     header: 'Filters',
     cell: (info) => <FirewallFilterCell value={info.getValue()} />,
   }),
-  tableHelper.createDataColumn('status', {
+  colHelper.accessor('status', {
     header: 'Status',
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
-  tableHelper.createDataColumn('timeCreated', {
+  colHelper.accessor('timeCreated', {
     id: 'created',
     header: 'Created',
     cell: (info) => <DateCell value={info.getValue()} />,
@@ -57,15 +55,15 @@ export const VpcFirewallRulesTab = () => {
   const columns = useMemo(() => {
     return [
       ...staticColumns,
-      tableHelper.createDisplayColumn(
-        getActionsCol((rule) => [{ label: 'Edit', onActivate: () => setEditing(rule) }])
-      ),
+      getActionsCol((rule: VpcFirewallRule) => [
+        { label: 'Edit', onActivate: () => setEditing(rule) },
+      ]),
     ]
   }, [setEditing])
 
-  const table = useTableInstance(tableHelper, {
-    data: rules,
+  const table = useReactTable({
     columns,
+    data: rules,
     getCoreRowModel: getCoreRowModel(),
   })
 

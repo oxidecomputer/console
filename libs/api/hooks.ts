@@ -53,7 +53,7 @@ export const getUseApiQuery =
       // react-query wants, so we don't have to handle the error case explicitly
       // here.
       ({ signal }) =>
-        api[method]({ ...params, signal })
+        api[method](params, { signal })
           .then((resp) => resp.data)
           .catch(handleErrors(method)),
       {

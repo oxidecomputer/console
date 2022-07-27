@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashQueryKey } from '@tanstack/react-query'
-import type { AccessorFn } from '@tanstack/react-table'
-import { getCoreRowModel, useTableInstance } from '@tanstack/react-table'
+import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
@@ -15,7 +15,7 @@ import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { isOneOf } from '@oxide/util'
 
-import { Table, createTable } from './Table'
+import { Table } from './Table'
 import { DefaultCell } from './cells'
 import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
@@ -105,30 +105,28 @@ const makeQueryTable = <Item,>(
     }, [rowSelection, onSingleSelect, onMultiSelect])
 
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const tableHelper = useMemo(() => createTable().setRowType<Item>(), [])
+    const colHelper = createColumnHelper<Item>()
     const columns = useMemo(() => {
       const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
 
         // QueryTableColumnProps ensures `id` is passed in if and only if
         // `accessor` is not a string
-        const id = 'id' in column ? column.id : column.accessor
+        const id =
+          'id' in column
+            ? column.id
+            : typeof column.accessor === 'string'
+            ? column.accessor
+            : undefined // should never happen due to described constraint
 
-        return tableHelper.createDataColumn(
-          column.accessor,
-          // I think passing variables here messes with RT's ability to infer
-          // the relationships between these keys. The type error is useless.
-          // This is fine though: it's simple enough and it's correct.
-          // @ts-expect-error
-          {
-            id,
-            header: typeof column.header === 'string' ? column.header : id,
-            cell: (info: any) => {
-              const Comp = column.cell || DefaultCell
-              return <Comp value={info.getValue()} />
-            },
-          }
-        )
+        return colHelper.accessor(column.accessor, {
+          id,
+          header: typeof column.header === 'string' ? column.header : id,
+          cell: (info: any) => {
+            const Comp = column.cell || DefaultCell
+            return <Comp value={info.getValue()} />
+          },
+        })
       })
 
       if (onSingleSelect) {
@@ -142,7 +140,7 @@ const makeQueryTable = <Item,>(
       }
 
       return columns
-    }, [children, tableHelper, makeActions, onSingleSelect, onMultiSelect])
+    }, [children, colHelper, makeActions, onSingleSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -154,7 +152,7 @@ const makeQueryTable = <Item,>(
 
     const getRowId = useCallback((row) => row.name, [])
 
-    const table = useTableInstance(tableHelper, {
+    const table = useReactTable({
       columns,
       data: tableData,
       getRowId,
@@ -200,13 +198,13 @@ const makeQueryTable = <Item,>(
     )
   }
 
-export type QueryTableColumnProps<Item> = {
+export type QueryTableColumnProps<Item extends Record<string, any>> = {
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
   cell?: ComponentType<{ value: any }>
 } & ( // imitate the way RT works: only pass id if accessor is not a string
-  | { accessor: keyof Item }
+  | { accessor: DeepKeys<Item> }
   | {
       accessor: AccessorFn<Item>
       id: string

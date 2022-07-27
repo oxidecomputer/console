@@ -1,37 +1,20 @@
-import type { TableInstance } from '@tanstack/react-table'
-import { createTable as _createTable } from '@tanstack/react-table'
+import type { Table as TableInstance } from '@tanstack/react-table'
+import { flexRender } from '@tanstack/react-table'
 import cn from 'classnames'
 
 import { Table as UITable } from '@oxide/ui'
 
-export type TableProps<TGenerics> = JSX.IntrinsicElements['table'] & {
+export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string
-  table: TableInstance<TGenerics>
+  table: TableInstance<TData>
 }
 
-type ColumnMeta = {
-  thClassName?: string
-}
-
-/**
- * Use instead of React Table's built-in `createTable` to get typechecking on
- * the `ColumnMeta`.
- */
-export const createTable = () => _createTable().setColumnMetaType<ColumnMeta>()
-
-// We can add whatever other `set*` stuff we want to `createTable` and this will
-// Just Work, passing on the type constraints to `Table`
-type OurTableGenerics = ReturnType<typeof createTable>['generics']
-
-/**
- * Render a React Table table instance. Will get mad if `table` comes from the
- * built-in `createTable` instead of our {@link createTable}.
- */
-export const Table = <TGenerics extends OurTableGenerics>({
+/** Render a React Table table instance */
+export const Table = <TData,>({
   rowClassName,
   table,
   ...tableProps
-}: TableProps<TGenerics>) => (
+}: TableProps<TData>) => (
   <UITable {...tableProps}>
     <UITable.Header>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -41,7 +24,7 @@ export const Table = <TGenerics extends OurTableGenerics>({
               key={header.id}
               className={header.column.columnDef.meta?.thClassName}
             >
-              {header.renderHeader()}
+              {flexRender(header.column.columnDef.header, header.getContext())}
             </UITable.HeadCell>
           ))}
         </UITable.HeaderRow>
@@ -68,12 +51,12 @@ export const Table = <TGenerics extends OurTableGenerics>({
             }
           : {}
 
-        const [firstCell, ...cells] = row.getAllCells()
         return (
           <UITable.Row key={row.id} {...rowProps}>
-            <UITable.Cell {...firstCellProps}>{firstCell.renderCell()}</UITable.Cell>
-            {cells.map((cell) => (
-              <UITable.Cell key={cell.column.id}>{cell.renderCell()}</UITable.Cell>
+            {row.getAllCells().map((cell, i) => (
+              <UITable.Cell key={cell.column.id} {...(i === 0 ? firstCellProps : {})}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </UITable.Cell>
             ))}
           </UITable.Row>
         )

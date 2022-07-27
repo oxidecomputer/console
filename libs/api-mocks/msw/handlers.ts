@@ -462,6 +462,22 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, InstanceParams, Json<Api.ExternalIpResultsPage> | GetErr>(
+    '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips',
+    (req, res) => {
+      const [, err] = lookupInstance(req.params)
+      if (err) return res(err)
+      // TODO: proper mock table
+      const items = [
+        {
+          ip: '123.4.56.7',
+          kind: 'ephemeral',
+        } as const,
+      ]
+      return res(json({ items }))
+    }
+  ),
+
   rest.get<never, InstanceParams, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
     (req, res) => {
