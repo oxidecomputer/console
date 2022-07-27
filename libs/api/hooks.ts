@@ -1,5 +1,6 @@
 import type {
   InvalidateQueryFilters,
+  QueryFilters,
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
@@ -51,8 +52,8 @@ export const getUseApiQuery =
       // The generated client already throws on error responses, which is what
       // react-query wants, so we don't have to handle the error case explicitly
       // here.
-      () =>
-        api[method](params)
+      ({ signal }) =>
+        api[method](params, { signal })
           .then((resp) => resp.data)
           .catch(handleErrors(method)),
       {
@@ -92,16 +93,17 @@ export const getUseApiQueryClient =
         method: M,
         params: Params<A[M]>,
         filters?: InvalidateQueryFilters
-      ) => {
-        queryClient.invalidateQueries([method, params], filters)
-      },
+      ) => queryClient.invalidateQueries([method, params], filters),
       setQueryData: <M extends keyof A>(
         method: M,
         params: Params<A[M]>,
         data: Result<A[M]>
-      ) => {
-        queryClient.setQueryData([method, params], data)
-      },
+      ) => queryClient.setQueryData([method, params], data),
+      cancelQueries: <M extends keyof A>(
+        method: M,
+        params: Params<A[M]>,
+        filters: QueryFilters
+      ) => queryClient.cancelQueries([method, params], filters),
     }
   }
 
