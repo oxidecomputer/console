@@ -14,7 +14,7 @@ type StoreState = {
   remove: (id: Toast['id']) => void
 }
 
-export const useToastStore = create<StoreState>((set) => ({
+export const useToastStore = create<StoreState>()((set) => ({
   toasts: [],
   add: (options) => set(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] })),
   remove: (id) => set(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) })),

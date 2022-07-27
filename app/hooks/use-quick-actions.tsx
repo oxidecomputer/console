@@ -21,7 +21,7 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-const useStore = create<StoreState>((set) => ({
+const useStore = create<StoreState>()((set) => ({
   items: [],
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
