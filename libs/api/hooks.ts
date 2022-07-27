@@ -91,9 +91,9 @@ export const getUseApiQueryClient =
     return {
       invalidateQueries: <M extends keyof A>(
         method: M,
-        params: Params<A[M]>,
+        params?: Params<A[M]>,
         filters?: InvalidateQueryFilters
-      ) => queryClient.invalidateQueries([method, params], filters),
+      ) => queryClient.invalidateQueries(params ? [method, params] : [method], filters),
       setQueryData: <M extends keyof A>(
         method: M,
         params: Params<A[M]>,
@@ -101,14 +101,14 @@ export const getUseApiQueryClient =
       ) => queryClient.setQueryData([method, params], data),
       cancelQueries: <M extends keyof A>(
         method: M,
-        params: Params<A[M]>,
+        params?: Params<A[M]>,
         filters?: QueryFilters
-      ) => queryClient.cancelQueries([method, params], filters),
+      ) => queryClient.cancelQueries(params ? [method, params] : [method], filters),
       refetchQueries: <M extends keyof A>(
         method: M,
-        params: Params<A[M]>,
+        params?: Params<A[M]>,
         filters?: QueryFilters
-      ) => queryClient.refetchQueries([method, params], filters),
+      ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
     }
   }
 
