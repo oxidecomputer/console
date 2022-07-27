@@ -72,6 +72,7 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
       <CreateVpcSideModalForm
         isOpen={modal === 'createVpc'}
         onDismiss={() => navigate('..')}
+        onSuccess={() => navigate('..')}
       />
     </>
   )
