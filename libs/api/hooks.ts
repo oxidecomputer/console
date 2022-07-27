@@ -104,6 +104,11 @@ export const getUseApiQueryClient =
         params: Params<A[M]>,
         filters?: QueryFilters
       ) => queryClient.cancelQueries([method, params], filters),
+      refetchQueries: <M extends keyof A>(
+        method: M,
+        params: Params<A[M]>,
+        filters?: QueryFilters
+      ) => queryClient.refetchQueries([method, params], filters),
     }
   }
 
