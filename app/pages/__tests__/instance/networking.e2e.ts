@@ -69,7 +69,5 @@ test('Instance networking tab', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
-  // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Dismiss notification"]')
   await expectNotVisible(page, ['role=cell[name="nic-3"]'])
 })
