@@ -15,6 +15,7 @@ export const ToastStack = ({ toasts, onRemoveToast }: ToastStackProps) => {
     from: { opacity: 0, y: 10, scale: 95 },
     enter: { opacity: 1, y: 0, scale: 100 },
     leave: { opacity: 0, y: 10, scale: 95 },
+    config: { duration: 100 },
   })
 
   return (
