@@ -14,7 +14,7 @@ import {
 } from 'app/components/form'
 import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
 import type { CreateSideModalFormProps } from 'app/forms'
-import { useParams } from 'app/hooks'
+import { useAllParams } from 'app/hooks'
 
 const values: NetworkInterfaceCreate = {
   name: '',
@@ -35,15 +35,15 @@ export default function CreateNetworkInterfaceSideModalForm({
   ...props
 }: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
   const queryClient = useApiQueryClient()
-  const pathParams = useParams('orgName', 'projectName')
+  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
   const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess(data) {
-      const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         instanceName,
-        ...others,
+        projectName,
+        orgName,
       })
       onSuccess?.(data)
       onDismiss()
@@ -51,7 +51,7 @@ export default function CreateNetworkInterfaceSideModalForm({
     onError,
   })
 
-  const vpcs = useApiQuery('vpcList', { ...pathParams, limit: 50 }).data?.items || []
+  const vpcs = useApiQuery('vpcList', { orgName, projectName, limit: 50 }).data?.items || []
 
   return (
     <SideModalForm
@@ -62,7 +62,6 @@ export default function CreateNetworkInterfaceSideModalForm({
       onSubmit={
         onSubmit ||
         ((body) => {
-          const { instanceName, ...others } = pathParams
           invariant(
             instanceName,
             'instanceName is required when posting a network interface'
@@ -70,7 +69,8 @@ export default function CreateNetworkInterfaceSideModalForm({
 
           createNetworkInterface.mutate({
             instanceName,
-            ...others,
+            projectName,
+            orgName,
             body: { ...body, ip: nullIfEmpty(body.ip) },
           })
         })

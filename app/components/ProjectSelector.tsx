@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { SelectArrows6Icon } from '@oxide/ui'
 
-import { useParams } from 'app/hooks'
+import { useAllParams } from 'app/hooks'
 
 /**
  * This is mostly temporary until we figure out the proper thing to go here
@@ -22,7 +22,7 @@ const BrandIcon = () => (
 )
 
 export const ProjectSelector = () => {
-  const { orgName, projectName } = useParams('orgName')
+  const { orgName, projectName } = useAllParams('orgName')
 
   const { data } = useApiQuery('projectList', { orgName, limit: 20 })
 

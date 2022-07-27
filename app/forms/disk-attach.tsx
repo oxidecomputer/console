@@ -7,7 +7,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { ListboxField } from 'app/components/form'
 import { SideModalForm } from 'app/components/form/SideModalForm'
 import type { CreateSideModalFormProps } from 'app/forms'
-import { useParams } from 'app/hooks'
+import { useAllParams } from 'app/hooks'
 
 const values = { name: '' }
 
@@ -21,15 +21,15 @@ export function AttachDiskSideModalForm({
   ...props
 }: CreateSideModalFormProps<DiskIdentifier, Disk>) {
   const queryClient = useApiQueryClient()
-  const pathParams = useParams('orgName', 'projectName')
+  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess(data) {
-      const { instanceName, ...others } = pathParams
       invariant(instanceName, 'instanceName is required')
       queryClient.invalidateQueries('instanceDiskList', {
+        orgName,
+        projectName,
         instanceName,
-        ...others,
       })
       onSuccess?.(data)
     },
@@ -41,7 +41,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('diskList', { ...pathParams, limit: 50 }).data?.items.filter(
+    useApiQuery('diskList', { orgName, projectName, limit: 50 }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 
@@ -53,11 +53,11 @@ export function AttachDiskSideModalForm({
       onSubmit={
         onSubmit ||
         (({ name }) => {
-          const { instanceName, ...others } = pathParams
           invariant(instanceName, 'instanceName is required')
           attachDisk.mutate({
+            orgName,
+            projectName,
             instanceName,
-            ...others,
             body: { name },
           })
         })
