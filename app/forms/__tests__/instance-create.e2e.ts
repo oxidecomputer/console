@@ -32,9 +32,9 @@ test.describe('Instance Create Form', () => {
 
     await page.locator('button:has-text("Create instance")').click()
 
-    await page.waitForNavigation()
-
-    expect(page).toHaveURL('/orgs/maze-war/projects/mock-project/instances/mock-instance')
+    await expect(page).toHaveURL(
+      '/orgs/maze-war/projects/mock-project/instances/mock-instance'
+    )
 
     await expect(page.locator('h1:has-text("mock-instance")')).toBeVisible()
   })
