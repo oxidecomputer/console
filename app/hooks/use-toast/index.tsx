@@ -1,31 +1,23 @@
-import type { FC } from 'react'
-import { createContext, useContext, useState } from 'react'
 import { v4 as uuid } from 'uuid'
+import create from 'zustand'
 
-import { ToastStack } from './ToastStack'
-import type { Toast } from './types'
+import type { ToastProps } from '@oxide/ui'
 
-type AddToast = (options: Toast['options']) => void
-
-const ToastContext = createContext<AddToast>(() => {})
-
-export const useToast = () => useContext(ToastContext)
-
-export const ToastProvider: FC = ({ children }) => {
-  const [toasts, setToasts] = useState<Toast[]>([])
-
-  const addToast: AddToast = (options) => {
-    setToasts((toasts) => [...toasts, { id: uuid(), options }])
-  }
-
-  const removeToast = (id: string) => {
-    setToasts((toasts) => toasts.filter((t) => t.id !== id))
-  }
-
-  return (
-    <ToastContext.Provider value={addToast}>
-      {children}
-      <ToastStack toasts={toasts} onRemoveToast={removeToast} />
-    </ToastContext.Provider>
-  )
+type Toast = {
+  id: string
+  options: Optional<ToastProps, 'onClose'>
 }
+
+type StoreState = {
+  toasts: Toast[]
+  add: (options: Toast['options']) => void
+  remove: (id: Toast['id']) => void
+}
+
+export const useToastStore = create<StoreState>()((set) => ({
+  toasts: [],
+  add: (options) => set(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] })),
+  remove: (id) => set(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) })),
+}))
+
+export const useToast = () => useToastStore(({ add }) => add)

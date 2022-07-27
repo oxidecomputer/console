@@ -52,9 +52,7 @@ export function StorageTab() {
   const queryClient = useApiQueryClient()
   const instanceParams = useParams('orgName', 'projectName', 'instanceName')
 
-  const { data } = useApiQuery('instanceDiskList', instanceParams, {
-    refetchInterval: 5000,
-  })
+  const { data } = useApiQuery('instanceDiskList', instanceParams)
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
