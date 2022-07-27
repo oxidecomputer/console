@@ -681,7 +681,17 @@ export const handlers = [
       if (err) return res(err)
 
       return res(
-        json({ items: genI64Data([5, 6, 6, 7, 7, 9, 12, 6, 8], new Date(2022, 3, 4)) })
+        json({
+          items: genI64Data(
+            new Array(1000)
+              .fill(0)
+              .map(
+                (x, i) =>
+                  Math.floor(i * (1000 - i) * (i % 100) + Math.random() * 10000000) / 1000
+              ),
+            new Date(2022, 3, 4)
+          ),
+        })
       )
     }
   ),
