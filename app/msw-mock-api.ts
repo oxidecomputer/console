@@ -24,6 +24,13 @@ if (chaos != null && chaos > 0) {
   console.log(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
 }
 
+const randomStatus = () => {
+  // repeats are for weighting
+  const codes = [401, 403, 404, 404, 404, 404, 404, 500, 500]
+  const i = Math.floor(Math.random() * codes.length)
+  return codes[i]
+}
+
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { handlers } = await import('@oxide/api-mocks')
@@ -34,7 +41,7 @@ export async function startMockAPI() {
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
       // TODO: randomize status code
-      return res(compose(ctx.status(404), ctx.set('X-Chaos', '')))
+      return res(compose(ctx.status(randomStatus()), ctx.set('X-Chaos', '')))
     }
     // don't return anything means fall through to the real handlers
   })
