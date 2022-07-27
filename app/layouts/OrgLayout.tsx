@@ -10,7 +10,7 @@ import { ProjectSelector } from 'app/components/ProjectSelector'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
-import { useParams } from '../hooks'
+import { useRequiredParams } from '../hooks'
 import {
   ContentPane,
   ContentPaneActions,
@@ -23,7 +23,7 @@ import {
 // Relative paths would resolve differently in the two locations.
 
 const OrgLayout = () => {
-  const { orgName } = useParams('orgName')
+  const { orgName } = useRequiredParams('orgName')
   const { data: projects } = useApiQuery('projectList', {
     orgName,
     limit: 10,

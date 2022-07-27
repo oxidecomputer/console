@@ -3,7 +3,7 @@ import { useField } from 'formik'
 import type { Vpc } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import type { ListboxFieldProps } from './ListboxField'
 import { ListboxField } from './ListboxField'
@@ -28,7 +28,7 @@ type SubnetListboxProps = Omit<ListboxFieldProps, 'items'> & {
  * order to have access to the context.
  */
 export function SubnetListbox({ vpcNameField, vpcs, ...fieldProps }: SubnetListboxProps) {
-  const pathParams = useParams('orgName', 'projectName')
+  const pathParams = useRequiredParams('orgName', 'projectName')
   const [, { value: vpcNameRaw }] = useField<string>({ name: vpcNameField })
 
   const vpcName = vpcNameRaw.trim()

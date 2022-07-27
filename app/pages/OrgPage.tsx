@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { buttonStyle } from '@oxide/ui'
 
-import { useParams } from '../hooks'
+import { useRequiredParams } from '../hooks'
 
 export default function OrgPage() {
-  const { orgName } = useParams('orgName')
+  const { orgName } = useRequiredParams('orgName')
   const { data: org } = useApiQuery('organizationView', { orgName })
 
   if (!org) return null

@@ -4,7 +4,7 @@ import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import type { CreateSideModalFormProps } from 'app/forms'
-import { useParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 const values = {
   name: '',
@@ -19,7 +19,7 @@ export function CreateVpcRouterForm({
   onDismiss,
   ...props
 }: CreateSideModalFormProps<VpcRouterCreate, VpcRouter>) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 

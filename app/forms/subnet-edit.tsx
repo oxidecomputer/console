@@ -6,7 +6,7 @@ import { Divider } from '@oxide/ui'
 
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 import type { EditSideModalFormProps } from 'app/forms'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 export function EditSubnetSideModalForm({
   id = 'edit-subnet-form',
@@ -16,7 +16,7 @@ export function EditSubnetSideModalForm({
   onDismiss,
   ...props
 }: EditSideModalFormProps<VpcSubnetUpdate, VpcSubnet>) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {

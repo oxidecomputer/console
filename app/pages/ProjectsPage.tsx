@@ -17,7 +17,7 @@ import {
 import CreateProjectSideModalForm from 'app/forms/project-create'
 import EditProjectSideModalForm from 'app/forms/project-edit'
 
-import { useParams, useQuickActions } from '../hooks'
+import { useQuickActions, useRequiredParams } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -38,7 +38,7 @@ const ProjectsPage = ({ modal }: ProjectsPageProps) => {
   const location = useLocation()
 
   const queryClient = useApiQueryClient()
-  const { orgName } = useParams('orgName')
+  const { orgName } = useRequiredParams('orgName')
   const { Table, Column } = useQueryTable('projectList', {
     orgName,
   })

@@ -2,7 +2,7 @@ import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { Form, SideModalForm } from 'app/components/form'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import type { EditSideModalFormProps } from '.'
 import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
@@ -23,7 +23,7 @@ export function EditFirewallRuleForm({
   originalRule,
   ...props
 }: EditFirewallRuleSideModalFormProps) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {

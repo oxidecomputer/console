@@ -5,7 +5,7 @@ import { Success16Icon } from '@oxide/ui'
 import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
 
 import type { EditSideModalFormProps } from '.'
-import { useParams, useToast } from '../hooks'
+import { useRequiredParams, useToast } from '../hooks'
 
 export function EditProjectSideModalForm({
   id = 'edit-project-form',
@@ -20,7 +20,7 @@ export function EditProjectSideModalForm({
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const { orgName } = useParams('orgName')
+  const { orgName } = useRequiredParams('orgName')
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {

@@ -35,7 +35,7 @@ import {
 } from 'app/components/form'
 import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
 import type { CreateFullPageFormProps } from 'app/forms'
-import { useParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 type InstanceCreateInput = Assign<
   InstanceCreate,
@@ -86,7 +86,7 @@ export default function CreateInstanceForm({
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const pageParams = useParams('orgName', 'projectName')
+  const pageParams = useRequiredParams('orgName', 'projectName')
 
   const createDisk = useApiMutation('diskCreate')
 

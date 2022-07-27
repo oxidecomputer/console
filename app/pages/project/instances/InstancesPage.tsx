@@ -18,7 +18,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { useParams, useQuickActions } from 'app/hooks'
+import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -33,7 +33,7 @@ const EmptyState = () => (
 )
 
 export const InstancesPage = () => {
-  const projectParams = useParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
 
   const queryClient = useApiQueryClient()

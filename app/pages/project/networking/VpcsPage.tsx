@@ -16,7 +16,7 @@ import {
 
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
 import EditVpcSideModalForm from 'app/forms/vpc-edit'
-import { useParams, useQuickActions } from 'app/hooks'
+import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -34,7 +34,7 @@ interface VpcsPageProps {
 
 export const VpcsPage = ({ modal }: VpcsPageProps) => {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName } = useParams('orgName', 'projectName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const location = useLocation()
   const { data: vpcs } = useApiQuery('vpcList', {
     orgName,

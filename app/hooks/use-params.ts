@@ -1,5 +1,5 @@
 import type { Params } from 'react-router-dom'
-import { useParams as _useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 /**
@@ -12,8 +12,8 @@ import invariant from 'tiny-invariant'
  */
 // default of never is required to prevent the highly undesirable property that if
 // you don't pass any arguments, the result object thinks every property is defined
-export function useParams<K extends string = never>(...requiredParams: K[]) {
-  const params = _useParams()
+export function useRequiredParams<K extends string = never>(...requiredParams: K[]) {
+  const params = useParams()
   const resultParams: Record<string, string> = {}
   if (process.env.NODE_ENV !== 'production') {
     for (const k of requiredParams) {
@@ -40,7 +40,7 @@ export function useParams<K extends string = never>(...requiredParams: K[]) {
 // default of never is required to prevent the highly undesirable property that if
 // you don't pass any arguments, the result object thinks every property is defined
 export function useAllParams<K extends string = never>(...requiredParams: K[]) {
-  const params = _useParams()
+  const params = useParams()
   if (process.env.NODE_ENV !== 'production') {
     for (const k of requiredParams) {
       invariant(

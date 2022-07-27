@@ -4,7 +4,7 @@ import { useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 
 import { Tab, Tabs } from 'app/components/Tabs'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
@@ -14,7 +14,7 @@ import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
 export const VpcPage = () => {
-  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
   const { data: vpc } = useApiQuery('vpcView', vpcParams)
 
   return (

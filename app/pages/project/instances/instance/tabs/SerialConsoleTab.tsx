@@ -5,12 +5,12 @@ import { Button } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { PageActions } from 'app/components/PageActions'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsoleTab() {
-  const instanceParams = useParams('orgName', 'projectName', 'instanceName')
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
 
   const { data, refetch } = useApiQuery(
     'instanceSerialConsole',

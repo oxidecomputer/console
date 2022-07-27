@@ -1,7 +1,7 @@
 import { TypeValueCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage } from '@oxide/ui'
 
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -13,7 +13,7 @@ const EmptyState = () => (
 )
 
 export const VpcSystemRoutesTab = () => {
-  const vpcParams = useParams('orgName', 'projectName', 'vpcName')
+  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcRouterRouteList', {
     routerName: 'system',

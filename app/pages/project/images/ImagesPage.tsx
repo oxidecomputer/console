@@ -1,7 +1,7 @@
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Images24Icon, PageHeader, PageTitle } from '@oxide/ui'
 
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -14,7 +14,7 @@ const EmptyState = () => (
 )
 
 export const ImagesPage = () => {
-  const projectParams = useParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('imageList', projectParams)
   return (
     <>

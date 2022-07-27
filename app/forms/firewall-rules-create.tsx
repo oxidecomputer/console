@@ -21,7 +21,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
@@ -377,7 +377,7 @@ export function CreateFirewallRuleSideModalForm({
   existingRules,
   ...props
 }: CreateFirewallRuleSideModalProps) {
-  const parentNames = useParams('orgName', 'projectName', 'vpcName')
+  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
