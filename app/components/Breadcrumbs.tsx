@@ -19,7 +19,8 @@ const useCrumbs = () =>
   useMatches()
     .map((m) => {
       invariant(
-        !m.handle || ['string', 'function'].includes(typeof m.handle.crumb),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        !m.handle || ['string', 'function'].includes(typeof (m.handle as any).crumb),
         `Route crumb must be a string or function if present. Check Route for ${m.pathname}.`
       )
       return m as ValidatedMatch

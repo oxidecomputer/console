@@ -26,6 +26,7 @@ export const ErrorBoundary = (props: { children: React.ReactNode }) => (
 )
 
 export function RouterDataErrorBoundary() {
-  const error = useRouteError()
+  // TODO: validate this unknown at runtime _before_ passing to ErrorFallback
+  const error = useRouteError() as Props['error']
   return <ErrorFallback error={error} />
 }

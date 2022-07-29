@@ -40,7 +40,7 @@ const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
 
 export const Router = () => (
-  <DataBrowserRouter fallbackElement={<span>loading</span>}>
+  <DataBrowserRouter fallbackElement={null}>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
@@ -106,7 +106,12 @@ export const Router = () => (
               <Route path="edit">
                 <Route path=":vpcName" element={<VpcsPage modal="editVpc" />} />
               </Route>
-              <Route path=":vpcName" element={<VpcPage />} handle={{ crumb: vpcCrumb }} />
+              <Route
+                path=":vpcName"
+                element={<VpcPage />}
+                loader={VpcPage.loader}
+                handle={{ crumb: vpcCrumb }}
+              />
             </Route>
             <Route path="disks" handle={{ crumb: 'Disks' }}>
               <Route index element={<DisksPage />} />

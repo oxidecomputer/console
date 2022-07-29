@@ -5,6 +5,24 @@ import invariant from 'tiny-invariant'
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
 
+export const requireParams =
+  <K extends string = never>(...requiredKeys: K[]) =>
+  (params: Readonly<Params<string>>) => {
+    const requiredParams: { [k in K]?: string } = {}
+    if (process.env.NODE_ENV !== 'production') {
+      for (const k of requiredKeys) {
+        const value = params[k]
+        invariant(k in params && value, err(k))
+        requiredParams[k] = value
+      }
+    }
+    return requiredParams as { readonly [k in K]: string }
+  }
+
+export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
+export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
+export const requireProjectParams = requireParams('orgName', 'projectName')
+
 /**
  * Wrapper for RR's `useParams` that guarantees (in dev) that the specified
  * params are present. No keys besides those specified are present on the result
@@ -13,17 +31,7 @@ const err = (param: string) =>
 // default of never is required to prevent the highly undesirable property that if
 // you don't pass any arguments, the result object thinks every property is defined
 export function useRequiredParams<K extends string = never>(...requiredKeys: K[]) {
-  const params = useParams()
-  // same as below except we build an object with only the specified keys
-  const requiredParams: { [k in K]?: string } = {}
-  if (process.env.NODE_ENV !== 'production') {
-    for (const k of requiredKeys) {
-      const value = params[k]
-      invariant(k in params && value, err(k))
-      requiredParams[k] = value
-    }
-  }
-  return requiredParams as { readonly [k in K]: string }
+  return requireParams(...requiredKeys)(useParams())
 }
 
 /**

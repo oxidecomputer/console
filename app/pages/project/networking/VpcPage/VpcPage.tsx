@@ -1,10 +1,12 @@
 import { format } from 'date-fns'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useLoaderData } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 
 import { Tab, Tabs } from 'app/components/Tabs'
-import { useRequiredParams } from 'app/hooks'
+import { requireVpcParams } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
@@ -13,26 +15,30 @@ import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
+const loader = async ({ params }: LoaderFunctionArgs) =>
+  apiQueryClient.fetchQuery('vpcView', requireVpcParams(params))
+
 export const VpcPage = () => {
-  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
-  const { data: vpc } = useApiQuery('vpcView', vpcParams)
+  // could do `as Vpc`, but this keeps us more honest until they get Remix's
+  // loader type inference into the router
+  const vpc = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{vpc?.name || ''}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{vpc.name || ''}</PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">{vpc?.description}</PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">{vpc?.dnsName}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{vpc.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">
-            {vpc?.timeCreated && formatDateTime(vpc.timeCreated)}
+            {vpc.timeCreated && formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {vpc?.timeModified && formatDateTime(vpc.timeModified)}
+            {vpc.timeModified && formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
@@ -58,3 +64,5 @@ export const VpcPage = () => {
     </>
   )
 }
+
+VpcPage.loader = loader
