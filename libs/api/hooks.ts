@@ -114,6 +114,16 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
       queryFn: () => api[method](params).then((resp) => resp.data),
       ...options,
     }),
+  prefetchQuery: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    options: FetchQueryOptions<Result<A[M]>, ErrorResponse> = {}
+  ) =>
+    queryClient.prefetchQuery({
+      queryKey: [method, params],
+      queryFn: () => api[method](params).then((resp) => resp.data),
+      ...options,
+    }),
 })
 
 export const getUseApiQueryClient =

@@ -23,6 +23,8 @@ export const requireInstanceParams = requireParams('orgName', 'projectName', 'in
 export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
 export const requireProjectParams = requireParams('orgName', 'projectName')
 
+export const useVpcParams = () => requireVpcParams(useParams())
+
 /**
  * Wrapper for RR's `useParams` that guarantees (in dev) that the specified
  * params are present. No keys besides those specified are present on the result
