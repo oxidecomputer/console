@@ -48,3 +48,8 @@ export const paginated = <I extends { id: string }>(
 
 // handy for testing
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
+
+// make a bunch of copies of an object with different names and IDs. useful for
+// testing pagination
+export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
+  new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
