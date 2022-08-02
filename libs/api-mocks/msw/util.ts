@@ -45,3 +45,6 @@ export const paginated = <I extends { id: string }>(
     nextPage: `${items[startIndex + limit].id}`,
   }
 }
+
+// handy for testing
+export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
