@@ -56,11 +56,11 @@ function getTimestamps() {
 
 const alreadyExistsBody = { error_code: 'ObjectAlreadyExists' } as const
 type AlreadyExists = typeof alreadyExistsBody
-const alreadyExistsErr = json(alreadyExistsBody, 400)
+const alreadyExistsErr = json(alreadyExistsBody, { status: 400 })
 
 const unavailableBody = { error_code: 'ServiceUnavailable' } as const
 type Unavailable = typeof unavailableBody
-const unavailableErr = json(unavailableBody, 503)
+const unavailableErr = json(unavailableBody, { status: 503 })
 
 const badRequest = (msg: string) =>
   compose(
@@ -115,7 +115,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.sshKeys.push(newSshKey)
-      return res(json(newSshKey, 201))
+      return res(json(newSshKey, { status: 201 }))
     }
   ),
 
@@ -150,7 +150,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.orgs.push(newOrg)
-      return res(json(newOrg, 201))
+      return res(json(newOrg, { status: 201 }))
     }
   ),
 
@@ -180,7 +180,7 @@ export const handlers = [
       org.name = req.body.name
       org.description = req.body.description || ''
 
-      return res(json(org, 200))
+      return res(json(org))
     }
   ),
 
@@ -262,7 +262,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.projects.push(newProject)
-      return res(json(newProject, 201))
+      return res(json(newProject, { status: 201 }))
     }
   ),
 
@@ -287,7 +287,7 @@ export const handlers = [
       project.name = req.body.name
       project.description = req.body.description || ''
 
-      return res(json(project, 200))
+      return res(json(project))
     }
   ),
 
@@ -391,7 +391,7 @@ export const handlers = [
         time_run_state_updated: new Date().toISOString(),
       }
       db.instances.push(newInstance)
-      return res(json(newInstance, 201, 2000))
+      return res(json(newInstance, { status: 201, delay: 2000 }))
     }
   ),
 
@@ -401,7 +401,7 @@ export const handlers = [
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       instance.run_state = 'running'
-      return res(json(instance, 202))
+      return res(json(instance, { status: 202 }))
     }
   ),
 
@@ -411,7 +411,7 @@ export const handlers = [
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       instance.run_state = 'stopped'
-      return res(json(instance, 202))
+      return res(json(instance, { status: 202 }))
     }
   ),
 
@@ -641,7 +641,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.disks.push(newDisk)
-      return res(json(newDisk, 201))
+      return res(json(newDisk, { status: 201 }))
     }
   ),
 
@@ -727,7 +727,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.vpcs.push(newVpc)
-      return res(json(newVpc, 201))
+      return res(json(newVpc, { status: 201 }))
     }
   ),
 
@@ -748,7 +748,7 @@ export const handlers = [
       if (req.body.dns_name) {
         vpc.dns_name = req.body.dns_name
       }
-      return res(json(vpc, 200))
+      return res(json(vpc))
     }
   ),
 
@@ -788,7 +788,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.vpcSubnets.push(newSubnet)
-      return res(json(newSubnet, 201))
+      return res(json(newSubnet, { status: 201 }))
     }
   ),
 
@@ -875,7 +875,7 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.vpcRouters.push(newRouter)
-      return res(json(newRouter, 201))
+      return res(json(newRouter, { status: 201 }))
     }
   ),
 
