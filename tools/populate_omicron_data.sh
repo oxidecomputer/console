@@ -26,6 +26,8 @@ oxide api /ip-pools/mypool/ranges/add --method POST --input - <<EOF
 }
 EOF
 
+GiB=1073741824
+
 oxide org create maze-war \
 	-D "The Maze War organization."
 oxide org create enron \
@@ -56,14 +58,15 @@ oxide instance create db1 \
 	-p prod-online \
 	--hostname "db1.maze-war.com" \
 	--ncpus 1 \
-	--memory 8
+	--memory $GiB
 oxide instance create db2 \
 	-D "The second production database instance." \
 	-o maze-war \
 	-p prod-online \
 	--hostname "db2.maze-war.com" \
 	--ncpus 1 \
-	--memory 8
+	--memory $GiB
+
 
 # Create disks in prod-online
 
@@ -71,37 +74,37 @@ oxide disk create nginx \
 	-D "The nginx disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
 oxide disk create grafana \
 	-D "The grafana disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
 oxide disk create grafana-state \
 	-D "The grafana state disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
 oxide disk create vault \
 	-D "The vault disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
+
+# Stop instance so we can attach disks to it
+oxide instance stop db1 -o maze-war -p prod-online --confirm
 
 # Attach disks to instance db1
+oxide disk attach nginx db1 -o maze-war -p prod-online
+oxide disk attach grafana db1 -o maze-war -p prod-online
+oxide disk attach grafana-state db1 -o maze-war -p prod-online
+oxide disk attach vault db1 -o maze-war -p prod-online
 
-oxide disk attach nginx db1 \
-	-o maze-war \
-	-p prod-online
-oxide disk attach grafana db1 \
-	-o maze-war \
-	-p prod-online
-oxide disk attach grafana-state db1 \
-	-o maze-war \
-	-p prod-online
-oxide disk attach vault db1 \
-	-o maze-war \
-	-p prod-online
+oxide instance start db1 -o maze-war -p prod-online
 
 # Create some disks in prod-online to leave unattached
 
@@ -109,12 +112,14 @@ oxide disk create vol1 \
 	-D "The vol1 disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
 oxide disk create vol2 \
 	-D "The vol2 disk." \
 	-o maze-war \
 	-p prod-online \
-	--size 10
+	--size $GiB \
+  --disk-source blank=512
 
 # Create VPCs in prod-online
 
