@@ -29,70 +29,70 @@ EOF
 GiB=1073741824
 
 oxide org create maze-war \
-	-D "The Maze War organization."
+  -D "The Maze War organization."
 oxide org create enron \
-	-D "The Enron organization."
+  -D "The Enron organization."
 oxide org create theranos \
-	-D "The Theranos organization."
+  -D "The Theranos organization."
 
 # Create projects
 
 oxide project create prod-online \
-	-D "The production online project." \
-	-o maze-war
+  -D "The production online project." \
+  -o maze-war
 oxide project create release-infrastructure \
-	-D "The release infrastructure project." \
-	-o maze-war
+  -D "The release infrastructure project." \
+  -o maze-war
 oxide project create rendering \
-	-D "The rendering project." \
-	-o maze-war
+  -D "The rendering project." \
+  -o maze-war
 oxide project create test-infrastructure \
-	-D "The test infrastructure project." \
-	-o maze-war
+  -D "The test infrastructure project." \
+  -o maze-war
 
 # Create instances in project prod-online
 
 oxide instance create db1 \
-	-D "The first production database instance." \
-	-o maze-war \
-	-p prod-online \
-	--hostname "db1.maze-war.com" \
-	--ncpus 1 \
-	--memory $GiB
+  -D "The first production database instance." \
+  -o maze-war \
+  -p prod-online \
+  --hostname "db1.maze-war.com" \
+  --ncpus 1 \
+  --memory $GiB
 oxide instance create db2 \
-	-D "The second production database instance." \
-	-o maze-war \
-	-p prod-online \
-	--hostname "db2.maze-war.com" \
-	--ncpus 1 \
-	--memory $GiB
+  -D "The second production database instance." \
+  -o maze-war \
+  -p prod-online \
+  --hostname "db2.maze-war.com" \
+  --ncpus 1 \
+  --memory $GiB
 
 
 # Create disks in prod-online
 
 oxide disk create nginx \
-	-D "The nginx disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The nginx disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 oxide disk create grafana \
-	-D "The grafana disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The grafana disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 oxide disk create grafana-state \
-	-D "The grafana state disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The grafana state disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 oxide disk create vault \
-	-D "The vault disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The vault disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 
 # Stop instance so we can attach disks to it
@@ -109,29 +109,29 @@ oxide instance start db1 -o maze-war -p prod-online
 # Create some disks in prod-online to leave unattached
 
 oxide disk create vol1 \
-	-D "The vol1 disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The vol1 disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 oxide disk create vol2 \
-	-D "The vol2 disk." \
-	-o maze-war \
-	-p prod-online \
-	--size $GiB \
+  -D "The vol2 disk." \
+  -o maze-war \
+  -p prod-online \
+  --size $GiB \
   --disk-source blank=512
 
 # Create VPCs in prod-online
 
 oxide vpc create vpc1 \
-	-D "The vpc1 VPC." \
-	-o maze-war \
-	-p prod-online \
-	--dns-name vpc1
+  -D "The vpc1 VPC." \
+  -o maze-war \
+  -p prod-online \
+  --dns-name vpc1
 oxide vpc create vpc2 \
-	-D "The vpc2 VPC." \
-	-o maze-war \
-	-p prod-online \
-	--dns-name vpc2
+  -D "The vpc2 VPC." \
+  -o maze-war \
+  -p prod-online \
+  --dns-name vpc2
 
 echo -e "\n==== API DATA POPULATED ====\n"
