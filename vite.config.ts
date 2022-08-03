@@ -1,13 +1,8 @@
 import react from '@vitejs/plugin-react'
-import dns from 'dns'
 import { resolve } from 'path'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import tsConfig from './tsconfig.json'
-
-// Make Vite say localhost instead of 127.0.0.1 in startup message.
-// See https://vitejs.dev/config/server-options.html#server-host
-dns.setDefaultResultOrder('verbatim')
 
 const mapObj = <V0, V>(
   obj: Record<string, V0>,
@@ -58,7 +53,7 @@ export default defineConfig(({ mode }) => ({
     // these only get hit when MSW isn't intercepting requests
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:12220',
+        target: 'http://localhost:12220',
         configure(proxy) {
           proxy.on('error', (_, req) => {
             console.error('    to', '/api' + req.url)
@@ -68,7 +63,7 @@ export default defineConfig(({ mode }) => ({
       },
       // We want to actually hit Nexus for this because it gives us a login redirect
       '/login': {
-        target: 'http://127.0.0.1:12220',
+        target: 'http://localhost:12220',
       },
     },
   },
