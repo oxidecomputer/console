@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => ({
     // these only get hit when MSW isn't intercepting requests
     proxy: {
       '/api': {
-        target: 'http://localhost:12220',
+        target: 'http://127.0.0.1:12220',
         configure(proxy) {
           proxy.on('error', (_, req) => {
             console.error('    to', '/api' + req.url)
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => ({
       },
       // We want to actually hit Nexus for this because it gives us a login redirect
       '/login': {
-        target: 'http://localhost:12220',
+        target: 'http://127.0.0.1:12220',
       },
     },
   },
