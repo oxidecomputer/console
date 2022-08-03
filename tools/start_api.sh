@@ -50,6 +50,8 @@ tmux set -t omicron-console pane-active-border-style "bg=green fg=black"
 tmux split-window
 tmux split-window
 tmux split-window
+tmux split-window
+tmux split-window
 tmux select-layout even-vertical
 
 # run populate explicitly later so we can tell when it's done
@@ -58,22 +60,32 @@ run_in_pane 0 "set_pane_title cockroach"
 run_in_pane 0 "cargo run --bin=omicron-dev -- db-run --no-populate"
 
 run_in_pane 1 "$UTILS"
-run_in_pane 1 "set_pane_title nexus"
-run_in_pane 1 "wait_for_up 32221"
-run_in_pane 1 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron"
-run_in_pane 1 "cargo run --bin=nexus -- nexus/examples/config.toml"
+run_in_pane 1 "set_pane_title clickhouse"
+run_in_pane 1 "cargo run --bin omicron-dev -- ch-run"
 
 run_in_pane 2 "$UTILS"
-run_in_pane 2 "set_pane_title sled-agent-sim"
-run_in_pane 2 "wait_for_up 12220"
-run_in_pane 2 "wait_for_up 12221"
-run_in_pane 2 "cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221"
+run_in_pane 2 "set_pane_title nexus"
+run_in_pane 2 "wait_for_up 32221"
+run_in_pane 2 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron"
+run_in_pane 2 "cargo run --bin=nexus -- nexus/examples/config.toml"
 
 run_in_pane 3 "$UTILS"
-run_in_pane 3 "set_pane_title 'seed data'"
-run_in_pane 3 "wait_for_up 12345"
-run_in_pane 3 "export OXIDE_HOST='http://127.0.0.1:12220'"
-run_in_pane 3 "export OXIDE_TOKEN='oxide-spoof-001de000-05e4-4000-8000-000000004007'"
-run_in_pane 3 "../console/tools/populate_omicron_data.sh"
+run_in_pane 3 "set_pane_title sled-agent-sim"
+run_in_pane 3 "wait_for_up 12221"
+run_in_pane 3 "cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221"
+
+run_in_pane 4 "$UTILS"
+run_in_pane 4 "set_pane_title oximeter"
+run_in_pane 4 "wait_for_up 8123"
+run_in_pane 4 "wait_for_up 12221"
+run_in_pane 4 "cargo run --bin=oximeter run --id $(uuidgen) --address '[::1]:12223' -- oximeter/collector/config.toml"
+
+run_in_pane 5 "$UTILS"
+run_in_pane 5 "set_pane_title 'seed data'"
+run_in_pane 5 "wait_for_up 12223"
+run_in_pane 5 "wait_for_up 12345"
+run_in_pane 5 "export OXIDE_HOST='http://127.0.0.1:12220'"
+run_in_pane 5 "export OXIDE_TOKEN='oxide-spoof-001de000-05e4-4000-8000-000000004007'"
+run_in_pane 5 "../console/tools/populate_omicron_data.sh"
 
 tmux attach -t omicron-console
