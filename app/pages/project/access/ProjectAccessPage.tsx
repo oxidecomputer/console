@@ -1,8 +1,10 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
+  apiQueryClient,
   projectRoleOrder,
   setUserRole,
   useApiMutation,
@@ -27,7 +29,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
-import { useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useRequiredParams } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -41,11 +43,19 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
+ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await Promise.all([
+    apiQueryClient.prefetchQuery('projectPolicyView', requireProjectParams(params)),
+    // used in useUserAccessRows to resolve user names
+    apiQueryClient.prefetchQuery('userList', { limit: 200 }),
+  ])
+}
+
 type UserRow = UserAccessRow<ProjectRole>
 
 const colHelper = createColumnHelper<UserRow>()
 
-export const ProjectAccessPage = () => {
+export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useRequiredParams('orgName', 'projectName')

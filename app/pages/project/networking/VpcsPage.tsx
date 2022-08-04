@@ -29,16 +29,20 @@ const EmptyState = () => (
   />
 )
 
+// just as in the vpcList call for the quick actions menu, include limit: 10 to make
+// sure it matches the call in the QueryTable
+VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('vpcList', {
+    ...requireProjectParams(params),
+    limit: 10,
+  })
+}
+
 interface VpcsPageProps {
   modal?: 'createVpc' | 'editVpc'
 }
 
-// just as in the vpcList call for the quick actions menu, include limit: 10 to make
-// sure it matches the call in the QueryTable
-const loader = async ({ params }: LoaderFunctionArgs) =>
-  apiQueryClient.prefetchQuery('vpcList', { ...requireProjectParams(params), limit: 10 })
-
-export const VpcsPage = ({ modal }: VpcsPageProps) => {
+export function VpcsPage({ modal }: VpcsPageProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const location = useLocation()
@@ -115,5 +119,3 @@ export const VpcsPage = ({ modal }: VpcsPageProps) => {
     </>
   )
 }
-
-VpcsPage.loader = loader

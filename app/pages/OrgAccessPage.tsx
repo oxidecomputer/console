@@ -1,8 +1,10 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
+  apiQueryClient,
   orgRoleOrder,
   setUserRole,
   useApiMutation,
@@ -24,9 +26,7 @@ import {
 } from '@oxide/ui'
 
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
-import { useRequiredParams } from 'app/hooks'
-
-type UserRow = UserAccessRow<OrganizationRole>
+import { requireOrgParams, useRequiredParams } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -40,9 +40,19 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
+OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await Promise.all([
+    apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
+    // used in useUserAccessRows to resolve user names
+    apiQueryClient.prefetchQuery('userList', { limit: 200 }),
+  ])
+}
+
+type UserRow = UserAccessRow<OrganizationRole>
+
 const colHelper = createColumnHelper<UserRow>()
 
-export const OrgAccessPage = () => {
+export function OrgAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const orgParams = useRequiredParams('orgName')

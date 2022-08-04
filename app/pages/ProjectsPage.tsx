@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
@@ -17,7 +19,7 @@ import {
 import CreateProjectSideModalForm from 'app/forms/project-create'
 import EditProjectSideModalForm from 'app/forms/project-edit'
 
-import { useQuickActions, useRequiredParams } from '../hooks'
+import { requireOrgParams, useQuickActions, useRequiredParams } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -29,11 +31,18 @@ const EmptyState = () => (
   />
 )
 
+ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('projectList', {
+    ...requireOrgParams(params),
+    limit: 10,
+  })
+}
+
 interface ProjectsPageProps {
   modal?: 'createProject' | 'editProject'
 }
 
-const ProjectsPage = ({ modal }: ProjectsPageProps) => {
+export default function ProjectsPage({ modal }: ProjectsPageProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -113,5 +122,3 @@ const ProjectsPage = ({ modal }: ProjectsPageProps) => {
     </>
   )
 }
-
-export default ProjectsPage

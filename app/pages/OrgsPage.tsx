@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Organization } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
@@ -30,11 +31,15 @@ const EmptyState = () => (
   />
 )
 
+OrgsPage.loader = async () => {
+  await apiQueryClient.prefetchQuery('organizationList', { limit: 10 })
+}
+
 interface OrgsPageProps {
   modal?: 'createOrg' | 'editOrg'
 }
 
-const OrgsPage = ({ modal }: OrgsPageProps) => {
+export default function OrgsPage({ modal }: OrgsPageProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -107,5 +112,3 @@ const OrgsPage = ({ modal }: OrgsPageProps) => {
     </>
   )
 }
-
-export default OrgsPage
