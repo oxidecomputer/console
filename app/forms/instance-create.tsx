@@ -165,6 +165,7 @@ export default function CreateInstanceForm({
                 },
                 ...values.disks,
               ],
+              externalIps: [{ type: 'ephemeral' }],
             },
           })
         })
