@@ -1,7 +1,10 @@
+import type { LoaderFunctionArgs } from 'react-router-dom'
+
+import { apiQueryClient } from '@oxide/api'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 
-import { useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -13,7 +16,14 @@ const EmptyState = () => (
   />
 )
 
-export const SnapshotsPage = () => {
+SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('snapshotList', {
+    ...requireProjectParams(params),
+    limit: 10,
+  })
+}
+
+export function SnapshotsPage() {
   const projectParams = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('snapshotList', projectParams)
   return (

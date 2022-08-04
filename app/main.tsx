@@ -1,7 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 
+import { queryClient } from '@oxide/api'
 import { SkipLink } from '@oxide/ui'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -17,16 +18,6 @@ if (process.env.SHA) {
     `https://github.com/oxidecomputer/console/commits/${process.env.SHA}`
   )
 }
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      staleTime: 2000,
-      networkMode: 'offlineFirst',
-    },
-  },
-})
 
 function render() {
   ReactDOM.render(

@@ -1,15 +1,16 @@
 import filesize from 'filesize'
 import { memo, useMemo } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Instances24Icon, PageHeader, PageTitle, PropertiesTable, Tab } from '@oxide/ui'
 import { pick } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { Tabs } from 'app/components/Tabs'
-import { useQuickActions, useRequiredParams } from 'app/hooks'
+import { requireInstanceParams, useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { useMakeInstanceActions } from '../actions'
 import { MetricsTab } from './tabs/MetricsTab'
@@ -38,7 +39,11 @@ const InstanceTabs = memo(() => (
   </Tabs>
 ))
 
-export const InstancePage = () => {
+InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('instanceView', requireInstanceParams(params))
+}
+
+export function InstancePage() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
 
   const navigate = useNavigate()

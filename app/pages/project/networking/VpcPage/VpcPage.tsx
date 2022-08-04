@@ -1,10 +1,11 @@
 import { format } from 'date-fns'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 
 import { Tab, Tabs } from 'app/components/Tabs'
-import { useRequiredParams } from 'app/hooks'
+import { requireVpcParams, useVpcParams } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
@@ -13,8 +14,12 @@ import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
-export const VpcPage = () => {
-  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
+VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('vpcView', requireVpcParams(params))
+}
+
+export function VpcPage() {
+  const vpcParams = useVpcParams()
   const { data: vpc } = useApiQuery('vpcView', vpcParams)
 
   return (

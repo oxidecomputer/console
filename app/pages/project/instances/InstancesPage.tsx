@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
   DateCell,
   InstanceResourceCell,
@@ -18,7 +19,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { useQuickActions, useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -32,7 +33,14 @@ const EmptyState = () => (
   />
 )
 
-export const InstancesPage = () => {
+InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('instanceList', {
+    ...requireProjectParams(params),
+    limit: 10,
+  })
+}
+
+export function InstancesPage() {
   const projectParams = useRequiredParams('orgName', 'projectName')
   const { orgName, projectName } = projectParams
 

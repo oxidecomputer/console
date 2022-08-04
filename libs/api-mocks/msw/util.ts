@@ -2,13 +2,18 @@ import type { ResponseTransformer } from 'msw'
 import { compose, context } from 'msw'
 
 /**
- * Custom transformer: convenience function for less typing. Equivalent to
- * `res(ctx.status(status), ctx.json(body))` in a handler.
+ * Custom transformer: convenience function for setting response `status` and/or
+ * `delay`.
  *
- * https://mswjs.io/docs/basics/response-transformer#custom-transformer
+ * @see https://mswjs.io/docs/basics/response-transformer#custom-transformer
  */
-export const json = <B>(body: B, status = 200, delay = 0): ResponseTransformer<B> =>
-  compose(context.status(status), context.json(body), context.delay(delay))
+export function json<B>(
+  body: B,
+  options: { status?: number; delay?: number } = {}
+): ResponseTransformer<B> {
+  const { status = 200, delay = 0 } = options
+  return compose(context.status(status), context.json(body), context.delay(delay))
+}
 
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
@@ -45,3 +50,8 @@ export const paginated = <I extends { id: string }>(
     nextPage: `${items[startIndex + limit].id}`,
   }
 }
+
+// make a bunch of copies of an object with different names and IDs. useful for
+// testing pagination
+export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
+  new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))

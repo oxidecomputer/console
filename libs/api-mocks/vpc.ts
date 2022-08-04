@@ -1,6 +1,6 @@
 import type { RouterRoute } from 'libs/api/__generated__/Api'
 
-import type { Vpc, VpcFirewallRule, VpcResultsPage, VpcRouter, VpcSubnet } from '@oxide/api'
+import type { Vpc, VpcFirewallRule, VpcRouter, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { project } from './project'
@@ -19,8 +19,6 @@ export const vpc: Json<Vpc> = {
   time_created,
   time_modified,
 }
-
-export const vpcs: Json<VpcResultsPage> = { items: [vpc] }
 
 export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API

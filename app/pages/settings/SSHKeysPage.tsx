@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import type { SshKey } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
@@ -15,6 +16,10 @@ import {
 } from '@oxide/ui'
 
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
+
+SSHKeysPage.loader = async () => {
+  await apiQueryClient.prefetchQuery('sessionSshkeyList', { limit: 10 })
+}
 
 export function SSHKeysPage() {
   const { Table, Column } = useQueryTable('sessionSshkeyList', {})

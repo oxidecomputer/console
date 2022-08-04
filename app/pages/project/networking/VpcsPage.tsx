@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
@@ -16,7 +17,7 @@ import {
 
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
 import EditVpcSideModalForm from 'app/forms/vpc-edit'
-import { useQuickActions, useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useQuickActions, useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -28,11 +29,20 @@ const EmptyState = () => (
   />
 )
 
+// just as in the vpcList call for the quick actions menu, include limit: 10 to make
+// sure it matches the call in the QueryTable
+VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('vpcList', {
+    ...requireProjectParams(params),
+    limit: 10,
+  })
+}
+
 interface VpcsPageProps {
   modal?: 'createVpc' | 'editVpc'
 }
 
-export const VpcsPage = ({ modal }: VpcsPageProps) => {
+export function VpcsPage({ modal }: VpcsPageProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const location = useLocation()

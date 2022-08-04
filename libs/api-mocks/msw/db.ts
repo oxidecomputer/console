@@ -10,7 +10,7 @@ import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
-export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, 404)
+export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
 
 type Ok<T> = [T, null]
 type LookupError = typeof notFoundErr // Lookups can only 404

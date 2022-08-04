@@ -1,5 +1,7 @@
 import type {
+  FetchQueryOptions,
   InvalidateQueryFilters,
+  QueryClient,
   QueryFilters,
   QueryKey,
   UseMutationOptions,
@@ -84,33 +86,50 @@ export const getUseApiMutation =
       options
     )
 
+export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
+  invalidateQueries: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    filters?: InvalidateQueryFilters
+  ) => queryClient.invalidateQueries(params ? [method, params] : [method], filters),
+  setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
+    queryClient.setQueryData([method, params], data),
+  cancelQueries: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    filters?: QueryFilters
+  ) => queryClient.cancelQueries(params ? [method, params] : [method], filters),
+  refetchQueries: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    filters?: QueryFilters
+  ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
+  fetchQuery: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    options: FetchQueryOptions<Result<A[M]>, ErrorResponse> = {}
+  ) =>
+    queryClient.fetchQuery({
+      queryKey: [method, params],
+      queryFn: () => api[method](params).then((resp) => resp.data),
+      ...options,
+    }),
+  prefetchQuery: <M extends keyof A>(
+    method: M,
+    params?: Params<A[M]>,
+    options: FetchQueryOptions<Result<A[M]>, ErrorResponse> = {}
+  ) =>
+    queryClient.prefetchQuery({
+      queryKey: [method, params],
+      queryFn: () => api[method](params).then((resp) => resp.data),
+      ...options,
+    }),
+})
+
 export const getUseApiQueryClient =
-  <A extends ApiClient>() =>
-  () => {
-    const queryClient = useQueryClient()
-    return {
-      invalidateQueries: <M extends keyof A>(
-        method: M,
-        params?: Params<A[M]>,
-        filters?: InvalidateQueryFilters
-      ) => queryClient.invalidateQueries(params ? [method, params] : [method], filters),
-      setQueryData: <M extends keyof A>(
-        method: M,
-        params: Params<A[M]>,
-        data: Result<A[M]>
-      ) => queryClient.setQueryData([method, params], data),
-      cancelQueries: <M extends keyof A>(
-        method: M,
-        params?: Params<A[M]>,
-        filters?: QueryFilters
-      ) => queryClient.cancelQueries(params ? [method, params] : [method], filters),
-      refetchQueries: <M extends keyof A>(
-        method: M,
-        params?: Params<A[M]>,
-        filters?: QueryFilters
-      ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
-    }
-  }
+  <A extends ApiClient>(api: A) =>
+  () =>
+    wrapQueryClient(api, useQueryClient())
 
 /* 
 1. what's up with [method, params]?

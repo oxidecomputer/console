@@ -1,6 +1,8 @@
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
@@ -18,7 +20,7 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
-import { useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useRequiredParams } from 'app/hooks'
 
 function AttachedInstance(props: {
   orgName: string
@@ -48,6 +50,13 @@ const EmptyState = () => (
 
 interface DisksPageProps {
   modal?: 'createDisk'
+}
+
+DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('diskList', {
+    ...requireProjectParams(params),
+    limit: 10,
+  })
 }
 
 export function DisksPage({ modal }: DisksPageProps) {
