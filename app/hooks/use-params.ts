@@ -9,12 +9,12 @@ export const requireParams =
   <K extends string = never>(...requiredKeys: K[]) =>
   (params: Readonly<Params<string>>) => {
     const requiredParams: { [k in K]?: string } = {}
-    if (process.env.NODE_ENV !== 'production') {
-      for (const k of requiredKeys) {
-        const value = params[k]
+    for (const k of requiredKeys) {
+      const value = params[k]
+      if (process.env.NODE_ENV !== 'production') {
         invariant(k in params && value, err(k))
-        requiredParams[k] = value
       }
+      requiredParams[k] = value
     }
     return requiredParams as { readonly [k in K]: string }
   }
