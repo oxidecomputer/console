@@ -385,7 +385,7 @@ export const handlers = [
       const newInstance: Json<Api.Instance> = {
         id: genId('instance'),
         project_id: project.id,
-        ...req.body,
+        ...pick(req.body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
         ...getTimestamps(),
         run_state: 'running',
         time_run_state_updated: new Date().toISOString(),
