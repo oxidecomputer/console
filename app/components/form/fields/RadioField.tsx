@@ -1,4 +1,5 @@
 import cn from 'classnames'
+import { useField } from 'formik'
 
 import type { RadioGroupProps } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
@@ -39,6 +40,7 @@ export function RadioField({
   units,
   ...props
 }: RadioFieldProps) {
+  const [field] = useField({ name })
   return (
     <div>
       <div className="mb-2">
@@ -51,12 +53,12 @@ export function RadioField({
         {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
       <RadioGroup
-        name={name}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
         })}
         aria-describedby={description ? `${id}-label-tip` : undefined}
         {...props}
+        {...field}
       />
     </div>
   )
