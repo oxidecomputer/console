@@ -23,7 +23,7 @@ test.describe('Instance Create Form', () => {
     ])
 
     await page.fill('input[name=name]', 'mock-instance')
-    await page.locator('.ox-radio-card').nth(0).click()
+    await page.locator('.ox-radio-card').nth(3).click()
 
     await page.fill('input[name=bootDiskName]', 'my-boot-disk')
     await page.fill('input[name=bootDiskSize]', '20')
@@ -36,6 +36,10 @@ test.describe('Instance Create Form', () => {
       '/orgs/maze-war/projects/mock-project/instances/mock-instance'
     )
 
-    await expect(page.locator('h1:has-text("mock-instance")')).toBeVisible()
+    await expectVisible(page, [
+      'h1:has-text("mock-instance")',
+      'text=6 vCPUs',
+      'text=24 GiB',
+    ])
   })
 })
