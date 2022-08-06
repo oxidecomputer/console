@@ -25,6 +25,7 @@ test('SSH keys', async ({ page }) => {
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
 
+  await page.pause()
   await expectNotVisible(page, ['role=cell[name="my-key"]'])
   await expectVisible(page, ['text="No SSH keys"'])
 })

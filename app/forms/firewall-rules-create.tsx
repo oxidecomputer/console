@@ -8,7 +8,7 @@ import {
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
-import type { ErrorResponse, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
+import type { ApiError, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
 import { Button, Delete10Icon, Divider, Radio, Table } from '@oxide/ui'
 
 import {
@@ -93,7 +93,7 @@ const initialValues: FirewallRuleValues = {
   targetValue: '',
 }
 
-export const CommonFields = ({ error }: { error: ErrorResponse | null }) => {
+export const CommonFields = ({ error }: { error: ApiError | null }) => {
   const { setFieldValue, values } = useFormikContext<FirewallRuleValues>()
   return (
     <>

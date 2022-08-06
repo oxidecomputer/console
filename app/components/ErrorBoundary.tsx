@@ -1,17 +1,17 @@
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
 
+import type { ApiError } from '@oxide/api'
+
 import NotFound from 'app/pages/NotFound'
 
-type Props = { error: Error | Response }
+type Props = { error: Error | ApiError }
 
 function ErrorFallback({ error }: Props) {
-  if (error instanceof Response && error.status === 404) {
+  if ('type' in error && error.type === 'error' && error.statusCode === 404) {
     return <NotFound />
   }
 
-  // since 404s are the only response error that propagates up here, we should
-  // be a normal Error at this point but there's no way to guarantee that
   const message = 'message' in error ? error.message : ''
   return (
     <div role="alert" className="m-48">

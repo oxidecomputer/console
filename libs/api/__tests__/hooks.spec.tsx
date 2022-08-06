@@ -6,7 +6,7 @@ import { org } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/utils'
 
-import type { ErrorResponse } from '..'
+import type { ApiError } from '..'
 import { useApiMutation, useApiQuery } from '..'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -54,7 +54,7 @@ describe('useApiQuery', () => {
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
       const response = result.current.error
-      expect(response?.status).toEqual(503)
+      expect(response?.statusCode).toEqual(503)
     })
 
     it('parses error json if possible', async () => {
@@ -67,16 +67,17 @@ describe('useApiQuery', () => {
       )
     })
 
-    // TODO: this test applies to the old generated client. now it's more like
-    // data is null. error appears to get the JSON parse error for some reason
-    it('sets error.data to null if error body is not json', async () => {
+    it('contains JS Error if error body is not json', async () => {
       overrideOnce('get', '/api/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
       await waitFor(() => {
-        expect(result.current.error).toBeTruthy()
-        expect(result.current.error?.data).toBeNull()
+        const error = result.current.error
+        expect(error).toBeInstanceOf(Error)
+        expect(error?.toString()).toEqual(
+          'SyntaxError: Unexpected token o in JSON at position 1'
+        )
       })
     })
   })
@@ -94,8 +95,8 @@ describe('useApiQuery', () => {
       // The error is thrown asynchronously by the hook so it can propagate up
       // the tree. Fortunately result.error exists for precisely this use case.
       await waitFor(() => {
-        const error = result.error as ErrorResponse | undefined
-        expect(error?.status).toEqual(404)
+        const error = result.error as ApiError | undefined
+        expect(error?.statusCode).toEqual(404)
         expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
       })
     })
@@ -154,7 +155,7 @@ describe('useApiMutation', () => {
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
       const response = result.current.error
-      expect(response?.status).toEqual(404)
+      expect(response?.statusCode).toEqual(404)
     })
 
     it('parses error json if possible', async () => {
@@ -169,15 +170,18 @@ describe('useApiMutation', () => {
       )
     })
 
-    it('sets error.data to null if error body is not json', async () => {
+    it('contains JS Error if error body is not json', async () => {
       overrideOnce('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {
-        expect(result.current.error).toBeTruthy()
-        expect(result.current.error?.data).toBeNull()
+        const error = result.current.error
+        expect(error).toBeInstanceOf(Error)
+        expect(error?.toString()).toEqual(
+          'SyntaxError: Unexpected token o in JSON at position 1'
+        )
       })
     })
   })
