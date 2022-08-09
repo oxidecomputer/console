@@ -82,7 +82,7 @@ export function NetworkingTab() {
         editNic.mutate({
           ...instanceParams,
           interfaceName: nic.name,
-          body: { ...nic, makePrimary: true },
+          body: { ...nic, primary: true },
         })
       },
       disabled: nic.primary || !instanceStopped,
@@ -90,8 +90,7 @@ export function NetworkingTab() {
     {
       label: 'Edit',
       onActivate() {
-        // TODO: Revisit after https://github.com/oxidecomputer/omicron/pull/1288 is merged
-        setEditing({ ...nic, makePrimary: nic.primary })
+        setEditing(nic)
       },
       disabled: !instanceStopped,
     },

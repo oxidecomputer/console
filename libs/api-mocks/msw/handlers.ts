@@ -566,10 +566,7 @@ export const handlers = [
       if (typeof req.body.description === 'string') {
         nic.description = req.body.description
       }
-      if (
-        typeof req.body.make_primary === 'boolean' &&
-        req.body.make_primary !== nic.primary
-      ) {
+      if (typeof req.body.primary === 'boolean' && req.body.primary !== nic.primary) {
         if (nic.primary) {
           return res(badRequest('Cannot remove the primary interface'))
         }
@@ -578,7 +575,7 @@ export const handlers = [
           .forEach((n) => {
             n.primary = false
           })
-        nic.primary = !!req.body.make_primary
+        nic.primary = !!req.body.primary
       }
       return res(ctx.status(204))
     }
