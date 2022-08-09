@@ -503,7 +503,7 @@ export type IdentityProviderType = 'saml'
 /**
  * Describes what kind of identity is described by an id
  */
-export type IdentityType = 'silo_user'
+export type IdentityType = 'silo_user' | 'silo_group'
 
 export type IdpMetadataSource =
   | { type: 'url'; url: string }
@@ -1026,6 +1026,7 @@ export type NetworkInterfaceResultsPage = {
  */
 export type NetworkInterfaceUpdate = {
   description?: string | null
+  name?: Name | null
   /**
    * Make a secondary interface the instance's primary interface.
    *
@@ -1033,8 +1034,7 @@ export type NetworkInterfaceUpdate = {
    *
    * Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error.
    */
-  makePrimary?: boolean | null
-  name?: Name | null
+  primary?: boolean | null
 }
 
 /**
@@ -1458,6 +1458,10 @@ export type SamlIdentityProviderCreate = {
   acsUrl: string
   description: string
   /**
+   * If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names.
+   */
+  groupAttributeName?: string | null
+  /**
    * idp's entity id
    */
   idpEntityId: string
@@ -1522,6 +1526,12 @@ export type Silo = {
  * Create-time parameters for a {@link Silo}
  */
 export type SiloCreate = {
+  /**
+   * If set, this group will be created during Silo creation and granted the "Silo Admin" role. Identity providers can assert that users belong to this group and those users can log in and further initialize the Silo.
+   *
+   * Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See {@link SamlIdentityProviderCreate} for more information.
+   */
+  adminGroupName?: string | null
   description: string
   discoverable: boolean
   name: Name
