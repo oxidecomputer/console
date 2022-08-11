@@ -42,6 +42,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
+    apiQueryClient.prefetchQuery('policyView', {}),
     apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
     // used in useUserAccessRows to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
@@ -56,9 +57,17 @@ export function OrgAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const orgParams = useRequiredParams('orgName')
-  const { data: policy } = useApiQuery('organizationPolicyView', orgParams)
+  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
 
-  const rows = useUserAccessRows(policy, orgRoleOrder)
+  const combinedPolicy = {
+    roleAssignments: [
+      ...(siloPolicy?.roleAssignments || []),
+      ...(orgPolicy?.roleAssignments || []),
+    ],
+  }
+
+  const rows = useUserAccessRows(combinedPolicy, orgRoleOrder)
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
@@ -90,13 +99,13 @@ export function OrgAccessPage() {
             updatePolicy.mutate({
               ...orgParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, policy!),
+              body: setUserRole(row.id, null, orgPolicy!),
             })
           },
         },
       ]),
     ],
-    [policy, orgParams, updatePolicy]
+    [orgPolicy, orgParams, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -116,20 +125,18 @@ export function OrgAccessPage() {
           Add user to organization
         </Button>
       </TableActions>
-      {policy && (
-        <OrgAccessAddUserSideModal
-          isOpen={addModalOpen}
-          onDismiss={() => setAddModalOpen(false)}
-          onSuccess={() => setAddModalOpen(false)}
-          policy={policy}
-        />
-      )}
-      {policy && editingUserRow && (
+      <OrgAccessAddUserSideModal
+        isOpen={addModalOpen}
+        onDismiss={() => setAddModalOpen(false)}
+        onSuccess={() => setAddModalOpen(false)}
+        policy={combinedPolicy}
+      />
+      {editingUserRow && (
         <OrgAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
-          policy={policy}
+          policy={combinedPolicy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
         />

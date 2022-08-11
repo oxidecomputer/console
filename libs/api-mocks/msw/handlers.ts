@@ -6,6 +6,7 @@ import { pick, sortBy } from '@oxide/util'
 import type { Json } from '../json-type'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
+import { defaultSilo } from '../silo'
 import type {
   DiskParams,
   GlobalImageParams,
@@ -20,16 +21,16 @@ import type {
   VpcRouterParams,
   VpcSubnetParams,
 } from './db'
-import { lookupById } from './db'
-import { lookupSshKey } from './db'
-import { lookupDisk } from './db'
-import { lookupGlobalImage } from './db'
 import {
   db,
+  lookupById,
+  lookupDisk,
+  lookupGlobalImage,
   lookupInstance,
   lookupNetworkInterface,
   lookupOrg,
   lookupProject,
+  lookupSshKey,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcSubnet,
@@ -129,6 +130,16 @@ export const handlers = [
     }
   ),
 
+  rest.get<never, never, Json<Api.SiloRolePolicy> | GetErr>('/api/policy', (req, res) => {
+    // assume we're in the default silo
+    const siloId = defaultSilo.id
+    const role_assignments = db.roleAssignments
+      .filter((r) => r.resource_type === 'silo' && r.resource_id === siloId)
+      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+    return res(json({ role_assignments }))
+  }),
+
   rest.get<never, never, Json<Api.OrganizationResultsPage>>(
     '/api/organizations',
     (req, res) => res(json(paginated(req.url.search, db.orgs)))
@@ -184,7 +195,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+  rest.get<never, OrgParams, Json<Api.OrganizationRolePolicy> | GetErr>(
     '/api/organizations/:orgName/policy',
     (req, res) => {
       const [org, err] = lookupOrg(req.params)

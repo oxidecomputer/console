@@ -44,8 +44,11 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { orgName, projectName } = requireProjectParams(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('projectPolicyView', requireProjectParams(params)),
+    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
+    apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
     // used in useUserAccessRows to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
   ])
@@ -59,19 +62,16 @@ export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { data: policy } = useApiQuery('projectPolicyView', projectParams)
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', {
-    orgName: projectParams.orgName,
-  })
-
-  // user can also get roles from the silo (and possibly the fleet?) but the
-  // silo policy view endpoint is `/silos/:siloName/policy`, and we don't have
-  // the silo name, so we can't fetch it yet. need to think about this
+  const { orgName } = projectParams
+  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
+  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
 
   const combinedPolicy = {
     roleAssignments: [
-      ...(policy?.roleAssignments || []),
+      ...(siloPolicy?.roleAssignments || []),
       ...(orgPolicy?.roleAssignments || []),
+      ...(projectPolicy?.roleAssignments || []),
     ],
   }
 
@@ -107,13 +107,13 @@ export function ProjectAccessPage() {
             updatePolicy.mutate({
               ...projectParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, policy!),
+              body: setUserRole(row.id, null, projectPolicy!),
             })
           },
         },
       ]),
     ],
-    [policy, projectParams, updatePolicy]
+    [projectPolicy, projectParams, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -133,18 +133,18 @@ export function ProjectAccessPage() {
           Add user to project
         </Button>
       </TableActions>
-      {policy && (
+      {
         <ProjectAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          policy={policy}
+          policy={combinedPolicy}
         />
-      )}
-      {policy && editingUserRow && (
+      }
+      {editingUserRow && (
         <ProjectAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
-          policy={policy}
+          policy={combinedPolicy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
         />
