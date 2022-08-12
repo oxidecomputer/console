@@ -71,6 +71,13 @@ export const Router = () => (
 
     <Route index element={<Navigate to="/orgs" replace />} />
 
+    {/* These are done here instead of nested so we don't flash a layout on 404s */}
+    <Route path="/orgs/:orgName" element={<Navigate to="projects" replace />} />
+    <Route
+      path="/orgs/:orgName/projects/:projectName"
+      element={<Navigate to="instances" replace />}
+    />
+
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
       <Route element={<RootLayout />}>
         <Route index element={<OrgsPage />} loader={OrgsPage.loader} />
@@ -89,7 +96,6 @@ export const Router = () => (
       </Route>
 
       <Route path=":orgName" handle={{ crumb: orgCrumb }}>
-        <Route index element={<Navigate to="projects" replace />} />
         <Route element={<OrgLayout />}>
           <Route
             path="access"
@@ -122,7 +128,6 @@ export const Router = () => (
             element={<ProjectLayout />}
             handle={{ crumb: projectCrumb }}
           >
-            <Route index element={<Navigate to="instances" replace />} />
             <Route path="instances" handle={{ crumb: 'Instances' }}>
               <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
               <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
