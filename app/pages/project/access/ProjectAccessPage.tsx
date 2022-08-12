@@ -5,11 +5,10 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  projectRoleOrder,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
-  useUserAccessRows,
+  useUserRows,
 } from '@oxide/api'
 import type { ProjectRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -24,6 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
+import { sortBy } from '@oxide/util'
 
 import {
   ProjectAccessAddUserSideModal,
@@ -67,15 +67,13 @@ export function ProjectAccessPage() {
   const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
   const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
 
-  const combinedPolicy = {
-    roleAssignments: [
-      ...(siloPolicy?.roleAssignments || []),
-      ...(orgPolicy?.roleAssignments || []),
-      ...(projectPolicy?.roleAssignments || []),
-    ],
-  }
-
-  const rows = useUserAccessRows(combinedPolicy, projectRoleOrder)
+  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+  const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
+  const rows = useMemo(
+    () => sortBy(siloRows.concat(orgRows, projectRows), (u) => u.id),
+    [siloRows, orgRows, projectRows]
+  )
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -92,7 +90,11 @@ export function ProjectAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('roleName', {
         header: 'Role',
-        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      }),
+      colHelper.accessor('roleSource', {
+        header: 'Role source',
+        cell: (info) => <Badge>{info.getValue()}</Badge>,
       }),
       getActionsCol((row: UserRow) => [
         {
@@ -133,18 +135,22 @@ export function ProjectAccessPage() {
           Add user to project
         </Button>
       </TableActions>
-      {
+      {projectPolicy && (
         <ProjectAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          policy={combinedPolicy}
+          // has to be project policy and not combined because you can still add a
+          // user who's on the silo or org to the project policy
+          // TODO: compute user list explicitly here instead of doing it inside
+          // the modal
+          policy={projectPolicy}
         />
-      }
-      {editingUserRow && (
+      )}
+      {projectPolicy && editingUserRow && (
         <ProjectAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
-          policy={combinedPolicy}
+          policy={projectPolicy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
         />

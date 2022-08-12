@@ -5,11 +5,10 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  orgRoleOrder,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
-  useUserAccessRows,
+  useUserRows,
 } from '@oxide/api'
 import type { OrganizationRole, UserAccessRow } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -24,6 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
+import { sortBy } from '@oxide/util'
 
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { requireOrgParams, useRequiredParams } from 'app/hooks'
@@ -60,14 +60,12 @@ export function OrgAccessPage() {
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
 
-  const combinedPolicy = {
-    roleAssignments: [
-      ...(siloPolicy?.roleAssignments || []),
-      ...(orgPolicy?.roleAssignments || []),
-    ],
-  }
-
-  const rows = useUserAccessRows(combinedPolicy, orgRoleOrder)
+  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+  const rows = useMemo(
+    () => sortBy(orgRows.concat(siloRows), (u) => u.id),
+    [orgRows, siloRows]
+  )
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
@@ -84,7 +82,11 @@ export function OrgAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('roleName', {
         header: 'Role',
-        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      }),
+      colHelper.accessor('roleSource', {
+        header: 'Role source',
+        cell: (info) => <Badge>{info.getValue()}</Badge>,
       }),
       getActionsCol((row: UserRow) => [
         {
@@ -125,18 +127,24 @@ export function OrgAccessPage() {
           Add user to organization
         </Button>
       </TableActions>
-      <OrgAccessAddUserSideModal
-        isOpen={addModalOpen}
-        onDismiss={() => setAddModalOpen(false)}
-        onSuccess={() => setAddModalOpen(false)}
-        policy={combinedPolicy}
-      />
-      {editingUserRow && (
+      {orgPolicy && (
+        <OrgAccessAddUserSideModal
+          isOpen={addModalOpen}
+          onDismiss={() => setAddModalOpen(false)}
+          onSuccess={() => setAddModalOpen(false)}
+          // has to be org policy and not combined because you can still add a
+          // user who's on the silo to the org policy
+          // TODO: compute user list explicitly here instead of doing it inside
+          // the modal
+          policy={orgPolicy}
+        />
+      )}
+      {orgPolicy && editingUserRow && (
         <OrgAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
-          policy={combinedPolicy}
+          policy={orgPolicy}
           userId={editingUserRow.id}
           initialValues={{ roleName: editingUserRow.roleName }}
         />
