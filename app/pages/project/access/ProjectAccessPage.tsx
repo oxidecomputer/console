@@ -129,28 +129,27 @@ export function ProjectAccessPage() {
         header: 'Project role',
         cell: RoleBadgeCell,
       }),
-      getActionsCol((row: UserRow) =>
-        row.projectRole
-          ? [
-              {
-                label: 'Change role',
-                onActivate: () => setEditingUserRow(row),
-              },
-              // TODO: only show if you have permission to do this
-              {
-                label: 'Delete',
-                onActivate() {
-                  // TODO: confirm delete
-                  updatePolicy.mutate({
-                    ...projectParams,
-                    // we know policy is there, otherwise there's no row to display
-                    body: setUserRole(row.id, null, projectPolicy!),
-                  })
-                },
-              },
-            ]
-          : []
-      ),
+      // TODO: tooltips on disabled elements explaining why
+      getActionsCol((row: UserRow) => [
+        {
+          label: 'Change role',
+          onActivate: () => setEditingUserRow(row),
+          disabled: !row.projectRole,
+        },
+        // TODO: only show if you have permission to do this
+        {
+          label: 'Delete',
+          onActivate() {
+            // TODO: confirm delete
+            updatePolicy.mutate({
+              ...projectParams,
+              // we know policy is there, otherwise there's no row to display
+              body: setUserRole(row.id, null, projectPolicy!),
+            })
+          },
+          disabled: !row.projectRole,
+        },
+      ]),
     ],
     [projectPolicy, projectParams, updatePolicy]
   )
