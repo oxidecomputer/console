@@ -9,9 +9,17 @@ test('Click through project access page', async ({ page }) => {
   // page is there, we see user 1-3 but not 4
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   const table = page.locator('table')
-  await expectRowVisible(table, { ID: 'user-1', Name: 'Hannah Arendt', Role: 'admin' })
-  await expectRowVisible(table, { ID: 'user-2', Name: 'Hans Jonas', Role: 'viewer' })
-  await expectRowVisible(table, { ID: 'user-3', Name: 'Jacob Klein', Role: 'collaborator' })
+  await expectRowVisible(table, {
+    ID: 'user-1',
+    Name: 'Hannah Arendt',
+    'Silo role': 'admin',
+  })
+  await expectRowVisible(table, { ID: 'user-2', Name: 'Hans Jonas', 'Org role': 'viewer' })
+  await expectRowVisible(table, {
+    ID: 'user-3',
+    Name: 'Jacob Klein',
+    'Project role': 'collaborator',
+  })
   await expectNotVisible(page, ['role=cell[name="user-4"]'])
 
   // Add user 4 as collab
@@ -20,12 +28,12 @@ test('Click through project access page', async ({ page }) => {
 
   await page.click('role=button[name="User"]')
   // only users not already on the project should be visible
-  await expectNotVisible(page, [
+  await expectNotVisible(page, ['role=option[name="Jacob Klein"]'])
+  await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Hans Jonas"]',
-    'role=option[name="Jacob Klein"]',
+    'role=option[name="Simone de Beauvoir"]',
   ])
-  await expectVisible(page, ['role=option[name="Simone de Beauvoir"]'])
 
   await page.click('role=option[name="Simone de Beauvoir"]')
 
@@ -43,7 +51,7 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(table, {
     ID: 'user-4',
     Name: 'Simone de Beauvoir',
-    Role: 'collaborator',
+    'Project role': 'collaborator',
   })
 
   // now change user 4 role from collab to viewer
@@ -60,7 +68,7 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: 'user-4', Role: 'viewer' })
+  await expectRowVisible(table, { ID: 'user-4', 'Project role': 'viewer' })
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
