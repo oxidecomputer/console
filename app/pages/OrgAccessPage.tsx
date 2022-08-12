@@ -5,6 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  getOrgRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
@@ -15,7 +16,6 @@ import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
-  Badge,
   Button,
   EmptyMessage,
   PageHeader,
@@ -23,8 +23,9 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, sortBy } from '@oxide/util'
+import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { requireOrgParams, useRequiredParams } from 'app/hooks'
 
@@ -54,6 +55,8 @@ type UserRow = {
   name: string
   siloRole: SiloRole | undefined
   orgRole: OrganizationRole | undefined
+  // all these types are the same but this is strictly more correct than using one
+  effectiveRole: SiloRole | OrganizationRole
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -70,12 +73,23 @@ export function OrgAccessPage() {
   const rows = useMemo(
     () =>
       sortBy(
-        groupBy(siloRows.concat(orgRows), (u) => u.id).map(([id, ras]) => ({
-          id,
-          name: ras[0].name,
-          siloRole: ras.find((ra) => ra.roleSource === 'silo')?.roleName,
-          orgRole: ras.find((ra) => ra.roleSource === 'org')?.roleName,
-        })),
+        groupBy(siloRows.concat(orgRows), (u) => u.id).map(([id, ras]) => {
+          const siloRole = ras.find((ra) => ra.roleSource === 'silo')?.roleName
+          const orgRole = ras.find((ra) => ra.roleSource === 'org')?.roleName
+          const projectRole = ras.find((ra) => ra.roleSource === 'project')?.roleName
+
+          const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
+
+          return {
+            id,
+            name: ras[0].name,
+            siloRole,
+            orgRole,
+            projectRole,
+            // we know there has to be at least one
+            effectiveRole: getOrgRole(roles)!,
+          }
+        }),
         (row) => row.id
       ),
     [siloRows, orgRows]
@@ -96,11 +110,11 @@ export function OrgAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
-        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
+        cell: RoleBadgeCell,
       }),
       colHelper.accessor('orgRole', {
         header: 'Org role',
-        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
+        cell: RoleBadgeCell,
       }),
       getActionsCol((row: UserRow) =>
         row.orgRole
