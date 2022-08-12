@@ -10,7 +10,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { OrganizationRole, UserAccessRow } from '@oxide/api'
+import type { OrganizationRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -23,7 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { sortBy } from '@oxide/util'
+import { groupBy, sortBy } from '@oxide/util'
 
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { requireOrgParams, useRequiredParams } from 'app/hooks'
@@ -44,12 +44,17 @@ OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
     apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
-    // used in useUserAccessRows to resolve user names
+    // used to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
   ])
 }
 
-type UserRow = UserAccessRow<OrganizationRole>
+type UserRow = {
+  id: string
+  name: string
+  siloRole: SiloRole | undefined
+  orgRole: OrganizationRole | undefined
+}
 
 const colHelper = createColumnHelper<UserRow>()
 
@@ -63,8 +68,17 @@ export function OrgAccessPage() {
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
   const rows = useMemo(
-    () => sortBy(orgRows.concat(siloRows), (u) => u.id),
-    [orgRows, siloRows]
+    () =>
+      sortBy(
+        groupBy(siloRows.concat(orgRows), (u) => u.id).map(([id, ras]) => ({
+          id,
+          name: ras[0].name,
+          siloRole: ras.find((ra) => ra.roleSource === 'silo')?.roleName,
+          orgRole: ras.find((ra) => ra.roleSource === 'org')?.roleName,
+        })),
+        (row) => row.id
+      ),
+    [siloRows, orgRows]
   )
 
   const queryClient = useApiQueryClient()
@@ -80,32 +94,36 @@ export function OrgAccessPage() {
     () => [
       colHelper.accessor('id', { header: 'ID' }),
       colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('roleName', {
-        header: 'Role',
-        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      colHelper.accessor('siloRole', {
+        header: 'Silo role',
+        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
       }),
-      colHelper.accessor('roleSource', {
-        header: 'Role source',
-        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      colHelper.accessor('orgRole', {
+        header: 'Org role',
+        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
       }),
-      getActionsCol((row: UserRow) => [
-        {
-          label: 'Change role',
-          onActivate: () => setEditingUserRow(row),
-        },
-        // TODO: only show if you have permission to do this
-        {
-          label: 'Delete',
-          onActivate() {
-            // TODO: confirm delete
-            updatePolicy.mutate({
-              ...orgParams,
-              // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, orgPolicy!),
-            })
-          },
-        },
-      ]),
+      getActionsCol((row: UserRow) =>
+        row.orgRole
+          ? [
+              {
+                label: 'Change role',
+                onActivate: () => setEditingUserRow(row),
+              },
+              // TODO: only show if you have permission to do this
+              {
+                label: 'Delete',
+                onActivate() {
+                  // TODO: confirm delete
+                  updatePolicy.mutate({
+                    ...orgParams,
+                    // we know policy is there, otherwise there's no row to display
+                    body: setUserRole(row.id, null, orgPolicy!),
+                  })
+                },
+              },
+            ]
+          : []
+      ),
     ],
     [orgPolicy, orgParams, updatePolicy]
   )
@@ -132,21 +150,17 @@ export function OrgAccessPage() {
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
           onSuccess={() => setAddModalOpen(false)}
-          // has to be org policy and not combined because you can still add a
-          // user who's on the silo to the org policy
-          // TODO: compute user list explicitly here instead of doing it inside
-          // the modal
           policy={orgPolicy}
         />
       )}
-      {orgPolicy && editingUserRow && (
+      {orgPolicy && editingUserRow?.orgRole && (
         <OrgAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
           policy={orgPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.roleName }}
+          initialValues={{ roleName: editingUserRow.orgRole }}
         />
       )}
       {rows.length === 0 ? (

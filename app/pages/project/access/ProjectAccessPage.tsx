@@ -10,7 +10,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { ProjectRole, UserAccessRow } from '@oxide/api'
+import type { OrganizationRole, ProjectRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -23,7 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { sortBy } from '@oxide/util'
+import { groupBy, sortBy } from '@oxide/util'
 
 import {
   ProjectAccessAddUserSideModal,
@@ -49,12 +49,18 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('policyView', {}),
     apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
     apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
-    // used in useUserAccessRows to resolve user names
+    // used to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
   ])
 }
 
-type UserRow = UserAccessRow<ProjectRole>
+type UserRow = {
+  id: string
+  name: string
+  siloRole: SiloRole | undefined
+  orgRole: OrganizationRole | undefined
+  projectRole: ProjectRole | undefined
+}
 
 const colHelper = createColumnHelper<UserRow>()
 
@@ -71,7 +77,17 @@ export function ProjectAccessPage() {
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
   const rows = useMemo(
-    () => sortBy(siloRows.concat(orgRows, projectRows), (u) => u.id),
+    () =>
+      sortBy(
+        groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id).map(([id, ras]) => ({
+          id,
+          name: ras[0].name,
+          siloRole: ras.find((ra) => ra.roleSource === 'silo')?.roleName,
+          orgRole: ras.find((ra) => ra.roleSource === 'org')?.roleName,
+          projectRole: ras.find((ra) => ra.roleSource === 'project')?.roleName,
+        })),
+        (row) => row.id
+      ),
     [siloRows, orgRows, projectRows]
   )
 
@@ -88,32 +104,40 @@ export function ProjectAccessPage() {
     () => [
       colHelper.accessor('id', { header: 'ID' }),
       colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('roleName', {
-        header: 'Role',
-        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      colHelper.accessor('siloRole', {
+        header: 'Silo role',
+        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
       }),
-      colHelper.accessor('roleSource', {
-        header: 'Role source',
-        cell: (info) => <Badge>{info.getValue()}</Badge>,
+      colHelper.accessor('orgRole', {
+        header: 'Org role',
+        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
       }),
-      getActionsCol((row: UserRow) => [
-        {
-          label: 'Change role',
-          onActivate: () => setEditingUserRow(row),
-        },
-        // TODO: only show if you have permission to do this
-        {
-          label: 'Delete',
-          onActivate() {
-            // TODO: confirm delete
-            updatePolicy.mutate({
-              ...projectParams,
-              // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, projectPolicy!),
-            })
-          },
-        },
-      ]),
+      colHelper.accessor('projectRole', {
+        header: 'Project role',
+        cell: (info) => (info.getValue() ? <Badge>{info.getValue()}</Badge> : null),
+      }),
+      getActionsCol((row: UserRow) =>
+        row.projectRole
+          ? [
+              {
+                label: 'Change role',
+                onActivate: () => setEditingUserRow(row),
+              },
+              // TODO: only show if you have permission to do this
+              {
+                label: 'Delete',
+                onActivate() {
+                  // TODO: confirm delete
+                  updatePolicy.mutate({
+                    ...projectParams,
+                    // we know policy is there, otherwise there's no row to display
+                    body: setUserRole(row.id, null, projectPolicy!),
+                  })
+                },
+              },
+            ]
+          : []
+      ),
     ],
     [projectPolicy, projectParams, updatePolicy]
   )
@@ -139,20 +163,16 @@ export function ProjectAccessPage() {
         <ProjectAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          // has to be project policy and not combined because you can still add a
-          // user who's on the silo or org to the project policy
-          // TODO: compute user list explicitly here instead of doing it inside
-          // the modal
           policy={projectPolicy}
         />
       )}
-      {projectPolicy && editingUserRow && (
+      {projectPolicy && editingUserRow?.projectRole && (
         <ProjectAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.roleName }}
+          initialValues={{ roleName: editingUserRow.projectRole }}
         />
       )}
       {rows.length === 0 ? (

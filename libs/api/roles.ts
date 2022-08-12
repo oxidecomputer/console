@@ -92,7 +92,7 @@ export function setUserRole<Role extends string>(
   return { roleAssignments }
 }
 
-export type UserAccessRow<Role extends string> = {
+type UserAccessRow<Role extends string> = {
   id: string
   name: string
   roleName: Role
