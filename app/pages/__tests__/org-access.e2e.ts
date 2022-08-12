@@ -81,4 +81,18 @@ test('Click through org access page', async ({ page }) => {
   await expectVisible(page, ['role=cell[name=user-2]'])
   await page.click('role=menuitem[name="Delete"]')
   await expectNotVisible(page, ['role=cell[name=user-2]'])
+
+  // now add an org role to user 1, who currently only has silo role
+  await page.click('role=button[name="Add user to organization"]')
+  await page.click('role=button[name="User"]')
+  await page.click('role=option[name="Hannah Arendt"]')
+  await page.click('role=button[name="Role"]')
+  await page.click('role=option[name="Viewer"]')
+  await page.click('role=button[name="Add user"]')
+  await expectRowVisible(table, {
+    ID: 'user-1',
+    Name: 'Hannah Arendt',
+    'Silo role': 'admin',
+    'Org role': 'viewer',
+  })
 })
