@@ -29,9 +29,9 @@ const textColor: Record<Variant, string> = {
 }
 
 const progressColor: Record<Variant, string> = {
-  success: 'bg-green-800',
-  error: 'bg-red-800',
-  info: 'bg-yellow-800',
+  success: 'bg-accent-raise',
+  error: 'bg-destructive-raise',
+  info: 'bg-notice-raise',
 }
 
 export const Toast = ({
