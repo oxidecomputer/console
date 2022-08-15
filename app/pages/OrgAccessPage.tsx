@@ -5,7 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  getOrgRole,
+  getEffectiveOrgRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
@@ -83,7 +83,7 @@ export function OrgAccessPage() {
         siloRole,
         orgRole,
         // we know there has to be at least one
-        effectiveRole: getOrgRole(roles)!,
+        effectiveRole: getEffectiveOrgRole(roles)!,
       }
     })
     return sortBy(users, (u) => u.name)

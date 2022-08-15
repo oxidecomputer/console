@@ -10,15 +10,10 @@ import { sortBy } from '@oxide/util'
 import { useApiQuery } from '.'
 import type { IdentityType, OrganizationRole, ProjectRole } from './__generated__/Api'
 
-/** Given a role order and a list of roles, get the one that sorts earliest */
-export const getMainRole =
-  <Role extends string>(roleOrder: Record<Role, number>) =>
-  (userRoles: Role[]): Role | null =>
-    userRoles.length > 0 ? sortBy(userRoles, (r) => roleOrder[r])[0] : null
-
 /** Turn a role order record into a sorted array of strings. */
+// used for displaying lists of roles, like in a <select>
 const flatRoles = <Role extends string>(roleOrder: Record<Role, number>): Role[] =>
-  sortBy(Object.entries(roleOrder), ([_role, order]) => order).map(([role]) => role as Role)
+  sortBy(Object.keys(roleOrder) as Role[], (role) => roleOrder[role])
 
 ////////////////////////////
 // Project roles
@@ -32,7 +27,8 @@ export const projectRoleOrder: Record<ProjectRole, number> = {
 }
 
 /** Given a user ID and a policy, get the most permissive role for that user */
-export const getProjectRole = getMainRole(projectRoleOrder)
+export const getEffectiveProjectRole = (roles: ProjectRole[]): ProjectRole | undefined =>
+  sortBy(roles, (role) => projectRoleOrder[role])[0]
 
 /** `projectRoleOrder` record converted to a sorted array of roles. */
 export const projectRoles = flatRoles(projectRoleOrder)
@@ -55,7 +51,9 @@ export const orgRoleOrder: Record<OrganizationRole, number> = {
 export const orgRoles = flatRoles(orgRoleOrder)
 
 /** Given a user ID and a policy, get the most permissive role for that user */
-export const getOrgRole = getMainRole(orgRoleOrder)
+export const getEffectiveOrgRole = (
+  roles: OrganizationRole[]
+): OrganizationRole | undefined => sortBy(roles, (role) => orgRoleOrder[role])[0]
 
 ////////////////////////////
 // Policy helpers
