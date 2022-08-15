@@ -74,21 +74,19 @@ export function OrgAccessPage() {
     const users = groupBy(siloRows.concat(orgRows), (u) => u.id).map(([id, ras]) => {
       const siloRole = ras.find((ra) => ra.roleSource === 'silo')?.roleName
       const orgRole = ras.find((ra) => ra.roleSource === 'org')?.roleName
-      const projectRole = ras.find((ra) => ra.roleSource === 'project')?.roleName
 
-      const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
+      const roles = [siloRole, orgRole].filter(isTruthy)
 
       return {
         id,
         name: ras[0].name,
         siloRole,
         orgRole,
-        projectRole,
         // we know there has to be at least one
         effectiveRole: getOrgRole(roles)!,
       }
     })
-    return sortBy(users, (u) => u.id)
+    return sortBy(users, (u) => u.name)
   }, [siloRows, orgRows])
 
   const queryClient = useApiQueryClient()
