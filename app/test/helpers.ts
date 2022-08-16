@@ -30,9 +30,18 @@ const goto = async (page: Page, url: string): Promise<Result<ReturnFn, ReqError>
   return Ok(() => page.goto(currentUrl))
 }
 
+export async function checkIfExists(page: Page, path: string) {
+  const res = await page.request.get(path)
+  const status = res.status()
+  if (status >= 500) {
+    throw new Error(`${path} failed to load with a ${status} response code`)
+  }
+  return status >= 200 && status < 300
+}
+
 // --- Organizations ---------
 
-export async function createOrganization(page: Page, body: OrganizationCreate) {
+export async function createOrg(page: Page, body: OrganizationCreate) {
   const [back, err] = await goto(page, '/orgs/new')
   if (err) {
     throw new Error(err.msg)
@@ -51,17 +60,11 @@ export async function createProject(
   params: ProjectCreateParams,
   body: ProjectCreate
 ) {
+  if (!checkIfExists(page, `/orgs/${params.orgName}`)) {
+    await createOrg(page, { name: params.orgName, description: '' })
+  }
   const [back, err] = await goto(page, `/orgs/${params.orgName}/projects/new`)
-  // If there's a 404, the org likely doesn't exist. Try to create it before erroring.
-  if (err && err.code === 404) {
-    await createOrganization(page, { name: params.orgName, description: '' })
-    const [, err] = await goto(page, `/orgs/${params.orgName}/projects/new`)
-    if (err) {
-      throw new Error(
-        `Failed to create project, couldn't navigate to new project view:\n ${err.msg}`
-      )
-    }
-  } else if (err) {
+  if (err) {
     throw new Error(err.msg)
   }
   await page.fill('role=textbox[name="Name"]', body.name)

@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { createOrganization } from 'app/test/helpers'
+import { createOrg } from 'app/test/helpers'
 import { expectVisible } from 'app/util/e2e'
 
 test('Root to orgs redirect', async ({ page }) => {
@@ -23,7 +23,7 @@ test('Orgs list and detail click work', async ({ page }) => {
   ])
   await page.goBack()
 
-  await createOrganization(page, {
+  await createOrg(page, {
     name: 'org-create-test',
     description: 'used to test org creation',
   })
