@@ -3053,13 +3053,7 @@ export interface ApiConfig {
   baseApiParams?: Omit<RequestParams, 'baseUrl' | 'signal'>
 }
 
-export type ApiError = {
-  type: 'error'
-  statusCode: number
-  headers: Headers
-  error: ErrorBody
-}
-
+/** Success responses from the API */
 export type ApiSuccess<Data extends unknown> = {
   type: 'success'
   statusCode: number
@@ -3067,7 +3061,29 @@ export type ApiSuccess<Data extends unknown> = {
   data: Data
 }
 
-export type ApiResult<Data extends unknown> = ApiSuccess<Data> | ApiError
+/** 4xx and 5xx responses from the API */
+export type ApiError = {
+  type: 'error'
+  statusCode: number
+  headers: Headers
+  error: ErrorBody
+}
+
+/**
+ * JSON parsing or processing errors within the client. Includes raised Error
+ * and response body as a string for debugging.
+ */
+export type ClientError = {
+  type: 'client_error'
+  error: Error
+  statusCode: number
+  headers: Headers
+  text: string
+}
+
+export type ErrorResult = ApiError | ClientError
+
+export type ApiResult<Data extends unknown> = ApiSuccess<Data> | ErrorResult
 
 const encodeQueryParam = (key: string, value: any) =>
   `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
@@ -3132,27 +3148,38 @@ export class HttpClient {
       body: JSON.stringify(snakeify(body)),
     })
 
-    const statusCode = response.status
+    const common = { statusCode: response.status, headers: response.headers }
 
-    // don't attempt to pull JSON out of a 204 No Content
-    const respJson =
-      statusCode === 204 ? void 0 : processResponseBody(await response.json())
-    // TODO: explicitly handle JSON parse error? (as a third kind of result?)
-    if (response.ok) {
-      // assume it matches the type
+    const respText = await response.text()
+
+    // catch JSON parse or processing errors
+    let respJson = undefined
+    try {
+      // don't bother trying to parse empty responses like 204s
+      // TODO: is empty object what we want here?
+      respJson = respText.length > 0 ? processResponseBody(JSON.parse(respText)) : {}
+    } catch (e) {
       return {
-        type: 'success',
-        statusCode,
-        headers: response.headers,
-        data: respJson as Data,
+        type: 'client_error',
+        error: e as Error,
+        text: respText,
+        ...common,
       }
-    } else {
+    }
+
+    if (!response.ok) {
       return {
         type: 'error',
-        statusCode,
-        headers: response.headers,
         error: respJson as ErrorBody,
+        ...common,
       }
+    }
+
+    // don't validate respJson, just assume it matches the type
+    return {
+      type: 'success',
+      data: respJson as Data,
+      ...common,
     }
   }
 }

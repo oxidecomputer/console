@@ -1,14 +1,18 @@
 import * as Yup from 'yup'
 import { useFormikContext } from 'formik'
 
-import type { VpcFirewallRules } from '@oxide/api'
 import {
   firewallRuleGetToPut,
   parsePortRange,
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
-import type { ApiError, VpcFirewallRule, VpcFirewallRuleUpdate } from '@oxide/api'
+import type {
+  ErrorResult,
+  VpcFirewallRule,
+  VpcFirewallRuleUpdate,
+  VpcFirewallRules,
+} from '@oxide/api'
 import { Button, Delete10Icon, Divider, Radio, Table } from '@oxide/ui'
 
 import {
@@ -93,7 +97,7 @@ const initialValues: FirewallRuleValues = {
   targetValue: '',
 }
 
-export const CommonFields = ({ error }: { error: ApiError | null }) => {
+export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
   const { setFieldValue, values } = useFormikContext<FirewallRuleValues>()
   return (
     <>

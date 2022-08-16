@@ -1,6 +1,6 @@
 import { camelCaseToWords, capitalize } from '@oxide/util'
 
-import type { ApiError, ApiMethods, ErrorBody } from '.'
+import type { ApiError, ApiMethods, ErrorBody, ErrorResult } from '.'
 import { navToLogin } from './nav-to-login'
 
 const errorCodeFormatter =
@@ -22,10 +22,7 @@ const errorCodeFormatter =
     }
   }
 
-export const handleErrors = (method: keyof ApiMethods) => (resp: ApiError) => {
-  // TODO is this a valid failure condition?
-  if (!resp) throw 'unknown server error'
-
+export const handleErrors = (method: keyof ApiMethods) => (resp: ErrorResult) => {
   // if logged out, hit /login to trigger login redirect
   if (resp.statusCode === 401) {
     // TODO-usability: for background requests, a redirect to login without
@@ -39,9 +36,25 @@ export const handleErrors = (method: keyof ApiMethods) => (resp: ApiError) => {
 }
 
 function formatServerError(
-  resp: ApiError,
+  resp: ErrorResult,
   msgFromCode: (errorCode: string, error: ErrorBody) => string | undefined
-): ApiError {
+): ErrorResult {
+  // TODO: I don't like that this function works by modifying
+  // resp.error.message, which means the real message disappears. For now I'm
+  // logging it here before it gets modified, but eventually this should work
+  // altogether differently, maybe by preserving the original message while
+  // adding on a user-facing message that our error boundary can display.
+  if (process.env.NODE_ENV !== 'test') {
+    console.log('Error from API client: ', resp)
+  }
+
+  // client error is a JSON parse or processing error and is highly unlikely to
+  // be end-user readable
+  if (resp.type === 'client_error') {
+    resp.error.message = 'Error reading API response'
+    return resp
+  }
+
   const code = resp.error.errorCode
   const codeMsg = code && msgFromCode(code, resp.error)
   const serverMsg = resp.error.message

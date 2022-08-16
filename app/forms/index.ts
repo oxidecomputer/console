@@ -1,6 +1,6 @@
 import type { SetRequired } from 'type-fest'
 
-import type { ApiError } from '@oxide/api'
+import type { ErrorResult } from '@oxide/api'
 import type { SideModalProps } from '@oxide/ui'
 
 import type { FormProps, FullPageFormProps } from 'app/components/form'
@@ -10,7 +10,7 @@ type CreateFormProps<Values, Data> = Omit<
   'children'
 > & {
   onSuccess?: (data: Data) => void
-  onError?: (err: ApiError) => void
+  onError?: (err: ErrorResult) => void
 }
 
 export type CreateSideModalFormProps<Values, Data> = CreateFormProps<Values, Data> &

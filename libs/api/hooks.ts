@@ -9,7 +9,7 @@ import type {
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { ApiError, ApiResult } from './__generated__/Api'
+import type { ApiResult, ErrorResult } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P, r: infer R) => any
@@ -31,11 +31,14 @@ type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const getUseApiQuery =
-  <A extends ApiClient>(api: A, handleErrors: (M: keyof A) => (resp: ApiError) => void) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+  ) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
+    options: UseQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) => {
     return useQuery(
       [method, params] as QueryKey,
@@ -56,10 +59,13 @@ export const getUseApiQuery =
   }
 
 export const getUseApiMutation =
-  <A extends ApiClient>(api: A, handleErrors: (M: keyof A) => (resp: ApiError) => void) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+  ) =>
   <M extends keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+    options?: UseMutationOptions<Result<A[M]>, ErrorResult, Params<A[M]>>
   ) =>
     useMutation(
       ({ body, ...params }) =>
@@ -90,13 +96,13 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
       queryFn: () =>
         api[method](params).then((resp) => {
-          if (resp.type === 'error') throw resp
+          if (resp.type !== 'success') throw resp
           return resp.data
         }),
       ...options,
@@ -104,13 +110,13 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
       queryFn: () =>
         api[method](params).then((resp) => {
-          if (resp.type === 'error') throw resp
+          if (resp.type !== 'success') throw resp
           return resp.data
         }),
       ...options,

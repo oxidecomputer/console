@@ -67,17 +67,38 @@ describe('useApiQuery', () => {
       )
     })
 
-    it('contains JS Error if error body is not json', async () => {
+    it('contains client_error if error body is not json', async () => {
       overrideOnce('get', '/api/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
       await waitFor(() => {
         const error = result.current.error
-        expect(error).toBeInstanceOf(Error)
-        expect(error?.toString()).toEqual(
-          'SyntaxError: Unexpected token o in JSON at position 1'
-        )
+        expect(error).toMatchObject({
+          type: 'client_error',
+          statusCode: 503,
+          text: 'not json',
+          error: {
+            message: 'Error reading API response',
+          },
+        })
+      })
+    })
+
+    it('does not client_error if response body is empty', async () => {
+      overrideOnce('get', '/api/organizations', 503, '')
+
+      const { result } = renderGetOrgs()
+
+      await waitFor(() => {
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'error',
+          statusCode: 503,
+          error: {
+            message: 'Unknown server error',
+          },
+        })
       })
     })
   })
@@ -129,6 +150,17 @@ describe('useApiQuery', () => {
         expect(items?.[0].id).toEqual(org.id)
       })
     })
+
+    // RQ doesn't like a value of undefined for data, so we're using {} for now
+    it('returns success with empty object if response body is empty', async () => {
+      overrideOnce('get', '/api/organizations', 204, '')
+
+      const { result } = renderGetOrgs()
+
+      await waitFor(() => {
+        expect(result.current.data).toEqual({})
+      })
+    })
   })
 })
 
@@ -170,7 +202,7 @@ describe('useApiMutation', () => {
       )
     })
 
-    it('contains JS Error if error body is not json', async () => {
+    it('contains client_error if error body is not json', async () => {
       overrideOnce('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
@@ -178,10 +210,30 @@ describe('useApiMutation', () => {
 
       await waitFor(() => {
         const error = result.current.error
-        expect(error).toBeInstanceOf(Error)
-        expect(error?.toString()).toEqual(
-          'SyntaxError: Unexpected token o in JSON at position 1'
-        )
+        expect(error).toMatchObject({
+          type: 'client_error',
+          statusCode: 404,
+          text: 'not json',
+        })
+        expect(error?.error.message).toEqual('Error reading API response')
+      })
+    })
+
+    it('does not client_error if response body is empty', async () => {
+      overrideOnce('post', '/api/organizations', 503, '')
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
+      await waitFor(() => {
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'error',
+          statusCode: 503,
+          error: {
+            message: 'Unknown server error',
+          },
+        })
       })
     })
   })
@@ -196,6 +248,18 @@ describe('useApiMutation', () => {
           name: createParams.body.name,
         })
       )
+    })
+
+    // RQ doesn't like a value of undefined for data, so we're using {} for now
+    it('returns success with empty object if response body is empty', async () => {
+      overrideOnce('post', '/api/organizations', 204, '')
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
+      await waitFor(() => {
+        expect(result.current.data).toEqual({})
+      })
     })
   })
 })
