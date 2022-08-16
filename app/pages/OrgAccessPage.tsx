@@ -65,27 +65,31 @@ export function OrgAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const orgParams = useRequiredParams('orgName')
+
   const { data: siloPolicy } = useApiQuery('policyView', {})
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
-
-  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
+  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+
   const rows = useMemo(() => {
-    const users = groupBy(siloRows.concat(orgRows), (u) => u.id).map(([id, ras]) => {
-      const siloRole = ras.find((ra) => ra.roleSource === 'silo')?.roleName
-      const orgRole = ras.find((ra) => ra.roleSource === 'org')?.roleName
+    const users = groupBy(siloRows.concat(orgRows), (u) => u.id).map(
+      ([userId, userAssignments]) => {
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
 
-      const roles = [siloRole, orgRole].filter(isTruthy)
+        const roles = [siloRole, orgRole].filter(isTruthy)
 
-      return {
-        id,
-        name: ras[0].name,
-        siloRole,
-        orgRole,
-        // we know there has to be at least one
-        effectiveRole: getEffectiveOrgRole(roles)!,
+        return {
+          id: userId,
+          name: userAssignments[0].name,
+          siloRole,
+          orgRole,
+          // we know there has to be at least one
+          effectiveRole: getEffectiveOrgRole(roles)!,
+        }
       }
-    })
+    )
     return sortBy(users, (u) => u.name)
   }, [siloRows, orgRows])
 

@@ -72,25 +72,30 @@ export function ProjectAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useRequiredParams('orgName', 'projectName')
   const { orgName } = projectParams
-  const { data: siloPolicy } = useApiQuery('policyView', {})
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
 
+  const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+
+  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
+
   const rows = useMemo(() => {
     const users = groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id).map(
-      ([id, ras]) => {
-        const siloRole = ras.find((ra) => ra.roleSource === 'silo')?.roleName
-        const orgRole = ras.find((ra) => ra.roleSource === 'org')?.roleName
-        const projectRole = ras.find((ra) => ra.roleSource === 'project')?.roleName
+      ([userId, userAssignments]) => {
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
+        const projectRole = userAssignments.find(
+          (a) => a.roleSource === 'project'
+        )?.roleName
 
         const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
 
         return {
-          id,
-          name: ras[0].name,
+          id: userId,
+          name: userAssignments[0].name,
           siloRole,
           orgRole,
           projectRole,
