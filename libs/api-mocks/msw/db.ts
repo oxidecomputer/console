@@ -1,4 +1,6 @@
 import { response } from 'msw'
+// @ts-ignore
+import createStore from 'storage-as-an-object'
 import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
@@ -166,10 +168,12 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-const clone = (o: unknown) => JSON.parse(JSON.stringify(o))
+export const db: typeof initDb = createStore('msw-db', {
+  initialValues: structuredClone(initDb),
+  store: window.localStorage,
+})
 
 export function resetDb() {
-  db = clone(initDb)
+  // @ts-ignore
+  db.clear()
 }
-
-export let db: typeof initDb = clone(initDb)

@@ -1,17 +1,19 @@
 import { test } from '@playwright/test'
 
+import { createOrganization } from 'app/test/helpers'
 import { expectVisible } from 'app/util/e2e'
 
-test('Orgs list and detail click work', async ({ page }) => {
+test('Root to orgs redirect', async ({ page }) => {
   await page.goto('/')
-  await expectVisible(page, [
-    // note substring matcher bc headers have icons that mess with accessible name
-    // TODO: maybe that's bad and we should fix it in the code
-    'role=heading[name*="Organizations"]',
-    'role=cell[name="maze-war"]',
-  ])
+  await page.waitForURL('/orgs')
+  await expectVisible(page, ['role=heading[name="Organizations"]'])
+})
 
-  // create org form
+test('Orgs list and detail click work', async ({ page }) => {
+  await page.goto('/orgs')
+  await expectVisible(page, ['role=heading[name="Organizations"]'])
+
+  // verify create org form
   await page.click('role=link[name="New Organization"]')
   await expectVisible(page, [
     'role=heading[name*="Create organization"]',
@@ -21,14 +23,15 @@ test('Orgs list and detail click work', async ({ page }) => {
   ])
   await page.goBack()
 
-  // org page (redirects to /org/org-name/projects)
-  await page.click('role=link[name="maze-war"]')
-  await expectVisible(page, [
-    'role=heading[name*="Projects"]',
-    'role=cell[name="mock-project"]',
-  ])
+  await createOrganization(page, {
+    name: 'org-create-test',
+    description: 'used to test org creation',
+  })
 
-  // new project button works
-  await page.click('role=link[name="New Project"]')
-  await expectVisible(page, ['role=heading[name*="Create project"]'])
+  // org page (redirects to /org/org-name/projects)
+  await page.click('role=link[name="org-create-test"]')
+  await expectVisible(page, [
+    'role=heading[name="Projects"]',
+    'role=heading[name="No projects"]',
+  ])
 })

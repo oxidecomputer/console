@@ -1,0 +1,32 @@
+diff --git a/node_modules/storage-as-an-object/storageobject.js b/node_modules/storage-as-an-object/storageobject.js
+index bdc7b3c..d080c00 100644
+--- a/node_modules/storage-as-an-object/storageobject.js
++++ b/node_modules/storage-as-an-object/storageobject.js
+@@ -22,7 +22,7 @@ const defaults = {
+ function StorageObject(store_key, options={}) {
+     
+     let cache = {};
+-    const opt = Object.assign({}, options);
++    const opt = Object.assign(defaults, options);
+     let timer = null
+ 
+     const proxify = (obj) => {
+@@ -82,8 +82,7 @@ function StorageObject(store_key, options={}) {
+     }
+ 
+     const clear = () => {
+-        for (var key in cache) delete cache[key];
+-        Object.assign(cache, opt.initialValues);
++        cache = structuredClone(opt.initialValues)
+         proxify(cache);
+         write();      
+     }
+@@ -94,7 +93,7 @@ function StorageObject(store_key, options={}) {
+     try {
+         Object.assign(cache, JSON.parse(opt.store[store_key]));
+     } catch {
+-        Object.assign(cache, opt.initialValues);
++        Object.assign(cache, structuredClone(opt.initialValues));
+     }
+     cache = proxify(cache);
+     write();
