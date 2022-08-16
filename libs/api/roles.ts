@@ -110,25 +110,16 @@ export function useUserRows<Role extends string>(
 ): UserAccessRow<Role>[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const usersDict = useUsersDict()
-  return useMemo(
-    () =>
-      (roleAssignments || []).map((ra) => ({
-        id: ra.identityId,
-        name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
-        roleName: ra.roleName,
-        roleSource,
-      })),
-    [roleAssignments, roleSource, usersDict]
-  )
-}
-
-function useUsersDict() {
   const { data: users } = useApiQuery('userList', { limit: 200 })
-  return useMemo(
-    () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
-    [users]
-  )
+  return useMemo(() => {
+    const usersDict = Object.fromEntries((users?.items || []).map((u) => [u.id, u]))
+    return (roleAssignments || []).map((ra) => ({
+      id: ra.identityId,
+      name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
+      roleName: ra.roleName,
+      roleSource,
+    }))
+  }, [roleAssignments, roleSource, users])
 }
 
 /**
