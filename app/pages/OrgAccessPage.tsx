@@ -5,18 +5,17 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  orgRoleOrder,
+  getEffectiveOrgRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
-  useUserAccessRows,
+  useUserRows,
 } from '@oxide/api'
-import type { OrganizationRole, UserAccessRow } from '@oxide/api'
+import type { OrganizationRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
-  Badge,
   Button,
   EmptyMessage,
   PageHeader,
@@ -24,7 +23,9 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
+import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { requireOrgParams, useRequiredParams } from 'app/hooks'
 
@@ -42,13 +43,21 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
+    apiQueryClient.prefetchQuery('policyView', {}),
     apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
-    // used in useUserAccessRows to resolve user names
+    // used to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
   ])
 }
 
-type UserRow = UserAccessRow<OrganizationRole>
+type UserRow = {
+  id: string
+  name: string
+  siloRole: SiloRole | undefined
+  orgRole: OrganizationRole | undefined
+  // all these types are the same but this is strictly more correct than using one
+  effectiveRole: SiloRole | OrganizationRole
+}
 
 const colHelper = createColumnHelper<UserRow>()
 
@@ -56,9 +65,33 @@ export function OrgAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const orgParams = useRequiredParams('orgName')
-  const { data: policy } = useApiQuery('organizationPolicyView', orgParams)
 
-  const rows = useUserAccessRows(policy, orgRoleOrder)
+  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
+  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+
+  const rows = useMemo(() => {
+    const users = groupBy(siloRows.concat(orgRows), (u) => u.id).map(
+      ([userId, userAssignments]) => {
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
+
+        const roles = [siloRole, orgRole].filter(isTruthy)
+
+        return {
+          id: userId,
+          name: userAssignments[0].name,
+          siloRole,
+          orgRole,
+          // we know there has to be at least one
+          effectiveRole: getEffectiveOrgRole(roles)!,
+        }
+      }
+    )
+    return sortBy(users, (u) => u.name)
+  }, [siloRows, orgRows])
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
@@ -73,14 +106,20 @@ export function OrgAccessPage() {
     () => [
       colHelper.accessor('id', { header: 'ID' }),
       colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('roleName', {
-        header: 'Role',
-        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      colHelper.accessor('siloRole', {
+        header: 'Silo role',
+        cell: RoleBadgeCell,
       }),
+      colHelper.accessor('orgRole', {
+        header: 'Org role',
+        cell: RoleBadgeCell,
+      }),
+      // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
+          disabled: !row.orgRole,
         },
         // TODO: only show if you have permission to do this
         {
@@ -90,13 +129,14 @@ export function OrgAccessPage() {
             updatePolicy.mutate({
               ...orgParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, policy!),
+              body: setUserRole(row.id, null, orgPolicy!),
             })
           },
+          disabled: !row.orgRole,
         },
       ]),
     ],
-    [policy, orgParams, updatePolicy]
+    [orgPolicy, orgParams, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -116,22 +156,22 @@ export function OrgAccessPage() {
           Add user to organization
         </Button>
       </TableActions>
-      {policy && (
+      {orgPolicy && (
         <OrgAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
           onSuccess={() => setAddModalOpen(false)}
-          policy={policy}
+          policy={orgPolicy}
         />
       )}
-      {policy && editingUserRow && (
+      {orgPolicy && editingUserRow?.orgRole && (
         <OrgAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
-          policy={policy}
+          policy={orgPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.roleName }}
+          initialValues={{ roleName: editingUserRow.orgRole }}
         />
       )}
       {rows.length === 0 ? (

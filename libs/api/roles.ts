@@ -5,20 +5,15 @@
  */
 import { useMemo } from 'react'
 
-import { groupBy, sortBy } from '@oxide/util'
+import { sortBy } from '@oxide/util'
 
 import { useApiQuery } from '.'
 import type { IdentityType, OrganizationRole, ProjectRole } from './__generated__/Api'
 
-/** Given a role order and a list of roles, get the one that sorts earliest */
-export const getMainRole =
-  <Role extends string>(roleOrder: Record<Role, number>) =>
-  (userRoles: Role[]): Role | null =>
-    userRoles.length > 0 ? sortBy(userRoles, (r) => roleOrder[r])[0] : null
-
 /** Turn a role order record into a sorted array of strings. */
+// used for displaying lists of roles, like in a <select>
 const flatRoles = <Role extends string>(roleOrder: Record<Role, number>): Role[] =>
-  sortBy(Object.entries(roleOrder), ([_role, order]) => order).map(([role]) => role as Role)
+  sortBy(Object.keys(roleOrder) as Role[], (role) => roleOrder[role])
 
 ////////////////////////////
 // Project roles
@@ -32,7 +27,8 @@ export const projectRoleOrder: Record<ProjectRole, number> = {
 }
 
 /** Given a user ID and a policy, get the most permissive role for that user */
-export const getProjectRole = getMainRole(projectRoleOrder)
+export const getEffectiveProjectRole = (roles: ProjectRole[]): ProjectRole | undefined =>
+  sortBy(roles, (role) => projectRoleOrder[role])[0]
 
 /** `projectRoleOrder` record converted to a sorted array of roles. */
 export const projectRoles = flatRoles(projectRoleOrder)
@@ -55,7 +51,9 @@ export const orgRoleOrder: Record<OrganizationRole, number> = {
 export const orgRoles = flatRoles(orgRoleOrder)
 
 /** Given a user ID and a policy, get the most permissive role for that user */
-export const getOrgRole = getMainRole(orgRoleOrder)
+export const getEffectiveOrgRole = (
+  roles: OrganizationRole[]
+): OrganizationRole | undefined => sortBy(roles, (role) => orgRoleOrder[role])[0]
 
 ////////////////////////////
 // Policy helpers
@@ -92,47 +90,36 @@ export function setUserRole<Role extends string>(
   return { roleAssignments }
 }
 
-export type UserAccessRow<Role extends string> = {
+type UserAccessRow<Role extends string> = {
   id: string
   name: string
   roleName: Role
+  roleSource: string
 }
 
 /**
  * Role assignments come from the API in (user, role) pairs without display
- * names. This groups those pairs into one row per user, picks the strongest
- * role as that user's "main" role, and uses a fetched list of "all" users to
- * add a display name for each user. It's a bit awkward, but the logic is
+ * names and without info about which resource the role came from. This tags
+ * each row with that info. It has to be a hook because it depends on the result
+ * of an API request for the list of users. It's a bit awkward, but the logic is
  * identical between projects and orgs so it is worth sharing.
  */
-export function useUserAccessRows<Role extends string>(
-  // allow undefined because this is fetched with RQ
-  policy: Policy<Role> | undefined,
-  roleOrder: Record<Role, number>
+export function useUserRows<Role extends string>(
+  roleAssignments: RoleAssignment<Role>[] | undefined,
+  roleSource: string
 ): UserAccessRow<Role>[] {
-  // TODO: this hits /users, which returns system users, not silo users. We need
-  // an endpoint to list silo users. I'm hoping we might end up using /users for
-  // that. See https://github.com/oxidecomputer/omicron/issues/1235
-  const { data: users } = useApiQuery('userList', { limit: 200 })
-
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const usersDict = useMemo(
-    () => Object.fromEntries((users?.items || []).map((u) => [u.id, u])),
-    [users]
-  )
-
+  const { data: users } = useApiQuery('userList', { limit: 200 })
   return useMemo(() => {
-    const roleAssignments = policy?.roleAssignments || []
-    const groups = groupBy(roleAssignments, (u) => u.identityId)
-    return Object.entries(groups).map(([userId, groupRoleAssignments]) => ({
-      id: userId,
-      name: usersDict[userId]?.displayName || '', // placeholder until we get names, obviously
-      // assert non-null because we know there has to be one, otherwise there
-      // wouldn't be a group
-      roleName: getMainRole(roleOrder)(groupRoleAssignments.map((ra) => ra.roleName))!,
+    const usersDict = Object.fromEntries((users?.items || []).map((u) => [u.id, u]))
+    return (roleAssignments || []).map((ra) => ({
+      id: ra.identityId,
+      name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
+      roleName: ra.roleName,
+      roleSource,
     }))
-  }, [policy, usersDict, roleOrder])
+  }, [roleAssignments, roleSource, users])
 }
 
 /**

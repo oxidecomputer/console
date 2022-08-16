@@ -41,11 +41,9 @@ export function ActionMenu(props: ActionMenuProps) {
   const actions = items.filter((i) => !i.navGroup)
 
   // TODO: repent. this is horrible
-  const groupedItems = Object.entries(
-    groupBy(
-      items.filter((i) => i.navGroup),
-      (i) => i.navGroup!
-    )
+  const groupedItems = groupBy(
+    items.filter((i) => i.navGroup),
+    (i) => i.navGroup!
   )
 
   const allGroups: [string, QuickActionItem[]][] =

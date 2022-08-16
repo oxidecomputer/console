@@ -2293,6 +2293,10 @@ export interface DeviceAuthConfirmParams {}
 
 export interface DeviceAccessTokenParams {}
 
+export interface GlobalPolicyViewParams {}
+
+export interface GlobalPolicyUpdateParams {}
+
 export interface RackListParams {
   limit?: number | null
   pageToken?: string | null
@@ -3318,6 +3322,31 @@ export class Api extends HttpClient {
       this.request<void>({
         path: `/device/token`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Fetch the top-level IAM policy
+     */
+    globalPolicyView: (query: GlobalPolicyViewParams, params: RequestParams = {}) =>
+      this.request<FleetRolePolicy>({
+        path: `/global/policy`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update the top-level IAM policy
+     */
+    globalPolicyUpdate: (
+      query: GlobalPolicyUpdateParams,
+      body: FleetRolePolicy,
+      params: RequestParams = {}
+    ) =>
+      this.request<FleetRolePolicy>({
+        path: `/global/policy`,
+        method: 'PUT',
+        body,
         ...params,
       }),
 
@@ -4573,24 +4602,24 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * Fetch the top-level IAM policy
+     * Fetch the current silo's IAM policy
      */
     policyView: (query: PolicyViewParams, params: RequestParams = {}) =>
-      this.request<FleetRolePolicy>({
+      this.request<SiloRolePolicy>({
         path: `/policy`,
         method: 'GET',
         ...params,
       }),
 
     /**
-     * Update the top-level IAM policy
+     * Update the current silo's IAM policy
      */
     policyUpdate: (
       query: PolicyUpdateParams,
-      body: FleetRolePolicy,
+      body: SiloRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<FleetRolePolicy>({
+      this.request<SiloRolePolicy>({
         path: `/policy`,
         method: 'PUT',
         body,

@@ -21,7 +21,7 @@ export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
     }
     groups[key].push(item)
   }
-  return groups
+  return Object.entries(groups)
 }
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
