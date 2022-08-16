@@ -1,6 +1,12 @@
 import type { Page, Response } from '@playwright/test'
 
-import type { OrganizationCreate, ProjectCreate, ProjectCreateParams } from '@oxide/api'
+import type {
+  OrganizationCreate,
+  OrganizationDeleteParams,
+  ProjectCreate,
+  ProjectCreateParams,
+  ProjectDeleteParams,
+} from '@oxide/api'
 
 type Ok<T> = [T, null]
 type Err<E> = [null, E]
@@ -41,6 +47,10 @@ export async function checkIfExists(page: Page, path: string) {
 
 // --- Organizations ---------
 
+/**
+ * Creates an Organization and returns to the page it was called from. Returns
+ * a cleanup function that can be used to cleanup the org later.
+ */
 export async function createOrg(page: Page, body: OrganizationCreate) {
   const [back, err] = await goto(page, '/orgs/new')
   if (err) {
@@ -51,17 +61,33 @@ export async function createOrg(page: Page, body: OrganizationCreate) {
   await page.click('role=button[name="Create organization"]')
   await page.waitForNavigation()
   await back()
+  return () => deleteOrg(page, { orgName: body.name })
+}
+
+export async function deleteOrg(page: Page, params: OrganizationDeleteParams) {
+  const res = await page.request.delete(`/orgs/${params.orgName}`)
+  const status = res.status()
+  if (status >= 300) {
+    throw new Error(`Failed to delete org ${params.orgName} with response code ${status}`)
+  }
 }
 
 // --- Projects --------------
 
+/*
+ * Creates a project (and its parent org if it doesn't already exist) then returns
+ * to the page it was called from. Returns a function that will delete the project
+ * (and org if one was created).
+ */
 export async function createProject(
   page: Page,
   params: ProjectCreateParams,
   body: ProjectCreate
 ) {
+  let orgCreated = false
   if (!checkIfExists(page, `/orgs/${params.orgName}`)) {
     await createOrg(page, { name: params.orgName, description: '' })
+    orgCreated = true
   }
   const [back, err] = await goto(page, `/orgs/${params.orgName}/projects/new`)
   if (err) {
@@ -70,4 +96,19 @@ export async function createProject(
   await page.fill('role=textbox[name="Name"]', body.name)
   await page.fill('role=textbox[name="Description"]', body.description)
   await back!()
+
+  return async () => {
+    await deleteProject(page, { ...params, projectName: body.name })
+    if (orgCreated) {
+      await deleteOrg(page, params)
+    }
+  }
+}
+
+export async function deleteProject(page: Page, params: ProjectDeleteParams) {
+  const res = await page.request.delete(`/orgs/${params.orgName}`)
+  const status = res.status()
+  if (status >= 300) {
+    throw new Error(`Failed to delete org ${params.orgName} with response code ${status}`)
+  }
 }
