@@ -14,11 +14,14 @@ export const isObjectOrArray = (o: unknown) =>
  *
  * Note that value transform function takes both k and v so we can use the key
  * to decide whether to transform the value.
+ *
+ * @param kf maps key to key
+ * @param vf maps key + value to value
  */
 export const mapObj =
   (
     kf: (k: string) => string,
-    vf: (k: string | undefined, v: unknown) => any = (k, v) => v
+    vf: (k: string | undefined, v: unknown) => unknown = (k, v) => v
   ) =>
   (o: unknown): unknown => {
     if (!isObjectOrArray(o)) return o
@@ -32,7 +35,7 @@ export const mapObj =
     return newObj
   }
 
-export const parseIfDate = (k: string | undefined, v: any) => {
+export const parseIfDate = (k: string | undefined, v: unknown) => {
   if (typeof v === 'string' && k?.startsWith('time_')) {
     const d = new Date(v)
     if (isNaN(d.getTime())) return v
