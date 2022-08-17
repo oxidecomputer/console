@@ -3,6 +3,7 @@
  * storage-as-an-object is MIT license which can be found here:
  * https://github.com/ropg/storage-as-an-object/blob/7a12a1dd3bcc1b87a77e8202fae98ae25323b968/LICENSE
  */
+import { clone } from './util'
 
 interface StoreOptions<T extends Record<string, unknown>> {
   initialValues: T
@@ -83,7 +84,7 @@ export function createStore<T extends Record<string, unknown>>(
   }
 
   const clear = () => {
-    cache = structuredClone(options.initialValues)
+    cache = clone(options.initialValues)
     proxify(cache)
     write()
   }
@@ -96,7 +97,7 @@ export function createStore<T extends Record<string, unknown>>(
   try {
     Object.assign(cache, JSON.parse(store[key]))
   } catch {
-    Object.assign(cache, structuredClone(options.initialValues))
+    Object.assign(cache, clone(options.initialValues))
   }
   cache = proxify(cache)
   write()

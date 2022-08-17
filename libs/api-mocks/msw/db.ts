@@ -7,7 +7,7 @@ import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
 import { createStore } from './store'
-import { json } from './util'
+import { clone, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -167,10 +167,17 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-export const db = createStore('msw-db', {
-  initialValues: structuredClone(initDb) as typeof initDb,
-})
+export let db: typeof initDb & { clear?: () => void } =
+  typeof window !== 'undefined'
+    ? createStore('msw-db', {
+        initialValues: clone(initDb),
+      })
+    : initDb
 
 export function resetDb() {
-  db.clear()
+  if (db.clear) {
+    db.clear()
+  } else {
+    db = clone(db)
+  }
 }
