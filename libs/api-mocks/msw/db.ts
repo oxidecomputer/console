@@ -1,6 +1,5 @@
 import { response } from 'msw'
 // @ts-ignore
-import createStore from 'storage-as-an-object'
 import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
@@ -8,6 +7,7 @@ import type { ApiTypes as Api } from '@oxide/api'
 import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
+import { createStore } from './store'
 import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
@@ -168,12 +168,10 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-export const db: typeof initDb = createStore('msw-db', {
-  initialValues: structuredClone(initDb),
-  store: window.localStorage,
+export const db = createStore('msw-db', {
+  initialValues: structuredClone(initDb) as typeof initDb,
 })
 
 export function resetDb() {
-  // @ts-ignore
   db.clear()
 }

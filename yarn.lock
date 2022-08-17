@@ -14110,11 +14110,6 @@ statuses@^2.0.0:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-storage-as-an-object@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/storage-as-an-object/-/storage-as-an-object-1.0.1.tgz#aaa68bef61cfed30a92423e15b4e840279a6bc03"
-  integrity sha512-K19025EcIlolmiLCnGLUiMbWwW8+tbaEhu4lL4FsRvwWADM6WNFGIhbK1pSMdExPWV53rvVKOEVfoHQ/Ui3fPw==
-
 store2@^2.12.0:
   version "2.12.0"
   resolved "https://registry.npmjs.org/store2/-/store2-2.12.0.tgz"
