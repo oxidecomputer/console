@@ -1,5 +1,4 @@
 import { response } from 'msw'
-// @ts-ignore
 import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
