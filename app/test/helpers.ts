@@ -22,17 +22,6 @@ interface ReqError {
   msg: string
 }
 
-const cleanupTasks: Array<() => Promise<unknown>> = []
-
-/**
- * Cleans any resources that might've been left around after a test
- */
-export const cleanup = async () => {
-  for (const task of cleanupTasks) {
-    await task()
-  }
-}
-
 const goto = async (page: Page, url: string): Promise<Result<ReturnFn, ReqError>> => {
   const currentUrl = page.url()
   const response = await page.goto(url)
@@ -71,7 +60,7 @@ export async function createOrg(page: Page, body: OrganizationCreate) {
   await page.click('role=button[name="Create organization"]')
   await page.waitForNavigation()
   await back()
-  cleanupTasks.push(() => deleteOrg(page, { orgName: body.name }))
+  return () => deleteOrg(page, { orgName: body.name })
 }
 
 export async function deleteOrg(page: Page, params: OrganizationDeleteParams) {
@@ -106,12 +95,12 @@ export async function createProject(
   await page.fill('role=textbox[name="Description"]', body.description)
   await back!()
 
-  cleanupTasks.push(async () => {
+  return async () => {
     await deleteProject(page, { ...params, projectName: body.name })
     if (orgCreated) {
       await deleteOrg(page, params)
     }
-  })
+  }
 }
 
 export async function deleteProject(page: Page, params: ProjectDeleteParams) {

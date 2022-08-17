@@ -23,7 +23,7 @@ test('Orgs list and detail click work', async ({ page }) => {
   ])
   await page.goBack()
 
-  await createOrg(page, {
+  const removeOrg = await createOrg(page, {
     name: 'org-create-test',
     description: 'used to test org creation',
   })
@@ -34,4 +34,6 @@ test('Orgs list and detail click work', async ({ page }) => {
     'role=heading[name="Projects"]',
     'role=heading[name="No projects"]',
   ])
+
+  await removeOrg()
 })
