@@ -9,7 +9,7 @@ import type {
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { ApiResponse, ErrorResponse } from './__generated__/Api'
+import type { ApiResult, ErrorResult } from './__generated__/Api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P, r: infer R) => any
@@ -17,53 +17,41 @@ export type Params<F> = F extends (p: infer P, r: infer R) => any
       body?: R
     }
   : never
-export type Result<F> = F extends (p: any, r: any) => Promise<ApiResponse<infer R>>
+export type Result<F> = F extends (p: any, r: any) => Promise<ApiResult<infer R>>
   ? R
   : never
 export type ResultItem<F> = F extends (
   p: any,
   r: any
-) => Promise<ApiResponse<{ items: (infer R)[] }>>
+) => Promise<ApiResult<{ items: (infer R)[] }>>
   ? R
   : never
 
-type ApiClient = Record<string, (...args: any) => Promise<ApiResponse<any>>>
+type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const getUseApiQuery =
   <A extends ApiClient>(
     api: A,
-    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
   ) =>
   <M extends keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ErrorResponse> = {}
+    options: UseQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) => {
     return useQuery(
       [method, params] as QueryKey,
-      // The generated client parses the json and sticks it in `data` for us, so
-      // that's what we want to return from the fetcher. In the case of an
-      // error, it does the same thing with the `error` key, but since there may
-      // not always be parseable json in an error response (I think?) it seems
-      // more reasonable in that case to take the whole `HttpResponse` instead
-      // of plucking out error with
-      //
-      //   .catch((resp) => resp.error)
-      //
-      // The generated client already throws on error responses, which is what
-      // react-query wants, so we don't have to handle the error case explicitly
-      // here.
       ({ signal }) =>
-        api[method](params, { signal })
-          .then((resp) => resp.data)
-          .catch(handleErrors(method)),
+        api[method](params, { signal }).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ), // no catch, let unexpectecd errors bubble up
       {
         // In the case of 404s, let the error bubble up to the error boundary so
         // we can say Not Found. If you need to allow a 404 and want it to show
         // up as `error` state instead, pass `useErrorBoundary: false` as an
         // option from the calling component and it will override this
-        useErrorBoundary: (err) => err.status === 404,
+        useErrorBoundary: (err) => err.statusCode === 404,
         ...options,
       }
     )
@@ -72,21 +60,25 @@ export const getUseApiQuery =
 export const getUseApiMutation =
   <A extends ApiClient>(
     api: A,
-    handleErrors: (M: keyof A) => (resp: ErrorResponse) => void
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
   ) =>
   <M extends keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ErrorResponse, Params<A[M]>>
+    options?: UseMutationOptions<Result<A[M]>, ErrorResult, Params<A[M]>>
   ) =>
     useMutation(
       ({ body, ...params }) =>
-        api[method](params, body)
-          .then((resp) => resp.data)
-          .catch(handleErrors(method)),
+        api[method](params, body).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ), // no catch, let unexpectecd errors bubble up
       options
     )
 
-export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
+export const wrapQueryClient = <A extends ApiClient>(
+  api: A,
+  queryClient: QueryClient,
+  handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+) => ({
   invalidateQueries: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
@@ -107,29 +99,38 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ErrorResponse> = {}
+    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
-      queryFn: () => api[method](params).then((resp) => resp.data),
+      queryFn: () =>
+        api[method](params).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ),
       ...options,
     }),
   prefetchQuery: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ErrorResponse> = {}
+    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
-      queryFn: () => api[method](params).then((resp) => resp.data),
+      queryFn: () =>
+        api[method](params).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ),
       ...options,
     }),
 })
 
 export const getUseApiQueryClient =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+  ) =>
   () =>
-    wrapQueryClient(api, useQueryClient())
+    wrapQueryClient(api, useQueryClient(), handleErrors)
 
 /* 
 1. what's up with [method, params]?

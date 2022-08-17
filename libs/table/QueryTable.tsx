@@ -10,7 +10,7 @@ import type { ComponentType, ReactElement } from 'react'
 import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'
-import type { ApiListMethods, ErrorResponse, Params, Result, ResultItem } from '@oxide/api'
+import type { ApiError, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { isOneOf } from '@oxide/util'
@@ -33,7 +33,7 @@ interface UseQueryTableResult<Item> {
 export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
+  options?: UseQueryOptions<Result<A[M]>, ApiError>
 ): UseQueryTableResult<ResultItem<A[M]>> => {
   const Table = useMemo(
     () => makeQueryTable<ResultItem<A[M]>>(query, params, options),

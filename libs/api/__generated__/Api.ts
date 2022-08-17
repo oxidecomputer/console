@@ -242,7 +242,7 @@ export type Distribution = {
 /**
  * Error information from a response.
  */
-export type Error = {
+export type ErrorBody = {
   errorCode?: string | null
   message: string
   requestId: string
@@ -3040,13 +3040,9 @@ const processResponseBody = mapObj(snakeToCamel, parseIfDate)
 export type QueryParamsType = Record<string | number, any>
 
 export interface FullRequestParams extends Omit<RequestInit, 'body'> {
-  /** request path */
   path: string
-  /** query params */
   query?: QueryParamsType
-  /** request body */
   body?: unknown
-  /** base url */
   baseUrl?: string
 }
 
@@ -3055,25 +3051,39 @@ export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' 
 export interface ApiConfig {
   baseUrl?: string
   baseApiParams?: Omit<RequestParams, 'baseUrl' | 'signal'>
-  customFetch?: typeof fetch
 }
 
-export type ErrorResponse = Response & {
-  data: null
-  // Note that this Error is not JS `Error` but rather an Error type generated
-  // from the spec. The fact that it has the same name as the global Error type
-  // is unfortunate. If the generated error type disappears, this will not fail
-  // typechecking here, but any code that depends on this having a certain shape
-  // will fail, so it's not that bad, though the error message may be confusing.
-  error: Error
-}
-
-export type SuccessResponse<Data extends unknown> = Response & {
+/** Success responses from the API */
+export type ApiSuccess<Data extends unknown> = {
+  type: 'success'
+  statusCode: number
+  headers: Headers
   data: Data
-  error: null
 }
 
-export type ApiResponse<Data extends unknown> = SuccessResponse<Data> | ErrorResponse
+/** 4xx and 5xx responses from the API */
+export type ApiError = {
+  type: 'error'
+  statusCode: number
+  headers: Headers
+  error: ErrorBody
+}
+
+/**
+ * JSON parsing or processing errors within the client. Includes raised Error
+ * and response body as a string for debugging.
+ */
+export type ClientError = {
+  type: 'client_error'
+  error: Error
+  statusCode: number
+  headers: Headers
+  text: string
+}
+
+export type ErrorResult = ApiError | ClientError
+
+export type ApiResult<Data extends unknown> = ApiSuccess<Data> | ErrorResult
 
 const encodeQueryParam = (key: string, value: any) =>
   `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
@@ -3090,7 +3100,6 @@ const toQueryString = (rawQuery?: QueryParamsType): string =>
 
 export class HttpClient {
   public baseUrl: string = ''
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams)
 
   private baseApiParams: RequestParams = {
     credentials: 'same-origin',
@@ -3120,7 +3129,7 @@ export class HttpClient {
     query,
     baseUrl,
     ...params
-  }: FullRequestParams): Promise<ApiResponse<Data>> => {
+  }: FullRequestParams): Promise<ApiResult<Data>> => {
     const requestParams = this.mergeRequestParams(params)
     const queryString = query && toQueryString(query)
 
@@ -3130,7 +3139,7 @@ export class HttpClient {
       url += '?' + queryString
     }
 
-    const response = await this.customFetch(url, {
+    const response = await fetch(url, {
       ...requestParams,
       headers: {
         'Content-Type': 'application/json',
@@ -3139,23 +3148,39 @@ export class HttpClient {
       body: JSON.stringify(snakeify(body)),
     })
 
-    const r = response as ApiResponse<Data>
-    r.data = null as unknown as Data
-    r.error = null as unknown as Error
+    const common = { statusCode: response.status, headers: response.headers }
 
+    const respText = await response.text()
+
+    // catch JSON parse or processing errors
+    let respJson = undefined
     try {
-      const data = processResponseBody(await response.json())
-      if (r.ok) {
-        r.data = data as Data
-      } else {
-        r.error = data as Error
-      }
+      // don't bother trying to parse empty responses like 204s
+      // TODO: is empty object what we want here?
+      respJson = respText.length > 0 ? processResponseBody(JSON.parse(respText)) : {}
     } catch (e) {
-      r.error = e as Error
+      return {
+        type: 'client_error',
+        error: e as Error,
+        text: respText,
+        ...common,
+      }
     }
 
-    if (!r.ok) throw r
-    return r
+    if (!response.ok) {
+      return {
+        type: 'error',
+        error: respJson as ErrorBody,
+        ...common,
+      }
+    }
+
+    // don't validate respJson, just assume it matches the type
+    return {
+      type: 'success',
+      data: respJson as Data,
+      ...common,
+    }
   }
 }
 

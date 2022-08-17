@@ -33,10 +33,10 @@ export const queryClient = new QueryClient({
 
 // to be used in loaders, which are outside the component tree and therefore
 // don't have access to context
-export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
+export const apiQueryClient = wrapQueryClient(api.methods, queryClient, handleErrors)
 
 // to be used to retrieve the typed query client in components
-export const useApiQueryClient = getUseApiQueryClient(api.methods)
+export const useApiQueryClient = getUseApiQueryClient(api.methods, handleErrors)
 
 export * from './roles'
 export * from './util'
