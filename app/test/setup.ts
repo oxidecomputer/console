@@ -5,10 +5,12 @@ import 'whatwg-fetch'
 // fancy asserts
 import { resetDb } from '@oxide/api-mocks'
 
+import { cleanup } from './helpers'
 import { server } from './server'
 
 beforeAll(() => server.listen())
-afterEach(() => {
+afterEach(async () => {
+  await cleanup()
   resetDb()
   server.resetHandlers()
 })
