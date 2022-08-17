@@ -232,6 +232,13 @@ export const handlers = [
     return res(json(req.body))
   }),
 
+  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    return res(ctx.status(204))
+  }),
+
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects',
     (req, res) => {
