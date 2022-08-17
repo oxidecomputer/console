@@ -167,17 +167,10 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-export let db: typeof initDb & { clear?: () => void } =
-  typeof window !== 'undefined'
-    ? createStore('msw-db', {
-        initialValues: clone(initDb),
-      })
-    : initDb
+export const db = createStore('msw-db', {
+  initialValues: clone(initDb),
+})
 
 export function resetDb() {
-  if (db.clear) {
-    db.clear()
-  } else {
-    db = clone(db)
-  }
+  db.clear()
 }

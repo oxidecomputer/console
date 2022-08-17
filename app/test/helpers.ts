@@ -24,12 +24,27 @@ interface ReqError {
   msg: string
 }
 
+// TODO: This is duplicated from `@oxide/api` and can't be pulled in due to
+// inlined tests using `import.meta` being imported and causing a syntax error
+// given that playwright converts all the tests to commonjs.
+export const genName = (...parts: [string, ...string[]]) => {
+  const numParts = parts.length
+  const partLength = Math.floor(63 / numParts) - Math.ceil(6 / numParts) - 1
+  return (
+    parts
+      .map((part) => part.substring(0, partLength))
+      .join('-')
+      // generate random hex string of 6 characters
+      .concat(`-${Math.random().toString(16).substring(2, 8)}`)
+  )
+}
+
 const goto = async (page: Page, url: string): Promise<Result<ReturnFn, ReqError>> => {
   const currentUrl = page.url()
   const response = await page.goto(url)
   if (!response) throw new Error(`No response recieved for request to ${url}`)
   const status = response.status()
-  if (status < 200 || status > 299) {
+  if (status > 399) {
     return Err({
       msg: `Loading ${url} failed with a status code of ${status}`,
       code: status,
@@ -62,7 +77,9 @@ export async function createOrg(page: Page, body: OrganizationCreate) {
   await page.click('role=button[name="Create organization"]')
   await page.waitForNavigation()
   await back()
-  return () => deleteOrg(page, { orgName: body.name })
+  return () => {
+    return deleteOrg(page, { orgName: body.name })
+  }
 }
 
 export async function deleteOrg(page: Page, params: OrganizationDeleteParams) {
