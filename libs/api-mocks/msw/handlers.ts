@@ -184,6 +184,13 @@ export const handlers = [
     }
   ),
 
+  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
+    const [org, err] = lookupOrg(req.params)
+    if (err) return res(err)
+    db.orgs = db.orgs.filter((o) => o.id !== org.id)
+    return res(ctx.status(204))
+  }),
+
   rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
     '/api/organizations/:orgName/policy',
     (req, res) => {
@@ -219,13 +226,6 @@ export const handlers = [
     db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
 
     return res(json(req.body))
-  }),
-
-  rest.delete<never, OrgParams, GetErr>('/api/organizations/:orgName', (req, res, ctx) => {
-    const [org, err] = lookupOrg(req.params)
-    if (err) return res(err)
-    db.orgs = db.orgs.filter((o) => o.id !== org.id)
-    return res(ctx.status(204))
   }),
 
   rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(

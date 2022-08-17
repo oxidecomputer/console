@@ -8,6 +8,8 @@ import type {
   ProjectDeleteParams,
 } from '@oxide/api'
 
+import { expectNotVisible } from 'app/util/e2e'
+
 type Ok<T> = [T, null]
 type Err<E> = [null, E]
 type Result<T, E = string> = Ok<T> | Err<E>
@@ -64,11 +66,19 @@ export async function createOrg(page: Page, body: OrganizationCreate) {
 }
 
 export async function deleteOrg(page: Page, params: OrganizationDeleteParams) {
-  const res = await page.request.delete(`/orgs/${params.orgName}`)
-  const status = res.status()
-  if (status >= 300) {
-    throw new Error(`Failed to delete org ${params.orgName} with response code ${status}`)
+  const [back, err] = await goto(page, '/orgs')
+  if (err) {
+    throw new Error(err.msg)
   }
+
+  await page
+    .locator('role=row', { hasText: params.orgName })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Delete"]')
+  await expectNotVisible(page, [`role=cell[name="${params.orgName}"]`])
+
+  await back()
 }
 
 // --- Projects --------------
@@ -104,9 +114,17 @@ export async function createProject(
 }
 
 export async function deleteProject(page: Page, params: ProjectDeleteParams) {
-  const res = await page.request.delete(`/orgs/${params.orgName}`)
-  const status = res.status()
-  if (status >= 300) {
-    throw new Error(`Failed to delete org ${params.orgName} with response code ${status}`)
+  const [back, err] = await goto(page, `/orgs/${params.orgName}/projects`)
+  if (err) {
+    throw new Error(err.msg)
   }
+
+  await page
+    .locator('role=row', { hasText: params.projectName })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Delete"]')
+  await expectNotVisible(page, [`role=cell[name="${params.projectName}"]`])
+
+  await back()
 }

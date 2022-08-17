@@ -9,7 +9,7 @@ test('Root to orgs redirect', async ({ page }) => {
   await expectVisible(page, ['role=heading[name="Organizations"]'])
 })
 
-test('Orgs list and detail click work', async ({ page }) => {
+test('Create org and navigate to project', async ({ page }) => {
   await page.goto('/orgs')
   await expectVisible(page, ['role=heading[name="Organizations"]'])
 
