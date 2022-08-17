@@ -45,8 +45,7 @@ export const getUseApiQuery =
       ({ signal }) =>
         api[method](params, { signal }).then((resp) =>
           resp.type === 'success' ? resp.data : handleErrors(method)(resp)
-        ), // TODO: should we also have a catch to be careful?
-
+        ), // no catch, let unexpectecd errors bubble up
       {
         // In the case of 404s, let the error bubble up to the error boundary so
         // we can say Not Found. If you need to allow a 404 and want it to show
@@ -71,11 +70,15 @@ export const getUseApiMutation =
       ({ body, ...params }) =>
         api[method](params, body).then((resp) =>
           resp.type === 'success' ? resp.data : handleErrors(method)(resp)
-        ), // TODO: should we also have a catch to be careful?
+        ), // no catch, let unexpectecd errors bubble up
       options
     )
 
-export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
+export const wrapQueryClient = <A extends ApiClient>(
+  api: A,
+  queryClient: QueryClient,
+  handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+) => ({
   invalidateQueries: <M extends keyof A>(
     method: M,
     params?: Params<A[M]>,
@@ -101,10 +104,9 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     queryClient.fetchQuery({
       queryKey: [method, params],
       queryFn: () =>
-        api[method](params).then((resp) => {
-          if (resp.type !== 'success') throw resp
-          return resp.data
-        }),
+        api[method](params).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ),
       ...options,
     }),
   prefetchQuery: <M extends keyof A>(
@@ -115,18 +117,20 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     queryClient.prefetchQuery({
       queryKey: [method, params],
       queryFn: () =>
-        api[method](params).then((resp) => {
-          if (resp.type !== 'success') throw resp
-          return resp.data
-        }),
+        api[method](params).then((resp) =>
+          resp.type === 'success' ? resp.data : handleErrors(method)(resp)
+        ),
       ...options,
     }),
 })
 
 export const getUseApiQueryClient =
-  <A extends ApiClient>(api: A) =>
+  <A extends ApiClient>(
+    api: A,
+    handleErrors: (M: keyof A) => (resp: ErrorResult) => void
+  ) =>
   () =>
-    wrapQueryClient(api, useQueryClient())
+    wrapQueryClient(api, useQueryClient(), handleErrors)
 
 /* 
 1. what's up with [method, params]?
