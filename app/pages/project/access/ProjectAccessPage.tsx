@@ -5,18 +5,17 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  projectRoleOrder,
+  getEffectiveProjectRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
-  useUserAccessRows,
+  useUserRows,
 } from '@oxide/api'
-import type { ProjectRole, UserAccessRow } from '@oxide/api'
+import type { OrganizationRole, ProjectRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
-  Badge,
   Button,
   EmptyMessage,
   PageHeader,
@@ -24,7 +23,9 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
+import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -44,14 +45,25 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { orgName, projectName } = requireProjectParams(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('projectPolicyView', requireProjectParams(params)),
-    // used in useUserAccessRows to resolve user names
+    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
+    apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
+    // used to resolve user names
     apiQueryClient.prefetchQuery('userList', { limit: 200 }),
   ])
 }
 
-type UserRow = UserAccessRow<ProjectRole>
+type UserRow = {
+  id: string
+  name: string
+  siloRole: SiloRole | undefined
+  orgRole: OrganizationRole | undefined
+  projectRole: ProjectRole | undefined
+  // all these types are the same but this is strictly more correct than using one
+  effectiveRole: SiloRole | OrganizationRole | ProjectRole
+}
 
 const colHelper = createColumnHelper<UserRow>()
 
@@ -59,9 +71,41 @@ export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { data: policy } = useApiQuery('projectPolicyView', projectParams)
+  const { orgName } = projectParams
 
-  const rows = useUserAccessRows(policy, projectRoleOrder)
+  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
+  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
+
+  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
+  const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
+
+  const rows = useMemo(() => {
+    const users = groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id).map(
+      ([userId, userAssignments]) => {
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
+        const projectRole = userAssignments.find(
+          (a) => a.roleSource === 'project'
+        )?.roleName
+
+        const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
+
+        return {
+          id: userId,
+          name: userAssignments[0].name,
+          siloRole,
+          orgRole,
+          projectRole,
+          // we know there has to be at least one
+          effectiveRole: getEffectiveProjectRole(roles)!,
+        }
+      }
+    )
+    return sortBy(users, (u) => u.name)
+  }, [siloRows, orgRows, projectRows])
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -76,14 +120,24 @@ export function ProjectAccessPage() {
     () => [
       colHelper.accessor('id', { header: 'ID' }),
       colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('roleName', {
-        header: 'Role',
-        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      colHelper.accessor('siloRole', {
+        header: 'Silo role',
+        cell: RoleBadgeCell,
       }),
+      colHelper.accessor('orgRole', {
+        header: 'Org role',
+        cell: RoleBadgeCell,
+      }),
+      colHelper.accessor('projectRole', {
+        header: 'Project role',
+        cell: RoleBadgeCell,
+      }),
+      // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
+          disabled: !row.projectRole,
         },
         // TODO: only show if you have permission to do this
         {
@@ -93,13 +147,14 @@ export function ProjectAccessPage() {
             updatePolicy.mutate({
               ...projectParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, policy!),
+              body: setUserRole(row.id, null, projectPolicy!),
             })
           },
+          disabled: !row.projectRole,
         },
       ]),
     ],
-    [policy, projectParams, updatePolicy]
+    [projectPolicy, projectParams, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -119,20 +174,20 @@ export function ProjectAccessPage() {
           Add user to project
         </Button>
       </TableActions>
-      {policy && (
+      {projectPolicy && (
         <ProjectAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          policy={policy}
+          policy={projectPolicy}
         />
       )}
-      {policy && editingUserRow && (
+      {projectPolicy && editingUserRow?.projectRole && (
         <ProjectAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
-          policy={policy}
+          policy={projectPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.roleName }}
+          initialValues={{ roleName: editingUserRow.projectRole }}
         />
       )}
       {rows.length === 0 ? (

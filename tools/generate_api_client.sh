@@ -11,7 +11,7 @@ OMICRON_SHA=$(head -n 1 OMICRON_VERSION)
 GEN_DIR="$PWD/libs/api/__generated__"
 
 # this will be less horrific when the package is published? or maybe not
-npm run --silent --prefix ../oxide.ts/generator gen-from $OMICRON_SHA "$GEN_DIR/Api.ts"
+npm run --silent --prefix ../oxide.ts/generator gen-from $OMICRON_SHA $GEN_DIR
 yarn prettier --write --loglevel error "$GEN_DIR"
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF

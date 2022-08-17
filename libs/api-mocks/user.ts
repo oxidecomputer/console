@@ -12,4 +12,14 @@ export const user2: Json<User> = {
   display_name: 'Hans Jonas',
 }
 
-export const users = [user1, user2]
+export const user3: Json<User> = {
+  id: 'user-3',
+  display_name: 'Jacob Klein',
+}
+
+export const user4: Json<User> = {
+  id: 'user-4',
+  display_name: 'Simone de Beauvoir',
+}
+
+export const users = [user1, user2, user3, user4]

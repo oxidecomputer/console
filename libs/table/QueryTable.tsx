@@ -10,7 +10,7 @@ import type { ComponentType, ReactElement } from 'react'
 import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'
-import type { ApiListMethods, ErrorResponse, Params, Result, ResultItem } from '@oxide/api'
+import type { ApiError, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { isOneOf } from '@oxide/util'
@@ -33,7 +33,7 @@ interface UseQueryTableResult<Item> {
 export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ErrorResponse>
+  options?: UseQueryOptions<Result<A[M]>, ApiError>
 ): UseQueryTableResult<ResultItem<A[M]>> => {
   const Table = useMemo(
     () => makeQueryTable<ResultItem<A[M]>>(query, params, options),
@@ -105,8 +105,8 @@ const makeQueryTable = <Item,>(
     }, [rowSelection, onSingleSelect, onMultiSelect])
 
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const colHelper = createColumnHelper<Item>()
     const columns = useMemo(() => {
+      const colHelper = createColumnHelper<Item>()
       const columns = React.Children.toArray(children).map((child) => {
         const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
 
@@ -120,7 +120,7 @@ const makeQueryTable = <Item,>(
             : undefined // should never happen due to described constraint
 
         return colHelper.accessor(column.accessor, {
-          id,
+          id: id!, // undefined not really possible, and helper doesn't allow it
           header: typeof column.header === 'string' ? column.header : id,
           cell: (info: any) => {
             const Comp = column.cell || DefaultCell
@@ -140,7 +140,7 @@ const makeQueryTable = <Item,>(
       }
 
       return columns
-    }, [children, colHelper, makeActions, onSingleSelect, onMultiSelect])
+    }, [children, makeActions, onSingleSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,

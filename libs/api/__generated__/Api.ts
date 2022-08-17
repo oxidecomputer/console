@@ -1,4 +1,13 @@
 /* eslint-disable */
+import { HttpClient, RequestParams } from './http-client'
+
+export type {
+  ApiConfig,
+  ApiError,
+  ApiResult,
+  ClientError,
+  ErrorResult,
+} from './http-client'
 
 /**
  * A type storing a range over `T`.
@@ -242,7 +251,7 @@ export type Distribution = {
 /**
  * Error information from a response.
  */
-export type Error = {
+export type ErrorBody = {
   errorCode?: string | null
   message: string
   requestId: string
@@ -2293,6 +2302,10 @@ export interface DeviceAuthConfirmParams {}
 
 export interface DeviceAccessTokenParams {}
 
+export interface GlobalPolicyViewParams {}
+
+export interface GlobalPolicyUpdateParams {}
+
 export interface RackListParams {
   limit?: number | null
   pageToken?: string | null
@@ -2983,178 +2996,6 @@ export type ApiListMethods = Pick<
   | 'userList'
 >
 
-const camelToSnake = (s: string) => s.replace(/[A-Z]/g, (l) => '_' + l.toLowerCase())
-
-const snakeToCamel = (s: string) => s.replace(/_./g, (l) => l[1].toUpperCase())
-
-const isObjectOrArray = (o: unknown) =>
-  typeof o === 'object' &&
-  !(o instanceof Date) &&
-  !(o instanceof RegExp) &&
-  !(o instanceof Error) &&
-  o !== null
-
-/**
- * Recursively map (k, v) pairs using Object.entries
- *
- * Note that value transform function takes both k and v so we can use the key
- * to decide whether to transform the value.
- */
-const mapObj =
-  (
-    kf: (k: string) => string,
-    vf: (k: string | undefined, v: unknown) => any = (k, v) => v
-  ) =>
-  (o: unknown): unknown => {
-    if (!isObjectOrArray(o)) return o
-
-    if (Array.isArray(o)) return o.map(mapObj(kf, vf))
-
-    const newObj: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(o as Record<string, unknown>)) {
-      newObj[kf(k)] = isObjectOrArray(v) ? mapObj(kf, vf)(v) : vf(k, v)
-    }
-    return newObj
-  }
-
-const parseIfDate = (k: string | undefined, v: any) => {
-  if (typeof v === 'string' && k?.startsWith('time_')) {
-    const d = new Date(v)
-    if (isNaN(d.getTime())) return v
-    return d
-  }
-  return v
-}
-
-const snakeify = mapObj(camelToSnake)
-
-const processResponseBody = mapObj(snakeToCamel, parseIfDate)
-
-// credit where due: this is a stripped-down version of the fetch client from
-// https://github.com/acacode/swagger-typescript-api
-
-export type QueryParamsType = Record<string | number, any>
-
-export interface FullRequestParams extends Omit<RequestInit, 'body'> {
-  /** request path */
-  path: string
-  /** query params */
-  query?: QueryParamsType
-  /** request body */
-  body?: unknown
-  /** base url */
-  baseUrl?: string
-}
-
-export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>
-
-export interface ApiConfig {
-  baseUrl?: string
-  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'signal'>
-  customFetch?: typeof fetch
-}
-
-export type ErrorResponse = Response & {
-  data: null
-  // Note that this Error is not JS `Error` but rather an Error type generated
-  // from the spec. The fact that it has the same name as the global Error type
-  // is unfortunate. If the generated error type disappears, this will not fail
-  // typechecking here, but any code that depends on this having a certain shape
-  // will fail, so it's not that bad, though the error message may be confusing.
-  error: Error
-}
-
-export type SuccessResponse<Data extends unknown> = Response & {
-  data: Data
-  error: null
-}
-
-export type ApiResponse<Data extends unknown> = SuccessResponse<Data> | ErrorResponse
-
-const encodeQueryParam = (key: string, value: any) =>
-  `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
-
-const toQueryString = (rawQuery?: QueryParamsType): string =>
-  Object.entries(rawQuery || {})
-    .filter(([key, value]) => typeof value !== 'undefined')
-    .map(([key, value]) =>
-      Array.isArray(value)
-        ? value.map((item) => encodeQueryParam(key, item)).join('&')
-        : encodeQueryParam(key, value)
-    )
-    .join('&')
-
-export class HttpClient {
-  public baseUrl: string = ''
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams)
-
-  private baseApiParams: RequestParams = {
-    credentials: 'same-origin',
-    headers: {},
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-  }
-
-  constructor(apiConfig: ApiConfig = {}) {
-    Object.assign(this, apiConfig)
-  }
-
-  private mergeRequestParams(params: RequestParams): RequestParams {
-    return {
-      ...this.baseApiParams,
-      ...params,
-      headers: {
-        ...this.baseApiParams.headers,
-        ...params.headers,
-      },
-    }
-  }
-
-  public request = async <Data extends unknown>({
-    body,
-    path,
-    query,
-    baseUrl,
-    ...params
-  }: FullRequestParams): Promise<ApiResponse<Data>> => {
-    const requestParams = this.mergeRequestParams(params)
-    const queryString = query && toQueryString(query)
-
-    let url = baseUrl || this.baseUrl || ''
-    url += path
-    if (queryString) {
-      url += '?' + queryString
-    }
-
-    const response = await this.customFetch(url, {
-      ...requestParams,
-      headers: {
-        'Content-Type': 'application/json',
-        ...requestParams.headers,
-      },
-      body: JSON.stringify(snakeify(body)),
-    })
-
-    const r = response as ApiResponse<Data>
-    r.data = null as unknown as Data
-    r.error = null as unknown as Error
-
-    try {
-      const data = processResponseBody(await response.json())
-      if (r.ok) {
-        r.data = data as Data
-      } else {
-        r.error = data as Error
-      }
-    } catch (e) {
-      r.error = e as Error
-    }
-
-    if (!r.ok) throw r
-    return r
-  }
-}
-
 export class Api extends HttpClient {
   methods = {
     /**
@@ -3318,6 +3159,31 @@ export class Api extends HttpClient {
       this.request<void>({
         path: `/device/token`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * Fetch the top-level IAM policy
+     */
+    globalPolicyView: (query: GlobalPolicyViewParams, params: RequestParams = {}) =>
+      this.request<FleetRolePolicy>({
+        path: `/global/policy`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * Update the top-level IAM policy
+     */
+    globalPolicyUpdate: (
+      query: GlobalPolicyUpdateParams,
+      body: FleetRolePolicy,
+      params: RequestParams = {}
+    ) =>
+      this.request<FleetRolePolicy>({
+        path: `/global/policy`,
+        method: 'PUT',
+        body,
         ...params,
       }),
 
@@ -4573,24 +4439,24 @@ export class Api extends HttpClient {
       }),
 
     /**
-     * Fetch the top-level IAM policy
+     * Fetch the current silo's IAM policy
      */
     policyView: (query: PolicyViewParams, params: RequestParams = {}) =>
-      this.request<FleetRolePolicy>({
+      this.request<SiloRolePolicy>({
         path: `/policy`,
         method: 'GET',
         ...params,
       }),
 
     /**
-     * Update the top-level IAM policy
+     * Update the current silo's IAM policy
      */
     policyUpdate: (
       query: PolicyUpdateParams,
-      body: FleetRolePolicy,
+      body: SiloRolePolicy,
       params: RequestParams = {}
     ) =>
-      this.request<FleetRolePolicy>({
+      this.request<SiloRolePolicy>({
         path: `/policy`,
         method: 'PUT',
         body,

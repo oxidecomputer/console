@@ -1,41 +1,31 @@
 import type { ProjectRolePolicy } from './__generated__/Api'
 import {
-  getMainRole,
-  getOrgRole,
-  getProjectRole,
+  getEffectiveOrgRole,
+  getEffectiveProjectRole,
   orgRoleOrder,
   projectRoleOrder,
   setUserRole,
 } from './roles'
 
-// not strictly necessary since we're testing the other functions, but it's nice
-// to show how it works
-describe('getMainRole', () => {
-  it('uses role order to choose which role to return', () => {
-    expect(getMainRole({ x: 0, y: 3 })(['x', 'y'])).toEqual('x')
-    expect(getMainRole({ x: 4, y: 1 })(['x', 'y'])).toEqual('y')
-  })
-})
-
-describe('getMainProjectRole', () => {
-  it('returns null when the list of role assignments is empty', () => {
-    expect(getProjectRole([])).toBeNull()
-    expect(getOrgRole([])).toBeNull()
+describe('getEffectiveProjectRole and getEffectiveOrgRole', () => {
+  it('returns falsy when the list of role assignments is empty', () => {
+    expect(getEffectiveProjectRole([])).toBeFalsy()
+    expect(getEffectiveOrgRole([])).toBeFalsy()
   })
 
   it('returns the strongest role when there are multiple roles, regardless of policy order', () => {
-    expect(getProjectRole(['admin', 'collaborator'])).toEqual('admin')
-    expect(getProjectRole(['collaborator', 'admin'])).toEqual('admin')
+    expect(getEffectiveProjectRole(['admin', 'collaborator'])).toEqual('admin')
+    expect(getEffectiveProjectRole(['collaborator', 'admin'])).toEqual('admin')
 
-    expect(getOrgRole(['collaborator', 'viewer'])).toEqual('collaborator')
-    expect(getOrgRole(['viewer', 'collaborator'])).toEqual('collaborator')
+    expect(getEffectiveOrgRole(['collaborator', 'viewer'])).toEqual('collaborator')
+    expect(getEffectiveOrgRole(['viewer', 'collaborator'])).toEqual('collaborator')
   })
 
   it("type errors when passed a role that's not in the enum", () => {
     // @ts-expect-error
-    getProjectRole(['fake!'])
+    getEffectiveProjectRole(['fake!'])
     // @ts-expect-error
-    getOrgRole(['fake!'])
+    getEffectiveOrgRole(['fake!'])
   })
 })
 

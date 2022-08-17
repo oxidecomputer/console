@@ -97,11 +97,9 @@ interface ImageSelectFieldProps extends Omit<RadioFieldProps, 'children'> {
 export function ImageSelectField({ images, name, ...props }: ImageSelectFieldProps) {
   return (
     <RadioField name={name} {...props}>
-      {Object.entries(groupBy(images, (i) => i.distribution)).map(
-        ([distroName, distroValues]) => (
-          <ImageSelect key={distroName} images={distroValues} fieldName={name} />
-        )
-      )}
+      {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
+        <ImageSelect key={distroName} images={distroValues} fieldName={name} />
+      ))}
     </RadioField>
   )
 }

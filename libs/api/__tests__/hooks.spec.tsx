@@ -6,7 +6,7 @@ import { org } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/utils'
 
-import type { ErrorResponse } from '..'
+import type { ApiError } from '..'
 import { useApiMutation, useApiQuery } from '..'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -54,7 +54,7 @@ describe('useApiQuery', () => {
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
       const response = result.current.error
-      expect(response?.status).toEqual(503)
+      expect(response?.statusCode).toEqual(503)
     })
 
     it('parses error json if possible', async () => {
@@ -67,16 +67,38 @@ describe('useApiQuery', () => {
       )
     })
 
-    // TODO: this test applies to the old generated client. now it's more like
-    // data is null. error appears to get the JSON parse error for some reason
-    it('sets error.data to null if error body is not json', async () => {
+    it('contains client_error if error body is not json', async () => {
       overrideOnce('get', '/api/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
       await waitFor(() => {
-        expect(result.current.error).toBeTruthy()
-        expect(result.current.error?.data).toBeNull()
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'client_error',
+          statusCode: 503,
+          text: 'not json',
+          error: {
+            message: 'Error reading API response',
+          },
+        })
+      })
+    })
+
+    it('does not client_error if response body is empty', async () => {
+      overrideOnce('get', '/api/organizations', 503, '')
+
+      const { result } = renderGetOrgs()
+
+      await waitFor(() => {
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'error',
+          statusCode: 503,
+          error: {
+            message: 'Unknown server error',
+          },
+        })
       })
     })
   })
@@ -94,8 +116,8 @@ describe('useApiQuery', () => {
       // The error is thrown asynchronously by the hook so it can propagate up
       // the tree. Fortunately result.error exists for precisely this use case.
       await waitFor(() => {
-        const error = result.error as ErrorResponse | undefined
-        expect(error?.status).toEqual(404)
+        const error = result.error as ApiError | undefined
+        expect(error?.statusCode).toEqual(404)
         expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
       })
     })
@@ -128,6 +150,17 @@ describe('useApiQuery', () => {
         expect(items?.[0].id).toEqual(org.id)
       })
     })
+
+    // RQ doesn't like a value of undefined for data, so we're using {} for now
+    it('returns success with empty object if response body is empty', async () => {
+      overrideOnce('get', '/api/organizations', 204, '')
+
+      const { result } = renderGetOrgs()
+
+      await waitFor(() => {
+        expect(result.current.data).toEqual({})
+      })
+    })
   })
 })
 
@@ -154,7 +187,7 @@ describe('useApiMutation', () => {
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
       const response = result.current.error
-      expect(response?.status).toEqual(404)
+      expect(response?.statusCode).toEqual(404)
     })
 
     it('parses error json if possible', async () => {
@@ -169,15 +202,38 @@ describe('useApiMutation', () => {
       )
     })
 
-    it('sets error.data to null if error body is not json', async () => {
+    it('contains client_error if error body is not json', async () => {
       overrideOnce('post', '/api/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {
-        expect(result.current.error).toBeTruthy()
-        expect(result.current.error?.data).toBeNull()
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'client_error',
+          statusCode: 404,
+          text: 'not json',
+        })
+        expect(error?.error.message).toEqual('Error reading API response')
+      })
+    })
+
+    it('does not client_error if response body is empty', async () => {
+      overrideOnce('post', '/api/organizations', 503, '')
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
+      await waitFor(() => {
+        const error = result.current.error
+        expect(error).toMatchObject({
+          type: 'error',
+          statusCode: 503,
+          error: {
+            message: 'Unknown server error',
+          },
+        })
       })
     })
   })
@@ -192,6 +248,18 @@ describe('useApiMutation', () => {
           name: createParams.body.name,
         })
       )
+    })
+
+    // RQ doesn't like a value of undefined for data, so we're using {} for now
+    it('returns success with empty object if response body is empty', async () => {
+      overrideOnce('post', '/api/organizations', 204, '')
+
+      const { result } = renderCreateOrg()
+      act(() => result.current.mutate(createParams))
+
+      await waitFor(() => {
+        expect(result.current.data).toEqual({})
+      })
     })
   })
 })
