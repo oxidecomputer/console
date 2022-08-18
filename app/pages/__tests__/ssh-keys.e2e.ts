@@ -1,4 +1,4 @@
-import { expectNotVisible, expectRowVisible, expectVisible, test } from '@oxide/test'
+import { expectNotVisible, expectRowVisible, expectVisible, test } from 'app/test/e2e'
 
 test('SSH keys', async ({ page }) => {
   await page.goto('/settings/ssh-keys')

@@ -1,4 +1,4 @@
-import { expect, expectVisible, test } from '@oxide/test'
+import { expect, expectVisible, test } from 'app/test/e2e'
 
 test.describe('Instance Create Form', () => {
   test('can invoke instance create form from instances page', async ({ page }) => {

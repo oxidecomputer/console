@@ -1,4 +1,4 @@
-import { expect, test } from '@oxide/test'
+import { expect, test } from 'app/test/e2e'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/orgs/nonexistent')

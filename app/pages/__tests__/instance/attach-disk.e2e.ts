@@ -1,4 +1,4 @@
-import { expectVisible, test } from '@oxide/test'
+import { expectVisible, test } from 'app/test/e2e'
 
 import { stopInstance } from './util'
 

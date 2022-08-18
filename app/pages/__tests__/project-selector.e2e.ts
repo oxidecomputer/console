@@ -1,4 +1,4 @@
-import { expect, expectVisible, test } from '@oxide/test'
+import { expect, expectVisible, test } from 'app/test/e2e'
 
 test('Project selector', async ({ page }) => {
   // create a second project

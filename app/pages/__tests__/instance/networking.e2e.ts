@@ -4,7 +4,7 @@ import {
   expectRowVisible,
   expectVisible,
   test,
-} from '@oxide/test'
+} from 'app/test/e2e'
 
 import { stopInstance } from './util'
 

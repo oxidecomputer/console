@@ -1,4 +1,4 @@
-import { expect, forEach, test } from '@oxide/test'
+import { expect, forEach, test } from 'app/test/e2e'
 
 // This could easily be done as a testing-lib test but I want it in a real
 // table. The .is-selected asserts are slightly brittle (and contrary to our
