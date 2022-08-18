@@ -1,11 +1,13 @@
 /* eslint-disable */
-import { HttpClient, RequestParams } from './http-client'
+import type { RequestParams } from './http-client'
+import { HttpClient } from './http-client'
 
 export type {
   ApiConfig,
   ApiError,
   ApiResult,
   ClientError,
+  ErrorBody,
   ErrorResult,
 } from './http-client'
 
@@ -246,15 +248,6 @@ export type Distribution = {
    * The version of the distribution (e.g. "3.10" or "18.04")
    */
   version: string
-}
-
-/**
- * Error information from a response.
- */
-export type ErrorBody = {
-  errorCode?: string | null
-  message: string
-  requestId: string
 }
 
 export type ExternalIp = {

@@ -28,7 +28,7 @@ export type ApiSuccess<Data> = {
 // HACK: this has to match what comes from the API in the `Error` schema. We put
 // our own copy here so we can test this file statically without generating
 // anything
-type ErrorBody = {
+export type ErrorBody = {
   errorCode?: string | null
   message: string
   requestId: string
