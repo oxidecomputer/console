@@ -1,41 +1,57 @@
-import { expect, expectVisible, test } from 'app/test/e2e'
+import { expect, expectVisible, genName, test } from 'app/test/e2e'
 
-test('Project selector', async ({ page }) => {
-  // create a second project
-  await page.goto('/orgs/maze-war/projects/new')
-  await page.fill('role=textbox[name="Name"]', 'other-project')
-  await page.click('role=button[name="Create project"]')
+test('Project selector', async ({ page, createOrg, createProject }) => {
+  const orgName = genName('project-selector-org')
+  const p1Name = genName('project-a')
+  const p2Name = genName('project-b')
 
-  // go to projects page and make sure they're both there
-  await page.click('role=link[name="Projects"]')
-  await expect(page).toHaveURL('/orgs/maze-war/projects')
-  await expectVisible(page, [
-    'role=cell[name="mock-project"]',
-    'role=cell[name="other-project"]',
-  ])
+  await createOrg({ name: orgName, description: 'project selector test' })
+
+  // Create 1st project
+  await createProject(
+    { orgName },
+    {
+      name: p1Name,
+      description: 'First project',
+    }
+  )
+
+  // Create 2nd project
+  await createProject(
+    { orgName },
+    {
+      name: p2Name,
+      description: 'Second project',
+    }
+  )
+
+  // Go to the projects page
+  await page.goto(`/orgs/${orgName}/projects`)
+
+  await expectVisible(page, [`role=cell[name="${p1Name}"]`, `role=cell[name="${p2Name}"]`])
 
   // switcher button is present, has text indicating no project selected
   await expect(page.locator('role=button[name="Switch project"]')).toHaveText(
-    'maze-warselect a project'
+    `${orgName}select a project`
   )
   await page.click('role=button[name="Switch project"]')
   await expectVisible(page, [
-    'role=menuitem[name="mock-project"]',
-    'role=menuitem[name="other-project"]',
+    `role=menuitem[name="${p1Name}"]`,
+    `role=menuitem[name="${p2Name}"]`,
   ])
 
-  // picking mock-project in the menu takes you there
-  await page.click('role=menuitem[name="mock-project"]')
-  await expect(page).toHaveURL('/orgs/maze-war/projects/mock-project/instances')
+  // picking p1 in the menu takes you there
+  await page.click(`role=menuitem[name="${p1Name}"]`)
+  await expect(page).toHaveURL(`/orgs/${orgName}/projects/${p1Name}/instances`)
   await expect(page.locator('role=button[name="Switch project"]')).toHaveText(
-    'maze-warmock-project'
+    `${orgName}${p1Name}`
   )
 
   // picking other-project in the menu takes you there
   await page.click('role=button[name="Switch project"]')
-  await page.click('role=menuitem[name="other-project"]')
-  await expect(page).toHaveURL('/orgs/maze-war/projects/other-project/instances')
+  await page.click(`role=menuitem[name="${p2Name}"]`)
+  await expect(page).toHaveURL(`/orgs/${orgName}/projects/${p2Name}/instances`)
   await expect(page.locator('role=button[name="Switch project"]')).toHaveText(
-    'maze-warother-project'
+    `${orgName}${p2Name}`
   )
 })

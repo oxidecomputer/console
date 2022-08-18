@@ -23,7 +23,6 @@ const goto = async (page: Page, url: string) => {
 }
 
 interface Fixtures {
-  resourceExists: (url: string) => Promise<boolean>
   createOrg: (body: OrganizationCreate) => Promise<void>
   deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
   createProject: (params: ProjectCreateParams, body: ProjectCreate) => Promise<void>
@@ -31,16 +30,6 @@ interface Fixtures {
 }
 
 export const test = base.extend<Fixtures>({
-  async resourceExists({ page }, use) {
-    await use(async (url) => {
-      const res = await page.request.get(url)
-      const status = res.status()
-      if (status >= 500) {
-        throw new Error(`${url} failed to load with a ${status} response code`)
-      }
-      return status >= 200 && status < 400
-    })
-  },
   async createOrg({ page, deleteOrg }, use) {
     const orgsToRemove: string[] = []
 
@@ -74,13 +63,10 @@ export const test = base.extend<Fixtures>({
     })
   },
 
-  async createProject({ page, deleteProject, resourceExists, createOrg }, use) {
+  async createProject({ page, deleteProject }, use) {
     const projectsToRemove: ProjectDeleteParams[] = []
 
     await use(async (params, body) => {
-      if (!(await resourceExists(`/orgs/${params.orgName}`))) {
-        await createOrg({ name: params.orgName, description: '' })
-      }
       const back = await goto(page, `/orgs/${params.orgName}/projects/new`)
       await page.fill('role=textbox[name="Name"]', body.name)
       await page.fill('role=textbox[name="Description"]', body.description)
