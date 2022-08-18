@@ -1,6 +1,4 @@
-import { test } from '@playwright/test'
-
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible, test } from '@oxide/test'
 
 test('Click through project access page', async ({ page }) => {
   await page.goto('/orgs/maze-war/projects/mock-project')

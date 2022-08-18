@@ -1,6 +1,10 @@
-import { expect, test } from '@playwright/test'
-
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  test,
+} from '@oxide/test'
 
 import { stopInstance } from './util'
 

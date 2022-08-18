@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test'
-
-import { expectVisible } from 'app/util/e2e'
+import { expect, expectVisible, test } from '@oxide/test'
 
 test.describe('Project create', () => {
   test.beforeEach(async ({ page }) => {

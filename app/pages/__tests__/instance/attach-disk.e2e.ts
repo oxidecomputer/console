@@ -1,6 +1,4 @@
-import { test } from '@playwright/test'
-
-import { expectVisible } from 'app/util/e2e'
+import { expectVisible, test } from '@oxide/test'
 
 import { stopInstance } from './util'
 

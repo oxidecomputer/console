@@ -1,7 +1,4 @@
-import { test } from '@playwright/test'
-
-import { createOrg, genName } from 'app/test/helpers'
-import { expectVisible } from 'app/util/e2e'
+import { expectVisible, test } from '@oxide/test'
 
 test('Root to orgs redirect', async ({ page }) => {
   await page.goto('/')
@@ -9,7 +6,7 @@ test('Root to orgs redirect', async ({ page }) => {
   await expectVisible(page, ['role=heading[name="Organizations"]'])
 })
 
-test('Create org and navigate to project', async ({ page }) => {
+test('Create org and navigate to project', async ({ page, createOrg }) => {
   await page.goto('/orgs')
   await expectVisible(page, ['role=heading[name="Organizations"]'])
 
@@ -23,18 +20,15 @@ test('Create org and navigate to project', async ({ page }) => {
   ])
   await page.goBack()
 
-  const orgName = genName('org-create-test')
-  const removeOrg = await createOrg(page, {
-    name: orgName,
+  const org = await createOrg({
+    name: 'org-create-test',
     description: 'used to test org creation',
   })
 
   // org page (redirects to /org/org-name/projects)
-  await page.click(`role=link[name="${orgName}"]`)
+  await page.click(`role=link[name="${org.name}"]`)
   await expectVisible(page, [
     'role=heading[name="Projects"]',
     'role=heading[name="No projects"]',
   ])
-
-  await removeOrg()
 })
