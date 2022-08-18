@@ -8,7 +8,6 @@ import { clone } from './util'
 interface StoreOptions<T extends Record<string, unknown>> {
   initialValues: T
   store?: Storage
-  debounceTime?: number
 }
 
 /**
@@ -23,9 +22,7 @@ export function createStore<T extends Record<string, unknown>>(
   key: string,
   options: StoreOptions<T>
 ) {
-  const debounceTime = options.debounceTime ?? 100
   let cache = {} as T
-  let timer: NodeJS.Timeout | null = null
   const store = options.store ?? window.localStorage
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,12 +48,12 @@ export function createStore<T extends Record<string, unknown>>(
         },
         set(target, name, value) {
           target[name] = proxify(value)
-          debounceWrite()
+          write()
           return true
         },
         deleteProperty(target, name) {
           delete target[name]
-          debounceWrite()
+          write()
           return true
         },
       })
@@ -65,22 +62,7 @@ export function createStore<T extends Record<string, unknown>>(
   }
 
   const write = () => {
-    if (timer) {
-      clearTimeout(timer)
-      timer = null
-    }
     store[key] = JSON.stringify(cache)
-  }
-
-  const debounceWrite = () => {
-    if (debounceTime === 0) {
-      write()
-      return
-    }
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(write, debounceTime)
   }
 
   const clear = () => {
@@ -90,10 +72,6 @@ export function createStore<T extends Record<string, unknown>>(
   }
   Object.defineProperty(cache, 'clear', { value: clear })
 
-  const unload = () => {
-    if (timer) write()
-  }
-
   try {
     Object.assign(cache, JSON.parse(store[key]))
   } catch {
@@ -101,10 +79,6 @@ export function createStore<T extends Record<string, unknown>>(
   }
   cache = proxify(cache)
   write()
-
-  if (debounceTime > 0) {
-    window.addEventListener('unload', unload)
-  }
 
   return cache as T & { clear: () => void }
 }
