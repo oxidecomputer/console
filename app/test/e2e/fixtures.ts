@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { test as base } from '@playwright/test'
 
 import type {
   OrganizationCreate,
@@ -9,17 +10,6 @@ import type {
 } from '@oxide/api'
 
 import { expectNotVisible } from './utils'
-
-function interceptArgs<A extends Array<unknown>, B extends unknown>(
-  f: (...args: A) => B,
-  callback: (...args: A) => A
-): (...args: A) => B {
-  return new Proxy(f, {
-    apply(target, context, args) {
-      return target.apply(context, callback(...(args as A)))
-    },
-  })
-}
 
 const goto = async (page: Page, url: string) => {
   const currentUrl = page.url()
@@ -32,62 +22,75 @@ const goto = async (page: Page, url: string) => {
   return () => page.goto(currentUrl)
 }
 
-/**
- * Creates an Organization and returns to the page it was called from.
- */
-export const createOrg = (
-  page: Page,
-  callback: (body: OrganizationCreate) => [body: OrganizationCreate]
-) =>
-  interceptArgs(async (body: OrganizationCreate) => {
-    const back = await goto(page, '/orgs/new')
-
-    await page.fill('role=textbox[name="Name"]', body.name)
-    await page.fill('role=textbox[name="Description"]', body.description)
-    await page.click('role=button[name="Create organization"]')
-    await page.waitForNavigation()
-    await back()
-
-    return body
-  }, callback)
-
-export const deleteOrg = (page: Page) => async (params: OrganizationDeleteParams) => {
-  const back = await goto(page, '/orgs')
-
-  await page
-    .locator('role=row', { hasText: params.orgName })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${params.orgName}"]`])
-
-  await back()
+interface Fixtures {
+  createOrg: (body: OrganizationCreate) => Promise<void>
+  deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
+  createProject: (params: ProjectCreateParams, body: ProjectCreate) => Promise<void>
+  deleteProject: (params: ProjectDeleteParams) => Promise<void>
 }
 
-export const createProject = (
-  page: Page,
-  callback: (
-    params: ProjectCreateParams,
-    body: ProjectCreate
-  ) => [ProjectCreateParams, ProjectCreate]
-) =>
-  interceptArgs(async (params: ProjectCreateParams, body: ProjectCreate) => {
-    const back = await goto(page, `/orgs/${params.orgName}/projects/new`)
-    await page.fill('role=textbox[name="Name"]', body.name)
-    await page.fill('role=textbox[name="Description"]', body.description)
-    await page.click('role=button[name="Create project"]')
-    await back()
-  }, callback)
+export const test = base.extend<Fixtures>({
+  async createOrg({ page, deleteOrg }, use) {
+    const orgsToRemove: string[] = []
 
-export const deleteProject = (page: Page) => async (params: ProjectDeleteParams) => {
-  const back = await goto(page, `/orgs/${params.orgName}/projects`)
+    await use(async (body) => {
+      const back = await goto(page, '/orgs/new')
 
-  await page
-    .locator('role=row', { hasText: params.projectName })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${params.projectName}"]`])
+      await page.fill('role=textbox[name="Name"]', body.name)
+      await page.fill('role=textbox[name="Description"]', body.description)
+      await page.click('role=button[name="Create organization"]')
+      await page.waitForNavigation()
+      await back()
+    })
 
-  await back()
-}
+    for (const org of orgsToRemove) {
+      await deleteOrg({ orgName: org })
+    }
+  },
+
+  async deleteOrg({ page }, use) {
+    await use(async (params: OrganizationDeleteParams) => {
+      const back = await goto(page, '/orgs')
+
+      await page
+        .locator('role=row', { hasText: params.orgName })
+        .locator('role=button[name="Row actions"]')
+        .click()
+      await page.click('role=menuitem[name="Delete"]')
+      await expectNotVisible(page, [`role=cell[name="${params.orgName}"]`])
+
+      await back()
+    })
+  },
+
+  async createProject({ page, deleteProject }, use) {
+    const projectsToRemove: ProjectDeleteParams[] = []
+
+    await use(async (params, body) => {
+      const back = await goto(page, `/orgs/${params.orgName}/projects/new`)
+      await page.fill('role=textbox[name="Name"]', body.name)
+      await page.fill('role=textbox[name="Description"]', body.description)
+      await page.click('role=button[name="Create project"]')
+      await back()
+    })
+
+    for (const params of projectsToRemove) {
+      await deleteProject(params)
+    }
+  },
+
+  async deleteProject({ page }, use) {
+    await use(async (params: ProjectDeleteParams) => {
+      const back = await goto(page, `/orgs/${params.orgName}/projects`)
+
+      await page
+        .locator('role=row', { hasText: params.projectName })
+        .locator('role=button[name="Row actions"]')
+        .click()
+      await page.click('role=menuitem[name="Delete"]')
+      await expectNotVisible(page, [`role=cell[name="${params.projectName}"]`])
+
+      await back()
+    })
+  },
+})

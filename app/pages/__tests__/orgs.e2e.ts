@@ -1,4 +1,4 @@
-import { expectVisible, test } from 'app/test/e2e'
+import { expectVisible, genName, test } from 'app/test/e2e'
 
 test('Root to orgs redirect', async ({ page }) => {
   await page.goto('/')
@@ -20,13 +20,14 @@ test('Create org and navigate to project', async ({ page, createOrg }) => {
   ])
   await page.goBack()
 
-  const org = await createOrg({
-    name: 'org-create-test',
+  const name = genName('org-create-test')
+  await createOrg({
+    name,
     description: 'used to test org creation',
   })
 
   // org page (redirects to /org/org-name/projects)
-  await page.click(`role=link[name="${org.name}"]`)
+  await page.click(`role=link[name="${name}"]`)
   await expectVisible(page, [
     'role=heading[name="Projects"]',
     'role=heading[name="No projects"]',
