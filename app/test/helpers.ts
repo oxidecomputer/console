@@ -1,4 +1,4 @@
-import type { Page, Response } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 import type {
   OrganizationCreate,
@@ -9,20 +9,6 @@ import type {
 } from '@oxide/api'
 
 import { expectNotVisible } from 'app/util/e2e'
-
-type Ok<T> = [T, null]
-type Err<E> = [null, E]
-type Result<T, E = string> = Ok<T> | Err<E>
-type ReturnFn = () => Promise<Response | null>
-
-// imitate Rust's Result constructors
-const Ok = <T>(o: T): Ok<T> => [o, null]
-const Err = <E>(err: E): Err<E> => [null, err]
-
-interface ReqError {
-  code: number
-  msg: string
-}
 
 // TODO: This is duplicated from `@oxide/api` and can't be pulled in due to
 // inlined tests using `import.meta` being imported and causing a syntax error
@@ -39,18 +25,15 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-const goto = async (page: Page, url: string): Promise<Result<ReturnFn, ReqError>> => {
+const goto = async (page: Page, url: string) => {
   const currentUrl = page.url()
   const response = await page.goto(url)
   if (!response) throw new Error(`No response recieved for request to ${url}`)
   const status = response.status()
   if (status > 399) {
-    return Err({
-      msg: `Loading ${url} failed with a status code of ${status}`,
-      code: status,
-    })
+    throw new Error(`Loading ${url} failed with a status code of ${status}`)
   }
-  return Ok(() => page.goto(currentUrl))
+  return () => page.goto(currentUrl)
 }
 
 export async function checkIfExists(page: Page, path: string) {
@@ -68,10 +51,7 @@ export async function checkIfExists(page: Page, path: string) {
  * Creates an Organization and returns to the page it was called from.
  */
 export async function createOrg(page: Page, body: OrganizationCreate) {
-  const [back, err] = await goto(page, '/orgs/new')
-  if (err) {
-    throw new Error(err.msg)
-  }
+  const back = await goto(page, '/orgs/new')
   await page.fill('role=textbox[name="Name"]', body.name)
   await page.fill('role=textbox[name="Description"]', body.description)
   await page.click('role=button[name="Create organization"]')
@@ -83,10 +63,7 @@ export async function createOrg(page: Page, body: OrganizationCreate) {
 }
 
 export async function deleteOrg(page: Page, params: OrganizationDeleteParams) {
-  const [back, err] = await goto(page, '/orgs')
-  if (err) {
-    throw new Error(err.msg)
-  }
+  const back = await goto(page, '/orgs')
 
   await page
     .locator('role=row', { hasText: params.orgName })
@@ -114,13 +91,10 @@ export async function createProject(
     await createOrg(page, { name: params.orgName, description: '' })
     orgCreated = true
   }
-  const [back, err] = await goto(page, `/orgs/${params.orgName}/projects/new`)
-  if (err) {
-    throw new Error(err.msg)
-  }
+  const back = await goto(page, `/orgs/${params.orgName}/projects/new`)
   await page.fill('role=textbox[name="Name"]', body.name)
   await page.fill('role=textbox[name="Description"]', body.description)
-  await back!()
+  await back()
 
   return async () => {
     await deleteProject(page, { ...params, projectName: body.name })
@@ -131,10 +105,7 @@ export async function createProject(
 }
 
 export async function deleteProject(page: Page, params: ProjectDeleteParams) {
-  const [back, err] = await goto(page, `/orgs/${params.orgName}/projects`)
-  if (err) {
-    throw new Error(err.msg)
-  }
+  const back = await goto(page, `/orgs/${params.orgName}/projects`)
 
   await page
     .locator('role=row', { hasText: params.projectName })
