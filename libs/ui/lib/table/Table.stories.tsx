@@ -68,4 +68,4 @@ export const Selected = () => {
     </Table>
   )
 }
-Selected.storyName = `Theme/Selected`
+Selected.storyName = 'Theme/Selected'

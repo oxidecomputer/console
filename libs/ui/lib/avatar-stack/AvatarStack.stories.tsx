@@ -26,4 +26,4 @@ export const Selected = () => {
     </div>
   )
 }
-Selected.storyName = `Theme/Selected`
+Selected.storyName = 'Theme/Selected'
