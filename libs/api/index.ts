@@ -3,7 +3,6 @@ import { QueryClient } from '@tanstack/react-query'
 
 import type * as ApiTypes from './__generated__/Api'
 import { Api } from './__generated__/Api'
-import { handleErrors } from './errors'
 import {
   getUseApiMutation,
   getUseApiQuery,
@@ -17,8 +16,8 @@ const api = new Api({
 
 export type ApiMethods = typeof api.methods
 
-export const useApiQuery = getUseApiQuery(api.methods, handleErrors)
-export const useApiMutation = getUseApiMutation(api.methods, handleErrors)
+export const useApiQuery = getUseApiQuery(api.methods)
+export const useApiMutation = getUseApiMutation(api.methods)
 
 // Needs to be defined here instead of in app so we can use it to define
 // `apiQueryClient`, which provides API-typed versions of QueryClient methods
@@ -33,10 +32,10 @@ export const queryClient = new QueryClient({
 
 // to be used in loaders, which are outside the component tree and therefore
 // don't have access to context
-export const apiQueryClient = wrapQueryClient(api.methods, queryClient, handleErrors)
+export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
 
 // to be used to retrieve the typed query client in components
-export const useApiQueryClient = getUseApiQueryClient(api.methods, handleErrors)
+export const useApiQueryClient = getUseApiQueryClient(api.methods)
 
 export * from './roles'
 export * from './util'
