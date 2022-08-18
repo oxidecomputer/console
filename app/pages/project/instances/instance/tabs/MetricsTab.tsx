@@ -1,3 +1,4 @@
+import { subMinutes } from 'date-fns'
 import { Area, CartesianGrid, ComposedChart, XAxis, YAxis } from 'recharts'
 
 import { useApiQuery } from '@oxide/api'
@@ -17,6 +18,8 @@ export function MetricsTab() {
       projectName,
       diskName: diskName!, // force it because this only runs when diskName is there
       metricName: 'read',
+      startTime: subMinutes(new Date(), 5).toISOString(),
+      endTime: new Date().toISOString(),
     },
     { enabled: !!diskName }
   )
