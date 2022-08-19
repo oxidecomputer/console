@@ -1,7 +1,7 @@
-import { subMinutes } from 'date-fns'
+import { addHours } from 'date-fns'
 import { Area, CartesianGrid, ComposedChart, XAxis, YAxis } from 'recharts'
 
-import { useApiQuery } from '@oxide/api'
+import { datumToValue, useApiQuery } from '@oxide/api'
 
 import { useRequiredParams } from 'app/hooks'
 
@@ -11,6 +11,8 @@ export function MetricsTab() {
 
   const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
   const diskName = disks?.items[0].name
+  const startTime = new Date(2022, 7, 18, 0)
+  const endTime = addHours(startTime, 24)
   const { data: metrics } = useApiQuery(
     'diskMetricsList',
     {
@@ -18,8 +20,9 @@ export function MetricsTab() {
       projectName,
       diskName: diskName!, // force it because this only runs when diskName is there
       metricName: 'read',
-      startTime: subMinutes(new Date(), 5).toISOString(),
-      endTime: new Date().toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      limit: 1000,
     },
     { enabled: !!diskName }
   )
@@ -27,7 +30,7 @@ export function MetricsTab() {
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: new Date(timestamp).toLocaleString(),
-    value: datum.datum,
+    value: datumToValue(datum),
   }))
   return (
     <ComposedChart
