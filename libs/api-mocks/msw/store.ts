@@ -23,7 +23,7 @@ export function createStore<T extends Record<string, unknown>>(
   options: StoreOptions<T>
 ) {
   let cache = {} as T
-  const store = options.store ?? window.localStorage
+  const store = options.store ?? window.sessionStorage
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const proxify = (obj: any) => {
