@@ -5,8 +5,9 @@ import type {
   OrganizationCreate,
   OrganizationDeleteParams,
   ProjectCreate,
-  ProjectCreateParams,
   ProjectDeleteParams,
+  VpcCreate,
+  VpcDeleteParams,
 } from '@oxide/api'
 
 import { expectNotVisible } from './utils'
@@ -22,22 +23,36 @@ const goto = async (page: Page, url: string) => {
   return () => page.goto(currentUrl)
 }
 
+type Body<T> = Partial<Omit<T, 'name'>>
+
 interface Fixtures {
-  createOrg: (body: OrganizationCreate) => Promise<void>
+  createOrg: (orgName: string, body?: Body<OrganizationCreate>) => Promise<void>
   deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
-  createProject: (params: ProjectCreateParams, body: ProjectCreate) => Promise<void>
+  createProject: (
+    orgName: string,
+    projectName: string,
+    body?: Body<ProjectCreate>
+  ) => Promise<void>
   deleteProject: (params: ProjectDeleteParams) => Promise<void>
+  createVpc: (
+    orgName: string,
+    projectName: string,
+    vpcName: string,
+    body?: Body<VpcCreate>
+  ) => Promise<void>
+  deleteVpc: (params: VpcDeleteParams) => Promise<void>
+  deleteTableRow: (rowText: string) => Promise<void>
 }
 
 export const test = base.extend<Fixtures>({
   async createOrg({ page, deleteOrg }, use) {
     const orgsToRemove: string[] = []
 
-    await use(async (body) => {
+    await use(async (orgName, body = {}) => {
       const back = await goto(page, '/orgs/new')
 
-      await page.fill('role=textbox[name="Name"]', body.name)
-      await page.fill('role=textbox[name="Description"]', body.description)
+      await page.fill('role=textbox[name="Name"]', orgName)
+      await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create organization"]')
       await back()
     })
@@ -47,17 +62,10 @@ export const test = base.extend<Fixtures>({
     }
   },
 
-  async deleteOrg({ page }, use) {
+  async deleteOrg({ page, deleteTableRow }, use) {
     await use(async (params: OrganizationDeleteParams) => {
       const back = await goto(page, '/orgs')
-
-      await page
-        .locator('role=row', { hasText: params.orgName })
-        .locator('role=button[name="Row actions"]')
-        .click()
-      await page.click('role=menuitem[name="Delete"]')
-      await expectNotVisible(page, [`role=cell[name="${params.orgName}"]`])
-
+      await deleteTableRow(params.orgName)
       await back()
     })
   },
@@ -65,10 +73,10 @@ export const test = base.extend<Fixtures>({
   async createProject({ page, deleteProject }, use) {
     const projectsToRemove: ProjectDeleteParams[] = []
 
-    await use(async (params, body) => {
-      const back = await goto(page, `/orgs/${params.orgName}/projects/new`)
-      await page.fill('role=textbox[name="Name"]', body.name)
-      await page.fill('role=textbox[name="Description"]', body.description)
+    await use(async (orgName, projectName, body = {}) => {
+      const back = await goto(page, `/orgs/${orgName}/projects/new`)
+      await page.fill('role=textbox[name="Name"]', projectName)
+      await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
       await back()
     })
@@ -78,18 +86,49 @@ export const test = base.extend<Fixtures>({
     }
   },
 
-  async deleteProject({ page }, use) {
+  async deleteProject({ page, deleteTableRow }, use) {
     await use(async (params: ProjectDeleteParams) => {
       const back = await goto(page, `/orgs/${params.orgName}/projects`)
+      await deleteTableRow(params.projectName)
+      await back()
+    })
+  },
 
+  async createVpc({ page, deleteVpc }, use) {
+    const vpcsToRemove: VpcDeleteParams[] = []
+
+    await use(async (orgName, projectName, vpcName, body = {}) => {
+      const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs/new`)
+      await page.fill('role=textbox[name="Name"]', vpcName)
+      await page.fill('role=textbox[name="Description"]', body.description || '')
+      await page.click('role=button[name="Create VPC"]')
+      await back()
+    })
+
+    for (const params of vpcsToRemove) {
+      await deleteVpc(params)
+    }
+  },
+
+  async deleteVpc({ page, deleteTableRow }, use) {
+    await use(async (params: VpcDeleteParams) => {
+      const back = await goto(
+        page,
+        `/orgs/${params.orgName}/projects/${params.projectName}/vpcs`
+      )
+      await deleteTableRow(params.vpcName)
+      await back()
+    })
+  },
+
+  async deleteTableRow({ page }, use) {
+    await use(async (rowText: string) => {
       await page
-        .locator('role=row', { hasText: params.projectName })
+        .locator('role=row', { hasText: rowText })
         .locator('role=button[name="Row actions"]')
         .click()
       await page.click('role=menuitem[name="Delete"]')
-      await expectNotVisible(page, [`role=cell[name="${params.projectName}"]`])
-
-      await back()
+      await expectNotVisible(page, [`role=cell[name="${rowText}"]`])
     })
   },
 })

@@ -5,25 +5,13 @@ test('Project selector', async ({ page, createOrg, createProject }) => {
   const p1Name = genName('project-a')
   const p2Name = genName('project-b')
 
-  await createOrg({ name: orgName, description: 'project selector test' })
+  await createOrg(orgName)
 
   // Create 1st project
-  await createProject(
-    { orgName },
-    {
-      name: p1Name,
-      description: 'First project',
-    }
-  )
+  await createProject(orgName, p1Name)
 
   // Create 2nd project
-  await createProject(
-    { orgName },
-    {
-      name: p2Name,
-      description: 'Second project',
-    }
-  )
+  await createProject(orgName, p2Name)
 
   // Go to the projects page
   await page.goto(`/orgs/${orgName}/projects`)

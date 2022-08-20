@@ -1,13 +1,24 @@
-import { expect, test } from '@playwright/test'
+import { expect, genName, test } from 'app/test/e2e'
 
 test.describe('VpcPage', () => {
+  const orgName = genName('vpc-page-org')
+  const projectName = genName('vpc-page-project')
+  const vpcName = genName('mock-vpc')
+
+  test.beforeEach(async ({ createOrg, createProject, createVpc }) => {
+    await createOrg(orgName)
+    await createProject(orgName, projectName)
+    await createVpc(orgName, projectName, vpcName)
+  })
+
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
-    await page.click('table :text("maze-war")')
-    await page.click('table :text("mock-project")')
+    await page.pause()
+    await page.click(`table :text("${orgName}")`)
+    await page.click(`table :text("${projectName}")`)
     await page.click('a:has-text("Networking")')
-    await page.click('a:has-text("mock-vpc")')
-    await expect(page.locator('text=mock-subnet')).toBeVisible()
+    await page.click(`a:has-text("${vpcName}")`)
+    await expect(page).toHaveURL(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
   })
 
   test('can create subnet', async ({ page }) => {

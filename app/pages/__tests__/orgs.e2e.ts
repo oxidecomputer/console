@@ -21,8 +21,7 @@ test('Create org and navigate to project', async ({ page, createOrg }) => {
   await page.goBack()
 
   const name = genName('org-create-test')
-  await createOrg({
-    name,
+  await createOrg(name, {
     description: 'used to test org creation',
   })
 
