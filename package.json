@@ -54,7 +54,7 @@
     "tiny-invariant": "^1.2.0",
     "ts-dedent": "^2.2.0",
     "tslib": "^2.4.0",
-    "tunnel-rat": "^0.0.3",
+    "tunnel-rat": "^0.0.4",
     "uuid": "^8.3.2",
     "xterm": "^4.18.0",
     "xterm-addon-fit": "^0.5.0",

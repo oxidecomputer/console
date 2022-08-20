@@ -1,4 +1,4 @@
-import { tunnel } from '@oxide/util'
+import tunnel from 'tunnel-rat'
 
 const Tunnel = tunnel('page-actions')
 

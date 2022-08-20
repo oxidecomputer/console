@@ -1,6 +1,7 @@
+import tunnel from 'tunnel-rat'
+
 import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
 import { Pagination as UIPagination } from '@oxide/ui'
-import { tunnel } from '@oxide/util'
 
 const Tunnel = tunnel('pagination')
 
@@ -18,4 +19,4 @@ export function Pagination({ inline = false, ...props }: PaginationProps) {
   )
 }
 
-Pagination.Target = Tunnel.Out as () => React.ReactElement
+Pagination.Target = Tunnel.Out
