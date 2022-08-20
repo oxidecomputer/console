@@ -1,8 +1,8 @@
 import cn from 'classnames'
 import { NavLink as RRNavLink } from 'react-router-dom'
 
-import { Document16Icon } from '@oxide/ui'
-import { Wrap, flattenChildren, pluckFirstOfType } from '@oxide/util'
+import { Document16Icon, Wrap } from '@oxide/ui'
+import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { ProjectSelector } from 'app/components/ProjectSelector'
 
