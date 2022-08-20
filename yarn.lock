@@ -14874,10 +14874,10 @@ tty-browserify@0.0.0:
   resolved "https://registry.npmjs.org/tty-browserify/-/tty-browserify-0.0.0.tgz"
   integrity sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY=
 
-tunnel-rat@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/tunnel-rat/-/tunnel-rat-0.0.3.tgz#c097a8154d737be9f3a53a8c60ec9fcee2ca8ae7"
-  integrity sha512-8q6OUChpQPpKySI5tsxLmT5Q2n2RIZPepjL9fXegfoKHZ2zTHTVoYBKcNz0OsDpshkd2/VVDq68Ug4RU410dTA==
+tunnel-rat@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/tunnel-rat/-/tunnel-rat-0.0.4.tgz#9a0b36c036a0ce94434227b1eea6789966acda08"
+  integrity sha512-DtVNDqyH02HpEW86TC91cv2Rl3k9ZF5voJF+GryiX0jwbJrTH9LZVqKyvTrWImLurrQ2To2DPa06sGYr/DMjQQ==
   dependencies:
     zustand "^3.6.9"
 
