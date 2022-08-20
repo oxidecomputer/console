@@ -6,7 +6,6 @@ import type { ApiTypes as Api } from '@oxide/api'
 import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
-import { createStore } from './store'
 import { clone, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
@@ -167,10 +166,12 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-export const db = createStore('msw-db', {
-  initialValues: clone(initDb),
-})
+// export const db = createStore('msw-db', {
+//   initialValues: clone(initDb),
+// })
+
+export let db = clone(initDb)
 
 export function resetDb() {
-  db.clear()
+  db = clone(initDb)
 }

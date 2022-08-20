@@ -13,6 +13,8 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
+  globalSetup: 'app/test/e2e/global-setup.ts',
+  globalTeardown: 'app/test/e2e/global-teardown.ts',
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     baseURL: 'http://localhost:4009',
@@ -36,7 +38,7 @@ const config: PlaywrightTestConfig = {
 
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'yarn start:msw --port 4009',
+    command: 'yarn start --port 4009',
     port: 4009,
   },
 }
