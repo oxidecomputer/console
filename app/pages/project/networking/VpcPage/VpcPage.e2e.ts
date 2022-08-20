@@ -10,7 +10,7 @@ test.describe('VpcPage', () => {
     await expect(page.locator('text=mock-subnet')).toBeVisible()
   })
 
-  test.only('can create subnet', async ({ page }) => {
+  test('can create subnet', async ({ page }) => {
     await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')

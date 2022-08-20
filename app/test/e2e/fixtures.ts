@@ -39,7 +39,6 @@ export const test = base.extend<Fixtures>({
       await page.fill('role=textbox[name="Name"]', body.name)
       await page.fill('role=textbox[name="Description"]', body.description)
       await page.click('role=button[name="Create organization"]')
-      await page.waitForNavigation()
       await back()
     })
 
