@@ -1,5 +1,3 @@
-import { resetDb } from '@oxide/api-mocks'
-
 function getChaos() {
   const chaos = parseFloat(process.env.CHAOS || '')
   return Number.isNaN(chaos) ? null : chaos
@@ -37,13 +35,6 @@ export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { handlers } = await import('@oxide/api-mocks')
   const { setupWorker, rest, compose } = await import('msw')
-
-  const params = window.location.search.slice(1).split('&')
-  if (params.includes('clear')) {
-    console.log('resetting db...')
-    resetDb()
-    window.location.search = params.filter((p) => p !== 'clear').join('&')
-  }
 
   // defined in here because it depends on the dynamic import
   const chaosInterceptor = rest.all('/api/*', (_req, res, ctx) => {

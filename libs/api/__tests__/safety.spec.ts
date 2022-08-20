@@ -27,7 +27,7 @@ const grepFiles = (s: string) =>
 it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles("from '@oxide/api-mocks'")
   for (const file of files) {
-    expect(file).toMatch(/__tests__\/|app\/test\/|\.spec\.|tsconfig|api-mocks|msw-mock-api/)
+    expect(file).toMatch(/__tests__\/|app\/test\/|\.spec\.|tsconfig|api-mocks/)
   }
 })
 
