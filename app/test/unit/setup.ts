@@ -12,7 +12,7 @@ import { resetDb } from '@oxide/api-mocks'
 import { server } from './server'
 
 beforeAll(() => server.listen())
-afterEach(async () => {
+afterEach(() => {
   resetDb()
   server.resetHandlers()
 })
