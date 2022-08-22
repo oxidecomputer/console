@@ -22,7 +22,7 @@ test.describe('VpcPage', () => {
   })
 
   test('can create subnet', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(1)

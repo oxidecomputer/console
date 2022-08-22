@@ -72,6 +72,7 @@
     "@figma-export/cli": "^4.3.0",
     "@figma-export/output-components-as-svgr": "^4.2.0",
     "@figma-export/transform-svg-with-svgo": "^4.3.0",
+    "@mswjs/http-middleware": "^0.5.1",
     "@playwright/test": "^1.25.0",
     "@storybook/addon-docs": "^6.5.9",
     "@storybook/addon-essentials": "^6.5.9",

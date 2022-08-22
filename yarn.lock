@@ -2630,6 +2630,13 @@
     "@types/set-cookie-parser" "^2.4.0"
     set-cookie-parser "^2.4.6"
 
+"@mswjs/http-middleware@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@mswjs/http-middleware/-/http-middleware-0.5.1.tgz#99b1087494caee307f60a189d7a766ba50e78577"
+  integrity sha512-oa/p4/bG+UZ87G9rAy/Y9pEkYsm3nYI3DLtv6oM70JZLwP1QflitF+kEQDde09migH3lh+TdxSgIQ6q7061sLg==
+  dependencies:
+    express "^4.17.1"
+
 "@mswjs/interceptors@^0.17.2":
   version "0.17.3"
   resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.17.3.tgz#9272545332c0b16ac9cae2d97bf96d3853e14969"
