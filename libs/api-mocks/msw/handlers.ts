@@ -959,7 +959,6 @@ export const handlers = [
   // Prefix if MSW is set which is not true when it's a standalone server
   if (process.env.MSW) {
     h.info.path = '/api' + h.info.path
-    return h
   }
   return h
 })
