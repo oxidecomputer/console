@@ -732,6 +732,19 @@ export const handlers = [
         ...getTimestamps(),
       }
       db.vpcs.push(newVpc)
+
+      // Also create a default subnet
+      const newSubnet: Json<Api.VpcSubnet> = {
+        id: genId('vpc-subnet'),
+        name: 'default',
+        vpc_id: newVpc.id,
+        ipv6_block: 'fd2d:4569:88b1::/64',
+        description: '',
+        ipv4_block: '',
+        ...getTimestamps(),
+      }
+      db.vpcSubnets.push(newSubnet)
+
       return res(json(newVpc, { status: 201 }))
     }
   ),

@@ -26,7 +26,7 @@ test.describe('VpcPage', () => {
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(1)
-    await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
+    await expect(rows.nth(0).locator(`text="default"`)).toBeVisible()
 
     // open modal, fill out form, submit
     await page.click('text=New subnet')
@@ -36,8 +36,7 @@ test.describe('VpcPage', () => {
 
     await expect(rows).toHaveCount(2)
 
-    await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
-    await expect(rows.nth(0).locator('text="1.1.1.1/24"')).toBeVisible()
+    await expect(rows.nth(0).locator('text="default"')).toBeVisible()
 
     await expect(rows.nth(1).locator('text="mock-subnet-2"')).toBeVisible()
     await expect(rows.nth(1).locator('text="1.1.1.2/24"')).toBeVisible()
