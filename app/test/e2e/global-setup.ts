@@ -11,7 +11,7 @@ export default async function globalSetup() {
   expect(process.env.MSW).toBeFalsy()
 
   // If pointing to a real nexus API don't mock
-  if (process.env.API_URL) {
+  if (!process.env.API_URL) {
     createServer(...handlers).listen(12220)
   }
 }
