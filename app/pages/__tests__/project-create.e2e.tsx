@@ -1,8 +1,10 @@
-import { expect, expectVisible, test } from 'app/test/e2e'
+import { expect, expectVisible, genName, test } from 'app/test/e2e'
 
 test.describe('Project create', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/new')
+  const orgName = genName('project-create-org')
+  test.beforeEach(async ({ page, createOrg }) => {
+    await createOrg(orgName)
+    await page.goto(`/orgs/${orgName}/projects/new`)
   })
 
   test('contains expected elements', async ({ page }) => {
@@ -17,7 +19,7 @@ test.describe('Project create', () => {
   test('navigates back to project instances page on success', async ({ page }) => {
     await page.fill('role=textbox[name="Name"]', 'mock-project-2')
     await page.click('role=button[name="Create project"]')
-    await expect(page).toHaveURL('/orgs/maze-war/projects/mock-project-2/instances')
+    await expect(page).toHaveURL(`/orgs/${orgName}/projects/mock-project-2/instances`)
   })
 
   test('shows field-level validation error and does not POST', async ({ page }) => {
@@ -29,8 +31,11 @@ test.describe('Project create', () => {
     await expectVisible(page, ['text="Must start with a lower-case letter"'])
   })
 
-  test('shows form-level error for known server error', async ({ page }) => {
-    await page.fill('role=textbox[name="Name"]', 'mock-project') // already exists
+  test('shows form-level error for known server error', async ({ page, createProject }) => {
+    const projectName = genName('mock-project')
+    await createProject(orgName, projectName)
+
+    await page.fill('role=textbox[name="Name"]', projectName) // already exists
     await page.click('role=button[name="Create project"]')
     await expectVisible(page, ['text="Project name already exists"'])
   })
