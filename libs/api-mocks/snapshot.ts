@@ -13,6 +13,7 @@ export const snapshots: Json<Snapshot>[] = [
     time_modified: new Date().toISOString(),
     size: 1024,
     disk_id: 'disk-id-1',
+    state: 'ready',
   },
   {
     id: 'snapshot-id-2',
@@ -23,6 +24,7 @@ export const snapshots: Json<Snapshot>[] = [
     time_modified: new Date().toISOString(),
     size: 2048,
     disk_id: 'disk-id-1',
+    state: 'ready',
   },
   {
     id: 'snapshot-id-3',
@@ -33,6 +35,7 @@ export const snapshots: Json<Snapshot>[] = [
     time_modified: new Date().toISOString(),
     size: 3072,
     disk_id: 'disk-id-1',
+    state: 'ready',
   },
   {
     id: 'snapshot-id-4',
@@ -43,5 +46,6 @@ export const snapshots: Json<Snapshot>[] = [
     time_modified: new Date().toISOString(),
     size: 4096,
     disk_id: 'disk-id-1',
+    state: 'ready',
   },
 ]

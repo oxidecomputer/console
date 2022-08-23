@@ -1631,6 +1631,7 @@ export type Snapshot = {
   name: Name
   projectId: string
   size: ByteCount
+  state: SnapshotState
   /**
    * timestamp when this resource was created
    */
@@ -1666,6 +1667,8 @@ export type SnapshotResultsPage = {
    */
   nextPage?: string | null
 }
+
+export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
 
 export type SpoofLoginBody = {
   username: string
