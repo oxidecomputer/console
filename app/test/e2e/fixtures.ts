@@ -2,6 +2,8 @@ import type { Page } from '@playwright/test'
 import { test as base } from '@playwright/test'
 
 import type {
+  InstanceCreate,
+  InstanceDeleteParams,
   OrganizationCreate,
   OrganizationDeleteParams,
   ProjectCreate,
@@ -34,6 +36,13 @@ interface Fixtures {
     body?: Body<ProjectCreate>
   ) => Promise<void>
   deleteProject: (params: ProjectDeleteParams) => Promise<void>
+  createInstance: (
+    orgName: string,
+    projectName: string,
+    instanceName: string,
+    body?: Body<InstanceCreate>
+  ) => Promise<void>
+  deleteInstance: (params: InstanceDeleteParams) => Promise<void>
   createVpc: (
     orgName: string,
     projectName: string,
@@ -90,6 +99,40 @@ export const test = base.extend<Fixtures>({
     await use(async (params: ProjectDeleteParams) => {
       const back = await goto(page, `/orgs/${params.orgName}/projects`)
       await deleteTableRow(params.projectName)
+      await back()
+    })
+  },
+
+  // TODO: Wire up all create options
+  async createInstance({ page, deleteInstance }, use) {
+    const instancesToRemove: InstanceDeleteParams[] = []
+    await use(async (orgName, projectName, instanceName) => {
+      const back = await goto(
+        page,
+        `/orgs/${orgName}/projects/${projectName}/instances/new`
+      )
+
+      await page.fill('input[name=name]', instanceName)
+      await page.locator('.ox-radio-card').nth(3).click()
+
+      await page.locator('input[value=ubuntu-1] ~ .ox-radio-card').click()
+
+      await page.locator('button:has-text("Create instance")').click()
+      await back()
+    })
+
+    for (const params of instancesToRemove) {
+      await deleteInstance(params)
+    }
+  },
+
+  async deleteInstance({ page, deleteTableRow }, use) {
+    await use(async (params: InstanceDeleteParams) => {
+      const back = await goto(
+        page,
+        `/orgs/${params.orgName}/projects/${params.projectName}/instances`
+      )
+      await deleteTableRow(params.instanceName)
       await back()
     })
   },
