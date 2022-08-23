@@ -44,11 +44,10 @@ test.describe('VpcPage', () => {
 
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
-  test('can create firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+  test.fixme('can create firewall rule', async ({ page }) => {
+    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
     await page.locator('text="Firewall Rules"').click()
 
-    // default rules are all there
     for (const name of defaultRules) {
       await expect(page.locator(`text="${name}"`)).toBeVisible()
     }
@@ -59,7 +58,7 @@ test.describe('VpcPage', () => {
     await expect(modal).not.toBeVisible()
 
     // open modal
-    await page.locator('text="New rule"').click()
+    await page.locator('text="New rule"').first().click()
 
     // modal is now open
     await expect(modal).toBeVisible()
@@ -116,8 +115,8 @@ test.describe('VpcPage', () => {
     }
   })
 
-  test('can update firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+  test.fixme('can update firewall rule', async ({ page }) => {
+    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
     await page.locator('text="Firewall Rules"').click()
 
     const rows = await page.locator('tbody >> tr')
