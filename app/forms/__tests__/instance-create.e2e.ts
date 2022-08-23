@@ -1,8 +1,16 @@
-import { expect, expectVisible, test } from 'app/test/e2e'
+import { expectVisible, genName, test } from 'app/test/e2e'
 
 test.describe('Instance Create Form', () => {
+  const orgName = genName('click-everything-org')
+  const projectName = genName('click-everything-proj')
+
+  test.beforeEach(async ({ createOrg, createProject }) => {
+    await createOrg(orgName)
+    await createProject(orgName, projectName)
+  })
+
   test('can invoke instance create form from instances page', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/instances')
+    await page.goto(`/orgs/${orgName}/projects/${projectName}/instances`)
     await page.locator('text="New Instance"').click()
 
     await expectVisible(page, [
@@ -30,8 +38,8 @@ test.describe('Instance Create Form', () => {
 
     await page.locator('button:has-text("Create instance")').click()
 
-    await expect(page).toHaveURL(
-      '/orgs/maze-war/projects/mock-project/instances/mock-instance'
+    await page.waitForURL(
+      `/orgs/${orgName}/projects/${projectName}/instances/mock-instance`
     )
 
     await expectVisible(page, [
