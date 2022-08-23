@@ -13,7 +13,6 @@ test.describe('VpcPage', () => {
 
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
-    await page.pause()
     await page.click(`table :text("${orgName}")`)
     await page.click(`table :text("${projectName}")`)
     await page.click('a:has-text("Networking")')
