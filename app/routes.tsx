@@ -1,5 +1,5 @@
 import React from 'react'
-import { DataBrowserRouter, Navigate, Route, redirect } from 'react-router-dom'
+import { DataBrowserRouter, Navigate, Route } from 'react-router-dom'
 
 import type { CrumbFunc } from './components/Breadcrumbs'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -72,14 +72,10 @@ export const Router = () => (
     <Route index element={<Navigate to="/orgs" replace />} />
 
     {/* These are done here instead of nested so we don't flash a layout on 404s */}
-    <Route
-      path="/orgs/:orgName"
-      // redirect() doesn't do relative nav so we have to construct the path
-      loader={({ request }) => redirect(`${new URL(request.url).pathname}/projects`)}
-    />
+    <Route path="/orgs/:orgName" element={<Navigate to="projects" replace />} />
     <Route
       path="/orgs/:orgName/projects/:projectName"
-      loader={({ request }) => redirect(`${new URL(request.url).pathname}/instances`)}
+      element={<Navigate to="instances" replace />}
     />
 
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>

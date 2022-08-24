@@ -24,7 +24,7 @@ const BrandIcon = () => (
 export const ProjectSelector = () => {
   const { orgName, projectName } = useAllParams('orgName')
 
-  const { data } = useApiQuery('projectList', { orgName, limit: 10 })
+  const { data } = useApiQuery('projectList', { orgName, limit: 20 })
 
   // filter out current project if there is one. if there isn't one, it'll be
   // undefined and it won't match any
