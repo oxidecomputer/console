@@ -4,15 +4,18 @@ import type { Measurement } from '@oxide/api'
 
 import type { Json } from './json-type'
 
-export const genI64Data = (
+export const genCumulativeI64Data = (
   values: number[],
   start: Date,
   intervalSeconds = 1
 ): Json<Measurement[]> =>
-  values.map((v, i) => ({
+  values.map((value, i) => ({
     datum: {
-      datum: v,
-      type: 'i64',
+      datum: {
+        value,
+        start_time: start.toISOString(),
+      },
+      type: 'cumulative_i64',
     },
     timestamp: addSeconds(start, i * intervalSeconds).toISOString(),
   }))

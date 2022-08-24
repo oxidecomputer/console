@@ -32,13 +32,14 @@ function DiskMetric({
     limit: 1000,
   })
 
-  // console.log(metrics)
-
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: new Date(timestamp).toLocaleString(),
     // all of these metrics are cumulative ints
     value: (datum.datum as Cumulativeint64).value,
   }))
+
+  // console.log(metrics)
+  // console.log(data)
 
   // if (data.length > 0) {
   //   console.log('time range:', data[0].timestamp, data[data.length - 1].timestamp)
