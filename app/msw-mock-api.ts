@@ -24,12 +24,16 @@ function shouldFail(likelihoodPct: number | null): boolean {
   return likelihoodPct > Math.random() * 100
 }
 
+/** min is inclusive, max is exclusive. both assumed integers */
+const randInt = (min: number, max: number) => min + Math.floor(Math.random() * (max - min))
+
 const randomStatus = () => {
   // repeats are for weighting
   const codes = [401, 403, 404, 404, 404, 404, 404, 500, 500]
-  const i = Math.floor(Math.random() * codes.length)
-  return codes[i]
+  return codes[randInt(0, codes.length)]
 }
+
+const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
@@ -37,7 +41,10 @@ export async function startMockAPI() {
   const { setupWorker, rest, compose } = await import('msw')
 
   // defined in here because it depends on the dynamic import
-  const chaosInterceptor = rest.all('/api/*', (_req, res, ctx) => {
+  const interceptAll = rest.all('/api/*', async (_req, res, ctx) => {
+    // random delay on all requests to simulate a real API
+    await sleep(randInt(100, 300))
+
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
       // TODO: randomize status code
@@ -50,7 +57,7 @@ export async function startMockAPI() {
   // Vite. ugh don't ask
   const { default: workerUrl } = await import('../mockServiceWorker.js?url')
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(chaosInterceptor, ...handlers).start({
+  await setupWorker(interceptAll, ...handlers).start({
     quiet: true, // don't log successfully handled requests
     serviceWorker: { url: workerUrl },
     // custom handler only to make logging less noisy. unhandled requests still
