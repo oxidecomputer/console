@@ -34,16 +34,24 @@ const GRID_GRAY = '#1D2427'
 const GREEN = '#2F8865'
 const DARK_GREEN = '#112725'
 
-function renderTooltip({ payload }: TooltipProps<number, string>) {
+function renderTooltip(props: TooltipProps<number, string>) {
+  const { payload } = props
   if (!payload || payload.length < 1) return null
+  console.log(props)
   // TODO: there has to be a better way to get these values
-  const { timestamp, value } = payload[0].payload
+  const {
+    name,
+    payload: { timestamp, value },
+  } = payload[0]
   if (!timestamp || !value) return null
   return (
-    <div className="bg-raise text-accent p-2 text-sans-md">
+    <div className="bg-raise text-secondary p-2 text-sans-md">
       <div>{longDateTime(timestamp)}</div>
       {/* TODO: value needs a label (should be easy) */}
-      <div>{value}</div>
+      <div>
+        <span>{name}: </span>
+        <span className="text-accent">{value}</span>
+      </div>
     </div>
   )
 }
@@ -93,6 +101,7 @@ function DiskMetric({
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <Area
           dataKey="value"
+          name={title}
           stroke={GREEN}
           fillOpacity={1}
           fill={DARK_GREEN}
