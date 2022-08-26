@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, XAxis, YAxis } from 'recharts'
 
@@ -33,7 +34,7 @@ function DiskMetric({
   })
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: new Date(timestamp).toLocaleString(),
+    timestamp: new Date(timestamp),
     // all of these metrics are cumulative ints
     value: (datum.datum as Cumulativeint64).value,
   }))
@@ -64,7 +65,13 @@ function DiskMetric({
           fill="#112725"
           isAnimationActive={false}
         />
-        <XAxis dataKey="timestamp" />
+        <XAxis
+          dataKey="timestamp"
+          interval="preserveStart"
+          scale="time"
+          // TODO: decide timestamp format based on time range of chart
+          tickFormatter={(d: typeof data[number]['timestamp']) => format(d, 'M/d HH:mm')}
+        />
         <YAxis orientation="right" />
       </ComposedChart>
     </div>
