@@ -22,7 +22,7 @@ export interface FormProps<Values> extends FormikConfig<Values> {
   setSubmitState?: (state: boolean) => void
 }
 
-export function Form<Values>({
+export function Form<Values extends Record<string, unknown>>({
   id,
   children,
   className,

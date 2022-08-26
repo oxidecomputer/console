@@ -6,10 +6,10 @@ import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { ProjectSelector } from 'app/components/ProjectSelector'
 
-interface SidebarProps {
-  children: React.ReactNode
-}
-export function Sidebar({ children }: SidebarProps) {
+const linkStyles =
+  'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
+
+export function Sidebar({ children }: { children: React.ReactNode }) {
   const childArray = flattenChildren(children)
   const projectSelector = pluckFirstOfType(childArray, ProjectSelector)
 
@@ -22,9 +22,16 @@ export function Sidebar({ children }: SidebarProps) {
       >
         {childArray}
         <Sidebar.Footer>
-          <NavLinkItem to="https://docs.oxide.computer">
-            <Document16Icon /> Documentation
-          </NavLinkItem>
+          <li>
+            <a
+              className={linkStyles}
+              href="https://docs.oxide.computer"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Document16Icon /> Documentation
+            </a>
+          </li>
         </Sidebar.Footer>
       </Wrap>
     </div>
@@ -35,29 +42,21 @@ interface SidebarNav {
   children: React.ReactNode
   heading?: string
 }
-Sidebar.Nav = ({ children, heading }: SidebarNav) => {
-  return (
-    <div className="ox-sidebar-nav space-y-1">
-      {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
-      <nav>
-        <ul className="space-y-0.5">{children}</ul>
-      </nav>
-    </div>
-  )
-}
+Sidebar.Nav = ({ children, heading }: SidebarNav) => (
+  <div className="ox-sidebar-nav space-y-1">
+    {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
+    <nav>
+      <ul className="space-y-0.5">{children}</ul>
+    </nav>
+  </div>
+)
 
-interface SidebarFooter {
-  children: React.ReactNode
-}
-Sidebar.Footer = ({ children }: SidebarFooter) => {
-  return (
-    <ul className="ox-sidebar-footer w-full pb-3">
-      <span className="heading hidden ml-2 text-mono-sm text-secondary">More</span>
-
-      <div>{children}</div>
-    </ul>
-  )
-}
+Sidebar.Footer = ({ children }: { children: React.ReactNode }) => (
+  <ul className="ox-sidebar-footer w-full pb-3">
+    <span className="heading hidden ml-2 text-mono-sm text-secondary">More</span>
+    <div>{children}</div>
+  </ul>
+)
 
 export const NavLinkItem = (props: {
   to: string
@@ -75,10 +74,7 @@ export const NavLinkItem = (props: {
         }
       }}
       className={({ isActive }) =>
-        cn(
-          'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary',
-          isActive ? 'text-accent !bg-accent-secondary svg:!text-accent' : 'text-default'
-        )
+        cn(linkStyles, { 'text-accent !bg-accent-secondary svg:!text-accent': isActive })
       }
       end={props.end}
     >

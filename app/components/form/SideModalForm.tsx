@@ -15,7 +15,7 @@ interface SideModalFormProps<Values> extends Omit<FormProps<Values>, 'setSubmitS
   title: ReactNode
 }
 
-export function SideModalForm<Values>({
+export function SideModalForm<Values extends Record<string, unknown>>({
   id,
   children,
   onDismiss,
