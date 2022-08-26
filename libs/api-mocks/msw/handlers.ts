@@ -685,9 +685,8 @@ export const handlers = [
           items: genCumulativeI64Data(
             new Array(1000)
               .fill(0)
-              .map(
-                (x, i) =>
-                  Math.floor(i * (1000 - i) * (i % 100) + Math.random() * 10000000) / 1000
+              .map((x, i) =>
+                Math.floor((i * (1000 - i) * (i % 100) + Math.random() * 10000000) / 1000)
               ),
             new Date(2022, 3, 4)
           ),

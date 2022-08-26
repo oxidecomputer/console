@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
-import { Area, CartesianGrid, ComposedChart, XAxis, YAxis } from 'recharts'
+import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
+import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -14,6 +15,37 @@ type DiskMetricParams = {
   metricName: DiskMetricName
   diskParams: { orgName: string; projectName: string; diskName: string }
   // TODO: specify bytes or count
+}
+
+function getTicks(data: { timestamp: number }[], n: number): number[] {
+  if (data.length === 0) return []
+  if (n < 2) throw Error('n must be at least 2 because of the start and end ticks')
+  const maxIdx = data.length - 1
+  // if there are 4 ticks, their positions are 0/3, 1/3, 2/3, 3/3 (as fractions of maxIdx)
+  const idxs = new Array(n).fill(0).map((_, i) => Math.floor((maxIdx * i) / (n - 1)))
+  return idxs.map((i) => data[i].timestamp)
+}
+
+const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
+const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm aa')
+
+// TODO: pull from TW theme
+const GRID_GRAY = '#1D2427'
+const GREEN = '#2F8865'
+const DARK_GREEN = '#112725'
+
+function renderTooltip({ payload }: TooltipProps<number, string>) {
+  if (!payload || payload.length < 1) return null
+  // TODO: there has to be a better way to get these values
+  const { timestamp, value } = payload[0].payload
+  if (!timestamp || !value) return null
+  return (
+    <div className="bg-raise text-accent p-2 text-sans-md">
+      <div>{longDateTime(timestamp)}</div>
+      {/* TODO: value needs a label (should be easy) */}
+      <div>{value}</div>
+    </div>
+  )
 }
 
 function DiskMetric({
@@ -34,7 +66,7 @@ function DiskMetric({
   })
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: new Date(timestamp),
+    timestamp: new Date(timestamp).getTime(),
     // all of these metrics are cumulative ints
     value: (datum.datum as Cumulativeint64).value,
   }))
@@ -46,6 +78,8 @@ function DiskMetric({
   //   console.log('time range:', data[0].timestamp, data[data.length - 1].timestamp)
   // }
 
+  // console.log(getTicks(data))
+
   return (
     <div>
       <h2 className="text-mono-sm text-secondary">{title}</h2>
@@ -56,23 +90,27 @@ function DiskMetric({
         margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
         className="mt-4"
       >
-        {/* TODO: pull these colors from TW config */}
-        <CartesianGrid stroke="#1D2427" vertical={false} />
+        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <Area
           dataKey="value"
-          stroke="#2F8865"
+          stroke={GREEN}
           fillOpacity={1}
-          fill="#112725"
+          fill={DARK_GREEN}
           isAnimationActive={false}
         />
         <XAxis
+          domain={['auto', 'auto']}
           dataKey="timestamp"
           interval="preserveStart"
           scale="time"
+          type="number"
+          name="Time"
+          ticks={getTicks(data, 3)}
           // TODO: decide timestamp format based on time range of chart
-          tickFormatter={(d: typeof data[number]['timestamp']) => format(d, 'M/d HH:mm')}
+          tickFormatter={shortDateTime}
         />
         <YAxis orientation="right" />
+        <Tooltip isAnimationActive={false} content={renderTooltip} />
       </ComposedChart>
     </div>
   )

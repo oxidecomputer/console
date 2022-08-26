@@ -7,7 +7,7 @@ import type { Json } from './json-type'
 export const genCumulativeI64Data = (
   values: number[],
   start: Date,
-  intervalSeconds = 1
+  intervalSeconds = 300
 ): Json<Measurement[]> =>
   values.map((value, i) => ({
     datum: {
