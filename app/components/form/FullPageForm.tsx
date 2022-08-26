@@ -20,7 +20,7 @@ export interface FullPageFormProps<Values>
 
 const PageActionsContainer = classed.div`flex h-20 items-center`
 
-export function FullPageForm<Values>({
+export function FullPageForm<Values extends Record<string, unknown>>({
   title,
   children,
   submitDisabled = false,

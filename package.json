@@ -131,7 +131,7 @@
     "token-transformer": "^0.0.18",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "type-fest": "^2.17.0",
-    "typescript": "4.7.4",
+    "typescript": "4.8.2",
     "url-loader": "^4.1.1",
     "vite": "^3.0.4",
     "vitest": "^0.22.1",

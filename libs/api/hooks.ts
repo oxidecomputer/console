@@ -26,7 +26,9 @@ export type ResultItem<F> = F extends (
   p: any,
   r: any
 ) => Promise<ApiResult<{ items: (infer R)[] }>>
-  ? R
+  ? R extends Record<string, unknown>
+    ? R
+    : never
   : never
 
 type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
