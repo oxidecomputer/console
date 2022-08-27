@@ -33,12 +33,20 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
 }
 
 const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
-const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm aa')
+const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm:ss aa')
 
-// TODO: pull from TW theme
-const GRID_GRAY = '#1D2427'
-const GREEN = '#2F8865'
-const DARK_GREEN = '#112725'
+// TODO: change these to named colors so they work in light mode
+const LIGHT_GRAY = 'var(--base-grey-600)'
+const GRID_GRAY = 'var(--base-grey-1000)'
+const GREEN = 'var(--base-green-600)'
+const DARK_GREEN = 'var(--base-green-900)'
+
+// TODO: figure out how to do this with TW classes instead. As far as I can tell
+// ticks only take direct styling
+const textMonoMd = {
+  fontSize: '0.75rem',
+  fontFamily: '"GT America Mono", monospace',
+}
 
 function renderTooltip(props: TooltipProps<number, string>) {
   const { payload } = props
@@ -50,8 +58,8 @@ function renderTooltip(props: TooltipProps<number, string>) {
   } = payload[0]
   if (!timestamp || !value) return null
   return (
-    <div className="bg-raise text-secondary p-2 text-sans-md">
-      <div>{longDateTime(timestamp)}</div>
+    <div className="bg-raise text-secondary p-2 text-sans-sm border border-secondary">
+      <div className="mb-1">{longDateTime(timestamp)}</div>
       <div>
         <span>{name}: </span>
         <span className="text-accent">{value}</span>
@@ -84,18 +92,12 @@ function DiskMetric({
     value: (datum.datum as Cumulativeint64).value,
   }))
 
-  // console.log(metrics)
-  // console.log(data)
-
-  // if (data.length > 0) {
-  //   console.log('time range:', data[0].timestamp, data[data.length - 1].timestamp)
-  // }
-
-  // console.log(getTicks(data))
+  // TODO: indicate time zone somewhere. doesn't have to be in the detail view
+  // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
     <div>
-      <h2 className="text-mono-sm text-secondary">{title}</h2>
+      <h2 className="text-mono-md text-secondary">{title}</h2>
       <ComposedChart
         width={480}
         height={240}
@@ -111,6 +113,11 @@ function DiskMetric({
           fillOpacity={1}
           fill={DARK_GREEN}
           isAnimationActive={false}
+          activeDot={{
+            fill: LIGHT_GRAY,
+            r: 4,
+            strokeWidth: 0,
+          }}
         />
         <XAxis
           domain={['auto', 'auto']}
@@ -124,10 +131,16 @@ function DiskMetric({
           ticks={getTicks(data, 3)}
           // TODO: decide timestamp format based on time range of chart
           tickFormatter={shortDateTime}
+          tick={textMonoMd}
+          tickMargin={4}
         />
-        <YAxis orientation="right" />
+        <YAxis orientation="right" tick={textMonoMd} tickSize={0} tickMargin={8} />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-        <Tooltip isAnimationActive={false} content={renderTooltip} />
+        <Tooltip
+          isAnimationActive={false}
+          content={renderTooltip}
+          cursor={{ stroke: LIGHT_GRAY }}
+        />
       </ComposedChart>
     </div>
   )
@@ -166,12 +179,14 @@ export function MetricsTab() {
                 b) show "Activations" but not "(count)" in the Tooltip?
         */}
       <div className="flex flex-wrap gap-8 mt-8">
-        <DiskMetric {...commonProps} title="Activations (count)" metricName="activated" />
-        <DiskMetric {...commonProps} title="Reads (count)" metricName="read" />
-        <DiskMetric {...commonProps} title="Read (bytes)" metricName="read_bytes" />
-        <DiskMetric {...commonProps} title="Writes (count)" metricName="write" />
-        <DiskMetric {...commonProps} title="Write (bytes)" metricName="write_bytes" />
-        <DiskMetric {...commonProps} title="Flushes (count)" metricName="flush" />
+        {/* see the following link for the source of truth on what these mean
+            https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
+        <DiskMetric {...commonProps} title="Activations (Count)" metricName="activated" />
+        <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />
+        <DiskMetric {...commonProps} title="Read (Bytes)" metricName="read_bytes" />
+        <DiskMetric {...commonProps} title="Writes (Count)" metricName="write" />
+        <DiskMetric {...commonProps} title="Write (Bytes)" metricName="write_bytes" />
+        <DiskMetric {...commonProps} title="Flushes (Count)" metricName="flush" />
       </div>
     </>
   )
