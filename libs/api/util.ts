@@ -1,13 +1,7 @@
 /// Helpers for working with API objects
 import { pick } from '@oxide/util'
 
-import type {
-  Bindouble,
-  Binint64,
-  Datum,
-  VpcFirewallRule,
-  VpcFirewallRuleUpdate,
-} from './__generated__/Api'
+import type { VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
 
 type PortRange = [number, number]
 
@@ -62,38 +56,4 @@ export const genName = (...parts: [string, ...string[]]) => {
       // generate random hex string of 6 characters
       .concat(`-${Math.random().toString(16).substring(2, 8)}`)
   )
-}
-
-type DatumValue<D extends Datum> = D['type'] extends 'bool'
-  ? boolean
-  : D['type'] extends 'f64' | 'i64'
-  ? number
-  : D['type'] extends 'string'
-  ? string
-  : D['type'] extends 'bytes'
-  ? number[]
-  : D['type'] extends 'cumulative_f64' | 'cumulative_i64'
-  ? number
-  : D['type'] extends 'histogram_f64'
-  ? Bindouble[]
-  : D['type'] extends 'histogram_i64'
-  ? Binint64[]
-  : never
-
-export function datumToValue<D extends Datum>(datum: D): DatumValue<D> {
-  switch (datum.type) {
-    case 'bool':
-    case 'bytes':
-    case 'f64':
-    case 'i64':
-    case 'string':
-      return datum.datum as DatumValue<D>
-    case 'cumulative_f64':
-    case 'cumulative_i64':
-      return datum.datum.value as DatumValue<D>
-    // this isn't really normal data is it
-    case 'histogram_f64':
-    case 'histogram_i64':
-      return datum.datum.bins as DatumValue<D>
-  }
 }
