@@ -1,11 +1,14 @@
 import { format } from 'date-fns'
+import { Form, Formik } from 'formik'
 import { useMemo, useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
+import { Button } from '@oxide/ui'
 
+import { TextField } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -34,6 +37,7 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
 
 const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm:ss aa')
+const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
 // TODO: change these to named colors so they work in light mode
 const LIGHT_GRAY = 'var(--base-grey-600)'
@@ -174,6 +178,21 @@ export function MetricsTab() {
         {/* TODO: need a nicer way of saying what the boot disk is */}
         Boot disk ( <code>{diskName}</code> )
       </h2>
+
+      <Formik
+        initialValues={{
+          startTime: dateForInput(startTime),
+          endTime: dateForInput(endTime),
+        }}
+        onSubmit={(values) => console.log(values)}
+      >
+        <Form className="mt-8 mb-4 flex gap-8 items-end">
+          <TextField id="startTime" type="datetime-local" label="Start time" required />
+          <TextField id="endTime" type="datetime-local" label="End time" required />
+          <Button type="submit">Update</Button>
+        </Form>
+      </Formik>
+
       {/* TODO: separate "Activations" from "(count)" so we can
                 a) style them differently in the title, and
                 b) show "Activations" but not "(count)" in the Tooltip?
