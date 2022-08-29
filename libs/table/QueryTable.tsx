@@ -20,7 +20,7 @@ import { DefaultCell } from './cells'
 import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
 
-interface UseQueryTableResult<Item> {
+interface UseQueryTableResult<Item extends Record<string, unknown>> {
   Table: ComponentType<QueryTableProps<Item>>
   Column: ComponentType<QueryTableColumnProps<Item>>
 }
@@ -77,7 +77,7 @@ type QueryTableProps<Item> = {
 )
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeQueryTable = <Item,>(
+const makeQueryTable = <Item extends Record<string, unknown>>(
   query: any,
   params: any,
   options: any
@@ -202,7 +202,7 @@ const makeQueryTable = <Item,>(
     )
   }
 
-export type QueryTableColumnProps<Item extends Record<string, any>> = {
+export type QueryTableColumnProps<Item extends Record<string, unknown>> = {
   header?: string | ReactElement
   /** Use `header` instead */
   name?: never
@@ -215,4 +215,6 @@ export type QueryTableColumnProps<Item extends Record<string, any>> = {
     }
 )
 
-const QueryTableColumn = <Item,>(_props: QueryTableColumnProps<Item>) => null
+const QueryTableColumn = <Item extends Record<string, unknown>>(
+  _props: QueryTableColumnProps<Item>
+) => null
