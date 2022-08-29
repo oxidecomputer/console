@@ -37,7 +37,7 @@ const config: PlaywrightTestConfig = {
 
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'yarn start --port 4009',
+    command: `yarn start${process.env.MSW ? ':msw' : ''} --port 4009`,
     port: 4009,
   },
 }
