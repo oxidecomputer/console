@@ -18,30 +18,31 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
   },
 
-  projects: ([process.env.browser as string] ?? ['Chrome', 'Firefox', 'Safari']).flatMap(
-    (browser) => [
-      /**
-       * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
-       * Should be compatible with a live rack
-       */
-      {
-        name: `smoke-${browser.toLowerCase()}`,
-        testMatch: [/test\/.*\.e2e\.ts/],
-        use: {
-          ...devices[`Desktop ${browser}`],
-          baseURL: 'http://localhost:4010',
-        },
+  projects: (process.env.browser
+    ? [process.env.browser]
+    : ['Chrome', 'Firefox', 'Safari']
+  ).flatMap((browser) => [
+    /**
+     * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
+     * Should be compatible with a live rack
+     */
+    {
+      name: `smoke-${browser.toLowerCase()}`,
+      testMatch: [/test\/.*\.e2e\.ts/],
+      use: {
+        ...devices[`Desktop ${browser}`],
+        baseURL: 'http://localhost:4010',
       },
-      {
-        name: `validate-${browser.toLowerCase()}`,
-        testMatch: [/pages\/.*\.e2e\.ts/],
-        use: {
-          ...devices[`Desktop ${browser}`],
-          baseURL: 'http://localhost:4010',
-        },
+    },
+    {
+      name: `validate-${browser.toLowerCase()}`,
+      testMatch: [/pages\/.*\.e2e\.ts/],
+      use: {
+        ...devices[`Desktop ${browser}`],
+        baseURL: 'http://localhost:4009',
       },
-    ]
-  ),
+    },
+  ]),
 
   // use different port so it doesn't conflict with local dev server
   webServer: [
