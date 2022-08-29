@@ -1,30 +1,17 @@
-import { expectNotVisible, expectVisible, genName, test } from 'app/test/e2e'
+import { test } from '@playwright/test'
 
-const orgName = genName('click-everything-org')
-const projectName = genName('click-everything-proj')
-const instanceName = genName('click-everything-instance')
-const vpcName = genName('click-everything-vpc')
+import { expectNotVisible, expectVisible } from 'app/util/e2e'
 
-test.beforeAll(async ({ createOrg, createProject, createVpc, createInstance }) => {
-  await createOrg(orgName)
-  await createProject(orgName, projectName)
-  await createInstance(orgName, projectName, instanceName)
-  await createVpc(orgName, projectName, vpcName)
-})
-
-test.fixme("Click through everything and make it's all there", async ({ page }) => {
-  await page.goto(`/orgs/${orgName}/projects`)
+test("Click through everything and make it's all there", async ({ page }) => {
+  await page.goto('/orgs/maze-war/projects')
 
   // Project page (instances list)
-  await page.click(`role=link[name="${projectName}"]`)
-  await expectVisible(page, [
-    'role=heading[name*="Instances"]',
-    `role=cell[name="${instanceName}"]`,
-  ])
+  await page.click('role=link[name="mock-project"]')
+  await expectVisible(page, ['role=heading[name*="Instances"]', 'role=cell[name="db1"]'])
 
-  await page.click(`role=link[name="${instanceName}"]`)
+  await page.click('role=link[name="db1"]')
   await expectVisible(page, [
-    `role=heading[name=${instanceName}]`,
+    'role=heading[name*=db1]',
     'role=tab[name="Storage"]',
     'role=tab[name="Metrics"]',
     'role=tab[name="Networking"]',

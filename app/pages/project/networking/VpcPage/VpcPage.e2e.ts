@@ -1,31 +1,21 @@
-import { expect, genName, test } from 'app/test/e2e'
+import { expect, test } from '@playwright/test'
 
 test.describe('VpcPage', () => {
-  const orgName = genName('vpc-page-org')
-  const projectName = genName('vpc-page-project')
-  const vpcName = genName('mock-vpc')
-
-  test.beforeEach(async ({ createOrg, createProject, createVpc }) => {
-    await createOrg(orgName)
-    await createProject(orgName, projectName)
-    await createVpc(orgName, projectName, vpcName)
-  })
-
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
-    await page.click(`table :text("${orgName}")`)
-    await page.click(`table :text("${projectName}")`)
+    await page.click('table :text("maze-war")')
+    await page.click('table :text("mock-project")')
     await page.click('a:has-text("Networking")')
-    await page.click(`a:has-text("${vpcName}")`)
-    await expect(page).toHaveURL(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
+    await page.click('a:has-text("mock-vpc")')
+    await expect(page.locator('text=mock-subnet')).toBeVisible()
   })
 
   test('can create subnet', async ({ page }) => {
-    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
+    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(1)
-    await expect(rows.nth(0).locator(`text="default"`)).toBeVisible()
+    await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
 
     // open modal, fill out form, submit
     await page.click('text=New subnet')
@@ -35,7 +25,8 @@ test.describe('VpcPage', () => {
 
     await expect(rows).toHaveCount(2)
 
-    await expect(rows.nth(0).locator('text="default"')).toBeVisible()
+    await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
+    await expect(rows.nth(0).locator('text="1.1.1.1/24"')).toBeVisible()
 
     await expect(rows.nth(1).locator('text="mock-subnet-2"')).toBeVisible()
     await expect(rows.nth(1).locator('text="1.1.1.2/24"')).toBeVisible()
@@ -43,10 +34,11 @@ test.describe('VpcPage', () => {
 
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
-  test.fixme('can create firewall rule', async ({ page }) => {
-    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
+  test('can create firewall rule', async ({ page }) => {
+    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
+    // default rules are all there
     for (const name of defaultRules) {
       await expect(page.locator(`text="${name}"`)).toBeVisible()
     }
@@ -57,7 +49,7 @@ test.describe('VpcPage', () => {
     await expect(modal).not.toBeVisible()
 
     // open modal
-    await page.locator('text="New rule"').first().click()
+    await page.locator('text="New rule"').click()
 
     // modal is now open
     await expect(modal).toBeVisible()
@@ -114,8 +106,8 @@ test.describe('VpcPage', () => {
     }
   })
 
-  test.fixme('can update firewall rule', async ({ page }) => {
-    await page.goto(`/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}`)
+  test('can update firewall rule', async ({ page }) => {
+    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
     const rows = await page.locator('tbody >> tr')

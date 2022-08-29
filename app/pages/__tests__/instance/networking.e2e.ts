@@ -1,10 +1,6 @@
-import {
-  expect,
-  expectNotVisible,
-  expectRowVisible,
-  expectVisible,
-  test,
-} from 'app/test/e2e'
+import { expect, test } from '@playwright/test'
+
+import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
 
 import { stopInstance } from './util'
 
