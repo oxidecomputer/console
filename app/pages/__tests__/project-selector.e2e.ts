@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { expectVisible } from 'app/util/e2e'
+import { expectVisible } from 'app/test/e2e'
 
 test('Project selector', async ({ page }) => {
   // create a second project

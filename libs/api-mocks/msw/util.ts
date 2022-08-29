@@ -55,3 +55,8 @@ export const paginated = <I extends { id: string }>(
 // testing pagination
 export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
   new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
+
+export const clone = <T extends object>(obj: T): T =>
+  typeof structuredClone !== 'undefined'
+    ? structuredClone(obj)
+    : JSON.parse(JSON.stringify(obj))
