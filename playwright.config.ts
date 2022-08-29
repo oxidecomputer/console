@@ -15,31 +15,45 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   globalSetup: 'app/test/e2e/global-setup.ts',
   use: {
-    /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
-    baseURL: 'http://localhost:4009',
     trace: 'on-first-retry',
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
+  projects: ([process.env.browser as string] ?? ['Chrome', 'Firefox', 'Safari']).flatMap(
+    (browser) => [
+      /**
+       * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
+       * Should be compatible with a live rack
+       */
+      {
+        name: `smoke-${browser.toLowerCase()}`,
+        testMatch: [/test\/.*\.e2e\.ts/],
+        use: {
+          ...devices[`Desktop ${browser}`],
+          baseURL: 'http://localhost:4010',
+        },
+      },
+      {
+        name: `validate-${browser.toLowerCase()}`,
+        testMatch: [/pages\/.*\.e2e\.ts/],
+        use: {
+          ...devices[`Desktop ${browser}`],
+          baseURL: 'http://localhost:4010',
+        },
+      },
+    ]
+  ),
 
   // use different port so it doesn't conflict with local dev server
-  webServer: {
-    command: `yarn start${process.env.MSW ? ':msw' : ''} --port 4009`,
-    port: 4009,
-  },
+  webServer: [
+    {
+      command: `yarn start:msw --port 4009`,
+      port: 4009,
+    },
+    {
+      command: `yarn start --port 4010`,
+      port: 4010,
+    },
+  ],
 }
 
 export default config
