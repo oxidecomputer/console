@@ -70,18 +70,3 @@ export async function expectRowVisible(
     .poll(getRows)
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
-
-// TODO: This is duplicated from `@oxide/api` and can't be pulled in due to
-// inlined tests using `import.meta` being imported and causing a syntax error
-// given that playwright converts all the tests to commonjs.
-export const genName = (...parts: [string, ...string[]]) => {
-  const numParts = parts.length
-  const partLength = Math.floor(63 / numParts) - Math.ceil(6 / numParts) - 1
-  return (
-    parts
-      .map((part) => part.substring(0, partLength))
-      .join('-')
-      // generate random hex string of 6 characters
-      .concat(`-${Math.random().toString(16).substring(2, 8)}`)
-  )
-}
