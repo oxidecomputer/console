@@ -4,7 +4,7 @@ import { act, renderHook } from '@testing-library/react-hooks'
 
 import { org } from '@oxide/api-mocks'
 
-import { overrideOnce } from 'app/test/utils'
+import { overrideOnce } from 'app/test/unit'
 
 import type { ApiError } from '..'
 import { useApiMutation, useApiQuery } from '..'

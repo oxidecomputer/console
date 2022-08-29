@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectVisible } from 'app/util/e2e'
+import { expectVisible } from 'app/test/e2e'
 
 test('Orgs list and detail click work', async ({ page }) => {
   await page.goto('/')

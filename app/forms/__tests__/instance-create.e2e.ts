@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { expectVisible } from 'app/util/e2e'
+import { expectVisible } from 'app/test/e2e'
 
 test.describe('Instance Create Form', () => {
   test('can invoke instance create form from instances page', async ({ page }) => {
