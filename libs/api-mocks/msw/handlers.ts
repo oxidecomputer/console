@@ -1,3 +1,4 @@
+import { subHours } from 'date-fns'
 import { compose, context, rest } from 'msw'
 
 import type { ApiTypes as Api } from '@oxide/api'
@@ -37,7 +38,7 @@ import {
   lookupVpcRouter,
   lookupVpcSubnet,
 } from './db'
-import { json, paginated } from './util'
+import { getDateParam, json, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -674,17 +675,36 @@ export const handlers = [
     }
   ),
 
+  /**
+   * Approach to faking: always return 1000 data points spread evenly between start
+   * and end.
+   */
   rest.get<never, DiskMetricParams, Json<Api.MeasurementResultsPage> | GetErr>(
     '/api/organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName',
     (req, res) => {
       const [, err] = lookupDisk(req.params)
       if (err) return res(err)
 
+      const queryStartTime = getDateParam(req.url.searchParams, 'start_time')
+      const queryEndTime = getDateParam(req.url.searchParams, 'end_time')
+
+      // if no start time or end time, give the last 24 hours. in this case the
+      // API will give all data available for the metric (paginated of course),
+      // so essentially we're pretending the last 24 hours just happens to be
+      // all the data. if we have an end time but no start time, same deal, pretend
+      // 24 hours before the given end time is where it starts
+      const now = new Date()
+      const endTime = queryEndTime || now
+      const startTime = queryStartTime || subHours(endTime, 24)
+
+      if (endTime <= startTime) return res(json({ items: [] }))
+
       return res(
         json({
           items: genCumulativeI64Data(
             new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
-            new Date(2022, 3, 4)
+            startTime,
+            endTime
           ),
         })
       )

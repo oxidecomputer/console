@@ -1,21 +1,24 @@
-import { addSeconds } from 'date-fns'
+import { addSeconds, differenceInSeconds } from 'date-fns'
 
 import type { Measurement } from '@oxide/api'
 
 import type { Json } from './json-type'
 
+/** evenly distribute the `values` across the time interval */
 export const genCumulativeI64Data = (
   values: number[],
-  start: Date,
-  intervalSeconds = 300
-): Json<Measurement[]> =>
-  values.map((value, i) => ({
+  startTime: Date,
+  endTime: Date
+): Json<Measurement[]> => {
+  const intervalSeconds = differenceInSeconds(endTime, startTime) / values.length
+  return values.map((value, i) => ({
     datum: {
       datum: {
         value,
-        start_time: start.toISOString(),
+        start_time: startTime.toISOString(),
       },
       type: 'cumulative_i64',
     },
-    timestamp: addSeconds(start, i * intervalSeconds).toISOString(),
+    timestamp: addSeconds(startTime, i * intervalSeconds).toISOString(),
   }))
+}

@@ -1,3 +1,4 @@
+import { isValid, parseISO } from 'date-fns'
 import type { ResponseTransformer } from 'msw'
 import { compose, context } from 'msw'
 
@@ -55,3 +56,13 @@ export const paginated = <I extends { id: string }>(
 // testing pagination
 export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
   new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
+
+export function getDateParam(params: URLSearchParams, key: string): Date | null {
+  const value = params.get(key)
+  if (!value) return null
+
+  const date = parseISO(value)
+  if (!isValid(date)) return null
+
+  return date
+}

@@ -1,4 +1,5 @@
-import { format } from 'date-fns'
+import * as Yup from 'yup'
+import { format, subHours } from 'date-fns'
 import { Form, Formik } from 'formik'
 import { useMemo, useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
@@ -62,11 +63,11 @@ function renderTooltip(props: TooltipProps<number, string>) {
   } = payload[0]
   if (!timestamp || !value) return null
   return (
-    <div className="bg-raise text-secondary p-2 text-sans-sm border border-secondary">
-      <div className="mb-1">{longDateTime(timestamp)}</div>
-      <div>
-        <span>{name}: </span>
-        <span className="text-accent">{value}</span>
+    <div className="bg-raise text-secondary text-sans-sm border border-secondary">
+      <div className="py-2 px-3 border-b border-secondary">{longDateTime(timestamp)}</div>
+      <div className="py-2 px-3">
+        <div className="text-default">{name}</div>
+        <div>{value}</div>
         {/* TODO: unit on value if relevant */}
       </div>
     </div>
@@ -150,21 +151,25 @@ function DiskMetric({
   )
 }
 
+/** Validate that they're Dates and end is after start */
+const dateRangeSchema = Yup.object({
+  startTime: Yup.date(),
+  endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
+})
+
 export function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { orgName, projectName } = instanceParams
 
-  const { data: instance } = useApiQuery('instanceView', instanceParams)
   const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
   const diskName = disks?.items[0].name
 
-  const [startTime] = useState(instance?.timeCreated)
-  // TODO: add date picker
+  // default endTime is now, i.e., mount time
+  const now = useMemo(() => new Date(), [])
+  const [startTime, setStartTime] = useState(subHours(now, 24))
+  const [endTime, setEndTime] = useState(now)
 
-  // endTime is now, i.e., mount time
-  const endTime = useMemo(() => new Date(), [])
-
-  if (!startTime || !diskName) return <span>loading</span>
+  if (!diskName) return <span>loading</span>
 
   const commonProps = {
     startTime,
@@ -181,15 +186,24 @@ export function MetricsTab() {
 
       <Formik
         initialValues={{
+          // values are strings, unfortunately
           startTime: dateForInput(startTime),
           endTime: dateForInput(endTime),
         }}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={({ startTime, endTime }) => {
+          setStartTime(new Date(startTime))
+          setEndTime(new Date(endTime))
+        }}
+        validationSchema={dateRangeSchema}
       >
-        <Form className="mt-8 mb-4 flex gap-8 items-end">
+        <Form className="mt-8 mb-4 flex gap-8 items-start h-24">
+          {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
           <TextField id="startTime" type="datetime-local" label="Start time" required />
           <TextField id="endTime" type="datetime-local" label="End time" required />
-          <Button type="submit">Update</Button>
+          {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
+          <Button className="mt-6" type="submit">
+            Update
+          </Button>
         </Form>
       </Formik>
 
