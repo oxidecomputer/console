@@ -166,10 +166,16 @@ export function MetricsTab() {
 
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
+
+  // TODO: the whole point of formik is you don't have to sync it with state —
+  // the Formik form state *is* the state
   const [startTime, setStartTime] = useState(subHours(now, 24))
   const [endTime, setEndTime] = useState(now)
 
-  if (!diskName) return <span>loading</span>
+  // TODO: add a dropdown with last hour, last 3 hours, etc. and a final option
+  // "Custom". Only on Custom are the date pickers shown.
+
+  if (!diskName) return <span>loading</span> // TODO: loading state
 
   const commonProps = {
     startTime,
