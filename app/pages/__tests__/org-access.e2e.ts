@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/util/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
 
 test('Click through org access page', async ({ page }) => {
   await page.goto('/orgs/maze-war')
