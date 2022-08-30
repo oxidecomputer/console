@@ -7,6 +7,7 @@ import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 export type ListboxFieldProps = {
   name: string
   id: string
+  className?: string
   label: string
   required?: boolean
   helpText?: string
@@ -23,13 +24,14 @@ export function ListboxField({
   description,
   helpText,
   onChange,
+  className,
 }: ListboxFieldProps) {
   const [, { value }, { setValue }] = useField<string | undefined>({
     name,
     validate: (v) => (required && !v ? `${name} is required` : undefined),
   })
   return (
-    <div className="max-w-lg">
+    <div className={cn('max-w-lg', className)}>
       <div className="mb-2">
         <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
           {label}

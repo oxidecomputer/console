@@ -236,70 +236,65 @@ export function MetricsTab() {
           }
 
           return (
-            <Form className="mt-8">
-              <div className="flex gap-8">
-                <ListboxField
-                  id="preset"
-                  name="preset"
-                  label="Choose a time range"
-                  items={rangePresets}
-                  // when we select a preset, set the input values to the range
-                  // for that preset and submit the form to update the charts
-                  onChange={(item) => {
-                    if (item && item.value !== 'custom') {
-                      const now = new Date()
-                      const newStartTime = computeStart[item.value as RangeKey](now)
-                      setRangeValues(newStartTime, now)
-                      // goofy, but I like the idea of going through the submit
-                      // pathway instead of duplicating the setStates
-                      submitForm()
-                      // TODO: if input is invalid while on custom, e.g.,
-                      // because end is before start, changing to a preset does
-                      // not clear the error. changing a second time does
-                    }
-                  }}
-                  required
-                />
+            <Form className="flex mt-8 mb-4 gap-4 h-24">
+              <ListboxField
+                className="mr-4" // in addition to gap-4
+                id="preset"
+                name="preset"
+                label="Choose a time range"
+                items={rangePresets}
+                // when we select a preset, set the input values to the range
+                // for that preset and submit the form to update the charts
+                onChange={(item) => {
+                  if (item && item.value !== 'custom') {
+                    const now = new Date()
+                    const newStartTime = computeStart[item.value as RangeKey](now)
+                    setRangeValues(newStartTime, now)
+                    // goofy, but I like the idea of going through the submit
+                    // pathway instead of duplicating the setStates
+                    submitForm()
+                    // TODO: if input is invalid while on custom, e.g.,
+                    // because end is before start, changing to a preset does
+                    // not clear the error. changing a second time does
+                  }
+                }}
+                required
+              />
 
-                <div className="mb-4 flex items-start h-24">
-                  {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-                  {/* TODO: the field labels look pretty stupid in this context, fix that. probably leave them 
+              {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
+              {/* TODO: the field labels look pretty stupid in this context, fix that. probably leave them 
                        there for a11y purposes but hide them for sighted users */}
-                  <TextField
-                    id="startTime"
-                    type="datetime-local"
-                    label="Start time"
-                    disabled={!enableInputs}
-                    className="mr-4"
-                    required
-                  />
-                  <TextField
-                    id="endTime"
-                    type="datetime-local"
-                    label="End time"
-                    required
-                    disabled={!enableInputs}
-                    className="mr-4"
-                  />
-                  {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
-                  {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
-                  {enableInputs && (
-                    <Button
-                      className="mt-6 mr-4"
-                      disabled={!customInputsDirty}
-                      // reset inputs back to whatever they were
-                      onClick={() => setRangeValues(startTime, endTime)}
-                    >
-                      Reset
-                    </Button>
-                  )}
-                  {enableInputs && (
-                    <Button className="mt-6" type="submit" disabled={!customInputsDirty}>
-                      Load
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <TextField
+                id="startTime"
+                type="datetime-local"
+                label="Start time"
+                disabled={!enableInputs}
+                required
+              />
+              <TextField
+                id="endTime"
+                type="datetime-local"
+                label="End time"
+                required
+                disabled={!enableInputs}
+              />
+              {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
+              {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
+              {enableInputs && (
+                <Button
+                  className="mt-6"
+                  disabled={!customInputsDirty}
+                  // reset inputs back to whatever they were
+                  onClick={() => setRangeValues(startTime, endTime)}
+                >
+                  Reset
+                </Button>
+              )}
+              {enableInputs && (
+                <Button className="mt-6" type="submit" disabled={!customInputsDirty}>
+                  Load
+                </Button>
+              )}
             </Form>
           )
         }}
