@@ -1,5 +1,4 @@
 import * as Yup from 'yup'
-import cn from 'classnames'
 import { format, subDays, subHours } from 'date-fns'
 import { Form, Formik } from 'formik'
 import { useMemo, useState } from 'react'
@@ -219,56 +218,85 @@ export function MetricsTab() {
         }}
         validationSchema={dateRangeSchema}
       >
-        {({ values, setFieldValue }) => (
-          <Form className="mt-8">
-            <div className="flex gap-8 items-end">
-              {/* TODO: make this radio buttons instead of a listbox */}
-              <ListboxField
-                id="preset"
-                name="preset"
-                label="Choose a time range"
-                items={rangePresets}
-                onChange={(item) => {
-                  // `item.value in computeStart` is overkill but whatever
-                  if (item && item.value in computeStart && item.value !== 'custom') {
-                    const now = new Date()
-                    const startTime = computeStart[item.value as RangeKey](now)
-                    setFieldValue('startTime', dateForInput(startTime))
-                    setFieldValue('endTime', dateForInput(now))
-                    // changing the listbox doesn't update the graphs, it only
-                    // updates the start and end time fields. you still have to
-                    // submit the form to update the graphs
-                  }
-                }}
-              />
-              <Button
-                className="mt-6"
-                type="submit"
-                // disable submit when the displayed dates are already the same as
-                // what is in the inputs
-                disabled={
-                  values.startTime === dateForInput(startTime) &&
-                  values.endTime === dateForInput(endTime)
-                }
-              >
-                Update
-              </Button>
-            </div>
-            <div
-              className={cn('mt-4 mb-4 flex gap-8 items-start h-24', {
-                hidden: values.preset !== 'custom',
-              })}
-            >
-              {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-              {/* TODO: for the presets, selecting a preset can automatically trigger a fetch and render. but
-                  when you change dates there should probably be a submit step. that means we need to show whether
-                  or not the current date range has been submitted and the graphs already reflect it */}
-              <TextField id="startTime" type="datetime-local" label="Start time" required />
-              <TextField id="endTime" type="datetime-local" label="End time" required />
-              {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
-            </div>
-          </Form>
-        )}
+        {({ values, setFieldValue, submitForm }) => {
+          // only show submit button when the input fields have been changed from what is displayed
+          const customInputsDirty =
+            values.startTime !== dateForInput(startTime) ||
+            values.endTime !== dateForInput(endTime)
+          const enableInputs = values.preset === 'custom'
+
+          function setRangeValues(startTime: Date, endTime: Date) {
+            setFieldValue('startTime', dateForInput(startTime))
+            setFieldValue('endTime', dateForInput(endTime))
+          }
+
+          return (
+            <Form className="mt-8">
+              <div className="flex gap-8">
+                {/* TODO: make this radio buttons instead of a listbox */}
+                <ListboxField
+                  id="preset"
+                  name="preset"
+                  label="Choose a time range"
+                  items={rangePresets}
+                  onChange={(item) => {
+                    // `item.value in computeStart` is overkill but whatever
+                    if (item && item.value in computeStart && item.value !== 'custom') {
+                      const now = new Date()
+                      const newStartTime = computeStart[item.value as RangeKey](now)
+                      setRangeValues(newStartTime, now)
+                      // goofy, but I like the idea of going through the submit
+                      // pathway instead of duplicating the setStates
+                      submitForm()
+                      // TODO: if input is invalid while on custom, e.g.,
+                      // because end is before start, changing to a preset does
+                      // not clear the error. changing a second time does
+                    }
+                  }}
+                />
+
+                <div className="mb-4 flex items-start h-24">
+                  {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
+                  {/* TODO: the field labels look pretty stupid in this context, fix that. probably leave them 
+                       there for a11y purposes but hide them for sighted users */}
+                  <TextField
+                    id="startTime"
+                    type="datetime-local"
+                    label="Start time"
+                    required
+                    disabled={!enableInputs}
+                    className="mr-4"
+                  />
+                  <TextField
+                    id="endTime"
+                    type="datetime-local"
+                    label="End time"
+                    required
+                    disabled={!enableInputs}
+                    className="mr-4"
+                  />
+                  {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
+                  {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
+                  {enableInputs && (
+                    <Button
+                      className="mt-6 mr-4"
+                      disabled={!customInputsDirty}
+                      // reset inputs back to whatever they were
+                      onClick={() => setRangeValues(startTime, endTime)}
+                    >
+                      Reset
+                    </Button>
+                  )}
+                  {enableInputs && (
+                    <Button className="mt-6" type="submit" disabled={!customInputsDirty}>
+                      Load
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Form>
+          )
+        }}
       </Formik>
 
       {/* TODO: separate "Activations" from "(count)" so we can
