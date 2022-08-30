@@ -969,7 +969,7 @@ export const handlers = [
   getById('/by-id/images/:id', db.images),
   getById('/by-id/snapshots/:id', db.snapshots),
 ].map((h) => {
-  // Prefix if MSW is set which is not true when it's a standalone server
+  // Append prefixes if it's running as MSW and not a standalone server
   if (process.env.MSW) {
     h.info.path = '/api' + h.info.path
   }
