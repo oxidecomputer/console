@@ -49,14 +49,15 @@ jobs:
       - name: Build for Nexus
         run: yarn build-for-nexus
   playwright:
-    name: Playwright (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: Playwright (${{ matrix.type }}-${{ matrix.browser }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: install
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        type: ['smoke', 'validate']
+        browser: ['chrome', 'firefox', 'safari']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -70,4 +71,10 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn playwright test --workers=2 --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
