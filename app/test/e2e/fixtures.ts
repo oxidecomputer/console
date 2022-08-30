@@ -63,6 +63,7 @@ export const test = base.extend<Fixtures>({
       await page.fill('role=textbox[name="Name"]', orgName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create organization"]')
+      orgsToRemove.push(orgName)
       await back()
     })
 
@@ -87,6 +88,8 @@ export const test = base.extend<Fixtures>({
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
+
+      projectsToRemove.push({ orgName, projectName })
       await back()
     })
 
@@ -114,10 +117,10 @@ export const test = base.extend<Fixtures>({
 
       await page.fill('input[name=name]', instanceName)
       await page.locator('.ox-radio-card').nth(3).click()
-
       await page.locator('input[value=ubuntu-1] ~ .ox-radio-card').click()
-
       await page.locator('button:has-text("Create instance")').click()
+
+      instancesToRemove.push({ orgName, projectName, instanceName })
       await back()
     })
 
@@ -145,6 +148,8 @@ export const test = base.extend<Fixtures>({
       await page.fill('role=textbox[name="Name"]', vpcName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create VPC"]')
+
+      vpcsToRemove.push({ orgName, projectName, vpcName })
       await back()
     })
 
