@@ -119,11 +119,7 @@ function DiskMetric({
           fillOpacity={1}
           fill={DARK_GREEN}
           isAnimationActive={false}
-          activeDot={{
-            fill: LIGHT_GRAY,
-            r: 4,
-            strokeWidth: 0,
-          }}
+          activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
         <XAxis
           domain={['auto', 'auto']}
@@ -145,7 +141,7 @@ function DiskMetric({
         <Tooltip
           isAnimationActive={false}
           content={renderTooltip}
-          cursor={{ stroke: LIGHT_GRAY }}
+          cursor={{ stroke: LIGHT_GRAY, strokeDasharray: '3,3' }}
         />
       </ComposedChart>
     </div>
