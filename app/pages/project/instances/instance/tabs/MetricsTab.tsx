@@ -1,5 +1,6 @@
 import * as Yup from 'yup'
-import { format, subHours } from 'date-fns'
+import cn from 'classnames'
+import { format, subDays, subHours } from 'date-fns'
 import { Form, Formik } from 'formik'
 import { useMemo, useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
@@ -9,7 +10,7 @@ import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 
-import { TextField } from 'app/components/form'
+import { ListboxField, TextField } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -151,8 +152,29 @@ function DiskMetric({
   )
 }
 
+const rangePresets = [
+  { label: 'Last hour', value: 'lastHour' as const },
+  { label: 'Last day', value: 'lastDay' as const },
+  { label: 'Last week', value: 'lastWeek' as const },
+  { label: 'Custom', value: 'custom' as const },
+]
+
+// custom doesn't have an associated range
+type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
+
+// Record ensures we have an entry for every preset
+const computeStart: Record<RangeKey, (now: Date) => Date> = {
+  lastHour: (now) => subHours(now, 1),
+  lastDay: (now) => subDays(now, 1),
+  lastWeek: (now) => subDays(now, 7),
+}
+
+const rangeKeys = rangePresets.map((item) => item.value)
+
 /** Validate that they're Dates and end is after start */
 const dateRangeSchema = Yup.object({
+  preset: Yup.string().oneOf(rangeKeys),
+  // TODO: only validate these when oneOf is custom?
   startTime: Yup.date(),
   endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
 })
@@ -167,9 +189,7 @@ export function MetricsTab() {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 
-  // TODO: the whole point of formik is you don't have to sync it with state —
-  // the Formik form state *is* the state
-  const [startTime, setStartTime] = useState(subHours(now, 24))
+  const [startTime, setStartTime] = useState(subDays(now, 1))
   const [endTime, setEndTime] = useState(now)
 
   // TODO: add a dropdown with last hour, last 3 hours, etc. and a final option
@@ -195,6 +215,7 @@ export function MetricsTab() {
           // values are strings, unfortunately
           startTime: dateForInput(startTime),
           endTime: dateForInput(endTime),
+          preset: 'lastDay', // satisfies RangeKey (TS 4.9),
         }}
         onSubmit={({ startTime, endTime }) => {
           setStartTime(new Date(startTime))
@@ -202,15 +223,56 @@ export function MetricsTab() {
         }}
         validationSchema={dateRangeSchema}
       >
-        <Form className="mt-8 mb-4 flex gap-8 items-start h-24">
-          {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-          <TextField id="startTime" type="datetime-local" label="Start time" required />
-          <TextField id="endTime" type="datetime-local" label="End time" required />
-          {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
-          <Button className="mt-6" type="submit">
-            Update
-          </Button>
-        </Form>
+        {({ values, setFieldValue }) => (
+          <Form className="mt-8">
+            <div className="flex gap-8 items-end">
+              {/* TODO: make this radio buttons instead of a listbox */}
+              <ListboxField
+                id="preset"
+                name="preset"
+                label="Choose a time range"
+                items={rangePresets}
+                onChange={(item) => {
+                  // `item.value in computeStart` is overkill but whatever
+                  if (item && item.value in computeStart && item.value !== 'custom') {
+                    const now = new Date()
+                    const startTime = computeStart[item.value as RangeKey](now)
+                    setFieldValue('startTime', dateForInput(startTime))
+                    setFieldValue('endTime', dateForInput(now))
+                    // changing the listbox doesn't update the graphs, it only
+                    // updates the start and end time fields. you still have to
+                    // submit the form to update the graphs
+                  }
+                }}
+              />
+              <Button
+                className="mt-6"
+                type="submit"
+                // disable submit when the displayed dates are already the same as
+                // what is in the inputs
+                disabled={
+                  values.startTime === dateForInput(startTime) &&
+                  values.endTime === dateForInput(endTime)
+                }
+              >
+                Update
+              </Button>
+            </div>
+            <div
+              className={cn('mt-4 mb-4 flex gap-8 items-start h-24', {
+                hidden: values.preset !== 'custom',
+              })}
+            >
+              {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
+              {/* TODO: for the presets, selecting a preset can automatically trigger a fetch and render. but
+                  when you change dates there should probably be a submit step. that means we need to show whether
+                  or not the current date range has been submitted and the graphs already reflect it */}
+              <TextField id="startTime" type="datetime-local" label="Start time" required />
+              <TextField id="endTime" type="datetime-local" label="End time" required />
+              {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
+            </div>
+          </Form>
+        )}
       </Formik>
 
       {/* TODO: separate "Activations" from "(count)" so we can

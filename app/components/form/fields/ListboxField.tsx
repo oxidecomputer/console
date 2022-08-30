@@ -1,18 +1,17 @@
 import cn from 'classnames'
 import { useField } from 'formik'
 
+import type { ListboxProps } from '@oxide/ui'
 import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 
 export type ListboxFieldProps = {
   name: string
   id: string
   label: string
-  items: { value: string; label: string }[]
-  disabled?: boolean
   required?: boolean
   helpText?: string
   description?: string
-}
+} & Pick<ListboxProps, 'disabled' | 'items' | 'onChange'>
 
 export function ListboxField({
   id,
@@ -23,9 +22,9 @@ export function ListboxField({
   required,
   description,
   helpText,
+  onChange,
 }: ListboxFieldProps) {
-  type ItemValue = typeof items[number]['value'] | undefined
-  const [, { value }, { setValue }] = useField<ItemValue>({
+  const [, { value }, { setValue }] = useField<string | undefined>({
     name,
     validate: (v) => (required && !v ? `${name} is required` : undefined),
   })
@@ -40,7 +39,10 @@ export function ListboxField({
       <Listbox
         defaultValue={value}
         items={items}
-        onChange={(i) => setValue(i?.value)}
+        onChange={(i) => {
+          setValue(i?.value)
+          onChange?.(i)
+        }}
         disabled={disabled}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
