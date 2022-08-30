@@ -14,6 +14,9 @@ import type {
 
 import { expectNotVisible } from './utils'
 
+/**
+ * Returns a callback to result position and fails if response code over 400.
+ */
 const goto = async (page: Page, url: string) => {
   const currentUrl = page.url()
   const response = await page.goto(url)
