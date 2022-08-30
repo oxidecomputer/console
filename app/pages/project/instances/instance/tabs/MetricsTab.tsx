@@ -37,7 +37,7 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
 }
 
 const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
-const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm:ss aa')
+const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
 // TODO: change these to theme colors so they work in light mode
