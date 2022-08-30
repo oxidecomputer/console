@@ -82,7 +82,9 @@ export const useMakeInstanceActions = (
       {
         label: 'View serial console',
         onActivate() {
-          navigate('serial-console')
+          navigate(
+            `/orgs/${projectParams.orgName}/projects/${projectParams.projectName}/instances/${instanceName}/serial-console`
+          )
         },
       },
       {

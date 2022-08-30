@@ -57,6 +57,11 @@ export const paginated = <I extends { id: string }>(
 export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
   new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
 
+export const clone = <T extends object>(obj: T): T =>
+  typeof structuredClone !== 'undefined'
+    ? structuredClone(obj)
+    : JSON.parse(JSON.stringify(obj))
+
 export function getDateParam(params: URLSearchParams, key: string): Date | null {
   const value = params.get(key)
   if (!value) return null

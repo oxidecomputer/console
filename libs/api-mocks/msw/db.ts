@@ -6,7 +6,7 @@ import type { ApiTypes as Api } from '@oxide/api'
 import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
-import { json } from './util'
+import { clone, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -167,10 +167,8 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-const clone = (o: unknown) => JSON.parse(JSON.stringify(o))
+export let db = clone(initDb)
 
 export function resetDb() {
   db = clone(initDb)
 }
-
-export let db: typeof initDb = clone(initDb)
