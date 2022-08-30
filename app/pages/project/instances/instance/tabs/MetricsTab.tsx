@@ -121,6 +121,7 @@ function DiskMetric({
           activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
         <XAxis
+          // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}
           dataKey="timestamp"
           interval="preserveStart"
