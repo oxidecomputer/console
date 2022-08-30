@@ -40,7 +40,7 @@ const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy H:mm:ss aa')
 const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
-// TODO: change these to named colors so they work in light mode
+// TODO: change these to theme colors so they work in light mode
 const LIGHT_GRAY = 'var(--base-grey-600)'
 const GRID_GRAY = 'var(--base-grey-1000)'
 const GREEN = 'var(--base-green-600)'
@@ -149,9 +149,11 @@ function DiskMetric({
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
+  { label: 'Last 3 hours', value: 'last3Hours' as const },
   { label: 'Last day', value: 'lastDay' as const },
   { label: 'Last week', value: 'lastWeek' as const },
-  { label: 'Custom', value: 'custom' as const },
+  { label: 'Last 30 days', value: 'last30Days' as const },
+  { label: 'Custom...', value: 'custom' as const },
 ]
 
 // custom doesn't have an associated range
@@ -160,8 +162,10 @@ type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
 // Record ensures we have an entry for every preset
 const computeStart: Record<RangeKey, (now: Date) => Date> = {
   lastHour: (now) => subHours(now, 1),
+  last3Hours: (now) => subHours(now, 3),
   lastDay: (now) => subDays(now, 1),
   lastWeek: (now) => subDays(now, 7),
+  last30Days: (now) => subDays(now, 30),
 }
 
 const rangeKeys = rangePresets.map((item) => item.value)
@@ -169,7 +173,6 @@ const rangeKeys = rangePresets.map((item) => item.value)
 /** Validate that they're Dates and end is after start */
 const dateRangeSchema = Yup.object({
   preset: Yup.string().oneOf(rangeKeys),
-  // TODO: only validate these when oneOf is custom?
   startTime: Yup.date(),
   endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
 })
@@ -184,11 +187,14 @@ export function MetricsTab() {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 
+  // the range currently displayed in the charts. to update the charts, set these
   const [startTime, setStartTime] = useState(subDays(now, 1))
   const [endTime, setEndTime] = useState(now)
 
-  // TODO: add a dropdown with last hour, last 3 hours, etc. and a final option
-  // "Custom". Only on Custom are the date pickers shown.
+  function updateCharts({ startTime, endTime }: { startTime: string; endTime: string }) {
+    setStartTime(new Date(startTime))
+    setEndTime(new Date(endTime))
+  }
 
   if (!diskName) return <span>loading</span> // TODO: loading state
 
@@ -212,17 +218,16 @@ export function MetricsTab() {
           endTime: dateForInput(endTime),
           preset: 'lastDay', // satisfies RangeKey (TS 4.9),
         }}
-        onSubmit={({ startTime, endTime }) => {
-          setStartTime(new Date(startTime))
-          setEndTime(new Date(endTime))
-        }}
+        onSubmit={updateCharts}
         validationSchema={dateRangeSchema}
       >
         {({ values, setFieldValue, submitForm }) => {
-          // only show submit button when the input fields have been changed from what is displayed
+          // whether the time fields been changed from what is displayed
           const customInputsDirty =
             values.startTime !== dateForInput(startTime) ||
             values.endTime !== dateForInput(endTime)
+
+          // on presets, inputs visible (showing current range) but disabled
           const enableInputs = values.preset === 'custom'
 
           function setRangeValues(startTime: Date, endTime: Date) {
@@ -233,15 +238,15 @@ export function MetricsTab() {
           return (
             <Form className="mt-8">
               <div className="flex gap-8">
-                {/* TODO: make this radio buttons instead of a listbox */}
                 <ListboxField
                   id="preset"
                   name="preset"
                   label="Choose a time range"
                   items={rangePresets}
+                  // when we select a preset, set the input values to the range
+                  // for that preset and submit the form to update the charts
                   onChange={(item) => {
-                    // `item.value in computeStart` is overkill but whatever
-                    if (item && item.value in computeStart && item.value !== 'custom') {
+                    if (item && item.value !== 'custom') {
                       const now = new Date()
                       const newStartTime = computeStart[item.value as RangeKey](now)
                       setRangeValues(newStartTime, now)
@@ -253,6 +258,7 @@ export function MetricsTab() {
                       // not clear the error. changing a second time does
                     }
                   }}
+                  required
                 />
 
                 <div className="mb-4 flex items-start h-24">
@@ -263,9 +269,9 @@ export function MetricsTab() {
                     id="startTime"
                     type="datetime-local"
                     label="Start time"
-                    required
                     disabled={!enableInputs}
                     className="mr-4"
+                    required
                   />
                   <TextField
                     id="endTime"
