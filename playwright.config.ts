@@ -1,6 +1,8 @@
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
 
+import { capitalize } from '@oxide/util'
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -18,27 +20,27 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
   },
 
-  projects: (process.env.browser
-    ? [process.env.browser]
-    : ['Chrome', 'Firefox', 'Safari']
+  projects: (process.env.BROWSER
+    ? [process.env.BROWSER]
+    : ['chrome', 'firefox', 'safari']
   ).flatMap((browser) => [
     /**
      * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
      * Should be compatible with a live rack
      */
     {
-      name: `smoke-${browser.toLowerCase()}`,
+      name: `smoke-${browser}`,
       testMatch: [/test\/.*\.e2e\.ts/],
       use: {
-        ...devices[`Desktop ${browser}`],
+        ...devices[`Desktop ${capitalize(browser)}`],
         baseURL: 'http://localhost:4010',
       },
     },
     {
-      name: `validate-${browser.toLowerCase()}`,
+      name: `validate-${browser}`,
       testMatch: [/pages\/.*\.e2e\.ts/],
       use: {
-        ...devices[`Desktop ${browser}`],
+        ...devices[`Desktop ${capitalize(browser)}`],
         baseURL: 'http://localhost:4009',
       },
     },
