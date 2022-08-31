@@ -38,7 +38,7 @@ function DiskMetric({
   )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: new Date(timestamp).getTime(),
+    timestamp: timestamp.getTime(),
     // all of these metrics are cumulative ints
     value: (datum.datum as Cumulativeint64).value,
   }))

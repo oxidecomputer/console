@@ -55,6 +55,8 @@ function renderTooltip(props: TooltipProps<number, string>) {
 }
 
 type Datum = {
+  // we're doing the x axis as timestamp ms instead of Date primarily to make
+  // type=number work
   timestamp: number
   value: number
 }
@@ -95,7 +97,6 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
         dataKey="timestamp"
         interval="preserveStart"
         scale="time"
-        // we're doing the x axis as timestamp ms instead of Date primarily to make type=number work
         // TODO: use Date directly as x-axis values
         type="number"
         name="Time"
