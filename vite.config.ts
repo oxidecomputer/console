@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { defineConfig, splitVendorChunkPlugin } from 'vite'
+import { defineConfig } from 'vite'
 
 import tsConfig from './tsconfig.json'
 
@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => ({
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
   plugins: [
-    splitVendorChunkPlugin(),
     react({
       babel: {
         plugins:

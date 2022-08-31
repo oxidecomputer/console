@@ -1,5 +1,5 @@
 import filesize from 'filesize'
-import { memo, useMemo } from 'react'
+import React, { Suspense, memo, useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,10 +13,11 @@ import { Tabs } from 'app/components/Tabs'
 import { requireInstanceParams, useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { useMakeInstanceActions } from '../actions'
-import { MetricsTab } from './tabs/MetricsTab'
 import { NetworkingTab } from './tabs/NetworkingTab'
 import { SerialConsoleTab } from './tabs/SerialConsoleTab'
 import { StorageTab } from './tabs/StorageTab'
+
+const MetricsTab = React.lazy(() => import('./tabs/MetricsTab'))
 
 const InstanceTabs = memo(() => (
   <Tabs id="tabs-instance" fullWidth>
@@ -26,7 +27,9 @@ const InstanceTabs = memo(() => (
     </Tab.Panel>
     <Tab>Metrics</Tab>
     <Tab.Panel>
-      <MetricsTab />
+      <Suspense fallback={null}>
+        <MetricsTab />
+      </Suspense>
     </Tab.Panel>
     <Tab>Networking</Tab>
     <Tab.Panel>

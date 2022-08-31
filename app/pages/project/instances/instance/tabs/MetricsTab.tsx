@@ -62,7 +62,7 @@ function DiskMetric({
   )
 }
 
-export function MetricsTab() {
+export default function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { orgName, projectName } = instanceParams
 
@@ -71,7 +71,7 @@ export function MetricsTab() {
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
-  if (!diskName) return <span>loading</span> // TODO: loading state
+  if (!diskName) return null // TODO: loading state
 
   const diskParams = { orgName, projectName, diskName }
   const commonProps = { startTime, endTime, diskParams }
