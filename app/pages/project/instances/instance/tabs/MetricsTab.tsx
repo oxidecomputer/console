@@ -1,5 +1,6 @@
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
+import { Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -23,13 +24,18 @@ function DiskMetric({
 }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const { data: metrics } = useApiQuery('diskMetricsList', {
-    ...diskParams,
-    metricName,
-    startTime: startTime.toISOString(),
-    endTime: endTime.toISOString(),
-    limit: 1000,
-  })
+  const { data: metrics, isLoading } = useApiQuery(
+    'diskMetricsList',
+    {
+      ...diskParams,
+      metricName,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      limit: 1000,
+    },
+    // avoid graphs flashing blank while loading when you change the time
+    { keepPreviousData: true }
+  )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: new Date(timestamp).getTime(),
@@ -42,7 +48,9 @@ function DiskMetric({
 
   return (
     <div>
-      <h2 className="text-mono-md text-secondary">{title}</h2>
+      <h2 className="text-mono-md text-secondary flex items-center">
+        {title} {isLoading && <Spinner className="ml-2" />}
+      </h2>
       <TimeSeriesAreaChart
         className="mt-4"
         data={data}
