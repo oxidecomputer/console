@@ -23,8 +23,8 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 // TODO: change these to theme colors so they work in light mode
 const LIGHT_GRAY = 'var(--base-grey-600)'
 const GRID_GRAY = 'var(--base-grey-1000)'
-const GREEN = 'var(--base-green-600)'
-const DARK_GREEN = 'var(--base-green-900)'
+const GREEN = 'var(--chart-stroke-line)'
+const DARK_GREEN = 'var(--chart-fill-item-quaternary)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
