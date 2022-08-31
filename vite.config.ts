@@ -29,12 +29,13 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     splitVendorChunkPlugin(),
-    react({
-      babel: {
-        plugins:
-          mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
-      },
-    }),
+    react(),
+    // react({
+    //   babel: {
+    //     plugins:
+    //       mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
+    //   },
+    // }),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths

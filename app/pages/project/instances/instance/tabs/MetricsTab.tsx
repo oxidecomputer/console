@@ -1,15 +1,11 @@
-import * as Yup from 'yup'
-import { format, subDays, subHours } from 'date-fns'
-import { Form, Formik } from 'formik'
-import { useMemo, useState } from 'react'
+import { format } from 'date-fns'
 import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Button } from '@oxide/ui'
 
-import { ListboxField, TextField } from 'app/components/form'
+import { useDateTimeRangePicker } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -38,7 +34,6 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
 
 const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
-const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
 // TODO: change these to theme colors so they work in light mode
 const LIGHT_GRAY = 'var(--base-grey-600)'
@@ -148,36 +143,6 @@ function DiskMetric({
   )
 }
 
-const rangePresets = [
-  { label: 'Last hour', value: 'lastHour' as const },
-  { label: 'Last 3 hours', value: 'last3Hours' as const },
-  { label: 'Last day', value: 'lastDay' as const },
-  { label: 'Last week', value: 'lastWeek' as const },
-  { label: 'Last 30 days', value: 'last30Days' as const },
-  { label: 'Custom...', value: 'custom' as const },
-]
-
-// custom doesn't have an associated range
-type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
-
-// Record ensures we have an entry for every preset
-const computeStart: Record<RangeKey, (now: Date) => Date> = {
-  lastHour: (now) => subHours(now, 1),
-  last3Hours: (now) => subHours(now, 3),
-  lastDay: (now) => subDays(now, 1),
-  lastWeek: (now) => subDays(now, 7),
-  last30Days: (now) => subDays(now, 30),
-}
-
-const rangeKeys = rangePresets.map((item) => item.value)
-
-/** Validate that they're Dates and end is after start */
-const dateRangeSchema = Yup.object({
-  preset: Yup.string().oneOf(rangeKeys),
-  startTime: Yup.date(),
-  endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
-})
-
 export function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { orgName, projectName } = instanceParams
@@ -185,25 +150,12 @@ export function MetricsTab() {
   const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
   const diskName = disks?.items[0].name
 
-  // default endTime is now, i.e., mount time
-  const now = useMemo(() => new Date(), [])
-
-  // the range currently displayed in the charts. to update the charts, set these
-  const [startTime, setStartTime] = useState(subDays(now, 1))
-  const [endTime, setEndTime] = useState(now)
-
-  function updateCharts({ startTime, endTime }: { startTime: string; endTime: string }) {
-    setStartTime(new Date(startTime))
-    setEndTime(new Date(endTime))
-  }
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
   if (!diskName) return <span>loading</span> // TODO: loading state
 
-  const commonProps = {
-    startTime,
-    endTime,
-    diskParams: { orgName, projectName, diskName },
-  }
+  const diskParams = { orgName, projectName, diskName }
+  const commonProps = { startTime, endTime, diskParams }
 
   return (
     <>
@@ -212,94 +164,7 @@ export function MetricsTab() {
         Boot disk ( <code>{diskName}</code> )
       </h2>
 
-      <Formik
-        initialValues={{
-          // values are strings, unfortunately
-          startTime: dateForInput(startTime),
-          endTime: dateForInput(endTime),
-          preset: 'lastDay', // satisfies RangeKey (TS 4.9),
-        }}
-        onSubmit={updateCharts}
-        validationSchema={dateRangeSchema}
-      >
-        {({ values, setFieldValue, submitForm }) => {
-          // whether the time fields been changed from what is displayed
-          const customInputsDirty =
-            values.startTime !== dateForInput(startTime) ||
-            values.endTime !== dateForInput(endTime)
-
-          // on presets, inputs visible (showing current range) but disabled
-          const enableInputs = values.preset === 'custom'
-
-          function setRangeValues(startTime: Date, endTime: Date) {
-            setFieldValue('startTime', dateForInput(startTime))
-            setFieldValue('endTime', dateForInput(endTime))
-          }
-
-          return (
-            <Form className="flex mt-8 mb-4 gap-4 h-24">
-              <ListboxField
-                className="mr-4" // in addition to gap-4
-                id="preset"
-                name="preset"
-                label="Choose a time range"
-                items={rangePresets}
-                // when we select a preset, set the input values to the range
-                // for that preset and submit the form to update the charts
-                onChange={(item) => {
-                  if (item && item.value !== 'custom') {
-                    const now = new Date()
-                    const newStartTime = computeStart[item.value as RangeKey](now)
-                    setRangeValues(newStartTime, now)
-                    // goofy, but I like the idea of going through the submit
-                    // pathway instead of duplicating the setStates
-                    submitForm()
-                    // TODO: if input is invalid while on custom, e.g.,
-                    // because end is before start, changing to a preset does
-                    // not clear the error. changing a second time does
-                  }
-                }}
-                required
-              />
-
-              {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-              {/* TODO: the field labels look pretty stupid in this context, fix that. probably leave them 
-                       there for a11y purposes but hide them for sighted users */}
-              <TextField
-                id="startTime"
-                type="datetime-local"
-                label="Start time"
-                disabled={!enableInputs}
-                required
-              />
-              <TextField
-                id="endTime"
-                type="datetime-local"
-                label="End time"
-                required
-                disabled={!enableInputs}
-              />
-              {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
-              {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
-              {enableInputs && (
-                <Button
-                  className="mt-6"
-                  disabled={!customInputsDirty}
-                  // reset inputs back to whatever they were
-                  onClick={() => setRangeValues(startTime, endTime)}
-                >
-                  Reset
-                </Button>
-              )}
-              {enableInputs && (
-                <Button className="mt-6" type="submit" disabled={!customInputsDirty}>
-                  Load
-                </Button>
-              )}
-            </Form>
-          )
-        }}
-      </Formik>
+      {dateTimeRangePicker}
 
       {/* TODO: separate "Activations" from "(count)" so we can
                 a) style them differently in the title, and
