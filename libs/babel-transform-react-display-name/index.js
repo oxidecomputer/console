@@ -54,6 +54,12 @@ module.exports = function ({ types: t }) {
 
         if (!isExpressionFn) return
 
+        // Should only apply to top level components
+        const parentStatement = componentFn.getStatementParent()
+        if (!t.isProgram(parentStatement.parent)) {
+          return
+        }
+
         const declarator = componentFn.findParent((path) => t.isVariableDeclarator(path))
         if (declarator) {
           const parentStatement = componentFn.getStatementParent()
@@ -69,8 +75,8 @@ module.exports = function ({ types: t }) {
           const parentStatement = componentFn.getStatementParent()
           const leftHandSide = assignmentExpression.node.left
 
-          // Only want to do this step for top level components
-          if (!t.isProgram(parentStatement.parent) || !t.isMemberExpression(leftHandSide)) {
+          // Don't add display names to nested member expressions
+          if (!t.isMemberExpression(leftHandSide)) {
             return
           }
 
