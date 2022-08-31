@@ -45,6 +45,10 @@ const dateRangeSchema = Yup.object({
 //   - no onChange, no way to control any inputs beyond initial preset
 //   - initial preset can't be "custom"
 
+/**
+ * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
+ * a JSX element to render.
+ */
 export function useDateTimeRangePicker(initialPreset: RangeKey) {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
@@ -52,6 +56,12 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
   const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
   const [endTime, setEndTime] = useState(now)
 
+  // We're using Formik to manage the state of the inputs, but this is not
+  // strictly necessary. It's convenient while we're using `TextField` with
+  // `type=datetime-local` because we get validationSchema and error display for
+  // free. Once we use a React date picker library, we can make the inputs
+  // controlled and manage everything through regular state. I think that will
+  // be a little cleaner.
   const dateTimeRangePicker = (
     <Formik
       initialValues={{
