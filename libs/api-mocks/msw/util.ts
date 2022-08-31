@@ -1,3 +1,4 @@
+import { isValid, parseISO } from 'date-fns'
 import type { ResponseTransformer } from 'msw'
 import { compose, context } from 'msw'
 
@@ -60,3 +61,13 @@ export const clone = <T extends object>(obj: T): T =>
   typeof structuredClone !== 'undefined'
     ? structuredClone(obj)
     : JSON.parse(JSON.stringify(obj))
+
+export function getDateParam(params: URLSearchParams, key: string): Date | null {
+  const value = params.get(key)
+  if (!value) return null
+
+  const date = parseISO(value)
+  if (!isValid(date)) return null
+
+  return date
+}

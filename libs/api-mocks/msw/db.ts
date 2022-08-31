@@ -27,6 +27,7 @@ export type VpcParams = Merge<ProjectParams, { vpcName: string }>
 export type InstanceParams = Merge<ProjectParams, { instanceName: string }>
 export type NetworkInterfaceParams = Merge<InstanceParams, { interfaceName: string }>
 export type DiskParams = Merge<ProjectParams, { diskName: string }>
+export type DiskMetricParams = Merge<DiskParams, { metricName: string }>
 export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
 export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
 export type SshKeyParams = { sshKeyName: string }
