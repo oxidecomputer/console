@@ -85,14 +85,13 @@ export function MetricsTab() {
 
       {dateTimeRangePicker}
 
-      {/* TODO: separate "Activations" from "(count)" so we can
+      {/* TODO: separate "Reads" from "(count)" so we can
                 a) style them differently in the title, and
-                b) show "Activations" but not "(count)" in the Tooltip?
+                b) show "Reads" but not "(count)" in the Tooltip?
         */}
       <div className="flex flex-wrap gap-8 mt-8">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
-        <DiskMetric {...commonProps} title="Activations (Count)" metricName="activated" />
         <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />
         <DiskMetric {...commonProps} title="Read (Bytes)" metricName="read_bytes" />
         <DiskMetric {...commonProps} title="Writes (Count)" metricName="write" />
