@@ -62,7 +62,6 @@ module.exports = function ({ types: t }) {
 
         const declarator = componentFn.findParent((path) => t.isVariableDeclarator(path))
         if (declarator) {
-          const parentStatement = componentFn.getStatementParent()
           const name = declarator.node.id.name
           parentStatement.insertAfter(genDisplayName(path, name))
           return
@@ -72,7 +71,6 @@ module.exports = function ({ types: t }) {
           t.isAssignmentExpression(path)
         )
         if (assignmentExpression) {
-          const parentStatement = componentFn.getStatementParent()
           const leftHandSide = assignmentExpression.node.left
 
           // Don't add display names to nested member expressions
