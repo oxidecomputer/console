@@ -185,6 +185,29 @@ describe('classed template tag literals', () => {
   })
 })
 
+describe('cases that should not be transformed', () => {
+  it('should not transform a non-top level JSX function', () => {
+    const result = transform`
+      export function f() {
+        const nestedComponent = () => <div/> 
+      }
+    `
+
+    expect(result).toMatchInlineSnapshot(`
+      "\\"use strict\\";
+
+      Object.defineProperty(exports, \\"__esModule\\", {
+        value: true
+      });
+      exports.f = f;
+
+      function f() {
+        const nestedComponent = () => /*#__PURE__*/React.createElement(\\"div\\", null);
+      }"
+    `)
+  })
+})
+
 /**
  * Helper to streamline babel transforms
  */
