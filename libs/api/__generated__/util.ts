@@ -36,7 +36,7 @@ export const mapObj =
   }
 
 export const parseIfDate = (k: string | undefined, v: unknown) => {
-  if (typeof v === 'string' && k?.startsWith('time_')) {
+  if (typeof v === 'string' && (k?.startsWith('time_') || k === 'timestamp')) {
     const d = new Date(v)
     if (isNaN(d.getTime())) return v
     return d

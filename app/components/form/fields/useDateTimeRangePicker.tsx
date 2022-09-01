@@ -20,7 +20,7 @@ const rangePresets = [
 ]
 
 // custom doesn't have an associated range
-type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
+export type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
 
 // Record ensures we have an entry for every preset
 const computeStart: Record<RangeKey, (now: Date) => Date> = {
@@ -86,8 +86,8 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
         const enableInputs = values.preset === 'custom'
 
         function setRangeValues(startTime: Date, endTime: Date) {
-          setFieldValue('startTime', dateForInput(startTime))
-          setFieldValue('endTime', dateForInput(endTime))
+          setFieldValue('startTime', dateForInput(startTime), true)
+          setFieldValue('endTime', dateForInput(endTime), true)
         }
 
         return (

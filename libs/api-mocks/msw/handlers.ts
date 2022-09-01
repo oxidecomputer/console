@@ -95,25 +95,26 @@ export const handlers = [
 
   rest.post<Json<Api.SshKeyCreate>, never, Json<Api.SshKey> | PostErr>(
     '/session/me/sshkeys',
-    (req, res) => {
+    async (req, res) => {
+      const body = await req.json()
       const alreadyExists = db.sshKeys.some(
-        (key) => key.name === req.body.name && key.silo_user_id === sessionMe.id
+        (key) => key.name === body.name && key.silo_user_id === sessionMe.id
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
       // TODO: validate public_key
-      if (!req.body.public_key) {
+      if (!body.public_key) {
         return res(badRequest('expected public key'))
       }
 
       const newSshKey: Json<Api.SshKey> = {
         id: genId('ssh-key'),
         silo_user_id: sessionMe.id,
-        ...req.body,
+        ...body,
         ...getTimestamps(),
       }
       db.sshKeys.push(newSshKey)
@@ -147,17 +148,18 @@ export const handlers = [
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
     '/organizations',
-    (req, res) => {
-      const alreadyExists = db.orgs.some((o) => o.name === req.body.name)
+    async (req, res) => {
+      const body = await req.json()
+      const alreadyExists = db.orgs.some((o) => o.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
       const newOrg: Json<Api.Organization> = {
         id: genId('org'),
-        ...req.body,
+        ...body,
         ...getTimestamps(),
       }
       db.orgs.push(newOrg)
@@ -181,15 +183,16 @@ export const handlers = [
 
   rest.put<Json<Api.OrganizationUpdate>, OrgParams, Json<Api.Organization> | PostErr>(
     '/organizations/:orgName',
-    (req, res) => {
+    async (req, res) => {
       const [org, err] = lookupOrg(req.params)
       if (err) return res(err)
 
-      if (!req.body.name) {
+      const body = await req.json()
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
-      org.name = req.body.name
-      org.description = req.body.description || ''
+      org.name = body.name
+      org.description = body.description || ''
 
       return res(json(org))
     }
@@ -212,12 +215,13 @@ export const handlers = [
     Json<Api.OrganizationRolePolicy>,
     ProjectParams,
     Json<Api.OrganizationRolePolicy> | PostErr
-  >('/organizations/:orgName/policy', (req, res) => {
+  >('/organizations/:orgName/policy', async (req, res) => {
     const [org, err] = lookupOrg(req.params)
     if (err) return res(err)
 
     // TODO: validate input lol
-    const newAssignments = req.body.role_assignments.map((r) => ({
+    const body = await req.json()
+    const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'organization' as const,
       resource_id: org.id,
       ...pick(r, 'identity_id', 'identity_type', 'role_name'),
@@ -229,7 +233,7 @@ export const handlers = [
 
     db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
 
-    return res(json(req.body))
+    return res(json(body))
   }),
 
   rest.delete<never, OrgParams, GetErr>('/organizations/:orgName', (req, res, ctx) => {
@@ -252,24 +256,25 @@ export const handlers = [
 
   rest.post<Json<Api.ProjectCreate>, OrgParams, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects',
-    (req, res) => {
+    async (req, res) => {
       const [org, err] = lookupOrg(req.params)
       if (err) return res(err)
 
+      const body = await req.json()
       const alreadyExists = db.projects.some(
-        (p) => p.organization_id === org.id && p.name === req.body.name
+        (p) => p.organization_id === org.id && p.name === body.name
       )
 
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
       const newProject: Json<Api.Project> = {
         id: genId('project'),
         organization_id: org.id,
-        ...req.body,
+        ...body,
         ...getTimestamps(),
       }
       db.projects.push(newProject)
@@ -288,15 +293,16 @@ export const handlers = [
 
   rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects/:projectName',
-    (req, res) => {
+    async (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
 
-      if (!req.body.name) {
+      const body = await req.json()
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
-      project.name = req.body.name
-      project.description = req.body.description || ''
+      project.name = body.name
+      project.description = body.description || ''
 
       return res(json(project))
     }
@@ -329,12 +335,13 @@ export const handlers = [
     Json<Api.ProjectRolePolicy>,
     ProjectParams,
     Json<Api.ProjectRolePolicy> | PostErr
-  >('/organizations/:orgName/projects/:projectName/policy', (req, res) => {
+  >('/organizations/:orgName/projects/:projectName/policy', async (req, res) => {
     const [project, err] = lookupProject(req.params)
     if (err) return res(err)
 
     // TODO: validate input lol
-    const newAssignments = req.body.role_assignments.map((r) => ({
+    const body = await req.json()
+    const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'project' as const,
       resource_id: project.id,
       ...pick(r, 'identity_id', 'identity_type', 'role_name'),
@@ -346,7 +353,7 @@ export const handlers = [
 
     db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
 
-    return res(json(req.body))
+    return res(json(body))
   }),
 
   rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
@@ -380,23 +387,24 @@ export const handlers = [
 
   rest.post<Json<Api.InstanceCreate>, ProjectParams, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances',
-    (req, res) => {
+    async (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
 
+      const body = await req.json()
       const alreadyExists = db.instances.some(
-        (i) => i.project_id === project.id && i.name === req.body.name
+        (i) => i.project_id === project.id && i.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
       const newInstance: Json<Api.Instance> = {
         id: genId('instance'),
         project_id: project.id,
-        ...pick(req.body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
+        ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
         ...getTimestamps(),
         run_state: 'running',
         time_run_state_updated: new Date().toISOString(),
@@ -440,13 +448,14 @@ export const handlers = [
 
   rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
-    (req, res) => {
+    async (req, res) => {
       const [instance, instanceErr] = lookupInstance(req.params)
       if (instanceErr) return res(instanceErr)
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+      const body = await req.json()
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.name })
       if (diskErr) return res(diskErr)
       disk.state = {
         state: 'attached',
@@ -458,13 +467,15 @@ export const handlers = [
 
   rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
-    (req, res) => {
+    async (req, res) => {
       const [instance, instanceErr] = lookupInstance(req.params)
       if (instanceErr) return res(instanceErr)
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: req.body.name })
+
+      const body = await req.json()
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.name })
       if (diskErr) return res(diskErr)
       disk.state = {
         state: 'detached',
@@ -505,21 +516,22 @@ export const handlers = [
     Json<Api.NetworkInterface> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
-    (req, res) => {
+    async (req, res) => {
       const [instance, err] = lookupInstance(req.params)
       if (err) return res(err)
       const nicsForInstance = db.networkInterfaces.filter(
         (n) => n.instance_id === instance.id
       )
 
-      const alreadyExists = nicsForInstance.some((n) => n.name === req.body.name)
+      const body = await req.json()
+      const alreadyExists = nicsForInstance.some((n) => n.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
-      const { name, description, subnet_name, vpc_name, ip } = req.body
+      const { name, description, subnet_name, vpc_name, ip } = body
 
       const [vpc, vpcErr] = lookupVpc({ ...req.params, vpcName: vpc_name })
       if (vpcErr) return res(vpcErr)
@@ -567,17 +579,18 @@ export const handlers = [
     Json<Api.NetworkInterface> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
-    (req, res, ctx) => {
+    async (req, res, ctx) => {
       const [nic, err] = lookupNetworkInterface(req.params)
       if (err) return res(err)
 
-      if (req.body.name) {
-        nic.name = req.body.name
+      const body = await req.json()
+      if (body.name) {
+        nic.name = body.name
       }
-      if (typeof req.body.description === 'string') {
-        nic.description = req.body.description
+      if (typeof body.description === 'string') {
+        nic.description = body.description
       }
-      if (typeof req.body.primary === 'boolean' && req.body.primary !== nic.primary) {
+      if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
         if (nic.primary) {
           return res(badRequest('Cannot remove the primary interface'))
         }
@@ -586,7 +599,7 @@ export const handlers = [
           .forEach((n) => {
             n.primary = false
           })
-        nic.primary = !!req.body.primary
+        nic.primary = !!body.primary
       }
       return res(ctx.status(204))
     }
@@ -622,19 +635,21 @@ export const handlers = [
 
   rest.post<Json<Api.DiskCreate>, ProjectParams, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/disks',
-    (req, res) => {
+    async (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
+
+      const body = await req.json()
       const alreadyExists = db.disks.some(
-        (s) => s.project_id === project.id && s.name === req.body.name
+        (s) => s.project_id === project.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
-      const { name, description, size, disk_source } = req.body
+      const { name, description, size, disk_source } = body
       const newDisk: Json<Api.Disk> = {
         id: genId('disk'),
         project_id: project.id,
@@ -749,15 +764,17 @@ export const handlers = [
 
   rest.post<Json<Api.VpcCreate>, ProjectParams, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs',
-    (req, res) => {
+    async (req, res) => {
       const [project, err] = lookupProject(req.params)
       if (err) return res(err)
+
+      const body = await req.json()
       const alreadyExists = db.vpcs.some(
-        (s) => s.project_id === project.id && s.name === req.body.name
+        (s) => s.project_id === project.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
@@ -765,9 +782,9 @@ export const handlers = [
         id: genId('vpc'),
         project_id: project.id,
         system_router_id: genId('system-router'),
-        ...req.body,
+        ...body,
         // API is supposed to generate one if none provided. close enough
-        ipv6_prefix: req.body.ipv6_prefix || 'fd2d:4569:88b2::/64',
+        ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
         ...getTimestamps(),
       }
       db.vpcs.push(newVpc)
@@ -790,20 +807,21 @@ export const handlers = [
 
   rest.put<Json<Api.Vpc>, VpcParams, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
-    (req, res) => {
+    async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
 
-      if (req.body.name) {
-        vpc.name = req.body.name
+      const body = await req.json()
+      if (body.name) {
+        vpc.name = body.name
       }
 
-      if (typeof req.body.description === 'string') {
-        vpc.description = req.body.description
+      if (typeof body.description === 'string') {
+        vpc.description = body.description
       }
 
-      if (req.body.dns_name) {
-        vpc.dns_name = req.body.dns_name
+      if (body.dns_name) {
+        vpc.dns_name = body.dns_name
       }
       return res(json(vpc))
     }
@@ -821,27 +839,28 @@ export const handlers = [
 
   rest.post<Json<Api.VpcSubnetCreate>, VpcParams, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
-    (req, res) => {
+    async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
 
+      const body = await req.json()
       const alreadyExists = db.vpcSubnets.some(
-        (s) => s.vpc_id === vpc.id && s.name === req.body.name
+        (s) => s.vpc_id === vpc.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
       const newSubnet: Json<Api.VpcSubnet> = {
         id: genId('vpc-subnet'),
         vpc_id: vpc.id,
-        ...req.body,
+        ...body,
         // required in subnet create but not in update, so we need a fallback.
         // API says "A random `/64` block will be assigned if one is not
         // provided." Our fallback is not random, but it should be good enough.
-        ipv6_block: req.body.ipv6_block || 'fd2d:4569:88b1::/64',
+        ipv6_block: body.ipv6_block || 'fd2d:4569:88b1::/64',
         ...getTimestamps(),
       }
       db.vpcSubnets.push(newSubnet)
@@ -851,15 +870,16 @@ export const handlers = [
 
   rest.put<Json<Api.VpcSubnetUpdate>, VpcSubnetParams, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
-    (req, res, ctx) => {
+    async (req, res, ctx) => {
       const [subnet, err] = lookupVpcSubnet(req.params)
       if (err) return res(err)
 
-      if (req.body.name) {
-        subnet.name = req.body.name
+      const body = await req.json()
+      if (body.name) {
+        subnet.name = body.name
       }
-      if (typeof req.body.description === 'string') {
-        subnet.description = req.body.description
+      if (typeof body.description === 'string') {
+        subnet.description = body.description
       }
       return res(ctx.status(204))
     }
@@ -881,10 +901,12 @@ export const handlers = [
     Json<Api.VpcFirewallRules> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
-    (req, res) => {
+    async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
-      const rules = req.body.rules.map((rule) => ({
+
+      const body = await req.json()
+      const rules = body.rules.map((rule) => ({
         vpc_id: vpc.id,
         id: genId('firewall-rule'),
         ...rule,
@@ -911,16 +933,17 @@ export const handlers = [
 
   rest.post<Json<Api.VpcRouterCreate>, VpcParams, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
-    (req, res) => {
+    async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
       if (err) return res(err)
 
+      const body = await req.json()
       const alreadyExists = db.vpcRouters.some(
-        (x) => x.vpc_id === vpc.id && x.name === req.body.name
+        (x) => x.vpc_id === vpc.id && x.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!req.body.name) {
+      if (!body.name) {
         return res(badRequest('name requires at least one character'))
       }
 
@@ -928,7 +951,7 @@ export const handlers = [
         id: genId('vpc-router'),
         vpc_id: vpc.id,
         kind: 'custom',
-        ...req.body,
+        ...body,
         ...getTimestamps(),
       }
       db.vpcRouters.push(newRouter)
@@ -938,15 +961,16 @@ export const handlers = [
 
   rest.put<Json<Api.VpcRouterUpdate>, VpcRouterParams, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
-    (req, res, ctx) => {
+    async (req, res, ctx) => {
       const [router, err] = lookupVpcRouter(req.params)
       if (err) return res(err)
 
-      if (req.body.name) {
-        router.name = req.body.name
+      const body = await req.json()
+      if (body.name) {
+        router.name = body.name
       }
-      if (typeof req.body.description === 'string') {
-        router.description = req.body.description
+      if (typeof body.description === 'string') {
+        router.description = body.description
       }
       return res(ctx.status(204))
     }
@@ -987,8 +1011,9 @@ export const handlers = [
 
   rest.post<Json<Api.DeviceAuthVerify>, never, PostErr>(
     '/device/confirm',
-    (req, res, ctx) => {
-      if (req.body.user_code === 'BADD-CODE') {
+    async (req, res, ctx) => {
+      const body = await req.json()
+      if (body.user_code === 'BADD-CODE') {
         return res(ctx.status(404))
       }
       return res(ctx.status(200))
