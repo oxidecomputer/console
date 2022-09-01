@@ -73,7 +73,7 @@ jobs:
       - name: Run Playwright tests
         run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
       - uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/

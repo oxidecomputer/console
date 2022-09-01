@@ -17,7 +17,7 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   globalSetup: 'app/test/e2e/global-setup.ts',
   use: {
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
   },
 
