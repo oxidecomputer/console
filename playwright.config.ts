@@ -18,6 +18,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: 'app/test/e2e/global-setup.ts',
   use: {
     trace: 'on-first-retry',
+    baseURL: 'http://localhost:4009',
   },
 
   projects: (process.env.BROWSER
@@ -33,7 +34,6 @@ const config: PlaywrightTestConfig = {
       testMatch: [/test\/.*\.e2e\.ts/],
       use: {
         ...devices[`Desktop ${capitalize(browser)}`],
-        baseURL: 'http://localhost:4010',
       },
     },
     {
@@ -41,7 +41,7 @@ const config: PlaywrightTestConfig = {
       testMatch: [/pages\/.*\.e2e\.ts/],
       use: {
         ...devices[`Desktop ${capitalize(browser)}`],
-        baseURL: 'http://localhost:4009',
+        userAgent: devices[`Desktop ${capitalize(browser)}`] + ' MSW',
       },
     },
   ]),
@@ -49,12 +49,8 @@ const config: PlaywrightTestConfig = {
   // use different port so it doesn't conflict with local dev server
   webServer: [
     {
-      command: `yarn start:msw --port 4009`,
+      command: `yarn start --port 4009`,
       port: 4009,
-    },
-    {
-      command: `yarn start --port 4010`,
-      port: 4010,
     },
   ],
 }
