@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
       {
         name: `smoke-${browser}`,
         testMatch: [/test\/.*\.e2e\.ts/],
-        use: { ...device },
+        use: device,
       },
       {
         name: `validate-${browser}`,
