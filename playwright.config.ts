@@ -24,35 +24,33 @@ const config: PlaywrightTestConfig = {
   projects: (process.env.BROWSER
     ? [process.env.BROWSER]
     : ['chrome', 'firefox', 'safari']
-  ).flatMap((browser) => [
-    /**
-     * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
-     * Should be compatible with a live rack
-     */
-    {
-      name: `smoke-${browser}`,
-      testMatch: [/test\/.*\.e2e\.ts/],
-      use: {
-        ...devices[`Desktop ${capitalize(browser)}`],
+  ).flatMap((browser) => {
+    const device = devices[`Desktop ${capitalize(browser)}`]
+    return [
+      /**
+       * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
+       * Should be compatible with a live rack
+       */
+      {
+        name: `smoke-${browser}`,
+        testMatch: [/test\/.*\.e2e\.ts/],
+        use: { ...device },
       },
-    },
-    {
-      name: `validate-${browser}`,
-      testMatch: [/pages\/.*\.e2e\.ts/],
-      use: {
-        ...devices[`Desktop ${capitalize(browser)}`],
-        userAgent: devices[`Desktop ${capitalize(browser)}`] + ' MSW',
+      {
+        name: `validate-${browser}`,
+        testMatch: [/pages\/.*\.e2e\.ts/],
+        // special user agent lets us run one server that can handle both
+        // MSW and non-MSW requests
+        use: { ...device, userAgent: device.userAgent + ' MSW' },
       },
-    },
-  ]),
+    ]
+  }),
 
   // use different port so it doesn't conflict with local dev server
-  webServer: [
-    {
-      command: `yarn start --port 4009`,
-      port: 4009,
-    },
-  ],
+  webServer: {
+    command: `yarn start --port 4009`,
+    port: 4009,
+  },
 }
 
 export default config
