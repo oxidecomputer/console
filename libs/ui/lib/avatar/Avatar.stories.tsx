@@ -1,26 +1,9 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Avatar } from './Avatar'
 
-type Story = StoryObj<ComponentProps<typeof Avatar>>
+export const Default = () => <Avatar name="Cameron Howe" round />
 
-export default {
-  component: Avatar,
-} as Story
-
-export const Default: Story = {
-  args: {
-    name: 'Cameron Howe',
-    round: true,
-  },
-}
-
-export const Selected = () => {
-  return (
-    <div className="is-selected -m-4 p-4 bg-accent-secondary">
-      <Avatar name="Cameron Howe" round />
-    </div>
-  )
-}
-Selected.storyName = 'Theme/Selected'
+export const Selected = () => (
+  <div className="is-selected -m-4 p-4 bg-accent-secondary">
+    <Avatar name="Cameron Howe" round />
+  </div>
+)

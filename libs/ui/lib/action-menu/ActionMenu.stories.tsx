@@ -1,26 +1,33 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
+import { useState } from 'react'
 
+import { Button } from '../button/Button'
 import { ActionMenu } from './ActionMenu'
-
-type Story = StoryObj<ComponentProps<typeof ActionMenu>>
-
-export default {
-  component: ActionMenu,
-} as Story
 
 const makeItem = (value: string) => ({
   value,
   onSelect: () => console.log(value),
 })
 
-export const Default: Story = {
-  args: {
-    items: [
-      makeItem('Add to group'),
-      makeItem('Add to role'),
-      makeItem('Remove from group'),
-      makeItem('Remove role'),
-    ],
-  },
+const items = [
+  makeItem('Add to group'),
+  makeItem('Add to role'),
+  makeItem('Remove from group'),
+  makeItem('Remove role'),
+]
+
+export function Default() {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setIsOpen(true)}>Open menu</Button>
+      <ActionMenu
+        items={items}
+        isOpen={isOpen}
+        onDismiss={() => {
+          setIsOpen(false)
+        }}
+        aria-label="quick menu"
+      />
+    </>
+  )
 }
