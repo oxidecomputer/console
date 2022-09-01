@@ -1,15 +1,6 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Section } from '../../util/story-section'
 import { Badge, badgeColors } from './Badge'
 import type { BadgeColor, BadgeVariant } from './Badge'
-
-type Story = StoryObj<ComponentProps<typeof Badge>>
-
-export default {
-  component: Badge,
-} as Story
 
 export const All = () => {
   return (
@@ -35,11 +26,4 @@ export const Selected = () => {
       <All />
     </div>
   )
-}
-Selected.storyName = 'Theme/Selected'
-
-export const Default: Story = {
-  args: {
-    children: 'Badge',
-  },
 }

@@ -71,7 +71,7 @@
     "@figma-export/cli": "^4.3.0",
     "@figma-export/output-components-as-svgr": "^4.2.0",
     "@figma-export/transform-svg-with-svgo": "^4.3.0",
-    "@ladle/react": "^2.1.1",
+    "@ladle/react": "^2.4.2",
     "@playwright/test": "^1.23.4",
     "@storybook/addon-docs": "^6.5.9",
     "@storybook/addon-essentials": "^6.5.9",
