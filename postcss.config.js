@@ -1,6 +1,6 @@
 let ladlePlugins = []
 if (process.env.IS_LADLE) {
-  // used by checkbox stories to show states
+  // used by checkbox and radio stories to show states
   ladlePlugins.push(
     require('postcss-pseudo-classes')({
       restrictTo: ['hover', 'disabled', 'active', 'focus', 'focus-visible'],

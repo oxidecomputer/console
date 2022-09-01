@@ -1,20 +1,15 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
+import { useState } from 'react'
 
 import { Button } from '../button/Button'
 import { SideModal } from './SideModal'
 
-type Story = StoryObj<ComponentProps<typeof SideModal>>
-
-export default {
-  component: SideModal,
-} as Story
-
-export const Default: Story = {
-  args: {
-    title: 'Test SideModal',
-    children: (
-      <>
+// TODO: styling on modal mostly doesn't work
+export function Default() {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setIsOpen(true)}>Open menu</Button>
+      <SideModal id="side-modal" isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
         <SideModal.Section>Section content</SideModal.Section>
         <SideModal.Docs>
           <a href="#/">Subnetworks</a>
@@ -23,7 +18,7 @@ export const Default: Story = {
         <SideModal.Footer>
           <Button>Ok</Button>
         </SideModal.Footer>
-      </>
-    ),
-  },
+      </SideModal>
+    </>
+  )
 }

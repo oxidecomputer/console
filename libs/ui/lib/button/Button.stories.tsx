@@ -1,37 +1,10 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Section } from '../../util/story-section'
-import { Button, buttonSizes, colors, variants } from './Button'
+import { Button, colors, variants } from './Button'
 
-type Story = StoryObj<ComponentProps<typeof Button>>
+// TODO: sizes (I guess)
 
-export default {
-  component: Button,
-  argTypes: {
-    size: {
-      control: {
-        type: 'select',
-        options: buttonSizes,
-      },
-    },
-    variant: {
-      control: {
-        type: 'select',
-        options: variants,
-      },
-    },
-  },
-} as Story
-
-export const Default: Story = {
-  args: {
-    children: 'Button',
-    disabled: false,
-    size: 'base',
-    variant: 'default',
-  },
-}
+// TODO: loading spinner get absolutely positioned in the page and stay where
+// they are on scroll (lmao)
 
 const states = ['normal', 'hover', 'focus', 'disabled']
 export const All = () => {

@@ -1,30 +1,16 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Delete10Icon, Edit16Icon, Terminal10Icon } from '../icons'
 import { BulkActionMenu } from './BulkActionMenu'
 
-type Story = StoryObj<ComponentProps<typeof BulkActionMenu>>
-
-export default {
-  component: BulkActionMenu,
-} as Story
-
-export const Default: Story = {
-  args: {
-    selectedCount: 5,
-    children: (
-      <>
-        <BulkActionMenu.Button>
-          <Delete10Icon /> delete
-        </BulkActionMenu.Button>
-        <BulkActionMenu.Button>
-          <Edit16Icon /> edit
-        </BulkActionMenu.Button>
-        <BulkActionMenu.Button>
-          <Terminal10Icon /> more
-        </BulkActionMenu.Button>
-      </>
-    ),
-  },
-}
+export const Default = () => (
+  <BulkActionMenu selectedCount={5} onSelectAll={() => alert('selected all')}>
+    <BulkActionMenu.Button>
+      <Delete10Icon /> delete
+    </BulkActionMenu.Button>
+    <BulkActionMenu.Button>
+      <Edit16Icon /> edit
+    </BulkActionMenu.Button>
+    <BulkActionMenu.Button>
+      <Terminal10Icon /> more
+    </BulkActionMenu.Button>
+  </BulkActionMenu>
+)

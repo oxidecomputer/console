@@ -1,13 +1,4 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Listbox } from './Listbox'
-
-type Story = StoryObj<ComponentProps<typeof Listbox>>
-
-export default {
-  component: Listbox,
-} as Story
 
 const SAMPLE_OPTIONS = [
   { value: 'de', label: 'Devon Edwards' },
@@ -21,21 +12,6 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-export const Default: Story = {
-  args: {
-    items: SAMPLE_OPTIONS,
-  },
-}
+export const Default = () => <Listbox items={SAMPLE_OPTIONS} />
 
-export const HideLabel: Story = {
-  args: {
-    items: SAMPLE_OPTIONS,
-  },
-}
-
-export const WithDefaultValue: Story = {
-  args: {
-    defaultValue: 'de',
-    items: SAMPLE_OPTIONS,
-  },
-}
+export const WithDefaultValue = () => <Listbox items={SAMPLE_OPTIONS} defaultValue="de" />
