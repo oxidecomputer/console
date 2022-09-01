@@ -1,5 +1,5 @@
 // @ts-ignore
-import twConfig from '../../../../tailwind.config'
+// import twConfig from '../../../../tailwind.config'
 
 interface ColorProps {
   name?: string
@@ -10,7 +10,8 @@ const EXCLUDE_GROUPS = ['current', 'transparent', 'black', 'white']
 
 type ColorGroup = string | Record<string, string>
 
-const colorConfig = twConfig.theme.colors as Record<string, ColorGroup>
+const colorConfig = {} as Record<string, ColorGroup>
+// const colorConfig = twConfig.theme.colors as Record<string, ColorGroup>
 
 const groups = Object.entries(colorConfig).filter(
   ([group, _]) => !EXCLUDE_GROUPS.includes(group)
