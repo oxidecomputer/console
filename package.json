@@ -22,7 +22,6 @@
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
-    "chromatic": "chromatic --skip '@(renovate/**|dependabot/**)'",
     "postinstall": "patch-package",
     "prepare": "husky install"
   },
@@ -102,7 +101,6 @@
     "@vitejs/plugin-react": "^2.0.0",
     "autoprefixer": "^10.2.5",
     "babel-loader": "^8.2.2",
-    "chromatic": "^6.4.2",
     "esbuild": "^0.14.49",
     "esbuild-register": "^3.3.2",
     "eslint": "^8.9.0",
