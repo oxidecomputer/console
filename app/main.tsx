@@ -38,7 +38,7 @@ function render() {
 
 if (
   process.env.NODE_ENV !== 'production' &&
-  (process.env.MSW || window.navigator.userAgent.includes('MSW'))
+  (process.env.MSW || window.navigator.userAgent.endsWith('MSW'))
 ) {
   // MSW has NODE_ENV !== prod built into it, but let's be extra safe
   // need to defer requests until after the mock server starts up
