@@ -90,7 +90,6 @@
     "@typescript-eslint/parser": "^5.36.1",
     "@vitejs/plugin-react": "^2.0.0",
     "autoprefixer": "^10.2.5",
-    "babel-loader": "^8.2.2",
     "esbuild": "^0.14.49",
     "esbuild-register": "^3.3.2",
     "eslint": "^8.9.0",
