@@ -36,12 +36,8 @@ function render() {
   )
 }
 
-if (
-  process.env.NODE_ENV !== 'production' &&
-  (process.env.MSW || window.navigator.userAgent.endsWith('MSW'))
-) {
-  // MSW has NODE_ENV !== prod built into it, but let's be extra safe
-  // need to defer requests until after the mock server starts up
+// When running E2E tests we want to allow MSW for validation tests (which set MSW in the user agent)
+if (process.env.MSW || (process.env.E2E && window.navigator.userAgent.endsWith('MSW'))) {
   startMockAPI().then(render)
 } else {
   render()
