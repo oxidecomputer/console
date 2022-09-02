@@ -1,8 +1,8 @@
 import { expectVisible, genName, test } from 'app/test/e2e'
 
 test.describe('Instance Create Form', () => {
-  const orgName = genName('click-everything-org')
-  const projectName = genName('click-everything-proj')
+  const orgName = genName('instance-create-org')
+  const projectName = genName('instance-create-proj')
 
   test.beforeEach(async ({ createOrg, createProject }) => {
     await createOrg(orgName)
