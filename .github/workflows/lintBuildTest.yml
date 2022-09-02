@@ -74,6 +74,7 @@ jobs:
         run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
       - name: Format test report name
         id: test_report
+        if: always()
         run: |
           echo "::set-output name=branch::$(echo ${{ github.ref_name }} | sed 's/[^0-9,a-z,A-Z]/\-/g')"
       - uses: actions/upload-artifact@v2
