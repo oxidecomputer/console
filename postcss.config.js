@@ -1,11 +1,13 @@
-let storybookPlugins = []
-if (process.env.IS_STORYBOOK) {
-  storybookPlugins.push(
+let ladlePlugins = []
+if (process.env.IS_LADLE) {
+  // used by checkbox and radio stories to show states
+  ladlePlugins.push(
     require('postcss-pseudo-classes')({
       restrictTo: ['hover', 'disabled', 'active', 'focus', 'focus-visible'],
     })
   )
 }
+
 module.exports = {
   plugins: [
     require('postcss-import'),
@@ -14,6 +16,6 @@ module.exports = {
     require('tailwindcss'),
     // use `npx autoprefixer --info` to see autoprefixer debug info
     require('autoprefixer'),
-    ...storybookPlugins,
+    ...ladlePlugins,
   ],
 }

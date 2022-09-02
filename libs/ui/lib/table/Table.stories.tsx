@@ -1,11 +1,4 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Table } from './Table'
-
-type Story = StoryObj<ComponentProps<typeof Table>>
-
-export default {} as Story
 
 export const Default = () => {
   return (
@@ -68,4 +61,3 @@ export const Selected = () => {
     </Table>
   )
 }
-Selected.storyName = `Theme/Selected`

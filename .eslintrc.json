@@ -41,7 +41,7 @@
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off"
   },
-  "ignorePatterns": ["dist/", "!.storybook"],
+  "ignorePatterns": ["dist/"],
   "overrides": [
     {
       "files": ["*.js"],
