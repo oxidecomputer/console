@@ -75,6 +75,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: playwright-report
+          name: ${{ github.ref_name }}-e2e-failures
           path: test-results/
           retention-days: 7
