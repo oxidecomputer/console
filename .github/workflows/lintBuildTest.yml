@@ -72,9 +72,13 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
+      - name: Format test report name
+        id: test_report
+        run: |
+          echo "::set-output name=branch::$(echo ${{ github.ref_name }} | sed 's/[^0-9,a-z,A-Z]/\-/g')"
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: ${{ github.ref_name }}-e2e-failures
+          name: ${{steps.test_report.outputs.branch}}-e2e-failures
           path: test-results/
           retention-days: 7
