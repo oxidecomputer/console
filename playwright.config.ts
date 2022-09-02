@@ -16,6 +16,7 @@ const config: PlaywrightTestConfig = {
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   globalSetup: 'app/test/e2e/global-setup.ts',
+  timeout: 60000,
   use: {
     trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
