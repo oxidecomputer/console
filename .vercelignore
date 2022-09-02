@@ -6,3 +6,6 @@
 !tailwind.config.js
 !postcss.config.js
 !tsconfig.json
+!.ladle
+!patches
+!yarn.lock
