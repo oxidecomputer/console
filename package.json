@@ -8,7 +8,6 @@
     "build": "vite build",
     "build-for-nexus": "API_URL='' vite build",
     "build:themes": "./tools/build_themes.sh",
-    "preview": "E2E=1 yarn build && vite preview",
     "ci": "yarn tsc && yarn lint && yarn test run && yarn e2e",
     "test": "vitest",
     "e2e": "playwright test",

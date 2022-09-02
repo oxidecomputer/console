@@ -26,8 +26,6 @@ export default defineConfig(({ mode }) => ({
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
-    // Set when app is being used by playwright tests
-    'process.env.E2E': JSON.stringify(process.env.E2E),
   },
   plugins: [
     react({

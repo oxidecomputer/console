@@ -110,7 +110,7 @@ test.describe('VpcPage', () => {
     await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
-    const rows = page.locator('tbody >> tr')
+    const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(4)
 
     // allow-icmp is the one we're doing to change
