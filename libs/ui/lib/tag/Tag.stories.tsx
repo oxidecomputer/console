@@ -1,17 +1,8 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Section } from '../../util/story-section'
 import type { TagColor, TagVariant } from './Tag'
 import { Tag, tagColors } from './Tag'
 
-type Story = StoryObj<ComponentProps<typeof Tag>>
-
-export default {
-  component: Tag,
-} as Story
-
-export const All = () => {
+export const Default = () => {
   return (
     <main className="flex flex-wrap">
       <Section title="Normal">
@@ -82,12 +73,7 @@ export const All = () => {
 export const Selected = () => {
   return (
     <div className="is-selected -m-4 p-4 bg-accent-secondary">
-      <All />
+      <Default />
     </div>
   )
-}
-Selected.storyName = `Theme/Selected`
-
-export const Default: Story = {
-  args: {},
 }

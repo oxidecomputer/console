@@ -1,17 +1,4 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Radio, RadioCard } from './Radio'
-
-type Story = StoryObj<ComponentProps<typeof Radio>>
-
-export default {
-  component: Radio,
-  argTypes: {
-    checked: { control: 'boolean' },
-    children: { control: 'text' },
-  },
-} as Story
 
 export const All = () => {
   return (
@@ -65,17 +52,17 @@ export const Cards = () => {
   )
 }
 
-export const Unchecked: Story = {
-  args: {
-    checked: false,
-    children: 'Label',
-  },
-}
+// export const Unchecked: Story = {
+//   args: {
+//     checked: false,
+//     children: 'Label',
+//   },
+// }
 
-export const Checked: Story = {
-  args: { checked: true, children: 'Label' },
-}
+// export const Checked: Story = {
+//   args: { checked: true, children: 'Label' },
+// }
 
-export const Disabled: Story = {
-  args: { checked: false, children: 'Label', disabled: true },
-}
+// export const Disabled: Story = {
+//   args: { checked: false, children: 'Label', disabled: true },
+// }

@@ -1,14 +1,5 @@
-import type { StoryObj } from '@storybook/react'
-import type { ComponentProps } from 'react'
-
 import { Radio, RadioCard } from '../radio/Radio'
 import { RadioGroup } from './RadioGroup'
-
-type Story = StoryObj<ComponentProps<typeof RadioGroup>>
-
-export default {
-  component: RadioGroup,
-} as Story
 
 export const Default = () => (
   <RadioGroup name="group1">
