@@ -51,7 +51,7 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
     apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', { limit: 200 }),
+    apiQueryClient.prefetchQuery('userList'),
   ])
 }
 
