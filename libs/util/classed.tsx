@@ -1,3 +1,7 @@
+/**
+ * Even though this file doesn't contain JSX we've changed it to a TSX file to
+ * avoid build failures with the `vite:react-babel` plugin.
+ */
 import cn from 'classnames'
 import React from 'react'
 
