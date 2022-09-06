@@ -21,7 +21,7 @@ export async function map<T>(
 
 export async function expectVisible(page: Page, selectors: string[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeVisible()
+    await expect(page.locator(selector).locator('visible=true')).toBeVisible()
   }
 }
 

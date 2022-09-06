@@ -28,7 +28,7 @@ test.describe('Project create', () => {
     await expect(page.locator('role=button[name="Create project"]')).toBeDisabled()
 
     await page.click('role=textbox[name="Description"]') // just to blur name input
-    await page.locator('text="Must start with a lower-case letter"').first().isVisible()
+    await expectVisible(page, ['text="Must start with a lower-case letter"'])
   })
 
   test('shows form-level error for known server error', async ({ page }) => {
