@@ -116,11 +116,17 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 ### E2E tests with [Playwright](https://playwright.dev/)
 
-Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `yarn playwright test`. You may have to run `yarn playwright install` after `yarn install` to get the browser binaries.
+Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `yarn e2e`. You may have to run `yarn playwright install` after `yarn install` to get the browser binaries.
+
+There are two types of tests in our project. Validation tests which rely on mocked responses from MSW and smoke tests which assume a clean environment. Smoke tests are design to be ran against a rack meaning they create any required resources for the test and clean up after themselves.
+
+Tests are ran across `chrome`, `firefox`, and `safari` when running `yarn e2e`. Test runs can be isolated to a single browser by setting a `BROWSER` environment variable like `BROWSER=chrome yarn e2e`. Tests can be further isolated down to either smoke or validation suites by providing a `--project` argument. For example, `yarn e2e --project=validate-chrome` or `yarn e2e --project=smoke-firefox`.
 
 Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) for more details):
 
 - Add `await page.pause()` to a test and run `yarn e2e <test file> --headed --project=chromium` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
+
+To debug end-to-end failures on CI checkout the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 
 ### Other useful commands
 
@@ -128,6 +134,7 @@ Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) fo
 | --------------- | ---------------------------------------------------------------------------------- |
 | `yarn test run` | Vitest tests                                                                       |
 | `yarn test`     | Vitest tests in watch mode                                                         |
+| `yarn e2ec`     | Only run end-to-end tests in chromium                                              |
 | `yarn lint`     | ESLint                                                                             |
 | `yarn tsc`      | Check types                                                                        |
 | `yarn ci`       | Lint, tests, and types                                                             |
