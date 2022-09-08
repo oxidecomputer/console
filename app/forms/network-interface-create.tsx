@@ -51,7 +51,7 @@ export default function CreateNetworkInterfaceSideModalForm({
     onError,
   })
 
-  const vpcs = useApiQuery('vpcList', { orgName, projectName, limit: 50 }).data?.items || []
+  const vpcs = useApiQuery('vpcList', { orgName, projectName }).data?.items || []
 
   return (
     <SideModalForm

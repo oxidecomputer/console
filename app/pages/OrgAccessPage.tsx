@@ -46,7 +46,7 @@ OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('policyView', {}),
     apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', { limit: 200 }),
+    apiQueryClient.prefetchQuery('userList'),
   ])
 }
 
