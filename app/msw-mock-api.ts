@@ -57,7 +57,13 @@ export async function startMockAPI() {
   // Vite. ugh don't ask
   const { default: workerUrl } = await import('../mockServiceWorker.js?url')
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(interceptAll, ...handlers).start({
+  await setupWorker(
+    interceptAll,
+    ...handlers.map((h) => {
+      h.info.path = '/api' + h.info.path
+      return h
+    })
+  ).start({
     quiet: true, // don't log successfully handled requests
     serviceWorker: { url: workerUrl },
     // custom handler only to make logging less noisy. unhandled requests still

@@ -1032,10 +1032,4 @@ export const handlers = [
   getById('/by-id/global-images/:id', db.globalImages),
   getById('/by-id/images/:id', db.images),
   getById('/by-id/snapshots/:id', db.snapshots),
-].map((h) => {
-  // Append prefixes if it's running as MSW and not a standalone server
-  if (process.env.MSW) {
-    h.info.path = '/api' + h.info.path
-  }
-  return h
-})
+]

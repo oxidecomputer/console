@@ -3,6 +3,9 @@ import { test } from '@playwright/test'
 import { expectNotVisible, expectVisible } from 'app/test/e2e'
 
 test("Click through everything and make it's all there", async ({ page }) => {
+  // TODO: This test is slow af. Let's break it down.
+  test.setTimeout(60000)
+
   await page.goto('/orgs/maze-war/projects')
 
   // Project page (instances list)

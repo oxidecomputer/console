@@ -1,6 +1,8 @@
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
 
+import { capitalize } from '@oxide/util'
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -13,30 +15,41 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
+  globalSetup: 'app/test/e2e/global-setup.ts',
+  timeout: 60000,
   use: {
-    /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
+    trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
-    trace: 'on-first-retry',
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
+  projects: (process.env.BROWSER
+    ? [process.env.BROWSER]
+    : ['chrome', 'firefox', 'safari']
+  ).flatMap((browser) => {
+    const device = devices[`Desktop ${capitalize(browser)}`]
+    return [
+      /**
+       * Configuration for smoke tests, these tests don't rely on underlying mock data to work.
+       * Should be compatible with a live rack
+       */
+      {
+        name: `smoke-${browser}`,
+        testMatch: [/test\/.*\.e2e\.ts/],
+        use: device,
+      },
+      {
+        name: `validate-${browser}`,
+        testMatch: [/pages\/.*\.e2e\.ts/],
+        // special user agent lets us run one server that can handle both
+        // MSW and non-MSW requests
+        use: { ...device, userAgent: device.userAgent + ' MSW' },
+      },
+    ]
+  }),
 
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'yarn start:msw --port 4009',
+    command: `yarn start --port 4009`,
     port: 4009,
   },
 }
