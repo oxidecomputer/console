@@ -22,6 +22,7 @@ import {
 import { GiB } from '@oxide/util'
 
 import type { DiskTableItem } from 'app/components/form'
+import { CheckboxField } from 'app/components/form'
 import { FullPageForm } from 'app/components/form'
 import { DiskSizeField } from 'app/components/form'
 import {
@@ -72,6 +73,8 @@ const values: InstanceCreateInput = {
    * We actually don't care about this value outside of that.
    */
   networkInterfaceType: 'default',
+
+  start: true,
 }
 
 export default function CreateInstanceForm({
@@ -166,6 +169,7 @@ export default function CreateInstanceForm({
                 ...values.disks,
               ],
               externalIps: [{ type: 'ephemeral' }],
+              start: values.start,
             },
           })
         })
@@ -176,6 +180,9 @@ export default function CreateInstanceForm({
     >
       <NameField id="name" />
       <DescriptionField id="description" />
+      <CheckboxField id="start-instance" name="start" label="Start Instance">
+        Start Instance
+      </CheckboxField>
 
       <Divider />
 
