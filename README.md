@@ -124,7 +124,7 @@ Tests are ran across `chrome`, `firefox`, and `safari` when running `yarn e2e`. 
 
 Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) for more details):
 
-- Add `await page.pause()` to a test and run `yarn e2e <test file> --headed --project=chromium` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
+- Add `await page.pause()` to a test and run `BROWSER=chrome yarn e2e <test file> --headed` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
 
 To debug end-to-end failures on CI checkout the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 
