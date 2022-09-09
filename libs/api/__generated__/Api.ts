@@ -2926,6 +2926,8 @@ export interface SystemPolicyViewParams {}
 
 export interface SystemPolicyUpdateParams {}
 
+export interface UpdatesRefreshParams {}
+
 export interface SystemUserListParams {
   limit?: number | null
   pageToken?: string | null
@@ -2940,8 +2942,6 @@ export interface TimeseriesSchemaGetParams {
   limit?: number | null
   pageToken?: string | null
 }
-
-export interface UpdatesRefreshParams {}
 
 export interface UserListParams {
   limit?: number | null
@@ -4677,6 +4677,16 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Refresh update data
+     */
+    updatesRefresh: (query: UpdatesRefreshParams, params: RequestParams = {}) =>
+      this.request<void>({
+        path: `/system/updates/refresh`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
      * List built-in users
      */
     systemUserList: (query: SystemUserListParams, params: RequestParams = {}) =>
@@ -4705,16 +4715,6 @@ export class Api extends HttpClient {
         path: `/timeseries/schema`,
         method: 'GET',
         query,
-        ...params,
-      }),
-
-    /**
-     * Refresh update data
-     */
-    updatesRefresh: (query: UpdatesRefreshParams, params: RequestParams = {}) =>
-      this.request<void>({
-        path: `/updates/refresh`,
-        method: 'POST',
         ...params,
       }),
 
