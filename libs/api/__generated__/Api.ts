@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import type { RequestParams } from './http-client'
 import { HttpClient } from './http-client'
 
