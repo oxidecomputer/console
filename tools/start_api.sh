@@ -47,12 +47,11 @@ tmux new -d -s omicron-console
 tmux set -t omicron-console pane-border-status top
 tmux set -t omicron-console pane-border-style "bg=#BBBBBB fg=black"
 tmux set -t omicron-console pane-active-border-style "bg=green fg=black"
-tmux split-window
-tmux split-window
-tmux split-window
-tmux split-window
-tmux split-window
-tmux select-layout even-vertical
+
+for p in {1..5}; do
+  tmux split-window
+  tmux select-layout even-vertical
+done
 
 # run populate explicitly later so we can tell when it's done
 run_in_pane 0 "$UTILS"
