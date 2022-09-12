@@ -1,6 +1,9 @@
-import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
+import { useState } from 'react'
+import invariant from 'tiny-invariant'
+
+import type { Cumulativeint64, Disk, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Spinner } from '@oxide/ui'
+import { Listbox, Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -62,28 +65,48 @@ function DiskMetric({
   )
 }
 
-export default function MetricsTab() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { orgName, projectName } = instanceParams
-
-  const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
-  const diskName = disks?.items[0].name
-
+// The only reason this needs to be its own component instead of inlined into
+// MetricsTab is so we can wait to render _after_ we have the disks response,
+// which means we can easily set the default selected disk to the first one
+function DiskMetrics({ disks }: { disks: Disk[] }) {
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
-  if (!diskName) return null // TODO: loading state
+  invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
+  const [diskName, setDiskName] = useState<string>(disks[0].name)
+  const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
   const diskParams = { orgName, projectName, diskName }
   const commonProps = { startTime, endTime, diskParams }
 
   return (
     <>
-      <h2 className="text-sans-xl">
-        {/* TODO: need a nicer way of saying what the boot disk is */}
-        Boot disk ( <code>{diskName}</code> )
-      </h2>
-
-      {dateTimeRangePicker}
+      <div className="flex justify-between mt-8 mb-4">
+        {dateTimeRangePicker}
+        {/* TODO: using a Formik field here feels like overkill, but we've built
+            ListboxField to require that, i.e., there's no way to get the nice worked-out
+            layout from ListboxField without using Formik. Something to think about. */}
+        <div>
+          <div className="mb-2">
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label id="disk-name-label" className="flex text-sans-sm">
+              Choose disk
+            </label>
+          </div>
+          <Listbox
+            className="w-48"
+            aria-labelledby="disk-name-label"
+            name="disk-name"
+            items={diskItems}
+            onChange={(item) => {
+              if (item) {
+                setDiskName(item.value)
+              }
+            }}
+            defaultValue={diskName}
+          />
+        </div>
+      </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can
                 a) style them differently in the title, and
@@ -98,6 +121,25 @@ export default function MetricsTab() {
         <DiskMetric {...commonProps} title="Write (Bytes)" metricName="write_bytes" />
         <DiskMetric {...commonProps} title="Flushes (Count)" metricName="flush" />
       </div>
+    </>
+  )
+}
+
+// spinner should be temporary. wrapping div is to get left alignment
+const Loading = () => (
+  <div>
+    <Spinner className="w-8 h-8 mt-8 ml-8" />
+  </div>
+)
+
+export default function MetricsTab() {
+  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
+
+  return (
+    <>
+      <h2 className="text-sans-xl">Disk metrics</h2>
+      {disks && disks.items.length > 0 ? <DiskMetrics disks={disks.items} /> : <Loading />}
     </>
   )
 }
