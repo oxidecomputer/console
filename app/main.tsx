@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 import { queryClient } from '@oxide/api'
 import { SkipLink } from '@oxide/ui'
@@ -10,7 +11,7 @@ import { QuickActions, ReduceMotion } from './hooks'
 import { ToastStack } from './hooks/use-toast/ToastStack'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
-import { Router } from './routes'
+import { routes } from './routes'
 
 if (process.env.SHA) {
   console.info(
@@ -20,6 +21,12 @@ if (process.env.SHA) {
 }
 
 function render() {
+  // createBrowserRouter kicks off the loaders, which is weird because you'd
+  // think route matching hasn't happened yet, but apparently it does its own
+  // matching. I asked about this on Discord and they said it's intentional.
+  // This means RR is best thought of as an external store that runs
+  // independently of the React render lifecycle.
+  const router = createBrowserRouter(routes)
   ReactDOM.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -27,7 +34,7 @@ function render() {
           <QuickActions />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
-          <Router />
+          <RouterProvider router={router} />
         </ErrorBoundary>
       </QueryClientProvider>
       <ToastStack />
