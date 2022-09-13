@@ -2345,10 +2345,10 @@
     "@react-spring/shared" "~9.4.5"
     "@react-spring/types" "~9.4.5"
 
-"@remix-run/router@0.2.0-pre.8":
-  version "0.2.0-pre.8"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.2.0-pre.8.tgz#8159628e99ccbbb25f7cb164481f635e1370ab8b"
-  integrity sha512-A+1xdIUrvlxSBilO6eDD9N2PIiPy/jRdj47td+sr7uTyD5v6MKsMZd/L70VzTig9oXi0p5Ae4iehE0pJZ/sq2g==
+"@remix-run/router@0.2.0-pre.10":
+  version "0.2.0-pre.10"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-0.2.0-pre.10.tgz#b4e75d65483dcfd695a4c548e2fb0aa6b7ab1e70"
+  integrity sha512-V8hurEgZ/N2wsuCGwDLIjAc07m2HYq8h30IvrAcLvMV6QZFU0r2qOx36eIMYaRSoshiUfgV2PvybQwASXbD3BA==
 
 "@svgr/babel-plugin-add-jsx-attribute@^6.0.0":
   version "6.0.0"
@@ -8112,19 +8112,19 @@ react-resize-detector@^7.1.2:
   dependencies:
     lodash "^4.17.21"
 
-react-router-dom@^6.4.0-pre.13:
-  version "6.4.0-pre.13"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.13.tgz#0152a13d82509d5b344d548d142e8a673dad7a6c"
-  integrity sha512-P9Fu9hBEREfVWo0eYwzyRFo3aZ5XIw7b2lrnFWaWUY4tuIIteiCePsw6W1z+7irBSLr2N6Tuku/aCmaXFlcbSg==
+react-router-dom@^6.4.0-pre.15:
+  version "6.4.0-pre.15"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.4.0-pre.15.tgz#081020661da63cd7013117e0a7da4f05f1cdc2f8"
+  integrity sha512-WHi91wUicH+iOIeJCy0RH4xyHMv1Dhr8pwZ3ESfYawx8makp6RFMr4SYmHufJzjv23Q9c4/sQxvsPt2Jky/osA==
   dependencies:
-    react-router "6.4.0-pre.13"
+    react-router "6.4.0-pre.15"
 
-react-router@6.4.0-pre.13:
-  version "6.4.0-pre.13"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.13.tgz#1bc2604787b3dde99bfcdc7a57be65ae79cf28c8"
-  integrity sha512-cTZpVsh4mPvwe0gMPphZEOLIP5xfQV0DTgJ1L0wZj+pblT2QsAiRHEsWtq7fjKJ2MNE8nWJoHPRtCyTy46/Xjw==
+react-router@6.4.0-pre.15:
+  version "6.4.0-pre.15"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.4.0-pre.15.tgz#e6e2ca2af4c28976513a2fd3c91202e7069da5c1"
+  integrity sha512-WyvxaL/SP4gnmDKbPKfm0YoSaLE0rv1jCJV022Rcb9v7zCjn7VyBx5K3OeY4ZgRDcRsAqF32pP3ebBihkcumhA==
   dependencies:
-    "@remix-run/router" "0.2.0-pre.8"
+    "@remix-run/router" "0.2.0-pre.10"
 
 react-smooth@^2.0.1:
   version "2.0.1"

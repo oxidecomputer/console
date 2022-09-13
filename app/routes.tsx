@@ -1,5 +1,10 @@
 import React from 'react'
-import { DataBrowserRouter, Navigate, Route } from 'react-router-dom'
+import {
+  Navigate,
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from 'react-router-dom'
 
 import type { CrumbFunc } from './components/Breadcrumbs'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -39,8 +44,8 @@ const projectCrumb: CrumbFunc = (m) => m.params.projectName!
 const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
 
-export const Router = () => (
-  <DataBrowserRouter fallbackElement={null}>
+const routes = createRoutesFromElements(
+  <>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
@@ -191,5 +196,12 @@ export const Router = () => (
         </Route>
       </Route>
     </Route>
-  </DataBrowserRouter>
+  </>
 )
+
+export const router = createBrowserRouter(routes)
+
+// TODO: comment on this
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => router.dispose())
+}
