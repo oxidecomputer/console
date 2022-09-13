@@ -130,17 +130,18 @@ To debug end-to-end failures on CI checkout the branch with the failure and run 
 
 ### Other useful commands
 
-| Command         | Description                                                                        |
-| --------------- | ---------------------------------------------------------------------------------- |
-| `yarn test run` | Vitest tests                                                                       |
-| `yarn test`     | Vitest tests in watch mode                                                         |
-| `yarn e2ec`     | Only run end-to-end tests in chromium                                              |
-| `yarn lint`     | ESLint                                                                             |
-| `yarn tsc`      | Check types                                                                        |
-| `yarn ci`       | Lint, tests, and types                                                             |
-| `yarn fmt`      | Format everything. Rarely necessary thanks to editor integration                   |
-| `yarn gen`      | Generate components, stories, tests, etc                                           |
-| `yarn gen-api`  | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
+| Command               | Description                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `yarn test run`       | Vitest tests                                                                       |
+| `yarn test`           | Vitest tests in watch mode                                                         |
+| `yarn e2ec`           | Only run end-to-end tests in chromium                                              |
+| `yarn lint`           | ESLint                                                                             |
+| `yarn tsc`            | Check types                                                                        |
+| `yarn ci`             | Lint, tests, and types                                                             |
+| `yarn fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
+| `yarn gen`            | Generate components, stories, tests, etc                                           |
+| `yarn gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
+| `yarn start:mock-api` | Serve mock API on port 12220                                                       |
 
 ## Relevant documents
 
