@@ -49,6 +49,7 @@ export function TopBar() {
         >
           <Profile16Icon />
           {/* TODO: design has this in sans font but button forces mono */}
+          {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
           <span>{user?.displayName || 'User'}</span>
           <DirectionDownIcon className="!w-2.5" />
         </MenuButton>
