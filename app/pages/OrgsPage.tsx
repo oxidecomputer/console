@@ -96,7 +96,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((name) => `/orgs/${name}`)} />
+        <Column accessor="name" cell={linkCell((name) => `/orgs/${name}/projects`)} />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
