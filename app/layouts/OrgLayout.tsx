@@ -1,14 +1,11 @@
 import { Outlet } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
-import { SkipLinkTarget } from '@oxide/ui'
+import { Divider, Organization16Icon, SkipLinkTarget } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
-import { ProjectSelector } from 'app/components/ProjectSelector'
 
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import { useRequiredParams } from '../hooks'
 import {
@@ -24,30 +21,38 @@ import {
 
 const OrgLayout = () => {
   const { orgName } = useRequiredParams('orgName')
-  const { data: projects } = useApiQuery('projectList', {
-    orgName,
-    limit: 10,
-  })
 
   return (
     <PageContainer>
       <Sidebar>
-        <ProjectSelector />
-        <Sidebar.Nav heading="projects">
-          {projects?.items.map((project) => (
-            <NavLinkItem key={project.id} to={`/orgs/${orgName}/projects/${project.name}`}>
-              {project.name}
-            </NavLinkItem>
-          ))}
+        <Sidebar.Header>
+          <div className="text-mono-sm text-tertiary">Silo</div>
+          <div className="text-sans-sm text-secondary">console.bitmapbros.com</div>
+        </Sidebar.Header>
+        <div className="mx-3 mt-4">
+          {/* TODO: click should open jump to menu */}
+          <JumpToButton onClick={() => {}} />
+        </div>
+        <Sidebar.Nav>
+          <NavLinkItem to="/orgs" end>
+            <Organization16Icon />
+            Organizations
+          </NavLinkItem>
+          <li>
+            {/* TODO: this probably doesn't just go to the docs root. maybe it even opens
+                a menu with links to several relevant docs */}
+            <DocsLink />
+          </li>
         </Sidebar.Nav>
-        <Sidebar.Nav heading="Organization">
+        <Divider />
+        <Sidebar.Nav heading={orgName}>
+          <NavLinkItem to={`/orgs/${orgName}/projects`}>Projects</NavLinkItem>
           <NavLinkItem to={`/orgs/${orgName}/access`}>Access &amp; IAM</NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
-          <Breadcrumbs />
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>

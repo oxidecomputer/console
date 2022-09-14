@@ -7,7 +7,6 @@ import { Button, DirectionLeftIcon, SkipLinkTarget } from '@oxide/ui'
 import { PageActionsTarget } from 'app/components/PageActions'
 import { useQuickActions } from 'app/hooks'
 
-import { Breadcrumbs } from '../components/Breadcrumbs'
 import { NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import {
@@ -63,7 +62,6 @@ const SettingsLayout = () => {
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
-          <Breadcrumbs />
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>

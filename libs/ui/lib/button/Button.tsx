@@ -72,6 +72,7 @@ type ButtonStyleProps = {
 
 export type ButtonProps = React.ComponentPropsWithRef<'button'> &
   ButtonStyleProps & {
+    innerClassName?: string
     loading?: boolean
   }
 
@@ -93,7 +94,10 @@ export const buttonStyle = ({
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, size, variant, color, className, loading, ...rest }, ref) => {
+  (
+    { children, size, variant, color, className, loading, innerClassName, ...rest },
+    ref
+  ) => {
     return (
       <button
         className={cn(buttonStyle({ size, variant, color }), className)}
@@ -103,7 +107,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         <>
           {loading && <Spinner className="absolute" />}
-          <span className={cn({ invisible: loading })}>{children}</span>
+          <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
+            {children}
+          </span>
         </>
       </button>
     )

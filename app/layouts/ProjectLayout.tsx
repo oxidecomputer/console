@@ -13,10 +13,8 @@ import {
 } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
-import { ProjectSelector } from 'app/components/ProjectSelector'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
-import { Breadcrumbs } from '../components/Breadcrumbs'
 import { NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import {
@@ -55,7 +53,6 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        <ProjectSelector />
         <Sidebar.Nav heading="project">
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
@@ -80,7 +77,6 @@ const ProjectLayout = () => {
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
-          <Breadcrumbs />
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>

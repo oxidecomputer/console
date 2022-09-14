@@ -1,39 +1,29 @@
 import cn from 'classnames'
 import { NavLink as RRNavLink } from 'react-router-dom'
 
-import { Document16Icon, Wrap } from '@oxide/ui'
-import { flattenChildren, pluckFirstOfType } from '@oxide/util'
-
-import { ProjectSelector } from 'app/components/ProjectSelector'
+import { Button, Document16Icon } from '@oxide/ui'
+import { classed, flattenChildren } from '@oxide/util'
 
 const linkStyles =
   'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
 
+export const DocsLink = () => (
+  <a
+    className={linkStyles}
+    href="https://docs.oxide.computer"
+    target="_blank"
+    rel="noreferrer"
+  >
+    <Document16Icon /> Docs
+  </a>
+)
+
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const childArray = flattenChildren(children)
-  const projectSelector = pluckFirstOfType(childArray, ProjectSelector)
 
   return (
-    <div className="ox-sidebar relative flex flex-col border-r px-3 pt-5 text-sans-md text-default border-secondary">
-      {projectSelector}
-      <Wrap
-        when={projectSelector}
-        with={<div className="overflow-y-auto mt-10 flex flex-col flex-grow" />}
-      >
-        {childArray}
-        <Sidebar.Footer>
-          <li>
-            <a
-              className={linkStyles}
-              href="https://docs.oxide.computer"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Document16Icon /> Documentation
-            </a>
-          </li>
-        </Sidebar.Footer>
-      </Wrap>
+    <div className="ox-sidebar relative flex flex-col border-r text-sans-md text-default border-secondary">
+      {childArray}
     </div>
   )
 }
@@ -42,6 +32,7 @@ interface SidebarNav {
   children: React.ReactNode
   heading?: string
 }
+
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="ox-sidebar-nav space-y-1">
     {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
@@ -57,6 +48,8 @@ Sidebar.Footer = ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   </ul>
 )
+
+Sidebar.Header = classed.div`border-b border-secondary h-16 px-3 py-3.5`
 
 export const NavLinkItem = (props: {
   to: string
@@ -81,4 +74,24 @@ export const NavLinkItem = (props: {
       {props.children}
     </RRNavLink>
   </li>
+)
+
+// this is mousetrap's logic for the `mod` modifier shortcut
+// https://github.com/ccampbell/mousetrap/blob/2f9a476b/mousetrap.js#L135
+const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
+
+export const JumpToButton = ({ onClick }: { onClick: () => void }) => (
+  <Button
+    variant="ghost"
+    color="secondary"
+    size="xs"
+    onClick={onClick}
+    className="w-full"
+    // TODO: the more I use innerClassName the wronger it feels
+    innerClassName="w-full justify-between"
+  >
+    {/* TODO: need "action" lightning bolt icon */}⚡ Jump to
+    {/* TODO: cmd or ctrl is is system-dependent */}
+    <div className="">{modKey}+K</div>
+  </Button>
 )

@@ -5,7 +5,6 @@ import { SkipLinkTarget } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
 
-import { Breadcrumbs } from '../components/Breadcrumbs'
 import { TopBar } from '../components/TopBar'
 import {
   ContentPane,
@@ -18,11 +17,10 @@ import {
 const RootLayout = () => {
   return (
     <PageContainer>
-      <Sidebar></Sidebar>
+      <Sidebar />
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
-          <Breadcrumbs />
           <SkipLinkTarget />
           <Outlet />
         </ContentPane>

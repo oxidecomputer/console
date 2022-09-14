@@ -3,7 +3,7 @@
 }
 
 .ox-sidebar {
-  @apply overflow-auto border-r px-3 pt-6 bg-default border-secondary;
+  @apply overflow-auto border-r bg-default border-secondary;
 }
 
 .ox-sidebar .ox-sidebar-nav:last-of-type {
@@ -11,7 +11,7 @@
 }
 
 .ox-sidebar-nav {
-  @apply mt-6;
+  @apply my-4 mx-3;
 }
 
 .ox-sidebar .ox-sidebar-nav:first-of-type {
@@ -38,7 +38,7 @@
 }
 
 .ox-content-pane {
-  @apply relative flex flex-grow flex-col pt-4 pb-10;
+  @apply relative flex flex-grow flex-col pb-10;
 }
 
 .ox-content-pane > *,

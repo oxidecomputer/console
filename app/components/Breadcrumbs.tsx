@@ -45,6 +45,7 @@ export function Breadcrumbs() {
     .concat('Oxide Console')
     .join(' / ')
 
+  // TODO: move this to a root layout so we don't lose it
   useEffect(() => {
     document.title = title
   }, [title])
