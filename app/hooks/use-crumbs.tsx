@@ -12,6 +12,7 @@ function hasCrumb(m: ValidatedMatch): m is SetRequired<ValidatedMatch, 'handle'>
   return !!(m.handle && m.handle.crumb)
 }
 
+// TODO: memoize this
 export const useCrumbs = () =>
   useMatches()
     .map((m) => {

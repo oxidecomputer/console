@@ -4,6 +4,8 @@ import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Pagination } from '@oxide/pagination'
 import {
   Access16Icon,
+  Divider,
+  Folder16Icon,
   Images16Icon,
   Instances16Icon,
   Networking16Icon,
@@ -15,7 +17,7 @@ import {
 import { PageActionsTarget } from 'app/components/PageActions'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
-import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import {
   ContentPane,
@@ -26,7 +28,7 @@ import {
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const { projectName } = useRequiredParams('orgName', 'projectName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -53,7 +55,28 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        <Sidebar.Nav heading="project">
+        <Sidebar.Header>
+          {/* TODO: the actual silo obviously */}
+          <div className="text-mono-sm text-tertiary">Silo</div>
+          <div className="text-sans-sm text-secondary">console.bitmapbros.com</div>
+        </Sidebar.Header>
+        <div className="mx-3 mt-4">
+          {/* TODO: click should open jump to menu */}
+          <JumpToButton onClick={() => {}} />
+        </div>
+        <Sidebar.Nav>
+          <NavLinkItem to={`/orgs/${orgName}/projects`} end>
+            <Folder16Icon />
+            Projects
+          </NavLinkItem>
+          <li>
+            {/* TODO: this probably doesn't just go to the docs root. maybe it even opens
+                a menu with links to several relevant docs */}
+            <DocsLink />
+          </li>
+        </Sidebar.Nav>
+        <Divider />
+        <Sidebar.Nav heading={projectName}>
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
           </NavLinkItem>

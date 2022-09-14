@@ -20,6 +20,10 @@ function useSetTitle() {
   }, [title])
 }
 
+/**
+ * Root layout that applies to the entire app. Modify sparingly. It's rare for
+ * anything to actually belong here.
+ */
 export default function RootLayout() {
   useSetTitle()
   return <Outlet />

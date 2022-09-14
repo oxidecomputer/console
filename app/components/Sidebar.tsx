@@ -35,7 +35,7 @@ interface SidebarNav {
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="ox-sidebar-nav space-y-1">
-    {heading ? <span className="ml-2 text-mono-sm text-secondary">{heading}</span> : null}
+    {heading && <span className="text-mono-sm text-secondary">{heading}</span>}
     <nav>
       <ul className="space-y-0.5">{children}</ul>
     </nav>

@@ -46,6 +46,7 @@ const OrgLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={orgName}>
+          {/* TODO: icon for each item */}
           <NavLinkItem to={`/orgs/${orgName}/projects`}>Projects</NavLinkItem>
           <NavLinkItem to={`/orgs/${orgName}/access`}>Access &amp; IAM</NavLinkItem>
         </Sidebar.Nav>
