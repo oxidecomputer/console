@@ -129,6 +129,7 @@ export function NetworkingTab() {
           header="External IP"
           // we use primary to decide whether to show the IP in that row
           accessor="primary"
+          id="external_ip"
           cell={ExternalIpsFromInstanceName}
         />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />

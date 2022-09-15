@@ -117,7 +117,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
             ? column.id
             : typeof column.accessor === 'string'
             ? column.accessor
-            : undefined // should never happen due to described constraint
+            : undefined // should never happen because id is required if accessor is a function
 
         return colHelper.accessor(column.accessor, {
           id: id!, // undefined not really possible, and helper doesn't allow it
@@ -208,7 +208,10 @@ export type QueryTableColumnProps<Item extends Record<string, unknown>> = {
   name?: never
   cell?: ComponentType<{ value: any }>
 } & ( // imitate the way RT works: only pass id if accessor is not a string
-  | { accessor: DeepKeys<Item> }
+  | {
+      accessor: DeepKeys<Item>
+      id?: string
+    }
   | {
       accessor: AccessorFn<Item>
       id: string
