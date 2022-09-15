@@ -77,7 +77,7 @@ const OrgLayout = () => {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <div className="gutter">
+          <div className="[&>*]:gutter">
             <Outlet />
           </div>
         </ContentPane>

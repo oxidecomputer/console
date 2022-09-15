@@ -49,7 +49,7 @@ export default function SiloLayout() {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <div className="gutter">
+          <div className="[&>*]:gutter">
             <Outlet />
           </div>
         </ContentPane>

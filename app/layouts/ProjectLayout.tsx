@@ -59,6 +59,7 @@ const ProjectLayout = () => {
           {/* TODO: the actual silo obviously */}
           <div className="text-mono-sm text-tertiary">Silo</div>
           <div className="text-sans-sm text-secondary">console.bitmapbros.com</div>
+          {/* TODO: System/silo picker */}
         </Sidebar.Header>
         <div className="mx-3 mt-4">
           {/* TODO: click should open jump to menu */}
@@ -101,7 +102,7 @@ const ProjectLayout = () => {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <div className="gutter">
+          <div className="[&>*]:gutter">
             <Outlet />
           </div>
         </ContentPane>
