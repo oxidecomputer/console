@@ -22,7 +22,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   const childArray = flattenChildren(children)
 
   return (
-    <div className="ox-sidebar relative flex flex-col border-r text-sans-md text-default border-secondary">
+    <div className="relative flex flex-col border-r text-sans-md text-default border-secondary">
       {childArray}
     </div>
   )
@@ -34,7 +34,7 @@ interface SidebarNav {
 }
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
-  <div className="ox-sidebar-nav space-y-1">
+  <div className="space-y-1 my-4 mx-3">
     {heading && <span className="text-mono-sm text-secondary">{heading}</span>}
     <nav>
       <ul className="space-y-0.5">{children}</ul>
@@ -42,13 +42,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   </div>
 )
 
-Sidebar.Footer = ({ children }: { children: React.ReactNode }) => (
-  <ul className="ox-sidebar-footer w-full pb-3">
-    <span className="heading hidden ml-2 text-mono-sm text-secondary">More</span>
-    <div>{children}</div>
-  </ul>
-)
-
+Sidebar.Footer = classed.div`border-t border-secondary p-3`
 Sidebar.Header = classed.div`border-b border-secondary h-16 px-3 py-3.5`
 
 export const NavLinkItem = (props: {
