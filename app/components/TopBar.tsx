@@ -30,7 +30,7 @@ export function TopBar() {
 
   return (
     // shrink-0 is needed to prevent getting squished by body content
-    <div className="h-16 border-b border-secondary">
+    <div className="sticky top-0 h-16 border-b border-secondary bg-default z-50">
       <div className="flex shrink-0 h-16 items-center justify-end gutter">
         <Button variant="default" color="secondary" size="xs" title="Info">
           <Info16Icon />
