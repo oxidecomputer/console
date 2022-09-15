@@ -29,7 +29,7 @@ export function SerialConsolePage() {
         <Terminal className="w-full h-full -mb-10 mt-1" data={data?.data} />
       </Suspense>
       <PageActions>
-        <div className="flex h-20 items-center">
+        <div className="flex h-20 items-center gutter">
           <Button variant="default" size="sm" onClick={() => refetch()}>
             Refresh
           </Button>

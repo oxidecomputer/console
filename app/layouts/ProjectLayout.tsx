@@ -101,7 +101,9 @@ const ProjectLayout = () => {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <Outlet />
+          <div className="gutter">
+            <Outlet />
+          </div>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

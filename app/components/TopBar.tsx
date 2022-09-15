@@ -30,46 +30,48 @@ export function TopBar() {
 
   return (
     // shrink-0 is needed to prevent getting squished by body content
-    <div className="flex shrink-0 h-16 items-center justify-end border-b border-secondary">
-      <Button variant="default" color="secondary" size="xs" title="Info">
-        <Info16Icon />
-      </Button>
-      <Button color="secondary" size="xs" className="ml-2" title="Notifications">
-        <Notifications16Icon />
-      </Button>
-      <Menu>
-        <MenuButton
-          as={Button}
-          color="secondary"
-          size="xs"
-          aria-label="User menu"
-          className="ml-2"
-          innerClassName="space-x-2"
-          title="User menu"
-        >
-          <Profile16Icon />
-          {/* TODO: design has this in sans font but button forces mono */}
-          {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-          <span>{user?.displayName || 'User'}</span>
-          <DirectionDownIcon className="!w-2.5" />
-        </MenuButton>
-        <MenuList className="mt-2">
-          <MenuItem
-            onSelect={() => {
-              navigate('/settings')
-            }}
+    <div className="h-16 border-b border-secondary">
+      <div className="flex shrink-0 h-16 items-center justify-end gutter">
+        <Button variant="default" color="secondary" size="xs" title="Info">
+          <Info16Icon />
+        </Button>
+        <Button color="secondary" size="xs" className="ml-2" title="Notifications">
+          <Notifications16Icon />
+        </Button>
+        <Menu>
+          <MenuButton
+            as={Button}
+            color="secondary"
+            size="xs"
+            aria-label="User menu"
+            className="ml-2"
+            innerClassName="space-x-2"
+            title="User menu"
           >
-            Settings
-          </MenuItem>
-          {loggedIn ? (
-            <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
-          ) : (
-            <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
-              Sign In
+            <Profile16Icon />
+            {/* TODO: design has this in sans font but button forces mono */}
+            {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
+            <span>{user?.displayName || 'User'}</span>
+            <DirectionDownIcon className="!w-2.5" />
+          </MenuButton>
+          <MenuList className="mt-2">
+            <MenuItem
+              onSelect={() => {
+                navigate('/settings')
+              }}
+            >
+              Settings
             </MenuItem>
-          )}
-        </MenuList>
-      </Menu>
+            {loggedIn ? (
+              <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
+            ) : (
+              <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
+                Sign In
+              </MenuItem>
+            )}
+          </MenuList>
+        </Menu>
+      </div>
     </div>
   )
 }

@@ -49,7 +49,9 @@ export default function SiloLayout() {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <Outlet />
+          <div className="gutter">
+            <Outlet />
+          </div>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

@@ -26,7 +26,7 @@ export function SerialConsoleTab() {
         </Suspense>
       </div>
       <PageActions>
-        <div className="flex h-20 items-center">
+        <div className="flex h-20 items-center gutter">
           <Button variant="default" size="sm" onClick={() => refetch()}>
             Refresh
           </Button>

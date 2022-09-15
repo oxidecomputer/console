@@ -18,7 +18,7 @@ export interface FullPageFormProps<Values>
   error?: Error
 }
 
-const PageActionsContainer = classed.div`flex h-20 items-center`
+const PageActionsContainer = classed.div`flex h-20 items-center gutter`
 
 export function FullPageForm<Values extends Record<string, unknown>>({
   title,

@@ -42,7 +42,10 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   </div>
 )
 
-Sidebar.Footer = classed.div`border-t border-secondary p-3`
+// TODO: I took out the height-responsive behavior on the sidebar footer. Think
+// about that, I guess.
+
+Sidebar.Footer = classed.div`p-3`
 Sidebar.Header = classed.div`border-b border-secondary h-16 px-3 py-3.5`
 
 export const NavLinkItem = (props: {

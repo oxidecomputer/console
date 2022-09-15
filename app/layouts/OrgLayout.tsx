@@ -68,7 +68,7 @@ const OrgLayout = () => {
           </Sidebar.Nav>
         </div>
         <Sidebar.Footer>
-          <Button color="secondary" className="w-full">
+          <Button color="secondary" size="xs" className="w-full">
             <Add12Icon className="mr-2" /> New
           </Button>
         </Sidebar.Footer>
@@ -77,7 +77,9 @@ const OrgLayout = () => {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <Outlet />
+          <div className="gutter">
+            <Outlet />
+          </div>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
