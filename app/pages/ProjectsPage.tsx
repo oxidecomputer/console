@@ -84,7 +84,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
         { value: 'New project', onSelect: () => navigate('new') },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(p.name),
+          onSelect: () => navigate(`${p.name}/instances`),
           navGroup: 'Go to project',
         })),
       ],

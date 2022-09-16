@@ -24,7 +24,7 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
     <Menu>
       <MenuButton
         aria-label="Switch project"
-        className="mt-1 flex items-center justify-between w-full group"
+        className="flex items-center justify-between w-full group"
       >
         <div className="flex items-center">
           {icon ? <div className="mr-2 flex items-center">{icon}</div> : null}
@@ -41,6 +41,8 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
         </div>
       </MenuButton>
       {/* TODO: fix z-index on popover, it's behind the TopBar background */}
+      {/* TODO: item size and focus highlight */}
+      {/* TODO: popover position should be further right */}
       <MenuList className="mt-2">
         {items.length > 0 ? (
           items.map(({ label, to }) => (
@@ -77,12 +79,11 @@ const MazeWarLogo = () => (
   </svg>
 )
 
+// TODO: maybe don't filter out the currently selected one
+
 export function OrgPicker() {
   const { orgName } = useRequiredParams('orgName')
-
   const { data } = useApiQuery('organizationList', { limit: 20 })
-
-  // filter out current org
   const items = (data?.items || [])
     .filter((p) => p.name !== orgName)
     .map((org) => ({ label: org.name, to: `/orgs/${org.name}/projects` }))
@@ -100,10 +101,7 @@ export function OrgPicker() {
 
 export function ProjectPicker() {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-
   const { data } = useApiQuery('projectList', { orgName, limit: 20 })
-
-  // filter out current org
   const items = (data?.items || [])
     .filter((p) => p.name !== projectName)
     .map((p) => ({ label: p.name, to: `/orgs/${orgName}/projects/${p.name}/instances` }))

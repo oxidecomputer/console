@@ -1,4 +1,4 @@
-import type { Project, ProjectResultsPage, ProjectRolePolicy } from '@oxide/api'
+import type { Project, ProjectRolePolicy } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { org } from './org'
@@ -13,7 +13,16 @@ export const project: Json<Project> = {
   organization_id: org.id,
 }
 
-export const projects: Json<ProjectResultsPage> = { items: [project] }
+export const project2: Json<Project> = {
+  id: 'other-project-uuid',
+  name: 'other-project',
+  description: 'another fake project',
+  time_created: new Date(2021, 0, 15).toISOString(),
+  time_modified: new Date(2021, 0, 16).toISOString(),
+  organization_id: org.id,
+}
+
+export const projects: Json<Project[]> = [project, project2]
 
 export const projectRolePolicy: Json<ProjectRolePolicy> = {
   role_assignments: [
