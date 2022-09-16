@@ -15,6 +15,7 @@ import {
 } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
+import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -100,7 +101,11 @@ const ProjectLayout = () => {
       </Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
-          <TopBar />
+          <TopBar>
+            <OrgPicker />
+            <span className="text-mono-lg text-tertiary mx-4">/</span>
+            <ProjectPicker />
+          </TopBar>
           <SkipLinkTarget />
           <div className="[&>*]:gutter">
             <Outlet />
