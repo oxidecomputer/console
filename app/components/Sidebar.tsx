@@ -1,8 +1,9 @@
 import cn from 'classnames'
-import { NavLink as RRNavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 import { Button, Document16Icon } from '@oxide/ui'
-import { classed, flattenChildren } from '@oxide/util'
+
+import { SiloSystemPicker } from './TopBarPicker'
 
 const linkStyles =
   'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
@@ -20,12 +21,38 @@ export const DocsLink = () => (
   </a>
 )
 
-export function Sidebar({ children }: { children: React.ReactNode }) {
-  const childArray = flattenChildren(children)
+// this is mousetrap's logic for the `mod` modifier shortcut
+// https://github.com/ccampbell/mousetrap/blob/2f9a476b/mousetrap.js#L135
+const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
 
+const JumpToButton = () => (
+  <Button
+    variant="ghost"
+    color="secondary"
+    size="xs"
+    // TODO: click should open jump to menu
+    onClick={() => alert('click not implemented, press cmd+k')}
+    className="w-full"
+    // TODO: the more I use innerClassName the wronger it feels
+    innerClassName="w-full justify-between"
+  >
+    {/* TODO: need "action" lightning bolt icon */}⚡ Jump to
+    {/* TODO: cmd or ctrl is is system-dependent */}
+    <div className="">{modKey}+K</div>
+  </Button>
+)
+
+export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex flex-col border-r text-sans-md text-default border-secondary">
-      {childArray}
+      <div className="border-b border-secondary h-[60px] px-3 flex">
+        {/* TODO: don't mention Silo if user can't see system resources */}
+        <SiloSystemPicker />
+      </div>
+      <div className="mx-3 mt-4">
+        <JumpToButton />
+      </div>
+      {children}
     </div>
   )
 }
@@ -47,50 +74,20 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
 // TODO: I took out the height-responsive behavior on the sidebar footer. Think
 // about that, I guess.
 
-Sidebar.Footer = classed.div`p-3`
-Sidebar.Header = classed.div`border-b border-secondary h-[60px] px-3 flex`
-
 export const NavLinkItem = (props: {
   to: string
   children: React.ReactNode
   end?: boolean
 }) => (
   <li>
-    <RRNavLink
+    <NavLink
       to={props.to}
-      onClick={(e) => {
-        // TODO: Probably a better way to do this. Should it open in a new page?
-        if (props.to.startsWith('http')) {
-          window.open(props.to, '_blank')
-          e.preventDefault()
-        }
-      }}
       className={({ isActive }) =>
         cn(linkStyles, { 'text-accent !bg-accent-secondary svg:!text-accent': isActive })
       }
       end={props.end}
     >
       {props.children}
-    </RRNavLink>
+    </NavLink>
   </li>
-)
-
-// this is mousetrap's logic for the `mod` modifier shortcut
-// https://github.com/ccampbell/mousetrap/blob/2f9a476b/mousetrap.js#L135
-const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
-
-export const JumpToButton = ({ onClick }: { onClick: () => void }) => (
-  <Button
-    variant="ghost"
-    color="secondary"
-    size="xs"
-    onClick={onClick}
-    className="w-full"
-    // TODO: the more I use innerClassName the wronger it feels
-    innerClassName="w-full justify-between"
-  >
-    {/* TODO: need "action" lightning bolt icon */}⚡ Jump to
-    {/* TODO: cmd or ctrl is is system-dependent */}
-    <div className="">{modKey}+K</div>
-  </Button>
 )

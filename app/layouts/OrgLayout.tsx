@@ -1,16 +1,9 @@
-import {
-  Access16Icon,
-  Add12Icon,
-  Button,
-  Divider,
-  Folder16Icon,
-  Organization16Icon,
-} from '@oxide/ui'
+import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/ui'
 
-import { OrgPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { OrgPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
-import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLink, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 // We need to use absolute paths here because sometimes this layout is rendered
@@ -23,42 +16,27 @@ const OrgLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        <Sidebar.Header>
-          <SiloSystemPicker />
-        </Sidebar.Header>
-        {/* flex-grow pushes footer to the bottom. TODO: is that good */}
-        <div className="flex-grow">
-          <div className="mx-3 mt-4">
-            {/* TODO: click should open jump to menu */}
-            <JumpToButton onClick={() => {}} />
-          </div>
-          <Sidebar.Nav>
-            <NavLinkItem to="/orgs" end>
-              <Organization16Icon />
-              Organizations
-            </NavLinkItem>
-            <li>
-              <DocsLink />
-            </li>
-          </Sidebar.Nav>
-          <Divider />
-          <Sidebar.Nav heading={orgName}>
-            {/* TODO: icon for each item */}
-            <NavLinkItem to={`/orgs/${orgName}/projects`}>
-              <Folder16Icon title="Projects" />
-              Projects
-            </NavLinkItem>
-            <NavLinkItem to={`/orgs/${orgName}/access`}>
-              <Access16Icon title="Access & IAM" />
-              Access &amp; IAM
-            </NavLinkItem>
-          </Sidebar.Nav>
-        </div>
-        <Sidebar.Footer>
-          <Button color="secondary" size="xs" className="w-full">
-            <Add12Icon className="mr-2" /> New
-          </Button>
-        </Sidebar.Footer>
+        <Sidebar.Nav>
+          <NavLinkItem to="/orgs" end>
+            <Organization16Icon />
+            Organizations
+          </NavLinkItem>
+          <li>
+            <DocsLink />
+          </li>
+        </Sidebar.Nav>
+        <Divider />
+        <Sidebar.Nav heading={orgName}>
+          {/* TODO: icon for each item */}
+          <NavLinkItem to={`/orgs/${orgName}/projects`}>
+            <Folder16Icon title="Projects" />
+            Projects
+          </NavLinkItem>
+          <NavLinkItem to={`/orgs/${orgName}/access`}>
+            <Access16Icon title="Access & IAM" />
+            Access &amp; IAM
+          </NavLinkItem>
+        </Sidebar.Nav>
       </Sidebar>
       <ContentPane>
         <OrgPicker />

@@ -12,10 +12,10 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
-import { OrgPicker, ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
-import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLink, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
@@ -47,13 +47,6 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        <Sidebar.Header>
-          <SiloSystemPicker />
-        </Sidebar.Header>
-        <div className="mx-3 mt-4">
-          {/* TODO: click should open jump to menu */}
-          <JumpToButton onClick={() => {}} />
-        </div>
         <Sidebar.Nav>
           <NavLinkItem to={`/orgs/${orgName}/projects`} end>
             <Folder16Icon />
