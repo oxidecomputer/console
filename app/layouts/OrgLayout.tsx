@@ -12,7 +12,7 @@ import {
 } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
-import { OrgPicker } from 'app/components/TopBarPicker'
+import { OrgPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -35,8 +35,7 @@ const OrgLayout = () => {
     <PageContainer>
       <Sidebar>
         <Sidebar.Header>
-          <div className="text-mono-sm text-tertiary">Silo</div>
-          <div className="text-sans-sm text-secondary">console.bitmapbros.com</div>
+          <SiloSystemPicker />
         </Sidebar.Header>
         {/* flex-grow pushes footer to the bottom. TODO: is that good */}
         <div className="flex-grow">
@@ -50,8 +49,6 @@ const OrgLayout = () => {
               Organizations
             </NavLinkItem>
             <li>
-              {/* TODO: this probably doesn't just go to the docs root. maybe it even opens
-                a menu with links to several relevant docs */}
               <DocsLink />
             </li>
           </Sidebar.Nav>

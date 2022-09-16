@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { SelectArrows6Icon } from '@oxide/ui'
@@ -15,7 +15,7 @@ type TopBarPickerProps = {
   category: string
   current: string
   items: TopBarPickerItem[]
-  fallbackText: string
+  fallbackText?: string
   icon?: React.ReactElement
 }
 
@@ -40,7 +40,6 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
           <SelectArrows6Icon className="text-secondary" aria-hidden />
         </div>
       </MenuButton>
-      {/* TODO: fix z-index on popover, it's behind the TopBar background */}
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       <MenuList className="mt-2">
@@ -56,7 +55,7 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
             onSelect={() => {}}
             disabled
           >
-            {fallbackText}
+            {fallbackText || 'No items found'}
           </MenuItem>
         )}
       </MenuList>
@@ -78,6 +77,25 @@ const MazeWarLogo = () => (
     />
   </svg>
 )
+
+export function SiloSystemPicker() {
+  const items = [
+    { label: 'System', to: '/system' },
+    { label: 'Silo', to: '/orgs' },
+  ]
+
+  const { pathname } = useLocation()
+
+  const isSystem = pathname.startsWith('/system') // lol
+
+  return isSystem ? (
+    <TopBarPicker category="System" current="Happy Customer, Inc." items={items} />
+  ) : (
+    // TODO: actual silo name
+    // TODO: when silo name is too long, it overflows sidebar
+    <TopBarPicker category="Silo" current="corp.dev" items={items} />
+  )
+}
 
 // TODO: maybe don't filter out the currently selected one
 

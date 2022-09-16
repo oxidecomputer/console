@@ -10,6 +10,7 @@ import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import SiloLayout from './layouts/SiloLayout'
+import SystemLayout from './layouts/SystemLayout'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
@@ -71,6 +72,17 @@ export const routes = createRoutesFromElements(
     </Route>
 
     <Route index element={<Navigate to="/orgs" replace />} />
+
+    <Route path="system" element={<SystemLayout />}>
+      <Route index element={null} />
+      <Route path="issues" element={null} />
+      <Route path="utilization" element={null} />
+      <Route path="inventory" element={null} />
+      <Route path="health" element={null} />
+      <Route path="update" element={null} />
+      <Route path="networking" element={null} />
+      <Route path="settings" element={null} />
+    </Route>
 
     {/* These are done here instead of nested so we don't flash a layout on 404s */}
     <Route path="/orgs/:orgName" element={<Navigate to="projects" replace />} />

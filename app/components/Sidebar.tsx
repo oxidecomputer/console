@@ -7,6 +7,8 @@ import { classed, flattenChildren } from '@oxide/util'
 const linkStyles =
   'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
 
+// TODO: this probably doesn't go to the docs root. maybe it even opens a
+// menu with links to several relevant docs for the page
 export const DocsLink = () => (
   <a
     className={linkStyles}

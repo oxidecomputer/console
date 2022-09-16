@@ -15,7 +15,7 @@ import {
 } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
-import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
+import { OrgPicker, ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -57,10 +57,7 @@ const ProjectLayout = () => {
     <PageContainer>
       <Sidebar>
         <Sidebar.Header>
-          {/* TODO: the actual silo obviously */}
-          <div className="text-mono-sm text-tertiary">Silo</div>
-          <div className="text-sans-sm text-secondary">console.bitmapbros.com</div>
-          {/* TODO: System/silo picker */}
+          <SiloSystemPicker />
         </Sidebar.Header>
         <div className="mx-3 mt-4">
           {/* TODO: click should open jump to menu */}
@@ -72,8 +69,6 @@ const ProjectLayout = () => {
             Projects
           </NavLinkItem>
           <li>
-            {/* TODO: this probably doesn't just go to the docs root. maybe it even opens
-                a menu with links to several relevant docs */}
             <DocsLink />
           </li>
         </Sidebar.Nav>

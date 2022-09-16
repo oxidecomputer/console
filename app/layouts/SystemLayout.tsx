@@ -1,7 +1,17 @@
 import { Outlet } from 'react-router-dom'
 
 import { Pagination } from '@oxide/pagination'
-import { Divider, Organization16Icon, SkipLinkTarget } from '@oxide/ui'
+import {
+  Divider,
+  Health16Icon,
+  Instances16Icon,
+  Networking16Icon,
+  Settings16Icon,
+  SkipLinkTarget,
+  Snapshots16Icon,
+  SoftwareUpdate16Icon,
+  Storage16Icon,
+} from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from 'app/components/Sidebar'
@@ -33,10 +43,28 @@ export default function SiloLayout() {
         </Sidebar.Nav>
         <Divider />
         {/* TODO: silo name in heading */}
-        <Sidebar.Nav heading="Silo">
-          <NavLinkItem to="/orgs">
+        <Sidebar.Nav heading="System">
+          <NavLinkItem to="issues">
             {/* TODO: active green color should apply to icon */}
-            <Organization16Icon /> Organizations
+            <Instances16Icon /> Issues
+          </NavLinkItem>
+          <NavLinkItem to="utilization">
+            <Snapshots16Icon /> Utilization
+          </NavLinkItem>
+          <NavLinkItem to="inventory">
+            <Storage16Icon /> Inventory
+          </NavLinkItem>
+          <NavLinkItem to="health">
+            <Health16Icon /> Health
+          </NavLinkItem>
+          <NavLinkItem to="update">
+            <SoftwareUpdate16Icon /> System Update
+          </NavLinkItem>
+          <NavLinkItem to="networking">
+            <Networking16Icon /> Networking
+          </NavLinkItem>
+          <NavLinkItem to="settings">
+            <Settings16Icon /> Settings
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
