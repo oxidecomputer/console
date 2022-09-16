@@ -15,7 +15,6 @@ export default function SiloLayout() {
         {/* TODO: silo name in heading */}
         <Sidebar.Nav heading="Silo">
           <NavLinkItem to="/orgs">
-            {/* TODO: active green color should apply to icon */}
             <Organization16Icon /> Organizations
           </NavLinkItem>
         </Sidebar.Nav>

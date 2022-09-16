@@ -29,7 +29,7 @@ const Organization16Icon = ({
         width={4.71403}
         height={4.71403}
         transform="rotate(45 12.6667 4.66664)"
-        fill="#989A9B"
+        fill="currentColor"
       />
       <rect
         id="Rectangle 22"
@@ -38,7 +38,7 @@ const Organization16Icon = ({
         width={4.71403}
         height={4.71403}
         transform="rotate(45 8 9.33331)"
-        fill="#989A9B"
+        fill="currentColor"
       />
       <rect
         id="Rectangle 20"
@@ -46,7 +46,7 @@ const Organization16Icon = ({
         width={4.71403}
         height={4.71403}
         transform="rotate(45 8 0)"
-        fill="#989A9B"
+        fill="currentColor"
       />
       <rect
         id="Rectangle 21"
@@ -55,7 +55,7 @@ const Organization16Icon = ({
         width={4.71403}
         height={4.71403}
         transform="rotate(45 3.33333 4.66664)"
-        fill="#989A9B"
+        fill="currentColor"
       />
     </g>
   </svg>
