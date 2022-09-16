@@ -19,6 +19,7 @@ import { SiloSystemPicker } from 'app/components/TopBarPicker'
 
 import { TopBar } from '../components/TopBar'
 import {
+  Content,
   ContentPane,
   ContentPaneActions,
   ContentPaneWrapper,
@@ -72,9 +73,9 @@ export default function SiloLayout() {
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <div className="[&>*]:gutter">
+          <Content>
             <Outlet />
-          </div>
+          </Content>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

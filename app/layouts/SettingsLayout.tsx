@@ -2,14 +2,16 @@ import { useMemo } from 'react'
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Pagination } from '@oxide/pagination'
-import { Button, DirectionLeftIcon, SkipLinkTarget } from '@oxide/ui'
+import { Divider, Key16Icon, Profile16Icon, Show16Icon, SkipLinkTarget } from '@oxide/ui'
 
 import { PageActionsTarget } from 'app/components/PageActions'
+import { SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 
-import { NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import {
+  Content,
   ContentPane,
   ContentPaneActions,
   ContentPaneWrapper,
@@ -43,27 +45,44 @@ const SettingsLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        {/* TODO: Make the back nav here smarter to return you to the previous non-settings screen */}
-        <Button
-          className="!justify-start -ml-2 mt-6 mb-4"
-          variant="link"
-          onClick={() => navigate('/')}
-        >
-          <DirectionLeftIcon />
-          Home
-        </Button>
-        <Sidebar.Nav heading="User">
-          <NavLinkItem to="profile">Profile</NavLinkItem>
-          <NavLinkItem to="appearance">Appearance</NavLinkItem>
-          <NavLinkItem to="hotkeys">Hotkeys</NavLinkItem>
-          <NavLinkItem to="ssh-keys">SSH Keys</NavLinkItem>
-        </Sidebar.Nav>
+        <Sidebar.Header>
+          <SiloSystemPicker />
+        </Sidebar.Header>
+        <div className="flex-grow">
+          <div className="mx-3 mt-4">
+            {/* TODO: click should open jump to menu */}
+            <JumpToButton onClick={() => {}} />
+          </div>
+          <Sidebar.Nav>
+            {/* TODO: what to link here? anything? */}
+            <li>
+              <DocsLink />
+            </li>
+          </Sidebar.Nav>
+          <Divider />
+          <Sidebar.Nav heading="User">
+            <NavLinkItem to="profile">
+              <Profile16Icon /> Profile
+            </NavLinkItem>
+            <NavLinkItem to="appearance">
+              <Show16Icon /> Appearance
+            </NavLinkItem>
+            <NavLinkItem to="hotkeys">
+              <Profile16Icon /> Hotkeys
+            </NavLinkItem>
+            <NavLinkItem to="ssh-keys">
+              <Key16Icon /> SSH Keys
+            </NavLinkItem>
+          </Sidebar.Nav>
+        </div>
       </Sidebar>
       <ContentPaneWrapper>
         <ContentPane>
           <TopBar />
           <SkipLinkTarget />
-          <Outlet />
+          <Content>
+            <Outlet />
+          </Content>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />

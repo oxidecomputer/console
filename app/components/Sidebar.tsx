@@ -48,7 +48,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
 // about that, I guess.
 
 Sidebar.Footer = classed.div`p-3`
-Sidebar.Header = classed.div`border-b border-secondary h-[60px] px-3 py-3.5`
+Sidebar.Header = classed.div`border-b border-secondary h-[60px] px-3 flex`
 
 export const NavLinkItem = (props: {
   to: string

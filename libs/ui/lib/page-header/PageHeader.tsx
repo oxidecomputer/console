@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 import { classed } from '@oxide/util'
 
-export const PageHeader = classed.header`mb-24 mt-4 flex items-center justify-between`
+export const PageHeader = classed.header`mb-20 mt-6 flex items-center justify-between`
 
 interface PageTitleProps {
   icon?: ReactElement

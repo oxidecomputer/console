@@ -18,6 +18,7 @@ import { useRequiredParams } from 'app/hooks'
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { TopBar } from '../components/TopBar'
 import {
+  Content,
   ContentPane,
   ContentPaneActions,
   ContentPaneWrapper,
@@ -77,9 +78,9 @@ const OrgLayout = () => {
             <OrgPicker />
           </TopBar>
           <SkipLinkTarget />
-          <div className="[&>*]:gutter">
+          <Content>
             <Outlet />
-          </div>
+          </Content>
         </ContentPane>
         <ContentPaneActions>
           <Pagination.Target />
