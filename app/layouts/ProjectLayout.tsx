@@ -1,34 +1,26 @@
 import { useMemo } from 'react'
-import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import {
   Access16Icon,
+  Divider,
+  Folder16Icon,
   Images16Icon,
   Instances16Icon,
   Networking16Icon,
-  SkipLinkTarget,
   Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
 
-import { PageActionsTarget } from 'app/components/PageActions'
-import { ProjectSelector } from 'app/components/ProjectSelector'
+import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
-import { Breadcrumbs } from '../components/Breadcrumbs'
-import { NavLinkItem, Sidebar } from '../components/Sidebar'
-import { TopBar } from '../components/TopBar'
-import {
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const { projectName } = useRequiredParams('orgName', 'projectName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -55,8 +47,15 @@ const ProjectLayout = () => {
   return (
     <PageContainer>
       <Sidebar>
-        <ProjectSelector />
-        <Sidebar.Nav heading="project">
+        <Sidebar.Nav>
+          <NavLinkItem to={`/orgs/${orgName}/projects`} end>
+            <Folder16Icon />
+            Projects
+          </NavLinkItem>
+          <DocsLinkItem />
+        </Sidebar.Nav>
+        <Divider />
+        <Sidebar.Nav heading={projectName}>
           <NavLinkItem to="instances">
             <Instances16Icon /> Instances
           </NavLinkItem>
@@ -77,18 +76,11 @@ const ProjectLayout = () => {
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <Breadcrumbs />
-          <SkipLinkTarget />
-          <Outlet />
-        </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <PageActionsTarget />
-        </ContentPaneActions>
-      </ContentPaneWrapper>
+      <ContentPane>
+        <OrgPicker />
+        <span className="text-mono-lg text-tertiary mx-4">/</span>
+        <ProjectPicker />
+      </ContentPane>
     </PageContainer>
   )
 }

@@ -1,14 +1,16 @@
 import React from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
-import type { CrumbFunc } from './components/Breadcrumbs'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { FormPage } from './components/FormPage'
+import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
 import OrgLayout from './layouts/OrgLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
+import SiloLayout from './layouts/SiloLayout'
+import SystemLayout from './layouts/SystemLayout'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
@@ -40,7 +42,7 @@ const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
 
 export const routes = createRoutesFromElements(
-  <>
+  <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
     <Route path="spoof_login" element={<AuthLayout />}>
       <Route index element={<LoginPage />} />
@@ -71,6 +73,17 @@ export const routes = createRoutesFromElements(
 
     <Route index element={<Navigate to="/orgs" replace />} />
 
+    <Route path="system" element={<SystemLayout />}>
+      <Route index element={null} />
+      <Route path="issues" element={null} />
+      <Route path="utilization" element={null} />
+      <Route path="inventory" element={null} />
+      <Route path="health" element={null} />
+      <Route path="update" element={null} />
+      <Route path="networking" element={null} />
+      <Route path="settings" element={null} />
+    </Route>
+
     {/* These are done here instead of nested so we don't flash a layout on 404s */}
     <Route path="/orgs/:orgName" element={<Navigate to="projects" replace />} />
     <Route
@@ -79,7 +92,7 @@ export const routes = createRoutesFromElements(
     />
 
     <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
-      <Route element={<RootLayout />}>
+      <Route element={<SiloLayout />}>
         <Route index element={<OrgsPage />} loader={OrgsPage.loader} />
         <Route
           path="new"
@@ -191,5 +204,5 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
     </Route>
-  </>
+  </Route>
 )

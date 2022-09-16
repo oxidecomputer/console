@@ -84,7 +84,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
         { value: 'New project', onSelect: () => navigate('new') },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(p.name),
+          onSelect: () => navigate(`${p.name}/instances`),
           navGroup: 'Go to project',
         })),
       ],
@@ -105,7 +105,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((name) => `/orgs/${orgName}/projects/${name}`)}
+          cell={linkCell((name) => `/orgs/${orgName}/projects/${name}/instances`)}
         />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />

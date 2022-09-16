@@ -146,7 +146,7 @@ describe('useApiQuery', () => {
       const { result } = renderGetOrgs()
       await waitFor(() => {
         const items = result.current.data?.items
-        expect(items?.length).toEqual(1)
+        expect(items?.length).toEqual(2)
         expect(items?.[0].id).toEqual(org.id)
       })
     })

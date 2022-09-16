@@ -10,6 +10,7 @@ import {
   Button,
   EmptyMessage,
   Key16Icon,
+  Key24Icon,
   PageHeader,
   PageTitle,
   TableActions,
@@ -47,7 +48,7 @@ export function SSHKeysPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle>SSH Keys</PageTitle>
+        <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
       </PageHeader>
       <TableActions>
         <Button size="xs" variant="default" onClick={() => setCreateModalOpen(true)}>

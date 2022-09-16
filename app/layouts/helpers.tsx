@@ -1,9 +1,29 @@
+import { Outlet } from 'react-router-dom'
+
+import { Pagination } from '@oxide/pagination'
+import { SkipLinkTarget } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
-import './helpers.css'
+import { PageActionsTarget } from 'app/components/PageActions'
+import { TopBar } from 'app/components/TopBar'
 
-export const PageContainer = classed.div`ox-page-container`
-export const Sidebar = classed.div`ox-sidebar`
-export const ContentPaneWrapper = classed.div`ox-content-pane-wrapper`
-export const ContentPane = classed.div`ox-content-pane`
-export const ContentPaneActions = classed.div`ox-content-pane-actions`
+export const PageContainer = classed.div`grid h-screen grid-cols-[13.75rem,1fr]`
+
+/** `children` is where the TopBar pickers go */
+export function ContentPane({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="flex flex-col overflow-auto">
+      <div className="flex flex-grow flex-col pb-8">
+        <TopBar>{children}</TopBar>
+        <SkipLinkTarget />
+        <main className="[&>*]:gutter">
+          <Outlet />
+        </main>
+      </div>
+      <div className="sticky bottom-0 flex-shrink-0 justify-between overflow-hidden bg-default border-t border-secondary empty:border-t-0">
+        <Pagination.Target />
+        <PageActionsTarget />
+      </div>
+    </div>
+  )
+}

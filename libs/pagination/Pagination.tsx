@@ -14,7 +14,7 @@ export function Pagination({ inline = false, ...props }: PaginationProps) {
 
   return (
     <Tunnel.In>
-      <UIPagination className="h-14 py-5" {...props} />
+      <UIPagination className="h-14 py-5 gutter" {...props} />
     </Tunnel.In>
   )
 }

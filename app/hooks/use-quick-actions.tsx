@@ -51,6 +51,7 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
 
 export function QuickActions() {
   const items = useStore((state) => state.items)
+  // TODO: move open state into store to make it easier to toggle from elsewhere
   const [isOpen, setIsOpen] = useState(false)
 
   const anyItems = items.length > 0

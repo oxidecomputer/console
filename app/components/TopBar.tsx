@@ -10,7 +10,7 @@ import {
   Profile16Icon,
 } from '@oxide/ui'
 
-export function TopBar() {
+export function TopBar({ children }: { children?: React.ReactNode }) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -30,49 +30,51 @@ export function TopBar() {
 
   return (
     // shrink-0 is needed to prevent getting squished by body content
-    <div className="flex shrink-0 h-10 items-center justify-end">
-      <Button variant="link" size="xs" className="-mr-0.5 !text-tertiary" title="Info">
-        <Info16Icon />
-      </Button>
-      <Button variant="link" size="xs" className="!text-tertiary" title="Notifications">
-        <Notifications16Icon />
-      </Button>
-      <Menu>
-        <MenuButton
-          aria-label="User menu"
-          className="flex ml-1.5 text-tertiary items-center"
-          title="User menu"
-        >
-          {/* span needed to make the button align with the other ones */}
-          <span>
-            <Profile16Icon /> <DirectionDownIcon className="ml-0.5 !w-2.5" />
-          </span>
-        </MenuButton>
-        <MenuList className="mt-2">
-          {user?.displayName && (
-            <MenuItem
-              onSelect={() => {}}
-              className="cursor-default !text-default hover:!bg-raise"
+    <div className="sticky top-0 h-[60px] border-b border-secondary bg-default">
+      <div className="flex shrink-0 h-[60px] items-center justify-between mx-3">
+        <div className="flex items-center">{children}</div>
+        <div>
+          <Button variant="default" color="secondary" size="xs" title="Info">
+            <Info16Icon />
+          </Button>
+          <Button color="secondary" size="xs" className="ml-2" title="Notifications">
+            <Notifications16Icon />
+          </Button>
+          <Menu>
+            <MenuButton
+              as={Button}
+              color="secondary"
+              size="xs"
+              aria-label="User menu"
+              className="ml-2"
+              innerClassName="space-x-2"
+              title="User menu"
             >
-              {user.displayName}
-            </MenuItem>
-          )}
-          <MenuItem
-            onSelect={() => {
-              navigate('/settings')
-            }}
-          >
-            Settings
-          </MenuItem>
-          {loggedIn ? (
-            <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
-          ) : (
-            <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
-              Sign In
-            </MenuItem>
-          )}
-        </MenuList>
-      </Menu>
+              <Profile16Icon />
+              {/* TODO: design has this in sans font but button forces mono */}
+              {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
+              <span>{user?.displayName || 'User'}</span>
+              <DirectionDownIcon className="!w-2.5" />
+            </MenuButton>
+            <MenuList className="mt-2">
+              <MenuItem
+                onSelect={() => {
+                  navigate('/settings')
+                }}
+              >
+                Settings
+              </MenuItem>
+              {loggedIn ? (
+                <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
+              ) : (
+                <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
+                  Sign In
+                </MenuItem>
+              )}
+            </MenuList>
+          </Menu>
+        </div>
+      </div>
     </div>
   )
 }

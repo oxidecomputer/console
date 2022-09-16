@@ -1,9 +1,6 @@
-import { useEffect } from 'react'
 import { useMatches } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import type { Merge, SetRequired } from 'type-fest'
-
-import { Breadcrumbs as BreadcrumbsPure } from '@oxide/ui'
 
 type UseMatchesMatch = ReturnType<typeof useMatches>[number]
 
@@ -15,7 +12,8 @@ function hasCrumb(m: ValidatedMatch): m is SetRequired<ValidatedMatch, 'handle'>
   return !!(m.handle && m.handle.crumb)
 }
 
-const useCrumbs = () =>
+// TODO: memoize this
+export const useCrumbs = () =>
   useMatches()
     .map((m) => {
       invariant(
@@ -32,23 +30,3 @@ const useCrumbs = () =>
       label: typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb,
       href: m.pathname,
     }))
-
-export function Breadcrumbs() {
-  const crumbs = useCrumbs()
-  // output
-  // non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
-  // top-level route: Oxide Console
-  const title = crumbs
-    .slice() // avoid mutating original with reverse()
-    .reverse()
-    .map((item) => item.label)
-    .concat('Oxide Console')
-    .join(' / ')
-
-  useEffect(() => {
-    document.title = title
-  }, [title])
-
-  // remove last crumb which is the page we are on
-  return <BreadcrumbsPure data={crumbs.slice(0, -1)} />
-}
