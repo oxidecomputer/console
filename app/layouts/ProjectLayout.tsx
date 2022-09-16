@@ -15,7 +15,7 @@ import {
 import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
-import { DocsLink, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
@@ -52,9 +52,7 @@ const ProjectLayout = () => {
             <Folder16Icon />
             Projects
           </NavLinkItem>
-          <li>
-            <DocsLink />
-          </li>
+          <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={projectName}>

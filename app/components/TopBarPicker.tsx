@@ -20,49 +20,47 @@ type TopBarPickerProps = {
   icon?: React.ReactElement
 }
 
-function TopBarPicker(props: TopBarPickerProps) {
-  return (
-    <Menu>
-      <MenuButton
-        aria-label={props['aria-label']}
-        className="flex items-center justify-between w-full group"
-      >
-        <div className="flex items-center">
-          {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
-          <div className="text-left">
-            <div className="text-mono-sm text-secondary">{props.category}</div>
-            <div className="text-ellipsis whitespace-nowrap overflow-hidden text-sans-md">
-              {props.current}
-            </div>
+const TopBarPicker = (props: TopBarPickerProps) => (
+  <Menu>
+    <MenuButton
+      aria-label={props['aria-label']}
+      className="flex items-center justify-between w-full group"
+    >
+      <div className="flex items-center">
+        {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
+        <div className="text-left">
+          <div className="text-mono-sm text-secondary">{props.category}</div>
+          <div className="text-ellipsis whitespace-nowrap overflow-hidden text-sans-md">
+            {props.current}
           </div>
         </div>
-        {/* aria-hidden is a tip from the Reach docs */}
-        <div className="flex flex-shrink-0 w-[1.125rem] h-[1.625rem] ml-4 rounded border border-secondary justify-center items-center group-hover:bg-hover">
-          <SelectArrows6Icon className="text-secondary" aria-hidden />
-        </div>
-      </MenuButton>
-      {/* TODO: item size and focus highlight */}
-      {/* TODO: popover position should be further right */}
-      <MenuList className="mt-2">
-        {props.items.length > 0 ? (
-          props.items.map(({ label, to }) => (
-            <MenuLink key={label} as={Link} to={to}>
-              {label}
-            </MenuLink>
-          ))
-        ) : (
-          <MenuItem
-            className="!text-center hover:cursor-default !pr-3 !text-secondary"
-            onSelect={() => {}}
-            disabled
-          >
-            {props.fallbackText || 'No items found'}
-          </MenuItem>
-        )}
-      </MenuList>
-    </Menu>
-  )
-}
+      </div>
+      {/* aria-hidden is a tip from the Reach docs */}
+      <div className="flex flex-shrink-0 w-[1.125rem] h-[1.625rem] ml-4 rounded border border-secondary justify-center items-center group-hover:bg-hover">
+        <SelectArrows6Icon className="text-secondary" aria-hidden />
+      </div>
+    </MenuButton>
+    {/* TODO: item size and focus highlight */}
+    {/* TODO: popover position should be further right */}
+    <MenuList className="mt-2">
+      {props.items.length > 0 ? (
+        props.items.map(({ label, to }) => (
+          <MenuLink key={label} as={Link} to={to}>
+            {label}
+          </MenuLink>
+        ))
+      ) : (
+        <MenuItem
+          className="!text-center hover:cursor-default !pr-3 !text-secondary"
+          onSelect={() => {}}
+          disabled
+        >
+          {props.fallbackText || 'No items found'}
+        </MenuItem>
+      )}
+    </MenuList>
+  </Menu>
+)
 
 /**
  * This is temporary until we figure out the proper thing to go here
@@ -88,9 +86,7 @@ export function SiloSystemPicker() {
     'aria-label': 'Switch between system and silo',
   }
 
-  const { pathname } = useLocation()
-
-  const isSystem = pathname.startsWith('/system') // lol
+  const isSystem = useLocation().pathname.startsWith('/system') // lol
 
   return isSystem ? (
     <TopBarPicker {...commonProps} category="System" current="Happy Customer, Inc." />

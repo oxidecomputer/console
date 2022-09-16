@@ -3,7 +3,7 @@ import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/
 import { OrgPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
-import { DocsLink, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 // We need to use absolute paths here because sometimes this layout is rendered
@@ -21,9 +21,7 @@ const OrgLayout = () => {
             <Organization16Icon />
             Organizations
           </NavLinkItem>
-          <li>
-            <DocsLink />
-          </li>
+          <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={orgName}>

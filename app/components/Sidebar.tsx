@@ -10,15 +10,17 @@ const linkStyles =
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
-export const DocsLink = () => (
-  <a
-    className={linkStyles}
-    href="https://docs.oxide.computer"
-    target="_blank"
-    rel="noreferrer"
-  >
-    <Document16Icon /> Docs
-  </a>
+export const DocsLinkItem = () => (
+  <li>
+    <a
+      className={linkStyles}
+      href="https://docs.oxide.computer"
+      target="_blank"
+      rel="noreferrer"
+    >
+      <Document16Icon /> Docs
+    </a>
+  </li>
 )
 
 // this is mousetrap's logic for the `mod` modifier shortcut
@@ -37,14 +39,13 @@ const JumpToButton = () => (
     innerClassName="w-full justify-between"
   >
     {/* TODO: need "action" lightning bolt icon */}⚡ Jump to
-    {/* TODO: cmd or ctrl is is system-dependent */}
     <div className="">{modKey}+K</div>
   </Button>
 )
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex flex-col border-r text-sans-md text-default border-secondary">
+    <div className="flex flex-col border-r text-sans-md text-default border-secondary">
       <div className="border-b border-secondary h-[60px] px-3 flex">
         {/* TODO: don't mention Silo if user can't see system resources */}
         <SiloSystemPicker />
@@ -70,9 +71,6 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
     </nav>
   </div>
 )
-
-// TODO: I took out the height-responsive behavior on the sidebar footer. Think
-// about that, I guess.
 
 export const NavLinkItem = (props: {
   to: string

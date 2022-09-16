@@ -9,10 +9,11 @@ import { TopBar } from 'app/components/TopBar'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[13.75rem,1fr]`
 
+/** `children` is where the TopBar pickers go */
 export function ContentPane({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex flex-col overflow-auto">
-      <div className="relative flex flex-grow flex-col pb-10">
+      <div className="flex flex-grow flex-col pb-8">
         <TopBar>{children}</TopBar>
         <SkipLinkTarget />
         <main className="[&>*]:gutter">

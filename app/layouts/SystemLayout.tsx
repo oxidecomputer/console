@@ -9,7 +9,7 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
-import { DocsLink, NavLinkItem, Sidebar } from 'app/components/Sidebar'
+import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 
 import { ContentPane, PageContainer } from './helpers'
 
@@ -18,12 +18,9 @@ export default function SiloLayout() {
     <PageContainer>
       <Sidebar>
         <Sidebar.Nav>
-          <li>
-            <DocsLink />
-          </li>
+          <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        {/* TODO: silo name in heading */}
         <Sidebar.Nav heading="System">
           <NavLinkItem to="issues">
             {/* TODO: active green color should apply to icon */}

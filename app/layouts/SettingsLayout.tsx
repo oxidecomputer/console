@@ -5,7 +5,7 @@ import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks'
 
-import { DocsLink, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 const SettingsLayout = () => {
@@ -37,9 +37,7 @@ const SettingsLayout = () => {
       <Sidebar>
         <Sidebar.Nav>
           {/* TODO: what to link here? anything? */}
-          <li>
-            <DocsLink />
-          </li>
+          <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading="User">
