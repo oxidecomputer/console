@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import {
   Access16Icon,
   Divider,
@@ -14,7 +13,6 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
-import { PageActionsTarget } from 'app/components/PageActions'
 import { OrgPicker, ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
@@ -107,10 +105,7 @@ const ProjectLayout = () => {
             <Outlet />
           </Content>
         </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <PageActionsTarget />
-        </ContentPaneActions>
+        <ContentPaneActions />
       </ContentPaneWrapper>
     </PageContainer>
   )

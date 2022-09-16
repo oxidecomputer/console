@@ -1,10 +1,8 @@
 import { useMemo } from 'react'
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import { Divider, Key16Icon, Profile16Icon, Show16Icon, SkipLinkTarget } from '@oxide/ui'
 
-import { PageActionsTarget } from 'app/components/PageActions'
 import { SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 
@@ -84,10 +82,7 @@ const SettingsLayout = () => {
             <Outlet />
           </Content>
         </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <PageActionsTarget />
-        </ContentPaneActions>
+        <ContentPaneActions />
       </ContentPaneWrapper>
     </PageContainer>
   )

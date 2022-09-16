@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import {
   Access16Icon,
   Add12Icon,
@@ -11,7 +10,6 @@ import {
   SkipLinkTarget,
 } from '@oxide/ui'
 
-import { PageActionsTarget } from 'app/components/PageActions'
 import { OrgPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
@@ -82,10 +80,7 @@ const OrgLayout = () => {
             <Outlet />
           </Content>
         </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <PageActionsTarget />
-        </ContentPaneActions>
+        <ContentPaneActions />
       </ContentPaneWrapper>
     </PageContainer>
   )

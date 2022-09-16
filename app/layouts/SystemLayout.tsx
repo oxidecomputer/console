@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import {
   Divider,
   Health16Icon,
@@ -13,7 +12,6 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
-import { PageActionsTarget } from 'app/components/PageActions'
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { SiloSystemPicker } from 'app/components/TopBarPicker'
 
@@ -77,10 +75,7 @@ export default function SiloLayout() {
             <Outlet />
           </Content>
         </ContentPane>
-        <ContentPaneActions>
-          <Pagination.Target />
-          <PageActionsTarget />
-        </ContentPaneActions>
+        <ContentPaneActions />
       </ContentPaneWrapper>
     </PageContainer>
   )
