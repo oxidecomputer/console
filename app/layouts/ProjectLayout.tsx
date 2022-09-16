@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import {
   Access16Icon,
@@ -8,7 +8,6 @@ import {
   Images16Icon,
   Instances16Icon,
   Networking16Icon,
-  SkipLinkTarget,
   Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
@@ -17,14 +16,7 @@ import { OrgPicker, ProjectPicker, SiloSystemPicker } from 'app/components/TopBa
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { TopBar } from '../components/TopBar'
-import {
-  Content,
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -93,20 +85,11 @@ const ProjectLayout = () => {
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar>
-            <OrgPicker />
-            <span className="text-mono-lg text-tertiary mx-4">/</span>
-            <ProjectPicker />
-          </TopBar>
-          <SkipLinkTarget />
-          <Content>
-            <Outlet />
-          </Content>
-        </ContentPane>
-        <ContentPaneActions />
-      </ContentPaneWrapper>
+      <ContentPane>
+        <OrgPicker />
+        <span className="text-mono-lg text-tertiary mx-4">/</span>
+        <ProjectPicker />
+      </ContentPane>
     </PageContainer>
   )
 }

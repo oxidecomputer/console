@@ -1,20 +1,13 @@
 import { useMemo } from 'react'
-import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Divider, Key16Icon, Profile16Icon, Show16Icon, SkipLinkTarget } from '@oxide/ui'
+import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
 
 import { SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { TopBar } from '../components/TopBar'
-import {
-  Content,
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 const SettingsLayout = () => {
   const navigate = useNavigate()
@@ -74,16 +67,7 @@ const SettingsLayout = () => {
           </Sidebar.Nav>
         </div>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <SkipLinkTarget />
-          <Content>
-            <Outlet />
-          </Content>
-        </ContentPane>
-        <ContentPaneActions />
-      </ContentPaneWrapper>
+      <ContentPane />
     </PageContainer>
   )
 }

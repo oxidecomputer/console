@@ -1,18 +1,9 @@
-import { Outlet } from 'react-router-dom'
-
-import { Divider, Organization16Icon, SkipLinkTarget } from '@oxide/ui'
+import { Divider, Organization16Icon } from '@oxide/ui'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { SiloSystemPicker } from 'app/components/TopBarPicker'
 
-import { TopBar } from '../components/TopBar'
-import {
-  Content,
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 export default function SiloLayout() {
   return (
@@ -39,16 +30,7 @@ export default function SiloLayout() {
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <SkipLinkTarget />
-          <Content>
-            <Outlet />
-          </Content>
-        </ContentPane>
-        <ContentPaneActions />
-      </ContentPaneWrapper>
+      <ContentPane />
     </PageContainer>
   )
 }

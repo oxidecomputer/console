@@ -1,5 +1,3 @@
-import { Outlet } from 'react-router-dom'
-
 import {
   Access16Icon,
   Add12Icon,
@@ -7,21 +5,13 @@ import {
   Divider,
   Folder16Icon,
   Organization16Icon,
-  SkipLinkTarget,
 } from '@oxide/ui'
 
 import { OrgPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { TopBar } from '../components/TopBar'
-import {
-  Content,
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 // We need to use absolute paths here because sometimes this layout is rendered
 // at `/orgs/:orgName` and other times it's rendered at `/orgs/:orgName/access`.
@@ -70,18 +60,9 @@ const OrgLayout = () => {
           </Button>
         </Sidebar.Footer>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar>
-            <OrgPicker />
-          </TopBar>
-          <SkipLinkTarget />
-          <Content>
-            <Outlet />
-          </Content>
-        </ContentPane>
-        <ContentPaneActions />
-      </ContentPaneWrapper>
+      <ContentPane>
+        <OrgPicker />
+      </ContentPane>
     </PageContainer>
   )
 }

@@ -1,12 +1,9 @@
-import { Outlet } from 'react-router-dom'
-
 import {
   Divider,
   Health16Icon,
   Instances16Icon,
   Networking16Icon,
   Settings16Icon,
-  SkipLinkTarget,
   Snapshots16Icon,
   SoftwareUpdate16Icon,
   Storage16Icon,
@@ -15,14 +12,7 @@ import {
 import { DocsLink, JumpToButton, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { SiloSystemPicker } from 'app/components/TopBarPicker'
 
-import { TopBar } from '../components/TopBar'
-import {
-  Content,
-  ContentPane,
-  ContentPaneActions,
-  ContentPaneWrapper,
-  PageContainer,
-} from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 export default function SiloLayout() {
   return (
@@ -67,16 +57,7 @@ export default function SiloLayout() {
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPaneWrapper>
-        <ContentPane>
-          <TopBar />
-          <SkipLinkTarget />
-          <Content>
-            <Outlet />
-          </Content>
-        </ContentPane>
-        <ContentPaneActions />
-      </ContentPaneWrapper>
+      <ContentPane />
     </PageContainer>
   )
 }
