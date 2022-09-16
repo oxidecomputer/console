@@ -12,6 +12,7 @@ type TopBarPickerItem = {
 }
 
 type TopBarPickerProps = {
+  'aria-label': string
   category: string
   current: string
   items: TopBarPickerItem[]
@@ -19,19 +20,19 @@ type TopBarPickerProps = {
   icon?: React.ReactElement
 }
 
-function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPickerProps) {
+function TopBarPicker(props: TopBarPickerProps) {
   return (
     <Menu>
       <MenuButton
-        aria-label="Switch project"
+        aria-label={props['aria-label']}
         className="flex items-center justify-between w-full group"
       >
         <div className="flex items-center">
-          {icon ? <div className="mr-2 flex items-center">{icon}</div> : null}
+          {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
           <div className="text-left">
-            <div className="text-mono-sm text-secondary">{category}</div>
+            <div className="text-mono-sm text-secondary">{props.category}</div>
             <div className="text-ellipsis whitespace-nowrap overflow-hidden text-sans-md">
-              {current}
+              {props.current}
             </div>
           </div>
         </div>
@@ -43,8 +44,8 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       <MenuList className="mt-2">
-        {items.length > 0 ? (
-          items.map(({ label, to }) => (
+        {props.items.length > 0 ? (
+          props.items.map(({ label, to }) => (
             <MenuLink key={label} as={Link} to={to}>
               {label}
             </MenuLink>
@@ -55,7 +56,7 @@ function TopBarPicker({ category, current, items, icon, fallbackText }: TopBarPi
             onSelect={() => {}}
             disabled
           >
-            {fallbackText || 'No items found'}
+            {props.fallbackText || 'No items found'}
           </MenuItem>
         )}
       </MenuList>
@@ -79,21 +80,24 @@ const MazeWarLogo = () => (
 )
 
 export function SiloSystemPicker() {
-  const items = [
-    { label: 'System', to: '/system' },
-    { label: 'Silo', to: '/orgs' },
-  ]
+  const commonProps = {
+    items: [
+      { label: 'System', to: '/system' },
+      { label: 'Silo', to: '/orgs' },
+    ],
+    'aria-label': 'Switch between system and silo',
+  }
 
   const { pathname } = useLocation()
 
   const isSystem = pathname.startsWith('/system') // lol
 
   return isSystem ? (
-    <TopBarPicker category="System" current="Happy Customer, Inc." items={items} />
+    <TopBarPicker {...commonProps} category="System" current="Happy Customer, Inc." />
   ) : (
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
-    <TopBarPicker category="Silo" current="corp.dev" items={items} />
+    <TopBarPicker {...commonProps} category="Silo" current="corp.dev" />
   )
 }
 
@@ -108,6 +112,7 @@ export function OrgPicker() {
 
   return (
     <TopBarPicker
+      aria-label="Switch organization"
       icon={<MazeWarLogo />}
       category="Organization"
       current={orgName}
@@ -126,6 +131,7 @@ export function ProjectPicker() {
 
   return (
     <TopBarPicker
+      aria-label="Switch project"
       category="Project"
       current={projectName}
       items={items}
