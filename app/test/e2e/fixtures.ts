@@ -12,7 +12,7 @@ import type {
   VpcDeleteParams,
 } from '@oxide/api'
 
-import { expectNotVisible } from './utils'
+import { expectNotVisible, genName as gen } from './utils'
 
 /**
  * Returns a callback to result position and fails if response code over 400.
@@ -31,36 +31,72 @@ const goto = async (page: Page, url: string) => {
 type Body<T> = Partial<Omit<T, 'name'>>
 
 interface Fixtures {
-  createOrg: (orgName: string, body?: Body<OrganizationCreate>) => Promise<void>
+  genName: (prefix: string) => string
+  orgName: string
+  projectName: string
+  instanceName: string
+  vpcName: string
+  createOrg: (
+    orgName: string,
+    body?: Body<OrganizationCreate>,
+    strict?: boolean
+  ) => Promise<void>
   deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
   createProject: (
     orgName: string,
     projectName: string,
-    body?: Body<ProjectCreate>
+    body?: Body<ProjectCreate>,
+    strict?: boolean
   ) => Promise<void>
   deleteProject: (params: ProjectDeleteParams) => Promise<void>
   createInstance: (
     orgName: string,
     projectName: string,
     instanceName: string,
-    body?: Body<InstanceCreate>
+    body?: Body<InstanceCreate>,
+    strict?: boolean
   ) => Promise<void>
   deleteInstance: (params: InstanceDeleteParams) => Promise<void>
   createVpc: (
     orgName: string,
     projectName: string,
     vpcName: string,
-    body?: Body<VpcCreate>
+    body?: Body<VpcCreate>,
+    strict?: boolean
   ) => Promise<void>
   deleteVpc: (params: VpcDeleteParams) => Promise<void>
   deleteTableRow: (rowText: string) => Promise<void>
 }
 
 export const test = base.extend<Fixtures>({
+  // Tests fail if destructuring isn't used here which is why the ignore exists
+  // eslint-disable-next-line no-empty-pattern
+  async genName({}, use, testInfo) {
+    const name = testInfo.file.split('/').pop()?.split('.')[0] ?? 'test'
+    await use((prefix) => gen(`${prefix}-${name}-line${testInfo.line}`))
+  },
+  async orgName({ genName }, use) {
+    await use(genName('org'))
+  },
+  async projectName({ genName }, use) {
+    await use(genName('proj'))
+  },
+  async instanceName({ genName }, use) {
+    await use(genName('inst'))
+  },
+  async vpcName({ genName }, use) {
+    await use(genName('vpc'))
+  },
   async createOrg({ page, deleteOrg }, use) {
     const orgsToRemove: string[] = []
 
-    await use(async (orgName, body = {}) => {
+    await use(async (orgName, body = {}, strict = false) => {
+      if (strict) {
+        expect(orgsToRemove).not.toContain(orgName)
+      } else if (orgsToRemove.includes(orgName)) {
+        return
+      }
+
       const back = await goto(page, '/orgs/new')
 
       await page.fill('role=textbox[name="Name"]', orgName)
@@ -83,10 +119,20 @@ export const test = base.extend<Fixtures>({
     })
   },
 
-  async createProject({ page, deleteProject }, use) {
+  async createProject({ page, createOrg, deleteProject }, use) {
     const projectsToRemove: ProjectDeleteParams[] = []
 
-    await use(async (orgName, projectName, body = {}) => {
+    await use(async (orgName, projectName, body = {}, strict = false) => {
+      if (strict) {
+        expect(projectsToRemove).not.toContainEqual({ orgName, projectName })
+      } else if (
+        projectsToRemove.find((p) => p.orgName === orgName && p.projectName === projectName)
+      ) {
+        return
+      } else {
+        await createOrg(orgName)
+      }
+
       const back = await goto(page, `/orgs/${orgName}/projects/new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
@@ -110,9 +156,28 @@ export const test = base.extend<Fixtures>({
   },
 
   // TODO: Wire up all create options
-  async createInstance({ page, deleteInstance }, use) {
+  async createInstance({ page, createProject, deleteInstance }, use) {
     const instancesToRemove: InstanceDeleteParams[] = []
-    await use(async (orgName, projectName, instanceName) => {
+    await use(async (orgName, projectName, instanceName, _body = {}, strict = false) => {
+      if (strict) {
+        expect(instancesToRemove).not.toContainEqual({
+          orgName,
+          projectName,
+          instanceName,
+        })
+      } else if (
+        instancesToRemove.find(
+          (i) =>
+            i.orgName === orgName &&
+            i.projectName === projectName &&
+            i.instanceName === instanceName
+        )
+      ) {
+        return
+      } else {
+        await createProject(orgName, projectName)
+      }
+
       const back = await goto(
         page,
         `/orgs/${orgName}/projects/${projectName}/instances/new`
@@ -143,13 +208,27 @@ export const test = base.extend<Fixtures>({
     })
   },
 
-  async createVpc({ page, deleteVpc }, use) {
+  async createVpc({ page, createProject, deleteVpc }, use) {
     const vpcsToRemove: VpcDeleteParams[] = []
 
-    await use(async (orgName, projectName, vpcName, body = {}) => {
+    await use(async (orgName, projectName, vpcName, body = {}, strict = false) => {
+      if (strict) {
+        expect(vpcsToRemove).not.toContainEqual({ orgName, projectName, vpcName })
+      } else if (
+        vpcsToRemove.find(
+          (v) =>
+            v.orgName === orgName && v.projectName === projectName && v.vpcName === vpcName
+        )
+      ) {
+        return
+      } else {
+        await createProject(orgName, projectName)
+      }
+
       const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs/new`)
       await page.fill('role=textbox[name="Name"]', vpcName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
+      await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpcName)
       await page.click('role=button[name="Create VPC"]')
 
       vpcsToRemove.push({ orgName, projectName, vpcName })
@@ -174,11 +253,14 @@ export const test = base.extend<Fixtures>({
 
   async deleteTableRow({ page }, use) {
     await use(async (rowText: string) => {
+      await page.pause()
       await page
         .locator('role=row', { hasText: rowText })
         .locator('role=button[name="Row actions"]')
         .click()
+      await page.pause()
       await page.click('role=menuitem[name="Delete"]')
+      await page.pause()
       await expectNotVisible(page, [`role=cell[name="${rowText}"]`])
     })
   },
