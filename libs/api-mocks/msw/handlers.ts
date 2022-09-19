@@ -827,6 +827,28 @@ export const handlers = [
     }
   ),
 
+  rest.delete<never, VpcParams, GetErr>(
+    '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
+    (req, res, ctx) => {
+      const [vpc, err] = lookupVpc(req.params)
+      if (err) return res(err)
+
+      db.vpcs = db.vpcs.filter((v) => v.id !== vpc.id)
+      db.vpcSubnets = db.vpcSubnets.filter((s) => s.vpc_id !== vpc.id)
+      db.vpcFirewallRules = db.vpcFirewallRules.filter((r) => r.vpc_id !== vpc.id)
+
+      const routersToRemove = db.vpcRouters
+        .filter((r) => r.vpc_id === vpc.id)
+        .map((r) => r.id)
+      db.vpcRouterRoutes = db.vpcRouterRoutes.filter(
+        (r) => !routersToRemove.includes(r.vpc_router_id)
+      )
+      db.vpcRouters = db.vpcRouters.filter((r) => r.vpc_id !== vpc.id)
+
+      return res(ctx.status(204))
+    }
+  ),
+
   rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {

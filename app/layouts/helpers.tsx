@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
+import { apiQueryClient } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -26,4 +27,8 @@ export function ContentPane({ children }: { children?: React.ReactNode }) {
       </div>
     </div>
   )
+}
+
+export async function prefetchSessionMe() {
+  await apiQueryClient.prefetchQuery('sessionMe', {})
 }

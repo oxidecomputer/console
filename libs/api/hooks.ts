@@ -110,7 +110,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
   fetchQuery: <M extends string & keyof A>(
     method: M,
-    params?: Params<A[M]>,
+    params: Params<A[M]>,
     options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.fetchQuery({
@@ -120,7 +120,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     }),
   prefetchQuery: <M extends string & keyof A>(
     method: M,
-    params?: Params<A[M]>,
+    params: Params<A[M]>,
     options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
   ) =>
     queryClient.prefetchQuery({
