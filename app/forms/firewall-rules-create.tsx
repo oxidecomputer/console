@@ -130,6 +130,8 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'vpc', label: 'VPC' },
           { value: 'subnet', label: 'VPC Subnet' },
           { value: 'instance', label: 'Instance' },
+          { value: 'ip', label: 'IP' },
+          { value: 'ipNet', label: 'IP subnet' },
         ]}
       />
       {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
@@ -209,7 +211,7 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'subnet', label: 'VPC Subnet' },
           { value: 'instance', label: 'Instance' },
           { value: 'ip', label: 'IP' },
-          { value: 'internet_gateway', label: 'Internet Gateway' },
+          { value: 'ipNet', label: 'IP Subnet' },
         ]}
       />
       {/* For everything but IP this is a name, but for IP it's an IP.
