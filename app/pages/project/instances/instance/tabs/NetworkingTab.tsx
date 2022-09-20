@@ -139,7 +139,7 @@ export function NetworkingTab() {
           cell={({ value }) =>
             value && (
               <>
-                <Success12Icon className="text-accent mr-1" />
+                <Success12Icon className="mr-1 text-accent" />
                 <Badge variant="secondary">primary</Badge>
               </>
             )

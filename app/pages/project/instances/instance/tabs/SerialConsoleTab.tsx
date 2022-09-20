@@ -20,13 +20,13 @@ export function SerialConsoleTab() {
 
   return (
     <>
-      <div className="-mb-10 !w-[calc(100%-var(--content-gutter))] relative">
+      <div className="relative -mb-10 !w-[calc(100%-var(--content-gutter))]">
         <Suspense fallback={<>Loading</>}>
           <Terminal className="mb-2 w-full" data={data?.data} />
         </Suspense>
       </div>
       <PageActions>
-        <div className="flex h-20 items-center gutter">
+        <div className="gutter flex h-20 items-center">
           <Button variant="default" size="sm" onClick={() => refetch()}>
             Refresh
           </Button>

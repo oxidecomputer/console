@@ -45,7 +45,7 @@ export const Toast = ({
   return (
     <Alert
       className={cn(
-        'flex w-96 items-start rounded p-4 relative overflow-hidden',
+        'relative flex w-96 items-start overflow-hidden rounded p-4',
         color[variant],
         textColor[variant]
       )}
@@ -57,7 +57,7 @@ export const Toast = ({
       </div>
       <button
         aria-label="Dismiss notification"
-        className={cn('flex !border-transparent p-2 -m-2 h-auto', textColor[variant])}
+        className={cn('-m-2 flex h-auto !border-transparent p-2', textColor[variant])}
         onClick={onClose}
       >
         <Close12Icon />

@@ -30,8 +30,8 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
 
   return (
     // shrink-0 is needed to prevent getting squished by body content
-    <div className="sticky top-0 h-[60px] border-b border-secondary bg-default">
-      <div className="flex shrink-0 h-[60px] items-center justify-between mx-3">
+    <div className="sticky top-0 h-[60px] border-b bg-default border-secondary">
+      <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
         <div className="flex items-center">{children}</div>
         <div>
           <Button variant="default" color="secondary" size="xs" title="Info">

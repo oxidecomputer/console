@@ -46,7 +46,7 @@ const JumpToButton = () => (
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col border-r text-sans-md text-default border-secondary">
-      <div className="border-b border-secondary h-[60px] px-3 flex">
+      <div className="flex h-[60px] border-b px-3 border-secondary">
         {/* TODO: don't mention Silo if user can't see system resources */}
         <SiloSystemPicker />
       </div>
@@ -64,7 +64,7 @@ interface SidebarNav {
 }
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
-  <div className="space-y-1 my-4 mx-3">
+  <div className="my-4 mx-3 space-y-1">
     {heading && <span className="text-mono-sm text-secondary">{heading}</span>}
     <nav>
       <ul className="space-y-0.5">{children}</ul>
