@@ -3,11 +3,10 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
 
-import { TopBar } from 'app/components/TopBar'
 import { useQuickActions } from 'app/hooks'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { ContentPane, PageContainer } from './helpers'
+import { Layout } from './helpers'
 
 const SettingsLayout = () => {
   const navigate = useNavigate()
@@ -34,31 +33,27 @@ const SettingsLayout = () => {
   )
 
   return (
-    <PageContainer>
-      <TopBar />
-      <Sidebar>
-        <Sidebar.Nav>
-          {/* TODO: what to link here? anything? */}
-          <DocsLinkItem />
-        </Sidebar.Nav>
-        <Divider />
-        <Sidebar.Nav heading="User">
-          <NavLinkItem to="profile">
-            <Profile16Icon /> Profile
-          </NavLinkItem>
-          <NavLinkItem to="appearance">
-            <Show16Icon /> Appearance
-          </NavLinkItem>
-          <NavLinkItem to="hotkeys">
-            <Profile16Icon /> Hotkeys
-          </NavLinkItem>
-          <NavLinkItem to="ssh-keys">
-            <Key16Icon /> SSH Keys
-          </NavLinkItem>
-        </Sidebar.Nav>
-      </Sidebar>
-      <ContentPane />
-    </PageContainer>
+    <Layout>
+      <Sidebar.Nav>
+        {/* TODO: what to link here? anything? */}
+        <DocsLinkItem />
+      </Sidebar.Nav>
+      <Divider />
+      <Sidebar.Nav heading="User">
+        <NavLinkItem to="profile">
+          <Profile16Icon /> Profile
+        </NavLinkItem>
+        <NavLinkItem to="appearance">
+          <Show16Icon /> Appearance
+        </NavLinkItem>
+        <NavLinkItem to="hotkeys">
+          <Profile16Icon /> Hotkeys
+        </NavLinkItem>
+        <NavLinkItem to="ssh-keys">
+          <Key16Icon /> SSH Keys
+        </NavLinkItem>
+      </Sidebar.Nav>
+    </Layout>
   )
 }
 
