@@ -13,7 +13,7 @@ test('Expect no firewall rules by default', async ({ page }) => {
 
 test('Can create a firewall rule', async ({ page, genName }) => {
   const modal = page.locator('text="Add firewall rule"')
-  await page.locator('text="New rule"').click()
+  await page.locator('text="New rule"').first().click()
 
   await expect(modal).toBeVisible()
 
