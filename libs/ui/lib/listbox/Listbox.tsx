@@ -50,15 +50,12 @@ export const Listbox: FC<ListboxProps> = ({
       >
         <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
 
-        <div className="ox-menu">
+        <div className="ml-5 flex h-[calc(100%-12px)] items-center border-l border-secondary">
           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
         </div>
       </button>
       <ul
-        className={cn(
-          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded shadow-2xl bg-raise border-secondary focus:outline-none children:border-b children:border-secondary last:children:border-b-0',
-          select.isOpen && 'border'
-        )}
+        className={cn('ox-menu !children:border-b-secondary', select.isOpen && 'border')}
         {...select.getMenuProps()}
       >
         {select.isOpen &&
