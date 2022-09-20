@@ -3,6 +3,7 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
 
+import { TopBar } from 'app/components/TopBar'
 import { useQuickActions } from 'app/hooks'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -34,6 +35,7 @@ const SettingsLayout = () => {
 
   return (
     <PageContainer>
+      <TopBar />
       <Sidebar>
         <Sidebar.Nav>
           {/* TODO: what to link here? anything? */}

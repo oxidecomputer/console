@@ -3,8 +3,6 @@ import { NavLink } from 'react-router-dom'
 
 import { Button, Document16Icon } from '@oxide/ui'
 
-import { SiloSystemPicker } from './TopBarPicker'
-
 const linkStyles =
   'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
 
@@ -46,10 +44,6 @@ const JumpToButton = () => (
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col border-r text-sans-md text-default border-secondary">
-      <div className="flex h-[60px] border-b px-3 border-secondary">
-        {/* TODO: don't mention Silo if user can't see system resources */}
-        <SiloSystemPicker />
-      </div>
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>

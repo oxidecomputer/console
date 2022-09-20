@@ -1,12 +1,14 @@
 import { Divider, Organization16Icon } from '@oxide/ui'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
+import { TopBar } from 'app/components/TopBar'
 
 import { ContentPane, PageContainer } from './helpers'
 
 export default function SiloLayout() {
   return (
     <PageContainer>
+      <TopBar />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />
