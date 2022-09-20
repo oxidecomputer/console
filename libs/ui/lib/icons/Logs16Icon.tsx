@@ -22,13 +22,8 @@ const Logs16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M4 3H0V7H4V3ZM16 3H6V7H16V3ZM6 9H16V13H6V9ZM1 12H3L3 7.00002H1L1 12Z"
-        fill="#989A9B"
-      />
-      <path
-        id="Rectangle 64"
-        d="M6 9.99999L1 9.99999L1 12L6 12L6 9.99999Z"
-        fill="#989A9B"
+        d="M0 3H4V7H0V3ZM6 3H16V7H6V3ZM16 9H6V9.99999L3 9.99999L3 7.00002H1L1 9.99999L1 12L1 12H3V12L6 12V13H16V9Z"
+        fill="currentColor"
       />
     </g>
   </svg>

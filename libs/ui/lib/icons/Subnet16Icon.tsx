@@ -26,11 +26,9 @@ const Subnet16Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M0 0H6V6H4V10H6V16H0V10H2V6H0V0ZM10 0H16V6H14V10H16V16H10V10H12V6H10V0Z"
-        fill="#989A9B"
+        d="M0 0H6V2L10 2V0H16V6H14V10H16V16H10V14H6V16H0V10H2V6H0V0ZM6 12H10V10H12V6H10V4H6V6H4V10H6V12Z"
+        fill="currentColor"
       />
-      <path id="Vector" d="M11 4L11 2L5 2L5 4L11 4Z" fill="#989A9B" />
-      <path id="Vector_2" d="M11 14L11 12L5 12L5 14L11 14Z" fill="#989A9B" />
     </g>
   </svg>
 )
