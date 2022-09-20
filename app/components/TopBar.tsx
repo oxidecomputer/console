@@ -1,4 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
+import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
@@ -9,6 +10,7 @@ import {
   Notifications16Icon,
   Profile16Icon,
 } from '@oxide/ui'
+import { isTruthy } from '@oxide/util'
 
 import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
@@ -38,17 +40,11 @@ export function TopBar() {
 
   const { orgName, projectName } = useParams()
 
-  const pickers = projectName
-    ? [<OrgPicker key={0} />, <ProjectPicker key={1} />]
-    : orgName
-    ? [<OrgPicker key={0} />]
-    : []
-
-  if (hasSiloPerms) {
-    pickers.unshift(<SiloSystemPicker />)
-  }
-
-  const [cornerPicker, ...otherPickers] = pickers
+  const [cornerPicker, ...otherPickers] = [
+    hasSiloPerms && <SiloSystemPicker />,
+    orgName && <OrgPicker />,
+    projectName && <ProjectPicker />,
+  ].filter(isTruthy)
 
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
