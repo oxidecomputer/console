@@ -63,11 +63,10 @@ export const Listbox: FC<ListboxProps> = ({
             <div key={index} className="relative">
               <li
                 key={item.value}
-                className={cn(
-                  'ox-menu-item',
-                  { 'is-selected': select.selectedItem?.value === item.value },
-                  { 'bg-raise-hover': select.highlightedIndex === index }
-                )}
+                className={cn('ox-menu-item', {
+                  'is-selected': select.selectedItem?.value === item.value,
+                  'bg-raise-hover': select.highlightedIndex === index,
+                })}
                 {...select.getItemProps({ item, index })}
               >
                 {item.label}
