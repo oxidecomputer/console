@@ -27,6 +27,8 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn install
 
       - name: Build themes
