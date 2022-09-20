@@ -253,14 +253,11 @@ export const test = base.extend<Fixtures>({
 
   async deleteTableRow({ page }, use) {
     await use(async (rowText: string) => {
-      await page.pause()
       await page
         .locator('role=row', { hasText: rowText })
         .locator('role=button[name="Row actions"]')
         .click()
-      await page.pause()
       await page.click('role=menuitem[name="Delete"]')
-      await page.pause()
       await expectNotVisible(page, [`role=cell[name="${rowText}"]`])
     })
   },
