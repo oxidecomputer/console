@@ -16,6 +16,9 @@ type TopBarPickerItem = {
 type TopBarPickerProps = {
   'aria-label': string
   category: string
+  /** Text displayed below the category. Defaults to `current` if not provided. */
+  display?: string
+  /** The actively selected option. Used as display if display isn't present. */
   current: string
   items: TopBarPickerItem[]
   fallbackText?: string
@@ -33,7 +36,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         <div className="text-left">
           <div className="text-mono-sm text-secondary">{props.category}</div>
           <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
-            {props.current}
+            {props.display ?? props.current}
           </div>
         </div>
       </div>
@@ -97,11 +100,16 @@ export function SiloSystemPicker() {
   const isSystem = useLocation().pathname.startsWith('/system') // lol
 
   return isSystem ? (
-    <TopBarPicker {...commonProps} category="System" current="Happy Customer, Inc." />
+    <TopBarPicker
+      {...commonProps}
+      category="System"
+      current="System"
+      display="Happy Customer, Inc."
+    />
   ) : (
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
-    <TopBarPicker {...commonProps} category="Silo" current="corp.dev" />
+    <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
   )
 }
 
