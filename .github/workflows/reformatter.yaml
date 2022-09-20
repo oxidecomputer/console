@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn install
 
       - name: Format
