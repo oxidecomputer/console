@@ -20,7 +20,6 @@ import { SiloSystemPicker } from './TopBarPicker'
 const hasSiloPerms = true
 
 export function TopBar({ children }: { children?: React.ReactNode }) {
-  const [firstChild, ...otherChildren] = flattenChildren(children)
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -38,20 +37,22 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
 
   const loggedIn = user && !error
 
+  const [cornerPicker, ...otherPickers] = hasSiloPerms
+    ? [<SiloSystemPicker key={0} />, ...flattenChildren(children)]
+    : flattenChildren(children)
+
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
-      <div className="flex border-b border-r px-3 border-secondary">
-        {(hasSiloPerms && <SiloSystemPicker />) || firstChild}
-      </div>
+      <div className="flex border-b border-r px-3 border-secondary">{cornerPicker}</div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-mono-lg between:before:text-tertiary">
-            {hasSiloPerms ? children : otherChildren}
+            {otherPickers}
           </div>
           <div>
             <Button variant="default" color="secondary" size="xs" title="Info">
