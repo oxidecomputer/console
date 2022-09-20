@@ -42,24 +42,24 @@ export const Listbox: FC<ListboxProps> = ({
       <button
         type="button"
         className={cn(
-          `flex w-full items-center justify-between rounded border
-          h-[2.625rem] px-3 text-sans-md bg-default border-default
+          `flex h-[2.625rem] w-full items-center justify-between rounded
+          border px-3 text-sans-md bg-default border-default
           focus:outline-none focus:ring-2 focus:ring-accent-secondary
           disabled:cursor-not-allowed disabled:bg-disabled`,
-          select.isOpen ? 'text-secondary ring-2 ring-accent-secondary' : 'text-default'
+          select.isOpen ? 'ring-2 text-secondary ring-accent-secondary' : 'text-default'
         )}
         {...select.getToggleButtonProps()}
         {...props}
       >
         <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
 
-        <div className="ml-5 flex h-[calc(100%-12px)] border-l border-secondary items-center">
+        <div className="ml-5 flex h-[calc(100%-12px)] items-center border-l border-secondary">
           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
         </div>
       </button>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-3 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem] shadow-2xl',
+          '!children:border-b-secondary absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded shadow-2xl bg-raise border-secondary focus:outline-none children:border-b children:border-secondary last:children:border-b-0',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
@@ -72,7 +72,7 @@ export const Listbox: FC<ListboxProps> = ({
               <li
                 key={item.value}
                 className={cn(
-                  'p-3 text-sans-sm text-default hover:bg-raise-hover cursor-pointer',
+                  'cursor-pointer p-3 text-sans-sm text-default hover:bg-raise-hover',
                   select.selectedItem?.value === item.value &&
                     'text-accent bg-accent-secondary hover:bg-accent-secondary-hover',
                   select.highlightedIndex === index && 'bg-raise-hover'

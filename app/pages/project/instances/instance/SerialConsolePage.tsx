@@ -24,12 +24,12 @@ export function SerialConsolePage() {
       <PageHeader>
         <PageTitle icon={<Terminal24Icon />}>Serial Console</PageTitle>
       </PageHeader>
-      <Divider className="!m-0 !w-full !-mt-12" />
+      <Divider className="!m-0 !-mt-12 !w-full" />
       <Suspense fallback={<>Loading</>}>
-        <Terminal className="w-full h-full -mb-10 mt-1" data={data?.data} />
+        <Terminal className="-mb-10 mt-1 h-full w-full" data={data?.data} />
       </Suspense>
       <PageActions>
-        <div className="flex h-20 items-center gutter">
+        <div className="gutter flex h-20 items-center">
           <Button variant="default" size="sm" onClick={() => refetch()}>
             Refresh
           </Button>

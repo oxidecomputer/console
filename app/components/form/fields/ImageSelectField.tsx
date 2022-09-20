@@ -144,15 +144,15 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       <RadioCard
         name={fieldName}
         value={currentDistro}
-        className="h-44 w-44 pb-0 relative"
+        className="relative h-44 w-44 pb-0"
         onClick={onClick}
       >
-        <div className="relative flex h-full flex-col items-center justify-end !pb-4 space-y-3 peer-checked:children:border-accent-secondary">
+        <div className="relative flex h-full flex-col items-center justify-end space-y-3 !pb-4 peer-checked:children:border-accent-secondary">
           <button
             type="button"
             {...select.getToggleButtonProps()}
             className={cn(
-              'absolute top-0 w-full flex items-center border-b border-secondary h-10 justify-between px-3 text-sans-sm text-secondary',
+              'absolute top-0 flex h-10 w-full items-center justify-between border-b px-3 text-sans-sm text-secondary border-secondary',
               selected ? 'text-accent' : 'text-secondary'
             )}
           >
@@ -167,7 +167,7 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       </RadioCard>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute -top-2 left-0 right-0 overflow-y-auto rounded border-secondary bg-raise children:border-b children:border-secondary last:children:border-b-0 focus:outline-none max-h-[17.5rem] shadow-2xl -translate-y-full',
+          '!children:border-b-secondary absolute -top-2 left-0 right-0 max-h-[17.5rem] -translate-y-full overflow-y-auto rounded shadow-2xl bg-raise border-secondary focus:outline-none children:border-b children:border-secondary last:children:border-b-0',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
@@ -179,7 +179,7 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
               <div
                 key={index}
                 className={cn(
-                  'p-3 text-sans-sm text-default hover:bg-raise-hover cursor-pointer',
+                  'cursor-pointer p-3 text-sans-sm text-default hover:bg-raise-hover',
                   selected &&
                     select.selectedItem?.id === distro.id &&
                     'text-accent bg-accent-secondary hover:bg-accent-secondary-hover',

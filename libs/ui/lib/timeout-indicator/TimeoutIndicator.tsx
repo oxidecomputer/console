@@ -29,7 +29,7 @@ export const TimeoutIndicator = ({
 
   return transitions((styles) => (
     <animated.div
-      className={cn('w-0 h-0.5 absolute bottom-0 left-0', className)}
+      className={cn('absolute bottom-0 left-0 h-0.5 w-0', className)}
       style={styles}
     />
   ))

@@ -56,7 +56,7 @@ PropertiesTable.Group = ({ children, className }: PropertiesTableGroupProps) => 
     <div
       className={cn(
         className,
-        'md-:first:children:rounded-b-none md-:last:children:rounded-t-none flex min-w-min md-:flex-col md-:first:children:border-b-secondary md-:last:children:border-t-0 lg+:space-x-4'
+        'flex min-w-min md-:flex-col md-:first:children:rounded-b-none md-:first:children:border-b-secondary md-:last:children:rounded-t-none md-:last:children:border-t-0 lg+:space-x-4'
       )}
     >
       {children}

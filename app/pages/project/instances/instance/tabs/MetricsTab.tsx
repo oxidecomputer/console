@@ -51,7 +51,7 @@ function DiskMetric({
 
   return (
     <div>
-      <h2 className="text-mono-md text-secondary flex items-center">
+      <h2 className="flex items-center text-mono-md text-secondary">
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
       <TimeSeriesAreaChart
@@ -81,7 +81,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
 
   return (
     <>
-      <div className="flex justify-between mt-8 mb-4">
+      <div className="mt-8 mb-4 flex justify-between">
         {dateTimeRangePicker}
         {/* TODO: using a Formik field here feels like overkill, but we've built
             ListboxField to require that, i.e., there's no way to get the nice worked-out
@@ -112,7 +112,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
                 a) style them differently in the title, and
                 b) show "Reads" but not "(count)" in the Tooltip?
         */}
-      <div className="flex flex-wrap gap-8 mt-8">
+      <div className="mt-8 flex flex-wrap gap-8">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />
@@ -128,7 +128,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
 // spinner should be temporary. wrapping div is to get left alignment
 const Loading = () => (
   <div>
-    <Spinner className="w-8 h-8 mt-8 ml-8" />
+    <Spinner className="mt-8 ml-8 h-8 w-8" />
   </div>
 )
 

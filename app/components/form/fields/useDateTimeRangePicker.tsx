@@ -91,7 +91,7 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
         }
 
         return (
-          <Form className="flex gap-4 h-24">
+          <Form className="flex h-24 gap-4">
             <ListboxField
               className="mr-4" // in addition to gap-4
               id="preset"

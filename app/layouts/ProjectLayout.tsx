@@ -78,7 +78,7 @@ const ProjectLayout = () => {
       </Sidebar>
       <ContentPane>
         <OrgPicker />
-        <span className="text-mono-lg text-tertiary mx-4">/</span>
+        <span className="mx-4 text-mono-lg text-tertiary">/</span>
         <ProjectPicker />
       </ContentPane>
     </PageContainer>
