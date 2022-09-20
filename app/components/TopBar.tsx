@@ -1,5 +1,4 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'

@@ -8,12 +8,7 @@ import { PageActionsTarget } from 'app/components/PageActions'
 import { Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 
-type LayoutProps = {
-  /** Sidebar nav contents */
-  children: React.ReactNode
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid h-screen grid-cols-[13.75rem,1fr] grid-rows-[60px,1fr]">
       <TopBar />
