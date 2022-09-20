@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
@@ -10,7 +10,9 @@ import {
   Profile16Icon,
 } from '@oxide/ui'
 
-export function TopBar({ children }: { children?: React.ReactNode }) {
+import { OrgPicker, ProjectPicker } from './TopBarPicker'
+
+export function TopBar() {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -28,11 +30,24 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
 
   const loggedIn = user && !error
 
+  const { orgName, projectName } = useParams()
+
+  // TODO: this will soon also decide the presence of the silo/system picker
+  const pickers = projectName ? (
+    <>
+      <OrgPicker />
+      <span className="mx-4 text-mono-lg text-tertiary">/</span>
+      <ProjectPicker />
+    </>
+  ) : orgName ? (
+    <OrgPicker />
+  ) : null
+
   return (
     // shrink-0 is needed to prevent getting squished by body content
     <div className="sticky top-0 h-[60px] border-b bg-default border-secondary">
       <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
-        <div className="flex items-center">{children}</div>
+        <div className="flex items-center">{pickers}</div>
         <div>
           <Button variant="default" color="secondary" size="xs" title="Info">
             <Info16Icon />

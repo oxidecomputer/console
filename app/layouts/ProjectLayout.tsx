@@ -12,7 +12,6 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
-import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -45,15 +44,7 @@ const ProjectLayout = () => {
   )
 
   return (
-    <Layout
-      topbarNav={
-        <>
-          <OrgPicker />
-          <span className="mx-4 text-mono-lg text-tertiary">/</span>
-          <ProjectPicker />
-        </>
-      }
-    >
+    <Layout>
       <Sidebar.Nav>
         <NavLinkItem to={`/orgs/${orgName}/projects`} end>
           <Folder16Icon />

@@ -1,6 +1,5 @@
 import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/ui'
 
-import { OrgPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -14,7 +13,7 @@ const OrgLayout = () => {
   const { orgName } = useRequiredParams('orgName')
 
   return (
-    <Layout topbarNav={<OrgPicker />}>
+    <Layout>
       <Sidebar.Nav>
         <NavLinkItem to="/orgs" end>
           <Organization16Icon />
