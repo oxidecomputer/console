@@ -16,7 +16,7 @@ import { OrgPicker, ProjectPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { ContentPane, PageContainer } from './helpers'
+import { Layout } from './helpers'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
@@ -45,43 +45,44 @@ const ProjectLayout = () => {
   )
 
   return (
-    <PageContainer>
-      <Sidebar>
-        <Sidebar.Nav>
-          <NavLinkItem to={`/orgs/${orgName}/projects`} end>
-            <Folder16Icon />
-            Projects
-          </NavLinkItem>
-          <DocsLinkItem />
-        </Sidebar.Nav>
-        <Divider />
-        <Sidebar.Nav heading={projectName}>
-          <NavLinkItem to="instances">
-            <Instances16Icon /> Instances
-          </NavLinkItem>
-          <NavLinkItem to="snapshots">
-            <Snapshots16Icon /> Snapshots
-          </NavLinkItem>
-          <NavLinkItem to="disks">
-            <Storage16Icon /> Disks
-          </NavLinkItem>
-          <NavLinkItem to="access">
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
-          </NavLinkItem>
-          <NavLinkItem to="images">
-            <Images16Icon title="images" /> Images
-          </NavLinkItem>
-          <NavLinkItem to="vpcs">
-            <Networking16Icon /> Networking
-          </NavLinkItem>
-        </Sidebar.Nav>
-      </Sidebar>
-      <ContentPane>
-        <OrgPicker />
-        <span className="mx-4 text-mono-lg text-tertiary">/</span>
-        <ProjectPicker />
-      </ContentPane>
-    </PageContainer>
+    <Layout
+      topbarNav={
+        <>
+          <OrgPicker />
+          <span className="mx-4 text-mono-lg text-tertiary">/</span>
+          <ProjectPicker />
+        </>
+      }
+    >
+      <Sidebar.Nav>
+        <NavLinkItem to={`/orgs/${orgName}/projects`} end>
+          <Folder16Icon />
+          Projects
+        </NavLinkItem>
+        <DocsLinkItem />
+      </Sidebar.Nav>
+      <Divider />
+      <Sidebar.Nav heading={projectName}>
+        <NavLinkItem to="instances">
+          <Instances16Icon /> Instances
+        </NavLinkItem>
+        <NavLinkItem to="snapshots">
+          <Snapshots16Icon /> Snapshots
+        </NavLinkItem>
+        <NavLinkItem to="disks">
+          <Storage16Icon /> Disks
+        </NavLinkItem>
+        <NavLinkItem to="access">
+          <Access16Icon title="Access & IAM" /> Access &amp; IAM
+        </NavLinkItem>
+        <NavLinkItem to="images">
+          <Images16Icon title="images" /> Images
+        </NavLinkItem>
+        <NavLinkItem to="vpcs">
+          <Networking16Icon /> Networking
+        </NavLinkItem>
+      </Sidebar.Nav>
+    </Layout>
   )
 }
 
