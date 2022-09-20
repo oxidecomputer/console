@@ -31,36 +31,121 @@ const goto = async (page: Page, url: string) => {
 type Body<T> = Partial<Omit<T, 'name'>>
 
 interface Fixtures {
+  /**
+   * Generates a unique name in the format `${prefix}-${filename}-line${line_number_of_test}-${shortcode}`.
+   * Useful for creating non-conflicting resource names that are also hint at their context.
+   */
+  genName: (prefix: string) => string
+  orgName: string
+  projectName: string
+  instanceName: string
+  vpcName: string
+  /**
+   * Creates an organization with the given name. When the test is complete, the organization will be deleted.
+   *
+   * @param orgName The name of the organization to create.
+   * @param body The body payload for the organization create request.
+   */
   createOrg: (orgName: string, body?: Body<OrganizationCreate>) => Promise<void>
+  /**
+   * Deletes an organization with the given name. Typically this shouldn't be called directly. Instead, use `createOrg` to create an organization and have it deleted automatically when the test is complete.
+   */
   deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
+  /**
+   * Creates a project with the given name. When the test is complete, the project will be deleted.
+   *
+   * @param orgName The name of the organization to create the project in.
+   * @param projectName The name of the project to create.
+   * @param body The body payload for the project create request.
+   **/
   createProject: (
     orgName: string,
     projectName: string,
     body?: Body<ProjectCreate>
   ) => Promise<void>
+  /**
+   * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
+   */
   deleteProject: (params: ProjectDeleteParams) => Promise<void>
+  /**
+   * Creates an instance with the given name. When the test is complete, the instance will be deleted.
+   *
+   * @param orgName The name of the organization to create the instance in.
+   * @param projectName The name of the project to create the instance in.
+   * @param instanceName The name of the instance to create.
+   * @param body The body payload for the instance create request.
+   */
   createInstance: (
     orgName: string,
     projectName: string,
     instanceName: string,
     body?: Body<InstanceCreate>
   ) => Promise<void>
+  /**
+   * Deletes an instance with the given name. Typically this shouldn't be called directly. Instead, use `createInstance` to create an instance and have it deleted automatically when the test is complete.
+   */
   deleteInstance: (params: InstanceDeleteParams) => Promise<void>
+  /**
+   * Creates a VPC with the given name. When the test is complete, the VPC will be deleted.
+   *
+   * @param orgName The name of the organization to create the VPC in.
+   * @param projectName The name of the project to create the VPC in.
+   * @param vpcName The name of the VPC to create.
+   * @param body The body payload for the VPC create request.
+   */
   createVpc: (
     orgName: string,
     projectName: string,
     vpcName: string,
     body?: Body<VpcCreate>
   ) => Promise<void>
+  /**
+   * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
+   */
   deleteVpc: (params: VpcDeleteParams) => Promise<void>
   deleteTableRow: (rowText: string) => Promise<void>
 }
 
 export const test = base.extend<Fixtures>({
+  // Tests fail if destructuring isn't used here which is why the ignore exists
+  // eslint-disable-next-line no-empty-pattern
+  async genName({}, use, testInfo) {
+    // Maximum length of the Name type
+    const NAME_LENGTH = 63
+    // Length of a unique hash to append to the end
+    const HASH_LENGTH = 6
+
+    const name = testInfo.file.split('/').pop()?.split('.')[0] ?? 'test'
+    await use((prefix) =>
+      `${prefix}-${name}-line${testInfo.line}`
+        .substring(0, NAME_LENGTH - HASH_LENGTH)
+        .concat(
+          `-${Math.random()
+            .toString(16)
+            .substring(2, 2 + HASH_LENGTH)}`
+        )
+    )
+  },
+  async orgName({ genName }, use) {
+    await use(genName('org'))
+  },
+  async projectName({ genName }, use) {
+    await use(genName('proj'))
+  },
+  async instanceName({ genName }, use) {
+    await use(genName('inst'))
+  },
+  async vpcName({ genName }, use) {
+    await use(genName('vpc'))
+  },
   async createOrg({ page, deleteOrg }, use) {
     const orgsToRemove: string[] = []
 
     await use(async (orgName, body = {}) => {
+      if (orgsToRemove.includes(orgName)) {
+        return
+      }
+
       const back = await goto(page, '/orgs/new')
 
       await page.fill('role=textbox[name="Name"]', orgName)
@@ -83,10 +168,18 @@ export const test = base.extend<Fixtures>({
     })
   },
 
-  async createProject({ page, deleteProject }, use) {
+  async createProject({ page, createOrg, deleteProject }, use) {
     const projectsToRemove: ProjectDeleteParams[] = []
 
     await use(async (orgName, projectName, body = {}) => {
+      if (
+        projectsToRemove.find((p) => p.orgName === orgName && p.projectName === projectName)
+      ) {
+        return
+      }
+
+      await createOrg(orgName)
+
       const back = await goto(page, `/orgs/${orgName}/projects/new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
@@ -110,9 +203,22 @@ export const test = base.extend<Fixtures>({
   },
 
   // TODO: Wire up all create options
-  async createInstance({ page, deleteInstance }, use) {
+  async createInstance({ page, createProject, deleteInstance }, use) {
     const instancesToRemove: InstanceDeleteParams[] = []
-    await use(async (orgName, projectName, instanceName) => {
+    await use(async (orgName, projectName, instanceName, _body = {}) => {
+      if (
+        instancesToRemove.find(
+          (i) =>
+            i.orgName === orgName &&
+            i.projectName === projectName &&
+            i.instanceName === instanceName
+        )
+      ) {
+        return
+      }
+
+      await createProject(orgName, projectName)
+
       const back = await goto(
         page,
         `/orgs/${orgName}/projects/${projectName}/instances/new`
@@ -143,13 +249,25 @@ export const test = base.extend<Fixtures>({
     })
   },
 
-  async createVpc({ page, deleteVpc }, use) {
+  async createVpc({ page, createProject, deleteVpc }, use) {
     const vpcsToRemove: VpcDeleteParams[] = []
 
     await use(async (orgName, projectName, vpcName, body = {}) => {
+      if (
+        vpcsToRemove.find(
+          (v) =>
+            v.orgName === orgName && v.projectName === projectName && v.vpcName === vpcName
+        )
+      ) {
+        return
+      }
+
+      await createProject(orgName, projectName)
+
       const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs/new`)
       await page.fill('role=textbox[name="Name"]', vpcName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
+      await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpcName)
       await page.click('role=button[name="Create VPC"]')
 
       vpcsToRemove.push({ orgName, projectName, vpcName })
