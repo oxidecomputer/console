@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
@@ -9,9 +9,8 @@ import {
   Notifications16Icon,
   Profile16Icon,
 } from '@oxide/ui'
-import { flattenChildren } from '@oxide/util'
 
-import { SiloSystemPicker } from './TopBarPicker'
+import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
 /**
  * TODO: This is a temporary flag to disable the silo picker until we have
@@ -19,7 +18,7 @@ import { SiloSystemPicker } from './TopBarPicker'
  */
 const hasSiloPerms = true
 
-export function TopBar({ children }: { children?: React.ReactNode }) {
+export function TopBar() {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -37,9 +36,19 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
 
   const loggedIn = user && !error
 
-  const [cornerPicker, ...otherPickers] = hasSiloPerms
-    ? [<SiloSystemPicker key={0} />, ...flattenChildren(children)]
-    : flattenChildren(children)
+  const { orgName, projectName } = useParams()
+
+  const pickers = projectName
+    ? [<OrgPicker key={0} />, <ProjectPicker key={1} />]
+    : orgName
+    ? [<OrgPicker key={0} />]
+    : []
+
+  if (hasSiloPerms) {
+    pickers.unshift(<SiloSystemPicker />)
+  }
+
+  const [cornerPicker, ...otherPickers] = pickers
 
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
