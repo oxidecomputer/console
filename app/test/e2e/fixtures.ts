@@ -12,7 +12,7 @@ import type {
   VpcDeleteParams,
 } from '@oxide/api'
 
-import { expectNotVisible, genName as gen } from './utils'
+import { expectNotVisible } from './utils'
 
 /**
  * Returns a callback to result position and fails if response code over 400.
@@ -121,8 +121,21 @@ export const test = base.extend<Fixtures>({
   // Tests fail if destructuring isn't used here which is why the ignore exists
   // eslint-disable-next-line no-empty-pattern
   async genName({}, use, testInfo) {
+    // Maximum length of the Name type
+    const NAME_LENGTH = 63
+    // Length of a unique hash to append to the end
+    const HASH_LENGTH = 6
+
     const name = testInfo.file.split('/').pop()?.split('.')[0] ?? 'test'
-    await use((prefix) => gen(`${prefix}-${name}-line${testInfo.line}`))
+    await use((prefix) =>
+      `${prefix}-${name}-line${testInfo.line}`
+        .substring(0, NAME_LENGTH - HASH_LENGTH)
+        .concat(
+          `-${Math.random()
+            .toString(16)
+            .substring(2, 2 + HASH_LENGTH)}`
+        )
+    )
   },
   async orgName({ genName }, use) {
     await use(genName('org'))
