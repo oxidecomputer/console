@@ -3,6 +3,7 @@ import cn from 'classnames'
 import { Link, useLocation } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
+import { generateIdenticon, md5 } from '@oxide/identicon'
 import { SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
@@ -76,18 +77,14 @@ const TopBarPicker = (props: TopBarPickerProps) => (
 )
 
 /**
- * This is temporary until we figure out the proper thing to go here
+ * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
+ * Will eventually need to support user uploaded org avatars and fallback to this if there isn't one
  */
-const MazeWarLogo = () => (
-  <svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="32" height="32" rx="2" fill="var(--base-grey-800)" />
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M10 4H4V10V28H10V10H22V28H28V4H24H22H10ZM13 13H19V28H13V13Z"
-      fill="var(--base-black-700)"
-    />
-  </svg>
+const OrgLogo = (name: string) => (
+  <div
+    className="flex h-[34px] w-[34px] items-center justify-center rounded bg-green-900 text-green-500"
+    dangerouslySetInnerHTML={{ __html: generateIdenticon(md5(name)) }}
+  />
 )
 
 export function SiloSystemPicker() {
@@ -123,7 +120,7 @@ export function OrgPicker() {
   return (
     <TopBarPicker
       aria-label="Switch organization"
-      icon={<MazeWarLogo />}
+      icon={OrgLogo(orgName)}
       category="Organization"
       current={orgName}
       items={items}
