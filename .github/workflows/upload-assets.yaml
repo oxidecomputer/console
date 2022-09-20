@@ -22,9 +22,9 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
+      - name: Setup npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
       - run: yarn install
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build for Nexus
         run: SHA=${{ github.sha }} yarn build-for-nexus
       - name: Gzip individual files (keep originals)
