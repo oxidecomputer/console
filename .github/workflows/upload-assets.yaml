@@ -24,7 +24,7 @@ jobs:
           cache: 'yarn'
       - run: yarn install
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build for Nexus
         run: SHA=${{ github.sha }} yarn build-for-nexus
       - name: Gzip individual files (keep originals)
