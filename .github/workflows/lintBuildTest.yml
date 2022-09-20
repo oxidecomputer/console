@@ -22,7 +22,7 @@ jobs:
           key: modules-${{ hashFiles('yarn.lock') }}
       - name: yarn install
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
   ci:
