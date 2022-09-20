@@ -34,7 +34,7 @@ import {
   RadioField,
   TextField,
 } from 'app/components/form'
-import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
+import { ImageSelectField } from 'app/components/form/formik_fields/ImageSelectField'
 import type { CreateFullPageFormProps } from 'app/forms'
 import { useRequiredParams, useToast } from 'app/hooks'
 

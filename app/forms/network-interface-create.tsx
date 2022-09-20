@@ -12,7 +12,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
+import { SubnetListbox } from 'app/components/form/formik_fields/SubnetListbox'
 import type { CreateSideModalFormProps } from 'app/forms'
 import { useAllParams } from 'app/hooks'
 
