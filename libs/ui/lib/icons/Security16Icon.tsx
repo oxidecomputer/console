@@ -6,7 +6,7 @@ interface SVGRProps {
   titleId?: string
 }
 
-const Organization16Icon = ({
+const Security16Icon = ({
   title,
   titleId,
   ...props
@@ -21,16 +21,16 @@ const Organization16Icon = ({
     {...props}
   >
     {title ? <title id={titleId}>{title}</title> : null}
-    <g id="16/organization">
+    <g id="16/security">
       <path
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 0L11.3333 3.33332L8 6.66665L4.66668 3.33332L8 0ZM16 7.99996L12.6667 4.66664L9.33335 7.99996L12.6667 11.3333L16 7.99996ZM11.3333 12.6666L8 9.33331L4.66668 12.6666L8 16L11.3333 12.6666ZM6.66665 7.99996L3.33333 4.66664L7.64539e-06 7.99996L3.33333 11.3333L6.66665 7.99996Z"
+        d="M6 6H10V5C10 3.89543 9.10457 3 8 3C6.89543 3 6 3.89543 6 5V6ZM4 6H2V15H14V6H12V5C12 2.79086 10.2091 1 8 1C5.79086 1 4 2.79086 4 5V6Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
 
-export default Organization16Icon
+export default Security16Icon

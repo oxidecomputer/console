@@ -6,7 +6,7 @@ interface SVGRProps {
   titleId?: string
 }
 
-const Organization16Icon = ({
+const AddRoundel16Icon = ({
   title,
   titleId,
   ...props
@@ -21,16 +21,16 @@ const Organization16Icon = ({
     {...props}
   >
     {title ? <title id={titleId}>{title}</title> : null}
-    <g id="16/organization">
+    <g id="16/add-roundel">
       <path
-        id="Union"
+        id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 0L11.3333 3.33332L8 6.66665L4.66668 3.33332L8 0ZM16 7.99996L12.6667 4.66664L9.33335 7.99996L12.6667 11.3333L16 7.99996ZM11.3333 12.6666L8 9.33331L4.66668 12.6666L8 16L11.3333 12.6666ZM6.66665 7.99996L3.33333 4.66664L7.64539e-06 7.99996L3.33333 11.3333L6.66665 7.99996Z"
+        d="M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15ZM7 7V4H9V7H12V9H9V12H7V9H4V7H7Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
 
-export default Organization16Icon
+export default AddRoundel16Icon
