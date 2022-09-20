@@ -4,6 +4,7 @@
 @import '@reach/menu-button/styles.css';
 @import './components/menu-button.css';
 @import '@reach/tabs/styles.css';
+@import './components/menu-list.css';
 
 @import './themes/main.css';
 @import './themes/operator-mode.css';

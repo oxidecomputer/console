@@ -53,7 +53,7 @@ export const Listbox: FC<ListboxProps> = ({
       >
         <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
 
-        <div className="ml-5 flex h-[calc(100%-12px)] items-center border-l border-secondary">
+        <div className="ox-menu">
           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
         </div>
       </button>
@@ -72,9 +72,8 @@ export const Listbox: FC<ListboxProps> = ({
               <li
                 key={item.value}
                 className={cn(
-                  'cursor-pointer p-3 text-sans-sm text-default hover:bg-raise-hover',
-                  select.selectedItem?.value === item.value &&
-                    'text-accent bg-accent-secondary hover:bg-accent-secondary-hover',
+                  'ox-menu-item',
+                  select.selectedItem?.value === item.value && 'is-selected',
                   select.highlightedIndex === index && 'bg-raise-hover'
                 )}
                 {...select.getItemProps({ item, index })}
