@@ -31,24 +31,58 @@ const goto = async (page: Page, url: string) => {
 type Body<T> = Partial<Omit<T, 'name'>>
 
 interface Fixtures {
+  /**
+   * Generates a unique name in the format `${prefix}-${filename}-line${line_number_of_test}-${shortcode}`.
+   * Useful for creating non-conflicting resource names that are also hint at their context.
+   */
   genName: (prefix: string) => string
   orgName: string
   projectName: string
   instanceName: string
   vpcName: string
+  /**
+   * Creates an organization with the given name. When the test is complete, the organization will be deleted.
+   *
+   * @param orgName The name of the organization to create.
+   * @param body The body payload for the organization create request.
+   * @param strict If true, the test will fail if an organization of the same name already exists. If `false`, it'll skip creation if the organization already exists.
+   */
   createOrg: (
     orgName: string,
     body?: Body<OrganizationCreate>,
     strict?: boolean
   ) => Promise<void>
+  /**
+   * Deletes an organization with the given name. Typically this shouldn't be called directly. Instead, use `createOrg` to create an organization and have it deleted automatically when the test is complete.
+   */
   deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
+  /**
+   * Creates a project with the given name. When the test is complete, the project will be deleted.
+   *
+   * @param orgName The name of the organization to create the project in.
+   * @param projectName The name of the project to create.
+   * @param body The body payload for the project create request.
+   * @param strict If true, the test will fail if a project of the same name already exists. If `false`, it'll skip creation if the project already exists. If the project does _not_ exist, it'll try to create the parent organization before creating itself.
+   **/
   createProject: (
     orgName: string,
     projectName: string,
     body?: Body<ProjectCreate>,
     strict?: boolean
   ) => Promise<void>
+  /**
+   * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
+   */
   deleteProject: (params: ProjectDeleteParams) => Promise<void>
+  /**
+   * Creates an instance with the given name. When the test is complete, the instance will be deleted.
+   *
+   * @param orgName The name of the organization to create the instance in.
+   * @param projectName The name of the project to create the instance in.
+   * @param instanceName The name of the instance to create.
+   * @param body The body payload for the instance create request.
+   * @param strict If true, the test will fail if an instance of the same name already exists. If `false`, it'll skip creation if the instance already exists. If the instance does _not_ exist, it'll try to create the parent organization and project before creating itself.
+   */
   createInstance: (
     orgName: string,
     projectName: string,
@@ -56,7 +90,19 @@ interface Fixtures {
     body?: Body<InstanceCreate>,
     strict?: boolean
   ) => Promise<void>
+  /**
+   * Deletes an instance with the given name. Typically this shouldn't be called directly. Instead, use `createInstance` to create an instance and have it deleted automatically when the test is complete.
+   */
   deleteInstance: (params: InstanceDeleteParams) => Promise<void>
+  /**
+   * Creates a VPC with the given name. When the test is complete, the VPC will be deleted.
+   *
+   * @param orgName The name of the organization to create the VPC in.
+   * @param projectName The name of the project to create the VPC in.
+   * @param vpcName The name of the VPC to create.
+   * @param body The body payload for the VPC create request.
+   * @param strict If true, the test will fail if a VPC of the same name already exists. If `false`, it'll skip creation if the VPC already exists. If the VPC does _not_ exist, it'll try to create the parent organization and project before creating itself.
+   */
   createVpc: (
     orgName: string,
     projectName: string,
@@ -64,6 +110,9 @@ interface Fixtures {
     body?: Body<VpcCreate>,
     strict?: boolean
   ) => Promise<void>
+  /**
+   * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
+   */
   deleteVpc: (params: VpcDeleteParams) => Promise<void>
   deleteTableRow: (rowText: string) => Promise<void>
 }
