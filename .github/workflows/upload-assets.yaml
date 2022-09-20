@@ -22,8 +22,6 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
-      - name: Setup npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
       - run: yarn install
       - name: Build for Nexus
         run: SHA=${{ github.sha }} yarn build-for-nexus

@@ -27,9 +27,6 @@ jobs:
           node-version: '16'
           cache: 'yarn'
 
-      - name: Setup npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-
       - name: Install dependencies
         run: yarn install
 

@@ -20,8 +20,6 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ hashFiles('yarn.lock') }}
-      - name: Setup npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
       - name: yarn install
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
