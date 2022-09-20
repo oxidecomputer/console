@@ -3,7 +3,6 @@ import { useSelect } from 'downshift'
 import type { FC } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/ui'
-import { classed } from '@oxide/util'
 
 type Item = { value: string; label: string }
 
@@ -35,8 +34,6 @@ export const Listbox: FC<ListboxProps> = ({
     },
   })
 
-  const Outline = classed.div`absolute z-10 h-full w-full rounded border border-accent pointer-events-none`
-
   return (
     <div className={cn('relative', className)}>
       <button
@@ -67,14 +64,12 @@ export const Listbox: FC<ListboxProps> = ({
         {select.isOpen &&
           items.map((item, index) => (
             <div key={index} className="relative">
-              {item.value === select.selectedItem?.value && <Outline />}
-
               <li
                 key={item.value}
                 className={cn(
                   'ox-menu-item',
-                  select.selectedItem?.value === item.value && 'is-selected',
-                  select.highlightedIndex === index && 'bg-raise-hover'
+                  { 'is-selected': select.selectedItem?.value === item.value },
+                  { 'bg-raise-hover': select.highlightedIndex === index }
                 )}
                 {...select.getItemProps({ item, index })}
               >
