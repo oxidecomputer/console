@@ -45,13 +45,8 @@ interface Fixtures {
    *
    * @param orgName The name of the organization to create.
    * @param body The body payload for the organization create request.
-   * @param strict If true, the test will fail if an organization of the same name already exists. If `false`, it'll skip creation if the organization already exists.
    */
-  createOrg: (
-    orgName: string,
-    body?: Body<OrganizationCreate>,
-    strict?: boolean
-  ) => Promise<void>
+  createOrg: (orgName: string, body?: Body<OrganizationCreate>) => Promise<void>
   /**
    * Deletes an organization with the given name. Typically this shouldn't be called directly. Instead, use `createOrg` to create an organization and have it deleted automatically when the test is complete.
    */
@@ -62,13 +57,11 @@ interface Fixtures {
    * @param orgName The name of the organization to create the project in.
    * @param projectName The name of the project to create.
    * @param body The body payload for the project create request.
-   * @param strict If true, the test will fail if a project of the same name already exists. If `false`, it'll skip creation if the project already exists. If the project does _not_ exist, it'll try to create the parent organization before creating itself.
    **/
   createProject: (
     orgName: string,
     projectName: string,
-    body?: Body<ProjectCreate>,
-    strict?: boolean
+    body?: Body<ProjectCreate>
   ) => Promise<void>
   /**
    * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
@@ -81,14 +74,12 @@ interface Fixtures {
    * @param projectName The name of the project to create the instance in.
    * @param instanceName The name of the instance to create.
    * @param body The body payload for the instance create request.
-   * @param strict If true, the test will fail if an instance of the same name already exists. If `false`, it'll skip creation if the instance already exists. If the instance does _not_ exist, it'll try to create the parent organization and project before creating itself.
    */
   createInstance: (
     orgName: string,
     projectName: string,
     instanceName: string,
-    body?: Body<InstanceCreate>,
-    strict?: boolean
+    body?: Body<InstanceCreate>
   ) => Promise<void>
   /**
    * Deletes an instance with the given name. Typically this shouldn't be called directly. Instead, use `createInstance` to create an instance and have it deleted automatically when the test is complete.
@@ -101,14 +92,12 @@ interface Fixtures {
    * @param projectName The name of the project to create the VPC in.
    * @param vpcName The name of the VPC to create.
    * @param body The body payload for the VPC create request.
-   * @param strict If true, the test will fail if a VPC of the same name already exists. If `false`, it'll skip creation if the VPC already exists. If the VPC does _not_ exist, it'll try to create the parent organization and project before creating itself.
    */
   createVpc: (
     orgName: string,
     projectName: string,
     vpcName: string,
-    body?: Body<VpcCreate>,
-    strict?: boolean
+    body?: Body<VpcCreate>
   ) => Promise<void>
   /**
    * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
@@ -152,10 +141,8 @@ export const test = base.extend<Fixtures>({
   async createOrg({ page, deleteOrg }, use) {
     const orgsToRemove: string[] = []
 
-    await use(async (orgName, body = {}, strict = false) => {
-      if (strict) {
-        expect(orgsToRemove).not.toContain(orgName)
-      } else if (orgsToRemove.includes(orgName)) {
+    await use(async (orgName, body = {}) => {
+      if (orgsToRemove.includes(orgName)) {
         return
       }
 
@@ -184,16 +171,14 @@ export const test = base.extend<Fixtures>({
   async createProject({ page, createOrg, deleteProject }, use) {
     const projectsToRemove: ProjectDeleteParams[] = []
 
-    await use(async (orgName, projectName, body = {}, strict = false) => {
-      if (strict) {
-        expect(projectsToRemove).not.toContainEqual({ orgName, projectName })
-      } else if (
+    await use(async (orgName, projectName, body = {}) => {
+      if (
         projectsToRemove.find((p) => p.orgName === orgName && p.projectName === projectName)
       ) {
         return
-      } else {
-        await createOrg(orgName)
       }
+
+      await createOrg(orgName)
 
       const back = await goto(page, `/orgs/${orgName}/projects/new`)
       await page.fill('role=textbox[name="Name"]', projectName)
@@ -220,14 +205,8 @@ export const test = base.extend<Fixtures>({
   // TODO: Wire up all create options
   async createInstance({ page, createProject, deleteInstance }, use) {
     const instancesToRemove: InstanceDeleteParams[] = []
-    await use(async (orgName, projectName, instanceName, _body = {}, strict = false) => {
-      if (strict) {
-        expect(instancesToRemove).not.toContainEqual({
-          orgName,
-          projectName,
-          instanceName,
-        })
-      } else if (
+    await use(async (orgName, projectName, instanceName, _body = {}) => {
+      if (
         instancesToRemove.find(
           (i) =>
             i.orgName === orgName &&
@@ -236,9 +215,9 @@ export const test = base.extend<Fixtures>({
         )
       ) {
         return
-      } else {
-        await createProject(orgName, projectName)
       }
+
+      await createProject(orgName, projectName)
 
       const back = await goto(
         page,
@@ -273,19 +252,17 @@ export const test = base.extend<Fixtures>({
   async createVpc({ page, createProject, deleteVpc }, use) {
     const vpcsToRemove: VpcDeleteParams[] = []
 
-    await use(async (orgName, projectName, vpcName, body = {}, strict = false) => {
-      if (strict) {
-        expect(vpcsToRemove).not.toContainEqual({ orgName, projectName, vpcName })
-      } else if (
+    await use(async (orgName, projectName, vpcName, body = {}) => {
+      if (
         vpcsToRemove.find(
           (v) =>
             v.orgName === orgName && v.projectName === projectName && v.vpcName === vpcName
         )
       ) {
         return
-      } else {
-        await createProject(orgName, projectName)
       }
+
+      await createProject(orgName, projectName)
 
       const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs/new`)
       await page.fill('role=textbox[name="Name"]', vpcName)
