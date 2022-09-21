@@ -60,7 +60,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
     {
       label: 'Edit',
       onActivate() {
-        navigate(`edit/${org.name}`, { state: org })
+        navigate(`/orgs/${org.name}/edit`, { state: org })
       },
     },
     {
@@ -74,7 +74,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New organization', onSelect: () => navigate('new') },
+        { value: 'New organization', onSelect: () => navigate('/org-new') },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
           onSelect: () => navigate(o.name),
@@ -91,7 +91,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
+        <Link to="/org-new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Organization
         </Link>
       </TableActions>

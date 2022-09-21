@@ -9,8 +9,7 @@ import { PageActions } from '../PageActions'
 import type { FormProps } from './Form'
 import { Form } from './Form'
 
-export interface FullPageFormProps<Values>
-  extends Omit<FormProps<Values>, 'setSubmitState'> {
+interface FullPageFormProps<Values> extends Omit<FormProps<Values>, 'setSubmitState'> {
   id: string
   title: string
   icon: ReactElement

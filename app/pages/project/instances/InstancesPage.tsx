@@ -86,7 +86,7 @@ export function InstancesPage() {
       </PageHeader>
       <TableActions>
         <Link
-          to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
+          to={`/orgs/${orgName}/projects/${projectName}/instance-new`}
           className={buttonStyle({ size: 'xs', variant: 'default' })}
         >
           New Instance

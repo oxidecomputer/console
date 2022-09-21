@@ -35,7 +35,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
-import type { CreateFullPageFormProps } from 'app/forms'
+import type { CreateFormProps } from 'app/forms'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 type InstanceCreateInput = Assign<
@@ -77,15 +77,14 @@ const values: InstanceCreateInput = {
   start: true,
 }
 
-export default function CreateInstanceForm({
+export function CreateInstanceForm({
   id = 'create-instance-form',
-  title = 'Create instance',
   initialValues = values,
   onSubmit,
   onSuccess,
   onError,
   ...props
-}: CreateFullPageFormProps<InstanceCreateInput, Instance>) {
+}: CreateFormProps<InstanceCreateInput, Instance>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -121,7 +120,7 @@ export default function CreateInstanceForm({
     <FullPageForm
       id={id}
       initialValues={initialValues}
-      title={title}
+      title="Create instance"
       icon={<Instances24Icon />}
       validationSchema={Yup.object({
         // needed to cover case where there are no images, in which case there
@@ -276,7 +275,7 @@ export default function CreateInstanceForm({
 
       <Form.Actions>
         <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
-          {title}
+          Create instance
         </Form.Submit>
         {/* TODO: this nav may not always be correct. Could get rid of the button instead. */}
         <Form.Cancel onClick={() => navigate('..')} />

@@ -44,7 +44,7 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo="new"
+    buttonTo="../disk-new"
   />
 )
 
@@ -88,7 +88,7 @@ export function DisksPage({ modal }: DisksPageProps) {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
+        <Link to="../disk-new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
           New Disk
         </Link>
       </TableActions>
@@ -123,7 +123,7 @@ export function DisksPage({ modal }: DisksPageProps) {
       </Table>
       <CreateDiskSideModalForm
         isOpen={modal === 'createDisk'}
-        onDismiss={() => navigate('..')}
+        onDismiss={() => navigate(`../disks`)}
       />
     </>
   )
