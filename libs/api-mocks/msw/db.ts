@@ -1,8 +1,7 @@
 import { response } from 'msw'
-import type { Merge } from 'type-fest'
 
 import * as mock from '@oxide/api-mocks'
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { sessionMe } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
@@ -21,19 +20,6 @@ type Result<T> = Ok<T> | Err
 const Ok = <T>(o: T): Ok<T> => [o, null]
 const Err = (err: LookupError): Err => [null, err]
 
-export type OrgParams = { orgName: string }
-export type ProjectParams = Merge<OrgParams, { projectName: string }>
-export type VpcParams = Merge<ProjectParams, { vpcName: string }>
-export type InstanceParams = Merge<ProjectParams, { instanceName: string }>
-export type NetworkInterfaceParams = Merge<InstanceParams, { interfaceName: string }>
-export type DiskParams = Merge<ProjectParams, { diskName: string }>
-export type DiskMetricParams = Merge<DiskParams, { metricName: string }>
-export type VpcSubnetParams = Merge<VpcParams, { subnetName: string }>
-export type VpcRouterParams = Merge<VpcParams, { routerName: string }>
-export type SshKeyParams = { sshKeyName: string }
-export type GlobalImageParams = { imageName: string }
-export type IdParams = { id: string }
-
 export const lookupById =
   <T extends { id: string }>(table: T[]) =>
   (req: { params: { id: string } }) => {
@@ -41,13 +27,13 @@ export const lookupById =
     return response(item ? json(item) : notFoundErr)
   }
 
-export function lookupOrg(params: OrgParams): Result<Json<Api.Organization>> {
+export function lookupOrg(params: PP.Org): Result<Json<Api.Organization>> {
   const org = db.orgs.find((o) => o.name === params.orgName)
   if (!org) return Err(notFoundErr)
   return Ok(org)
 }
 
-export function lookupProject(params: ProjectParams): Result<Json<Api.Project>> {
+export function lookupProject(params: PP.Project): Result<Json<Api.Project>> {
   const [org, err] = lookupOrg(params)
   if (err) return Err(err)
 
@@ -59,7 +45,7 @@ export function lookupProject(params: ProjectParams): Result<Json<Api.Project>> 
   return Ok(project)
 }
 
-export function lookupVpc(params: VpcParams): Result<Json<Api.Vpc>> {
+export function lookupVpc(params: PP.Vpc): Result<Json<Api.Vpc>> {
   const [project, err] = lookupProject(params)
   if (err) return Err(err)
 
@@ -70,7 +56,7 @@ export function lookupVpc(params: VpcParams): Result<Json<Api.Vpc>> {
   return Ok(vpc)
 }
 
-export function lookupInstance(params: InstanceParams): Result<Json<Api.Instance>> {
+export function lookupInstance(params: PP.Instance): Result<Json<Api.Instance>> {
   const [project, err] = lookupProject(params)
   if (err) return Err(err)
 
@@ -83,7 +69,7 @@ export function lookupInstance(params: InstanceParams): Result<Json<Api.Instance
 }
 
 export function lookupNetworkInterface(
-  params: NetworkInterfaceParams
+  params: PP.NetworkInterface
 ): Result<Json<Api.NetworkInterface>> {
   const [instance, err] = lookupInstance(params)
   if (err) return Err(err)
@@ -96,7 +82,7 @@ export function lookupNetworkInterface(
   return Ok(nic)
 }
 
-export function lookupDisk(params: DiskParams): Result<Json<Api.Disk>> {
+export function lookupDisk(params: PP.Disk): Result<Json<Api.Disk>> {
   const [project, err] = lookupProject(params)
   if (err) return Err(err)
 
@@ -108,7 +94,7 @@ export function lookupDisk(params: DiskParams): Result<Json<Api.Disk>> {
   return Ok(disk)
 }
 
-export function lookupVpcSubnet(params: VpcSubnetParams): Result<Json<Api.VpcSubnet>> {
+export function lookupVpcSubnet(params: PP.VpcSubnet): Result<Json<Api.VpcSubnet>> {
   const [vpc, err] = lookupVpc(params)
   if (err) return Err(err)
 
@@ -120,7 +106,7 @@ export function lookupVpcSubnet(params: VpcSubnetParams): Result<Json<Api.VpcSub
   return Ok(subnet)
 }
 
-export function lookupVpcRouter(params: VpcRouterParams): Result<Json<Api.VpcRouter>> {
+export function lookupVpcRouter(params: PP.VpcRouter): Result<Json<Api.VpcRouter>> {
   const [vpc, err] = lookupVpc(params)
   if (err) return Err(err)
 
@@ -132,15 +118,13 @@ export function lookupVpcRouter(params: VpcRouterParams): Result<Json<Api.VpcRou
   return Ok(router)
 }
 
-export function lookupGlobalImage(
-  params: GlobalImageParams
-): Result<Json<Api.GlobalImage>> {
+export function lookupGlobalImage(params: PP.GlobalImage): Result<Json<Api.GlobalImage>> {
   const image = db.globalImages.find((o) => o.name === params.imageName)
   if (!image) return Err(notFoundErr)
   return Ok(image)
 }
 
-export function lookupSshKey(params: SshKeyParams): Result<Json<Api.SshKey>> {
+export function lookupSshKey(params: PP.SshKey): Result<Json<Api.SshKey>> {
   const sshKey = db.sshKeys.find(
     (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
   )
