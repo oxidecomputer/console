@@ -1009,14 +1009,14 @@ export const handlers = [
   ),
 
   rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
-    '/images',
+    '/system/images',
     (req, res) => {
       return res(json(paginated(req.url.search, db.globalImages)))
     }
   ),
 
   rest.get<never, GlobalImageParams, Json<Api.GlobalImage> | GetErr>(
-    '/images/:imageName',
+    '/system/images/:imageName',
     (req, res) => {
       const [image, err] = lookupGlobalImage(req.params)
       if (err) return res(err)
@@ -1051,7 +1051,7 @@ export const handlers = [
   getById('/by-id/vpc-routers/:id', db.vpcRouters),
   getById('/by-id/vpc-router-routes/:id', db.vpcRouterRoutes),
   getById('/by-id/disks/:id', db.disks),
-  getById('/by-id/global-images/:id', db.globalImages),
+  getById('/system/by-id/images/:id', db.globalImages),
   getById('/by-id/images/:id', db.images),
   getById('/by-id/snapshots/:id', db.snapshots),
 ]
