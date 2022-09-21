@@ -97,6 +97,7 @@ export const routes = createRoutesFromElements(
           path="org-new"
           element={<OrgsPage modal="createOrg" />}
           loader={OrgsPage.loader}
+          handle={{ crumb: 'New organization' }}
         />
       </Route>
 
@@ -117,11 +118,13 @@ export const routes = createRoutesFromElements(
               path="edit"
               element={<OrgsPage modal="editOrg" />}
               loader={OrgsPage.loader}
+              handle={{ crumb: 'Edit' }}
             />
             <Route
               path="project-new"
               element={<ProjectsPage modal="createProject" />}
               loader={ProjectsPage.loader}
+              handle={{ crumb: 'New project' }}
             />
           </Route>
 
@@ -133,6 +136,7 @@ export const routes = createRoutesFromElements(
                 path=":projectName/edit"
                 element={<ProjectsPage modal="editProject" />}
                 loader={ProjectsPage.loader}
+                handle={{ crumb: 'Edit' }}
               />
             </Route>
 
@@ -142,7 +146,11 @@ export const routes = createRoutesFromElements(
               element={<ProjectLayout />}
               handle={{ crumb: projectCrumb }}
             >
-              <Route path="instance-new" element={<InstanceCreatePage />} />
+              <Route
+                path="instance-new"
+                element={<InstanceCreatePage />}
+                handle={{ crumb: 'New instance' }}
+              />
               <Route path="instances" handle={{ crumb: 'Instances' }}>
                 <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
                 <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
@@ -158,11 +166,13 @@ export const routes = createRoutesFromElements(
                 path="vpc-new"
                 element={<VpcsPage modal="createVpc" />}
                 loader={VpcsPage.loader}
+                handle={{ crumb: 'New VPC' }}
               />
               <Route
                 path="disk-new"
                 element={<DisksPage modal="createDisk" />}
                 loader={DisksPage.loader}
+                handle={{ crumb: 'New disk' }}
               />
 
               <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
@@ -171,6 +181,7 @@ export const routes = createRoutesFromElements(
                   path=":vpcName/edit"
                   element={<VpcsPage modal="editVpc" />}
                   loader={VpcsPage.loader}
+                  handle={{ crumb: 'Edit' }}
                 />
                 <Route
                   path=":vpcName"
