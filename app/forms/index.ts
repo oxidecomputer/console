@@ -1,4 +1,4 @@
-import type { SetRequired } from 'type-fest'
+import type { SetOptional, SetRequired } from 'type-fest'
 
 import type { ErrorResult } from '@oxide/api'
 import type { SideModalProps } from '@oxide/ui'
@@ -17,7 +17,13 @@ export type CreateSideModalFormProps<Values, Data> = CreateFormProps<Values, Dat
   Omit<SideModalProps, 'id'>
 
 export type CreateFullPageFormProps<Values, Data> = CreateFormProps<Values, Data> &
-  Omit<FullPageFormProps<Values>, 'icon'>
+  SetOptional<
+    Omit<
+      FullPageFormProps<Values>,
+      'icon' | 'children' | 'id' | 'initialValues' | 'onSubmit'
+    >,
+    'title'
+  >
 
 export type EditSideModalFormProps<Values, Data> = SetRequired<
   CreateFormProps<Values, Data>,
