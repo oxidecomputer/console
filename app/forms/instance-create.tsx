@@ -113,7 +113,7 @@ export default function CreateInstanceForm({
     onError,
   })
 
-  const images = useApiQuery('imageGlobalList', {}).data?.items || []
+  const images = useApiQuery('systemImageList', {}).data?.items || []
 
   initialValues.globalImage = images[0]?.id || ''
 
