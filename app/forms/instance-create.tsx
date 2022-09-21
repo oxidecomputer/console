@@ -77,7 +77,7 @@ const values: InstanceCreateInput = {
   start: true,
 }
 
-export default function CreateInstanceForm({
+export function CreateInstanceForm({
   id = 'create-instance-form',
   title = 'Create instance',
   initialValues = values,

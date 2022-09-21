@@ -67,7 +67,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     {
       label: 'Edit',
       onActivate: () => {
-        navigate(`./edit/${project.name}`, { state: project })
+        navigate(`./${project.name}/edit`, { state: project })
       },
     },
     {
@@ -78,19 +78,23 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     },
   ]
 
+  const newProjectPath = `/orgs/${orgName}/project-new`
+
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New project', onSelect: () => navigate('new') },
+        { value: 'New project', onSelect: () => navigate(newProjectPath) },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
           onSelect: () => navigate(`${p.name}/instances`),
           navGroup: 'Go to project',
         })),
       ],
-      [navigate, projects]
+      [navigate, projects, newProjectPath]
     )
   )
+
+  const backToProjects = () => navigate(`/orgs/${orgName}/projects`)
 
   return (
     <>
@@ -98,7 +102,10 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
+        <Link
+          to={newProjectPath}
+          className={buttonStyle({ variant: 'default', size: 'xs' })}
+        >
           New Project
         </Link>
       </TableActions>
@@ -112,11 +119,11 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       </Table>
       <CreateProjectSideModalForm
         isOpen={modal === 'createProject'}
-        onDismiss={() => navigate('..')}
+        onDismiss={backToProjects}
       />
       <EditProjectSideModalForm
         isOpen={modal === 'editProject'}
-        onDismiss={() => navigate('../..')}
+        onDismiss={backToProjects}
         initialValues={location.state}
       />
     </>

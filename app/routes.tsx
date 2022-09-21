@@ -2,7 +2,6 @@ import React from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
-import { FormPage } from './components/FormPage'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
 import OrgLayout from './layouts/OrgLayout'
@@ -29,13 +28,12 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { InstanceCreatePage } from './pages/project/instances/InstanceCreatePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
-
-const InstanceCreateForm = React.lazy(() => import('./forms/instance-create'))
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -56,7 +54,7 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route loader={prefetchSessionMe}>
+    <Route loader={prefetchSessionMe} errorElement={<RouterDataErrorBoundary />}>
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
@@ -94,21 +92,17 @@ export const routes = createRoutesFromElements(
         element={<Navigate to="instances" replace />}
       />
 
-      <Route path="orgs" errorElement={<RouterDataErrorBoundary />}>
+      <Route element={<SiloLayout />}>
+        <Route
+          path="org-new"
+          element={<OrgsPage modal="createOrg" />}
+          loader={OrgsPage.loader}
+        />
+      </Route>
+
+      <Route path="orgs">
         <Route element={<SiloLayout />}>
           <Route index element={<OrgsPage />} loader={OrgsPage.loader} />
-          <Route
-            path="new"
-            element={<OrgsPage modal="createOrg" />}
-            loader={OrgsPage.loader}
-          />
-          <Route path="edit">
-            <Route
-              path=":orgName"
-              element={<OrgsPage modal="editOrg" />}
-              loader={OrgsPage.loader}
-            />
-          </Route>
         </Route>
 
         <Route path=":orgName" handle={{ crumb: orgCrumb }}>
@@ -119,23 +113,27 @@ export const routes = createRoutesFromElements(
               loader={OrgAccessPage.loader}
               handle={{ crumb: 'Access & IAM' }}
             />
+            <Route
+              path="edit"
+              element={<OrgsPage modal="editOrg" />}
+              loader={OrgsPage.loader}
+            />
+            <Route
+              path="project-new"
+              element={<ProjectsPage modal="createProject" />}
+              loader={ProjectsPage.loader}
+            />
           </Route>
+
           <Route path="projects" handle={{ crumb: 'Projects' }}>
             {/* ORG */}
             <Route element={<OrgLayout />}>
               <Route index element={<ProjectsPage />} loader={ProjectsPage.loader} />
               <Route
-                path="new"
-                element={<ProjectsPage modal="createProject" />}
+                path=":projectName/edit"
+                element={<ProjectsPage modal="editProject" />}
                 loader={ProjectsPage.loader}
               />
-              <Route path="edit">
-                <Route
-                  path=":projectName"
-                  element={<ProjectsPage modal="editProject" />}
-                  loader={ProjectsPage.loader}
-                />
-              </Route>
             </Route>
 
             {/* PROJECT */}
@@ -144,9 +142,9 @@ export const routes = createRoutesFromElements(
               element={<ProjectLayout />}
               handle={{ crumb: projectCrumb }}
             >
+              <Route path="instance-new" element={<InstanceCreatePage />} />
               <Route path="instances" handle={{ crumb: 'Instances' }}>
                 <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
-                <Route path="new" element={<FormPage Form={InstanceCreateForm} />} />
                 <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
                   <Route index element={<InstancePage />} loader={InstancePage.loader} />
                   <Route
@@ -156,20 +154,24 @@ export const routes = createRoutesFromElements(
                   />
                 </Route>
               </Route>
+              <Route
+                path="vpc-new"
+                element={<VpcsPage modal="createVpc" />}
+                loader={VpcsPage.loader}
+              />
+              <Route
+                path="disk-new"
+                element={<DisksPage modal="createDisk" />}
+                loader={DisksPage.loader}
+              />
+
               <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
                 <Route index element={<VpcsPage />} loader={VpcsPage.loader} />
                 <Route
-                  path="new"
-                  element={<VpcsPage modal="createVpc" />}
+                  path=":vpcName/edit"
+                  element={<VpcsPage modal="editVpc" />}
                   loader={VpcsPage.loader}
                 />
-                <Route path="edit">
-                  <Route
-                    path=":vpcName"
-                    element={<VpcsPage modal="editVpc" />}
-                    loader={VpcsPage.loader}
-                  />
-                </Route>
                 <Route
                   path=":vpcName"
                   element={<VpcPage />}
@@ -179,11 +181,6 @@ export const routes = createRoutesFromElements(
               </Route>
               <Route path="disks" handle={{ crumb: 'Disks' }}>
                 <Route index element={<DisksPage />} loader={DisksPage.loader} />
-                <Route
-                  path="new"
-                  element={<DisksPage modal="createDisk" />}
-                  loader={DisksPage.loader}
-                />
               </Route>
               <Route
                 path="snapshots"

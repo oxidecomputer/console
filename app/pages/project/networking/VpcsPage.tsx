@@ -25,7 +25,7 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo="new"
+    buttonTo="../vpc-new"
   />
 )
 
@@ -63,7 +63,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
     {
       label: 'Edit',
       onActivate() {
-        navigate(`edit/${vpc.name}`, { state: vpc })
+        navigate(`${vpc.name}/edit`, { state: vpc })
       },
     },
     {
@@ -86,6 +86,8 @@ export function VpcsPage({ modal }: VpcsPageProps) {
     )
   )
 
+  const backToVpcs = () => navigate(`/orgs/${orgName}/projects/${projectName}/vpcs`)
+
   const { Table, Column } = useQueryTable('vpcList', { orgName, projectName })
   return (
     <>
@@ -93,7 +95,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
+        <Link to="../vpc-new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
           New Vpc
         </Link>
       </TableActions>
@@ -108,12 +110,12 @@ export function VpcsPage({ modal }: VpcsPageProps) {
       </Table>
       <CreateVpcSideModalForm
         isOpen={modal === 'createVpc'}
-        onDismiss={() => navigate('..')}
-        onSuccess={() => navigate('..')}
+        onDismiss={backToVpcs}
+        onSuccess={backToVpcs}
       />
       <EditVpcSideModalForm
         isOpen={modal === 'editVpc'}
-        onDismiss={() => navigate('../..')}
+        onDismiss={backToVpcs}
         initialValues={location.state}
       />
     </>
