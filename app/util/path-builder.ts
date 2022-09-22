@@ -40,6 +40,10 @@ export const pb = {
   systemNetworking: () => '/system/networking',
   systemSettings: () => '/system/settings',
 
+  silos: () => '/system/silos',
+  siloNew: () => '/system/silos-new',
+  silo: ({ siloName }: PP.Silo) => `/system/silos/${siloName}`,
+
   profile: () => '/settings/profile',
   appearance: () => '/settings/appearance',
   hotkeys: () => '/settings/hotkeys',

@@ -1,7 +1,13 @@
 import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
-const params = { orgName: 'a', projectName: 'b', instanceName: 'c', vpcName: 'd' }
+const params = {
+  orgName: 'a',
+  projectName: 'b',
+  instanceName: 'c',
+  vpcName: 'd',
+  siloName: 's',
+}
 
 test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
@@ -29,6 +35,9 @@ test('path builder', () => {
         "projects": "/orgs/a/projects",
         "serialConsole": "/orgs/a/projects/b/instances/c/serial-console",
         "settings": "/settings",
+        "silos": "/silos",
+        "siloNew": "/silos-new",
+        "silo": "/silos/s",
         "snapshots": "/orgs/a/projects/b/snapshots",
         "sshKeys": "/settings/ssh-keys",
         "system": "/system",

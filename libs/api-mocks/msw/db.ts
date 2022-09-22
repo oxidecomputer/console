@@ -124,6 +124,12 @@ export function lookupGlobalImage(params: PP.GlobalImage): Result<Json<Api.Globa
   return Ok(image)
 }
 
+export function lookupSilo(params: PP.Silo): Result<Json<Api.Silo>> {
+  const silo = db.silos.find((o) => o.name === params.siloName)
+  if (!silo) return Err(notFoundErr)
+  return Ok(silo)
+}
+
 export function lookupSshKey(params: PP.SshKey): Result<Json<Api.SshKey>> {
   const sshKey = db.sshKeys.find(
     (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
@@ -141,6 +147,7 @@ const initDb = {
   orgs: [...mock.orgs],
   projects: [...mock.projects],
   roleAssignments: [...mock.roleAssignments],
+  silos: [...mock.silos],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],

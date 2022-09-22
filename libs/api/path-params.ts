@@ -11,4 +11,5 @@ export type VpcSubnet = Merge<Vpc, { subnetName: string }>
 export type VpcRouter = Merge<Vpc, { routerName: string }>
 export type SshKey = { sshKeyName: string }
 export type GlobalImage = { imageName: string }
+export type Silo = { siloName: string }
 export type Id = { id: string }

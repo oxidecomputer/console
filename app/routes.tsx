@@ -34,6 +34,7 @@ import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
@@ -74,6 +75,8 @@ export const routes = createRoutesFromElements(
 
       <Route path="system" element={<SystemLayout />}>
         <Route index element={null} />
+        <Route path="silos" element={<SilosPage />} />
+        <Route path="silos-new" element={<SilosPage modal="createSilo" />} />
         <Route path="issues" element={null} />
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />
