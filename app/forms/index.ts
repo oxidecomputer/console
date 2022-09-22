@@ -10,6 +10,7 @@ export type CreateFormProps<Values, Data> = Partial<
 > & {
   onSuccess?: (data: Data) => void
   onError?: (err: ErrorResult) => void
+  onDismiss?: () => void
 }
 
 export type CreateSideModalFormProps<Values, Data> = CreateFormProps<Values, Data> &

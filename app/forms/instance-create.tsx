@@ -81,6 +81,7 @@ export function CreateInstanceForm({
   initialValues = values,
   onSubmit,
   onSuccess,
+  onDismiss,
   onError,
   ...props
 }: CreateFormProps<InstanceCreateInput, Instance>) {
@@ -275,6 +276,7 @@ export function CreateInstanceForm({
         <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
           Create instance
         </Form.Submit>
+        {onDismiss && <Form.Cancel onClick={onDismiss} />}
       </Form.Actions>
     </FullPageForm>
   )

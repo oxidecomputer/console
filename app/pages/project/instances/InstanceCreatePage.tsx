@@ -6,12 +6,13 @@ import { pb } from 'app/util/path-builder'
 
 export function InstanceCreatePage() {
   const navigate = useNavigate()
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
   return (
     <CreateInstanceForm
       onSuccess={(instance) =>
-        navigate(pb.instance({ orgName, projectName, instanceName: instance.name }))
+        navigate(pb.instance({ ...projectParams, instanceName: instance.name }))
       }
+      onDismiss={() => navigate(pb.instances(projectParams))}
     />
   )
 }
