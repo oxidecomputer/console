@@ -18,6 +18,7 @@ import {
 
 import { CreateOrgSideModalForm } from 'app/forms/org-create'
 import { EditOrgSideModalForm } from 'app/forms/org-edit'
+import { pb } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
 
@@ -27,7 +28,7 @@ const EmptyState = () => (
     title="No organizations"
     body="You need to create an organization to be able to see it here"
     buttonText="New organization"
-    buttonTo="new"
+    buttonTo={pb.orgNew()}
   />
 )
 
@@ -60,7 +61,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
     {
       label: 'Edit',
       onActivate() {
-        navigate(`/orgs/${org.name}/edit`, { state: org })
+        navigate(pb.orgEdit({ orgName: org.name }), { state: org })
       },
     },
     {
@@ -74,7 +75,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New organization', onSelect: () => navigate('/org-new') },
+        { value: 'New organization', onSelect: () => navigate(pb.orgNew()) },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
           onSelect: () => navigate(o.name),
@@ -91,22 +92,22 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="/org-new" className={buttonStyle({ variant: 'default', size: 'xs' })}>
+        <Link to={pb.orgNew()} className={buttonStyle({ variant: 'default', size: 'xs' })}>
           New Organization
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((name) => `/orgs/${name}/projects`)} />
+        <Column accessor="name" cell={linkCell((orgName) => pb.projects({ orgName }))} />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
       <CreateOrgSideModalForm
         isOpen={modal === 'createOrg'}
-        onDismiss={() => navigate('..')}
+        onDismiss={() => navigate(pb.orgs())}
       />
       <EditOrgSideModalForm
         isOpen={modal === 'editOrg'}
-        onDismiss={() => navigate('../..')}
+        onDismiss={() => navigate(pb.orgs())}
         initialValues={location.state}
       />
     </>

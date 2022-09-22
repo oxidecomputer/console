@@ -18,8 +18,9 @@ import {
 
 import CreateProjectSideModalForm from 'app/forms/project-create'
 import EditProjectSideModalForm from 'app/forms/project-edit'
+import { pb } from 'app/util/path-builder'
 
-import { requireOrgParams, useQuickActions, useRequiredParams } from '../hooks'
+import { requireOrgParams, useOrgParams, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -27,7 +28,7 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo="new"
+    buttonTo={pb.projectNew(useOrgParams())}
   />
 )
 
@@ -47,7 +48,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
   const location = useLocation()
 
   const queryClient = useApiQueryClient()
-  const { orgName } = useRequiredParams('orgName')
+  const { orgName } = useOrgParams()
   const { Table, Column } = useQueryTable('projectList', {
     orgName,
   })
@@ -67,7 +68,9 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     {
       label: 'Edit',
       onActivate: () => {
-        navigate(`./${project.name}/edit`, { state: project })
+        navigate(pb.projectEdit({ orgName, projectName: project.name }), {
+          state: project,
+        })
       },
     },
     {
@@ -78,23 +81,21 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     },
   ]
 
-  const newProjectPath = `/orgs/${orgName}/project-new`
-
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New project', onSelect: () => navigate(newProjectPath) },
+        { value: 'New project', onSelect: () => navigate(pb.projectNew({ orgName })) },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(`${p.name}/instances`),
+          onSelect: () => navigate(pb.instances({ orgName, projectName: p.name })),
           navGroup: 'Go to project',
         })),
       ],
-      [navigate, projects, newProjectPath]
+      [orgName, navigate, projects]
     )
   )
 
-  const backToProjects = () => navigate(`/orgs/${orgName}/projects`)
+  const backToProjects = () => navigate(pb.projects({ orgName }))
 
   return (
     <>
@@ -103,7 +104,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       </PageHeader>
       <TableActions>
         <Link
-          to={newProjectPath}
+          to={pb.projectNew({ orgName })}
           className={buttonStyle({ variant: 'default', size: 'xs' })}
         >
           New Project
@@ -112,7 +113,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((name) => `/orgs/${orgName}/projects/${name}/instances`)}
+          cell={linkCell((projectName) => pb.instances({ orgName, projectName }))}
         />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />

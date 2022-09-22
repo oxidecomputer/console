@@ -20,18 +20,23 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
-import { requireProjectParams, useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-function AttachedInstance(props: {
+function AttachedInstance({
+  orgName,
+  projectName,
+  instanceId,
+}: {
   orgName: string
   projectName: string
   instanceId: string
 }) {
-  const { data: instance } = useApiQuery('instanceViewById', { id: props.instanceId })
+  const { data: instance } = useApiQuery('instanceViewById', { id: instanceId })
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={`../instances/${instance.name}`}
+      to={pb.instance({ orgName, projectName, instanceName: instance.name })}
     >
       {instance.name}
     </Link>
@@ -44,7 +49,7 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo="../disk-new"
+    buttonTo={pb.diskNew(useProjectParams())}
   />
 )
 
@@ -88,7 +93,10 @@ export function DisksPage({ modal }: DisksPageProps) {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="../disk-new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
+        <Link
+          to={pb.diskNew({ orgName, projectName })}
+          className={buttonStyle({ size: 'xs', variant: 'default' })}
+        >
           New Disk
         </Link>
       </TableActions>
@@ -123,7 +131,7 @@ export function DisksPage({ modal }: DisksPageProps) {
       </Table>
       <CreateDiskSideModalForm
         isOpen={modal === 'createDisk'}
-        onDismiss={() => navigate(`../disks`)}
+        onDismiss={() => navigate(pb.disks({ orgName, projectName }))}
       />
     </>
   )

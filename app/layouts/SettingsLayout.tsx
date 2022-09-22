@@ -4,6 +4,7 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { Layout } from './helpers'
@@ -40,16 +41,16 @@ const SettingsLayout = () => {
       </Sidebar.Nav>
       <Divider />
       <Sidebar.Nav heading="User">
-        <NavLinkItem to="profile">
+        <NavLinkItem to={pb.profile()}>
           <Profile16Icon /> Profile
         </NavLinkItem>
-        <NavLinkItem to="appearance">
+        <NavLinkItem to={pb.appearance()}>
           <Show16Icon /> Appearance
         </NavLinkItem>
-        <NavLinkItem to="hotkeys">
+        <NavLinkItem to={pb.hotkeys()}>
           <Profile16Icon /> Hotkeys
         </NavLinkItem>
-        <NavLinkItem to="ssh-keys">
+        <NavLinkItem to={pb.sshKeys()}>
           <Key16Icon /> SSH Keys
         </NavLinkItem>
       </Sidebar.Nav>

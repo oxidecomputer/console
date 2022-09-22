@@ -34,6 +34,7 @@ import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { pb } from './util/path-builder'
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -82,7 +83,7 @@ export const routes = createRoutesFromElements(
         <Route path="settings" element={null} />
       </Route>
 
-      <Route index element={<Navigate to="/orgs" replace />} />
+      <Route index element={<Navigate to={pb.orgs()} replace />} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
       <Route path="orgs/:orgName" element={<Navigate to="projects" replace />} />

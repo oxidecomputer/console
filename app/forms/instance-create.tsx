@@ -1,5 +1,4 @@
 import * as Yup from 'yup'
-import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type {
@@ -82,10 +81,10 @@ export function CreateInstanceForm({
   initialValues = values,
   onSubmit,
   onSuccess,
+  onDismiss,
   onError,
   ...props
 }: CreateFormProps<InstanceCreateInput, Instance>) {
-  const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useRequiredParams('orgName', 'projectName')
@@ -277,8 +276,7 @@ export function CreateInstanceForm({
         <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
           Create instance
         </Form.Submit>
-        {/* TODO: this nav may not always be correct. Could get rid of the button instead. */}
-        <Form.Cancel onClick={() => navigate('..')} />
+        {onDismiss && <Form.Cancel onClick={onDismiss} />}
       </Form.Actions>
     </FullPageForm>
   )

@@ -10,6 +10,7 @@ import {
 } from '@oxide/ui'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
+import { pb } from 'app/util/path-builder'
 
 import { Layout } from './helpers'
 
@@ -21,26 +22,26 @@ export default function SiloLayout() {
       </Sidebar.Nav>
       <Divider />
       <Sidebar.Nav heading="System">
-        <NavLinkItem to="issues">
+        <NavLinkItem to={pb.systemIssues()}>
           {/* TODO: active green color should apply to icon */}
           <Instances16Icon /> Issues
         </NavLinkItem>
-        <NavLinkItem to="utilization">
+        <NavLinkItem to={pb.systemUtilization()}>
           <Snapshots16Icon /> Utilization
         </NavLinkItem>
-        <NavLinkItem to="inventory">
+        <NavLinkItem to={pb.systemInventory()}>
           <Storage16Icon /> Inventory
         </NavLinkItem>
-        <NavLinkItem to="health">
+        <NavLinkItem to={pb.systemHealth()}>
           <Health16Icon /> Health
         </NavLinkItem>
-        <NavLinkItem to="update">
+        <NavLinkItem to={pb.systemUpdate()}>
           <SoftwareUpdate16Icon /> System Update
         </NavLinkItem>
-        <NavLinkItem to="networking">
+        <NavLinkItem to={pb.systemNetworking()}>
           <Networking16Icon /> Networking
         </NavLinkItem>
-        <NavLinkItem to="settings">
+        <NavLinkItem to={pb.systemSettings()}>
           <Settings16Icon /> Settings
         </NavLinkItem>
       </Sidebar.Nav>

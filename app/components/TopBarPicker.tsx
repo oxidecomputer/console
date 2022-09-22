@@ -7,6 +7,7 @@ import { generateIdenticon, md5 } from '@oxide/identicon'
 import { SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
@@ -91,8 +92,8 @@ const OrgLogo = (name: string) => (
 export function SiloSystemPicker() {
   const commonProps = {
     items: [
-      { label: 'System', to: '/system' },
-      { label: 'Silo', to: '/orgs' },
+      { label: 'System', to: pb.system() },
+      { label: 'Silo', to: pb.orgs() },
     ],
     'aria-label': 'Switch between system and silo',
   }
@@ -120,7 +121,7 @@ export function OrgPicker() {
   const { data } = useApiQuery('organizationList', { limit: 20 })
   const items = (data?.items || []).map((org) => ({
     label: org.name,
-    to: `/orgs/${org.name}/projects`,
+    to: pb.projects({ orgName: org.name }),
   }))
 
   return (
@@ -140,7 +141,7 @@ export function ProjectPicker() {
   const { data } = useApiQuery('projectList', { orgName, limit: 20 })
   const items = (data?.items || []).map((p) => ({
     label: p.name,
-    to: `/orgs/${orgName}/projects/${p.name}/instances`,
+    to: pb.instances({ orgName, projectName: p.name }),
   }))
 
   return (
