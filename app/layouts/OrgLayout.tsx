@@ -16,7 +16,7 @@ const OrgLayout = () => {
   return (
     <Layout>
       <Sidebar.Nav>
-        <NavLinkItem to="/orgs" end>
+        <NavLinkItem to={pb.orgs()} end>
           <Organization16Icon />
           Organizations
         </NavLinkItem>
