@@ -6,10 +6,6 @@ import { pb } from 'app/util/path-builder'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { Layout } from './helpers'
 
-// We need to use absolute paths here because sometimes this layout is rendered
-// at `/orgs/:orgName` and other times it's rendered at `/orgs/:orgName/access`.
-// Relative paths would resolve differently in the two locations.
-
 const OrgLayout = () => {
   const { orgName } = useRequiredParams('orgName')
 

@@ -92,8 +92,8 @@ const OrgLogo = (name: string) => (
 export function SiloSystemPicker() {
   const commonProps = {
     items: [
-      { label: 'System', to: '/system' },
-      { label: 'Silo', to: '/orgs' },
+      { label: 'System', to: pb.system() },
+      { label: 'Silo', to: pb.orgs() },
     ],
     'aria-label': 'Switch between system and silo',
   }

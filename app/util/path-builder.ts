@@ -21,6 +21,7 @@ export const pb = {
   instances: (params: PP.Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instance-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
+  serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
 
   diskNew: (params: PP.Project) => `${pb.project(params)}/disk-new`,
   disks: (params: PP.Project) => `${pb.project(params)}/disks`,
@@ -30,6 +31,7 @@ export const pb = {
   vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
   vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
 
+  system: () => '/system',
   systemIssues: () => '/system/issues',
   systemUtilization: () => '/system/utilization',
   systemInventory: () => '/system/inventory',
@@ -42,4 +44,6 @@ export const pb = {
   appearance: () => '/settings/appearance',
   hotkeys: () => '/settings/hotkeys',
   sshKeys: () => '/settings/ssh-keys',
+
+  deviceSuccess: () => '/device/success',
 }

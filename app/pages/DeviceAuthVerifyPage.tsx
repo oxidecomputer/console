@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApiMutation } from '@oxide/api'
 import { Button, Warning12Icon } from '@oxide/ui'
 
+import { pb } from 'app/util/path-builder'
+
 import { useToast } from '../hooks'
 
 /**
@@ -14,7 +16,7 @@ export default function DeviceAuthVerifyPage() {
   const addToast = useToast()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {
-      navigate('/device/success')
+      navigate(pb.deviceSuccess())
     },
     onError: () => {
       addToast({
