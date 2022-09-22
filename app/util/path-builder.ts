@@ -47,3 +47,5 @@ export const pb = {
 
   deviceSuccess: () => '/device/success',
 }
+
+// export const jelly = 'just kidding'
