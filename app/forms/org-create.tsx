@@ -6,6 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import type { CreateSideModalFormProps } from '.'
 
@@ -32,14 +33,15 @@ export function CreateOrgSideModalForm({
     onSuccess(org) {
       queryClient.invalidateQueries('organizationList', {})
       // avoid the org fetch when the org page loads since we have the data
-      queryClient.setQueryData('organizationView', { orgName: org.name }, org)
+      const orgParams = { orgName: org.name }
+      queryClient.setQueryData('organizationView', orgParams, org)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your organization has been created.',
       })
       onSuccess?.(org)
-      navigate(`/orgs/${org.name}/projects`)
+      navigate(pb.projects(orgParams))
     },
     onError,
   })

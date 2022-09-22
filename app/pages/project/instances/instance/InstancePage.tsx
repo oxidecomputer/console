@@ -11,6 +11,7 @@ import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { Tabs } from 'app/components/Tabs'
 import { requireInstanceParams, useQuickActions, useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 import { NetworkingTab } from './tabs/NetworkingTab'
@@ -57,7 +58,7 @@ export function InstancePage() {
       queryClient.invalidateQueries('instanceView', instanceParams)
     },
     // go to project instances list since there's no more instance
-    onDelete: () => navigate('..'),
+    onDelete: () => navigate(pb.instances(projectParams)),
   })
 
   const { data: instance } = useApiQuery('instanceView', instanceParams)

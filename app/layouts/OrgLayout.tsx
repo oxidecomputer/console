@@ -1,6 +1,7 @@
 import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { Layout } from './helpers'
@@ -23,12 +24,11 @@ const OrgLayout = () => {
       </Sidebar.Nav>
       <Divider />
       <Sidebar.Nav heading={orgName}>
-        {/* TODO: icon for each item */}
-        <NavLinkItem to={`/orgs/${orgName}/projects`}>
+        <NavLinkItem to={pb.projects({ orgName })}>
           <Folder16Icon title="Projects" />
           Projects
         </NavLinkItem>
-        <NavLinkItem to={`/orgs/${orgName}/access`}>
+        <NavLinkItem to={pb.orgAccess({ orgName })}>
           <Access16Icon title="Access & IAM" />
           Access &amp; IAM
         </NavLinkItem>

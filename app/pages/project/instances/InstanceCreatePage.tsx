@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { CreateInstanceForm } from 'app/forms/instance-create'
 import { useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 export function InstanceCreatePage() {
   const navigate = useNavigate()
@@ -9,7 +10,7 @@ export function InstanceCreatePage() {
   return (
     <CreateInstanceForm
       onSuccess={(instance) =>
-        navigate(`/orgs/${orgName}/projects/${projectName}/instances/${instance.name}`)
+        navigate(pb.instance({ orgName, projectName, instanceName: instance.name }))
       }
     />
   )

@@ -11,6 +11,8 @@ import {
 } from '@oxide/ui'
 import { isTruthy } from '@oxide/util'
 
+import { pb } from 'app/util/path-builder'
+
 import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
 /**
@@ -82,13 +84,7 @@ export function TopBar() {
                 <DirectionDownIcon className="!w-2.5" />
               </MenuButton>
               <MenuList className="mt-2">
-                <MenuItem
-                  onSelect={() => {
-                    navigate('/settings')
-                  }}
-                >
-                  Settings
-                </MenuItem>
+                <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
                 {loggedIn ? (
                   <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
                 ) : (

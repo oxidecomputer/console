@@ -278,6 +278,7 @@ export function CreateInstanceForm({
           Create instance
         </Form.Submit>
         {/* TODO: this nav may not always be correct. Could get rid of the button instead. */}
+        {/* TODO: fix me */}
         <Form.Cancel onClick={() => navigate('..')} />
       </Form.Actions>
     </FullPageForm>

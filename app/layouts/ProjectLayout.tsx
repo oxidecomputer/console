@@ -13,6 +13,7 @@ import {
 } from '@oxide/ui'
 
 import { useQuickActions, useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { Layout } from './helpers'
@@ -46,7 +47,7 @@ const ProjectLayout = () => {
   return (
     <Layout>
       <Sidebar.Nav>
-        <NavLinkItem to={`/orgs/${orgName}/projects`} end>
+        <NavLinkItem to={pb.projects({ orgName })} end>
           <Folder16Icon />
           Projects
         </NavLinkItem>
