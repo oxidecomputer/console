@@ -8,6 +8,7 @@ import { BooleanCell } from '@oxide/table'
 import { DateCell } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
+  Badge,
   Cloud24Icon,
   EmptyMessage,
   PageHeader,
@@ -87,7 +88,11 @@ export default function SilosPage({ modal }: SilosPageProps) {
         <Column accessor="name" />
         <Column accessor="description" />
         <Column accessor="discoverable" cell={BooleanCell} />
-        <Column accessor={(silo) => silo.userProvisionType} id="User provision type" />
+        <Column
+          id="User provision type"
+          accessor={(silo) => silo.userProvisionType}
+          cell={({ value }) => <Badge>{value}</Badge>}
+        />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
       <CreateSiloSideModalForm
