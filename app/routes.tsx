@@ -74,8 +74,7 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="system" element={<SystemLayout />}>
-        <Route index element={null} />
-        <Route path="silos" element={<SilosPage />} />
+        <Route path="silos" element={<SilosPage />} loader={SilosPage.loader} />
         <Route
           path="silo-new"
           element={<SilosPage modal="createSilo" />}
