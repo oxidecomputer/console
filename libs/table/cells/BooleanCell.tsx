@@ -4,11 +4,7 @@ import type { Cell } from '.'
 
 export const BooleanCell = ({ value }: Cell<boolean>) =>
   value ? (
-    <>
-      <Success12Icon className="mr-1 text-accent" />
-    </>
+    <Success12Icon className="mr-1 text-accent" />
   ) : (
-    <>
-      <Disabled12Icon className="mr-1 text-notice" />
-    </>
+    <Disabled12Icon className="mr-1 text-notice" />
   )
