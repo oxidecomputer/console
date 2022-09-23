@@ -36,7 +36,7 @@ test('path builder', () => {
         "serialConsole": "/orgs/a/projects/b/instances/c/serial-console",
         "settings": "/settings",
         "silo": "/system/silos/s",
-        "siloNew": "/system/silos-new",
+        "siloNew": "/system/silo-new",
         "silos": "/system/silos",
         "snapshots": "/orgs/a/projects/b/snapshots",
         "sshKeys": "/settings/ssh-keys",
