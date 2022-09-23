@@ -46,7 +46,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
 
   const deleteSilo = useApiMutation('siloDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('siloList', {})
     },
   })
 
