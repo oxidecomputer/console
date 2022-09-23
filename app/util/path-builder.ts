@@ -40,7 +40,7 @@ export const pb = {
   systemSettings: () => '/system/settings',
 
   silos: () => '/system/silos',
-  siloNew: () => '/system/silos-new',
+  siloNew: () => '/system/silo-new',
   silo: ({ siloName }: PP.Silo) => `/system/silos/${siloName}`,
 
   settings: () => '/settings',

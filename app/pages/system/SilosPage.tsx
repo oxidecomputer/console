@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Silo } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { BooleanCell } from '@oxide/table'
@@ -30,6 +31,10 @@ const EmptyState = () => (
     buttonTo={pb.siloNew()}
   />
 )
+
+SilosPage.loader = async () => {
+  await apiQueryClient.prefetchQuery('siloList', { limit: 10 })
+}
 
 interface SilosPageProps {
   modal?: 'createSilo'
