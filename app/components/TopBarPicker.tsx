@@ -3,8 +3,7 @@ import cn from 'classnames'
 import { Link, useLocation } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { generateIdenticon, md5 } from '@oxide/identicon'
-import { SelectArrows6Icon, Success12Icon } from '@oxide/ui'
+import { Identicon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -82,10 +81,10 @@ const TopBarPicker = (props: TopBarPickerProps) => (
  * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
  * Will eventually need to support user uploaded org avatars and fallback to this if there isn't one
  */
-const OrgLogo = (name: string) => (
-  <div
+const OrgLogo = ({ name }: { name: string }) => (
+  <Identicon
     className="flex h-[34px] w-[34px] items-center justify-center rounded bg-green-900 text-green-500"
-    dangerouslySetInnerHTML={{ __html: generateIdenticon(md5(name)) }}
+    name={name}
   />
 )
 
@@ -127,7 +126,7 @@ export function OrgPicker() {
   return (
     <TopBarPicker
       aria-label="Switch organization"
-      icon={OrgLogo(orgName)}
+      icon={<OrgLogo name={orgName} />}
       category="Organization"
       current={orgName}
       items={items}
