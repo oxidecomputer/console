@@ -3,12 +3,13 @@ import { Outlet } from 'react-router-dom'
 import { apiQueryClient } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
+import { classed } from '@oxide/util'
 
 import { PageActionsTarget } from 'app/components/PageActions'
-import { Sidebar } from 'app/components/Sidebar'
-import { TopBar } from 'app/components/TopBar'
 
-const ContentPane = () => (
+export const PageContainer = classed.div`grid h-screen grid-cols-[13.75rem,1fr] grid-rows-[60px,1fr]`
+
+export const ContentPane = () => (
   <div className="flex flex-col overflow-auto">
     <div className="flex flex-grow flex-col pb-8">
       <SkipLinkTarget />
@@ -22,16 +23,6 @@ const ContentPane = () => (
     </div>
   </div>
 )
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="grid h-screen grid-cols-[13.75rem,1fr] grid-rows-[60px,1fr]">
-      <TopBar />
-      <Sidebar>{children}</Sidebar>
-      <ContentPane />
-    </div>
-  )
-}
 
 export async function prefetchSessionMe() {
   await apiQueryClient.prefetchQuery('sessionMe', {})
