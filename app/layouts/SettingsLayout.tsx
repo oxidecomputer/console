@@ -27,6 +27,7 @@ const SettingsLayout = () => {
           .map((i) => ({
             navGroup: `Settings`,
             value: i.value,
+            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
       [currentPath, navigate]

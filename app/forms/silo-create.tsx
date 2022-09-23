@@ -12,6 +12,7 @@ import {
   SideModalForm,
 } from 'app/components/form'
 import { useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import type { CreateSideModalFormProps } from '.'
 
@@ -46,7 +47,7 @@ export function CreateSiloSideModalForm({
         content: 'Your silo has been created.',
       })
       onSuccess?.(silo)
-      navigate(`/system/silos`)
+      navigate(pb.silos())
     },
     onError,
   })

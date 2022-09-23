@@ -65,7 +65,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
         { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
         ...(silos?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(o.name),
+          onSelect: () => navigate(pb.silo({ siloName: o.name })),
           navGroup: 'Go to silo',
         })),
       ],

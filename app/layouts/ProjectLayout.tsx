@@ -39,6 +39,7 @@ const ProjectLayout = () => {
           .map((i) => ({
             navGroup: `Project '${projectName}'`,
             value: i.value,
+            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
       [currentPath, navigate, projectName]
