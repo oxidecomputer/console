@@ -3,7 +3,6 @@ import type { PathParams as PP } from '@oxide/api'
 export const pb = {
   orgs: () => '/orgs',
   orgNew: () => '/org-new',
-  settings: () => '/settings',
   org: ({ orgName }: PP.Org) => `${pb.orgs()}/${orgName}`,
   orgEdit: (params: PP.Org) => `${pb.org(params)}/edit`,
   orgAccess: (params: PP.Org) => `${pb.org(params)}/access`,
@@ -40,6 +39,11 @@ export const pb = {
   systemNetworking: () => '/system/networking',
   systemSettings: () => '/system/settings',
 
+  silos: () => '/system/silos',
+  siloNew: () => '/system/silo-new',
+  silo: ({ siloName }: PP.Silo) => `/system/silos/${siloName}`,
+
+  settings: () => '/settings',
   profile: () => '/settings/profile',
   appearance: () => '/settings/appearance',
   hotkeys: () => '/settings/hotkeys',

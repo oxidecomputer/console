@@ -1,4 +1,5 @@
 import {
+  Cloud16Icon,
   Divider,
   Health16Icon,
   Instances16Icon,
@@ -22,6 +23,9 @@ export default function SiloLayout() {
       </Sidebar.Nav>
       <Divider />
       <Sidebar.Nav heading="System">
+        <NavLinkItem to={pb.silos()}>
+          <Cloud16Icon /> Silos
+        </NavLinkItem>
         <NavLinkItem to={pb.systemIssues()}>
           {/* TODO: active green color should apply to icon */}
           <Instances16Icon /> Issues

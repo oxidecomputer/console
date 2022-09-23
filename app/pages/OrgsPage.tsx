@@ -78,7 +78,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         { value: 'New organization', onSelect: () => navigate(pb.orgNew()) },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(o.name),
+          onSelect: () => navigate(pb.org({ orgName: o.name })),
           navGroup: 'Go to organization',
         })),
       ],

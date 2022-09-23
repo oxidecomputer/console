@@ -10,6 +10,7 @@ import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
 import type { NotFound } from './db'
+import { lookupSilo } from './db'
 import {
   db,
   lookupById,
@@ -1006,6 +1007,59 @@ export const handlers = [
       const [image, err] = lookupGlobalImage(req.params)
       if (err) return res(err)
       return res(json(image))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.SiloResultsPage> | GetErr>(
+    '/system/silos',
+    (req, res) => {
+      return res(json(paginated(req.url.search, db.silos)))
+    }
+  ),
+
+  rest.post<Json<Api.SiloCreate>, never, Json<Api.Silo> | PostErr>(
+    '/system/silos',
+    async (req, res) => {
+      const body = await req.json()
+      const alreadyExists = db.silos.some((x) => x.name === body.name)
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      if (typeof body.discoverable !== 'boolean') {
+        return res(badRequest('discoverable must be provided'))
+      }
+      if (!body.user_provision_type) {
+        return res(badRequest('user_provision_type must be provided'))
+      }
+
+      const newSilo: Json<Api.Silo> = {
+        id: genId('silo'),
+        ...body,
+        ...getTimestamps(),
+      }
+      db.silos.push(newSilo)
+      return res(json(newSilo, { status: 201 }))
+    }
+  ),
+
+  rest.get<never, PP.Silo, Json<Api.Silo> | GetErr>(
+    '/system/silos/:siloName',
+    (req, res) => {
+      const [silo, err] = lookupSilo(req.params)
+      if (err) return res(err)
+      return res(json(silo))
+    }
+  ),
+
+  rest.delete<never, PP.Silo, Json<Api.Silo> | GetErr>(
+    '/system/silos/:siloName',
+    (req, res) => {
+      const [silo, err] = lookupSilo(req.params)
+      if (err) return res(err)
+      db.silos = db.silos.filter((x) => x.id !== silo.id)
+      return res(json(silo))
     }
   ),
 

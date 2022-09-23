@@ -63,9 +63,9 @@ export function InstancesPage() {
     useMemo(
       () => [
         { value: 'New instance', onSelect: () => navigate(pb.instanceNew(projectParams)) },
-        ...(instances?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(p.name),
+        ...(instances?.items || []).map((i) => ({
+          value: i.name,
+          onSelect: () => navigate(pb.instance({ ...projectParams, instanceName: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
