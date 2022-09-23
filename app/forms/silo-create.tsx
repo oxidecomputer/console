@@ -20,7 +20,7 @@ const values: SiloCreate = {
   name: '',
   description: '',
   discoverable: true,
-  userProvisionType: 'fixed',
+  userProvisionType: 'jit',
 }
 
 export function CreateSiloSideModalForm({
@@ -79,8 +79,8 @@ export function CreateSiloSideModalForm({
         label="User provision type"
         column
       >
-        <Radio value="fixed">Fixed</Radio>
         <Radio value="jit">JIT</Radio>
+        <Radio value="fixed">Fixed</Radio>
       </RadioField>
     </SideModalForm>
   )

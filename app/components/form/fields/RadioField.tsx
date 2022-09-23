@@ -40,7 +40,7 @@ export function RadioField({
   units,
   ...props
 }: RadioFieldProps) {
-  const [field] = useField({ name })
+  const [field, { initialValue }] = useField({ name })
   return (
     <div>
       <div className="mb-2">
@@ -53,6 +53,7 @@ export function RadioField({
         {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
       <RadioGroup
+        defaultChecked={initialValue}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
         })}
