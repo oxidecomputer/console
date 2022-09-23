@@ -1,9 +1,9 @@
 import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
 import cn from 'classnames'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Identicon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
+import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -19,9 +19,9 @@ type TopBarPickerProps = {
   /** Text displayed below the category. Defaults to `current` if not provided. */
   display?: string
   /** The actively selected option. Used as display if display isn't present. */
-  current: string
+  current: string | null | undefined
   items: TopBarPickerItem[]
-  fallbackText?: string
+  noItemsText?: string
   icon?: React.ReactElement
 }
 
@@ -33,12 +33,22 @@ const TopBarPicker = (props: TopBarPickerProps) => (
     >
       <div className="flex items-center">
         {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
-        <div className="text-left">
-          <div className="text-mono-sm text-secondary">{props.category}</div>
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
-            {props.display ?? props.current}
+        {props.current ? (
+          <div className="text-left">
+            <div className="text-mono-sm text-secondary">{props.category}</div>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
+              {props.display ?? props.current}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-left">
+            <div className="text-mono-sm text-secondary">
+              Select
+              <br />
+              {props.category}
+            </div>
+          </div>
+        )}
       </div>
       {/* aria-hidden is a tip from the Reach docs */}
       <div className="ml-4 flex h-[1.625rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-secondary group-hover:bg-hover">
@@ -70,7 +80,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
           onSelect={() => {}}
           disabled
         >
-          {props.fallbackText || 'No items found'}
+          {props.noItemsText || 'No items found'}
         </MenuItem>
       )}
     </MenuList>
@@ -88,16 +98,20 @@ const OrgLogo = ({ name }: { name: string }) => (
   />
 )
 
-export function SiloSystemPicker() {
+const NoOrgLogo = () => (
+  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
+    <Organization16Icon />
+  </div>
+)
+
+export function SiloSystemPicker({ isSystem }: { isSystem: boolean }) {
   const commonProps = {
     items: [
-      { label: 'System', to: pb.system() },
+      { label: 'System', to: pb.silos() },
       { label: 'Silo', to: pb.orgs() },
     ],
     'aria-label': 'Switch between system and silo',
   }
-
-  const isSystem = useLocation().pathname.startsWith('/system') // lol
 
   return isSystem ? (
     <TopBarPicker
@@ -116,7 +130,7 @@ export function SiloSystemPicker() {
 // TODO: maybe don't filter out the currently selected one
 
 export function OrgPicker() {
-  const { orgName } = useRequiredParams('orgName')
+  const { orgName } = useParams()
   const { data } = useApiQuery('organizationList', { limit: 20 })
   const items = (data?.items || []).map((org) => ({
     label: org.name,
@@ -126,11 +140,11 @@ export function OrgPicker() {
   return (
     <TopBarPicker
       aria-label="Switch organization"
-      icon={<OrgLogo name={orgName} />}
+      icon={orgName ? <OrgLogo name={orgName} /> : <NoOrgLogo />}
       category="Organization"
       current={orgName}
       items={items}
-      fallbackText="No other organizations found"
+      noItemsText="No organizations found"
     />
   )
 }
@@ -149,7 +163,7 @@ export function ProjectPicker() {
       category="Project"
       current={projectName}
       items={items}
-      fallbackText="No other projects found"
+      noItemsText="No projects found"
     />
   )
 }

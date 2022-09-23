@@ -1,10 +1,10 @@
 import cn from 'classnames'
 import { NavLink } from 'react-router-dom'
 
-import { Button, Document16Icon } from '@oxide/ui'
+import { Action16Icon, Button, Document16Icon } from '@oxide/ui'
 
 const linkStyles =
-  'flex h-7 items-center rounded p-1.5 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
+  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
@@ -36,7 +36,9 @@ const JumpToButton = () => (
     // TODO: the more I use innerClassName the wronger it feels
     innerClassName="w-full justify-between"
   >
-    {/* TODO: need "action" lightning bolt icon */}⚡ Jump to
+    <span className="flex items-center">
+      <Action16Icon className="mr-2" /> Jump to
+    </span>
     <div className="">{modKey}+K</div>
   </Button>
 )
