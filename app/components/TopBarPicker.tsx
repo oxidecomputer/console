@@ -7,6 +7,7 @@ import { generateIdenticon, md5 } from '@oxide/identicon'
 import { SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
@@ -16,6 +17,9 @@ type TopBarPickerItem = {
 type TopBarPickerProps = {
   'aria-label': string
   category: string
+  /** Text displayed below the category. Defaults to `current` if not provided. */
+  display?: string
+  /** The actively selected option. Used as display if display isn't present. */
   current: string
   items: TopBarPickerItem[]
   fallbackText?: string
@@ -33,7 +37,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         <div className="text-left">
           <div className="text-mono-sm text-secondary">{props.category}</div>
           <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
-            {props.current}
+            {props.display ?? props.current}
           </div>
         </div>
       </div>
@@ -88,8 +92,8 @@ const OrgLogo = (name: string) => (
 export function SiloSystemPicker() {
   const commonProps = {
     items: [
-      { label: 'System', to: '/system' },
-      { label: 'Silo', to: '/orgs' },
+      { label: 'System', to: pb.system() },
+      { label: 'Silo', to: pb.orgs() },
     ],
     'aria-label': 'Switch between system and silo',
   }
@@ -97,11 +101,16 @@ export function SiloSystemPicker() {
   const isSystem = useLocation().pathname.startsWith('/system') // lol
 
   return isSystem ? (
-    <TopBarPicker {...commonProps} category="System" current="Happy Customer, Inc." />
+    <TopBarPicker
+      {...commonProps}
+      category="System"
+      current="System"
+      display="Happy Customer, Inc."
+    />
   ) : (
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
-    <TopBarPicker {...commonProps} category="Silo" current="corp.dev" />
+    <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
   )
 }
 
@@ -112,7 +121,7 @@ export function OrgPicker() {
   const { data } = useApiQuery('organizationList', { limit: 20 })
   const items = (data?.items || []).map((org) => ({
     label: org.name,
-    to: `/orgs/${org.name}/projects`,
+    to: pb.projects({ orgName: org.name }),
   }))
 
   return (
@@ -132,7 +141,7 @@ export function ProjectPicker() {
   const { data } = useApiQuery('projectList', { orgName, limit: 20 })
   const items = (data?.items || []).map((p) => ({
     label: p.name,
-    to: `/orgs/${orgName}/projects/${p.name}/instances`,
+    to: pb.instances({ orgName, projectName: p.name }),
   }))
 
   return (

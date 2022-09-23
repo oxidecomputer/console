@@ -6,6 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import type { CreateSideModalFormProps } from 'app/forms'
+import { pb } from 'app/util/path-builder'
 
 import { useRequiredParams, useToast } from '../hooks'
 
@@ -35,18 +36,15 @@ export function CreateProjectSideModalForm({
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('projectList', { orgName })
       // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData(
-        'projectView',
-        { orgName, projectName: project.name },
-        project
-      )
+      const projectParams = { orgName, projectName: project.name }
+      queryClient.setQueryData('projectView', projectParams, project)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
       })
       onSuccess?.(project)
-      navigate(`/orgs/${orgName}/projects/${project.name}/instances`)
+      navigate(pb.instances(projectParams))
     },
     onError,
   })

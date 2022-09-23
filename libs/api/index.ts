@@ -43,5 +43,7 @@ export * from './__generated__/Api'
 
 export type { ApiTypes }
 
+export * as PathParams from './path-params'
+
 export type { Params, Result, ResultItem } from './hooks'
 export { navToLogin } from './nav-to-login'
