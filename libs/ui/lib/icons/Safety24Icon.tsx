@@ -23,8 +23,8 @@ const Safety24Icon = ({
     {title ? <title id={titleId}>{title}</title> : null}
     <g id="24/safety">
       <path
-        id="Vector"
-        d="M12 23L7.8 20.5C4.8 18.7 3 15.4 3 11.9V3L12 1L21 3V11.9C21 15.4 19.2 18.6 16.2 20.5L12 23Z"
+        id="Rectangle 820"
+        d="M3 4L12 1L21 4V13.2928C21 16.1981 19.4249 18.8751 16.8851 20.286L12 23L7.11486 20.286C4.57514 18.8751 3 16.1981 3 13.2928V4Z"
         fill="currentColor"
       />
     </g>

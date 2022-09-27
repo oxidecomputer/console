@@ -26,7 +26,7 @@ const Compatibility24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M3 9V1H21V9H15V5H9V9H3ZM15 12V16H21V23H3V16H9V12H15Z"
+        d="M2 11V2H22V11H16V7H8V11H2ZM16 13V17H22V22H2V17H8V13H16Z"
         fill="currentColor"
       />
     </g>

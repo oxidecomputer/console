@@ -19,10 +19,10 @@ const Chat24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
     {title ? <title id={titleId}>{title}</title> : null}
     <g id="24/chat">
       <path
-        id="Union"
+        id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M0 3H24V17H8L3 22V17H0V3Z"
+        d="M22 2H2V18H4V22L8 18H22V2ZM6 7H18V9H6V7ZM6 11H18V13H6V11Z"
         fill="currentColor"
       />
     </g>
