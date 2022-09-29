@@ -32,8 +32,8 @@ function DiskMetric({
     {
       ...diskParams,
       metricName,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
+      startTime,
+      endTime,
       limit: 1000,
     },
     // avoid graphs flashing blank while loading when you change the time
