@@ -26,7 +26,7 @@ const Resize24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M19 5V9H22V5V2H19H15V5H19ZM7 7H17V17H7V7ZM5 19L5 15H2V19V22H5H9V19H5Z"
+        d="M19 5V12H22V5V2H19H12V5H19ZM7 7H17V17H7V7ZM12 19V22H5H2V19V12H5L5 19H12Z"
         fill="currentColor"
       />
     </g>
