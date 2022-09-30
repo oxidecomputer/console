@@ -43,7 +43,7 @@ export function TopBar() {
   const { projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
-    hasSiloPerms && <SiloSystemPicker isSystem={isSystem} />,
+    hasSiloPerms && <SiloSystemPicker isSystem={isSystem} key={0} />,
     // TODO: This works ok in most situations, but when an operator user is on
     // the orgs page with no org selected, they see this picker, which is
     // redundant with the list of orgs. Overall this logic is starting to feel
@@ -52,7 +52,7 @@ export function TopBar() {
     // on a system situation because we're in SystemLayout. Seems pretty obvious
     // in hindsight.
     !isSystem && <OrgPicker key={1} />,
-    projectName && <ProjectPicker />,
+    projectName && <ProjectPicker key={2} />,
   ].filter(isTruthy)
 
   // The height of this component is governed by the `PageContainer`
