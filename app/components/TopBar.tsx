@@ -39,7 +39,7 @@ export function TopBar() {
 
   const loggedIn = user && !error
 
-  const isSystem = useLocation().pathname.startsWith('/system') // lol
+  const isSystem = useLocation().pathname.startsWith(pb.system()) // lol
   const { projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
