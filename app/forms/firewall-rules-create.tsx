@@ -136,7 +136,7 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
       />
       {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
       subform which means it likely should be a custom field */}
-      <NameField id="targetValue" name="targetValue" label="Target name" required={false} />
+      <TextField id="targetValue" name="targetValue" label="Target name" required={false} />
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
