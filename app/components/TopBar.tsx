@@ -13,7 +13,7 @@ import { isTruthy } from '@oxide/util'
 
 import { pb } from 'app/util/path-builder'
 
-import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
+import { InstancePicker, OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
 /**
  * TODO: This is a temporary flag to disable the silo picker until we have
@@ -40,7 +40,7 @@ export function TopBar() {
   const loggedIn = user && !error
 
   const isSystem = useLocation().pathname.startsWith(pb.system()) // lol
-  const { projectName } = useParams()
+  const { instanceName, projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
     hasSiloPerms && <SiloSystemPicker isSystem={isSystem} key={0} />,
@@ -53,6 +53,7 @@ export function TopBar() {
     // in hindsight.
     !isSystem && <OrgPicker key={1} />,
     projectName && <ProjectPicker key={2} />,
+    instanceName && <InstancePicker key={3} />,
   ].filter(isTruthy)
 
   // The height of this component is governed by the `PageContainer`

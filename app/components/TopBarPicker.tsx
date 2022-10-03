@@ -20,71 +20,93 @@ type TopBarPickerProps = {
   display?: string
   /** The actively selected option. Used as display if display isn't present. */
   current: string | null | undefined
-  items: TopBarPickerItem[]
+  items?: TopBarPickerItem[]
   noItemsText?: string
   icon?: React.ReactElement
 }
 
-const TopBarPicker = (props: TopBarPickerProps) => (
-  <Menu>
-    <MenuButton
-      aria-label={props['aria-label']}
-      className="group flex w-full items-center justify-between"
-    >
-      <div className="flex items-center">
-        {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
-        {props.current ? (
-          <div className="text-left">
-            <div className="text-mono-sm text-secondary">{props.category}</div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
-              {props.display ?? props.current}
-            </div>
-          </div>
-        ) : (
-          <div className="text-left">
-            <div className="text-mono-sm text-secondary">
-              Select
-              <br />
-              {props.category}
-            </div>
-          </div>
-        )}
-      </div>
-      {/* aria-hidden is a tip from the Reach docs */}
-      <div className="ml-4 flex h-[1.625rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-secondary group-hover:bg-hover">
-        <SelectArrows6Icon className="text-secondary" aria-hidden />
-      </div>
-    </MenuButton>
-    {/* TODO: item size and focus highlight */}
-    {/* TODO: popover position should be further right */}
-    <MenuList className="ox-menu-list">
-      {props.items.length > 0 ? (
-        props.items.map(({ label, to }) => {
-          const isSelected = props.current === label
-          return (
-            <MenuLink
-              key={label}
-              as={Link}
-              to={to}
-              className={cn('ox-menu-item', { 'is-selected': isSelected })}
+const TopBarPicker = (props: TopBarPickerProps) => {
+  if (props.items) {
+    return (
+      <Menu>
+        <TopBarPickerButton ariaLabel={props['aria-label']}>
+          <TopBarPickerInner {...props} />
+        </TopBarPickerButton>
+        {/* TODO: item size and focus highlight */}
+        {/* TODO: popover position should be further right */}
+        <MenuList className="ox-menu-list">
+          {props.items.length > 0 ? (
+            props.items.map(({ label, to }) => {
+              const isSelected = props.current === label
+              return (
+                <MenuLink
+                  key={label}
+                  as={Link}
+                  to={to}
+                  className={cn('ox-menu-item', { 'is-selected': isSelected })}
+                >
+                  <span className="flex w-full items-center justify-between">
+                    {label} {isSelected && <Success12Icon className="-mr-3 block" />}
+                  </span>
+                </MenuLink>
+              )
+            })
+          ) : (
+            <MenuItem
+              className="!pr-3 !text-center !text-secondary hover:cursor-default"
+              onSelect={() => {}}
+              disabled
             >
-              <span className="flex items-center justify-between">
-                {label} {isSelected && <Success12Icon />}
-              </span>
-            </MenuLink>
-          )
-        })
-      ) : (
-        <MenuItem
-          className="!pr-3 !text-center !text-secondary hover:cursor-default"
-          onSelect={() => {}}
-          disabled
-        >
-          {props.noItemsText || 'No items found'}
-        </MenuItem>
-      )}
-    </MenuList>
-  </Menu>
+              {props.noItemsText || 'No items found'}
+            </MenuItem>
+          )}
+        </MenuList>
+      </Menu>
+    )
+  } else {
+    return <TopBarPickerInner {...props} />
+  }
+}
+
+const TopBarPickerInner = (props: TopBarPickerProps) => (
+  <div className="flex items-center">
+    {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
+    {props.current ? (
+      <div className="text-left">
+        <div className="text-mono-sm text-secondary">{props.category}</div>
+        <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
+          {props.display ?? props.current}
+        </div>
+      </div>
+    ) : (
+      <div className="text-left">
+        <div className="text-mono-sm text-secondary">
+          Select
+          <br />
+          {props.category}
+        </div>
+      </div>
+    )}
+  </div>
+)
+
+const TopBarPickerButton = ({
+  children,
+  ariaLabel,
+}: {
+  children: React.ReactNode
+  ariaLabel: string
+}) => (
+  <MenuButton
+    aria-label={ariaLabel}
+    className="group flex w-full items-center justify-between"
+  >
+    {children}
+    {/* aria-hidden is a tip from the Reach docs */}
+    <div className="ml-4 flex h-[1.625rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-secondary group-hover:bg-hover">
+      <SelectArrows6Icon className="text-secondary" aria-hidden />
+    </div>
+  </MenuButton>
 )
 
 /**
@@ -165,5 +187,24 @@ export function ProjectPicker() {
       items={items}
       noItemsText="No projects found"
     />
+  )
+}
+
+export function InstancePicker() {
+  const { orgName, projectName, instanceName } = useRequiredParams(
+    'orgName',
+    'projectName',
+    'instanceName'
+  )
+  const instanceUrl = `/orgs/${orgName}/projects/${projectName}/instances`
+
+  return (
+    <Link to={instanceUrl} className="flex items-center justify-between">
+      <TopBarPicker
+        aria-label="Switch project"
+        category="Instance"
+        current={instanceName}
+      />
+    </Link>
   )
 }
