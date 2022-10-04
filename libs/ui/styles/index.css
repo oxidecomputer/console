@@ -6,8 +6,7 @@
 @import '@reach/tabs/styles.css';
 @import './components/menu-list.css';
 
-@import './themes/main.css';
-@import './themes/operator-mode.css';
+@import '@oxide/design-system/styles/dist/main.css';
 @import './themes/selection.css';
 
 @tailwind base;

@@ -7,7 +7,7 @@ const {
   textUtilities,
   colorUtilities,
   borderRadiusTokens,
-} = require('./libs/ui/styles/themes/tailwind-tokens')
+} = require('@oxide/design-system/styles/dist/tailwind-tokens')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
