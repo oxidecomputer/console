@@ -65,7 +65,7 @@ export function TopBar() {
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
-          <div className="flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-mono-lg between:before:text-tertiary">
+          <div className="between:before:text-mono-lg flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-tertiary">
             {otherPickers}
           </div>
           <div>
