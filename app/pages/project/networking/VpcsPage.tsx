@@ -17,7 +17,13 @@ import {
 
 import CreateVpcSideModalForm from 'app/forms/vpc-create'
 import EditVpcSideModalForm from 'app/forms/vpc-edit'
-import { requireProjectParams, useQuickActions, useRequiredParams } from 'app/hooks'
+import {
+  requireProjectParams,
+  useProjectParams,
+  useQuickActions,
+  useRequiredParams,
+} from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -25,7 +31,7 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo="new"
+    buttonTo={pb.vpcNew(useProjectParams())}
   />
 )
 
@@ -63,7 +69,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
     {
       label: 'Edit',
       onActivate() {
-        navigate(`edit/${vpc.name}`, { state: vpc })
+        navigate(pb.vpcEdit({ orgName, projectName, vpcName: vpc.name }), { state: vpc })
       },
     },
     {
@@ -77,14 +83,16 @@ export function VpcsPage({ modal }: VpcsPageProps) {
   useQuickActions(
     useMemo(
       () =>
-        (vpcs?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(p.name),
+        (vpcs?.items || []).map((v) => ({
+          value: v.name,
+          onSelect: () => navigate(pb.vpc({ orgName, projectName, vpcName: v.name })),
           navGroup: 'Go to VPC',
         })),
-      [vpcs, navigate]
+      [orgName, projectName, vpcs, navigate]
     )
   )
+
+  const backToVpcs = () => navigate(pb.vpcs({ orgName, projectName }))
 
   const { Table, Column } = useQueryTable('vpcList', { orgName, projectName })
   return (
@@ -93,14 +101,17 @@ export function VpcsPage({ modal }: VpcsPageProps) {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to="new" className={buttonStyle({ size: 'xs', variant: 'default' })}>
+        <Link
+          to={pb.vpcNew({ orgName, projectName })}
+          className={buttonStyle({ size: 'xs', variant: 'default' })}
+        >
           New Vpc
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((name) => `/orgs/${orgName}/projects/${projectName}/vpcs/${name}`)}
+          cell={linkCell((vpcName) => pb.vpc({ orgName, projectName, vpcName }))}
         />
         <Column accessor="dnsName" header="dns name" />
         <Column accessor="description" />
@@ -108,12 +119,12 @@ export function VpcsPage({ modal }: VpcsPageProps) {
       </Table>
       <CreateVpcSideModalForm
         isOpen={modal === 'createVpc'}
-        onDismiss={() => navigate('..')}
-        onSuccess={() => navigate('..')}
+        onDismiss={backToVpcs}
+        onSuccess={backToVpcs}
       />
       <EditVpcSideModalForm
         isOpen={modal === 'editVpc'}
-        onDismiss={() => navigate('../..')}
+        onDismiss={backToVpcs}
         initialValues={location.state}
       />
     </>

@@ -7,6 +7,7 @@ import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
 
 import { useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
   start: (i) => i.runState === 'stopped',
@@ -42,63 +43,50 @@ export const useMakeInstanceActions = (
 
   return useCallback((instance) => {
     const { name: instanceName } = instance
+    const instanceParams = { ...projectParams, instanceName }
     return [
       {
         label: 'Start',
         onActivate() {
-          startInstance.mutate(
-            { ...projectParams, instanceName },
-            {
-              onSuccess: () => successToast(`Starting instance '${instanceName}'`),
-            }
-          )
+          startInstance.mutate(instanceParams, {
+            onSuccess: () => successToast(`Starting instance '${instanceName}'`),
+          })
         },
         disabled: !instanceCan.start(instance),
       },
       {
         label: 'Stop',
         onActivate() {
-          stopInstance.mutate(
-            { ...projectParams, instanceName },
-            {
-              onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
-            }
-          )
+          stopInstance.mutate(instanceParams, {
+            onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
+          })
         },
         disabled: !instanceCan.stop(instance),
       },
       {
         label: 'Reboot',
         onActivate() {
-          rebootInstance.mutate(
-            { ...projectParams, instanceName },
-            {
-              onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
-            }
-          )
+          rebootInstance.mutate(instanceParams, {
+            onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
+          })
         },
         disabled: !instanceCan.reboot(instance),
       },
       {
         label: 'View serial console',
         onActivate() {
-          navigate(
-            `/orgs/${projectParams.orgName}/projects/${projectParams.projectName}/instances/${instanceName}/serial-console`
-          )
+          navigate(pb.serialConsole(instanceParams))
         },
       },
       {
         label: 'Delete',
         onActivate() {
-          deleteInstance.mutate(
-            { ...projectParams, instanceName },
-            {
-              onSuccess: () => {
-                options.onDelete?.()
-                successToast(`Deleting instance '${instanceName}'`)
-              },
-            }
-          )
+          deleteInstance.mutate(instanceParams, {
+            onSuccess: () => {
+              options.onDelete?.()
+              successToast(`Deleting instance '${instanceName}'`)
+            },
+          })
         },
         disabled: !instanceCan.delete(instance),
         className: 'destructive',

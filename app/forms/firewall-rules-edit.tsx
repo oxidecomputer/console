@@ -36,7 +36,7 @@ export function EditFirewallRuleForm({
 
   if (Object.keys(originalRule).length === 0) return null
 
-  const initialValues = {
+  const initialValues: FirewallRuleValues = {
     enabled: originalRule.status === 'enabled',
     name: originalRule.name,
     description: originalRule.description,

@@ -57,12 +57,14 @@ export type RadioGroupProps = {
   // For vertical layout of regular Radios. Leave it off for RadioCards.
   column?: boolean
   className?: string
-
+  // Name of the radio that should be checked by default
+  defaultChecked?: string
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export const RadioGroup = ({
   name,
+  defaultChecked,
   children,
   required,
   disabled,
@@ -78,7 +80,12 @@ export const RadioGroup = ({
     {...props}
   >
     {React.Children.map(children, (radio) =>
-      React.cloneElement(radio, { name, required, disabled })
+      React.cloneElement(radio, {
+        name,
+        required,
+        disabled,
+        defaultChecked: radio.props.value === defaultChecked ? 'true' : undefined,
+      })
     )}
   </div>
 )

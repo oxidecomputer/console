@@ -18,6 +18,7 @@ import {
 import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceSideModalForm from 'app/forms/network-interface-edit'
 import { useRequiredParams, useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
@@ -26,7 +27,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   return (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={`/orgs/${orgName}/projects/${projectName}/vpcs/${vpc.name}`}
+      to={pb.vpc({ orgName, projectName, vpcName: vpc.name })}
     >
       {vpc.name}
     </Link>

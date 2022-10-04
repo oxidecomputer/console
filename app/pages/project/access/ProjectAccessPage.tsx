@@ -93,7 +93,7 @@ export function ProjectAccessPage() {
 
         const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
 
-        return {
+        const row: UserRow = {
           id: userId,
           name: userAssignments[0].name,
           siloRole,
@@ -102,6 +102,8 @@ export function ProjectAccessPage() {
           // we know there has to be at least one
           effectiveRole: getEffectiveProjectRole(roles)!,
         }
+
+        return row
       }
     )
     return sortBy(users, (u) => u.name)

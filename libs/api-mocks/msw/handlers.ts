@@ -1,7 +1,7 @@
 import { subHours } from 'date-fns'
 import { compose, context, rest } from 'msw'
 
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
@@ -9,21 +9,8 @@ import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
-import type {
-  DiskMetricParams,
-  DiskParams,
-  GlobalImageParams,
-  IdParams,
-  InstanceParams,
-  NetworkInterfaceParams,
-  NotFound,
-  OrgParams,
-  ProjectParams,
-  SshKeyParams,
-  VpcParams,
-  VpcRouterParams,
-  VpcSubnetParams,
-} from './db'
+import type { NotFound } from './db'
+import { lookupSilo } from './db'
 import {
   db,
   lookupById,
@@ -51,7 +38,7 @@ const genId = (prefix?: string) =>
 
 // Helper function to remove some of the boilerplate from /by-id/ requests
 const getById = <T extends { id: string }>(path: string, table: T[]) =>
-  rest.get<never, IdParams, T | GetErr>(path, lookupById(table))
+  rest.get<never, PP.Id, T | GetErr>(path, lookupById(table))
 
 function getTimestamps() {
   const now = new Date().toISOString()
@@ -122,7 +109,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, SshKeyParams, GetErr>(
+  rest.delete<never, PP.SshKey, GetErr>(
     '/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
       const [sshKey, err] = lookupSshKey(req.params)
@@ -167,7 +154,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, OrgParams, Json<Api.Organization> | GetErr>(
+  rest.get<never, PP.Org, Json<Api.Organization> | GetErr>(
     '/organizations/:orgName',
     (req, res) => {
       if (req.params.orgName === '503') {
@@ -181,7 +168,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<Json<Api.OrganizationUpdate>, OrgParams, Json<Api.Organization> | PostErr>(
+  rest.put<Json<Api.OrganizationUpdate>, PP.Org, Json<Api.Organization> | PostErr>(
     '/organizations/:orgName',
     async (req, res) => {
       const [org, err] = lookupOrg(req.params)
@@ -198,7 +185,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, OrgParams, Json<Api.OrganizationRolePolicy> | GetErr>(
+  rest.get<never, PP.Org, Json<Api.OrganizationRolePolicy> | GetErr>(
     '/organizations/:orgName/policy',
     (req, res) => {
       const [org, err] = lookupOrg(req.params)
@@ -213,7 +200,7 @@ export const handlers = [
 
   rest.put<
     Json<Api.OrganizationRolePolicy>,
-    ProjectParams,
+    PP.Project,
     Json<Api.OrganizationRolePolicy> | PostErr
   >('/organizations/:orgName/policy', async (req, res) => {
     const [org, err] = lookupOrg(req.params)
@@ -236,14 +223,14 @@ export const handlers = [
     return res(json(body))
   }),
 
-  rest.delete<never, OrgParams, GetErr>('/organizations/:orgName', (req, res, ctx) => {
+  rest.delete<never, PP.Org, GetErr>('/organizations/:orgName', (req, res, ctx) => {
     const [org, err] = lookupOrg(req.params)
     if (err) return res(err)
     db.orgs = db.orgs.filter((o) => o.id !== org.id)
     return res(ctx.status(204))
   }),
 
-  rest.get<never, OrgParams, Json<Api.ProjectResultsPage> | GetErr>(
+  rest.get<never, PP.Org, Json<Api.ProjectResultsPage> | GetErr>(
     '/organizations/:orgName/projects',
     (req, res) => {
       const [org, err] = lookupOrg(req.params)
@@ -254,7 +241,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.ProjectCreate>, OrgParams, Json<Api.Project> | PostErr>(
+  rest.post<Json<Api.ProjectCreate>, PP.Org, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects',
     async (req, res) => {
       const [org, err] = lookupOrg(req.params)
@@ -282,7 +269,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.Project> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.Project> | GetErr>(
     '/organizations/:orgName/projects/:projectName',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -291,7 +278,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<Json<Api.ProjectUpdate>, ProjectParams, Json<Api.Project> | PostErr>(
+  rest.put<Json<Api.ProjectUpdate>, PP.Project, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects/:projectName',
     async (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -308,7 +295,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, ProjectParams, GetErr>(
+  rest.delete<never, PP.Project, GetErr>(
     '/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
       const [project, err] = lookupProject(req.params)
@@ -318,7 +305,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.ProjectRolePolicy> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.ProjectRolePolicy> | GetErr>(
     '/organizations/:orgName/projects/:projectName/policy',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -331,32 +318,31 @@ export const handlers = [
     }
   ),
 
-  rest.put<
-    Json<Api.ProjectRolePolicy>,
-    ProjectParams,
-    Json<Api.ProjectRolePolicy> | PostErr
-  >('/organizations/:orgName/projects/:projectName/policy', async (req, res) => {
-    const [project, err] = lookupProject(req.params)
-    if (err) return res(err)
+  rest.put<Json<Api.ProjectRolePolicy>, PP.Project, Json<Api.ProjectRolePolicy> | PostErr>(
+    '/organizations/:orgName/projects/:projectName/policy',
+    async (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
 
-    // TODO: validate input lol
-    const body = await req.json()
-    const newAssignments = body.role_assignments.map((r) => ({
-      resource_type: 'project' as const,
-      resource_id: project.id,
-      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
-    }))
+      // TODO: validate input lol
+      const body = await req.json()
+      const newAssignments = body.role_assignments.map((r) => ({
+        resource_type: 'project' as const,
+        resource_id: project.id,
+        ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      }))
 
-    const unrelatedAssignments = db.roleAssignments.filter(
-      (r) => !(r.resource_type === 'project' && r.resource_id === project.id)
-    )
+      const unrelatedAssignments = db.roleAssignments.filter(
+        (r) => !(r.resource_type === 'project' && r.resource_id === project.id)
+      )
 
-    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+      db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
 
-    return res(json(body))
-  }),
+      return res(json(body))
+    }
+  ),
 
-  rest.get<never, ProjectParams, Json<Api.InstanceResultsPage> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.InstanceResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -366,7 +352,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, InstanceParams, Json<Api.Instance> | GetErr>(
+  rest.get<never, PP.Instance, Json<Api.Instance> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
@@ -375,7 +361,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, InstanceParams, GetErr>(
+  rest.delete<never, PP.Instance, GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res, ctx) => {
       const [instance, err] = lookupInstance(req.params)
@@ -385,7 +371,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.InstanceCreate>, ProjectParams, Json<Api.Instance> | PostErr>(
+  rest.post<Json<Api.InstanceCreate>, PP.Project, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances',
     async (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -414,7 +400,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+  rest.post<never, PP.Instance, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
@@ -424,7 +410,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<never, InstanceParams, Json<Api.Instance> | PostErr>(
+  rest.post<never, PP.Instance, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
@@ -434,7 +420,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, InstanceParams, Json<Api.DiskResultsPage> | GetErr>(
+  rest.get<never, PP.Instance, Json<Api.DiskResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
@@ -446,7 +432,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+  rest.post<Json<Api.DiskIdentifier>, PP.Instance, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
     async (req, res) => {
       const [instance, instanceErr] = lookupInstance(req.params)
@@ -465,7 +451,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.DiskIdentifier>, InstanceParams, Json<Api.Disk> | PostErr>(
+  rest.post<Json<Api.DiskIdentifier>, PP.Instance, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
     async (req, res) => {
       const [instance, instanceErr] = lookupInstance(req.params)
@@ -484,7 +470,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, InstanceParams, Json<Api.ExternalIpResultsPage> | GetErr>(
+  rest.get<never, PP.Instance, Json<Api.ExternalIpResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips',
     (req, res) => {
       const [, err] = lookupInstance(req.params)
@@ -500,7 +486,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, InstanceParams, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
+  rest.get<never, PP.Instance, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
     (req, res) => {
       const [instance, err] = lookupInstance(req.params)
@@ -512,7 +498,7 @@ export const handlers = [
 
   rest.post<
     Json<Api.NetworkInterfaceCreate>,
-    InstanceParams,
+    PP.Instance,
     Json<Api.NetworkInterface> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
@@ -564,7 +550,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, NetworkInterfaceParams, Json<Api.NetworkInterface> | GetErr>(
+  rest.get<never, PP.NetworkInterface, Json<Api.NetworkInterface> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res) => {
       const [nic, err] = lookupNetworkInterface(req.params)
@@ -575,7 +561,7 @@ export const handlers = [
 
   rest.put<
     Json<Api.NetworkInterfaceUpdate>,
-    NetworkInterfaceParams,
+    PP.NetworkInterface,
     Json<Api.NetworkInterface> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
@@ -605,7 +591,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, NetworkInterfaceParams, GetErr>(
+  rest.delete<never, PP.NetworkInterface, GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res, ctx) => {
       const [nic, err] = lookupNetworkInterface(req.params)
@@ -615,7 +601,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, InstanceParams, Json<Api.InstanceSerialConsoleData> | GetErr>(
+  rest.get<never, PP.Instance, Json<Api.InstanceSerialConsoleData> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console',
     (req, res) => {
       // TODO: Add support for query params
@@ -623,7 +609,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.DiskResultsPage> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.DiskResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -633,7 +619,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.DiskCreate>, ProjectParams, Json<Api.Disk> | PostErr>(
+  rest.post<Json<Api.DiskCreate>, PP.Project, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/disks',
     async (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -668,7 +654,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, DiskParams, GetErr>(
+  rest.delete<never, PP.Disk, GetErr>(
     '/organizations/:orgName/projects/:projectName/disks/:diskName',
     (req, res, ctx) => {
       const [disk, err] = lookupDisk(req.params)
@@ -691,7 +677,7 @@ export const handlers = [
    * Approach to faking: always return 1000 data points spread evenly between start
    * and end.
    */
-  rest.get<never, DiskMetricParams, Json<Api.MeasurementResultsPage> | GetErr>(
+  rest.get<never, PP.DiskMetric, Json<Api.MeasurementResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName',
     (req, res) => {
       const [, err] = lookupDisk(req.params)
@@ -723,7 +709,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.ImageResultsPage> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.ImageResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/images',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -733,7 +719,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.SnapshotResultsPage> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.SnapshotResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/snapshots',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -743,7 +729,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, ProjectParams, Json<Api.VpcResultsPage> | GetErr>(
+  rest.get<never, PP.Project, Json<Api.VpcResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs',
     (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -753,7 +739,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Json<Api.Vpc> | GetErr>(
+  rest.get<never, PP.Vpc, Json<Api.Vpc> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -762,7 +748,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.VpcCreate>, ProjectParams, Json<Api.Vpc> | PostErr>(
+  rest.post<Json<Api.VpcCreate>, PP.Project, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs',
     async (req, res) => {
       const [project, err] = lookupProject(req.params)
@@ -805,7 +791,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<Json<Api.Vpc>, VpcParams, Json<Api.Vpc> | PostErr>(
+  rest.put<Json<Api.Vpc>, PP.Vpc, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -827,7 +813,7 @@ export const handlers = [
     }
   ),
 
-  rest.delete<never, VpcParams, GetErr>(
+  rest.delete<never, PP.Vpc, GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -849,7 +835,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Json<Api.VpcSubnetResultsPage> | GetErr>(
+  rest.get<never, PP.Vpc, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -859,7 +845,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.VpcSubnetCreate>, VpcParams, Json<Api.VpcSubnet> | PostErr>(
+  rest.post<Json<Api.VpcSubnetCreate>, PP.Vpc, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -890,7 +876,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<Json<Api.VpcSubnetUpdate>, VpcSubnetParams, Json<Api.VpcSubnet> | PostErr>(
+  rest.put<Json<Api.VpcSubnetUpdate>, PP.VpcSubnet, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
     async (req, res, ctx) => {
       const [subnet, err] = lookupVpcSubnet(req.params)
@@ -907,7 +893,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Json<Api.VpcFirewallRules> | GetErr>(
+  rest.get<never, PP.Vpc, Json<Api.VpcFirewallRules> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -919,7 +905,7 @@ export const handlers = [
 
   rest.put<
     Json<Api.VpcFirewallRuleUpdateParams>,
-    VpcParams,
+    PP.Vpc,
     Json<Api.VpcFirewallRules> | PostErr
   >(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
@@ -943,7 +929,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcParams, Json<Api.VpcRouterResultsPage> | GetErr>(
+  rest.get<never, PP.Vpc, Json<Api.VpcRouterResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -953,7 +939,7 @@ export const handlers = [
     }
   ),
 
-  rest.post<Json<Api.VpcRouterCreate>, VpcParams, Json<Api.VpcRouter> | PostErr>(
+  rest.post<Json<Api.VpcRouterCreate>, PP.Vpc, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     async (req, res) => {
       const [vpc, err] = lookupVpc(req.params)
@@ -981,7 +967,7 @@ export const handlers = [
     }
   ),
 
-  rest.put<Json<Api.VpcRouterUpdate>, VpcRouterParams, Json<Api.VpcRouter> | PostErr>(
+  rest.put<Json<Api.VpcRouterUpdate>, PP.VpcRouter, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
     async (req, res, ctx) => {
       const [router, err] = lookupVpcRouter(req.params)
@@ -998,7 +984,7 @@ export const handlers = [
     }
   ),
 
-  rest.get<never, VpcRouterParams, Json<Api.RouterRouteResultsPage> | GetErr>(
+  rest.get<never, PP.VpcRouter, Json<Api.RouterRouteResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
     (req, res) => {
       const [router, err] = lookupVpcRouter(req.params)
@@ -1009,18 +995,71 @@ export const handlers = [
   ),
 
   rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
-    '/images',
+    '/system/images',
     (req, res) => {
       return res(json(paginated(req.url.search, db.globalImages)))
     }
   ),
 
-  rest.get<never, GlobalImageParams, Json<Api.GlobalImage> | GetErr>(
-    '/images/:imageName',
+  rest.get<never, PP.GlobalImage, Json<Api.GlobalImage> | GetErr>(
+    '/system/images/:imageName',
     (req, res) => {
       const [image, err] = lookupGlobalImage(req.params)
       if (err) return res(err)
       return res(json(image))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.SiloResultsPage> | GetErr>(
+    '/system/silos',
+    (req, res) => {
+      return res(json(paginated(req.url.search, db.silos)))
+    }
+  ),
+
+  rest.post<Json<Api.SiloCreate>, never, Json<Api.Silo> | PostErr>(
+    '/system/silos',
+    async (req, res) => {
+      const body = await req.json()
+      const alreadyExists = db.silos.some((x) => x.name === body.name)
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+      if (typeof body.discoverable !== 'boolean') {
+        return res(badRequest('discoverable must be provided'))
+      }
+      if (!body.user_provision_type) {
+        return res(badRequest('user_provision_type must be provided'))
+      }
+
+      const newSilo: Json<Api.Silo> = {
+        id: genId('silo'),
+        ...body,
+        ...getTimestamps(),
+      }
+      db.silos.push(newSilo)
+      return res(json(newSilo, { status: 201 }))
+    }
+  ),
+
+  rest.get<never, PP.Silo, Json<Api.Silo> | GetErr>(
+    '/system/silos/:siloName',
+    (req, res) => {
+      const [silo, err] = lookupSilo(req.params)
+      if (err) return res(err)
+      return res(json(silo))
+    }
+  ),
+
+  rest.delete<never, PP.Silo, Json<Api.Silo> | GetErr>(
+    '/system/silos/:siloName',
+    (req, res) => {
+      const [silo, err] = lookupSilo(req.params)
+      if (err) return res(err)
+      db.silos = db.silos.filter((x) => x.id !== silo.id)
+      return res(json(silo))
     }
   ),
 
@@ -1051,7 +1090,7 @@ export const handlers = [
   getById('/by-id/vpc-routers/:id', db.vpcRouters),
   getById('/by-id/vpc-router-routes/:id', db.vpcRouterRoutes),
   getById('/by-id/disks/:id', db.disks),
-  getById('/by-id/global-images/:id', db.globalImages),
+  getById('/system/by-id/images/:id', db.globalImages),
   getById('/by-id/images/:id', db.images),
   getById('/by-id/snapshots/:id', db.snapshots),
 ]

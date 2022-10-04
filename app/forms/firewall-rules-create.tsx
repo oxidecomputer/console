@@ -131,12 +131,12 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'subnet', label: 'VPC Subnet' },
           { value: 'instance', label: 'Instance' },
           { value: 'ip', label: 'IP' },
-          { value: 'ipNet', label: 'IP subnet' },
+          { value: 'ip_net', label: 'IP subnet' },
         ]}
       />
       {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
       subform which means it likely should be a custom field */}
-      <NameField id="targetValue" name="targetValue" label="Target name" required={false} />
+      <TextField id="targetValue" name="targetValue" label="Target name" required={false} />
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
@@ -211,7 +211,7 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'subnet', label: 'VPC Subnet' },
           { value: 'instance', label: 'Instance' },
           { value: 'ip', label: 'IP' },
-          { value: 'ipNet', label: 'IP Subnet' },
+          { value: 'ip_net', label: 'IP Subnet' },
         ]}
       />
       {/* For everything but IP this is a name, but for IP it's an IP.

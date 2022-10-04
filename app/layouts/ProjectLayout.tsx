@@ -12,14 +12,17 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
+import { TopBar } from 'app/components/TopBar'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
-import { Layout } from './helpers'
+import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
+  const { orgName, projectName } = projectParams
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -37,6 +40,7 @@ const ProjectLayout = () => {
           .map((i) => ({
             navGroup: `Project '${projectName}'`,
             value: i.value,
+            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
       [currentPath, navigate, projectName]
@@ -44,36 +48,40 @@ const ProjectLayout = () => {
   )
 
   return (
-    <Layout>
-      <Sidebar.Nav>
-        <NavLinkItem to={`/orgs/${orgName}/projects`} end>
-          <Folder16Icon />
-          Projects
-        </NavLinkItem>
-        <DocsLinkItem />
-      </Sidebar.Nav>
-      <Divider />
-      <Sidebar.Nav heading={projectName}>
-        <NavLinkItem to="instances">
-          <Instances16Icon /> Instances
-        </NavLinkItem>
-        <NavLinkItem to="snapshots">
-          <Snapshots16Icon /> Snapshots
-        </NavLinkItem>
-        <NavLinkItem to="disks">
-          <Storage16Icon /> Disks
-        </NavLinkItem>
-        <NavLinkItem to="access">
-          <Access16Icon title="Access & IAM" /> Access &amp; IAM
-        </NavLinkItem>
-        <NavLinkItem to="images">
-          <Images16Icon title="images" /> Images
-        </NavLinkItem>
-        <NavLinkItem to="vpcs">
-          <Networking16Icon /> Networking
-        </NavLinkItem>
-      </Sidebar.Nav>
-    </Layout>
+    <PageContainer>
+      <TopBar />
+      <Sidebar>
+        <Sidebar.Nav>
+          <NavLinkItem to={pb.projects({ orgName })} end>
+            <Folder16Icon />
+            Projects
+          </NavLinkItem>
+          <DocsLinkItem />
+        </Sidebar.Nav>
+        <Divider />
+        <Sidebar.Nav heading={projectName}>
+          <NavLinkItem to={pb.instances(projectParams)}>
+            <Instances16Icon /> Instances
+          </NavLinkItem>
+          <NavLinkItem to={pb.snapshots(projectParams)}>
+            <Snapshots16Icon /> Snapshots
+          </NavLinkItem>
+          <NavLinkItem to={pb.disks(projectParams)}>
+            <Storage16Icon /> Disks
+          </NavLinkItem>
+          <NavLinkItem to={pb.access(projectParams)}>
+            <Access16Icon title="Access & IAM" /> Access &amp; IAM
+          </NavLinkItem>
+          <NavLinkItem to={pb.images(projectParams)}>
+            <Images16Icon title="images" /> Images
+          </NavLinkItem>
+          <NavLinkItem to={pb.vpcs(projectParams)}>
+            <Networking16Icon /> Networking
+          </NavLinkItem>
+        </Sidebar.Nav>
+      </Sidebar>
+      <ContentPane />
+    </PageContainer>
   )
 }
 

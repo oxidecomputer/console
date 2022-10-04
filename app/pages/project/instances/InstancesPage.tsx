@@ -19,7 +19,8 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { requireProjectParams, useQuickActions, useRequiredParams } from 'app/hooks'
+import { requireProjectParams, useProjectParams, useQuickActions } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -29,7 +30,7 @@ const EmptyState = () => (
     title="No instances"
     body="You need to create an instance to be able to see it here"
     buttonText="New instance"
-    buttonTo="new"
+    buttonTo={pb.instanceNew(useProjectParams())}
   />
 )
 
@@ -41,7 +42,7 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function InstancesPage() {
-  const projectParams = useRequiredParams('orgName', 'projectName')
+  const projectParams = useProjectParams()
   const { orgName, projectName } = projectParams
 
   const queryClient = useApiQueryClient()
@@ -61,14 +62,14 @@ export function InstancesPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New instance', onSelect: () => navigate('new') },
-        ...(instances?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(p.name),
+        { value: 'New instance', onSelect: () => navigate(pb.instanceNew(projectParams)) },
+        ...(instances?.items || []).map((i) => ({
+          value: i.name,
+          onSelect: () => navigate(pb.instance({ ...projectParams, instanceName: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
-      [instances, navigate]
+      [projectParams, instances, navigate]
     )
   )
 
@@ -86,7 +87,7 @@ export function InstancesPage() {
       </PageHeader>
       <TableActions>
         <Link
-          to={`/orgs/${orgName}/projects/${projectName}/instances/new`}
+          to={pb.instanceNew({ orgName, projectName })}
           className={buttonStyle({ size: 'xs', variant: 'default' })}
         >
           New Instance
@@ -95,8 +96,8 @@ export function InstancesPage() {
       <Table makeActions={makeActions} emptyState={<EmptyState />}>
         <Column
           accessor="name"
-          cell={linkCell(
-            (name) => `/orgs/${orgName}/projects/${projectName}/instances/${name}`
+          cell={linkCell((instanceName) =>
+            pb.instance({ orgName, projectName, instanceName })
           )}
         />
         <Column
