@@ -26,7 +26,7 @@ const Progress24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M12 1L6 7H18L12 1ZM6 15L12 9L18 15H6ZM6 23L12 17L18 23H6Z"
+        d="M21 1H17V23H21V1ZM10 8H14V23H10V8ZM3 15H7V23H3V15Z"
         fill="currentColor"
       />
     </g>

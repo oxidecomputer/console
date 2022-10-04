@@ -26,7 +26,7 @@ const Security24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M15 7C15 5.3 13.7 4 12 4C10.3 4 9 5.3 9 7V9H15V7ZM17 9V7C17 4.2 14.8 2 12 2C9.2 2 7 4.2 7 7V9H4V22H20V9H17Z"
+        d="M15 6C15 4.3 13.7 3 12 3C10.3 3 9 4.3 9 6V9H15V6ZM17 9V6C17 3.2 14.8 1 12 1C9.2 1 7 3.2 7 6V9H3V23H21V9H17Z"
         fill="currentColor"
       />
     </g>
