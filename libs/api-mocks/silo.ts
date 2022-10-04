@@ -10,7 +10,7 @@ export const silos: Json<Silo>[] = [
     time_created: new Date(2021, 3, 1).toISOString(),
     time_modified: new Date(2021, 4, 2).toISOString(),
     discoverable: true,
-    user_provision_type: 'jit',
+    identity_mode: 'saml_jit',
   },
 ]
 

@@ -1129,10 +1129,10 @@ export const SamlIdentityProviderCreate = z.object({
 export type SamlIdentityProviderCreate = z.infer<typeof SamlIdentityProviderCreate>
 
 /**
- * How users will be provisioned in a silo during authentication.
+ * Describes how identities are managed and users are authenticated in this Silo
  */
-export const UserProvisionType = z.enum(['fixed', 'jit'])
-export type UserProvisionType = z.infer<typeof UserProvisionType>
+export const SiloIdentityMode = z.enum(['saml_jit', 'local_only'])
+export type SiloIdentityMode = z.infer<typeof SiloIdentityMode>
 
 /**
  * Client view of a ['Silo']
@@ -1141,10 +1141,10 @@ export const Silo = z.object({
   description: z.string(),
   discoverable: z.boolean(),
   id: z.string().uuid(),
+  identityMode: SiloIdentityMode,
   name: Name,
   timeCreated: DateType,
   timeModified: DateType,
-  userProvisionType: UserProvisionType,
 })
 export type Silo = z.infer<typeof Silo>
 
@@ -1155,8 +1155,8 @@ export const SiloCreate = z.object({
   adminGroupName: z.string().nullable().optional(),
   description: z.string(),
   discoverable: z.boolean(),
+  identityMode: SiloIdentityMode,
   name: Name,
-  userProvisionType: UserProvisionType,
 })
 export type SiloCreate = z.infer<typeof SiloCreate>
 
@@ -1682,20 +1682,20 @@ export type DeviceAuthConfirmParams = z.infer<typeof DeviceAuthConfirmParams>
 export const DeviceAccessTokenParams = z.object({})
 export type DeviceAccessTokenParams = z.infer<typeof DeviceAccessTokenParams>
 
-export const SpoofLoginParams = z.object({})
-export type SpoofLoginParams = z.infer<typeof SpoofLoginParams>
+export const LoginSpoofParams = z.object({})
+export type LoginSpoofParams = z.infer<typeof LoginSpoofParams>
 
-export const LoginParams = z.object({
+export const LoginSamlBeginParams = z.object({
   providerName: Name,
   siloName: Name,
 })
-export type LoginParams = z.infer<typeof LoginParams>
+export type LoginSamlBeginParams = z.infer<typeof LoginSamlBeginParams>
 
-export const ConsumeCredentialsParams = z.object({
+export const LoginSamlParams = z.object({
   providerName: Name,
   siloName: Name,
 })
-export type ConsumeCredentialsParams = z.infer<typeof ConsumeCredentialsParams>
+export type LoginSamlParams = z.infer<typeof LoginSamlParams>
 
 export const LogoutParams = z.object({})
 export type LogoutParams = z.infer<typeof LogoutParams>
@@ -2426,6 +2426,19 @@ export const SiloIdentityProviderListParams = z.object({
 })
 export type SiloIdentityProviderListParams = z.infer<typeof SiloIdentityProviderListParams>
 
+export const SamlIdentityProviderCreateParams = z.object({
+  siloName: Name,
+})
+export type SamlIdentityProviderCreateParams = z.infer<
+  typeof SamlIdentityProviderCreateParams
+>
+
+export const SamlIdentityProviderViewParams = z.object({
+  providerName: Name,
+  siloName: Name,
+})
+export type SamlIdentityProviderViewParams = z.infer<typeof SamlIdentityProviderViewParams>
+
 export const SiloPolicyViewParams = z.object({
   siloName: Name,
 })
@@ -2435,19 +2448,6 @@ export const SiloPolicyUpdateParams = z.object({
   siloName: Name,
 })
 export type SiloPolicyUpdateParams = z.infer<typeof SiloPolicyUpdateParams>
-
-export const SiloIdentityProviderCreateParams = z.object({
-  siloName: Name,
-})
-export type SiloIdentityProviderCreateParams = z.infer<
-  typeof SiloIdentityProviderCreateParams
->
-
-export const SiloIdentityProviderViewParams = z.object({
-  providerName: Name,
-  siloName: Name,
-})
-export type SiloIdentityProviderViewParams = z.infer<typeof SiloIdentityProviderViewParams>
 
 export const UpdatesRefreshParams = z.object({})
 export type UpdatesRefreshParams = z.infer<typeof UpdatesRefreshParams>
@@ -2682,8 +2682,8 @@ export class Api extends HttpClient {
         ...params,
       }),
 
-    spoofLogin: (
-      query: SpoofLoginParams,
+    loginSpoof: (
+      query: LoginSpoofParams,
       body: SpoofLoginBody,
       params: RequestParams = {}
     ) =>
@@ -2697,9 +2697,12 @@ export class Api extends HttpClient {
     /**
      * Prompt user login
      */
-    login: ({ providerName, siloName }: LoginParams, params: RequestParams = {}) =>
+    loginSamlBegin: (
+      { providerName, siloName }: LoginSamlBeginParams,
+      params: RequestParams = {}
+    ) =>
       this.request<void>({
-        path: `/login/${siloName}/${providerName}`,
+        path: `/login/${siloName}/saml/${providerName}`,
         method: 'GET',
         ...params,
       }),
@@ -2707,12 +2710,9 @@ export class Api extends HttpClient {
     /**
      * Authenticate a user
      */
-    consumeCredentials: (
-      { providerName, siloName }: ConsumeCredentialsParams,
-      params: RequestParams = {}
-    ) =>
+    loginSaml: ({ providerName, siloName }: LoginSamlParams, params: RequestParams = {}) =>
       this.request<void>({
-        path: `/login/${siloName}/${providerName}`,
+        path: `/login/${siloName}/saml/${providerName}`,
         method: 'POST',
         ...params,
       }),
@@ -4174,6 +4174,34 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Create a SAML IDP
+     */
+    samlIdentityProviderCreate: (
+      { siloName }: SamlIdentityProviderCreateParams,
+      body: SamlIdentityProviderCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/system/silos/${siloName}/identity-providers/saml`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Fetch a SAML IDP
+     */
+    samlIdentityProviderView: (
+      { providerName, siloName }: SamlIdentityProviderViewParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/system/silos/${siloName}/identity-providers/saml/${providerName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
      * Fetch a silo's IAM policy
      */
     siloPolicyView: ({ siloName }: SiloPolicyViewParams, params: RequestParams = {}) =>
@@ -4195,34 +4223,6 @@ export class Api extends HttpClient {
         path: `/system/silos/${siloName}/policy`,
         method: 'PUT',
         body,
-        ...params,
-      }),
-
-    /**
-     * Create a SAML IDP
-     */
-    siloIdentityProviderCreate: (
-      { siloName }: SiloIdentityProviderCreateParams,
-      body: SamlIdentityProviderCreate,
-      params: RequestParams = {}
-    ) =>
-      this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/saml-identity-providers`,
-        method: 'POST',
-        body,
-        ...params,
-      }),
-
-    /**
-     * Fetch a SAML IDP
-     */
-    siloIdentityProviderView: (
-      { providerName, siloName }: SiloIdentityProviderViewParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/saml-identity-providers/${providerName}`,
-        method: 'GET',
         ...params,
       }),
 
