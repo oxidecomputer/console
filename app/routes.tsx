@@ -34,6 +34,7 @@ import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
 
@@ -81,7 +82,11 @@ export const routes = createRoutesFromElements(
           loader={SilosPage.loader}
         />
         <Route path="issues" element={null} />
-        <Route path="utilization" element={null} />
+        <Route
+          path="utilization"
+          element={<CapacityUtilizationPage />}
+          loader={CapacityUtilizationPage.loader}
+        />
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
         <Route path="update" element={null} />
