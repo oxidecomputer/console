@@ -96,7 +96,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
         <Column
           id="Identity mode"
           accessor={(silo) => silo.identityMode}
-          cell={({ value }) => <Badge>{value}</Badge>}
+          cell={({ value }) => <Badge>{value.replace('_', ' ')}</Badge>}
         />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
