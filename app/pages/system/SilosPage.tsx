@@ -86,7 +86,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
       </PageHeader>
       <TableActions>
         <Link to={pb.siloNew()} className={buttonStyle({ variant: 'default', size: 'xs' })}>
-          New Silo
+          Add silo
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
@@ -96,7 +96,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
         <Column
           id="Identity mode"
           accessor={(silo) => silo.identityMode}
-          cell={({ value }) => <Badge>{value}</Badge>}
+          cell={({ value }) => <Badge>{value.replace('_', ' ')}</Badge>}
         />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
