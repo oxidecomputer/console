@@ -500,17 +500,17 @@ export type InstanceCpuCount = z.infer<typeof InstanceCpuCount>
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
  */
-export const InstanceState = z.union([
-  z.enum(['creating']),
-  z.enum(['starting']),
-  z.enum(['running']),
-  z.enum(['stopping']),
-  z.enum(['stopped']),
-  z.enum(['rebooting']),
-  z.enum(['migrating']),
-  z.enum(['repairing']),
-  z.enum(['failed']),
-  z.enum(['destroyed']),
+export const InstanceState = z.enum([
+  'creating',
+  'starting',
+  'running',
+  'stopping',
+  'stopped',
+  'rebooting',
+  'migrating',
+  'repairing',
+  'failed',
+  'destroyed',
 ])
 
 export type InstanceState = z.infer<typeof InstanceState>
@@ -1011,12 +1011,7 @@ export type RouteTarget = z.infer<typeof RouteTarget>
  *
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
-export const RouterRouteKind = z.union([
-  z.enum(['default']),
-  z.enum(['vpc_subnet']),
-  z.enum(['vpc_peering']),
-  z.enum(['custom']),
-])
+export const RouterRouteKind = z.enum(['default', 'vpc_subnet', 'vpc_peering', 'custom'])
 
 export type RouterRouteKind = z.infer<typeof RouterRouteKind>
 
@@ -1139,7 +1134,7 @@ export type SamlIdentityProviderCreate = z.infer<typeof SamlIdentityProviderCrea
 /**
  * Describes how identities are managed and users are authenticated in this Silo
  */
-export const SiloIdentityMode = z.union([z.enum(['saml_jit']), z.enum(['local_only'])])
+export const SiloIdentityMode = z.enum(['saml_jit', 'local_only'])
 
 export type SiloIdentityMode = z.infer<typeof SiloIdentityMode>
 
@@ -1592,10 +1587,10 @@ export type VpcUpdate = z.infer<typeof VpcUpdate>
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export const NameOrIdSortMode = z.union([
-  z.enum(['name_ascending']),
-  z.enum(['name_descending']),
-  z.enum(['id_ascending']),
+export const NameOrIdSortMode = z.enum([
+  'name_ascending',
+  'name_descending',
+  'id_ascending',
 ])
 
 export type NameOrIdSortMode = z.infer<typeof NameOrIdSortMode>
