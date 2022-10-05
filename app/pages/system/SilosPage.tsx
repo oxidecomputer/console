@@ -86,7 +86,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
       </PageHeader>
       <TableActions>
         <Link to={pb.siloNew()} className={buttonStyle({ variant: 'default', size: 'xs' })}>
-          New Silo
+          Add silo
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
