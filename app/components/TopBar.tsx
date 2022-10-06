@@ -60,7 +60,9 @@ export function TopBar() {
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
-      <div className="flex border-b border-r px-3 border-secondary">{cornerPicker}</div>
+      <div className="flex items-center border-b border-r px-3 border-secondary">
+        {cornerPicker}
+      </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
@@ -70,10 +72,10 @@ export function TopBar() {
           </div>
           <div>
             <Button variant="default" color="secondary" size="xs" title="Info">
-              <Info16Icon />
+              <Info16Icon className="text-quaternary" />
             </Button>
             <Button color="secondary" size="xs" className="ml-2" title="Notifications">
-              <Notifications16Icon />
+              <Notifications16Icon className="text-quaternary" />
             </Button>
             <Menu>
               <MenuButton
@@ -85,8 +87,7 @@ export function TopBar() {
                 innerClassName="space-x-2"
                 title="User menu"
               >
-                <Profile16Icon />
-                {/* TODO: design has this in sans font but button forces mono */}
+                <Profile16Icon className="text-quaternary" />
                 {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
                 <span className="normal-case text-sans-sm">
                   {user?.displayName || 'User'}
