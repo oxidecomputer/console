@@ -26,7 +26,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   if (!vpc) return null
   return (
     <Link
-      className="text-sans-semi-md text-accent hover:underline"
+      className="text-sans-semi-md text-default hover:underline"
       to={pb.vpc({ orgName, projectName, vpcName: vpc.name })}
     >
       {vpc.name}
@@ -35,7 +35,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
-  <span className="text-default">
+  <span className="text-secondary">
     {useApiQuery('vpcSubnetViewById', { id: value }).data?.name}
   </span>
 )
@@ -44,7 +44,7 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { data } = useApiQuery('instanceExternalIpList', instanceParams)
   const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-default">{primary ? ips : <>&mdash;</>}</span>
+  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
 
 export function NetworkingTab() {
@@ -161,7 +161,7 @@ export function NetworkingTab() {
         {!instanceStopped && (
           <span className="max-w-xs text-sans-md text-secondary">
             A network interface cannot be created or edited without{' '}
-            <a href="#/" className="text-accent-secondary">
+            <a href="#/" className="text-default-secondary">
               stopping the instance
               <OpenLink12Icon className="ml-1 pt-[1px]" />
             </a>

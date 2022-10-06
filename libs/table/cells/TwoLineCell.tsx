@@ -7,8 +7,8 @@ interface TwoLineCellProps extends Cell<[string | JSX.Element, string | JSX.Elem
 }
 
 export const TwoLineCell = ({ value, detailsClass }: TwoLineCellProps) => (
-  <div className="space-y-1">
-    <div className="text-default">{value[0]}</div>
-    <div className={cn('text-secondary', detailsClass)}>{value[1]}</div>
+  <div className="space-y-0.5">
+    <div className="text-secondary">{value[0]}</div>
+    <div className={cn('text-tertiary', detailsClass)}>{value[1]}</div>
   </div>
 )

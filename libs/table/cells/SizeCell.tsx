@@ -6,8 +6,8 @@ import type { Cell } from './Cell'
 export const SizeCell = ({ value: bytes }: Cell<number>) => {
   const size = fileSize(bytes, { base: 2, output: 'object' })
   return (
-    <span className="text-default">
-      {size.value} <span className="text-secondary">{size.unit}</span>
+    <span className="text-secondary">
+      {size.value} <span className="text-quaternary">{size.unit}</span>
     </span>
   )
 }

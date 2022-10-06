@@ -11,7 +11,7 @@ export const InstanceStatusCell = ({
 }: Cell<Pick<Instance, 'runState' | 'timeRunStateUpdated'>>) => {
   return (
     <TwoLineCell
-      detailsClass="text-mono-sm !lowercase"
+      detailsClass="text-sans-sm"
       value={[
         <InstanceStatusBadge key="run-state" status={value.runState} />,
         timeAgoAbbr(value.timeRunStateUpdated),

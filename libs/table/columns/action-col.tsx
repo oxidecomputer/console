@@ -26,7 +26,7 @@ export const getActionsCol = <TData extends { id?: string }>(
       const actions = makeActions(row.original)
       const id = row.original.id
       return (
-        <div className="flex justify-center">
+        <div className="flex w-full justify-center">
           <Menu>
             {/* TODO: This name should not suck; future us, make it so! */}
             {/* stopPropagation prevents clicks from toggling row select in a single select table */}
