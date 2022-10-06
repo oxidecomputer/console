@@ -2,6 +2,7 @@ import * as Yup from 'yup'
 import invariant from 'tiny-invariant'
 
 import type {
+  BlockSize,
   Instance,
   InstanceCreate,
   InstanceNetworkInterfaceAttachment,
@@ -164,7 +165,21 @@ export function CreateInstanceForm({
                   type: 'attach',
                   name: bootDiskName,
                 },
-                ...values.disks,
+                ...values.disks.map((disk) => {
+                  if (disk.type === 'attach') return disk
+
+                  return {
+                    type: disk.type,
+                    name: disk.name,
+                    description: disk.description,
+                    size: disk.size * GiB,
+                    diskSource: {
+                      // assume for now it's a valid value
+                      blockSize: parseInt(disk.blockSize, 10) as BlockSize,
+                      type: 'blank' as const,
+                    },
+                  }
+                }),
               ],
               externalIps: [{ type: 'ephemeral' }],
               start: values.start,

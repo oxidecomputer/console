@@ -1,4 +1,4 @@
-import type { Disk, DiskCreate } from '@oxide/api'
+import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
@@ -16,14 +16,17 @@ import { useRequiredParams, useToast } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
-const values: DiskCreate = {
+export type DiskCreateValues = Pick<DiskCreate, 'name' | 'description' | 'size'> & {
+  blockSize: string
+}
+
+const values: DiskCreateValues = {
   name: '',
   description: '',
-  size: 0,
-  diskSource: {
-    blockSize: 4096,
-    type: 'blank',
-  },
+  size: 10,
+  // needs to be a string so RadioField can recognize the initial value, since
+  // the values are all ultimately strings
+  blockSize: '4096',
 }
 
 export function CreateDiskSideModalForm({
@@ -35,7 +38,7 @@ export function CreateDiskSideModalForm({
   onError,
   onDismiss,
   ...props
-}: CreateSideModalFormProps<DiskCreate, Disk>) {
+}: CreateSideModalFormProps<DiskCreateValues, Disk>) {
   const queryClient = useApiQueryClient()
   const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
@@ -62,12 +65,19 @@ export function CreateDiskSideModalForm({
       onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
-        ((values) => {
+        (({ name, description, size, blockSize }) => {
+          console.log(values)
           createDisk.mutate({
             ...pathParams,
             body: {
-              ...values,
-              size: values.size * GiB,
+              name,
+              description,
+              size: size * GiB,
+              diskSource: {
+                // assume for now it's a valid value
+                blockSize: parseInt(blockSize, 10) as BlockSize,
+                type: 'blank',
+              },
             },
           })
         })
