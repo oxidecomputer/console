@@ -1,12 +1,33 @@
 import type { Snapshot, SnapshotCreate } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import {
+  DescriptionField,
+  ListboxField,
+  NameField,
+  SideModalForm,
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
+
+const useSnapshotDiskItems = ({
+  orgName,
+  projectName,
+}: {
+  orgName: string
+  projectName: string
+}) => {
+  const { data: disks } = useApiQuery('diskList', { orgName, projectName })
+  return (
+    disks?.items
+      .filter((disk) => disk.state.state === 'attached')
+      .map((disk) => ({ value: disk.name, label: disk.name, limit: 1000 })) || []
+  )
+}
 
 const values: SnapshotCreate = {
   description: '',
@@ -27,6 +48,8 @@ export function CreateSnapshotSideModalForm({
   const queryClient = useApiQueryClient()
   const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
+
+  const diskItems = useSnapshotDiskItems(pathParams)
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess(data) {
@@ -61,7 +84,13 @@ export function CreateSnapshotSideModalForm({
     >
       <NameField id="snapshot-name" />
       <DescriptionField id="snapshot-description" />
-      <NameField id="snapshot-disk" name="disk" label="Disk" />
+      <ListboxField
+        id="snapshot-disk"
+        name="disk"
+        label="Disk"
+        items={diskItems}
+        required
+      />
     </SideModalForm>
   )
 }
