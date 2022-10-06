@@ -51,3 +51,39 @@
     margin-right: var(--content-gutter);
   }
 }
+
+/**
+ * Remove focus ring for non-explicit scenarios.
+ */
+a:focus-visible,
+button:focus-visible,
+[data-reach-tab-panel]:focus-visible,
+[role='listbox']:focus-visible,
+[role='option']:focus-visible,
+[role='button']:focus-visible,
+input[type='radio']:focus-visible,
+input[type='checkbox']:focus-visible {
+  @apply shadow-none outline outline-2 outline-offset-[-2px] outline-accent-secondary;
+}
+
+a:focus,
+button:focus,
+[data-reach-tab-panel]:focus,
+[role='listbox']:focus,
+[role='option']:focus,
+[role='button']:focus,
+input[type='radio']:focus,
+input[type='checkbox']:focus {
+  @apply shadow-none outline outline-2 outline-offset-[-2px] outline-accent-secondary;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+[data-reach-tab-panel]:focus:not(:focus-visible),
+[role='listbox']:focus:not(:focus-visible),
+[role='option']:focus:not(:focus-visible),
+[role='button']:focus:not(:focus-visible),
+input[type='radio']:focus:not(:focus-visible),
+input[type='checkbox']:focus:not(:focus-visible) {
+  @apply outline-transparent;
+}
