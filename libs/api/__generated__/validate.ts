@@ -945,7 +945,7 @@ export const RouterRouteUpdateParams = z.object({
 })
 
 export const SagaErrorInfo = z.union([
-  z.object({ error: z.enum(['action_failed']), sourceError: z.object({}).optional() }),
+  z.object({ error: z.enum(['action_failed']), sourceError: z.record(z.unknown()) }),
   z.object({ error: z.enum(['deserialize_failed']), message: z.string() }),
   z.object({ error: z.enum(['injected_error']) }),
   z.object({ error: z.enum(['serialize_failed']), message: z.string() }),
