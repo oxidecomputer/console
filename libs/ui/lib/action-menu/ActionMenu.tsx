@@ -106,7 +106,7 @@ export function ActionMenu(props: ActionMenuProps) {
           <input
             ref={inputRef}
             className={cn(
-              'mousetrap w-full bg-transparent px-4 caret-gray-100 text-sans-xl focus:outline-none',
+              'mousetrap caret-gray-100 w-full bg-transparent px-4 text-sans-xl focus:outline-none',
               props.inputClassName
             )}
             value={input}
@@ -208,7 +208,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-white/[.15] py-1 px-2 text-mono-xs text-default"
+          className="border-white/[.15] mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>
