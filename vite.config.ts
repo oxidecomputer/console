@@ -21,8 +21,8 @@ export default defineConfig(({ mode }) => ({
     // minify: false, // uncomment for debugging
     rollupOptions: {
       input: {
-        app: './index.html',
-        msw: './mockServiceWorker.js',
+        app: 'index.html',
+        msw: 'mockServiceWorker.js',
       },
       output: {
         entryFileNames: (assetInfo) => {
