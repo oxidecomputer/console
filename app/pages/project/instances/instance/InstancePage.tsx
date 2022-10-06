@@ -92,17 +92,17 @@ export function InstancePage() {
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
-            {instance.ncpus}
-            <span className="ml-1 text-tertiary"> vCPUs</span>
+            <span className="text-secondary">{instance.ncpus}</span>
+            <span className="ml-1 text-quaternary"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
-            {memory.value}
-            <span className="ml-1 text-tertiary"> {memory.unit}</span>
+            <span className="text-secondary">{memory.value}</span>
+            <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="dns name">
-            {instance.hostname || '–'}
+            <span className="text-secondary">{instance.hostname || '–'}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />

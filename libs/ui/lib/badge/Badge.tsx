@@ -25,9 +25,10 @@ export const badgeColors: Record<BadgeVariant, Partial<Record<BadgeColor, string
     neutral: 'bg-secondary text-secondary',
   },
   ghost: {
-    default: 'ring-1 ring-inset ring-accent-secondary text-accent',
-    destructive: 'ring-1 ring-inset ring-destructive-secondary text-destructive',
-    notice: 'ring-1 ring-inset ring-notice-secondary text-notice',
+    default: 'ring-1 ring-inset bg-accent-secondary ring-accent-tertiary text-accent',
+    destructive:
+      'ring-1 ring-inset bg-destructive-secondary ring-destructive-tertiary text-destructive',
+    notice: 'ring-1 ring-inset bg-notice-secondary ring-notice-tertiary text-notice',
   },
 }
 
