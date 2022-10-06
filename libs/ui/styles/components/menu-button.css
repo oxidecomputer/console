@@ -9,7 +9,11 @@
     }
 
     &[aria-disabled] {
-      @apply opacity-100 text-quaternary;
+      @apply opacity-100 text-disabled;
+    }
+
+    &.destructive[aria-disabled] {
+      @apply text-destructive-disabled;
     }
 
     &[data-selected] {
