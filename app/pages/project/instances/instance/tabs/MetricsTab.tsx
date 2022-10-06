@@ -82,7 +82,6 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
   return (
     <>
       <div className="mt-8 mb-4 flex justify-between">
-        {dateTimeRangePicker}
         {/* TODO: using a Formik field here feels like overkill, but we've built
             ListboxField to require that, i.e., there's no way to get the nice worked-out
             layout from ListboxField without using Formik. Something to think about. */}
@@ -106,6 +105,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
             defaultValue={diskName}
           />
         </div>
+        {dateTimeRangePicker}
       </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can
