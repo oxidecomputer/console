@@ -93,7 +93,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
  */
 const OrgLogo = ({ name }: { name: string }) => (
   <Identicon
-    className="flex h-[34px] w-[34px] items-center justify-center rounded bg-green-900 text-green-500"
+    className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
     name={name}
   />
 )
