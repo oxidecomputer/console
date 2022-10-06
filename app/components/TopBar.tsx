@@ -89,12 +89,12 @@ export function TopBar() {
               >
                 <Profile16Icon className="text-quaternary" />
                 {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-                <span className="normal-case text-sans-md">
+                <span className="normal-case text-sans-md text-secondary">
                   {user?.displayName || 'User'}
                 </span>
                 <DirectionDownIcon className="!w-2.5" />
               </MenuButton>
-              <MenuList className="mt-2">
+              <MenuList className="mt-2 min-w-[12.8125rem]">
                 <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
                 {loggedIn ? (
                   <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>

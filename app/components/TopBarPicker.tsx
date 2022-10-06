@@ -42,7 +42,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
           </div>
         ) : (
           <div className="text-left">
-            <div className="text-mono-sm text-secondary">
+            <div className="text-mono-sm text-quaternary">
               Select
               <br />
               {props.category}
@@ -57,7 +57,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
     </MenuButton>
     {/* TODO: item size and focus highlight */}
     {/* TODO: popover position should be further right */}
-    <MenuList className="mt-2">
+    <MenuList className="mt-2 min-w-[12.8125rem]">
       {props.items.length > 0 ? (
         props.items.map(({ label, to }) => {
           const isSelected = props.current === label
