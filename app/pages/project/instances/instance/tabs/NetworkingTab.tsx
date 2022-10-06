@@ -159,9 +159,9 @@ export function NetworkingTab() {
           </Button>
         </div>
         {!instanceStopped && (
-          <span className="max-w-xs text-sans-md text-secondary">
+          <span className="max-w-xs text-sans-md text-tertiary">
             A network interface cannot be created or edited without{' '}
-            <a href="#/" className="text-default-secondary">
+            <a href="#/" className="text-accent-secondary">
               stopping the instance
               <OpenLink12Icon className="ml-1 pt-[1px]" />
             </a>

@@ -141,7 +141,8 @@ export function StorageTab() {
             Create new disk
           </Button>
           <Button
-            variant="default"
+            variant="ghost"
+            color="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={!instanceStopped}
@@ -150,7 +151,7 @@ export function StorageTab() {
           </Button>
         </div>
         {!instanceStopped && (
-          <span className="max-w-xs text-sans-md text-secondary">
+          <span className="max-w-xs text-sans-md text-tertiary">
             A disk cannot be added or attached without first{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance
