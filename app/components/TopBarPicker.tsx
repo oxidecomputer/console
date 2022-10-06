@@ -35,8 +35,8 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
         {props.current ? (
           <div className="text-left">
-            <div className="text-mono-sm text-secondary">{props.category}</div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
+            <div className="text-mono-xs text-quaternary">{props.category}</div>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
               {props.display ?? props.current}
             </div>
           </div>
@@ -51,7 +51,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         )}
       </div>
       {/* aria-hidden is a tip from the Reach docs */}
-      <div className="ml-4 flex h-[1.625rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-secondary group-hover:bg-hover">
+      <div className="ml-4 flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
         <SelectArrows6Icon className="text-secondary" aria-hidden />
       </div>
     </MenuButton>
