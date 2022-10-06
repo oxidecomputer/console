@@ -30,7 +30,11 @@ export const getActionsCol = <TData extends { id?: string }>(
           <Menu>
             {/* TODO: This name should not suck; future us, make it so! */}
             {/* stopPropagation prevents clicks from toggling row select in a single select table */}
-            <MenuButton aria-label="Row actions" onClick={(e) => e.stopPropagation()}>
+            <MenuButton
+              className="-m-4 p-4"
+              aria-label="Row actions"
+              onClick={(e) => e.stopPropagation()}
+            >
               <More12Icon className="text-tertiary" />
             </MenuButton>
             <MenuList>
