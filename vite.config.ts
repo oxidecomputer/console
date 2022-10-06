@@ -19,6 +19,19 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
+    rollupOptions: {
+      input: {
+        app: './index.html',
+        msw: './mockServiceWorker.js',
+      },
+      output: {
+        entryFileNames: (assetInfo) => {
+          return assetInfo.name === 'msw'
+            ? '[name].js' // put msw service worker in root
+            : 'assets/[name]-[hash].js' // others in `assets`
+        },
+      },
+    },
   },
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
