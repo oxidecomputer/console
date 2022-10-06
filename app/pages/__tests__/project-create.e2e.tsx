@@ -4,7 +4,7 @@ import { expectVisible } from 'app/test/e2e'
 
 test.describe('Project create', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/orgs/maze-war/project-new')
+    await page.goto('/orgs/maze-war/projects-new')
   })
 
   test('contains expected elements', async ({ page }) => {

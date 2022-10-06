@@ -2,46 +2,48 @@ import type { PathParams as PP } from '@oxide/api'
 
 export const pb = {
   orgs: () => '/orgs',
-  orgNew: () => '/org-new',
+  orgNew: () => '/orgs-new',
   org: ({ orgName }: PP.Org) => `${pb.orgs()}/${orgName}`,
   orgEdit: (params: PP.Org) => `${pb.org(params)}/edit`,
   orgAccess: (params: PP.Org) => `${pb.org(params)}/access`,
 
   projects: (params: PP.Org) => `${pb.org(params)}/projects`,
-  projectNew: (params: PP.Org) => `${pb.org(params)}/project-new`,
+  projectNew: (params: PP.Org) => `${pb.org(params)}/projects-new`,
   project: ({ orgName, projectName }: PP.Project) =>
     `${pb.projects({ orgName })}/${projectName}`,
   projectEdit: (params: PP.Project) => `${pb.project(params)}/edit`,
 
   access: (params: PP.Project) => `${pb.project(params)}/access`,
-  snapshots: (params: PP.Project) => `${pb.project(params)}/snapshots`,
   images: (params: PP.Project) => `${pb.project(params)}/images`,
 
   instances: (params: PP.Project) => `${pb.project(params)}/instances`,
-  instanceNew: (params: PP.Project) => `${pb.project(params)}/instance-new`,
+  instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
   serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
 
-  diskNew: (params: PP.Project) => `${pb.project(params)}/disk-new`,
+  diskNew: (params: PP.Project) => `${pb.project(params)}/disks-new`,
   disks: (params: PP.Project) => `${pb.project(params)}/disks`,
-  vpcNew: (params: PP.Project) => `${pb.project(params)}/vpc-new`,
 
+  snapshotNew: (params: PP.Project) => `${pb.project(params)}/snapshots-new`,
+  snapshots: (params: PP.Project) => `${pb.project(params)}/snapshots`,
+
+  vpcNew: (params: PP.Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: PP.Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
   vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
 
-  system: () => '/system',
-  systemIssues: () => '/system/issues',
-  systemUtilization: () => '/system/utilization',
-  systemInventory: () => '/system/inventory',
-  systemHealth: () => '/system/health',
-  systemUpdate: () => '/system/update',
-  systemNetworking: () => '/system/networking',
-  systemSettings: () => '/system/settings',
+  system: () => '/sys',
+  systemIssues: () => '/sys/issues',
+  systemUtilization: () => '/sys/utilization',
+  systemInventory: () => '/sys/inventory',
+  systemHealth: () => '/sys/health',
+  systemUpdate: () => '/sys/update',
+  systemNetworking: () => '/sys/networking',
+  systemSettings: () => '/sys/settings',
 
-  silos: () => '/system/silos',
-  siloNew: () => '/system/silo-new',
-  silo: ({ siloName }: PP.Silo) => `/system/silos/${siloName}`,
+  silos: () => '/sys/silos',
+  siloNew: () => '/sys/silos-new',
+  silo: ({ siloName }: PP.Silo) => `/sys/silos/${siloName}`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

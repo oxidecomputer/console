@@ -17,8 +17,11 @@ export type {
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
 export type BinRangedouble =
+  /** A range unbounded below and exclusively above, `..end`. */
   | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
   | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
   | { start: number; type: 'range_from' }
 
 /**
@@ -27,21 +30,20 @@ export type BinRangedouble =
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
 export type BinRangeint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
   | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
   | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
   | { start: number; type: 'range_from' }
 
 /**
  * Type storing bin edges and a count of samples within it.
  */
 export type Bindouble = {
-  /**
-   * The total count of samples in this bin.
-   */
+  /** The total count of samples in this bin. */
   count: number
-  /**
-   * The range of the support covered by this bin.
-   */
+  /** The range of the support covered by this bin. */
   range: BinRangedouble
 }
 
@@ -49,17 +51,16 @@ export type Bindouble = {
  * Type storing bin edges and a count of samples within it.
  */
 export type Binint64 = {
-  /**
-   * The total count of samples in this bin.
-   */
+  /** The total count of samples in this bin. */
   count: number
-  /**
-   * The range of the support covered by this bin.
-   */
+  /** The range of the support covered by this bin. */
   range: BinRangeint64
 }
 
-export type BlockSize = number
+/**
+ * disk block size in bytes
+ */
+export type BlockSize = 512 | 2048 | 4096
 
 /**
  * A count of bytes, typically used either for memory or storage capacity
@@ -71,18 +72,58 @@ export type ByteCount = number
 /**
  * A cumulative or counter data type.
  */
-export type Cumulativedouble = {
-  startTime: string
-  value: number
-}
+export type Cumulativedouble = { startTime: Date; value: number }
 
 /**
  * A cumulative or counter data type.
  */
-export type Cumulativeint64 = {
-  startTime: string
-  value: number
-}
+export type Cumulativeint64 = { startTime: Date; value: number }
+
+/**
+ * A simple type for managing a histogram metric.
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ *
+ * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
+ *
+ * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
+ *
+ * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
+ *
+ * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
+ *
+ * Notes -----
+ *
+ * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
+ *
+ * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
+ */
+export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Date }
+
+/**
+ * A simple type for managing a histogram metric.
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ *
+ * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
+ *
+ * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
+ *
+ * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
+ *
+ * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
+ *
+ * Notes -----
+ *
+ * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
+ *
+ * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
+ */
+export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: Date }
 
 /**
  * A `Datum` is a single sampled data point from a metric.
@@ -113,13 +154,9 @@ export type DatumType =
   | 'histogram_f64'
 
 export type DerEncodedKeyPair = {
-  /**
-   * request signing private key (base64 encoded der file)
-   */
+  /** request signing private key (base64 encoded der file) */
   privateKey: string
-  /**
-   * request signing public certificate (base64 encoded der file)
-   */
+  /** request signing public certificate (base64 encoded der file) */
   publicCert: string
 }
 
@@ -129,131 +166,121 @@ export type DeviceAccessTokenRequest = {
   grantType: string
 }
 
-export type DeviceAuthRequest = {
-  clientId: string
-}
+export type DeviceAuthRequest = { clientId: string }
 
-export type DeviceAuthVerify = {
-  userCode: string
-}
+export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type Name = string
+
+/**
+ * State of a Disk (primarily: attached or not)
+ */
+export type DiskState =
+  /** Disk is being initialized */
+  | { state: 'creating' }
+  /** Disk is ready but detached from any Instance */
+  | { state: 'detached' }
+  /** Disk is being attached to the given Instance */
+  | { instance: string; state: 'attaching' }
+  /** Disk is attached to the given Instance */
+  | { instance: string; state: 'attached' }
+  /** Disk is being detached from the given Instance */
+  | { instance: string; state: 'detaching' }
+  /** Disk has been destroyed */
+  | { state: 'destroyed' }
+  /** Disk is unavailable */
+  | { state: 'faulted' }
 
 /**
  * Client view of a {@link Disk}
  */
 export type Disk = {
   blockSize: ByteCount
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
   devicePath: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
   imageId?: string | null
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
   snapshotId?: string | null
   state: DiskState
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Create-time parameters for a {@link Disk}
- */
-export type DiskCreate = {
-  description: string
-  /**
-   * initial source for this disk
-   */
-  diskSource: DiskSource
-  name: Name
-  /**
-   * total size of the Disk in bytes
-   */
-  size: ByteCount
-}
-
-/**
- * Parameters for the {@link Disk} to be attached or detached to an instance
- */
-export type DiskIdentifier = {
-  name: Name
-}
-
-/**
- * A single page of results
- */
-export type DiskResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: Disk[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
 }
 
 /**
  * Different sources for a disk
  */
 export type DiskSource =
+  /** Create a blank disk */
   | {
-      /**
-       * size of blocks for this Disk. valid values are: 512, 2048, or 4096
-       */
+      /** size of blocks for this Disk. valid values are: 512, 2048, or 4096 */
       blockSize: BlockSize
       type: 'blank'
     }
+  /** Create a disk from a disk snapshot */
   | { snapshotId: string; type: 'snapshot' }
+  /** Create a disk from a project image */
   | { imageId: string; type: 'image' }
+  /** Create a disk from a global image */
   | { imageId: string; type: 'global_image' }
 
 /**
- * State of a Disk (primarily: attached or not)
+ * Create-time parameters for a {@link Disk}
  */
-export type DiskState =
-  | { state: 'creating' }
-  | { state: 'detached' }
-  | { instance: string; state: 'attaching' }
-  | { instance: string; state: 'attached' }
-  | { instance: string; state: 'detaching' }
-  | { state: 'destroyed' }
-  | { state: 'faulted' }
+export type DiskCreate = {
+  description: string
+  /** initial source for this disk */
+  diskSource: DiskSource
+  name: Name
+  /** total size of the Disk in bytes */
+  size: ByteCount
+}
+
+/**
+ * Parameters for the {@link Disk} to be attached or detached to an instance
+ */
+export type DiskIdentifier = { name: Name }
+
+/**
+ * A single page of results
+ */
+export type DiskResultsPage = {
+  /** list of items on this page of results */
+  items: Disk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
 
 /**
  * OS image distribution
  */
 export type Distribution = {
-  /**
-   * The name of the distribution (e.g. "alpine" or "ubuntu")
-   */
+  /** The name of the distribution (e.g. "alpine" or "ubuntu") */
   name: Name
-  /**
-   * The version of the distribution (e.g. "3.10" or "18.04")
-   */
+  /** The version of the distribution (e.g. "3.10" or "18.04") */
   version: string
 }
 
-export type ExternalIp = {
-  ip: string
-  kind: IpKind
-}
+/**
+ * The kind of an external IP address for an instance
+ */
+export type IpKind = 'ephemeral' | 'floating'
+
+export type ExternalIp = { ip: string; kind: IpKind }
 
 /**
  * Parameters for creating an external IP address for instances.
@@ -264,23 +291,10 @@ export type ExternalIpCreate = { poolName?: Name | null; type: 'ephemeral' }
  * A single page of results
  */
 export type ExternalIpResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: ExternalIp[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
-}
-
-/**
- * The name and type information for a field of a timeseries schema.
- */
-export type FieldSchema = {
-  name: string
-  source: FieldSource
-  ty: FieldType
 }
 
 /**
@@ -293,19 +307,17 @@ export type FieldSource = 'target' | 'metric'
  */
 export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
 
+/**
+ * The name and type information for a field of a timeseries schema.
+ */
+export type FieldSchema = { name: string; source: FieldSource; ty: FieldType }
+
 export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
- * Client view of a `Policy`, which describes how this resource may be accessed
- *
- * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ * Describes what kind of identity is described by an id
  */
-export type FleetRolePolicy = {
-  /**
-   * Roles directly assigned on this resource
-   */
-  roleAssignments: FleetRoleRoleAssignment[]
-}
+export type IdentityType = 'silo_user' | 'silo_group'
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -319,72 +331,63 @@ export type FleetRoleRoleAssignment = {
 }
 
 /**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type FleetRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: FleetRoleRoleAssignment[]
+}
+
+/**
  * Client view of global Images
  */
 export type GlobalImage = {
-  /**
-   * size of blocks in bytes
-   */
+  /** size of blocks in bytes */
   blockSize: ByteCount
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * Hash of the image contents, if applicable
-   */
+  /** Hash of the image contents, if applicable */
   digest?: Digest | null
-  /**
-   * Image distribution
-   */
+  /** Image distribution */
   distribution: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * total size in bytes
-   */
+  /** total size in bytes */
   size: ByteCount
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * URL source of this image, if any
-   */
+  /** URL source of this image, if any */
   url?: string | null
-  /**
-   * Image version
-   */
+  /** Image version */
   version: string
 }
+
+/**
+ * The source of the underlying image.
+ */
+export type ImageSource =
+  | { type: 'url'; url: string }
+  | { id: string; type: 'snapshot' }
+  /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
+  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
 
 /**
  * Create-time parameters for an {@link GlobalImage}
  */
 export type GlobalImageCreate = {
-  /**
-   * block size in bytes
-   */
+  /** block size in bytes */
   blockSize: BlockSize
   description: string
-  /**
-   * OS image distribution
-   */
+  /** OS image distribution */
   distribution: Distribution
   name: Name
-  /**
-   * The source of the image's contents.
-   */
+  /** The source of the image's contents. */
   source: ImageSource
 }
 
@@ -392,97 +395,29 @@ export type GlobalImageCreate = {
  * A single page of results
  */
 export type GlobalImageResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: GlobalImage[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
-/**
- * A simple type for managing a histogram metric.
- *
- * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
- *
- * Note that any gaps, unsorted bins, or non-finite values will result in an error.
- *
- * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
- *
- * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
- *
- * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
- *
- * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
- *
- * Notes -----
- *
- * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
- *
- * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
- */
-export type Histogramdouble = {
-  bins: Bindouble[]
-  nSamples: number
-  startTime: string
-}
-
-/**
- * A simple type for managing a histogram metric.
- *
- * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
- *
- * Note that any gaps, unsorted bins, or non-finite values will result in an error.
- *
- * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
- *
- * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
- *
- * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
- *
- * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
- *
- * Notes -----
- *
- * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
- *
- * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
- */
-export type Histogramint64 = {
-  bins: Binint64[]
-  nSamples: number
-  startTime: string
-}
+export type IdentityProviderType = 'saml'
 
 /**
  * Client view of an {@link IdentityProvider}
  */
 export type IdentityProvider = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * Identity provider type
-   */
+  /** Identity provider type */
   providerType: IdentityProviderType
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -490,22 +425,11 @@ export type IdentityProvider = {
  * A single page of results
  */
 export type IdentityProviderResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: IdentityProvider[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
-
-export type IdentityProviderType = 'saml'
-
-/**
- * Describes what kind of identity is described by an id
- */
-export type IdentityType = 'silo_user' | 'silo_group'
 
 export type IdpMetadataSource =
   | { type: 'url'; url: string }
@@ -515,49 +439,27 @@ export type IdpMetadataSource =
  * Client view of project Images
  */
 export type Image = {
-  /**
-   * size of blocks in bytes
-   */
+  /** size of blocks in bytes */
   blockSize: ByteCount
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * Hash of the image contents, if applicable
-   */
+  /** Hash of the image contents, if applicable */
   digest?: Digest | null
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * The project the disk belongs to
-   */
+  /** The project the disk belongs to */
   projectId: string
-  /**
-   * total size in bytes
-   */
+  /** total size in bytes */
   size: ByteCount
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * URL source of this image, if any
-   */
+  /** URL source of this image, if any */
   url?: string | null
-  /**
-   * Version of this, if any
-   */
+  /** Version of this, if any */
   version?: string | null
 }
 
@@ -565,15 +467,11 @@ export type Image = {
  * Create-time parameters for an {@link Image}
  */
 export type ImageCreate = {
-  /**
-   * block size in bytes
-   */
+  /** block size in bytes */
   blockSize: BlockSize
   description: string
   name: Name
-  /**
-   * The source of the image's contents.
-   */
+  /** The source of the image's contents. */
   source: ImageSource
 }
 
@@ -581,66 +479,10 @@ export type ImageCreate = {
  * A single page of results
  */
 export type ImageResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Image[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
-}
-
-/**
- * The source of the underlying image.
- */
-export type ImageSource =
-  | { type: 'url'; url: string }
-  | { id: string; type: 'snapshot' }
-  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
-
-/**
- * Client view of an {@link Instance}
- */
-export type Instance = {
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * RFC1035-compliant hostname for the Instance.
-   */
-  hostname: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * memory allocated for this Instance
-   */
-  memory: ByteCount
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
-  /**
-   * number of CPUs allocated for this Instance
-   */
-  ncpus: InstanceCpuCount
-  /**
-   * id for the project containing this Instance
-   */
-  projectId: string
-  runState: InstanceState
-  /**
-   * timestamp when this resource was created
-   */
-  timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
-  timeModified: Date
-  timeRunStateUpdated: Date
 }
 
 /**
@@ -649,89 +491,141 @@ export type Instance = {
 export type InstanceCpuCount = number
 
 /**
- * Create-time parameters for an {@link Instance}
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
  */
-export type InstanceCreate = {
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
+  /** The instance is currently starting up. */
+  | 'starting'
+  /** The instance is currently running. */
+  | 'running'
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
+  /** The instance is currently stopped. */
+  | 'stopped'
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
+  /** The instance has encountered a failure. */
+  | 'failed'
+  /** The instance has been deleted. */
+  | 'destroyed'
+
+/**
+ * Client view of an {@link Instance}
+ */
+export type Instance = {
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * The disks to be created or attached for this instance.
-   */
-  disks?: InstanceDiskAttachment[] | null
-  /**
-   * The external IP addresses provided to this instance.
-   *
-   * By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance.
-   */
-  externalIps?: ExternalIpCreate[] | null
+  /** RFC1035-compliant hostname for the Instance. */
   hostname: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** memory allocated for this Instance */
   memory: ByteCount
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** number of CPUs allocated for this Instance */
   ncpus: InstanceCpuCount
-  /**
-   * The network interfaces to be created for this instance.
-   */
-  networkInterfaces?: InstanceNetworkInterfaceAttachment | null
-  /**
-   * Should this instance be started upon creation; true by default.
-   */
-  start?: boolean | null
-  /**
-   * User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data.
-   */
-  userData?: string | null
+  /** id for the project containing this Instance */
+  projectId: string
+  runState: InstanceState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  timeRunStateUpdated: Date
 }
 
 /**
  * Describe the instance's disks at creation time
  */
 export type InstanceDiskAttachment =
+  /** During instance creation, create and attach disks */
   | {
       description: string
-      /**
-       * initial source for this disk
-       */
+      /** initial source for this disk */
       diskSource: DiskSource
       name: Name
-      /**
-       * total size of the Disk in bytes
-       */
+      /** total size of the Disk in bytes */
       size: ByteCount
       type: 'create'
     }
+  /** During instance creation, attach this disk */
   | {
-      /**
-       * A disk name to attach
-       */
+      /** A disk name to attach */
       name: Name
       type: 'attach'
     }
 
 /**
- * Migration parameters for an {@link Instance}
+ * Create-time parameters for a {@link NetworkInterface}
  */
-export type InstanceMigrate = {
-  dstSledId: string
+export type NetworkInterfaceCreate = {
+  description: string
+  /** The IP address for the interface. One will be auto-assigned if not provided. */
+  ip?: string | null
+  name: Name
+  /** The VPC Subnet in which to create the interface. */
+  subnetName: Name
+  /** The VPC in which to create the interface. */
+  vpcName: Name
 }
 
 /**
  * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export type InstanceNetworkInterfaceAttachment =
+  /** Create one or more `NetworkInterface`s for the `Instance`.
+
+If more than one interface is provided, then the first will be designated the primary interface for the instance. */
   | { params: NetworkInterfaceCreate[]; type: 'create' }
+  /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
   | { type: 'default' }
+  /** No network interfaces at all will be created for the instance. */
   | { type: 'none' }
+
+/**
+ * Create-time parameters for an {@link Instance}
+ */
+export type InstanceCreate = {
+  description: string
+  /** The disks to be created or attached for this instance. */
+  disks?: InstanceDiskAttachment[]
+  /** The external IP addresses provided to this instance.
+
+By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
+  externalIps?: ExternalIpCreate[]
+  hostname: string
+  memory: ByteCount
+  name: Name
+  ncpus: InstanceCpuCount
+  /** The network interfaces to be created for this instance. */
+  networkInterfaces?: InstanceNetworkInterfaceAttachment
+  /** Should this instance be started upon creation; true by default. */
+  start?: boolean
+  /** User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data. */
+  userData?: string
+}
+
+/**
+ * Migration parameters for an {@link Instance}
+ */
+export type InstanceMigrate = { dstSledId: string }
 
 /**
  * A single page of results
  */
 export type InstanceResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Instance[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -739,37 +633,25 @@ export type InstanceResultsPage = {
  * Contents of an Instance's serial console buffer.
  */
 export type InstanceSerialConsoleData = {
-  /**
-   * The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8.
-   */
+  /** The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8. */
   data: number[]
-  /**
-   * The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`.
-   */
+  /** The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`. */
   lastByteOffset: number
 }
 
 /**
- * Running state of an Instance (primarily: booted or stopped)
+ * An IPv4 subnet
  *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ * An IPv4 subnet, including prefix and subnet mask
  */
-export type InstanceState =
-  | 'creating'
-  | 'starting'
-  | 'running'
-  | 'stopping'
-  | 'stopped'
-  | 'rebooting'
-  | 'migrating'
-  | 'repairing'
-  | 'failed'
-  | 'destroyed'
+export type Ipv4Net = string
 
 /**
- * The kind of an external IP address for an instance
+ * An IPv6 subnet
+ *
+ * An IPv6 subnet, including prefix and subnet mask
  */
-export type IpKind = 'ephemeral' | 'floating'
+export type Ipv6Net = string
 
 export type IpNet = Ipv4Net | Ipv6Net
 
@@ -777,26 +659,16 @@ export type IpNet = Ipv4Net | Ipv6Net
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type IpPool = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId?: string | null
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -808,27 +680,35 @@ export type IpPool = {
 export type IpPoolCreate = {
   description: string
   name: Name
-  organization?: Name | null
-  project?: Name | null
+  organization?: Name
+  project?: Name
 }
 
-export type IpPoolRange = {
-  id: string
-  range: IpRange
-  timeCreated: Date
-}
+/**
+ * A non-decreasing IPv4 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv4Range = { first: string; last: string }
+
+/**
+ * A non-decreasing IPv6 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv6Range = { first: string; last: string }
+
+export type IpRange = Ipv4Range | Ipv6Range
+
+export type IpPoolRange = { id: string; range: IpRange; timeCreated: Date }
 
 /**
  * A single page of results
  */
 export type IpPoolRangeResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: IpPoolRange[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -836,192 +716,81 @@ export type IpPoolRangeResultsPage = {
  * A single page of results
  */
 export type IpPoolResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: IpPool[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 /**
  * Parameters for updating an IP Pool
  */
-export type IpPoolUpdate = {
-  description?: string | null
-  name?: Name | null
-}
-
-export type IpRange = Ipv4Range | Ipv6Range
+export type IpPoolUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * An IPv4 subnet, including prefix and subnet mask
- */
-export type Ipv4Net = string
-
-/** Regex pattern for validating Ipv4Net */
-export const ipv4NetPattern =
-  '^(10.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/([8-9]|1[0-9]|2[0-9]|3[0-2])|172.(1[6-9]|2[0-9]|3[0-1]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(1[2-9]|2[0-9]|3[0-2])|192.168.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(1[6-9]|2[0-9]|3[0-2]))$'
-
-/**
- * A non-decreasing IPv4 address range, inclusive of both ends.
+ * A range of IP ports
  *
- * The first address must be less than or equal to the last address.
- */
-export type Ipv4Range = {
-  first: string
-  last: string
-}
-
-/**
- * An IPv6 subnet, including prefix and subnet mask
- */
-export type Ipv6Net = string
-
-/** Regex pattern for validating Ipv6Net */
-export const ipv6NetPattern =
-  '^([fF][dD])[0-9a-fA-F]{2}:(([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:)/([1-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])$'
-
-/**
- * A non-decreasing IPv6 address range, inclusive of both ends.
- *
- * The first address must be less than or equal to the last address.
- */
-export type Ipv6Range = {
-  first: string
-  last: string
-}
-
-/**
  * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
  */
 export type L4PortRange = string
 
-/** Regex pattern for validating L4PortRange */
-export const l4PortRangePattern = '^[0-9]{1,5}(-[0-9]{1,5})?$'
-
 /**
+ * A MAC address
+ *
  * A Media Access Control address, in EUI-48 format
  */
 export type MacAddr = string
 
-/** Regex pattern for validating MacAddr */
-export const macAddrPattern = '^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$'
-
 /**
  * A `Measurement` is a timestamped datum from a single metric
  */
-export type Measurement = {
-  datum: Datum
-  timestamp: Date
-}
+export type Measurement = { datum: Datum; timestamp: Date }
 
 /**
  * A single page of results
  */
 export type MeasurementResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Measurement[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
-
-/**
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export type Name = string
-
-/** Regex pattern for validating Name */
-export const namePattern =
-  '^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$'
 
 /**
  * A `NetworkInterface` represents a virtual network interface device.
  */
 export type NetworkInterface = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * The Instance to which the interface belongs.
-   */
+  /** The Instance to which the interface belongs. */
   instanceId: string
-  /**
-   * The IP address assigned to this interface.
-   */
+  /** The IP address assigned to this interface. */
   ip: string
-  /**
-   * The MAC address assigned to this interface.
-   */
+  /** The MAC address assigned to this interface. */
   mac: MacAddr
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * True if this interface is the primary for the instance to which it's attached.
-   */
+  /** True if this interface is the primary for the instance to which it's attached. */
   primary: boolean
-  /**
-   * The subnet to which the interface belongs.
-   */
+  /** The subnet to which the interface belongs. */
   subnetId: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * The VPC to which the interface belongs.
-   */
+  /** The VPC to which the interface belongs. */
   vpcId: string
-}
-
-/**
- * Create-time parameters for a {@link NetworkInterface}
- */
-export type NetworkInterfaceCreate = {
-  description: string
-  /**
-   * The IP address for the interface. One will be auto-assigned if not provided.
-   */
-  ip?: string | null
-  name: Name
-  /**
-   * The VPC Subnet in which to create the interface.
-   */
-  subnetName: Name
-  /**
-   * The VPC in which to create the interface.
-   */
-  vpcName: Name
 }
 
 /**
  * A single page of results
  */
 export type NetworkInterfaceResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: NetworkInterface[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -1033,14 +802,12 @@ export type NetworkInterfaceResultsPage = {
 export type NetworkInterfaceUpdate = {
   description?: string | null
   name?: Name | null
-  /**
-   * Make a secondary interface the instance's primary interface.
-   *
-   * If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
-   *
-   * Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error.
-   */
-  primary?: boolean | null
+  /** Make a secondary interface the instance's primary interface.
+
+If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+
+Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
+  primary?: boolean
 }
 
 /**
@@ -1054,63 +821,34 @@ export type NodeName = string
  * Client view of an {@link Organization}
  */
 export type Organization = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
 /**
  * Create-time parameters for an {@link Organization}
  */
-export type OrganizationCreate = {
-  description: string
-  name: Name
-}
+export type OrganizationCreate = { description: string; name: Name }
 
 /**
  * A single page of results
  */
 export type OrganizationResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Organization[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 export type OrganizationRole = 'admin' | 'collaborator' | 'viewer'
-
-/**
- * Client view of a `Policy`, which describes how this resource may be accessed
- *
- * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
- */
-export type OrganizationRolePolicy = {
-  /**
-   * Roles directly assigned on this resource
-   */
-  roleAssignments: OrganizationRoleRoleAssignment[]
-}
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -1124,75 +862,53 @@ export type OrganizationRoleRoleAssignment = {
 }
 
 /**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type OrganizationRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: OrganizationRoleRoleAssignment[]
+}
+
+/**
  * Updateable properties of an {@link Organization}
  */
-export type OrganizationUpdate = {
-  description?: string | null
-  name?: Name | null
-}
+export type OrganizationUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * Client view of a {@link Project}
  */
 export type Project = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   organizationId: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
 /**
  * Create-time parameters for a {@link Project}
  */
-export type ProjectCreate = {
-  description: string
-  name: Name
-}
+export type ProjectCreate = { description: string; name: Name }
 
 /**
  * A single page of results
  */
 export type ProjectResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Project[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
-
-/**
- * Client view of a `Policy`, which describes how this resource may be accessed
- *
- * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
- */
-export type ProjectRolePolicy = {
-  /**
-   * Roles directly assigned on this resource
-   */
-  roleAssignments: ProjectRoleRoleAssignment[]
-}
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -1206,28 +922,29 @@ export type ProjectRoleRoleAssignment = {
 }
 
 /**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type ProjectRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: ProjectRoleRoleAssignment[]
+}
+
+/**
  * Updateable properties of a {@link Project}
  */
-export type ProjectUpdate = {
-  description?: string | null
-  name?: Name | null
-}
+export type ProjectUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * Client view of an {@link Rack}
  */
 export type Rack = {
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1235,43 +952,31 @@ export type Rack = {
  * A single page of results
  */
 export type RackResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Rack[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 /**
- * Client view of a {@link Role}
- */
-export type Role = {
-  description: string
-  name: RoleName
-}
-
-/**
+ * A name for a built-in role
+ *
  * Role names consist of two string components separated by dot (".").
  */
 export type RoleName = string
 
-/** Regex pattern for validating RoleName */
-export const roleNamePattern = '[a-z-]+.[a-z-]+'
+/**
+ * Client view of a {@link Role}
+ */
+export type Role = { description: string; name: RoleName }
 
 /**
  * A single page of results
  */
 export type RoleResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Role[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -1281,54 +986,72 @@ export type RoleResultsPage = {
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding {@link RouterRoute} applies, and traffic will be forward to the {@link RouteTarget} for that rule.
  */
 export type RouteDestination =
+  /** Route applies to traffic destined for a specific IP address */
   | { type: 'ip'; value: string }
+  /** Route applies to traffic destined for a specific IP subnet */
   | { type: 'ip_net'; value: IpNet }
+  /** Route applies to traffic destined for the given VPC. */
   | { type: 'vpc'; value: Name }
+  /** Route applies to traffic */
   | { type: 'subnet'; value: Name }
 
 /**
  * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
  */
 export type RouteTarget =
+  /** Forward traffic to a particular IP address. */
   | { type: 'ip'; value: string }
+  /** Forward traffic to a VPC */
   | { type: 'vpc'; value: Name }
+  /** Forward traffic to a VPC Subnet */
   | { type: 'subnet'; value: Name }
+  /** Forward traffic to a specific instance */
   | { type: 'instance'; value: Name }
+  /** Forward traffic to an internet gateway */
   | { type: 'internet_gateway'; value: Name }
+
+/**
+ * The classification of a {@link RouterRoute} as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ *
+ * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
+ */
+export type RouterRouteKind =
+  /** Determines the default destination of traffic, such as whether it goes to the internet or not.
+
+`Destination: An Internet Gateway` `Modifiable: true` */
+  | 'default'
+  /** Automatically added for each VPC Subnet in the VPC
+
+`Destination: A VPC Subnet` `Modifiable: false` */
+  | 'vpc_subnet'
+  /** Automatically added when VPC peering is established
+
+`Destination: A different VPC` `Modifiable: false` */
+  | 'vpc_peering'
+  /** Created by a user See [`RouteTarget`]
+
+`Destination: User defined` `Modifiable: true` */
+  | 'custom'
 
 /**
  * A route defines a rule that governs where traffic should be sent based on its destination.
  */
 export type RouterRoute = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
   destination: RouteDestination
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * Describes the kind of router. Set at creation. `read-only`
-   */
+  /** Describes the kind of router. Set at creation. `read-only` */
   kind: RouterRouteKind
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   target: RouteTarget
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * The VPC Router to which the route belongs.
-   */
+  /** The VPC Router to which the route belongs. */
   vpcRouterId: string
 }
 
@@ -1343,23 +1066,12 @@ export type RouterRouteCreateParams = {
 }
 
 /**
- * The classification of a {@link RouterRoute} as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
- *
- * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
- */
-export type RouterRouteKind = 'default' | 'vpc_subnet' | 'vpc_peering' | 'custom'
-
-/**
  * A single page of results
  */
 export type RouterRouteResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: RouterRoute[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -1373,84 +1085,55 @@ export type RouterRouteUpdateParams = {
   target: RouteTarget
 }
 
-export type Saga = {
-  id: string
-  state: SagaState
-}
-
 export type SagaErrorInfo =
-  | { error: 'action_failed'; sourceError: any }
+  | { error: 'action_failed'; sourceError: Record<string, unknown> }
   | { error: 'deserialize_failed'; message: string }
   | { error: 'injected_error' }
   | { error: 'serialize_failed'; message: string }
   | { error: 'subsaga_create_failed'; message: string }
-
-/**
- * A single page of results
- */
-export type SagaResultsPage = {
-  /**
-   * list of items on this page of results
-   */
-  items: Saga[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
-  nextPage?: string | null
-}
 
 export type SagaState =
   | { state: 'running' }
   | { state: 'succeeded' }
   | { errorInfo: SagaErrorInfo; errorNodeName: NodeName; state: 'failed' }
 
+export type Saga = { id: string; state: SagaState }
+
+/**
+ * A single page of results
+ */
+export type SagaResultsPage = {
+  /** list of items on this page of results */
+  items: Saga[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
 /**
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type SamlIdentityProvider = {
-  /**
-   * service provider endpoint where the response will be sent
-   */
+  /** service provider endpoint where the response will be sent */
   acsUrl: string
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * idp's entity id
-   */
+  /** idp's entity id */
   idpEntityId: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * optional request signing public certificate (base64 encoded der file)
-   */
+  /** optional request signing public certificate (base64 encoded der file) */
   publicCert?: string | null
-  /**
-   * service provider endpoint where the idp should send log out requests
-   */
+  /** service provider endpoint where the idp should send log out requests */
   sloUrl: string
-  /**
-   * sp's client id
-   */
+  /** sp's client id */
   spClientId: string
-  /**
-   * customer's technical contact for saml configuration
-   */
+  /** customer's technical contact for saml configuration */
   technicalContactEmail: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1458,119 +1141,80 @@ export type SamlIdentityProvider = {
  * Create-time identity-related parameters
  */
 export type SamlIdentityProviderCreate = {
-  /**
-   * service provider endpoint where the response will be sent
-   */
+  /** service provider endpoint where the response will be sent */
   acsUrl: string
   description: string
-  /**
-   * If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names.
-   */
+  /** If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names. */
   groupAttributeName?: string | null
-  /**
-   * idp's entity id
-   */
+  /** idp's entity id */
   idpEntityId: string
-  /**
-   * the source of an identity provider metadata descriptor
-   */
+  /** the source of an identity provider metadata descriptor */
   idpMetadataSource: IdpMetadataSource
   name: Name
-  /**
-   * optional request signing key pair
-   */
+  /** optional request signing key pair */
   signingKeypair?: DerEncodedKeyPair | null
-  /**
-   * service provider endpoint where the idp should send log out requests
-   */
+  /** service provider endpoint where the idp should send log out requests */
   sloUrl: string
-  /**
-   * sp's client id
-   */
+  /** sp's client id */
   spClientId: string
-  /**
-   * customer's technical contact for saml configuration
-   */
+  /** customer's technical contact for saml configuration */
   technicalContactEmail: string
 }
+
+/**
+ * Describes how identities are managed and users are authenticated in this Silo
+ */
+export type SiloIdentityMode =
+  /** Users are authenticated with SAML using an external authentication provider.  The system updates information about users and groups only during successful authentication (i.e,. "JIT provisioning" of users and groups). */
+  | 'saml_jit'
+  /** The system is the source of truth about users.  There is no linkage to an external authentication provider or identity provider. */
+  | 'local_only'
 
 /**
  * Client view of a ['Silo']
  */
 export type Silo = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output.
-   */
+  /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */
   discoverable: boolean
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** How users and groups are managed in this Silo */
+  identityMode: SiloIdentityMode
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * User provision type
-   */
-  userProvisionType: UserProvisionType
 }
 
 /**
  * Create-time parameters for a {@link Silo}
  */
 export type SiloCreate = {
-  /**
-   * If set, this group will be created during Silo creation and granted the "Silo Admin" role. Identity providers can assert that users belong to this group and those users can log in and further initialize the Silo.
-   *
-   * Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See {@link SamlIdentityProviderCreate} for more information.
-   */
+  /** If set, this group will be created during Silo creation and granted the "Silo Admin" role. Identity providers can assert that users belong to this group and those users can log in and further initialize the Silo.
+
+Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See [`SamlIdentityProviderCreate`] for more information. */
   adminGroupName?: string | null
   description: string
   discoverable: boolean
+  identityMode: SiloIdentityMode
   name: Name
-  userProvisionType: UserProvisionType
 }
 
 /**
  * A single page of results
  */
 export type SiloResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Silo[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 export type SiloRole = 'admin' | 'collaborator' | 'viewer'
-
-/**
- * Client view of a `Policy`, which describes how this resource may be accessed
- *
- * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
- */
-export type SiloRolePolicy = {
-  /**
-   * Roles directly assigned on this resource
-   */
-  roleAssignments: SiloRoleRoleAssignment[]
-}
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -1584,21 +1228,25 @@ export type SiloRoleRoleAssignment = {
 }
 
 /**
+ * Client view of a `Policy`, which describes how this resource may be accessed
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type SiloRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: SiloRoleRoleAssignment[]
+}
+
+/**
  * Client view of an {@link Sled}
  */
 export type Sled = {
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
   serviceAddress: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1606,43 +1254,31 @@ export type Sled = {
  * A single page of results
  */
 export type SledResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Sled[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
+
+export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
 
 /**
  * Client view of a Snapshot
  */
 export type Snapshot = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
   diskId: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
   state: SnapshotState
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1651,9 +1287,7 @@ export type Snapshot = {
  */
 export type SnapshotCreate = {
   description: string
-  /**
-   * The name of the disk to be snapshotted
-   */
+  /** The name of the disk to be snapshotted */
   disk: Name
   name: Name
 }
@@ -1662,53 +1296,31 @@ export type SnapshotCreate = {
  * A single page of results
  */
 export type SnapshotResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Snapshot[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
-export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
-
-export type SpoofLoginBody = {
-  username: string
-}
+export type SpoofLoginBody = { username: string }
 
 /**
  * Client view of a {@link SshKey}
  */
 export type SshKey = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."`
-   */
+  /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
   publicKey: string
-  /**
-   * The user to whom this key belongs
-   */
+  /** The user to whom this key belongs */
   siloUserId: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1718,9 +1330,7 @@ export type SshKey = {
 export type SshKeyCreate = {
   description: string
   name: Name
-  /**
-   * SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."`
-   */
+  /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
   publicKey: string
 }
 
@@ -1728,24 +1338,18 @@ export type SshKeyCreate = {
  * A single page of results
  */
 export type SshKeyResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: SshKey[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 /**
+ * The name of a timeseries
+ *
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
  */
 export type TimeseriesName = string
-
-/** Regex pattern for validating TimeseriesName */
-export const timeseriesNamePattern =
-  '(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*):(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*)'
 
 /**
  * The schema for a timeseries.
@@ -1753,7 +1357,7 @@ export const timeseriesNamePattern =
  * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
  */
 export type TimeseriesSchema = {
-  created: string
+  created: Date
   datumType: DatumType
   fieldSchema: FieldSchema[]
   timeseriesName: TimeseriesName
@@ -1763,13 +1367,9 @@ export type TimeseriesSchema = {
  * A single page of results
  */
 export type TimeseriesSchemaResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: TimeseriesSchema[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -1777,9 +1377,7 @@ export type TimeseriesSchemaResultsPage = {
  * Client view of a {@link User}
  */
 export type User = {
-  /**
-   * Human-readable name that can identify the user
-   */
+  /** Human-readable name that can identify the user */
   displayName: string
   id: string
 }
@@ -1788,25 +1386,15 @@ export type User = {
  * Client view of a {@link UserBuiltin}
  */
 export type UserBuiltin = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1814,32 +1402,19 @@ export type UserBuiltin = {
  * A single page of results
  */
 export type UserBuiltinResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: UserBuiltin[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
-
-/**
- * How users will be provisioned in a silo during authentication.
- */
-export type UserProvisionType = 'fixed' | 'jit'
 
 /**
  * A single page of results
  */
 export type UserResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: User[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
@@ -1847,41 +1422,23 @@ export type UserResultsPage = {
  * Client view of a {@link Vpc}
  */
 export type Vpc = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * The name used for the VPC in DNS.
-   */
+  /** The name used for the VPC in DNS. */
   dnsName: Name
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * The unique local IPv6 address range for subnets in this VPC
-   */
+  /** The unique local IPv6 address range for subnets in this VPC */
   ipv6Prefix: Ipv6Net
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * id for the project containing this VPC
-   */
+  /** id for the project containing this VPC */
   projectId: string
-  /**
-   * id for the system router where subnet default routes are registered
-   */
+  /** id for the system router where subnet default routes are registered */
   systemRouterId: string
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1891,67 +1448,11 @@ export type Vpc = {
 export type VpcCreate = {
   description: string
   dnsName: Name
-  /**
-   * The IPv6 prefix for this VPC.
-   *
-   * All IPv6 subnets created from this VPC must be taken from this range, which sould be a Unique Local Address in the range `fd00::/48`. The default VPC Subnet will have the first `/64` range from this prefix.
-   */
+  /** The IPv6 prefix for this VPC.
+
+All IPv6 subnets created from this VPC must be taken from this range, which sould be a Unique Local Address in the range `fd00::/48`. The default VPC Subnet will have the first `/64` range from this prefix. */
   ipv6Prefix?: Ipv6Net | null
   name: Name
-}
-
-/**
- * A single rule in a VPC firewall
- */
-export type VpcFirewallRule = {
-  /**
-   * whether traffic matching the rule should be allowed or dropped
-   */
-  action: VpcFirewallRuleAction
-  /**
-   * human-readable free-form text about a resource
-   */
-  description: string
-  /**
-   * whether this rule is for incoming or outgoing traffic
-   */
-  direction: VpcFirewallRuleDirection
-  /**
-   * reductions on the scope of the rule
-   */
-  filters: VpcFirewallRuleFilter
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
-  id: string
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
-  name: Name
-  /**
-   * the relative priority of this rule
-   */
-  priority: number
-  /**
-   * whether this rule is in effect
-   */
-  status: VpcFirewallRuleStatus
-  /**
-   * list of sets of instances that the rule applies to
-   */
-  targets: VpcFirewallRuleTarget[]
-  /**
-   * timestamp when this resource was created
-   */
-  timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
-  timeModified: Date
-  /**
-   * the VPC to which this rule belongs
-   */
-  vpcId: string
 }
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'
@@ -1959,31 +1460,18 @@ export type VpcFirewallRuleAction = 'allow' | 'deny'
 export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
 
 /**
- * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
- */
-export type VpcFirewallRuleFilter = {
-  /**
-   * If present, the sources (if incoming) or destinations (if outgoing) this rule applies to.
-   */
-  hosts?: VpcFirewallRuleHostFilter[] | null
-  /**
-   * If present, the destination ports this rule applies to.
-   */
-  ports?: L4PortRange[] | null
-  /**
-   * If present, the networking protocols this rule applies to.
-   */
-  protocols?: VpcFirewallRuleProtocol[] | null
-}
-
-/**
  * The `VpcFirewallRuleHostFilter` is used to filter traffic on the basis of its source or destination host.
  */
 export type VpcFirewallRuleHostFilter =
+  /** The rule applies to traffic from/to all instances in the VPC */
   | { type: 'vpc'; value: Name }
+  /** The rule applies to traffic from/to all instances in the VPC Subnet */
   | { type: 'subnet'; value: Name }
+  /** The rule applies to traffic from/to this specific instance */
   | { type: 'instance'; value: Name }
+  /** The rule applies to traffic from/to a specific IP address */
   | { type: 'ip'; value: string }
+  /** The rule applies to traffic from/to a specific IP subnet */
   | { type: 'ip_net'; value: IpNet }
 
 /**
@@ -1991,182 +1479,167 @@ export type VpcFirewallRuleHostFilter =
  */
 export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
 
+/**
+ * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
+ */
+export type VpcFirewallRuleFilter = {
+  /** If present, the sources (if incoming) or destinations (if outgoing) this rule applies to. */
+  hosts?: VpcFirewallRuleHostFilter[] | null
+  /** If present, the destination ports this rule applies to. */
+  ports?: L4PortRange[] | null
+  /** If present, the networking protocols this rule applies to. */
+  protocols?: VpcFirewallRuleProtocol[] | null
+}
+
 export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 
 /**
  * A `VpcFirewallRuleTarget` is used to specify the set of {@link Instance}s to which a firewall rule applies.
  */
 export type VpcFirewallRuleTarget =
+  /** The rule applies to all instances in the VPC */
   | { type: 'vpc'; value: Name }
+  /** The rule applies to all instances in the VPC Subnet */
   | { type: 'subnet'; value: Name }
+  /** The rule applies to this specific instance */
   | { type: 'instance'; value: Name }
+  /** The rule applies to a specific IP address */
   | { type: 'ip'; value: string }
+  /** The rule applies to a specific IP subnet */
   | { type: 'ip_net'; value: IpNet }
 
 /**
  * A single rule in a VPC firewall
  */
-export type VpcFirewallRuleUpdate = {
-  /**
-   * whether traffic matching the rule should be allowed or dropped
-   */
+export type VpcFirewallRule = {
+  /** whether traffic matching the rule should be allowed or dropped */
   action: VpcFirewallRuleAction
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * whether this rule is for incoming or outgoing traffic
-   */
+  /** whether this rule is for incoming or outgoing traffic */
   direction: VpcFirewallRuleDirection
-  /**
-   * reductions on the scope of the rule
-   */
+  /** reductions on the scope of the rule */
   filters: VpcFirewallRuleFilter
-  /**
-   * name of the rule, unique to this VPC
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * the relative priority of this rule
-   */
+  /** the relative priority of this rule */
   priority: number
-  /**
-   * whether this rule is in effect
-   */
+  /** whether this rule is in effect */
   status: VpcFirewallRuleStatus
-  /**
-   * list of sets of instances that the rule applies to
-   */
+  /** list of sets of instances that the rule applies to */
+  targets: VpcFirewallRuleTarget[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** the VPC to which this rule belongs */
+  vpcId: string
+}
+
+/**
+ * A single rule in a VPC firewall
+ */
+export type VpcFirewallRuleUpdate = {
+  /** whether traffic matching the rule should be allowed or dropped */
+  action: VpcFirewallRuleAction
+  /** human-readable free-form text about a resource */
+  description: string
+  /** whether this rule is for incoming or outgoing traffic */
+  direction: VpcFirewallRuleDirection
+  /** reductions on the scope of the rule */
+  filters: VpcFirewallRuleFilter
+  /** name of the rule, unique to this VPC */
+  name: Name
+  /** the relative priority of this rule */
+  priority: number
+  /** whether this rule is in effect */
+  status: VpcFirewallRuleStatus
+  /** list of sets of instances that the rule applies to */
   targets: VpcFirewallRuleTarget[]
 }
 
 /**
  * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
  */
-export type VpcFirewallRuleUpdateParams = {
-  rules: VpcFirewallRuleUpdate[]
-}
+export type VpcFirewallRuleUpdateParams = { rules: VpcFirewallRuleUpdate[] }
 
 /**
  * Collection of a Vpc's firewall rules
  */
-export type VpcFirewallRules = {
-  rules: VpcFirewallRule[]
-}
+export type VpcFirewallRules = { rules: VpcFirewallRule[] }
 
 /**
  * A single page of results
  */
 export type VpcResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: Vpc[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
+
+export type VpcRouterKind = 'system' | 'custom'
 
 /**
  * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  */
 export type VpcRouter = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
   kind: VpcRouterKind
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * The VPC to which the router belongs.
-   */
+  /** The VPC to which the router belongs. */
   vpcId: string
 }
 
 /**
  * Create-time parameters for a {@link VpcRouter}
  */
-export type VpcRouterCreate = {
-  description: string
-  name: Name
-}
-
-export type VpcRouterKind = 'system' | 'custom'
+export type VpcRouterCreate = { description: string; name: Name }
 
 /**
  * A single page of results
  */
 export type VpcRouterResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: VpcRouter[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 /**
  * Updateable properties of a {@link VpcRouter}
  */
-export type VpcRouterUpdate = {
-  description?: string | null
-  name?: Name | null
-}
+export type VpcRouterUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
  */
 export type VpcSubnet = {
-  /**
-   * human-readable free-form text about a resource
-   */
+  /** human-readable free-form text about a resource */
   description: string
-  /**
-   * unique, immutable, system-controlled identifier for each resource
-   */
+  /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /**
-   * The IPv4 subnet CIDR block.
-   */
+  /** The IPv4 subnet CIDR block. */
   ipv4Block: Ipv4Net
-  /**
-   * The IPv6 subnet CIDR block.
-   */
+  /** The IPv6 subnet CIDR block. */
   ipv6Block: Ipv6Net
-  /**
-   * unique, mutable, user-controlled identifier for each resource
-   */
+  /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /**
-   * timestamp when this resource was created
-   */
+  /** timestamp when this resource was created */
   timeCreated: Date
-  /**
-   * timestamp when this resource was last modified
-   */
+  /** timestamp when this resource was last modified */
   timeModified: Date
-  /**
-   * The VPC to which the subnet belongs.
-   */
+  /** The VPC to which the subnet belongs. */
   vpcId: string
 }
 
@@ -2175,17 +1648,13 @@ export type VpcSubnet = {
  */
 export type VpcSubnetCreate = {
   description: string
-  /**
-   * The IPv4 address range for this subnet.
-   *
-   * It must be allocated from an RFC 1918 private address range, and must not overlap with any other existing subnet in the VPC.
-   */
+  /** The IPv4 address range for this subnet.
+
+It must be allocated from an RFC 1918 private address range, and must not overlap with any other existing subnet in the VPC. */
   ipv4Block: Ipv4Net
-  /**
-   * The IPv6 address range for this subnet.
-   *
-   * It must be allocated from the RFC 4193 Unique Local Address range, with the prefix equal to the parent VPC's prefix. A random `/64` block will be assigned if one is not provided. It must not overlap with any existing subnet in the VPC.
-   */
+  /** The IPv6 address range for this subnet.
+
+It must be allocated from the RFC 4193 Unique Local Address range, with the prefix equal to the parent VPC's prefix. A random `/64` block will be assigned if one is not provided. It must not overlap with any existing subnet in the VPC. */
   ipv6Block?: Ipv6Net | null
   name: Name
 }
@@ -2194,23 +1663,16 @@ export type VpcSubnetCreate = {
  * A single page of results
  */
 export type VpcSubnetResultsPage = {
-  /**
-   * list of items on this page of results
-   */
+  /** list of items on this page of results */
   items: VpcSubnet[]
-  /**
-   * token used to fetch the next page of results (if any)
-   */
+  /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
 
 /**
  * Updateable properties of a {@link VpcSubnet}
  */
-export type VpcSubnetUpdate = {
-  description?: string | null
-  name?: Name | null
-}
+export type VpcSubnetUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * Updateable properties of a {@link Vpc}
@@ -2224,7 +1686,13 @@ export type VpcUpdate = {
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode = 'name_ascending' | 'name_descending' | 'id_ascending'
+export type NameOrIdSortMode =
+  /** sort in increasing order of "name" */
+  | 'name_ascending'
+  /** sort in decreasing order of "name" */
+  | 'name_descending'
+  /** sort in increasing order of "id" */
+  | 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -2298,14 +1766,14 @@ export interface DeviceAuthConfirmParams {}
 
 export interface DeviceAccessTokenParams {}
 
-export interface SpoofLoginParams {}
+export interface LoginSpoofParams {}
 
-export interface LoginParams {
+export interface LoginSamlBeginParams {
   providerName: Name
   siloName: Name
 }
 
-export interface ConsumeCredentialsParams {
+export interface LoginSamlParams {
   providerName: Name
   siloName: Name
 }
@@ -2313,7 +1781,7 @@ export interface ConsumeCredentialsParams {
 export interface LogoutParams {}
 
 export interface OrganizationListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
@@ -2341,7 +1809,7 @@ export interface OrganizationPolicyUpdateParams {
 }
 
 export interface ProjectListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
   orgName: Name
@@ -2367,7 +1835,7 @@ export interface ProjectDeleteParams {
 }
 
 export interface DiskListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2396,14 +1864,14 @@ export interface DiskMetricsListParams {
   metricName: DiskMetricName
   orgName: Name
   projectName: Name
-  endTime?: string
-  limit?: number | null
+  endTime?: Date
+  limit?: number
   pageToken?: string | null
-  startTime?: string
+  startTime?: Date
 }
 
 export interface ImageListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2428,7 +1896,7 @@ export interface ImageDeleteParams {
 }
 
 export interface InstanceListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2453,7 +1921,7 @@ export interface InstanceDeleteParams {
 }
 
 export interface InstanceDiskListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   instanceName: Name
@@ -2486,7 +1954,7 @@ export interface InstanceMigrateParams {
 }
 
 export interface InstanceNetworkInterfaceListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   instanceName: Name
@@ -2531,9 +1999,9 @@ export interface InstanceSerialConsoleParams {
   instanceName: Name
   orgName: Name
   projectName: Name
-  fromStart?: number | null
-  maxBytes?: number | null
-  mostRecent?: number | null
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
 }
 
 export interface InstanceStartParams {
@@ -2559,7 +2027,7 @@ export interface ProjectPolicyUpdateParams {
 }
 
 export interface SnapshotListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2584,7 +2052,7 @@ export interface SnapshotDeleteParams {
 }
 
 export interface VpcListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2627,7 +2095,7 @@ export interface VpcFirewallRulesUpdateParams {
 }
 
 export interface VpcRouterListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2663,7 +2131,7 @@ export interface VpcRouterDeleteParams {
 }
 
 export interface VpcRouterRouteListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2704,7 +2172,7 @@ export interface VpcRouterRouteDeleteParams {
 }
 
 export interface VpcSubnetListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2740,7 +2208,7 @@ export interface VpcSubnetDeleteParams {
 }
 
 export interface VpcSubnetListNetworkInterfacesParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
   orgName: Name
@@ -2754,7 +2222,7 @@ export interface PolicyViewParams {}
 export interface PolicyUpdateParams {}
 
 export interface RoleListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
 }
 
@@ -2765,7 +2233,7 @@ export interface RoleViewParams {
 export interface SessionMeParams {}
 
 export interface SessionSshkeyListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
 }
@@ -2793,7 +2261,7 @@ export interface SiloViewByIdParams {
 }
 
 export interface RackListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: IdSortMode
 }
@@ -2803,7 +2271,7 @@ export interface RackViewParams {
 }
 
 export interface SledListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: IdSortMode
 }
@@ -2813,7 +2281,7 @@ export interface SledViewParams {
 }
 
 export interface SystemImageListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
 }
@@ -2829,7 +2297,7 @@ export interface SystemImageDeleteParams {
 }
 
 export interface IpPoolListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
@@ -2850,7 +2318,7 @@ export interface IpPoolDeleteParams {
 
 export interface IpPoolRangeListParams {
   poolName: Name
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
 }
 
@@ -2868,7 +2336,7 @@ export interface IpPoolServiceViewParams {
 
 export interface IpPoolServiceRangeListParams {
   rackId: string
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
 }
 
@@ -2885,7 +2353,7 @@ export interface SystemPolicyViewParams {}
 export interface SystemPolicyUpdateParams {}
 
 export interface SagaListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: IdSortMode
 }
@@ -2895,7 +2363,7 @@ export interface SagaViewParams {
 }
 
 export interface SiloListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
@@ -2912,9 +2380,18 @@ export interface SiloDeleteParams {
 
 export interface SiloIdentityProviderListParams {
   siloName: Name
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
+}
+
+export interface SamlIdentityProviderCreateParams {
+  siloName: Name
+}
+
+export interface SamlIdentityProviderViewParams {
+  providerName: Name
+  siloName: Name
 }
 
 export interface SiloPolicyViewParams {
@@ -2925,19 +2402,10 @@ export interface SiloPolicyUpdateParams {
   siloName: Name
 }
 
-export interface SiloIdentityProviderCreateParams {
-  siloName: Name
-}
-
-export interface SiloIdentityProviderViewParams {
-  providerName: Name
-  siloName: Name
-}
-
 export interface UpdatesRefreshParams {}
 
 export interface SystemUserListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: NameSortMode
 }
@@ -2947,12 +2415,12 @@ export interface SystemUserViewParams {
 }
 
 export interface TimeseriesSchemaGetParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
 }
 
 export interface UserListParams {
-  limit?: number | null
+  limit?: number
   pageToken?: string | null
   sortBy?: IdSortMode
 }
@@ -3162,8 +2630,8 @@ export class Api extends HttpClient {
         ...params,
       }),
 
-    spoofLogin: (
-      query: SpoofLoginParams,
+    loginSpoof: (
+      query: LoginSpoofParams,
       body: SpoofLoginBody,
       params: RequestParams = {}
     ) =>
@@ -3177,9 +2645,12 @@ export class Api extends HttpClient {
     /**
      * Prompt user login
      */
-    login: ({ providerName, siloName }: LoginParams, params: RequestParams = {}) =>
+    loginSamlBegin: (
+      { providerName, siloName }: LoginSamlBeginParams,
+      params: RequestParams = {}
+    ) =>
       this.request<void>({
-        path: `/login/${siloName}/${providerName}`,
+        path: `/login/${siloName}/saml/${providerName}`,
         method: 'GET',
         ...params,
       }),
@@ -3187,12 +2658,9 @@ export class Api extends HttpClient {
     /**
      * Authenticate a user
      */
-    consumeCredentials: (
-      { providerName, siloName }: ConsumeCredentialsParams,
-      params: RequestParams = {}
-    ) =>
+    loginSaml: ({ providerName, siloName }: LoginSamlParams, params: RequestParams = {}) =>
       this.request<void>({
-        path: `/login/${siloName}/${providerName}`,
+        path: `/login/${siloName}/saml/${providerName}`,
         method: 'POST',
         ...params,
       }),
@@ -4654,6 +4122,34 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Create a SAML IDP
+     */
+    samlIdentityProviderCreate: (
+      { siloName }: SamlIdentityProviderCreateParams,
+      body: SamlIdentityProviderCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/system/silos/${siloName}/identity-providers/saml`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    /**
+     * Fetch a SAML IDP
+     */
+    samlIdentityProviderView: (
+      { providerName, siloName }: SamlIdentityProviderViewParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<SamlIdentityProvider>({
+        path: `/system/silos/${siloName}/identity-providers/saml/${providerName}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
      * Fetch a silo's IAM policy
      */
     siloPolicyView: ({ siloName }: SiloPolicyViewParams, params: RequestParams = {}) =>
@@ -4675,34 +4171,6 @@ export class Api extends HttpClient {
         path: `/system/silos/${siloName}/policy`,
         method: 'PUT',
         body,
-        ...params,
-      }),
-
-    /**
-     * Create a SAML IDP
-     */
-    siloIdentityProviderCreate: (
-      { siloName }: SiloIdentityProviderCreateParams,
-      body: SamlIdentityProviderCreate,
-      params: RequestParams = {}
-    ) =>
-      this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/saml-identity-providers`,
-        method: 'POST',
-        body,
-        ...params,
-      }),
-
-    /**
-     * Fetch a SAML IDP
-     */
-    siloIdentityProviderView: (
-      { providerName, siloName }: SiloIdentityProviderViewParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/saml-identity-providers/${providerName}`,
-        method: 'GET',
         ...params,
       }),
 

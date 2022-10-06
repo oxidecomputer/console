@@ -1,7 +1,7 @@
-import { camelToSnake, processResponseBody, snakeify } from './util'
+import { camelToSnake, isNotNull, processResponseBody, snakeify } from './util'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type QueryParamsType = Record<string | number, any>
+type QueryParamsType = Record<string, any>
 
 export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   path: string
@@ -58,13 +58,28 @@ export type ErrorResult = ApiError | ClientError
 
 export type ApiResult<Data> = ApiSuccess<Data> | ErrorResult
 
+/**
+ * Convert `Date` to ISO string. Leave other values alone. Used for both request
+ * body and query params.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const encodeQueryParam = (key: string, value: any) =>
-  `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(value)}`
+function replacer(_key: string, value: any) {
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
+  return value
+}
 
+function encodeQueryParam(key: string, value: unknown) {
+  return `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(
+    replacer(key, value)
+  )}`
+}
+
+// params with null value are filtered out
 const toQueryString = (rawQuery?: QueryParamsType): string =>
   Object.entries(rawQuery || {})
-    .filter(([_key, value]) => typeof value !== 'undefined')
+    .filter(([_key, value]) => isNotNull(value))
     .map(([key, value]) =>
       Array.isArray(value)
         ? value.map((item) => encodeQueryParam(key, item)).join('&')
@@ -155,7 +170,7 @@ export class HttpClient {
         'Content-Type': 'application/json',
         ...requestParams.headers,
       },
-      body: JSON.stringify(snakeify(body)),
+      body: JSON.stringify(snakeify(body), replacer),
     })
 
     return handleResponse(response)

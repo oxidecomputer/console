@@ -24,7 +24,7 @@ const Document24Icon = ({
     <g id="24/document">
       <path
         id="Vector"
-        d="M16 1H4V23H20V5L16 1ZM6 11H15V13H6V11ZM17 17H6V15H17V17ZM18 9H6V7H18V9Z"
+        d="M17 1H3V23H21V5L17 1ZM6 11H15V13H6V11ZM17 17H6V15H17V17ZM18 9H6V7H18V9Z"
         fill="currentColor"
       />
     </g>

@@ -12,13 +12,36 @@ const mapObj = <V0, V>(
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [kf(k), vf(v)]))
 
 // see https://vitejs.dev/config/
-
 export default defineConfig(({ mode }) => ({
   build: {
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
+
+    /**
+     * The below configuration is required for enabling MSW to be ran on a built
+     * bundle. It ensures the contents of `mockServiceWorker.js` are served from
+     * the root instead of from the assets directory like other scripts.
+     *
+     * We disable it on vercel because it's not needed there and it that build
+     * to fail.
+     */
+    rollupOptions: process.env.VERCEL
+      ? {}
+      : {
+          input: {
+            app: 'index.html',
+            msw: 'mockServiceWorker.js',
+          },
+          output: {
+            entryFileNames: (assetInfo) => {
+              return assetInfo.name === 'msw'
+                ? 'mockServiceWorker.js' // put msw service worker in root
+                : 'assets/[name]-[hash].js' // others in `assets`
+            },
+          },
+        },
   },
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),

@@ -146,7 +146,7 @@ export const test = base.extend<Fixtures>({
         return
       }
 
-      const back = await goto(page, '/org-new')
+      const back = await goto(page, '/orgs-new')
 
       await page.fill('role=textbox[name="Name"]', orgName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
@@ -180,7 +180,7 @@ export const test = base.extend<Fixtures>({
 
       await createOrg(orgName)
 
-      const back = await goto(page, `/orgs/${orgName}/project-new`)
+      const back = await goto(page, `/orgs/${orgName}/projects-new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
@@ -219,7 +219,10 @@ export const test = base.extend<Fixtures>({
 
       await createProject(orgName, projectName)
 
-      const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/instance-new`)
+      const back = await goto(
+        page,
+        `/orgs/${orgName}/projects/${projectName}/instances-new`
+      )
 
       await page.fill('input[name=name]', instanceName)
       await page.locator('.ox-radio-card').nth(3).click()
@@ -261,7 +264,7 @@ export const test = base.extend<Fixtures>({
 
       await createProject(orgName, projectName)
 
-      const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpc-new`)
+      const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs-new`)
       await page.fill('role=textbox[name="Name"]', vpcName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpcName)

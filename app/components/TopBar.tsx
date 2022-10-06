@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
@@ -39,12 +39,20 @@ export function TopBar() {
 
   const loggedIn = user && !error
 
-  const { orgName, projectName } = useParams()
+  const isSystem = useLocation().pathname.startsWith(pb.system()) // lol
+  const { projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
-    hasSiloPerms && <SiloSystemPicker />,
-    orgName && <OrgPicker />,
-    projectName && <ProjectPicker />,
+    hasSiloPerms && <SiloSystemPicker isSystem={isSystem} key={0} />,
+    // TODO: This works ok in most situations, but when an operator user is on
+    // the orgs page with no org selected, they see this picker, which is
+    // redundant with the list of orgs. Overall this logic is starting to feel
+    // silly, which points to a non-centralized approach handled in the layouts
+    // like we were doing before. That way, for example, we know whether we're
+    // on a system situation because we're in SystemLayout. Seems pretty obvious
+    // in hindsight.
+    !isSystem && <OrgPicker key={1} />,
+    projectName && <ProjectPicker key={2} />,
   ].filter(isTruthy)
 
   // The height of this component is governed by the `PageContainer`

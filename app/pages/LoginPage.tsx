@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const addToast = useToast()
-  const loginPost = useApiMutation('spoofLogin', {
+  const loginPost = useApiMutation('loginSpoof', {
     onSuccess: () => {
       addToast({
         title: 'Logged in',

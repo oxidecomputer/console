@@ -59,6 +59,7 @@
     "xterm": "^4.18.0",
     "xterm-addon-fit": "^0.5.0",
     "yup": "^0.32.11",
+    "zod": "^3.19.1",
     "zustand": "^4.0.0"
   },
   "devDependencies": {
@@ -120,7 +121,7 @@
     "tailwindcss": "^3.1.6",
     "token-transformer": "^0.0.18",
     "type-fest": "^2.17.0",
-    "typescript": "4.8.3",
+    "typescript": "4.8.4",
     "vite": "^3.1.0",
     "vitest": "^0.23.4",
     "whatwg-fetch": "^3.6.2"

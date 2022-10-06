@@ -94,6 +94,18 @@ export function lookupDisk(params: PP.Disk): Result<Json<Api.Disk>> {
   return Ok(disk)
 }
 
+export function lookupSnapshot(params: PP.Snapshot): Result<Json<Api.Snapshot>> {
+  const [project, err] = lookupProject(params)
+  if (err) return Err(err)
+
+  const snapshot = db.snapshots.find(
+    (s) => s.project_id === project.id && s.name === params.snapshotName
+  )
+  if (!snapshot) return Err(notFoundErr)
+
+  return Ok(snapshot)
+}
+
 export function lookupVpcSubnet(params: PP.VpcSubnet): Result<Json<Api.VpcSubnet>> {
   const [vpc, err] = lookupVpc(params)
   if (err) return Err(err)

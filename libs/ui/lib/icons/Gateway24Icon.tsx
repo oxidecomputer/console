@@ -26,7 +26,7 @@ const Gateway24Icon = ({
         id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M5 2H19V22H5V2ZM17 4L10 7V16.7525L17 20V4Z"
+        d="M3 1H21V23H3V1ZM18 3L10 6.375V17.3465L18 21V3Z"
         fill="currentColor"
       />
     </g>

@@ -53,9 +53,6 @@ export async function startMockAPI() {
     // don't return anything means fall through to the real handlers
   })
 
-  // mockServiceWorker.js needs to live at root, couldn't get app/ to work with
-  // Vite. ugh don't ask
-  const { default: workerUrl } = await import('../mockServiceWorker.js?url')
   // https://mswjs.io/docs/api/setup-worker/start#options
   await setupWorker(
     interceptAll,
@@ -65,7 +62,6 @@ export async function startMockAPI() {
     })
   ).start({
     quiet: true, // don't log successfully handled requests
-    serviceWorker: { url: workerUrl },
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server
     onUnhandledRequest(req) {
