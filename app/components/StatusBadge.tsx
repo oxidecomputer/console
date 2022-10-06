@@ -19,7 +19,7 @@ export const InstanceStatusBadge = (props: {
   status: InstanceState
   className?: string
 }) => (
-  <Badge variant="secondary" {...INSTANCE_COLORS[props.status]} className={props.className}>
+  <Badge {...INSTANCE_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>
 )
@@ -37,7 +37,7 @@ const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
 }
 
 export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (
-  <Badge variant="secondary" color={DISK_COLORS[props.status]} className={props.className}>
+  <Badge color={DISK_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>
 )

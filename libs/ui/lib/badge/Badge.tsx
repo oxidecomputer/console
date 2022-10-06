@@ -36,7 +36,7 @@ export const Badge = ({
   className,
   children,
   color = 'default',
-  variant = 'default',
+  variant = 'secondary',
 }: BadgeProps) => {
   invariant(
     badgeColors[variant][color],

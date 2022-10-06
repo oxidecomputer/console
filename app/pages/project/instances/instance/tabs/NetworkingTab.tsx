@@ -141,7 +141,7 @@ export function NetworkingTab() {
             value && (
               <>
                 <Success12Icon className="mr-1 text-accent" />
-                <Badge variant="secondary">primary</Badge>
+                <Badge>primary</Badge>
               </>
             )
           }
