@@ -22,7 +22,7 @@ const Logs24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M2 4H6V8H5L5 11H8V10H22V14H8V13H5L5 17H8V16H22V20H8V19H5H4H3L3 8H2V4ZM8 4H22V8H8V4Z"
+        d="M1 3H3H5H7V7H5V11H9V10H23V14H9V13H5L5 18H9V17H23V21H9V20H5H4H3L3 7H1V3ZM9 3H23V7H9V3Z"
         fill="currentColor"
       />
     </g>

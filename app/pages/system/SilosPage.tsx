@@ -94,9 +94,9 @@ export default function SilosPage({ modal }: SilosPageProps) {
         <Column accessor="description" />
         <Column accessor="discoverable" cell={BooleanCell} />
         <Column
-          id="User provision type"
-          accessor={(silo) => silo.userProvisionType}
-          cell={({ value }) => <Badge>{value}</Badge>}
+          id="Identity mode"
+          accessor={(silo) => silo.identityMode}
+          cell={({ value }) => <Badge>{value.replace('_', ' ')}</Badge>}
         />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>

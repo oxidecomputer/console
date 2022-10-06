@@ -26,7 +26,7 @@ const Images24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M12 11.9L22 6.4L12 1L2 6.4L12 11.9ZM11 13.6L1 8.10001V18L11 23.5V13.6ZM13 23.5V13.6L23 8.10001V18L13 23.5Z"
+        d="M12 12L21.5 6.5L12 1L2.5 6.5L12 12ZM11 13.5L2 8.5V18L11 23V13.5ZM13 23V13.5L22 8.5V18L13 23Z"
         fill="currentColor"
       />
     </g>

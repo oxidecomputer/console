@@ -26,7 +26,7 @@ const Speaker24Icon = ({
         id="Icon"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M10.3724 7L21 0V24L10.3724 17H3V7H10.3724Z"
+        d="M11 7L21 1V23L11 17H3V7H11Z"
         fill="currentColor"
       />
     </g>

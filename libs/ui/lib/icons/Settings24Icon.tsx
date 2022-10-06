@@ -23,8 +23,10 @@ const Settings24Icon = ({
     {title ? <title id={titleId}>{title}</title> : null}
     <g id="24/settings">
       <path
-        id="Vector"
-        d="M12 2L3 7V17L12 22L21 17V7L12 2ZM12 17C9.2 17 7 14.8 7 12C7 9.2 9.2 7 12 7C14.8 7 17 9.2 17 12C17 14.8 14.8 17 12 17Z"
+        id="Subtract"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2 6.5L12 1L22 6.5V17.5L12 23L2 17.5V6.5ZM12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z"
         fill="currentColor"
       />
     </g>

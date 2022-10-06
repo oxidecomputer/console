@@ -1030,8 +1030,8 @@ export const handlers = [
       if (typeof body.discoverable !== 'boolean') {
         return res(badRequest('discoverable must be provided'))
       }
-      if (!body.user_provision_type) {
-        return res(badRequest('user_provision_type must be provided'))
+      if (!body.identity_mode) {
+        return res(badRequest('identity_mode must be provided'))
       }
 
       const newSilo: Json<Api.Silo> = {

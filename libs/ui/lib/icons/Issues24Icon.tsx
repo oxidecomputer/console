@@ -26,7 +26,7 @@ const Issues24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M6 3H7H8H15V6L20 6V15H12V12H8V21H6V3Z"
+        d="M7 1H5V21H3V23H9V21H7V11H13V14H21V5L16 5V2L7 2L7 1Z"
         fill="currentColor"
       />
     </g>

@@ -20,7 +20,7 @@ const values: SiloCreate = {
   name: '',
   description: '',
   discoverable: true,
-  userProvisionType: 'jit',
+  identityMode: 'saml_jit',
 }
 
 export function CreateSiloSideModalForm({
@@ -60,9 +60,9 @@ export function CreateSiloSideModalForm({
       onDismiss={onDismiss}
       onSubmit={
         onSubmit ??
-        (({ name, description, discoverable, userProvisionType }) =>
+        (({ name, description, discoverable, identityMode }) =>
           createSilo.mutate({
-            body: { name, description, discoverable, userProvisionType },
+            body: { name, description, discoverable, identityMode },
           }))
       }
       submitDisabled={createSilo.isLoading}
@@ -73,14 +73,9 @@ export function CreateSiloSideModalForm({
       <CheckboxField id="silo-discoverable" name="discoverable">
         Discoverable
       </CheckboxField>
-      <RadioField
-        id="silo-user-provision-type"
-        name="userProvisionType"
-        label="User provision type"
-        column
-      >
-        <Radio value="jit">JIT</Radio>
-        <Radio value="fixed">Fixed</Radio>
+      <RadioField id="silo-identity-mode" name="identityMode" label="Identity mode" column>
+        <Radio value="saml_jit">SAML JIT</Radio>
+        <Radio value="local_only">Local only</Radio>
       </RadioField>
     </SideModalForm>
   )

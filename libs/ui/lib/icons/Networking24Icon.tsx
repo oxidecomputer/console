@@ -26,7 +26,7 @@ const Networking24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M11 3H3V11H11V3ZM21 3H13V11H21V3ZM13 13H21V21H13V13ZM8 13H6V16V18H8H11V16H8V13Z"
+        d="M2 2H11V11H2V2ZM13 2H22V11H13V2ZM22 13H13V22H22V13ZM8 13H6V16V18H8H11V16H8V13Z"
         fill="currentColor"
       />
     </g>

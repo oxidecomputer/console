@@ -23,10 +23,10 @@ const Terminal24Icon = ({
     {title ? <title id={titleId}>{title}</title> : null}
     <g id="24/terminal">
       <path
-        id="Union"
+        id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M0 13.1385V16L11 11.2923V8.70769L0 4V6.86154L7.88333 10L0 13.1385ZM11 19H24V21H11V19Z"
+        d="M23 3H1V21H23V3ZM4 16V13.6154L9.73333 11L4 8.38462V6L12 9.92308V12.0769L4 16ZM20 16H12V18H20V16Z"
         fill="currentColor"
       />
     </g>

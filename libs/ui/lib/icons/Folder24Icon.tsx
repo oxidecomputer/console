@@ -26,7 +26,7 @@ const Folder24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M1 3H14V6H1V3ZM1 8H23V21H1V8Z"
+        d="M1 3H13V6H1V3ZM1 8H23V21H1V8Z"
         fill="currentColor"
       />
     </g>
