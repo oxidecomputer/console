@@ -150,7 +150,7 @@ export function NetworkingTab() {
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
-            size="xs"
+            size="sm"
             variant="default"
             onClick={() => setCreateModalOpen(true)}
             disabled={!instanceStopped}

@@ -85,7 +85,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.siloNew()} className={buttonStyle({ variant: 'default', size: 'xs' })}>
+        <Link to={pb.siloNew()} className={buttonStyle({ variant: 'default', size: 'sm' })}>
           New Silo
         </Link>
       </TableActions>

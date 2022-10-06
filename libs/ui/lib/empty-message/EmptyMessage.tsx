@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { Button, buttonStyle } from '../button/Button'
 
-const buttonStyleProps = { variant: 'ghost', size: 'xs', color: 'secondary' } as const
+const buttonStyleProps = { variant: 'ghost', size: 'sm', color: 'secondary' } as const
 
 type Props = {
   icon?: ReactElement

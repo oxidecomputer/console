@@ -154,7 +154,7 @@ export function OrgAccessPage() {
       </PageHeader>
 
       <TableActions>
-        <Button size="xs" variant="default" onClick={() => setAddModalOpen(true)}>
+        <Button size="sm" variant="default" onClick={() => setAddModalOpen(true)}>
           Add user to organization
         </Button>
       </TableActions>

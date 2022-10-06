@@ -95,7 +95,7 @@ export function DisksPage({ modal }: DisksPageProps) {
       <TableActions>
         <Link
           to={pb.diskNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'xs', variant: 'default' })}
+          className={buttonStyle({ size: 'sm', variant: 'default' })}
         >
           New Disk
         </Link>

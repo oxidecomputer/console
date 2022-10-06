@@ -103,7 +103,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
       <TableActions>
         <Link
           to={pb.vpcNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'xs', variant: 'default' })}
+          className={buttonStyle({ size: 'sm', variant: 'default' })}
         >
           New Vpc
         </Link>

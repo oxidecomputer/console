@@ -71,17 +71,17 @@ export function TopBar() {
             {otherPickers}
           </div>
           <div>
-            <Button variant="default" color="secondary" size="xs" title="Info">
+            <Button variant="default" color="secondary" size="sm" title="Info">
               <Info16Icon className="text-quaternary" />
             </Button>
-            <Button color="secondary" size="xs" className="ml-2" title="Notifications">
+            <Button color="secondary" size="sm" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button>
             <Menu>
               <MenuButton
                 as={Button}
                 color="secondary"
-                size="xs"
+                size="sm"
                 aria-label="User menu"
                 className="ml-2"
                 innerClassName="space-x-2"

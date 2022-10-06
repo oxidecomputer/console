@@ -6,7 +6,7 @@ import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
 
-export const buttonSizes = ['xs', 'sm', 'base'] as const
+export const buttonSizes = ['sm', 'base'] as const
 export const variants = ['default', 'ghost', 'link'] as const
 export const colors = ['primary', 'secondary', 'destructive', 'notice'] as const
 
@@ -15,9 +15,8 @@ export type Variant = typeof variants[number]
 export type Color = typeof colors[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
-  xs: 'h-8 px-2 text-mono-sm svg:w-4',
-  sm: 'h-9 px-3 text-mono-md svg:w-4',
-  base: 'h-10 px-3 text-mono-lg svg:w-5',
+  sm: 'h-8 px-3 text-mono-sm svg:w-4',
+  base: 'h-10 px-3 text-mono-md svg:w-5',
 }
 
 const colorStyle = (variant: Variant, color: Color): string => {

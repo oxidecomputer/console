@@ -11,7 +11,7 @@ export const Default = () => (
 
     <Section title="Sans" className="space-x-4">
       <span className="!ml-0 !text-sans-light-3xl">text-sans-light-3xl</span>
-      <span className="!text-sans-2xl">text-sans-2xl</span>
+      <span className="!text-sans-light-2xl">text-sans-light-2xl</span>
       <span className="!text-sans-xl">text-sans-xl</span>
       <span className="!text-sans-lg">text-sans-lg</span>
       <span className="!text-sans-md">text-sans-md</span>

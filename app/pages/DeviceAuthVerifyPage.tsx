@@ -30,7 +30,7 @@ export default function DeviceAuthVerifyPage() {
 
   return (
     <div className="max-w-sm space-y-4 text-center">
-      <h1 className="text-sans-2xl">Device authentication</h1>
+      <h1 className="text-sans-light-2xl">Device authentication</h1>
       <p>Make sure this code matches the one shown on the device you are authenticating.</p>
       <h2 className="border p-4 text-sans-light-3xl">{userCode}</h2>
       <Button

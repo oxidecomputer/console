@@ -29,7 +29,7 @@ const JumpToButton = () => (
   <Button
     variant="ghost"
     color="secondary"
-    size="xs"
+    size="sm"
     // TODO: click should open jump to menu
     onClick={() => alert('click not implemented, press cmd+k')}
     className="w-full"
