@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import type { Cumulativeint64 } from '@oxide/api'
+import type { Cumulativeint64, ResourceName } from '@oxide/api'
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import {
   Divider,
@@ -18,29 +18,16 @@ type DiskMetricParams = {
   title: string
   startTime: Date
   endTime: Date
-  metricName: DiskMetricName
-  diskParams: { orgName: string; projectName: string; diskName: string }
+  resourceName: ResourceName
   // TODO: specify bytes or count
 }
 
-function SystemMetric({
-  title,
-  startTime,
-  endTime,
-  metricName,
-  diskParams,
-}: DiskMetricParams) {
+function SystemMetric({ title, startTime, endTime, resourceName }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
-    'diskMetricsList',
-    {
-      ...diskParams,
-      metricName,
-      startTime,
-      endTime,
-      limit: 1000,
-    },
+    'systemMetricsList',
+    { resourceName, startTime, endTime, limit: 1000 },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
@@ -75,6 +62,7 @@ CapacityUtilizationPage.loader = async () => {
 }
 
 export function CapacityUtilizationPage() {
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const [siloId, setSiloId] = useState<string | null>(null)
   const { data: silos } = useApiQuery('siloList', {})
 
@@ -117,6 +105,19 @@ export function CapacityUtilizationPage() {
         {dateTimeRangePicker}
       </div>
       <Divider className="mb-6" />
+      <SystemMetric
+        resourceName="physical_disk_space_provisioned"
+        title="Disk Utilization"
+        startTime={startTime}
+        endTime={endTime}
+      />
+
+      <SystemMetric
+        resourceName="cpus_provisioned"
+        title="CPU Utilization"
+        startTime={startTime}
+        endTime={endTime}
+      />
     </>
   )
 }
