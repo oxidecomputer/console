@@ -98,13 +98,6 @@ export function DisksPage({ modal }: DisksPageProps) {
 
   const makeActions = (disk: Disk): MenuAction[] => [
     {
-      label: 'Delete',
-      onActivate: () => {
-        deleteDisk.mutate({ orgName, projectName, diskName: disk.name })
-      },
-      disabled: !['detached', 'creating', 'faulted'].includes(disk.state.state),
-    },
-    {
       label: 'Snapshot',
       onActivate() {
         createSnapshot.mutate({
@@ -118,6 +111,13 @@ export function DisksPage({ modal }: DisksPageProps) {
         })
       },
       disabled: disk.state.state !== 'attached',
+    },
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteDisk.mutate({ orgName, projectName, diskName: disk.name })
+      },
+      disabled: !['detached', 'creating', 'faulted'].includes(disk.state.state),
     },
   ]
 
