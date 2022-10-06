@@ -706,6 +706,9 @@ export const handlers = [
       // if (!result.success) return res(notFoundErr)
       // const resourceName = result.data
 
+      // note we're ignoring the required id query param. since the data is fake
+      // it wouldn't matter, though we should probably 400 if it's missing
+
       const { startTime, endTime } = getStartAndEndTime(req.url.searchParams)
 
       if (endTime <= startTime) return res(json({ items: [] }))

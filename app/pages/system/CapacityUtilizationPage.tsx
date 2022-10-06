@@ -14,20 +14,29 @@ import {
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
 
+const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+
 type DiskMetricParams = {
   title: string
   startTime: Date
   endTime: Date
   resourceName: ResourceName
+  siloId: string
   // TODO: specify bytes or count
 }
 
-function SystemMetric({ title, startTime, endTime, resourceName }: DiskMetricParams) {
+function SystemMetric({
+  title,
+  siloId,
+  startTime,
+  endTime,
+  resourceName,
+}: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
     'systemMetricsList',
-    { resourceName, startTime, endTime, limit: 1000 },
+    { id: siloId, resourceName, startTime, endTime },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
@@ -46,6 +55,7 @@ function SystemMetric({ title, startTime, endTime, resourceName }: DiskMetricPar
       <h2 className="flex items-center text-mono-md text-secondary">
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
+      {/* TODO: this is supposed to be full width */}
       <TimeSeriesAreaChart
         className="mt-4"
         data={data}
@@ -63,15 +73,17 @@ CapacityUtilizationPage.loader = async () => {
 
 export function CapacityUtilizationPage() {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  const [siloId, setSiloId] = useState<string | null>(null)
+  const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
-  const siloItems = useMemo(
-    () => silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || [],
-    [silos]
-  )
+  const siloItems = useMemo(() => {
+    const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
+    return [{ label: 'All silos', value: FLEET_ID }, ...items]
+  }, [silos])
+
+  const commonProps = { startTime, endTime, siloId }
 
   return (
     <>
@@ -88,7 +100,7 @@ export function CapacityUtilizationPage() {
             </label>
           </div>
           <Listbox
-            placeholder="Filter by silo"
+            defaultValue={FLEET_ID}
             className="w-48"
             aria-labelledby="silo-id-label"
             name="silo-id"
@@ -104,19 +116,18 @@ export function CapacityUtilizationPage() {
 
         {dateTimeRangePicker}
       </div>
+      {/* TODO: this divider is supposed to go all the way across */}
       <Divider className="mb-6" />
       <SystemMetric
+        {...commonProps}
         resourceName="physical_disk_space_provisioned"
         title="Disk Utilization"
-        startTime={startTime}
-        endTime={endTime}
       />
 
       <SystemMetric
+        {...commonProps}
         resourceName="cpus_provisioned"
         title="CPU Utilization"
-        startTime={startTime}
-        endTime={endTime}
       />
     </>
   )
