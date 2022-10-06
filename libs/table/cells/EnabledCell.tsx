@@ -7,12 +7,12 @@ export const EnabledCell = ({ value }: Cell<VpcFirewallRuleStatus>) =>
   value === 'enabled' ? (
     <>
       <Success12Icon className="mr-1 text-accent" />
-      <Badge variant="default">Enabled</Badge>
+      <Badge variant="secondary">Enabled</Badge>
     </>
   ) : (
     <>
       <Success12Icon className="mr-1 text-notice" />
-      <Badge color="notice" variant="default">
+      <Badge color="notice" variant="secondary">
         Disabled
       </Badge>
     </>

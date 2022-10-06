@@ -19,6 +19,8 @@ export const RoleBadgeCell = <TData extends { effectiveRole: Role }>(
   if (!cellRole) return null
   const effectiveRole = info.row.original.effectiveRole
   return (
-    <Badge color={effectiveRole === cellRole ? 'default' : 'neutral'}>{cellRole}</Badge>
+    <Badge variant="secondary" color={effectiveRole === cellRole ? 'default' : 'neutral'}>
+      {cellRole}
+    </Badge>
   )
 }

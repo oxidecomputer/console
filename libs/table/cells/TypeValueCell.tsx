@@ -9,7 +9,7 @@ export type TypeValue = {
 
 export const TypeValueCell = ({ value: { type, value } }: Cell<TypeValue>) => (
   <div className="space-x-1">
-    <Badge variant="default">{type}</Badge>
+    <Badge variant="secondary">{type}</Badge>
     <Badge>{value}</Badge>
   </div>
 )
