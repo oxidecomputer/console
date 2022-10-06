@@ -15,7 +15,7 @@ test('Silos page', async ({ page }) => {
     // discoverable: 'true',
   })
 
-  await page.click('role=link[name="Add silo"]')
+  await page.click('role=link[name="New silo"]')
 
   // fill out form and submit
   await page.fill('role=textbox[name="Name"]', 'other-silo')
