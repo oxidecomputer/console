@@ -115,7 +115,7 @@ export function StorageTab() {
         Boot disk
       </h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-      {/* TODO: figure out how to align the columns of the two tables. simple 
+      {/* TODO: figure out how to align the columns of the two tables. simple
         way is just to explicitly specify the widths for both tables */}
       <Table table={bootDiskTable} rowClassName="!h-10" aria-labelledby={bootLabelId} />
       <h2 id={attachedLabelId} className="mt-12 mb-4 text-mono-sm text-secondary">
@@ -150,7 +150,7 @@ export function StorageTab() {
           </Button>
         </div>
         {!instanceStopped && (
-          <span className="max-w-xs text-sans-sm text-secondary">
+          <span className="max-w-xs text-sans-md text-secondary">
             A disk cannot be added or attached without first{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance

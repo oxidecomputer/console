@@ -152,7 +152,7 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
             type="button"
             {...select.getToggleButtonProps()}
             className={cn(
-              'absolute top-0 flex h-10 w-full items-center justify-between border-b px-3 text-sans-sm text-secondary border-secondary',
+              'absolute top-0 flex h-10 w-full items-center justify-between border-b px-3 text-sans-md text-secondary border-secondary',
               selected ? 'text-accent' : 'text-secondary'
             )}
           >
@@ -179,7 +179,7 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
               <div
                 key={index}
                 className={cn(
-                  'cursor-pointer p-3 text-sans-sm text-default hover:bg-raise-hover',
+                  'cursor-pointer p-3 text-sans-md text-default hover:bg-raise-hover',
                   selected &&
                     select.selectedItem?.id === distro.id &&
                     'text-accent bg-accent-secondary hover:bg-accent-secondary-hover',

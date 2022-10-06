@@ -159,7 +159,7 @@ export function NetworkingTab() {
           </Button>
         </div>
         {!instanceStopped && (
-          <span className="max-w-xs text-sans-sm text-secondary">
+          <span className="max-w-xs text-sans-md text-secondary">
             A network interface cannot be created or edited without{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance

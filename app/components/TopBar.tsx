@@ -89,7 +89,7 @@ export function TopBar() {
               >
                 <Profile16Icon className="text-quaternary" />
                 {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-                <span className="normal-case text-sans-sm">
+                <span className="normal-case text-sans-md">
                   {user?.displayName || 'User'}
                 </span>
                 <DirectionDownIcon className="!w-2.5" />

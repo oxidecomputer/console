@@ -51,7 +51,7 @@ function DiskMetric({
 
   return (
     <div>
-      <h2 className="flex items-center text-mono-md text-secondary">
+      <h2 className="flex items-center text-mono-sm text-secondary">
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
       <TimeSeriesAreaChart

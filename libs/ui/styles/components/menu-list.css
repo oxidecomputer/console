@@ -3,7 +3,7 @@
 }
 
 .ox-menu-item {
-  @apply relative cursor-pointer p-3 text-sans-sm text-default hover:bg-raise-hover;
+  @apply relative cursor-pointer px-3 py-2 text-sans-md text-default hover:bg-raise-hover;
 }
 
 .ox-menu-item.is-selected {
