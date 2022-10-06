@@ -9,7 +9,7 @@
 }
 
 [data-reach-tab] {
-  @apply h-10 space-x-2 whitespace-nowrap px-3
+  @apply h-10 space-x-2 whitespace-nowrap px-[6px]
   uppercase text-mono-sm text-tertiary border-secondary;
 }
 
