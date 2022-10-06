@@ -42,7 +42,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
           </div>
         ) : (
           <div className="text-left">
-            <div className="text-mono-sm text-quaternary">
+            <div className="text-mono-xs text-quaternary">
               Select
               <br />
               {props.category}
