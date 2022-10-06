@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { Action16Icon, Button, Document16Icon } from '@oxide/ui'
 
 const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-tertiary text-default'
+  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
@@ -34,12 +34,12 @@ const JumpToButton = () => (
     onClick={() => alert('click not implemented, press cmd+k')}
     className="w-full"
     // TODO: the more I use innerClassName the wronger it feels
-    innerClassName="w-full justify-between"
+    innerClassName="w-full justify-between text-quaternary"
   >
     <span className="flex items-center">
-      <Action16Icon className="mr-2" /> Jump to
+      <Action16Icon className="mr-2 text-quinary" /> Jump to
     </span>
-    <div className="">{modKey}+K</div>
+    <div className="text-mono-xs">{modKey}+K</div>
   </Button>
 )
 
@@ -61,7 +61,7 @@ interface SidebarNav {
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="my-4 mx-3 space-y-1">
-    {heading && <span className="text-mono-sm text-secondary">{heading}</span>}
+    {heading && <div className="mb-2 text-mono-sm text-quaternary">{heading}</div>}
     <nav>
       <ul className="space-y-0.5">{children}</ul>
     </nav>
@@ -77,7 +77,9 @@ export const NavLinkItem = (props: {
     <NavLink
       to={props.to}
       className={({ isActive }) =>
-        cn(linkStyles, { 'text-accent !bg-accent-secondary svg:!text-accent': isActive })
+        cn(linkStyles, {
+          'text-accent !bg-accent-secondary svg:!text-accent-tertiary': isActive,
+        })
       }
       end={props.end}
     >
