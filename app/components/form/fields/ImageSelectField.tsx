@@ -144,23 +144,29 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
       <RadioCard
         name={fieldName}
         value={currentDistro}
-        className="relative h-44 w-44 pb-0"
+        className={cn(
+          'relative h-44 w-44 pb-0',
+          selected && 'bg-accent-secondary hover:bg-accent-secondary-hover'
+        )}
         onClick={onClick}
       >
-        <div className="relative flex h-full flex-col items-center justify-end space-y-3 !pb-4 peer-checked:children:border-accent-secondary">
+        <div className=" relative flex h-full flex-col items-center justify-end space-y-3 !pb-4">
           <button
             type="button"
             {...select.getToggleButtonProps()}
             className={cn(
               'absolute top-0 flex h-10 w-full items-center justify-between border-b px-3 text-sans-md text-secondary border-secondary',
-              selected ? 'text-accent' : 'text-secondary'
+              selected ? 'text-accent' : 'text-tertiary'
             )}
           >
             <span>{select.selectedItem?.version}</span>
-            <SelectArrows6Icon title="Select" />
+            <SelectArrows6Icon
+              title="Select"
+              className={selected ? 'text-accent-tertiary' : 'text-quaternary'}
+            />
           </button>
-          <Icon className="h-12 w-12 text-tertiary" />
-          <span className={cn('text-sans-xl', selected ? 'text-accent' : 'text-secondary')}>
+          <Icon className={cn('h-12 w-12', selected ? 'text-accent' : 'text-quaternary')} />
+          <span className={cn('text-sans-xl', selected ? 'text-accent' : 'text-tertiary')}>
             {label}
           </span>
         </div>

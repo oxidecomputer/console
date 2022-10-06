@@ -60,7 +60,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children, className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('!m-0 !p-0 opacity-60', className)} {...props}>
+  <span className={cn('!m-0 !p-0 text-secondary', className)} {...props}>
     {children}
   </span>
 )

@@ -2,10 +2,6 @@
   border-spacing: 0px;
 }
 
-.ox-mini-table th:first-child > div:first-child {
-  @apply pl-6;
-}
-
 .ox-mini-table td {
   @apply relative px-0 pt-2;
 }
@@ -24,7 +20,7 @@
 }
 
 .ox-mini-table td > div {
-  @apply flex h-11 items-center border-y py-3 pl-3 text-default bg-default border-accent;
+  @apply flex h-11 items-center border-y py-3 pl-3 text-accent bg-accent-secondary border-accent;
 }
 
 .ox-mini-table td:last-child > div {
@@ -35,7 +31,7 @@
 }
 
 .ox-mini-table tr:hover td > div {
-  @apply bg-raise;
+  @apply bg-accent-secondary-hover;
 }
 
 .ox-mini-table tr:last-child td {
