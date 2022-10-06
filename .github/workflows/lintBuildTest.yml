@@ -70,6 +70,8 @@ jobs:
           key: modules-${{ hashFiles('yarn.lock') }}
       - name: Install Playwright
         run: npx playwright install --with-deps
+      - name: Run build
+        run: yarn build --mode development
       - name: Run Playwright tests
         run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
       - uses: actions/upload-artifact@v2
