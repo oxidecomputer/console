@@ -10,8 +10,11 @@
 
 [data-reach-tab] {
   @apply h-10 space-x-2 whitespace-nowrap px-3
-    py-2.5 uppercase text-mono-sm
-    text-secondary border-secondary hover:border-raise;
+  uppercase text-mono-sm text-tertiary border-secondary;
+}
+
+[data-reach-tab][data-selected] > div {
+  @apply hover:bg-secondary;
 }
 
 [data-reach-tab][data-selected] {
