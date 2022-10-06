@@ -112,7 +112,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
                 a) style them differently in the title, and
                 b) show "Reads" but not "(count)" in the Tooltip?
         */}
-      <div className="mt-8 flex flex-wrap gap-8">
+      <div className="mt-8 space-y-8">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />

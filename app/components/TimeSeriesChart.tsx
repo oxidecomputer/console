@@ -1,5 +1,13 @@
 import { format } from 'date-fns'
-import { Area, CartesianGrid, ComposedChart, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 // Recharts's built-in ticks behavior is useless and probably broken
@@ -74,45 +82,48 @@ type Props = {
 
 export function TimeSeriesAreaChart({ className, data, title, width, height }: Props) {
   return (
-    <ComposedChart
-      width={width}
-      height={height}
-      data={data}
-      margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-      className={className}
-    >
-      <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-      <Area
-        dataKey="value"
-        name={title}
-        stroke={GREEN}
-        fillOpacity={1}
-        fill={DARK_GREEN}
-        isAnimationActive={false}
-        activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
-      />
-      <XAxis
-        // TODO: show full given date range in the chart even if the data doesn't fill the range
-        domain={['auto', 'auto']}
-        dataKey="timestamp"
-        interval="preserveStart"
-        scale="time"
-        // TODO: use Date directly as x-axis values
-        type="number"
-        name="Time"
-        ticks={getTicks(data, 3)}
-        // TODO: decide timestamp format based on time range of chart
-        tickFormatter={shortDateTime}
-        tick={textMonoMd}
-        tickMargin={4}
-      />
-      <YAxis orientation="right" tick={textMonoMd} tickSize={0} tickMargin={8} />
-      {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-      <Tooltip
-        isAnimationActive={false}
-        content={renderTooltip}
-        cursor={{ stroke: LIGHT_GRAY, strokeDasharray: '3,3' }}
-      />
-    </ComposedChart>
+    <ResponsiveContainer width="100%" height={300}>
+      <AreaChart
+        width={width}
+        height={height}
+        data={data}
+        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+        className={className}
+      >
+        <Area
+          dataKey="value"
+          name={title}
+          stroke={GREEN}
+          strokeWidth={1}
+          fillOpacity={1}
+          fill={DARK_GREEN}
+          isAnimationActive={false}
+          activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
+        />
+        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
+        <XAxis
+          // TODO: show full given date range in the chart even if the data doesn't fill the range
+          domain={['auto', 'auto']}
+          dataKey="timestamp"
+          interval="preserveStart"
+          scale="time"
+          // TODO: use Date directly as x-axis values
+          type="number"
+          name="Time"
+          ticks={getTicks(data, 5)}
+          // TODO: decide timestamp format based on time range of chart
+          tickFormatter={shortDateTime}
+          tick={textMonoMd}
+          tickMargin={4}
+        />
+        <YAxis orientation="right" tick={textMonoMd} tickSize={0} tickMargin={8} />
+        {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
+        <Tooltip
+          isAnimationActive={false}
+          content={renderTooltip}
+          cursor={{ stroke: LIGHT_GRAY, strokeDasharray: '3,3' }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   )
 }

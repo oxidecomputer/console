@@ -118,17 +118,20 @@ export function CapacityUtilizationPage() {
       </div>
       {/* TODO: this divider is supposed to go all the way across */}
       <Divider className="mb-6" />
-      <SystemMetric
-        {...commonProps}
-        resourceName="physical_disk_space_provisioned"
-        title="Disk Utilization"
-      />
 
-      <SystemMetric
-        {...commonProps}
-        resourceName="cpus_provisioned"
-        title="CPU Utilization"
-      />
+      <div className="mt-8 space-y-8">
+        <SystemMetric
+          {...commonProps}
+          resourceName="physical_disk_space_provisioned"
+          title="Disk Utilization (Bytes)"
+        />
+
+        <SystemMetric
+          {...commonProps}
+          resourceName="cpus_provisioned"
+          title="CPU Utilization (CPU count)"
+        />
+      </div>
     </>
   )
 }
