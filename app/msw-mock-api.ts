@@ -62,7 +62,7 @@ export async function startMockAPI() {
     })
   ).start({
     quiet: true, // don't log successfully handled requests
-    serviceWorker: { url: '/msw.js' },
+    serviceWorker: { url: '/mockServiceWorker.js' },
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server
     onUnhandledRequest(req) {
