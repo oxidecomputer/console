@@ -57,7 +57,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
     </MenuButton>
     {/* TODO: item size and focus highlight */}
     {/* TODO: popover position should be further right */}
-    <MenuList className="ox-menu-list">
+    <MenuList className="mt-2">
       {props.items.length > 0 ? (
         props.items.map(({ label, to }) => {
           const isSelected = props.current === label
