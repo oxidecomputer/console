@@ -1,4 +1,4 @@
-import type { Snapshot, SnapshotCreate } from '@oxide/api'
+import type { PathParams, Snapshot, SnapshotCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -14,18 +14,12 @@ import { useRequiredParams, useToast } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
-const useSnapshotDiskItems = ({
-  orgName,
-  projectName,
-}: {
-  orgName: string
-  projectName: string
-}) => {
-  const { data: disks } = useApiQuery('diskList', { orgName, projectName })
+const useSnapshotDiskItems = (params: PathParams.Project) => {
+  const { data: disks } = useApiQuery('diskList', { ...params, limit: 1000 })
   return (
     disks?.items
       .filter((disk) => disk.state.state === 'attached')
-      .map((disk) => ({ value: disk.name, label: disk.name, limit: 1000 })) || []
+      .map((disk) => ({ value: disk.name, label: disk.name })) || []
   )
 }
 
