@@ -20,11 +20,12 @@ export default defineConfig(({ mode }) => ({
     // minify: false, // uncomment for debugging
 
     /**
-     * The below configuration is required for getting enabling MSW to be ran
-     * on a built bundle. It ensures the contents of `mockServiceWorker.js` are
-     * served from the root instead of from the assets directory like other scripts.
+     * The below configuration is required for enabling MSW to be ran on a built
+     * bundle. It ensures the contents of `mockServiceWorker.js` are served from
+     * the root instead of from the assets directory like other scripts.
      *
-     * We disable it on vercel because it's not needed there and it that build to fail.
+     * We disable it on vercel because it's not needed there and it that build
+     * to fail.
      */
     rollupOptions: process.env.VERCEL
       ? {}
