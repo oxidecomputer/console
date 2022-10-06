@@ -68,8 +68,8 @@ const TopBarPicker = (props: TopBarPickerProps) => (
               to={to}
               className={cn('ox-menu-item', { 'is-selected': isSelected })}
             >
-              <span className="flex items-center justify-between">
-                {label} {isSelected && <Success12Icon />}
+              <span className="flex w-full items-center justify-between">
+                {label} {isSelected && <Success12Icon className="-mr-3 block" />}
               </span>
             </MenuLink>
           )
