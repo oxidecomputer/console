@@ -10,6 +10,7 @@ import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
 import type { NotFound } from './db'
+import { lookupSnapshot } from './db'
 import { lookupSilo } from './db'
 import {
   db,
@@ -726,6 +727,64 @@ export const handlers = [
       if (err) return res(err)
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
       return res(json(paginated(req.url.search, snapshots)))
+    }
+  ),
+
+  rest.post<Json<Api.SnapshotCreate>, PP.Project, Json<Api.Snapshot> | PostErr>(
+    '/organizations/:orgName/projects/:projectName/snapshots',
+    async (req, res) => {
+      const [project, err] = lookupProject(req.params)
+      if (err) return res(err)
+
+      const body = await req.json()
+      const alreadyExists = db.snapshots.some((s) => s.name === body.name)
+      if (alreadyExists) return res(alreadyExistsErr)
+
+      if (!body.name) {
+        return res(badRequest('name requires at least one character'))
+      }
+
+      if (!body.disk) {
+        return res(badRequest('disk to snapshot is required'))
+      }
+
+      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.disk })
+
+      if (diskErr) {
+        return res(diskErr)
+      }
+
+      const newSnapshot: Json<Api.Snapshot> = {
+        id: genId('snapshot'),
+        ...body,
+        ...getTimestamps(),
+        state: 'ready',
+        project_id: project.id,
+        disk_id: disk.id,
+        size: disk.size,
+      }
+      db.snapshots.push(newSnapshot)
+      return res(json(newSnapshot, { status: 201 }))
+    }
+  ),
+
+  rest.get<never, PP.Snapshot, Json<Api.Snapshot> | GetErr>(
+    '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
+    (req, res) => {
+      const [snapshot, err] = lookupSnapshot(req.params)
+      if (err) return res(err)
+
+      return res(json(snapshot))
+    }
+  ),
+
+  rest.delete<never, PP.Snapshot, GetErr>(
+    '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
+    (req, res, ctx) => {
+      const [snapshot, err] = lookupSnapshot(req.params)
+      if (err) return res(err)
+      db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
+      return res(ctx.status(204))
     }
   ),
 

@@ -1,4 +1,4 @@
-import type { DiskState, InstanceState } from '@oxide/api'
+import type { DiskState, InstanceState, SnapshotState } from '@oxide/api'
 import type { BadgeColor, BadgeProps } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
 
@@ -38,6 +38,26 @@ const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
 
 export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (
   <Badge variant="default" color={DISK_COLORS[props.status]} className={props.className}>
+    {props.status}
+  </Badge>
+)
+
+const SNAPSHOT_COLORS: Record<SnapshotState, BadgeColor> = {
+  creating: 'notice',
+  destroyed: 'neutral',
+  faulted: 'destructive',
+  ready: 'default',
+}
+
+export const SnapshotStatusBadge = (props: {
+  status: SnapshotState
+  className?: string
+}) => (
+  <Badge
+    variant="default"
+    color={SNAPSHOT_COLORS[props.status]}
+    className={props.className}
+  >
     {props.status}
   </Badge>
 )

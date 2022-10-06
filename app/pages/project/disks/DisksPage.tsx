@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
+import { genName } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -14,13 +15,19 @@ import {
   PageHeader,
   PageTitle,
   Storage24Icon,
+  Success16Icon,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import CreateDiskSideModalForm from 'app/forms/disk-create'
-import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/hooks'
+import {
+  requireProjectParams,
+  useProjectParams,
+  useRequiredParams,
+  useToast,
+} from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 function AttachedInstance({
@@ -70,6 +77,7 @@ export function DisksPage({ modal }: DisksPageProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('diskList', { orgName, projectName })
+  const addToast = useToast()
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
@@ -77,7 +85,33 @@ export function DisksPage({ modal }: DisksPageProps) {
     },
   })
 
+  const createSnapshot = useApiMutation('snapshotCreate', {
+    onSuccess() {
+      queryClient.invalidateQueries('snapshotList', { orgName, projectName })
+      addToast({
+        icon: <Success16Icon />,
+        title: 'Success!',
+        content: 'Snapshot successfully created',
+      })
+    },
+  })
+
   const makeActions = (disk: Disk): MenuAction[] => [
+    {
+      label: 'Snapshot',
+      onActivate() {
+        createSnapshot.mutate({
+          orgName,
+          projectName,
+          body: {
+            name: genName(disk.name),
+            disk: disk.name,
+            description: '',
+          },
+        })
+      },
+      disabled: disk.state.state !== 'attached',
+    },
     {
       label: 'Delete',
       onActivate: () => {
