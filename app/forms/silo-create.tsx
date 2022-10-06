@@ -74,8 +74,8 @@ export function CreateSiloSideModalForm({
         Discoverable
       </CheckboxField>
       <RadioField id="silo-identity-mode" name="identityMode" label="Identity mode" column>
-        <Radio value="jit">JIT</Radio>
-        <Radio value="fixed">Fixed</Radio>
+        <Radio value="saml_jit">SAML JIT</Radio>
+        <Radio value="local_only">Local only</Radio>
       </RadioField>
     </SideModalForm>
   )

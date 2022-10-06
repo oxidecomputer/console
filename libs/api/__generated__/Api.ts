@@ -419,6 +419,7 @@ export const GlobalImageResultsPage = z.object({
 export type GlobalImageResultsPage = z.infer<typeof GlobalImageResultsPage>
 
 export const IdentityProviderType = z.enum(['saml'])
+
 export type IdentityProviderType = z.infer<typeof IdentityProviderType>
 
 /**
@@ -511,6 +512,7 @@ export const InstanceState = z.enum([
   'failed',
   'destroyed',
 ])
+
 export type InstanceState = z.infer<typeof InstanceState>
 
 /**
@@ -1010,6 +1012,7 @@ export type RouteTarget = z.infer<typeof RouteTarget>
  * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
  */
 export const RouterRouteKind = z.enum(['default', 'vpc_subnet', 'vpc_peering', 'custom'])
+
 export type RouterRouteKind = z.infer<typeof RouterRouteKind>
 
 /**
@@ -1132,6 +1135,7 @@ export type SamlIdentityProviderCreate = z.infer<typeof SamlIdentityProviderCrea
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export const SiloIdentityMode = z.enum(['saml_jit', 'local_only'])
+
 export type SiloIdentityMode = z.infer<typeof SiloIdentityMode>
 
 /**
@@ -1588,6 +1592,7 @@ export const NameOrIdSortMode = z.enum([
   'name_descending',
   'id_ascending',
 ])
+
 export type NameOrIdSortMode = z.infer<typeof NameOrIdSortMode>
 
 /**
@@ -1596,6 +1601,7 @@ export type NameOrIdSortMode = z.infer<typeof NameOrIdSortMode>
  * Currently, we only support scanning in ascending order.
  */
 export const NameSortMode = z.enum(['name_ascending'])
+
 export type NameSortMode = z.infer<typeof NameSortMode>
 
 export const DiskMetricName = z.enum([
@@ -1614,6 +1620,7 @@ export type DiskMetricName = z.infer<typeof DiskMetricName>
  * Currently, we only support scanning in ascending order.
  */
 export const IdSortMode = z.enum(['id_ascending'])
+
 export type IdSortMode = z.infer<typeof IdSortMode>
 
 export const DiskViewByIdParams = z.object({
