@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
           output: {
             entryFileNames: (assetInfo) => {
               return assetInfo.name === 'msw'
-                ? '[name].js' // put msw service worker in root
+                ? 'mockServiceWorker.js' // put msw service worker in root
                 : 'assets/[name]-[hash].js' // others in `assets`
             },
           },
