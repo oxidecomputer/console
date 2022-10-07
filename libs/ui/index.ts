@@ -1,4 +1,7 @@
+import useInterval from './lib/hooks/use-interval'
 import './styles/index.css'
+
+export { useInterval }
 
 export * from './lib/action-menu/ActionMenu'
 export * from './lib/avatar/Avatar'

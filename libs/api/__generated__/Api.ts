@@ -1716,6 +1716,11 @@ export type DiskMetricName =
  */
 export type IdSortMode = 'id_ascending'
 
+export type ResourceName =
+  | 'physical_disk_space_provisioned'
+  | 'cpus_provisioned'
+  | 'ram_provisioned'
+
 export interface DiskViewByIdParams {
   id: string
 }
@@ -2348,6 +2353,15 @@ export interface IpPoolServiceRangeRemoveParams {
   rackId: string
 }
 
+export interface SystemMetricsListParams {
+  resourceName: ResourceName
+  endTime?: Date
+  id?: string
+  limit?: number
+  pageToken?: string | null
+  startTime?: Date
+}
+
 export interface SystemPolicyViewParams {}
 
 export interface SystemPolicyUpdateParams {}
@@ -2467,6 +2481,7 @@ export type ApiListMethods = Pick<
   | 'ipPoolList'
   | 'ipPoolRangeList'
   | 'ipPoolServiceRangeList'
+  | 'systemMetricsList'
   | 'sagaList'
   | 'siloList'
   | 'siloIdentityProviderList'
@@ -4016,6 +4031,20 @@ export class Api extends HttpClient {
         path: `/system/ip-pools-service/${rackId}/ranges/remove`,
         method: 'POST',
         body,
+        ...params,
+      }),
+
+    /**
+     * Access metrics data
+     */
+    systemMetricsList: (
+      { resourceName, ...query }: SystemMetricsListParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<MeasurementResultsPage>({
+        path: `/system/metrics/${resourceName}`,
+        method: 'GET',
+        query,
         ...params,
       }),
 

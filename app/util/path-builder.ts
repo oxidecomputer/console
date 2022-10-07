@@ -32,6 +32,8 @@ export const pb = {
   vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
   vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
 
+  utilization: () => '/utilization', // silo metrics
+
   system: () => '/sys',
   systemIssues: () => '/sys/issues',
   systemUtilization: () => '/sys/utilization',

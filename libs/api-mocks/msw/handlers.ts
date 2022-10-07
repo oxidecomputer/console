@@ -1,11 +1,10 @@
-import { subHours } from 'date-fns'
 import { compose, context, rest } from 'msw'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
-import { genCumulativeI64Data } from '../metrics'
+import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
@@ -26,7 +25,7 @@ import {
   lookupVpcRouter,
   lookupVpcSubnet,
 } from './db'
-import { getDateParam, json, paginated } from './util'
+import { getStartAndEndTime, json, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
@@ -684,17 +683,7 @@ export const handlers = [
       const [, err] = lookupDisk(req.params)
       if (err) return res(err)
 
-      const queryStartTime = getDateParam(req.url.searchParams, 'start_time')
-      const queryEndTime = getDateParam(req.url.searchParams, 'end_time')
-
-      // if no start time or end time, give the last 24 hours. in this case the
-      // API will give all data available for the metric (paginated of course),
-      // so essentially we're pretending the last 24 hours just happens to be
-      // all the data. if we have an end time but no start time, same deal, pretend
-      // 24 hours before the given end time is where it starts
-      const now = new Date()
-      const endTime = queryEndTime || now
-      const startTime = queryStartTime || subHours(endTime, 24)
+      const { startTime, endTime } = getStartAndEndTime(req.url.searchParams)
 
       if (endTime <= startTime) return res(json({ items: [] }))
 
@@ -702,6 +691,34 @@ export const handlers = [
         json({
           items: genCumulativeI64Data(
             new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
+            startTime,
+            endTime
+          ),
+        })
+      )
+    }
+  ),
+
+  rest.get<never, PP.SystemMetric, Json<Api.MeasurementResultsPage> | GetErr>(
+    '/system/metrics/:resourceName',
+    (req, res) => {
+      // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
+      // if (!result.success) return res(notFoundErr)
+      // const resourceName = result.data
+
+      const cap = req.params.resourceName === 'cpus_provisioned' ? 3000 : 4000000000000
+
+      // note we're ignoring the required id query param. since the data is fake
+      // it wouldn't matter, though we should probably 400 if it's missing
+
+      const { startTime, endTime } = getStartAndEndTime(req.url.searchParams)
+
+      if (endTime <= startTime) return res(json({ items: [] }))
+
+      return res(
+        json({
+          items: genI64Data(
+            new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
             startTime,
             endTime
           ),

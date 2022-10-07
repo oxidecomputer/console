@@ -60,6 +60,7 @@ function DiskMetric({
         title={title}
         width={480}
         height={240}
+        customXTicks
       />
     </div>
   )
@@ -70,7 +71,9 @@ function DiskMetric({
 // which means we can easily set the default selected disk to the first one
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastDay',
+  })
 
   invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
   const [diskName, setDiskName] = useState<string>(disks[0].name)
@@ -82,7 +85,6 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
   return (
     <>
       <div className="mt-8 mb-4 flex justify-between">
-        {dateTimeRangePicker}
         {/* TODO: using a Formik field here feels like overkill, but we've built
             ListboxField to require that, i.e., there's no way to get the nice worked-out
             layout from ListboxField without using Formik. Something to think about. */}
@@ -106,13 +108,14 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
             defaultValue={diskName}
           />
         </div>
+        {dateTimeRangePicker}
       </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can
                 a) style them differently in the title, and
                 b) show "Reads" but not "(count)" in the Tooltip?
         */}
-      <div className="mt-8 flex flex-wrap gap-8">
+      <div className="mt-8 space-y-8">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />
