@@ -112,7 +112,8 @@ export function TimeSeriesAreaChart({
           activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
         <XAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: 'var(--stroke-default)' }}
+          tickLine={{ stroke: 'var(--stroke-default)' }}
           // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}
           dataKey="timestamp"
@@ -129,7 +130,8 @@ export function TimeSeriesAreaChart({
           padding={{ right: 20 }}
         />
         <YAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: 'var(--stroke-default)' }}
+          tickLine={{ stroke: 'var(--stroke-default)' }}
           orientation="right"
           tick={textMonoMd}
           tickSize={0}
