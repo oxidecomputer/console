@@ -88,7 +88,7 @@ export function InstancesPage() {
       <TableActions>
         <Link
           to={pb.instanceNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'xs', variant: 'default' })}
+          className={buttonStyle({ size: 'sm', variant: 'default' })}
         >
           New Instance
         </Link>

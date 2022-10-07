@@ -29,9 +29,9 @@ const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
 // TODO: change these to theme colors so they work in light mode
-const LIGHT_GRAY = 'var(--base-grey-600)'
-const GRID_GRAY = 'var(--base-grey-1000)'
-const GREEN = 'var(--chart-stroke-line)'
+const LIGHT_GRAY = 'var(--stroke-default)'
+const GRID_GRAY = 'var(--stroke-secondary)'
+const GREEN = 'var(--base-green-500)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
@@ -50,7 +50,7 @@ function renderTooltip(props: TooltipProps<number, string>) {
   } = payload[0]
   if (!timestamp || !value) return null
   return (
-    <div className="border text-sans-sm text-secondary bg-raise border-secondary">
+    <div className="border outline-0 text-sans-md text-secondary bg-raise border-secondary">
       <div className="border-b py-2 px-3 border-secondary">{longDateTime(timestamp)}</div>
       <div className="py-2 px-3">
         <div className="text-default">{name}</div>
@@ -96,7 +96,7 @@ export function TimeSeriesAreaChart({
         width={width}
         height={height}
         data={data}
-        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+        margin={{ top: 0, right: 20, bottom: 5, left: 0 }}
         className={className}
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
@@ -112,6 +112,8 @@ export function TimeSeriesAreaChart({
           activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
         <XAxis
+          axisLine={{ stroke: 'var(--stroke-default)' }}
+          tickLine={{ stroke: 'var(--stroke-default)' }}
           // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}
           dataKey="timestamp"
@@ -127,12 +129,20 @@ export function TimeSeriesAreaChart({
           tickMargin={4}
           padding={{ right: 20 }}
         />
-        <YAxis orientation="right" tick={textMonoMd} tickSize={0} tickMargin={8} />
+        <YAxis
+          axisLine={{ stroke: 'var(--stroke-default)' }}
+          tickLine={{ stroke: 'var(--stroke-default)' }}
+          orientation="right"
+          tick={textMonoMd}
+          tickSize={0}
+          tickMargin={8}
+        />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
         <Tooltip
           isAnimationActive={false}
           content={renderTooltip}
-          cursor={{ stroke: LIGHT_GRAY, strokeDasharray: '3,3' }}
+          cursor={{ stroke: 'var(--base-green-400)', strokeDasharray: '3,3' }}
+          wrapperStyle={{ outline: 'none' }}
         />
       </AreaChart>
     </ResponsiveContainer>

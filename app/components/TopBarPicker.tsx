@@ -35,14 +35,14 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
         {props.current ? (
           <div className="text-left">
-            <div className="text-mono-sm text-secondary">{props.category}</div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md">
+            <div className="text-mono-xs text-quaternary">{props.category}</div>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
               {props.display ?? props.current}
             </div>
           </div>
         ) : (
           <div className="text-left">
-            <div className="text-mono-sm text-secondary">
+            <div className="text-mono-xs text-quaternary">
               Select
               <br />
               {props.category}
@@ -51,13 +51,13 @@ const TopBarPicker = (props: TopBarPickerProps) => (
         )}
       </div>
       {/* aria-hidden is a tip from the Reach docs */}
-      <div className="ml-4 flex h-[1.625rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-secondary group-hover:bg-hover">
+      <div className="ml-4 flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
         <SelectArrows6Icon className="text-secondary" aria-hidden />
       </div>
     </MenuButton>
     {/* TODO: item size and focus highlight */}
     {/* TODO: popover position should be further right */}
-    <MenuList className="ox-menu-list">
+    <MenuList className="mt-2 min-w-[12.8125rem]">
       {props.items.length > 0 ? (
         props.items.map(({ label, to }) => {
           const isSelected = props.current === label
@@ -68,8 +68,8 @@ const TopBarPicker = (props: TopBarPickerProps) => (
               to={to}
               className={cn('ox-menu-item', { 'is-selected': isSelected })}
             >
-              <span className="flex items-center justify-between">
-                {label} {isSelected && <Success12Icon />}
+              <span className="flex w-full items-center justify-between">
+                {label} {isSelected && <Success12Icon className="-mr-3 block" />}
               </span>
             </MenuLink>
           )
@@ -93,7 +93,7 @@ const TopBarPicker = (props: TopBarPickerProps) => (
  */
 const OrgLogo = ({ name }: { name: string }) => (
   <Identicon
-    className="flex h-[34px] w-[34px] items-center justify-center rounded bg-green-900 text-green-500"
+    className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
     name={name}
   />
 )

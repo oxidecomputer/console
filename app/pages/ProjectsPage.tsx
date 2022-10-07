@@ -105,7 +105,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       <TableActions>
         <Link
           to={pb.projectNew({ orgName })}
-          className={buttonStyle({ variant: 'default', size: 'xs' })}
+          className={buttonStyle({ variant: 'default', size: 'sm' })}
         >
           New Project
         </Link>

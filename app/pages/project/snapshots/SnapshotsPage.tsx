@@ -78,7 +78,7 @@ export function SnapshotsPage({ modal }: SnapshotsPageProps) {
       <TableActions>
         <Link
           to={pb.snapshotNew(projectParams)}
-          className={buttonStyle({ size: 'xs', variant: 'default' })}
+          className={buttonStyle({ size: 'sm', variant: 'default' })}
         >
           New Snapshot
         </Link>

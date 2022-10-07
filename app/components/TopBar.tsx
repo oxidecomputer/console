@@ -60,38 +60,41 @@ export function TopBar() {
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
-      <div className="flex border-b border-r px-3 border-secondary">{cornerPicker}</div>
+      <div className="flex items-center border-b border-r px-3 border-secondary">
+        {cornerPicker}
+      </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
-          <div className="flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-mono-lg between:before:text-tertiary">
+          <div className="between:before:text-mono-lg flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-quinary">
             {otherPickers}
           </div>
           <div>
-            <Button variant="default" color="secondary" size="xs" title="Info">
-              <Info16Icon />
+            <Button variant="default" color="secondary" size="sm" title="Info">
+              <Info16Icon className="text-quaternary" />
             </Button>
-            <Button color="secondary" size="xs" className="ml-2" title="Notifications">
-              <Notifications16Icon />
+            <Button color="secondary" size="sm" className="ml-2" title="Notifications">
+              <Notifications16Icon className="text-quaternary" />
             </Button>
             <Menu>
               <MenuButton
                 as={Button}
                 color="secondary"
-                size="xs"
+                size="sm"
                 aria-label="User menu"
                 className="ml-2"
                 innerClassName="space-x-2"
                 title="User menu"
               >
-                <Profile16Icon />
-                {/* TODO: design has this in sans font but button forces mono */}
+                <Profile16Icon className="text-quaternary" />
                 {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-                <span>{user?.displayName || 'User'}</span>
+                <span className="normal-case text-sans-md text-secondary">
+                  {user?.displayName || 'User'}
+                </span>
                 <DirectionDownIcon className="!w-2.5" />
               </MenuButton>
-              <MenuList className="mt-2">
+              <MenuList className="mt-2 min-w-[12.8125rem]">
                 <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
                 {loggedIn ? (
                   <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>

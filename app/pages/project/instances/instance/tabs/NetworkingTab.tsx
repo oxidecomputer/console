@@ -26,7 +26,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   if (!vpc) return null
   return (
     <Link
-      className="text-sans-semi-md text-accent hover:underline"
+      className="text-sans-semi-md text-default hover:underline"
       to={pb.vpc({ orgName, projectName, vpcName: vpc.name })}
     >
       {vpc.name}
@@ -35,7 +35,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
-  <span className="text-default">
+  <span className="text-secondary">
     {useApiQuery('vpcSubnetViewById', { id: value }).data?.name}
   </span>
 )
@@ -44,7 +44,7 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { data } = useApiQuery('instanceExternalIpList', instanceParams)
   const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-default">{primary ? ips : <>&mdash;</>}</span>
+  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
 
 export function NetworkingTab() {
@@ -141,7 +141,7 @@ export function NetworkingTab() {
             value && (
               <>
                 <Success12Icon className="mr-1 text-accent" />
-                <Badge variant="secondary">primary</Badge>
+                <Badge>primary</Badge>
               </>
             )
           }
@@ -150,7 +150,7 @@ export function NetworkingTab() {
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
-            size="xs"
+            size="sm"
             variant="default"
             onClick={() => setCreateModalOpen(true)}
             disabled={!instanceStopped}
@@ -159,7 +159,7 @@ export function NetworkingTab() {
           </Button>
         </div>
         {!instanceStopped && (
-          <span className="max-w-xs text-sans-sm text-secondary">
+          <span className="max-w-xs text-sans-md text-tertiary">
             A network interface cannot be created or edited without{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance

@@ -16,7 +16,7 @@ export const Default = () => (
         some-other-org (with <code>className</code> for styling)
       </h1>
       <Identicon
-        className="flex h-[34px] w-[34px] items-center justify-center rounded bg-green-900 text-green-500"
+        className="bg-green-900 text-green-500 flex h-[34px] w-[34px] items-center justify-center rounded"
         name="some-other-org"
       />
     </div>

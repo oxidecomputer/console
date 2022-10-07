@@ -90,13 +90,13 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextInputHint = ({ id, children, className }: HintProps) => (
-  <div id={id} className={cn('mt-1 text-sans-sm text-secondary', className)}>
+  <div id={id} className={cn('mt-1 text-sans-sm text-tertiary', className)}>
     {children}
   </div>
 )
 
 export const TextInputError = ({ children }: ChildrenProp) => (
   <div className="ml-px">
-    {children && <Alert className="py-2 text-mono-sm text-destructive">{children}</Alert>}
+    {children && <Alert className="py-2 text-sans-md text-destructive">{children}</Alert>}
   </div>
 )

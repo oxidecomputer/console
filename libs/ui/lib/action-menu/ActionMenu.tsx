@@ -100,13 +100,13 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <div
           className={cn(
-            'shadow-black/25 flex h-14 w-full overflow-y-auto rounded-lg border shadow-2xl bg-raise border-secondary'
+            'shadow-black/25 rounded-lg flex h-14 w-full overflow-y-auto border shadow-2xl bg-raise border-secondary'
           )}
         >
           <input
             ref={inputRef}
             className={cn(
-              'mousetrap w-full bg-transparent px-4 caret-gray-100 text-sans-xl focus:outline-none',
+              'mousetrap caret-gray-100 w-full bg-transparent px-4 text-sans-xl focus:outline-none',
               props.inputClassName
             )}
             value={input}
@@ -139,7 +139,7 @@ export function ActionMenu(props: ActionMenuProps) {
         </div>
 
         {items.length > 0 && (
-          <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg">
+          <div className="rounded-lg relative mt-5 transform-gpu overflow-hidden">
             <div
               className="overflow-y-auto"
               ref={divRef}
@@ -208,7 +208,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-white/[.15] py-1 px-2 text-mono-xs text-default"
+          className="border-white/[.15] mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>

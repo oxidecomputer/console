@@ -51,7 +51,7 @@ export function SSHKeysPage() {
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button size="xs" variant="default" onClick={() => setCreateModalOpen(true)}>
+        <Button size="sm" variant="default" onClick={() => setCreateModalOpen(true)}>
           Add SSH key
         </Button>
         <CreateSSHKeySideModalForm

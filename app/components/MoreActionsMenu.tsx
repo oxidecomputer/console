@@ -13,7 +13,7 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
     <Menu>
       <MenuButton
         aria-label={label}
-        className="flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover"
+        className="flex h-8 w-8 items-center justify-center rounded border border-default hover:bg-hover"
       >
         <More12Icon className="text-tertiary" />
       </MenuButton>

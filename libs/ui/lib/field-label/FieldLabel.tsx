@@ -21,12 +21,12 @@ export const FieldLabel = ({
   const Component = as || 'label'
   return (
     <div className="flex h-4 items-center space-x-2">
-      <Component id={id} className="flex items-center text-sans-sm" htmlFor={htmlFor}>
+      <Component id={id} className="flex items-center text-sans-md" htmlFor={htmlFor}>
         {children}
         {optional && (
           // Announcing this optional text is unnecessary as the required attribute on the
           // form will be used
-          <span className="pl-1 text-secondary" aria-hidden="true">
+          <span className="pl-1 text-tertiary" aria-hidden="true">
             (Optional)
           </span>
         )}

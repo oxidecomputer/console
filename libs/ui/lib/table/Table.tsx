@@ -20,7 +20,7 @@ Table.HeaderRow = (props: TableHeaderRowProps) => <Table.Row {...props} />
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('text-left text-mono-sm text-secondary', className)}>
+  <thead className={cn('text-left text-mono-sm text-tertiary', className)}>
     {children}
   </thead>
 )

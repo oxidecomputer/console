@@ -7,7 +7,7 @@ import { classed } from '@oxide/util'
 
 import { PageActionsTarget } from 'app/components/PageActions'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[13.75rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
 export const ContentPane = () => (
   <div className="flex flex-col overflow-auto">

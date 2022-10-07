@@ -84,7 +84,13 @@ export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
   name?: string
 }
 export function Tab({ className, ...props }: TabProps) {
-  return <RTab as="button" className={cn('!no-underline', className)} {...props} />
+  return (
+    <RTab as="button" className={cn('group !no-underline', className)} {...props}>
+      <div className="rounded bg-transparent px-[6px] py-[4px] group-hover:bg-secondary">
+        {props.children}
+      </div>
+    </RTab>
+  )
 }
 
 export interface TabPanelProps extends RTabPanelProps {

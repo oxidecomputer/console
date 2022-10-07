@@ -4,13 +4,13 @@ import { Checkmark12Icon } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 const Check = () => (
-  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-2.5 w-3 fill-current text-accent" />
+  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 fill-current text-accent" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
 
 const inputStyle = `
-  appearance-none border border-default bg-default h-4 w-4 rounded absolute left-0 outline-none
+  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
   focus:ring-2 focus:ring-accent-secondary
   hover:bg-secondary hover:cursor-pointer

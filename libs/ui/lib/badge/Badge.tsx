@@ -25,9 +25,10 @@ export const badgeColors: Record<BadgeVariant, Partial<Record<BadgeColor, string
     neutral: 'bg-secondary text-secondary',
   },
   ghost: {
-    default: 'ring-1 ring-inset ring-accent-secondary text-accent',
-    destructive: 'ring-1 ring-inset ring-destructive-secondary text-destructive',
-    notice: 'ring-1 ring-inset ring-notice-secondary text-notice',
+    default: 'ring-1 ring-inset bg-accent-secondary ring-accent-tertiary text-accent',
+    destructive:
+      'ring-1 ring-inset bg-destructive-secondary ring-destructive-tertiary text-destructive',
+    notice: 'ring-1 ring-inset bg-notice-secondary ring-notice-tertiary text-notice',
   },
 }
 
@@ -35,7 +36,7 @@ export const Badge = ({
   className,
   children,
   color = 'default',
-  variant = 'default',
+  variant = 'secondary',
 }: BadgeProps) => {
   invariant(
     badgeColors[variant][color],
@@ -46,7 +47,7 @@ export const Badge = ({
       className={cn(
         'ox-badge',
         `variant-${variant}`,
-        'inline-flex h-4 items-center whitespace-nowrap rounded py-[1px] px-[3px] uppercase text-mono-sm',
+        'inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
         badgeColors[variant][color],
         className
       )}

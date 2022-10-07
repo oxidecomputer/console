@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { Button, buttonStyle } from '../button/Button'
 
-const buttonStyleProps = { variant: 'ghost', size: 'xs', color: 'secondary' } as const
+const buttonStyleProps = { variant: 'ghost', size: 'sm', color: 'secondary' } as const
 
 type Props = {
   icon?: ReactElement
@@ -39,7 +39,7 @@ export function EmptyMessage(props: Props) {
         </div>
       )}
       <h3 className="text-sans-semi-lg">{props.title}</h3>
-      {props.body && <p className="mt-1 text-sans-sm text-secondary">{props.body}</p>}
+      {props.body && <p className="mt-1 text-sans-md text-secondary">{props.body}</p>}
       {button}
     </div>
   )
