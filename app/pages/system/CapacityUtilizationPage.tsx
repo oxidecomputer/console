@@ -41,7 +41,7 @@ function SystemMetric({
     'systemMetricsList',
     { id: siloId, resourceName, startTime, endTime },
     // avoid graphs flashing blank while loading when you change the time
-    { keepPreviousData: true }
+    { keepPreviousData: true, refetchInterval: 5000 }
   )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
