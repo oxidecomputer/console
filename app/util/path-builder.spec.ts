@@ -49,6 +49,7 @@ test('path builder', () => {
         "systemSettings": "/sys/settings",
         "systemUpdate": "/sys/update",
         "systemUtilization": "/sys/utilization",
+        "utilization": "/utilization",
         "vpc": "/orgs/a/projects/b/vpcs/d",
         "vpcEdit": "/orgs/a/projects/b/vpcs/d/edit",
         "vpcNew": "/orgs/a/projects/b/vpcs-new",
