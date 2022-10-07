@@ -14,6 +14,9 @@ GEN_DIR="$PWD/libs/api/__generated__"
 npm run --silent --prefix ../oxide.ts gen-from $OMICRON_SHA $GEN_DIR
 yarn prettier --write --loglevel error "$GEN_DIR"
 
+# hack until we start pulling this from npm. we don't want this file
+rm "$GEN_DIR/type-test.ts"
+
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
 $OMICRON_SHA

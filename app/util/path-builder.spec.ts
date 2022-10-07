@@ -38,6 +38,7 @@ test('path builder', () => {
         "silo": "/sys/silos/s",
         "siloNew": "/sys/silos-new",
         "silos": "/sys/silos",
+        "snapshotNew": "/orgs/a/projects/b/snapshots-new",
         "snapshots": "/orgs/a/projects/b/snapshots",
         "sshKeys": "/settings/ssh-keys",
         "system": "/sys",

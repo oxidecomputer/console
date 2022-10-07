@@ -207,6 +207,12 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'Snapshots' }}
             />
             <Route
+              path="snapshots-new"
+              element={<SnapshotsPage modal="createSnapshot" />}
+              loader={SnapshotsPage.loader}
+              handle={{ crumb: 'New snapshot' }}
+            />
+            <Route
               path="images"
               element={<ImagesPage />}
               loader={ImagesPage.loader}
