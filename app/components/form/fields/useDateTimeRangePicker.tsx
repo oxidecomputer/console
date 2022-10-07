@@ -46,11 +46,15 @@ const dateRangeSchema = Yup.object({
 //   - no onChange, no way to control any inputs beyond initial preset
 //   - initial preset can't be "custom"
 
+type Args = {
+  initialPreset: RangeKey
+}
+
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
  * a JSX element to render.
  */
-export function useDateTimeRangePicker(initialPreset: RangeKey) {
+export function useDateTimeRangePicker({ initialPreset }: Args) {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 

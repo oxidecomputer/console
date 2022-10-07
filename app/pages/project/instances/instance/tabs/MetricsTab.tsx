@@ -70,7 +70,9 @@ function DiskMetric({
 // which means we can easily set the default selected disk to the first one
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastDay',
+  })
 
   invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
   const [diskName, setDiskName] = useState<string>(disks[0].name)

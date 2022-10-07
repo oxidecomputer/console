@@ -54,6 +54,20 @@ function SystemMetric({
     value: valueTransform(datum.datum as number),
   }))
 
+  // add fake points for the beginning and end of the time range (lol)
+  if (data.length > 0) {
+    const firstPoint = data[0]
+    const lastPoint = data[data.length - 1]
+
+    if (startTime.getTime() < firstPoint.timestamp) {
+      data.unshift({ timestamp: startTime.getTime(), value: firstPoint.value })
+    }
+
+    if (endTime.getTime() > lastPoint.timestamp) {
+      data.push({ timestamp: endTime.getTime(), value: lastPoint.value })
+    }
+  }
+
   // TODO: consider adding a fake data point for the end of the requested time range
   // so it's filled out
 
@@ -87,7 +101,9 @@ export function CapacityUtilizationPage() {
   const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastHour')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastHour',
+  })
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
