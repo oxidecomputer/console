@@ -40,8 +40,12 @@ function SystemMetric({
   const { data: metrics, isLoading } = useApiQuery(
     'systemMetricsList',
     { id: siloId, resourceName, startTime, endTime },
-    // avoid graphs flashing blank while loading when you change the time
-    { keepPreviousData: true, refetchInterval: 5000 }
+    {
+      // TODO: this is actually kind of useless unless the time interval slides forward as time passes
+      refetchInterval: 5000,
+      // avoid graphs flashing blank while loading when you change the time
+      keepPreviousData: true,
+    }
   )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
