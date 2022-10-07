@@ -72,9 +72,11 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
 
   useInterval(
     () => {
-      const now = new Date()
-      setStartTime(computeStart[initialPreset](now))
-      setEndTime(now)
+      if (presetRef.current !== 'custom') {
+        const now = new Date()
+        setStartTime(computeStart[presetRef.current](now))
+        setEndTime(now)
+      }
     },
     slideInterval && presetRef.current !== 'custom' ? slideInterval : null
   )
