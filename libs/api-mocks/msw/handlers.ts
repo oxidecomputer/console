@@ -1,7 +1,6 @@
 import { compose, context, rest } from 'msw'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
-import { ZVal } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
@@ -10,7 +9,6 @@ import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
 import type { NotFound } from './db'
-import { notFoundErr } from './db'
 import { lookupSnapshot } from './db'
 import { lookupSilo } from './db'
 import {
@@ -704,11 +702,11 @@ export const handlers = [
   rest.get<never, PP.SystemMetric, Json<Api.MeasurementResultsPage> | GetErr>(
     '/system/metrics/:resourceName',
     (req, res) => {
-      const result = ZVal.ResourceName.safeParse(req.params.resourceName)
-      if (!result.success) return res(notFoundErr)
-      const resourceName = result.data
+      // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
+      // if (!result.success) return res(notFoundErr)
+      // const resourceName = result.data
 
-      const cap = resourceName === 'cpus_provisioned' ? 3000 : 4000000000000
+      const cap = req.params.resourceName === 'cpus_provisioned' ? 3000 : 4000000000000
 
       // note we're ignoring the required id query param. since the data is fake
       // it wouldn't matter, though we should probably 400 if it's missing
