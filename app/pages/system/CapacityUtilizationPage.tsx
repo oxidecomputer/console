@@ -103,6 +103,7 @@ export function CapacityUtilizationPage() {
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
     initialPreset: 'lastHour',
+    slideInterval: 5000,
   })
 
   const siloItems = useMemo(() => {

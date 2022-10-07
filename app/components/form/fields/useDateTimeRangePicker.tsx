@@ -1,8 +1,9 @@
 import * as Yup from 'yup'
 import { format, subDays, subHours } from 'date-fns'
 import { Form, Formik } from 'formik'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
+import { useInterval } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 
 import { ListboxField } from './ListboxField'
@@ -48,18 +49,35 @@ const dateRangeSchema = Yup.object({
 
 type Args = {
   initialPreset: RangeKey
+  /**
+   * if set and range is a relative preset, update the range to have `endTime`
+   * of now every X ms
+   */
+  slideInterval?: number
 }
 
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
  * a JSX element to render.
  */
-export function useDateTimeRangePicker({ initialPreset }: Args) {
+export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 
   const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
   const [endTime, setEndTime] = useState(now)
+
+  // only exists to make current preset value available to window slider
+  const presetRef = useRef<RangeKeyAll>(initialPreset)
+
+  useInterval(
+    () => {
+      const now = new Date()
+      setStartTime(computeStart[initialPreset](now))
+      setEndTime(now)
+    },
+    slideInterval && presetRef.current !== 'custom' ? slideInterval : null
+  )
 
   // We're using Formik to manage the state of the inputs, but this is not
   // strictly necessary. It's convenient while we're using `TextField` with
@@ -106,16 +124,21 @@ export function useDateTimeRangePicker({ initialPreset }: Args) {
               // when we select a preset, set the input values to the range
               // for that preset and submit the form to update the charts
               onChange={(item) => {
-                if (item && item.value !== 'custom') {
-                  const now = new Date()
-                  const newStartTime = computeStart[item.value as RangeKey](now)
-                  setRangeValues(newStartTime, now)
-                  // goofy, but I like the idea of going through the submit
-                  // pathway instead of duplicating the setStates
-                  submitForm()
-                  // TODO: if input is invalid while on custom, e.g.,
-                  // because end is before start, changing to a preset does
-                  // not clear the error. changing a second time does
+                if (item) {
+                  // only done to make the value available to the range window slider interval
+                  presetRef.current = item.value as RangeKeyAll
+
+                  if (item.value !== 'custom') {
+                    const now = new Date()
+                    const newStartTime = computeStart[item.value as RangeKey](now)
+                    setRangeValues(newStartTime, now)
+                    // goofy, but I like the idea of going through the submit
+                    // pathway instead of duplicating the setStates
+                    submitForm()
+                    // TODO: if input is invalid while on custom, e.g.,
+                    // because end is before start, changing to a preset does
+                    // not clear the error. changing a second time does
+                  }
                 }
               }}
               required
