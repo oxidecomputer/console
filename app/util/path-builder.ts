@@ -14,7 +14,6 @@ export const pb = {
   projectEdit: (params: PP.Project) => `${pb.project(params)}/edit`,
 
   access: (params: PP.Project) => `${pb.project(params)}/access`,
-  snapshots: (params: PP.Project) => `${pb.project(params)}/snapshots`,
   images: (params: PP.Project) => `${pb.project(params)}/images`,
 
   instances: (params: PP.Project) => `${pb.project(params)}/instances`,
@@ -24,11 +23,16 @@ export const pb = {
 
   diskNew: (params: PP.Project) => `${pb.project(params)}/disks-new`,
   disks: (params: PP.Project) => `${pb.project(params)}/disks`,
-  vpcNew: (params: PP.Project) => `${pb.project(params)}/vpcs-new`,
 
+  snapshotNew: (params: PP.Project) => `${pb.project(params)}/snapshots-new`,
+  snapshots: (params: PP.Project) => `${pb.project(params)}/snapshots`,
+
+  vpcNew: (params: PP.Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: PP.Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
   vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
+
+  utilization: () => '/utilization', // silo metrics
 
   system: () => '/sys',
   systemIssues: () => '/sys/issues',

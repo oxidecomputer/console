@@ -1,4 +1,4 @@
-import { isValid, parseISO } from 'date-fns'
+import { isValid, parseISO, subHours } from 'date-fns'
 import type { ResponseTransformer } from 'msw'
 import { compose, context } from 'msw'
 
@@ -62,7 +62,7 @@ export const clone = <T extends object>(obj: T): T =>
     ? structuredClone(obj)
     : JSON.parse(JSON.stringify(obj))
 
-export function getDateParam(params: URLSearchParams, key: string): Date | null {
+function getDateParam(params: URLSearchParams, key: string): Date | null {
   const value = params.get(key)
   if (!value) return null
 
@@ -70,4 +70,20 @@ export function getDateParam(params: URLSearchParams, key: string): Date | null 
   if (!isValid(date)) return null
 
   return date
+}
+
+export function getStartAndEndTime(searchParams: URLSearchParams) {
+  const queryStartTime = getDateParam(searchParams, 'start_time')
+  const queryEndTime = getDateParam(searchParams, 'end_time')
+
+  // if no start time or end time, give the last 24 hours. in this case the
+  // API will give all data available for the metric (paginated of course),
+  // so essentially we're pretending the last 24 hours just happens to be
+  // all the data. if we have an end time but no start time, same deal, pretend
+  // 24 hours before the given end time is where it starts
+  const now = new Date()
+  const endTime = queryEndTime || now
+  const startTime = queryStartTime || subHours(endTime, 24)
+
+  return { startTime, endTime }
 }

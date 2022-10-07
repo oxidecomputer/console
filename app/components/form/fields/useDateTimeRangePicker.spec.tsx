@@ -25,7 +25,9 @@ describe('useDateTimeRangePicker', () => {
     ['lastWeek', subDays(date, 7)],
     ['last30Days', subDays(date, 30)],
   ])('sets initial start and end', (preset, start) => {
-    const { result } = renderHook(() => useDateTimeRangePicker(preset as RangeKey))
+    const { result } = renderHook(() =>
+      useDateTimeRangePicker({ initialPreset: preset as RangeKey })
+    )
     expect(result.current.startTime).toEqual(start)
     expect(result.current.endTime).toEqual(date)
   })
@@ -38,7 +40,7 @@ describe('useDateTimeRangePicker', () => {
     ['Last 30 days', subDays(date, 30)],
   ])('choosing a preset sets the times', async (option, start) => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDateTimeRangePicker('lastDay')
+      useDateTimeRangePicker({ initialPreset: 'lastDay' })
     )
     render(result.current.dateTimeRangePicker)
 
@@ -53,7 +55,9 @@ describe('useDateTimeRangePicker', () => {
 
   describe('custom mode', () => {
     it('enables datetime inputs', () => {
-      const { result } = renderHook(() => useDateTimeRangePicker('last3Hours'))
+      const { result } = renderHook(() =>
+        useDateTimeRangePicker({ initialPreset: 'last3Hours' })
+      )
 
       render(result.current.dateTimeRangePicker)
 
@@ -69,7 +73,7 @@ describe('useDateTimeRangePicker', () => {
 
     it('clicking load after changing date changes range', async () => {
       const { result, waitForNextUpdate } = renderHook(() =>
-        useDateTimeRangePicker('last3Hours')
+        useDateTimeRangePicker({ initialPreset: 'last3Hours' })
       )
       expect(result.current.startTime).toEqual(subHours(date, 3))
       expect(result.current.endTime).toEqual(date)
@@ -98,7 +102,9 @@ describe('useDateTimeRangePicker', () => {
     })
 
     it('clicking reset after changing inputs resets inputs', async () => {
-      const { result } = renderHook(() => useDateTimeRangePicker('last3Hours'))
+      const { result } = renderHook(() =>
+        useDateTimeRangePicker({ initialPreset: 'last3Hours' })
+      )
 
       render(result.current.dateTimeRangePicker)
       clickByRole('button', 'Choose a time range')
@@ -125,7 +131,9 @@ describe('useDateTimeRangePicker', () => {
     })
 
     it('shows error for invalid range', async () => {
-      const { result } = renderHook(() => useDateTimeRangePicker('last3Hours'))
+      const { result } = renderHook(() =>
+        useDateTimeRangePicker({ initialPreset: 'last3Hours' })
+      )
 
       render(result.current.dateTimeRangePicker)
       clickByRole('button', 'Choose a time range')

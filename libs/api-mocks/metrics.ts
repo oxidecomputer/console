@@ -22,3 +22,18 @@ export const genCumulativeI64Data = (
     timestamp: addSeconds(startTime, i * intervalSeconds).toISOString(),
   }))
 }
+
+export const genI64Data = (
+  values: number[],
+  startTime: Date,
+  endTime: Date
+): Json<Measurement[]> => {
+  const intervalSeconds = differenceInSeconds(endTime, startTime) / values.length
+  return values.map((value, i) => ({
+    datum: {
+      datum: value,
+      type: 'i64',
+    },
+    timestamp: addSeconds(startTime, i * intervalSeconds).toISOString(),
+  }))
+}
