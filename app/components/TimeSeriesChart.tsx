@@ -107,6 +107,7 @@ export function TimeSeriesAreaChart({
           tickFormatter={shortDateTime}
           tick={textMonoMd}
           tickMargin={4}
+          padding={{ right: 20 }}
         />
         <YAxis orientation="right" tick={textMonoMd} tickSize={0} tickMargin={8} />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
