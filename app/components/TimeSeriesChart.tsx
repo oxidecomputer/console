@@ -90,6 +90,7 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
         margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
         className={className}
       >
+        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <Area
           dataKey="value"
           name={title}
@@ -100,7 +101,6 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
           isAnimationActive={false}
           activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
-        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <XAxis
           // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}

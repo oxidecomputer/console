@@ -10,7 +10,7 @@ import {
   Snapshots24Icon,
   Spinner,
 } from '@oxide/ui'
-import { GiB } from '@oxide/util'
+import { bytesToGiB } from '@oxide/util'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -138,14 +138,21 @@ export function CapacityUtilizationPage() {
         <SystemMetric
           {...commonProps}
           resourceName="physical_disk_space_provisioned"
-          title="Disk Utilization (GiB)"
-          valueTransform={(b) => Math.floor(b / GiB)}
+          title="Disk Space (GiB)"
+          valueTransform={bytesToGiB}
         />
 
         <SystemMetric
           {...commonProps}
           resourceName="cpus_provisioned"
-          title="CPU Utilization (CPU count)"
+          title="CPU (count)"
+        />
+
+        <SystemMetric
+          {...commonProps}
+          resourceName="ram_provisioned"
+          title="Memory (GiB)"
+          valueTransform={bytesToGiB}
         />
       </div>
     </>
