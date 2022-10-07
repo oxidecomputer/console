@@ -26,8 +26,8 @@
   },
   "private": true,
   "dependencies": {
-    "@oxide/design-system": "^0.0.3",
-    "@oxide/identicon": "^0.0.4",
+    "@oxide/design-system": "0.0.3",
+    "@oxide/identicon": "0.0.4",
     "@popperjs/core": "^2.9.2",
     "@reach/alert": "^0.16.0",
     "@reach/dialog": "^0.16.2",

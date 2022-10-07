@@ -2090,7 +2090,7 @@
   resolved "https://registry.yarnpkg.com/@open-draft/until/-/until-1.0.3.tgz#db9cc719191a62e7d9200f6e7bab21c5b848adca"
   integrity sha512-Aq58f5HiWdyDlFffbbSjAlv596h/cOnt2DO1w3DOC7OJ5EHs0hd/nycJfiu9RJbT6Yk6F1knnRRXNSpxoIVZ9Q==
 
-"@oxide/design-system@^0.0.3":
+"@oxide/design-system@0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@oxide/design-system/-/design-system-0.0.3.tgz#8b4ce915bda4e13267f9d0e598643e309d5aff60"
   integrity sha512-X4fjp1I6R+53X2NcQs+bbiQ18Rz98IRe7x2F5W8UPWXxxksE/FVba06wB76o0H1kxeti/yHjxIZCPcoTClkC6g==
@@ -2099,7 +2099,7 @@
     token-transformer "^0.0.26"
     ts-node "^10.9.1"
 
-"@oxide/identicon@^0.0.4":
+"@oxide/identicon@0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@oxide/identicon/-/identicon-0.0.4.tgz#8e337ccc34adab1d93a0a0e4a9f5bb28f8949b4d"
   integrity sha512-LcjQCjBo+XABZEidOpQAYYa/CUA8FaJZrb/JK1HGkPKzWAx94O+zFmnmxTWqvl7VGOEGyYObNxB43v3BCVe3iw==
