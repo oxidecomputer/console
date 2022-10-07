@@ -142,6 +142,7 @@ export function CapacityUtilizationPage() {
           valueTransform={bytesToGiB}
         />
 
+        {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
         <SystemMetric
           {...commonProps}
           resourceName="cpus_provisioned"

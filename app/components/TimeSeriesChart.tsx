@@ -32,7 +32,6 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 const LIGHT_GRAY = 'var(--base-grey-600)'
 const GRID_GRAY = 'var(--base-grey-1000)'
 const GREEN = 'var(--chart-stroke-line)'
-const DARK_GREEN = 'var(--chart-fill-item-quaternary)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
@@ -96,8 +95,8 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
           name={title}
           stroke={GREEN}
           strokeWidth={1}
-          fillOpacity={1}
-          fill={DARK_GREEN}
+          // cheating to make this a line chart
+          fillOpacity={0}
           isAnimationActive={false}
           activeDot={{ fill: LIGHT_GRAY, r: 2, strokeWidth: 0 }}
         />
