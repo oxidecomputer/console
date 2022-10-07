@@ -58,52 +58,54 @@ export function SiloUtilizationPage() {
       </PageHeader>
 
       <div className="mt-8 flex justify-between">
-        <div>
-          <div className="mb-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label id="org-id-label" className="flex text-sans-sm">
-              Choose org
-            </label>
-          </div>
-          <Listbox
-            defaultValue={DEFAULT_SILO_ID}
-            className="w-48"
-            aria-labelledby="org-id-label"
-            name="org-id"
-            items={orgItems}
-            onChange={(item) => {
-              if (item) {
-                setOrgId(item.value)
-                setProjectId(null)
-              }
-            }}
-          />
-          {/* TODO: need a button to clear the silo */}
-        </div>
-
-        {orgId !== DEFAULT_SILO_ID && (
-          <div>
+        <div className="flex">
+          <div className="mr-8">
             <div className="mb-2">
               {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label id="project-id-label" className="flex text-sans-sm">
-                Choose project
+              <label id="org-id-label" className="flex text-sans-sm">
+                Choose org
               </label>
             </div>
             <Listbox
-              key={orgId}
-              defaultValue={ALL_PROJECTS}
+              defaultValue={DEFAULT_SILO_ID}
               className="w-48"
-              aria-labelledby="project-id-label"
-              name="project-id-id"
-              items={projectItems}
+              aria-labelledby="org-id-label"
+              name="org-id"
+              items={orgItems}
               onChange={(item) => {
                 if (item) {
-                  setProjectId(item.value === ALL_PROJECTS ? null : item.value)
+                  setOrgId(item.value)
+                  setProjectId(null)
                 }
               }}
             />
+            {/* TODO: need a button to clear the silo */}
           </div>
-        )}
+
+          {orgId !== DEFAULT_SILO_ID && (
+            <div className="mr-8">
+              <div className="mb-2">
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <label id="project-id-label" className="flex text-sans-sm">
+                  Choose project
+                </label>
+              </div>
+              <Listbox
+                key={orgId}
+                defaultValue={ALL_PROJECTS}
+                className="w-48"
+                aria-labelledby="project-id-label"
+                name="project-id-id"
+                items={projectItems}
+                onChange={(item) => {
+                  if (item) {
+                    setProjectId(item.value === ALL_PROJECTS ? null : item.value)
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
 
         {dateTimeRangePicker}
       </div>
