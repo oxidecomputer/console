@@ -10,21 +10,6 @@ import {
 } from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
-// Recharts's built-in ticks behavior is useless and probably broken
-/**
- * Split the data into n evenly spaced ticks, with one at the left end and one a
- * little bit in from the right end, and the rest evenly spaced in between.
- */
-function getTicks(data: { timestamp: number }[], n: number): number[] {
-  if (data.length === 0) return []
-  if (n < 2) throw Error('n must be at least 2 because of the start and end ticks')
-  // bring the last tick in a bit from the end
-  const maxIdx = data.length > 10 ? Math.floor((data.length - 1) * 0.9) : data.length - 1
-  // if there are 4 ticks, their positions are 0/3, 1/3, 2/3, 3/3 (as fractions of maxIdx)
-  const idxs = new Array(n).fill(0).map((_, i) => Math.floor((maxIdx * i) / (n - 1)))
-  return idxs.map((i) => data[i].timestamp)
-}
-
 const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
@@ -74,12 +59,20 @@ type Props = {
   title: string
   width: number
   height: number
+  interpolation?: 'linear' | 'stepAfter'
 }
 
 // Limitations
 //   - Only one dataset — can't do overlapping area chart yet
 
-export function TimeSeriesAreaChart({ className, data, title, width, height }: Props) {
+export function TimeSeriesAreaChart({
+  className,
+  data,
+  title,
+  width,
+  height,
+  interpolation = 'linear',
+}: Props) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <AreaChart
@@ -93,6 +86,7 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
         <Area
           dataKey="value"
           name={title}
+          type={interpolation}
           stroke={GREEN}
           strokeWidth={1}
           // cheating to make this a line chart
@@ -109,7 +103,6 @@ export function TimeSeriesAreaChart({ className, data, title, width, height }: P
           // TODO: use Date directly as x-axis values
           type="number"
           name="Time"
-          ticks={getTicks(data, 5)}
           // TODO: decide timestamp format based on time range of chart
           tickFormatter={shortDateTime}
           tick={textMonoMd}

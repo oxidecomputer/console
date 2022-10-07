@@ -72,6 +72,7 @@ function SystemMetric({
         title={title}
         width={480}
         height={240}
+        interpolation="stepAfter"
       />
     </div>
   )
