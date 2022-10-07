@@ -1718,11 +1718,8 @@ export type IdSortMode = 'id_ascending'
 
 export type ResourceName =
   | 'physical_disk_space_provisioned'
-  | 'physical_disk_space_capacity'
   | 'cpus_provisioned'
-  | 'cpu_capacity'
   | 'ram_provisioned'
-  | 'ram_capacity'
 
 export interface DiskViewByIdParams {
   id: string

@@ -1441,11 +1441,8 @@ export const IdSortMode = z.enum(['id_ascending'])
 
 export const ResourceName = z.enum([
   'physical_disk_space_provisioned',
-  'physical_disk_space_capacity',
   'cpus_provisioned',
-  'cpu_capacity',
   'ram_provisioned',
-  'ram_capacity',
 ])
 
 export const DiskViewByIdParams = z.object({
