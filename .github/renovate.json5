@@ -24,5 +24,11 @@
       packageNames: ['typescript'],
       enabled: true,
     },
+    // Open PRs for any oxide packages
+    {
+      managers: ['npm'],
+      packagePatterns: ['@oxide/*'],
+      enabled: true,
+    },
   ],
 }
