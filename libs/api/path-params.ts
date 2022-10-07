@@ -14,3 +14,4 @@ export type SshKey = { sshKeyName: string }
 export type GlobalImage = { imageName: string }
 export type Silo = { siloName: string }
 export type Id = { id: string }
+export type SystemMetric = { resourceName: string }
