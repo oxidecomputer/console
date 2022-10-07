@@ -92,7 +92,7 @@ export function SnapshotsPage({ modal }: SnapshotsPageProps) {
           cell={({ value }) => <SnapshotStatusBadge status={value} />}
         />
         <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" id="Created" cell={DateCell} />
       </Table>
       <CreateSnapshotSideModalForm
         isOpen={modal === 'createSnapshot'}
