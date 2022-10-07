@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import type { Cumulativeint64, ResourceName } from '@oxide/api'
+import type { ResourceName } from '@oxide/api'
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import {
   Divider,
@@ -10,11 +10,13 @@ import {
   Snapshots24Icon,
   Spinner,
 } from '@oxide/ui'
+import { GiB } from '@oxide/util'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
 type DiskMetricParams = {
   title: string
@@ -22,7 +24,7 @@ type DiskMetricParams = {
   endTime: Date
   resourceName: ResourceName
   siloId: string
-  // TODO: specify bytes or count
+  valueTransform?: (n: number) => number
 }
 
 function SystemMetric({
@@ -31,6 +33,7 @@ function SystemMetric({
   startTime,
   endTime,
   resourceName,
+  valueTransform = (x) => x,
 }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
@@ -44,8 +47,11 @@ function SystemMetric({
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
     // all of these metrics are cumulative ints
-    value: (datum.datum as Cumulativeint64).value,
+    value: valueTransform(datum.datum as number),
   }))
+
+  // TODO: consider adding a fake data point for the end of the requested time range
+  // so it's filled out
 
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
@@ -76,11 +82,15 @@ export function CapacityUtilizationPage() {
   const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastHour')
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
-    return [{ label: 'All silos', value: FLEET_ID }, ...items]
+    return [
+      { label: 'All silos', value: FLEET_ID },
+      { label: '[default silo]', value: DEFAULT_SILO_ID },
+      ...items,
+    ]
   }, [silos])
 
   const commonProps = { startTime, endTime, siloId }
@@ -120,10 +130,12 @@ export function CapacityUtilizationPage() {
       <Divider className="mb-6" />
 
       <div className="mt-8 space-y-8">
+        {/* TODO: convert numbers to GiB PLEASE */}
         <SystemMetric
           {...commonProps}
           resourceName="physical_disk_space_provisioned"
-          title="Disk Utilization (Bytes)"
+          title="Disk Utilization (GiB)"
+          valueTransform={(b) => Math.floor(b / GiB)}
         />
 
         <SystemMetric

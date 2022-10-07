@@ -20,7 +20,8 @@ const rangePresets = [
 ]
 
 // custom doesn't have an associated range
-export type RangeKey = Exclude<typeof rangePresets[number]['value'], 'custom'>
+type RangeKeyAll = typeof rangePresets[number]['value']
+export type RangeKey = Exclude<RangeKeyAll, 'custom'>
 
 // Record ensures we have an entry for every preset
 const computeStart: Record<RangeKey, (now: Date) => Date> = {
@@ -68,7 +69,7 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
         // values are strings, unfortunately
         startTime: dateForInput(startTime),
         endTime: dateForInput(endTime),
-        preset: 'lastDay', // satisfies RangeKey (TS 4.9),
+        preset: initialPreset as RangeKeyAll, // indicates preset can include 'custom'
       }}
       onSubmit={({ startTime, endTime }) => {
         setStartTime(new Date(startTime))

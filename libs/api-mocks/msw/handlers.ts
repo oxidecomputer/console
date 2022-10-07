@@ -4,7 +4,7 @@ import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
-import { genCumulativeI64Data } from '../metrics'
+import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
@@ -715,7 +715,7 @@ export const handlers = [
 
       return res(
         json({
-          items: genCumulativeI64Data(
+          items: genI64Data(
             new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
             startTime,
             endTime
