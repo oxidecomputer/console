@@ -1439,8 +1439,8 @@ export const DiskMetricName = z.enum([
  */
 export const IdSortMode = z.enum(['id_ascending'])
 
-export const ResourceName = z.enum([
-  'physical_disk_space_provisioned',
+export const SystemMetricName = z.enum([
+  'virtual_disk_space_provisioned',
   'cpus_provisioned',
   'ram_provisioned',
 ])
@@ -2209,15 +2209,15 @@ export const IpPoolServiceRangeRemoveParams = z.object({
 })
 export type IpPoolServiceRangeRemoveParams = z.infer<typeof IpPoolServiceRangeRemoveParams>
 
-export const SystemMetricsListParams = z.object({
-  resourceName: ResourceName,
+export const SystemMetricParams = z.object({
+  metricName: SystemMetricName,
   endTime: DateType.optional(),
   id: z.string().uuid().optional(),
   limit: z.number().min(1).max(4294967295).nullable().optional(),
   pageToken: z.string().nullable().optional(),
   startTime: DateType.optional(),
 })
-export type SystemMetricsListParams = z.infer<typeof SystemMetricsListParams>
+export type SystemMetricParams = z.infer<typeof SystemMetricParams>
 
 export const SystemPolicyViewParams = z.object({})
 export type SystemPolicyViewParams = z.infer<typeof SystemPolicyViewParams>

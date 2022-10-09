@@ -1716,8 +1716,8 @@ export type DiskMetricName =
  */
 export type IdSortMode = 'id_ascending'
 
-export type ResourceName =
-  | 'physical_disk_space_provisioned'
+export type SystemMetricName =
+  | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
 
@@ -2353,8 +2353,8 @@ export interface IpPoolServiceRangeRemoveParams {
   rackId: string
 }
 
-export interface SystemMetricsListParams {
-  resourceName: ResourceName
+export interface SystemMetricParams {
+  metricName: SystemMetricName
   endTime?: Date
   id?: string
   limit?: number
@@ -2481,7 +2481,6 @@ export type ApiListMethods = Pick<
   | 'ipPoolList'
   | 'ipPoolRangeList'
   | 'ipPoolServiceRangeList'
-  | 'systemMetricsList'
   | 'sagaList'
   | 'siloList'
   | 'siloIdentityProviderList'
@@ -4037,12 +4036,12 @@ export class Api extends HttpClient {
     /**
      * Access metrics data
      */
-    systemMetricsList: (
-      { resourceName, ...query }: SystemMetricsListParams,
+    systemMetric: (
+      { metricName, ...query }: SystemMetricParams,
       params: RequestParams = {}
     ) =>
       this.request<MeasurementResultsPage>({
-        path: `/system/metrics/${resourceName}`,
+        path: `/system/metrics/${metricName}`,
         method: 'GET',
         query,
         ...params,

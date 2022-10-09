@@ -73,21 +73,17 @@ export function CapacityUtilizationPage() {
         {/* TODO: convert numbers to GiB PLEASE */}
         <SystemMetric
           {...commonProps}
-          resourceName="physical_disk_space_provisioned"
+          metricName="virtual_disk_space_provisioned"
           title="Disk Space (GiB)"
           valueTransform={bytesToGiB}
         />
 
         {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
-        <SystemMetric
-          {...commonProps}
-          resourceName="cpus_provisioned"
-          title="CPU (count)"
-        />
+        <SystemMetric {...commonProps} metricName="cpus_provisioned" title="CPU (count)" />
 
         <SystemMetric
           {...commonProps}
-          resourceName="ram_provisioned"
+          metricName="ram_provisioned"
           title="Memory (GiB)"
           valueTransform={bytesToGiB}
         />

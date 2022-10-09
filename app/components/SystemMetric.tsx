@@ -1,4 +1,4 @@
-import type { ResourceName } from '@oxide/api'
+import type { SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Spinner } from '@oxide/ui'
 
@@ -8,7 +8,7 @@ type SystemMetricProps = {
   title: string
   startTime: Date
   endTime: Date
-  resourceName: ResourceName
+  metricName: SystemMetricName
   /** Resource to filter data by. Can be fleet, silo, org, project. */
   filterId: string
   valueTransform?: (n: number) => number
@@ -19,14 +19,14 @@ export function SystemMetric({
   filterId,
   startTime,
   endTime,
-  resourceName,
+  metricName,
   valueTransform = (x) => x,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
-    'systemMetricsList',
-    { id: filterId, resourceName, startTime, endTime },
+    'systemMetric',
+    { id: filterId, metricName, startTime, endTime },
     {
       // TODO: this is actually kind of useless unless the time interval slides forward as time passes
       refetchInterval: 5000,
