@@ -1,5 +1,7 @@
 import { compose, context, rest } from 'msw'
+import type { ZodSchema } from 'zod'
 
+import * as schema from '@oxide/api/validate'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { pick, sortBy } from '@oxide/util'
 
@@ -66,6 +68,14 @@ const badRequest = (msg: string) =>
 type GetErr = NotFound | Unavailable
 type PostErr = AlreadyExists | NotFound
 
+const validate = <S extends ZodSchema, D extends Json<unknown>>(schema: S, data: D) => {
+  const result = schema.safeParse(data)
+  if (result.success) {
+    return { data: result.data as D }
+  }
+  return { error: badRequest(result.error.issues[0].message) }
+}
+
 export const handlers = [
   rest.get('/session/me', (req, res) => res(json(sessionMe))),
 
@@ -83,20 +93,13 @@ export const handlers = [
   rest.post<Json<Api.SshKeyCreate>, never, Json<Api.SshKey> | PostErr>(
     '/session/me/sshkeys',
     async (req, res) => {
-      const body = await req.json()
+      const { data: body, error } = validate(schema.SshKeyCreate, await req.json())
+      if (error) return res(error)
+
       const alreadyExists = db.sshKeys.some(
         (key) => key.name === body.name && key.silo_user_id === sessionMe.id
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
-
-      // TODO: validate public_key
-      if (!body.public_key) {
-        return res(badRequest('expected public key'))
-      }
 
       const newSshKey: Json<Api.SshKey> = {
         id: genId('ssh-key'),
@@ -112,7 +115,13 @@ export const handlers = [
   rest.delete<never, PP.SshKey, GetErr>(
     '/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
-      const [sshKey, err] = lookupSshKey(req.params)
+      const { data: params, error: paramsErr } = validate(
+        schema.SessionSshkeyDeleteParams,
+        req.params
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [sshKey, err] = lookupSshKey(params)
       if (err) return res(err)
       db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
       return res(ctx.status(204))
@@ -136,13 +145,11 @@ export const handlers = [
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
     '/organizations',
     async (req, res) => {
-      const body = await req.json()
+      const { data: body, error } = validate(schema.OrganizationCreate, await req.json())
+      if (error) return res(error)
+
       const alreadyExists = db.orgs.some((o) => o.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newOrg: Json<Api.Organization> = {
         id: genId('org'),
@@ -161,7 +168,13 @@ export const handlers = [
         return res(unavailableErr)
       }
 
-      const [org, err] = lookupOrg(req.params)
+      const { data: params, error: paramsErr } = validate(
+        schema.OrganizationViewParams,
+        req.params
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [org, err] = lookupOrg(params)
       if (err) return res(err)
 
       return res(json(org))
@@ -171,16 +184,19 @@ export const handlers = [
   rest.put<Json<Api.OrganizationUpdate>, PP.Org, Json<Api.Organization> | PostErr>(
     '/organizations/:orgName',
     async (req, res) => {
-      const [org, err] = lookupOrg(req.params)
+      const { data: params, error: paramsErr } = validate(
+        schema.OrganizationUpdateParams,
+        req.params
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [org, err] = lookupOrg(params)
       if (err) return res(err)
 
-      const body = await req.json()
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
-      org.name = body.name
-      org.description = body.description || ''
+      const { data: body, error } = validate(schema.OrganizationUpdate, await req.json())
+      if (error) return res(error)
 
+      Object.assign(org, body)
       return res(json(org))
     }
   ),

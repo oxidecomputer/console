@@ -17,6 +17,7 @@
     "outDir": "dist",
     "paths": {
       "app/*": ["app/*"],
+      "@oxide/api/validate": ["libs/api/__generated__/validate.ts"],
       "@oxide/api": ["libs/api/index.ts"],
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
       "@oxide/ui": ["libs/ui/index.ts"],
