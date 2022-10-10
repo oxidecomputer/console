@@ -112,7 +112,14 @@ export function useUserRows<Role extends string>(
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
   const { data: users } = useApiQuery('userList', {})
-  const { data: groups } = useApiQuery('userGroupList', {})
+  const { data: groups } = {
+    data: {
+      items: [
+        { id: 'user-group-1', displayName: 'web-devs' },
+        { id: 'user-group-2', displayName: 'kernel-devs' },
+      ],
+    },
+  } // useApiQuery('userGroupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
