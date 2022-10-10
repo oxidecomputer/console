@@ -375,6 +375,23 @@ export const GlobalImageResultsPage = z.object({
   nextPage: z.string().nullable().optional(),
 })
 
+/**
+ * Client view of a {@link Group}
+ */
+export const Group = z.object({
+  displayName: z.string(),
+  id: z.string().uuid(),
+  siloId: z.string().uuid(),
+})
+
+/**
+ * A single page of results
+ */
+export const GroupResultsPage = z.object({
+  items: Group.array(),
+  nextPage: z.string().nullable().optional(),
+})
+
 export const IdentityProviderType = z.enum(['saml'])
 
 /**
@@ -1408,6 +1425,13 @@ export const VpcUpdate = z.object({
 })
 
 /**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const IdSortMode = z.enum(['id_ascending'])
+
+/**
  * Supported set of sort modes for scanning by name or id
  */
 export const NameOrIdSortMode = z.enum([
@@ -1431,13 +1455,6 @@ export const DiskMetricName = z.enum([
   'write',
   'write_bytes',
 ])
-
-/**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export const IdSortMode = z.enum(['id_ascending'])
 
 export const SystemMetricName = z.enum([
   'virtual_disk_space_provisioned',
@@ -1510,6 +1527,13 @@ export type DeviceAuthConfirmParams = z.infer<typeof DeviceAuthConfirmParams>
 
 export const DeviceAccessTokenParams = z.object({})
 export type DeviceAccessTokenParams = z.infer<typeof DeviceAccessTokenParams>
+
+export const GroupListParams = z.object({
+  limit: z.number().min(1).max(4294967295).nullable().optional(),
+  pageToken: z.string().nullable().optional(),
+  sortBy: IdSortMode.optional(),
+})
+export type GroupListParams = z.infer<typeof GroupListParams>
 
 export const LoginSpoofParams = z.object({})
 export type LoginSpoofParams = z.infer<typeof LoginSpoofParams>
