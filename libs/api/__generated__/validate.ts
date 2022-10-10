@@ -1191,7 +1191,11 @@ export const TimeseriesSchemaResultsPage = z.object({
 /**
  * Client view of a {@link User}
  */
-export const User = z.object({ displayName: z.string(), id: z.string().uuid() })
+export const User = z.object({
+  displayName: z.string(),
+  id: z.string().uuid(),
+  siloId: z.string().uuid(),
+})
 
 /**
  * Client view of a {@link UserBuiltin}

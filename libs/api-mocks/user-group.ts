@@ -12,7 +12,7 @@ export const userGroup1: Json<Group> = {
 export const userGroup2: Json<Group> = {
   id: 'user-group-2',
   silo_id: defaultSilo.id,
-  display_name: 'kernal-devs',
+  display_name: 'kernel-devs',
 }
 
 export const userGroups = [userGroup1, userGroup2]

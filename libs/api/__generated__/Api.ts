@@ -1401,6 +1401,8 @@ export type User = {
   /** Human-readable name that can identify the user */
   displayName: string
   id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
 }
 
 /**
