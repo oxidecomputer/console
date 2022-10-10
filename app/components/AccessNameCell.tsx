@@ -12,8 +12,12 @@ export const AccessNameCell = <RowData extends { name: string; type: 'user' | 'g
   const identityType = info.row.original.type
   return (
     <>
-      <span className="mr-2">{name}</span>
-      {identityType === 'group' ? <Badge color="neutral">Group</Badge> : null}
+      <span>{name}</span>
+      {identityType === 'group' ? (
+        <Badge color="neutral" className="ml-2">
+          Group
+        </Badge>
+      ) : null}
     </>
   )
 }
