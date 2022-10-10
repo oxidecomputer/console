@@ -11,6 +11,7 @@ export * from './session'
 export * from './snapshot'
 export * from './sshKeys'
 export * from './user'
+export * from './user-group'
 export * from './vpc'
 
 export { handlers } from './msw/handlers'

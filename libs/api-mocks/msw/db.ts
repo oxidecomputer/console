@@ -153,6 +153,7 @@ export function lookupSshKey(params: PP.SshKey): Result<Json<Api.SshKey>> {
 const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
+  userGroups: [...mock.userGroups],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],

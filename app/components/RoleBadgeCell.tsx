@@ -12,8 +12,8 @@ type Role = SiloRole | OrganizationRole | ProjectRole
  * because it is the "stronger" role, i.e., it strictly includes the perms on
  * viewer. So collab is highlighted as the "effective" role.
  */
-export const RoleBadgeCell = <TData extends { effectiveRole: Role }>(
-  info: CellContext<TData, Role>
+export const RoleBadgeCell = <RowData extends { effectiveRole: Role }>(
+  info: CellContext<RowData, Role>
 ) => {
   const cellRole = info.getValue()
   if (!cellRole) return null

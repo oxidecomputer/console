@@ -11,7 +11,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { OrganizationRole, ProjectRole, SiloRole } from '@oxide/api'
+import type { IdentityType, OrganizationRole, ProjectRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -25,6 +25,7 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
@@ -57,6 +58,7 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 type UserRow = {
   id: string
+  identityType: IdentityType
   name: string
   siloRole: SiloRole | undefined
   orgRole: OrganizationRole | undefined
@@ -93,9 +95,12 @@ export function ProjectAccessPage() {
 
         const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
 
+        const { name, identityType } = userAssignments[0]
+
         const row: UserRow = {
           id: userId,
-          name: userAssignments[0].name,
+          identityType,
+          name,
           siloRole,
           orgRole,
           projectRole,
@@ -121,7 +126,7 @@ export function ProjectAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('id', { header: 'ID' }),
-      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,

@@ -401,6 +401,27 @@ export type GlobalImageResultsPage = {
   nextPage?: string | null
 }
 
+/**
+ * Client view of a {@link Group}
+ */
+export type Group = {
+  /** Human-readable name that can identify the group */
+  displayName: string
+  id: string
+  /** Uuid of the silo to which this group belongs */
+  siloId: string
+}
+
+/**
+ * A single page of results
+ */
+export type GroupResultsPage = {
+  /** list of items on this page of results */
+  items: Group[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
 export type IdentityProviderType = 'saml'
 
 /**
@@ -1380,6 +1401,8 @@ export type User = {
   /** Human-readable name that can identify the user */
   displayName: string
   id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
 }
 
 /**
@@ -1684,6 +1707,13 @@ export type VpcUpdate = {
 }
 
 /**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
+
+/**
  * Supported set of sort modes for scanning by name or id
  */
 export type NameOrIdSortMode =
@@ -1708,13 +1738,6 @@ export type DiskMetricName =
   | 'read_bytes'
   | 'write'
   | 'write_bytes'
-
-/**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export type IdSortMode = 'id_ascending'
 
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
@@ -1770,6 +1793,12 @@ export interface DeviceAuthRequestParams {}
 export interface DeviceAuthConfirmParams {}
 
 export interface DeviceAccessTokenParams {}
+
+export interface GroupListParams {
+  limit?: number
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
 
 export interface LoginSpoofParams {}
 
@@ -2459,6 +2488,7 @@ export type ApiViewByIdMethods = Pick<
 
 export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
+  | 'groupList'
   | 'organizationList'
   | 'projectList'
   | 'diskList'
@@ -2641,6 +2671,17 @@ export class Api extends HttpClient {
       this.request<void>({
         path: `/device/token`,
         method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * List groups
+     */
+    groupList: (query: GroupListParams, params: RequestParams = {}) =>
+      this.request<GroupResultsPage>({
+        path: `/groups`,
+        method: 'GET',
+        query,
         ...params,
       }),
 

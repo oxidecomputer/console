@@ -11,7 +11,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { OrganizationRole, SiloRole } from '@oxide/api'
+import type { IdentityType, OrganizationRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -25,6 +25,7 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
 import { requireOrgParams, useRequiredParams } from 'app/hooks'
@@ -52,6 +53,7 @@ OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 type UserRow = {
   id: string
+  identityType: IdentityType
   name: string
   siloRole: SiloRole | undefined
   orgRole: OrganizationRole | undefined
@@ -80,9 +82,12 @@ export function OrgAccessPage() {
 
         const roles = [siloRole, orgRole].filter(isTruthy)
 
+        const { name, identityType } = userAssignments[0]
+
         const row: UserRow = {
           id: userId,
-          name: userAssignments[0].name,
+          identityType,
+          name,
           siloRole,
           orgRole,
           // we know there has to be at least one
@@ -107,7 +112,7 @@ export function OrgAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('id', { header: 'ID' }),
-      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
