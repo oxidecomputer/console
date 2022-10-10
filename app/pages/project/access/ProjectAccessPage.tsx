@@ -16,7 +16,6 @@ import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
-  Badge,
   Button,
   EmptyMessage,
   PageHeader,
@@ -26,6 +25,7 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy, sortBy } from '@oxide/util'
 
+import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
@@ -124,17 +124,7 @@ export function ProjectAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('id', { header: 'ID' }),
-      colHelper.accessor('name', {
-        header: 'Name',
-        cell: (info) => (
-          <>
-            <span className="mr-2">{info.getValue()}</span>
-            {info.row.original.type === 'group' ? (
-              <Badge color="neutral">Group</Badge>
-            ) : null}
-          </>
-        ),
-      }),
+      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
