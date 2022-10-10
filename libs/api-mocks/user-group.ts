@@ -1,16 +1,17 @@
+import type { Group } from '@oxide/api'
+
 import type { Json } from './json-type'
+import { defaultSilo } from './silo'
 
-// import type { Group } from '@oxide/api'
-
-type UserGroup = { id: string; displayName: string }
-
-export const userGroup1: Json<UserGroup> = {
+export const userGroup1: Json<Group> = {
   id: 'user-group-1',
+  silo_id: defaultSilo.id,
   display_name: 'web-devs',
 }
 
-export const userGroup2: Json<UserGroup> = {
+export const userGroup2: Json<Group> = {
   id: 'user-group-2',
+  silo_id: defaultSilo.id,
   display_name: 'kernal-devs',
 }
 

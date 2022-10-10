@@ -1143,7 +1143,7 @@ export const handlers = [
     return res(json(paginated(req.url.search, db.users)))
   }),
 
-  rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/groups', (req, res) => {
+  rest.get<never, never, Json<Api.GroupResultsPage> | GetErr>('/groups', (req, res) => {
     return res(json(paginated(req.url.search, db.userGroups)))
   }),
 
