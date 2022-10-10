@@ -92,6 +92,7 @@ export function setUserRole<Role extends string>(
 
 type UserAccessRow<Role extends string> = {
   id: string
+  type: 'user' | 'group'
   name: string
   roleName: Role
   roleSource: string
@@ -111,15 +112,19 @@ export function useUserRows<Role extends string>(
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
   const { data: users } = useApiQuery('userList', {})
+  const { data: groups } = useApiQuery('userGroupList', {})
   return useMemo(() => {
-    const usersDict = Object.fromEntries((users?.items || []).map((u) => [u.id, u]))
+    const userItems = users?.items || []
+    const groupItems = groups?.items || []
+    const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
     return (roleAssignments || []).map((ra) => ({
       id: ra.identityId,
+      type: ra.identityType === 'silo_group' ? 'group' : 'user',
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
       roleName: ra.roleName,
       roleSource,
     }))
-  }, [roleAssignments, roleSource, users])
+  }, [roleAssignments, roleSource, users, groups])
 }
 
 /**
