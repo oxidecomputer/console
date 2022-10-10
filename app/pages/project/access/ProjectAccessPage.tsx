@@ -16,6 +16,7 @@ import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
+  Badge,
   Button,
   EmptyMessage,
   PageHeader,
@@ -57,6 +58,7 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 type UserRow = {
   id: string
+  type: 'user' | 'group'
   name: string
   siloRole: SiloRole | undefined
   orgRole: OrganizationRole | undefined
@@ -95,6 +97,7 @@ export function ProjectAccessPage() {
 
         const row: UserRow = {
           id: userId,
+          type: userAssignments[0].type,
           name: userAssignments[0].name,
           siloRole,
           orgRole,
@@ -121,7 +124,17 @@ export function ProjectAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('id', { header: 'ID' }),
-      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => (
+          <>
+            <span className="mr-2">{info.getValue()}</span>
+            {info.row.original.type === 'group' ? (
+              <Badge color="neutral">Group</Badge>
+            ) : null}
+          </>
+        ),
+      }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
