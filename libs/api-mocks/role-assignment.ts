@@ -9,7 +9,7 @@ import { org } from './org'
 import { project } from './project'
 import { defaultSilo } from './silo'
 import { user1, user2, user3 } from './user'
-import { group1, group2 } from './user-group'
+import { userGroup1, userGroup2 } from './user-group'
 
 // For most other resources, we can store the API types directly in the DB. But
 // in this case the API response doesn't have the resource ID on it, and we need
@@ -41,7 +41,7 @@ export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'organization',
     resource_id: org.id,
-    identity_id: group1.id,
+    identity_id: userGroup1.id,
     identity_type: 'silo_group',
     role_name: 'collaborator',
   },
@@ -55,7 +55,7 @@ export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'project',
     resource_id: project.id,
-    identity_id: group2.id,
+    identity_id: userGroup2.id,
     identity_type: 'silo_group',
     role_name: 'viewer',
   },
