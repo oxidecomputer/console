@@ -10,7 +10,7 @@ export const InstanceResourceCell = ({
 }: Cell<Pick<Instance, 'ncpus' | 'memory'>>) => {
   return (
     <span className="text-secondary">
-      {value.ncpus} vCPU {slash} {fileSize(value.memory, { base: 2 })} SSD
+      {value.ncpus} vCPU {slash} {fileSize(value.memory, { base: 2 })}
     </span>
   )
 }
