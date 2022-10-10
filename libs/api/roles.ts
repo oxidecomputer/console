@@ -92,7 +92,7 @@ export function setUserRole<Role extends string>(
 
 type UserAccessRow<Role extends string> = {
   id: string
-  type: 'user' | 'group'
+  identityType: IdentityType
   name: string
   roleName: Role
   roleSource: string
@@ -119,14 +119,14 @@ export function useUserRows<Role extends string>(
         { id: 'user-group-2', displayName: 'kernel-devs' },
       ],
     },
-  } // useApiQuery('userGroupList', {})
+  } // useApiQuery('groupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
     const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
     return (roleAssignments || []).map((ra) => ({
       id: ra.identityId,
-      type: ra.identityType === 'silo_group' ? 'group' : 'user',
+      identityType: ra.identityType,
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
       roleName: ra.roleName,
       roleSource,

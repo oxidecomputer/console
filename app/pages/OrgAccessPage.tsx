@@ -11,7 +11,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { OrganizationRole, SiloRole } from '@oxide/api'
+import type { IdentityType, OrganizationRole, SiloRole } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -53,7 +53,7 @@ OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 type UserRow = {
   id: string
-  type: 'user' | 'group'
+  identityType: IdentityType
   name: string
   siloRole: SiloRole | undefined
   orgRole: OrganizationRole | undefined
@@ -82,10 +82,12 @@ export function OrgAccessPage() {
 
         const roles = [siloRole, orgRole].filter(isTruthy)
 
+        const { name, identityType } = userAssignments[0]
+
         const row: UserRow = {
           id: userId,
-          type: userAssignments[0].type,
-          name: userAssignments[0].name,
+          identityType,
+          name,
           siloRole,
           orgRole,
           // we know there has to be at least one
