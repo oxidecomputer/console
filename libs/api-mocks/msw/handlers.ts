@@ -1,6 +1,7 @@
 import type { RestRequest } from 'msw'
 import { compose, context, rest } from 'msw'
-import type { ZodSchema, z } from 'zod'
+import type { ZodSchema } from 'zod'
+import type { z } from 'zod'
 
 import * as schema from '@oxide/api/validate'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
@@ -86,11 +87,17 @@ const validateParams = <
   schema: S,
   req: R
 ) => {
+  const rawParams = new URLSearchParams(req.url.search) as unknown as Map<string, unknown>
+  const params: [string, unknown][] = []
+
+  // Clean up params to ensure types are correct
+  for (const [name, value] of rawParams) {
+    params.push([name, isNaN(Number(value)) ? value : Number(value)])
+  }
+
   const result = schema.safeParse({
     ...req.params,
-    ...Object.fromEntries(
-      new URLSearchParams(req.url.search) as unknown as Map<string, unknown>
-    ),
+    ...Object.fromEntries(params),
   })
   if (result.success) {
     return { params: result.data as z.infer<S> }
@@ -164,7 +171,7 @@ export const handlers = [
     (req, res) => {
       const { params, paramsErr } = validateParams(schema.OrganizationListParams, req)
       if (paramsErr) return res(paramsErr)
-      res(json(paginated(params, db.orgs)))
+      return res(json(paginated(params, db.orgs)))
     }
   ),
 
