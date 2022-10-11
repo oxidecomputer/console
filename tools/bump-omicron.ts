@@ -70,4 +70,5 @@ const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldC
 
 await run(['git', 'add', '--all'])
 await run(['git', 'commit', '-m', prTitle, '-m', prBody])
+await run(['git', 'push', '-u'])
 await run(['gh', 'pr', 'create', '--title', prTitle, '--body', prBody])
