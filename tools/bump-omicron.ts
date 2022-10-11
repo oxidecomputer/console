@@ -30,8 +30,10 @@ async function run(cmd: string[]): Promise<string> {
 
 // script starts here
 
-const args = flags.parse(Deno.args)
-const dryRun = !!args['dry-run'] || !!args.d
+const { dryRun } = flags.parse(Deno.args, {
+  alias: { dryRun: ['d', 'dry-run'] },
+  boolean: ['dryRun'],
+})
 
 const newCommit = await run(['git', 'rev-parse', 'HEAD'])
 const newSha2 = await fetch(
@@ -60,15 +62,19 @@ if (!oldCommit) throw Error('Could not parse existing version file')
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 
-Deno.chdir(OMICRON_DIR)
-await run(['git', 'checkout', 'main'])
-await run(['git', 'pull'])
-await run(['git', 'checkout', '-b', `bump-console-${newCommit.slice(0, 8)}`])
-
+const branchName = `bump-console-${newCommit.slice(0, 8)}`
 const prTitle = 'Bump console to latest main'
 const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommit}...${newCommit}`
 
+// cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
+// main, delete branch
+Deno.chdir(OMICRON_DIR)
+await run(['git', 'checkout', 'main'])
+await run(['git', 'pull'])
+await run(['git', 'checkout', '-b', branchName])
 await run(['git', 'add', '--all'])
 await run(['git', 'commit', '-m', prTitle, '-m', prBody])
-await run(['git', 'push', '-u'])
+await run(['git', 'push'])
 await run(['gh', 'pr', 'create', '--title', prTitle, '--body', prBody])
+await run(['git', 'checkout', 'main'])
+await run(['git', 'branch', '-D', branchName])
