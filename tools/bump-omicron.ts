@@ -28,12 +28,6 @@ async function run(cmd: string[]): Promise<string> {
   return new TextDecoder().decode(output).trim()
 }
 
-function parseVersionFile(contents: string): Record<string, string> {
-  const lineToPair = (line: string) =>
-    line.split('=').map((s) => s.trim().replace(/["']/g, ''))
-  return Object.fromEntries(contents.trim().split('\n').map(lineToPair))
-}
-
 // script starts here
 
 const args = flags.parse(Deno.args)
@@ -61,7 +55,8 @@ const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
   throw Error(VERSION_FILE_MISSING)
 })
 
-const { COMMIT: oldCommit } = parseVersionFile(oldVersionFile)
+const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
+if (!oldCommit) throw Error('Could not parse existing version file')
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 
