@@ -13,8 +13,7 @@ import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 const OMICRON_DIR = '../omicron'
 const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 
-const GH_MISSING =
-  'GitHub CLI not found. This script needs it to create a PR. Please install it and try again.'
+const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
 const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' not found. This script assumes Omicron is cloned in a sibling directory next to Console.`
 
 /** Wrap Deno.run, get output as string */
@@ -36,12 +35,13 @@ function parseVersionFile(contents: string): Record<string, string> {
 }
 
 async function checkCmdExists(cmd: string) {
-  await Deno.run({ cmd: [cmd], stdout: 'null', stderr: 'null' })
-    .status()
-    .catch(() => {
-      console.error(GH_MISSING)
-      Deno.exit(1)
-    })
+  try {
+    await Deno.run({ cmd: [cmd], stdout: 'null', stderr: 'null' }).status()
+  } catch (e) {
+    console.error(e)
+    console.error(GH_MISSING)
+    Deno.exit(1)
+  }
 }
 
 const args = flags.parse(Deno.args)
