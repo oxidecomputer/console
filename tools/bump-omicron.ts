@@ -29,27 +29,19 @@ async function run(cmd: string[]): Promise<string> {
 }
 
 function parseVersionFile(contents: string): Record<string, string> {
+  const lines = contents.trim().split('\n')
   return Object.fromEntries(
-    contents
-      .trim()
-      .split('\n')
-      .map((line) => {
-        console.log(line)
-        const [k, v] = line.split('=')
-        return [k, v.replace(/"/g, '')]
-      })
+    lines.map((line) => line.split('=').map((s) => s.trim().replace(/["']/g, '')))
   )
 }
 
-async function cmdExists(cmd: string): Promise<boolean> {
-  try {
-    const proc = Deno.run({ cmd: [cmd], stdout: 'null', stderr: 'null' })
-    const { code } = await proc.status()
-    return code === 0
-  } catch (_e) {
-    // command not found
-    return false
-  }
+async function checkCmdExists(cmd: string) {
+  await Deno.run({ cmd: [cmd], stdout: 'null', stderr: 'null' })
+    .status()
+    .catch(() => {
+      console.error(GH_MISSING)
+      Deno.exit(1)
+    })
 }
 
 const args = flags.parse(Deno.args)
@@ -70,10 +62,7 @@ if (dryRun) {
   Deno.exit()
 }
 
-if (!(await cmdExists('gh'))) {
-  console.error(GH_MISSING)
-  Deno.exit(1)
-}
+await checkCmdExists('gh')
 
 const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
   console.error(
