@@ -34,16 +34,6 @@ function parseVersionFile(contents: string): Record<string, string> {
   return Object.fromEntries(contents.trim().split('\n').map(lineToPair))
 }
 
-async function checkCmdExists(cmd: string) {
-  try {
-    await Deno.run({ cmd: [cmd], stdout: 'null', stderr: 'null' }).status()
-  } catch (e) {
-    console.error(e)
-    console.error(GH_MISSING)
-    Deno.exit(1)
-  }
-}
-
 const args = flags.parse(Deno.args)
 const dryRun = !!args['dry-run'] || !!args.d
 
@@ -61,11 +51,12 @@ if (dryRun) {
   Deno.exit()
 }
 
-await checkCmdExists('gh')
+await run(['which', 'ghi']).catch(() => {
+  throw Error(GH_MISSING)
+})
 
 const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
-  console.error(VERSION_FILE_MISSING)
-  Deno.exit(1)
+  throw Error(VERSION_FILE_MISSING)
 })
 
 const { COMMIT: oldCommit } = parseVersionFile(oldVersionFile)
