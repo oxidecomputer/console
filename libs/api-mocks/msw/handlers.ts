@@ -90,7 +90,7 @@ const validateParams = <
   const rawParams = new URLSearchParams(req.url.search) as unknown as Map<string, unknown>
   const params: [string, unknown][] = []
 
-  // Clean up params to ensure types are correct
+  // Ensure numeric params like `limit` are parsed as numbers
   for (const [name, value] of rawParams) {
     params.push([name, isNaN(Number(value)) ? value : Number(value)])
   }
