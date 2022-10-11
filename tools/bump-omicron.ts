@@ -36,11 +36,8 @@ const { dryRun } = flags.parse(Deno.args, {
 })
 
 const newCommit = await run(['git', 'rev-parse', 'HEAD'])
-const newSha2 = await fetch(
-  `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
-)
-  .then((resp) => resp.text())
-  .then((text) => text.trim())
+const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
+const newSha2 = (await fetch(shaUrl).then((resp) => resp.text())).trim()
 
 const newVersionFile = `COMMIT="${newCommit}"\nSHA2="${newSha2}"\n`
 
