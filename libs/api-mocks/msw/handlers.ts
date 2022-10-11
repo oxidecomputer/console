@@ -71,7 +71,7 @@ type PostErr = AlreadyExists | NotFound
 const validate = <S extends ZodSchema, D extends Json<unknown>>(schema: S, data: D) => {
   const result = schema.safeParse(data)
   if (result.success) {
-    return { data: result.data as D }
+    return { data: result.data as z.infer<S> }
   }
   return { error: badRequest(result.error.issues[0].message) }
 }
