@@ -34,6 +34,8 @@ function parseVersionFile(contents: string): Record<string, string> {
   return Object.fromEntries(contents.trim().split('\n').map(lineToPair))
 }
 
+// script starts here
+
 const args = flags.parse(Deno.args)
 const dryRun = !!args['dry-run'] || !!args.d
 
@@ -51,7 +53,7 @@ if (dryRun) {
   Deno.exit()
 }
 
-await run(['which', 'ghi']).catch(() => {
+await run(['which', 'gh']).catch(() => {
   throw Error(GH_MISSING)
 })
 
