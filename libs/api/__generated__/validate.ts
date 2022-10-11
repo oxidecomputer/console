@@ -247,11 +247,11 @@ export const Disk = z.preprocess(
     description: z.string(),
     devicePath: z.string(),
     id: z.string().uuid(),
-    imageId: z.string().uuid().nullable().optional(),
+    imageId: z.string().uuid().optional(),
     name: Name,
     projectId: z.string().uuid(),
     size: ByteCount,
-    snapshotId: z.string().uuid().nullable().optional(),
+    snapshotId: z.string().uuid().optional(),
     state: DiskState,
     timeCreated: DateType,
     timeModified: DateType,
@@ -289,7 +289,7 @@ export const DiskIdentifier = z.preprocess(processResponseBody, z.object({ name:
  */
 export const DiskResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Disk.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Disk.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -323,7 +323,7 @@ export const ExternalIp = z.preprocess(
  */
 export const ExternalIpCreate = z.preprocess(
   processResponseBody,
-  z.object({ poolName: Name.nullable().optional(), type: z.enum(['ephemeral']) })
+  z.object({ poolName: Name.optional(), type: z.enum(['ephemeral']) })
 )
 
 /**
@@ -331,7 +331,7 @@ export const ExternalIpCreate = z.preprocess(
  */
 export const ExternalIpResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: ExternalIp.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: ExternalIp.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -400,14 +400,14 @@ export const GlobalImage = z.preprocess(
   z.object({
     blockSize: ByteCount,
     description: z.string(),
-    digest: Digest.nullable().optional(),
+    digest: Digest.optional(),
     distribution: z.string(),
     id: z.string().uuid(),
     name: Name,
     size: ByteCount,
     timeCreated: DateType,
     timeModified: DateType,
-    url: z.string().nullable().optional(),
+    url: z.string().optional(),
     version: z.string(),
   })
 )
@@ -443,27 +443,26 @@ export const GlobalImageCreate = z.preprocess(
  */
 export const GlobalImageResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: GlobalImage.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: GlobalImage.array(), nextPage: z.string().optional() })
 )
 
 /**
  * Client view of a {@link Group}
  */
-export const Group = z.object({
-  displayName: z.string(),
-  id: z.string().uuid(),
-  siloId: z.string().uuid(),
-})
+export const Group = z.preprocess(
+  processResponseBody,
+  z.object({ displayName: z.string(), id: z.string().uuid(), siloId: z.string().uuid() })
+)
 
 /**
  * A single page of results
  */
-export const GroupResultsPage = z.object({
-  items: Group.array(),
-  nextPage: z.string().nullable().optional(),
-})
+export const GroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Group.array(), nextPage: z.string().optional() })
+)
 
-export const IdentityProviderType = z.enum(['saml'])
+export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
 
 /**
  * Client view of an {@link IdentityProvider}
@@ -485,7 +484,7 @@ export const IdentityProvider = z.preprocess(
  */
 export const IdentityProviderResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IdentityProvider.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: IdentityProvider.array(), nextPage: z.string().optional() })
 )
 
 export const IdpMetadataSource = z.preprocess(
@@ -504,15 +503,15 @@ export const Image = z.preprocess(
   z.object({
     blockSize: ByteCount,
     description: z.string(),
-    digest: Digest.nullable().optional(),
+    digest: Digest.optional(),
     id: z.string().uuid(),
     name: Name,
     projectId: z.string().uuid(),
     size: ByteCount,
     timeCreated: DateType,
     timeModified: DateType,
-    url: z.string().nullable().optional(),
-    version: z.string().nullable().optional(),
+    url: z.string().optional(),
+    version: z.string().optional(),
   })
 )
 
@@ -534,7 +533,7 @@ export const ImageCreate = z.preprocess(
  */
 export const ImageResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Image.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Image.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -610,7 +609,7 @@ export const NetworkInterfaceCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ip: z.string().nullable().optional(),
+    ip: z.string().optional(),
     name: Name,
     subnetName: Name,
     vpcName: Name,
@@ -663,7 +662,7 @@ export const InstanceMigrate = z.preprocess(
  */
 export const InstanceResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Instance.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Instance.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -713,7 +712,7 @@ export const IpPool = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    projectId: z.string().uuid().nullable().optional(),
+    projectId: z.string().uuid().optional(),
     timeCreated: DateType,
     timeModified: DateType,
   })
@@ -766,7 +765,7 @@ export const IpPoolRange = z.preprocess(
  */
 export const IpPoolRangeResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPoolRange.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: IpPoolRange.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -774,7 +773,7 @@ export const IpPoolRangeResultsPage = z.preprocess(
  */
 export const IpPoolResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPool.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: IpPool.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -782,10 +781,7 @@ export const IpPoolResultsPage = z.preprocess(
  */
 export const IpPoolUpdate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
-  })
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -829,7 +825,7 @@ export const Measurement = z.preprocess(
  */
 export const MeasurementResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Measurement.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Measurement.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -857,7 +853,7 @@ export const NetworkInterface = z.preprocess(
  */
 export const NetworkInterfaceResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: NetworkInterface.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: NetworkInterface.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -868,8 +864,8 @@ export const NetworkInterfaceResultsPage = z.preprocess(
 export const NetworkInterfaceUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
+    description: z.string().optional(),
+    name: Name.optional(),
     primary: z.boolean().default(false).optional(),
   })
 )
@@ -908,7 +904,7 @@ export const OrganizationCreate = z.preprocess(
  */
 export const OrganizationResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Organization.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Organization.array(), nextPage: z.string().optional() })
 )
 
 export const OrganizationRole = z.preprocess(
@@ -945,10 +941,7 @@ export const OrganizationRolePolicy = z.preprocess(
  */
 export const OrganizationUpdate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
-  })
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -979,7 +972,7 @@ export const ProjectCreate = z.preprocess(
  */
 export const ProjectResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Project.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Project.array(), nextPage: z.string().optional() })
 )
 
 export const ProjectRole = z.preprocess(
@@ -1016,10 +1009,7 @@ export const ProjectRolePolicy = z.preprocess(
  */
 export const ProjectUpdate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
-  })
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -1035,7 +1025,7 @@ export const Rack = z.preprocess(
  */
 export const RackResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Rack.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Rack.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1064,7 +1054,7 @@ export const Role = z.preprocess(
  */
 export const RoleResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Role.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Role.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1142,7 +1132,7 @@ export const RouterRouteCreateParams = z.preprocess(
  */
 export const RouterRouteResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: RouterRoute.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: RouterRoute.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1151,9 +1141,9 @@ export const RouterRouteResultsPage = z.preprocess(
 export const RouterRouteUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().nullable().optional(),
+    description: z.string().optional(),
     destination: RouteDestination,
-    name: Name.nullable().optional(),
+    name: Name.optional(),
     target: RouteTarget,
   })
 )
@@ -1192,7 +1182,7 @@ export const Saga = z.preprocess(
  */
 export const SagaResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Saga.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Saga.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1206,7 +1196,7 @@ export const SamlIdentityProvider = z.preprocess(
     id: z.string().uuid(),
     idpEntityId: z.string(),
     name: Name,
-    publicCert: z.string().nullable().optional(),
+    publicCert: z.string().optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -1223,11 +1213,11 @@ export const SamlIdentityProviderCreate = z.preprocess(
   z.object({
     acsUrl: z.string(),
     description: z.string(),
-    groupAttributeName: z.string().nullable().optional(),
+    groupAttributeName: z.string().optional(),
     idpEntityId: z.string(),
     idpMetadataSource: IdpMetadataSource,
     name: Name,
-    signingKeypair: DerEncodedKeyPair.nullable().optional(),
+    signingKeypair: DerEncodedKeyPair.optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -1264,7 +1254,7 @@ export const Silo = z.preprocess(
 export const SiloCreate = z.preprocess(
   processResponseBody,
   z.object({
-    adminGroupName: z.string().nullable().optional(),
+    adminGroupName: z.string().optional(),
     description: z.string(),
     discoverable: z.boolean(),
     identityMode: SiloIdentityMode,
@@ -1277,7 +1267,7 @@ export const SiloCreate = z.preprocess(
  */
 export const SiloResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Silo.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Silo.array(), nextPage: z.string().optional() })
 )
 
 export const SiloRole = z.preprocess(
@@ -1327,7 +1317,7 @@ export const Sled = z.preprocess(
  */
 export const SledResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Sled.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Sled.array(), nextPage: z.string().optional() })
 )
 
 export const SnapshotState = z.preprocess(
@@ -1366,7 +1356,7 @@ export const SnapshotCreate = z.preprocess(
  */
 export const SnapshotResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Snapshot.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Snapshot.array(), nextPage: z.string().optional() })
 )
 
 export const SpoofLoginBody = z.preprocess(
@@ -1403,7 +1393,7 @@ export const SshKeyCreate = z.preprocess(
  */
 export const SshKeyResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SshKey.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: SshKey.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1436,17 +1426,16 @@ export const TimeseriesSchema = z.preprocess(
  */
 export const TimeseriesSchemaResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: TimeseriesSchema.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: TimeseriesSchema.array(), nextPage: z.string().optional() })
 )
 
 /**
  * Client view of a {@link User}
  */
-export const User = z.object({
-  displayName: z.string(),
-  id: z.string().uuid(),
-  siloId: z.string().uuid(),
-})
+export const User = z.preprocess(
+  processResponseBody,
+  z.object({ displayName: z.string(), id: z.string().uuid(), siloId: z.string().uuid() })
+)
 
 /**
  * Client view of a {@link UserBuiltin}
@@ -1467,7 +1456,7 @@ export const UserBuiltin = z.preprocess(
  */
 export const UserBuiltinResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: UserBuiltin.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: UserBuiltin.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1475,7 +1464,7 @@ export const UserBuiltinResultsPage = z.preprocess(
  */
 export const UserResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: User.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: User.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1504,7 +1493,7 @@ export const VpcCreate = z.preprocess(
   z.object({
     description: z.string(),
     dnsName: Name,
-    ipv6Prefix: Ipv6Net.nullable().optional(),
+    ipv6Prefix: Ipv6Net.optional(),
     name: Name,
   })
 )
@@ -1547,9 +1536,9 @@ export const VpcFirewallRuleProtocol = z.preprocess(
 export const VpcFirewallRuleFilter = z.preprocess(
   processResponseBody,
   z.object({
-    hosts: VpcFirewallRuleHostFilter.array().nullable().optional(),
-    ports: L4PortRange.array().nullable().optional(),
-    protocols: VpcFirewallRuleProtocol.array().nullable().optional(),
+    hosts: VpcFirewallRuleHostFilter.array().optional(),
+    ports: L4PortRange.array().optional(),
+    protocols: VpcFirewallRuleProtocol.array().optional(),
   })
 )
 
@@ -1631,7 +1620,7 @@ export const VpcFirewallRules = z.preprocess(
  */
 export const VpcResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Vpc.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: Vpc.array(), nextPage: z.string().optional() })
 )
 
 export const VpcRouterKind = z.preprocess(processResponseBody, z.enum(['system', 'custom']))
@@ -1665,7 +1654,7 @@ export const VpcRouterCreate = z.preprocess(
  */
 export const VpcRouterResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: VpcRouter.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: VpcRouter.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1673,10 +1662,7 @@ export const VpcRouterResultsPage = z.preprocess(
  */
 export const VpcRouterUpdate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
-  })
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -1704,7 +1690,7 @@ export const VpcSubnetCreate = z.preprocess(
   z.object({
     description: z.string(),
     ipv4Block: Ipv4Net,
-    ipv6Block: Ipv6Net.nullable().optional(),
+    ipv6Block: Ipv6Net.optional(),
     name: Name,
   })
 )
@@ -1714,7 +1700,7 @@ export const VpcSubnetCreate = z.preprocess(
  */
 export const VpcSubnetResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: VpcSubnet.array(), nextPage: z.string().nullable().optional() })
+  z.object({ items: VpcSubnet.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1722,10 +1708,7 @@ export const VpcSubnetResultsPage = z.preprocess(
  */
 export const VpcSubnetUpdate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string().nullable().optional(),
-    name: Name.nullable().optional(),
-  })
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -1734,9 +1717,9 @@ export const VpcSubnetUpdate = z.preprocess(
 export const VpcUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().nullable().optional(),
-    dnsName: Name.nullable().optional(),
-    name: Name.nullable().optional(),
+    description: z.string().optional(),
+    dnsName: Name.optional(),
+    name: Name.optional(),
   })
 )
 
@@ -1745,7 +1728,7 @@ export const VpcUpdate = z.preprocess(
  *
  * Currently, we only support scanning in ascending order.
  */
-export const IdSortMode = z.enum(['id_ascending'])
+export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
 
 /**
  * Supported set of sort modes for scanning by name or id
@@ -1767,886 +1750,1097 @@ export const DiskMetricName = z.preprocess(
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
 )
 
-export const SystemMetricName = z.enum([
-  'virtual_disk_space_provisioned',
-  'cpus_provisioned',
-  'ram_provisioned',
-])
-
-export const DiskViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type DiskViewByIdParams = z.infer<typeof DiskViewByIdParams>
-
-export const ImageViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type ImageViewByIdParams = z.infer<typeof ImageViewByIdParams>
-
-export const InstanceViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type InstanceViewByIdParams = z.infer<typeof InstanceViewByIdParams>
-
-export const InstanceNetworkInterfaceViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type InstanceNetworkInterfaceViewByIdParams = z.infer<
-  typeof InstanceNetworkInterfaceViewByIdParams
->
-
-export const OrganizationViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type OrganizationViewByIdParams = z.infer<typeof OrganizationViewByIdParams>
-
-export const ProjectViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type ProjectViewByIdParams = z.infer<typeof ProjectViewByIdParams>
-
-export const SnapshotViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type SnapshotViewByIdParams = z.infer<typeof SnapshotViewByIdParams>
-
-export const VpcRouterRouteViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type VpcRouterRouteViewByIdParams = z.infer<typeof VpcRouterRouteViewByIdParams>
-
-export const VpcRouterViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type VpcRouterViewByIdParams = z.infer<typeof VpcRouterViewByIdParams>
-
-export const VpcSubnetViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type VpcSubnetViewByIdParams = z.infer<typeof VpcSubnetViewByIdParams>
-
-export const VpcViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type VpcViewByIdParams = z.infer<typeof VpcViewByIdParams>
-
-export const DeviceAuthRequestParams = z.object({})
-export type DeviceAuthRequestParams = z.infer<typeof DeviceAuthRequestParams>
-
-export const DeviceAuthConfirmParams = z.object({})
-export type DeviceAuthConfirmParams = z.infer<typeof DeviceAuthConfirmParams>
-
-export const DeviceAccessTokenParams = z.object({})
-export type DeviceAccessTokenParams = z.infer<typeof DeviceAccessTokenParams>
-
-export const GroupListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: IdSortMode.optional(),
-})
-export type GroupListParams = z.infer<typeof GroupListParams>
-
-export const LoginSpoofParams = z.object({})
-export type LoginSpoofParams = z.infer<typeof LoginSpoofParams>
-
-export const LoginSamlBeginParams = z.object({
-  providerName: Name,
-  siloName: Name,
-})
-export type LoginSamlBeginParams = z.infer<typeof LoginSamlBeginParams>
-
-export const LoginSamlParams = z.object({
-  providerName: Name,
-  siloName: Name,
-})
-export type LoginSamlParams = z.infer<typeof LoginSamlParams>
-
-export const LogoutParams = z.object({})
-export type LogoutParams = z.infer<typeof LogoutParams>
-
-export const OrganizationListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameOrIdSortMode.optional(),
-})
-export type OrganizationListParams = z.infer<typeof OrganizationListParams>
-
-export const OrganizationCreateParams = z.object({})
-export type OrganizationCreateParams = z.infer<typeof OrganizationCreateParams>
-
-export const OrganizationViewParams = z.object({
-  orgName: Name,
-})
-export type OrganizationViewParams = z.infer<typeof OrganizationViewParams>
-
-export const OrganizationUpdateParams = z.object({
-  orgName: Name,
-})
-export type OrganizationUpdateParams = z.infer<typeof OrganizationUpdateParams>
-
-export const OrganizationDeleteParams = z.object({
-  orgName: Name,
-})
-export type OrganizationDeleteParams = z.infer<typeof OrganizationDeleteParams>
-
-export const OrganizationPolicyViewParams = z.object({
-  orgName: Name,
-})
-export type OrganizationPolicyViewParams = z.infer<typeof OrganizationPolicyViewParams>
-
-export const OrganizationPolicyUpdateParams = z.object({
-  orgName: Name,
-})
-export type OrganizationPolicyUpdateParams = z.infer<typeof OrganizationPolicyUpdateParams>
-
-export const ProjectListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameOrIdSortMode.optional(),
-  orgName: Name,
-})
-export type ProjectListParams = z.infer<typeof ProjectListParams>
-
-export const ProjectCreateParams = z.object({
-  orgName: Name,
-})
-export type ProjectCreateParams = z.infer<typeof ProjectCreateParams>
-
-export const ProjectViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ProjectViewParams = z.infer<typeof ProjectViewParams>
-
-export const ProjectUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ProjectUpdateParams = z.infer<typeof ProjectUpdateParams>
-
-export const ProjectDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ProjectDeleteParams = z.infer<typeof ProjectDeleteParams>
-
-export const DiskListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-})
-export type DiskListParams = z.infer<typeof DiskListParams>
-
-export const DiskCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type DiskCreateParams = z.infer<typeof DiskCreateParams>
-
-export const DiskViewParams = z.object({
-  diskName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type DiskViewParams = z.infer<typeof DiskViewParams>
-
-export const DiskDeleteParams = z.object({
-  diskName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type DiskDeleteParams = z.infer<typeof DiskDeleteParams>
-
-export const DiskMetricsListParams = z.object({
-  diskName: Name,
-  metricName: DiskMetricName,
-  orgName: Name,
-  projectName: Name,
-  endTime: DateType.optional(),
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  startTime: DateType.optional(),
-})
-export type DiskMetricsListParams = z.infer<typeof DiskMetricsListParams>
-
-export const ImageListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-})
-export type ImageListParams = z.infer<typeof ImageListParams>
-
-export const ImageCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ImageCreateParams = z.infer<typeof ImageCreateParams>
-
-export const ImageViewParams = z.object({
-  imageName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type ImageViewParams = z.infer<typeof ImageViewParams>
-
-export const ImageDeleteParams = z.object({
-  imageName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type ImageDeleteParams = z.infer<typeof ImageDeleteParams>
-
-export const InstanceListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceListParams = z.infer<typeof InstanceListParams>
-
-export const InstanceCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceCreateParams = z.infer<typeof InstanceCreateParams>
-
-export const InstanceViewParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceViewParams = z.infer<typeof InstanceViewParams>
-
-export const InstanceDeleteParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceDeleteParams = z.infer<typeof InstanceDeleteParams>
-
-export const InstanceDiskListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceDiskListParams = z.infer<typeof InstanceDiskListParams>
-
-export const InstanceDiskAttachParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceDiskAttachParams = z.infer<typeof InstanceDiskAttachParams>
-
-export const InstanceDiskDetachParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceDiskDetachParams = z.infer<typeof InstanceDiskDetachParams>
-
-export const InstanceExternalIpListParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceExternalIpListParams = z.infer<typeof InstanceExternalIpListParams>
-
-export const InstanceMigrateParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceMigrateParams = z.infer<typeof InstanceMigrateParams>
-
-export const InstanceNetworkInterfaceListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceNetworkInterfaceListParams = z.infer<
-  typeof InstanceNetworkInterfaceListParams
->
-
-export const InstanceNetworkInterfaceCreateParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceNetworkInterfaceCreateParams = z.infer<
-  typeof InstanceNetworkInterfaceCreateParams
->
-
-export const InstanceNetworkInterfaceViewParams = z.object({
-  instanceName: Name,
-  interfaceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceNetworkInterfaceViewParams = z.infer<
-  typeof InstanceNetworkInterfaceViewParams
->
-
-export const InstanceNetworkInterfaceUpdateParams = z.object({
-  instanceName: Name,
-  interfaceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceNetworkInterfaceUpdateParams = z.infer<
-  typeof InstanceNetworkInterfaceUpdateParams
->
-
-export const InstanceNetworkInterfaceDeleteParams = z.object({
-  instanceName: Name,
-  interfaceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceNetworkInterfaceDeleteParams = z.infer<
-  typeof InstanceNetworkInterfaceDeleteParams
->
-
-export const InstanceRebootParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceRebootParams = z.infer<typeof InstanceRebootParams>
-
-export const InstanceSerialConsoleParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-  fromStart: z.number().min(0).nullable().optional(),
-  maxBytes: z.number().min(0).nullable().optional(),
-  mostRecent: z.number().min(0).nullable().optional(),
-})
-export type InstanceSerialConsoleParams = z.infer<typeof InstanceSerialConsoleParams>
-
-export const InstanceStartParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceStartParams = z.infer<typeof InstanceStartParams>
-
-export const InstanceStopParams = z.object({
-  instanceName: Name,
-  orgName: Name,
-  projectName: Name,
-})
-export type InstanceStopParams = z.infer<typeof InstanceStopParams>
-
-export const ProjectPolicyViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ProjectPolicyViewParams = z.infer<typeof ProjectPolicyViewParams>
-
-export const ProjectPolicyUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type ProjectPolicyUpdateParams = z.infer<typeof ProjectPolicyUpdateParams>
-
-export const SnapshotListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-})
-export type SnapshotListParams = z.infer<typeof SnapshotListParams>
-
-export const SnapshotCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type SnapshotCreateParams = z.infer<typeof SnapshotCreateParams>
-
-export const SnapshotViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  snapshotName: Name,
-})
-export type SnapshotViewParams = z.infer<typeof SnapshotViewParams>
-
-export const SnapshotDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  snapshotName: Name,
-})
-export type SnapshotDeleteParams = z.infer<typeof SnapshotDeleteParams>
-
-export const VpcListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-})
-export type VpcListParams = z.infer<typeof VpcListParams>
-
-export const VpcCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-})
-export type VpcCreateParams = z.infer<typeof VpcCreateParams>
-
-export const VpcViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcViewParams = z.infer<typeof VpcViewParams>
-
-export const VpcUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcUpdateParams = z.infer<typeof VpcUpdateParams>
-
-export const VpcDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcDeleteParams = z.infer<typeof VpcDeleteParams>
-
-export const VpcFirewallRulesViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcFirewallRulesViewParams = z.infer<typeof VpcFirewallRulesViewParams>
-
-export const VpcFirewallRulesUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcFirewallRulesUpdateParams = z.infer<typeof VpcFirewallRulesUpdateParams>
-
-export const VpcRouterListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcRouterListParams = z.infer<typeof VpcRouterListParams>
-
-export const VpcRouterCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcRouterCreateParams = z.infer<typeof VpcRouterCreateParams>
-
-export const VpcRouterViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterViewParams = z.infer<typeof VpcRouterViewParams>
-
-export const VpcRouterUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterUpdateParams = z.infer<typeof VpcRouterUpdateParams>
-
-export const VpcRouterDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterDeleteParams = z.infer<typeof VpcRouterDeleteParams>
-
-export const VpcRouterRouteListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterRouteListParams = z.infer<typeof VpcRouterRouteListParams>
-
-export const VpcRouterRouteCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterRouteCreateParams = z.infer<typeof VpcRouterRouteCreateParams>
-
-export const VpcRouterRouteViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routeName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterRouteViewParams = z.infer<typeof VpcRouterRouteViewParams>
-
-export const VpcRouterRouteUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routeName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterRouteUpdateParams = z.infer<typeof VpcRouterRouteUpdateParams>
-
-export const VpcRouterRouteDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  routeName: Name,
-  routerName: Name,
-  vpcName: Name,
-})
-export type VpcRouterRouteDeleteParams = z.infer<typeof VpcRouterRouteDeleteParams>
-
-export const VpcSubnetListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetListParams = z.infer<typeof VpcSubnetListParams>
-
-export const VpcSubnetCreateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetCreateParams = z.infer<typeof VpcSubnetCreateParams>
-
-export const VpcSubnetViewParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  subnetName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetViewParams = z.infer<typeof VpcSubnetViewParams>
-
-export const VpcSubnetUpdateParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  subnetName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetUpdateParams = z.infer<typeof VpcSubnetUpdateParams>
-
-export const VpcSubnetDeleteParams = z.object({
-  orgName: Name,
-  projectName: Name,
-  subnetName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetDeleteParams = z.infer<typeof VpcSubnetDeleteParams>
-
-export const VpcSubnetListNetworkInterfacesParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-  orgName: Name,
-  projectName: Name,
-  subnetName: Name,
-  vpcName: Name,
-})
-export type VpcSubnetListNetworkInterfacesParams = z.infer<
-  typeof VpcSubnetListNetworkInterfacesParams
->
-
-export const PolicyViewParams = z.object({})
-export type PolicyViewParams = z.infer<typeof PolicyViewParams>
-
-export const PolicyUpdateParams = z.object({})
-export type PolicyUpdateParams = z.infer<typeof PolicyUpdateParams>
-
-export const RoleListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-})
-export type RoleListParams = z.infer<typeof RoleListParams>
-
-export const RoleViewParams = z.object({
-  roleName: z.string(),
-})
-export type RoleViewParams = z.infer<typeof RoleViewParams>
-
-export const SessionMeParams = z.object({})
-export type SessionMeParams = z.infer<typeof SessionMeParams>
-
-export const SessionSshkeyListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-})
-export type SessionSshkeyListParams = z.infer<typeof SessionSshkeyListParams>
-
-export const SessionSshkeyCreateParams = z.object({})
-export type SessionSshkeyCreateParams = z.infer<typeof SessionSshkeyCreateParams>
-
-export const SessionSshkeyViewParams = z.object({
-  sshKeyName: Name,
-})
-export type SessionSshkeyViewParams = z.infer<typeof SessionSshkeyViewParams>
-
-export const SessionSshkeyDeleteParams = z.object({
-  sshKeyName: Name,
-})
-export type SessionSshkeyDeleteParams = z.infer<typeof SessionSshkeyDeleteParams>
-
-export const SystemImageViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type SystemImageViewByIdParams = z.infer<typeof SystemImageViewByIdParams>
-
-export const IpPoolViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type IpPoolViewByIdParams = z.infer<typeof IpPoolViewByIdParams>
-
-export const SiloViewByIdParams = z.object({
-  id: z.string().uuid(),
-})
-export type SiloViewByIdParams = z.infer<typeof SiloViewByIdParams>
-
-export const RackListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: IdSortMode.optional(),
-})
-export type RackListParams = z.infer<typeof RackListParams>
-
-export const RackViewParams = z.object({
-  rackId: z.string().uuid(),
-})
-export type RackViewParams = z.infer<typeof RackViewParams>
-
-export const SledListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: IdSortMode.optional(),
-})
-export type SledListParams = z.infer<typeof SledListParams>
-
-export const SledViewParams = z.object({
-  sledId: z.string().uuid(),
-})
-export type SledViewParams = z.infer<typeof SledViewParams>
-
-export const SystemImageListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-})
-export type SystemImageListParams = z.infer<typeof SystemImageListParams>
-
-export const SystemImageCreateParams = z.object({})
-export type SystemImageCreateParams = z.infer<typeof SystemImageCreateParams>
-
-export const SystemImageViewParams = z.object({
-  imageName: Name,
-})
-export type SystemImageViewParams = z.infer<typeof SystemImageViewParams>
-
-export const SystemImageDeleteParams = z.object({
-  imageName: Name,
-})
-export type SystemImageDeleteParams = z.infer<typeof SystemImageDeleteParams>
-
-export const IpPoolListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameOrIdSortMode.optional(),
-})
-export type IpPoolListParams = z.infer<typeof IpPoolListParams>
-
-export const IpPoolCreateParams = z.object({})
-export type IpPoolCreateParams = z.infer<typeof IpPoolCreateParams>
-
-export const IpPoolViewParams = z.object({
-  poolName: Name,
-})
-export type IpPoolViewParams = z.infer<typeof IpPoolViewParams>
-
-export const IpPoolUpdateParams = z.object({
-  poolName: Name,
-})
-export type IpPoolUpdateParams = z.infer<typeof IpPoolUpdateParams>
-
-export const IpPoolDeleteParams = z.object({
-  poolName: Name,
-})
-export type IpPoolDeleteParams = z.infer<typeof IpPoolDeleteParams>
-
-export const IpPoolRangeListParams = z.object({
-  poolName: Name,
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-})
-export type IpPoolRangeListParams = z.infer<typeof IpPoolRangeListParams>
-
-export const IpPoolRangeAddParams = z.object({
-  poolName: Name,
-})
-export type IpPoolRangeAddParams = z.infer<typeof IpPoolRangeAddParams>
-
-export const IpPoolRangeRemoveParams = z.object({
-  poolName: Name,
-})
-export type IpPoolRangeRemoveParams = z.infer<typeof IpPoolRangeRemoveParams>
-
-export const IpPoolServiceViewParams = z.object({
-  rackId: z.string().uuid(),
-})
-export type IpPoolServiceViewParams = z.infer<typeof IpPoolServiceViewParams>
-
-export const IpPoolServiceRangeListParams = z.object({
-  rackId: z.string().uuid(),
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-})
-export type IpPoolServiceRangeListParams = z.infer<typeof IpPoolServiceRangeListParams>
-
-export const IpPoolServiceRangeAddParams = z.object({
-  rackId: z.string().uuid(),
-})
-export type IpPoolServiceRangeAddParams = z.infer<typeof IpPoolServiceRangeAddParams>
-
-export const IpPoolServiceRangeRemoveParams = z.object({
-  rackId: z.string().uuid(),
-})
-export type IpPoolServiceRangeRemoveParams = z.infer<typeof IpPoolServiceRangeRemoveParams>
-
-export const SystemMetricParams = z.object({
-  metricName: SystemMetricName,
-  endTime: DateType.optional(),
-  id: z.string().uuid().optional(),
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  startTime: DateType.optional(),
-})
-export type SystemMetricParams = z.infer<typeof SystemMetricParams>
-
-export const SystemPolicyViewParams = z.object({})
-export type SystemPolicyViewParams = z.infer<typeof SystemPolicyViewParams>
-
-export const SystemPolicyUpdateParams = z.object({})
-export type SystemPolicyUpdateParams = z.infer<typeof SystemPolicyUpdateParams>
-
-export const SagaListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: IdSortMode.optional(),
-})
-export type SagaListParams = z.infer<typeof SagaListParams>
-
-export const SagaViewParams = z.object({
-  sagaId: z.string().uuid(),
-})
-export type SagaViewParams = z.infer<typeof SagaViewParams>
-
-export const SiloListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameOrIdSortMode.optional(),
-})
-export type SiloListParams = z.infer<typeof SiloListParams>
-
-export const SiloCreateParams = z.object({})
-export type SiloCreateParams = z.infer<typeof SiloCreateParams>
-
-export const SiloViewParams = z.object({
-  siloName: Name,
-})
-export type SiloViewParams = z.infer<typeof SiloViewParams>
-
-export const SiloDeleteParams = z.object({
-  siloName: Name,
-})
-export type SiloDeleteParams = z.infer<typeof SiloDeleteParams>
-
-export const SiloIdentityProviderListParams = z.object({
-  siloName: Name,
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-})
-export type SiloIdentityProviderListParams = z.infer<typeof SiloIdentityProviderListParams>
-
-export const SamlIdentityProviderCreateParams = z.object({
-  siloName: Name,
-})
-export type SamlIdentityProviderCreateParams = z.infer<
-  typeof SamlIdentityProviderCreateParams
->
-
-export const SamlIdentityProviderViewParams = z.object({
-  providerName: Name,
-  siloName: Name,
-})
-export type SamlIdentityProviderViewParams = z.infer<typeof SamlIdentityProviderViewParams>
-
-export const SiloPolicyViewParams = z.object({
-  siloName: Name,
-})
-export type SiloPolicyViewParams = z.infer<typeof SiloPolicyViewParams>
-
-export const SiloPolicyUpdateParams = z.object({
-  siloName: Name,
-})
-export type SiloPolicyUpdateParams = z.infer<typeof SiloPolicyUpdateParams>
-
-export const UpdatesRefreshParams = z.object({})
-export type UpdatesRefreshParams = z.infer<typeof UpdatesRefreshParams>
-
-export const SystemUserListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: NameSortMode.optional(),
-})
-export type SystemUserListParams = z.infer<typeof SystemUserListParams>
-
-export const SystemUserViewParams = z.object({
-  userName: Name,
-})
-export type SystemUserViewParams = z.infer<typeof SystemUserViewParams>
-
-export const TimeseriesSchemaGetParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-})
-export type TimeseriesSchemaGetParams = z.infer<typeof TimeseriesSchemaGetParams>
-
-export const UserListParams = z.object({
-  limit: z.number().min(1).max(4294967295).nullable().optional(),
-  pageToken: z.string().nullable().optional(),
-  sortBy: IdSortMode.optional(),
-})
-export type UserListParams = z.infer<typeof UserListParams>
+export const SystemMetricName = z.preprocess(
+  processResponseBody,
+  z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
+)
+
+export const DiskViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const ImageViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const InstanceViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const InstanceNetworkInterfaceViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const OrganizationViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const ProjectViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const SnapshotViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const VpcRouterRouteViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const VpcRouterViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const VpcSubnetViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const VpcViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const DeviceAuthRequestParams = z.preprocess(processResponseBody, z.object({}))
+
+export const DeviceAuthConfirmParams = z.preprocess(processResponseBody, z.object({}))
+
+export const DeviceAccessTokenParams = z.preprocess(processResponseBody, z.object({}))
+
+export const GroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: IdSortMode.optional(),
+  })
+)
+
+export const LoginSpoofParams = z.preprocess(processResponseBody, z.object({}))
+
+export const LoginSamlBeginParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    providerName: Name,
+    siloName: Name,
+  })
+)
+
+export const LoginSamlParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    providerName: Name,
+    siloName: Name,
+  })
+)
+
+export const LogoutParams = z.preprocess(processResponseBody, z.object({}))
+
+export const OrganizationListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameOrIdSortMode.optional(),
+  })
+)
+
+export const OrganizationCreateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const OrganizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const OrganizationUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const OrganizationDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const OrganizationPolicyViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const OrganizationPolicyUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const ProjectListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameOrIdSortMode.optional(),
+    orgName: Name,
+  })
+)
+
+export const ProjectCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+  })
+)
+
+export const ProjectViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ProjectUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ProjectDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const DiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const DiskCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const DiskViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    diskName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const DiskDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    diskName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const DiskMetricsListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    diskName: Name,
+    metricName: DiskMetricName,
+    orgName: Name,
+    projectName: Name,
+    endTime: DateType.optional(),
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    startTime: DateType.optional(),
+  })
+)
+
+export const ImageListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ImageCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ImageViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    imageName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ImageDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    imageName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceDiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceDiskAttachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceDiskDetachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceExternalIpListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceMigrateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceNetworkInterfaceListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceNetworkInterfaceCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceNetworkInterfaceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    interfaceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceNetworkInterfaceUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    interfaceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceNetworkInterfaceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    interfaceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceRebootParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceSerialConsoleParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+    fromStart: z.number().min(0).optional(),
+    maxBytes: z.number().min(0).optional(),
+    mostRecent: z.number().min(0).optional(),
+  })
+)
+
+export const InstanceStartParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const InstanceStopParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    instanceName: Name,
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ProjectPolicyViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const ProjectPolicyUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const SnapshotListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const SnapshotCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const SnapshotViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    snapshotName: Name,
+  })
+)
+
+export const SnapshotDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    snapshotName: Name,
+  })
+)
+
+export const VpcListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const VpcCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+  })
+)
+
+export const VpcViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcFirewallRulesViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcFirewallRulesUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterRouteListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterRouteCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterRouteViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routeName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterRouteUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routeName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcRouterRouteDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    routeName: Name,
+    routerName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    subnetName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    subnetName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    orgName: Name,
+    projectName: Name,
+    subnetName: Name,
+    vpcName: Name,
+  })
+)
+
+export const VpcSubnetListNetworkInterfacesParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+    orgName: Name,
+    projectName: Name,
+    subnetName: Name,
+    vpcName: Name,
+  })
+)
+
+export const PolicyViewParams = z.preprocess(processResponseBody, z.object({}))
+
+export const PolicyUpdateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const RoleListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+  })
+)
+
+export const RoleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    roleName: z.string(),
+  })
+)
+
+export const SessionMeParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SessionSshkeyListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+  })
+)
+
+export const SessionSshkeyCreateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SessionSshkeyViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    sshKeyName: Name,
+  })
+)
+
+export const SessionSshkeyDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    sshKeyName: Name,
+  })
+)
+
+export const SystemImageViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const IpPoolViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const SiloViewByIdParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+  })
+)
+
+export const RackListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: IdSortMode.optional(),
+  })
+)
+
+export const RackViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    rackId: z.string().uuid(),
+  })
+)
+
+export const SledListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: IdSortMode.optional(),
+  })
+)
+
+export const SledViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    sledId: z.string().uuid(),
+  })
+)
+
+export const SystemImageListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+  })
+)
+
+export const SystemImageCreateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SystemImageViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    imageName: Name,
+  })
+)
+
+export const SystemImageDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    imageName: Name,
+  })
+)
+
+export const IpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameOrIdSortMode.optional(),
+  })
+)
+
+export const IpPoolCreateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const IpPoolViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+  })
+)
+
+export const IpPoolUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+  })
+)
+
+export const IpPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+  })
+)
+
+export const IpPoolRangeListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+  })
+)
+
+export const IpPoolRangeAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+  })
+)
+
+export const IpPoolRangeRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    poolName: Name,
+  })
+)
+
+export const IpPoolServiceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    rackId: z.string().uuid(),
+  })
+)
+
+export const IpPoolServiceRangeListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    rackId: z.string().uuid(),
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+  })
+)
+
+export const IpPoolServiceRangeAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    rackId: z.string().uuid(),
+  })
+)
+
+export const IpPoolServiceRangeRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    rackId: z.string().uuid(),
+  })
+)
+
+export const SystemMetricParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    metricName: SystemMetricName,
+    endTime: DateType.optional(),
+    id: z.string().uuid().optional(),
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    startTime: DateType.optional(),
+  })
+)
+
+export const SystemPolicyViewParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SystemPolicyUpdateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SagaListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: IdSortMode.optional(),
+  })
+)
+
+export const SagaViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    sagaId: z.string().uuid(),
+  })
+)
+
+export const SiloListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameOrIdSortMode.optional(),
+  })
+)
+
+export const SiloCreateParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SiloViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+  })
+)
+
+export const SiloDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+  })
+)
+
+export const SiloIdentityProviderListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+  })
+)
+
+export const SamlIdentityProviderCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+  })
+)
+
+export const SamlIdentityProviderViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    providerName: Name,
+    siloName: Name,
+  })
+)
+
+export const SiloPolicyViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+  })
+)
+
+export const SiloPolicyUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    siloName: Name,
+  })
+)
+
+export const UpdatesRefreshParams = z.preprocess(processResponseBody, z.object({}))
+
+export const SystemUserListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: NameSortMode.optional(),
+  })
+)
+
+export const SystemUserViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    userName: Name,
+  })
+)
+
+export const TimeseriesSchemaGetParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+  })
+)
+
+export const UserListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    limit: z.number().min(1).max(4294967295).optional(),
+    pageToken: z.string().optional(),
+    sortBy: IdSortMode.optional(),
+  })
+)
