@@ -18,5 +18,6 @@
   },
   "vite.browserType": "system",
   "vite.buildCommand": "yarn build",
-  "vite.devCommand": "yarn start:msw"
+  "vite.devCommand": "yarn start:msw",
+  "deno.enablePaths": ["./tools/bump-omicron.ts"]
 }
