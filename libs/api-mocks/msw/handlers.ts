@@ -1,5 +1,6 @@
+import type { RestRequest } from 'msw'
 import { compose, context, rest } from 'msw'
-import type { ZodSchema } from 'zod'
+import type { ZodSchema, z } from 'zod'
 
 import * as schema from '@oxide/api/validate'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
@@ -68,33 +69,56 @@ const badRequest = (msg: string) =>
 type GetErr = NotFound | Unavailable
 type PostErr = AlreadyExists | NotFound
 
-const validate = <S extends ZodSchema, D extends Json<unknown>>(schema: S, data: D) => {
-  const result = schema.safeParse(data)
+const validateBody = <S extends ZodSchema>(schema: S, body: Json<z.infer<S>>) => {
+  const result = schema.safeParse(body)
   if (result.success) {
-    return { data: result.data as z.infer<S> }
+    return { body: result.data as Json<z.infer<S>> }
   }
-  return { error: badRequest(result.error.issues[0].message) }
+  return { bodyErr: badRequest(result.error.issues[0].message) }
+}
+
+const validateParams = <
+  S extends ZodSchema,
+  R extends RestRequest<P, B>,
+  P extends Json<unknown>,
+  B extends Json<unknown>
+>(
+  schema: S,
+  req: R
+) => {
+  const result = schema.safeParse({
+    ...req.params,
+    ...Object.fromEntries(
+      new URLSearchParams(req.url.search) as unknown as Map<string, unknown>
+    ),
+  })
+  if (result.success) {
+    return { params: result.data as z.infer<S> }
+  }
+  return { paramsErr: badRequest(result.error.issues[0].message) }
 }
 
 export const handlers = [
   rest.get('/session/me', (req, res) => res(json(sessionMe))),
 
-  rest.get<never, never, Json<Api.SshKeyResultsPage>>('/session/me/sshkeys', (req, res) =>
-    res(
+  rest.get<never, never, Json<Api.SshKeyResultsPage>>('/session/me/sshkeys', (req, res) => {
+    const { params, paramsErr } = validateParams(schema.SessionSshkeyListParams, req)
+    if (paramsErr) return res(paramsErr)
+    return res(
       json(
         paginated(
-          req.url.search,
+          params,
           db.sshKeys.filter((key) => key.silo_user_id === sessionMe.id)
         )
       )
     )
-  ),
+  }),
 
   rest.post<Json<Api.SshKeyCreate>, never, Json<Api.SshKey> | PostErr>(
     '/session/me/sshkeys',
     async (req, res) => {
-      const { data: body, error } = validate(schema.SshKeyCreate, await req.json())
-      if (error) return res(error)
+      const { body, bodyErr } = validateBody(schema.SshKeyCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
 
       const alreadyExists = db.sshKeys.some(
         (key) => key.name === body.name && key.silo_user_id === sessionMe.id
@@ -115,10 +139,7 @@ export const handlers = [
   rest.delete<never, PP.SshKey, GetErr>(
     '/session/me/sshkeys/:sshKeyName',
     (req, res, ctx) => {
-      const { data: params, error: paramsErr } = validate(
-        schema.SessionSshkeyDeleteParams,
-        req.params
-      )
+      const { params, paramsErr } = validateParams(schema.SessionSshkeyDeleteParams, req)
       if (paramsErr) return res(paramsErr)
 
       const [sshKey, err] = lookupSshKey(params)
@@ -138,15 +159,20 @@ export const handlers = [
     return res(json({ role_assignments }))
   }),
 
-  rest.get<never, never, Json<Api.OrganizationResultsPage>>('/organizations', (req, res) =>
-    res(json(paginated(req.url.search, db.orgs)))
+  rest.get<never, never, Json<Api.OrganizationResultsPage>>(
+    '/organizations',
+    (req, res) => {
+      const { params, paramsErr } = validateParams(schema.OrganizationListParams, req)
+      if (paramsErr) return res(paramsErr)
+      res(json(paginated(params, db.orgs)))
+    }
   ),
 
   rest.post<Json<Api.OrganizationCreate>, never, Json<Api.Organization> | PostErr>(
     '/organizations',
     async (req, res) => {
-      const { data: body, error } = validate(schema.OrganizationCreate, await req.json())
-      if (error) return res(error)
+      const { body, bodyErr } = validateBody(schema.OrganizationCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
 
       const alreadyExists = db.orgs.some((o) => o.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
@@ -168,10 +194,7 @@ export const handlers = [
         return res(unavailableErr)
       }
 
-      const { data: params, error: paramsErr } = validate(
-        schema.OrganizationViewParams,
-        req.params
-      )
+      const { params, paramsErr } = validateParams(schema.OrganizationViewParams, req)
       if (paramsErr) return res(paramsErr)
 
       const [org, err] = lookupOrg(params)
@@ -184,17 +207,14 @@ export const handlers = [
   rest.put<Json<Api.OrganizationUpdate>, PP.Org, Json<Api.Organization> | PostErr>(
     '/organizations/:orgName',
     async (req, res) => {
-      const { data: params, error: paramsErr } = validate(
-        schema.OrganizationUpdateParams,
-        req.params
-      )
+      const { params, paramsErr } = validateParams(schema.OrganizationUpdateParams, req)
       if (paramsErr) return res(paramsErr)
 
       const [org, err] = lookupOrg(params)
       if (err) return res(err)
 
-      const { data: body, error } = validate(schema.OrganizationUpdate, await req.json())
-      if (error) return res(error)
+      const { body, bodyErr } = validateBody(schema.OrganizationUpdate, await req.json())
+      if (bodyErr) return res(bodyErr)
 
       Object.assign(org, body)
       return res(json(org))
@@ -204,8 +224,12 @@ export const handlers = [
   rest.get<never, PP.Org, Json<Api.OrganizationRolePolicy> | GetErr>(
     '/organizations/:orgName/policy',
     (req, res) => {
-      const [org, err] = lookupOrg(req.params)
+      const { params, paramsErr } = validateParams(schema.OrganizationPolicyViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [org, err] = lookupOrg(params)
       if (err) return res(err)
+
       const role_assignments = db.roleAssignments
         .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
         .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
@@ -219,11 +243,15 @@ export const handlers = [
     PP.Project,
     Json<Api.OrganizationRolePolicy> | PostErr
   >('/organizations/:orgName/policy', async (req, res) => {
-    const [org, err] = lookupOrg(req.params)
+    const { params, paramsErr } = validateParams(schema.OrganizationPolicyUpdateParams, req)
+    if (paramsErr) return res(paramsErr)
+
+    const [org, err] = lookupOrg(params)
     if (err) return res(err)
 
-    // TODO: validate input lol
-    const body = await req.json()
+    const { body, bodyErr } = validateBody(schema.OrganizationRolePolicy, await req.json())
+    if (bodyErr) return res(bodyErr)
+
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'organization' as const,
       resource_id: org.id,
@@ -240,8 +268,12 @@ export const handlers = [
   }),
 
   rest.delete<never, PP.Org, GetErr>('/organizations/:orgName', (req, res, ctx) => {
-    const [org, err] = lookupOrg(req.params)
+    const { params, paramsErr } = validateParams(schema.OrganizationDeleteParams, req)
+    if (paramsErr) return res(paramsErr)
+
+    const [org, err] = lookupOrg(params)
     if (err) return res(err)
+
     db.orgs = db.orgs.filter((o) => o.id !== org.id)
     return res(ctx.status(204))
   }),
@@ -249,30 +281,33 @@ export const handlers = [
   rest.get<never, PP.Org, Json<Api.ProjectResultsPage> | GetErr>(
     '/organizations/:orgName/projects',
     (req, res) => {
-      const [org, err] = lookupOrg(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [org, err] = lookupOrg(params)
       if (err) return res(err)
 
       const projects = db.projects.filter((p) => p.organization_id === org.id)
-      return res(json(paginated(req.url.search, projects)))
+      return res(json(paginated(params, projects)))
     }
   ),
 
   rest.post<Json<Api.ProjectCreate>, PP.Org, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects',
     async (req, res) => {
-      const [org, err] = lookupOrg(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [org, err] = lookupOrg(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.ProjectCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.projects.some(
         (p) => p.organization_id === org.id && p.name === body.name
       )
-
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newProject: Json<Api.Project> = {
         id: genId('project'),
@@ -288,7 +323,10 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.Project> | GetErr>(
     '/organizations/:orgName/projects/:projectName',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
       return res(json(project))
     }
@@ -297,15 +335,21 @@ export const handlers = [
   rest.put<Json<Api.ProjectUpdate>, PP.Project, Json<Api.Project> | PostErr>(
     '/organizations/:orgName/projects/:projectName',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      const body = await req.json()
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
+      const { body, bodyErr } = validateBody(schema.ProjectUpdate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
+      if (body.name) {
+        project.name = body.name
       }
-      project.name = body.name
-      project.description = body.description || ''
+      if (typeof body.description === 'string') {
+        project.description = body.description
+      }
 
       return res(json(project))
     }
@@ -314,8 +358,12 @@ export const handlers = [
   rest.delete<never, PP.Project, GetErr>(
     '/organizations/:orgName/projects/:projectName',
     (req, res, ctx) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       db.projects = db.projects.filter((p) => p.id !== project.id)
       return res(ctx.status(204))
     }
@@ -324,8 +372,12 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.ProjectRolePolicy> | GetErr>(
     '/organizations/:orgName/projects/:projectName/policy',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectPolicyViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       const role_assignments = db.roleAssignments
         .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
         .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
@@ -337,11 +389,15 @@ export const handlers = [
   rest.put<Json<Api.ProjectRolePolicy>, PP.Project, Json<Api.ProjectRolePolicy> | PostErr>(
     '/organizations/:orgName/projects/:projectName/policy',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ProjectPolicyUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      // TODO: validate input lol
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.ProjectRolePolicy, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const newAssignments = body.role_assignments.map((r) => ({
         resource_type: 'project' as const,
         resource_id: project.id,
@@ -361,18 +417,26 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.InstanceResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       const instances = db.instances.filter((i) => i.project_id === project.id)
-      return res(json(paginated(req.url.search, instances)))
+      return res(json(paginated(params, instances)))
     }
   ),
 
   rest.get<never, PP.Instance, Json<Api.Instance> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       return res(json(instance))
     }
   ),
@@ -380,8 +444,12 @@ export const handlers = [
   rest.delete<never, PP.Instance, GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName',
     (req, res, ctx) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       db.instances = db.instances.filter((i) => i.id !== instance.id)
       return res(ctx.status(204))
     }
@@ -390,18 +458,19 @@ export const handlers = [
   rest.post<Json<Api.InstanceCreate>, PP.Project, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.InstanceCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.instances.some(
         (i) => i.project_id === project.id && i.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newInstance: Json<Api.Instance> = {
         id: genId('instance'),
@@ -419,8 +488,12 @@ export const handlers = [
   rest.post<never, PP.Instance, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
     (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceStartParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       instance.run_state = 'running'
       return res(json(instance, { status: 202 }))
     }
@@ -429,8 +502,12 @@ export const handlers = [
   rest.post<never, PP.Instance, Json<Api.Instance> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
     (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceStopParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       instance.run_state = 'stopped'
       return res(json(instance, { status: 202 }))
     }
@@ -439,26 +516,37 @@ export const handlers = [
   rest.get<never, PP.Instance, Json<Api.DiskResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
     (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceDiskListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       const disks = db.disks.filter(
         (d) => 'instance' in d.state && d.state.instance === instance.id
       )
-      return res(json(paginated(req.url.search, disks)))
+      return res(json(paginated(params, disks)))
     }
   ),
 
   rest.post<Json<Api.DiskIdentifier>, PP.Instance, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
     async (req, res) => {
-      const [instance, instanceErr] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceDiskAttachParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, instanceErr] = lookupInstance(params)
       if (instanceErr) return res(instanceErr)
+
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.DiskIdentifier, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.name })
       if (diskErr) return res(diskErr)
+
       disk.state = {
         state: 'attached',
         instance: instance.id,
@@ -470,13 +558,19 @@ export const handlers = [
   rest.post<Json<Api.DiskIdentifier>, PP.Instance, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
     async (req, res) => {
-      const [instance, instanceErr] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceDiskDetachParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, instanceErr] = lookupInstance(params)
       if (instanceErr) return res(instanceErr)
+
       if (instance.run_state !== 'stopped') {
         return res(badRequest('instance must be stopped'))
       }
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.DiskIdentifier, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.name })
       if (diskErr) return res(diskErr)
       disk.state = {
@@ -489,7 +583,10 @@ export const handlers = [
   rest.get<never, PP.Instance, Json<Api.ExternalIpResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips',
     (req, res) => {
-      const [, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(schema.InstanceExternalIpListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [, err] = lookupInstance(params)
       if (err) return res(err)
       // TODO: proper mock table
       const items = [
@@ -505,10 +602,17 @@ export const handlers = [
   rest.get<never, PP.Instance, Json<Api.NetworkInterfaceResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
     (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(
+        schema.InstanceNetworkInterfaceListParams,
+        req
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
+
       const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-      return res(json(paginated(req.url.search, nics)))
+      return res(json(paginated(params, nics)))
     }
   ),
 
@@ -519,33 +623,38 @@ export const handlers = [
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
     async (req, res) => {
-      const [instance, err] = lookupInstance(req.params)
+      const { params, paramsErr } = validateParams(
+        schema.InstanceNetworkInterfaceCreateParams,
+        req
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [instance, err] = lookupInstance(params)
       if (err) return res(err)
       const nicsForInstance = db.networkInterfaces.filter(
         (n) => n.instance_id === instance.id
       )
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(
+        schema.NetworkInterfaceCreate,
+        await req.json()
+      )
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = nicsForInstance.some((n) => n.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
-
       const { name, description, subnet_name, vpc_name, ip } = body
 
-      const [vpc, vpcErr] = lookupVpc({ ...req.params, vpcName: vpc_name })
+      const [vpc, vpcErr] = lookupVpc({ ...params, vpcName: vpc_name })
       if (vpcErr) return res(vpcErr)
 
       const [subnet, subnetErr] = lookupVpcSubnet({
-        ...req.params,
+        ...params,
         vpcName: vpc_name,
         subnetName: subnet_name,
       })
       if (subnetErr) return res(subnetErr)
-
-      // TODO: validate IP
 
       const newNic: Json<Api.NetworkInterface> = {
         id: genId('nic'),
@@ -569,8 +678,15 @@ export const handlers = [
   rest.get<never, PP.NetworkInterface, Json<Api.NetworkInterface> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res) => {
-      const [nic, err] = lookupNetworkInterface(req.params)
+      const { params, paramsErr } = validateParams(
+        schema.InstanceNetworkInterfaceViewParams,
+        req
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [nic, err] = lookupNetworkInterface(params)
       if (err) return res(err)
+
       return res(json(nic))
     }
   ),
@@ -582,10 +698,21 @@ export const handlers = [
   >(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     async (req, res, ctx) => {
-      const [nic, err] = lookupNetworkInterface(req.params)
+      const { params, paramsErr } = validateParams(
+        schema.InstanceNetworkInterfaceUpdateParams,
+        req
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [nic, err] = lookupNetworkInterface(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(
+        schema.NetworkInterfaceUpdate,
+        await req.json()
+      )
+      if (bodyErr) return res(bodyErr)
+
       if (body.name) {
         nic.name = body.name
       }
@@ -610,8 +737,15 @@ export const handlers = [
   rest.delete<never, PP.NetworkInterface, GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
     (req, res, ctx) => {
-      const [nic, err] = lookupNetworkInterface(req.params)
+      const { params, paramsErr } = validateParams(
+        schema.InstanceNetworkInterfaceDeleteParams,
+        req
+      )
+      if (paramsErr) return res(paramsErr)
+
+      const [nic, err] = lookupNetworkInterface(params)
       if (err) return res(err)
+
       db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
       return res(ctx.status(204))
     }
@@ -620,6 +754,8 @@ export const handlers = [
   rest.get<never, PP.Instance, Json<Api.InstanceSerialConsoleData> | GetErr>(
     '/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console',
     (req, res) => {
+      const { paramsErr } = validateParams(schema.InstanceSerialConsoleParams, req)
+      if (paramsErr) return res(paramsErr)
       // TODO: Add support for query params
       return res(json(serial))
     }
@@ -628,28 +764,33 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.DiskResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/disks',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.DiskListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       const disks = db.disks.filter((d) => d.project_id === project.id)
-      return res(json(paginated(req.url.search, disks)))
+      return res(json(paginated(params, disks)))
     }
   ),
 
   rest.post<Json<Api.DiskCreate>, PP.Project, Json<Api.Disk> | PostErr>(
     '/organizations/:orgName/projects/:projectName/disks',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.DiskCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.DiskCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.disks.some(
         (s) => s.project_id === project.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const { name, description, size, disk_source } = body
       const newDisk: Json<Api.Disk> = {
@@ -673,8 +814,12 @@ export const handlers = [
   rest.delete<never, PP.Disk, GetErr>(
     '/organizations/:orgName/projects/:projectName/disks/:diskName',
     (req, res, ctx) => {
-      const [disk, err] = lookupDisk(req.params)
+      const { params, paramsErr } = validateParams(schema.DiskDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [disk, err] = lookupDisk(params)
       if (err) return res(err)
+
       // Governed by https://github.com/oxidecomputer/omicron/blob/e5704d7f343fa0633751527dedf276409647ad4e/nexus/src/db/datastore.rs#L2103
       switch (disk.state.state) {
         case 'creating':
@@ -696,10 +841,13 @@ export const handlers = [
   rest.get<never, PP.DiskMetric, Json<Api.MeasurementResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName',
     (req, res) => {
-      const [, err] = lookupDisk(req.params)
+      const { params, paramsErr } = validateParams(schema.DiskMetricsListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [, err] = lookupDisk(params)
       if (err) return res(err)
 
-      const { startTime, endTime } = getStartAndEndTime(req.url.searchParams)
+      const { startTime, endTime } = getStartAndEndTime(params)
 
       if (endTime <= startTime) return res(json({ items: [] }))
 
@@ -718,16 +866,15 @@ export const handlers = [
   rest.get<never, PP.SystemMetric, Json<Api.MeasurementResultsPage> | GetErr>(
     '/system/metrics/:resourceName',
     (req, res) => {
-      // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
-      // if (!result.success) return res(notFoundErr)
-      // const resourceName = result.data
+      const { params, paramsErr } = validateParams(schema.SystemMetricParams, req)
+      if (paramsErr) return res(paramsErr)
 
-      const cap = req.params.resourceName === 'cpus_provisioned' ? 3000 : 4000000000000
+      const cap = params.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
 
       // note we're ignoring the required id query param. since the data is fake
       // it wouldn't matter, though we should probably 400 if it's missing
 
-      const { startTime, endTime } = getStartAndEndTime(req.url.searchParams)
+      const { startTime, endTime } = getStartAndEndTime(params)
 
       if (endTime <= startTime) return res(json({ items: [] }))
 
@@ -746,42 +893,46 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.ImageResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/images',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.ImageListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
       const images = db.images.filter((i) => i.project_id === project.id)
-      return res(json(paginated(req.url.search, images)))
+      return res(json(paginated(params, images)))
     }
   ),
 
   rest.get<never, PP.Project, Json<Api.SnapshotResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/snapshots',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.SnapshotListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
-      return res(json(paginated(req.url.search, snapshots)))
+      return res(json(paginated(params, snapshots)))
     }
   ),
 
   rest.post<Json<Api.SnapshotCreate>, PP.Project, Json<Api.Snapshot> | PostErr>(
     '/organizations/:orgName/projects/:projectName/snapshots',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.SnapshotCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.SnapshotCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.snapshots.some((s) => s.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
 
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
-
-      if (!body.disk) {
-        return res(badRequest('disk to snapshot is required'))
-      }
-
-      const [disk, diskErr] = lookupDisk({ ...req.params, diskName: body.disk })
+      const [disk, diskErr] = lookupDisk({ ...params, diskName: body.disk })
 
       if (diskErr) {
         return res(diskErr)
@@ -804,7 +955,10 @@ export const handlers = [
   rest.get<never, PP.Snapshot, Json<Api.Snapshot> | GetErr>(
     '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
     (req, res) => {
-      const [snapshot, err] = lookupSnapshot(req.params)
+      const { params, paramsErr } = validateParams(schema.SnapshotViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [snapshot, err] = lookupSnapshot(params)
       if (err) return res(err)
 
       return res(json(snapshot))
@@ -814,8 +968,12 @@ export const handlers = [
   rest.delete<never, PP.Snapshot, GetErr>(
     '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
     (req, res, ctx) => {
-      const [snapshot, err] = lookupSnapshot(req.params)
+      const { params, paramsErr } = validateParams(schema.SnapshotDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [snapshot, err] = lookupSnapshot(params)
       if (err) return res(err)
+
       db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
       return res(ctx.status(204))
     }
@@ -824,18 +982,26 @@ export const handlers = [
   rest.get<never, PP.Project, Json<Api.VpcResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs',
     (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
+
       const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-      return res(json(paginated(req.url.search, vpcs)))
+      return res(json(paginated(params, vpcs)))
     }
   ),
 
   rest.get<never, PP.Vpc, Json<Api.Vpc> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
+
       return res(json(vpc))
     }
   ),
@@ -843,18 +1009,19 @@ export const handlers = [
   rest.post<Json<Api.VpcCreate>, PP.Project, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs',
     async (req, res) => {
-      const [project, err] = lookupProject(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [project, err] = lookupProject(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.vpcs.some(
         (s) => s.project_id === project.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newVpc: Json<Api.Vpc> = {
         id: genId('vpc'),
@@ -886,10 +1053,15 @@ export const handlers = [
   rest.put<Json<Api.Vpc>, PP.Vpc, Json<Api.Vpc> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     async (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcUpdate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       if (body.name) {
         vpc.name = body.name
       }
@@ -908,7 +1080,10 @@ export const handlers = [
   rest.delete<never, PP.Vpc, GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
     (req, res, ctx) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
 
       db.vpcs = db.vpcs.filter((v) => v.id !== vpc.id)
@@ -930,28 +1105,33 @@ export const handlers = [
   rest.get<never, PP.Vpc, Json<Api.VpcSubnetResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcSubnetListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
+
       const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-      return res(json(paginated(req.url.search, subnets)))
+      return res(json(paginated(params, subnets)))
     }
   ),
 
   rest.post<Json<Api.VpcSubnetCreate>, PP.Vpc, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
     async (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcSubnetCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcSubnetCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.vpcSubnets.some(
         (s) => s.vpc_id === vpc.id && s.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newSubnet: Json<Api.VpcSubnet> = {
         id: genId('vpc-subnet'),
@@ -971,10 +1151,15 @@ export const handlers = [
   rest.put<Json<Api.VpcSubnetUpdate>, PP.VpcSubnet, Json<Api.VpcSubnet> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
     async (req, res, ctx) => {
-      const [subnet, err] = lookupVpcSubnet(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcSubnetUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [subnet, err] = lookupVpcSubnet(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcSubnetUpdate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       if (body.name) {
         subnet.name = body.name
       }
@@ -988,8 +1173,12 @@ export const handlers = [
   rest.get<never, PP.Vpc, Json<Api.VpcFirewallRules> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcFirewallRulesViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
+
       const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
       return res(json({ rules: sortBy(rules, (r) => r.name) }))
     }
@@ -1002,10 +1191,18 @@ export const handlers = [
   >(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
     async (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcFirewallRulesUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(
+        schema.VpcFirewallRuleUpdateParams,
+        await req.json()
+      )
+      if (bodyErr) return res(bodyErr)
+
       const rules = body.rules.map((rule) => ({
         vpc_id: vpc.id,
         id: genId('firewall-rule'),
@@ -1024,28 +1221,33 @@ export const handlers = [
   rest.get<never, PP.Vpc, Json<Api.VpcRouterResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcRouterListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
+
       const routers = db.vpcRouters.filter((s) => s.vpc_id === vpc.id)
-      return res(json(paginated(req.url.search, routers)))
+      return res(json(paginated(params, routers)))
     }
   ),
 
   rest.post<Json<Api.VpcRouterCreate>, PP.Vpc, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
     async (req, res) => {
-      const [vpc, err] = lookupVpc(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcRouterCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [vpc, err] = lookupVpc(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcRouterCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.vpcRouters.some(
         (x) => x.vpc_id === vpc.id && x.name === body.name
       )
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
 
       const newRouter: Json<Api.VpcRouter> = {
         id: genId('vpc-router'),
@@ -1062,10 +1264,15 @@ export const handlers = [
   rest.put<Json<Api.VpcRouterUpdate>, PP.VpcRouter, Json<Api.VpcRouter> | PostErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
     async (req, res, ctx) => {
-      const [router, err] = lookupVpcRouter(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcRouterUpdateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [router, err] = lookupVpcRouter(params)
       if (err) return res(err)
 
-      const body = await req.json()
+      const { body, bodyErr } = validateBody(schema.VpcRouterUpdate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       if (body.name) {
         router.name = body.name
       }
@@ -1079,24 +1286,33 @@ export const handlers = [
   rest.get<never, PP.VpcRouter, Json<Api.RouterRouteResultsPage> | GetErr>(
     '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
     (req, res) => {
-      const [router, err] = lookupVpcRouter(req.params)
+      const { params, paramsErr } = validateParams(schema.VpcRouterRouteListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [router, err] = lookupVpcRouter(params)
       if (err) return res(err)
       const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-      return res(json(paginated(req.url.search, routers)))
+      return res(json(paginated(params, routers)))
     }
   ),
 
   rest.get<never, never, Json<Api.GlobalImageResultsPage> | GetErr>(
     '/system/images',
     (req, res) => {
-      return res(json(paginated(req.url.search, db.globalImages)))
+      const { params, paramsErr } = validateParams(schema.SystemImageListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      return res(json(paginated(params, db.globalImages)))
     }
   ),
 
   rest.get<never, PP.GlobalImage, Json<Api.GlobalImage> | GetErr>(
     '/system/images/:imageName',
     (req, res) => {
-      const [image, err] = lookupGlobalImage(req.params)
+      const { params, paramsErr } = validateParams(schema.SystemImageViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [image, err] = lookupGlobalImage(params)
       if (err) return res(err)
       return res(json(image))
     }
@@ -1105,26 +1321,24 @@ export const handlers = [
   rest.get<never, never, Json<Api.SiloResultsPage> | GetErr>(
     '/system/silos',
     (req, res) => {
-      return res(json(paginated(req.url.search, db.silos)))
+      const { params, paramsErr } = validateParams(schema.SiloListParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      return res(json(paginated(params, db.silos)))
     }
   ),
 
   rest.post<Json<Api.SiloCreate>, never, Json<Api.Silo> | PostErr>(
     '/system/silos',
     async (req, res) => {
-      const body = await req.json()
+      const { paramsErr } = validateParams(schema.SiloCreateParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const { body, bodyErr } = validateBody(schema.SiloCreate, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       const alreadyExists = db.silos.some((x) => x.name === body.name)
       if (alreadyExists) return res(alreadyExistsErr)
-
-      if (!body.name) {
-        return res(badRequest('name requires at least one character'))
-      }
-      if (typeof body.discoverable !== 'boolean') {
-        return res(badRequest('discoverable must be provided'))
-      }
-      if (!body.identity_mode) {
-        return res(badRequest('identity_mode must be provided'))
-      }
 
       const newSilo: Json<Api.Silo> = {
         id: genId('silo'),
@@ -1139,7 +1353,10 @@ export const handlers = [
   rest.get<never, PP.Silo, Json<Api.Silo> | GetErr>(
     '/system/silos/:siloName',
     (req, res) => {
-      const [silo, err] = lookupSilo(req.params)
+      const { params, paramsErr } = validateParams(schema.SiloViewParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [silo, err] = lookupSilo(params)
       if (err) return res(err)
       return res(json(silo))
     }
@@ -1148,25 +1365,41 @@ export const handlers = [
   rest.delete<never, PP.Silo, Json<Api.Silo> | GetErr>(
     '/system/silos/:siloName',
     (req, res) => {
-      const [silo, err] = lookupSilo(req.params)
+      const { params, paramsErr } = validateParams(schema.SiloDeleteParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      const [silo, err] = lookupSilo(params)
       if (err) return res(err)
+
       db.silos = db.silos.filter((x) => x.id !== silo.id)
       return res(json(silo))
     }
   ),
 
   rest.get<never, never, Json<Api.UserResultsPage> | GetErr>('/users', (req, res) => {
-    return res(json(paginated(req.url.search, db.users)))
+    const { params, paramsErr } = validateParams(schema.UserListParams, req)
+    if (paramsErr) return res(paramsErr)
+
+    return res(json(paginated(params, db.users)))
   }),
 
   rest.get<never, never, Json<Api.GroupResultsPage> | GetErr>('/groups', (req, res) => {
-    return res(json(paginated(req.url.search, db.userGroups)))
+    const { params, paramsErr } = validateParams(schema.GroupListParams, req)
+    if (paramsErr) return res(paramsErr)
+
+    return res(json(paginated(params, db.userGroups)))
   }),
 
   rest.post<Json<Api.DeviceAuthVerify>, never, PostErr>(
     '/device/confirm',
     async (req, res, ctx) => {
-      const body = await req.json()
+      const { paramsErr } = validateParams(schema.DeviceAuthConfirmParams, req)
+      if (paramsErr) return res(paramsErr)
+
+      // TODO: Should this be `DeviceAuthConfirm`?
+      const { body, bodyErr } = validateBody(schema.DeviceAuthVerify, await req.json())
+      if (bodyErr) return res(bodyErr)
+
       if (body.user_code === 'BADD-CODE') {
         return res(ctx.status(404))
       }
