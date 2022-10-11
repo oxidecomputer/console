@@ -35,10 +35,6 @@ def parse_env_vars(s: str):
     return dict((k, v.strip("\"'")) for k, v in pairs)
 
 
-def serialize_vars(commit: str, sha2: str):
-    return f'COMMIT="{commit}"\nSHA2="{sha2}"\n'
-
-
 def main():
     dry_run = parser.parse_args().dry_run
 
@@ -50,8 +46,10 @@ def main():
     new_sha2_resp.raise_for_status()
     new_sha2 = new_sha2_resp.text.strip()
 
+    new_version_file = f'COMMIT="{new_commit}"\nSHA2="{new_sha2}"\n'
+
     if dry_run:
-        print(serialize_vars(new_commit, new_sha2))
+        print(new_version_file)
         return
 
     if not shutil.which("gh"):
@@ -72,7 +70,7 @@ def main():
     pr_body = f"Changes: https://github.com/oxidecomputer/console/compare/{old_commit}...{new_commit}"
 
     with open(VERSION_FILE, "w") as f:
-        f.write(serialize_vars(new_commit, new_sha2))
+        f.write(new_version_file)
 
     check_output(["git", "add", "--all"])
     check_output(["git", "commit", "-m", pr_title, "-m", pr_body])
