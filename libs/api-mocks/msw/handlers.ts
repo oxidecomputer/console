@@ -87,7 +87,7 @@ const validateParams = <
   schema: S,
   req: R
 ) => {
-  const rawParams = new URLSearchParams(req.url.search) as unknown as Map<string, unknown>
+  const rawParams = new URLSearchParams(req.url.search)
   const params: [string, unknown][] = []
 
   // Ensure numeric params like `limit` are parsed as numbers
