@@ -1,13 +1,9 @@
-import * as Yup from 'yup'
+// import * as Yup from 'yup'
 import { format, subDays, subHours } from 'date-fns'
-import { Form, Formik } from 'formik'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import { useInterval } from '@oxide/ui'
-import { Button } from '@oxide/ui'
-
-import { ListboxField } from './ListboxField'
-import { TextField } from './TextField'
+import { Listbox, useInterval } from '@oxide/ui'
+import { Button, TextInput } from '@oxide/ui'
 
 const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
@@ -33,14 +29,14 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
   last30Days: (now) => subDays(now, 30),
 }
 
-const rangeKeys = rangePresets.map((item) => item.value)
+// const rangeKeys = rangePresets.map((item) => item.value)
 
 /** Validate that they're Dates and end is after start */
-const dateRangeSchema = Yup.object({
-  preset: Yup.string().oneOf(rangeKeys),
-  startTime: Yup.date(),
-  endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
-})
+// const dateRangeSchema = Yup.object({
+//   preset: Yup.string().oneOf(rangeKeys),
+//   startTime: Yup.date(),
+//   endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
+// })
 
 // Limitations:
 //   - list of presets is hard-coded
@@ -61,129 +57,115 @@ type Args = {
  * a JSX element to render.
  */
 export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
+  const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
+
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 
-  const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
+  const initialStartTime = computeStart[initialPreset](now)
+  const [startTime, setStartTime] = useState(initialStartTime)
   const [endTime, setEndTime] = useState(now)
 
-  // only exists to make current preset value available to window slider
-  const presetRef = useRef<RangeKeyAll>(initialPreset)
+  // needs a separate pair of values because they can be edited without
+  // submitting and updating the graphs
+  const [startTimeInput, setStartTimeInput] = useState(initialStartTime)
+  const [endTimeInput, setEndTimeInput] = useState(now)
+
+  // TODO: validate inputs on change and display error someplace
+
+  const customInputsDirty = startTime !== startTimeInput || endTime !== endTimeInput
+
+  const enableInputs = preset === 'custom'
 
   useInterval(
     () => {
-      if (presetRef.current !== 'custom') {
+      if (preset !== 'custom') {
         const now = new Date()
-        setStartTime(computeStart[presetRef.current](now))
+        const newStartTime = computeStart[preset](now)
+        setStartTime(newStartTime)
         setEndTime(now)
+        setStartTimeInput(newStartTime)
+        setEndTimeInput(now)
       }
     },
-    slideInterval && presetRef.current !== 'custom' ? slideInterval : null
+    slideInterval && preset !== 'custom' ? slideInterval : null
   )
 
-  // We're using Formik to manage the state of the inputs, but this is not
-  // strictly necessary. It's convenient while we're using `TextField` with
-  // `type=datetime-local` because we get validationSchema and error display for
-  // free. Once we use a React date picker library, we can make the inputs
-  // controlled and manage everything through regular state. I think that will
-  // be a little cleaner.
   const dateTimeRangePicker = (
-    <Formik
-      initialValues={{
-        // values are strings, unfortunately
-        startTime: dateForInput(startTime),
-        endTime: dateForInput(endTime),
-        preset: initialPreset as RangeKeyAll, // indicates preset can include 'custom'
-      }}
-      onSubmit={({ startTime, endTime }) => {
-        setStartTime(new Date(startTime))
-        setEndTime(new Date(endTime))
-      }}
-      validationSchema={dateRangeSchema}
-    >
-      {({ values, setFieldValue, submitForm }) => {
-        // whether the time fields have been changed from what is displayed
-        const customInputsDirty =
-          values.startTime !== dateForInput(startTime) ||
-          values.endTime !== dateForInput(endTime)
+    <form className="flex h-24 gap-4">
+      <Listbox
+        className="mr-4 w-48" // in addition to gap-4
+        name="preset"
+        defaultValue={initialPreset}
+        aria-label="Choose a time range"
+        items={rangePresets}
+        onChange={(item) => {
+          if (item) {
+            // only done to make the value available to the range window slider interval
+            setPreset(item.value as RangeKeyAll)
 
-        // on presets, inputs visible (showing current range) but disabled
-        const enableInputs = values.preset === 'custom'
+            if (item.value !== 'custom') {
+              const now = new Date()
+              const newStartTime = computeStart[item.value as RangeKey](now)
+              setStartTime(newStartTime)
+              setEndTime(now)
+              setStartTimeInput(newStartTime)
+              setEndTimeInput(now)
+            }
+          }
+        }}
+      />
 
-        function setRangeValues(startTime: Date, endTime: Date) {
-          setFieldValue('startTime', dateForInput(startTime), true)
-          setFieldValue('endTime', dateForInput(endTime), true)
-        }
-
-        return (
-          <Form className="flex h-24 gap-4">
-            <ListboxField
-              className="mr-4" // in addition to gap-4
-              id="preset"
-              name="preset"
-              label="Choose a time range"
-              items={rangePresets}
-              // when we select a preset, set the input values to the range
-              // for that preset and submit the form to update the charts
-              onChange={(item) => {
-                if (item) {
-                  // only done to make the value available to the range window slider interval
-                  presetRef.current = item.value as RangeKeyAll
-
-                  if (item.value !== 'custom') {
-                    const now = new Date()
-                    const newStartTime = computeStart[item.value as RangeKey](now)
-                    setRangeValues(newStartTime, now)
-                    // goofy, but I like the idea of going through the submit
-                    // pathway instead of duplicating the setStates
-                    submitForm()
-                    // TODO: if input is invalid while on custom, e.g.,
-                    // because end is before start, changing to a preset does
-                    // not clear the error. changing a second time does
-                  }
-                }
-              }}
-              required
-            />
-
-            {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-            {/* TODO: the field labels look pretty stupid in this context, fix that. probably leave them 
-                       there for a11y purposes but hide them for sighted users */}
-            <TextField
-              id="startTime"
-              type="datetime-local"
-              label="Start time"
-              disabled={!enableInputs}
-              required
-            />
-            <TextField
-              id="endTime"
-              type="datetime-local"
-              label="End time"
-              required
-              disabled={!enableInputs}
-            />
-            {/* mt-6 is a hack to fake alignment with the inputs. this will change so it doesn't matter */}
-            {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
-            {enableInputs && (
-              <Button
-                className="mt-6"
-                disabled={!customInputsDirty}
-                // reset inputs back to whatever they were
-                onClick={() => setRangeValues(startTime, endTime)}
-              >
-                Reset
-              </Button>
-            )}
-            {enableInputs && (
-              <Button className="mt-6" type="submit" disabled={!customInputsDirty}>
-                Load
-              </Button>
-            )}
-          </Form>
-        )
-      }}
-    </Formik>
+      {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
+      <TextInput
+        id="startTime"
+        type="datetime-local"
+        className="h-10"
+        // TODO: figure out error
+        error={false}
+        aria-label="Start time"
+        disabled={!enableInputs}
+        required
+        value={dateForInput(startTimeInput)}
+        onChange={(e) => setStartTimeInput(e.target.valueAsDate!)}
+      />
+      <TextInput
+        id="endTime"
+        type="datetime-local"
+        className="h-10"
+        // TODO: figure out error
+        error={false}
+        aria-label="End time"
+        disabled={!enableInputs}
+        required
+        value={dateForInput(endTime)}
+        onChange={(e) => setEndTimeInput(e.target.valueAsDate!)}
+      />
+      {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
+      {enableInputs && (
+        <Button
+          disabled={!customInputsDirty}
+          // reset inputs back to whatever they were
+          onClick={() => {
+            setStartTimeInput(startTime)
+            setEndTimeInput(endTime)
+          }}
+        >
+          Reset
+        </Button>
+      )}
+      {enableInputs && (
+        <Button
+          disabled={!customInputsDirty}
+          onClick={() => {
+            setStartTime(startTimeInput)
+            setEndTime(endTimeInput)
+          }}
+        >
+          Load
+        </Button>
+      )}
+    </form>
   )
 
   return { startTime, endTime, dateTimeRangePicker }
