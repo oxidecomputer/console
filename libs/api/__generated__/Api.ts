@@ -1739,11 +1739,6 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
-export type SystemMetricName =
-  | 'virtual_disk_space_provisioned'
-  | 'cpus_provisioned'
-  | 'ram_provisioned'
-
 export interface DiskViewByIdParams {
   id: string
 }
@@ -2380,15 +2375,6 @@ export interface IpPoolServiceRangeAddParams {
 
 export interface IpPoolServiceRangeRemoveParams {
   rackId: string
-}
-
-export interface SystemMetricParams {
-  metricName: SystemMetricName
-  endTime?: Date
-  id?: string
-  limit?: number
-  pageToken?: string | null
-  startTime?: Date
 }
 
 export interface SystemPolicyViewParams {}
@@ -4071,20 +4057,6 @@ export class Api extends HttpClient {
         path: `/system/ip-pools-service/${rackId}/ranges/remove`,
         method: 'POST',
         body,
-        ...params,
-      }),
-
-    /**
-     * Access metrics data
-     */
-    systemMetric: (
-      { metricName, ...query }: SystemMetricParams,
-      params: RequestParams = {}
-    ) =>
-      this.request<MeasurementResultsPage>({
-        path: `/system/metrics/${metricName}`,
-        method: 'GET',
-        query,
         ...params,
       }),
 

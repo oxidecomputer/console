@@ -1,5 +1,6 @@
-import type { SystemMetricName } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+// import type { SystemMetricName } from '@oxide/api'
+// import { useApiQuery } from '@oxide/api'
+import type { MeasurementResultsPage } from '@oxide/api'
 import { Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from './TimeSeriesChart'
@@ -8,7 +9,8 @@ type SystemMetricProps = {
   title: string
   startTime: Date
   endTime: Date
-  metricName: SystemMetricName
+  metricName: string
+  // metricName: SystemMetricName
   /** Resource to filter data by. Can be fleet, silo, org, project. */
   filterId: string
   valueTransform?: (n: number) => number
@@ -16,24 +18,24 @@ type SystemMetricProps = {
 
 export function SystemMetric({
   title,
-  filterId,
   startTime,
   endTime,
-  metricName,
   valueTransform = (x) => x,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const { data: metrics, isLoading } = useApiQuery(
-    'systemMetric',
-    { id: filterId, metricName, startTime, endTime },
-    {
-      // TODO: this is actually kind of useless unless the time interval slides forward as time passes
-      refetchInterval: 5000,
-      // avoid graphs flashing blank while loading when you change the time
-      keepPreviousData: true,
-    }
-  )
+  // const { data: metrics, isLoading } = useApiQuery(
+  //   'systemMetric',
+  //   { id: filterId, metricName, startTime, endTime },
+  //   {
+  //     // TODO: this is actually kind of useless unless the time interval slides forward as time passes
+  //     refetchInterval: 5000,
+  //     // avoid graphs flashing blank while loading when you change the time
+  //     keepPreviousData: true,
+  //   }
+  // )
+  const metrics: MeasurementResultsPage = { items: [] }
+  const isLoading = false
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
