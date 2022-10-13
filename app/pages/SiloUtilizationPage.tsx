@@ -70,7 +70,7 @@ export function SiloUtilizationPage() {
             </div>
             <Listbox
               defaultValue={DEFAULT_SILO_ID}
-              className="w-48"
+              className="w-36"
               aria-labelledby="org-id-label"
               name="org-id"
               items={orgItems}
