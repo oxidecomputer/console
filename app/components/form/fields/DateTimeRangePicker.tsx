@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { Listbox, useInterval } from '@oxide/ui'
 import { Button, TextInput } from '@oxide/ui'
 
-const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
+export const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -43,33 +43,50 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
 //   - no onChange, no way to control any inputs beyond initial preset
 //   - initial preset can't be "custom"
 
-type Args = {
+type Props = {
   initialPreset: RangeKey
   /**
    * if set and range is a relative preset, update the range to have `endTime`
    * of now every X ms
    */
   slideInterval?: number
+  startTime: Date
+  endTime: Date
+  onChange: (startTime: Date, endTime: Date) => void
+}
+
+export function useDateTimeRangePickerState(initialPreset: RangeKey) {
+  // default endTime is now, i.e., mount time
+  const now = useMemo(() => new Date(), [])
+
+  const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
+  const [endTime, setEndTime] = useState(now)
+
+  function onChange(newStart: Date, newEnd: Date) {
+    setStartTime(newStart)
+    setEndTime(newEnd)
+  }
+
+  return { startTime, endTime, onChange }
 }
 
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
  * a JSX element to render.
  */
-export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
+export function DateTimeRangePicker({
+  initialPreset,
+  slideInterval,
+  startTime,
+  endTime,
+  onChange,
+}: Props) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
-
-  // default endTime is now, i.e., mount time
-  const now = useMemo(() => new Date(), [])
-
-  const initialStartTime = computeStart[initialPreset](now)
-  const [startTime, setStartTime] = useState(initialStartTime)
-  const [endTime, setEndTime] = useState(now)
 
   // needs a separate pair of values because they can be edited without
   // submitting and updating the graphs
-  const [startTimeInput, setStartTimeInput] = useState(initialStartTime)
-  const [endTimeInput, setEndTimeInput] = useState(now)
+  const [startTimeInput, setStartTimeInput] = useState(startTime)
+  const [endTimeInput, setEndTimeInput] = useState(endTime)
 
   // TODO: validate inputs on change and display error someplace
 
@@ -77,21 +94,23 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
 
   const enableInputs = preset === 'custom'
 
+  /** Set the input values and call the passed-on onChange with the new times */
+  function setTimesForPreset(newPreset: RangeKey) {
+    const now = new Date()
+    const newStartTime = computeStart[newPreset](now)
+    onChange(newStartTime, now)
+    setStartTimeInput(newStartTime)
+    setEndTimeInput(now)
+  }
+
   useInterval(
     () => {
-      if (preset !== 'custom') {
-        const now = new Date()
-        const newStartTime = computeStart[preset](now)
-        setStartTime(newStartTime)
-        setEndTime(now)
-        setStartTimeInput(newStartTime)
-        setEndTimeInput(now)
-      }
+      if (preset !== 'custom') setTimesForPreset(preset)
     },
     slideInterval && preset !== 'custom' ? slideInterval : null
   )
 
-  const dateTimeRangePicker = (
+  return (
     <form className="flex h-24 gap-4">
       <Listbox
         className="mr-4 w-48" // in addition to gap-4
@@ -101,17 +120,8 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
         items={rangePresets}
         onChange={(item) => {
           if (item) {
-            // only done to make the value available to the range window slider interval
             setPreset(item.value as RangeKeyAll)
-
-            if (item.value !== 'custom') {
-              const now = new Date()
-              const newStartTime = computeStart[item.value as RangeKey](now)
-              setStartTime(newStartTime)
-              setEndTime(now)
-              setStartTimeInput(newStartTime)
-              setEndTimeInput(now)
-            }
+            if (item.value !== 'custom') setTimesForPreset(item.value as RangeKey)
           }
         }}
       />
@@ -127,7 +137,7 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
         disabled={!enableInputs}
         required
         value={dateForInput(startTimeInput)}
-        onChange={(e) => setStartTimeInput(e.target.valueAsDate!)}
+        onChange={(e) => setStartTimeInput(new Date(e.target.value))}
       />
       <TextInput
         id="endTime"
@@ -139,7 +149,7 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
         disabled={!enableInputs}
         required
         value={dateForInput(endTime)}
-        onChange={(e) => setEndTimeInput(e.target.valueAsDate!)}
+        onChange={(e) => setEndTimeInput(new Date(e.target.value))}
       />
       {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
       {enableInputs && (
@@ -157,16 +167,11 @@ export function useDateTimeRangePicker({ initialPreset, slideInterval }: Args) {
       {enableInputs && (
         <Button
           disabled={!customInputsDirty}
-          onClick={() => {
-            setStartTime(startTimeInput)
-            setEndTime(endTimeInput)
-          }}
+          onClick={() => onChange(startTimeInput, endTimeInput)}
         >
           Load
         </Button>
       )}
     </form>
   )
-
-  return { startTime, endTime, dateTimeRangePicker }
 }
