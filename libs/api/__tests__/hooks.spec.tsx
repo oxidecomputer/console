@@ -30,7 +30,7 @@ const renderGetOrgs = () => renderHook(() => useApiQuery('organizationList', {})
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
-  renderHook(() => useApiQuery('organizationView', { orgName: '503' }), config)
+  renderHook(() => useApiQuery('organizationView', { orgName: 'org-error-503' }), config)
 
 const renderCreateOrg = () => renderHook(() => useApiMutation('organizationCreate'), config)
 
