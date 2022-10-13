@@ -196,7 +196,7 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView(params) {
-    return json(lookupProject(params))
+    return lookupProject(params)
   },
   projectUpdate(body: Api.ProjectUpdate, params: Api.ProjectUpdateParams) {
     const project = lookupProject(params)
@@ -266,15 +266,15 @@ export const handlers = makeHandlers({
 
     const { startTime, endTime } = getStartAndEndTime(params)
 
-    if (endTime <= startTime) return json({ items: [] })
+    if (endTime <= startTime) return { items: [] }
 
-    return json({
+    return {
       items: genCumulativeI64Data(
         new Array(1000).fill(0).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
         startTime,
         endTime
       ),
-    })
+    }
   },
   imageList(params) {
     const project = lookupProject(params)
