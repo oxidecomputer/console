@@ -17,6 +17,7 @@ import {
   lookupNetworkInterface,
   lookupOrg,
   lookupProject,
+  lookupSilo,
   lookupSnapshot,
   lookupSshKey,
   lookupVpc,
@@ -918,17 +919,26 @@ export const handlers = makeHandlers({
   sagaView(_params) {
     throw NotImplementedErr
   },
-  siloList(_params) {
-    throw NotImplementedErr
+  siloList(params) {
+    return paginated(params, db.silos)
   },
-  siloCreate(_body) {
-    throw NotImplementedErr
+  siloCreate(body) {
+    errIfExists(db.silos, { name: body.name })
+    const newSilo: Json<Api.Silo> = {
+      id: genId('silo'),
+      ...getTimestamps(),
+      ...body,
+    }
+    db.silos.push(newSilo)
+    return json(newSilo, { status: 201 })
   },
-  siloView(_params) {
-    throw NotImplementedErr
+  siloView(params) {
+    return lookupSilo(params)
   },
-  siloDelete(_params) {
-    throw NotImplementedErr
+  siloDelete(params) {
+    const silo = lookupSilo(params)
+    db.silos = db.silos.filter((i) => i.id !== silo.id)
+    return 204
   },
   siloIdentityProviderList(_params) {
     throw NotImplementedErr
