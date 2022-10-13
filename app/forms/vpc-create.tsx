@@ -51,7 +51,7 @@ export function CreateVpcSideModalForm({
         (({ name, description, dnsName, ipv6Prefix }) =>
           createVpc.mutate({
             ...parentNames,
-            body: { name, description, dnsName, ipv6Prefix: ipv6Prefix || null },
+            body: { name, description, dnsName, ipv6Prefix },
           }))
       }
       submitDisabled={createVpc.isLoading}

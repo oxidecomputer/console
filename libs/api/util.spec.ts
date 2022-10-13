@@ -1,4 +1,4 @@
-import { genName, nullIfEmpty, parsePortRange } from './util'
+import { genName, parsePortRange } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
@@ -30,16 +30,6 @@ describe('parsePortRange', () => {
       expect(parsePortRange('239032')).toEqual(null)
     })
   })
-})
-
-test('nullIfEmpty', () => {
-  expect(nullIfEmpty('abc')).toEqual('abc')
-  expect(nullIfEmpty('  a')).toEqual('  a')
-  expect(nullIfEmpty(' a ')).toEqual(' a ')
-  expect(nullIfEmpty('a  ')).toEqual('a  ')
-
-  expect(nullIfEmpty('')).toBeNull()
-  expect(nullIfEmpty('  ')).toBeNull()
 })
 
 test('genName', () => {
