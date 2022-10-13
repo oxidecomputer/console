@@ -1,28 +1,29 @@
 import type { User } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { genId } from './msw/util'
 import { defaultSilo } from './silo'
 
 export const user1: Json<User> = {
-  id: 'user-1',
+  id: genId(),
   display_name: 'Hannah Arendt',
   silo_id: defaultSilo.id,
 }
 
 export const user2: Json<User> = {
-  id: 'user-2',
+  id: genId(),
   display_name: 'Hans Jonas',
   silo_id: defaultSilo.id,
 }
 
 export const user3: Json<User> = {
-  id: 'user-3',
+  id: genId(),
   display_name: 'Jacob Klein',
   silo_id: defaultSilo.id,
 }
 
 export const user4: Json<User> = {
-  id: 'user-4',
+  id: genId(),
   display_name: 'Simone de Beauvoir',
   silo_id: defaultSilo.id,
 }

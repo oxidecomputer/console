@@ -24,16 +24,12 @@ import {
   lookupVpcRouterRoute,
   lookupVpcSubnet,
 } from './db'
-import { getStartAndEndTime, paginated } from './util'
+import { genId, getStartAndEndTime, paginated } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
-
-/// generate random 11 digit hex string, prefix optional
-const genId = (prefix?: string) =>
-  (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 10e12).toString(16)
 
 function getTimestamps() {
   const now = new Date().toISOString()

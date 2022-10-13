@@ -1,4 +1,5 @@
 import { subHours } from 'date-fns'
+import { v4 as uuid } from 'uuid'
 
 export { json } from '@oxide/gen/msw-handlers'
 
@@ -60,3 +61,5 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 
   return { startTime, endTime }
 }
+
+export const genId = (_prefix?: string) => uuid()
