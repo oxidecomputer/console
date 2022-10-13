@@ -1,9 +1,10 @@
 import type { User } from '@oxide/api'
 
+import type { Json } from './json-type'
 import { defaultSilo } from './silo'
 
-export const sessionMe: User = {
+export const currentUser: Json<User> = {
   id: '001de000-05e4-4000-8000-000000060001',
-  siloId: defaultSilo.id,
-  displayName: 'Grace Hopper',
+  silo_id: defaultSilo.id,
+  display_name: 'Grace Hopper',
 }

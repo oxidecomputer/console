@@ -5,6 +5,7 @@ import { pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
+import { currentUser } from '../session'
 import {
   db,
   lookupById,
@@ -16,6 +17,7 @@ import {
   lookupOrg,
   lookupProject,
   lookupSnapshot,
+  lookupSshKey,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
@@ -779,19 +781,31 @@ export const handlers = makeHandlers({
     throw NotImplementedErr
   },
   sessionMe() {
-    throw NotImplementedErr
+    return currentUser
   },
-  sessionSshkeyList(_params) {
-    throw NotImplementedErr
+  sessionSshkeyList(params) {
+    const keys = db.sshKeys.filter((k) => k.silo_user_id === currentUser.id)
+    return paginated(params, keys)
   },
-  sessionSshkeyCreate(_body) {
-    throw NotImplementedErr
+  sessionSshkeyCreate(body) {
+    errIfExists(db.sshKeys, { silo_user_id: currentUser.id, name: body.name })
+
+    const newSshKey: Json<Api.SshKey> = {
+      id: genId('ssh-key'),
+      silo_user_id: currentUser.id,
+      ...body,
+      ...getTimestamps(),
+    }
+    db.sshKeys.push(newSshKey)
+    return json(newSshKey, { status: 201 })
   },
-  sessionSshkeyView(_params) {
-    throw NotImplementedErr
+  sessionSshkeyView(params) {
+    return lookupSshKey(params)
   },
-  sessionSshkeyDelete(_params) {
-    throw NotImplementedErr
+  sessionSshkeyDelete(params) {
+    const sshKey = lookupSshKey(params)
+    db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
+    return 204
   },
   systemImageViewById(params) {
     return lookupById(params, db.globalImages)

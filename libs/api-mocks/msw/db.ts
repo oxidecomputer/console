@@ -1,6 +1,6 @@
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
-import { sessionMe } from '@oxide/api-mocks'
+import { currentUser } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
 import { clone, json } from './util'
@@ -145,7 +145,7 @@ export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
 
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   const sshKey = db.sshKeys.find(
-    (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
+    (key) => key.name === params.sshKeyName && key.silo_user_id === currentUser.id
   )
   if (!sshKey) throw notFoundErr
   return sshKey
