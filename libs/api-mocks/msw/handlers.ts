@@ -851,14 +851,28 @@ export const handlers = makeHandlers({
   systemImageList(params) {
     return paginated(params, db.globalImages)
   },
-  systemImageCreate(_body) {
-    throw NotImplementedErr
+  systemImageCreate(body) {
+    errIfExists(db.globalImages, { name: body.name })
+
+    const newImage: Json<Api.GlobalImage> = {
+      id: genId('global-image'),
+      // TODO: This should be calculated based off of the source
+      size: 100,
+      ...body,
+      ...getTimestamps(),
+      distribution: body.distribution.name,
+      version: body.distribution.version,
+    }
+    db.globalImages.push(newImage)
+    return json(newImage, { status: 201 })
   },
   systemImageView(params) {
     return lookupGlobalImage(params)
   },
-  systemImageDelete(_params) {
-    throw NotImplementedErr
+  systemImageDelete(params) {
+    const image = lookupGlobalImage(params)
+    db.globalImages = db.globalImages.filter((i) => i.id !== image.id)
+    return 204
   },
   ipPoolList(_params) {
     throw NotImplementedErr
