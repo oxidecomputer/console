@@ -29,6 +29,7 @@ module.exports = {
               ),
             getSvgrConfig: () => {
               return {
+                jsxRuntime: 'automatic',
                 typescript: true,
                 titleProp: true,
                 svgProps: {
