@@ -80,7 +80,7 @@ describe('custom mode', () => {
     expect(screen.getByRole('button', { name: 'Load' })).toBeDisabled()
   })
 
-  it.only('clicking load after changing date changes range', async () => {
+  it('clicking load after changing date changes range', async () => {
     const { onChange } = renderLastDay()
 
     expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))
@@ -106,7 +106,7 @@ describe('custom mode', () => {
   })
 
   it('clicking reset after changing inputs resets inputs', async () => {
-    renderLastDay()
+    const { onChange } = renderLastDay()
 
     expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))
     expect(screen.getByLabelText('End time')).toHaveValue(dateForInput(now))
@@ -114,39 +114,35 @@ describe('custom mode', () => {
     clickByRole('button', 'Choose a time range')
     clickByRole('option', 'Custom...')
 
-    // change input values. figuring out how to actually interact with the
-    // input through clicks and typing is too complicated
     const startInput = screen.getByLabelText('Start time')
     fireEvent.change(startInput, { target: { value: '2020-01-15T00:00' } })
+    expect(startInput).toHaveValue('2020-01-15T00:00')
 
     const endInput = screen.getByLabelText('End time')
     fireEvent.change(endInput, { target: { value: '2020-01-17T00:00' } })
-    expect(startInput).toHaveValue('2020-01-15T00:00')
     expect(endInput).toHaveValue('2020-01-17T00:00')
 
     // clicking reset resets the inputs
     clickByRole('button', 'Reset')
-    expect(startInput).toHaveValue('2020-01-31T21:00')
+    expect(startInput).toHaveValue('2020-01-31T00:00')
     expect(endInput).toHaveValue('2020-02-01T00:00')
+
+    // onChange is never called
+    expect(onChange).not.toBeCalled()
   })
 
-  //     it('shows error for invalid range', async () => {
-  //       const { result } = renderHook(() =>
-  //         useDateTimeRangePicker({ initialPreset: 'last3Hours' })
-  //       )
+  it('shows error for invalid range', () => {
+    renderLastDay()
 
-  //       render(result.current.dateTimeRangePicker)
-  //       clickByRole('button', 'Choose a time range')
-  //       clickByRole('option', 'Custom...')
+    clickByRole('button', 'Choose a time range')
+    clickByRole('option', 'Custom...')
 
-  //       const startInput = screen.getByLabelText('Start time')
+    const startInput = screen.getByLabelText('Start time')
+    expect(startInput).toHaveValue('2020-01-31T00:00')
 
-  //       expect(startInput).toHaveValue('2020-01-31T21:00')
+    // start date is after end
+    fireEvent.change(startInput, { target: { value: '2020-02-03T00:00' } })
 
-  //       // start date is after end
-  //       fireEvent.change(startInput, { target: { value: '2020-02-03T00:00' } })
-
-  //       await screen.findByText('End time must be later than start time')
-  //     })
-  //   })
+    screen.getByText('Start time must be earlier than end time')
+  })
 })

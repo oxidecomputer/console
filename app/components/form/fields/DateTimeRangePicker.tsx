@@ -1,4 +1,3 @@
-// import * as Yup from 'yup'
 import { format, subDays, subHours } from 'date-fns'
 import { useMemo, useState } from 'react'
 
@@ -29,18 +28,8 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
   last30Days: (now) => subDays(now, 30),
 }
 
-// const rangeKeys = rangePresets.map((item) => item.value)
-
-/** Validate that they're Dates and end is after start */
-// const dateRangeSchema = Yup.object({
-//   preset: Yup.string().oneOf(rangeKeys),
-//   startTime: Yup.date(),
-//   endTime: Yup.date().min(Yup.ref('startTime'), 'End time must be later than start time'),
-// })
-
 // Limitations:
 //   - list of presets is hard-coded
-//   - no onChange, no way to control any inputs beyond initial preset
 //   - initial preset can't be "custom"
 
 type Props = {
@@ -70,6 +59,14 @@ export function useDateTimeRangePickerState(initialPreset: RangeKey) {
   return { startTime, endTime, onChange }
 }
 
+function validateRange(startTime: Date, endTime: Date): string | null {
+  if (startTime >= endTime) {
+    return 'Start time must be earlier than end time'
+  }
+
+  return null
+}
+
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
  * a JSX element to render.
@@ -89,6 +86,7 @@ export function DateTimeRangePicker({
   const [endTimeInput, setEndTimeInput] = useState(endTime)
 
   // TODO: validate inputs on change and display error someplace
+  const error = validateRange(startTimeInput, endTimeInput)
 
   const customInputsDirty = startTime !== startTimeInput || endTime !== endTimeInput
 
@@ -111,7 +109,7 @@ export function DateTimeRangePicker({
   )
 
   return (
-    <form className="flex h-24 gap-4">
+    <form className="flex h-20 gap-4">
       <Listbox
         className="mr-4 w-48" // in addition to gap-4
         name="preset"
@@ -127,30 +125,35 @@ export function DateTimeRangePicker({
       />
 
       {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
-      <TextInput
-        id="startTime"
-        type="datetime-local"
-        className="h-10"
-        // TODO: figure out error
-        error={false}
-        aria-label="Start time"
-        disabled={!enableInputs}
-        required
-        value={dateForInput(startTimeInput)}
-        onChange={(e) => setStartTimeInput(new Date(e.target.value))}
-      />
-      <TextInput
-        id="endTime"
-        type="datetime-local"
-        className="h-10"
-        // TODO: figure out error
-        error={false}
-        aria-label="End time"
-        disabled={!enableInputs}
-        required
-        value={dateForInput(endTime)}
-        onChange={(e) => setEndTimeInput(new Date(e.target.value))}
-      />
+      <div>
+        <div className="flex gap-4">
+          <TextInput
+            id="startTime"
+            type="datetime-local"
+            className="h-10"
+            // TODO: figure out error
+            error={false}
+            aria-label="Start time"
+            disabled={!enableInputs}
+            required
+            value={dateForInput(startTimeInput)}
+            onChange={(e) => setStartTimeInput(new Date(e.target.value))}
+          />
+          <TextInput
+            id="endTime"
+            type="datetime-local"
+            className="h-10"
+            // TODO: figure out error
+            error={false}
+            aria-label="End time"
+            disabled={!enableInputs}
+            required
+            value={dateForInput(endTimeInput)}
+            onChange={(e) => setEndTimeInput(new Date(e.target.value))}
+          />
+        </div>
+        {error && <div className="mt-2 text-center text-error">{error}</div>}
+      </div>
       {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
       {enableInputs && (
         <Button
@@ -166,7 +169,7 @@ export function DateTimeRangePicker({
       )}
       {enableInputs && (
         <Button
-          disabled={!customInputsDirty}
+          disabled={!customInputsDirty || !!error}
           onClick={() => onChange(startTimeInput, endTimeInput)}
         >
           Load
