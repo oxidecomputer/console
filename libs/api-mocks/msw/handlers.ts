@@ -6,6 +6,7 @@ import { pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { currentUser } from '../session'
+import { defaultSilo } from '../silo'
 import {
   db,
   lookupById,
@@ -769,10 +770,29 @@ export const handlers = makeHandlers({
     return paginated(params, nics)
   },
   policyView() {
-    throw NotImplementedErr
+    // assume we're in the default silo
+    const siloId = defaultSilo.id
+    const role_assignments = db.roleAssignments
+      .filter((r) => r.resource_type === 'silo' && r.resource_id === siloId)
+      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+    return { role_assignments }
   },
-  policyUpdate(_body) {
-    throw NotImplementedErr
+  policyUpdate(body) {
+    const siloId = defaultSilo.id
+    const newAssignments = body.role_assignments.map((r) => ({
+      resource_type: 'silo' as const,
+      resource_id: siloId,
+      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+    }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'silo' && r.resource_id === siloId)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return body
   },
   roleList(_params) {
     throw NotImplementedErr
