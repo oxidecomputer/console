@@ -961,7 +961,7 @@ export const handlers = makeHandlers({
   timeseriesSchemaGet(_params) {
     throw NotImplementedErr
   },
-  userList(_params) {
-    throw NotImplementedErr
+  userList(params) {
+    return paginated(params, db.users)
   },
 })
