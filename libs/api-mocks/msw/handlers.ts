@@ -67,7 +67,7 @@ export const handlers = makeHandlers({
 
     return lookupOrg(params)
   },
-  organizationUpdate(body, params) {
+  organizationUpdate(params, body) {
     const org = lookupOrg(params)
 
     if (typeof body.name === 'string') {
@@ -91,7 +91,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  organizationPolicyUpdate(body, params) {
+  organizationPolicyUpdate(params, body) {
     const org = lookupOrg(params)
 
     const newAssignments = body.role_assignments.map((r) => ({
@@ -114,7 +114,7 @@ export const handlers = makeHandlers({
 
     return paginated(params, projects)
   },
-  projectCreate(body, params) {
+  projectCreate(params, body) {
     const org = lookupOrg(params)
     errIfExists(db.projects, { name: body.name, organization_id: org.id })
 
@@ -129,7 +129,7 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView: lookupProject,
-  projectUpdate(body: Api.ProjectUpdate, params: Api.ProjectUpdateParams) {
+  projectUpdate(params, body) {
     const project = lookupProject(params)
     if (body.name) {
       project.name = body.name
@@ -138,7 +138,7 @@ export const handlers = makeHandlers({
 
     return project
   },
-  projectDelete(params: Api.ProjectDeleteParams) {
+  projectDelete(params) {
     const project = lookupProject(params)
 
     db.projects = db.projects.filter((p) => p.id !== project.id)
@@ -151,7 +151,7 @@ export const handlers = makeHandlers({
 
     return paginated(params, disks)
   },
-  diskCreate(body, params) {
+  diskCreate(params, body) {
     const project = lookupProject(params)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
@@ -210,7 +210,7 @@ export const handlers = makeHandlers({
     const images = db.images.filter((i) => i.project_id === project.id)
     return paginated(params, images)
   },
-  imageCreate(body, params) {
+  imageCreate(params, body) {
     const project = lookupProject(params)
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
@@ -237,7 +237,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(params, instances)
   },
-  instanceCreate(body, params) {
+  instanceCreate(params, body) {
     const project = lookupProject(params)
 
     errIfExists(db.instances, { name: body.name, project_id: project.id })
@@ -259,7 +259,7 @@ export const handlers = makeHandlers({
     db.instances = db.instances.filter((i) => i.id !== instance.id)
     return 204
   },
-  instanceDiskList(params: Api.InstanceDiskListParams) {
+  instanceDiskList(params) {
     const instance = lookupInstance(params)
     // TODO: Should disk instance state be `instance_id` instead of `instance`?
     const disks = db.disks.filter(
@@ -267,7 +267,7 @@ export const handlers = makeHandlers({
     )
     return paginated(params, disks)
   },
-  instanceDiskAttach(body, params) {
+  instanceDiskAttach(params, body) {
     const instance = lookupInstance(params)
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
@@ -279,7 +279,7 @@ export const handlers = makeHandlers({
     }
     return disk
   },
-  instanceDiskDetach(body: Api.DiskIdentifier, params: Api.InstanceDiskDetachParams) {
+  instanceDiskDetach(params, body) {
     const instance = lookupInstance(params)
     if (instance.run_state !== 'stopped') {
       throw 'Cannot detach disk to instance that is not stopped'
@@ -290,7 +290,7 @@ export const handlers = makeHandlers({
     }
     return disk
   },
-  instanceExternalIpList(params: Api.InstanceExternalIpListParams) {
+  instanceExternalIpList(params) {
     lookupInstance(params)
 
     // TODO: proper mock table
@@ -308,7 +308,7 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
     return paginated(params, nics)
   },
-  instanceNetworkInterfaceCreate(body, params) {
+  instanceNetworkInterfaceCreate(params, body) {
     const instance = lookupInstance(params)
     const nicsForInstance = db.networkInterfaces.filter(
       (n) => n.instance_id === instance.id
@@ -343,7 +343,7 @@ export const handlers = makeHandlers({
     return newNic
   },
   instanceNetworkInterfaceView: lookupNetworkInterface,
-  instanceNetworkInterfaceUpdate(body, params) {
+  instanceNetworkInterfaceUpdate(params, body) {
     const nic = lookupNetworkInterface(params)
 
     if (body.name) {
@@ -392,7 +392,7 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  instanceStop(params: Api.InstanceStopParams) {
+  instanceStop(params) {
     const instance = lookupInstance(params)
     instance.run_state = 'stopped'
 
@@ -407,7 +407,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  projectPolicyUpdate(body, params) {
+  projectPolicyUpdate(params, body) {
     const project = lookupProject(params)
 
     const newAssignments = body.role_assignments.map((r) => ({
@@ -430,7 +430,7 @@ export const handlers = makeHandlers({
     const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
     return paginated(params, snapshots)
   },
-  snapshotCreate(body, params) {
+  snapshotCreate(params, body) {
     const project = lookupProject(params)
 
     errIfExists(db.snapshots, { name: body.name })
@@ -461,7 +461,7 @@ export const handlers = makeHandlers({
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
     return paginated(params, vpcs)
   },
-  vpcCreate(body, params) {
+  vpcCreate(params, body) {
     const project = lookupProject(params)
     errIfExists(db.vpcs, { name: body.name })
 
@@ -491,7 +491,7 @@ export const handlers = makeHandlers({
     return json(newVpc, { status: 201 })
   },
   vpcView: lookupVpc,
-  vpcUpdate(body, params) {
+  vpcUpdate(params, body) {
     const vpc = lookupVpc(params)
 
     if (body.name) {
@@ -530,7 +530,7 @@ export const handlers = makeHandlers({
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
-  vpcFirewallRulesUpdate(body, params) {
+  vpcFirewallRulesUpdate(params, body) {
     const vpc = lookupVpc(params)
 
     const rules = body.rules.map((rule) => ({
@@ -553,7 +553,7 @@ export const handlers = makeHandlers({
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
     return paginated(params, routers)
   },
-  vpcRouterCreate(body, params) {
+  vpcRouterCreate(params, body) {
     const vpc = lookupVpc(params)
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
@@ -568,7 +568,7 @@ export const handlers = makeHandlers({
     return json(newRouter, { status: 201 })
   },
   vpcRouterView: lookupVpcRouter,
-  vpcRouterUpdate(body: Api.VpcRouterUpdate, params: Api.VpcRouterUpdateParams) {
+  vpcRouterUpdate(params, body) {
     const router = lookupVpcRouter(params)
 
     if (body.name) {
@@ -593,7 +593,7 @@ export const handlers = makeHandlers({
     const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
     return paginated(params, routers)
   },
-  vpcRouterRouteCreate(body, params) {
+  vpcRouterRouteCreate(params, body) {
     const router = lookupVpcRouter(params)
 
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
@@ -608,7 +608,7 @@ export const handlers = makeHandlers({
     return json(newRoute, { status: 201 })
   },
   vpcRouterRouteView: lookupVpcRouterRoute,
-  vpcRouterRouteUpdate(body, params) {
+  vpcRouterRouteUpdate(params, body) {
     const route = lookupVpcRouterRoute(params)
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
@@ -634,7 +634,7 @@ export const handlers = makeHandlers({
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
     return paginated(params, subnets)
   },
-  vpcSubnetCreate(body, params) {
+  vpcSubnetCreate(params, body) {
     const vpc = lookupVpc(params)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
 
@@ -653,7 +653,7 @@ export const handlers = makeHandlers({
     return json(newSubnet, { status: 201 })
   },
   vpcSubnetView: lookupVpcSubnet,
-  vpcSubnetUpdate(body, params) {
+  vpcSubnetUpdate(params, body) {
     const subnet = lookupVpcSubnet(params)
 
     if (body.name) {

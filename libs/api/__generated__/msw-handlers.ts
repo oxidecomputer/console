@@ -137,8 +137,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
   /** `PUT /organizations/:orgName` */
   organizationUpdate: (
-    body: Json<Api.OrganizationUpdate>,
-    params: Api.OrganizationUpdateParams
+    params: Api.OrganizationUpdateParams,
+    body: Json<Api.OrganizationUpdate>
   ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
   /** `DELETE /organizations/:orgName` */
   organizationDelete: (
@@ -152,8 +152,8 @@ export interface MSWHandlers {
   >
   /** `PUT /organizations/:orgName/policy` */
   organizationPolicyUpdate: (
-    body: Json<Api.OrganizationRolePolicy>,
-    params: Api.OrganizationPolicyUpdateParams
+    params: Api.OrganizationPolicyUpdateParams,
+    body: Json<Api.OrganizationRolePolicy>
   ) => MaybePromise<
     Json<Api.OrganizationRolePolicy> | ResponseTransformer<Json<Api.OrganizationRolePolicy>>
   >
@@ -165,8 +165,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects` */
   projectCreate: (
-    body: Json<Api.ProjectCreate>,
-    params: Api.ProjectCreateParams
+    params: Api.ProjectCreateParams,
+    body: Json<Api.ProjectCreate>
   ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
   /** `GET /organizations/:orgName/projects/:projectName` */
   projectView: (
@@ -174,8 +174,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
   /** `PUT /organizations/:orgName/projects/:projectName` */
   projectUpdate: (
-    body: Json<Api.ProjectUpdate>,
-    params: Api.ProjectUpdateParams
+    params: Api.ProjectUpdateParams,
+    body: Json<Api.ProjectUpdate>
   ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
   /** `DELETE /organizations/:orgName/projects/:projectName` */
   projectDelete: (
@@ -189,8 +189,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/disks` */
   diskCreate: (
-    body: Json<Api.DiskCreate>,
-    params: Api.DiskCreateParams
+    params: Api.DiskCreateParams,
+    body: Json<Api.DiskCreate>
   ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
   /** `GET /organizations/:orgName/projects/:projectName/disks/:diskName` */
   diskView: (
@@ -212,8 +212,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/images` */
   imageCreate: (
-    body: Json<Api.ImageCreate>,
-    params: Api.ImageCreateParams
+    params: Api.ImageCreateParams,
+    body: Json<Api.ImageCreate>
   ) => MaybePromise<Json<Api.Image> | ResponseTransformer<Json<Api.Image>>>
   /** `GET /organizations/:orgName/projects/:projectName/images/:imageName` */
   imageView: (
@@ -229,8 +229,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/instances` */
   instanceCreate: (
-    body: Json<Api.InstanceCreate>,
-    params: Api.InstanceCreateParams
+    params: Api.InstanceCreateParams,
+    body: Json<Api.InstanceCreate>
   ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName` */
   instanceView: (
@@ -248,13 +248,13 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach` */
   instanceDiskAttach: (
-    body: Json<Api.DiskIdentifier>,
-    params: Api.InstanceDiskAttachParams
+    params: Api.InstanceDiskAttachParams,
+    body: Json<Api.DiskIdentifier>
   ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach` */
   instanceDiskDetach: (
-    body: Json<Api.DiskIdentifier>,
-    params: Api.InstanceDiskDetachParams
+    params: Api.InstanceDiskDetachParams,
+    body: Json<Api.DiskIdentifier>
   ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips` */
   instanceExternalIpList: (
@@ -264,8 +264,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/migrate` */
   instanceMigrate: (
-    body: Json<Api.InstanceMigrate>,
-    params: Api.InstanceMigrateParams
+    params: Api.InstanceMigrateParams,
+    body: Json<Api.InstanceMigrate>
   ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
   instanceNetworkInterfaceList: (
@@ -276,8 +276,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
   instanceNetworkInterfaceCreate: (
-    body: Json<Api.NetworkInterfaceCreate>,
-    params: Api.InstanceNetworkInterfaceCreateParams
+    params: Api.InstanceNetworkInterfaceCreateParams,
+    body: Json<Api.NetworkInterfaceCreate>
   ) => MaybePromise<
     Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
   >
@@ -289,8 +289,8 @@ export interface MSWHandlers {
   >
   /** `PUT /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
   instanceNetworkInterfaceUpdate: (
-    body: Json<Api.NetworkInterfaceUpdate>,
-    params: Api.InstanceNetworkInterfaceUpdateParams
+    params: Api.InstanceNetworkInterfaceUpdateParams,
+    body: Json<Api.NetworkInterfaceUpdate>
   ) => MaybePromise<
     Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
   >
@@ -325,8 +325,8 @@ export interface MSWHandlers {
   >
   /** `PUT /organizations/:orgName/projects/:projectName/policy` */
   projectPolicyUpdate: (
-    body: Json<Api.ProjectRolePolicy>,
-    params: Api.ProjectPolicyUpdateParams
+    params: Api.ProjectPolicyUpdateParams,
+    body: Json<Api.ProjectRolePolicy>
   ) => MaybePromise<
     Json<Api.ProjectRolePolicy> | ResponseTransformer<Json<Api.ProjectRolePolicy>>
   >
@@ -338,8 +338,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/snapshots` */
   snapshotCreate: (
-    body: Json<Api.SnapshotCreate>,
-    params: Api.SnapshotCreateParams
+    params: Api.SnapshotCreateParams,
+    body: Json<Api.SnapshotCreate>
   ) => MaybePromise<Json<Api.Snapshot> | ResponseTransformer<Json<Api.Snapshot>>>
   /** `GET /organizations/:orgName/projects/:projectName/snapshots/:snapshotName` */
   snapshotView: (
@@ -357,8 +357,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/vpcs` */
   vpcCreate: (
-    body: Json<Api.VpcCreate>,
-    params: Api.VpcCreateParams
+    params: Api.VpcCreateParams,
+    body: Json<Api.VpcCreate>
   ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
   vpcView: (
@@ -366,8 +366,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
   vpcUpdate: (
-    body: Json<Api.VpcUpdate>,
-    params: Api.VpcUpdateParams
+    params: Api.VpcUpdateParams,
+    body: Json<Api.VpcUpdate>
   ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
   vpcDelete: (params: Api.VpcDeleteParams) => MaybePromise<number | ResponseTransformer>
@@ -379,8 +379,8 @@ export interface MSWHandlers {
   >
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules` */
   vpcFirewallRulesUpdate: (
-    body: Json<Api.VpcFirewallRuleUpdateParams>,
-    params: Api.VpcFirewallRulesUpdateParams
+    params: Api.VpcFirewallRulesUpdateParams,
+    body: Json<Api.VpcFirewallRuleUpdateParams>
   ) => MaybePromise<
     Json<Api.VpcFirewallRules> | ResponseTransformer<Json<Api.VpcFirewallRules>>
   >
@@ -392,8 +392,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers` */
   vpcRouterCreate: (
-    body: Json<Api.VpcRouterCreate>,
-    params: Api.VpcRouterCreateParams
+    params: Api.VpcRouterCreateParams,
+    body: Json<Api.VpcRouterCreate>
   ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
   vpcRouterView: (
@@ -401,8 +401,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
   vpcRouterUpdate: (
-    body: Json<Api.VpcRouterUpdate>,
-    params: Api.VpcRouterUpdateParams
+    params: Api.VpcRouterUpdateParams,
+    body: Json<Api.VpcRouterUpdate>
   ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
   vpcRouterDelete: (
@@ -416,8 +416,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes` */
   vpcRouterRouteCreate: (
-    body: Json<Api.RouterRouteCreateParams>,
-    params: Api.VpcRouterRouteCreateParams
+    params: Api.VpcRouterRouteCreateParams,
+    body: Json<Api.RouterRouteCreateParams>
   ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
   vpcRouterRouteView: (
@@ -425,8 +425,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
   vpcRouterRouteUpdate: (
-    body: Json<Api.RouterRouteUpdateParams>,
-    params: Api.VpcRouterRouteUpdateParams
+    params: Api.VpcRouterRouteUpdateParams,
+    body: Json<Api.RouterRouteUpdateParams>
   ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
   vpcRouterRouteDelete: (
@@ -440,8 +440,8 @@ export interface MSWHandlers {
   >
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets` */
   vpcSubnetCreate: (
-    body: Json<Api.VpcSubnetCreate>,
-    params: Api.VpcSubnetCreateParams
+    params: Api.VpcSubnetCreateParams,
+    body: Json<Api.VpcSubnetCreate>
   ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
   vpcSubnetView: (
@@ -449,8 +449,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
   vpcSubnetUpdate: (
-    body: Json<Api.VpcSubnetUpdate>,
-    params: Api.VpcSubnetUpdateParams
+    params: Api.VpcSubnetUpdateParams,
+    body: Json<Api.VpcSubnetUpdate>
   ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
   vpcSubnetDelete: (
@@ -569,8 +569,8 @@ export interface MSWHandlers {
   ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
   /** `PUT /system/ip-pools/:poolName` */
   ipPoolUpdate: (
-    body: Json<Api.IpPoolUpdate>,
-    params: Api.IpPoolUpdateParams
+    params: Api.IpPoolUpdateParams,
+    body: Json<Api.IpPoolUpdate>
   ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
   /** `DELETE /system/ip-pools/:poolName` */
   ipPoolDelete: (
@@ -584,13 +584,13 @@ export interface MSWHandlers {
   >
   /** `POST /system/ip-pools/:poolName/ranges/add` */
   ipPoolRangeAdd: (
-    body: Json<Api.IpRange>,
-    params: Api.IpPoolRangeAddParams
+    params: Api.IpPoolRangeAddParams,
+    body: Json<Api.IpRange>
   ) => MaybePromise<Json<Api.IpPoolRange> | ResponseTransformer<Json<Api.IpPoolRange>>>
   /** `POST /system/ip-pools/:poolName/ranges/remove` */
   ipPoolRangeRemove: (
-    body: Json<Api.IpRange>,
-    params: Api.IpPoolRangeRemoveParams
+    params: Api.IpPoolRangeRemoveParams,
+    body: Json<Api.IpRange>
   ) => MaybePromise<number | ResponseTransformer>
   /** `GET /system/ip-pools-service/:rackId` */
   ipPoolServiceView: (
@@ -604,13 +604,13 @@ export interface MSWHandlers {
   >
   /** `POST /system/ip-pools-service/:rackId/ranges/add` */
   ipPoolServiceRangeAdd: (
-    body: Json<Api.IpRange>,
-    params: Api.IpPoolServiceRangeAddParams
+    params: Api.IpPoolServiceRangeAddParams,
+    body: Json<Api.IpRange>
   ) => MaybePromise<Json<Api.IpPoolRange> | ResponseTransformer<Json<Api.IpPoolRange>>>
   /** `POST /system/ip-pools-service/:rackId/ranges/remove` */
   ipPoolServiceRangeRemove: (
-    body: Json<Api.IpRange>,
-    params: Api.IpPoolServiceRangeRemoveParams
+    params: Api.IpPoolServiceRangeRemoveParams,
+    body: Json<Api.IpRange>
   ) => MaybePromise<number | ResponseTransformer>
   /** `GET /system/policy` */
   systemPolicyView: () => MaybePromise<
@@ -657,8 +657,8 @@ export interface MSWHandlers {
   >
   /** `POST /system/silos/:siloName/identity-providers/saml` */
   samlIdentityProviderCreate: (
-    body: Json<Api.SamlIdentityProviderCreate>,
-    params: Api.SamlIdentityProviderCreateParams
+    params: Api.SamlIdentityProviderCreateParams,
+    body: Json<Api.SamlIdentityProviderCreate>
   ) => MaybePromise<
     Json<Api.SamlIdentityProvider> | ResponseTransformer<Json<Api.SamlIdentityProvider>>
   >
@@ -676,8 +676,8 @@ export interface MSWHandlers {
   >
   /** `PUT /system/silos/:siloName/policy` */
   siloPolicyUpdate: (
-    body: Json<Api.SiloRolePolicy>,
-    params: Api.SiloPolicyUpdateParams
+    params: Api.SiloPolicyUpdateParams,
+    body: Json<Api.SiloRolePolicy>
   ) => MaybePromise<
     Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
   >
@@ -734,1438 +734,666 @@ function validateParams<S extends ZodSchema>(schema: S, req: RestRequest) {
   return { paramsErr: json(result.error.issues, { status: 400 }) }
 }
 
-const handleResult = async (
-  res: ResponseComposition,
-  ctx: RestContext,
-  handler: () => MaybePromise<unknown>
-) => {
-  try {
-    const result = await handler()
-    if (typeof result === 'number') {
-      return res(ctx.status(result))
+const handler =
+  (
+    handler: MSWHandlers[keyof MSWHandlers],
+    paramSchema: ZodSchema | null,
+    bodySchema: ZodSchema | null
+  ) =>
+  async (req: RestRequest, res: ResponseComposition, ctx: RestContext) => {
+    const { params, paramsErr } = paramSchema
+      ? validateParams(paramSchema, req)
+      : { params: undefined, paramsErr: undefined }
+    if (paramsErr) return res(paramsErr)
+
+    const { body, bodyErr } = bodySchema
+      ? validateBody(bodySchema, await req.json())
+      : { body: undefined, bodyErr: undefined }
+    if (bodyErr) return res(bodyErr)
+
+    try {
+      // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema
+      // being present and the shape of the handler API. The type of this function could be resolved such that the
+      // relevant schema is required if and only if the handler has a type that matches the inferred schema
+      const result = await (handler as any).apply(null, [params, body].filter(Boolean))
+      if (typeof result === 'number') {
+        return res(ctx.status(result))
+      }
+      if (typeof result === 'function') {
+        return res(result as ResponseTransformer)
+      }
+      return res(json(result))
+    } catch (thrown) {
+      if (typeof thrown === 'number') {
+        return res(ctx.status(thrown))
+      }
+      if (typeof thrown === 'function') {
+        return res(thrown as ResponseTransformer)
+      }
+      if (typeof thrown === 'string') {
+        return res(json({ message: thrown }, { status: 400 }))
+      }
+      console.error('Unexpected mock error', thrown)
+      return res(json({ message: 'Unknown Server Error' }, { status: 500 }))
     }
-    if (typeof result === 'function') {
-      return res(result as ResponseTransformer)
-    }
-    return res(json(result))
-  } catch (thrown) {
-    if (typeof thrown === 'number') {
-      return res(ctx.status(thrown))
-    }
-    if (typeof thrown === 'function') {
-      return res(thrown as ResponseTransformer)
-    }
-    if (typeof thrown === 'string') {
-      return res(json({ message: thrown }, { status: 400 }))
-    }
-    console.error('Unexpected mock error', thrown)
-    return res(json({ message: 'Unknown Server Error' }, { status: 500 }))
   }
-}
 
 export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
   return [
-    rest.get('/by-id/disks/:id', async (req, res, ctx) => {
-      const handler = handlers['diskViewById']
-
-      const { params, paramsErr } = validateParams(schema.DiskViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/images/:id', async (req, res, ctx) => {
-      const handler = handlers['imageViewById']
-
-      const { params, paramsErr } = validateParams(schema.ImageViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/instances/:id', async (req, res, ctx) => {
-      const handler = handlers['instanceViewById']
-
-      const { params, paramsErr } = validateParams(schema.InstanceViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/network-interfaces/:id', async (req, res, ctx) => {
-      const handler = handlers['instanceNetworkInterfaceViewById']
-
-      const { params, paramsErr } = validateParams(
+    rest.get(
+      '/by-id/disks/:id',
+      handler(handlers['diskViewById'], schema.DiskViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/images/:id',
+      handler(handlers['imageViewById'], schema.ImageViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/instances/:id',
+      handler(handlers['instanceViewById'], schema.InstanceViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/network-interfaces/:id',
+      handler(
+        handlers['instanceNetworkInterfaceViewById'],
         schema.InstanceNetworkInterfaceViewByIdParams,
-        req
+        null
       )
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/organizations/:id', async (req, res, ctx) => {
-      const handler = handlers['organizationViewById']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/projects/:id', async (req, res, ctx) => {
-      const handler = handlers['projectViewById']
-
-      const { params, paramsErr } = validateParams(schema.ProjectViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/snapshots/:id', async (req, res, ctx) => {
-      const handler = handlers['snapshotViewById']
-
-      const { params, paramsErr } = validateParams(schema.SnapshotViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/vpc-router-routes/:id', async (req, res, ctx) => {
-      const handler = handlers['vpcRouterRouteViewById']
-
-      const { params, paramsErr } = validateParams(schema.VpcRouterRouteViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/vpc-routers/:id', async (req, res, ctx) => {
-      const handler = handlers['vpcRouterViewById']
-
-      const { params, paramsErr } = validateParams(schema.VpcRouterViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/vpc-subnets/:id', async (req, res, ctx) => {
-      const handler = handlers['vpcSubnetViewById']
-
-      const { params, paramsErr } = validateParams(schema.VpcSubnetViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/by-id/vpcs/:id', async (req, res, ctx) => {
-      const handler = handlers['vpcViewById']
-
-      const { params, paramsErr } = validateParams(schema.VpcViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/device/auth', async (req, res, ctx) => {
-      const handler = handlers['deviceAuthRequest']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.post('/device/confirm', async (req, res, ctx) => {
-      const handler = handlers['deviceAuthConfirm']
-
-      const { body, bodyErr } = validateBody(schema.DeviceAuthVerify, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.post('/device/token', async (req, res, ctx) => {
-      const handler = handlers['deviceAccessToken']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.get('/groups', async (req, res, ctx) => {
-      const handler = handlers['groupList']
-
-      const { params, paramsErr } = validateParams(schema.GroupListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/login', async (req, res, ctx) => {
-      const handler = handlers['loginSpoof']
-
-      const { body, bodyErr } = validateBody(schema.SpoofLoginBody, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/login/:siloName/saml/:providerName', async (req, res, ctx) => {
-      const handler = handlers['loginSamlBegin']
-
-      const { params, paramsErr } = validateParams(schema.LoginSamlBeginParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/login/:siloName/saml/:providerName', async (req, res, ctx) => {
-      const handler = handlers['loginSaml']
-
-      const { params, paramsErr } = validateParams(schema.LoginSamlParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/logout', async (req, res, ctx) => {
-      const handler = handlers['logout']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.get('/organizations', async (req, res, ctx) => {
-      const handler = handlers['organizationList']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/organizations', async (req, res, ctx) => {
-      const handler = handlers['organizationCreate']
-
-      const { body, bodyErr } = validateBody(schema.OrganizationCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/organizations/:orgName', async (req, res, ctx) => {
-      const handler = handlers['organizationView']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.put('/organizations/:orgName', async (req, res, ctx) => {
-      const handler = handlers['organizationUpdate']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationUpdateParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.OrganizationUpdate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.delete('/organizations/:orgName', async (req, res, ctx) => {
-      const handler = handlers['organizationDelete']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/organizations/:orgName/policy', async (req, res, ctx) => {
-      const handler = handlers['organizationPolicyView']
-
-      const { params, paramsErr } = validateParams(schema.OrganizationPolicyViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.put('/organizations/:orgName/policy', async (req, res, ctx) => {
-      const handler = handlers['organizationPolicyUpdate']
-
-      const { params, paramsErr } = validateParams(
+    ),
+    rest.get(
+      '/by-id/organizations/:id',
+      handler(handlers['organizationViewById'], schema.OrganizationViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/projects/:id',
+      handler(handlers['projectViewById'], schema.ProjectViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/snapshots/:id',
+      handler(handlers['snapshotViewById'], schema.SnapshotViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/vpc-router-routes/:id',
+      handler(handlers['vpcRouterRouteViewById'], schema.VpcRouterRouteViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/vpc-routers/:id',
+      handler(handlers['vpcRouterViewById'], schema.VpcRouterViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/vpc-subnets/:id',
+      handler(handlers['vpcSubnetViewById'], schema.VpcSubnetViewByIdParams, null)
+    ),
+    rest.get(
+      '/by-id/vpcs/:id',
+      handler(handlers['vpcViewById'], schema.VpcViewByIdParams, null)
+    ),
+    rest.post('/device/auth', handler(handlers['deviceAuthRequest'], null, null)),
+    rest.post(
+      '/device/confirm',
+      handler(handlers['deviceAuthConfirm'], null, schema.DeviceAuthVerify)
+    ),
+    rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
+    rest.get('/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
+    rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
+    rest.get(
+      '/login/:siloName/saml/:providerName',
+      handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
+    ),
+    rest.post(
+      '/login/:siloName/saml/:providerName',
+      handler(handlers['loginSaml'], schema.LoginSamlParams, null)
+    ),
+    rest.post('/logout', handler(handlers['logout'], null, null)),
+    rest.get(
+      '/organizations',
+      handler(handlers['organizationList'], schema.OrganizationListParams, null)
+    ),
+    rest.post(
+      '/organizations',
+      handler(handlers['organizationCreate'], null, schema.OrganizationCreate)
+    ),
+    rest.get(
+      '/organizations/:orgName',
+      handler(handlers['organizationView'], schema.OrganizationViewParams, null)
+    ),
+    rest.put(
+      '/organizations/:orgName',
+      handler(
+        handlers['organizationUpdate'],
+        schema.OrganizationUpdateParams,
+        schema.OrganizationUpdate
+      )
+    ),
+    rest.delete(
+      '/organizations/:orgName',
+      handler(handlers['organizationDelete'], schema.OrganizationDeleteParams, null)
+    ),
+    rest.get(
+      '/organizations/:orgName/policy',
+      handler(handlers['organizationPolicyView'], schema.OrganizationPolicyViewParams, null)
+    ),
+    rest.put(
+      '/organizations/:orgName/policy',
+      handler(
+        handlers['organizationPolicyUpdate'],
         schema.OrganizationPolicyUpdateParams,
-        req
+        schema.OrganizationRolePolicy
       )
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(
-        schema.OrganizationRolePolicy,
-        await req.json()
-      )
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.get('/organizations/:orgName/projects', async (req, res, ctx) => {
-      const handler = handlers['projectList']
-
-      const { params, paramsErr } = validateParams(schema.ProjectListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/organizations/:orgName/projects', async (req, res, ctx) => {
-      const handler = handlers['projectCreate']
-
-      const { params, paramsErr } = validateParams(schema.ProjectCreateParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.ProjectCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.get('/organizations/:orgName/projects/:projectName', async (req, res, ctx) => {
-      const handler = handlers['projectView']
-
-      const { params, paramsErr } = validateParams(schema.ProjectViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.put('/organizations/:orgName/projects/:projectName', async (req, res, ctx) => {
-      const handler = handlers['projectUpdate']
-
-      const { params, paramsErr } = validateParams(schema.ProjectUpdateParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.ProjectUpdate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.delete('/organizations/:orgName/projects/:projectName', async (req, res, ctx) => {
-      const handler = handlers['projectDelete']
-
-      const { params, paramsErr } = validateParams(schema.ProjectDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
+    ),
+    rest.get(
+      '/organizations/:orgName/projects',
+      handler(handlers['projectList'], schema.ProjectListParams, null)
+    ),
+    rest.post(
+      '/organizations/:orgName/projects',
+      handler(handlers['projectCreate'], schema.ProjectCreateParams, schema.ProjectCreate)
+    ),
+    rest.get(
+      '/organizations/:orgName/projects/:projectName',
+      handler(handlers['projectView'], schema.ProjectViewParams, null)
+    ),
+    rest.put(
+      '/organizations/:orgName/projects/:projectName',
+      handler(handlers['projectUpdate'], schema.ProjectUpdateParams, schema.ProjectUpdate)
+    ),
+    rest.delete(
+      '/organizations/:orgName/projects/:projectName',
+      handler(handlers['projectDelete'], schema.ProjectDeleteParams, null)
+    ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/disks',
-      async (req, res, ctx) => {
-        const handler = handlers['diskList']
-
-        const { params, paramsErr } = validateParams(schema.DiskListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['diskList'], schema.DiskListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/disks',
-      async (req, res, ctx) => {
-        const handler = handlers['diskCreate']
-
-        const { params, paramsErr } = validateParams(schema.DiskCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.DiskCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(handlers['diskCreate'], schema.DiskCreateParams, schema.DiskCreate)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/disks/:diskName',
-      async (req, res, ctx) => {
-        const handler = handlers['diskView']
-
-        const { params, paramsErr } = validateParams(schema.DiskViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['diskView'], schema.DiskViewParams, null)
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/disks/:diskName',
-      async (req, res, ctx) => {
-        const handler = handlers['diskDelete']
-
-        const { params, paramsErr } = validateParams(schema.DiskDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['diskDelete'], schema.DiskDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName',
-      async (req, res, ctx) => {
-        const handler = handlers['diskMetricsList']
-
-        const { params, paramsErr } = validateParams(schema.DiskMetricsListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['diskMetricsList'], schema.DiskMetricsListParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/images',
-      async (req, res, ctx) => {
-        const handler = handlers['imageList']
-
-        const { params, paramsErr } = validateParams(schema.ImageListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['imageList'], schema.ImageListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/images',
-      async (req, res, ctx) => {
-        const handler = handlers['imageCreate']
-
-        const { params, paramsErr } = validateParams(schema.ImageCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.ImageCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(handlers['imageCreate'], schema.ImageCreateParams, schema.ImageCreate)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/images/:imageName',
-      async (req, res, ctx) => {
-        const handler = handlers['imageView']
-
-        const { params, paramsErr } = validateParams(schema.ImageViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['imageView'], schema.ImageViewParams, null)
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/images/:imageName',
-      async (req, res, ctx) => {
-        const handler = handlers['imageDelete']
-
-        const { params, paramsErr } = validateParams(schema.ImageDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['imageDelete'], schema.ImageDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceList']
-
-        const { params, paramsErr } = validateParams(schema.InstanceListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceList'], schema.InstanceListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceCreate']
-
-        const { params, paramsErr } = validateParams(schema.InstanceCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.InstanceCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceCreate'],
+        schema.InstanceCreateParams,
+        schema.InstanceCreate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceView']
-
-        const { params, paramsErr } = validateParams(schema.InstanceViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceView'], schema.InstanceViewParams, null)
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceDelete']
-
-        const { params, paramsErr } = validateParams(schema.InstanceDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceDelete'], schema.InstanceDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceDiskList']
-
-        const { params, paramsErr } = validateParams(schema.InstanceDiskListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceDiskList'], schema.InstanceDiskListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceDiskAttach']
-
-        const { params, paramsErr } = validateParams(schema.InstanceDiskAttachParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.DiskIdentifier, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceDiskAttach'],
+        schema.InstanceDiskAttachParams,
+        schema.DiskIdentifier
+      )
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceDiskDetach']
-
-        const { params, paramsErr } = validateParams(schema.InstanceDiskDetachParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.DiskIdentifier, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceDiskDetach'],
+        schema.InstanceDiskDetachParams,
+        schema.DiskIdentifier
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceExternalIpList']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceExternalIpListParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceExternalIpList'], schema.InstanceExternalIpListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/migrate',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceMigrate']
-
-        const { params, paramsErr } = validateParams(schema.InstanceMigrateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.InstanceMigrate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceMigrate'],
+        schema.InstanceMigrateParams,
+        schema.InstanceMigrate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceNetworkInterfaceList']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceNetworkInterfaceListParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(
+        handlers['instanceNetworkInterfaceList'],
+        schema.InstanceNetworkInterfaceListParams,
+        null
+      )
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceNetworkInterfaceCreate']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceNetworkInterfaceCreateParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(
-          schema.NetworkInterfaceCreate,
-          await req.json()
-        )
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceNetworkInterfaceCreate'],
+        schema.InstanceNetworkInterfaceCreateParams,
+        schema.NetworkInterfaceCreate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceNetworkInterfaceView']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceNetworkInterfaceViewParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(
+        handlers['instanceNetworkInterfaceView'],
+        schema.InstanceNetworkInterfaceViewParams,
+        null
+      )
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceNetworkInterfaceUpdate']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceNetworkInterfaceUpdateParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(
-          schema.NetworkInterfaceUpdate,
-          await req.json()
-        )
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['instanceNetworkInterfaceUpdate'],
+        schema.InstanceNetworkInterfaceUpdateParams,
+        schema.NetworkInterfaceUpdate
+      )
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceNetworkInterfaceDelete']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceNetworkInterfaceDeleteParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(
+        handlers['instanceNetworkInterfaceDelete'],
+        schema.InstanceNetworkInterfaceDeleteParams,
+        null
+      )
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/reboot',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceReboot']
-
-        const { params, paramsErr } = validateParams(schema.InstanceRebootParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceReboot'], schema.InstanceRebootParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceSerialConsole']
-
-        const { params, paramsErr } = validateParams(
-          schema.InstanceSerialConsoleParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceSerialConsole'], schema.InstanceSerialConsoleParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceStart']
-
-        const { params, paramsErr } = validateParams(schema.InstanceStartParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceStart'], schema.InstanceStartParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/stop',
-      async (req, res, ctx) => {
-        const handler = handlers['instanceStop']
-
-        const { params, paramsErr } = validateParams(schema.InstanceStopParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['instanceStop'], schema.InstanceStopParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/policy',
-      async (req, res, ctx) => {
-        const handler = handlers['projectPolicyView']
-
-        const { params, paramsErr } = validateParams(schema.ProjectPolicyViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['projectPolicyView'], schema.ProjectPolicyViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/policy',
-      async (req, res, ctx) => {
-        const handler = handlers['projectPolicyUpdate']
-
-        const { params, paramsErr } = validateParams(schema.ProjectPolicyUpdateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.ProjectRolePolicy, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['projectPolicyUpdate'],
+        schema.ProjectPolicyUpdateParams,
+        schema.ProjectRolePolicy
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/snapshots',
-      async (req, res, ctx) => {
-        const handler = handlers['snapshotList']
-
-        const { params, paramsErr } = validateParams(schema.SnapshotListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['snapshotList'], schema.SnapshotListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/snapshots',
-      async (req, res, ctx) => {
-        const handler = handlers['snapshotCreate']
-
-        const { params, paramsErr } = validateParams(schema.SnapshotCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.SnapshotCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['snapshotCreate'],
+        schema.SnapshotCreateParams,
+        schema.SnapshotCreate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
-      async (req, res, ctx) => {
-        const handler = handlers['snapshotView']
-
-        const { params, paramsErr } = validateParams(schema.SnapshotViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['snapshotView'], schema.SnapshotViewParams, null)
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/snapshots/:snapshotName',
-      async (req, res, ctx) => {
-        const handler = handlers['snapshotDelete']
-
-        const { params, paramsErr } = validateParams(schema.SnapshotDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcList']
-
-        const { params, paramsErr } = validateParams(schema.VpcListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcList'], schema.VpcListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/vpcs',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcCreate']
-
-        const { params, paramsErr } = validateParams(schema.VpcCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(handlers['vpcCreate'], schema.VpcCreateParams, schema.VpcCreate)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcView']
-
-        const { params, paramsErr } = validateParams(schema.VpcViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcView'], schema.VpcViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcUpdate']
-
-        const { params, paramsErr } = validateParams(schema.VpcUpdateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcUpdate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(handlers['vpcUpdate'], schema.VpcUpdateParams, schema.VpcUpdate)
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcDelete']
-
-        const { params, paramsErr } = validateParams(schema.VpcDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcDelete'], schema.VpcDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcFirewallRulesView']
-
-        const { params, paramsErr } = validateParams(schema.VpcFirewallRulesViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcFirewallRulesView'], schema.VpcFirewallRulesViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcFirewallRulesUpdate']
-
-        const { params, paramsErr } = validateParams(
-          schema.VpcFirewallRulesUpdateParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(
-          schema.VpcFirewallRuleUpdateParams,
-          await req.json()
-        )
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcFirewallRulesUpdate'],
+        schema.VpcFirewallRulesUpdateParams,
+        schema.VpcFirewallRuleUpdateParams
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterList']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterList'], schema.VpcRouterListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterCreate']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcRouterCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcRouterCreate'],
+        schema.VpcRouterCreateParams,
+        schema.VpcRouterCreate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterView']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterView'], schema.VpcRouterViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterUpdate']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterUpdateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcRouterUpdate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcRouterUpdate'],
+        schema.VpcRouterUpdateParams,
+        schema.VpcRouterUpdate
+      )
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterDelete']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterDelete'], schema.VpcRouterDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterRouteList']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterRouteListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterRouteList'], schema.VpcRouterRouteListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterRouteCreate']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterRouteCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(
-          schema.RouterRouteCreateParams,
-          await req.json()
-        )
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcRouterRouteCreate'],
+        schema.VpcRouterRouteCreateParams,
+        schema.RouterRouteCreateParams
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterRouteView']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterRouteViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterRouteView'], schema.VpcRouterRouteViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterRouteUpdate']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterRouteUpdateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(
-          schema.RouterRouteUpdateParams,
-          await req.json()
-        )
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcRouterRouteUpdate'],
+        schema.VpcRouterRouteUpdateParams,
+        schema.RouterRouteUpdateParams
+      )
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcRouterRouteDelete']
-
-        const { params, paramsErr } = validateParams(schema.VpcRouterRouteDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcRouterRouteDelete'], schema.VpcRouterRouteDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetList']
-
-        const { params, paramsErr } = validateParams(schema.VpcSubnetListParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcSubnetList'], schema.VpcSubnetListParams, null)
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetCreate']
-
-        const { params, paramsErr } = validateParams(schema.VpcSubnetCreateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcSubnetCreate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcSubnetCreate'],
+        schema.VpcSubnetCreateParams,
+        schema.VpcSubnetCreate
+      )
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetView']
-
-        const { params, paramsErr } = validateParams(schema.VpcSubnetViewParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcSubnetView'], schema.VpcSubnetViewParams, null)
     ),
     rest.put(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetUpdate']
-
-        const { params, paramsErr } = validateParams(schema.VpcSubnetUpdateParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        const { body, bodyErr } = validateBody(schema.VpcSubnetUpdate, await req.json())
-        if (bodyErr) return res(bodyErr)
-
-        return handleResult(res, ctx, () => handler(body, params))
-      }
+      handler(
+        handlers['vpcSubnetUpdate'],
+        schema.VpcSubnetUpdateParams,
+        schema.VpcSubnetUpdate
+      )
     ),
     rest.delete(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetDelete']
-
-        const { params, paramsErr } = validateParams(schema.VpcSubnetDeleteParams, req)
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(handlers['vpcSubnetDelete'], schema.VpcSubnetDeleteParams, null)
     ),
     rest.get(
       '/organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName/network-interfaces',
-      async (req, res, ctx) => {
-        const handler = handlers['vpcSubnetListNetworkInterfaces']
-
-        const { params, paramsErr } = validateParams(
-          schema.VpcSubnetListNetworkInterfacesParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(
+        handlers['vpcSubnetListNetworkInterfaces'],
+        schema.VpcSubnetListNetworkInterfacesParams,
+        null
+      )
     ),
-    rest.get('/policy', async (req, res, ctx) => {
-      const handler = handlers['policyView']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.put('/policy', async (req, res, ctx) => {
-      const handler = handlers['policyUpdate']
-
-      const { body, bodyErr } = validateBody(schema.SiloRolePolicy, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/roles', async (req, res, ctx) => {
-      const handler = handlers['roleList']
-
-      const { params, paramsErr } = validateParams(schema.RoleListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/roles/:roleName', async (req, res, ctx) => {
-      const handler = handlers['roleView']
-
-      const { params, paramsErr } = validateParams(schema.RoleViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/session/me', async (req, res, ctx) => {
-      const handler = handlers['sessionMe']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.get('/session/me/sshkeys', async (req, res, ctx) => {
-      const handler = handlers['sessionSshkeyList']
-
-      const { params, paramsErr } = validateParams(schema.SessionSshkeyListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/session/me/sshkeys', async (req, res, ctx) => {
-      const handler = handlers['sessionSshkeyCreate']
-
-      const { body, bodyErr } = validateBody(schema.SshKeyCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/session/me/sshkeys/:sshKeyName', async (req, res, ctx) => {
-      const handler = handlers['sessionSshkeyView']
-
-      const { params, paramsErr } = validateParams(schema.SessionSshkeyViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.delete('/session/me/sshkeys/:sshKeyName', async (req, res, ctx) => {
-      const handler = handlers['sessionSshkeyDelete']
-
-      const { params, paramsErr } = validateParams(schema.SessionSshkeyDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/by-id/images/:id', async (req, res, ctx) => {
-      const handler = handlers['systemImageViewById']
-
-      const { params, paramsErr } = validateParams(schema.SystemImageViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/by-id/ip-pools/:id', async (req, res, ctx) => {
-      const handler = handlers['ipPoolViewById']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/by-id/silos/:id', async (req, res, ctx) => {
-      const handler = handlers['siloViewById']
-
-      const { params, paramsErr } = validateParams(schema.SiloViewByIdParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/hardware/racks', async (req, res, ctx) => {
-      const handler = handlers['rackList']
-
-      const { params, paramsErr } = validateParams(schema.RackListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/hardware/racks/:rackId', async (req, res, ctx) => {
-      const handler = handlers['rackView']
-
-      const { params, paramsErr } = validateParams(schema.RackViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/hardware/sleds', async (req, res, ctx) => {
-      const handler = handlers['sledList']
-
-      const { params, paramsErr } = validateParams(schema.SledListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/hardware/sleds/:sledId', async (req, res, ctx) => {
-      const handler = handlers['sledView']
-
-      const { params, paramsErr } = validateParams(schema.SledViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/images', async (req, res, ctx) => {
-      const handler = handlers['systemImageList']
-
-      const { params, paramsErr } = validateParams(schema.SystemImageListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/images', async (req, res, ctx) => {
-      const handler = handlers['systemImageCreate']
-
-      const { body, bodyErr } = validateBody(schema.GlobalImageCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/system/images/:imageName', async (req, res, ctx) => {
-      const handler = handlers['systemImageView']
-
-      const { params, paramsErr } = validateParams(schema.SystemImageViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.delete('/system/images/:imageName', async (req, res, ctx) => {
-      const handler = handlers['systemImageDelete']
-
-      const { params, paramsErr } = validateParams(schema.SystemImageDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/ip-pools', async (req, res, ctx) => {
-      const handler = handlers['ipPoolList']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/ip-pools', async (req, res, ctx) => {
-      const handler = handlers['ipPoolCreate']
-
-      const { body, bodyErr } = validateBody(schema.IpPoolCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/system/ip-pools/:poolName', async (req, res, ctx) => {
-      const handler = handlers['ipPoolView']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.put('/system/ip-pools/:poolName', async (req, res, ctx) => {
-      const handler = handlers['ipPoolUpdate']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolUpdateParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.IpPoolUpdate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.delete('/system/ip-pools/:poolName', async (req, res, ctx) => {
-      const handler = handlers['ipPoolDelete']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/ip-pools/:poolName/ranges', async (req, res, ctx) => {
-      const handler = handlers['ipPoolRangeList']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolRangeListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/ip-pools/:poolName/ranges/add', async (req, res, ctx) => {
-      const handler = handlers['ipPoolRangeAdd']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolRangeAddParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.IpRange, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.post('/system/ip-pools/:poolName/ranges/remove', async (req, res, ctx) => {
-      const handler = handlers['ipPoolRangeRemove']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolRangeRemoveParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.IpRange, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.get('/system/ip-pools-service/:rackId', async (req, res, ctx) => {
-      const handler = handlers['ipPoolServiceView']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolServiceViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/ip-pools-service/:rackId/ranges', async (req, res, ctx) => {
-      const handler = handlers['ipPoolServiceRangeList']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolServiceRangeListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/ip-pools-service/:rackId/ranges/add', async (req, res, ctx) => {
-      const handler = handlers['ipPoolServiceRangeAdd']
-
-      const { params, paramsErr } = validateParams(schema.IpPoolServiceRangeAddParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.IpRange, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.post('/system/ip-pools-service/:rackId/ranges/remove', async (req, res, ctx) => {
-      const handler = handlers['ipPoolServiceRangeRemove']
-
-      const { params, paramsErr } = validateParams(
+    rest.get('/policy', handler(handlers['policyView'], null, null)),
+    rest.put('/policy', handler(handlers['policyUpdate'], null, schema.SiloRolePolicy)),
+    rest.get('/roles', handler(handlers['roleList'], schema.RoleListParams, null)),
+    rest.get(
+      '/roles/:roleName',
+      handler(handlers['roleView'], schema.RoleViewParams, null)
+    ),
+    rest.get('/session/me', handler(handlers['sessionMe'], null, null)),
+    rest.get(
+      '/session/me/sshkeys',
+      handler(handlers['sessionSshkeyList'], schema.SessionSshkeyListParams, null)
+    ),
+    rest.post(
+      '/session/me/sshkeys',
+      handler(handlers['sessionSshkeyCreate'], null, schema.SshKeyCreate)
+    ),
+    rest.get(
+      '/session/me/sshkeys/:sshKeyName',
+      handler(handlers['sessionSshkeyView'], schema.SessionSshkeyViewParams, null)
+    ),
+    rest.delete(
+      '/session/me/sshkeys/:sshKeyName',
+      handler(handlers['sessionSshkeyDelete'], schema.SessionSshkeyDeleteParams, null)
+    ),
+    rest.get(
+      '/system/by-id/images/:id',
+      handler(handlers['systemImageViewById'], schema.SystemImageViewByIdParams, null)
+    ),
+    rest.get(
+      '/system/by-id/ip-pools/:id',
+      handler(handlers['ipPoolViewById'], schema.IpPoolViewByIdParams, null)
+    ),
+    rest.get(
+      '/system/by-id/silos/:id',
+      handler(handlers['siloViewById'], schema.SiloViewByIdParams, null)
+    ),
+    rest.get(
+      '/system/hardware/racks',
+      handler(handlers['rackList'], schema.RackListParams, null)
+    ),
+    rest.get(
+      '/system/hardware/racks/:rackId',
+      handler(handlers['rackView'], schema.RackViewParams, null)
+    ),
+    rest.get(
+      '/system/hardware/sleds',
+      handler(handlers['sledList'], schema.SledListParams, null)
+    ),
+    rest.get(
+      '/system/hardware/sleds/:sledId',
+      handler(handlers['sledView'], schema.SledViewParams, null)
+    ),
+    rest.get(
+      '/system/images',
+      handler(handlers['systemImageList'], schema.SystemImageListParams, null)
+    ),
+    rest.post(
+      '/system/images',
+      handler(handlers['systemImageCreate'], null, schema.GlobalImageCreate)
+    ),
+    rest.get(
+      '/system/images/:imageName',
+      handler(handlers['systemImageView'], schema.SystemImageViewParams, null)
+    ),
+    rest.delete(
+      '/system/images/:imageName',
+      handler(handlers['systemImageDelete'], schema.SystemImageDeleteParams, null)
+    ),
+    rest.get(
+      '/system/ip-pools',
+      handler(handlers['ipPoolList'], schema.IpPoolListParams, null)
+    ),
+    rest.post(
+      '/system/ip-pools',
+      handler(handlers['ipPoolCreate'], null, schema.IpPoolCreate)
+    ),
+    rest.get(
+      '/system/ip-pools/:poolName',
+      handler(handlers['ipPoolView'], schema.IpPoolViewParams, null)
+    ),
+    rest.put(
+      '/system/ip-pools/:poolName',
+      handler(handlers['ipPoolUpdate'], schema.IpPoolUpdateParams, schema.IpPoolUpdate)
+    ),
+    rest.delete(
+      '/system/ip-pools/:poolName',
+      handler(handlers['ipPoolDelete'], schema.IpPoolDeleteParams, null)
+    ),
+    rest.get(
+      '/system/ip-pools/:poolName/ranges',
+      handler(handlers['ipPoolRangeList'], schema.IpPoolRangeListParams, null)
+    ),
+    rest.post(
+      '/system/ip-pools/:poolName/ranges/add',
+      handler(handlers['ipPoolRangeAdd'], schema.IpPoolRangeAddParams, schema.IpRange)
+    ),
+    rest.post(
+      '/system/ip-pools/:poolName/ranges/remove',
+      handler(handlers['ipPoolRangeRemove'], schema.IpPoolRangeRemoveParams, schema.IpRange)
+    ),
+    rest.get(
+      '/system/ip-pools-service/:rackId',
+      handler(handlers['ipPoolServiceView'], schema.IpPoolServiceViewParams, null)
+    ),
+    rest.get(
+      '/system/ip-pools-service/:rackId/ranges',
+      handler(handlers['ipPoolServiceRangeList'], schema.IpPoolServiceRangeListParams, null)
+    ),
+    rest.post(
+      '/system/ip-pools-service/:rackId/ranges/add',
+      handler(
+        handlers['ipPoolServiceRangeAdd'],
+        schema.IpPoolServiceRangeAddParams,
+        schema.IpRange
+      )
+    ),
+    rest.post(
+      '/system/ip-pools-service/:rackId/ranges/remove',
+      handler(
+        handlers['ipPoolServiceRangeRemove'],
         schema.IpPoolServiceRangeRemoveParams,
-        req
+        schema.IpRange
       )
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.IpRange, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.get('/system/policy', async (req, res, ctx) => {
-      const handler = handlers['systemPolicyView']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.put('/system/policy', async (req, res, ctx) => {
-      const handler = handlers['systemPolicyUpdate']
-
-      const { body, bodyErr } = validateBody(schema.FleetRolePolicy, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/system/sagas', async (req, res, ctx) => {
-      const handler = handlers['sagaList']
-
-      const { params, paramsErr } = validateParams(schema.SagaListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/sagas/:sagaId', async (req, res, ctx) => {
-      const handler = handlers['sagaView']
-
-      const { params, paramsErr } = validateParams(schema.SagaViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/silos', async (req, res, ctx) => {
-      const handler = handlers['siloList']
-
-      const { params, paramsErr } = validateParams(schema.SiloListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/silos', async (req, res, ctx) => {
-      const handler = handlers['siloCreate']
-
-      const { body, bodyErr } = validateBody(schema.SiloCreate, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body))
-    }),
-    rest.get('/system/silos/:siloName', async (req, res, ctx) => {
-      const handler = handlers['siloView']
-
-      const { params, paramsErr } = validateParams(schema.SiloViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.delete('/system/silos/:siloName', async (req, res, ctx) => {
-      const handler = handlers['siloDelete']
-
-      const { params, paramsErr } = validateParams(schema.SiloDeleteParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/silos/:siloName/identity-providers', async (req, res, ctx) => {
-      const handler = handlers['siloIdentityProviderList']
-
-      const { params, paramsErr } = validateParams(
+    ),
+    rest.get('/system/policy', handler(handlers['systemPolicyView'], null, null)),
+    rest.put(
+      '/system/policy',
+      handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
+    ),
+    rest.get('/system/sagas', handler(handlers['sagaList'], schema.SagaListParams, null)),
+    rest.get(
+      '/system/sagas/:sagaId',
+      handler(handlers['sagaView'], schema.SagaViewParams, null)
+    ),
+    rest.get('/system/silos', handler(handlers['siloList'], schema.SiloListParams, null)),
+    rest.post('/system/silos', handler(handlers['siloCreate'], null, schema.SiloCreate)),
+    rest.get(
+      '/system/silos/:siloName',
+      handler(handlers['siloView'], schema.SiloViewParams, null)
+    ),
+    rest.delete(
+      '/system/silos/:siloName',
+      handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
+    ),
+    rest.get(
+      '/system/silos/:siloName/identity-providers',
+      handler(
+        handlers['siloIdentityProviderList'],
         schema.SiloIdentityProviderListParams,
-        req
+        null
       )
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.post('/system/silos/:siloName/identity-providers/saml', async (req, res, ctx) => {
-      const handler = handlers['samlIdentityProviderCreate']
-
-      const { params, paramsErr } = validateParams(
+    ),
+    rest.post(
+      '/system/silos/:siloName/identity-providers/saml',
+      handler(
+        handlers['samlIdentityProviderCreate'],
         schema.SamlIdentityProviderCreateParams,
-        req
+        schema.SamlIdentityProviderCreate
       )
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(
-        schema.SamlIdentityProviderCreate,
-        await req.json()
-      )
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
+    ),
     rest.get(
       '/system/silos/:siloName/identity-providers/saml/:providerName',
-      async (req, res, ctx) => {
-        const handler = handlers['samlIdentityProviderView']
-
-        const { params, paramsErr } = validateParams(
-          schema.SamlIdentityProviderViewParams,
-          req
-        )
-        if (paramsErr) return res(paramsErr)
-
-        return handleResult(res, ctx, () => handler(params))
-      }
+      handler(
+        handlers['samlIdentityProviderView'],
+        schema.SamlIdentityProviderViewParams,
+        null
+      )
     ),
-    rest.get('/system/silos/:siloName/policy', async (req, res, ctx) => {
-      const handler = handlers['siloPolicyView']
-
-      const { params, paramsErr } = validateParams(schema.SiloPolicyViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.put('/system/silos/:siloName/policy', async (req, res, ctx) => {
-      const handler = handlers['siloPolicyUpdate']
-
-      const { params, paramsErr } = validateParams(schema.SiloPolicyUpdateParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      const { body, bodyErr } = validateBody(schema.SiloRolePolicy, await req.json())
-      if (bodyErr) return res(bodyErr)
-
-      return handleResult(res, ctx, () => handler(body, params))
-    }),
-    rest.post('/system/updates/refresh', async (req, res, ctx) => {
-      const handler = handlers['updatesRefresh']
-
-      return handleResult(res, ctx, () => handler())
-    }),
-    rest.get('/system/user', async (req, res, ctx) => {
-      const handler = handlers['systemUserList']
-
-      const { params, paramsErr } = validateParams(schema.SystemUserListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/system/user/:userName', async (req, res, ctx) => {
-      const handler = handlers['systemUserView']
-
-      const { params, paramsErr } = validateParams(schema.SystemUserViewParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/timeseries/schema', async (req, res, ctx) => {
-      const handler = handlers['timeseriesSchemaGet']
-
-      const { params, paramsErr } = validateParams(schema.TimeseriesSchemaGetParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
-    rest.get('/users', async (req, res, ctx) => {
-      const handler = handlers['userList']
-
-      const { params, paramsErr } = validateParams(schema.UserListParams, req)
-      if (paramsErr) return res(paramsErr)
-
-      return handleResult(res, ctx, () => handler(params))
-    }),
+    rest.get(
+      '/system/silos/:siloName/policy',
+      handler(handlers['siloPolicyView'], schema.SiloPolicyViewParams, null)
+    ),
+    rest.put(
+      '/system/silos/:siloName/policy',
+      handler(
+        handlers['siloPolicyUpdate'],
+        schema.SiloPolicyUpdateParams,
+        schema.SiloRolePolicy
+      )
+    ),
+    rest.post('/system/updates/refresh', handler(handlers['updatesRefresh'], null, null)),
+    rest.get(
+      '/system/user',
+      handler(handlers['systemUserList'], schema.SystemUserListParams, null)
+    ),
+    rest.get(
+      '/system/user/:userName',
+      handler(handlers['systemUserView'], schema.SystemUserViewParams, null)
+    ),
+    rest.get(
+      '/timeseries/schema',
+      handler(handlers['timeseriesSchemaGet'], schema.TimeseriesSchemaGetParams, null)
+    ),
+    rest.get('/users', handler(handlers['userList'], schema.UserListParams, null)),
   ]
 }
