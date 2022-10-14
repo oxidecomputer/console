@@ -54,6 +54,9 @@ export const pb = {
   sshKeys: () => '/settings/ssh-keys',
 
   deviceSuccess: () => '/device/success',
+
+  // someday we'll be less stupid. not today
+  isSystemPath: (pathname: string) => pathname.startsWith(pb.system()),
 }
 
 // export const jelly = 'just kidding'

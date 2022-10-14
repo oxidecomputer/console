@@ -73,7 +73,7 @@ export const routes = createRoutesFromElements(
         <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
       </Route>
 
-      <Route path="sys" element={<SystemLayout />}>
+      <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route path="silos" element={<SilosPage />} loader={SilosPage.loader} />
         <Route
           path="silos-new"

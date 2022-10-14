@@ -24,9 +24,10 @@ export const ContentPane = () => (
   </div>
 )
 
-export async function prefetchUserData() {
+export const prefetchUserData = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('sessionMe', {}),
+    // also fetched by the SystemLayout loader, but RQ dedupes it
     apiQueryClient.prefetchQuery('systemPolicyView', {}),
   ])
 }

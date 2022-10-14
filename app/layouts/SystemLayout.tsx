@@ -1,3 +1,4 @@
+import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
@@ -10,11 +11,30 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
+import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
+
+/**
+ * If we can see the policy, we're a fleet viewer, same as in `TopBar`. We need
+ * to `fetchQuery` instead of `prefetchQuery` because the latter doesn't return
+ * the result, and then we need to `.catch()` because `fetchQuery` throws on
+ * request error. We're being a little cavalier here with the error. If it's
+ * something other than a 403, that would be strange and we would want to know.
+ */
+SiloLayout.loader = async () => {
+  const isFleetViewer = await apiQueryClient
+    .fetchQuery('systemPolicyView', {})
+    .then(() => true)
+    .catch(() => false)
+
+  // TODO: make sure 404 is the desired behavior. This situation should be
+  // pretty unlikely.
+  if (!isFleetViewer) throw trigger404
+}
 
 export default function SiloLayout() {
   return (

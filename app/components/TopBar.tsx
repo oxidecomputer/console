@@ -42,7 +42,7 @@ export function TopBar() {
   // would see the silo picker pop in when the request resolves. Bad.
   const isFleetViewer = !!systemPolicy
 
-  const isSystem = useLocation().pathname.startsWith(pb.system()) // lol
+  const isSystem = pb.isSystemPath(useLocation().pathname)
 
   const { projectName } = useParams()
 
