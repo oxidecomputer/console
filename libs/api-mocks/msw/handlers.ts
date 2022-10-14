@@ -25,96 +25,29 @@ import {
   lookupVpcRouterRoute,
   lookupVpcSubnet,
 } from './db'
-import { genId, getStartAndEndTime, paginated } from './util'
+import {
+  NotImplemented,
+  errIfExists,
+  genId,
+  getStartAndEndTime,
+  getTimestamps,
+  paginated,
+  paginatedHandler,
+  unavailableErr,
+} from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
 
-function getTimestamps() {
-  const now = new Date().toISOString()
-  return { time_created: now, time_modified: now }
-}
-
-const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
-
-const NotImplementedErr = json({ error_code: 'NotImplemented' }, { status: 501 })
-
-const errIfExists = <T extends Record<string, unknown>>(
-  collection: T[],
-  match: Partial<{ [key in keyof T]: T[key] }>
-) => {
-  if (
-    collection.some((item) =>
-      Object.entries(match).every(([key, value]) => item[key] === value)
-    )
-  ) {
-    throw json({ error_code: 'ObjectAlreadyExists' }, { status: 400 })
-  }
-}
-
 export const handlers = makeHandlers({
-  diskViewById(params) {
-    return lookupById(params, db.disks)
-  },
-  imageViewById(params) {
-    return lookupById(params, db.images)
-  },
-  instanceViewById(params: Api.InstanceViewByIdParams) {
-    return lookupById(params, db.instances)
-  },
-  instanceNetworkInterfaceViewById(params) {
-    return lookupById(params, db.networkInterfaces)
-  },
-  organizationViewById(params) {
-    return lookupById(params, db.orgs)
-  },
-  projectViewById(params) {
-    return lookupById(params, db.projects)
-  },
-  snapshotViewById(params) {
-    return lookupById(params, db.snapshots)
-  },
-  vpcRouterRouteViewById(params) {
-    return lookupById(params, db.vpcRouterRoutes)
-  },
-  vpcRouterViewById(params) {
-    return lookupById(params, db.vpcRouters)
-  },
-  vpcSubnetViewById(params) {
-    return lookupById(params, db.vpcSubnets)
-  },
-  vpcViewById(params) {
-    return lookupById(params, db.vpcs)
-  },
-  deviceAuthRequest() {
-    return 200
-  },
-  deviceAuthConfirm(_body) {
-    return 200
-  },
-  deviceAccessToken() {
-    return 200
-  },
-  groupList(params) {
-    return paginated(params, db.userGroups)
-  },
-  loginSpoof(_body) {
-    throw NotImplementedErr
-  },
-  loginSamlBegin(_params) {
-    throw NotImplementedErr
-  },
-  loginSaml(_params) {
-    throw NotImplementedErr
-  },
-  logout() {
-    throw NotImplementedErr
-  },
-  organizationList(params) {
-    return paginated(params, db.orgs)
-  },
+  deviceAuthRequest: () => 200,
+  deviceAuthConfirm: () => 200,
+  deviceAccessToken: () => 200,
+  groupList: paginatedHandler(db.userGroups),
+
+  organizationList: paginatedHandler(db.orgs),
   organizationCreate(body) {
     errIfExists(db.orgs, { name: body.name })
 
@@ -195,9 +128,7 @@ export const handlers = makeHandlers({
 
     return json(newProject, { status: 201 })
   },
-  projectView(params) {
-    return lookupProject(params)
-  },
+  projectView: lookupProject,
   projectUpdate(body: Api.ProjectUpdate, params: Api.ProjectUpdateParams) {
     const project = lookupProject(params)
     if (body.name) {
@@ -218,7 +149,7 @@ export const handlers = makeHandlers({
     const project = lookupProject(params)
     const disks = db.disks.filter((d) => d.project_id === project.id)
 
-    return json(paginated(params, disks))
+    return paginated(params, disks)
   },
   diskCreate(body, params) {
     const project = lookupProject(params)
@@ -243,9 +174,7 @@ export const handlers = makeHandlers({
 
     return json(newDisk, { status: 201 })
   },
-  diskView(params) {
-    return json(lookupDisk(params))
-  },
+  diskView: lookupDisk,
   diskDelete(params) {
     const disk = lookupDisk(params)
 
@@ -296,9 +225,7 @@ export const handlers = makeHandlers({
     db.images.push(newImage)
     return json(newImage, { status: 201 })
   },
-  imageView(params) {
-    return lookupImage(params)
-  },
+  imageView: lookupImage,
   imageDelete(params) {
     const image = lookupImage(params)
     db.images = db.images.filter((i) => i.id !== image.id)
@@ -326,9 +253,7 @@ export const handlers = makeHandlers({
     db.instances.push(newInstance)
     return json(newInstance, { status: 201 })
   },
-  instanceView(params) {
-    return lookupInstance(params)
-  },
+  instanceView: lookupInstance,
   instanceDelete(params) {
     const instance = lookupInstance(params)
     db.instances = db.instances.filter((i) => i.id !== instance.id)
@@ -378,9 +303,6 @@ export const handlers = makeHandlers({
       ],
     }
   },
-  instanceMigrate(_body, _params) {
-    throw NotImplementedErr
-  },
   instanceNetworkInterfaceList(params) {
     const instance = lookupInstance(params)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
@@ -420,9 +342,7 @@ export const handlers = makeHandlers({
 
     return newNic
   },
-  instanceNetworkInterfaceView(params: Api.InstanceNetworkInterfaceViewParams) {
-    return lookupNetworkInterface(params)
-  },
+  instanceNetworkInterfaceView: lookupNetworkInterface,
   instanceNetworkInterfaceUpdate(body, params) {
     const nic = lookupNetworkInterface(params)
 
@@ -447,12 +367,12 @@ export const handlers = makeHandlers({
 
     return nic
   },
-  instanceNetworkInterfaceDelete(params: Api.InstanceNetworkInterfaceDeleteParams) {
+  instanceNetworkInterfaceDelete(params) {
     const nic = lookupNetworkInterface(params)
     db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
     return 204
   },
-  instanceReboot(params: Api.InstanceRebootParams) {
+  instanceReboot(params) {
     const instance = lookupInstance(params)
     instance.run_state = 'rebooting'
 
@@ -530,9 +450,7 @@ export const handlers = makeHandlers({
 
     return json(newSnapshot, { status: 201 })
   },
-  snapshotView(params) {
-    return lookupSnapshot(params)
-  },
+  snapshotView: lookupSnapshot,
   snapshotDelete(params) {
     const snapshot = lookupSnapshot(params)
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
@@ -572,9 +490,7 @@ export const handlers = makeHandlers({
 
     return json(newVpc, { status: 201 })
   },
-  vpcView(params) {
-    return lookupVpc(params)
-  },
+  vpcView: lookupVpc,
   vpcUpdate(body, params) {
     const vpc = lookupVpc(params)
 
@@ -651,9 +567,7 @@ export const handlers = makeHandlers({
     db.vpcRouters.push(newRouter)
     return json(newRouter, { status: 201 })
   },
-  vpcRouterView(params) {
-    return lookupVpcRouter(params)
-  },
+  vpcRouterView: lookupVpcRouter,
   vpcRouterUpdate(body: Api.VpcRouterUpdate, params: Api.VpcRouterUpdateParams) {
     const router = lookupVpcRouter(params)
 
@@ -693,9 +607,7 @@ export const handlers = makeHandlers({
     }
     return json(newRoute, { status: 201 })
   },
-  vpcRouterRouteView(params) {
-    return lookupVpcRouterRoute(params)
-  },
+  vpcRouterRouteView: lookupVpcRouterRoute,
   vpcRouterRouteUpdate(body, params) {
     const route = lookupVpcRouterRoute(params)
     if (route.kind !== 'custom') {
@@ -740,9 +652,7 @@ export const handlers = makeHandlers({
     db.vpcSubnets.push(newSubnet)
     return json(newSubnet, { status: 201 })
   },
-  vpcSubnetView(params) {
-    return lookupVpcSubnet(params)
-  },
+  vpcSubnetView: lookupVpcSubnet,
   vpcSubnetUpdate(body, params) {
     const subnet = lookupVpcSubnet(params)
 
@@ -791,12 +701,6 @@ export const handlers = makeHandlers({
 
     return body
   },
-  roleList(_params) {
-    throw NotImplementedErr
-  },
-  roleView(_params) {
-    throw NotImplementedErr
-  },
   sessionMe() {
     return currentUser
   },
@@ -816,38 +720,13 @@ export const handlers = makeHandlers({
     db.sshKeys.push(newSshKey)
     return json(newSshKey, { status: 201 })
   },
-  sessionSshkeyView(params) {
-    return lookupSshKey(params)
-  },
+  sessionSshkeyView: lookupSshKey,
   sessionSshkeyDelete(params) {
     const sshKey = lookupSshKey(params)
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  systemImageViewById(params) {
-    return lookupById(params, db.globalImages)
-  },
-  ipPoolViewById(_params) {
-    throw NotImplementedErr
-  },
-  siloViewById(params) {
-    return lookupById(params, db.silos)
-  },
-  rackList(_params) {
-    throw NotImplementedErr
-  },
-  rackView(_params) {
-    throw NotImplementedErr
-  },
-  sledList(_params) {
-    throw NotImplementedErr
-  },
-  sledView(_params) {
-    throw NotImplementedErr
-  },
-  systemImageList(params) {
-    return paginated(params, db.globalImages)
-  },
+  systemImageList: paginatedHandler(db.globalImages),
   systemImageCreate(body) {
     errIfExists(db.globalImages, { name: body.name })
 
@@ -863,65 +742,13 @@ export const handlers = makeHandlers({
     db.globalImages.push(newImage)
     return json(newImage, { status: 201 })
   },
-  systemImageView(params) {
-    return lookupGlobalImage(params)
-  },
+  systemImageView: lookupGlobalImage,
   systemImageDelete(params) {
     const image = lookupGlobalImage(params)
     db.globalImages = db.globalImages.filter((i) => i.id !== image.id)
     return 204
   },
-  ipPoolList(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolCreate(_body) {
-    throw NotImplementedErr
-  },
-  ipPoolView(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolUpdate(_body, _params) {
-    throw NotImplementedErr
-  },
-  ipPoolDelete(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolRangeList(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolRangeAdd(_body, _params) {
-    throw NotImplementedErr
-  },
-  ipPoolRangeRemove(_body, _params) {
-    throw NotImplementedErr
-  },
-  ipPoolServiceView(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolServiceRangeList(_params) {
-    throw NotImplementedErr
-  },
-  ipPoolServiceRangeAdd(_body, _params) {
-    throw NotImplementedErr
-  },
-  ipPoolServiceRangeRemove(_body, _params) {
-    throw NotImplementedErr
-  },
-  systemPolicyView() {
-    throw NotImplementedErr
-  },
-  systemPolicyUpdate(_body) {
-    throw NotImplementedErr
-  },
-  sagaList(_params) {
-    throw NotImplementedErr
-  },
-  sagaView(_params) {
-    throw NotImplementedErr
-  },
-  siloList(params) {
-    return paginated(params, db.silos)
-  },
+  siloList: paginatedHandler(db.silos),
   siloCreate(body) {
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
@@ -932,42 +759,63 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloView(params) {
-    return lookupSilo(params)
-  },
+  siloView: lookupSilo,
   siloDelete(params) {
     const silo = lookupSilo(params)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  siloIdentityProviderList(_params) {
-    throw NotImplementedErr
-  },
-  samlIdentityProviderCreate(_body, _params) {
-    throw NotImplementedErr
-  },
-  samlIdentityProviderView(_params) {
-    throw NotImplementedErr
-  },
-  siloPolicyView(_params) {
-    throw NotImplementedErr
-  },
-  siloPolicyUpdate(_body, _params) {
-    throw NotImplementedErr
-  },
-  updatesRefresh() {
-    throw NotImplementedErr
-  },
-  systemUserList(_params) {
-    throw NotImplementedErr
-  },
-  systemUserView(_params) {
-    throw NotImplementedErr
-  },
-  timeseriesSchemaGet(_params) {
-    throw NotImplementedErr
-  },
-  userList(params) {
-    return paginated(params, db.users)
-  },
+  userList: paginatedHandler(db.users),
+
+  diskViewById: lookupById(db.disks),
+  imageViewById: lookupById(db.images),
+  instanceViewById: lookupById(db.instances),
+  instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),
+  organizationViewById: lookupById(db.orgs),
+  projectViewById: lookupById(db.projects),
+  snapshotViewById: lookupById(db.snapshots),
+  vpcRouterRouteViewById: lookupById(db.vpcRouterRoutes),
+  vpcRouterViewById: lookupById(db.vpcRouters),
+  vpcSubnetViewById: lookupById(db.vpcSubnets),
+  vpcViewById: lookupById(db.vpcs),
+  systemImageViewById: lookupById(db.globalImages),
+  siloViewById: lookupById(db.silos),
+
+  instanceMigrate: NotImplemented,
+  loginSpoof: NotImplemented,
+  loginSamlBegin: NotImplemented,
+  loginSaml: NotImplemented,
+  logout: NotImplemented,
+  roleList: NotImplemented,
+  roleView: NotImplemented,
+  ipPoolViewById: NotImplemented,
+  rackList: NotImplemented,
+  rackView: NotImplemented,
+  sledList: NotImplemented,
+  sledView: NotImplemented,
+  ipPoolList: NotImplemented,
+  ipPoolCreate: NotImplemented,
+  ipPoolView: NotImplemented,
+  ipPoolUpdate: NotImplemented,
+  ipPoolDelete: NotImplemented,
+  ipPoolRangeList: NotImplemented,
+  ipPoolRangeAdd: NotImplemented,
+  ipPoolRangeRemove: NotImplemented,
+  ipPoolServiceView: NotImplemented,
+  ipPoolServiceRangeList: NotImplemented,
+  ipPoolServiceRangeAdd: NotImplemented,
+  ipPoolServiceRangeRemove: NotImplemented,
+  systemPolicyView: NotImplemented,
+  systemPolicyUpdate: NotImplemented,
+  sagaList: NotImplemented,
+  sagaView: NotImplemented,
+  siloIdentityProviderList: NotImplemented,
+  samlIdentityProviderCreate: NotImplemented,
+  samlIdentityProviderView: NotImplemented,
+  siloPolicyView: NotImplemented,
+  siloPolicyUpdate: NotImplemented,
+  updatesRefresh: NotImplemented,
+  systemUserList: NotImplemented,
+  systemUserView: NotImplemented,
+  timeseriesSchemaGet: NotImplemented,
 })

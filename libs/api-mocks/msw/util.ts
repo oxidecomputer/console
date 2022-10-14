@@ -1,6 +1,8 @@
 import { subHours } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
+import { json } from '@oxide/gen/msw-handlers'
+
 export { json } from '@oxide/gen/msw-handlers'
 
 interface PaginateOptions {
@@ -15,30 +17,34 @@ export interface ResultsPage<I extends { id: string }> {
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
-): ResultsPage<I> => {
-  const { limit = 10, pageToken } = params || {}
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
-  startIndex = startIndex < 0 ? 0 : startIndex
+) => paginatedHandler(items)(params)
 
-  if (startIndex > items.length) {
+export const paginatedHandler =
+  <I extends { id: string }>(items: I[]) =>
+  <P extends PaginateOptions>(params: P) => {
+    const { limit = 10, pageToken } = params || {}
+    let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
+    startIndex = startIndex < 0 ? 0 : startIndex
+
+    if (startIndex > items.length) {
+      return {
+        items: [],
+        nextPage: null,
+      }
+    }
+
+    if (limit + startIndex >= items.length) {
+      return {
+        items: items.slice(startIndex),
+        nextPage: null,
+      }
+    }
+
     return {
-      items: [],
-      nextPage: null,
+      items: items.slice(startIndex, startIndex + limit),
+      nextPage: `${items[startIndex + limit].id}`,
     }
   }
-
-  if (limit + startIndex >= items.length) {
-    return {
-      items: items.slice(startIndex),
-      nextPage: null,
-    }
-  }
-
-  return {
-    items: items.slice(startIndex, startIndex + limit),
-    nextPage: `${items[startIndex + limit].id}`,
-  }
-}
 
 // make a bunch of copies of an object with different names and IDs. useful for
 // testing pagination
@@ -63,3 +69,27 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 }
 
 export const genId = (_prefix?: string) => uuid()
+
+export function getTimestamps() {
+  const now = new Date().toISOString()
+  return { time_created: now, time_modified: now }
+}
+
+export const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+
+export const NotImplemented = () => {
+  throw json({ error_code: 'NotImplemented' }, { status: 501 })
+}
+
+export const errIfExists = <T extends Record<string, unknown>>(
+  collection: T[],
+  match: Partial<{ [key in keyof T]: T[key] }>
+) => {
+  if (
+    collection.some((item) =>
+      Object.entries(match).every(([key, value]) => item[key] === value)
+    )
+  ) {
+    throw json({ error_code: 'ObjectAlreadyExists' }, { status: 400 })
+  }
+}

@@ -9,11 +9,13 @@ const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
 export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
 
-export const lookupById = <T extends { id: string }>(params: PP.Id, table: T[]): T => {
-  const item = table.find((i) => i.id === params.id)
-  if (!item) throw notFoundErr
-  return item
-}
+export const lookupById =
+  <T extends { id: string }>(table: T[]) =>
+  (params: PP.Id) => {
+    const item = table.find((i) => i.id === params.id)
+    if (!item) throw notFoundErr
+    return item
+  }
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {
   const org = db.orgs.find((o) => o.name === params.orgName)
