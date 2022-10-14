@@ -25,7 +25,7 @@ import { ContentPane, PageContainer } from './helpers'
  * request error. We're being a little cavalier here with the error. If it's
  * something other than a 403, that would be strange and we would want to know.
  */
-SiloLayout.loader = async () => {
+SystemLayout.loader = async () => {
   const isFleetViewer = await apiQueryClient
     .fetchQuery('systemPolicyView', {})
     .then(() => true)
@@ -36,7 +36,7 @@ SiloLayout.loader = async () => {
   if (!isFleetViewer) throw trigger404
 }
 
-export default function SiloLayout() {
+export default function SystemLayout() {
   return (
     <PageContainer>
       <TopBar />
