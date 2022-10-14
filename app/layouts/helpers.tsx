@@ -24,6 +24,9 @@ export const ContentPane = () => (
   </div>
 )
 
-export async function prefetchSessionMe() {
-  await apiQueryClient.prefetchQuery('sessionMe', {})
+export async function prefetchUserData() {
+  await Promise.all([
+    apiQueryClient.prefetchQuery('sessionMe', {}),
+    apiQueryClient.prefetchQuery('systemPolicyView', {}),
+  ])
 }

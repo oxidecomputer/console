@@ -15,12 +15,6 @@ import { pb } from 'app/util/path-builder'
 
 import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
-/**
- * TODO: This is a temporary flag to disable the silo picker until we have
- * the an API endpoint to support it.
- */
-const hasSiloPerms = true
-
 export function TopBar() {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
@@ -31,19 +25,29 @@ export function TopBar() {
       navToLogin({ includeCurrent: false })
     },
   })
-  const { data: user, error } = useApiQuery(
-    'sessionMe',
-    {},
-    { cacheTime: 0, refetchOnWindowFocus: false }
-  )
+  const { data: user } = useApiQuery('sessionMe', {}, { cacheTime: 0 })
+  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
 
-  const loggedIn = user && !error
+  const loggedIn = !!user
+
+  // Whether the user is shown /system/* routes is governed by whether they have
+  // viewer perms (or better) on the fleet. The natural place to look for that
+  // is the fleet policy, but if the user doesn't have fleet read, they will get
+  // a 403 from that endpoint. So we simply check whether that endpoint 200s or
+  // not to determine whether the user is a fleet viewer.
+  //
+  // Note that we are able to ignore the possibility of `systemPolicy` being
+  // undefined because the request is still going because we have prefetched
+  // this request in the loader. If that prefetch were removed, fleet viewers
+  // would see the silo picker pop in when the request resolves. Bad.
+  const isFleetViewer = !!systemPolicy
 
   const isSystem = useLocation().pathname.startsWith(pb.system()) // lol
+
   const { projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
-    hasSiloPerms && <SiloSystemPicker isSystem={isSystem} key={0} />,
+    isFleetViewer && <SiloSystemPicker isSystem={isSystem} key={0} />,
     // TODO: This works ok in most situations, but when an operator user is on
     // the orgs page with no org selected, they see this picker, which is
     // redundant with the list of orgs. Overall this logic is starting to feel

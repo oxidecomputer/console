@@ -1,4 +1,5 @@
 import type {
+  FleetRoleRoleAssignment,
   OrganizationRoleRoleAssignment,
   ProjectRoleRoleAssignment,
   SiloRoleRoleAssignment,
@@ -18,12 +19,23 @@ import { userGroup1, userGroup2 } from './user-group'
 // assignments and then collecting them into a policy object at request time.
 // See https://github.com/oxidecomputer/omicron/issues/1165
 type DbRoleAssignment = { resource_id: string } & (
-  | ({ resource_type: 'project' } & Json<ProjectRoleRoleAssignment>)
-  | ({ resource_type: 'organization' } & Json<OrganizationRoleRoleAssignment>)
+  | ({ resource_type: 'fleet' } & Json<FleetRoleRoleAssignment>)
   | ({ resource_type: 'silo' } & Json<SiloRoleRoleAssignment>)
+  | ({ resource_type: 'organization' } & Json<OrganizationRoleRoleAssignment>)
+  | ({ resource_type: 'project' } & Json<ProjectRoleRoleAssignment>)
 )
 
+// this is hard-coded in the API. there can only be one
+export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+
 export const roleAssignments: DbRoleAssignment[] = [
+  {
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: user1.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
   {
     resource_type: 'silo',
     resource_id: defaultSilo.id,
