@@ -20,11 +20,12 @@ import { pb } from 'app/util/path-builder'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
- * If we can see the policy, we're a fleet viewer, same as in `TopBar`. We need
- * to `fetchQuery` instead of `prefetchQuery` because the latter doesn't return
- * the result, and then we need to `.catch()` because `fetchQuery` throws on
- * request error. We're being a little cavalier here with the error. If it's
- * something other than a 403, that would be strange and we would want to know.
+ * If we can see the policy, we're a fleet viewer, and we need to be a fleet
+ * viewer in order to see any of the routes under this layout. We need to
+ * `fetchQuery` instead of `prefetchQuery` because the latter doesn't return the
+ * result, and then we need to `.catch()` because `fetchQuery` throws on request
+ * error. We're being a little cavalier here with the error. If it's something
+ * other than a 403, that would be strange and we would want to know.
  */
 SystemLayout.loader = async () => {
   const isFleetViewer = await apiQueryClient
