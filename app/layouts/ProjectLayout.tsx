@@ -13,6 +13,7 @@ import {
 } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
+import { OrgPicker, ProjectPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions, useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -49,7 +50,11 @@ const ProjectLayout = () => {
 
   return (
     <PageContainer>
-      <TopBar />
+      <TopBar>
+        {useSiloSystemPicker('silo')}
+        <OrgPicker />
+        <ProjectPicker />
+      </TopBar>
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects({ orgName })} end>

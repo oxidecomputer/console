@@ -1,5 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useNavigate, useParams } from 'react-router-dom'
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
@@ -9,25 +10,10 @@ import {
   Notifications16Icon,
   Profile16Icon,
 } from '@oxide/ui'
-import { isTruthy } from '@oxide/util'
 
 import { pb } from 'app/util/path-builder'
 
-import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
-
-type TopBarProps = {
-  /**
-   * Passing around flags like this is definitely a code smell, but this is the
-   * simplest thing for now. This allows `SystemLayout` to tell us when we're on
-   * a system route (instead of detecting it in an unreliable way by, for
-   * example, checking what the pathname starts with) while at the same time
-   * keeping the logic for showing/hiding the system/silo picker based on the
-   * current user's permissions bundled up in here.
-   */
-  isSystemRoute?: boolean
-}
-
-export function TopBar({ isSystemRoute = false }: TopBarProps) {
+export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -38,37 +24,12 @@ export function TopBar({ isSystemRoute = false }: TopBarProps) {
     },
   })
   const { data: user } = useApiQuery('sessionMe', {}, { cacheTime: 0 })
-  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
 
   const loggedIn = !!user
 
-  // Whether the user is shown /system/* routes is governed by whether they have
-  // viewer perms (or better) on the fleet. The natural place to look for that
-  // is the fleet policy, but if the user doesn't have fleet read, they will get
-  // a 403 from that endpoint. So we simply check whether that endpoint 200s or
-  // not to determine whether the user is a fleet viewer.
-  //
-  // Note that we are able to ignore the possibility of `systemPolicy` being
-  // undefined because the request is still going because we have prefetched
-  // this request in the loader. If that prefetch were removed, fleet viewers
-  // would see the silo picker pop in when the request resolves. Bad.
-  const isFleetViewer = !!systemPolicy
-
-  const { projectName } = useParams()
-
-  const [cornerPicker, ...otherPickers] = [
-    isFleetViewer && <SiloSystemPicker isSystemRoute={isSystemRoute} key={0} />,
-    // TODO: This works ok in most situations, but when an operator user is on
-    // the orgs page with no org selected, they see this picker, which is
-    // redundant with the list of orgs. Overall this logic is starting to feel
-    // silly, which points to a non-centralized approach handled in the layouts
-    // like we were doing before. That way, for example, we know whether we're
-    // on a system situation because we're in SystemLayout. Seems pretty obvious
-    // in hindsight.
-    !isSystemRoute && <OrgPicker key={1} />,
-    // doing both checks is redundant but let's be clear
-    !isSystemRoute && projectName && <ProjectPicker key={2} />,
-  ].filter(isTruthy)
+  // toArray filters out nulls, which is essential because the silo/system
+  // picker is going to come in null when the user isn't supposed to see it
+  const [cornerPicker, ...otherPickers] = React.Children.toArray(children)
 
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).

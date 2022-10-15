@@ -104,7 +104,29 @@ const NoOrgLogo = () => (
   </div>
 )
 
-export function SiloSystemPicker({ isSystemRoute }: { isSystemRoute: boolean }) {
+/**
+ * Return `null` instead of the picker when the user doesn't have fleet viewer
+ * perms so it can get filtered out of the children array in `<TopBar>`. Having
+ * `<SiloSystemPicker>` itself return `null` from render doesn't work because
+ * `<TopBar>` can't see that.
+ */
+export function useSiloSystemPicker(value: 'silo' | 'system') {
+  // User is only shown system routes if they have viewer perms (at least) on
+  // the fleet. The natural place to find out whether they have such perms is
+  // the fleet policy, but if the user doesn't have fleet read, we'll get a 403
+  // from that endpoint. So we simply check whether that endpoint 200s or not to
+  // determine whether the user is a fleet viewer.
+  //
+  // Note that we are able to ignore the possibility of `systemPolicy` being
+  // undefined due to the request being in flight because we have prefetched
+  // this request in the loader. If that prefetch were removed, fleet viewers
+  // would see the silo picker pop in when the request resolves, which would be
+  // bad.
+  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
+  return systemPolicy ? <SiloSystemPicker value={value} /> : null
+}
+
+export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
@@ -113,7 +135,7 @@ export function SiloSystemPicker({ isSystemRoute }: { isSystemRoute: boolean }) 
     'aria-label': 'Switch between system and silo',
   }
 
-  return isSystemRoute ? (
+  return value === 'system' ? (
     <TopBarPicker
       {...commonProps}
       category="System"
@@ -126,8 +148,6 @@ export function SiloSystemPicker({ isSystemRoute }: { isSystemRoute: boolean }) 
     <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
   )
 }
-
-// TODO: maybe don't filter out the currently selected one
 
 export function OrgPicker() {
   const { orgName } = useParams()

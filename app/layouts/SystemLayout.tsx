@@ -14,6 +14,7 @@ import {
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
+import { SiloSystemPicker } from 'app/components/TopBarPicker'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
@@ -39,7 +40,10 @@ SystemLayout.loader = async () => {
 export default function SystemLayout() {
   return (
     <PageContainer>
-      <TopBar isSystemRoute />
+      <TopBar>
+        {/* don't use the hook bc if we're here, this needs to show up */}
+        <SiloSystemPicker value="system" />
+      </TopBar>
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />
