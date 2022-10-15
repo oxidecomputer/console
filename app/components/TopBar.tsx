@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
@@ -15,7 +15,19 @@ import { pb } from 'app/util/path-builder'
 
 import { OrgPicker, ProjectPicker, SiloSystemPicker } from './TopBarPicker'
 
-export function TopBar() {
+type TopBarProps = {
+  /**
+   * Passing around flags like this is definitely a code smell, but this is the
+   * simplest thing for now. This allows `SystemLayout` to tell us when we're on
+   * a system route (instead of detecting it in an unreliable way by, for
+   * example, checking what the pathname starts with) while at the same time
+   * keeping the logic for showing/hiding the system/silo picker based on the
+   * current user's permissions bundled up in here.
+   */
+  isSystemRoute?: boolean
+}
+
+export function TopBar({ isSystemRoute = false }: TopBarProps) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => {
@@ -42,12 +54,10 @@ export function TopBar() {
   // would see the silo picker pop in when the request resolves. Bad.
   const isFleetViewer = !!systemPolicy
 
-  const isSystem = pb.isSystemPath(useLocation().pathname)
-
   const { projectName } = useParams()
 
   const [cornerPicker, ...otherPickers] = [
-    isFleetViewer && <SiloSystemPicker isSystem={isSystem} key={0} />,
+    isFleetViewer && <SiloSystemPicker isSystemRoute={isSystemRoute} key={0} />,
     // TODO: This works ok in most situations, but when an operator user is on
     // the orgs page with no org selected, they see this picker, which is
     // redundant with the list of orgs. Overall this logic is starting to feel
@@ -55,8 +65,9 @@ export function TopBar() {
     // like we were doing before. That way, for example, we know whether we're
     // on a system situation because we're in SystemLayout. Seems pretty obvious
     // in hindsight.
-    !isSystem && <OrgPicker key={1} />,
-    projectName && <ProjectPicker key={2} />,
+    !isSystemRoute && <OrgPicker key={1} />,
+    // doing both checks is redundant but let's be clear
+    !isSystemRoute && projectName && <ProjectPicker key={2} />,
   ].filter(isTruthy)
 
   // The height of this component is governed by the `PageContainer`

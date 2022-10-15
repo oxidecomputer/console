@@ -39,7 +39,7 @@ SystemLayout.loader = async () => {
 export default function SystemLayout() {
   return (
     <PageContainer>
-      <TopBar />
+      <TopBar isSystemRoute />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />

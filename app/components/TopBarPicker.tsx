@@ -104,7 +104,7 @@ const NoOrgLogo = () => (
   </div>
 )
 
-export function SiloSystemPicker({ isSystem }: { isSystem: boolean }) {
+export function SiloSystemPicker({ isSystemRoute }: { isSystemRoute: boolean }) {
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
@@ -113,7 +113,7 @@ export function SiloSystemPicker({ isSystem }: { isSystem: boolean }) {
     'aria-label': 'Switch between system and silo',
   }
 
-  return isSystem ? (
+  return isSystemRoute ? (
     <TopBarPicker
       {...commonProps}
       category="System"
