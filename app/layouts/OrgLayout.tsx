@@ -1,6 +1,7 @@
 import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
+import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -12,7 +13,10 @@ const OrgLayout = () => {
 
   return (
     <PageContainer>
-      <TopBar />
+      <TopBar>
+        {useSiloSystemPicker('silo')}
+        <OrgPicker />
+      </TopBar>
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.orgs()} end>

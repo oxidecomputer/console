@@ -5,6 +5,8 @@ import type { ErrorResult } from '@oxide/api'
 
 import NotFound from 'app/pages/NotFound'
 
+export const trigger404 = { type: 'error', statusCode: 404 }
+
 type Props = { error: Error | ErrorResult }
 
 function ErrorFallback({ error }: Props) {

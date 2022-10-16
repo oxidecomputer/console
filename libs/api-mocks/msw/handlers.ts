@@ -5,6 +5,7 @@ import { pick, sortBy } from '@oxide/util'
 
 import type { Json } from '../json-type'
 import { genCumulativeI64Data, genI64Data } from '../metrics'
+import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { sessionMe } from '../session'
 import { defaultSilo } from '../silo'
@@ -53,6 +54,10 @@ const unavailableBody = { error_code: 'ServiceUnavailable' } as const
 type Unavailable = typeof unavailableBody
 const unavailableErr = json(unavailableBody, { status: 503 })
 
+const forbiddenBody = { error_code: 'Forbidden' } as const
+type Forbidden = typeof forbiddenBody
+// const forbiddenErr = json(forbiddenBody, { status: 403 })
+
 const badRequest = (msg: string) =>
   compose(
     context.status(400),
@@ -63,8 +68,8 @@ const badRequest = (msg: string) =>
     })
   )
 
-type GetErr = NotFound | Unavailable
-type PostErr = AlreadyExists | NotFound
+type GetErr = NotFound | Unavailable | Forbidden
+type PostErr = AlreadyExists | NotFound | Forbidden
 
 export const handlers = [
   rest.get('/session/me', (req, res) => res(json(sessionMe))),
@@ -1136,6 +1141,19 @@ export const handlers = [
       if (err) return res(err)
       db.silos = db.silos.filter((x) => x.id !== silo.id)
       return res(json(silo))
+    }
+  ),
+
+  rest.get<never, never, Json<Api.FleetRolePolicy> | GetErr>(
+    '/system/policy',
+    (_req, res) => {
+      // manually uncomment to test non-operator user
+      // TODO: figure out authz in the mock server ugh
+      // return res(forbiddenErr)
+      const role_assignments = db.roleAssignments
+        .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+        .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      return res(json({ role_assignments }))
     }
   ),
 
