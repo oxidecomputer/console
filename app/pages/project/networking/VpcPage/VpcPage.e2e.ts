@@ -19,17 +19,17 @@ test.describe('VpcPage', () => {
 
     // open modal, fill out form, submit
     await page.click('text=New subnet')
-    await page.fill('input[name=ipv4Block]', '1.1.1.2/24')
+    await page.fill('input[name=ipv4Block]', '10.1.1.2/24')
     await page.fill('input[name=name]', 'mock-subnet-2')
     await page.click('button:has-text("Create subnet")')
 
     await expect(rows).toHaveCount(2)
 
     await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
-    await expect(rows.nth(0).locator('text="1.1.1.1/24"')).toBeVisible()
+    await expect(rows.nth(0).locator('text="10.1.1.1/24"')).toBeVisible()
 
     await expect(rows.nth(1).locator('text="mock-subnet-2"')).toBeVisible()
-    await expect(rows.nth(1).locator('text="1.1.1.2/24"')).toBeVisible()
+    await expect(rows.nth(1).locator('text="10.1.1.2/24"')).toBeVisible()
   })
 
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
