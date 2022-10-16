@@ -77,3 +77,31 @@ export async function expectRowVisible(
     .poll(getRows)
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
+
+// const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
+//
+// export async function expectSimultaneous(page: Page, selectors: string[]) {
+//   const getHandles = () => Promise.all(selectors.map((s) => page.$(s)))
+//   let handles = new Array(selectors.length).fill(null)
+//   while (handles.every((h) => h == null)) {
+//     handles = await getHandles()
+//     // console.log(handles.map((h) => h != null))
+//     await sleep(20)
+//   }
+//   // if any of them showed up, we want to see that all of them did
+//   expect(handles.every((h) => h != null)).toBe(true)
+// }
+
+async function timeToAppear(page: Page, selector: string): Promise<number> {
+  const start = Date.now()
+  await page.locator(selector).waitFor()
+  return Date.now() - start
+}
+
+/**
+ * Assert two elements appeared within 20ms of each other
+ */
+export async function expectSimultaneous(page: Page, selectors: [string, string]) {
+  const [t1, t2] = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
+  expect(Math.abs(t1 - t2)).toBeLessThan(20)
+}
