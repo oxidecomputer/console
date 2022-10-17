@@ -10,7 +10,9 @@ export function sortBy<T>(arr: T[], by: (t: T) => any = identity): T[] {
 }
 
 /** Equivalent to `sortBy(...)[0]` but O(N) */
-export function lowestBy<T>(arr: T[], by: (t: T) => any = identity): T {
+export function lowestBy<T>(arr: T[], by: (t: T) => any = identity): T | undefined {
+  if (arr.length === 0) return undefined
+
   let lowest = arr[0]
   let lowestScore = by(arr[0])
   for (let i = 1; i < arr.length; i++) {
