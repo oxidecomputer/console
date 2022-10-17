@@ -5,7 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  getEffectiveOrgRole,
+  getEffectiveRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
@@ -91,7 +91,7 @@ export function OrgAccessPage() {
           siloRole,
           orgRole,
           // we know there has to be at least one
-          effectiveRole: getEffectiveOrgRole(roles)!,
+          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row

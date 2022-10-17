@@ -1,40 +1,28 @@
 import type { ProjectRolePolicy } from './__generated__/Api'
-import {
-  getEffectiveOrgRole,
-  getEffectiveProjectRole,
-  orgRoleOrder,
-  projectRoleOrder,
-  setUserRole,
-} from './roles'
+import type { SessionMe } from './roles'
+import { getEffectiveRole, roleOrder, setUserRole, userRoleFromPolicy } from './roles'
 
-describe('getEffectiveProjectRole and getEffectiveOrgRole', () => {
+describe('getEffectiveRole', () => {
   it('returns falsy when the list of role assignments is empty', () => {
-    expect(getEffectiveProjectRole([])).toBeFalsy()
-    expect(getEffectiveOrgRole([])).toBeFalsy()
+    expect(getEffectiveRole([])).toBeFalsy()
   })
 
   it('returns the strongest role when there are multiple roles, regardless of policy order', () => {
-    expect(getEffectiveProjectRole(['admin', 'collaborator'])).toEqual('admin')
-    expect(getEffectiveProjectRole(['collaborator', 'admin'])).toEqual('admin')
-
-    expect(getEffectiveOrgRole(['collaborator', 'viewer'])).toEqual('collaborator')
-    expect(getEffectiveOrgRole(['viewer', 'collaborator'])).toEqual('collaborator')
+    expect(getEffectiveRole(['admin', 'collaborator'])).toEqual('admin')
+    expect(getEffectiveRole(['collaborator', 'admin'])).toEqual('admin')
   })
 
   it("type errors when passed a role that's not in the enum", () => {
     // @ts-expect-error
-    getEffectiveProjectRole(['fake!'])
-    // @ts-expect-error
-    getEffectiveOrgRole(['fake!'])
+    getEffectiveRole(['fake!'])
   })
 })
 
 const keyCount = (rec: Record<string, number>) => Object.keys(rec).length
 const valueCount = (rec: Record<string, number>) => new Set(Object.values(rec)).size
 
-test('role orders assign a different order number to every role', () => {
-  expect(keyCount(projectRoleOrder)).toEqual(valueCount(projectRoleOrder))
-  expect(keyCount(orgRoleOrder)).toEqual(valueCount(orgRoleOrder))
+test('role order assigns a different order number to every role', () => {
+  expect(keyCount(roleOrder)).toEqual(valueCount(roleOrder))
 })
 
 const emptyPolicy = { roleAssignments: [] }
@@ -58,5 +46,50 @@ describe('setUserRole', () => {
 
   it('deletes a user when passed a roleId of null', () => {
     expect(setUserRole('abc', null, abcViewer)).toEqual(emptyPolicy)
+  })
+})
+
+const user1: SessionMe = {
+  id: 'hi',
+  displayName: 'bye',
+  siloId: 'sigh',
+  groupIds: ['group1', 'group2'],
+}
+
+describe('getEffectiveRole', () => {
+  it('returns null when there are no roles', () => {
+    expect(userRoleFromPolicy(user1, { roleAssignments: [] })).toBe(null)
+  })
+
+  it('returns role if user matches directly', () => {
+    expect(
+      userRoleFromPolicy(user1, {
+        roleAssignments: [
+          { identityId: 'hi', identityType: 'silo_user', roleName: 'admin' },
+        ],
+      })
+    ).toEqual('admin')
+  })
+
+  it('returns strongest role if both group and user match', () => {
+    expect(
+      userRoleFromPolicy(user1, {
+        roleAssignments: [
+          { identityId: 'hi', identityType: 'silo_user', roleName: 'viewer' },
+          { identityId: 'group1', identityType: 'silo_group', roleName: 'collaborator' },
+        ],
+      })
+    ).toEqual('collaborator')
+  })
+
+  it('ignores groups and users that do not match', () => {
+    expect(
+      userRoleFromPolicy(user1, {
+        roleAssignments: [
+          { identityId: 'other', identityType: 'silo_user', roleName: 'viewer' },
+          { identityId: 'group3', identityType: 'silo_group', roleName: 'viewer' },
+        ],
+      })
+    ).toEqual(null)
   })
 })

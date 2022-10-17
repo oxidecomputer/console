@@ -5,7 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  getEffectiveProjectRole,
+  getEffectiveRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
@@ -105,7 +105,7 @@ export function ProjectAccessPage() {
           orgRole,
           projectRole,
           // we know there has to be at least one
-          effectiveRole: getEffectiveProjectRole(roles)!,
+          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row

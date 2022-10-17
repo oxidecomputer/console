@@ -1,7 +1,7 @@
 import * as Yup from 'yup'
 
 import type { ProjectRole, ProjectRolePolicy } from '@oxide/api'
-import { projectRoles } from '@oxide/api'
+import { allRoles } from '@oxide/api'
 import { useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -23,7 +23,7 @@ const initialValues: AddUserValues = {
   roleName: '',
 }
 
-const roleItems = projectRoles.map((role) => ({ value: role, label: capitalize(role) }))
+const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
 type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, ProjectRolePolicy> & {
   policy: ProjectRolePolicy
