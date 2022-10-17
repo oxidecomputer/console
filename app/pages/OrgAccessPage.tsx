@@ -5,13 +5,13 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  getEffectiveOrgRole,
+  getEffectiveRole,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { IdentityType, OrganizationRole, SiloRole } from '@oxide/api'
+import type { IdentityType, RoleKey } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -55,10 +55,10 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: SiloRole | undefined
-  orgRole: OrganizationRole | undefined
+  siloRole: RoleKey | undefined
+  orgRole: RoleKey | undefined
   // all these types are the same but this is strictly more correct than using one
-  effectiveRole: SiloRole | OrganizationRole
+  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -91,7 +91,7 @@ export function OrgAccessPage() {
           siloRole,
           orgRole,
           // we know there has to be at least one
-          effectiveRole: getEffectiveOrgRole(roles)!,
+          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row

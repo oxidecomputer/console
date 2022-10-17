@@ -1,7 +1,6 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -28,29 +27,25 @@ import { groupBy, isTruthy, sortBy } from '@oxide/util'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
-  ProjectAccessAddUserSideModal,
-  ProjectAccessEditUserSideModal,
-} from 'app/forms/project-access'
-import { requireProjectParams, useRequiredParams } from 'app/hooks'
+  SiloAccessAddUserSideModal,
+  SiloAccessEditUserSideModal,
+} from 'app/forms/silo-access'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Access24Icon />}
       title="No authorized users"
-      body="Give permission to view, edit, or administer this project"
-      buttonText="Add user to project"
+      body="Give permission to view, edit, or administer this silo"
+      buttonText="Add user or group"
       onClick={onClick}
     />
   </TableEmptyBox>
 )
 
-ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { orgName, projectName } = requireProjectParams(params)
+SiloAccessPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
-    apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
   ])
@@ -61,61 +56,43 @@ type UserRow = {
   identityType: IdentityType
   name: string
   siloRole: RoleKey | undefined
-  orgRole: RoleKey | undefined
-  projectRole: RoleKey | undefined
   effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
 
-export function ProjectAccessPage() {
+export function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const { orgName } = projectParams
 
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
-  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
-
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
-  const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
-
   const rows = useMemo(() => {
-    const users = groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id).map(
-      ([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
-        const projectRole = userAssignments.find(
-          (a) => a.roleSource === 'project'
-        )?.roleName
+    const users = groupBy(siloRows, (u) => u.id).map(([userId, userAssignments]) => {
+      const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-        const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
+      const roles = [siloRole].filter(isTruthy)
 
-        const { name, identityType } = userAssignments[0]
+      const { name, identityType } = userAssignments[0]
 
-        const row: UserRow = {
-          id: userId,
-          identityType,
-          name,
-          siloRole,
-          orgRole,
-          projectRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
-        }
-
-        return row
+      const row: UserRow = {
+        id: userId,
+        identityType,
+        name,
+        siloRole,
+        // we know there has to be at least one
+        effectiveRole: getEffectiveRole(roles)!,
       }
-    )
+
+      return row
+    })
     return sortBy(users, (u) => u.name)
-  }, [siloRows, orgRows, projectRows])
+  }, [siloRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyView', projectParams),
+  const updatePolicy = useApiMutation('policyUpdate', {
+    onSuccess: () => queryClient.invalidateQueries('policyView', {}),
     // TODO: handle 403
   })
 
@@ -130,20 +107,12 @@ export function ProjectAccessPage() {
         header: 'Silo role',
         cell: RoleBadgeCell,
       }),
-      colHelper.accessor('orgRole', {
-        header: 'Org role',
-        cell: RoleBadgeCell,
-      }),
-      colHelper.accessor('projectRole', {
-        header: 'Project role',
-        cell: RoleBadgeCell,
-      }),
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.projectRole,
+          disabled: !row.siloRole,
         },
         // TODO: only show if you have permission to do this
         {
@@ -151,16 +120,15 @@ export function ProjectAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              ...projectParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, projectPolicy!),
+              body: setUserRole(row.id, null, siloPolicy!),
             })
           },
-          disabled: !row.projectRole,
+          disabled: !row.siloRole,
         },
       ]),
     ],
-    [projectPolicy, projectParams, updatePolicy]
+    [siloPolicy, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -177,23 +145,25 @@ export function ProjectAccessPage() {
 
       <TableActions>
         <Button size="sm" variant="default" onClick={() => setAddModalOpen(true)}>
-          Add user to project
+          Add user or group
         </Button>
       </TableActions>
-      {projectPolicy && (
-        <ProjectAccessAddUserSideModal
+      {siloPolicy && (
+        <SiloAccessAddUserSideModal
           isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
-          policy={projectPolicy}
+          onSuccess={() => setAddModalOpen(false)}
+          policy={siloPolicy}
         />
       )}
-      {projectPolicy && editingUserRow?.projectRole && (
-        <ProjectAccessEditUserSideModal
+      {siloPolicy && editingUserRow?.siloRole && (
+        <SiloAccessEditUserSideModal
           isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
-          policy={projectPolicy}
+          onSuccess={() => setEditingUserRow(null)}
+          policy={siloPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.projectRole }}
+          initialValues={{ roleName: editingUserRow.siloRole }}
         />
       )}
       {rows.length === 0 ? (

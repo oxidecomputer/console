@@ -3,10 +3,26 @@ const identity = (x: any) => x
 
 /** Returns a new array sorted by `by`. Assumes return value of `by` is
  * comparable. Default value of `by` is the identity function. */
-export function sortBy<T>(arr: T[], by: (t: T) => any = identity) {
+export function sortBy<T>(arr: T[], by: (t: T) => any = identity): T[] {
   const copy = [...arr]
   copy.sort((a, b) => (by(a) < by(b) ? -1 : by(a) > by(b) ? 1 : 0))
   return copy
+}
+
+/** Equivalent to `sortBy(...)[0]` but O(N) */
+export function lowestBy<T>(arr: T[], by: (t: T) => any = identity): T | undefined {
+  if (arr.length === 0) return undefined
+
+  let lowest = arr[0]
+  let lowestScore = by(arr[0])
+  for (let i = 1; i < arr.length; i++) {
+    const score = by(arr[i])
+    if (score < lowestScore) {
+      lowest = arr[i]
+      lowestScore = score
+    }
+  }
+  return lowest
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
