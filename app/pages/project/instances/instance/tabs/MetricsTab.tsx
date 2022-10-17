@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
-import { useDateTimeRangePicker } from 'app/components/form'
+import { DateTimeRangePicker, useDateTimeRangePickerState } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -71,9 +71,13 @@ function DiskMetric({
 // which means we can easily set the default selected disk to the first one
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastDay',
-  })
+
+  const initialPreset = 'lastDay'
+  const {
+    startTime,
+    endTime,
+    onChange: onTimeChange,
+  } = useDateTimeRangePickerState(initialPreset)
 
   invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
   const [diskName, setDiskName] = useState<string>(disks[0].name)
@@ -88,27 +92,25 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
         {/* TODO: using a Formik field here feels like overkill, but we've built
             ListboxField to require that, i.e., there's no way to get the nice worked-out
             layout from ListboxField without using Formik. Something to think about. */}
-        <div>
-          <div className="mb-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label id="disk-name-label" className="flex text-sans-sm">
-              Choose disk
-            </label>
-          </div>
-          <Listbox
-            className="w-48"
-            aria-labelledby="disk-name-label"
-            name="disk-name"
-            items={diskItems}
-            onChange={(item) => {
-              if (item) {
-                setDiskName(item.value)
-              }
-            }}
-            defaultValue={diskName}
-          />
-        </div>
-        {dateTimeRangePicker}
+        <Listbox
+          className="w-48"
+          aria-label="Choose disk"
+          name="disk-name"
+          items={diskItems}
+          onChange={(item) => {
+            if (item) {
+              setDiskName(item.value)
+            }
+          }}
+          defaultValue={diskName}
+        />
+        <DateTimeRangePicker
+          initialPreset={initialPreset}
+          slideInterval={5000}
+          startTime={startTime}
+          endTime={endTime}
+          onChange={onTimeChange}
+        />
       </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can

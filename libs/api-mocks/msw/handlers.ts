@@ -4,6 +4,7 @@ import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'
+import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { currentUser } from '../session'
 import { defaultSilo } from '../silo'
@@ -767,6 +768,14 @@ export const handlers = makeHandlers({
   },
   userList: paginatedHandler(db.users),
 
+  systemPolicyView() {
+    const role_assignments = db.roleAssignments
+      .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+
+    return { role_assignments }
+  },
+
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
   instanceViewById: lookupById(db.instances),
@@ -805,7 +814,6 @@ export const handlers = makeHandlers({
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,
-  systemPolicyView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   sagaList: NotImplemented,
   sagaView: NotImplemented,

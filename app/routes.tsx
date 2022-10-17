@@ -10,7 +10,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import SiloLayout from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { prefetchSessionMe } from './layouts/helpers'
+import { userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
@@ -55,7 +55,7 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route loader={prefetchSessionMe} errorElement={<RouterDataErrorBoundary />}>
+    <Route loader={userLoader} errorElement={<RouterDataErrorBoundary />}>
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
@@ -73,7 +73,7 @@ export const routes = createRoutesFromElements(
         <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
       </Route>
 
-      <Route path="sys" element={<SystemLayout />}>
+      <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route path="silos" element={<SilosPage />} loader={SilosPage.loader} />
         <Route
           path="silos-new"

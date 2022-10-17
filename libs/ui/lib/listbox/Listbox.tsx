@@ -39,7 +39,7 @@ export const Listbox: FC<ListboxProps> = ({
       <button
         type="button"
         className={cn(
-          `flex h-[2.625rem] w-full items-center justify-between rounded
+          `flex h-10 w-full items-center justify-between rounded
           border px-3 text-sans-md bg-default border-default
           focus:outline-none focus:ring-2 focus:ring-accent-secondary
           disabled:cursor-not-allowed disabled:bg-disabled`,

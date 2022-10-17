@@ -77,3 +77,17 @@ export async function expectRowVisible(
     .poll(getRows)
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
+
+async function timeToAppear(page: Page, selector: string): Promise<number> {
+  const start = Date.now()
+  await page.locator(selector).waitFor()
+  return Date.now() - start
+}
+
+/**
+ * Assert two elements appeared within 20ms of each other
+ */
+export async function expectSimultaneous(page: Page, selectors: [string, string]) {
+  const [t1, t2] = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
+  expect(Math.abs(t1 - t2)).toBeLessThan(20)
+}
