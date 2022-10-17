@@ -32,7 +32,7 @@ export const vpcSubnet: Json<VpcSubnet> = {
   time_modified: new Date(2021, 0, 2).toISOString(),
   // supposed to be camelcase, will fix in API
   vpc_id: vpc.id,
-  ipv4_block: '1.1.1.1/24',
+  ipv4_block: '10.1.1.1/24',
   ipv6_block: 'fd9b:870a:4245::/64',
 }
 
@@ -41,7 +41,7 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   id: genId(),
   name: 'mock-subnet-2',
   vpc_id: vpc.id,
-  ipv4_block: '1.1.1.2/24',
+  ipv4_block: '10.1.1.2/24',
 }
 
 export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
