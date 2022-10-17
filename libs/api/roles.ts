@@ -138,13 +138,10 @@ export type SessionMe = User & {
   groupIds?: string[]
 }
 
-export function userRoleFromPolicy(
-  user: SessionMe,
-  // TODO: this should actually take a list of policies
-  policy: Policy
-): RoleKey | null {
+export function userRoleFromPolicies(user: SessionMe, policies: Policy[]): RoleKey | null {
   const myIds = new Set([user.id, ...(user.groupIds || [])])
-  const myRoles = policy?.roleAssignments
+  const myRoles = policies
+    .flatMap((p) => p.roleAssignments) // concat all the role assignments together
     .filter((ra) => myIds.has(ra.identityId))
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
