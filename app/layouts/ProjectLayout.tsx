@@ -74,10 +74,10 @@ const ProjectLayout = () => {
           <NavLinkItem to={pb.disks(projectParams)}>
             <Storage16Icon /> Disks
           </NavLinkItem>
-          <NavLinkItem to={pb.access(projectParams)}>
+          <NavLinkItem to={pb.projectAccess(projectParams)}>
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
-          <NavLinkItem to={pb.images(projectParams)}>
+          <NavLinkItem to={pb.projectImages(projectParams)}>
             <Images16Icon title="images" /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectParams)}>

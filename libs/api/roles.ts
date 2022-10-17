@@ -20,7 +20,7 @@ import type {
 /**
  * Union of all the specific roles, which are all the same, which makes making
  * our methods generic on the *Role type is pointless (until they stop being the same).
- * Only named `RoleKey` because the API client already exports `Role`.
+ * Only named `RoleName` because the API client already exports `Role`.
  */
 export type RoleKey = FleetRole | SiloRole | OrganizationRole | ProjectRole
 
@@ -52,7 +52,7 @@ type RoleAssignment = {
   identityType: IdentityType
   roleName: RoleKey
 }
-type Policy = { roleAssignments: RoleAssignment[] }
+export type Policy = { roleAssignments: RoleAssignment[] }
 
 /**
  * Returns a new updated policy. Does not modify the passed-in policy.

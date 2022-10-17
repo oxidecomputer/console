@@ -134,6 +134,30 @@ export const handlers = [
     return res(json({ role_assignments }))
   }),
 
+  rest.put<Json<Api.SiloRolePolicy>, PP.Project, Json<Api.SiloRolePolicy> | PostErr>(
+    '/policy',
+    async (req, res) => {
+      // assume we're in the default silo
+      const siloId = defaultSilo.id
+
+      // TODO: validate input lol
+      const body = await req.json()
+      const newAssignments = body.role_assignments.map((r) => ({
+        resource_type: 'silo' as const,
+        resource_id: siloId,
+        ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      }))
+
+      const unrelatedAssignments = db.roleAssignments.filter(
+        (r) => !(r.resource_type === 'silo' && r.resource_id === siloId)
+      )
+
+      db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+      return res(json(body))
+    }
+  ),
+
   rest.get<never, never, Json<Api.OrganizationResultsPage>>('/organizations', (req, res) =>
     res(json(paginated(req.url.search, db.orgs)))
   ),

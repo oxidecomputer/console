@@ -18,6 +18,7 @@ import NotFound from './pages/NotFound'
 import { OrgAccessPage } from './pages/OrgAccessPage'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
+import { SiloAccessPage } from './pages/SiloAccessPage'
 import {
   DisksPage,
   ImagesPage,
@@ -111,6 +112,12 @@ export const routes = createRoutesFromElements(
           element={<OrgsPage modal="createOrg" />}
           loader={OrgsPage.loader}
           handle={{ crumb: 'New org' }}
+        />
+        <Route
+          path="access"
+          element={<SiloAccessPage />}
+          loader={SiloAccessPage.loader}
+          handle={{ crumb: 'Access & IAM' }}
         />
       </Route>
 
