@@ -48,6 +48,7 @@ SiloAccessPage.loader = async () => {
     apiQueryClient.prefetchQuery('policyView', {}),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
+    apiQueryClient.prefetchQuery('groupList', {}),
   ])
 }
 
