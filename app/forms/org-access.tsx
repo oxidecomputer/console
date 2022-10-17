@@ -1,6 +1,6 @@
 import * as Yup from 'yup'
 
-import type { OrganizationRole, OrganizationRolePolicy } from '@oxide/api'
+import type { Policy, RoleKey } from '@oxide/api'
 import { allRoles, useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -14,7 +14,7 @@ import type { CreateSideModalFormProps, EditSideModalFormProps } from '.'
 
 type AddUserValues = {
   userId: string
-  roleName: OrganizationRole | ''
+  roleName: RoleKey | ''
 }
 
 const initialValues: AddUserValues = {
@@ -24,8 +24,8 @@ const initialValues: AddUserValues = {
 
 const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
-type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, OrganizationRolePolicy> & {
-  policy: OrganizationRolePolicy
+type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, Policy> & {
+  policy: Policy
 }
 
 export function OrgAccessAddUserSideModal({
@@ -84,12 +84,12 @@ export function OrgAccessAddUserSideModal({
 }
 
 type EditUserValues = {
-  roleName: OrganizationRole
+  roleName: RoleKey
 }
 
-type EditRoleModalProps = EditSideModalFormProps<EditUserValues, OrganizationRolePolicy> & {
+type EditRoleModalProps = EditSideModalFormProps<EditUserValues, Policy> & {
   userId: string
-  policy: OrganizationRolePolicy
+  policy: Policy
 }
 
 export function OrgAccessEditUserSideModal({

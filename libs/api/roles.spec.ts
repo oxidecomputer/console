@@ -1,5 +1,4 @@
-import type { ProjectRolePolicy } from './__generated__/Api'
-import type { SessionMe } from './roles'
+import type { Policy, SessionMe } from './roles'
 import { getEffectiveRole, roleOrder, setUserRole, userRoleFromPolicy } from './roles'
 
 describe('getEffectiveRole', () => {
@@ -27,11 +26,11 @@ test('role order assigns a different order number to every role', () => {
 
 const emptyPolicy = { roleAssignments: [] }
 
-const abcAdmin: ProjectRolePolicy = {
+const abcAdmin: Policy = {
   roleAssignments: [{ identityId: 'abc', identityType: 'silo_user', roleName: 'admin' }],
 }
 
-const abcViewer: ProjectRolePolicy = {
+const abcViewer: Policy = {
   roleAssignments: [{ identityId: 'abc', identityType: 'silo_user', roleName: 'viewer' }],
 }
 

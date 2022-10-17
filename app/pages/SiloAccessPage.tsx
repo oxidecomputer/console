@@ -10,7 +10,7 @@ import {
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { IdentityType, OrganizationRole, SiloRole } from '@oxide/api'
+import type { IdentityType, RoleKey } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Table, getActionsCol } from '@oxide/table'
 import {
@@ -55,8 +55,8 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: SiloRole | undefined
-  effectiveRole: SiloRole | OrganizationRole
+  siloRole: RoleKey | undefined
+  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
