@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { user1, userGroup1, userGroups, users } from '@oxide/api-mocks'
+import { user1, user2, user3, user4, userGroup1, userGroup2 } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -16,9 +16,9 @@ test('Click through project access page', async ({ page }) => {
   // has to be before anything else is checked. ensures we've prefetched
   // users list and groups list properly
   await expectSimultaneous(page, [
-    `role=cell[name="${userGroup1}"]`,
+    `role=cell[name="${userGroup1.id}"]`,
     'role=cell[name="web-devs Group"]',
-    `role=cell[name="${user1}"]`,
+    `role=cell[name="${user1.id}"]`,
     'role=cell[name="Hannah Arendt"]',
   ])
 
@@ -26,35 +26,35 @@ test('Click through project access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
-    ID: users[0].id,
+    ID: user1.id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': '',
     'Project role': '',
   })
   await expectRowVisible(table, {
-    ID: users[1].id,
+    ID: user2.id,
     Name: 'Hans Jonas',
     'Silo role': '',
     'Org role': 'viewer',
     'Project role': '',
   })
   await expectRowVisible(table, {
-    ID: users[2].id,
+    ID: user3.id,
     Name: 'Jacob Klein',
     'Silo role': '',
     'Org role': '',
     'Project role': 'collaborator',
   })
   await expectRowVisible(table, {
-    ID: userGroups[0].id,
+    ID: userGroup1.id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'web-devsGroup',
     'Silo role': '',
     'Org role': 'collaborator',
   })
   await expectRowVisible(table, {
-    ID: userGroups[1].id,
+    ID: userGroup2.id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'kernel-devsGroup',
     'Silo role': '',
@@ -62,7 +62,7 @@ test('Click through project access page', async ({ page }) => {
     'Project role': 'viewer',
   })
 
-  await expectNotVisible(page, [`role=cell[name="${users[3].id}"]`])
+  await expectNotVisible(page, [`role=cell[name="${user4.id}"]`])
 
   // Add user 4 as collab
   await page.click('role=button[name="Add user to project"]')
@@ -91,14 +91,14 @@ test('Click through project access page', async ({ page }) => {
 
   // User 4 shows up in the table
   await expectRowVisible(table, {
-    ID: users[3].id,
+    ID: user4.id,
     Name: 'Simone de Beauvoir',
     'Project role': 'collaborator',
   })
 
   // now change user 4 role from collab to viewer
   await page
-    .locator('role=row', { hasText: users[3].id })
+    .locator('role=row', { hasText: user4.id })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Change role"]')
@@ -110,17 +110,17 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: users[3].id, 'Project role': 'viewer' })
+  await expectRowVisible(table, { ID: user4.id, 'Project role': 'viewer' })
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
   await page
-    .locator('role=row', { hasText: users[2].id })
+    .locator('role=row', { hasText: user3.id })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, [`role=cell[name=${users[2].id}]`])
+  await expectVisible(page, [`role=cell[name=${user3.id}]`])
   await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name=${users[2].id}]`])
+  await expectNotVisible(page, [`role=cell[name=${user3.id}]`])
 
   // now add a project role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user to project"]')
@@ -130,7 +130,7 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Add user"]')
   await expectRowVisible(table, {
-    ID: users[0].id,
+    ID: user1.id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': '',
