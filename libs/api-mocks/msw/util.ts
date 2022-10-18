@@ -17,34 +17,30 @@ export interface ResultsPage<I extends { id: string }> {
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
-) => paginatedHandler(items)(params)
+) => {
+  const { limit = 10, pageToken } = params || {}
+  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
+  startIndex = startIndex < 0 ? 0 : startIndex
 
-export const paginatedHandler =
-  <I extends { id: string }>(items: I[]) =>
-  <P extends PaginateOptions>(params: P) => {
-    const { limit = 10, pageToken } = params || {}
-    let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
-    startIndex = startIndex < 0 ? 0 : startIndex
-
-    if (startIndex > items.length) {
-      return {
-        items: [],
-        nextPage: null,
-      }
-    }
-
-    if (limit + startIndex >= items.length) {
-      return {
-        items: items.slice(startIndex),
-        nextPage: null,
-      }
-    }
-
+  if (startIndex > items.length) {
     return {
-      items: items.slice(startIndex, startIndex + limit),
-      nextPage: `${items[startIndex + limit].id}`,
+      items: [],
+      nextPage: null,
     }
   }
+
+  if (limit + startIndex >= items.length) {
+    return {
+      items: items.slice(startIndex),
+      nextPage: null,
+    }
+  }
+
+  return {
+    items: items.slice(startIndex, startIndex + limit),
+    nextPage: `${items[startIndex + limit].id}`,
+  }
+}
 
 // make a bunch of copies of an object with different names and IDs. useful for
 // testing pagination

@@ -33,7 +33,6 @@ import {
   getStartAndEndTime,
   getTimestamps,
   paginated,
-  paginatedHandler,
   unavailableErr,
 } from './util'
 
@@ -46,9 +45,9 @@ export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: () => 200,
   deviceAccessToken: () => 200,
-  groupList: paginatedHandler(db.userGroups),
+  groupList: (params) => paginated(params, db.userGroups),
 
-  organizationList: paginatedHandler(db.orgs),
+  organizationList: (params) => paginated(params, db.orgs),
   organizationCreate(body) {
     errIfExists(db.orgs, { name: body.name })
 
@@ -727,7 +726,7 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  systemImageList: paginatedHandler(db.globalImages),
+  systemImageList: (params) => paginated(params, db.globalImages),
   systemImageCreate(body) {
     errIfExists(db.globalImages, { name: body.name })
 
@@ -749,7 +748,7 @@ export const handlers = makeHandlers({
     db.globalImages = db.globalImages.filter((i) => i.id !== image.id)
     return 204
   },
-  siloList: paginatedHandler(db.silos),
+  siloList: (params) => paginated(params, db.silos),
   siloCreate(body) {
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
@@ -766,7 +765,7 @@ export const handlers = makeHandlers({
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  userList: paginatedHandler(db.users),
+  userList: (params) => paginated(params, db.users),
 
   systemPolicyView() {
     const role_assignments = db.roleAssignments
