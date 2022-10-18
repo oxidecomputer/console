@@ -1,5 +1,7 @@
 import { test } from '@playwright/test'
 
+import { userGroups, users } from '@oxide/api-mocks'
+
 import {
   expectNotVisible,
   expectRowVisible,
@@ -26,13 +28,13 @@ test('Click through silo access page', async ({ page }) => {
 
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {
-    ID: 'user-group-3',
+    ID: userGroups[2].id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'real-estate-devsGroup',
     'Silo role': 'admin',
   })
   await expectRowVisible(table, {
-    ID: 'user-1',
+    ID: users[0].id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
   })
@@ -65,7 +67,7 @@ test('Click through silo access page', async ({ page }) => {
 
   // User 3 shows up in the table
   await expectRowVisible(table, {
-    ID: 'user-3',
+    ID: users[2].id,
     Name: 'Jacob Klein',
     'Silo role': 'collaborator',
   })

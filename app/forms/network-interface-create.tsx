@@ -2,7 +2,7 @@ import invariant from 'tiny-invariant'
 
 import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { nullIfEmpty, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
@@ -71,7 +71,7 @@ export default function CreateNetworkInterfaceSideModalForm({
             instanceName,
             projectName,
             orgName,
-            body: { ...body, ip: nullIfEmpty(body.ip) },
+            body: { ...body },
           })
         })
       }

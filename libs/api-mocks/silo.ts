@@ -1,10 +1,11 @@
 import type { Silo } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { genId } from './msw/util'
 
 export const silos: Json<Silo>[] = [
   {
-    id: 'default-silo-uuid',
+    id: genId('default-silo'),
     name: 'default-silo',
     description: 'a fake default silo',
     time_created: new Date(2021, 3, 1).toISOString(),

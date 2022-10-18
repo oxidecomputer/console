@@ -37,9 +37,6 @@ export const firewallRuleGetToPut = (
     'targets'
   )
 
-export const nullIfEmpty = (s: string | null | undefined): string | null =>
-  typeof s === 'string' && s.trim().length > 0 ? s : null
-
 /**
  * Generates a valid name given a list of strings. Must be given at least
  * one string. If multiple strings are given, they will be truncated to

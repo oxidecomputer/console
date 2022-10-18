@@ -1,11 +1,12 @@
 import type { Image } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { genId } from './msw/util'
 import { project } from './project'
 
 export const images: Json<Image>[] = [
   {
-    id: 'image-id-1',
+    id: genId('image-1'),
     name: 'image-1',
     description: "it's an image",
     project_id: project.id,
@@ -15,7 +16,7 @@ export const images: Json<Image>[] = [
     block_size: 4096,
   },
   {
-    id: 'image-id-2',
+    id: genId('image-2'),
     name: 'image-2',
     description: "it's a second image",
     project_id: project.id,
@@ -25,7 +26,7 @@ export const images: Json<Image>[] = [
     block_size: 4096,
   },
   {
-    id: 'image-id-3',
+    id: genId('image-3'),
     name: 'image-3',
     description: "it's a third image",
     project_id: project.id,
@@ -35,7 +36,7 @@ export const images: Json<Image>[] = [
     block_size: 4096,
   },
   {
-    id: 'image-id-4',
+    id: genId('image-4'),
     name: 'image-4',
     description: "it's a fourth image",
     project_id: project.id,

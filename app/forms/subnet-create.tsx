@@ -7,11 +7,10 @@ import { useRequiredParams } from 'app/hooks'
 
 import type { CreateSideModalFormProps } from '.'
 
-const values = {
+const values: VpcSubnetCreate = {
   name: '',
   description: '',
   ipv4Block: '',
-  ipv6Block: '',
 }
 
 export function CreateSubnetSideModalForm({
@@ -48,7 +47,7 @@ export function CreateSubnetSideModalForm({
       <NameField id="subnet-name" />
       <DescriptionField id="subnet-description" />
       <Divider />
-      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" />
+      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" required />
       <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
     </SideModalForm>
   )

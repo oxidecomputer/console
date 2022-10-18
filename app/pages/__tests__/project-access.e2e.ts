@@ -1,5 +1,7 @@
 import { test } from '@playwright/test'
 
+import { userGroups, users } from '@oxide/api-mocks'
+
 import {
   expectNotVisible,
   expectRowVisible,
@@ -24,35 +26,35 @@ test('Click through project access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
-    ID: 'user-1',
+    ID: users[0].id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': '',
     'Project role': '',
   })
   await expectRowVisible(table, {
-    ID: 'user-2',
+    ID: users[1].id,
     Name: 'Hans Jonas',
     'Silo role': '',
     'Org role': 'viewer',
     'Project role': '',
   })
   await expectRowVisible(table, {
-    ID: 'user-3',
+    ID: users[2].id,
     Name: 'Jacob Klein',
     'Silo role': '',
     'Org role': '',
     'Project role': 'collaborator',
   })
   await expectRowVisible(table, {
-    ID: 'user-group-1',
+    ID: userGroups[0].id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'web-devsGroup',
     'Silo role': '',
     'Org role': 'collaborator',
   })
   await expectRowVisible(table, {
-    ID: 'user-group-2',
+    ID: userGroups[1].id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'kernel-devsGroup',
     'Silo role': '',
@@ -60,7 +62,7 @@ test('Click through project access page', async ({ page }) => {
     'Project role': 'viewer',
   })
 
-  await expectNotVisible(page, ['role=cell[name="user-4"]'])
+  await expectNotVisible(page, [`role=cell[name="${users[3].id}"]`])
 
   // Add user 4 as collab
   await page.click('role=button[name="Add user to project"]')
@@ -89,14 +91,14 @@ test('Click through project access page', async ({ page }) => {
 
   // User 4 shows up in the table
   await expectRowVisible(table, {
-    ID: 'user-4',
+    ID: users[3].id,
     Name: 'Simone de Beauvoir',
     'Project role': 'collaborator',
   })
 
   // now change user 4 role from collab to viewer
   await page
-    .locator('role=row', { hasText: 'user-4' })
+    .locator('role=row', { hasText: users[3].id })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Change role"]')
@@ -108,17 +110,17 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: 'user-4', 'Project role': 'viewer' })
+  await expectRowVisible(table, { ID: users[3].id, 'Project role': 'viewer' })
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
   await page
-    .locator('role=row', { hasText: 'user-3' })
+    .locator('role=row', { hasText: users[2].id })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, ['role=cell[name=user-3]'])
+  await expectVisible(page, [`role=cell[name=${users[2].id}]`])
   await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, ['role=cell[name=user-3]'])
+  await expectNotVisible(page, [`role=cell[name=${users[2].id}]`])
 
   // now add a project role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user to project"]')
@@ -128,7 +130,7 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Add user"]')
   await expectRowVisible(table, {
-    ID: 'user-1',
+    ID: users[0].id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': '',

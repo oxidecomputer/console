@@ -1,8 +1,6 @@
-import { response } from 'msw'
-
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
-import { sessionMe } from '@oxide/api-mocks'
+import { currentUser } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
 import { clone, json } from './util'
@@ -11,143 +9,148 @@ const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
 export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
 
-type Ok<T> = [T, null]
-type LookupError = typeof notFoundErr // Lookups can only 404
-type Err = [null, LookupError]
-type Result<T> = Ok<T> | Err
-
-// imitate Rust's Result constructors
-const Ok = <T>(o: T): Ok<T> => [o, null]
-const Err = (err: LookupError): Err => [null, err]
-
 export const lookupById =
   <T extends { id: string }>(table: T[]) =>
-  (req: { params: { id: string } }) => {
-    const item = table.find((i) => i.id === req.params.id) || notFoundErr
-    return response(item ? json(item) : notFoundErr)
+  (params: PP.Id) => {
+    const item = table.find((i) => i.id === params.id)
+    if (!item) throw notFoundErr
+    return item
   }
 
-export function lookupOrg(params: PP.Org): Result<Json<Api.Organization>> {
+export function lookupOrg(params: PP.Org): Json<Api.Organization> {
   const org = db.orgs.find((o) => o.name === params.orgName)
-  if (!org) return Err(notFoundErr)
-  return Ok(org)
+  if (!org) throw notFoundErr
+  return org
 }
 
-export function lookupProject(params: PP.Project): Result<Json<Api.Project>> {
-  const [org, err] = lookupOrg(params)
-  if (err) return Err(err)
+export function lookupProject(params: PP.Project): Json<Api.Project> {
+  const org = lookupOrg(params)
 
   const project = db.projects.find(
     (p) => p.organization_id === org.id && p.name === params.projectName
   )
-  if (!project) return Err(notFoundErr)
+  if (!project) throw notFoundErr
 
-  return Ok(project)
+  return project
 }
 
-export function lookupVpc(params: PP.Vpc): Result<Json<Api.Vpc>> {
-  const [project, err] = lookupProject(params)
-  if (err) return Err(err)
+export function lookupVpc(params: PP.Vpc): Json<Api.Vpc> {
+  const project = lookupProject(params)
 
   const vpc = db.vpcs.find((p) => p.project_id === project.id && p.name === params.vpcName)
+  if (!vpc) throw notFoundErr
 
-  if (!vpc) return Err(notFoundErr)
-
-  return Ok(vpc)
+  return vpc
 }
 
-export function lookupInstance(params: PP.Instance): Result<Json<Api.Instance>> {
-  const [project, err] = lookupProject(params)
-  if (err) return Err(err)
+export function lookupInstance(params: PP.Instance): Json<Api.Instance> {
+  const project = lookupProject(params)
 
   const instance = db.instances.find(
     (p) => p.project_id === project.id && p.name === params.instanceName
   )
-  if (!instance) return Err(notFoundErr)
+  if (!instance) throw notFoundErr
 
-  return Ok(instance)
+  return instance
 }
 
 export function lookupNetworkInterface(
   params: PP.NetworkInterface
-): Result<Json<Api.NetworkInterface>> {
-  const [instance, err] = lookupInstance(params)
-  if (err) return Err(err)
+): Json<Api.NetworkInterface> {
+  const instance = lookupInstance(params)
 
   const nic = db.networkInterfaces.find(
     (n) => n.instance_id === instance.id && n.name === params.interfaceName
   )
-  if (!nic) return Err(notFoundErr)
+  if (!nic) throw notFoundErr
 
-  return Ok(nic)
+  return nic
 }
 
-export function lookupDisk(params: PP.Disk): Result<Json<Api.Disk>> {
-  const [project, err] = lookupProject(params)
-  if (err) return Err(err)
+export function lookupDisk(params: PP.Disk): Json<Api.Disk> {
+  const project = lookupProject(params)
 
   const disk = db.disks.find(
     (d) => d.project_id === project.id && d.name === params.diskName
   )
-  if (!disk) return Err(notFoundErr)
+  if (!disk) throw notFoundErr
 
-  return Ok(disk)
+  return disk
 }
 
-export function lookupSnapshot(params: PP.Snapshot): Result<Json<Api.Snapshot>> {
-  const [project, err] = lookupProject(params)
-  if (err) return Err(err)
+export function lookupImage(params: PP.Image): Json<Api.Image> {
+  const project = lookupProject(params)
+
+  const image = db.images.find(
+    (d) => d.project_id === project.id && d.name === params.imageName
+  )
+  if (!image) throw notFoundErr
+
+  return image
+}
+
+export function lookupSnapshot(params: PP.Snapshot): Json<Api.Snapshot> {
+  const project = lookupProject(params)
 
   const snapshot = db.snapshots.find(
     (s) => s.project_id === project.id && s.name === params.snapshotName
   )
-  if (!snapshot) return Err(notFoundErr)
+  if (!snapshot) throw notFoundErr
 
-  return Ok(snapshot)
+  return snapshot
 }
 
-export function lookupVpcSubnet(params: PP.VpcSubnet): Result<Json<Api.VpcSubnet>> {
-  const [vpc, err] = lookupVpc(params)
-  if (err) return Err(err)
+export function lookupVpcSubnet(params: PP.VpcSubnet): Json<Api.VpcSubnet> {
+  const vpc = lookupVpc(params)
 
   const subnet = db.vpcSubnets.find(
     (p) => p.vpc_id === vpc.id && p.name === params.subnetName
   )
-  if (!subnet) return Err(notFoundErr)
+  if (!subnet) throw notFoundErr
 
-  return Ok(subnet)
+  return subnet
 }
 
-export function lookupVpcRouter(params: PP.VpcRouter): Result<Json<Api.VpcRouter>> {
-  const [vpc, err] = lookupVpc(params)
-  if (err) return Err(err)
+export function lookupVpcRouter(params: PP.VpcRouter): Json<Api.VpcRouter> {
+  const vpc = lookupVpc(params)
 
   const router = db.vpcRouters.find(
     (r) => r.vpc_id === vpc.id && r.name === params.routerName
   )
-  if (!router) return Err(notFoundErr)
+  if (!router) throw notFoundErr
 
-  return Ok(router)
+  return router
 }
 
-export function lookupGlobalImage(params: PP.GlobalImage): Result<Json<Api.GlobalImage>> {
-  const image = db.globalImages.find((o) => o.name === params.imageName)
-  if (!image) return Err(notFoundErr)
-  return Ok(image)
-}
+export function lookupVpcRouterRoute(params: PP.VpcRouterRoute): Json<Api.RouterRoute> {
+  const router = lookupVpcRouter(params)
 
-export function lookupSilo(params: PP.Silo): Result<Json<Api.Silo>> {
-  const silo = db.silos.find((o) => o.name === params.siloName)
-  if (!silo) return Err(notFoundErr)
-  return Ok(silo)
-}
-
-export function lookupSshKey(params: PP.SshKey): Result<Json<Api.SshKey>> {
-  const sshKey = db.sshKeys.find(
-    (key) => key.name === params.sshKeyName && key.silo_user_id === sessionMe.id
+  const route = db.vpcRouterRoutes.find(
+    (r) => r.vpc_router_id === router.id && r.name === params.routeName
   )
-  if (!sshKey) return Err(notFoundErr)
-  return Ok(sshKey)
+  if (!route) throw notFoundErr
+
+  return route
+}
+
+export function lookupGlobalImage(params: PP.GlobalImage): Json<Api.GlobalImage> {
+  const image = db.globalImages.find((o) => o.name === params.imageName)
+  if (!image) throw notFoundErr
+  return image
+}
+
+export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
+  const silo = db.silos.find((o) => o.name === params.siloName)
+  if (!silo) throw notFoundErr
+  return silo
+}
+
+export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
+  const sshKey = db.sshKeys.find(
+    (key) => key.name === params.sshKeyName && key.silo_user_id === currentUser.id
+  )
+  if (!sshKey) throw notFoundErr
+  return sshKey
 }
 
 const initDb = {

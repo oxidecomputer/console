@@ -1,35 +1,25 @@
-import { isValid, parseISO, subHours } from 'date-fns'
-import type { ResponseTransformer } from 'msw'
-import { compose, context } from 'msw'
+import { subHours } from 'date-fns'
+import { v5 as uuid } from 'uuid'
 
-/**
- * Custom transformer: convenience function for setting response `status` and/or
- * `delay`.
- *
- * @see https://mswjs.io/docs/basics/response-transformer#custom-transformer
- */
-export function json<B>(
-  body: B,
-  options: { status?: number; delay?: number } = {}
-): ResponseTransformer<B> {
-  const { status = 200, delay = 0 } = options
-  return compose(context.status(status), context.json(body), context.delay(delay))
+import { json } from '@oxide/gen/msw-handlers'
+
+export { json } from '@oxide/gen/msw-handlers'
+
+interface PaginateOptions {
+  limit?: number
+  pageToken?: string
 }
-
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
   nextPage: string | null
 }
 
-export const paginated = <I extends { id: string }>(
-  urlParams: string,
+export const paginated = <P extends PaginateOptions, I extends { id: string }>(
+  params: P,
   items: I[]
-): ResultsPage<I> => {
-  const params = new URLSearchParams(urlParams)
-  const limit = parseInt(params.get('limit') || '10', 10)
-  let startIndex = params.get('page_token')
-    ? items.findIndex((i) => i.id === params.get('page_token'))
-    : 0
+) => {
+  const { limit = 10, pageToken } = params || {}
+  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
   if (startIndex > items.length) {
@@ -62,28 +52,40 @@ export const clone = <T extends object>(obj: T): T =>
     ? structuredClone(obj)
     : JSON.parse(JSON.stringify(obj))
 
-function getDateParam(params: URLSearchParams, key: string): Date | null {
-  const value = params.get(key)
-  if (!value) return null
-
-  const date = parseISO(value)
-  if (!isValid(date)) return null
-
-  return date
-}
-
-export function getStartAndEndTime(searchParams: URLSearchParams) {
-  const queryStartTime = getDateParam(searchParams, 'start_time')
-  const queryEndTime = getDateParam(searchParams, 'end_time')
-
+export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date }) {
   // if no start time or end time, give the last 24 hours. in this case the
   // API will give all data available for the metric (paginated of course),
   // so essentially we're pretending the last 24 hours just happens to be
   // all the data. if we have an end time but no start time, same deal, pretend
   // 24 hours before the given end time is where it starts
   const now = new Date()
-  const endTime = queryEndTime || now
-  const startTime = queryStartTime || subHours(endTime, 24)
+  const { endTime = now, startTime = subHours(endTime, 24) } = params
 
   return { startTime, endTime }
+}
+
+export const genId = (key: string) => uuid(key, 'f783ff9d-54d3-428a-b34a-4470f688d749')
+
+export function getTimestamps() {
+  const now = new Date().toISOString()
+  return { time_created: now, time_modified: now }
+}
+
+export const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+
+export const NotImplemented = () => {
+  throw json({ error_code: 'NotImplemented' }, { status: 501 })
+}
+
+export const errIfExists = <T extends Record<string, unknown>>(
+  collection: T[],
+  match: Partial<{ [key in keyof T]: T[key] }>
+) => {
+  if (
+    collection.some((item) =>
+      Object.entries(match).every(([key, value]) => item[key] === value)
+    )
+  ) {
+    throw json({ error_code: 'ObjectAlreadyExists' }, { status: 400 })
+  }
 }
