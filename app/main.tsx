@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
@@ -36,6 +37,7 @@ function render() {
           <ReduceMotion />
           <RouterProvider router={router} />
         </ErrorBoundary>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
       <ToastStack />
     </StrictMode>,
