@@ -7,11 +7,7 @@ test.beforeEach(async ({ page, createVpc, orgName, projectName, vpcName }) => {
   )
 })
 
-/**
- * TODO: There are instances where a firewall rule from a previous test run (on a different VPC)
- * shows up in the VPC under test. I have not been able to repoduce this manually via local MSW.
- */
-test.fixme('Expect no firewall rules by default', async ({ page }) => {
+test('Expect no firewall rules by default', async ({ page }) => {
   await expectVisible(page, ['text="No firewall rules"'])
 })
 
