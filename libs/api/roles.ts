@@ -113,6 +113,18 @@ export function useUserRows(
   }, [roleAssignments, roleSource, users, groups])
 }
 
+type SortableUserRow = { identityType: IdentityType; name: string }
+
+/**
+ * Comparator for array sort. Group groups and users, then sort by name within
+ * groups and within users.
+ */
+export function byGroupThenName(a: SortableUserRow, b: SortableUserRow) {
+  const aGroup = Number(a.identityType === 'silo_group')
+  const bGroup = Number(b.identityType === 'silo_group')
+  return bGroup - aGroup || a.name.localeCompare(b.name)
+}
+
 /**
  * Fetch list of users and filter out the ones that are already in the given
  * policy.
@@ -122,6 +134,7 @@ export function useUsersNotInPolicy(
   policy: Policy | undefined
 ) {
   const { data: users } = useApiQuery('userList', {})
+  // const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
