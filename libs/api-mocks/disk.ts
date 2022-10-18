@@ -1,36 +1,38 @@
 import type { Disk } from '@oxide/api'
 import { GiB } from '@oxide/util'
 
+import { instance } from './instance'
 import type { Json } from './json-type'
+import { genId } from './msw/util'
 import { project } from './project'
 
 export const disks: Json<Disk>[] = [
   {
-    id: 'disk-id-1',
+    id: genId('disk-1'),
     name: 'disk-1',
     description: "it's a disk",
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    state: { state: 'attached', instance: 'abc123' },
+    state: { state: 'attached', instance: instance.id },
     device_path: '/abc',
     size: 2 * GiB,
     block_size: 2048,
   },
   {
-    id: 'disk-id-2',
+    id: genId('disk-2'),
     name: 'disk-2',
     description: "it's a second disk",
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    state: { state: 'attached', instance: 'abc123' },
+    state: { state: 'attached', instance: instance.id },
     device_path: '/def',
     size: 4 * GiB,
     block_size: 2048,
   },
   {
-    id: 'disk-id-3',
+    id: genId('disk-3'),
     name: 'disk-3',
     description: "it's a third disk",
     project_id: project.id,
@@ -42,7 +44,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-4',
+    id: genId('disk-4'),
     name: 'disk-4',
     description: "it's a fourth disk",
     project_id: project.id,
@@ -54,7 +56,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-5',
+    id: genId('disk-5'),
     name: 'disk-5',
     description: '',
     project_id: project.id,
@@ -66,7 +68,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-6',
+    id: genId('disk-6'),
     name: 'disk-6',
     description: '',
     project_id: project.id,
@@ -78,7 +80,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-7',
+    id: genId('disk-7'),
     name: 'disk-7',
     description: '',
     project_id: project.id,
@@ -90,7 +92,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-8',
+    id: genId('disk-8'),
     name: 'disk-8',
     description: '',
     project_id: project.id,
@@ -102,7 +104,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-9',
+    id: genId('disk-9'),
     name: 'disk-9',
     description: '',
     project_id: project.id,
@@ -114,7 +116,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-10',
+    id: genId('disk-10'),
     name: 'disk-10',
     description: '',
     project_id: project.id,
@@ -126,7 +128,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: 'disk-id-11',
+    id: genId('disk-11'),
     name: 'disk-11',
     description: '',
     project_id: project.id,

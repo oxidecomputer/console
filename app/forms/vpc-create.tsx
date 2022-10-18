@@ -6,11 +6,10 @@ import { DescriptionField, NameField, SideModalForm, TextField } from 'app/compo
 import type { CreateSideModalFormProps } from 'app/forms'
 import { useRequiredParams, useToast } from 'app/hooks'
 
-const values = {
+const values: VpcCreate = {
   name: '',
   description: '',
   dnsName: '',
-  ipv6Prefix: '',
 }
 
 export function CreateVpcSideModalForm({
@@ -51,7 +50,7 @@ export function CreateVpcSideModalForm({
         (({ name, description, dnsName, ipv6Prefix }) =>
           createVpc.mutate({
             ...parentNames,
-            body: { name, description, dnsName, ipv6Prefix: ipv6Prefix || null },
+            body: { name, description, dnsName, ipv6Prefix },
           }))
       }
       submitDisabled={createVpc.isLoading}

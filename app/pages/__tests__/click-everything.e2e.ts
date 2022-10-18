@@ -149,6 +149,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=button[name="Create subnet"][disabled]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-subnet')
+  await page.fill('role=textbox[name="IPv4 block"]', '10.1.1.1/24')
   await page.click('role=button[name="Create subnet"]')
 
   // Edit subnet

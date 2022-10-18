@@ -3,7 +3,7 @@ import { paginated } from './util'
 describe('paginated', () => {
   it('should return the first page', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
-    const page = paginated('', items)
+    const page = paginated({}, items)
     expect(page.items).toEqual([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
     expect(page.nextPage).toBeNull()
   })
@@ -22,7 +22,7 @@ describe('paginated', () => {
       { id: 'j' },
       { id: 'k' },
     ]
-    const page = paginated('', items)
+    const page = paginated({}, items)
     expect(page.items.length).toBe(10)
     expect(page.items).toEqual(items.slice(0, 10))
     expect(page.nextPage).toBe('k')
@@ -41,7 +41,7 @@ describe('paginated', () => {
       { id: 'i' },
       { id: 'j' },
     ]
-    const page = paginated('', items)
+    const page = paginated({}, items)
     expect(page.items.length).toBe(10)
     expect(page.items).toEqual(items.slice(0, 10))
     expect(page.nextPage).toBeNull()
@@ -56,7 +56,7 @@ describe('paginated', () => {
       { id: 'e' },
       { id: 'f' },
     ]
-    const page = paginated('?limit=5', items)
+    const page = paginated({ limit: 5 }, items)
     expect(page.items.length).toBe(5)
     expect(page.items).toEqual(items.slice(0, 5))
     expect(page.nextPage).toBe('f')
@@ -64,7 +64,7 @@ describe('paginated', () => {
 
   it('should return the second page when given a `page_token`', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
-    const page = paginated('?page_token=b', items)
+    const page = paginated({ pageToken: 'b' }, items)
     expect(page.items.length).toBe(3)
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
     expect(page.nextPage).toBeNull()

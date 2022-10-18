@@ -76,7 +76,7 @@
     "@figma-export/transform-svg-with-svgo": "^4.3.0",
     "@ladle/react": "^2.4.2",
     "@mswjs/http-middleware": "^0.5.1",
-    "@playwright/test": "^1.25.0",
+    "@playwright/test": "^1.27.1",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.4",
