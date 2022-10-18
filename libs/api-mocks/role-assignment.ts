@@ -1,11 +1,6 @@
-import type {
-  FleetRoleRoleAssignment,
-  OrganizationRoleRoleAssignment,
-  ProjectRoleRoleAssignment,
-  SiloRoleRoleAssignment,
-} from 'libs/api/__generated__/Api'
+import type { IdentityType } from 'libs/api/__generated__/Api'
+import type { RoleKey } from 'libs/api/roles'
 
-import type { Json } from './json-type'
 import { org } from './org'
 import { project } from './project'
 import { defaultSilo } from './silo'
@@ -18,12 +13,13 @@ import { userGroup1, userGroup2 } from './user-group'
 // imitating the API's actual DB schema and behavior, storing individual role
 // assignments and then collecting them into a policy object at request time.
 // See https://github.com/oxidecomputer/omicron/issues/1165
-type DbRoleAssignment = { resource_id: string } & (
-  | ({ resource_type: 'fleet' } & Json<FleetRoleRoleAssignment>)
-  | ({ resource_type: 'silo' } & Json<SiloRoleRoleAssignment>)
-  | ({ resource_type: 'organization' } & Json<OrganizationRoleRoleAssignment>)
-  | ({ resource_type: 'project' } & Json<ProjectRoleRoleAssignment>)
-)
+type DbRoleAssignment = {
+  resource_type: 'fleet' | 'silo' | 'organization' | 'project'
+  resource_id: string
+  identity_id: string
+  identity_type: IdentityType
+  role_name: RoleKey
+}
 
 // this is hard-coded in the API. there can only be one
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

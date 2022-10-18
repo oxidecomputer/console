@@ -13,8 +13,8 @@ export const pb = {
     `${pb.projects({ orgName })}/${projectName}`,
   projectEdit: (params: PP.Project) => `${pb.project(params)}/edit`,
 
-  access: (params: PP.Project) => `${pb.project(params)}/access`,
-  images: (params: PP.Project) => `${pb.project(params)}/images`,
+  projectAccess: (params: PP.Project) => `${pb.project(params)}/access`,
+  projectImages: (params: PP.Project) => `${pb.project(params)}/images`,
 
   instances: (params: PP.Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
@@ -32,7 +32,8 @@ export const pb = {
   vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
   vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
 
-  utilization: () => '/utilization', // silo metrics
+  siloUtilization: () => '/utilization',
+  siloAccess: () => '/access',
 
   system: () => '/sys',
   systemIssues: () => '/sys/issues',

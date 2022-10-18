@@ -1,15 +1,13 @@
 import * as Yup from 'yup'
 
 import type { Policy, RoleKey } from '@oxide/api'
-import { allRoles } from '@oxide/api'
-import { useUsersNotInPolicy } from '@oxide/api'
+import { allRoles, useUsersNotInPolicy } from '@oxide/api'
 import { setUserRole } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { capitalize } from '@oxide/util'
 
 import { Form, ListboxField, SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
 
 import type { CreateSideModalFormProps, EditSideModalFormProps } from '.'
 
@@ -29,22 +27,20 @@ type AddRoleModalProps = CreateSideModalFormProps<AddUserValues, Policy> & {
   policy: Policy
 }
 
-export function ProjectAccessAddUserSideModal({
+export function SiloAccessAddUserSideModal({
   onSubmit,
   onSuccess,
   onDismiss,
   policy,
   ...props
 }: AddRoleModalProps) {
-  const projectParams = useRequiredParams('orgName', 'projectName')
-
   const users = useUsersNotInPolicy(policy)
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('projectPolicyView', projectParams)
+      queryClient.invalidateQueries('policyView', {})
       onSuccess?.(data)
       onDismiss()
     },
@@ -53,8 +49,8 @@ export function ProjectAccessAddUserSideModal({
   return (
     <SideModalForm
       onDismiss={onDismiss}
-      title="Add user to project"
-      id="project-access-add-user"
+      title="Add user or group"
+      id="silo-access-add-user"
       initialValues={initialValues}
       onSubmit={
         onSubmit ||
@@ -64,7 +60,6 @@ export function ProjectAccessAddUserSideModal({
           if (roleName === '') return
 
           updatePolicy.mutate({
-            ...projectParams,
             body: setUserRole(userId, roleName, policy),
           })
         })
@@ -93,7 +88,7 @@ type EditRoleModalProps = EditSideModalFormProps<EditUserValues, Policy> & {
   policy: Policy
 }
 
-export function ProjectAccessEditUserSideModal({
+export function SiloAccessEditUserSideModal({
   onSubmit,
   onSuccess,
   onDismiss,
@@ -101,12 +96,10 @@ export function ProjectAccessEditUserSideModal({
   policy,
   ...props
 }: EditRoleModalProps) {
-  const projectParams = useRequiredParams('orgName', 'projectName')
-
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('projectPolicyView', projectParams)
+      queryClient.invalidateQueries('policyView', {})
       onSuccess?.(data)
       onDismiss()
     },
@@ -117,12 +110,11 @@ export function ProjectAccessEditUserSideModal({
       onDismiss={onDismiss}
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
-      id="project-access-edit-user"
+      id="silo-access-edit-user"
       onSubmit={
         onSubmit ||
         (({ roleName }) => {
           updatePolicy.mutate({
-            ...projectParams,
             body: setUserRole(userId, roleName, policy),
           })
         })
