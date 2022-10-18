@@ -6,11 +6,10 @@ import { DescriptionField, NameField, SideModalForm, TextField } from 'app/compo
 import type { CreateSideModalFormProps } from 'app/forms'
 import { useRequiredParams, useToast } from 'app/hooks'
 
-const values = {
+const values: VpcCreate = {
   name: '',
   description: '',
   dnsName: '',
-  ipv6Prefix: '',
 }
 
 export function CreateVpcSideModalForm({
