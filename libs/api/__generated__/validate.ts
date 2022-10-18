@@ -1225,7 +1225,7 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
- * Client view of a {@link User} with some extra stuff that's useful to the console
+ * Client view of a {@link User} and their groups
  */
 export const SessionMe = z.preprocess(
   processResponseBody,

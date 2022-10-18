@@ -1183,7 +1183,7 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
- * Client view of a {@link User} with some extra stuff that's useful to the console
+ * Client view of a {@link User} and their groups
  */
 export type SessionMe = {
   /** Human-readable name that can identify the user */
