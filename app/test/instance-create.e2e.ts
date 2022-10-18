@@ -1,3 +1,5 @@
+import { globalImages } from '@oxide/api-mocks'
+
 import { expectVisible, test } from 'app/test/e2e'
 
 test.beforeEach(async ({ createProject, orgName, projectName }) => {
@@ -34,7 +36,7 @@ test('can invoke instance create form from instances page', async ({
   await page.fill('input[name=bootDiskName]', 'my-boot-disk')
   await page.fill('input[name=bootDiskSize]', '20')
 
-  await page.locator('input[value=ubuntu-1] ~ .ox-radio-card').click()
+  await page.locator(`input[value="${globalImages[0].id}"] ~ .ox-radio-card`).click()
 
   await page.locator('button:has-text("Create instance")').click()
 
