@@ -1,10 +1,24 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
+import {
+  expectNotVisible,
+  expectRowVisible,
+  expectSimultaneous,
+  expectVisible,
+} from 'app/test/e2e'
 
 test('Click through project access page', async ({ page }) => {
   await page.goto('/orgs/maze-war/projects/mock-project')
   await page.click('role=link[name*="Access & IAM"]')
+
+  // has to be before anything else is checked. ensures we've prefetched
+  // users list and groups list properly
+  await expectSimultaneous(page, [
+    'role=cell[name="user-group-1"]',
+    'role=cell[name="web-devs Group"]',
+    'role=cell[name="user-1"]',
+    'role=cell[name="Hannah Arendt"]',
+  ])
 
   // page is there, we see user 1-3 but not 4
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
@@ -30,6 +44,22 @@ test('Click through project access page', async ({ page }) => {
     'Org role': '',
     'Project role': 'collaborator',
   })
+  await expectRowVisible(table, {
+    ID: 'user-group-1',
+    // no space because expectRowVisible uses textContent, not accessible name
+    Name: 'web-devsGroup',
+    'Silo role': '',
+    'Org role': 'collaborator',
+  })
+  await expectRowVisible(table, {
+    ID: 'user-group-2',
+    // no space because expectRowVisible uses textContent, not accessible name
+    Name: 'kernel-devsGroup',
+    'Silo role': '',
+    'Org role': '',
+    'Project role': 'viewer',
+  })
+
   await expectNotVisible(page, ['role=cell[name="user-4"]'])
 
   // Add user 4 as collab
