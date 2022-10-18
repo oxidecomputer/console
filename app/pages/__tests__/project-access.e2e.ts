@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { userGroups, users } from '@oxide/api-mocks'
+import { user1, userGroup1, userGroups, users } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -16,9 +16,9 @@ test('Click through project access page', async ({ page }) => {
   // has to be before anything else is checked. ensures we've prefetched
   // users list and groups list properly
   await expectSimultaneous(page, [
-    'role=cell[name="user-group-1"]',
+    `role=cell[name="${userGroup1}"]`,
     'role=cell[name="web-devs Group"]',
-    'role=cell[name="user-1"]',
+    `role=cell[name="${user1}"]`,
     'role=cell[name="Hannah Arendt"]',
   ])
 

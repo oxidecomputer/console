@@ -20,9 +20,9 @@ test('Click through silo access page', async ({ page }) => {
   // has to be before anything else is checked. ensures we've prefetched
   // users list and groups list properly
   await expectSimultaneous(page, [
-    'role=cell[name="user-group-3"]',
+    `role=cell[name="${userGroups[2].id}"]`,
     'role=cell[name="real-estate-devs Group"]',
-    'role=cell[name="user-1"]',
+    `role=cell[name="${userGroups[0].id}"]`,
     'role=cell[name="Hannah Arendt"]',
   ])
 
@@ -38,7 +38,7 @@ test('Click through silo access page', async ({ page }) => {
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
   })
-  await expectNotVisible(page, ['role=cell[name="user-2"]'])
+  await expectNotVisible(page, [`role=cell[name="${users[3].id}"]`])
 
   // Add user 2 as collab
   await page.click('role=button[name="Add user or group"]')
@@ -74,7 +74,7 @@ test('Click through silo access page', async ({ page }) => {
 
   // now change user 3's role from collab to viewer
   await page
-    .locator('role=row', { hasText: 'user-3' })
+    .locator('role=row', { hasText: users[2].id })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Change role"]')
@@ -86,14 +86,14 @@ test('Click through silo access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: 'user-3', 'Silo role': 'viewer' })
+  await expectRowVisible(table, { ID: users[2].id, 'Silo role': 'viewer' })
 
   // now delete user 2
   await page
-    .locator('role=row', { hasText: 'user-1' })
+    .locator('role=row', { hasText: users[0].id })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, ['role=cell[name=user-1]'])
+  await expectVisible(page, [`role=cell[${users[0].id}`])
   await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, ['role=cell[name=user-1]'])
+  await expectNotVisible(page, [`role=cell[name="${users[0].id}"]`])
 })
