@@ -1183,6 +1183,18 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
+ * Client view of a {@link User} with some extra stuff that's useful to the console
+ */
+export type SessionMe = {
+  /** Human-readable name that can identify the user */
+  displayName: string
+  groupIds: string[]
+  id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
+}
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export type SiloIdentityMode =
@@ -1429,6 +1441,21 @@ export type UserBuiltinResultsPage = {
   items: UserBuiltin[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type UserId = string
+
+/**
+ * Create-time parameters for a {@link User}
+ */
+export type UserCreate = {
+  /** username used to log in */
+  externalId: UserId
 }
 
 /**
@@ -2410,6 +2437,15 @@ export interface SiloIdentityProviderListParams {
   sortBy?: NameSortMode
 }
 
+export interface LocalIdpUserCreateParams {
+  siloName: Name
+}
+
+export interface LocalIdpUserDeleteParams {
+  siloName: Name
+  userId: string
+}
+
 export interface SamlIdentityProviderCreateParams {
   siloName: Name
 }
@@ -2425,6 +2461,18 @@ export interface SiloPolicyViewParams {
 
 export interface SiloPolicyUpdateParams {
   siloName: Name
+}
+
+export interface SiloUsersListParams {
+  siloName: Name
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SiloUserViewParams {
+  siloName: Name
+  userId: string
 }
 
 export interface UpdatesRefreshParams {}
@@ -2496,6 +2544,7 @@ export type ApiListMethods = Pick<
   | 'sagaList'
   | 'siloList'
   | 'siloIdentityProviderList'
+  | 'siloUsersList'
   | 'systemUserList'
   | 'userList'
 >
@@ -3718,7 +3767,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (query: SessionMeParams, params: RequestParams = {}) =>
-      this.request<User>({
+      this.request<SessionMe>({
         path: `/session/me`,
         method: 'GET',
         ...params,
@@ -4159,6 +4208,31 @@ export class Api extends HttpClient {
       }),
 
     /**
+     * Create a user
+     */
+    localIdpUserCreate: (
+      { siloName }: LocalIdpUserCreateParams,
+      body: UserCreate,
+      params: RequestParams = {}
+    ) =>
+      this.request<User>({
+        path: `/system/silos/${siloName}/identity-providers/local/users`,
+        method: 'POST',
+        body,
+        ...params,
+      }),
+
+    localIdpUserDelete: (
+      { siloName, userId }: LocalIdpUserDeleteParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<void>({
+        path: `/system/silos/${siloName}/identity-providers/local/users/${userId}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
      * Create a SAML IDP
      */
     samlIdentityProviderCreate: (
@@ -4208,6 +4282,27 @@ export class Api extends HttpClient {
         path: `/system/silos/${siloName}/policy`,
         method: 'PUT',
         body,
+        ...params,
+      }),
+
+    /**
+     * List users in a specific Silo
+     */
+    siloUsersList: (
+      { siloName, ...query }: SiloUsersListParams,
+      params: RequestParams = {}
+    ) =>
+      this.request<UserResultsPage>({
+        path: `/system/silos/${siloName}/users/all`,
+        method: 'GET',
+        query,
+        ...params,
+      }),
+
+    siloUserView: ({ siloName, userId }: SiloUserViewParams, params: RequestParams = {}) =>
+      this.request<User>({
+        path: `/system/silos/${siloName}/users/id/${userId}`,
+        method: 'GET',
         ...params,
       }),
 

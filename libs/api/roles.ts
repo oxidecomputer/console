@@ -13,8 +13,8 @@ import type {
   IdentityType,
   OrganizationRole,
   ProjectRole,
+  SessionMe,
   SiloRole,
-  User,
 } from './__generated__/Api'
 
 /**
@@ -144,11 +144,6 @@ export function useUsersNotInPolicy(
         .filter((u) => !usersInPolicy.has(u.id)) || []
     )
   }, [users, policy])
-}
-
-// temporary until we figure out how we're getting groups from the API
-export type SessionMe = User & {
-  groupIds?: string[]
 }
 
 export function userRoleFromPolicies(user: SessionMe, policies: Policy[]): RoleKey | null {

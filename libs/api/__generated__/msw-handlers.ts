@@ -484,7 +484,9 @@ export interface MSWHandlers {
     params: Api.RoleViewParams
   ) => MaybePromise<Json<Api.Role> | ResponseTransformer<Json<Api.Role>>>
   /** `GET /session/me` */
-  sessionMe: () => MaybePromise<Json<Api.User> | ResponseTransformer<Json<Api.User>>>
+  sessionMe: () => MaybePromise<
+    Json<Api.SessionMe> | ResponseTransformer<Json<Api.SessionMe>>
+  >
   /** `GET /session/me/sshkeys` */
   sessionSshkeyList: (
     params: Api.SessionSshkeyListParams
@@ -655,6 +657,15 @@ export interface MSWHandlers {
     | Json<Api.IdentityProviderResultsPage>
     | ResponseTransformer<Json<Api.IdentityProviderResultsPage>>
   >
+  /** `POST /system/silos/:siloName/identity-providers/local/users` */
+  localIdpUserCreate: (
+    params: Api.LocalIdpUserCreateParams,
+    body: Json<Api.UserCreate>
+  ) => MaybePromise<Json<Api.User> | ResponseTransformer<Json<Api.User>>>
+  /** `DELETE /system/silos/:siloName/identity-providers/local/users/:userId` */
+  localIdpUserDelete: (
+    params: Api.LocalIdpUserDeleteParams
+  ) => MaybePromise<number | ResponseTransformer>
   /** `POST /system/silos/:siloName/identity-providers/saml` */
   samlIdentityProviderCreate: (
     params: Api.SamlIdentityProviderCreateParams,
@@ -681,6 +692,16 @@ export interface MSWHandlers {
   ) => MaybePromise<
     Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
   >
+  /** `GET /system/silos/:siloName/users/all` */
+  siloUsersList: (
+    params: Api.SiloUsersListParams
+  ) => MaybePromise<
+    Json<Api.UserResultsPage> | ResponseTransformer<Json<Api.UserResultsPage>>
+  >
+  /** `GET /system/silos/:siloName/users/id/:userId` */
+  siloUserView: (
+    params: Api.SiloUserViewParams
+  ) => MaybePromise<Json<Api.User> | ResponseTransformer<Json<Api.User>>>
   /** `POST /system/updates/refresh` */
   updatesRefresh: () => MaybePromise<number | ResponseTransformer>
   /** `GET /system/user` */
@@ -1354,6 +1375,18 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.post(
+      '/system/silos/:siloName/identity-providers/local/users',
+      handler(
+        handlers['localIdpUserCreate'],
+        schema.LocalIdpUserCreateParams,
+        schema.UserCreate
+      )
+    ),
+    rest.delete(
+      '/system/silos/:siloName/identity-providers/local/users/:userId',
+      handler(handlers['localIdpUserDelete'], schema.LocalIdpUserDeleteParams, null)
+    ),
+    rest.post(
       '/system/silos/:siloName/identity-providers/saml',
       handler(
         handlers['samlIdentityProviderCreate'],
@@ -1380,6 +1413,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.SiloPolicyUpdateParams,
         schema.SiloRolePolicy
       )
+    ),
+    rest.get(
+      '/system/silos/:siloName/users/all',
+      handler(handlers['siloUsersList'], schema.SiloUsersListParams, null)
+    ),
+    rest.get(
+      '/system/silos/:siloName/users/id/:userId',
+      handler(handlers['siloUserView'], schema.SiloUserViewParams, null)
     ),
     rest.post('/system/updates/refresh', handler(handlers['updatesRefresh'], null, null)),
     rest.get(

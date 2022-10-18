@@ -1,4 +1,4 @@
-import type { Policy, SessionMe } from './roles'
+import type { Policy } from './roles'
 import {
   byGroupThenName,
   getEffectiveRole,
@@ -54,7 +54,7 @@ describe('setUserRole', () => {
   })
 })
 
-const user1: SessionMe = {
+const user1 = {
   id: 'hi',
   displayName: 'bye',
   siloId: 'sigh',
