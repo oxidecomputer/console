@@ -10,6 +10,7 @@ test('can invoke instance create form from instances page', async ({
   page,
   orgName,
   projectName,
+  genName,
 }) => {
   await page.goto(`/orgs/${orgName}/projects/${projectName}/instances`)
   await page.locator('text="New Instance"').click()
@@ -30,17 +31,24 @@ test('can invoke instance create form from instances page', async ({
     'role=button[name="Create instance"][disabled]',
   ])
 
-  await page.fill('input[name=name]', 'mock-instance')
+  const instanceName = genName('instance')
+  await page.fill('input[name=name]', instanceName)
   await page.locator('.ox-radio-card').nth(3).click()
 
-  await page.fill('input[name=bootDiskName]', 'my-boot-disk')
+  await page.fill('input[name=bootDiskName]', genName('my-boot-disk'))
   await page.fill('input[name=bootDiskSize]', '20')
 
   await page.locator(`input[value="${globalImages[0].id}"] ~ .ox-radio-card`).click()
 
   await page.locator('button:has-text("Create instance")').click()
 
-  await page.waitForURL(`/orgs/${orgName}/projects/${projectName}/instances/mock-instance`)
+  await page.waitForURL(
+    `/orgs/${orgName}/projects/${projectName}/instances/${instanceName}`
+  )
 
-  await expectVisible(page, ['h1:has-text("mock-instance")', 'text=6 vCPUs', 'text=24 GiB'])
+  await expectVisible(page, [
+    `h1:has-text("${instanceName}")`,
+    'text=6 vCPUs',
+    'text=24 GiB',
+  ])
 })

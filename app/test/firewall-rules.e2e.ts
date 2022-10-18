@@ -19,12 +19,11 @@ test('Can create a firewall rule', async ({ page, genName }) => {
 
   const rule = genName('rule-1')
   await page.fill('input[name=name]', rule)
-  await page.locator('text=Allow').click()
-  await page.locator('text=Outgoing').click()
+  await page.getByRole('radio', { name: 'Outgoing' }).click()
   await page.fill('role=spinbutton[name="Priority"]', '5')
 
   // check the UDP box
-  await page.locator('text=UDP').click()
+  await page.getByRole('checkbox', { name: 'UDP' }).click()
 
   // submit the form
   await page.locator('text="Add rule"').click()
@@ -32,7 +31,6 @@ test('Can create a firewall rule', async ({ page, genName }) => {
   // modal closes again
   await expect(modal).not.toBeVisible()
 
-  // table refetches and now includes the new rule as well as the originals
+  // table refetches and now includes the new rule
   await expect(page.locator(`td >> text="${rule}"`)).toBeVisible()
-  expect(page.locator('tbody >> tr')).toHaveCount(1)
 })
