@@ -5,7 +5,7 @@ import { genId } from './msw/util'
 
 export const globalImages: Json<GlobalImage>[] = [
   {
-    id: genId(),
+    id: genId('ubuntu-22.04'),
     name: 'ubuntu-22.04',
     description: 'Latest Ubuntu LTS',
     distribution: 'ubuntu',
@@ -16,7 +16,7 @@ export const globalImages: Json<GlobalImage>[] = [
     block_size: 4096,
   },
   {
-    id: genId(),
+    id: genId('ubuntu-20.04'),
     name: 'ubuntu-20.04',
     description: 'Previous LTS',
     time_created: new Date().toISOString(),
@@ -27,7 +27,7 @@ export const globalImages: Json<GlobalImage>[] = [
     block_size: 4096,
   },
   {
-    id: genId(),
+    id: genId('arch-2022-06-01'),
     name: 'arch-2022-06-01',
     description: 'Latest Arch Linux',
     time_created: new Date().toISOString(),

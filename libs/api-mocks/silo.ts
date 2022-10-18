@@ -5,7 +5,7 @@ import { genId } from './msw/util'
 
 export const silos: Json<Silo>[] = [
   {
-    id: genId(),
+    id: genId('default-silo'),
     name: 'default-silo',
     description: 'a fake default silo',
     time_created: new Date(2021, 3, 1).toISOString(),

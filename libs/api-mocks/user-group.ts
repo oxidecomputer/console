@@ -5,13 +5,13 @@ import { genId } from './msw/util'
 import { defaultSilo } from './silo'
 
 export const userGroup1: Json<Group> = {
-  id: genId(),
+  id: genId('web-devs'),
   silo_id: defaultSilo.id,
   display_name: 'web-devs',
 }
 
 export const userGroup2: Json<Group> = {
-  id: genId(),
+  id: genId('kernel-devs'),
   silo_id: defaultSilo.id,
   display_name: 'kernel-devs',
 }

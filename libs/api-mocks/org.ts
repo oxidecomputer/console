@@ -4,7 +4,7 @@ import type { Json } from './json-type'
 import { genId } from './msw/util'
 
 export const org: Json<Organization> = {
-  id: genId(),
+  id: genId('maze-war'),
   name: 'maze-war',
   description: 'a fake org',
   time_created: new Date(2021, 0, 1).toISOString(),
@@ -12,7 +12,7 @@ export const org: Json<Organization> = {
 }
 
 export const org2: Json<Organization> = {
-  id: genId(),
+  id: genId('boop-team'),
   name: 'boop-team',
   description: 'another fake org',
   time_created: new Date(2021, 0, 3).toISOString(),

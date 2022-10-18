@@ -1,5 +1,7 @@
 import { test } from '@playwright/test'
 
+import { users } from '@oxide/api-mocks'
+
 import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
 
 test('Click through org access page', async ({ page }) => {
@@ -11,18 +13,18 @@ test('Click through org access page', async ({ page }) => {
   await page.click('role=link[name*="Access & IAM"]')
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {
-    ID: 'user-1',
+    ID: users[0].id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': '',
   })
   await expectRowVisible(table, {
-    ID: 'user-2',
+    ID: users[1].id,
     Name: 'Hans Jonas',
     'Silo role': '',
     'Org role': 'viewer',
   })
-  await expectNotVisible(page, ['role=cell[name="user-3"]'])
+  await expectNotVisible(page, [`role=cell[name="${users[2].id}"]`])
 
   // Add user 2 as collab
   await page.click('role=button[name="Add user to organization"]')
@@ -51,7 +53,7 @@ test('Click through org access page', async ({ page }) => {
 
   // User 3 shows up in the table
   await expectRowVisible(table, {
-    ID: 'user-3',
+    ID: users[2].id,
     Name: 'Jacob Klein',
     'Silo role': '',
     'Org role': 'collaborator',
@@ -59,7 +61,7 @@ test('Click through org access page', async ({ page }) => {
 
   // now change user 3's role from collab to viewer
   await page
-    .locator('role=row', { hasText: 'user-3' })
+    .locator('role=row', { hasText: users[2].id })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Change role"]')
@@ -71,16 +73,16 @@ test('Click through org access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: 'user-3', 'Org role': 'viewer' })
+  await expectRowVisible(table, { ID: users[2].id, 'Org role': 'viewer' })
 
   // now delete user 2
   await page
-    .locator('role=row', { hasText: 'user-2' })
+    .locator('role=row', { hasText: users[1].id })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, ['role=cell[name=user-2]'])
+  await expectVisible(page, [`role=cell[name=${users[1].id}]`])
   await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, ['role=cell[name=user-2]'])
+  await expectNotVisible(page, [`role=cell[name=${users[1].id}]`])
 
   // now add an org role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user to organization"]')
@@ -90,7 +92,7 @@ test('Click through org access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Add user"]')
   await expectRowVisible(table, {
-    ID: 'user-1',
+    ID: users[0].id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': 'viewer',

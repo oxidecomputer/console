@@ -5,11 +5,11 @@ import { genId } from './msw/util'
 import { project } from './project'
 
 export const instance: Json<Instance> = {
+  id: genId('db1'),
+  name: 'db1',
   ncpus: 7,
   memory: 1024 * 1024 * 256,
-  name: 'db1',
   description: 'an instance',
-  id: genId(),
   hostname: 'oxide.com',
   project_id: project.id,
   run_state: 'running',
