@@ -7,7 +7,7 @@ test.beforeEach(async ({ page, createVpc, orgName, projectName, vpcName }) => {
   )
 })
 
-test('Expect no firewall rules by default', async ({ page }) => {
+test.fixme('Expect no firewall rules by default', async ({ page }) => {
   await expectVisible(page, ['text="No firewall rules"'])
 })
 
