@@ -85,9 +85,10 @@ async function timeToAppear(page: Page, selector: string): Promise<number> {
 }
 
 /**
- * Assert two elements appeared within 20ms of each other
+ * Assert a set of elements all appeared within a 20ms range
  */
-export async function expectSimultaneous(page: Page, selectors: [string, string]) {
-  const [t1, t2] = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
-  expect(Math.abs(t1 - t2)).toBeLessThan(20)
+export async function expectSimultaneous(page: Page, selectors: string[]) {
+  const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
+  times.sort()
+  expect(times[times.length - 1] - times[0]).toBeLessThan(20)
 }

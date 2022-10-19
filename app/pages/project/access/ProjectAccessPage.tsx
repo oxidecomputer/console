@@ -5,6 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  byGroupThenName,
   getEffectiveRole,
   setUserRole,
   useApiMutation,
@@ -23,7 +24,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy, sortBy } from '@oxide/util'
+import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
@@ -53,6 +54,7 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('projectPolicyView', { path: { orgName, projectName } }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
+    apiQueryClient.prefetchQuery('groupList', {}),
   ])
 }
 
@@ -84,8 +86,8 @@ export function ProjectAccessPage() {
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
-    const users = groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id).map(
-      ([userId, userAssignments]) => {
+    return groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id)
+      .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
         const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
         const projectRole = userAssignments.find(
@@ -108,9 +110,8 @@ export function ProjectAccessPage() {
         }
 
         return row
-      }
-    )
-    return sortBy(users, (u) => u.name)
+      })
+      .sort(byGroupThenName)
   }, [siloRows, orgRows, projectRows])
 
   const queryClient = useApiQueryClient()

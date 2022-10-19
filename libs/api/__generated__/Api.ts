@@ -1183,6 +1183,18 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
+ * Client view of a {@link User} and their groups
+ */
+export type SessionMe = {
+  /** Human-readable name that can identify the user */
+  displayName: string
+  groupIds: string[]
+  id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
+}
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export type SiloIdentityMode =
@@ -1429,6 +1441,21 @@ export type UserBuiltinResultsPage = {
   items: UserBuiltin[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type UserId = string
+
+/**
+ * Create-time parameters for a {@link User}
+ */
+export type UserCreate = {
+  /** username used to log in */
+  externalId: UserId
 }
 
 /**
@@ -2431,6 +2458,15 @@ export interface SiloIdentityProviderListQueryParams {
   sortBy?: NameSortMode
 }
 
+export interface LocalIdpUserCreatePathParams {
+  siloName: Name
+}
+
+export interface LocalIdpUserDeletePathParams {
+  siloName: Name
+  userId: string
+}
+
 export interface SamlIdentityProviderCreatePathParams {
   siloName: Name
 }
@@ -2446,6 +2482,21 @@ export interface SiloPolicyViewPathParams {
 
 export interface SiloPolicyUpdatePathParams {
   siloName: Name
+}
+
+export interface SiloUsersListPathParams {
+  siloName: Name
+}
+
+export interface SiloUsersListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SiloUserViewPathParams {
+  siloName: Name
+  userId: string
 }
 
 export interface SystemUserListQueryParams {
@@ -2515,6 +2566,7 @@ export type ApiListMethods = Pick<
   | 'sagaList'
   | 'siloList'
   | 'siloIdentityProviderList'
+  | 'siloUsersList'
   | 'systemUserList'
   | 'userList'
 >
@@ -3845,7 +3897,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<User>({
+      return this.request<SessionMe>({
         path: `/session/me`,
         method: 'GET',
         ...params,
@@ -4348,6 +4400,32 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Create a user
+     */
+    localIdpUserCreate: (
+      { path, body }: { path: LocalIdpUserCreatePathParams; body: UserCreate },
+      params: RequestParams = {}
+    ) => {
+      const { siloName } = path
+      return this.request<User>({
+        path: `/system/silos/${siloName}/identity-providers/local/users`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    localIdpUserDelete: (
+      { path }: { path: LocalIdpUserDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      const { siloName, userId } = path
+      return this.request<void>({
+        path: `/system/silos/${siloName}/identity-providers/local/users/${userId}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
      * Create a SAML IDP
      */
     samlIdentityProviderCreate: (
@@ -4405,6 +4483,35 @@ export class Api extends HttpClient {
         path: `/system/silos/${siloName}/policy`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List users in a specific Silo
+     */
+    siloUsersList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloUsersListPathParams; query?: SiloUsersListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { siloName } = path
+      return this.request<UserResultsPage>({
+        path: `/system/silos/${siloName}/users/all`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    siloUserView: (
+      { path }: { path: SiloUserViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { siloName, userId } = path
+      return this.request<User>({
+        path: `/system/silos/${siloName}/users/id/${userId}`,
+        method: 'GET',
         ...params,
       })
     },

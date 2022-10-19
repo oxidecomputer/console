@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import {
   apiQueryClient,
+  byGroupThenName,
   getEffectiveRole,
   setUserRole,
   useApiMutation,
@@ -22,7 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy, sortBy } from '@oxide/util'
+import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
@@ -48,6 +49,7 @@ SiloAccessPage.loader = async () => {
     apiQueryClient.prefetchQuery('policyView', {}),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
+    apiQueryClient.prefetchQuery('groupList', {}),
   ])
 }
 
@@ -69,25 +71,26 @@ export function SiloAccessPage() {
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
-    const users = groupBy(siloRows, (u) => u.id).map(([userId, userAssignments]) => {
-      const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+    return groupBy(siloRows, (u) => u.id)
+      .map(([userId, userAssignments]) => {
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-      const roles = [siloRole].filter(isTruthy)
+        const roles = [siloRole].filter(isTruthy)
 
-      const { name, identityType } = userAssignments[0]
+        const { name, identityType } = userAssignments[0]
 
-      const row: UserRow = {
-        id: userId,
-        identityType,
-        name,
-        siloRole,
-        // we know there has to be at least one
-        effectiveRole: getEffectiveRole(roles)!,
-      }
+        const row: UserRow = {
+          id: userId,
+          identityType,
+          name,
+          siloRole,
+          // we know there has to be at least one
+          effectiveRole: getEffectiveRole(roles)!,
+        }
 
-      return row
-    })
-    return sortBy(users, (u) => u.name)
+        return row
+      })
+      .sort(byGroupThenName)
   }, [siloRows])
 
   const queryClient = useApiQueryClient()

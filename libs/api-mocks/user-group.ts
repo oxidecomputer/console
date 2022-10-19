@@ -15,4 +15,10 @@ export const userGroup2: Json<Group> = {
   display_name: 'kernel-devs',
 }
 
-export const userGroups = [userGroup1, userGroup2]
+export const userGroup3: Json<Group> = {
+  id: '5e30797c-cae3-4402-aeb7-d5044c4bed29',
+  silo_id: defaultSilo.id,
+  display_name: 'real-estate-devs',
+}
+
+export const userGroups = [userGroup1, userGroup2, userGroup3]

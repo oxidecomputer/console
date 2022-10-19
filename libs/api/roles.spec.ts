@@ -1,5 +1,11 @@
-import type { Policy, SessionMe } from './roles'
-import { getEffectiveRole, roleOrder, setUserRole, userRoleFromPolicies } from './roles'
+import type { Policy } from './roles'
+import {
+  byGroupThenName,
+  getEffectiveRole,
+  roleOrder,
+  setUserRole,
+  userRoleFromPolicies,
+} from './roles'
 
 describe('getEffectiveRole', () => {
   it('returns falsy when the list of role assignments is empty', () => {
@@ -48,7 +54,7 @@ describe('setUserRole', () => {
   })
 })
 
-const user1: SessionMe = {
+const user1 = {
   id: 'hi',
   displayName: 'bye',
   siloId: 'sigh',
@@ -118,4 +124,14 @@ describe('getEffectiveRole', () => {
       ])
     ).toEqual('admin')
   })
+})
+
+test('byGroupThenName sorts as expected', () => {
+  const a = { identityType: 'silo_group' as const, name: 'a' }
+  const b = { identityType: 'silo_group' as const, name: 'b' }
+  const c = { identityType: 'silo_user' as const, name: 'c' }
+  const d = { identityType: 'silo_user' as const, name: 'd' }
+  const e = { identityType: 'silo_user' as const, name: 'e' }
+
+  expect([c, e, b, d, a].sort(byGroupThenName)).toEqual([a, b, c, d, e])
 })

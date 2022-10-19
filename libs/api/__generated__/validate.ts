@@ -683,7 +683,7 @@ export const Ipv4Net = z.preprocess(
   z
     .string()
     .regex(
-      /^(10\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\/([8-9]|1[0-9]|2[0-9]|3[0-2])|172\.(1[6-9]|2[0-9]|3[0-1])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\/(1[2-9]|2[0-9]|3[0-2])|192\.168\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\/(1[6-9]|2[0-9]|3[0-2]))$/
+      /^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\/([8-9]|1[0-9]|2[0-9]|3[0-2])$/
     )
 )
 
@@ -1225,6 +1225,19 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
+ * Client view of a {@link User} and their groups
+ */
+export const SessionMe = z.preprocess(
+  processResponseBody,
+  z.object({
+    displayName: z.string(),
+    groupIds: z.string().uuid().array(),
+    id: z.string().uuid(),
+    siloId: z.string().uuid(),
+  })
+)
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export const SiloIdentityMode = z.preprocess(
@@ -1457,6 +1470,29 @@ export const UserBuiltin = z.preprocess(
 export const UserBuiltinResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: UserBuiltin.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export const UserId = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .max(63)
+    .regex(
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
+    )
+)
+
+/**
+ * Create-time parameters for a {@link User}
+ */
+export const UserCreate = z.preprocess(
+  processResponseBody,
+  z.object({ externalId: UserId })
 )
 
 /**
@@ -3210,6 +3246,27 @@ export const SiloIdentityProviderListParams = z.preprocess(
   })
 )
 
+export const LocalIdpUserCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const LocalIdpUserDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
 export const SamlIdentityProviderCreateParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3246,6 +3303,31 @@ export const SiloPolicyUpdateParams = z.preprocess(
   z.object({
     path: z.object({
       siloName: Name,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloUsersListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloUserViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+      userId: z.string().uuid(),
     }),
     query: z.object({}),
   })
