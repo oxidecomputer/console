@@ -1,11 +1,10 @@
 import type { Instance, InstanceResultsPage } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 import { project } from './project'
 
 export const instance: Json<Instance> = {
-  id: genId('db1'),
+  id: '935499b3-fd96-432a-9c21-83a3dc1eece4',
   name: 'db1',
   ncpus: 7,
   memory: 1024 * 1024 * 256,

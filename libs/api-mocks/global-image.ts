@@ -1,11 +1,10 @@
 import type { GlobalImage } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 
 export const globalImages: Json<GlobalImage>[] = [
   {
-    id: genId('ubuntu-22.04'),
+    id: 'ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b',
     name: 'ubuntu-22.04',
     description: 'Latest Ubuntu LTS',
     distribution: 'ubuntu',
@@ -16,7 +15,7 @@ export const globalImages: Json<GlobalImage>[] = [
     block_size: 4096,
   },
   {
-    id: genId('ubuntu-20.04'),
+    id: 'a2ea1d7a-cc5a-4fda-a400-e2d2b18f53c5',
     name: 'ubuntu-20.04',
     description: 'Previous LTS',
     time_created: new Date().toISOString(),
@@ -27,7 +26,7 @@ export const globalImages: Json<GlobalImage>[] = [
     block_size: 4096,
   },
   {
-    id: genId('arch-2022-06-01'),
+    id: 'bd6aa051-8075-421d-a641-fae54a0ce8ef',
     name: 'arch-2022-06-01',
     description: 'Latest Arch Linux',
     time_created: new Date().toISOString(),

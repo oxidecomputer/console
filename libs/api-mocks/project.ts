@@ -1,12 +1,11 @@
 import type { Project, ProjectRolePolicy } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 import { org } from './org'
 import { user1 } from './user'
 
 export const project: Json<Project> = {
-  id: genId('mock-project'),
+  id: '5fbab865-3d09-4c16-a22f-ca9c312b0286',
   name: 'mock-project',
   description: 'a fake project',
   time_created: new Date(2021, 0, 1).toISOString(),
@@ -15,7 +14,7 @@ export const project: Json<Project> = {
 }
 
 export const project2: Json<Project> = {
-  id: genId('other-project'),
+  id: 'e7bd835e-831e-4257-b600-f1db32844c8c',
   name: 'other-project',
   description: 'another fake project',
   time_created: new Date(2021, 0, 15).toISOString(),

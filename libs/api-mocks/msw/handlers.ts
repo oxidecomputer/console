@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid'
+
 import type { ApiTypes as Api } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
@@ -29,7 +31,6 @@ import {
 import {
   NotImplemented,
   errIfExists,
-  genId,
   getStartAndEndTime,
   getTimestamps,
   paginated,
@@ -52,7 +53,7 @@ export const handlers = makeHandlers({
     errIfExists(db.orgs, { name: body.name })
 
     const newOrg: Json<Api.Organization> = {
-      id: genId('org'),
+      id: uuid(),
       ...body,
       ...getTimestamps(),
     }
@@ -119,7 +120,7 @@ export const handlers = makeHandlers({
     errIfExists(db.projects, { name: body.name, organization_id: org.id })
 
     const newProject: Json<Api.Project> = {
-      id: genId('project'),
+      id: uuid(),
       organization_id: org.id,
       ...body,
       ...getTimestamps(),
@@ -158,7 +159,7 @@ export const handlers = makeHandlers({
 
     const { name, description, size, disk_source } = body
     const newDisk: Json<Api.Disk> = {
-      id: genId('disk'),
+      id: uuid(),
       project_id: project.id,
       state: { state: 'creating' },
       device_path: '/mnt/disk',
@@ -215,7 +216,7 @@ export const handlers = makeHandlers({
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
     const newImage: Json<Api.Image> = {
-      id: genId('image'),
+      id: uuid(),
       project_id: project.id,
       // TODO: This should be calculated based off of the source
       size: 100,
@@ -243,7 +244,7 @@ export const handlers = makeHandlers({
     errIfExists(db.instances, { name: body.name, project_id: project.id })
 
     const newInstance: Json<Api.Instance> = {
-      id: genId('instance'),
+      id: uuid(),
       project_id: project.id,
       ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
       ...getTimestamps(),
@@ -326,7 +327,7 @@ export const handlers = makeHandlers({
     })
 
     const newNic: Json<Api.NetworkInterface> = {
-      id: genId('nic'),
+      id: uuid(),
       // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
       primary: nicsForInstance.length === 0,
       instance_id: instance.id,
@@ -438,7 +439,7 @@ export const handlers = makeHandlers({
     const disk = lookupDisk({ ...params.path, diskName: body.disk })
 
     const newSnapshot: Json<Api.Snapshot> = {
-      id: genId('snapshot'),
+      id: uuid(),
       ...body,
       ...getTimestamps(),
       state: 'ready',
@@ -466,9 +467,9 @@ export const handlers = makeHandlers({
     errIfExists(db.vpcs, { name: body.name })
 
     const newVpc: Json<Api.Vpc> = {
-      id: genId('vpc'),
+      id: uuid(),
       project_id: project.id,
-      system_router_id: genId('system-router'),
+      system_router_id: uuid(),
       ...body,
       // API is supposed to generate one if none provided. close enough
       ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
@@ -478,7 +479,7 @@ export const handlers = makeHandlers({
 
     // Also create a default subnet
     const newSubnet: Json<Api.VpcSubnet> = {
-      id: genId('vpc-subnet'),
+      id: uuid(),
       name: 'default',
       vpc_id: newVpc.id,
       ipv6_block: 'fd2d:4569:88b1::/64',
@@ -535,7 +536,7 @@ export const handlers = makeHandlers({
 
     const rules = body.rules.map((rule) => ({
       vpc_id: vpc.id,
-      id: genId(rule.name + '-firewall-rule'),
+      id: uuid(),
       ...rule,
       ...getTimestamps(),
     }))
@@ -558,7 +559,7 @@ export const handlers = makeHandlers({
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
     const newRouter: Json<Api.VpcRouter> = {
-      id: genId('vpc-router'),
+      id: uuid(),
       vpc_id: vpc.id,
       kind: 'custom',
       ...body,
@@ -599,7 +600,7 @@ export const handlers = makeHandlers({
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
 
     const newRoute: Json<Api.RouterRoute> = {
-      id: genId('router-route'),
+      id: uuid(),
       vpc_router_id: router.id,
       kind: 'custom',
       ...body,
@@ -640,7 +641,7 @@ export const handlers = makeHandlers({
 
     // TODO: Create a route for the subnet in the default router
     const newSubnet: Json<Api.VpcSubnet> = {
-      id: genId('vpc-subnet'),
+      id: uuid(),
       vpc_id: vpc.id,
       ...body,
       // required in subnet create but not in update, so we need a fallback.
@@ -712,7 +713,7 @@ export const handlers = makeHandlers({
     errIfExists(db.sshKeys, { silo_user_id: currentUser.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
-      id: genId('ssh-key'),
+      id: uuid(),
       silo_user_id: currentUser.id,
       ...body,
       ...getTimestamps(),
@@ -731,7 +732,7 @@ export const handlers = makeHandlers({
     errIfExists(db.globalImages, { name: body.name })
 
     const newImage: Json<Api.GlobalImage> = {
-      id: genId('global-image'),
+      id: uuid(),
       // TODO: This should be calculated based off of the source
       size: 100,
       ...body,
@@ -752,7 +753,7 @@ export const handlers = makeHandlers({
   siloCreate({ body }) {
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
-      id: genId('silo'),
+      id: uuid(),
       ...getTimestamps(),
       ...body,
     }
