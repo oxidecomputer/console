@@ -16,7 +16,7 @@ export const userGroup2: Json<Group> = {
 }
 
 export const userGroup3: Json<Group> = {
-  id: genId('real-estate-devs'),
+  id: '5e30797c-cae3-4402-aeb7-d5044c4bed29',
   silo_id: defaultSilo.id,
   display_name: 'real-estate-devs',
 }
