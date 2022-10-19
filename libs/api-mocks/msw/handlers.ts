@@ -535,7 +535,7 @@ export const handlers = makeHandlers({
 
     const rules = body.rules.map((rule) => ({
       vpc_id: vpc.id,
-      id: genId('firewall-rule'),
+      id: genId(rule.name + '-firewall-rule'),
       ...rule,
       ...getTimestamps(),
     }))
