@@ -27,11 +27,7 @@ export function AttachDiskSideModalForm({
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required')
       queryClient.invalidateQueries('instanceDiskList', {
-        path: {
-          orgName,
-          projectName,
-          instanceName,
-        },
+        path: { orgName, projectName, instanceName },
       })
       onSuccess?.(data)
     },
