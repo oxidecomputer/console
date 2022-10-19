@@ -56,7 +56,7 @@ export const VpcFirewallRulesTab = () => {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', vpcParams)
+      queryClient.invalidateQueries('vpcFirewallRulesView', { path: vpcParams })
     },
   })
 
@@ -70,7 +70,7 @@ export const VpcFirewallRulesTab = () => {
           label: 'Delete',
           onActivate: () => {
             updateRules.mutate({
-              ...vpcParams,
+              path: vpcParams,
               body: {
                 rules: rules.filter((r) => r.id !== rule.id),
               },
