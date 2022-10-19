@@ -27,9 +27,11 @@ export function AttachDiskSideModalForm({
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required')
       queryClient.invalidateQueries('instanceDiskList', {
-        orgName,
-        projectName,
-        instanceName,
+        path: {
+          orgName,
+          projectName,
+          instanceName,
+        },
       })
       onSuccess?.(data)
     },
@@ -41,7 +43,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('diskList', { orgName, projectName }).data?.items.filter(
+    useApiQuery('diskList', { path: { orgName, projectName } }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 
@@ -55,9 +57,7 @@ export function AttachDiskSideModalForm({
         (({ name }) => {
           invariant(instanceName, 'instanceName is required')
           attachDisk.mutate({
-            orgName,
-            projectName,
-            instanceName,
+            path: { orgName, projectName, instanceName },
             body: { name },
           })
         })

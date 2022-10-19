@@ -19,7 +19,7 @@ import {
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('sessionSshkeyList', { limit: 10 })
+  await apiQueryClient.prefetchQuery('sessionSshkeyList', { query: { limit: 10 } })
 }
 
 export function SSHKeysPage() {
@@ -34,7 +34,7 @@ export function SSHKeysPage() {
       label: 'Delete',
       onActivate() {
         deleteSshKey.mutate(
-          { sshKeyName: sshKey.name },
+          { path: { sshKeyName: sshKey.name } },
           {
             onSuccess: () => {
               queryClient.invalidateQueries('sessionSshkeyList', {})

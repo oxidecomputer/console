@@ -151,7 +151,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 
 export function OrgPicker() {
   const { orgName } = useParams()
-  const { data } = useApiQuery('organizationList', { limit: 20 })
+  const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
   const items = (data?.items || []).map((org) => ({
     label: org.name,
     to: pb.projects({ orgName: org.name }),
@@ -171,7 +171,7 @@ export function OrgPicker() {
 
 export function ProjectPicker() {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { data } = useApiQuery('projectList', { orgName, limit: 20 })
+  const { data } = useApiQuery('projectList', { path: { orgName }, query: { limit: 20 } })
   const items = (data?.items || []).map((p) => ({
     label: p.name,
     to: pb.instances({ orgName, projectName: p.name }),

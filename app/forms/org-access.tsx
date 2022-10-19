@@ -43,7 +43,7 @@ export function OrgAccessAddUserSideModal({
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationPolicyView', orgParams)
+      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
       onSuccess?.(data)
       onDismiss()
     },
@@ -63,7 +63,7 @@ export function OrgAccessAddUserSideModal({
           if (roleName === '') return
 
           updatePolicy.mutate({
-            ...orgParams,
+            path: orgParams,
             body: setUserRole(userId, roleName, policy),
           })
         })
@@ -105,7 +105,7 @@ export function OrgAccessEditUserSideModal({
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('organizationPolicyView', orgParams)
+      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
       onSuccess?.(data)
       onDismiss()
     },
@@ -121,7 +121,7 @@ export function OrgAccessEditUserSideModal({
         onSubmit ||
         (({ roleName }) => {
           updatePolicy.mutate({
-            ...orgParams,
+            path: orgParams,
             body: setUserRole(userId, roleName, policy),
           })
         })

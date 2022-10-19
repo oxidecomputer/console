@@ -34,8 +34,8 @@ const EmptyState = () => (
 
 ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('projectList', {
-    ...requireOrgParams(params),
-    limit: 10,
+    path: requireOrgParams(params),
+    query: { limit: 10 },
   })
 }
 
@@ -50,17 +50,17 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
   const queryClient = useApiQueryClient()
   const { orgName } = useOrgParams()
   const { Table, Column } = useQueryTable('projectList', {
-    orgName,
+    path: { orgName },
   })
 
   const { data: projects } = useApiQuery('projectList', {
-    orgName,
-    limit: 10, // to have same params as QueryTable
+    path: { orgName },
+    query: { limit: 10 }, // to have same params as QueryTable
   })
 
   const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('projectList', { orgName })
+      queryClient.invalidateQueries('projectList', { path: { orgName } })
     },
   })
 
@@ -76,7 +76,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteProject.mutate({ orgName, projectName: project.name })
+        deleteProject.mutate({ path: { orgName, projectName: project.name } })
       },
     },
   ]

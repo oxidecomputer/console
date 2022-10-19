@@ -40,7 +40,7 @@ export function CreateSiloSideModalForm({
   const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
       queryClient.invalidateQueries('siloList', {})
-      queryClient.setQueryData('siloView', { siloName: silo.name }, silo)
+      queryClient.setQueryData('siloView', { path: { siloName: silo.name } }, silo)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

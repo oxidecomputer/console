@@ -144,7 +144,10 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     const { data, isLoading } = useApiQuery(
       query,
-      { ...params, page_token: currentPage, limit: pageSize },
+      {
+        path: params.path,
+        query: { ...params.query, page_token: currentPage, limit: pageSize },
+      },
       options
     )
 

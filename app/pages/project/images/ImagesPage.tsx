@@ -18,14 +18,14 @@ const EmptyState = () => (
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('imageList', {
-    ...requireProjectParams(params),
-    limit: 10,
+    path: requireProjectParams(params),
+    query: { limit: 10 },
   })
 }
 
 export function ImagesPage() {
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('imageList', projectParams)
+  const { Table, Column } = useQueryTable('imageList', { path: projectParams })
   return (
     <>
       <PageHeader>

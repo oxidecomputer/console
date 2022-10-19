@@ -24,9 +24,7 @@ export default function EditNetworkInterfaceSideModalForm({
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        instanceName,
-        orgName,
-        projectName,
+        path: { orgName, projectName, instanceName },
       })
       onSuccess?.(data)
       onDismiss()
@@ -54,10 +52,7 @@ export default function EditNetworkInterfaceSideModalForm({
           )
 
           editNetworkInterface.mutate({
-            orgName,
-            projectName,
-            instanceName,
-            interfaceName,
+            path: { orgName, projectName, instanceName, interfaceName },
             body,
           })
         })

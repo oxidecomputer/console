@@ -42,7 +42,7 @@ export function CreateDiskSideModalForm({
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskList', pathParams)
+      queryClient.invalidateQueries('diskList', { path: pathParams })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -64,7 +64,7 @@ export function CreateDiskSideModalForm({
         onSubmit ||
         ((values) => {
           createDisk.mutate({
-            ...pathParams,
+            path: pathParams,
             body: {
               ...values,
               size: values.size * GiB,

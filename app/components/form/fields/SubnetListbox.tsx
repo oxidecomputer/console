@@ -39,7 +39,7 @@ export function SubnetListbox({ vpcNameField, vpcs, ...fieldProps }: SubnetListb
   const subnets =
     useApiQuery(
       'vpcSubnetList',
-      { ...pathParams, vpcName },
+      { path: { ...pathParams, vpcName } },
       {
         enabled: vpcExists,
         useErrorBoundary: false,

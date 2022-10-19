@@ -39,7 +39,7 @@ function AttachedInstance({
   projectName: string
   instanceId: string
 }) {
-  const { data: instance } = useApiQuery('instanceViewById', { id: instanceId })
+  const { data: instance } = useApiQuery('instanceViewById', { path: { id: instanceId } })
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
@@ -66,8 +66,8 @@ interface DisksPageProps {
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('diskList', {
-    ...requireProjectParams(params),
-    limit: 10,
+    path: requireProjectParams(params),
+    query: { limit: 10 },
   })
 }
 
@@ -76,18 +76,18 @@ export function DisksPage({ modal }: DisksPageProps) {
 
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('diskList', { orgName, projectName })
+  const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
   const addToast = useToast()
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList', { orgName, projectName })
+      queryClient.invalidateQueries('diskList', { path: { orgName, projectName } })
     },
   })
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { orgName, projectName })
+      queryClient.invalidateQueries('snapshotList', { path: { orgName, projectName } })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -101,8 +101,7 @@ export function DisksPage({ modal }: DisksPageProps) {
       label: 'Snapshot',
       onActivate() {
         createSnapshot.mutate({
-          orgName,
-          projectName,
+          path: { orgName, projectName },
           body: {
             name: genName(disk.name),
             disk: disk.name,
@@ -115,7 +114,7 @@ export function DisksPage({ modal }: DisksPageProps) {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteDisk.mutate({ orgName, projectName, diskName: disk.name })
+        deleteDisk.mutate({ path: { orgName, projectName, diskName: disk.name } })
       },
       disabled: !['detached', 'creating', 'faulted'].includes(disk.state.state),
     },

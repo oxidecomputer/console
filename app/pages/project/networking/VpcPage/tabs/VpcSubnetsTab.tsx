@@ -12,7 +12,7 @@ import { useRequiredParams } from 'app/hooks'
 export const VpcSubnetsTab = () => {
   const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcSubnetList', vpcParams)
+  const { Table, Column } = useQueryTable('vpcSubnetList', { path: vpcParams })
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
 

@@ -30,11 +30,8 @@ function DiskMetric({
   const { data: metrics, isLoading } = useApiQuery(
     'diskMetricsList',
     {
-      ...diskParams,
-      metricName,
-      startTime,
-      endTime,
-      limit: 1000,
+      path: { ...diskParams, metricName },
+      query: { startTime, endTime, limit: 1000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
@@ -139,7 +136,7 @@ const Loading = () => (
 
 export default function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { data: disks } = useApiQuery('instanceDiskList', instanceParams)
+  const { data: disks } = useApiQuery('instanceDiskList', { path: instanceParams })
 
   return (
     <>

@@ -36,8 +36,8 @@ const EmptyState = () => (
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceList', {
-    ...requireProjectParams(params),
-    limit: 10,
+    path: requireProjectParams(params),
+    query: { limit: 10 },
   })
 }
 
@@ -47,15 +47,15 @@ export function InstancesPage() {
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
-    queryClient.invalidateQueries('instanceList', projectParams)
+    queryClient.invalidateQueries('instanceList', { path: projectParams })
 
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: refetchInstances,
   })
 
   const { data: instances } = useApiQuery('instanceList', {
-    ...projectParams,
-    limit: 10, // to have same params as QueryTable
+    path: projectParams,
+    query: { limit: 10 }, // to have same params as QueryTable
   })
 
   const navigate = useNavigate()
@@ -73,10 +73,14 @@ export function InstancesPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable('instanceList', projectParams, {
-    refetchInterval: 5000,
-    keepPreviousData: true,
-  })
+  const { Table, Column } = useQueryTable(
+    'instanceList',
+    { path: projectParams },
+    {
+      refetchInterval: 5000,
+      keepPreviousData: true,
+    }
+  )
 
   if (!instances) return null
 

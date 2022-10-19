@@ -39,8 +39,8 @@ const EmptyState = () => (
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('vpcList', {
-    ...requireProjectParams(params),
-    limit: 10,
+    path: requireProjectParams(params),
+    query: { limit: 10 },
   })
 }
 
@@ -53,15 +53,14 @@ export function VpcsPage({ modal }: VpcsPageProps) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const location = useLocation()
   const { data: vpcs } = useApiQuery('vpcList', {
-    orgName,
-    projectName,
-    limit: 10, // to have same params as QueryTable
+    path: { orgName, projectName },
+    query: { limit: 10 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList', { orgName, projectName })
+      queryClient.invalidateQueries('vpcList', { path: { orgName, projectName } })
     },
   })
 
@@ -75,7 +74,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
     {
       label: 'Delete',
       onActivate() {
-        deleteVpc.mutate({ orgName, projectName, vpcName: vpc.name })
+        deleteVpc.mutate({ path: { orgName, projectName, vpcName: vpc.name } })
       },
     },
   ]
@@ -94,7 +93,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
 
   const backToVpcs = () => navigate(pb.vpcs({ orgName, projectName }))
 
-  const { Table, Column } = useQueryTable('vpcList', { orgName, projectName })
+  const { Table, Column } = useQueryTable('vpcList', { path: { orgName, projectName } })
   return (
     <>
       <PageHeader>
