@@ -2,12 +2,11 @@ import type { Snapshot } from '@oxide/api'
 
 import { disks } from './disk'
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 import { project } from './project'
 
 export const snapshots: Json<Snapshot>[] = [
   {
-    id: genId('snapshot-1'),
+    id: 'ab805e59-b6b8-4c73-8081-6a224b6b0698',
     name: 'snapshot-1',
     description: "it's a snapshot",
     project_id: project.id,
@@ -18,7 +17,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-2'),
+    id: '9a29813d-e94b-4c6a-82a0-672af3f78a6f',
     name: 'snapshot-2',
     description: "it's a second snapshot",
     project_id: project.id,
@@ -29,7 +28,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-3'),
+    id: 'e6c58826-62fb-4205-820e-620407cd04e7',
     name: 'snapshot-3',
     description: "it's a third snapshot",
     project_id: project.id,
@@ -40,7 +39,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-4'),
+    id: 'dc598369-4554-4ccd-aa89-a837e6ca487d',
     name: 'snapshot-4',
     description: "it's a fourth snapshot",
     project_id: project.id,
