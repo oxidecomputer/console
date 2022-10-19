@@ -76,7 +76,7 @@ export const getUseApiMutation =
     options?: UseMutationOptions<Result<A[M]>, ErrorResult, Params<A[M]>>
   ) =>
     useMutation(
-      ({ body, ...params }) => api[method](params, body).then(handleResult(method)),
+      (params) => api[method](params).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       options
     )

@@ -48,7 +48,7 @@ export const handlers = makeHandlers({
   groupList: (params) => paginated(params.query, db.userGroups),
 
   organizationList: (params) => paginated(params.query, db.orgs),
-  organizationCreate(body) {
+  organizationCreate({ body }) {
     errIfExists(db.orgs, { name: body.name })
 
     const newOrg: Json<Api.Organization> = {
@@ -67,7 +67,7 @@ export const handlers = makeHandlers({
 
     return lookupOrg(params.path)
   },
-  organizationUpdate(params, body) {
+  organizationUpdate({ body, ...params }) {
     const org = lookupOrg(params.path)
 
     if (typeof body.name === 'string') {
@@ -91,7 +91,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  organizationPolicyUpdate(params, body) {
+  organizationPolicyUpdate({ body, ...params }) {
     const org = lookupOrg(params.path)
 
     const newAssignments = body.role_assignments.map((r) => ({
@@ -114,7 +114,7 @@ export const handlers = makeHandlers({
 
     return paginated(params.query, projects)
   },
-  projectCreate(params, body) {
+  projectCreate({ body, ...params }) {
     const org = lookupOrg(params.path)
     errIfExists(db.projects, { name: body.name, organization_id: org.id })
 
@@ -129,7 +129,7 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView: (params) => lookupProject(params.path),
-  projectUpdate(params, body) {
+  projectUpdate({ body, ...params }) {
     const project = lookupProject(params.path)
     if (body.name) {
       project.name = body.name
@@ -151,7 +151,7 @@ export const handlers = makeHandlers({
 
     return paginated(params.query, disks)
   },
-  diskCreate(params, body) {
+  diskCreate({ body, ...params }) {
     const project = lookupProject(params.path)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
@@ -210,7 +210,7 @@ export const handlers = makeHandlers({
     const images = db.images.filter((i) => i.project_id === project.id)
     return paginated(params.query, images)
   },
-  imageCreate(params, body) {
+  imageCreate({ body, ...params }) {
     const project = lookupProject(params.path)
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
@@ -237,7 +237,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(params.query, instances)
   },
-  instanceCreate(params, body) {
+  instanceCreate({ body, ...params }) {
     const project = lookupProject(params.path)
 
     errIfExists(db.instances, { name: body.name, project_id: project.id })
@@ -267,7 +267,7 @@ export const handlers = makeHandlers({
     )
     return paginated(params.query, disks)
   },
-  instanceDiskAttach(params, body) {
+  instanceDiskAttach({ body, ...params }) {
     const instance = lookupInstance(params.path)
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
@@ -279,7 +279,7 @@ export const handlers = makeHandlers({
     }
     return disk
   },
-  instanceDiskDetach(params, body) {
+  instanceDiskDetach({ body, ...params }) {
     const instance = lookupInstance(params.path)
     if (instance.run_state !== 'stopped') {
       throw 'Cannot detach disk to instance that is not stopped'
@@ -308,7 +308,7 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
     return paginated(params.query, nics)
   },
-  instanceNetworkInterfaceCreate(params, body) {
+  instanceNetworkInterfaceCreate({ body, ...params }) {
     const instance = lookupInstance(params.path)
     const nicsForInstance = db.networkInterfaces.filter(
       (n) => n.instance_id === instance.id
@@ -343,7 +343,7 @@ export const handlers = makeHandlers({
     return newNic
   },
   instanceNetworkInterfaceView: (params) => lookupNetworkInterface(params.path),
-  instanceNetworkInterfaceUpdate(params, body) {
+  instanceNetworkInterfaceUpdate({ body, ...params }) {
     const nic = lookupNetworkInterface(params.path)
 
     if (body.name) {
@@ -407,7 +407,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  projectPolicyUpdate(params, body) {
+  projectPolicyUpdate({ body, ...params }) {
     const project = lookupProject(params.path)
 
     const newAssignments = body.role_assignments.map((r) => ({
@@ -430,7 +430,7 @@ export const handlers = makeHandlers({
     const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
     return paginated(params.query, snapshots)
   },
-  snapshotCreate(params, body) {
+  snapshotCreate({ body, ...params }) {
     const project = lookupProject(params.path)
 
     errIfExists(db.snapshots, { name: body.name })
@@ -461,7 +461,7 @@ export const handlers = makeHandlers({
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
     return paginated(params.query, vpcs)
   },
-  vpcCreate(params, body) {
+  vpcCreate({ body, ...params }) {
     const project = lookupProject(params.path)
     errIfExists(db.vpcs, { name: body.name })
 
@@ -491,7 +491,7 @@ export const handlers = makeHandlers({
     return json(newVpc, { status: 201 })
   },
   vpcView: (params) => lookupVpc(params.path),
-  vpcUpdate(params, body) {
+  vpcUpdate({ body, ...params }) {
     const vpc = lookupVpc(params.path)
 
     if (body.name) {
@@ -530,7 +530,7 @@ export const handlers = makeHandlers({
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
-  vpcFirewallRulesUpdate(params, body) {
+  vpcFirewallRulesUpdate({ body, ...params }) {
     const vpc = lookupVpc(params.path)
 
     const rules = body.rules.map((rule) => ({
@@ -553,7 +553,7 @@ export const handlers = makeHandlers({
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
     return paginated(params.query, routers)
   },
-  vpcRouterCreate(params, body) {
+  vpcRouterCreate({ body, ...params }) {
     const vpc = lookupVpc(params.path)
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
@@ -568,7 +568,7 @@ export const handlers = makeHandlers({
     return json(newRouter, { status: 201 })
   },
   vpcRouterView: (params) => lookupVpcRouter(params.path),
-  vpcRouterUpdate(params, body) {
+  vpcRouterUpdate({ body, ...params }) {
     const router = lookupVpcRouter(params.path)
 
     if (body.name) {
@@ -593,7 +593,7 @@ export const handlers = makeHandlers({
     const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
     return paginated(params.query, routers)
   },
-  vpcRouterRouteCreate(params, body) {
+  vpcRouterRouteCreate({ body, ...params }) {
     const router = lookupVpcRouter(params.path)
 
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
@@ -608,7 +608,7 @@ export const handlers = makeHandlers({
     return json(newRoute, { status: 201 })
   },
   vpcRouterRouteView: (params) => lookupVpcRouterRoute(params.path),
-  vpcRouterRouteUpdate(params, body) {
+  vpcRouterRouteUpdate({ body, ...params }) {
     const route = lookupVpcRouterRoute(params.path)
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
@@ -634,7 +634,7 @@ export const handlers = makeHandlers({
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
     return paginated(params.query, subnets)
   },
-  vpcSubnetCreate(params, body) {
+  vpcSubnetCreate({ body, ...params }) {
     const vpc = lookupVpc(params.path)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
 
@@ -653,7 +653,7 @@ export const handlers = makeHandlers({
     return json(newSubnet, { status: 201 })
   },
   vpcSubnetView: (params) => lookupVpcSubnet(params.path),
-  vpcSubnetUpdate(params, body) {
+  vpcSubnetUpdate({ body, ...params }) {
     const subnet = lookupVpcSubnet(params.path)
 
     if (body.name) {
@@ -685,7 +685,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  policyUpdate(body) {
+  policyUpdate({ body }) {
     const siloId = defaultSilo.id
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'silo' as const,
@@ -708,7 +708,7 @@ export const handlers = makeHandlers({
     const keys = db.sshKeys.filter((k) => k.silo_user_id === currentUser.id)
     return paginated(params.query, keys)
   },
-  sessionSshkeyCreate(body) {
+  sessionSshkeyCreate({ body }) {
     errIfExists(db.sshKeys, { silo_user_id: currentUser.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
@@ -727,7 +727,7 @@ export const handlers = makeHandlers({
     return 204
   },
   systemImageList: (params) => paginated(params.query, db.globalImages),
-  systemImageCreate(body) {
+  systemImageCreate({ body }) {
     errIfExists(db.globalImages, { name: body.name })
 
     const newImage: Json<Api.GlobalImage> = {
@@ -749,7 +749,7 @@ export const handlers = makeHandlers({
     return 204
   },
   siloList: (params) => paginated(params.query, db.silos),
-  siloCreate(body) {
+  siloCreate({ body }) {
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: genId('silo'),
