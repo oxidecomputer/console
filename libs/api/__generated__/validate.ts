@@ -3249,15 +3249,21 @@ export const SiloIdentityProviderListParams = z.preprocess(
 export const LocalIdpUserCreateParams = z.preprocess(
   processResponseBody,
   z.object({
-    siloName: Name,
+    path: z.object({
+      siloName: Name,
+    }),
+    query: z.object({}),
   })
 )
 
 export const LocalIdpUserDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
-    siloName: Name,
-    userId: z.string().uuid(),
+    path: z.object({
+      siloName: Name,
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
@@ -3297,6 +3303,31 @@ export const SiloPolicyUpdateParams = z.preprocess(
   z.object({
     path: z.object({
       siloName: Name,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloUsersListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloUserViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+      userId: z.string().uuid(),
     }),
     query: z.object({}),
   })

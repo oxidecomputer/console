@@ -2458,6 +2458,15 @@ export interface SiloIdentityProviderListQueryParams {
   sortBy?: NameSortMode
 }
 
+export interface LocalIdpUserCreatePathParams {
+  siloName: Name
+}
+
+export interface LocalIdpUserDeletePathParams {
+  siloName: Name
+  userId: string
+}
+
 export interface SamlIdentityProviderCreatePathParams {
   siloName: Name
 }
@@ -2473,6 +2482,21 @@ export interface SiloPolicyViewPathParams {
 
 export interface SiloPolicyUpdatePathParams {
   siloName: Name
+}
+
+export interface SiloUsersListPathParams {
+  siloName: Name
+}
+
+export interface SiloUsersListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SiloUserViewPathParams {
+  siloName: Name
+  userId: string
 }
 
 export interface SystemUserListQueryParams {
@@ -3873,7 +3897,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<User>({
+      return this.request<SessionMe>({
         path: `/session/me`,
         method: 'GET',
         ...params,
@@ -4379,27 +4403,28 @@ export class Api extends HttpClient {
      * Create a user
      */
     localIdpUserCreate: (
-      { siloName }: LocalIdpUserCreateParams,
-      body: UserCreate,
+      { path, body }: { path: LocalIdpUserCreatePathParams; body: UserCreate },
       params: RequestParams = {}
-    ) =>
-      this.request<User>({
+    ) => {
+      const { siloName } = path
+      return this.request<User>({
         path: `/system/silos/${siloName}/identity-providers/local/users`,
         method: 'POST',
         body,
         ...params,
-      }),
-
+      })
+    },
     localIdpUserDelete: (
-      { siloName, userId }: LocalIdpUserDeleteParams,
+      { path }: { path: LocalIdpUserDeletePathParams },
       params: RequestParams = {}
-    ) =>
-      this.request<void>({
+    ) => {
+      const { siloName, userId } = path
+      return this.request<void>({
         path: `/system/silos/${siloName}/identity-providers/local/users/${userId}`,
         method: 'DELETE',
         ...params,
-      }),
-
+      })
+    },
     /**
      * Create a SAML IDP
      */
@@ -4465,23 +4490,31 @@ export class Api extends HttpClient {
      * List users in a specific Silo
      */
     siloUsersList: (
-      { siloName, ...query }: SiloUsersListParams,
+      {
+        path,
+        query = {},
+      }: { path: SiloUsersListPathParams; query?: SiloUsersListQueryParams },
       params: RequestParams = {}
-    ) =>
-      this.request<UserResultsPage>({
+    ) => {
+      const { siloName } = path
+      return this.request<UserResultsPage>({
         path: `/system/silos/${siloName}/users/all`,
         method: 'GET',
         query,
         ...params,
-      }),
-
-    siloUserView: ({ siloName, userId }: SiloUserViewParams, params: RequestParams = {}) =>
-      this.request<User>({
+      })
+    },
+    siloUserView: (
+      { path }: { path: SiloUserViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { siloName, userId } = path
+      return this.request<User>({
         path: `/system/silos/${siloName}/users/id/${userId}`,
         method: 'GET',
         ...params,
-      }),
-
+      })
+    },
     /**
      * Refresh update data
      */

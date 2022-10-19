@@ -401,7 +401,7 @@ export interface MSWHandlers {
   /** `GET /roles/:roleName` */
   roleView: (params: { path: Api.RoleViewPathParams }) => HandlerResult<Api.Role>
   /** `GET /session/me` */
-  sessionMe: () => HandlerResult<Api.User>
+  sessionMe: () => HandlerResult<Api.SessionMe>
   /** `GET /session/me/sshkeys` */
   sessionSshkeyList: (params: {
     query: Api.SessionSshkeyListQueryParams
@@ -528,6 +528,13 @@ export interface MSWHandlers {
     path: Api.SiloIdentityProviderListPathParams
     query: Api.SiloIdentityProviderListQueryParams
   }) => HandlerResult<Api.IdentityProviderResultsPage>
+  /** `POST /system/silos/:siloName/identity-providers/local/users` */
+  localIdpUserCreate: (params: {
+    path: Api.LocalIdpUserCreatePathParams
+    body: Json<Api.UserCreate>
+  }) => HandlerResult<Api.User>
+  /** `DELETE /system/silos/:siloName/identity-providers/local/users/:userId` */
+  localIdpUserDelete: (params: { path: Api.LocalIdpUserDeletePathParams }) => StatusCode
   /** `POST /system/silos/:siloName/identity-providers/saml` */
   samlIdentityProviderCreate: (params: {
     path: Api.SamlIdentityProviderCreatePathParams
@@ -546,6 +553,13 @@ export interface MSWHandlers {
     path: Api.SiloPolicyUpdatePathParams
     body: Json<Api.SiloRolePolicy>
   }) => HandlerResult<Api.SiloRolePolicy>
+  /** `GET /system/silos/:siloName/users/all` */
+  siloUsersList: (params: {
+    path: Api.SiloUsersListPathParams
+    query: Api.SiloUsersListQueryParams
+  }) => HandlerResult<Api.UserResultsPage>
+  /** `GET /system/silos/:siloName/users/id/:userId` */
+  siloUserView: (params: { path: Api.SiloUserViewPathParams }) => HandlerResult<Api.User>
   /** `POST /system/updates/refresh` */
   updatesRefresh: () => StatusCode
   /** `GET /system/user` */
