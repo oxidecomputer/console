@@ -16,7 +16,8 @@ import type * as Api from './Api'
 import * as schema from './validate'
 import { snakeify } from './util'
 
-type MaybePromise<T> = T | Promise<T>
+type HandlerResult<T> = Json<T> | ResponseTransformer<Json<T>>
+type StatusCode = number
 
 /**
  * Custom transformer: convenience function for setting response `status` and/or
@@ -51,661 +52,429 @@ export type Json<B> = Snakify<StringifyDates<B>>
 
 export interface MSWHandlers {
   /** `GET /by-id/disks/:id` */
-  diskViewById: (
-    params: Api.DiskViewByIdParams
-  ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
+  diskViewById: (params: Api.DiskViewByIdParams) => HandlerResult<Api.Disk>
   /** `GET /by-id/images/:id` */
-  imageViewById: (
-    params: Api.ImageViewByIdParams
-  ) => MaybePromise<Json<Api.Image> | ResponseTransformer<Json<Api.Image>>>
+  imageViewById: (params: Api.ImageViewByIdParams) => HandlerResult<Api.Image>
   /** `GET /by-id/instances/:id` */
-  instanceViewById: (
-    params: Api.InstanceViewByIdParams
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  instanceViewById: (params: Api.InstanceViewByIdParams) => HandlerResult<Api.Instance>
   /** `GET /by-id/network-interfaces/:id` */
   instanceNetworkInterfaceViewById: (
     params: Api.InstanceNetworkInterfaceViewByIdParams
-  ) => MaybePromise<
-    Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
-  >
+  ) => HandlerResult<Api.NetworkInterface>
   /** `GET /by-id/organizations/:id` */
   organizationViewById: (
     params: Api.OrganizationViewByIdParams
-  ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
+  ) => HandlerResult<Api.Organization>
   /** `GET /by-id/projects/:id` */
-  projectViewById: (
-    params: Api.ProjectViewByIdParams
-  ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
+  projectViewById: (params: Api.ProjectViewByIdParams) => HandlerResult<Api.Project>
   /** `GET /by-id/snapshots/:id` */
-  snapshotViewById: (
-    params: Api.SnapshotViewByIdParams
-  ) => MaybePromise<Json<Api.Snapshot> | ResponseTransformer<Json<Api.Snapshot>>>
+  snapshotViewById: (params: Api.SnapshotViewByIdParams) => HandlerResult<Api.Snapshot>
   /** `GET /by-id/vpc-router-routes/:id` */
   vpcRouterRouteViewById: (
     params: Api.VpcRouterRouteViewByIdParams
-  ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
+  ) => HandlerResult<Api.RouterRoute>
   /** `GET /by-id/vpc-routers/:id` */
-  vpcRouterViewById: (
-    params: Api.VpcRouterViewByIdParams
-  ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
+  vpcRouterViewById: (params: Api.VpcRouterViewByIdParams) => HandlerResult<Api.VpcRouter>
   /** `GET /by-id/vpc-subnets/:id` */
-  vpcSubnetViewById: (
-    params: Api.VpcSubnetViewByIdParams
-  ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
+  vpcSubnetViewById: (params: Api.VpcSubnetViewByIdParams) => HandlerResult<Api.VpcSubnet>
   /** `GET /by-id/vpcs/:id` */
-  vpcViewById: (
-    params: Api.VpcViewByIdParams
-  ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
+  vpcViewById: (params: Api.VpcViewByIdParams) => HandlerResult<Api.Vpc>
   /** `POST /device/auth` */
-  deviceAuthRequest: () => MaybePromise<number | ResponseTransformer>
+  deviceAuthRequest: () => StatusCode
   /** `POST /device/confirm` */
-  deviceAuthConfirm: (
-    body: Json<Api.DeviceAuthVerify>
-  ) => MaybePromise<number | ResponseTransformer>
+  deviceAuthConfirm: (body: Json<Api.DeviceAuthVerify>) => StatusCode
   /** `POST /device/token` */
-  deviceAccessToken: () => MaybePromise<number | ResponseTransformer>
+  deviceAccessToken: () => StatusCode
   /** `GET /groups` */
-  groupList: (
-    params: Api.GroupListParams
-  ) => MaybePromise<
-    Json<Api.GroupResultsPage> | ResponseTransformer<Json<Api.GroupResultsPage>>
-  >
+  groupList: (params: Api.GroupListParams) => HandlerResult<Api.GroupResultsPage>
   /** `POST /login` */
-  loginSpoof: (body: Json<Api.SpoofLoginBody>) => MaybePromise<number | ResponseTransformer>
+  loginSpoof: (body: Json<Api.SpoofLoginBody>) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
-  loginSamlBegin: (
-    params: Api.LoginSamlBeginParams
-  ) => MaybePromise<number | ResponseTransformer>
+  loginSamlBegin: (params: Api.LoginSamlBeginParams) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
-  loginSaml: (params: Api.LoginSamlParams) => MaybePromise<number | ResponseTransformer>
+  loginSaml: (params: Api.LoginSamlParams) => StatusCode
   /** `POST /logout` */
-  logout: () => MaybePromise<number | ResponseTransformer>
+  logout: () => StatusCode
   /** `GET /organizations` */
   organizationList: (
     params: Api.OrganizationListParams
-  ) => MaybePromise<
-    | Json<Api.OrganizationResultsPage>
-    | ResponseTransformer<Json<Api.OrganizationResultsPage>>
-  >
+  ) => HandlerResult<Api.OrganizationResultsPage>
   /** `POST /organizations` */
   organizationCreate: (
     body: Json<Api.OrganizationCreate>
-  ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
+  ) => HandlerResult<Api.Organization>
   /** `GET /organizations/:orgName` */
-  organizationView: (
-    params: Api.OrganizationViewParams
-  ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
+  organizationView: (params: Api.OrganizationViewParams) => HandlerResult<Api.Organization>
   /** `PUT /organizations/:orgName` */
   organizationUpdate: (
     params: Api.OrganizationUpdateParams,
     body: Json<Api.OrganizationUpdate>
-  ) => MaybePromise<Json<Api.Organization> | ResponseTransformer<Json<Api.Organization>>>
+  ) => HandlerResult<Api.Organization>
   /** `DELETE /organizations/:orgName` */
-  organizationDelete: (
-    params: Api.OrganizationDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  organizationDelete: (params: Api.OrganizationDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/policy` */
   organizationPolicyView: (
     params: Api.OrganizationPolicyViewParams
-  ) => MaybePromise<
-    Json<Api.OrganizationRolePolicy> | ResponseTransformer<Json<Api.OrganizationRolePolicy>>
-  >
+  ) => HandlerResult<Api.OrganizationRolePolicy>
   /** `PUT /organizations/:orgName/policy` */
   organizationPolicyUpdate: (
     params: Api.OrganizationPolicyUpdateParams,
     body: Json<Api.OrganizationRolePolicy>
-  ) => MaybePromise<
-    Json<Api.OrganizationRolePolicy> | ResponseTransformer<Json<Api.OrganizationRolePolicy>>
-  >
+  ) => HandlerResult<Api.OrganizationRolePolicy>
   /** `GET /organizations/:orgName/projects` */
-  projectList: (
-    params: Api.ProjectListParams
-  ) => MaybePromise<
-    Json<Api.ProjectResultsPage> | ResponseTransformer<Json<Api.ProjectResultsPage>>
-  >
+  projectList: (params: Api.ProjectListParams) => HandlerResult<Api.ProjectResultsPage>
   /** `POST /organizations/:orgName/projects` */
   projectCreate: (
     params: Api.ProjectCreateParams,
     body: Json<Api.ProjectCreate>
-  ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
+  ) => HandlerResult<Api.Project>
   /** `GET /organizations/:orgName/projects/:projectName` */
-  projectView: (
-    params: Api.ProjectViewParams
-  ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
+  projectView: (params: Api.ProjectViewParams) => HandlerResult<Api.Project>
   /** `PUT /organizations/:orgName/projects/:projectName` */
   projectUpdate: (
     params: Api.ProjectUpdateParams,
     body: Json<Api.ProjectUpdate>
-  ) => MaybePromise<Json<Api.Project> | ResponseTransformer<Json<Api.Project>>>
+  ) => HandlerResult<Api.Project>
   /** `DELETE /organizations/:orgName/projects/:projectName` */
-  projectDelete: (
-    params: Api.ProjectDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  projectDelete: (params: Api.ProjectDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/disks` */
-  diskList: (
-    params: Api.DiskListParams
-  ) => MaybePromise<
-    Json<Api.DiskResultsPage> | ResponseTransformer<Json<Api.DiskResultsPage>>
-  >
+  diskList: (params: Api.DiskListParams) => HandlerResult<Api.DiskResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/disks` */
   diskCreate: (
     params: Api.DiskCreateParams,
     body: Json<Api.DiskCreate>
-  ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
+  ) => HandlerResult<Api.Disk>
   /** `GET /organizations/:orgName/projects/:projectName/disks/:diskName` */
-  diskView: (
-    params: Api.DiskViewParams
-  ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
+  diskView: (params: Api.DiskViewParams) => HandlerResult<Api.Disk>
   /** `DELETE /organizations/:orgName/projects/:projectName/disks/:diskName` */
-  diskDelete: (params: Api.DiskDeleteParams) => MaybePromise<number | ResponseTransformer>
+  diskDelete: (params: Api.DiskDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName` */
   diskMetricsList: (
     params: Api.DiskMetricsListParams
-  ) => MaybePromise<
-    Json<Api.MeasurementResultsPage> | ResponseTransformer<Json<Api.MeasurementResultsPage>>
-  >
+  ) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /organizations/:orgName/projects/:projectName/images` */
-  imageList: (
-    params: Api.ImageListParams
-  ) => MaybePromise<
-    Json<Api.ImageResultsPage> | ResponseTransformer<Json<Api.ImageResultsPage>>
-  >
+  imageList: (params: Api.ImageListParams) => HandlerResult<Api.ImageResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/images` */
   imageCreate: (
     params: Api.ImageCreateParams,
     body: Json<Api.ImageCreate>
-  ) => MaybePromise<Json<Api.Image> | ResponseTransformer<Json<Api.Image>>>
+  ) => HandlerResult<Api.Image>
   /** `GET /organizations/:orgName/projects/:projectName/images/:imageName` */
-  imageView: (
-    params: Api.ImageViewParams
-  ) => MaybePromise<Json<Api.Image> | ResponseTransformer<Json<Api.Image>>>
+  imageView: (params: Api.ImageViewParams) => HandlerResult<Api.Image>
   /** `DELETE /organizations/:orgName/projects/:projectName/images/:imageName` */
-  imageDelete: (params: Api.ImageDeleteParams) => MaybePromise<number | ResponseTransformer>
+  imageDelete: (params: Api.ImageDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/instances` */
-  instanceList: (
-    params: Api.InstanceListParams
-  ) => MaybePromise<
-    Json<Api.InstanceResultsPage> | ResponseTransformer<Json<Api.InstanceResultsPage>>
-  >
+  instanceList: (params: Api.InstanceListParams) => HandlerResult<Api.InstanceResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances` */
   instanceCreate: (
     params: Api.InstanceCreateParams,
     body: Json<Api.InstanceCreate>
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  ) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName` */
-  instanceView: (
-    params: Api.InstanceViewParams
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  instanceView: (params: Api.InstanceViewParams) => HandlerResult<Api.Instance>
   /** `DELETE /organizations/:orgName/projects/:projectName/instances/:instanceName` */
-  instanceDelete: (
-    params: Api.InstanceDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  instanceDelete: (params: Api.InstanceDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/disks` */
   instanceDiskList: (
     params: Api.InstanceDiskListParams
-  ) => MaybePromise<
-    Json<Api.DiskResultsPage> | ResponseTransformer<Json<Api.DiskResultsPage>>
-  >
+  ) => HandlerResult<Api.DiskResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach` */
   instanceDiskAttach: (
     params: Api.InstanceDiskAttachParams,
     body: Json<Api.DiskIdentifier>
-  ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
+  ) => HandlerResult<Api.Disk>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach` */
   instanceDiskDetach: (
     params: Api.InstanceDiskDetachParams,
     body: Json<Api.DiskIdentifier>
-  ) => MaybePromise<Json<Api.Disk> | ResponseTransformer<Json<Api.Disk>>>
+  ) => HandlerResult<Api.Disk>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips` */
   instanceExternalIpList: (
     params: Api.InstanceExternalIpListParams
-  ) => MaybePromise<
-    Json<Api.ExternalIpResultsPage> | ResponseTransformer<Json<Api.ExternalIpResultsPage>>
-  >
+  ) => HandlerResult<Api.ExternalIpResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/migrate` */
   instanceMigrate: (
     params: Api.InstanceMigrateParams,
     body: Json<Api.InstanceMigrate>
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  ) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
   instanceNetworkInterfaceList: (
     params: Api.InstanceNetworkInterfaceListParams
-  ) => MaybePromise<
-    | Json<Api.NetworkInterfaceResultsPage>
-    | ResponseTransformer<Json<Api.NetworkInterfaceResultsPage>>
-  >
+  ) => HandlerResult<Api.NetworkInterfaceResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
   instanceNetworkInterfaceCreate: (
     params: Api.InstanceNetworkInterfaceCreateParams,
     body: Json<Api.NetworkInterfaceCreate>
-  ) => MaybePromise<
-    Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
-  >
+  ) => HandlerResult<Api.NetworkInterface>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
   instanceNetworkInterfaceView: (
     params: Api.InstanceNetworkInterfaceViewParams
-  ) => MaybePromise<
-    Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
-  >
+  ) => HandlerResult<Api.NetworkInterface>
   /** `PUT /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
   instanceNetworkInterfaceUpdate: (
     params: Api.InstanceNetworkInterfaceUpdateParams,
     body: Json<Api.NetworkInterfaceUpdate>
-  ) => MaybePromise<
-    Json<Api.NetworkInterface> | ResponseTransformer<Json<Api.NetworkInterface>>
-  >
+  ) => HandlerResult<Api.NetworkInterface>
   /** `DELETE /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
   instanceNetworkInterfaceDelete: (
     params: Api.InstanceNetworkInterfaceDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  ) => StatusCode
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/reboot` */
-  instanceReboot: (
-    params: Api.InstanceRebootParams
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  instanceReboot: (params: Api.InstanceRebootParams) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console` */
   instanceSerialConsole: (
     params: Api.InstanceSerialConsoleParams
-  ) => MaybePromise<
-    | Json<Api.InstanceSerialConsoleData>
-    | ResponseTransformer<Json<Api.InstanceSerialConsoleData>>
-  >
+  ) => HandlerResult<Api.InstanceSerialConsoleData>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/start` */
-  instanceStart: (
-    params: Api.InstanceStartParams
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  instanceStart: (params: Api.InstanceStartParams) => HandlerResult<Api.Instance>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/stop` */
-  instanceStop: (
-    params: Api.InstanceStopParams
-  ) => MaybePromise<Json<Api.Instance> | ResponseTransformer<Json<Api.Instance>>>
+  instanceStop: (params: Api.InstanceStopParams) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/policy` */
   projectPolicyView: (
     params: Api.ProjectPolicyViewParams
-  ) => MaybePromise<
-    Json<Api.ProjectRolePolicy> | ResponseTransformer<Json<Api.ProjectRolePolicy>>
-  >
+  ) => HandlerResult<Api.ProjectRolePolicy>
   /** `PUT /organizations/:orgName/projects/:projectName/policy` */
   projectPolicyUpdate: (
     params: Api.ProjectPolicyUpdateParams,
     body: Json<Api.ProjectRolePolicy>
-  ) => MaybePromise<
-    Json<Api.ProjectRolePolicy> | ResponseTransformer<Json<Api.ProjectRolePolicy>>
-  >
+  ) => HandlerResult<Api.ProjectRolePolicy>
   /** `GET /organizations/:orgName/projects/:projectName/snapshots` */
-  snapshotList: (
-    params: Api.SnapshotListParams
-  ) => MaybePromise<
-    Json<Api.SnapshotResultsPage> | ResponseTransformer<Json<Api.SnapshotResultsPage>>
-  >
+  snapshotList: (params: Api.SnapshotListParams) => HandlerResult<Api.SnapshotResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/snapshots` */
   snapshotCreate: (
     params: Api.SnapshotCreateParams,
     body: Json<Api.SnapshotCreate>
-  ) => MaybePromise<Json<Api.Snapshot> | ResponseTransformer<Json<Api.Snapshot>>>
+  ) => HandlerResult<Api.Snapshot>
   /** `GET /organizations/:orgName/projects/:projectName/snapshots/:snapshotName` */
-  snapshotView: (
-    params: Api.SnapshotViewParams
-  ) => MaybePromise<Json<Api.Snapshot> | ResponseTransformer<Json<Api.Snapshot>>>
+  snapshotView: (params: Api.SnapshotViewParams) => HandlerResult<Api.Snapshot>
   /** `DELETE /organizations/:orgName/projects/:projectName/snapshots/:snapshotName` */
-  snapshotDelete: (
-    params: Api.SnapshotDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  snapshotDelete: (params: Api.SnapshotDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs` */
-  vpcList: (
-    params: Api.VpcListParams
-  ) => MaybePromise<
-    Json<Api.VpcResultsPage> | ResponseTransformer<Json<Api.VpcResultsPage>>
-  >
+  vpcList: (params: Api.VpcListParams) => HandlerResult<Api.VpcResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs` */
   vpcCreate: (
     params: Api.VpcCreateParams,
     body: Json<Api.VpcCreate>
-  ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
+  ) => HandlerResult<Api.Vpc>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
-  vpcView: (
-    params: Api.VpcViewParams
-  ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
+  vpcView: (params: Api.VpcViewParams) => HandlerResult<Api.Vpc>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
   vpcUpdate: (
     params: Api.VpcUpdateParams,
     body: Json<Api.VpcUpdate>
-  ) => MaybePromise<Json<Api.Vpc> | ResponseTransformer<Json<Api.Vpc>>>
+  ) => HandlerResult<Api.Vpc>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
-  vpcDelete: (params: Api.VpcDeleteParams) => MaybePromise<number | ResponseTransformer>
+  vpcDelete: (params: Api.VpcDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules` */
   vpcFirewallRulesView: (
     params: Api.VpcFirewallRulesViewParams
-  ) => MaybePromise<
-    Json<Api.VpcFirewallRules> | ResponseTransformer<Json<Api.VpcFirewallRules>>
-  >
+  ) => HandlerResult<Api.VpcFirewallRules>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules` */
   vpcFirewallRulesUpdate: (
     params: Api.VpcFirewallRulesUpdateParams,
     body: Json<Api.VpcFirewallRuleUpdateParams>
-  ) => MaybePromise<
-    Json<Api.VpcFirewallRules> | ResponseTransformer<Json<Api.VpcFirewallRules>>
-  >
+  ) => HandlerResult<Api.VpcFirewallRules>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers` */
   vpcRouterList: (
     params: Api.VpcRouterListParams
-  ) => MaybePromise<
-    Json<Api.VpcRouterResultsPage> | ResponseTransformer<Json<Api.VpcRouterResultsPage>>
-  >
+  ) => HandlerResult<Api.VpcRouterResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers` */
   vpcRouterCreate: (
     params: Api.VpcRouterCreateParams,
     body: Json<Api.VpcRouterCreate>
-  ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
+  ) => HandlerResult<Api.VpcRouter>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
-  vpcRouterView: (
-    params: Api.VpcRouterViewParams
-  ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
+  vpcRouterView: (params: Api.VpcRouterViewParams) => HandlerResult<Api.VpcRouter>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
   vpcRouterUpdate: (
     params: Api.VpcRouterUpdateParams,
     body: Json<Api.VpcRouterUpdate>
-  ) => MaybePromise<Json<Api.VpcRouter> | ResponseTransformer<Json<Api.VpcRouter>>>
+  ) => HandlerResult<Api.VpcRouter>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
-  vpcRouterDelete: (
-    params: Api.VpcRouterDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  vpcRouterDelete: (params: Api.VpcRouterDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes` */
   vpcRouterRouteList: (
     params: Api.VpcRouterRouteListParams
-  ) => MaybePromise<
-    Json<Api.RouterRouteResultsPage> | ResponseTransformer<Json<Api.RouterRouteResultsPage>>
-  >
+  ) => HandlerResult<Api.RouterRouteResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes` */
   vpcRouterRouteCreate: (
     params: Api.VpcRouterRouteCreateParams,
     body: Json<Api.RouterRouteCreateParams>
-  ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
+  ) => HandlerResult<Api.RouterRoute>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
   vpcRouterRouteView: (
     params: Api.VpcRouterRouteViewParams
-  ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
+  ) => HandlerResult<Api.RouterRoute>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
   vpcRouterRouteUpdate: (
     params: Api.VpcRouterRouteUpdateParams,
     body: Json<Api.RouterRouteUpdateParams>
-  ) => MaybePromise<Json<Api.RouterRoute> | ResponseTransformer<Json<Api.RouterRoute>>>
+  ) => HandlerResult<Api.RouterRoute>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
-  vpcRouterRouteDelete: (
-    params: Api.VpcRouterRouteDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  vpcRouterRouteDelete: (params: Api.VpcRouterRouteDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets` */
   vpcSubnetList: (
     params: Api.VpcSubnetListParams
-  ) => MaybePromise<
-    Json<Api.VpcSubnetResultsPage> | ResponseTransformer<Json<Api.VpcSubnetResultsPage>>
-  >
+  ) => HandlerResult<Api.VpcSubnetResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets` */
   vpcSubnetCreate: (
     params: Api.VpcSubnetCreateParams,
     body: Json<Api.VpcSubnetCreate>
-  ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
+  ) => HandlerResult<Api.VpcSubnet>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
-  vpcSubnetView: (
-    params: Api.VpcSubnetViewParams
-  ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
+  vpcSubnetView: (params: Api.VpcSubnetViewParams) => HandlerResult<Api.VpcSubnet>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
   vpcSubnetUpdate: (
     params: Api.VpcSubnetUpdateParams,
     body: Json<Api.VpcSubnetUpdate>
-  ) => MaybePromise<Json<Api.VpcSubnet> | ResponseTransformer<Json<Api.VpcSubnet>>>
+  ) => HandlerResult<Api.VpcSubnet>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
-  vpcSubnetDelete: (
-    params: Api.VpcSubnetDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  vpcSubnetDelete: (params: Api.VpcSubnetDeleteParams) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName/network-interfaces` */
   vpcSubnetListNetworkInterfaces: (
     params: Api.VpcSubnetListNetworkInterfacesParams
-  ) => MaybePromise<
-    | Json<Api.NetworkInterfaceResultsPage>
-    | ResponseTransformer<Json<Api.NetworkInterfaceResultsPage>>
-  >
+  ) => HandlerResult<Api.NetworkInterfaceResultsPage>
   /** `GET /policy` */
-  policyView: () => MaybePromise<
-    Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
-  >
+  policyView: () => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /policy` */
-  policyUpdate: (
-    body: Json<Api.SiloRolePolicy>
-  ) => MaybePromise<
-    Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
-  >
+  policyUpdate: (body: Json<Api.SiloRolePolicy>) => HandlerResult<Api.SiloRolePolicy>
   /** `GET /roles` */
-  roleList: (
-    params: Api.RoleListParams
-  ) => MaybePromise<
-    Json<Api.RoleResultsPage> | ResponseTransformer<Json<Api.RoleResultsPage>>
-  >
+  roleList: (params: Api.RoleListParams) => HandlerResult<Api.RoleResultsPage>
   /** `GET /roles/:roleName` */
-  roleView: (
-    params: Api.RoleViewParams
-  ) => MaybePromise<Json<Api.Role> | ResponseTransformer<Json<Api.Role>>>
+  roleView: (params: Api.RoleViewParams) => HandlerResult<Api.Role>
   /** `GET /session/me` */
-  sessionMe: () => MaybePromise<Json<Api.User> | ResponseTransformer<Json<Api.User>>>
+  sessionMe: () => HandlerResult<Api.User>
   /** `GET /session/me/sshkeys` */
   sessionSshkeyList: (
     params: Api.SessionSshkeyListParams
-  ) => MaybePromise<
-    Json<Api.SshKeyResultsPage> | ResponseTransformer<Json<Api.SshKeyResultsPage>>
-  >
+  ) => HandlerResult<Api.SshKeyResultsPage>
   /** `POST /session/me/sshkeys` */
-  sessionSshkeyCreate: (
-    body: Json<Api.SshKeyCreate>
-  ) => MaybePromise<Json<Api.SshKey> | ResponseTransformer<Json<Api.SshKey>>>
+  sessionSshkeyCreate: (body: Json<Api.SshKeyCreate>) => HandlerResult<Api.SshKey>
   /** `GET /session/me/sshkeys/:sshKeyName` */
-  sessionSshkeyView: (
-    params: Api.SessionSshkeyViewParams
-  ) => MaybePromise<Json<Api.SshKey> | ResponseTransformer<Json<Api.SshKey>>>
+  sessionSshkeyView: (params: Api.SessionSshkeyViewParams) => HandlerResult<Api.SshKey>
   /** `DELETE /session/me/sshkeys/:sshKeyName` */
-  sessionSshkeyDelete: (
-    params: Api.SessionSshkeyDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  sessionSshkeyDelete: (params: Api.SessionSshkeyDeleteParams) => StatusCode
   /** `GET /system/by-id/images/:id` */
   systemImageViewById: (
     params: Api.SystemImageViewByIdParams
-  ) => MaybePromise<Json<Api.GlobalImage> | ResponseTransformer<Json<Api.GlobalImage>>>
+  ) => HandlerResult<Api.GlobalImage>
   /** `GET /system/by-id/ip-pools/:id` */
-  ipPoolViewById: (
-    params: Api.IpPoolViewByIdParams
-  ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
+  ipPoolViewById: (params: Api.IpPoolViewByIdParams) => HandlerResult<Api.IpPool>
   /** `GET /system/by-id/silos/:id` */
-  siloViewById: (
-    params: Api.SiloViewByIdParams
-  ) => MaybePromise<Json<Api.Silo> | ResponseTransformer<Json<Api.Silo>>>
+  siloViewById: (params: Api.SiloViewByIdParams) => HandlerResult<Api.Silo>
   /** `GET /system/hardware/racks` */
-  rackList: (
-    params: Api.RackListParams
-  ) => MaybePromise<
-    Json<Api.RackResultsPage> | ResponseTransformer<Json<Api.RackResultsPage>>
-  >
+  rackList: (params: Api.RackListParams) => HandlerResult<Api.RackResultsPage>
   /** `GET /system/hardware/racks/:rackId` */
-  rackView: (
-    params: Api.RackViewParams
-  ) => MaybePromise<Json<Api.Rack> | ResponseTransformer<Json<Api.Rack>>>
+  rackView: (params: Api.RackViewParams) => HandlerResult<Api.Rack>
   /** `GET /system/hardware/sleds` */
-  sledList: (
-    params: Api.SledListParams
-  ) => MaybePromise<
-    Json<Api.SledResultsPage> | ResponseTransformer<Json<Api.SledResultsPage>>
-  >
+  sledList: (params: Api.SledListParams) => HandlerResult<Api.SledResultsPage>
   /** `GET /system/hardware/sleds/:sledId` */
-  sledView: (
-    params: Api.SledViewParams
-  ) => MaybePromise<Json<Api.Sled> | ResponseTransformer<Json<Api.Sled>>>
+  sledView: (params: Api.SledViewParams) => HandlerResult<Api.Sled>
   /** `GET /system/images` */
   systemImageList: (
     params: Api.SystemImageListParams
-  ) => MaybePromise<
-    Json<Api.GlobalImageResultsPage> | ResponseTransformer<Json<Api.GlobalImageResultsPage>>
-  >
+  ) => HandlerResult<Api.GlobalImageResultsPage>
   /** `POST /system/images` */
-  systemImageCreate: (
-    body: Json<Api.GlobalImageCreate>
-  ) => MaybePromise<Json<Api.GlobalImage> | ResponseTransformer<Json<Api.GlobalImage>>>
+  systemImageCreate: (body: Json<Api.GlobalImageCreate>) => HandlerResult<Api.GlobalImage>
   /** `GET /system/images/:imageName` */
-  systemImageView: (
-    params: Api.SystemImageViewParams
-  ) => MaybePromise<Json<Api.GlobalImage> | ResponseTransformer<Json<Api.GlobalImage>>>
+  systemImageView: (params: Api.SystemImageViewParams) => HandlerResult<Api.GlobalImage>
   /** `DELETE /system/images/:imageName` */
-  systemImageDelete: (
-    params: Api.SystemImageDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  systemImageDelete: (params: Api.SystemImageDeleteParams) => StatusCode
   /** `GET /system/ip-pools` */
-  ipPoolList: (
-    params: Api.IpPoolListParams
-  ) => MaybePromise<
-    Json<Api.IpPoolResultsPage> | ResponseTransformer<Json<Api.IpPoolResultsPage>>
-  >
+  ipPoolList: (params: Api.IpPoolListParams) => HandlerResult<Api.IpPoolResultsPage>
   /** `POST /system/ip-pools` */
-  ipPoolCreate: (
-    body: Json<Api.IpPoolCreate>
-  ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
+  ipPoolCreate: (body: Json<Api.IpPoolCreate>) => HandlerResult<Api.IpPool>
   /** `GET /system/ip-pools/:poolName` */
-  ipPoolView: (
-    params: Api.IpPoolViewParams
-  ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
+  ipPoolView: (params: Api.IpPoolViewParams) => HandlerResult<Api.IpPool>
   /** `PUT /system/ip-pools/:poolName` */
   ipPoolUpdate: (
     params: Api.IpPoolUpdateParams,
     body: Json<Api.IpPoolUpdate>
-  ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
+  ) => HandlerResult<Api.IpPool>
   /** `DELETE /system/ip-pools/:poolName` */
-  ipPoolDelete: (
-    params: Api.IpPoolDeleteParams
-  ) => MaybePromise<number | ResponseTransformer>
+  ipPoolDelete: (params: Api.IpPoolDeleteParams) => StatusCode
   /** `GET /system/ip-pools/:poolName/ranges` */
   ipPoolRangeList: (
     params: Api.IpPoolRangeListParams
-  ) => MaybePromise<
-    Json<Api.IpPoolRangeResultsPage> | ResponseTransformer<Json<Api.IpPoolRangeResultsPage>>
-  >
+  ) => HandlerResult<Api.IpPoolRangeResultsPage>
   /** `POST /system/ip-pools/:poolName/ranges/add` */
   ipPoolRangeAdd: (
     params: Api.IpPoolRangeAddParams,
     body: Json<Api.IpRange>
-  ) => MaybePromise<Json<Api.IpPoolRange> | ResponseTransformer<Json<Api.IpPoolRange>>>
+  ) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools/:poolName/ranges/remove` */
   ipPoolRangeRemove: (
     params: Api.IpPoolRangeRemoveParams,
     body: Json<Api.IpRange>
-  ) => MaybePromise<number | ResponseTransformer>
+  ) => StatusCode
   /** `GET /system/ip-pools-service/:rackId` */
-  ipPoolServiceView: (
-    params: Api.IpPoolServiceViewParams
-  ) => MaybePromise<Json<Api.IpPool> | ResponseTransformer<Json<Api.IpPool>>>
+  ipPoolServiceView: (params: Api.IpPoolServiceViewParams) => HandlerResult<Api.IpPool>
   /** `GET /system/ip-pools-service/:rackId/ranges` */
   ipPoolServiceRangeList: (
     params: Api.IpPoolServiceRangeListParams
-  ) => MaybePromise<
-    Json<Api.IpPoolRangeResultsPage> | ResponseTransformer<Json<Api.IpPoolRangeResultsPage>>
-  >
+  ) => HandlerResult<Api.IpPoolRangeResultsPage>
   /** `POST /system/ip-pools-service/:rackId/ranges/add` */
   ipPoolServiceRangeAdd: (
     params: Api.IpPoolServiceRangeAddParams,
     body: Json<Api.IpRange>
-  ) => MaybePromise<Json<Api.IpPoolRange> | ResponseTransformer<Json<Api.IpPoolRange>>>
+  ) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools-service/:rackId/ranges/remove` */
   ipPoolServiceRangeRemove: (
     params: Api.IpPoolServiceRangeRemoveParams,
     body: Json<Api.IpRange>
-  ) => MaybePromise<number | ResponseTransformer>
+  ) => StatusCode
   /** `GET /system/policy` */
-  systemPolicyView: () => MaybePromise<
-    Json<Api.FleetRolePolicy> | ResponseTransformer<Json<Api.FleetRolePolicy>>
-  >
+  systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /system/policy` */
   systemPolicyUpdate: (
     body: Json<Api.FleetRolePolicy>
-  ) => MaybePromise<
-    Json<Api.FleetRolePolicy> | ResponseTransformer<Json<Api.FleetRolePolicy>>
-  >
+  ) => HandlerResult<Api.FleetRolePolicy>
   /** `GET /system/sagas` */
-  sagaList: (
-    params: Api.SagaListParams
-  ) => MaybePromise<
-    Json<Api.SagaResultsPage> | ResponseTransformer<Json<Api.SagaResultsPage>>
-  >
+  sagaList: (params: Api.SagaListParams) => HandlerResult<Api.SagaResultsPage>
   /** `GET /system/sagas/:sagaId` */
-  sagaView: (
-    params: Api.SagaViewParams
-  ) => MaybePromise<Json<Api.Saga> | ResponseTransformer<Json<Api.Saga>>>
+  sagaView: (params: Api.SagaViewParams) => HandlerResult<Api.Saga>
   /** `GET /system/silos` */
-  siloList: (
-    params: Api.SiloListParams
-  ) => MaybePromise<
-    Json<Api.SiloResultsPage> | ResponseTransformer<Json<Api.SiloResultsPage>>
-  >
+  siloList: (params: Api.SiloListParams) => HandlerResult<Api.SiloResultsPage>
   /** `POST /system/silos` */
-  siloCreate: (
-    body: Json<Api.SiloCreate>
-  ) => MaybePromise<Json<Api.Silo> | ResponseTransformer<Json<Api.Silo>>>
+  siloCreate: (body: Json<Api.SiloCreate>) => HandlerResult<Api.Silo>
   /** `GET /system/silos/:siloName` */
-  siloView: (
-    params: Api.SiloViewParams
-  ) => MaybePromise<Json<Api.Silo> | ResponseTransformer<Json<Api.Silo>>>
+  siloView: (params: Api.SiloViewParams) => HandlerResult<Api.Silo>
   /** `DELETE /system/silos/:siloName` */
-  siloDelete: (params: Api.SiloDeleteParams) => MaybePromise<number | ResponseTransformer>
+  siloDelete: (params: Api.SiloDeleteParams) => StatusCode
   /** `GET /system/silos/:siloName/identity-providers` */
   siloIdentityProviderList: (
     params: Api.SiloIdentityProviderListParams
-  ) => MaybePromise<
-    | Json<Api.IdentityProviderResultsPage>
-    | ResponseTransformer<Json<Api.IdentityProviderResultsPage>>
-  >
+  ) => HandlerResult<Api.IdentityProviderResultsPage>
   /** `POST /system/silos/:siloName/identity-providers/saml` */
   samlIdentityProviderCreate: (
     params: Api.SamlIdentityProviderCreateParams,
     body: Json<Api.SamlIdentityProviderCreate>
-  ) => MaybePromise<
-    Json<Api.SamlIdentityProvider> | ResponseTransformer<Json<Api.SamlIdentityProvider>>
-  >
+  ) => HandlerResult<Api.SamlIdentityProvider>
   /** `GET /system/silos/:siloName/identity-providers/saml/:providerName` */
   samlIdentityProviderView: (
     params: Api.SamlIdentityProviderViewParams
-  ) => MaybePromise<
-    Json<Api.SamlIdentityProvider> | ResponseTransformer<Json<Api.SamlIdentityProvider>>
-  >
+  ) => HandlerResult<Api.SamlIdentityProvider>
   /** `GET /system/silos/:siloName/policy` */
-  siloPolicyView: (
-    params: Api.SiloPolicyViewParams
-  ) => MaybePromise<
-    Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
-  >
+  siloPolicyView: (params: Api.SiloPolicyViewParams) => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /system/silos/:siloName/policy` */
   siloPolicyUpdate: (
     params: Api.SiloPolicyUpdateParams,
     body: Json<Api.SiloRolePolicy>
-  ) => MaybePromise<
-    Json<Api.SiloRolePolicy> | ResponseTransformer<Json<Api.SiloRolePolicy>>
-  >
+  ) => HandlerResult<Api.SiloRolePolicy>
   /** `POST /system/updates/refresh` */
-  updatesRefresh: () => MaybePromise<number | ResponseTransformer>
+  updatesRefresh: () => StatusCode
   /** `GET /system/user` */
   systemUserList: (
     params: Api.SystemUserListParams
-  ) => MaybePromise<
-    Json<Api.UserBuiltinResultsPage> | ResponseTransformer<Json<Api.UserBuiltinResultsPage>>
-  >
+  ) => HandlerResult<Api.UserBuiltinResultsPage>
   /** `GET /system/user/:userName` */
-  systemUserView: (
-    params: Api.SystemUserViewParams
-  ) => MaybePromise<Json<Api.UserBuiltin> | ResponseTransformer<Json<Api.UserBuiltin>>>
+  systemUserView: (params: Api.SystemUserViewParams) => HandlerResult<Api.UserBuiltin>
   /** `GET /timeseries/schema` */
   timeseriesSchemaGet: (
     params: Api.TimeseriesSchemaGetParams
-  ) => MaybePromise<
-    | Json<Api.TimeseriesSchemaResultsPage>
-    | ResponseTransformer<Json<Api.TimeseriesSchemaResultsPage>>
-  >
+  ) => HandlerResult<Api.TimeseriesSchemaResultsPage>
   /** `GET /users` */
-  userList: (
-    params: Api.UserListParams
-  ) => MaybePromise<
-    Json<Api.UserResultsPage> | ResponseTransformer<Json<Api.UserResultsPage>>
-  >
+  userList: (params: Api.UserListParams) => HandlerResult<Api.UserResultsPage>
 }
 
 function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
