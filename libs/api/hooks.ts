@@ -16,7 +16,7 @@ import { navToLogin } from './nav-to-login'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P) => any ? P : never
 export type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
-export type ResultItem<F> = F extends (p: any) => Promise<ApiResult<{ items: (infer R)[] }>>
+export type ResultItem<F> = Result<F> extends { items: (infer R)[] }
   ? R extends Record<string, unknown>
     ? R
     : never
