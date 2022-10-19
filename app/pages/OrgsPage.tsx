@@ -33,7 +33,7 @@ const EmptyState = () => (
 )
 
 OrgsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', { limit: 10 })
+  await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
 }
 
 interface OrgsPageProps {
@@ -48,7 +48,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
   const queryClient = useApiQueryClient()
 
   const { data: orgs } = useApiQuery('organizationList', {
-    limit: 10, // to have same params as QueryTable
+    query: { limit: 10 }, // to have same params as QueryTable
   })
 
   const deleteOrg = useApiMutation('organizationDelete', {
@@ -67,7 +67,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteOrg.mutate({ orgName: org.name })
+        deleteOrg.mutate({ path: { orgName: org.name } })
       },
     },
   ]

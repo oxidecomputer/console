@@ -15,7 +15,7 @@ export function SerialConsolePage() {
 
   const { data, refetch } = useApiQuery(
     'instanceSerialConsole',
-    { maxBytes: 10 * MiB, fromStart: 0, ...instanceParams },
+    { path: instanceParams, query: { maxBytes: 10 * MiB, fromStart: 0 } },
     { refetchOnWindowFocus: false }
   )
 

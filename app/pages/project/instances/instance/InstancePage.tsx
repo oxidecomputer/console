@@ -44,7 +44,9 @@ const InstanceTabs = memo(() => (
 ))
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceView', requireInstanceParams(params))
+  await apiQueryClient.prefetchQuery('instanceView', {
+    path: requireInstanceParams(params),
+  })
 }
 
 export function InstancePage() {
@@ -55,13 +57,13 @@ export function InstancePage() {
   const projectParams = pick(instanceParams, 'projectName', 'orgName')
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: () => {
-      queryClient.invalidateQueries('instanceView', instanceParams)
+      queryClient.invalidateQueries('instanceView', { path: instanceParams })
     },
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(projectParams)),
   })
 
-  const { data: instance } = useApiQuery('instanceView', instanceParams)
+  const { data: instance } = useApiQuery('instanceView', { path: instanceParams })
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]

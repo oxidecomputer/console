@@ -27,7 +27,7 @@ export function CreateSubnetSideModalForm({
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetList', parentNames)
+      queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
       onSuccess?.(data)
       onDismiss()
     },
@@ -39,7 +39,7 @@ export function CreateSubnetSideModalForm({
       title={title}
       initialValues={initialValues}
       onDismiss={onDismiss}
-      onSubmit={(body) => createSubnet.mutate({ ...parentNames, body })}
+      onSubmit={(body) => createSubnet.mutate({ path: parentNames, body })}
       submitDisabled={createSubnet.isLoading}
       error={createSubnet.error?.error as Error | undefined}
       {...props}

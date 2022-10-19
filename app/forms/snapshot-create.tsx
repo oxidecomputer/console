@@ -15,7 +15,7 @@ import { useRequiredParams, useToast } from 'app/hooks'
 import type { CreateSideModalFormProps } from '.'
 
 const useSnapshotDiskItems = (params: PathParams.Project) => {
-  const { data: disks } = useApiQuery('diskList', { ...params, limit: 1000 })
+  const { data: disks } = useApiQuery('diskList', { path: params, query: { limit: 1000 } })
   return (
     disks?.items
       .filter((disk) => disk.state.state === 'attached')
@@ -47,7 +47,7 @@ export function CreateSnapshotSideModalForm({
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('snapshotList', pathParams)
+      queryClient.invalidateQueries('snapshotList', { path: pathParams })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -69,7 +69,7 @@ export function CreateSnapshotSideModalForm({
         onSubmit ||
         ((values) => {
           createSnapshot.mutate({
-            ...pathParams,
+            path: pathParams,
             body: values,
           })
         })

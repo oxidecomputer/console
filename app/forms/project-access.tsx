@@ -44,7 +44,7 @@ export function ProjectAccessAddUserSideModal({
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('projectPolicyView', projectParams)
+      queryClient.invalidateQueries('projectPolicyView', { path: projectParams })
       onSuccess?.(data)
       onDismiss()
     },
@@ -64,7 +64,7 @@ export function ProjectAccessAddUserSideModal({
           if (roleName === '') return
 
           updatePolicy.mutate({
-            ...projectParams,
+            path: projectParams,
             body: setUserRole(userId, roleName, policy),
           })
         })
@@ -106,7 +106,7 @@ export function ProjectAccessEditUserSideModal({
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('projectPolicyView', projectParams)
+      queryClient.invalidateQueries('projectPolicyView', { path: projectParams })
       onSuccess?.(data)
       onDismiss()
     },
@@ -122,7 +122,7 @@ export function ProjectAccessEditUserSideModal({
         onSubmit ||
         (({ roleName }) => {
           updatePolicy.mutate({
-            ...projectParams,
+            path: projectParams,
             body: setUserRole(userId, roleName, policy),
           })
         })

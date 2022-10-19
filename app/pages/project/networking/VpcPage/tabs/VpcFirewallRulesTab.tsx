@@ -2,6 +2,8 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo, useState } from 'react'
 
 import type { VpcFirewallRule } from '@oxide/api'
+import { useApiQueryClient } from '@oxide/api'
+import { useApiMutation } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import {
   DateCell,
@@ -43,13 +45,20 @@ const staticColumns = [
 ]
 
 export const VpcFirewallRulesTab = () => {
+  const queryClient = useApiQueryClient()
   const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', vpcParams)
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { path: vpcParams })
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
+
+  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+    onSuccess() {
+      queryClient.invalidateQueries('vpcFirewallRulesView', { path: vpcParams })
+    },
+  })
 
   // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
@@ -57,9 +66,20 @@ export const VpcFirewallRulesTab = () => {
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
         { label: 'Edit', onActivate: () => setEditing(rule) },
+        {
+          label: 'Delete',
+          onActivate: () => {
+            updateRules.mutate({
+              path: vpcParams,
+              body: {
+                rules: rules.filter((r) => r.id !== rule.id),
+              },
+            })
+          },
+        },
       ]),
     ]
-  }, [setEditing])
+  }, [setEditing, rules, updateRules, vpcParams])
 
   const table = useReactTable({
     columns,

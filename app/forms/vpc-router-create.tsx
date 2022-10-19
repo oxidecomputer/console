@@ -25,11 +25,11 @@ export function CreateVpcRouterForm({
 
   const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess(router) {
-      queryClient.invalidateQueries('vpcRouterList', parentNames)
+      queryClient.invalidateQueries('vpcRouterList', { path: parentNames })
       // avoid the vpc fetch when the vpc page loads since we have the data
       queryClient.setQueryData(
         'vpcRouterView',
-        { ...parentNames, routerName: router.name },
+        { path: { ...parentNames, routerName: router.name } },
         router
       )
       addToast({
@@ -50,7 +50,7 @@ export function CreateVpcRouterForm({
       initialValues={values}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
-        createRouter.mutate({ ...parentNames, body: { name, description } })
+        createRouter.mutate({ path: parentNames, body: { name, description } })
       }
       submitDisabled={createRouter.isLoading}
       error={createRouter.error?.error as Error | undefined}

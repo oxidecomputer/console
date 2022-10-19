@@ -28,7 +28,7 @@ export function SiloUtilizationPage() {
 
   const { data: projects } = useApiQuery(
     'projectList',
-    { orgName: orgName! }, // only enabled if it's there
+    { path: { orgName: orgName! } }, // only enabled if it's there
     { enabled: !!orgName }
   )
 

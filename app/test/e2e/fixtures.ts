@@ -3,13 +3,13 @@ import { test as base } from '@playwright/test'
 
 import type {
   InstanceCreate,
-  InstanceDeleteParams,
+  InstanceDeletePathParams,
   OrganizationCreate,
-  OrganizationDeleteParams,
+  OrganizationDeletePathParams,
   ProjectCreate,
-  ProjectDeleteParams,
+  ProjectDeletePathParams,
   VpcCreate,
-  VpcDeleteParams,
+  VpcDeletePathParams,
 } from '@oxide/api'
 
 import { expectNotVisible } from './utils'
@@ -50,7 +50,7 @@ interface Fixtures {
   /**
    * Deletes an organization with the given name. Typically this shouldn't be called directly. Instead, use `createOrg` to create an organization and have it deleted automatically when the test is complete.
    */
-  deleteOrg: (params: OrganizationDeleteParams) => Promise<void>
+  deleteOrg: (params: OrganizationDeletePathParams) => Promise<void>
   /**
    * Creates a project with the given name. When the test is complete, the project will be deleted.
    *
@@ -66,7 +66,7 @@ interface Fixtures {
   /**
    * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
    */
-  deleteProject: (params: ProjectDeleteParams) => Promise<void>
+  deleteProject: (params: ProjectDeletePathParams) => Promise<void>
   /**
    * Creates an instance with the given name. When the test is complete, the instance will be deleted.
    *
@@ -84,7 +84,7 @@ interface Fixtures {
   /**
    * Deletes an instance with the given name. Typically this shouldn't be called directly. Instead, use `createInstance` to create an instance and have it deleted automatically when the test is complete.
    */
-  deleteInstance: (params: InstanceDeleteParams) => Promise<void>
+  deleteInstance: (params: InstanceDeletePathParams) => Promise<void>
   /**
    * Creates a VPC with the given name. When the test is complete, the VPC will be deleted.
    *
@@ -102,7 +102,7 @@ interface Fixtures {
   /**
    * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
    */
-  deleteVpc: (params: VpcDeleteParams) => Promise<void>
+  deleteVpc: (params: VpcDeletePathParams) => Promise<void>
   deleteTableRow: (rowText: string) => Promise<void>
 }
 
@@ -161,7 +161,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteOrg({ page, deleteTableRow }, use) {
-    await use(async (params: OrganizationDeleteParams) => {
+    await use(async (params: OrganizationDeletePathParams) => {
       const back = await goto(page, '/orgs')
       await deleteTableRow(params.orgName)
       await back()
@@ -169,7 +169,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async createProject({ page, createOrg, deleteProject }, use) {
-    const projectsToRemove: ProjectDeleteParams[] = []
+    const projectsToRemove: ProjectDeletePathParams[] = []
 
     await use(async (orgName, projectName, body = {}) => {
       if (
@@ -195,7 +195,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteProject({ page, deleteTableRow }, use) {
-    await use(async (params: ProjectDeleteParams) => {
+    await use(async (params: ProjectDeletePathParams) => {
       const back = await goto(page, `/orgs/${params.orgName}/projects`)
       await deleteTableRow(params.projectName)
       await back()
@@ -204,7 +204,7 @@ export const test = base.extend<Fixtures>({
 
   // TODO: Wire up all create options
   async createInstance({ page, createProject, deleteInstance }, use) {
-    const instancesToRemove: InstanceDeleteParams[] = []
+    const instancesToRemove: InstanceDeletePathParams[] = []
     await use(async (orgName, projectName, instanceName, _body = {}) => {
       if (
         instancesToRemove.find(
@@ -239,7 +239,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteInstance({ page, deleteTableRow }, use) {
-    await use(async (params: InstanceDeleteParams) => {
+    await use(async (params: InstanceDeletePathParams) => {
       const back = await goto(
         page,
         `/orgs/${params.orgName}/projects/${params.projectName}/instances`
@@ -250,7 +250,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async createVpc({ page, createProject, deleteVpc }, use) {
-    const vpcsToRemove: VpcDeleteParams[] = []
+    const vpcsToRemove: VpcDeletePathParams[] = []
 
     await use(async (orgName, projectName, vpcName, body = {}) => {
       if (
@@ -280,7 +280,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteVpc({ page, deleteTableRow }, use) {
-    await use(async (params: VpcDeleteParams) => {
+    await use(async (params: VpcDeletePathParams) => {
       const back = await goto(
         page,
         `/orgs/${params.orgName}/projects/${params.projectName}/vpcs`

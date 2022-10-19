@@ -33,7 +33,7 @@ const EmptyState = () => (
 )
 
 SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', { limit: 10 })
+  await apiQueryClient.prefetchQuery('siloList', { query: { limit: 10 } })
 }
 
 interface SilosPageProps {
@@ -47,7 +47,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
   const queryClient = useApiQueryClient()
 
   const { data: silos } = useApiQuery('siloList', {
-    limit: 10,
+    query: { limit: 10 },
   })
 
   const deleteSilo = useApiMutation('siloDelete', {
@@ -60,7 +60,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
     {
       label: 'Delete',
       onActivate() {
-        deleteSilo.mutate({ siloName: silo.name })
+        deleteSilo.mutate({ path: { siloName: silo.name } })
       },
     },
   ]

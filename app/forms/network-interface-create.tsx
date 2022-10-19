@@ -41,9 +41,7 @@ export default function CreateNetworkInterfaceSideModalForm({
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        instanceName,
-        projectName,
-        orgName,
+        path: { instanceName, projectName, orgName },
       })
       onSuccess?.(data)
       onDismiss()
@@ -51,7 +49,7 @@ export default function CreateNetworkInterfaceSideModalForm({
     onError,
   })
 
-  const vpcs = useApiQuery('vpcList', { orgName, projectName }).data?.items || []
+  const vpcs = useApiQuery('vpcList', { path: { orgName, projectName } }).data?.items || []
 
   return (
     <SideModalForm
@@ -68,9 +66,7 @@ export default function CreateNetworkInterfaceSideModalForm({
           )
 
           createNetworkInterface.mutate({
-            instanceName,
-            projectName,
-            orgName,
+            path: { instanceName, projectName, orgName },
             body: { ...body },
           })
         })

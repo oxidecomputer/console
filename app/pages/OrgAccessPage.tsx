@@ -46,7 +46,9 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', requireOrgParams(params)),
+    apiQueryClient.prefetchQuery('organizationPolicyView', {
+      path: requireOrgParams(params),
+    }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
@@ -73,7 +75,7 @@ export function OrgAccessPage() {
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', orgParams)
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { path: orgParams })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
   const rows = useMemo(() => {
@@ -103,7 +105,8 @@ export function OrgAccessPage() {
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('organizationPolicyView', orgParams),
+    onSuccess: () =>
+      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams }),
     // TODO: handle 403
   })
 
@@ -135,7 +138,7 @@ export function OrgAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              ...orgParams,
+              path: orgParams,
               // we know policy is there, otherwise there's no row to display
               body: setUserRole(row.id, null, orgPolicy!),
             })

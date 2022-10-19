@@ -22,7 +22,7 @@ import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data: disk } = useApiQuery('diskViewById', { id: value })
+  const { data: disk } = useApiQuery('diskViewById', { path: { id: value } })
   if (!disk) return null
   return <>{disk.name}</>
 }
@@ -39,8 +39,8 @@ const EmptyState = () => (
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('snapshotList', {
-    ...requireProjectParams(params),
-    limit: 10,
+    path: requireProjectParams(params),
+    query: { limit: 10 },
   })
 }
 
@@ -53,11 +53,11 @@ export function SnapshotsPage({ modal }: SnapshotsPageProps) {
 
   const queryClient = useApiQueryClient()
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('snapshotList', projectParams)
+  const { Table, Column } = useQueryTable('snapshotList', { path: projectParams })
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', projectParams)
+      queryClient.invalidateQueries('snapshotList', { path: projectParams })
     },
   })
 
@@ -65,7 +65,7 @@ export function SnapshotsPage({ modal }: SnapshotsPageProps) {
     {
       label: 'Delete',
       onActivate() {
-        deleteSnapshot.mutate({ ...projectParams, snapshotName: snapshot.name })
+        deleteSnapshot.mutate({ path: { ...projectParams, snapshotName: snapshot.name } })
       },
     },
   ]

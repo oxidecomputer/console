@@ -388,7 +388,7 @@ export function CreateFirewallRuleSideModalForm({
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcFirewallRulesView', parentNames)
+      queryClient.invalidateQueries('vpcFirewallRulesView', { path: parentNames })
       onSuccess?.(data)
       onDismiss()
     },
@@ -407,7 +407,7 @@ export function CreateFirewallRuleSideModalForm({
           .filter((r) => r.name !== values.name)
           .map(firewallRuleGetToPut)
         updateRules.mutate({
-          ...parentNames,
+          path: parentNames,
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],
           },

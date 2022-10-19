@@ -14,18 +14,9 @@ import { formatServerError } from './errors'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Params<F> = F extends (p: infer P, r: infer R) => any
-  ? P & {
-      body?: R
-    }
-  : never
-export type Result<F> = F extends (p: any, r: any) => Promise<ApiResult<infer R>>
-  ? R
-  : never
-export type ResultItem<F> = F extends (
-  p: any,
-  r: any
-) => Promise<ApiResult<{ items: (infer R)[] }>>
+export type Params<F> = F extends (p: infer P) => any ? P : never
+export type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
+export type ResultItem<F> = Result<F> extends { items: (infer R)[] }
   ? R extends Record<string, unknown>
     ? R
     : never
@@ -85,7 +76,7 @@ export const getUseApiMutation =
     options?: UseMutationOptions<Result<A[M]>, ErrorResult, Params<A[M]>>
   ) =>
     useMutation(
-      ({ body, ...params }) => api[method](params, body).then(handleResult(method)),
+      (params) => api[method](params).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       options
     )

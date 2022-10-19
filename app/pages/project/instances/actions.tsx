@@ -43,7 +43,7 @@ export const useMakeInstanceActions = (
 
   return useCallback((instance) => {
     const { name: instanceName } = instance
-    const instanceParams = { ...projectParams, instanceName }
+    const instanceParams = { path: { ...projectParams, instanceName } }
     return [
       {
         label: 'Start',
@@ -75,7 +75,7 @@ export const useMakeInstanceActions = (
       {
         label: 'View serial console',
         onActivate() {
-          navigate(pb.serialConsole(instanceParams))
+          navigate(pb.serialConsole(instanceParams.path))
         },
       },
       {

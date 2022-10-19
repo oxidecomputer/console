@@ -34,10 +34,10 @@ export function CreateProjectSideModalForm({
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { orgName })
+      queryClient.invalidateQueries('projectList', { path: { orgName } })
       // avoid the project fetch when the project page loads since we have the data
       const projectParams = { orgName, projectName: project.name }
-      queryClient.setQueryData('projectView', projectParams, project)
+      queryClient.setQueryData('projectView', { path: projectParams }, project)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -59,7 +59,7 @@ export function CreateProjectSideModalForm({
         onSubmit ||
         (({ name, description }) => {
           createProject.mutate({
-            orgName,
+            path: { orgName },
             body: { name, description },
           })
         })

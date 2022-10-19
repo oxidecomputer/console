@@ -11,8 +11,8 @@ export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { sta
 
 export const lookupById =
   <T extends { id: string }>(table: T[]) =>
-  (params: PP.Id) => {
-    const item = table.find((i) => i.id === params.id)
+  (params: { path: PP.Id }) => {
+    const item = table.find((i) => i.id === params.path.id)
     if (!item) throw notFoundErr
     return item
   }
