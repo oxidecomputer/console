@@ -9,10 +9,10 @@ import { project } from './project'
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()
 
-const systemRouterId = genId('system-router-id')
+const systemRouterId = <uuid>
 
 export const vpc: Json<Vpc> = {
-  id: genId('mock-vpc'),
+  id: <uuid>,
   name: 'mock-vpc',
   description: 'a fake vpc',
   dns_name: 'mock-vpc',
@@ -25,7 +25,7 @@ export const vpc: Json<Vpc> = {
 
 export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API
-  id: genId('mock-subnet'),
+  id: <uuid>,
   name: 'mock-subnet',
   description: 'a fake subnet',
   time_created: new Date(2021, 0, 1).toISOString(),
@@ -38,7 +38,7 @@ export const vpcSubnet: Json<VpcSubnet> = {
 
 export const vpcSubnet2: Json<VpcSubnet> = {
   ...vpcSubnet,
-  id: genId('mock-subnet-2'),
+  id: <uuid>,
   name: 'mock-subnet-2',
   vpc_id: vpc.id,
   ipv4_block: '10.1.1.2/24',
@@ -46,7 +46,7 @@ export const vpcSubnet2: Json<VpcSubnet> = {
 
 export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
   {
-    id: genId('allow-internal-inbound'),
+    id: <uuid>,
     name: 'allow-internal-inbound',
     status: 'enabled',
     direction: 'inbound',
@@ -63,7 +63,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc.id,
   },
   {
-    id: genId('allow-ssh'),
+    id: <uuid>,
     name: 'allow-ssh',
     status: 'enabled',
     direction: 'inbound',
@@ -80,7 +80,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc.id,
   },
   {
-    id: genId('allow-icmp'),
+    id: <uuid>,
     name: 'allow-icmp',
     status: 'enabled',
     direction: 'inbound',
@@ -96,7 +96,7 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc.id,
   },
   {
-    id: genId('allow-rdp'),
+    id: <uuid>,
     name: 'allow-rdp',
     status: 'enabled',
     direction: 'inbound',
@@ -126,7 +126,7 @@ export const vpcRouter: Json<VpcRouter> = {
 
 export const vpcRouterRoute: Json<RouterRoute> = {
   description: 'a vpc router route',
-  id: genId('system'),
+  id: <uuid>,
   name: 'system',
   kind: 'default',
   target: { type: 'instance', value: 'an-instance' },

@@ -5,25 +5,25 @@ import { genId } from './msw/util'
 import { defaultSilo } from './silo'
 
 export const user1: Json<User> = {
-  id: genId('Hannah Arendt'),
+  id: <uuid>,
   display_name: 'Hannah Arendt',
   silo_id: defaultSilo.id,
 }
 
 export const user2: Json<User> = {
-  id: genId('Hans Jonas'),
+  id: <uuid>,
   display_name: 'Hans Jonas',
   silo_id: defaultSilo.id,
 }
 
 export const user3: Json<User> = {
-  id: genId('Jacob Klein'),
+  id: <uuid>,
   display_name: 'Jacob Klein',
   silo_id: defaultSilo.id,
 }
 
 export const user4: Json<User> = {
-  id: genId('Simone de Beauvoir'),
+  id: <uuid>,
   display_name: 'Simone de Beauvoir',
   silo_id: defaultSilo.id,
 }

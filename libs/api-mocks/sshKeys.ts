@@ -6,7 +6,7 @@ import { silos } from './silo'
 
 export const sshKeys: Json<SshKey>[] = [
   {
-    id: genId('M1 Mackbook Pro'),
+    id: <uuid>,
     name: 'M1 Mackbook Pro',
     description: 'For use on personal projects',
     time_created: new Date().toISOString(),

@@ -7,7 +7,7 @@ import { project } from './project'
 
 export const snapshots: Json<Snapshot>[] = [
   {
-    id: genId('snapshot-1'),
+    id: <uuid>,
     name: 'snapshot-1',
     description: "it's a snapshot",
     project_id: project.id,
@@ -18,7 +18,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-2'),
+    id: <uuid>,
     name: 'snapshot-2',
     description: "it's a second snapshot",
     project_id: project.id,
@@ -29,7 +29,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-3'),
+    id: <uuid>,
     name: 'snapshot-3',
     description: "it's a third snapshot",
     project_id: project.id,
@@ -40,7 +40,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: genId('snapshot-4'),
+    id: <uuid>,
     name: 'snapshot-4',
     description: "it's a fourth snapshot",
     project_id: project.id,

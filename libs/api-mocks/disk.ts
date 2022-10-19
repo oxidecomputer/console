@@ -8,7 +8,7 @@ import { project } from './project'
 
 export const disks: Json<Disk>[] = [
   {
-    id: genId('disk-1'),
+    id: <uuid>,
     name: 'disk-1',
     description: "it's a disk",
     project_id: project.id,
@@ -20,7 +20,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-2'),
+    id: <uuid>,
     name: 'disk-2',
     description: "it's a second disk",
     project_id: project.id,
@@ -32,7 +32,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-3'),
+    id: <uuid>,
     name: 'disk-3',
     description: "it's a third disk",
     project_id: project.id,
@@ -44,7 +44,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-4'),
+    id: <uuid>,
     name: 'disk-4',
     description: "it's a fourth disk",
     project_id: project.id,
@@ -56,7 +56,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-5'),
+    id: <uuid>,
     name: 'disk-5',
     description: '',
     project_id: project.id,
@@ -68,7 +68,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-6'),
+    id: <uuid>,
     name: 'disk-6',
     description: '',
     project_id: project.id,
@@ -80,7 +80,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-7'),
+    id: <uuid>,
     name: 'disk-7',
     description: '',
     project_id: project.id,
@@ -92,7 +92,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-8'),
+    id: <uuid>,
     name: 'disk-8',
     description: '',
     project_id: project.id,
@@ -104,7 +104,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-9'),
+    id: <uuid>,
     name: 'disk-9',
     description: '',
     project_id: project.id,
@@ -116,7 +116,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-10'),
+    id: <uuid>,
     name: 'disk-10',
     description: '',
     project_id: project.id,
@@ -128,7 +128,7 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   {
-    id: genId('disk-11'),
+    id: <uuid>,
     name: 'disk-11',
     description: '',
     project_id: project.id,

@@ -6,7 +6,7 @@ import { genId } from './msw/util'
 import { vpc, vpcSubnet } from './vpc'
 
 export const networkInterface: Json<NetworkInterface> = {
-  id: genId('my-nic'),
+  id: <uuid>,
   name: 'my-nic',
   description: 'a network interface',
   primary: true,

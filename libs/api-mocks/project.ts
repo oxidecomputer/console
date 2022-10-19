@@ -6,7 +6,7 @@ import { org } from './org'
 import { user1 } from './user'
 
 export const project: Json<Project> = {
-  id: genId('mock-project'),
+  id: <uuid>,
   name: 'mock-project',
   description: 'a fake project',
   time_created: new Date(2021, 0, 1).toISOString(),
@@ -15,7 +15,7 @@ export const project: Json<Project> = {
 }
 
 export const project2: Json<Project> = {
-  id: genId('other-project'),
+  id: <uuid>,
   name: 'other-project',
   description: 'another fake project',
   time_created: new Date(2021, 0, 15).toISOString(),
