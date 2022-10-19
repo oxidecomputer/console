@@ -25,11 +25,11 @@ export function EditProjectSideModalForm({
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { orgName })
+      queryClient.invalidateQueries('projectList', { path: { orgName } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'projectView',
-        { orgName, projectName: project.name },
+        { path: { orgName, projectName: project.name } },
         project
       )
       addToast({
@@ -53,8 +53,10 @@ export function EditProjectSideModalForm({
         onSubmit ||
         (({ name, description }) => {
           editProject.mutate({
-            projectName: initialValues.name,
-            orgName,
+            path: {
+              projectName: initialValues.name,
+              orgName,
+            },
             body: { name, description },
           })
         })

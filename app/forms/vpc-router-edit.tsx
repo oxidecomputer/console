@@ -21,7 +21,7 @@ export function EditVpcRouterForm({
 
   const updateRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcRouterList', parentNames)
+      queryClient.invalidateQueries('vpcRouterList', { path: parentNames })
       onSuccess?.(data)
       onDismiss()
     },
@@ -39,8 +39,7 @@ export function EditVpcRouterForm({
           'Expected initial name to be passed to update router'
         )
         updateRouter.mutate({
-          ...parentNames,
-          routerName: props.initialValues.name,
+          path: { ...parentNames, routerName: props.initialValues.name },
           body: { name, description },
         })
       }}

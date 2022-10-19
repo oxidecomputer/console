@@ -94,11 +94,11 @@ export function CreateInstanceForm({
   const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList', pageParams)
+      queryClient.invalidateQueries('instanceList', { path: pageParams })
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'instanceView',
-        { ...pageParams, instanceName: instance.name },
+        { path: { ...pageParams, instanceName: instance.name } },
         instance
       )
       addToast({
@@ -138,7 +138,7 @@ export function CreateInstanceForm({
           const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
           await createDisk.mutateAsync({
-            ...pageParams,
+            path: pageParams,
             body: {
               // TODO: Determine the pattern of the default boot disk name
               name: bootDiskName,
@@ -152,7 +152,7 @@ export function CreateInstanceForm({
             },
           })
           createInstance.mutate({
-            ...pageParams,
+            path: pageParams,
             body: {
               name: values.name,
               hostname: values.hostname || values.name,

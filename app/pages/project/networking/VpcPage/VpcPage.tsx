@@ -15,12 +15,12 @@ import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', requireVpcParams(params))
+  await apiQueryClient.prefetchQuery('vpcView', { path: requireVpcParams(params) })
 }
 
 export function VpcPage() {
   const vpcParams = useVpcParams()
-  const { data: vpc } = useApiQuery('vpcView', vpcParams)
+  const { data: vpc } = useApiQuery('vpcView', { path: vpcParams })
 
   return (
     <>

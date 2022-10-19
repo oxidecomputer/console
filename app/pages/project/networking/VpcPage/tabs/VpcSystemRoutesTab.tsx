@@ -16,8 +16,7 @@ export const VpcSystemRoutesTab = () => {
   const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
   const { Table, Column } = useQueryTable('vpcRouterRouteList', {
-    routerName: 'system',
-    ...vpcParams,
+    path: { routerName: 'system', ...vpcParams },
   })
 
   return (

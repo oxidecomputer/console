@@ -30,8 +30,12 @@ export function EditVpcSideModalForm({
 
   const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcList', parentNames)
-      queryClient.setQueryData('vpcView', { ...parentNames, vpcName: vpc.name }, vpc)
+      queryClient.invalidateQueries('vpcList', { path: parentNames })
+      queryClient.setQueryData(
+        'vpcView',
+        { path: { ...parentNames, vpcName: vpc.name } },
+        vpc
+      )
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -54,8 +58,7 @@ export function EditVpcSideModalForm({
         (({ name, description, dnsName }) => {
           invariant(initialValues.name, 'Initial vpc name is required to update the VPC')
           editVpc.mutate({
-            ...parentNames,
-            vpcName: initialValues.name,
+            path: { ...parentNames, vpcName: initialValues.name },
             body: { name, description, dnsName },
           })
         })

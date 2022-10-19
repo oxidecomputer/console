@@ -22,7 +22,7 @@ import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { data: vpc } = useApiQuery('vpcViewById', { id: value })
+  const { data: vpc } = useApiQuery('vpcViewById', { path: { id: value } })
   if (!vpc) return null
   return (
     <Link
@@ -36,13 +36,13 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
   <span className="text-secondary">
-    {useApiQuery('vpcSubnetViewById', { id: value }).data?.name}
+    {useApiQuery('vpcSubnetViewById', { path: { id: value } }).data?.name}
   </span>
 )
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { data } = useApiQuery('instanceExternalIpList', instanceParams)
+  const { data } = useApiQuery('instanceExternalIpList', { path: instanceParams })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
@@ -55,7 +55,7 @@ export function NetworkingTab() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterfaceUpdate | null>(null)
 
-  const getQuery = ['instanceNetworkInterfaceList', instanceParams] as const
+  const getQuery = ['instanceNetworkInterfaceList', { path: instanceParams }] as const
 
   const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
@@ -74,15 +74,14 @@ export function NetworkingTab() {
   })
 
   const instanceStopped =
-    useApiQuery('instanceView', instanceParams).data?.runState === 'stopped'
+    useApiQuery('instanceView', { path: instanceParams }).data?.runState === 'stopped'
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {
       label: 'Make primary',
       onActivate() {
         editNic.mutate({
-          ...instanceParams,
-          interfaceName: nic.name,
+          path: { ...instanceParams, interfaceName: nic.name },
           body: { ...nic, primary: true },
         })
       },
@@ -99,7 +98,7 @@ export function NetworkingTab() {
       label: 'Delete',
       className: 'destructive',
       onActivate: () => {
-        deleteNic.mutate({ ...instanceParams, interfaceName: nic.name })
+        deleteNic.mutate({ path: { ...instanceParams, interfaceName: nic.name } })
       },
       disabled: !instanceStopped,
     },

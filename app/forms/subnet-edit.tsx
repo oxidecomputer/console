@@ -21,7 +21,7 @@ export function EditSubnetSideModalForm({
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('vpcSubnetList', parentNames)
+      queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
       onSuccess?.(data)
       onDismiss()
     },
@@ -39,8 +39,10 @@ export function EditSubnetSideModalForm({
           'Tried to edit a subnet without providing an initial name'
         )
         updateSubnet.mutate({
-          ...parentNames,
-          subnetName: props.initialValues.name,
+          path: {
+            ...parentNames,
+            subnetName: props.initialValues.name,
+          },
           body: {
             name,
             description,

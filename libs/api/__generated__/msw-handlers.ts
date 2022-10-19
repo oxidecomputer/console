@@ -52,429 +52,518 @@ export type Json<B> = Snakify<StringifyDates<B>>
 
 export interface MSWHandlers {
   /** `GET /by-id/disks/:id` */
-  diskViewById: (params: Api.DiskViewByIdParams) => HandlerResult<Api.Disk>
+  diskViewById: (params: { path: Api.DiskViewByIdPathParams }) => HandlerResult<Api.Disk>
   /** `GET /by-id/images/:id` */
-  imageViewById: (params: Api.ImageViewByIdParams) => HandlerResult<Api.Image>
+  imageViewById: (params: { path: Api.ImageViewByIdPathParams }) => HandlerResult<Api.Image>
   /** `GET /by-id/instances/:id` */
-  instanceViewById: (params: Api.InstanceViewByIdParams) => HandlerResult<Api.Instance>
+  instanceViewById: (params: {
+    path: Api.InstanceViewByIdPathParams
+  }) => HandlerResult<Api.Instance>
   /** `GET /by-id/network-interfaces/:id` */
-  instanceNetworkInterfaceViewById: (
-    params: Api.InstanceNetworkInterfaceViewByIdParams
-  ) => HandlerResult<Api.NetworkInterface>
+  instanceNetworkInterfaceViewById: (params: {
+    path: Api.InstanceNetworkInterfaceViewByIdPathParams
+  }) => HandlerResult<Api.NetworkInterface>
   /** `GET /by-id/organizations/:id` */
-  organizationViewById: (
-    params: Api.OrganizationViewByIdParams
-  ) => HandlerResult<Api.Organization>
+  organizationViewById: (params: {
+    path: Api.OrganizationViewByIdPathParams
+  }) => HandlerResult<Api.Organization>
   /** `GET /by-id/projects/:id` */
-  projectViewById: (params: Api.ProjectViewByIdParams) => HandlerResult<Api.Project>
+  projectViewById: (params: {
+    path: Api.ProjectViewByIdPathParams
+  }) => HandlerResult<Api.Project>
   /** `GET /by-id/snapshots/:id` */
-  snapshotViewById: (params: Api.SnapshotViewByIdParams) => HandlerResult<Api.Snapshot>
+  snapshotViewById: (params: {
+    path: Api.SnapshotViewByIdPathParams
+  }) => HandlerResult<Api.Snapshot>
   /** `GET /by-id/vpc-router-routes/:id` */
-  vpcRouterRouteViewById: (
-    params: Api.VpcRouterRouteViewByIdParams
-  ) => HandlerResult<Api.RouterRoute>
+  vpcRouterRouteViewById: (params: {
+    path: Api.VpcRouterRouteViewByIdPathParams
+  }) => HandlerResult<Api.RouterRoute>
   /** `GET /by-id/vpc-routers/:id` */
-  vpcRouterViewById: (params: Api.VpcRouterViewByIdParams) => HandlerResult<Api.VpcRouter>
+  vpcRouterViewById: (params: {
+    path: Api.VpcRouterViewByIdPathParams
+  }) => HandlerResult<Api.VpcRouter>
   /** `GET /by-id/vpc-subnets/:id` */
-  vpcSubnetViewById: (params: Api.VpcSubnetViewByIdParams) => HandlerResult<Api.VpcSubnet>
+  vpcSubnetViewById: (params: {
+    path: Api.VpcSubnetViewByIdPathParams
+  }) => HandlerResult<Api.VpcSubnet>
   /** `GET /by-id/vpcs/:id` */
-  vpcViewById: (params: Api.VpcViewByIdParams) => HandlerResult<Api.Vpc>
+  vpcViewById: (params: { path: Api.VpcViewByIdPathParams }) => HandlerResult<Api.Vpc>
   /** `POST /device/auth` */
   deviceAuthRequest: () => StatusCode
   /** `POST /device/confirm` */
-  deviceAuthConfirm: (body: Json<Api.DeviceAuthVerify>) => StatusCode
+  deviceAuthConfirm: (params: { body: Json<Api.DeviceAuthVerify> }) => StatusCode
   /** `POST /device/token` */
   deviceAccessToken: () => StatusCode
   /** `GET /groups` */
-  groupList: (params: Api.GroupListParams) => HandlerResult<Api.GroupResultsPage>
+  groupList: (params: {
+    query: Api.GroupListQueryParams
+  }) => HandlerResult<Api.GroupResultsPage>
   /** `POST /login` */
-  loginSpoof: (body: Json<Api.SpoofLoginBody>) => StatusCode
+  loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
-  loginSamlBegin: (params: Api.LoginSamlBeginParams) => StatusCode
+  loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
-  loginSaml: (params: Api.LoginSamlParams) => StatusCode
+  loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
   /** `POST /logout` */
   logout: () => StatusCode
   /** `GET /organizations` */
-  organizationList: (
-    params: Api.OrganizationListParams
-  ) => HandlerResult<Api.OrganizationResultsPage>
+  organizationList: (params: {
+    query: Api.OrganizationListQueryParams
+  }) => HandlerResult<Api.OrganizationResultsPage>
   /** `POST /organizations` */
-  organizationCreate: (
+  organizationCreate: (params: {
     body: Json<Api.OrganizationCreate>
-  ) => HandlerResult<Api.Organization>
+  }) => HandlerResult<Api.Organization>
   /** `GET /organizations/:orgName` */
-  organizationView: (params: Api.OrganizationViewParams) => HandlerResult<Api.Organization>
+  organizationView: (params: {
+    path: Api.OrganizationViewPathParams
+  }) => HandlerResult<Api.Organization>
   /** `PUT /organizations/:orgName` */
-  organizationUpdate: (
-    params: Api.OrganizationUpdateParams,
+  organizationUpdate: (params: {
+    path: Api.OrganizationUpdatePathParams
     body: Json<Api.OrganizationUpdate>
-  ) => HandlerResult<Api.Organization>
+  }) => HandlerResult<Api.Organization>
   /** `DELETE /organizations/:orgName` */
-  organizationDelete: (params: Api.OrganizationDeleteParams) => StatusCode
+  organizationDelete: (params: { path: Api.OrganizationDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/policy` */
-  organizationPolicyView: (
-    params: Api.OrganizationPolicyViewParams
-  ) => HandlerResult<Api.OrganizationRolePolicy>
+  organizationPolicyView: (params: {
+    path: Api.OrganizationPolicyViewPathParams
+  }) => HandlerResult<Api.OrganizationRolePolicy>
   /** `PUT /organizations/:orgName/policy` */
-  organizationPolicyUpdate: (
-    params: Api.OrganizationPolicyUpdateParams,
+  organizationPolicyUpdate: (params: {
+    path: Api.OrganizationPolicyUpdatePathParams
     body: Json<Api.OrganizationRolePolicy>
-  ) => HandlerResult<Api.OrganizationRolePolicy>
+  }) => HandlerResult<Api.OrganizationRolePolicy>
   /** `GET /organizations/:orgName/projects` */
-  projectList: (params: Api.ProjectListParams) => HandlerResult<Api.ProjectResultsPage>
+  projectList: (params: {
+    path: Api.ProjectListPathParams
+    query: Api.ProjectListQueryParams
+  }) => HandlerResult<Api.ProjectResultsPage>
   /** `POST /organizations/:orgName/projects` */
-  projectCreate: (
-    params: Api.ProjectCreateParams,
+  projectCreate: (params: {
+    path: Api.ProjectCreatePathParams
     body: Json<Api.ProjectCreate>
-  ) => HandlerResult<Api.Project>
+  }) => HandlerResult<Api.Project>
   /** `GET /organizations/:orgName/projects/:projectName` */
-  projectView: (params: Api.ProjectViewParams) => HandlerResult<Api.Project>
+  projectView: (params: { path: Api.ProjectViewPathParams }) => HandlerResult<Api.Project>
   /** `PUT /organizations/:orgName/projects/:projectName` */
-  projectUpdate: (
-    params: Api.ProjectUpdateParams,
+  projectUpdate: (params: {
+    path: Api.ProjectUpdatePathParams
     body: Json<Api.ProjectUpdate>
-  ) => HandlerResult<Api.Project>
+  }) => HandlerResult<Api.Project>
   /** `DELETE /organizations/:orgName/projects/:projectName` */
-  projectDelete: (params: Api.ProjectDeleteParams) => StatusCode
+  projectDelete: (params: { path: Api.ProjectDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/disks` */
-  diskList: (params: Api.DiskListParams) => HandlerResult<Api.DiskResultsPage>
+  diskList: (params: {
+    path: Api.DiskListPathParams
+    query: Api.DiskListQueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/disks` */
-  diskCreate: (
-    params: Api.DiskCreateParams,
+  diskCreate: (params: {
+    path: Api.DiskCreatePathParams
     body: Json<Api.DiskCreate>
-  ) => HandlerResult<Api.Disk>
+  }) => HandlerResult<Api.Disk>
   /** `GET /organizations/:orgName/projects/:projectName/disks/:diskName` */
-  diskView: (params: Api.DiskViewParams) => HandlerResult<Api.Disk>
+  diskView: (params: { path: Api.DiskViewPathParams }) => HandlerResult<Api.Disk>
   /** `DELETE /organizations/:orgName/projects/:projectName/disks/:diskName` */
-  diskDelete: (params: Api.DiskDeleteParams) => StatusCode
+  diskDelete: (params: { path: Api.DiskDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/disks/:diskName/metrics/:metricName` */
-  diskMetricsList: (
-    params: Api.DiskMetricsListParams
-  ) => HandlerResult<Api.MeasurementResultsPage>
+  diskMetricsList: (params: {
+    path: Api.DiskMetricsListPathParams
+    query: Api.DiskMetricsListQueryParams
+  }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /organizations/:orgName/projects/:projectName/images` */
-  imageList: (params: Api.ImageListParams) => HandlerResult<Api.ImageResultsPage>
+  imageList: (params: {
+    path: Api.ImageListPathParams
+    query: Api.ImageListQueryParams
+  }) => HandlerResult<Api.ImageResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/images` */
-  imageCreate: (
-    params: Api.ImageCreateParams,
+  imageCreate: (params: {
+    path: Api.ImageCreatePathParams
     body: Json<Api.ImageCreate>
-  ) => HandlerResult<Api.Image>
+  }) => HandlerResult<Api.Image>
   /** `GET /organizations/:orgName/projects/:projectName/images/:imageName` */
-  imageView: (params: Api.ImageViewParams) => HandlerResult<Api.Image>
+  imageView: (params: { path: Api.ImageViewPathParams }) => HandlerResult<Api.Image>
   /** `DELETE /organizations/:orgName/projects/:projectName/images/:imageName` */
-  imageDelete: (params: Api.ImageDeleteParams) => StatusCode
+  imageDelete: (params: { path: Api.ImageDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/instances` */
-  instanceList: (params: Api.InstanceListParams) => HandlerResult<Api.InstanceResultsPage>
+  instanceList: (params: {
+    path: Api.InstanceListPathParams
+    query: Api.InstanceListQueryParams
+  }) => HandlerResult<Api.InstanceResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances` */
-  instanceCreate: (
-    params: Api.InstanceCreateParams,
+  instanceCreate: (params: {
+    path: Api.InstanceCreatePathParams
     body: Json<Api.InstanceCreate>
-  ) => HandlerResult<Api.Instance>
+  }) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName` */
-  instanceView: (params: Api.InstanceViewParams) => HandlerResult<Api.Instance>
+  instanceView: (params: {
+    path: Api.InstanceViewPathParams
+  }) => HandlerResult<Api.Instance>
   /** `DELETE /organizations/:orgName/projects/:projectName/instances/:instanceName` */
-  instanceDelete: (params: Api.InstanceDeleteParams) => StatusCode
+  instanceDelete: (params: { path: Api.InstanceDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/disks` */
-  instanceDiskList: (
-    params: Api.InstanceDiskListParams
-  ) => HandlerResult<Api.DiskResultsPage>
+  instanceDiskList: (params: {
+    path: Api.InstanceDiskListPathParams
+    query: Api.InstanceDiskListQueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/attach` */
-  instanceDiskAttach: (
-    params: Api.InstanceDiskAttachParams,
+  instanceDiskAttach: (params: {
+    path: Api.InstanceDiskAttachPathParams
     body: Json<Api.DiskIdentifier>
-  ) => HandlerResult<Api.Disk>
+  }) => HandlerResult<Api.Disk>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/disks/detach` */
-  instanceDiskDetach: (
-    params: Api.InstanceDiskDetachParams,
+  instanceDiskDetach: (params: {
+    path: Api.InstanceDiskDetachPathParams
     body: Json<Api.DiskIdentifier>
-  ) => HandlerResult<Api.Disk>
+  }) => HandlerResult<Api.Disk>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/external-ips` */
-  instanceExternalIpList: (
-    params: Api.InstanceExternalIpListParams
-  ) => HandlerResult<Api.ExternalIpResultsPage>
+  instanceExternalIpList: (params: {
+    path: Api.InstanceExternalIpListPathParams
+  }) => HandlerResult<Api.ExternalIpResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/migrate` */
-  instanceMigrate: (
-    params: Api.InstanceMigrateParams,
+  instanceMigrate: (params: {
+    path: Api.InstanceMigratePathParams
     body: Json<Api.InstanceMigrate>
-  ) => HandlerResult<Api.Instance>
+  }) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
-  instanceNetworkInterfaceList: (
-    params: Api.InstanceNetworkInterfaceListParams
-  ) => HandlerResult<Api.NetworkInterfaceResultsPage>
+  instanceNetworkInterfaceList: (params: {
+    path: Api.InstanceNetworkInterfaceListPathParams
+    query: Api.InstanceNetworkInterfaceListQueryParams
+  }) => HandlerResult<Api.NetworkInterfaceResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces` */
-  instanceNetworkInterfaceCreate: (
-    params: Api.InstanceNetworkInterfaceCreateParams,
+  instanceNetworkInterfaceCreate: (params: {
+    path: Api.InstanceNetworkInterfaceCreatePathParams
     body: Json<Api.NetworkInterfaceCreate>
-  ) => HandlerResult<Api.NetworkInterface>
+  }) => HandlerResult<Api.NetworkInterface>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
-  instanceNetworkInterfaceView: (
-    params: Api.InstanceNetworkInterfaceViewParams
-  ) => HandlerResult<Api.NetworkInterface>
+  instanceNetworkInterfaceView: (params: {
+    path: Api.InstanceNetworkInterfaceViewPathParams
+  }) => HandlerResult<Api.NetworkInterface>
   /** `PUT /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
-  instanceNetworkInterfaceUpdate: (
-    params: Api.InstanceNetworkInterfaceUpdateParams,
+  instanceNetworkInterfaceUpdate: (params: {
+    path: Api.InstanceNetworkInterfaceUpdatePathParams
     body: Json<Api.NetworkInterfaceUpdate>
-  ) => HandlerResult<Api.NetworkInterface>
+  }) => HandlerResult<Api.NetworkInterface>
   /** `DELETE /organizations/:orgName/projects/:projectName/instances/:instanceName/network-interfaces/:interfaceName` */
-  instanceNetworkInterfaceDelete: (
-    params: Api.InstanceNetworkInterfaceDeleteParams
-  ) => StatusCode
+  instanceNetworkInterfaceDelete: (params: {
+    path: Api.InstanceNetworkInterfaceDeletePathParams
+  }) => StatusCode
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/reboot` */
-  instanceReboot: (params: Api.InstanceRebootParams) => HandlerResult<Api.Instance>
+  instanceReboot: (params: {
+    path: Api.InstanceRebootPathParams
+  }) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console` */
-  instanceSerialConsole: (
-    params: Api.InstanceSerialConsoleParams
-  ) => HandlerResult<Api.InstanceSerialConsoleData>
+  instanceSerialConsole: (params: {
+    path: Api.InstanceSerialConsolePathParams
+    query: Api.InstanceSerialConsoleQueryParams
+  }) => HandlerResult<Api.InstanceSerialConsoleData>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/start` */
-  instanceStart: (params: Api.InstanceStartParams) => HandlerResult<Api.Instance>
+  instanceStart: (params: {
+    path: Api.InstanceStartPathParams
+  }) => HandlerResult<Api.Instance>
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/stop` */
-  instanceStop: (params: Api.InstanceStopParams) => HandlerResult<Api.Instance>
+  instanceStop: (params: {
+    path: Api.InstanceStopPathParams
+  }) => HandlerResult<Api.Instance>
   /** `GET /organizations/:orgName/projects/:projectName/policy` */
-  projectPolicyView: (
-    params: Api.ProjectPolicyViewParams
-  ) => HandlerResult<Api.ProjectRolePolicy>
+  projectPolicyView: (params: {
+    path: Api.ProjectPolicyViewPathParams
+  }) => HandlerResult<Api.ProjectRolePolicy>
   /** `PUT /organizations/:orgName/projects/:projectName/policy` */
-  projectPolicyUpdate: (
-    params: Api.ProjectPolicyUpdateParams,
+  projectPolicyUpdate: (params: {
+    path: Api.ProjectPolicyUpdatePathParams
     body: Json<Api.ProjectRolePolicy>
-  ) => HandlerResult<Api.ProjectRolePolicy>
+  }) => HandlerResult<Api.ProjectRolePolicy>
   /** `GET /organizations/:orgName/projects/:projectName/snapshots` */
-  snapshotList: (params: Api.SnapshotListParams) => HandlerResult<Api.SnapshotResultsPage>
+  snapshotList: (params: {
+    path: Api.SnapshotListPathParams
+    query: Api.SnapshotListQueryParams
+  }) => HandlerResult<Api.SnapshotResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/snapshots` */
-  snapshotCreate: (
-    params: Api.SnapshotCreateParams,
+  snapshotCreate: (params: {
+    path: Api.SnapshotCreatePathParams
     body: Json<Api.SnapshotCreate>
-  ) => HandlerResult<Api.Snapshot>
+  }) => HandlerResult<Api.Snapshot>
   /** `GET /organizations/:orgName/projects/:projectName/snapshots/:snapshotName` */
-  snapshotView: (params: Api.SnapshotViewParams) => HandlerResult<Api.Snapshot>
+  snapshotView: (params: {
+    path: Api.SnapshotViewPathParams
+  }) => HandlerResult<Api.Snapshot>
   /** `DELETE /organizations/:orgName/projects/:projectName/snapshots/:snapshotName` */
-  snapshotDelete: (params: Api.SnapshotDeleteParams) => StatusCode
+  snapshotDelete: (params: { path: Api.SnapshotDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs` */
-  vpcList: (params: Api.VpcListParams) => HandlerResult<Api.VpcResultsPage>
+  vpcList: (params: {
+    path: Api.VpcListPathParams
+    query: Api.VpcListQueryParams
+  }) => HandlerResult<Api.VpcResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs` */
-  vpcCreate: (
-    params: Api.VpcCreateParams,
+  vpcCreate: (params: {
+    path: Api.VpcCreatePathParams
     body: Json<Api.VpcCreate>
-  ) => HandlerResult<Api.Vpc>
+  }) => HandlerResult<Api.Vpc>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
-  vpcView: (params: Api.VpcViewParams) => HandlerResult<Api.Vpc>
+  vpcView: (params: { path: Api.VpcViewPathParams }) => HandlerResult<Api.Vpc>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
-  vpcUpdate: (
-    params: Api.VpcUpdateParams,
+  vpcUpdate: (params: {
+    path: Api.VpcUpdatePathParams
     body: Json<Api.VpcUpdate>
-  ) => HandlerResult<Api.Vpc>
+  }) => HandlerResult<Api.Vpc>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName` */
-  vpcDelete: (params: Api.VpcDeleteParams) => StatusCode
+  vpcDelete: (params: { path: Api.VpcDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules` */
-  vpcFirewallRulesView: (
-    params: Api.VpcFirewallRulesViewParams
-  ) => HandlerResult<Api.VpcFirewallRules>
+  vpcFirewallRulesView: (params: {
+    path: Api.VpcFirewallRulesViewPathParams
+  }) => HandlerResult<Api.VpcFirewallRules>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/firewall/rules` */
-  vpcFirewallRulesUpdate: (
-    params: Api.VpcFirewallRulesUpdateParams,
+  vpcFirewallRulesUpdate: (params: {
+    path: Api.VpcFirewallRulesUpdatePathParams
     body: Json<Api.VpcFirewallRuleUpdateParams>
-  ) => HandlerResult<Api.VpcFirewallRules>
+  }) => HandlerResult<Api.VpcFirewallRules>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers` */
-  vpcRouterList: (
-    params: Api.VpcRouterListParams
-  ) => HandlerResult<Api.VpcRouterResultsPage>
+  vpcRouterList: (params: {
+    path: Api.VpcRouterListPathParams
+    query: Api.VpcRouterListQueryParams
+  }) => HandlerResult<Api.VpcRouterResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers` */
-  vpcRouterCreate: (
-    params: Api.VpcRouterCreateParams,
+  vpcRouterCreate: (params: {
+    path: Api.VpcRouterCreatePathParams
     body: Json<Api.VpcRouterCreate>
-  ) => HandlerResult<Api.VpcRouter>
+  }) => HandlerResult<Api.VpcRouter>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
-  vpcRouterView: (params: Api.VpcRouterViewParams) => HandlerResult<Api.VpcRouter>
+  vpcRouterView: (params: {
+    path: Api.VpcRouterViewPathParams
+  }) => HandlerResult<Api.VpcRouter>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
-  vpcRouterUpdate: (
-    params: Api.VpcRouterUpdateParams,
+  vpcRouterUpdate: (params: {
+    path: Api.VpcRouterUpdatePathParams
     body: Json<Api.VpcRouterUpdate>
-  ) => HandlerResult<Api.VpcRouter>
+  }) => HandlerResult<Api.VpcRouter>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName` */
-  vpcRouterDelete: (params: Api.VpcRouterDeleteParams) => StatusCode
+  vpcRouterDelete: (params: { path: Api.VpcRouterDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes` */
-  vpcRouterRouteList: (
-    params: Api.VpcRouterRouteListParams
-  ) => HandlerResult<Api.RouterRouteResultsPage>
+  vpcRouterRouteList: (params: {
+    path: Api.VpcRouterRouteListPathParams
+    query: Api.VpcRouterRouteListQueryParams
+  }) => HandlerResult<Api.RouterRouteResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes` */
-  vpcRouterRouteCreate: (
-    params: Api.VpcRouterRouteCreateParams,
+  vpcRouterRouteCreate: (params: {
+    path: Api.VpcRouterRouteCreatePathParams
     body: Json<Api.RouterRouteCreateParams>
-  ) => HandlerResult<Api.RouterRoute>
+  }) => HandlerResult<Api.RouterRoute>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
-  vpcRouterRouteView: (
-    params: Api.VpcRouterRouteViewParams
-  ) => HandlerResult<Api.RouterRoute>
+  vpcRouterRouteView: (params: {
+    path: Api.VpcRouterRouteViewPathParams
+  }) => HandlerResult<Api.RouterRoute>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
-  vpcRouterRouteUpdate: (
-    params: Api.VpcRouterRouteUpdateParams,
+  vpcRouterRouteUpdate: (params: {
+    path: Api.VpcRouterRouteUpdatePathParams
     body: Json<Api.RouterRouteUpdateParams>
-  ) => HandlerResult<Api.RouterRoute>
+  }) => HandlerResult<Api.RouterRoute>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/routers/:routerName/routes/:routeName` */
-  vpcRouterRouteDelete: (params: Api.VpcRouterRouteDeleteParams) => StatusCode
+  vpcRouterRouteDelete: (params: { path: Api.VpcRouterRouteDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets` */
-  vpcSubnetList: (
-    params: Api.VpcSubnetListParams
-  ) => HandlerResult<Api.VpcSubnetResultsPage>
+  vpcSubnetList: (params: {
+    path: Api.VpcSubnetListPathParams
+    query: Api.VpcSubnetListQueryParams
+  }) => HandlerResult<Api.VpcSubnetResultsPage>
   /** `POST /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets` */
-  vpcSubnetCreate: (
-    params: Api.VpcSubnetCreateParams,
+  vpcSubnetCreate: (params: {
+    path: Api.VpcSubnetCreatePathParams
     body: Json<Api.VpcSubnetCreate>
-  ) => HandlerResult<Api.VpcSubnet>
+  }) => HandlerResult<Api.VpcSubnet>
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
-  vpcSubnetView: (params: Api.VpcSubnetViewParams) => HandlerResult<Api.VpcSubnet>
+  vpcSubnetView: (params: {
+    path: Api.VpcSubnetViewPathParams
+  }) => HandlerResult<Api.VpcSubnet>
   /** `PUT /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
-  vpcSubnetUpdate: (
-    params: Api.VpcSubnetUpdateParams,
+  vpcSubnetUpdate: (params: {
+    path: Api.VpcSubnetUpdatePathParams
     body: Json<Api.VpcSubnetUpdate>
-  ) => HandlerResult<Api.VpcSubnet>
+  }) => HandlerResult<Api.VpcSubnet>
   /** `DELETE /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName` */
-  vpcSubnetDelete: (params: Api.VpcSubnetDeleteParams) => StatusCode
+  vpcSubnetDelete: (params: { path: Api.VpcSubnetDeletePathParams }) => StatusCode
   /** `GET /organizations/:orgName/projects/:projectName/vpcs/:vpcName/subnets/:subnetName/network-interfaces` */
-  vpcSubnetListNetworkInterfaces: (
-    params: Api.VpcSubnetListNetworkInterfacesParams
-  ) => HandlerResult<Api.NetworkInterfaceResultsPage>
+  vpcSubnetListNetworkInterfaces: (params: {
+    path: Api.VpcSubnetListNetworkInterfacesPathParams
+    query: Api.VpcSubnetListNetworkInterfacesQueryParams
+  }) => HandlerResult<Api.NetworkInterfaceResultsPage>
   /** `GET /policy` */
   policyView: () => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /policy` */
-  policyUpdate: (body: Json<Api.SiloRolePolicy>) => HandlerResult<Api.SiloRolePolicy>
+  policyUpdate: (params: {
+    body: Json<Api.SiloRolePolicy>
+  }) => HandlerResult<Api.SiloRolePolicy>
   /** `GET /roles` */
-  roleList: (params: Api.RoleListParams) => HandlerResult<Api.RoleResultsPage>
+  roleList: (params: {
+    query: Api.RoleListQueryParams
+  }) => HandlerResult<Api.RoleResultsPage>
   /** `GET /roles/:roleName` */
-  roleView: (params: Api.RoleViewParams) => HandlerResult<Api.Role>
+  roleView: (params: { path: Api.RoleViewPathParams }) => HandlerResult<Api.Role>
   /** `GET /session/me` */
   sessionMe: () => HandlerResult<Api.User>
   /** `GET /session/me/sshkeys` */
-  sessionSshkeyList: (
-    params: Api.SessionSshkeyListParams
-  ) => HandlerResult<Api.SshKeyResultsPage>
+  sessionSshkeyList: (params: {
+    query: Api.SessionSshkeyListQueryParams
+  }) => HandlerResult<Api.SshKeyResultsPage>
   /** `POST /session/me/sshkeys` */
-  sessionSshkeyCreate: (body: Json<Api.SshKeyCreate>) => HandlerResult<Api.SshKey>
+  sessionSshkeyCreate: (params: {
+    body: Json<Api.SshKeyCreate>
+  }) => HandlerResult<Api.SshKey>
   /** `GET /session/me/sshkeys/:sshKeyName` */
-  sessionSshkeyView: (params: Api.SessionSshkeyViewParams) => HandlerResult<Api.SshKey>
+  sessionSshkeyView: (params: {
+    path: Api.SessionSshkeyViewPathParams
+  }) => HandlerResult<Api.SshKey>
   /** `DELETE /session/me/sshkeys/:sshKeyName` */
-  sessionSshkeyDelete: (params: Api.SessionSshkeyDeleteParams) => StatusCode
+  sessionSshkeyDelete: (params: { path: Api.SessionSshkeyDeletePathParams }) => StatusCode
   /** `GET /system/by-id/images/:id` */
-  systemImageViewById: (
-    params: Api.SystemImageViewByIdParams
-  ) => HandlerResult<Api.GlobalImage>
+  systemImageViewById: (params: {
+    path: Api.SystemImageViewByIdPathParams
+  }) => HandlerResult<Api.GlobalImage>
   /** `GET /system/by-id/ip-pools/:id` */
-  ipPoolViewById: (params: Api.IpPoolViewByIdParams) => HandlerResult<Api.IpPool>
+  ipPoolViewById: (params: {
+    path: Api.IpPoolViewByIdPathParams
+  }) => HandlerResult<Api.IpPool>
   /** `GET /system/by-id/silos/:id` */
-  siloViewById: (params: Api.SiloViewByIdParams) => HandlerResult<Api.Silo>
+  siloViewById: (params: { path: Api.SiloViewByIdPathParams }) => HandlerResult<Api.Silo>
   /** `GET /system/hardware/racks` */
-  rackList: (params: Api.RackListParams) => HandlerResult<Api.RackResultsPage>
+  rackList: (params: {
+    query: Api.RackListQueryParams
+  }) => HandlerResult<Api.RackResultsPage>
   /** `GET /system/hardware/racks/:rackId` */
-  rackView: (params: Api.RackViewParams) => HandlerResult<Api.Rack>
+  rackView: (params: { path: Api.RackViewPathParams }) => HandlerResult<Api.Rack>
   /** `GET /system/hardware/sleds` */
-  sledList: (params: Api.SledListParams) => HandlerResult<Api.SledResultsPage>
+  sledList: (params: {
+    query: Api.SledListQueryParams
+  }) => HandlerResult<Api.SledResultsPage>
   /** `GET /system/hardware/sleds/:sledId` */
-  sledView: (params: Api.SledViewParams) => HandlerResult<Api.Sled>
+  sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
   /** `GET /system/images` */
-  systemImageList: (
-    params: Api.SystemImageListParams
-  ) => HandlerResult<Api.GlobalImageResultsPage>
+  systemImageList: (params: {
+    query: Api.SystemImageListQueryParams
+  }) => HandlerResult<Api.GlobalImageResultsPage>
   /** `POST /system/images` */
-  systemImageCreate: (body: Json<Api.GlobalImageCreate>) => HandlerResult<Api.GlobalImage>
+  systemImageCreate: (params: {
+    body: Json<Api.GlobalImageCreate>
+  }) => HandlerResult<Api.GlobalImage>
   /** `GET /system/images/:imageName` */
-  systemImageView: (params: Api.SystemImageViewParams) => HandlerResult<Api.GlobalImage>
+  systemImageView: (params: {
+    path: Api.SystemImageViewPathParams
+  }) => HandlerResult<Api.GlobalImage>
   /** `DELETE /system/images/:imageName` */
-  systemImageDelete: (params: Api.SystemImageDeleteParams) => StatusCode
+  systemImageDelete: (params: { path: Api.SystemImageDeletePathParams }) => StatusCode
   /** `GET /system/ip-pools` */
-  ipPoolList: (params: Api.IpPoolListParams) => HandlerResult<Api.IpPoolResultsPage>
+  ipPoolList: (params: {
+    query: Api.IpPoolListQueryParams
+  }) => HandlerResult<Api.IpPoolResultsPage>
   /** `POST /system/ip-pools` */
-  ipPoolCreate: (body: Json<Api.IpPoolCreate>) => HandlerResult<Api.IpPool>
+  ipPoolCreate: (params: { body: Json<Api.IpPoolCreate> }) => HandlerResult<Api.IpPool>
   /** `GET /system/ip-pools/:poolName` */
-  ipPoolView: (params: Api.IpPoolViewParams) => HandlerResult<Api.IpPool>
+  ipPoolView: (params: { path: Api.IpPoolViewPathParams }) => HandlerResult<Api.IpPool>
   /** `PUT /system/ip-pools/:poolName` */
-  ipPoolUpdate: (
-    params: Api.IpPoolUpdateParams,
+  ipPoolUpdate: (params: {
+    path: Api.IpPoolUpdatePathParams
     body: Json<Api.IpPoolUpdate>
-  ) => HandlerResult<Api.IpPool>
+  }) => HandlerResult<Api.IpPool>
   /** `DELETE /system/ip-pools/:poolName` */
-  ipPoolDelete: (params: Api.IpPoolDeleteParams) => StatusCode
+  ipPoolDelete: (params: { path: Api.IpPoolDeletePathParams }) => StatusCode
   /** `GET /system/ip-pools/:poolName/ranges` */
-  ipPoolRangeList: (
-    params: Api.IpPoolRangeListParams
-  ) => HandlerResult<Api.IpPoolRangeResultsPage>
+  ipPoolRangeList: (params: {
+    path: Api.IpPoolRangeListPathParams
+    query: Api.IpPoolRangeListQueryParams
+  }) => HandlerResult<Api.IpPoolRangeResultsPage>
   /** `POST /system/ip-pools/:poolName/ranges/add` */
-  ipPoolRangeAdd: (
-    params: Api.IpPoolRangeAddParams,
+  ipPoolRangeAdd: (params: {
+    path: Api.IpPoolRangeAddPathParams
     body: Json<Api.IpRange>
-  ) => HandlerResult<Api.IpPoolRange>
+  }) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools/:poolName/ranges/remove` */
-  ipPoolRangeRemove: (
-    params: Api.IpPoolRangeRemoveParams,
+  ipPoolRangeRemove: (params: {
+    path: Api.IpPoolRangeRemovePathParams
     body: Json<Api.IpRange>
-  ) => StatusCode
+  }) => StatusCode
   /** `GET /system/ip-pools-service/:rackId` */
-  ipPoolServiceView: (params: Api.IpPoolServiceViewParams) => HandlerResult<Api.IpPool>
+  ipPoolServiceView: (params: {
+    path: Api.IpPoolServiceViewPathParams
+  }) => HandlerResult<Api.IpPool>
   /** `GET /system/ip-pools-service/:rackId/ranges` */
-  ipPoolServiceRangeList: (
-    params: Api.IpPoolServiceRangeListParams
-  ) => HandlerResult<Api.IpPoolRangeResultsPage>
+  ipPoolServiceRangeList: (params: {
+    path: Api.IpPoolServiceRangeListPathParams
+    query: Api.IpPoolServiceRangeListQueryParams
+  }) => HandlerResult<Api.IpPoolRangeResultsPage>
   /** `POST /system/ip-pools-service/:rackId/ranges/add` */
-  ipPoolServiceRangeAdd: (
-    params: Api.IpPoolServiceRangeAddParams,
+  ipPoolServiceRangeAdd: (params: {
+    path: Api.IpPoolServiceRangeAddPathParams
     body: Json<Api.IpRange>
-  ) => HandlerResult<Api.IpPoolRange>
+  }) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools-service/:rackId/ranges/remove` */
-  ipPoolServiceRangeRemove: (
-    params: Api.IpPoolServiceRangeRemoveParams,
+  ipPoolServiceRangeRemove: (params: {
+    path: Api.IpPoolServiceRangeRemovePathParams
     body: Json<Api.IpRange>
-  ) => StatusCode
+  }) => StatusCode
   /** `GET /system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /system/policy` */
-  systemPolicyUpdate: (
+  systemPolicyUpdate: (params: {
     body: Json<Api.FleetRolePolicy>
-  ) => HandlerResult<Api.FleetRolePolicy>
+  }) => HandlerResult<Api.FleetRolePolicy>
   /** `GET /system/sagas` */
-  sagaList: (params: Api.SagaListParams) => HandlerResult<Api.SagaResultsPage>
+  sagaList: (params: {
+    query: Api.SagaListQueryParams
+  }) => HandlerResult<Api.SagaResultsPage>
   /** `GET /system/sagas/:sagaId` */
-  sagaView: (params: Api.SagaViewParams) => HandlerResult<Api.Saga>
+  sagaView: (params: { path: Api.SagaViewPathParams }) => HandlerResult<Api.Saga>
   /** `GET /system/silos` */
-  siloList: (params: Api.SiloListParams) => HandlerResult<Api.SiloResultsPage>
+  siloList: (params: {
+    query: Api.SiloListQueryParams
+  }) => HandlerResult<Api.SiloResultsPage>
   /** `POST /system/silos` */
-  siloCreate: (body: Json<Api.SiloCreate>) => HandlerResult<Api.Silo>
+  siloCreate: (params: { body: Json<Api.SiloCreate> }) => HandlerResult<Api.Silo>
   /** `GET /system/silos/:siloName` */
-  siloView: (params: Api.SiloViewParams) => HandlerResult<Api.Silo>
+  siloView: (params: { path: Api.SiloViewPathParams }) => HandlerResult<Api.Silo>
   /** `DELETE /system/silos/:siloName` */
-  siloDelete: (params: Api.SiloDeleteParams) => StatusCode
+  siloDelete: (params: { path: Api.SiloDeletePathParams }) => StatusCode
   /** `GET /system/silos/:siloName/identity-providers` */
-  siloIdentityProviderList: (
-    params: Api.SiloIdentityProviderListParams
-  ) => HandlerResult<Api.IdentityProviderResultsPage>
+  siloIdentityProviderList: (params: {
+    path: Api.SiloIdentityProviderListPathParams
+    query: Api.SiloIdentityProviderListQueryParams
+  }) => HandlerResult<Api.IdentityProviderResultsPage>
   /** `POST /system/silos/:siloName/identity-providers/saml` */
-  samlIdentityProviderCreate: (
-    params: Api.SamlIdentityProviderCreateParams,
+  samlIdentityProviderCreate: (params: {
+    path: Api.SamlIdentityProviderCreatePathParams
     body: Json<Api.SamlIdentityProviderCreate>
-  ) => HandlerResult<Api.SamlIdentityProvider>
+  }) => HandlerResult<Api.SamlIdentityProvider>
   /** `GET /system/silos/:siloName/identity-providers/saml/:providerName` */
-  samlIdentityProviderView: (
-    params: Api.SamlIdentityProviderViewParams
-  ) => HandlerResult<Api.SamlIdentityProvider>
+  samlIdentityProviderView: (params: {
+    path: Api.SamlIdentityProviderViewPathParams
+  }) => HandlerResult<Api.SamlIdentityProvider>
   /** `GET /system/silos/:siloName/policy` */
-  siloPolicyView: (params: Api.SiloPolicyViewParams) => HandlerResult<Api.SiloRolePolicy>
+  siloPolicyView: (params: {
+    path: Api.SiloPolicyViewPathParams
+  }) => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /system/silos/:siloName/policy` */
-  siloPolicyUpdate: (
-    params: Api.SiloPolicyUpdateParams,
+  siloPolicyUpdate: (params: {
+    path: Api.SiloPolicyUpdatePathParams
     body: Json<Api.SiloRolePolicy>
-  ) => HandlerResult<Api.SiloRolePolicy>
+  }) => HandlerResult<Api.SiloRolePolicy>
   /** `POST /system/updates/refresh` */
   updatesRefresh: () => StatusCode
   /** `GET /system/user` */
-  systemUserList: (
-    params: Api.SystemUserListParams
-  ) => HandlerResult<Api.UserBuiltinResultsPage>
+  systemUserList: (params: {
+    query: Api.SystemUserListQueryParams
+  }) => HandlerResult<Api.UserBuiltinResultsPage>
   /** `GET /system/user/:userName` */
-  systemUserView: (params: Api.SystemUserViewParams) => HandlerResult<Api.UserBuiltin>
+  systemUserView: (params: {
+    path: Api.SystemUserViewPathParams
+  }) => HandlerResult<Api.UserBuiltin>
   /** `GET /timeseries/schema` */
-  timeseriesSchemaGet: (
-    params: Api.TimeseriesSchemaGetParams
-  ) => HandlerResult<Api.TimeseriesSchemaResultsPage>
+  timeseriesSchemaGet: (params: {
+    query: Api.TimeseriesSchemaGetQueryParams
+  }) => HandlerResult<Api.TimeseriesSchemaResultsPage>
   /** `GET /users` */
-  userList: (params: Api.UserListParams) => HandlerResult<Api.UserResultsPage>
+  userList: (params: {
+    query: Api.UserListQueryParams
+  }) => HandlerResult<Api.UserResultsPage>
 }
 
 function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
@@ -494,8 +583,8 @@ function validateParams<S extends ZodSchema>(schema: S, req: RestRequest) {
   }
 
   const result = schema.safeParse({
-    ...req.params,
-    ...Object.fromEntries(params),
+    path: req.params,
+    query: Object.fromEntries(params),
   })
   if (result.success) {
     return { params: result.data }
@@ -512,8 +601,10 @@ const handler =
   async (req: RestRequest, res: ResponseComposition, ctx: RestContext) => {
     const { params, paramsErr } = paramSchema
       ? validateParams(paramSchema, req)
-      : { params: undefined, paramsErr: undefined }
+      : { params: {}, paramsErr: undefined }
     if (paramsErr) return res(paramsErr)
+
+    const { path, query } = params
 
     const { body, bodyErr } = bodySchema
       ? validateBody(bodySchema, await req.json())
@@ -524,7 +615,7 @@ const handler =
       // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema
       // being present and the shape of the handler API. The type of this function could be resolved such that the
       // relevant schema is required if and only if the handler has a type that matches the inferred schema
-      const result = await (handler as any).apply(null, [params, body].filter(Boolean))
+      const result = await (handler as any).apply(null, [{ path, query, body }])
       if (typeof result === 'number') {
         return res(ctx.status(result))
       }

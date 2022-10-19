@@ -49,8 +49,8 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { orgName, projectName } = requireProjectParams(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', { orgName }),
-    apiQueryClient.prefetchQuery('projectPolicyView', { orgName, projectName }),
+    apiQueryClient.prefetchQuery('organizationPolicyView', { path: { orgName } }),
+    apiQueryClient.prefetchQuery('projectPolicyView', { path: { orgName, projectName } }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
   ])
@@ -77,10 +77,10 @@ export function ProjectAccessPage() {
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { orgName })
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { path: { orgName } })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectParams)
+  const { data: projectPolicy } = useApiQuery('projectPolicyView', { path: projectParams })
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
@@ -115,7 +115,8 @@ export function ProjectAccessPage() {
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyView', projectParams),
+    onSuccess: () =>
+      queryClient.invalidateQueries('projectPolicyView', { path: projectParams }),
     // TODO: handle 403
   })
 
@@ -151,7 +152,7 @@ export function ProjectAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              ...projectParams,
+              path: projectParams,
               // we know policy is there, otherwise there's no row to display
               body: setUserRole(row.id, null, projectPolicy!),
             })

@@ -12,7 +12,7 @@ import { useRequiredParams } from 'app/hooks'
 export const VpcRoutersTab = () => {
   const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
-  const { Table, Column } = useQueryTable('vpcRouterList', vpcParams)
+  const { Table, Column } = useQueryTable('vpcRouterList', { path: vpcParams })
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcRouter | null>(null)

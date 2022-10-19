@@ -48,7 +48,7 @@ export const VpcFirewallRulesTab = () => {
   const queryClient = useApiQueryClient()
   const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', vpcParams)
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { path: vpcParams })
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -56,7 +56,7 @@ export const VpcFirewallRulesTab = () => {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', vpcParams)
+      queryClient.invalidateQueries('vpcFirewallRulesView', { path: vpcParams })
     },
   })
 
@@ -70,7 +70,7 @@ export const VpcFirewallRulesTab = () => {
           label: 'Delete',
           onActivate: () => {
             updateRules.mutate({
-              ...vpcParams,
+              path: vpcParams,
               body: {
                 rules: rules.filter((r) => r.id !== rule.id),
               },
