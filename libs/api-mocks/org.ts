@@ -1,10 +1,9 @@
 import type { Organization } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 
 export const org: Json<Organization> = {
-  id: <uuid>,
+  id: '0fc0716f-1bc9-451a-92f3-a7dd63589298',
   name: 'maze-war',
   description: 'a fake org',
   time_created: new Date(2021, 0, 1).toISOString(),
@@ -12,7 +11,7 @@ export const org: Json<Organization> = {
 }
 
 export const org2: Json<Organization> = {
-  id: <uuid>,
+  id: '915efcd1-3ac4-447a-a3a3-65b74d413920',
   name: 'boop-team',
   description: 'another fake org',
   time_created: new Date(2021, 0, 3).toISOString(),

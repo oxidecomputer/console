@@ -2,11 +2,10 @@ import type { NetworkInterface } from '@oxide/api'
 
 import { instance } from './instance'
 import type { Json } from './json-type'
-import { genId } from './msw/util'
 import { vpc, vpcSubnet } from './vpc'
 
 export const networkInterface: Json<NetworkInterface> = {
-  id: <uuid>,
+  id: 'f6d63297-287c-4035-b262-e8303cfd6a0f',
   name: 'my-nic',
   description: 'a network interface',
   primary: true,
