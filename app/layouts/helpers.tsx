@@ -28,6 +28,7 @@ export const ContentPane = () => (
 export const userLoader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('sessionMe', {}),
+    apiQueryClient.prefetchQuery('sessionMeGroups', {}),
     // Need to prefetch this because every layout hits it when deciding whether
     // to show the silo/system picker. It's also fetched by the SystemLayout
     // loader to figure out whether to 404, but RQ dedupes the request.

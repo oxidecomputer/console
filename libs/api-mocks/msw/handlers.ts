@@ -705,6 +705,9 @@ export const handlers = makeHandlers({
   sessionMe() {
     return { ...currentUser, group_ids: [] as string[] }
   },
+  sessionMeGroups() {
+    return { items: [] }
+  },
   sessionSshkeyList(params) {
     const keys = db.sshKeys.filter((k) => k.silo_user_id === currentUser.id)
     return paginated(params.query, keys)

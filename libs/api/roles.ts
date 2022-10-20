@@ -13,7 +13,6 @@ import type {
   IdentityType,
   OrganizationRole,
   ProjectRole,
-  SessionMe,
   SiloRole,
 } from './__generated__/Api'
 
@@ -146,8 +145,12 @@ export function useUsersNotInPolicy(
   }, [users, policy])
 }
 
-export function userRoleFromPolicies(user: SessionMe, policies: Policy[]): RoleKey | null {
-  const myIds = new Set([user.id, ...(user.groupIds || [])])
+export function userRoleFromPolicies(
+  user: { id: string },
+  groups: { id: string }[],
+  policies: Policy[]
+): RoleKey | null {
+  const myIds = new Set([user.id, ...groups.map((g) => g.id)])
   const myRoles = policies
     .flatMap((p) => p.roleAssignments) // concat all the role assignments together
     .filter((ra) => myIds.has(ra.identityId))

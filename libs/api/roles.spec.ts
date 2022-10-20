@@ -55,27 +55,26 @@ describe('setUserRole', () => {
 })
 
 const user1 = {
-  id: 'hi',
-  displayName: 'bye',
-  siloId: 'sigh',
-  groupIds: ['group1', 'group2'],
+  id: 'user1',
 }
+
+const groups = [{ id: 'group1' }, { id: 'group2' }]
 
 describe('getEffectiveRole', () => {
   it('returns null when there are no policies', () => {
-    expect(userRoleFromPolicies(user1, [])).toBe(null)
+    expect(userRoleFromPolicies(user1, groups, [])).toBe(null)
   })
 
   it('returns null when there are no roles', () => {
-    expect(userRoleFromPolicies(user1, [{ roleAssignments: [] }])).toBe(null)
+    expect(userRoleFromPolicies(user1, groups, [{ roleAssignments: [] }])).toBe(null)
   })
 
   it('returns role if user matches directly', () => {
     expect(
-      userRoleFromPolicies(user1, [
+      userRoleFromPolicies(user1, groups, [
         {
           roleAssignments: [
-            { identityId: 'hi', identityType: 'silo_user', roleName: 'admin' },
+            { identityId: 'user1', identityType: 'silo_user', roleName: 'admin' },
           ],
         },
       ])
@@ -84,10 +83,10 @@ describe('getEffectiveRole', () => {
 
   it('returns strongest role if both group and user match', () => {
     expect(
-      userRoleFromPolicies(user1, [
+      userRoleFromPolicies(user1, groups, [
         {
           roleAssignments: [
-            { identityId: 'hi', identityType: 'silo_user', roleName: 'viewer' },
+            { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
             { identityId: 'group1', identityType: 'silo_group', roleName: 'collaborator' },
           ],
         },
@@ -97,7 +96,7 @@ describe('getEffectiveRole', () => {
 
   it('ignores groups and users that do not match', () => {
     expect(
-      userRoleFromPolicies(user1, [
+      userRoleFromPolicies(user1, groups, [
         {
           roleAssignments: [
             { identityId: 'other', identityType: 'silo_user', roleName: 'viewer' },
@@ -110,10 +109,10 @@ describe('getEffectiveRole', () => {
 
   it('resolves multiple policies', () => {
     expect(
-      userRoleFromPolicies(user1, [
+      userRoleFromPolicies(user1, groups, [
         {
           roleAssignments: [
-            { identityId: 'hi', identityType: 'silo_user', roleName: 'viewer' },
+            { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
           ],
         },
         {

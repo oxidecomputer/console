@@ -1225,19 +1225,6 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
- * Client view of a {@link User} and their groups
- */
-export const SessionMe = z.preprocess(
-  processResponseBody,
-  z.object({
-    displayName: z.string(),
-    groupIds: z.string().uuid().array(),
-    id: z.string().uuid(),
-    siloId: z.string().uuid(),
-  })
-)
-
-/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export const SiloIdentityMode = z.preprocess(
@@ -2871,6 +2858,18 @@ export const SessionMeParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({}),
+  })
+)
+
+export const SessionMeGroupsParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
   })
 )
 

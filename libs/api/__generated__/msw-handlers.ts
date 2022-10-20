@@ -401,7 +401,11 @@ export interface MSWHandlers {
   /** `GET /roles/:roleName` */
   roleView: (params: { path: Api.RoleViewPathParams }) => HandlerResult<Api.Role>
   /** `GET /session/me` */
-  sessionMe: () => HandlerResult<Api.SessionMe>
+  sessionMe: () => HandlerResult<Api.User>
+  /** `GET /session/me/groups` */
+  sessionMeGroups: (params: {
+    query: Api.SessionMeGroupsQueryParams
+  }) => HandlerResult<Api.GroupResultsPage>
   /** `GET /session/me/sshkeys` */
   sessionSshkeyList: (params: {
     query: Api.SessionSshkeyListQueryParams
@@ -1083,6 +1087,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['roleView'], schema.RoleViewParams, null)
     ),
     rest.get('/session/me', handler(handlers['sessionMe'], null, null)),
+    rest.get(
+      '/session/me/groups',
+      handler(handlers['sessionMeGroups'], schema.SessionMeGroupsParams, null)
+    ),
     rest.get(
       '/session/me/sshkeys',
       handler(handlers['sessionSshkeyList'], schema.SessionSshkeyListParams, null)

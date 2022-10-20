@@ -1183,18 +1183,6 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
- * Client view of a {@link User} and their groups
- */
-export type SessionMe = {
-  /** Human-readable name that can identify the user */
-  displayName: string
-  groupIds: string[]
-  id: string
-  /** Uuid of the silo to which this user belongs */
-  siloId: string
-}
-
-/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export type SiloIdentityMode =
@@ -2306,6 +2294,12 @@ export interface RoleListQueryParams {
 
 export interface RoleViewPathParams {
   roleName: string
+}
+
+export interface SessionMeGroupsQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
 }
 
 export interface SessionSshkeyListQueryParams {
@@ -3897,9 +3891,23 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     sessionMe: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<SessionMe>({
+      return this.request<User>({
         path: `/session/me`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch the silo groups the current user belongs to
+     */
+    sessionMeGroups: (
+      { query = {} }: { query?: SessionMeGroupsQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/session/me/groups`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
