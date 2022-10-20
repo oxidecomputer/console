@@ -19,12 +19,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import {
-  requireProjectParams,
-  useProjectParams,
-  useQuickActions,
-  useRefetchInterval,
-} from 'app/hooks'
+import { requireProjectParams, useProjectParams, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -78,13 +73,11 @@ export function InstancesPage() {
     )
   )
 
-  const { refetchInterval, intervalListbox } = useRefetchInterval('10s')
-
   const { Table, Column } = useQueryTable(
     'instanceList',
     { path: projectParams },
     {
-      refetchInterval,
+      refetchInterval: 5000,
       keepPreviousData: true,
     }
   )
@@ -97,8 +90,6 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        {/* TODO: last refetched time */}
-        {intervalListbox}
         <Link
           to={pb.instanceNew({ orgName, projectName })}
           className={buttonStyle({ size: 'sm', variant: 'default' })}

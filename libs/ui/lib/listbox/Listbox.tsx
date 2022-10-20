@@ -50,7 +50,7 @@ export const Listbox: FC<ListboxProps> = ({
       >
         <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
 
-        <div className="ml-5 flex h-[calc(100%-12px)] items-center border-l border-secondary">
+        <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l border-secondary">
           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
         </div>
       </button>
