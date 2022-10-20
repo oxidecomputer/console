@@ -90,5 +90,5 @@ async function timeToAppear(page: Page, selector: string): Promise<number> {
 export async function expectSimultaneous(page: Page, selectors: string[]) {
   const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
   times.sort()
-  expect(times[times.length - 1] - times[0]).toBeLessThan(20)
+  expect(times[times.length - 1] - times[0]).toBeLessThan(40)
 }
