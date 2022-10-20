@@ -8,8 +8,8 @@ import { pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
-import { currentUser } from '../session'
 import { defaultSilo } from '../silo'
+import { user1 } from '../user'
 import {
   db,
   lookupById,
@@ -703,21 +703,21 @@ export const handlers = makeHandlers({
     return body
   },
   sessionMe() {
-    return { ...currentUser, group_ids: [] as string[] }
+    return { ...user1, group_ids: [] as string[] }
   },
   sessionMeGroups() {
     return { items: [] }
   },
   sessionSshkeyList(params) {
-    const keys = db.sshKeys.filter((k) => k.silo_user_id === currentUser.id)
+    const keys = db.sshKeys.filter((k) => k.silo_user_id === user1.id)
     return paginated(params.query, keys)
   },
   sessionSshkeyCreate({ body }) {
-    errIfExists(db.sshKeys, { silo_user_id: currentUser.id, name: body.name })
+    errIfExists(db.sshKeys, { silo_user_id: user1.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
       id: uuid(),
-      silo_user_id: currentUser.id,
+      silo_user_id: user1.id,
       ...body,
       ...getTimestamps(),
     }
