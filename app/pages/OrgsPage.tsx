@@ -2,12 +2,15 @@ import { useMemo } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Organization } from '@oxide/api'
+import { canWrite } from '@oxide/api'
+import { useEffectiveSiloRole } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
+  Button,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
@@ -33,7 +36,10 @@ const EmptyState = () => (
 )
 
 OrgsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } }),
+    apiQueryClient.prefetchQuery('policyView', {}),
+  ])
 }
 
 interface OrgsPageProps {
@@ -46,6 +52,8 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
 
   const { Table, Column } = useQueryTable('organizationList', {})
   const queryClient = useApiQueryClient()
+
+  const siloRole = useEffectiveSiloRole()
 
   const { data: orgs } = useApiQuery('organizationList', {
     query: { limit: 10 }, // to have same params as QueryTable
@@ -92,9 +100,18 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.orgNew()} className={buttonStyle({ variant: 'default', size: 'sm' })}>
-          New Organization
-        </Link>
+        {canWrite(siloRole) ? (
+          <Link
+            to={pb.orgNew()}
+            className={buttonStyle({ variant: 'default', size: 'sm' })}
+          >
+            New Organization
+          </Link>
+        ) : (
+          <Button size="sm" disabled>
+            New Organization
+          </Button>
+        )}
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((orgName) => pb.projects({ orgName }))} />

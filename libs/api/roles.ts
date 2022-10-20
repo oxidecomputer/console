@@ -157,3 +157,21 @@ export function userRoleFromPolicies(
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
 }
+
+// Not having pop-in when the requests resolve depends on the right prefetches
+// having happened. This is probably too fragile. We need to explore this.
+// https://tkdodo.eu/blog/react-query-meets-react-router#a-typescript-tip
+export function useEffectiveSiloRole() {
+  const { data: me } = useApiQuery('sessionMe', {})
+  const { data: myGroups } = useApiQuery('sessionMeGroups', {})
+  const { data: siloPolicy } = useApiQuery('policyView', {})
+  return me && myGroups && siloPolicy
+    ? userRoleFromPolicies(me, myGroups.items, [siloPolicy])
+    : null
+}
+
+const readRoles = new Set<RoleKey>(['admin', 'collaborator', 'viewer'])
+const writeRoles = new Set<RoleKey>(['admin', 'collaborator'])
+
+export const canRead = (role: RoleKey | null) => (role ? readRoles.has(role) : false)
+export const canWrite = (role: RoleKey | null) => (role ? writeRoles.has(role) : false)
