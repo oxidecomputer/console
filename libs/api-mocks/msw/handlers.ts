@@ -703,10 +703,13 @@ export const handlers = makeHandlers({
     return body
   },
   sessionMe() {
-    return { ...user1, group_ids: [] as string[] }
+    return user1
   },
   sessionMeGroups() {
-    return { items: [] }
+    const memberships = db.groupMemberships.filter((gm) => gm.userId === user1.id)
+    const groupIds = new Set(memberships.map((gm) => gm.groupId))
+    const groups = db.userGroups.filter((g) => groupIds.has(g.id))
+    return { items: groups }
   },
   sessionSshkeyList(params) {
     const keys = db.sshKeys.filter((k) => k.silo_user_id === user1.id)

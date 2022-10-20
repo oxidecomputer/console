@@ -157,6 +157,7 @@ const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
   userGroups: [...mock.userGroups],
+  groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
