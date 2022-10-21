@@ -1,0 +1,16 @@
+diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
+index 4cb7c0e..ed726ba 100644
+--- a/node_modules/react-router-dom/dist/index.js
++++ b/node_modules/react-router-dom/dist/index.js
+@@ -821,7 +821,10 @@ function useScrollRestoration(_temp3) {
+     } // otherwise go to the top on new locations
+ 
+ 
+-    window.scrollTo(0, 0);
++    // oxide hack. ideally we'll make a PR that would let us pass a function
++    // that returns Element | null to ScrollRestoration
++    const elt = document.querySelector('#content-pane') || window;
++    elt.scrollTo(0, 0);
+   }, [location, restoreScrollPosition, preventScrollReset]);
+ }
+ 

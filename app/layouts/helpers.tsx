@@ -10,7 +10,7 @@ import { PageActionsTarget } from 'app/components/PageActions'
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
 export const ContentPane = () => (
-  <div className="flex flex-col overflow-auto">
+  <div id="content-pane" className="flex flex-col overflow-auto">
     <div className="flex flex-grow flex-col pb-8">
       <SkipLinkTarget />
       <main className="[&>*]:gutter">
