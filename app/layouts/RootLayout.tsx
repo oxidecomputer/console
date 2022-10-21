@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, ScrollRestoration } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
 
@@ -26,5 +26,10 @@ function useSetTitle() {
  */
 export default function RootLayout() {
   useSetTitle()
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <ScrollRestoration />
+    </>
+  )
 }
