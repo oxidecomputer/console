@@ -10,6 +10,9 @@ import { PageActionsTarget } from 'app/components/PageActions'
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
 export const ContentPane = () => (
+  // IMPORTANT: We have patched React Router's <ScrollRestoration> to use this
+  // container instead of window as the scroll container. This exact ID has to
+  // be on this element for that to work.
   <div id="content-pane" className="flex flex-col overflow-auto">
     <div className="flex flex-grow flex-col pb-8">
       <SkipLinkTarget />
