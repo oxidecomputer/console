@@ -4,7 +4,8 @@ import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { SideModalForm2 } from 'app/components/form/SideModalForm2'
+import { TextField } from 'app/components/form/fields/TextField2'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -47,7 +48,7 @@ export function CreateOrgSideModalForm({
   })
 
   return (
-    <SideModalForm
+    <SideModalForm2
       id={id}
       title={title}
       initialValues={initialValues}
@@ -63,8 +64,8 @@ export function CreateOrgSideModalForm({
       error={createOrg.error?.error as Error | undefined}
       {...props}
     >
-      <NameField id="org-name" />
-      <DescriptionField id="org-description" />
-    </SideModalForm>
+      <TextField id="org-name" />
+      <TextField id="org-description" />
+    </SideModalForm2>
   )
 }
