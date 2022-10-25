@@ -1,36 +1,15 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import type { SetRequired } from 'type-fest'
 
 import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { ErrorResult } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
-import type { SideModalProps } from '@oxide/ui'
 
-import { SideModalForm } from 'app/components/hook-form/SideModalForm'
-import { DescriptionField } from 'app/components/hook-form/fields/DescriptionField'
-import { NameField } from 'app/components/hook-form/fields/NameField'
+import type { CreateSideModalFormProps } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
-
-export type CreateFormProps<TFieldValues, Data> = {
-  id?: string
-  defaultValues?: TFieldValues
-  onSuccess?: (data: Data) => void
-  onError?: (err: ErrorResult) => void
-  onDismiss?: () => void
-}
-
-export type CreateSideModalFormProps<Values, Data> = CreateFormProps<Values, Data> &
-  Omit<SideModalProps, 'id'>
-
-export type EditSideModalFormProps<Values, Data> = SetRequired<
-  CreateFormProps<Values, Data>,
-  'defaultValues'
-> &
-  CreateSideModalFormProps<Values, Data>
 
 const values = {
   name: '',
