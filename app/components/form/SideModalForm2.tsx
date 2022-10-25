@@ -31,6 +31,9 @@ export function SideModalForm2<TFieldValues extends FieldValues>({
   form,
   ...formProps
 }: SideModalFormProps<TFieldValues>) {
+  // TODO: I don't really like passing the form instance and doing this stuff
+  // here. it splits the logic between the useForm call site and here for no
+  // clear reason
   const {
     handleSubmit,
     formState: { isDirty, isValid },
