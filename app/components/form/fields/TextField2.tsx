@@ -74,22 +74,27 @@ export function TextField<TFieldValues extends FieldValues>({
         name={name}
         control={control}
         rules={{ required, validate }}
-        render={({ field, formState }) => (
-          <UITextField
-            id={id}
-            title={label}
-            type={type}
-            error={!!formState.errors[name]}
-            aria-labelledby={cn(`${id}-label`, {
-              [`${id}-help-text`]: !!description,
-            })}
-            aria-describedby={description ? `${id}-label-tip` : undefined}
-            {...field}
-            {...props}
-          />
-        )}
+        render={({ field, formState }) => {
+          const error = formState.errors[name]
+          return (
+            <>
+              <UITextField
+                id={id}
+                title={label}
+                type={type}
+                error={!!error}
+                aria-labelledby={cn(`${id}-label`, {
+                  [`${id}-help-text`]: !!description,
+                })}
+                aria-describedby={description ? `${id}-label-tip` : undefined}
+                {...field}
+                {...props}
+              />
+              {error && <TextInputError>{error.message}</TextInputError>}
+            </>
+          )
+        }}
       />
-      {/* <TextInputError>{meta.error}</TextInputError> */}
     </div>
   )
 }

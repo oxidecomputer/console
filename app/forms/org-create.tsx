@@ -49,7 +49,12 @@ export function CreateOrgSideModalForm({
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const form = useForm({ defaultValues, mode: 'onTouched' })
+  const form = useForm({
+    defaultValues,
+    // TODO: docs say: "when using with Controller, make sure to wire up onBlur
+    // with the render prop." Now what the hell does that mean?
+    mode: 'onTouched',
+  })
 
   const createOrg = useApiMutation('organizationCreate', {
     onSuccess(org) {
