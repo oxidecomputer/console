@@ -64,7 +64,7 @@ export function SideModal({
                   transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
                 }}
               >
-                {title && <SideModal.Title id={`${id}-title`}>title</SideModal.Title>}
+                {title && <SideModal.Title id={titleId}>title</SideModal.Title>}
                 {children}
               </AnimatedDialogContent>
             </DialogOverlay>

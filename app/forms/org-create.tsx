@@ -17,7 +17,6 @@ const values = {
 }
 
 export function CreateOrgSideModalForm({
-  id = 'create-org-form',
   title = 'Create organization',
   defaultValues = values,
   onSuccess,
@@ -75,7 +74,7 @@ export function CreateOrgSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
+      id="create-org-form"
       title={title}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
