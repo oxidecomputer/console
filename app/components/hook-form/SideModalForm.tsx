@@ -4,7 +4,7 @@ import type { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form'
 import { SideModal } from '@oxide/ui'
 import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
-import { Form } from './Form2'
+import { Form } from './Form'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
@@ -19,7 +19,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
 }
 
-export function SideModalForm2<TFieldValues extends FieldValues>({
+export function SideModalForm<TFieldValues extends FieldValues>({
   id,
   children,
   onDismiss,

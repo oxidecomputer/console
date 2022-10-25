@@ -9,9 +9,9 @@ import type { ErrorResult } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 import type { SideModalProps } from '@oxide/ui'
 
-import { SideModalForm2 } from 'app/components/form/SideModalForm2'
-import { NameField } from 'app/components/form/fields/NameField2'
-import { TextField } from 'app/components/form/fields/TextField2'
+import { SideModalForm } from 'app/components/hook-form/SideModalForm'
+import { NameField } from 'app/components/hook-form/fields/NameField'
+import { TextField } from 'app/components/hook-form/fields/TextField'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -95,7 +95,7 @@ export function CreateOrgSideModalForm({
   })
 
   return (
-    <SideModalForm2
+    <SideModalForm
       id={id}
       title={title}
       onDismiss={onDismiss}
@@ -111,6 +111,6 @@ export function CreateOrgSideModalForm({
     >
       <NameField control={form.control} />
       <TextField name="description" control={form.control} />
-    </SideModalForm2>
+    </SideModalForm>
   )
 }

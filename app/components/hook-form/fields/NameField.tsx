@@ -1,7 +1,7 @@
 import type { Path } from 'react-hook-form'
 
-import type { TextFieldProps } from './TextField2'
-import { TextField } from './TextField2'
+import type { TextFieldProps } from './TextField'
+import { TextField } from './TextField'
 
 // TODO: making all these things generic seems kind of dubious, but if it works it works
 export type NameFieldProps<TFieldValues extends { name: string }> = Omit<

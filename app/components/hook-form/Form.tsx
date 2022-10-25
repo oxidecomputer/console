@@ -8,7 +8,7 @@ import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
 import { addProps, classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
 
-import './form.css'
+import 'app/components/form/form.css'
 
 export interface FormProps {
   id: string
