@@ -90,7 +90,12 @@ export function TextField<TFieldValues extends FieldValues>({
                 {...field}
                 {...props}
               />
-              {error && <TextInputError>{error.message}</TextInputError>}
+              {error && (
+                // TODO: handle this more robustly and probably share the logic
+                <TextInputError>
+                  {error.type === 'required' ? 'Field is required' : error.message}
+                </TextInputError>
+              )}
             </>
           )
         }}

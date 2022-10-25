@@ -57,7 +57,10 @@ export function CreateOrgSideModalForm({
     //
     // TODO: docs say: "when using with Controller, make sure to wire up onBlur
     // with the render prop." Now what the hell does that mean?
-    mode: 'onTouched',
+    //
+    // TODO: the docs warn against the performance implications of validating on
+    // every change
+    mode: 'onChange',
   })
 
   // TODO: calling useForm all the way up here means it's always mounted whether
