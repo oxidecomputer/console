@@ -48,9 +48,6 @@ export function CreateOrgSideModalForm({
   // TODO: we don't want to have manually specify this every time we make a
   // form. might have to make a wrapper hook with different defaults
   //
-  // TODO: docs say: "when using with Controller, make sure to wire up onBlur
-  // with the render prop." Now what the hell does that mean?
-  //
   // TODO: the docs warn against the performance implications of validating on
   // every change
   const form = useForm({ defaultValues, mode: 'onChange' })

@@ -22,7 +22,6 @@ export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UITextFieldProps {
-  /** Will default to id if not provided */
   name: Path<TFieldValues>
   /** HTML type attribute, defaults to text */
   type?: string
