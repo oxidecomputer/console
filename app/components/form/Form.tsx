@@ -119,4 +119,4 @@ Form.Cancel = (props: ButtonProps) => (
   </Button>
 )
 
-Form.Heading = classed.h2`ox-form-heading text-content text-sans-light-2xl`
+Form.Heading = classed.h2`text-content text-sans-light-2xl`
