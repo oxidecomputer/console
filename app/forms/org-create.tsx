@@ -10,8 +10,8 @@ import { Success16Icon } from '@oxide/ui'
 import type { SideModalProps } from '@oxide/ui'
 
 import { SideModalForm } from 'app/components/hook-form/SideModalForm'
+import { DescriptionField } from 'app/components/hook-form/fields/DescriptionField'
 import { NameField } from 'app/components/hook-form/fields/NameField'
-import { TextField } from 'app/components/hook-form/fields/TextField'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -110,7 +110,7 @@ export function CreateOrgSideModalForm({
       {...props}
     >
       <NameField control={form.control} />
-      <TextField name="description" control={form.control} />
+      <DescriptionField control={form.control} />
     </SideModalForm>
   )
 }
