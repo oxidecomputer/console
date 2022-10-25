@@ -9,7 +9,6 @@ import { Form } from 'app/components/form'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
-  className?: string
   children: ReactNode
   isOpen: boolean
   onDismiss: () => void
@@ -30,7 +29,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   title,
   onSubmit,
   form,
-  ...formProps
 }: SideModalFormProps<TFieldValues>) {
   // TODO: I don't really like passing the form instance and doing this stuff
   // here. it splits the logic between the useForm call site and here for no
@@ -52,7 +50,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           className="ox-form is-side-modal"
           autoComplete="off"
           onSubmit={handleSubmit(onSubmit)}
-          {...formProps}
         >
           {children}
         </form>
