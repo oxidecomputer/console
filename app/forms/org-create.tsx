@@ -28,33 +28,6 @@ export function CreateOrgSideModalForm({
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const form = useForm({
-    defaultValues,
-    // TODO: we don't want to have manually specify this every time we make a
-    // form. might have to make a wrapper hook with different defaults
-    //
-    // TODO: docs say: "when using with Controller, make sure to wire up onBlur
-    // with the render prop." Now what the hell does that mean?
-    //
-    // TODO: the docs warn against the performance implications of validating on
-    // every change
-    mode: 'onChange',
-  })
-
-  // TODO: calling useForm all the way up here means it's always mounted whether
-  // the side modal is open or not, which means form state hangs around even
-  // when the modal is closed. Using useEffect like this is a code smell, (and
-  // error-prone, and would have to be wrapped up in a custom useForm in order
-  // to get consistent correct behavior everywhere) so I would like this to work
-  // differently. Ideally useForm would be called one level lower, e.g., in a
-  // component that wraps name and description in the children of SideModalForm
-  // so it only gets rendered when the form is open.
-  useEffect(() => {
-    if (!props.isOpen) {
-      form.reset()
-    }
-  }, [form, props.isOpen])
-
   const createOrg = useApiMutation('organizationCreate', {
     onSuccess(org) {
       queryClient.invalidateQueries('organizationList', {})
@@ -71,6 +44,28 @@ export function CreateOrgSideModalForm({
     },
     onError,
   })
+
+  // TODO: we don't want to have manually specify this every time we make a
+  // form. might have to make a wrapper hook with different defaults
+  //
+  // TODO: docs say: "when using with Controller, make sure to wire up onBlur
+  // with the render prop." Now what the hell does that mean?
+  //
+  // TODO: the docs warn against the performance implications of validating on
+  // every change
+  const form = useForm({ defaultValues, mode: 'onChange' })
+
+  // TODO: calling useForm all the way up here means it's always mounted whether
+  // the side modal is open or not, which means form state hangs around even
+  // when the modal is closed. Using useEffect like this is a code smell, (and
+  // error-prone, and would have to be wrapped up in a custom useForm in order
+  // to get consistent correct behavior everywhere) so I would like this to work
+  // differently. Ideally useForm would be called one level lower, e.g., in a
+  // component that wraps name and description in the children of SideModalForm
+  // so it only gets rendered when the form is open.
+  useEffect(() => {
+    if (!props.isOpen) form.reset()
+  }, [form, props.isOpen])
 
   return (
     <SideModalForm

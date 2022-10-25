@@ -1,17 +1,18 @@
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+
 import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
+import { Form } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import type { EditSideModalFormProps } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 
-import type { EditSideModalFormProps } from '.'
-
 export function EditOrgSideModalForm({
-  id = 'edit-org-form',
   title = 'Edit organization',
-  initialValues,
-  onSubmit,
+  defaultValues,
   onSuccess,
   onError,
   onDismiss,
@@ -37,26 +38,31 @@ export function EditOrgSideModalForm({
     onError,
   })
 
+  // see comments in org-create.tsx
+  const form = useForm({ defaultValues, mode: 'onChange' })
+
+  useEffect(() => {
+    if (!props.isOpen) form.reset()
+  }, [form, props.isOpen])
+
   return (
     <SideModalForm
-      id={id}
+      id="edit-org-form"
       title={title}
-      initialValues={initialValues}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ??
-        (({ name, description }) =>
-          updateOrg.mutate({
-            path: { orgName: initialValues.name },
-            body: { name, description },
-          }))
+      onSubmit={({ name, description }) =>
+        updateOrg.mutate({
+          path: { orgName: defaultValues.name },
+          body: { name, description },
+        })
       }
       submitDisabled={updateOrg.isLoading}
       error={updateOrg.error?.error as Error | undefined}
+      form={form}
       {...props}
     >
-      <NameField id="org-name" />
-      <DescriptionField id="org-description" />
+      <NameField id="org-name" control={form.control} />
+      <DescriptionField id="org-description" control={form.control} />
       <Form.Submit>Save changes</Form.Submit>
     </SideModalForm>
   )

@@ -108,7 +108,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
       <EditOrgSideModalForm
         isOpen={modal === 'editOrg'}
         onDismiss={() => navigate(pb.orgs())}
-        initialValues={location.state}
+        defaultValues={location.state}
       />
     </>
   )
