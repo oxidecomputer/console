@@ -1,3 +1,5 @@
+import type { Path } from 'react-hook-form'
+
 import type { TextFieldProps } from './TextField2'
 import { TextField } from './TextField2'
 
@@ -18,7 +20,9 @@ export function NameField<TFieldValues extends { name: string }>({
       validate={(name) => validateName(name, required)}
       required={required}
       label="Name"
-      name="name"
+      // TODO: I don't get why we have to cast here. I want it to know that
+      // `name` is valid because we require that TFieldValues has a name key
+      name={'name' as Path<TFieldValues>}
       {...textFieldProps}
     />
   )
