@@ -16,7 +16,7 @@ import type {
 import { TextInputError } from '@oxide/ui'
 import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
-import { capitalize, exclude } from '@oxide/util'
+import { capitalize } from '@oxide/util'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
@@ -87,7 +87,7 @@ export function TextField<TFieldValues extends FieldValues>({
                 })}
                 aria-describedby={description ? `${id}-label-tip` : undefined}
                 // leave ref out because UITextField doesn't take it and we don't need it
-                {...exclude(field, 'ref')}
+                {...field}
                 {...props}
               />
               {error && (
