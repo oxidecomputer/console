@@ -120,8 +120,3 @@ Form.Cancel = (props: ButtonProps) => (
 )
 
 Form.Heading = classed.h2`ox-form-heading text-content text-sans-light-2xl`
-export interface FormSectionProps {
-  id?: string
-  children: React.ReactNode
-  title: string
-}

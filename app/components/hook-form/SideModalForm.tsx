@@ -4,7 +4,8 @@ import type { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form'
 import { SideModal } from '@oxide/ui'
 import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
-import { Form } from './Form'
+// note we're using the things that hang off of Form but not Form itself
+import { Form } from 'app/components/form'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
