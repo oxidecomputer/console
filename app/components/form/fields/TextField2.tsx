@@ -1,5 +1,12 @@
 import cn from 'classnames'
-import type { FieldValidator } from 'formik'
+import type {
+  Control,
+  FieldPath,
+  FieldPathValue,
+  FieldValues,
+  Path,
+  Validate,
+} from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type {
@@ -11,10 +18,12 @@ import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
-export interface TextFieldProps extends UITextFieldProps {
-  id: string
+export interface TextFieldProps<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> extends UITextFieldProps {
   /** Will default to id if not provided */
-  name?: string
+  name: Path<TFieldValues>
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */
@@ -37,19 +46,22 @@ export interface TextFieldProps extends UITextFieldProps {
   description?: string
   placeholder?: string
   units?: string
-  validate?: FieldValidator
+  // TODO: think about this doozy of a type
+  validate?: Validate<FieldPathValue<TFieldValues, TFieldName>>
+  control: Control<TFieldValues>
 }
 
-export function TextField({
-  id,
-  name = id,
+export function TextField<TFieldValues extends FieldValues>({
+  name,
   type = 'text',
   label = capitalize(name),
   units,
   validate,
+  control,
   ...props
-}: TextFieldProps & UITextAreaProps) {
+}: TextFieldProps<TFieldValues> & UITextAreaProps) {
   const { description, helpText, required } = props
+  const id: string = name
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -60,6 +72,8 @@ export function TextField({
       {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       <Controller
         name={name}
+        control={control}
+        rules={{ required, validate }}
         render={({ field, formState }) => (
           <UITextField
             id={id}

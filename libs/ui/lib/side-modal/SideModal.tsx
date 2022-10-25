@@ -1,4 +1,3 @@
-import type { DialogProps } from '@reach/dialog'
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import { animated, useTransition } from '@react-spring/web'
 import React, { createContext, useContext, useState } from 'react'
@@ -15,12 +14,13 @@ export const useIsInSideModal = () => {
   return useContext(SideModalContext)
 }
 
-export interface SideModalProps extends Omit<DialogProps, 'isOpen'>, ChildrenProp {
+export type SideModalProps = {
   id: string
   title?: string
   // it's optional on DialogProps but we want to require it
   onDismiss: () => void
   isOpen: boolean
+  children?: React.ReactNode
 }
 
 export function SideModal({

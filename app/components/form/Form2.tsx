@@ -1,9 +1,6 @@
 import cn from 'classnames'
-import { useFormikContext } from 'formik'
 import type { ReactNode } from 'react'
 import { cloneElement } from 'react'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import invariant from 'tiny-invariant'
 
 import type { ButtonProps } from '@oxide/ui'
@@ -17,35 +14,11 @@ export interface FormProps {
   id: string
   className?: string
   children: ReactNode
-  /** true if submission can happen, false otherwise */
-  setSubmitState?: (state: boolean) => void
   // TODO: onSubmit?
 }
 
-export function Form({ id, children, className, setSubmitState }: FormProps) {
-  const {
-    handleSubmit,
-    formState: { isDirty, isValid },
-  } = useForm()
-
-  // tell caller when state changes
-  // TODO: I think this can be done better
-  useEffect(() => {
-    setSubmitState?.(isDirty && isValid)
-  }, [isDirty, isValid, setSubmitState])
-
-  // Coerce container so it can be used in wrap
-  return (
-    <form
-      id={id}
-      className={cn('ox-form', className)}
-      autoComplete="off"
-      onSubmit={handleSubmit(() => {})}
-    >
-      {children}
-    </form>
-  )
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Form: any = {}
 
 interface FormActionsProps {
   formId?: string
