@@ -82,8 +82,8 @@ export function CreateOrgSideModalForm({
       form={form}
       {...props}
     >
-      <NameField control={form.control} />
-      <DescriptionField control={form.control} />
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

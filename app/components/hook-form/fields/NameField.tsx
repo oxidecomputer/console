@@ -1,31 +1,32 @@
-import type { Path } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+
+import { capitalize } from '@oxide/util'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
 
 // TODO: making all these things generic seems kind of dubious, but if it works it works
-export type NameFieldProps<TFieldValues extends { name: string }> = Omit<
+export type NameFieldProps<TFieldValues extends FieldValues> = Omit<
   TextFieldProps<TFieldValues>,
-  'name' | 'validate'
->
+  'validate'
+> & {
+  label?: string
+}
 
-export function NameField<TFieldValues extends { name: string }>({
+export function NameField<TFieldValues extends FieldValues>({
   required = true,
-  // TODO: should name be hardcoded? it's hard to both be flexible and have
-  // `name` as a default. it's kind of one or the other: we leave it generic and
-  // we always have to pass it, or we hard code it
-  // name = 'name',
-  // label = capitalize(name),
+  name,
+  label = capitalize(name),
   ...textFieldProps
 }: NameFieldProps<TFieldValues>) {
   return (
     <TextField
       validate={(name) => validateName(name, required)}
       required={required}
-      label="Name"
+      label={label}
       // TODO: I don't get why we have to cast. It should know `name` is
       // valid because we require that TFieldValues has that key
-      name={'name' as Path<TFieldValues>}
+      name={name}
       {...textFieldProps}
     />
   )

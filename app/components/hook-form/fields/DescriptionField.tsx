@@ -1,4 +1,4 @@
-import type { Path } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
@@ -6,23 +6,14 @@ import { TextField } from './TextField'
 // TODO: Pull this from generated types
 const MAX_LEN = 512
 
-export type DescriptionFieldProps<TFieldValues extends { description: string }> = Omit<
+export type DescriptionFieldProps<TFieldValues extends FieldValues> = Omit<
   TextFieldProps<TFieldValues>,
-  'name' | 'validate'
+  'validate'
 >
-
-export function DescriptionField<TFieldValues extends { description: string }>({
-  ...textFieldProps
-}: DescriptionFieldProps<TFieldValues>) {
-  return (
-    <TextField
-      // TODO: I don't get why we have to cast. It should know `description` is
-      // valid because we require that TFieldValues has that key
-      name={'description' as Path<TFieldValues>}
-      validate={validateDescription}
-      {...textFieldProps}
-    />
-  )
+export function DescriptionField<TFieldValues extends FieldValues>(
+  props: DescriptionFieldProps<TFieldValues>
+) {
+  return <TextField validate={validateDescription} {...props} />
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern

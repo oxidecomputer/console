@@ -61,8 +61,8 @@ export function EditOrgSideModalForm({
       form={form}
       {...props}
     >
-      <NameField id="org-name" control={form.control} />
-      <DescriptionField id="org-description" control={form.control} />
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
       <Form.Submit>Save changes</Form.Submit>
     </SideModalForm>
   )
