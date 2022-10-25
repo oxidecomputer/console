@@ -21,7 +21,7 @@ export function NameField<TFieldValues extends FieldValues>({
 }: NameFieldProps<TFieldValues>) {
   return (
     <TextField
-      validate={(name) => validateName(name, required)}
+      validate={(name) => validateName(name, label, required)}
       required={required}
       label={label}
       // TODO: I don't get why we have to cast. It should know `name` is
@@ -33,11 +33,11 @@ export function NameField<TFieldValues extends FieldValues>({
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
-export const validateName = (name: string, required: boolean) => {
+export const validateName = (name: string, label: string, required: boolean) => {
   if (!required && !name) return
 
   if (name.length === 0) {
-    return `Name is required`
+    return `${label} is required`
   } else if (!/^[a-z]/.test(name)) {
     return 'Must start with a lower-case letter'
   } else if (!/[a-z0-9]$/.test(name)) {
