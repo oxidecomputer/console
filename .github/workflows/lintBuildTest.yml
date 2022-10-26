@@ -71,7 +71,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: npm run playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
+        run: npx playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
       - uses: actions/upload-artifact@v2
         if: always()
         with:
