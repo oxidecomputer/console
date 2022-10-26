@@ -13,7 +13,7 @@ it('Generated API client version matches API version specified for deployment', 
     .trim()
 
   // if this test fails, most likely you have updated the API_VERSION in
-  // console/OMICRON_VERSION without re-running `yarn gen-api`
+  // console/OMICRON_VERSION without re-running `npm run gen-api`
   expect(generatedVersion).toEqual(pinnedVersion)
 })
 

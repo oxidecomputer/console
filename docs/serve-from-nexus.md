@@ -11,7 +11,6 @@ Following the rest of the instructions is only necessary if you want to build th
 ## Dependencies
 
 - Node.js (tested on 14+, 16+ recommended)
-- Yarn v1 — install with `npm install --global yarn`
 
 ## Note about pinned omicron version
 
@@ -29,12 +28,12 @@ In any case, if the console mostly works but requests to newer parts of the API 
 From Nexus's point of view, the Console is just some static assets it serves at a set of routes, so all you need to do to serve the console from Nexus is build the assets and put them in the right spot. To build the assets, run
 
 ```sh
-yarn install && yarn build-for-nexus
+npm install && npm run build-for-nexus
 ```
 
-Note that this script includes a `yarn install` to make sure dependencies are up to date.
+Note that this script includes a `npm install` to make sure dependencies are up to date.
 
-The only difference between this build and the one for local dev is that the latter needs an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `yarn build-for-nexus` makes the prefix `""`, i.e., no prefix.
+The only difference between this build and the one for local dev is that the latter needs an `/api` prefix on API requests so the proxy server (nginx and Vite dev server respectively) knows which ones to pass on to Nexus. `npm run build-for-nexus` makes the prefix `""`, i.e., no prefix.
 
 ### Set `console.static_dir` and copy files there (if necessary)
 
@@ -66,7 +65,7 @@ If I have `console` and `omicron` sitting next to each other in the same directo
 static_dir = "out/console-assets"
 ```
 
-I would run `yarn build-for-nexus` in `console` and then use the following command to copy the files over:
+I would run `npm run build-for-nexus` in `console` and then use the following command to copy the files over:
 
 ```bash
 cp -R dist/ ../omicron/out/console-assets

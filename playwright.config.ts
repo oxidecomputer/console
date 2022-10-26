@@ -49,7 +49,7 @@ const config: PlaywrightTestConfig = {
 
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: `yarn build --mode development && yarn start preview --port 4009`,
+    command: `npm run build --mode development && npm run start preview --port 4009`,
     port: 4009,
   },
 }

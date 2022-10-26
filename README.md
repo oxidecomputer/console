@@ -18,30 +18,30 @@ The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`
 
 ## Try it
 
-The fastest way to see the console in action is to check out the repo, run `yarn && yarn start:msw`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a Service Worker in the browser.
+The fastest way to see the console in action is to check out the repo, run `npm install && npm run start:msw`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a Service Worker in the browser.
 
 ## Development
 
 ### Install dependencies
 
 ```
-yarn install
+npm install
 ```
 
-### Run Storybook
+### Run [Ladel](https://ladle.dev/)
 
 ```
-yarn storybook
+npm run storybook
 ```
 
-This will start the storybook for the `ui` component library and start it on `http://localhost:4400`.
+This will start a preview environment for the UI components in the project. The window should open automatically, but if not go to `http://localhost:61000`.
 
 ### Run Vite dev server + [MSW](https://mswjs.io/) mock API
 
 This is the easiest way to run the console locally. Just run:
 
 ```
-yarn start:msw
+npm run start:msw
 ```
 
 and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
@@ -52,7 +52,7 @@ You can also run the console against a real instance of Nexus, the API.
 
 #### Run dev server
 
-Run `yarn start` and navigate to http://localhost:4000/ in the browser. The running app will automatically update if you change the source code. It will mostly not work until you run the API.
+Run `npm run start` and navigate to http://localhost:4000/ in the browser. The running app will automatically update if you change the source code. It will mostly not work until you run the API.
 
 #### Run API
 
@@ -116,31 +116,31 @@ Using the script is strongly recommended, but if you really don't want to, make 
 
 ### E2E tests with [Playwright](https://playwright.dev/)
 
-Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `yarn e2e`. You may have to run `yarn playwright install` after `yarn install` to get the browser binaries.
+Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `npm run e2e`. You may have to run `npx playwright install` after `npm install` to get the browser binaries.
 
 There are two types of tests in our project. Validation tests which rely on mocked responses from MSW and smoke tests which assume a clean environment. Smoke tests are design to be ran against a rack meaning they create any required resources for the test and clean up after themselves.
 
-Tests are ran across `chrome`, `firefox`, and `safari` when running `yarn e2e`. Test runs can be isolated to a single browser by setting a `BROWSER` environment variable like `BROWSER=chrome yarn e2e`. Tests can be further isolated down to either smoke or validation suites by providing a `--project` argument. For example, `yarn e2e --project=validate-chrome` or `yarn e2e --project=smoke-firefox`.
+Tests are ran across `chrome`, `firefox`, and `safari` when running `npm run e2e`. Test runs can be isolated to a single browser by setting a `BROWSER` environment variable like `BROWSER=chrome npm run e2e`. Tests can be further isolated down to either smoke or validation suites by providing a `--project` argument. For example, `npm run e2e -- --project=validate-chrome` or `npm run e2e -- --project=smoke-firefox`.
 
 Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) for more details):
 
-- Add `await page.pause()` to a test and run `BROWSER=chrome yarn e2e <test file> --headed` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
+- Add `await page.pause()` to a test and run `BROWSER=chrome npm run e2e <test file> -- --headed` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
 
 To debug end-to-end failures on CI checkout the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 
 ### Other useful commands
 
-| Command               | Description                                                                        |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `yarn test run`       | Vitest tests                                                                       |
-| `yarn test`           | Vitest tests in watch mode                                                         |
-| `yarn e2ec`           | Only run end-to-end tests in chromium                                              |
-| `yarn lint`           | ESLint                                                                             |
-| `yarn tsc`            | Check types                                                                        |
-| `yarn ci`             | Lint, tests, and types                                                             |
-| `yarn fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
-| `yarn gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
-| `yarn start:mock-api` | Serve mock API on port 12220                                                       |
+| Command                  | Description                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------- |
+| `npm test run`           | Vitest tests                                                                       |
+| `npm test`               | Vitest tests in watch mode                                                         |
+| `npm run e2ec`           | Only run end-to-end tests in chromium                                              |
+| `npm run lint`           | ESLint                                                                             |
+| `npm run tsc`            | Check types                                                                        |
+| `npm run ci`             | Lint, tests, and types                                                             |
+| `npm run fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
+| `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
+| `npm run start:mock-api` | Serve mock API on port 12220                                                       |
 
 ## Relevant documents
 

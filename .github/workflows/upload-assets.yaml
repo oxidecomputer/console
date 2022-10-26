@@ -21,10 +21,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: 'yarn'
-      - run: yarn install
+          cache: 'npm'
+      - run: npm install
       - name: Build for Nexus
-        run: SHA=${{ github.sha }} yarn build-for-nexus
+        run: SHA=${{ github.sha }} npm run build-for-nexus
       - name: Gzip individual files (keep originals)
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
       - name: add console_version file
