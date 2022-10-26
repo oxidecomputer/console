@@ -73,8 +73,7 @@ export function TextField<TFieldValues extends FieldValues>({
         name={name}
         control={control}
         rules={{ required, validate }}
-        render={({ field, formState }) => {
-          const error = formState.errors[name]
+        render={({ field, fieldState: { error } }) => {
           return (
             <>
               <UITextField
