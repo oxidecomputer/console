@@ -125,7 +125,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
       <EditProjectSideModalForm
         isOpen={modal === 'editProject'}
         onDismiss={backToProjects}
-        initialValues={location.state}
+        defaultValues={location.state}
       />
     </>
   )

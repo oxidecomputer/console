@@ -2,21 +2,20 @@ import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import type { EditSideModalFormProps } from 'app/components/hook-form'
 
-import type { EditSideModalFormProps } from '.'
 import { useRequiredParams, useToast } from '../hooks'
 
 export function EditProjectSideModalForm({
-  id = 'edit-project-form',
   title = 'Edit project',
-  initialValues,
-  onSubmit,
+  defaultValues,
   onSuccess,
   onError,
   onDismiss,
-  ...props
+  isOpen,
 }: EditSideModalFormProps<ProjectCreate, Project>) {
+  console.log('edit project', { defaultValues })
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -45,29 +44,30 @@ export function EditProjectSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
-      initialValues={initialValues}
+      id="edit-project-form"
+      formOptions={{ defaultValues }}
       title={title}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        (({ name, description }) => {
-          editProject.mutate({
-            path: {
-              projectName: initialValues.name,
-              orgName,
-            },
-            body: { name, description },
-          })
+      onSubmit={({ name, description }) => {
+        editProject.mutate({
+          path: {
+            projectName: defaultValues.name,
+            orgName,
+          },
+          body: { name, description },
         })
-      }
+      }}
       submitDisabled={editProject.isLoading}
       error={editProject.error?.error as Error | undefined}
-      {...props}
+      submitLabel="Save changes"
+      isOpen={isOpen}
     >
-      <NameField id="name" />
-      <DescriptionField id="description" />
-      <Form.Submit>Save changes</Form.Submit>
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
