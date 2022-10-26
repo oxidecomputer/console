@@ -86,7 +86,6 @@ export function TextField<TFieldValues extends FieldValues>({
                   [`${id}-help-text`]: !!description,
                 })}
                 aria-describedby={description ? `${id}-label-tip` : undefined}
-                // leave ref out because UITextField doesn't take it and we don't need it
                 {...field}
                 {...props}
               />
