@@ -30,7 +30,7 @@ export function SideModalForm<Values extends Record<string, unknown>>({
   const submit = pluckFirstOfType(childArray, Form.Submit)
 
   return (
-    <SideModal id={`${id}-modal`} onDismiss={onDismiss} isOpen={isOpen}>
+    <SideModal onDismiss={onDismiss} isOpen={isOpen}>
       {title && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
       <SideModal.Body>
         <Form

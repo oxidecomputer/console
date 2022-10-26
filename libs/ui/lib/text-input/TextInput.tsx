@@ -1,5 +1,6 @@
 import { Alert } from '@reach/alert'
 import cn from 'classnames'
+import React from 'react'
 
 import type { ChildrenProp } from '@oxide/util'
 
@@ -26,7 +27,7 @@ export type TextAreaProps =
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextInputBaseProps = React.ComponentProps<'input'> & {
+export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
   // error is used to style the wrapper, also to put aria-invalid on the input
   error?: boolean
   disabled?: boolean
@@ -34,13 +35,10 @@ export type TextInputBaseProps = React.ComponentProps<'input'> & {
   fieldClassName?: string
 }
 
-export const TextInput = ({
-  type = 'text',
-  error,
-  className,
-  fieldClassName,
-  ...fieldProps
-}: TextInputBaseProps & TextAreaProps) => (
+export const TextInput = React.forwardRef<
+  HTMLInputElement,
+  TextInputBaseProps & TextAreaProps
+>(({ type = 'text', error, className, fieldClassName, ...fieldProps }, ref) => (
   <div
     className={cn(
       'flex rounded border border-default',
@@ -50,6 +48,7 @@ export const TextInput = ({
     )}
   >
     <input
+      ref={ref}
       type={type}
       className={cn(
         `w-full border-none bg-transparent
@@ -63,7 +62,7 @@ export const TextInput = ({
       {...fieldProps}
     />
   </div>
-)
+))
 
 // TODO: do this properly: extract a NumberField that styles the up and down
 // buttons for when we do want them *and* add a flag to hide them using
