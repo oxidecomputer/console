@@ -40,6 +40,7 @@ export function EditOrgSideModalForm({
 
   // see comments in org-create.tsx
   const form = useForm({ defaultValues, mode: 'onChange' })
+  const canSubmit = form.formState.isDirty && form.formState.isValid
 
   useEffect(() => {
     if (!props.isOpen) form.reset()
@@ -50,15 +51,14 @@ export function EditOrgSideModalForm({
       id="edit-org-form"
       title={title}
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) =>
+      onSubmit={form.handleSubmit(({ name, description }) =>
         updateOrg.mutate({
           path: { orgName: defaultValues.name },
           body: { name, description },
         })
-      }
-      submitDisabled={updateOrg.isLoading}
+      )}
+      submitDisabled={updateOrg.isLoading || !canSubmit}
       error={updateOrg.error?.error as Error | undefined}
-      form={form}
       {...props}
     >
       <NameField name="name" control={form.control} />

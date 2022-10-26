@@ -51,6 +51,7 @@ export function CreateOrgSideModalForm({
   // TODO: the docs warn against the performance implications of validating on
   // every change
   const form = useForm({ defaultValues, mode: 'onChange' })
+  const canSubmit = form.formState.isDirty && form.formState.isValid
 
   // TODO: calling useForm all the way up here means it's always mounted whether
   // the side modal is open or not, which means form state hangs around even
@@ -69,14 +70,9 @@ export function CreateOrgSideModalForm({
       id="create-org-form"
       title={title}
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) =>
-        createOrg.mutate({
-          body: { name, description },
-        })
-      }
-      submitDisabled={createOrg.isLoading}
+      onSubmit={form.handleSubmit((values) => createOrg.mutate({ body: values }))}
+      submitDisabled={createOrg.isLoading || !canSubmit}
       error={createOrg.error?.error as Error | undefined}
-      form={form}
       {...props}
     >
       <NameField name="name" control={form.control} />

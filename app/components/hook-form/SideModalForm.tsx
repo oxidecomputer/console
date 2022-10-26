@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react'
-import type { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form'
+import type { FormEventHandler, ReactNode } from 'react'
 
 import { SideModal } from '@oxide/ui'
 import { flattenChildren, pluckFirstOfType } from '@oxide/util'
@@ -7,7 +6,7 @@ import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 // note we're using the things that hang off of Form but not Form itself
 import { Form } from 'app/components/form'
 
-type SideModalFormProps<TFieldValues extends FieldValues> = {
+type SideModalFormProps = {
   id: string
   children: ReactNode
   isOpen: boolean
@@ -15,11 +14,10 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   submitDisabled?: boolean
   error?: Error
   title: ReactNode
-  onSubmit: SubmitHandler<TFieldValues>
-  form: UseFormReturn<TFieldValues>
+  onSubmit: FormEventHandler<HTMLFormElement>
 }
 
-export function SideModalForm<TFieldValues extends FieldValues>({
+export function SideModalForm({
   id,
   children,
   onDismiss,
@@ -28,16 +26,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   error,
   title,
   onSubmit,
-  form,
-}: SideModalFormProps<TFieldValues>) {
-  // TODO: I don't really like passing the form instance and doing this stuff
-  // here. it splits the logic between the useForm call site and here for no
-  // clear reason
-  const {
-    handleSubmit,
-    formState: { isDirty, isValid },
-  } = form
-  const canSubmit = isDirty && isValid
+}: SideModalFormProps) {
   const childArray = flattenChildren(children)
   const submit = pluckFirstOfType(childArray, Form.Submit)
 
@@ -49,7 +38,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           id={id}
           className="ox-form is-side-modal"
           autoComplete="off"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={onSubmit}
         >
           {children}
         </form>
@@ -57,7 +46,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Footer>
         <Form.Actions
           formId={id}
-          submitDisabled={submitDisabled || !canSubmit}
+          submitDisabled={submitDisabled}
           error={error}
           className="flex-row-reverse"
         >
