@@ -10,7 +10,7 @@ type SideModalFormProps = {
   onDismiss: () => void
   submitDisabled?: boolean
   error?: Error
-  title: ReactNode
+  title: string
   onSubmit: FormEventHandler<HTMLFormElement>
   submitLabel?: string
 }
@@ -27,8 +27,7 @@ export function SideModalForm({
   submitLabel,
 }: SideModalFormProps) {
   return (
-    <SideModal id={`${id}-modal`} onDismiss={onDismiss} isOpen={isOpen}>
-      {title && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
+    <SideModal onDismiss={onDismiss} isOpen={isOpen} title={title}>
       <SideModal.Body>
         <form
           id={id}
