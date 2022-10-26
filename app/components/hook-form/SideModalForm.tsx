@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
-import type { Control, DeepPartial, FieldValues } from 'react-hook-form'
+import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 
 import { Error12Icon } from '@oxide/ui'
@@ -8,7 +8,7 @@ import { Button, SideModal } from '@oxide/ui'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
-  defaultValues: DeepPartial<TFieldValues> // how RHF does it
+  formOptions: UseFormProps<TFieldValues>
   /**
    * A function that returns the fields.
    *
@@ -29,7 +29,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
 
 export function SideModalForm<TFieldValues extends FieldValues>({
   id,
-  defaultValues,
+  formOptions,
   children,
   onDismiss,
   isOpen,
@@ -46,7 +46,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     formState: { isDirty, isValid },
     handleSubmit,
     reset,
-  } = useForm({ defaultValues, mode: 'all' })
+  } = useForm({ mode: 'all', ...formOptions })
   const canSubmit = isDirty && isValid
 
   // TODO: calling useForm all the way up here means it's always mounted whether

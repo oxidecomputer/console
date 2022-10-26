@@ -37,7 +37,7 @@ export function EditOrgSideModalForm({
   return (
     <SideModalForm
       id="edit-org-form"
-      defaultValues={defaultValues}
+      formOptions={{ defaultValues }}
       title={title}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>

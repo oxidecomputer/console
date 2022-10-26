@@ -46,7 +46,7 @@ export function CreateOrgSideModalForm({
   return (
     <SideModalForm
       id="create-org-form"
-      defaultValues={defaultValues}
+      formOptions={{ defaultValues }}
       title={title}
       onDismiss={onDismiss}
       onSubmit={(values) => createOrg.mutate({ body: values })}
