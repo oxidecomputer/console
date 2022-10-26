@@ -40,7 +40,7 @@ export function SideModalForm({
           autoComplete="off"
           onSubmit={onSubmit}
         >
-          {children}
+          {childArray}
         </form>
       </SideModal.Body>
       <SideModal.Footer>
