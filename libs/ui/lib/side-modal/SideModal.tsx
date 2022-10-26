@@ -17,7 +17,6 @@ export const useIsInSideModal = () => {
 export type SideModalProps = {
   id: string
   title?: string
-  // it's optional on DialogProps but we want to require it
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode

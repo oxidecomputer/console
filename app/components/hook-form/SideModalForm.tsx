@@ -1,9 +1,7 @@
 import type { FormEventHandler, ReactNode } from 'react'
 
-import { SideModal } from '@oxide/ui'
-
-// note we're using the things that hang off of Form but not Form itself
-import { Form } from 'app/components/form'
+import { Error12Icon } from '@oxide/ui'
+import { Button, SideModal } from '@oxide/ui'
 
 type SideModalFormProps = {
   id: string
@@ -42,15 +40,20 @@ export function SideModalForm({
         </form>
       </SideModal.Body>
       <SideModal.Footer>
-        <Form.Actions
-          formId={id}
-          submitDisabled={submitDisabled}
-          error={error}
-          className="flex-row-reverse"
-        >
-          <Form.Submit>{submitLabel || title}</Form.Submit>
-          <Form.Cancel onClick={onDismiss} />
-        </Form.Actions>
+        <div className="flex w-full items-center gap-[0.625rem] children:shrink-0">
+          <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
+            Cancel
+          </Button>
+          <Button type="submit" size="sm" disabled={submitDisabled} form={id}>
+            {submitLabel || title}
+          </Button>
+          {error && (
+            <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
+              <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+              <span>{error.message}</span>
+            </div>
+          )}
+        </div>
       </SideModal.Footer>
     </SideModal>
   )
