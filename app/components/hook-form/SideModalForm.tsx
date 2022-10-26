@@ -1,22 +1,35 @@
-import type { FormEventHandler, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect } from 'react'
+import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
 
-type SideModalFormProps = {
+type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
-  children: ReactNode
+  formOptions: UseFormProps<TFieldValues>
+  /**
+   * A function that returns the fields.
+   *
+   * Implemented as a function so we can pass `control` to the fields in the
+   * calling code. We could do that internally with `cloneElement` instead, but
+   * then in the calling code, the field would not infer `TFieldValues` and
+   * constrain the `name` prop to paths in the values object.
+   */
+  children: (control: Control<TFieldValues>) => ReactNode
   isOpen: boolean
   onDismiss: () => void
   submitDisabled?: boolean
   error?: Error
   title: string
-  onSubmit: FormEventHandler<HTMLFormElement>
+  onSubmit: (values: TFieldValues) => void
   submitLabel?: string
 }
 
-export function SideModalForm({
+export function SideModalForm<TFieldValues extends FieldValues>({
   id,
+  formOptions,
   children,
   onDismiss,
   isOpen,
@@ -25,7 +38,27 @@ export function SideModalForm({
   title,
   onSubmit,
   submitLabel,
-}: SideModalFormProps) {
+}: SideModalFormProps<TFieldValues>) {
+  // TODO: RHF docs warn about the performance impact of validating on every
+  // change
+  const {
+    control,
+    formState: { isDirty, isValid },
+    handleSubmit,
+    reset,
+  } = useForm({ mode: 'all', ...formOptions })
+  const canSubmit = isDirty && isValid
+
+  // TODO: calling useForm all the way up here means it's always mounted whether
+  // the side modal is open or not, which means form state hangs around even
+  // when the modal is closed. Using useEffect like this is a code smell, so I
+  // would like this to work differently. Ideally useForm would be called one
+  // level lower, inside SideModal, so it only gets rendered when the form is
+  // open.
+  useEffect(() => {
+    if (!isOpen) reset()
+  }, [reset, isOpen])
+
   return (
     <SideModal onDismiss={onDismiss} isOpen={isOpen} title={title}>
       <SideModal.Body>
@@ -33,9 +66,9 @@ export function SideModalForm({
           id={id}
           className="ox-form is-side-modal"
           autoComplete="off"
-          onSubmit={onSubmit}
+          onSubmit={handleSubmit(onSubmit)}
         >
-          {children}
+          {children(control)}
         </form>
       </SideModal.Body>
       <SideModal.Footer>
@@ -43,7 +76,7 @@ export function SideModalForm({
           <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
-          <Button type="submit" size="sm" disabled={submitDisabled} form={id}>
+          <Button type="submit" size="sm" disabled={submitDisabled || !canSubmit} form={id}>
             {submitLabel || title}
           </Button>
           {error && (

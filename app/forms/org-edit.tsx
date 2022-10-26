@@ -1,11 +1,7 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-
 import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { Form } from 'app/components/form'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import type { EditSideModalFormProps } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
@@ -38,33 +34,29 @@ export function EditOrgSideModalForm({
     onError,
   })
 
-  // see comments in org-create.tsx
-  const form = useForm({ defaultValues, mode: 'onChange' })
-  const canSubmit = form.formState.isDirty && form.formState.isValid
-
-  useEffect(() => {
-    if (!isOpen) form.reset()
-  }, [form, isOpen])
-
   return (
     <SideModalForm
       id="edit-org-form"
+      formOptions={{ defaultValues }}
       title={title}
       onDismiss={onDismiss}
-      onSubmit={form.handleSubmit(({ name, description }) =>
+      onSubmit={({ name, description }) =>
         updateOrg.mutate({
           path: { orgName: defaultValues.name },
           body: { name, description },
         })
-      )}
-      submitDisabled={updateOrg.isLoading || !canSubmit}
+      }
+      submitDisabled={updateOrg.isLoading}
       error={updateOrg.error?.error as Error | undefined}
       submitLabel="Save changes"
       isOpen={isOpen}
     >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
-      <Form.Submit>Save changes</Form.Submit>
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
