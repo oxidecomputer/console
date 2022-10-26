@@ -24,8 +24,6 @@ export function NameField<TFieldValues extends FieldValues>({
       validate={(name) => validateName(name, label, required)}
       required={required}
       label={label}
-      // TODO: I don't get why we have to cast. It should know `name` is
-      // valid because we require that TFieldValues has that key
       name={name}
       {...textFieldProps}
     />
