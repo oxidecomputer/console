@@ -50,7 +50,7 @@ export function CreateOrgSideModalForm({
   //
   // TODO: the docs warn against the performance implications of validating on
   // every change
-  const form = useForm({ defaultValues, mode: 'onChange' })
+  const form = useForm({ defaultValues, mode: 'all' })
   const canSubmit = form.formState.isDirty && form.formState.isValid
 
   // TODO: calling useForm all the way up here means it's always mounted whether
