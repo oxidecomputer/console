@@ -22,7 +22,7 @@ jobs:
           key: modules-${{ hashFiles('package-lock.json') }}
       - name: npm install
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm install
+        run: npm install --force
   ci:
     timeout-minutes: 5
     runs-on: ubuntu-latest

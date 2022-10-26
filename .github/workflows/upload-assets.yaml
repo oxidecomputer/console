@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '16'
           cache: 'npm'
-      - run: npm install
+      - run: npm install --force
       - name: Build for Nexus
         run: SHA=${{ github.sha }} npm run build-for-nexus
       - name: Gzip individual files (keep originals)

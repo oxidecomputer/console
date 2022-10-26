@@ -18,7 +18,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
 
       - name: Format
         run: npm run fmt
