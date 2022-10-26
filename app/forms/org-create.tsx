@@ -22,7 +22,7 @@ export function CreateOrgSideModalForm({
   onSuccess,
   onError,
   onDismiss,
-  ...props
+  isOpen,
 }: CreateSideModalFormProps<OrganizationCreate, Organization>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
@@ -62,8 +62,8 @@ export function CreateOrgSideModalForm({
   // component that wraps name and description in the children of SideModalForm
   // so it only gets rendered when the form is open.
   useEffect(() => {
-    if (!props.isOpen) form.reset()
-  }, [form, props.isOpen])
+    if (!isOpen) form.reset()
+  }, [form, isOpen])
 
   return (
     <SideModalForm
@@ -73,7 +73,7 @@ export function CreateOrgSideModalForm({
       onSubmit={form.handleSubmit((values) => createOrg.mutate({ body: values }))}
       submitDisabled={createOrg.isLoading || !canSubmit}
       error={createOrg.error?.error as Error | undefined}
-      {...props}
+      isOpen={isOpen}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

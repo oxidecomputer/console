@@ -1,7 +1,6 @@
 import type { FormEventHandler, ReactNode } from 'react'
 
 import { SideModal } from '@oxide/ui'
-import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 // note we're using the things that hang off of Form but not Form itself
 import { Form } from 'app/components/form'
@@ -15,6 +14,7 @@ type SideModalFormProps = {
   error?: Error
   title: ReactNode
   onSubmit: FormEventHandler<HTMLFormElement>
+  submitLabel?: string
 }
 
 export function SideModalForm({
@@ -26,10 +26,8 @@ export function SideModalForm({
   error,
   title,
   onSubmit,
+  submitLabel,
 }: SideModalFormProps) {
-  const childArray = flattenChildren(children)
-  const submit = pluckFirstOfType(childArray, Form.Submit)
-
   return (
     <SideModal id={`${id}-modal`} onDismiss={onDismiss} isOpen={isOpen}>
       {title && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
@@ -40,7 +38,7 @@ export function SideModalForm({
           autoComplete="off"
           onSubmit={onSubmit}
         >
-          {childArray}
+          {children}
         </form>
       </SideModal.Body>
       <SideModal.Footer>
@@ -50,7 +48,7 @@ export function SideModalForm({
           error={error}
           className="flex-row-reverse"
         >
-          {submit || <Form.Submit>{title}</Form.Submit>}
+          <Form.Submit>{submitLabel || title}</Form.Submit>
           <Form.Cancel onClick={onDismiss} />
         </Form.Actions>
       </SideModal.Footer>

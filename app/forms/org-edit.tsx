@@ -16,7 +16,7 @@ export function EditOrgSideModalForm({
   onSuccess,
   onError,
   onDismiss,
-  ...props
+  isOpen,
 }: EditSideModalFormProps<OrganizationCreate, Organization>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -43,8 +43,8 @@ export function EditOrgSideModalForm({
   const canSubmit = form.formState.isDirty && form.formState.isValid
 
   useEffect(() => {
-    if (!props.isOpen) form.reset()
-  }, [form, props.isOpen])
+    if (!isOpen) form.reset()
+  }, [form, isOpen])
 
   return (
     <SideModalForm
@@ -59,7 +59,8 @@ export function EditOrgSideModalForm({
       )}
       submitDisabled={updateOrg.isLoading || !canSubmit}
       error={updateOrg.error?.error as Error | undefined}
-      {...props}
+      submitLabel="Save changes"
+      isOpen={isOpen}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

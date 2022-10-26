@@ -1,13 +1,14 @@
 import type { SetRequired } from 'type-fest'
 
 import type { ErrorResult } from '@oxide/api'
-import type { SideModalProps } from '@oxide/ui'
 
-export type CreateSideModalFormProps<TFieldValues, Data> = Omit<SideModalProps, 'id'> & {
+export type CreateSideModalFormProps<TFieldValues, Data> = {
+  title?: string
+  isOpen: boolean
   defaultValues?: TFieldValues
   onSuccess?: (data: Data) => void
   onError?: (err: ErrorResult) => void
-  onDismiss?: () => void
+  onDismiss: () => void
 }
 
 /** Same as `CreateSideModalFormProps` except with `defaultValues` required */
