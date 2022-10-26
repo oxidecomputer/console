@@ -139,7 +139,6 @@ To debug end-to-end failures on CI checkout the branch with the failure and run 
 | `yarn tsc`            | Check types                                                                        |
 | `yarn ci`             | Lint, tests, and types                                                             |
 | `yarn fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
-| `yarn gen`            | Generate components, stories, tests, etc                                           |
 | `yarn gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 | `yarn start:mock-api` | Serve mock API on port 12220                                                       |
 
