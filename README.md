@@ -136,7 +136,7 @@ To debug end-to-end failures on CI checkout the branch with the failure and run 
 | `npm test`               | Vitest tests in watch mode                                                         |
 | `npm run e2ec`           | Only run end-to-end tests in chromium                                              |
 | `npm run lint`           | ESLint                                                                             |
-| `npm run tsc`            | Check types                                                                        |
+| `npx tsc`                | Check types                                                                        |
 | `npm run ci`             | Lint, tests, and types                                                             |
 | `npm run fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
 | `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
