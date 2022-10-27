@@ -48,7 +48,6 @@ export function CreateOrgSideModalForm({
       onSubmit={(values) => createOrg.mutate({ body: values })}
       submitDisabled={createOrg.isLoading}
       error={createOrg.error?.error as Error | undefined}
-      isOpen
     >
       {(control) => (
         <>

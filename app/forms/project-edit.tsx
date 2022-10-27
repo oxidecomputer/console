@@ -68,7 +68,6 @@ export function EditProjectSideModalForm({
       submitDisabled={editProject.isLoading}
       error={editProject.error?.error as Error | undefined}
       submitLabel="Save changes"
-      isOpen
     >
       {(control) => (
         <>

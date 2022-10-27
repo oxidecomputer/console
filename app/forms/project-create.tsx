@@ -60,7 +60,6 @@ export function CreateProjectSideModalForm({
       }}
       submitDisabled={createProject.isLoading}
       error={createProject.error?.error as Error | undefined}
-      isOpen
     >
       {(control) => (
         <>

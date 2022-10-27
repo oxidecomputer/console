@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
+import { useNavigationType } from 'react-router-dom'
 
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
@@ -17,7 +18,6 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    * constrain the `name` prop to paths in the values object.
    */
   children: (control: Control<TFieldValues>) => ReactNode
-  isOpen: boolean
   onDismiss: () => void
   submitDisabled?: boolean
   error?: Error
@@ -31,7 +31,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   formOptions,
   children,
   onDismiss,
-  isOpen,
   submitDisabled = false,
   error,
   title,
@@ -48,8 +47,16 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
   const canSubmit = isDirty && isValid
 
+  /**
+   * Only animate the modal in when we're navigating by a client-side click.
+   * Don't animate on a fresh pageload or on back/forward. The latter may be
+   * slightly awkward but it also makes some sense. I do not believe there is
+   * any way to distinguish between fresh pageload and back/forward.
+   */
+  const animate = useNavigationType() === 'PUSH'
+
   return (
-    <SideModal onDismiss={onDismiss} isOpen={isOpen} title={title}>
+    <SideModal onDismiss={onDismiss} isOpen title={title} animate={animate}>
       <SideModal.Body>
         <form
           id={id}
