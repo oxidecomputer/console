@@ -4,7 +4,6 @@ import type {
   FieldPath,
   FieldPathValue,
   FieldValues,
-  Path,
   Validate,
 } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
@@ -22,7 +21,7 @@ export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > extends UITextFieldProps {
-  name: Path<TFieldValues>
+  name: TFieldName
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */

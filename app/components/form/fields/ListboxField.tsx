@@ -12,7 +12,7 @@ export type ListboxFieldProps = {
   required?: boolean
   helpText?: string
   description?: string
-} & Pick<ListboxProps, 'disabled' | 'items' | 'onChange'>
+} & Pick<ListboxProps, 'disabled' | 'items'>
 
 export function ListboxField({
   id,
@@ -23,7 +23,6 @@ export function ListboxField({
   required,
   description,
   helpText,
-  onChange,
   className,
 }: ListboxFieldProps) {
   const [, { value }, { setValue }] = useField<string | undefined>({
@@ -41,10 +40,7 @@ export function ListboxField({
       <Listbox
         defaultValue={value}
         items={items}
-        onChange={(i) => {
-          setValue(i?.value)
-          onChange?.(i)
-        }}
+        onChange={(i) => setValue(i?.value)}
         disabled={disabled}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
