@@ -1,13 +1,16 @@
 import cn from 'classnames'
-import type { Control, FieldValues, Path } from 'react-hook-form'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type { ListboxItem } from '@oxide/ui'
 import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
-export type ListboxFieldProps<TFieldValues extends FieldValues> = {
-  name: Path<TFieldValues>
+export type ListboxFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+> = {
+  name: TName
   className?: string
   label?: string
   required?: boolean
@@ -18,7 +21,10 @@ export type ListboxFieldProps<TFieldValues extends FieldValues> = {
   items: ListboxItem[]
 }
 
-export function ListboxField<TFieldValues extends FieldValues>({
+export function ListboxField<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues>
+>({
   items,
   name,
   label = capitalize(name),
@@ -28,7 +34,7 @@ export function ListboxField<TFieldValues extends FieldValues>({
   helpText,
   className,
   control,
-}: ListboxFieldProps<TFieldValues>) {
+}: ListboxFieldProps<TFieldValues, TFieldName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
   const id: string = name

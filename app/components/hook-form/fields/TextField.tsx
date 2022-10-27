@@ -19,7 +19,7 @@ import { capitalize } from '@oxide/util'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TFieldName extends FieldPath<TFieldValues>
 > extends UITextFieldProps {
   name: TFieldName
   /** HTML type attribute, defaults to text */
@@ -49,7 +49,10 @@ export interface TextFieldProps<
   control: Control<TFieldValues>
 }
 
-export function TextField<TFieldValues extends FieldValues>({
+export function TextField<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues>
+>({
   name,
   type = 'text',
   label = capitalize(name),
@@ -57,7 +60,7 @@ export function TextField<TFieldValues extends FieldValues>({
   validate,
   control,
   ...props
-}: TextFieldProps<TFieldValues> & UITextAreaProps) {
+}: TextFieldProps<TFieldValues, TFieldName> & UITextAreaProps) {
   const { description, helpText, required } = props
   const id: string = name
   return (
