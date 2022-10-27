@@ -1,11 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 
-import type { Project, ProjectCreate } from '@oxide/api'
+import type { ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { SideModalFormProps } from 'app/components/hook-form'
 import { pb } from 'app/util/path-builder'
 
 import { useRequiredParams, useToast } from '../hooks'
@@ -15,11 +14,7 @@ const defaultValues: ProjectCreate = {
   description: '',
 }
 
-export function CreateProjectSideModalForm({
-  title = 'Create project',
-  onSuccess,
-  onError,
-}: SideModalFormProps<ProjectCreate, Project>) {
+export function CreateProjectSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -40,17 +35,15 @@ export function CreateProjectSideModalForm({
         title: 'Success!',
         content: 'Your project has been created.',
       })
-      onSuccess?.(project)
       navigate(pb.instances(projectParams))
     },
-    onError,
   })
 
   return (
     <SideModalForm
       id="create-project-form"
       formOptions={{ defaultValues }}
-      title={title}
+      title="Create project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createProject.mutate({

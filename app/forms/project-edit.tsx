@@ -1,12 +1,10 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import type { Project, ProjectCreate } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { SideModalFormProps } from 'app/components/hook-form'
 import { pb } from 'app/util/path-builder'
 
 import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
@@ -17,11 +15,7 @@ EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-export function EditProjectSideModalForm({
-  title = 'Edit project',
-  onSuccess,
-  onError,
-}: SideModalFormProps<ProjectCreate, Project>) {
+export function EditProjectSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
@@ -47,17 +41,15 @@ export function EditProjectSideModalForm({
         title: 'Success!',
         content: 'Your project has been updated.',
       })
-      onSuccess?.(project)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
       id="edit-project-form"
       formOptions={{ defaultValues: project }}
-      title={title}
+      title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({

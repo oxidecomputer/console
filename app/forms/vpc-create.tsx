@@ -1,72 +1,63 @@
-import type { Vpc, VpcCreate } from '@oxide/api'
+import { useNavigate } from 'react-router-dom'
+
+import type { VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import type { CreateSideModalFormProps } from 'app/forms'
+import {
+  DescriptionField,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-const values: VpcCreate = {
+const defaultValues: VpcCreate = {
   name: '',
   description: '',
   dnsName: '',
 }
 
-export function CreateVpcSideModalForm({
-  id = 'create-vpc-form',
-  title = 'Create VPC',
-  initialValues = values,
-  onSubmit,
-  onSuccess,
-  onError,
-  ...props
-}: CreateSideModalFormProps<VpcCreate, Vpc>) {
+export function CreateVpcSideModalForm() {
   const parentNames = useRequiredParams('orgName', 'projectName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
 
   const createVpc = useApiMutation('vpcCreate', {
     onSuccess(vpc) {
+      const vpcParams = { ...parentNames, vpcName: vpc.name }
       queryClient.invalidateQueries('vpcList', { path: parentNames })
       // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData(
-        'vpcView',
-        { path: { ...parentNames, vpcName: vpc.name } },
-        vpc
-      )
+      queryClient.setQueryData('vpcView', { path: vpcParams }, vpc)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your VPC has been created.',
       })
-      onSuccess?.(vpc)
+      navigate(pb.vpc(vpcParams))
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
-      onSubmit={
-        onSubmit ??
-        (({ name, description, dnsName, ipv6Prefix }) =>
-          createVpc.mutate({
-            path: parentNames,
-            body: { name, description, dnsName, ipv6Prefix },
-          }))
-      }
+      id="create-vpc-form"
+      title="Create VPC"
+      formOptions={{ defaultValues }}
+      onSubmit={(values) => createVpc.mutate({ path: parentNames, body: values })}
+      onDismiss={() => navigate(pb.vpcs(parentNames))}
       submitDisabled={createVpc.isLoading}
       error={createVpc.error?.error as Error | undefined}
-      {...props}
     >
-      <NameField id="vpc-name" />
-      <DescriptionField id="vpc-description" />
-      <NameField id="vpc-dns-name" name="dnsName" label="DNS name" />
-      <TextField id="vpc-ipv6-prefix" name="ipv6Prefix" label="IPV6 prefix" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <NameField name="dnsName" label="DNS name" control={control} />
+          <TextField name="ipv6Prefix" label="IPV6 prefix" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default CreateVpcSideModalForm
