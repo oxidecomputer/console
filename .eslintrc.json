@@ -6,9 +6,16 @@
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "prettier",
+    "plugin:react-hook-form/recommended"
   ],
-  "plugins": ["@typescript-eslint", "react-hooks", "prettier", "jsx-a11y"],
+  "plugins": [
+    "@typescript-eslint",
+    "react-hooks",
+    "prettier",
+    "jsx-a11y",
+    "react-hook-form"
+  ],
   "settings": {
     "react": {
       "version": "detect"

@@ -2,6 +2,10 @@ import React from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
+import { CreateOrgSideModalForm } from './forms/org-create'
+import { EditOrgSideModalForm } from './forms/org-edit'
+import { CreateProjectSideModalForm } from './forms/project-create'
+import { EditProjectSideModalForm } from './forms/project-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
 import OrgLayout from './layouts/OrgLayout'
@@ -101,18 +105,20 @@ export const routes = createRoutesFromElements(
 
       <Route element={<SiloLayout />}>
         <Route path="utilization" element={null} />
-        <Route
-          path="orgs"
-          element={<OrgsPage />}
-          loader={OrgsPage.loader}
-          handle={{ crumb: 'Orgs' }}
-        />
-        <Route
-          path="orgs-new"
-          element={<OrgsPage modal="createOrg" />}
-          loader={OrgsPage.loader}
-          handle={{ crumb: 'New org' }}
-        />
+        <Route element={<OrgsPage />} loader={OrgsPage.loader}>
+          <Route path="orgs" handle={{ crumb: 'Orgs' }} />
+          <Route
+            path="orgs-new"
+            element={<CreateOrgSideModalForm />}
+            handle={{ crumb: 'New org' }}
+          />
+          <Route
+            path="orgs/:orgName/edit"
+            element={<EditOrgSideModalForm />}
+            loader={EditOrgSideModalForm.loader}
+            handle={{ crumb: 'Edit org' }}
+          />
+        </Route>
         <Route
           path="access"
           element={<SiloAccessPage />}
@@ -129,110 +135,100 @@ export const routes = createRoutesFromElements(
             loader={OrgAccessPage.loader}
             handle={{ crumb: 'Access & IAM' }}
           />
-          <Route
-            path="edit"
-            element={<OrgsPage modal="editOrg" />}
-            loader={OrgsPage.loader}
-            handle={{ crumb: 'Edit' }}
-          />
-          <Route
-            path="projects-new"
-            element={<ProjectsPage modal="createProject" />}
-            loader={ProjectsPage.loader}
-            handle={{ crumb: 'New project' }}
-          />
+
+          <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
+            <Route path="projects" index handle={{ crumb: 'Projects' }} />
+            <Route
+              path="projects-new"
+              element={<CreateProjectSideModalForm />}
+              handle={{ crumb: 'New project' }}
+            />
+            <Route
+              path="projects/:projectName/edit"
+              element={<EditProjectSideModalForm />}
+              loader={EditProjectSideModalForm.loader}
+              handle={{ crumb: 'Edit project' }}
+            />
+          </Route>
         </Route>
 
-        <Route path="projects" handle={{ crumb: 'Projects' }}>
-          {/* ORG */}
-          <Route element={<OrgLayout />}>
-            <Route index element={<ProjectsPage />} loader={ProjectsPage.loader} />
-            <Route
-              path=":projectName/edit"
-              element={<ProjectsPage modal="editProject" />}
-              loader={ProjectsPage.loader}
-              handle={{ crumb: 'Edit' }}
-            />
-          </Route>
-
-          {/* PROJECT */}
+        {/* PROJECT */}
+        <Route
+          path="projects/:projectName"
+          element={<ProjectLayout />}
+          handle={{ crumb: projectCrumb }}
+        >
           <Route
-            path=":projectName"
-            element={<ProjectLayout />}
-            handle={{ crumb: projectCrumb }}
-          >
-            <Route
-              path="instances-new"
-              element={<InstanceCreatePage />}
-              handle={{ crumb: 'New instance' }}
-            />
-            <Route path="instances" handle={{ crumb: 'Instances' }}>
-              <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
-              <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
-                <Route index element={<InstancePage />} loader={InstancePage.loader} />
-                <Route
-                  path="serial-console"
-                  element={<SerialConsolePage />}
-                  handle={{ crumb: 'serial-console' }}
-                />
-              </Route>
+            path="instances-new"
+            element={<InstanceCreatePage />}
+            handle={{ crumb: 'New instance' }}
+          />
+          <Route path="instances" handle={{ crumb: 'Instances' }}>
+            <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
+            <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
+              <Route index element={<InstancePage />} loader={InstancePage.loader} />
+              <Route
+                path="serial-console"
+                element={<SerialConsolePage />}
+                handle={{ crumb: 'serial-console' }}
+              />
             </Route>
-            <Route
-              path="vpcs-new"
-              element={<VpcsPage modal="createVpc" />}
-              loader={VpcsPage.loader}
-              handle={{ crumb: 'New VPC' }}
-            />
-            <Route
-              path="disks-new"
-              element={<DisksPage modal="createDisk" />}
-              loader={DisksPage.loader}
-              handle={{ crumb: 'New disk' }}
-            />
-
-            <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-              <Route index element={<VpcsPage />} loader={VpcsPage.loader} />
-              <Route path=":vpcName" handle={{ crumb: vpcCrumb }}>
-                <Route index element={<VpcPage />} loader={VpcPage.loader} />
-                <Route
-                  path="edit"
-                  element={<VpcsPage modal="editVpc" />}
-                  loader={VpcsPage.loader}
-                  handle={{ crumb: 'Edit' }}
-                />
-              </Route>
-            </Route>
-            <Route
-              path="disks"
-              element={<DisksPage />}
-              loader={DisksPage.loader}
-              handle={{ crumb: 'Disks' }}
-            />
-            <Route
-              path="snapshots"
-              element={<SnapshotsPage />}
-              loader={SnapshotsPage.loader}
-              handle={{ crumb: 'Snapshots' }}
-            />
-            <Route
-              path="snapshots-new"
-              element={<SnapshotsPage modal="createSnapshot" />}
-              loader={SnapshotsPage.loader}
-              handle={{ crumb: 'New snapshot' }}
-            />
-            <Route
-              path="images"
-              element={<ImagesPage />}
-              loader={ImagesPage.loader}
-              handle={{ crumb: 'Images' }}
-            />
-            <Route
-              path="access"
-              element={<ProjectAccessPage />}
-              loader={ProjectAccessPage.loader}
-              handle={{ crumb: 'Access & IAM' }}
-            />
           </Route>
+          <Route
+            path="vpcs-new"
+            element={<VpcsPage modal="createVpc" />}
+            loader={VpcsPage.loader}
+            handle={{ crumb: 'New VPC' }}
+          />
+          <Route
+            path="disks-new"
+            element={<DisksPage modal="createDisk" />}
+            loader={DisksPage.loader}
+            handle={{ crumb: 'New disk' }}
+          />
+
+          <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
+            <Route index element={<VpcsPage />} loader={VpcsPage.loader} />
+            <Route path=":vpcName" handle={{ crumb: vpcCrumb }}>
+              <Route index element={<VpcPage />} loader={VpcPage.loader} />
+              <Route
+                path="edit"
+                element={<VpcsPage modal="editVpc" />}
+                loader={VpcsPage.loader}
+                handle={{ crumb: 'Edit' }}
+              />
+            </Route>
+          </Route>
+          <Route
+            path="disks"
+            element={<DisksPage />}
+            loader={DisksPage.loader}
+            handle={{ crumb: 'Disks' }}
+          />
+          <Route
+            path="snapshots"
+            element={<SnapshotsPage />}
+            loader={SnapshotsPage.loader}
+            handle={{ crumb: 'Snapshots' }}
+          />
+          <Route
+            path="snapshots-new"
+            element={<SnapshotsPage modal="createSnapshot" />}
+            loader={SnapshotsPage.loader}
+            handle={{ crumb: 'New snapshot' }}
+          />
+          <Route
+            path="images"
+            element={<ImagesPage />}
+            loader={ImagesPage.loader}
+            handle={{ crumb: 'Images' }}
+          />
+          <Route
+            path="access"
+            element={<ProjectAccessPage />}
+            loader={ProjectAccessPage.loader}
+            handle={{ crumb: 'Access & IAM' }}
+          />
         </Route>
       </Route>
     </Route>

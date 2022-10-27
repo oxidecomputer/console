@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
 import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
+import { useNavigationType } from 'react-router-dom'
 
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
@@ -18,7 +18,6 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    * constrain the `name` prop to paths in the values object.
    */
   children: (control: Control<TFieldValues>) => ReactNode
-  isOpen: boolean
   onDismiss: () => void
   submitDisabled?: boolean
   error?: Error
@@ -32,7 +31,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   formOptions,
   children,
   onDismiss,
-  isOpen,
   submitDisabled = false,
   error,
   title,
@@ -45,22 +43,20 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     control,
     formState: { isDirty, isValid },
     handleSubmit,
-    reset,
   } = useForm({ mode: 'all', ...formOptions })
+
   const canSubmit = isDirty && isValid
 
-  // TODO: calling useForm all the way up here means it's always mounted whether
-  // the side modal is open or not, which means form state hangs around even
-  // when the modal is closed. Using useEffect like this is a code smell, so I
-  // would like this to work differently. Ideally useForm would be called one
-  // level lower, inside SideModal, so it only gets rendered when the form is
-  // open.
-  useEffect(() => {
-    if (!isOpen) reset()
-  }, [reset, isOpen])
+  /**
+   * Only animate the modal in when we're navigating by a client-side click.
+   * Don't animate on a fresh pageload or on back/forward. The latter may be
+   * slightly awkward but it also makes some sense. I do not believe there is
+   * any way to distinguish between fresh pageload and back/forward.
+   */
+  const animate = useNavigationType() === 'PUSH'
 
   return (
-    <SideModal onDismiss={onDismiss} isOpen={isOpen} title={title}>
+    <SideModal onDismiss={onDismiss} isOpen title={title} animate={animate}>
       <SideModal.Body>
         <form
           id={id}
@@ -72,7 +68,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         </form>
       </SideModal.Body>
       <SideModal.Footer>
-        <div className="flex w-full items-center gap-[0.625rem] children:shrink-0">
+        <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
           <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
             Cancel
           </Button>

@@ -4,32 +4,29 @@ import type { Project, ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import type { CreateSideModalFormProps } from 'app/forms'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import type { SideModalFormProps } from 'app/components/hook-form'
 import { pb } from 'app/util/path-builder'
 
 import { useRequiredParams, useToast } from '../hooks'
 
-const values = {
+const defaultValues: ProjectCreate = {
   name: '',
   description: '',
 }
 
 export function CreateProjectSideModalForm({
-  id = 'create-project-form',
   title = 'Create project',
-  initialValues = values,
-  onSubmit,
   onSuccess,
   onError,
-  onDismiss,
-  ...props
-}: CreateSideModalFormProps<ProjectCreate, Project>) {
+}: SideModalFormProps<ProjectCreate, Project>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const { orgName } = useRequiredParams('orgName')
+
+  const onDismiss = () => navigate(pb.projects({ orgName }))
 
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
@@ -51,27 +48,25 @@ export function CreateProjectSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
-      initialValues={initialValues}
+      id="create-project-form"
+      formOptions={{ defaultValues }}
       title={title}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        (({ name, description }) => {
-          createProject.mutate({
-            path: { orgName },
-            body: { name, description },
-          })
+      onSubmit={({ name, description }) => {
+        createProject.mutate({
+          path: { orgName },
+          body: { name, description },
         })
-      }
+      }}
       submitDisabled={createProject.isLoading}
       error={createProject.error?.error as Error | undefined}
-      {...props}
     >
-      <NameField id="name" />
-      <DescriptionField id="description" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default CreateProjectSideModalForm

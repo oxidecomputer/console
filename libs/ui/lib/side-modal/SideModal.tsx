@@ -19,9 +19,21 @@ export type SideModalProps = {
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
+  /**
+   * Whether the modal should animate in. It never animates out. Default `true`.
+   * Used to prevent animation from firing when we show the modal directly on a
+   * fresh pageload.
+   */
+  animate?: boolean
 }
 
-export function SideModal({ children, onDismiss, title, isOpen }: SideModalProps) {
+export function SideModal({
+  children,
+  onDismiss,
+  title,
+  isOpen,
+  animate = true,
+}: SideModalProps) {
   const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(DialogContent)
   const [status, setStatus] = useState('focus-unlocked')
@@ -34,7 +46,7 @@ export function SideModal({ children, onDismiss, title, isOpen }: SideModalProps
     onRest: () => {
       setStatus(isOpen ? 'focus-locked' : 'focus-unlocked') // if done opening, lock focus. if done closing, unlock focus
     },
-    config: isOpen ? config : { duration: 0 },
+    config: isOpen && animate ? config : { duration: 0 },
   })
 
   return (
