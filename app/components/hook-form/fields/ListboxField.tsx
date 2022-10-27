@@ -53,7 +53,9 @@ export function ListboxField<
           <Listbox
             defaultValue={value}
             items={items}
-            onChange={onChange}
+            onChange={(i) => {
+              if (i) onChange(i.value)
+            }}
             disabled={disabled}
             aria-labelledby={cn(`${id}-label`, {
               [`${id}-help-text`]: !!description,
