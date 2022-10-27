@@ -10,14 +10,13 @@ import { pb } from 'app/util/path-builder'
 
 import { useRequiredParams, useToast } from '../hooks'
 
-const values = {
+const defaultValues: ProjectCreate = {
   name: '',
   description: '',
 }
 
 export function CreateProjectSideModalForm({
   title = 'Create project',
-  defaultValues = values,
   onSuccess,
   onError,
 }: SideModalFormProps<ProjectCreate, Project>) {

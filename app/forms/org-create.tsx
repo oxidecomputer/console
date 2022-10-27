@@ -9,14 +9,12 @@ import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const values = {
+const defaultValues: OrganizationCreate = {
   name: '',
   description: '',
 }
 
 export function CreateOrgSideModalForm({
-  title = 'Create organization',
-  defaultValues = values,
   onSuccess,
   onError,
 }: SideModalFormProps<OrganizationCreate, Organization>) {
@@ -45,7 +43,7 @@ export function CreateOrgSideModalForm({
     <SideModalForm
       id="create-org-form"
       formOptions={{ defaultValues }}
-      title={title}
+      title="Create organization"
       onDismiss={() => navigate(pb.orgs())}
       onSubmit={(values) => createOrg.mutate({ body: values })}
       submitDisabled={createOrg.isLoading}
