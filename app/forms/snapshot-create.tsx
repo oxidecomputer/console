@@ -1,4 +1,6 @@
-import type { PathParams, Snapshot, SnapshotCreate } from '@oxide/api'
+import { useNavigate } from 'react-router-dom'
+
+import type { PathParams, SnapshotCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { useApiQueryClient } from '@oxide/api'
@@ -9,10 +11,9 @@ import {
   ListboxField,
   NameField,
   SideModalForm,
-} from 'app/components/form'
+} from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
-
-import type { CreateSideModalFormProps } from '.'
+import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (params: PathParams.Project) => {
   const { data: disks } = useApiQuery('diskList', { path: params, query: { limit: 1000 } })
@@ -23,68 +24,54 @@ const useSnapshotDiskItems = (params: PathParams.Project) => {
   )
 }
 
-const values: SnapshotCreate = {
+const defaultValues: SnapshotCreate = {
   description: '',
   disk: '',
   name: '',
 }
 
-export function CreateSnapshotSideModalForm({
-  id = 'create-snapshot-form',
-  title = 'Create Snapshot',
-  initialValues = values,
-  onSubmit,
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: CreateSideModalFormProps<SnapshotCreate, Snapshot>) {
+export function CreateSnapshotSideModalForm() {
   const queryClient = useApiQueryClient()
   const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
+  const navigate = useNavigate()
 
   const diskItems = useSnapshotDiskItems(pathParams)
 
+  const onDismiss = () => navigate(pb.snapshots(pathParams))
+
   const createSnapshot = useApiMutation('snapshotCreate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('snapshotList', { path: pathParams })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your snapshot has been created.',
       })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-snapshot-form"
+      title="Create Snapshot"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        ((values) => {
-          createSnapshot.mutate({
-            path: pathParams,
-            body: values,
-          })
+      onSubmit={(values) => {
+        createSnapshot.mutate({
+          path: pathParams,
+          body: values,
         })
-      }
-      {...props}
+      }}
     >
-      <NameField id="snapshot-name" />
-      <DescriptionField id="snapshot-description" />
-      <ListboxField
-        id="snapshot-disk"
-        name="disk"
-        label="Disk"
-        items={diskItems}
-        required
-      />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <ListboxField name="disk" items={diskItems} required control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

@@ -1,24 +1,19 @@
-import type { FieldValues } from 'react-hook-form'
+import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import { capitalize } from '@oxide/util'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
 
-// TODO: making all these things generic seems kind of dubious, but if it works it works
-export type NameFieldProps<TFieldValues extends FieldValues> = Omit<
-  TextFieldProps<TFieldValues>,
-  'validate'
-> & {
-  label?: string
-}
-
-export function NameField<TFieldValues extends FieldValues>({
+export function NameField<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues>
+>({
   required = true,
   name,
   label = capitalize(name),
   ...textFieldProps
-}: NameFieldProps<TFieldValues>) {
+}: Omit<TextFieldProps<TFieldValues, TFieldName>, 'validate'> & { label?: string }) {
   return (
     <TextField
       validate={(name) => validateName(name, label, required)}

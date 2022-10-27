@@ -4,7 +4,6 @@ import type {
   FieldPath,
   FieldPathValue,
   FieldValues,
-  Path,
   Validate,
 } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
@@ -13,16 +12,17 @@ import type {
   TextAreaProps as UITextAreaProps,
   TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextInputError } from '@oxide/ui'
 import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { ErrorMessage } from './ErrorMessage'
+
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TFieldName extends FieldPath<TFieldValues>
 > extends UITextFieldProps {
-  name: Path<TFieldValues>
+  name: TFieldName
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */
@@ -50,7 +50,10 @@ export interface TextFieldProps<
   control: Control<TFieldValues>
 }
 
-export function TextField<TFieldValues extends FieldValues>({
+export function TextField<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues>
+>({
   name,
   type = 'text',
   label = capitalize(name),
@@ -58,7 +61,7 @@ export function TextField<TFieldValues extends FieldValues>({
   validate,
   control,
   ...props
-}: TextFieldProps<TFieldValues> & UITextAreaProps) {
+}: TextFieldProps<TFieldValues, TFieldName> & UITextAreaProps) {
   const { description, helpText, required } = props
   const id: string = name
   return (
@@ -88,12 +91,7 @@ export function TextField<TFieldValues extends FieldValues>({
                 {...field}
                 {...props}
               />
-              {error && (
-                // TODO: handle this more robustly and probably share the logic
-                <TextInputError>
-                  {error.type === 'required' ? `${label} is required` : error.message}
-                </TextInputError>
-              )}
+              <ErrorMessage error={error} label={label} />
             </>
           )
         }}

@@ -1,4 +1,4 @@
-import type { FieldValues } from 'react-hook-form'
+import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
@@ -6,13 +6,10 @@ import { TextField } from './TextField'
 // TODO: Pull this from generated types
 const MAX_LEN = 512
 
-export type DescriptionFieldProps<TFieldValues extends FieldValues> = Omit<
-  TextFieldProps<TFieldValues>,
-  'validate'
->
-export function DescriptionField<TFieldValues extends FieldValues>(
-  props: DescriptionFieldProps<TFieldValues>
-) {
+export function DescriptionField<
+  TFieldValues extends FieldValues,
+  TFieldName extends FieldPath<TFieldValues>
+>(props: Omit<TextFieldProps<TFieldValues, TFieldName>, 'validate'>) {
   return <TextField validate={validateDescription} {...props} />
 }
 

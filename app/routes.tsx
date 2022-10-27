@@ -6,6 +6,7 @@ import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
+import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
@@ -214,18 +215,16 @@ export const routes = createRoutesFromElements(
             loader={DisksPage.loader}
             handle={{ crumb: 'Disks' }}
           />
-          <Route
-            path="snapshots"
-            element={<SnapshotsPage />}
-            loader={SnapshotsPage.loader}
-            handle={{ crumb: 'Snapshots' }}
-          />
-          <Route
-            path="snapshots-new"
-            element={<SnapshotsPage modal="createSnapshot" />}
-            loader={SnapshotsPage.loader}
-            handle={{ crumb: 'New snapshot' }}
-          />
+
+          <Route element={<SnapshotsPage />} loader={SnapshotsPage.loader}>
+            <Route path="snapshots" handle={{ crumb: 'Snapshots' }} />
+            <Route
+              path="snapshots-new"
+              element={<CreateSnapshotSideModalForm />}
+              handle={{ crumb: 'New snapshot' }}
+            />
+          </Route>
+
           <Route
             path="images"
             element={<ImagesPage />}
