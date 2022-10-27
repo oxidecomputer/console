@@ -1,25 +1,38 @@
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useLoaderData } from 'react-router-dom'
+
 import type { Project, ProjectCreate } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { EditSideModalFormProps } from 'app/components/hook-form'
+import type { SideModalFormProps } from 'app/components/hook-form'
+import { pb } from 'app/util/path-builder'
 
-import { useRequiredParams, useToast } from '../hooks'
+import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
+
+EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  return apiQueryClient.fetchQuery('projectView', {
+    path: requireProjectParams(params),
+  })
+}
 
 export function EditProjectSideModalForm({
   title = 'Edit project',
-  defaultValues,
   onSuccess,
   onError,
-  onDismiss,
-  isOpen,
-}: EditSideModalFormProps<ProjectCreate, Project>) {
-  console.log('edit project', { defaultValues })
+}: SideModalFormProps<ProjectCreate, Project>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
 
-  const { orgName } = useRequiredParams('orgName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+
+  const onDismiss = () => navigate(pb.projects({ orgName }))
+
+  const project = useLoaderData() as Project
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
@@ -45,22 +58,19 @@ export function EditProjectSideModalForm({
   return (
     <SideModalForm
       id="edit-project-form"
-      formOptions={{ defaultValues }}
+      formOptions={{ defaultValues: project }}
       title={title}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({
-          path: {
-            projectName: defaultValues.name,
-            orgName,
-          },
+          path: { orgName, projectName },
           body: { name, description },
         })
       }}
       submitDisabled={editProject.isLoading}
       error={editProject.error?.error as Error | undefined}
       submitLabel="Save changes"
-      isOpen={isOpen}
+      isOpen
     >
       {(control) => (
         <>
@@ -71,5 +81,3 @@ export function EditProjectSideModalForm({
     </SideModalForm>
   )
 }
-
-export default EditProjectSideModalForm

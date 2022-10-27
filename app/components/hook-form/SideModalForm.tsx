@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
 import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 
@@ -45,19 +44,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     control,
     formState: { isDirty, isValid },
     handleSubmit,
-    reset,
   } = useForm({ mode: 'all', ...formOptions })
-  const canSubmit = isDirty && isValid
 
-  // TODO: calling useForm all the way up here means it's always mounted whether
-  // the side modal is open or not, which means form state hangs around even
-  // when the modal is closed. Using useEffect like this is a code smell, so I
-  // would like this to work differently. Ideally useForm would be called one
-  // level lower, inside SideModal, so it only gets rendered when the form is
-  // open.
-  useEffect(() => {
-    if (!isOpen) reset()
-  }, [reset, isOpen])
+  const canSubmit = isDirty && isValid
 
   return (
     <SideModal onDismiss={onDismiss} isOpen={isOpen} title={title}>

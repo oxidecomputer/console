@@ -5,7 +5,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { CreateSideModalFormProps } from 'app/components/hook-form'
+import type { SideModalFormProps } from 'app/components/hook-form'
 import { pb } from 'app/util/path-builder'
 
 import { useRequiredParams, useToast } from '../hooks'
@@ -20,14 +20,14 @@ export function CreateProjectSideModalForm({
   defaultValues = values,
   onSuccess,
   onError,
-  onDismiss,
-  isOpen,
-}: CreateSideModalFormProps<ProjectCreate, Project>) {
+}: SideModalFormProps<ProjectCreate, Project>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const { orgName } = useRequiredParams('orgName')
+
+  const onDismiss = () => navigate(pb.projects({ orgName }))
 
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
@@ -61,7 +61,7 @@ export function CreateProjectSideModalForm({
       }}
       submitDisabled={createProject.isLoading}
       error={createProject.error?.error as Error | undefined}
-      isOpen={isOpen}
+      isOpen
     >
       {(control) => (
         <>
@@ -72,5 +72,3 @@ export function CreateProjectSideModalForm({
     </SideModalForm>
   )
 }
-
-export default CreateProjectSideModalForm

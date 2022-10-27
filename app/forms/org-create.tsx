@@ -4,7 +4,7 @@ import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import type { CreateSideModalFormProps } from 'app/components/hook-form'
+import type { SideModalFormProps } from 'app/components/hook-form'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -19,9 +19,7 @@ export function CreateOrgSideModalForm({
   defaultValues = values,
   onSuccess,
   onError,
-  onDismiss,
-  isOpen,
-}: CreateSideModalFormProps<OrganizationCreate, Organization>) {
+}: SideModalFormProps<OrganizationCreate, Organization>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -48,11 +46,11 @@ export function CreateOrgSideModalForm({
       id="create-org-form"
       formOptions={{ defaultValues }}
       title={title}
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.orgs())}
       onSubmit={(values) => createOrg.mutate({ body: values })}
       submitDisabled={createOrg.isLoading}
       error={createOrg.error?.error as Error | undefined}
-      isOpen={isOpen}
+      isOpen
     >
       {(control) => (
         <>
