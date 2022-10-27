@@ -24,16 +24,14 @@ describe('functions returning JSX', () => {
     expect(results).toContain('MyComponent.displayName = ')
     expect(results).toMatchInlineSnapshot(`
       "\\"use strict\\";
-      
+
       Object.defineProperty(exports, \\"__esModule\\", {
         value: true
       });
       exports.MyComponent = MyComponent;
-      
       function MyComponent() {
         return /*#__PURE__*/React.createElement(\\"h1\\", null);
       }
-      
       MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\";"
     `)
   })
@@ -63,14 +61,12 @@ describe('functions returning JSX', () => {
     expect(results).toContain('MyComponent.displayName =')
     expect(results).toMatchInlineSnapshot(`
       "\\"use strict\\";
-      
+
       Object.defineProperty(exports, \\"__esModule\\", {
         value: true
       });
       exports.MyComponent = void 0;
-      
       const MyComponent = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
-      
       exports.MyComponent = MyComponent;
       MyComponent.displayName = \\"MyComponent - libs/babel-transform-react-display-name/index.spec.tsx\\""
     `)
@@ -85,25 +81,18 @@ describe('functions returning JSX', () => {
   `
     expect(result).toMatchInlineSnapshot(`
       "\\"use strict\\";
-      
+
       Foo.Bar = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
-      
       Foo.Bar.displayName = \\"Foo.Bar - libs/babel-transform-react-display-name/index.spec.tsx\\"
-      
       Foo.Bar.Bow = () => /*#__PURE__*/React.createElement(\\"h1\\", null);
-      
       Foo.Bar.Bow.displayName = \\"Foo.Bar.Bow - libs/babel-transform-react-display-name/index.spec.tsx\\"
-      
       Foo.Baz = function () {
         return /*#__PURE__*/React.createElement(\\"h1\\", null);
       };
-      
       Foo.Baz.displayName = \\"Foo.Baz - libs/babel-transform-react-display-name/index.spec.tsx\\"
-      
       Foo.Booz = function Nope() {
         return /*#__PURE__*/React.createElement(\\"h1\\", null);
       };
-      
       Foo.Booz.displayName = \\"Foo.Booz - libs/babel-transform-react-display-name/index.spec.tsx\\""
     `)
     expect(result).toContain('Foo.Bar.displayName = ')
@@ -144,14 +133,11 @@ describe('functions returning JSX', () => {
       "\\"use strict\\";
 
       var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
-
       Object.defineProperty(exports, \\"__esModule\\", {
         value: true
       });
       exports.Button = void 0;
-
       var _extends2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/extends\\"));
-
       const Button = forwardRef((_ref, ref) => {
         let {
           children,
@@ -200,7 +186,6 @@ describe('cases that should not be transformed', () => {
         value: true
       });
       exports.f = f;
-
       function f() {
         const nestedComponent = () => /*#__PURE__*/React.createElement(\\"div\\", null);
       }"
