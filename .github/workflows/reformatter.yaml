@@ -15,15 +15,15 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install --force
 
       - name: Format
-        run: yarn fmt
+        run: npm run fmt
 
-      - uses: EndBug/add-and-commit@v7
+      - uses: EndBug/add-and-commit@v9
         with:
           add: .
           message: 'Bot commit: format with prettier'

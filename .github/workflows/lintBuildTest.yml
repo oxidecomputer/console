@@ -13,16 +13,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
+          cache: 'npm'
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-node-modules
         with:
           path: node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
-      - name: yarn install
+          key: modules-${{ hashFiles('package-lock.json') }}
+      - name: npm install
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install --force
   ci:
     timeout-minutes: 5
     runs-on: ubuntu-latest
@@ -31,23 +31,23 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
+          cache: 'npm'
       - name: Get node_modules from cache
         uses: actions/cache@v3
         id: cache-node-modules
         with:
           path: node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
+          key: modules-${{ hashFiles('package-lock.json') }}
       - name: Typecheck
-        run: yarn tsc
+        run: npx tsc
       - name: Lint
-        run: yarn lint
+        run: npm run lint
       - name: Test
-        run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 yarn test run
+        run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 npm run test run
       - name: Build
-        run: yarn build
+        run: npm run build
       - name: Build for Nexus
-        run: yarn build-for-nexus
+        run: npm run build-for-nexus
   playwright:
     name: Playwright (${{ matrix.type }}-${{ matrix.browser }})
     timeout-minutes: 10
@@ -62,16 +62,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
+          cache: 'npm'
       - name: Get node_modules from cache
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
+          key: modules-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
+        run: npx playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
       - uses: actions/upload-artifact@v2
         if: always()
         with:
