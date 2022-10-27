@@ -61,15 +61,16 @@ export function RadioField<
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, value, name } }) => (
           <RadioGroup
-            defaultChecked={field.value}
+            defaultChecked={value}
             aria-labelledby={cn(`${id}-label`, {
               [`${id}-help-text`]: !!description,
             })}
             aria-describedby={description ? `${id}-label-tip` : undefined}
+            onChange={onChange}
+            name={name}
             {...props}
-            {...field}
           />
         )}
       />

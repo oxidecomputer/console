@@ -24,6 +24,8 @@ export const CheckboxField = <
   <Controller
     name={name}
     control={control}
-    render={({ field }) => <Checkbox {...props} {...field} />}
+    render={({ field: { onChange, value } }) => (
+      <Checkbox {...props} onChange={onChange} value={value} />
+    )}
   />
 )
