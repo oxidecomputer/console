@@ -1,18 +1,17 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useLoaderData, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { Organization, OrganizationCreate } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import type { SideModalFormProps } from 'app/components/hook-form'
-import { requireOrgParams, useToast } from 'app/hooks'
+import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  return apiQueryClient.fetchQuery('organizationView', {
+  await apiQueryClient.prefetchQuery('organizationView', {
     path: requireOrgParams(params),
   })
 }
@@ -26,8 +25,11 @@ export function EditOrgSideModalForm({
   const addToast = useToast()
   const navigate = useNavigate()
 
+  const { orgName } = useOrgParams()
+
   const onDismiss = () => navigate(pb.orgs())
-  const org = useLoaderData() as Organization
+
+  const { data: org } = useApiQuery('organizationView', { path: { orgName } })
 
   const updateOrg = useApiMutation('organizationUpdate', {
     onSuccess(org) {
@@ -54,7 +56,7 @@ export function EditOrgSideModalForm({
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         updateOrg.mutate({
-          path: { orgName: org.name },
+          path: { orgName },
           body: { name, description },
         })
       }
