@@ -105,8 +105,8 @@ export const routes = createRoutesFromElements(
 
       <Route element={<SiloLayout />}>
         <Route path="utilization" element={null} />
-        <Route element={<OrgsPage />} loader={OrgsPage.loader} handle={{ crumb: 'Orgs' }}>
-          <Route path="orgs" />
+        <Route element={<OrgsPage />} loader={OrgsPage.loader}>
+          <Route path="orgs" handle={{ crumb: 'Orgs' }} />
           <Route
             path="orgs-new"
             element={<CreateOrgSideModalForm />}
@@ -116,7 +116,7 @@ export const routes = createRoutesFromElements(
             path="orgs/:orgName/edit"
             element={<EditOrgSideModalForm />}
             loader={EditOrgSideModalForm.loader}
-            handle={{ crumb: 'Edit' }}
+            handle={{ crumb: 'Edit org' }}
           />
         </Route>
         <Route
@@ -139,15 +139,15 @@ export const routes = createRoutesFromElements(
           <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
             <Route path="projects" index handle={{ crumb: 'Projects' }} />
             <Route
+              path="projects-new"
+              element={<CreateProjectSideModalForm />}
+              handle={{ crumb: 'New project' }}
+            />
+            <Route
               path="projects/:projectName/edit"
               element={<EditProjectSideModalForm />}
               loader={EditProjectSideModalForm.loader}
               handle={{ crumb: 'Edit project' }}
-            />
-            <Route
-              path="projects-new"
-              element={<CreateProjectSideModalForm />}
-              handle={{ crumb: 'New project' }}
             />
           </Route>
         </Route>

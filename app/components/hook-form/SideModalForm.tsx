@@ -61,7 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         </form>
       </SideModal.Body>
       <SideModal.Footer>
-        <div className="flex w-full items-center gap-[0.625rem] children:shrink-0">
+        <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
           <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
