@@ -12,7 +12,7 @@ GEN_DIR="$PWD/libs/api/__generated__"
 
 # this will be less horrific when the package is published? or maybe not
 npm run --silent --prefix ../oxide.ts gen-from $OMICRON_SHA $GEN_DIR
-yarn prettier --write --loglevel error "$GEN_DIR"
+npx prettier --write --loglevel error "$GEN_DIR"
 
 # hack until we start pulling this from npm. we don't want this file
 rm "$GEN_DIR/type-test.ts"
