@@ -15,7 +15,6 @@ test('can invoke instance create form from instances page', async ({
   await page.goto(`/orgs/${orgName}/projects/${projectName}/instances`)
   await page.locator('text="New Instance"').click()
 
-  await page.pause()
   await expectVisible(page, [
     'role=heading[name*="Create instance"]',
     'role=heading[name="Hardware"]',

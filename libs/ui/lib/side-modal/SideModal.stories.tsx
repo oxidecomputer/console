@@ -9,7 +9,7 @@ export function Default() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open menu</Button>
-      <SideModal id="side-modal" isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
+      <SideModal isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
         <SideModal.Section>Section content</SideModal.Section>
         <SideModal.Docs>
           <a href="#/">Subnetworks</a>

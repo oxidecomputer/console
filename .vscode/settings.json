@@ -14,10 +14,10 @@
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
-    "package.json": ".babelrc, .editorconfig, .eslint*, .figma*, .github*, .huskyrc*, plopfile*, .prettier*, .vercel*, .vscode*, playwright.config.*, prettier*, tsconfig.*, vitest.config.*, yarn*, postcss.config.*, tailwind.config.*, vite.config.ts, mockServiceWorker.js"
+    "package.json": "package-lock.json, .babelrc, .editorconfig, .eslint*, .figma*, .github*, .huskyrc*, plopfile*, .prettier*, .vercel*, .vscode*, playwright.config.*, prettier*, tsconfig.*, vitest.config.*, yarn*, postcss.config.*, tailwind.config.*, vite.config.ts, mockServiceWorker.js"
   },
   "vite.browserType": "system",
-  "vite.buildCommand": "yarn build",
-  "vite.devCommand": "yarn start:msw",
+  "vite.buildCommand": "npm run build",
+  "vite.devCommand": "npm run start:msw",
   "deno.enablePaths": ["./tools/bump-omicron.ts"]
 }

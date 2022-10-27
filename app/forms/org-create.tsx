@@ -4,11 +4,10 @@ import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import type { CreateSideModalFormProps } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
-
-import type { CreateSideModalFormProps } from '.'
 
 const values = {
   name: '',
@@ -16,14 +15,12 @@ const values = {
 }
 
 export function CreateOrgSideModalForm({
-  id = 'create-org-form',
   title = 'Create organization',
-  initialValues = values,
-  onSubmit,
+  defaultValues = values,
   onSuccess,
   onError,
   onDismiss,
-  ...props
+  isOpen,
 }: CreateSideModalFormProps<OrganizationCreate, Organization>) {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
@@ -48,23 +45,21 @@ export function CreateOrgSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
+      id="create-org-form"
+      formOptions={{ defaultValues }}
       title={title}
-      initialValues={initialValues}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ??
-        (({ name, description }) =>
-          createOrg.mutate({
-            body: { name, description },
-          }))
-      }
+      onSubmit={(values) => createOrg.mutate({ body: values })}
       submitDisabled={createOrg.isLoading}
       error={createOrg.error?.error as Error | undefined}
-      {...props}
+      isOpen={isOpen}
     >
-      <NameField id="org-name" />
-      <DescriptionField id="org-description" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

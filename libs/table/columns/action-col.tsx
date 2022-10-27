@@ -1,5 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { ColumnDef } from '@tanstack/react-table'
+import cn from 'classnames'
 
 import { More12Icon } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
@@ -50,7 +51,12 @@ export const getActionsCol = <TData extends { id?: string }>(
               {actions.map((action) => {
                 return (
                   <MenuItem
-                    className={action.className}
+                    className={cn(
+                      action.className,
+                      action.label.toLowerCase() === 'delete' &&
+                        !action.disabled &&
+                        'destructive'
+                    )}
                     key={kebabCase(`action-${action.label}`)}
                     onSelect={action.onActivate}
                     disabled={action.disabled}

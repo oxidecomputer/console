@@ -2,20 +2,17 @@ import type { Organization, OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import type { EditSideModalFormProps } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 
-import type { EditSideModalFormProps } from '.'
-
 export function EditOrgSideModalForm({
-  id = 'edit-org-form',
   title = 'Edit organization',
-  initialValues,
-  onSubmit,
+  defaultValues,
   onSuccess,
   onError,
   onDismiss,
-  ...props
+  isOpen,
 }: EditSideModalFormProps<OrganizationCreate, Organization>) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -39,25 +36,27 @@ export function EditOrgSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
+      id="edit-org-form"
+      formOptions={{ defaultValues }}
       title={title}
-      initialValues={initialValues}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ??
-        (({ name, description }) =>
-          updateOrg.mutate({
-            path: { orgName: initialValues.name },
-            body: { name, description },
-          }))
+      onSubmit={({ name, description }) =>
+        updateOrg.mutate({
+          path: { orgName: defaultValues.name },
+          body: { name, description },
+        })
       }
       submitDisabled={updateOrg.isLoading}
       error={updateOrg.error?.error as Error | undefined}
-      {...props}
+      submitLabel="Save changes"
+      isOpen={isOpen}
     >
-      <NameField id="org-name" />
-      <DescriptionField id="org-description" />
-      <Form.Submit>Save changes</Form.Submit>
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

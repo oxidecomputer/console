@@ -89,7 +89,7 @@ export const useMakeInstanceActions = (
           })
         },
         disabled: !instanceCan.delete(instance),
-        className: 'destructive',
+        className: instanceCan.delete(instance) ? 'destructive' : '',
       },
     ]
     // TODO: fix this lol
