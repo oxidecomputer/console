@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 
-import type { Organization, OrganizationCreate } from '@oxide/api'
+import type { OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import type { SideModalFormProps } from 'app/components/hook-form'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -14,10 +13,7 @@ const defaultValues: OrganizationCreate = {
   description: '',
 }
 
-export function CreateOrgSideModalForm({
-  onSuccess,
-  onError,
-}: SideModalFormProps<OrganizationCreate, Organization>) {
+export function CreateOrgSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -33,10 +29,8 @@ export function CreateOrgSideModalForm({
         title: 'Success!',
         content: 'Your organization has been created.',
       })
-      onSuccess?.(org)
       navigate(pb.projects(orgParams))
     },
-    onError,
   })
 
   return (

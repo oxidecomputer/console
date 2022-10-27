@@ -1,12 +1,10 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import type { Organization, OrganizationCreate } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { SideModalFormProps } from 'app/components/hook-form'
 import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -16,11 +14,7 @@ EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-export function EditOrgSideModalForm({
-  title = 'Edit organization',
-  onSuccess,
-  onError,
-}: SideModalFormProps<OrganizationCreate, Organization>) {
+export function EditOrgSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
@@ -42,17 +36,15 @@ export function EditOrgSideModalForm({
         content: 'Your organization has been updated.',
         timeout: 5000,
       })
-      onSuccess?.(org)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
       id="edit-org-form"
       formOptions={{ defaultValues: org }}
-      title={title}
+      title="Edit organization"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         updateOrg.mutate({
