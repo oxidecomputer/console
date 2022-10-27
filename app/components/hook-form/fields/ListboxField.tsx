@@ -6,6 +6,8 @@ import type { ListboxItem } from '@oxide/ui'
 import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { ErrorMessage } from './ErrorMessage'
+
 export type ListboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
@@ -48,21 +50,27 @@ export function ListboxField<
       </div>
       <Controller
         name={name}
+        rules={{ required }}
         control={control}
-        render={({ field: { onChange, value } }) => (
-          <Listbox
-            defaultValue={value}
-            items={items}
-            onChange={(i) => {
-              if (i) onChange(i.value)
-            }}
-            disabled={disabled}
-            aria-labelledby={cn(`${id}-label`, {
-              [`${id}-help-text`]: !!description,
-            })}
-            aria-describedby={description ? `${id}-label-tip` : undefined}
-            name={name}
-          />
+        render={({ field: { onBlur, onChange, value }, fieldState: { error } }) => (
+          <>
+            <Listbox
+              defaultValue={value}
+              items={items}
+              onChange={(i) => {
+                if (i) onChange(i.value)
+              }}
+              // required to get required error to trigger on blur
+              onBlur={onBlur}
+              disabled={disabled}
+              aria-labelledby={cn(`${id}-label`, {
+                [`${id}-help-text`]: !!description,
+              })}
+              aria-describedby={description ? `${id}-label-tip` : undefined}
+              name={name}
+            />
+            <ErrorMessage error={error} label={label} />
+          </>
         )}
       />
     </div>

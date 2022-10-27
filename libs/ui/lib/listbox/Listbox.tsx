@@ -1,6 +1,5 @@
 import cn from 'classnames'
 import { useSelect } from 'downshift'
-import type { FC } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/ui'
 
@@ -13,17 +12,19 @@ export interface ListboxProps {
   className?: string
   disabled?: boolean
   onChange?: (value: ListboxItem | null | undefined) => void
+  onBlur?: () => void
   name?: string
 }
 
-export const Listbox: FC<ListboxProps> = ({
+export const Listbox = ({
   defaultValue,
   items,
   placeholder,
   className,
   onChange,
+  onBlur,
   ...props
-}) => {
+}: ListboxProps) => {
   const itemToString = (item: ListboxItem | null) => (item ? item.label : '')
   const select = useSelect({
     initialSelectedItem: items.find((i) => i.value === defaultValue) || null,
@@ -31,6 +32,13 @@ export const Listbox: FC<ListboxProps> = ({
     itemToString,
     onSelectedItemChange(changes) {
       onChange?.(changes.selectedItem)
+    },
+    onIsOpenChange(changes) {
+      // we want a general onBlur to trigger validation. we'll see if this is
+      // general enough
+      if (changes.type === '__menu_blur__') {
+        onBlur?.()
+      }
     },
   })
 

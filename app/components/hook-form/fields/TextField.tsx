@@ -12,10 +12,11 @@ import type {
   TextAreaProps as UITextAreaProps,
   TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextInputError } from '@oxide/ui'
 import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
+
+import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
@@ -90,12 +91,7 @@ export function TextField<
                 {...field}
                 {...props}
               />
-              {error && (
-                // TODO: handle this more robustly and probably share the logic
-                <TextInputError>
-                  {error.type === 'required' ? `${label} is required` : error.message}
-                </TextInputError>
-              )}
+              <ErrorMessage error={error} label={label} />
             </>
           )
         }}
