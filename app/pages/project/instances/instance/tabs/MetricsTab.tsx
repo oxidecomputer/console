@@ -134,7 +134,7 @@ const Loading = () => (
   </div>
 )
 
-export default function MetricsTab() {
+export function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { data: disks } = useApiQuery('instanceDiskList', { path: instanceParams })
 

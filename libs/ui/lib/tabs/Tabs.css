@@ -1,34 +1,51 @@
-[data-reach-tabs] {
+.ox-tabs.full-width {
+  @apply !mx-0 !w-full;
 }
 
-[data-reach-tab-list] {
+.ox-tabs.full-width .ox-tabs-panel > * {
+  @apply mx-[var(--content-gutter)] w-[calc(100%-var(--content-gutter)*2)];
+}
+
+.ox-tabs-list {
   @apply mb-8 bg-transparent;
 }
 
-[data-reach-tab-panels] {
+.ox-tabs-list:after {
+  @apply block w-full border-b border-secondary;
+  content: ' ';
+}
+.ox-tabs.full-width .ox-tabs-list:before {
+  @apply block w-10 min-w-max flex-shrink-0 border-b border-secondary;
+  content: ' ';
 }
 
-[data-reach-tab] {
-  @apply h-10 space-x-2 whitespace-nowrap px-[6px]
-  uppercase text-mono-sm text-tertiary border-secondary;
+.ox-tab {
+  @apply h-10 space-x-2 whitespace-nowrap border-b px-[6px]
+  uppercase !no-underline text-mono-sm text-tertiary border-secondary;
 }
 
-[data-reach-tab][data-selected] > div {
-  @apply hover:bg-secondary;
-}
-
-[data-reach-tab][data-selected] {
+.ox-tab[data-selected],
+.ox-tab.is-selected {
   @apply text-accent border-accent;
 }
 
-[data-reach-tab] > .ox-badge {
+.ox-tab > * {
+  @apply rounded bg-transparent px-[6px] py-[4px];
+}
+.ox-tab:hover > * {
+  @apply bg-secondary;
+}
+
+.ox-tab > .ox-badge {
   @apply -mt-1 select-none text-current;
 }
 
-[data-reach-tab]:not([data-selected]) > .ox-badge {
+.ox-tab:not([data-selected]) > .ox-badge,
+.ox-tab:not(.is-selected) > .ox-badge {
   @apply bg-disabled;
 }
 
-[data-reach-tab][data-selected] > .ox-badge {
+.ox-tab[data-selected] > .ox-badge,
+.ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
 }

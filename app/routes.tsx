@@ -38,7 +38,10 @@ import {
   VpcsPage,
 } from './pages/project'
 import { InstanceCreatePage } from './pages/project/instances/InstanceCreatePage'
-import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
+import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
+import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
+import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
+import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { AppearancePage } from './pages/settings/AppearancePage'
 import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
@@ -165,15 +168,36 @@ export const routes = createRoutesFromElements(
             element={<InstanceCreatePage />}
             handle={{ crumb: 'New instance' }}
           />
+          <Route
+            path="instances/:instanceName"
+            element={<Navigate to="storage" replace />}
+          />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
             <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
-              <Route index element={<InstancePage />} loader={InstancePage.loader} />
-              <Route
-                path="serial-console"
-                element={<SerialConsolePage />}
-                handle={{ crumb: 'serial-console' }}
-              />
+              <Route element={<InstancePage />} loader={InstancePage.loader}>
+                <Route
+                  index
+                  path="storage"
+                  element={<StorageTab />}
+                  handle={{ crumb: 'storage' }}
+                />
+                <Route
+                  path="network-interfaces"
+                  element={<NetworkingTab />}
+                  handle={{ crumb: 'network-interfaces' }}
+                />
+                <Route
+                  path="metrics"
+                  element={<MetricsTab />}
+                  handle={{ crumb: 'metrics' }}
+                />
+                <Route
+                  path="serial-console"
+                  element={<SerialConsoleTab />}
+                  handle={{ crumb: 'serial-console' }}
+                />
+              </Route>
             </Route>
           </Route>
 

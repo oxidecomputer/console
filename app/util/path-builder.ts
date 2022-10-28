@@ -19,6 +19,19 @@ export const pb = {
   instances: (params: PP.Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
+
+  instanceMetrics: (params: PP.Instance) =>
+    `${pb.instances(params)}/${params.instanceName}/metrics`,
+  instanceStorage: (params: PP.Instance) =>
+    `${pb.instances(params)}/${params.instanceName}/storage`,
+
+  nics: (params: PP.Instance) =>
+    `${pb.instances(params)}/${params.instanceName}/network-interfaces`,
+  nicNew: (params: PP.Instance) =>
+    `${pb.instances(params)}/${params.instanceName}/network-interfaces-new`,
+  nicEdit: (params: PP.Instance) =>
+    `${pb.instances(params)}/${params.instanceName}/network-interfaces-edit`,
+
   serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
 
   diskNew: (params: PP.Project) => `${pb.project(params)}/disks-new`,
