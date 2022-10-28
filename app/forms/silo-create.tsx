@@ -53,6 +53,7 @@ export function CreateSiloSideModalForm() {
         })
       }
       submitDisabled={createSilo.isLoading}
+      error={createSilo.error}
     >
       {(control) => (
         <>
