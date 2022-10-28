@@ -7,10 +7,10 @@ import { Radio } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
-export interface RadioFieldProps<
+export type RadioFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
-> extends Omit<RadioGroupProps, 'name' | 'children'> {
+> = Omit<RadioGroupProps, 'name' | 'children'> & {
   name: TName
   /** Will default to name if not provided */
   label?: string
@@ -34,7 +34,16 @@ export interface RadioFieldProps<
   units?: string
   control: Control<TFieldValues>
   items: { value: PathValue<TFieldValues, TName>; label: string }[]
-}
+} & (PathValue<TFieldValues, TName> extends string // this is wild lmao
+    ? { parseValue?: never }
+    : {
+        /**
+         * Radio field values are always strings internally, but sometimes we
+         * want them to represent something else, like a number. `parseValue` is
+         * required if and only if the value type does not extend `string`.
+         */
+        parseValue: (str: string) => PathValue<TFieldValues, TName>
+      })
 
 export function RadioField<
   TFieldValues extends FieldValues,
@@ -47,6 +56,7 @@ export function RadioField<
   units,
   control,
   items,
+  parseValue,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
   const id: string = name
@@ -71,7 +81,9 @@ export function RadioField<
               [`${id}-help-text`]: !!description,
             })}
             aria-describedby={description ? `${id}-label-tip` : undefined}
-            onChange={onChange}
+            onChange={(e) =>
+              parseValue ? onChange(parseValue(e.target.value)) : onChange(e)
+            }
             name={name}
             {...props}
             // TODO: once we get rid of the other use of RadioGroup, change RadioGroup

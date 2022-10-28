@@ -8,8 +8,8 @@ const MAX_LEN = 512
 
 export function DescriptionField<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
->(props: Omit<TextFieldProps<TFieldValues, TFieldName>, 'validate'>) {
+  TName extends FieldPath<TFieldValues>
+>(props: Omit<TextFieldProps<TFieldValues, TName>, 'validate'>) {
   return <TextField validate={validateDescription} {...props} />
 }
 

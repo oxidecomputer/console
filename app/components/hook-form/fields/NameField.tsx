@@ -7,13 +7,13 @@ import { TextField } from './TextField'
 
 export function NameField<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 >({
   required = true,
   name,
   label = capitalize(name),
   ...textFieldProps
-}: Omit<TextFieldProps<TFieldValues, TFieldName>, 'validate'> & { label?: string }) {
+}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & { label?: string }) {
   return (
     <TextField
       validate={(name) => validateName(name, label, required)}
