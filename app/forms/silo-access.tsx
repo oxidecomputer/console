@@ -1,32 +1,14 @@
-import type { Policy, RoleKey } from '@oxide/api'
 import {
-  allRoles,
   setUserRole,
   useApiMutation,
   useApiQueryClient,
   useUsersNotInPolicy,
 } from '@oxide/api'
-import { capitalize } from '@oxide/util'
 
 import { ListboxField, SideModalForm } from 'app/components/hook-form'
 
-type AddUserValues = {
-  userId: string
-  roleName: RoleKey | ''
-}
-
-const defaultValues: AddUserValues = {
-  userId: '',
-  roleName: '',
-}
-
-const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
-
-type AddRoleModalProps = {
-  onSuccess: () => void
-  onDismiss: () => void
-  policy: Policy
-}
+import { defaultValues, roleItems } from './access-util'
+import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 
 export function SiloAccessAddUserSideModal({
   onSuccess,
@@ -84,11 +66,6 @@ export function SiloAccessAddUserSideModal({
       )}
     </SideModalForm>
   )
-}
-
-type EditRoleModalProps = AddRoleModalProps & {
-  userId: string
-  defaultValues: { roleName: RoleKey }
 }
 
 export function SiloAccessEditUserSideModal({

@@ -167,9 +167,8 @@ export function OrgAccessPage() {
           Add user to organization
         </Button>
       </TableActions>
-      {orgPolicy && (
+      {orgPolicy && addModalOpen && (
         <OrgAccessAddUserSideModal
-          isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
           onSuccess={() => setAddModalOpen(false)}
           policy={orgPolicy}
@@ -177,12 +176,11 @@ export function OrgAccessPage() {
       )}
       {orgPolicy && editingUserRow?.orgRole && (
         <OrgAccessEditUserSideModal
-          isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
           policy={orgPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.orgRole }}
+          defaultValues={{ roleName: editingUserRow.orgRole }}
         />
       )}
       {rows.length === 0 ? (
