@@ -64,6 +64,7 @@ export function CreateSnapshotSideModalForm() {
           body: values,
         })
       }}
+      submitError={createSnapshot.error}
     >
       {(control) => (
         <>

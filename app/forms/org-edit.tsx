@@ -53,7 +53,7 @@ export function EditOrgSideModalForm() {
         })
       }
       submitDisabled={updateOrg.isLoading}
-      error={updateOrg.error?.error as Error | undefined}
+      submitError={updateOrg.error}
       submitLabel="Save changes"
     >
       {(control) => (

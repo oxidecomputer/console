@@ -6,6 +6,7 @@ import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
+import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
@@ -82,12 +83,10 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route path="silos" element={<SilosPage />} loader={SilosPage.loader} />
-        <Route
-          path="silos-new"
-          element={<SilosPage modal="createSilo" />}
-          loader={SilosPage.loader}
-        />
+        <Route element={<SilosPage />} loader={SilosPage.loader}>
+          <Route path="silos" />
+          <Route path="silos-new" element={<CreateSiloSideModalForm />} />
+        </Route>
         <Route path="issues" element={null} />
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />

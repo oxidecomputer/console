@@ -3,6 +3,7 @@ import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
+import type { ErrorResult } from '@oxide/api'
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
 
@@ -20,7 +21,8 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   children: (control: Control<TFieldValues>) => ReactNode
   onDismiss: () => void
   submitDisabled?: boolean
-  error?: Error
+  /** Error from the API call */
+  submitError: ErrorResult | null
   title: string
   onSubmit: (values: TFieldValues) => void
   submitLabel?: string
@@ -32,7 +34,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   children,
   onDismiss,
   submitDisabled = false,
-  error,
+  submitError,
   title,
   onSubmit,
   submitLabel,
@@ -69,18 +71,19 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       </SideModal.Body>
       <SideModal.Footer>
         <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
+          {/* TODO: Better error component here */}
+          {submitError?.error && 'message' in submitError.error && (
+            <div className="flex grow items-start text-mono-sm text-error">
+              <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+              <span>{submitError.error.message}</span>
+            </div>
+          )}
           <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
           <Button type="submit" size="sm" disabled={submitDisabled || !canSubmit} form={id}>
             {submitLabel || title}
           </Button>
-          {error && (
-            <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
-              <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-              <span>{error.message}</span>
-            </div>
-          )}
         </div>
       </SideModal.Footer>
     </SideModal>
