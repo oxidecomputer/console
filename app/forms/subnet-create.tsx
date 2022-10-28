@@ -1,56 +1,54 @@
-import type { VpcSubnet, VpcSubnetCreate } from '@oxide/api'
+import type { VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import {
+  DescriptionField,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/hook-form'
 import { useRequiredParams } from 'app/hooks'
 
-import type { CreateSideModalFormProps } from '.'
-
-const values: VpcSubnetCreate = {
+const defaultValues: VpcSubnetCreate = {
   name: '',
   description: '',
   ipv4Block: '',
 }
 
-export function CreateSubnetSideModalForm({
-  id = 'create-subnet-form',
-  title = 'Create subnet',
-  initialValues = values,
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: CreateSideModalFormProps<VpcSubnetCreate, VpcSubnet>) {
+type CreateSubnetFormProps = {
+  onDismiss: () => void
+}
+
+export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-subnet-form"
+      title="Create subnet"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ path: parentNames, body })}
       submitDisabled={createSubnet.isLoading}
-      error={createSubnet.error?.error as Error | undefined}
-      {...props}
+      submitError={createSubnet.error}
     >
-      <NameField id="subnet-name" />
-      <DescriptionField id="subnet-description" />
-      <Divider />
-      <TextField id="subnet-ipv4-block" name="ipv4Block" label="IPv4 block" required />
-      <TextField id="subnet-ipv6-block" name="ipv6Block" label="IPv6 block" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <Divider />
+          <TextField name="ipv4Block" label="IPv4 block" required control={control} />
+          <TextField name="ipv6Block" label="IPv6 block" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default CreateSubnetSideModalForm
