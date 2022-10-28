@@ -1,7 +1,9 @@
+import type { NavigateFunction } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+
 import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Divider } from '@oxide/ui'
-import { Success16Icon } from '@oxide/ui'
+import { Divider, Success16Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import {
@@ -24,9 +26,17 @@ const defaultValues: DiskCreate = {
 }
 
 type CreateSideModalFormProps = {
-  /** If defined, this overrides the usual mutation */
+  /**
+   * If defined, this overrides the usual mutation. Caller is responsible for
+   * doing a dismiss behavior in onSubmit as well, because we are not calling
+   * the RQ `onSuccess` defined for the mutation.
+   */
   onSubmit?: (diskCreate: DiskCreate) => void
-  onDismiss: () => void
+  /**
+   * Passing navigate is a bit of a hack to be able to do a nav from the routes
+   * file. The callers that don't need the arg can ignore it.
+   */
+  onDismiss: (navigate: NavigateFunction) => void
   onSuccess?: (disk: Disk) => void
 }
 
@@ -38,6 +48,7 @@ export function CreateDiskSideModalForm({
   const queryClient = useApiQueryClient()
   const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
+  const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
@@ -48,7 +59,7 @@ export function CreateDiskSideModalForm({
         content: 'Your disk has been created.',
       })
       onSuccess?.(data)
-      onDismiss()
+      onDismiss(navigate)
     },
   })
 
@@ -57,7 +68,7 @@ export function CreateDiskSideModalForm({
       id="create-disk-form"
       title="Create Disk"
       formOptions={{ defaultValues }}
-      onDismiss={onDismiss}
+      onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
         onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })

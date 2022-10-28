@@ -208,8 +208,11 @@ export const routes = createRoutesFromElements(
           <Route element={<DisksPage />} loader={DisksPage.loader}>
             <Route
               path="disks-new"
-              // TODO: onDismiss here
-              element={<CreateDiskSideModalForm onDismiss={() => {}} />}
+              element={
+                // relative nav is allowed just this once because the route is
+                // literally right there
+                <CreateDiskSideModalForm onDismiss={(navigate) => navigate('../disks')} />
+              }
               handle={{ crumb: 'New disk' }}
             />
 

@@ -164,6 +164,8 @@ export function StorageTab() {
         <CreateDiskSideModalForm
           onDismiss={() => setShowDiskCreate(false)}
           onSuccess={({ name }) => {
+            // TODO: this should probably be done with `mutateAsync` and
+            // awaited, but it's a pain, so punt for now
             attachDisk.mutate({ path: instanceParams, body: { name } })
           }}
         />
