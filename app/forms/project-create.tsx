@@ -52,7 +52,7 @@ export function CreateProjectSideModalForm() {
         })
       }}
       submitDisabled={createProject.isLoading}
-      error={createProject.error}
+      submitError={createProject.error}
     >
       {(control) => (
         <>

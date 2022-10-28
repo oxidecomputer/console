@@ -22,7 +22,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   onDismiss: () => void
   submitDisabled?: boolean
   /** Error from the API call */
-  error: ErrorResult | null
+  submitError: ErrorResult | null
   title: string
   onSubmit: (values: TFieldValues) => void
   submitLabel?: string
@@ -34,7 +34,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   children,
   onDismiss,
   submitDisabled = false,
-  error,
+  submitError,
   title,
   onSubmit,
   submitLabel,
@@ -72,10 +72,10 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Footer>
         <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
           {/* TODO: Better error component here */}
-          {error && error.error && 'message' in error.error && (
+          {submitError?.error && 'message' in submitError.error && (
             <div className="flex grow items-start text-mono-sm text-error">
               <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-              <span>{error.error.message}</span>
+              <span>{submitError.error.message}</span>
             </div>
           )}
           <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>

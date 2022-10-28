@@ -57,7 +57,7 @@ export function EditVpcSideModalForm() {
       }}
       submitDisabled={editVpc.isLoading}
       submitLabel="Save changes"
-      error={editVpc.error}
+      submitError={editVpc.error}
     >
       {(control) => (
         <>
