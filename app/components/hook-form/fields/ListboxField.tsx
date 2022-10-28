@@ -25,7 +25,7 @@ export type ListboxFieldProps<
 
 export function ListboxField<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 >({
   items,
   name,
@@ -36,7 +36,7 @@ export function ListboxField<
   helpText,
   className,
   control,
-}: ListboxFieldProps<TFieldValues, TFieldName>) {
+}: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
   const id: string = name

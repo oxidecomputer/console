@@ -20,9 +20,9 @@ import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 > extends UITextFieldProps {
-  name: TFieldName
+  name: TName
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */
@@ -46,13 +46,13 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   // TODO: think about this doozy of a type
-  validate?: Validate<FieldPathValue<TFieldValues, TFieldName>>
+  validate?: Validate<FieldPathValue<TFieldValues, TName>>
   control: Control<TFieldValues>
 }
 
 export function TextField<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 >({
   name,
   type = 'text',
@@ -61,7 +61,7 @@ export function TextField<
   validate,
   control,
   ...props
-}: TextFieldProps<TFieldValues, TFieldName> & UITextAreaProps) {
+}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) {
   const { description, helpText, required } = props
   const id: string = name
   return (
