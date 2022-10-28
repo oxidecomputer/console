@@ -8,7 +8,9 @@ type RouteTabsProps = ChildrenProp & { fullWidth?: boolean }
 export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   return (
     <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
-      <div className="ox-tabs-list flex">{children}</div>
+      <div role="tablist" className="ox-tabs-list flex">
+        {children}
+      </div>
       <div className="ox-tabs-panel">
         <Outlet />
       </div>
@@ -20,6 +22,7 @@ type TabProps = Pick<LinkProps, 'to'> & ChildrenProp
 export const Tab = ({ to, children }: TabProps) => {
   return (
     <NavLink
+      role="tab"
       to={to}
       className={({ isActive }) => cn('ox-tab', { 'is-selected': isActive })}
     >
