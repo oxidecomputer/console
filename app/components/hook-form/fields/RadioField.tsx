@@ -1,15 +1,16 @@
 import cn from 'classnames'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type { RadioGroupProps } from '@oxide/ui'
+import { Radio } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 export interface RadioFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
-> extends Omit<RadioGroupProps, 'name'> {
+> extends Omit<RadioGroupProps, 'name' | 'children'> {
   name: TName
   /** Will default to name if not provided */
   label?: string
@@ -32,6 +33,7 @@ export interface RadioFieldProps<
   placeholder?: string
   units?: string
   control: Control<TFieldValues>
+  items: { value: PathValue<TFieldValues, TName>; label: string }[]
 }
 
 export function RadioField<
@@ -44,6 +46,7 @@ export function RadioField<
   description,
   units,
   control,
+  items,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
   const id: string = name
@@ -71,7 +74,15 @@ export function RadioField<
             onChange={onChange}
             name={name}
             {...props}
-          />
+            // TODO: once we get rid of the other use of RadioGroup, change RadioGroup
+            // to take the list of items too
+          >
+            {items.map(({ value, label }) => (
+              <Radio key={value} value={value}>
+                {label}
+              </Radio>
+            ))}
+          </RadioGroup>
         )}
       />
     </div>

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Radio, Success16Icon } from '@oxide/ui'
+import { Success16Icon } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -62,10 +62,16 @@ export function CreateSiloSideModalForm() {
           <CheckboxField name="discoverable" control={control}>
             Discoverable
           </CheckboxField>
-          <RadioField name="identityMode" label="Identity mode" column control={control}>
-            <Radio value="saml_jit">SAML JIT</Radio>
-            <Radio value="local_only">Local only</Radio>
-          </RadioField>
+          <RadioField
+            name="identityMode"
+            label="Identity mode"
+            column
+            control={control}
+            items={[
+              { value: 'saml_jit', label: 'SAML JIT' },
+              { value: 'local_only', label: 'Local only' },
+            ]}
+          />
         </>
       )}
     </SideModalForm>
