@@ -168,13 +168,9 @@ export function StorageTab() {
           }}
         />
       )}
-      <AttachDiskSideModalForm
-        isOpen={showDiskAttach}
-        onSuccess={() => {
-          setShowDiskAttach(false)
-        }}
-        onDismiss={() => setShowDiskAttach(false)}
-      />
+      {showDiskAttach && (
+        <AttachDiskSideModalForm onDismiss={() => setShowDiskAttach(false)} />
+      )}
     </div>
   )
 }

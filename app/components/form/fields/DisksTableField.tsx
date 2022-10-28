@@ -78,14 +78,15 @@ export function DisksTableField() {
           onDismiss={() => setShowDiskCreate(false)}
         />
       )}
-      <AttachDiskSideModalForm
-        isOpen={showDiskAttach}
-        onDismiss={() => setShowDiskAttach(false)}
-        onSubmit={(values) => {
-          setItems([...items, { type: 'attach', ...values }])
-          setShowDiskAttach(false)
-        }}
-      />
+      {showDiskAttach && (
+        <AttachDiskSideModalForm
+          onDismiss={() => setShowDiskAttach(false)}
+          onSubmit={(values) => {
+            setItems([...items, { type: 'attach', ...values }])
+            setShowDiskAttach(false)
+          }}
+        />
+      )}
     </>
   )
 }

@@ -24,6 +24,7 @@ const defaultValues: DiskCreate = {
 }
 
 type CreateSideModalFormProps = {
+  /** If defined, this overrides the usual mutation */
   onSubmit?: (diskCreate: DiskCreate) => void
   onDismiss: () => void
   onSuccess?: (disk: Disk) => void
@@ -59,7 +60,6 @@ export function CreateDiskSideModalForm({
       onDismiss={onDismiss}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        // important: if onSubmit is passed in, it overrides the mutation
         onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })
       }}
       submitDisabled={createDisk.isLoading}
