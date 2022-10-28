@@ -182,20 +182,18 @@ export function ProjectAccessPage() {
           Add user to project
         </Button>
       </TableActions>
-      {projectPolicy && (
+      {projectPolicy && addModalOpen && (
         <ProjectAccessAddUserSideModal
-          isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
           policy={projectPolicy}
         />
       )}
       {projectPolicy && editingUserRow?.projectRole && (
         <ProjectAccessEditUserSideModal
-          isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.projectRole }}
+          defaultValues={{ roleName: editingUserRow.projectRole }}
         />
       )}
       {rows.length === 0 ? (

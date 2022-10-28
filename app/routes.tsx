@@ -8,6 +8,7 @@ import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
+import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
@@ -76,12 +77,14 @@ export const routes = createRoutesFromElements(
           element={<AppearancePage />}
           handle={{ crumb: 'Appearance' }}
         />
-        <Route
-          path="ssh-keys"
-          element={<SSHKeysPage />}
-          loader={SSHKeysPage.loader}
-          handle={{ crumb: 'SSH Keys' }}
-        />
+        <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
+          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} />
+          <Route
+            path="ssh-keys-new"
+            element={<CreateSSHKeySideModalForm />}
+            handle={{ crumb: 'New SSH key' }}
+          />
+        </Route>
         <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
       </Route>
 
