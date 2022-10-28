@@ -1,20 +1,17 @@
-import { useUsersNotInPolicy } from '@oxide/api'
-import { setUserRole } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
+import {
+  setUserRole,
+  useApiMutation,
+  useApiQueryClient,
+  useUsersNotInPolicy,
+} from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/hook-form'
 import { useRequiredParams } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
-import { defaultValues } from './access-util'
-import { roleItems } from './access-util'
+import { defaultValues, roleItems } from './access-util'
 
-export function OrgAccessAddUserSideModal({
-  onSuccess,
-  onDismiss,
-  policy,
-}: AddRoleModalProps) {
+export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const orgParams = useRequiredParams('orgName')
 
   const users = useUsersNotInPolicy(policy)
@@ -24,7 +21,6 @@ export function OrgAccessAddUserSideModal({
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
-      onSuccess()
       onDismiss()
     },
   })
@@ -72,7 +68,6 @@ export function OrgAccessAddUserSideModal({
 }
 
 export function OrgAccessEditUserSideModal({
-  onSuccess,
   onDismiss,
   userId,
   policy,
@@ -84,7 +79,6 @@ export function OrgAccessEditUserSideModal({
   const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
-      onSuccess()
       onDismiss()
     },
   })
@@ -107,15 +101,13 @@ export function OrgAccessEditUserSideModal({
       submitLabel="Update role"
     >
       {(control) => (
-        <>
-          <ListboxField
-            name="roleName"
-            label="Role"
-            items={roleItems}
-            required
-            control={control}
-          />
-        </>
+        <ListboxField
+          name="roleName"
+          label="Role"
+          items={roleItems}
+          required
+          control={control}
+        />
       )}
     </SideModalForm>
   )

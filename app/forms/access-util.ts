@@ -15,7 +15,6 @@ export const defaultValues: AddUserValues = {
 export const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
 
 export type AddRoleModalProps = {
-  onSuccess: () => void
   onDismiss: () => void
   policy: Policy
 }

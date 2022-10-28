@@ -170,14 +170,12 @@ export function OrgAccessPage() {
       {orgPolicy && addModalOpen && (
         <OrgAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
-          onSuccess={() => setAddModalOpen(false)}
           policy={orgPolicy}
         />
       )}
       {orgPolicy && editingUserRow?.orgRole && (
         <OrgAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
-          onSuccess={() => setEditingUserRow(null)}
           policy={orgPolicy}
           userId={editingUserRow.id}
           defaultValues={{ roleName: editingUserRow.orgRole }}
