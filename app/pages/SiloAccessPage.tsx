@@ -154,14 +154,12 @@ export function SiloAccessPage() {
       {siloPolicy && addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
-          onSuccess={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
       {siloPolicy && editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
-          onSuccess={() => setEditingUserRow(null)}
           policy={siloPolicy}
           userId={editingUserRow.id}
           defaultValues={{ roleName: editingUserRow.siloRole }}

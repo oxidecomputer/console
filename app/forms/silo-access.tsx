@@ -10,11 +10,7 @@ import { ListboxField, SideModalForm } from 'app/components/hook-form'
 import { defaultValues, roleItems } from './access-util'
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 
-export function SiloAccessAddUserSideModal({
-  onSuccess,
-  onDismiss,
-  policy,
-}: AddRoleModalProps) {
+export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const users = useUsersNotInPolicy(policy)
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
@@ -22,7 +18,6 @@ export function SiloAccessAddUserSideModal({
   const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('policyView', {})
-      onSuccess()
       onDismiss()
     },
   })
@@ -69,7 +64,6 @@ export function SiloAccessAddUserSideModal({
 }
 
 export function SiloAccessEditUserSideModal({
-  onSuccess,
   onDismiss,
   userId,
   policy,
@@ -79,7 +73,6 @@ export function SiloAccessEditUserSideModal({
   const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('policyView', {})
-      onSuccess()
       onDismiss()
     },
   })
