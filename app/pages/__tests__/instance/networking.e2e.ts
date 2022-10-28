@@ -8,7 +8,7 @@ test('Instance networking tab', async ({ page }) => {
   await page.goto('/orgs/maze-war/projects/mock-project/instances/db1')
 
   // Instance networking tab
-  await page.click('role=tab[name="Networking"]')
+  await page.click('role=tab[name="Network Interfaces"]')
 
   const table = page.locator('table')
   await expectRowVisible(table, { name: 'my-nic', primary: 'primary' })
