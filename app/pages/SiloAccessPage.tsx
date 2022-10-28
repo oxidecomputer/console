@@ -151,9 +151,8 @@ export function SiloAccessPage() {
           Add user or group
         </Button>
       </TableActions>
-      {siloPolicy && (
+      {siloPolicy && addModalOpen && (
         <SiloAccessAddUserSideModal
-          isOpen={addModalOpen}
           onDismiss={() => setAddModalOpen(false)}
           onSuccess={() => setAddModalOpen(false)}
           policy={siloPolicy}
@@ -161,12 +160,11 @@ export function SiloAccessPage() {
       )}
       {siloPolicy && editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
-          isOpen={!!editingUserRow}
           onDismiss={() => setEditingUserRow(null)}
           onSuccess={() => setEditingUserRow(null)}
           policy={siloPolicy}
           userId={editingUserRow.id}
-          initialValues={{ roleName: editingUserRow.siloRole }}
+          defaultValues={{ roleName: editingUserRow.siloRole }}
         />
       )}
       {rows.length === 0 ? (
