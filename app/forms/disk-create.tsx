@@ -4,38 +4,36 @@ import { Divider } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
-import { SideModalForm } from 'app/components/form'
 import {
   DescriptionField,
   DiskSizeField,
   NameField,
-  Radio,
   RadioField,
-} from 'app/components/form'
+  SideModalForm,
+} from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
-import type { CreateSideModalFormProps } from '.'
-
-const values: DiskCreate = {
+const defaultValues: DiskCreate = {
   name: '',
   description: '',
-  size: 0,
+  size: 10,
   diskSource: {
     blockSize: 4096,
     type: 'blank',
   },
 }
 
+type CreateSideModalFormProps = {
+  onSubmit?: (diskCreate: DiskCreate) => void
+  onDismiss: () => void
+  onSuccess?: (disk: Disk) => void
+}
+
 export function CreateDiskSideModalForm({
-  id = 'create-disk-form',
-  title = 'Create Disk',
-  initialValues = values,
   onSubmit,
   onSuccess,
-  onError,
   onDismiss,
-  ...props
-}: CreateSideModalFormProps<DiskCreate, Disk>) {
+}: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const pathParams = useRequiredParams('orgName', 'projectName')
   const addToast = useToast()
@@ -51,47 +49,41 @@ export function CreateDiskSideModalForm({
       onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-disk-form"
+      title="Create Disk"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        ((values) => {
-          createDisk.mutate({
-            path: pathParams,
-            body: {
-              ...values,
-              size: values.size * GiB,
-            },
-          })
-        })
-      }
+      onSubmit={({ size, ...rest }) => {
+        const body = { size: size * GiB, ...rest }
+        // important: if onSubmit is passed in, it overrides the mutation
+        onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })
+      }}
       submitDisabled={createDisk.isLoading}
-      error={createDisk.error?.error as Error | undefined}
-      {...props}
+      submitError={createDisk.error}
     >
-      <NameField id="disk-name" />
-      <DescriptionField id="disk-description" />
-      <Divider />
-      <RadioField
-        column
-        id="disk-block-size"
-        name="blockSize"
-        label="Block size"
-        units="Bytes"
-      >
-        <Radio value="512">512</Radio>
-        <Radio value="4096">4096</Radio>
-      </RadioField>
-      <DiskSizeField id="disk-size" name="size" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <Divider />
+          <RadioField
+            column
+            name="diskSource.blockSize"
+            label="Block size"
+            units="Bytes"
+            control={control}
+            items={[
+              { label: '4096', value: 4096 },
+              { label: '512', value: 512 },
+            ]}
+          />
+          <DiskSizeField name="size" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default CreateDiskSideModalForm

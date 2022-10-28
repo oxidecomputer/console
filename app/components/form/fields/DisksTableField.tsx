@@ -5,7 +5,7 @@ import type { DiskCreate, DiskIdentifier } from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
-import CreateDiskSideModalForm from 'app/forms/disk-create'
+import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
@@ -69,14 +69,15 @@ export function DisksTableField() {
         </div>
       </div>
 
-      <CreateDiskSideModalForm
-        isOpen={showDiskCreate}
-        onSubmit={(values) => {
-          setItems([...items, { type: 'create', ...values }])
-          setShowDiskCreate(false)
-        }}
-        onDismiss={() => setShowDiskCreate(false)}
-      />
+      {showDiskCreate && (
+        <CreateDiskSideModalForm
+          onSubmit={(values) => {
+            setItems([...items, { type: 'create', ...values }])
+            setShowDiskCreate(false)
+          }}
+          onDismiss={() => setShowDiskCreate(false)}
+        />
+      )}
       <AttachDiskSideModalForm
         isOpen={showDiskAttach}
         onDismiss={() => setShowDiskAttach(false)}
