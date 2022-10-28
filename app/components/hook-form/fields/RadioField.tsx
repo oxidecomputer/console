@@ -34,6 +34,11 @@ export interface RadioFieldProps<
   units?: string
   control: Control<TFieldValues>
   items: { value: PathValue<TFieldValues, TName>; label: string }[]
+  /**
+   * Radio field values are always strings internally, but sometimes we want
+   * them to represent something else, like a number. Default is no transform.
+   */
+  parseValue?: (str: string) => PathValue<TFieldValues, TName>
 }
 
 export function RadioField<
@@ -47,6 +52,9 @@ export function RadioField<
   units,
   control,
   items,
+  // Cast is required by the type on the prop. Let's assume that if the inputs
+  // are good then calling identity on them is also good.
+  parseValue = (x) => x as PathValue<TFieldValues, TName>,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
   const id: string = name
@@ -71,7 +79,7 @@ export function RadioField<
               [`${id}-help-text`]: !!description,
             })}
             aria-describedby={description ? `${id}-label-tip` : undefined}
-            onChange={onChange}
+            onChange={(e) => onChange(parseValue(e.target.value))}
             name={name}
             {...props}
             // TODO: once we get rid of the other use of RadioGroup, change RadioGroup

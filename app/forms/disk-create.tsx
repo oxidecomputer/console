@@ -1,4 +1,4 @@
-import type { Disk, DiskCreate } from '@oxide/api'
+import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 import { Success16Icon } from '@oxide/ui'
@@ -76,6 +76,7 @@ export function CreateDiskSideModalForm({
             label="Block size"
             units="Bytes"
             control={control}
+            parseValue={(val) => parseInt(val, 10) as BlockSize}
             items={[
               { label: '4096', value: 4096 },
               { label: '512', value: 512 },
