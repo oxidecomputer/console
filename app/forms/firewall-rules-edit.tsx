@@ -41,10 +41,7 @@ export function EditFirewallRuleForm({
 
     protocols: originalRule.filters.protocols || [],
 
-    // port subform
     ports: originalRule.filters.ports || [],
-    portRange: '',
-
     hosts: originalRule.filters.hosts || [],
     targets: originalRule.targets,
   }

@@ -38,10 +38,7 @@ export type FirewallRuleValues = {
 
   protocols: NonNullable<VpcFirewallRule['filters']['protocols']>
 
-  // port subform
   ports: NonNullable<VpcFirewallRule['filters']['ports']>
-  portRange: string
-
   hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
   targets: VpcFirewallRuleTarget[]
 }
@@ -74,15 +71,17 @@ const defaultValues: FirewallRuleValues = {
   // need such nesting here though. not even sure how to do it
   protocols: [],
 
-  // port subform
   ports: [],
-  portRange: '',
-
-  // host subform
   hosts: [],
-
-  // target subform
   targets: [],
+}
+
+type PortRangeFormValues = {
+  portRange: string
+}
+
+const portRangeDefaultValues: PortRangeFormValues = {
+  portRange: '',
 }
 
 type HostFormValues = {
@@ -111,8 +110,8 @@ type CommonFieldsProps = {
 }
 
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
+  const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
-  const portRange = useController({ name: 'portRange', control }).field
 
   const hostForm = useForm({ defaultValues: hostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
@@ -329,20 +328,20 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         name="portRange"
         label="Port filter"
         helpText="A single port (1234) or a range (1234-2345)"
-        control={control}
+        control={portRangeForm.control}
       />
       <div className="flex justify-end">
         <Button variant="ghost" color="secondary" className="mr-2.5">
           Clear
         </Button>
         <Button
-          onClick={() => {
-            const portRangeValue = portRange.value.trim()
+          onClick={portRangeForm.handleSubmit(({ portRange }) => {
+            const portRangeValue = portRange.trim()
             // TODO: show error instead of ignoring the click
             if (!parsePortRange(portRangeValue)) return
             ports.onChange([...ports.value, portRangeValue])
-            portRange.onChange('')
-          }}
+            portRangeForm.reset()
+          })}
         >
           Add port filter
         </Button>
