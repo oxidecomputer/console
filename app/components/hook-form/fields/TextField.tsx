@@ -60,9 +60,11 @@ export function TextField<
   units,
   validate,
   control,
+  description,
+  helpText,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) {
-  const { description, helpText, required } = props
+  const { required } = props
   const id: string = name
   return (
     <div className="max-w-lg">
