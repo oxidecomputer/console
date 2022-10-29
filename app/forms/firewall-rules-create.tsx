@@ -1,5 +1,5 @@
-import { useFormikContext } from 'formik'
 import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import {
   firewallRuleGetToPut,
@@ -101,7 +101,16 @@ type CommonFieldsProps = {
 }
 
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
-  const { setFieldValue, values } = useFormikContext<FirewallRuleValues>()
+  const ports = useController({ name: 'ports', control }).field
+  const portRange = useController({ name: 'portRange', control }).field
+
+  const hosts = useController({ name: 'hosts', control }).field
+  const hostType = useController({ name: 'hostType', control }).field
+  const hostValue = useController({ name: 'hostValue', control }).field
+
+  const targets = useController({ name: 'targets', control }).field
+  const targetType = useController({ name: 'targetType', control }).field
+  const targetValue = useController({ name: 'targetValue', control }).field
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
@@ -175,17 +184,17 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
-              values.targetType &&
-              values.targetValue && // TODO: validate
-              !values.targets.some(
-                (t) => t.value === values.targetValue && t.type === values.targetType
+              targetType.value &&
+              targetValue.value && // TODO: validate
+              !targets.value.some(
+                (t) => t.value === targetValue.value && t.type === targetType.value
               )
             ) {
-              setFieldValue('targets', [
-                ...values.targets,
-                { type: values.targetType, value: values.targetValue },
+              targets.onChange([
+                ...targets.value,
+                { type: targetType.value, value: targetValue.value },
               ])
-              setFieldValue('targetValue', '')
+              targetValue.onChange('')
               // TODO: clear dropdown too?
             }
           }}
@@ -203,7 +212,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           </Table.HeaderRow>
         </Table.Header>
         <Table.Body>
-          {values.targets.map((t) => (
+          {targets.value.map((t) => (
             <Table.Row key={`${t.type}|${t.value}`}>
               {/* TODO: should be the pretty type label, not the type key */}
               <Table.Cell>{t.type}</Table.Cell>
@@ -212,9 +221,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <Delete10Icon
                   className="cursor-pointer"
                   onClick={() => {
-                    setFieldValue(
-                      'targets',
-                      values.targets.filter(
+                    targets.onChange(
+                      targets.value.filter(
                         (t1) => t1.value !== t.value || t1.type !== t.type
                       )
                     )
@@ -261,17 +269,17 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           onClick={() => {
             // TODO: show error instead of ignoring click
             if (
-              values.hostType &&
-              values.hostValue && // TODO: validate
-              !values.hosts.some(
-                (t) => t.value === values.hostValue || t.type === values.hostType
+              hostType.value &&
+              hostValue.value && // TODO: validate
+              !hosts.value.some(
+                (t) => t.value === hostValue.value || t.type === hostType.value
               )
             ) {
-              setFieldValue('hosts', [
-                ...values.hosts,
-                { type: values.hostType, value: values.hostValue },
+              hosts.onChange([
+                ...hosts.value,
+                { type: hostType.value, value: hostValue.value },
               ])
-              setFieldValue('hostValue', '')
+              hostValue.onChange('')
               // TODO: clear dropdown too?
             }
           }}
@@ -289,7 +297,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           </Table.HeaderRow>
         </Table.Header>
         <Table.Body>
-          {values.hosts.map((h) => (
+          {hosts.value.map((h) => (
             <Table.Row key={`${h.type}|${h.value}`}>
               {/* TODO: should be the pretty type label, not the type key */}
               <Table.Cell>{h.type}</Table.Cell>
@@ -298,11 +306,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <Delete10Icon
                   className="cursor-pointer"
                   onClick={() => {
-                    setFieldValue(
-                      'hosts',
-                      values.hosts.filter(
-                        (h1) => h1.value !== h.value && h1.type !== h.type
-                      )
+                    hosts.onChange(
+                      hosts.value.filter((h1) => h1.value !== h.value && h1.type !== h.type)
                     )
                   }}
                 />
@@ -327,11 +332,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         <Button
           variant="default"
           onClick={() => {
-            const portRange = values.portRange.trim()
+            const portRangeValue = portRange.value.trim()
             // TODO: show error instead of ignoring the click
-            if (!parsePortRange(portRange)) return
-            setFieldValue('ports', [...values.ports, portRange])
-            setFieldValue('portRange', '')
+            if (!parsePortRange(portRangeValue)) return
+            ports.onChange([...ports.value, portRangeValue])
+            portRange.onChange('')
           }}
         >
           Add port filter
@@ -345,7 +350,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           </Table.HeaderRow>
         </Table.Header>
         <Table.Body>
-          {values.ports.map((p) => (
+          {ports.value.map((p) => (
             <Table.Row key={p}>
               {/* TODO: should be the pretty type label, not the type key */}
               <Table.Cell>{p}</Table.Cell>
@@ -353,10 +358,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <Delete10Icon
                   className="cursor-pointer"
                   onClick={() => {
-                    setFieldValue(
-                      'ports',
-                      values.ports.filter((p1) => p1 !== p)
-                    )
+                    ports.onChange(ports.value.filter((p1) => p1 !== p))
                   }}
                 />
               </Table.Cell>
