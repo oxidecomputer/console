@@ -14,7 +14,7 @@ export const VpcRoutersTab = () => {
 
   const { Table, Column } = useQueryTable('vpcRouterList', { path: vpcParams })
 
-  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcRouter | null>(null)
 
   const makeActions = (router: VpcRouter): MenuAction[] => [
@@ -29,25 +29,20 @@ export const VpcRoutersTab = () => {
       title="No VPC routers"
       body="You need to create a router to be able to see it here"
       buttonText="New router"
-      onClick={() => setCreateModalOpen(true)}
+      onClick={() => setCreating(true)}
     />
   )
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="sm" variant="default" onClick={() => setCreateModalOpen(true)}>
+        <Button size="sm" variant="default" onClick={() => setCreating(true)}>
           New router
         </Button>
-        <CreateVpcRouterForm
-          isOpen={createModalOpen}
-          onDismiss={() => setCreateModalOpen(false)}
-        />
-        <EditVpcRouterForm
-          isOpen={!!editing}
-          initialValues={editing || {}}
-          onDismiss={() => setEditing(null)}
-        />
+        {creating && <CreateVpcRouterForm onDismiss={() => setCreating(false)} />}
+        {editing && (
+          <EditVpcRouterForm editing={editing} onDismiss={() => setEditing(null)} />
+        )}
       </div>
       <Table makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />

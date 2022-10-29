@@ -21,12 +21,14 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
     },
   })
 
+  const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
+
   return (
     <SideModalForm
       id="edit-subnet-form"
       title="Edit subnet"
       onDismiss={onDismiss}
-      formOptions={{ defaultValues: pick(editing, 'name', 'description') }}
+      formOptions={{ defaultValues }}
       onSubmit={(body) => {
         updateSubnet.mutate({
           path: { ...parentNames, subnetName: editing.name },

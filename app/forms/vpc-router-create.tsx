@@ -1,24 +1,20 @@
-import type { VpcRouter, VpcRouterCreate } from '@oxide/api'
+import type { VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import type { CreateSideModalFormProps } from 'app/forms'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
-const values = {
+const defaultValues: VpcRouterCreate = {
   name: '',
   description: '',
 }
 
-export function CreateVpcRouterForm({
-  id = 'create-vpc-router-form',
-  title = 'Create VPC Router',
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: CreateSideModalFormProps<VpcRouterCreate, VpcRouter>) {
+type CreateVpcRouterFormProps = {
+  onDismiss: () => void
+}
+
+export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -37,27 +33,28 @@ export function CreateVpcRouterForm({
         title: 'Success!',
         content: 'Your VPC router has been created.',
       })
-      onSuccess?.(router)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={values}
+      id="create-vpc-router-form"
+      title="Create VPC Router"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         createRouter.mutate({ path: parentNames, body: { name, description } })
       }
       submitDisabled={createRouter.isLoading}
-      error={createRouter.error?.error as Error | undefined}
-      {...props}
+      submitError={createRouter.error}
     >
-      <NameField id="router-name" />
-      <DescriptionField id="router-description" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
