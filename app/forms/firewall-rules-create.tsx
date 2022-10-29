@@ -1,4 +1,5 @@
 import type { Control } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import {
@@ -48,8 +49,6 @@ export type FirewallRuleValues = {
 
   // target subform
   targets: VpcFirewallRuleTarget[]
-  targetType: VpcFirewallRuleTarget['type'] | ''
-  targetValue: string
 }
 
 export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => ({
@@ -91,8 +90,16 @@ const defaultValues: FirewallRuleValues = {
 
   // target subform
   targets: [],
-  targetType: '',
-  targetValue: '',
+}
+
+type TargetFormValues = {
+  type: VpcFirewallRuleTarget['type']
+  value: string
+}
+
+const targetDefaultValues: TargetFormValues = {
+  type: 'vpc',
+  value: '',
 }
 
 type CommonFieldsProps = {
@@ -109,8 +116,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const hostValue = useController({ name: 'hostValue', control }).field
 
   const targets = useController({ name: 'targets', control }).field
-  const targetType = useController({ name: 'targetType', control }).field
-  const targetValue = useController({ name: 'targetValue', control }).field
+
+  const targetForm = useForm({ defaultValues: targetDefaultValues })
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
@@ -154,7 +161,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <h3 className="mb-4 text-sans-xl">Targets</h3>
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
-        name="targetType"
+        name="type"
         label="Target type"
         items={[
           { value: 'vpc', label: 'VPC' },
@@ -163,15 +170,15 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP subnet' },
         ]}
-        control={control}
+        control={targetForm.control}
       />
       {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
       subform which means it likely should be a custom field */}
       <TextField
-        name="targetValue"
+        name="value"
         label="Target name"
         required={false}
-        control={control}
+        control={targetForm.control}
       />
 
       <div className="flex justify-end">
@@ -182,20 +189,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         <Button
           variant="default"
           onClick={() => {
+            const targetType = targetForm.getValues('type')
+            const targetValue = targetForm.getValues('value')
             // TODO: show error instead of ignoring click
             if (
-              targetType.value &&
-              targetValue.value && // TODO: validate
-              !targets.value.some(
-                (t) => t.value === targetValue.value && t.type === targetType.value
-              )
+              targetType &&
+              targetValue &&
+              !targets.value.some((t) => t.value === targetValue && t.type === targetType)
             ) {
-              targets.onChange([
-                ...targets.value,
-                { type: targetType.value, value: targetValue.value },
-              ])
-              targetValue.onChange('')
-              // TODO: clear dropdown too?
+              targets.onChange([...targets.value, { type: targetType, value: targetValue }])
+              targetForm.reset()
             }
           }}
         >

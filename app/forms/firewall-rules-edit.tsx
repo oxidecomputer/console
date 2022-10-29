@@ -50,10 +50,7 @@ export function EditFirewallRuleForm({
     hostType: '',
     hostValue: '',
 
-    // target subform
     targets: originalRule.targets,
-    targetType: '',
-    targetValue: '',
   }
 
   return (
