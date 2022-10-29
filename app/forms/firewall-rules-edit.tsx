@@ -1,42 +1,36 @@
-import type { VpcFirewallRule, VpcFirewallRules } from '@oxide/api'
+import type { VpcFirewallRule } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { Form, SideModalForm } from 'app/components/form'
+import { SideModalForm } from 'app/components/hook-form'
 import { useRequiredParams } from 'app/hooks'
 
-import type { EditSideModalFormProps } from '.'
-import { CommonFields, validationSchema, valuesToRuleUpdate } from './firewall-rules-create'
+import { CommonFields, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
 
-type EditFirewallRuleSideModalFormProps = Omit<
-  EditSideModalFormProps<FirewallRuleValues, VpcFirewallRules>,
-  'initialValues'
-> & {
-  originalRule: VpcFirewallRule
+type EditFirewallRuleFormProps = {
+  onDismiss: () => void
   existingRules: VpcFirewallRule[]
+  originalRule: VpcFirewallRule
 }
 
 export function EditFirewallRuleForm({
-  onSuccess,
   onDismiss,
   existingRules,
   originalRule,
-  ...props
-}: EditFirewallRuleSideModalFormProps) {
+}: EditFirewallRuleFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView', { path: parentNames })
-      onSuccess?.(data)
       onDismiss()
     },
   })
 
   if (Object.keys(originalRule).length === 0) return null
 
-  const initialValues: FirewallRuleValues = {
+  const defaultValues: FirewallRuleValues = {
     enabled: originalRule.status === 'enabled',
     name: originalRule.name,
     description: originalRule.description,
@@ -66,7 +60,7 @@ export function EditFirewallRuleForm({
     <SideModalForm
       id="create-firewall-rule-form"
       title="Edit rule"
-      initialValues={initialValues}
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
@@ -81,14 +75,13 @@ export function EditFirewallRuleForm({
           },
         })
       }}
-      validationSchema={validationSchema}
-      validateOnBlur
+      // validationSchema={validationSchema}
+      // validateOnBlur
       submitDisabled={updateRules.isLoading}
-      error={updateRules.error?.error as Error | undefined}
-      {...props}
+      submitError={updateRules.error}
+      submitLabel="Update rule"
     >
-      <CommonFields error={updateRules.error} />
-      <Form.Submit>Update rule</Form.Submit>
+      {(control) => <CommonFields error={updateRules.error} control={control} />}
     </SideModalForm>
   )
 }

@@ -1,5 +1,5 @@
-import * as Yup from 'yup'
 import { useFormikContext } from 'formik'
+import type { Control } from 'react-hook-form'
 
 import {
   firewallRuleGetToPut,
@@ -10,24 +10,22 @@ import {
 import type {
   ErrorResult,
   VpcFirewallRule,
+  VpcFirewallRuleHostFilter,
+  VpcFirewallRuleTarget,
   VpcFirewallRuleUpdate,
-  VpcFirewallRules,
 } from '@oxide/api'
-import { Button, Delete10Icon, Divider, Radio, Table } from '@oxide/ui'
+import { Button, Delete10Icon, Divider, Table } from '@oxide/ui'
 
 import {
   CheckboxField,
   DescriptionField,
-  Form,
   ListboxField,
   NameField,
   RadioField,
   SideModalForm,
   TextField,
-} from 'app/components/form'
+} from 'app/components/hook-form'
 import { useRequiredParams } from 'app/hooks'
-
-import type { CreateSideModalFormProps } from '.'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -45,12 +43,12 @@ export type FirewallRuleValues = {
 
   // host subform
   hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
-  hostType: string
+  hostType: VpcFirewallRuleHostFilter['type'] | ''
   hostValue: string
 
   // target subform
-  targets: VpcFirewallRule['targets']
-  targetType: string
+  targets: VpcFirewallRuleTarget[]
+  targetType: VpcFirewallRuleTarget['type'] | ''
   targetValue: string
 }
 
@@ -69,7 +67,7 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
   targets: values.targets,
 })
 
-const initialValues: FirewallRuleValues = {
+const defaultValues: FirewallRuleValues = {
   enabled: true,
   name: '',
   description: '',
@@ -97,33 +95,56 @@ const initialValues: FirewallRuleValues = {
   targetValue: '',
 }
 
-export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
+type CommonFieldsProps = {
+  error: ErrorResult | null
+  control: Control<FirewallRuleValues>
+}
+
+export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const { setFieldValue, values } = useFormikContext<FirewallRuleValues>()
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
       {/* TODO: better text or heading or tip or something on this checkbox */}
-      <CheckboxField name="enabled">Enabled</CheckboxField>
-      <NameField id="rule-name" />
-      <DescriptionField id="rule-description" />
+      <CheckboxField name="enabled" control={control}>
+        Enabled
+      </CheckboxField>
+      <NameField name="name" control={control} />
+      <DescriptionField name="description" control={control} />
 
       <Divider />
 
-      <TextField type="number" id="priority" helpText="Must be 0&ndash;65535" />
-      <RadioField id="action" label="Action" column>
-        <Radio value="allow">Allow</Radio>
-        <Radio value="deny">Deny</Radio>
-      </RadioField>
-      <RadioField id="direction" label="Direction of traffic" column>
-        <Radio value="inbound">Incoming</Radio>
-        <Radio value="outbound">Outgoing</Radio>
-      </RadioField>
+      <TextField
+        type="number"
+        name="priority"
+        helpText="Must be 0&ndash;65535"
+        control={control}
+      />
+      <RadioField
+        name="action"
+        column
+        control={control}
+        items={[
+          { value: 'allow', label: 'Allow' },
+          { value: 'deny', label: 'Deny' },
+        ]}
+      />
+      <RadioField
+        name="direction"
+        label="Direction of traffic"
+        column
+        control={control}
+        items={[
+          { value: 'inbound', label: 'Incoming' },
+          { value: 'outbound', label: 'Outgoing' },
+        ]}
+      />
 
       <Divider />
 
       <h3 className="mb-4 text-sans-xl">Targets</h3>
+      {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
-        id="target-type-field"
         name="targetType"
         label="Target type"
         items={[
@@ -133,10 +154,16 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP subnet' },
         ]}
+        control={control}
       />
       {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
       subform which means it likely should be a custom field */}
-      <TextField id="targetValue" name="targetValue" label="Target name" required={false} />
+      <TextField
+        name="targetValue"
+        label="Target name"
+        required={false}
+        control={control}
+      />
 
       <div className="flex justify-end">
         {/* TODO does this clear out the form or the existing targets? */}
@@ -203,7 +230,6 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
       <ListboxField
-        id="host-type-field"
         name="hostType"
         label="Host type"
         items={[
@@ -213,15 +239,17 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP Subnet' },
         ]}
+        control={control}
       />
       {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
       <TextField
-        id="hostValue"
+        name="hostValue"
         label="Value"
         helpText="For IP, an address. For the rest, a name. [TODO: copy]"
+        control={control}
       />
 
       <div className="flex justify-end">
@@ -287,9 +315,10 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
       <Divider />
 
       <TextField
-        id="portRange"
+        name="portRange"
         label="Port filter"
         helpText="A single port (1234) or a range (1234-2345)"
+        control={control}
       />
       <div className="flex justify-end">
         <Button variant="ghost" color="secondary" className="mr-2.5">
@@ -341,17 +370,17 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
       <fieldset className="space-y-0.5">
         <legend>Protocols</legend>
         <div>
-          <CheckboxField name="protocols" value="TCP">
+          <CheckboxField name="protocols" value="TCP" control={control}>
             TCP
           </CheckboxField>
         </div>
         <div>
-          <CheckboxField name="protocols" value="UDP">
+          <CheckboxField name="protocols" value="UDP" control={control}>
             UDP
           </CheckboxField>
         </div>
         <div>
-          <CheckboxField name="protocols" value="ICMP">
+          <CheckboxField name="protocols" value="ICMP" control={control}>
             ICMP
           </CheckboxField>
         </div>
@@ -364,41 +393,35 @@ export const CommonFields = ({ error }: { error: ErrorResult | null }) => {
   )
 }
 
-export const validationSchema = Yup.object({
-  priority: Yup.number().integer().min(0).max(65535).required('Required'),
-})
+// TODO: validate priority again
+// export const validationSchema = Yup.object({
+//   priority: Yup.number().integer().min(0).max(65535).required('Required'),
+// })
 
-type CreateFirewallRuleSideModalProps = CreateSideModalFormProps<
-  FirewallRuleValues,
-  VpcFirewallRules
-> & {
+type CreateFirewallRuleFormProps = {
+  onDismiss: () => void
   existingRules: VpcFirewallRule[]
 }
 
-export function CreateFirewallRuleSideModalForm({
-  id = 'create-firewall-rule-form',
-  title = 'Add firewall rule',
-  onSuccess,
+export function CreateFirewallRuleForm({
   onDismiss,
   existingRules,
-  ...props
-}: CreateFirewallRuleSideModalProps) {
+}: CreateFirewallRuleFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView', { path: parentNames })
-      onSuccess?.(data)
       onDismiss()
     },
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-firewall-rule-form"
+      title="Add firewall rule"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.
@@ -413,14 +436,11 @@ export function CreateFirewallRuleSideModalForm({
           },
         })
       }}
-      validationSchema={validationSchema}
-      validateOnBlur
       submitDisabled={updateRules.isLoading}
-      error={updateRules.error?.error as Error | undefined}
-      {...props}
+      submitError={updateRules.error}
+      submitLabel="Add rule"
     >
-      <CommonFields error={updateRules.error} />
-      <Form.Submit>Add rule</Form.Submit>
+      {(control) => <CommonFields error={updateRules.error} control={control} />}
     </SideModalForm>
   )
 }
