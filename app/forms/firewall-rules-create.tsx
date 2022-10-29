@@ -159,6 +159,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <Divider />
 
+      {/* Really this should be its own <form>, but you can't have a form inside a form,
+          so we just stick the submit handler in a button onClick */}
       <h3 className="mb-4 text-sans-xl">Targets</h3>
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
@@ -183,25 +185,27 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       />
 
       <div className="flex justify-end">
-        {/* TODO does this clear out the form or the existing targets? */}
-        <Button variant="ghost" color="secondary" className="mr-2.5">
+        <Button
+          variant="ghost"
+          color="secondary"
+          className="mr-2.5"
+          onClick={() => targetForm.reset()}
+        >
           Clear
         </Button>
         <Button
-          variant="default"
-          onClick={() => {
-            const targetType = targetForm.getValues('type')
-            const targetValue = targetForm.getValues('value')
+          onClick={targetForm.handleSubmit(({ type, value }) => {
             // TODO: show error instead of ignoring click
+            // TODO: do this with a normal validation
             if (
-              targetType &&
-              targetValue &&
-              !targets.value.some((t) => t.value === targetValue && t.type === targetType)
+              type &&
+              value &&
+              !targets.value.some((t) => t.value === value && t.type === type)
             ) {
-              targets.onChange([...targets.value, { type: targetType, value: targetValue }])
+              targets.onChange([...targets.value, { type, value }])
               targetForm.reset()
             }
-          }}
+          })}
         >
           Add target
         </Button>
@@ -265,24 +269,26 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       />
 
       <div className="flex justify-end">
-        <Button variant="ghost" color="secondary" className="mr-2.5">
+        <Button
+          variant="ghost"
+          color="secondary"
+          className="mr-2.5"
+          onClick={() => hostForm.reset()}
+        >
           Clear
         </Button>
         <Button
-          variant="default"
-          onClick={() => {
-            const hostType = hostForm.getValues('type')
-            const hostValue = hostForm.getValues('value')
+          onClick={hostForm.handleSubmit(({ type, value }) => {
             // TODO: show error instead of ignoring click
             if (
-              hostType &&
-              hostValue &&
-              !hosts.value.some((t) => t.value === hostValue || t.type === hostType)
+              type &&
+              value &&
+              !hosts.value.some((t) => t.value === value || t.type === type)
             ) {
-              hosts.onChange([...hosts.value, { type: hostType, value: hostValue }])
+              hosts.onChange([...hosts.value, { type, value }])
               hostForm.reset()
             }
-          }}
+          })}
         >
           Add host filter
         </Button>
@@ -330,7 +336,6 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           Clear
         </Button>
         <Button
-          variant="default"
           onClick={() => {
             const portRangeValue = portRange.value.trim()
             // TODO: show error instead of ignoring the click
