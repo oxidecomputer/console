@@ -42,12 +42,7 @@ export type FirewallRuleValues = {
   ports: NonNullable<VpcFirewallRule['filters']['ports']>
   portRange: string
 
-  // host subform
   hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
-  hostType: VpcFirewallRuleHostFilter['type'] | ''
-  hostValue: string
-
-  // target subform
   targets: VpcFirewallRuleTarget[]
 }
 
@@ -85,11 +80,19 @@ const defaultValues: FirewallRuleValues = {
 
   // host subform
   hosts: [],
-  hostType: '',
-  hostValue: '',
 
   // target subform
   targets: [],
+}
+
+type HostFormValues = {
+  type: VpcFirewallRuleHostFilter['type']
+  value: string
+}
+
+const hostDefaultValues: HostFormValues = {
+  type: 'vpc',
+  value: '',
 }
 
 type TargetFormValues = {
@@ -111,13 +114,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const ports = useController({ name: 'ports', control }).field
   const portRange = useController({ name: 'portRange', control }).field
 
+  const hostForm = useForm({ defaultValues: hostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
-  const hostType = useController({ name: 'hostType', control }).field
-  const hostValue = useController({ name: 'hostValue', control }).field
-
-  const targets = useController({ name: 'targets', control }).field
 
   const targetForm = useForm({ defaultValues: targetDefaultValues })
+  const targets = useController({ name: 'targets', control }).field
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
@@ -241,7 +242,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
       <ListboxField
-        name="hostType"
+        name="type"
         label="Host type"
         items={[
           { value: 'vpc', label: 'VPC' },
@@ -250,17 +251,17 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP Subnet' },
         ]}
-        control={control}
+        control={hostForm.control}
       />
       {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
       <TextField
-        name="hostValue"
+        name="value"
         label="Value"
         helpText="For IP, an address. For the rest, a name. [TODO: copy]"
-        control={control}
+        control={hostForm.control}
       />
 
       <div className="flex justify-end">
@@ -270,20 +271,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         <Button
           variant="default"
           onClick={() => {
+            const hostType = hostForm.getValues('type')
+            const hostValue = hostForm.getValues('value')
             // TODO: show error instead of ignoring click
             if (
-              hostType.value &&
-              hostValue.value && // TODO: validate
-              !hosts.value.some(
-                (t) => t.value === hostValue.value || t.type === hostType.value
-              )
+              hostType &&
+              hostValue &&
+              !hosts.value.some((t) => t.value === hostValue || t.type === hostType)
             ) {
-              hosts.onChange([
-                ...hosts.value,
-                { type: hostType.value, value: hostValue.value },
-              ])
-              hostValue.onChange('')
-              // TODO: clear dropdown too?
+              hosts.onChange([...hosts.value, { type: hostType, value: hostValue }])
+              hostForm.reset()
             }
           }}
         >

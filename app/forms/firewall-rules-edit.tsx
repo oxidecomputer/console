@@ -45,11 +45,7 @@ export function EditFirewallRuleForm({
     ports: originalRule.filters.ports || [],
     portRange: '',
 
-    // host subform
     hosts: originalRule.filters.hosts || [],
-    hostType: '',
-    hostValue: '',
-
     targets: originalRule.targets,
   }
 
