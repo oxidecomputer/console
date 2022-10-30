@@ -1,4 +1,4 @@
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { FieldPath, FieldValues } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
 
 import { useApiQuery } from '@oxide/api'
@@ -12,9 +12,7 @@ type SubnetListboxProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
 > = Omit<ListboxFieldProps<TFieldValues, TName>, 'items'> & {
-  /** `name` of the Formik field to read the `vpcName` from */
   vpcNameField: FieldPath<TFieldValues>
-  control: Control<TFieldValues>
 }
 
 /**

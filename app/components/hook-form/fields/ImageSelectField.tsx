@@ -5,6 +5,7 @@ import type { ComponentType } from 'react'
 import { useState } from 'react'
 import { useCallback } from 'react'
 import { useEffect } from 'react'
+import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import type { GlobalImage } from '@oxide/api'
 import {
@@ -19,8 +20,8 @@ import {
 } from '@oxide/ui'
 import { classed, groupBy } from '@oxide/util'
 
-import type { RadioFieldProps } from '../../form/fields/RadioField'
-import { RadioField } from '../../form/fields/RadioField'
+import type { RadioFieldProps } from './RadioField'
+import { RadioField } from './RadioField'
 
 const ArchDistroIcon = (props: { className?: string }) => {
   return (
@@ -89,12 +90,17 @@ function distroDisplay(image: GlobalImage): GlobalImage & {
   }
 }
 
-interface ImageSelectFieldProps extends Omit<RadioFieldProps, 'children'> {
-  name: string
+type ImageSelectFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+> = Omit<RadioFieldProps<TFieldValues, TName>, 'children'> & {
   images: GlobalImage[]
 }
 
-export function ImageSelectField({ images, name, ...props }: ImageSelectFieldProps) {
+export function ImageSelectField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({ images, name, ...props }: ImageSelectFieldProps<TFieldValues, TName>) {
   return (
     <RadioField name={name} {...props}>
       {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (

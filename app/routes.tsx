@@ -41,8 +41,6 @@ import {
 } from './pages/project'
 import { InstanceCreatePage } from './pages/project/instances/InstanceCreatePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
-import { AppearancePage } from './pages/settings/AppearancePage'
-import { HotkeysPage } from './pages/settings/HotkeysPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import SilosPage from './pages/system/SilosPage'
@@ -70,11 +68,6 @@ export const routes = createRoutesFromElements(
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
-        <Route
-          path="appearance"
-          element={<AppearancePage />}
-          handle={{ crumb: 'Appearance' }}
-        />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
           <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} />
           <Route
@@ -83,7 +76,6 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New SSH key' }}
           />
         </Route>
-        <Route path="hotkeys" element={<HotkeysPage />} handle={{ crumb: 'Hotkeys' }} />
       </Route>
 
       <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>

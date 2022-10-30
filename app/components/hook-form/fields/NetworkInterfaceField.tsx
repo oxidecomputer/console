@@ -1,6 +1,6 @@
-import { useField } from 'formik'
 import { useState } from 'react'
 import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
 import { Button, Error16Icon, MiniTable } from '@oxide/ui'
@@ -23,9 +23,10 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
    */
   const [oldParams, setOldParams] = useState<NetworkInterfaceCreate[]>([])
 
-  const [, { value }, { setValue }] = useField<InstanceNetworkInterfaceAttachment>({
-    name: 'networkInterfaces',
-  })
+  // TODO: value needs to get NetworkInterfaceCreate[] type somehow
+  const {
+    field: { value, onChange },
+  } = useController({ control, name })
 
   return (
     <div className="max-w-lg space-y-5">
@@ -43,8 +44,8 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
           }
 
           newType === 'create'
-            ? setValue({ type: newType, params: oldParams })
-            : setValue({ type: newType })
+            ? onChange({ type: newType, params: oldParams })
+            : onChange({ type: newType })
         }}
         items={[
           { label: 'None', value: 'none' },
@@ -78,7 +79,7 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
                     <MiniTable.Cell>
                       <button
                         onClick={() =>
-                          setValue({
+                          onChange({
                             type: 'create',
                             params: value.params.filter((i) => i.name !== item.name),
                           })
@@ -96,7 +97,7 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
           {showForm && (
             <CreateNetworkInterfaceForm
               onSubmit={(networkInterface) => {
-                setValue({
+                onChange({
                   type: 'create',
                   params: [...value.params, networkInterface],
                 })

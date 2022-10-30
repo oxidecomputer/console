@@ -1,5 +1,4 @@
 import type { ReactElement, ReactNode } from 'react'
-import { useState } from 'react'
 import { cloneElement } from 'react'
 import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -9,7 +8,7 @@ import { PageHeader, PageTitle } from '@oxide/ui'
 import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { PageActions } from '../PageActions'
-import { Form } from './Form'
+import { Form } from '../form/Form'
 
 interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
@@ -18,6 +17,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   submitDisabled?: boolean
   error?: Error
   formOptions: UseFormProps<TFieldValues>
+  onSubmit: (values: TFieldValues) => Promise<void>
   /** Error from the API call */
   submitError: ErrorResult | null
   /**
@@ -33,7 +33,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
 
 const PageActionsContainer = classed.div`flex h-20 items-center gutter`
 
-export function FullPageForm<Values extends Record<string, unknown>>({
+export function FullPageForm<TFieldValues extends FieldValues>({
   id,
   title,
   children,
@@ -41,18 +41,22 @@ export function FullPageForm<Values extends Record<string, unknown>>({
   error,
   icon,
   formOptions,
-}: FullPageFormProps<Values>) {
-  const [submitState, setSubmitState] = useState(true)
+  onSubmit,
+}: FullPageFormProps<TFieldValues>) {
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
-  const { control } = useForm(formOptions)
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitted }, // TODO: should this be isSubmitting?
+  } = useForm(formOptions)
 
   return (
     <>
       <PageHeader>
         <PageTitle icon={icon}>{title}</PageTitle>
       </PageHeader>
-      <form className="pb-20" id={id}>
+      <form className="pb-20" id={id} onSubmit={handleSubmit(onSubmit)}>
         {children(control)}
       </form>
       {actions && (
@@ -60,7 +64,7 @@ export function FullPageForm<Values extends Record<string, unknown>>({
           <PageActionsContainer>
             {cloneElement(actions, {
               formId: id,
-              submitDisabled: submitDisabled || !submitState,
+              submitDisabled: submitDisabled || !isSubmitted,
               error,
             })}
           </PageActionsContainer>

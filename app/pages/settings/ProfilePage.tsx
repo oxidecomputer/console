@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Table } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
-import { FullPageForm, TextField } from 'app/components/form'
+import { FullPageForm, TextField } from 'app/components/hook-form'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -31,34 +31,41 @@ export function ProfilePage() {
     <FullPageForm
       id="profile-form"
       title="Profile"
-      initialValues={{
-        id: user?.id,
+      formOptions={{
+        defaultValues: {
+          id: user?.id,
+        },
       }}
-      onSubmit={() => {}}
-      error={new Error('This form is not yet implemented')}
       icon={<Settings24Icon />}
+      submitError={null}
+      onSubmit={() => Promise.resolve()}
     >
-      <TextField
-        id="profile-id"
-        name="id"
-        label="User ID"
-        required
-        disabled
-        fieldClassName="!cursor-default"
-        value={user?.id}
-      />
-      <h2>Groups</h2>
-      <Table table={groupsTable} />
-      <span className="inline-block text-secondary">
-        <span>Your user information is managed by your organization. </span>
-        <span className="md+:block">
-          To update, contact your{' '}
-          <a className="external-link" href="#/">
-            IDP admin
-          </a>
-          .
-        </span>
-      </span>
+      {(control) => (
+        <>
+          <TextField
+            id="profile-id"
+            name="id"
+            label="User ID"
+            required
+            disabled
+            fieldClassName="!cursor-default"
+            value={user?.id}
+            control={control}
+          />
+          <h2>Groups</h2>
+          <Table table={groupsTable} />
+          <span className="inline-block text-secondary">
+            <span>Your user information is managed by your organization. </span>
+            <span className="md+:block">
+              To update, contact your{' '}
+              <a className="external-link" href="#/">
+                IDP admin
+              </a>
+              .
+            </span>
+          </span>
+        </>
+      )}
     </FullPageForm>
   )
 }

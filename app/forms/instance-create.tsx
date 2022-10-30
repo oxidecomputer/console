@@ -19,14 +19,13 @@ import {
 } from '@oxide/ui'
 import { GiB, classed } from '@oxide/util'
 
-import { FullPageForm } from 'app/components/form'
+import { Form, FullPageForm } from 'app/components/form'
 import type { DiskTableItem } from 'app/components/hook-form'
 import {
   CheckboxField,
   DescriptionField,
   DiskSizeField,
-  DisksTableField,
-  ImageSelectField,
+  DisksTableField, // ImageSelectField,
   NameField,
   NetworkInterfaceField,
   RadioField,
@@ -48,7 +47,7 @@ type InstanceCreateInput = Assign<
   }
 >
 
-const defaultValues: InstanceCreateInput = {
+const baseDefaultValues: InstanceCreateInput = {
   name: '',
   description: '',
   /**
@@ -109,15 +108,15 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
 
   const images = useApiQuery('systemImageList', {}).data?.items || []
 
+  const defaultValues: InstanceCreateInput = {
+    ...baseDefaultValues,
+    globalImage: images[0]?.id || '',
+  }
+
   return (
     <FullPageForm
       id="create-instance-form"
-      formOptions={{
-        defaultValues: {
-          ...defaultValues,
-          globalImage: images[0]?.id || '',
-        },
-      }}
+      formOptions={{ defaultValues }}
       title="Create instance"
       icon={<Instances24Icon />}
       // validationSchema={Yup.object({
@@ -194,7 +193,13 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
                 General purpose instances provide a good balance of CPU, memory, and high
                 performance storage; well suited for a wide range of use cases.
               </TextInputHint>
-              <RadioField id="hw-general-purpose" name="type" label="" control={control}>
+              <RadioField
+                id="hw-general-purpose"
+                name="type"
+                label=""
+                items={[]}
+                control={control}
+              >
                 {renderLargeRadioCards('general')}
               </RadioField>
             </Tab.Panel>
@@ -204,7 +209,13 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
               <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField id="hw-cpu-optimized" name="type" label="" control={control}>
+              <RadioField
+                id="hw-cpu-optimized"
+                name="type"
+                label=""
+                items={[]}
+                control={control}
+              >
                 {renderLargeRadioCards('cpuOptimized')}
               </RadioField>
             </Tab.Panel>
@@ -214,7 +225,13 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
               <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField id="hw-mem-optimized" name="type" label="" control={control}>
+              <RadioField
+                id="hw-mem-optimized"
+                name="type"
+                label=""
+                items={[]}
+                control={control}
+              >
                 {renderLargeRadioCards('memoryOptimized')}
               </RadioField>
             </Tab.Panel>
@@ -227,7 +244,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
               >
                 Custom instances...
               </TextInputHint>
-              <RadioField id="hw-custom" name="type" label="" control={control}>
+              <RadioField id="hw-custom" name="type" label="" items={[]} control={control}>
                 {renderLargeRadioCards('custom')}
               </RadioField>
             </Tab.Panel>
@@ -240,12 +257,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
             <Tab>Distros</Tab>
             <Tab.Panel className="space-y-4">
               {images.length === 0 && <span>No images found</span>}
-              <ImageSelectField
-                id="boot-disk-image"
-                name="globalImage"
-                images={images}
-                required
-              />
+              {/* <ImageSelectField name="globalImage" images={images} required /> */}
 
               <NameField
                 id="boot-disk-name"
@@ -255,7 +267,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
                 required={false}
                 control={control}
               />
-              <DiskSizeField id="disk-size" label="Disk size" name="bootDiskSize" />
+              <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
             </Tab.Panel>
             <Tab>Images</Tab>
             <Tab.Panel>
@@ -269,7 +281,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
           <Divider />
           <Heading id="additional-disks">Additional disks</Heading>
 
-          <DisksTableField control={control} />
+          <DisksTableField name="disks" control={control} />
 
           <Divider />
           <Heading id="networking">Networking</Heading>
@@ -282,12 +294,12 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
             control={control}
           />
 
-          {/* <Form.Actions>
+          <Form.Actions>
             <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
               Create instance
             </Form.Submit>
             {onDismiss && <Form.Cancel onClick={onDismiss} />}
-          </Form.Actions> */}
+          </Form.Actions>
         </>
       )}
     </FullPageForm>

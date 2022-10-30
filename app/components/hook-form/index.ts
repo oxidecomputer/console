@@ -11,3 +11,4 @@ export * from './fields/SubnetListbox'
 export * from './fields/TextField'
 
 export * from './SideModalForm'
+export * from './FullPageForm'
