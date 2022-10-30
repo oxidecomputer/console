@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { expectNotVisible, expectVisible } from 'app/test/e2e'
+
 test.describe('VpcPage', () => {
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
@@ -45,14 +47,14 @@ test.describe('VpcPage', () => {
     const rows = page.locator('tbody >> tr')
     await expect(rows).toHaveCount(4)
 
-    const modal = page.locator('text="Add firewall rule"')
-    await expect(modal).not.toBeVisible()
+    const modal = 'role=dialog[name="Add firewall rule"]'
+    await expectNotVisible(page, [modal])
 
     // open modal
     await page.locator('text="New rule"').click()
 
     // modal is now open
-    await expect(modal).toBeVisible()
+    await expectVisible(page, [modal])
 
     await page.fill('input[name=name]', 'my-new-rule')
     await page.locator('text=Outgoing').click()
@@ -91,7 +93,7 @@ test.describe('VpcPage', () => {
     await page.locator('text="Add rule"').click()
 
     // modal closes again
-    await expect(modal).not.toBeVisible()
+    await expectNotVisible(page, [modal])
 
     // table refetches and now includes the new rule as well as the originals
     await expect(page.locator('td >> text="my-new-rule"')).toBeVisible()

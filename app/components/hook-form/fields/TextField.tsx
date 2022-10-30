@@ -16,6 +16,8 @@ import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { useUuid } from 'app/hooks'
+
 import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
@@ -62,10 +64,10 @@ export function TextField<
   control,
   description,
   helpText,
+  required,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) {
-  const { required } = props
-  const id: string = name
+  const id = useUuid(name)
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -82,7 +84,6 @@ export function TextField<
           return (
             <>
               <UITextField
-                id={id}
                 title={label}
                 type={type}
                 error={!!error}

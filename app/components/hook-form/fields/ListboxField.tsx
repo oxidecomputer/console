@@ -6,6 +6,8 @@ import type { ListboxItem } from '@oxide/ui'
 import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { useUuid } from 'app/hooks'
+
 import { ErrorMessage } from './ErrorMessage'
 
 export type ListboxFieldProps<
@@ -39,7 +41,7 @@ export function ListboxField<
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
-  const id: string = name
+  const id = useUuid(name)
   return (
     <div className={cn('max-w-lg', className)}>
       <div className="mb-2">

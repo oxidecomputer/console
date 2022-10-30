@@ -7,6 +7,8 @@ import { Radio } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { useUuid } from 'app/hooks'
+
 export type RadioFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
@@ -59,7 +61,7 @@ export function RadioField<
   parseValue,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
-  const id: string = name
+  const id = useUuid(name)
   return (
     <div>
       <div className="mb-2">

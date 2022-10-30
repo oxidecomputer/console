@@ -134,6 +134,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         type="number"
         name="priority"
         helpText="Must be 0&ndash;65535"
+        required
         control={control}
       />
       <RadioField
@@ -172,16 +173,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP subnet' },
         ]}
+        required
         control={targetForm.control}
       />
-      {/* TODO: This is set as optional which is kind of wrong. This section represents an inlined
-      subform which means it likely should be a custom field */}
-      <TextField
-        name="value"
-        label="Target name"
-        required={false}
-        control={targetForm.control}
-      />
+      <TextField name="value" label="Target name" required control={targetForm.control} />
 
       <div className="flex justify-end">
         <Button
@@ -254,6 +249,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP Subnet' },
         ]}
+        required
         control={hostForm.control}
       />
       {/* For everything but IP this is a name, but for IP it's an IP.
@@ -264,6 +260,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         name="value"
         label="Value"
         helpText="For IP, an address. For the rest, a name. [TODO: copy]"
+        required
         control={hostForm.control}
       />
 
@@ -328,6 +325,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         name="portRange"
         label="Port filter"
         helpText="A single port (1234) or a range (1234-2345)"
+        required
         control={portRangeForm.control}
       />
       <div className="flex justify-end">
