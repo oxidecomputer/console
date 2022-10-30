@@ -4,6 +4,7 @@ export * from './fields/DiskSizeField'
 export * from './fields/ListboxField'
 export * from './fields/NameField'
 export * from './fields/RadioField'
+export * from './fields/SubnetListbox'
 export * from './fields/TextField'
 
 export * from './SideModalForm'

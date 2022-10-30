@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
+import type { NetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
@@ -15,8 +15,8 @@ import {
   Success12Icon,
 } from '@oxide/ui'
 
-import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
-import EditNetworkInterfaceSideModalForm from 'app/forms/network-interface-edit'
+import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
+import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -53,7 +53,7 @@ export function NetworkingTab() {
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<NetworkInterfaceUpdate | null>(null)
+  const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
   const getQuery = ['instanceNetworkInterfaceList', { path: instanceParams }] as const
 
@@ -168,15 +168,12 @@ export function NetworkingTab() {
         )}
       </div>
 
-      <CreateNetworkInterfaceSideModalForm
-        isOpen={createModalOpen}
-        onDismiss={() => setCreateModalOpen(false)}
-      />
-      <EditNetworkInterfaceSideModalForm
-        isOpen={!!editing}
-        initialValues={editing || {}}
-        onDismiss={() => setEditing(null)}
-      />
+      {createModalOpen && (
+        <CreateNetworkInterfaceForm onDismiss={() => setCreateModalOpen(false)} />
+      )}
+      {editing && (
+        <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
+      )}
     </>
   )
 }

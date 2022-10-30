@@ -5,7 +5,7 @@ import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from 
 import { Button, Error16Icon, MiniTable, Radio } from '@oxide/ui'
 
 import { RadioField } from 'app/components/form'
-import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
+import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
 export function NetworkInterfaceField() {
   const [showForm, setShowForm] = useState(false)
@@ -84,17 +84,18 @@ export function NetworkInterfaceField() {
             </MiniTable.Table>
           )}
 
-          <CreateNetworkInterfaceSideModalForm
-            isOpen={showForm}
-            onSubmit={(networkInterface) => {
-              setValue({
-                type: 'create',
-                params: [...value.params, networkInterface],
-              })
-              setShowForm(false)
-            }}
-            onDismiss={() => setShowForm(false)}
-          />
+          {showForm && (
+            <CreateNetworkInterfaceForm
+              onSubmit={(networkInterface) => {
+                setValue({
+                  type: 'create',
+                  params: [...value.params, networkInterface],
+                })
+                setShowForm(false)
+              }}
+              onDismiss={() => setShowForm(false)}
+            />
+          )}
           <div className="space-x-3">
             <Button variant="default" size="sm" onClick={() => setShowForm(true)}>
               Add network interface
