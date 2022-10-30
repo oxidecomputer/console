@@ -17,7 +17,7 @@ import {
   Tabs,
   TextInputHint,
 } from '@oxide/ui'
-import { GiB, classed } from '@oxide/util'
+import { GiB } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
 import type { DiskTableItem } from 'app/components/hook-form'
@@ -32,8 +32,6 @@ import {
   TextField,
 } from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
-
-const Heading = classed.h2`text-content text-sans-light-2xl`
 
 type InstanceCreateInput = Assign<
   InstanceCreate,
@@ -185,7 +183,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
 
           <Divider />
 
-          <Heading id="hardware">Hardware</Heading>
+          <Form.Heading id="hardware">Hardware</Form.Heading>
           <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
             <Tab>General Purpose</Tab>
             <Tab.Panel>
@@ -252,7 +250,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
 
           <Divider />
 
-          <Heading id="boot-disk">Boot disk</Heading>
+          <Form.Heading id="boot-disk">Boot disk</Form.Heading>
           <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
             <Tab>Distros</Tab>
             <Tab.Panel className="space-y-4">
@@ -279,12 +277,12 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
             </Tab.Panel>
           </Tabs>
           <Divider />
-          <Heading id="additional-disks">Additional disks</Heading>
+          <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
           <DisksTableField name="disks" control={control} />
 
           <Divider />
-          <Heading id="networking">Networking</Heading>
+          <Form.Heading id="networking">Networking</Form.Heading>
 
           <NetworkInterfaceField name="networkInterfaceType" control={control} />
 
