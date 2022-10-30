@@ -19,8 +19,8 @@ import {
 } from '@oxide/ui'
 import { classed, groupBy } from '@oxide/util'
 
-import type { RadioFieldProps } from './RadioField'
-import { RadioField } from './RadioField'
+import type { RadioFieldProps } from '../../form/fields/RadioField'
+import { RadioField } from '../../form/fields/RadioField'
 
 const ArchDistroIcon = (props: { className?: string }) => {
   return (

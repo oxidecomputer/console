@@ -1,13 +1,20 @@
 import { useField } from 'formik'
 import { useState } from 'react'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
-import { Button, Error16Icon, MiniTable, Radio } from '@oxide/ui'
+import { Button, Error16Icon, MiniTable } from '@oxide/ui'
 
-import { RadioField } from 'app/components/form'
+import { RadioField } from 'app/components/hook-form'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
-export function NetworkInterfaceField() {
+export function NetworkInterfaceField<TFieldValues extends FieldValues>({
+  name,
+  control,
+}: {
+  name: FieldPath<TFieldValues>
+  control: Control<TFieldValues>
+}) {
   const [showForm, setShowForm] = useState(false)
 
   /**
@@ -24,7 +31,7 @@ export function NetworkInterfaceField() {
     <div className="max-w-lg space-y-5">
       <RadioField
         id="network-interface-type"
-        name="networkInterfaceType"
+        name={name}
         column
         label="Network interface"
         className="pt-1"
@@ -39,11 +46,13 @@ export function NetworkInterfaceField() {
             ? setValue({ type: newType, params: oldParams })
             : setValue({ type: newType })
         }}
-      >
-        <Radio value="none">None</Radio>
-        <Radio value="default">Default</Radio>
-        <Radio value="create">Custom</Radio>
-      </RadioField>
+        items={[
+          { label: 'None', value: 'none' },
+          { label: 'Default', value: 'default' },
+          { label: 'Custom', value: 'create' },
+        ]}
+        control={control}
+      />
       {value.type === 'create' && (
         <>
           {value.params.length > 0 && (
