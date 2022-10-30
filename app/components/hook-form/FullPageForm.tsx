@@ -56,7 +56,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       <PageHeader>
         <PageTitle icon={icon}>{title}</PageTitle>
       </PageHeader>
-      <form className="pb-20" id={id} onSubmit={handleSubmit(onSubmit)}>
+      <form className="ox-form pb-20" id={id} onSubmit={handleSubmit(onSubmit)}>
         {children(control)}
       </form>
       {actions && (
