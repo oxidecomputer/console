@@ -1,4 +1,5 @@
 import cn from 'classnames'
+import React from 'react'
 import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
@@ -103,4 +104,56 @@ export function RadioField<
   )
 }
 
-export { Radio } from '@oxide/ui'
+export type RadioFieldProps2<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+> = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
+  children: React.ReactNode
+}
+
+export function RadioField2<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({
+  name,
+  label = capitalize(name),
+  helpText,
+  description,
+  units,
+  control,
+  children,
+  ...props
+}: RadioFieldProps2<TFieldValues, TName>) {
+  const id = useUuid(name)
+  return (
+    <div>
+      <div className="mb-2">
+        {label && (
+          <FieldLabel id={`${id}-label`} tip={description}>
+            {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+          </FieldLabel>
+        )}
+        {/* TODO: Figure out where this hint field def should live */}
+        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+      </div>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange, value, name } }) => (
+          <RadioGroup
+            defaultChecked={value}
+            aria-labelledby={cn(`${id}-label`, {
+              [`${id}-help-text`]: !!description,
+            })}
+            aria-describedby={description ? `${id}-label-tip` : undefined}
+            onChange={onChange}
+            name={name}
+            {...props}
+          >
+            {children}
+          </RadioGroup>
+        )}
+      />
+    </div>
+  )
+}

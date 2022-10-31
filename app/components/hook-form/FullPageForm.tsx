@@ -49,7 +49,10 @@ export function FullPageForm<TFieldValues extends FieldValues>({
     control,
     handleSubmit,
     formState: { isSubmitted }, // TODO: should this be isSubmitting?
+    getValues,
   } = useForm(formOptions)
+
+  console.log('form render', getValues('globalImage'))
 
   return (
     <>
