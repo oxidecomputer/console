@@ -1,54 +1,49 @@
-import invariant from 'tiny-invariant'
-
-import type { VpcRouter, VpcRouterUpdate } from '@oxide/api'
+import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
 import { useRequiredParams } from 'app/hooks'
 
-import type { EditSideModalFormProps } from '.'
+type EditVpcRouterFormProps = {
+  onDismiss: () => void
+  editing: VpcRouter
+}
 
-export function EditVpcRouterForm({
-  id = 'edit-vpc-router-form',
-  title = 'Edit VPC router',
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: EditSideModalFormProps<VpcRouterUpdate, VpcRouter>) {
+export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateRouter = useApiMutation('vpcRouterUpdate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('vpcRouterList', { path: parentNames })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
+
+  const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcRouterUpdate */
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
+      id="edit-vpc-router-form"
+      title="Edit VPC router"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        invariant(
-          props.initialValues.name,
-          'Expected initial name to be passed to update router'
-        )
         updateRouter.mutate({
-          path: { ...parentNames, routerName: props.initialValues.name },
+          path: { ...parentNames, routerName: editing.name },
           body: { name, description },
         })
       }}
       submitDisabled={updateRouter.isLoading}
-      error={updateRouter.error?.error as Error | undefined}
-      {...props}
+      submitError={updateRouter.error}
     >
-      <NameField id="router-name" />
-      <DescriptionField id="router-description" />
+      {(control) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

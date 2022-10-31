@@ -2,9 +2,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo, useState } from 'react'
 
 import type { VpcFirewallRule } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
   DateCell,
   EnabledCell,
@@ -15,7 +13,7 @@ import {
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
-import { CreateFirewallRuleSideModalForm } from 'app/forms/firewall-rules-create'
+import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useRequiredParams } from 'app/hooks'
 
@@ -104,17 +102,19 @@ export const VpcFirewallRulesTab = () => {
         <Button size="sm" variant="default" onClick={() => setCreateModalOpen(true)}>
           New rule
         </Button>
-        <CreateFirewallRuleSideModalForm
-          isOpen={createModalOpen}
-          existingRules={rules}
-          onDismiss={() => setCreateModalOpen(false)}
-        />
-        <EditFirewallRuleForm
-          isOpen={!!editing}
-          existingRules={rules}
-          originalRule={editing || ({} as VpcFirewallRule)}
-          onDismiss={() => setEditing(null)}
-        />
+        {createModalOpen && (
+          <CreateFirewallRuleForm
+            existingRules={rules}
+            onDismiss={() => setCreateModalOpen(false)}
+          />
+        )}
+        {editing && (
+          <EditFirewallRuleForm
+            existingRules={rules}
+            originalRule={editing}
+            onDismiss={() => setEditing(null)}
+          />
+        )}
       </div>
       {rules.length > 0 || isLoading ? <Table table={table} /> : emptyState}
     </>

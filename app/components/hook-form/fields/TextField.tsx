@@ -16,13 +16,15 @@ import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { useUuid } from 'app/hooks'
+
 import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 > extends UITextFieldProps {
-  name: TFieldName
+  name: TName
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */
@@ -46,13 +48,13 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   // TODO: think about this doozy of a type
-  validate?: Validate<FieldPathValue<TFieldValues, TFieldName>>
+  validate?: Validate<FieldPathValue<TFieldValues, TName>>
   control: Control<TFieldValues>
 }
 
 export function TextField<
   TFieldValues extends FieldValues,
-  TFieldName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>
 >({
   name,
   type = 'text',
@@ -60,10 +62,12 @@ export function TextField<
   units,
   validate,
   control,
+  description,
+  helpText,
+  required,
   ...props
-}: TextFieldProps<TFieldValues, TFieldName> & UITextAreaProps) {
-  const { description, helpText, required } = props
-  const id: string = name
+}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) {
+  const id = useUuid(name)
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -80,7 +84,6 @@ export function TextField<
           return (
             <>
               <UITextField
-                id={id}
                 title={label}
                 type={type}
                 error={!!error}

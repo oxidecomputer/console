@@ -2,6 +2,7 @@ import React from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
+import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -224,19 +225,19 @@ export const routes = createRoutesFromElements(
             />
           </Route>
 
-          <Route
-            path="disks-new"
-            element={<DisksPage modal="createDisk" />}
-            loader={DisksPage.loader}
-            handle={{ crumb: 'New disk' }}
-          />
+          <Route element={<DisksPage />} loader={DisksPage.loader}>
+            <Route
+              path="disks-new"
+              element={
+                // relative nav is allowed just this once because the route is
+                // literally right there
+                <CreateDiskSideModalForm onDismiss={(navigate) => navigate('../disks')} />
+              }
+              handle={{ crumb: 'New disk' }}
+            />
 
-          <Route
-            path="disks"
-            element={<DisksPage />}
-            loader={DisksPage.loader}
-            handle={{ crumb: 'Disks' }}
-          />
+            <Route path="disks" handle={{ crumb: 'Disks' }} />
+          </Route>
 
           <Route element={<SnapshotsPage />} loader={SnapshotsPage.loader}>
             <Route path="snapshots" handle={{ crumb: 'Snapshots' }} />

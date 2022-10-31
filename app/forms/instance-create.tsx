@@ -62,7 +62,7 @@ const values: InstanceCreateInput = {
   hostname: '',
 
   bootDiskName: '',
-  bootDiskSize: 1,
+  bootDiskSize: 10,
   globalImage: '',
 
   disks: [],
