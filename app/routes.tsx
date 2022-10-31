@@ -3,6 +3,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateInstanceForm } from './forms/instance-create'
 import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -39,7 +40,6 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
-import { InstanceCreatePage } from './pages/project/instances/InstanceCreatePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -158,7 +158,8 @@ export const routes = createRoutesFromElements(
         >
           <Route
             path="instances-new"
-            element={<InstanceCreatePage />}
+            element={<CreateInstanceForm />}
+            loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
           <Route path="instances" handle={{ crumb: 'Instances' }}>

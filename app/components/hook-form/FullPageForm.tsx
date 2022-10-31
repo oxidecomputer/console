@@ -43,16 +43,14 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   formOptions,
   onSubmit,
 }: FullPageFormProps<TFieldValues>) {
-  const childArray = flattenChildren(children)
-  const actions = pluckFirstOfType(childArray, Form.Actions)
   const {
     control,
     handleSubmit,
-    formState: { isSubmitted }, // TODO: should this be isSubmitting?
-    getValues,
+    formState: { isSubmitting, isDirty },
   } = useForm(formOptions)
 
-  console.log('form render', getValues('globalImage'))
+  const childArray = flattenChildren(children(control))
+  const actions = pluckFirstOfType(childArray, Form.Actions)
 
   return (
     <>
@@ -60,14 +58,14 @@ export function FullPageForm<TFieldValues extends FieldValues>({
         <PageTitle icon={icon}>{title}</PageTitle>
       </PageHeader>
       <form className="ox-form pb-20" id={id} onSubmit={handleSubmit(onSubmit)}>
-        {children(control)}
+        {childArray}
       </form>
       {actions && (
         <PageActions>
           <PageActionsContainer>
             {cloneElement(actions, {
               formId: id,
-              submitDisabled: submitDisabled || !isSubmitted,
+              submitDisabled: submitDisabled || isSubmitting || !isDirty,
               error,
             })}
           </PageActionsContainer>

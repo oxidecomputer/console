@@ -1,10 +1,8 @@
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type {
-  Instance,
-  InstanceCreate,
-  InstanceNetworkInterfaceAttachment,
-} from '@oxide/api'
+import type { InstanceCreate, InstanceNetworkInterfaceAttachment } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { genName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -29,10 +27,11 @@ import {
   ImageSelectField,
   NameField,
   NetworkInterfaceField,
-  RadioField,
+  RadioField2,
   TextField,
 } from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 type InstanceCreateInput = Assign<
   InstanceCreate,
@@ -73,16 +72,15 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 }
 
-// TODO: inline these, get rid of InstanceCreatePage
-type CreateInstanceFormProps = {
-  onDismiss: () => void
-  onSuccess: (instance: Instance) => void
+CreateInstanceForm.loader = async () => {
+  await apiQueryClient.prefetchQuery('systemImageList', {})
 }
 
-export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormProps) {
+export function CreateInstanceForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useRequiredParams('orgName', 'projectName')
+  const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate')
 
@@ -101,7 +99,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
         title: 'Success!',
         content: 'Your instance has been created.',
       })
-      onSuccess?.(instance)
+      navigate(pb.instance({ ...pageParams, instanceName: instance.name }))
     },
   })
 
@@ -173,12 +171,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
-          <CheckboxField
-            id="start-instance"
-            name="start"
-            label="Start Instance"
-            control={control}
-          >
+          <CheckboxField id="start-instance" name="start" control={control}>
             Start Instance
           </CheckboxField>
 
@@ -192,15 +185,9 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
                 General purpose instances provide a good balance of CPU, memory, and high
                 performance storage; well suited for a wide range of use cases.
               </TextInputHint>
-              <RadioField
-                id="hw-general-purpose"
-                name="type"
-                label=""
-                items={[]}
-                control={control}
-              >
+              <RadioField2 name="type" label="" control={control}>
                 {renderLargeRadioCards('general')}
-              </RadioField>
+              </RadioField2>
             </Tab.Panel>
 
             <Tab>CPU Optimized</Tab>
@@ -208,15 +195,9 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
               <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField
-                id="hw-cpu-optimized"
-                name="type"
-                label=""
-                items={[]}
-                control={control}
-              >
+              <RadioField2 name="type" label="" control={control}>
                 {renderLargeRadioCards('cpuOptimized')}
-              </RadioField>
+              </RadioField2>
             </Tab.Panel>
 
             <Tab>Memory optimized</Tab>
@@ -224,28 +205,23 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
               <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField
-                id="hw-mem-optimized"
-                name="type"
-                label=""
-                items={[]}
-                control={control}
-              >
+              <RadioField2 name="type" label="" control={control}>
                 {renderLargeRadioCards('memoryOptimized')}
-              </RadioField>
+              </RadioField2>
             </Tab.Panel>
 
             <Tab>Custom</Tab>
             <Tab.Panel>
               <TextInputHint
+                // TODO: is this getting hooked up to the field with describedby?
                 id="hw-custom-help-text"
                 className="mb-12 max-w-xl  text-sans-md"
               >
                 Custom instances...
               </TextInputHint>
-              <RadioField id="hw-custom" name="type" label="" items={[]} control={control}>
+              <RadioField2 name="type" label="" control={control}>
                 {renderLargeRadioCards('custom')}
-              </RadioField>
+              </RadioField2>
             </Tab.Panel>
           </Tabs>
 
@@ -302,7 +278,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
             <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
               Create instance
             </Form.Submit>
-            {onDismiss && <Form.Cancel onClick={onDismiss} />}
+            <Form.Cancel onClick={() => navigate(pb.instances(pageParams))} />
           </Form.Actions>
         </>
       )}

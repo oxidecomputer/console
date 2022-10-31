@@ -106,8 +106,6 @@ function ImageSelect<TFieldValues extends FieldValues>({
     field: { value, onChange },
   } = useController({ control, name: fieldName })
 
-  console.log('ImageSelect render', { globalImage: value })
-
   // current distro is the one from the field value *if* it exists in the list
   // of distros. default to first distro in the list
   const currentDistro = distros.find((d) => d.id === value)?.id || distros[0].id
@@ -117,14 +115,12 @@ function ImageSelect<TFieldValues extends FieldValues>({
     items: distros,
     itemToString: (distro) => distro?.version || '',
     onSelectedItemChange(changes) {
-      console.log('onSelectedItemChange', { changes })
       if (changes.selectedItem) {
         onChange(changes.selectedItem.id)
       }
     },
   })
   const onClick = () => {
-    console.log('onClick', select.selectedItem?.id)
     if (select.selectedItem) {
       onChange(select.selectedItem.id)
     }
