@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -40,7 +40,6 @@ import {
   VpcsPage,
 } from './pages/project'
 import { InstanceCreatePage } from './pages/project/instances/InstanceCreatePage'
-import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
@@ -50,6 +49,10 @@ import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
+
+const MetricsTab = React.lazy(
+  () => import('./pages/project/instances/instance/tabs/MetricsTab')
+)
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -189,7 +192,11 @@ export const routes = createRoutesFromElements(
                 />
                 <Route
                   path="metrics"
-                  element={<MetricsTab />}
+                  element={
+                    <Suspense fallback={null}>
+                      <MetricsTab />
+                    </Suspense>
+                  }
                   handle={{ crumb: 'metrics' }}
                 />
                 <Route
