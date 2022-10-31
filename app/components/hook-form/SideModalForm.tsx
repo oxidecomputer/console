@@ -64,7 +64,15 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           id={id}
           className="ox-form is-side-modal"
           autoComplete="off"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            // This modal being in a portal doesn't prevent the submit event
+            // from bubbling up out of the portal. Normally that's not a
+            // problem, but sometimes (e.g., instance create) we render the
+            // SideModalForm from inside another form, in which case submitting
+            // the inner form submits the outer form unless we stop propagation
+            e.stopPropagation()
+            handleSubmit(onSubmit)(e)
+          }}
         >
           {children(control)}
         </form>
