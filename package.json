@@ -40,7 +40,6 @@
     "date-fns": "^2.28.0",
     "downshift": "^6.1.2",
     "filesize": "^8.0.7",
-    "formik": "^2.2.9",
     "match-sorter": "^6.3.1",
     "mousetrap": "^1.6.5",
     "prop-types": "^15.7.2",

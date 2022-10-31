@@ -25,7 +25,8 @@ import {
   CheckboxField,
   DescriptionField,
   DiskSizeField,
-  DisksTableField, // ImageSelectField,
+  DisksTableField,
+  ImageSelectField,
   NameField,
   NetworkInterfaceField,
   RadioField,
@@ -255,7 +256,7 @@ export function CreateInstanceForm({ onSuccess, onDismiss }: CreateInstanceFormP
             <Tab>Distros</Tab>
             <Tab.Panel className="space-y-4">
               {images.length === 0 && <span>No images found</span>}
-              {/* <ImageSelectField name="globalImage" images={images} required /> */}
+              <ImageSelectField name="globalImage" images={images} required />
 
               <NameField
                 id="boot-disk-name"

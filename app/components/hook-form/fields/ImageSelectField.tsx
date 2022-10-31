@@ -1,6 +1,5 @@
 import cn from 'classnames'
 import { useSelect } from 'downshift'
-import { useField } from 'formik'
 import type { ComponentType } from 'react'
 import { useState } from 'react'
 import { useCallback } from 'react'
@@ -116,10 +115,12 @@ interface ImageSelectProps {
   images: GlobalImage[]
   fieldName: string
 }
+
 function ImageSelect({ images, fieldName }: ImageSelectProps) {
   const distros = images.map(distroDisplay)
   const { label, Icon, id } = distros[0]
-  const [, { value }, { setValue }] = useField<string>(fieldName)
+  const value = ''
+  const setValue = useCallback((_s: string) => {}, [])
   const [currentDistro, setCurrentDistro] = useState<string | undefined>(id)
 
   useEffect(() => {
