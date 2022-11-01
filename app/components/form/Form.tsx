@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant'
 import type { ButtonProps } from '@oxide/ui'
 import { Error12Icon } from '@oxide/ui'
 import { Button } from '@oxide/ui'
-import { addProps, classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
+import { classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
 
 import './form.css'
 
@@ -31,13 +31,7 @@ export const Form = {
     error,
     className,
   }: FormActionsProps) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const childArray = flattenChildren(children).map(
-      addProps<typeof Button>((i, props) => ({
-        size: 'sm',
-        ...props,
-      }))
-    )
+    const childArray = flattenChildren(children)
 
     invariant(
       isOneOf(childArray, [Form.Submit, Form.Cancel, Button]),
@@ -67,10 +61,10 @@ export const Form = {
     )
   },
 
-  Submit: (props: ButtonProps) => <Button type="submit" {...props} />,
+  Submit: (props: ButtonProps) => <Button type="submit" size="sm" {...props} />,
 
   Cancel: (props: ButtonProps) => (
-    <Button variant="ghost" color="secondary" {...props}>
+    <Button variant="ghost" color="secondary" size="sm" {...props}>
       Cancel
     </Button>
   ),
