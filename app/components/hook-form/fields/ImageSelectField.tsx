@@ -19,7 +19,7 @@ import { classed, groupBy } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
-import { RadioField2 } from './RadioField'
+import { RadioFieldDyn } from './RadioField'
 
 const ArchDistroIcon = (props: { className?: string }) => {
   return (
@@ -71,11 +71,11 @@ type ImageSelectFieldProps = {
 
 export function ImageSelectField({ images, control, required }: ImageSelectFieldProps) {
   return (
-    <RadioField2 name="globalImage" control={control} required={required}>
+    <RadioFieldDyn name="globalImage" control={control} required={required}>
       {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
         <ImageSelect key={distroName} images={distroValues} control={control} />
       ))}
-    </RadioField2>
+    </RadioFieldDyn>
   )
 }
 

@@ -104,14 +104,20 @@ export function RadioField<
   )
 }
 
-export type RadioFieldProps2<
+export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
 > = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
   children: React.ReactElement | React.ReactElement[]
 }
 
-export function RadioField2<
+/**
+ * Same as RadioField, except instead of a statically typed `items` prop, we use
+ * children to render arbitrary Radio components and therefore cannot guarantee
+ * anything about the `value` attrs on the radios. This is needed for radio
+ * cards like the image picker on instance create.
+ */
+export function RadioFieldDyn<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
 >({
@@ -123,7 +129,7 @@ export function RadioField2<
   control,
   children,
   ...props
-}: RadioFieldProps2<TFieldValues, TName>) {
+}: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useUuid(name)
   return (
     <div>

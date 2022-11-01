@@ -28,7 +28,7 @@ import {
   ImageSelectField,
   NameField,
   NetworkInterfaceField,
-  RadioField2,
+  RadioFieldDyn,
   TextField,
 } from 'app/components/hook-form'
 import { useRequiredParams, useToast } from 'app/hooks'
@@ -182,9 +182,9 @@ export function CreateInstanceForm() {
                 General purpose instances provide a good balance of CPU, memory, and high
                 performance storage; well suited for a wide range of use cases.
               </TextInputHint>
-              <RadioField2 name="type" label="" control={control}>
+              <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('general')}
-              </RadioField2>
+              </RadioFieldDyn>
             </Tab.Panel>
 
             <Tab>CPU Optimized</Tab>
@@ -192,9 +192,9 @@ export function CreateInstanceForm() {
               <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField2 name="type" label="" control={control}>
+              <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('cpuOptimized')}
-              </RadioField2>
+              </RadioFieldDyn>
             </Tab.Panel>
 
             <Tab>Memory optimized</Tab>
@@ -202,9 +202,9 @@ export function CreateInstanceForm() {
               <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
-              <RadioField2 name="type" label="" control={control}>
+              <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('memoryOptimized')}
-              </RadioField2>
+              </RadioFieldDyn>
             </Tab.Panel>
 
             <Tab>Custom</Tab>
@@ -216,9 +216,9 @@ export function CreateInstanceForm() {
               >
                 Custom instances...
               </TextInputHint>
-              <RadioField2 name="type" label="" control={control}>
+              <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('custom')}
-              </RadioField2>
+              </RadioFieldDyn>
             </Tab.Panel>
           </Tabs>
 
