@@ -1,7 +1,7 @@
 import cn from 'classnames'
 import { useSelect } from 'downshift'
 import type { ComponentType } from 'react'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import type { GlobalImage } from '@oxide/api'
@@ -16,6 +16,8 @@ import {
   WindowsDistroIcon,
 } from '@oxide/ui'
 import { classed, groupBy } from '@oxide/util'
+
+import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 import { RadioField2 } from './RadioField'
 
@@ -61,28 +63,17 @@ function distroDisplay(image: GlobalImage): {
   }
 }
 
-type ImageSelectFieldProps<TFieldValues extends FieldValues> = {
-  name: FieldPath<TFieldValues>
+type ImageSelectFieldProps = {
   required: boolean
   images: GlobalImage[]
-  control: Control<TFieldValues>
+  control: Control<InstanceCreateInput>
 }
 
-export function ImageSelectField<TFieldValues extends FieldValues>({
-  images,
-  name,
-  control,
-  required,
-}: ImageSelectFieldProps<TFieldValues>) {
+export function ImageSelectField({ images, control, required }: ImageSelectFieldProps) {
   return (
-    <RadioField2 name={name} control={control} required={required}>
+    <RadioField2 name="globalImage" control={control} required={required}>
       {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
-        <ImageSelect
-          key={distroName}
-          images={distroValues}
-          fieldName={name}
-          control={control}
-        />
+        <ImageSelect key={distroName} images={distroValues} control={control} />
       ))}
     </RadioField2>
   )
@@ -90,21 +81,19 @@ export function ImageSelectField<TFieldValues extends FieldValues>({
 
 const Outline = classed.div`absolute z-10 h-full w-full rounded border border-accent pointer-events-none`
 
-function ImageSelect<TFieldValues extends FieldValues>({
+function ImageSelect({
   images,
-  fieldName,
   control,
 }: {
   images: GlobalImage[]
-  fieldName: FieldPath<TFieldValues>
-  control: Control<TFieldValues>
+  control: Control<InstanceCreateInput>
 }) {
   const distros = images.map((image) => ({ ...image, ...distroDisplay(image) }))
   const { label, Icon } = distros[0]
 
   const {
     field: { value, onChange },
-  } = useController({ control, name: fieldName })
+  } = useController({ control, name: 'globalImage' })
 
   // current distro is the one from the field value *if* it exists in the list
   // of distros. default to first distro in the list
@@ -130,7 +119,7 @@ function ImageSelect<TFieldValues extends FieldValues>({
   return (
     <div className="relative">
       <RadioCard
-        name={fieldName}
+        name="globalImage"
         value={currentDistro}
         className={cn(
           'relative h-44 w-44 pb-0',

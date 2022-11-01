@@ -229,12 +229,7 @@ export function CreateInstanceForm() {
             <Tab>Distros</Tab>
             <Tab.Panel className="space-y-4">
               {images.length === 0 && <span>No images found</span>}
-              <ImageSelectField
-                name="globalImage"
-                images={images}
-                required
-                control={control}
-              />
+              <ImageSelectField images={images} required control={control} />
 
               <NameField
                 id="boot-disk-name"

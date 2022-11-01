@@ -108,7 +108,7 @@ export type RadioFieldProps2<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
 > = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
-  children: React.ReactElement[]
+  children: React.ReactElement | React.ReactElement[]
 }
 
 export function RadioField2<
