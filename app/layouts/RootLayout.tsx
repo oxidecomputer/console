@@ -1,6 +1,7 @@
 import { animated, useSpring } from '@react-spring/web'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
+import type { Navigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
 
@@ -26,13 +27,42 @@ function useSetTitle() {
  * anything to actually belong here.
  */
 export default function RootLayout() {
+  const [prevNav, setPrevNav] = useState<Navigation>()
+  const [width, setWidth] = useState('0%')
+  const [reset, setReset] = useState(false)
+
   useSetTitle()
   const navigation = useNavigation()
-  const isLoading = navigation.state === 'loading'
+
+  if (!prevNav) {
+    setPrevNav(navigation)
+  } else if (prevNav.state !== navigation.state) {
+    setPrevNav(navigation)
+
+    if (prevNav && navigation.location && prevNav.location === undefined) {
+      setWidth('0%')
+      setReset(true)
+    } else {
+      setReset(false)
+    }
+
+    if (navigation.state === 'idle' && prevNav.state === 'loading') {
+      setWidth('100%')
+    }
+
+    if (prevNav && navigation.state === 'loading' && prevNav.state === 'idle') {
+      setWidth('10%')
+    }
+  }
+
   const style = useSpring({
     from: { width: '0%' },
-    to: { width: isLoading ? '95%' : '0%' },
-    reset: !isLoading,
+    to: { width: width },
+    reset: reset,
+    onRest: () => {
+      setWidth('0%')
+      setReset(true)
+    },
   })
   return (
     <div>
