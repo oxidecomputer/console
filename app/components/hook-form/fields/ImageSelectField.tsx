@@ -11,6 +11,7 @@ import {
   FedoraDistroIcon,
   Images24Icon,
   RadioCard,
+  RadioGroup,
   SelectArrows6Icon,
   UbuntuDistroIcon,
   WindowsDistroIcon,
@@ -18,8 +19,6 @@ import {
 import { classed, groupBy } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
-
-import { RadioFieldDyn } from './RadioField'
 
 const ArchDistroIcon = (props: { className?: string }) => {
   return (
@@ -71,11 +70,11 @@ type ImageSelectFieldProps = {
 
 export function ImageSelectField({ images, control, required }: ImageSelectFieldProps) {
   return (
-    <RadioFieldDyn name="globalImage" control={control} required={required}>
+    <RadioGroup name="globalImage" aria-label="Global image" required={required}>
       {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
         <ImageSelect key={distroName} images={distroValues} control={control} />
       ))}
-    </RadioFieldDyn>
+    </RadioGroup>
   )
 }
 
