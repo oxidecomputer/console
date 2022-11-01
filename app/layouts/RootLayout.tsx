@@ -65,12 +65,12 @@ export default function RootLayout() {
     },
   })
   return (
-    <div>
-      <div className="h-px w-full">
-        <animated.div style={style} className="h-px bg-accent" />
+    <>
+      <div className="fixed top-0 left-0 right-0 z-50 h-0.5">
+        <animated.div style={style} className="h-0.5 bg-accent" />
       </div>
       <Outlet />
       <ScrollRestoration />
-    </div>
+    </>
   )
 }
