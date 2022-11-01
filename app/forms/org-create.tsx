@@ -4,7 +4,7 @@ import type { OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -43,7 +43,7 @@ export function CreateOrgSideModalForm() {
       submitDisabled={createOrg.isLoading}
       submitError={createOrg.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

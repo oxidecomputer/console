@@ -2,7 +2,7 @@ import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type EditVpcRouterFormProps = {
@@ -38,7 +38,7 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
       submitDisabled={updateRouter.isLoading}
       submitError={updateRouter.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
 import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
@@ -61,7 +61,7 @@ export function EditProjectSideModalForm() {
       submitError={editProject.error}
       submitLabel="Save changes"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

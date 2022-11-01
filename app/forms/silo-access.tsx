@@ -5,7 +5,7 @@ import {
   useUsersNotInPolicy,
 } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/hook-form'
+import { ListboxField, SideModalForm } from 'app/components/form'
 
 import { defaultValues, roleItems } from './access-util'
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
@@ -41,7 +41,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       submitError={updatePolicy.error}
       submitLabel="Add user"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <ListboxField
             name="userId"
@@ -93,7 +93,7 @@ export function SiloAccessEditUserSideModal({
       submitLabel="Update role"
       onDismiss={onDismiss}
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           name="roleName"
           label="Role"

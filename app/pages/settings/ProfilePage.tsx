@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Table } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
-import { FullPageForm, TextField } from 'app/components/hook-form'
+import { FullPageForm, TextField } from 'app/components/form'
 
 const colHelper = createColumnHelper<Group>()
 

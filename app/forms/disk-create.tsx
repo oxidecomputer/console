@@ -12,7 +12,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 const defaultValues: DiskCreate = {
@@ -76,7 +76,7 @@ export function CreateDiskSideModalForm({
       submitDisabled={createDisk.isLoading}
       submitError={createDisk.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

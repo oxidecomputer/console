@@ -10,7 +10,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -55,7 +55,7 @@ export function CreateSiloSideModalForm() {
       submitDisabled={createSilo.isLoading}
       submitError={createSilo.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import type { Disk, DiskIdentifier } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/hook-form'
+import { ListboxField, SideModalForm } from 'app/components/form'
 import { useAllParams } from 'app/hooks'
 
 const defaultValues = { name: '' }
@@ -62,7 +62,7 @@ export function AttachDiskSideModalForm({
       submitError={attachDisk.error}
       onDismiss={onDismiss}
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           label="Disk name"
           name="name"

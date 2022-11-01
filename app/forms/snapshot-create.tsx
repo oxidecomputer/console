@@ -11,7 +11,7 @@ import {
   ListboxField,
   NameField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -66,7 +66,7 @@ export function CreateSnapshotSideModalForm() {
       }}
       submitError={createSnapshot.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

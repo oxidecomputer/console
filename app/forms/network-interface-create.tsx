@@ -13,7 +13,7 @@ import {
   SideModalForm,
   SubnetListbox,
   TextField,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useAllParams } from 'app/hooks'
 
 const defaultValues: NetworkInterfaceCreate = {
@@ -72,7 +72,7 @@ export default function CreateNetworkInterfaceForm({
       submitDisabled={createNetworkInterface.isLoading}
       submitError={createNetworkInterface.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
+import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
@@ -18,7 +18,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    * then in the calling code, the field would not infer `TFieldValues` and
    * constrain the `name` prop to paths in the values object.
    */
-  children: (control: Control<TFieldValues>) => ReactNode
+  children: (form: UseFormReturn<TFieldValues>) => ReactNode
   onDismiss: () => void
   submitDisabled?: boolean
   /** Error from the API call */
@@ -41,11 +41,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
-  const {
-    control,
-    formState: { isDirty, isValid },
-    handleSubmit,
-  } = useForm({ mode: 'all', ...formOptions })
+  const form = useForm({ mode: 'all', ...formOptions })
+
+  const { isDirty, isValid } = form.formState
 
   const canSubmit = isDirty && isValid
 
@@ -71,10 +69,10 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             // SideModalForm from inside another form, in which case submitting
             // the inner form submits the outer form unless we stop propagation
             e.stopPropagation()
-            handleSubmit(onSubmit)(e)
+            form.handleSubmit(onSubmit)(e)
           }}
         >
-          {children(control)}
+          {children(form)}
         </form>
       </SideModal.Body>
       <SideModal.Footer>

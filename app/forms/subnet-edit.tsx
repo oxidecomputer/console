@@ -2,7 +2,7 @@ import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type EditSubnetFormProps = {
@@ -39,7 +39,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       submitError={updateSubnet.error}
       submitLabel="Update subnet"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

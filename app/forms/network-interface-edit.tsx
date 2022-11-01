@@ -4,7 +4,7 @@ import type { NetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useInstanceParams } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {
@@ -48,7 +48,7 @@ export default function EditNetworkInterfaceForm({
       submitError={editNetworkInterface.error}
       submitLabel="Save changes"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
