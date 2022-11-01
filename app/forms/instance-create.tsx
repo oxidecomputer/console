@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
+import type { SetRequired } from 'type-fest'
 
-import type { InstanceCreate, InstanceNetworkInterfaceAttachment } from '@oxide/api'
+import type { InstanceCreate } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
 import { genName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -33,10 +34,10 @@ import {
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-type InstanceCreateInput = Assign<
-  InstanceCreate,
+export type InstanceCreateInput = Assign<
+  // API accepts undefined but it's easier if we don't
+  SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
-    networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
     type: typeof INSTANCE_SIZES[number]['id']
     disks: DiskTableItem[]
     bootDiskName: string
@@ -63,11 +64,6 @@ const baseDefaultValues: InstanceCreateInput = {
 
   disks: [],
   networkInterfaces: { type: 'default' },
-  /**
-   * This is a hack to ensure the network interface radio has a default selection.
-   * We actually don't care about this value outside of that.
-   */
-  networkInterfaceType: 'default',
 
   start: true,
 }
@@ -161,13 +157,14 @@ export function CreateInstanceForm() {
             ],
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
+            networkInterfaces: values.networkInterfaces,
           },
         })
       }}
       submitDisabled={createDisk.isLoading || createInstance.isLoading}
       submitError={createDisk.error || createInstance.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
@@ -266,7 +263,7 @@ export function CreateInstanceForm() {
           <Divider />
           <Form.Heading id="networking">Networking</Form.Heading>
 
-          <NetworkInterfaceField name="networkInterfaceType" control={control} />
+          <NetworkInterfaceField control={control} />
 
           <TextField
             name="hostname"

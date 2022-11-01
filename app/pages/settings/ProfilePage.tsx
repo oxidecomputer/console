@@ -40,7 +40,7 @@ export function ProfilePage() {
       submitError={null}
       onSubmit={() => Promise.resolve()}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <TextField
             id="profile-id"

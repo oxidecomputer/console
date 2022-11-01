@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react'
 import { cloneElement } from 'react'
-import type { Control, FieldValues, UseFormProps } from 'react-hook-form'
+import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 
 import type { ErrorResult } from '@oxide/api'
@@ -28,7 +28,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
    * then in the calling code, the field would not infer `TFieldValues` and
    * constrain the `name` prop to paths in the values object.
    */
-  children: (control: Control<TFieldValues>) => ReactNode
+  children: (form: UseFormReturn<TFieldValues>) => ReactNode
 }
 
 const PageActionsContainer = classed.div`flex h-20 items-center gutter`
@@ -43,13 +43,10 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   formOptions,
   onSubmit,
 }: FullPageFormProps<TFieldValues>) {
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting, isDirty },
-  } = useForm(formOptions)
+  const form = useForm(formOptions)
+  const { isSubmitting, isDirty } = form.formState
 
-  const childArray = flattenChildren(children(control))
+  const childArray = flattenChildren(children(form))
   const actions = pluckFirstOfType(childArray, Form.Actions)
 
   return (
@@ -57,7 +54,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       <PageHeader>
         <PageTitle icon={icon}>{title}</PageTitle>
       </PageHeader>
-      <form className="ox-form pb-20" id={id} onSubmit={handleSubmit(onSubmit)}>
+      <form className="ox-form pb-20" id={id} onSubmit={form.handleSubmit(onSubmit)}>
         {childArray}
       </form>
       {actions && (

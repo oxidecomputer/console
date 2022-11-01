@@ -1,19 +1,22 @@
 import { useState } from 'react'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
-import { Button, Error16Icon, MiniTable } from '@oxide/ui'
+import { Button, Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
 
-import { RadioField } from 'app/components/hook-form'
+import type { InstanceCreateInput } from 'app/forms/instance-create'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
-export function NetworkInterfaceField<TFieldValues extends FieldValues>({
-  name,
+/**
+ * Not designed for reuse so much as to encapsulate behavior that would
+ * otherwise clutter the instance create form.
+ */
+
+export function NetworkInterfaceField({
   control,
 }: {
-  name: FieldPath<TFieldValues>
-  control: Control<TFieldValues>
+  control: Control<InstanceCreateInput>
 }) {
   const [showForm, setShowForm] = useState(false)
 
@@ -23,19 +26,19 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
    */
   const [oldParams, setOldParams] = useState<NetworkInterfaceCreate[]>([])
 
-  // TODO: value needs to get NetworkInterfaceCreate[] type somehow
   const {
     field: { value, onChange },
-  } = useController({ control, name })
+  } = useController({ control, name: 'networkInterfaces' })
 
   return (
     <div className="max-w-lg space-y-5">
-      <RadioField
-        id="network-interface-type"
-        name={name}
+      <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
+      <RadioGroup
+        aria-labelledby="network-interface-type-label"
+        name="networkInterfaceType"
         column
-        label="Network interface"
         className="pt-1"
+        defaultChecked={value.type}
         onChange={(event) => {
           const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
 
@@ -47,13 +50,11 @@ export function NetworkInterfaceField<TFieldValues extends FieldValues>({
             ? onChange({ type: newType, params: oldParams })
             : onChange({ type: newType })
         }}
-        items={[
-          { label: 'None', value: 'none' },
-          { label: 'Default', value: 'default' },
-          { label: 'Custom', value: 'create' },
-        ]}
-        control={control}
-      />
+      >
+        <Radio value="none">None</Radio>
+        <Radio value="default">Default</Radio>
+        <Radio value="create">Custom</Radio>
+      </RadioGroup>
       {value.type === 'create' && (
         <>
           {value.params.length > 0 && (
