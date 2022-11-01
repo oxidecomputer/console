@@ -49,7 +49,7 @@ export const RadioGroupHint = classed.p`text-base text-secondary text-sans-sm ma
 export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group
   name: string
-  children: React.ReactNode
+  children: React.ReactElement[]
   // gets passed to all the radios (technically only needs to be on one)
   required?: boolean
   // gets passed to all the radios
