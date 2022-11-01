@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import type { DiskCreate, DiskIdentifier } from '@oxide/api'
@@ -7,25 +7,23 @@ import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
+import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
   | (DiskIdentifier & { type: 'attach' })
 
-export function DisksTableField<TFieldValues extends FieldValues>({
-  control,
-  name,
-}: {
-  control: Control<TFieldValues>
-  name: FieldPath<TFieldValues>
-}) {
+/**
+ * Designed less for reuse, more to encapsulate logic that would otherwise
+ * clutter the instance create form.
+ */
+export function DisksTableField({ control }: { control: Control<InstanceCreateInput> }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  // TODO: value needs to get DiskTableItem[] type somehow
   const {
     field: { value: items, onChange },
-  } = useController({ control, name })
+  } = useController({ control, name: 'disks' })
 
   return (
     <>

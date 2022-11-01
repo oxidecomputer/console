@@ -9,10 +9,9 @@ import type { InstanceCreateInput } from 'app/forms/instance-create'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
 /**
- * Not designed for reuse so much as to encapsulate behavior that would
- * otherwise clutter the instance create form.
+ * Designed less for reuse, more to encapsulate logic that would otherwise
+ * clutter the instance create form.
  */
-
 export function NetworkInterfaceField({
   control,
 }: {

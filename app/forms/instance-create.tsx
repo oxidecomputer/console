@@ -258,7 +258,7 @@ export function CreateInstanceForm() {
           <Divider />
           <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-          <DisksTableField name="disks" control={control} />
+          <DisksTableField control={control} />
 
           <Divider />
           <Form.Heading id="networking">Networking</Form.Heading>
