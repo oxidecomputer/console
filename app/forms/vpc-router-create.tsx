@@ -2,7 +2,7 @@ import type { VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 const defaultValues: VpcRouterCreate = {

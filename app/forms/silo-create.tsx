@@ -10,7 +10,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

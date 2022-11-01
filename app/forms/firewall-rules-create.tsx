@@ -25,7 +25,7 @@ import {
   RadioField,
   SideModalForm,
   TextField,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 export type FirewallRuleValues = {

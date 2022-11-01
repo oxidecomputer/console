@@ -19,7 +19,7 @@ import {
 import { GiB } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
-import type { DiskTableItem } from 'app/components/hook-form'
+import type { DiskTableItem } from 'app/components/form'
 import {
   CheckboxField,
   DescriptionField,
@@ -30,7 +30,7 @@ import {
   NetworkInterfaceField,
   RadioFieldDyn,
   TextField,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

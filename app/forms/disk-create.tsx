@@ -12,7 +12,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 const defaultValues: DiskCreate = {

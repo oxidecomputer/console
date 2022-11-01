@@ -5,7 +5,7 @@ import {
   useUsersNotInPolicy,
 } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/hook-form'
+import { ListboxField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'

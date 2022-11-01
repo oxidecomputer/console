@@ -13,7 +13,7 @@ import {
   SideModalForm,
   SubnetListbox,
   TextField,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useAllParams } from 'app/hooks'
 
 const defaultValues: NetworkInterfaceCreate = {

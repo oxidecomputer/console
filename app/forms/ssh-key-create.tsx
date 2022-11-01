@@ -3,12 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import type { SshKeyCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import {
-  DescriptionField,
-  NameField,
-  SideModalForm,
-  TextField,
-} from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
 const defaultValues: SshKeyCreate = {

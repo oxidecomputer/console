@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

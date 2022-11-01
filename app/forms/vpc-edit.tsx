@@ -5,7 +5,7 @@ import { useApiQuery } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { requireVpcParams, useToast, useVpcParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

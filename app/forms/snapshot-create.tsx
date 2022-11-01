@@ -11,7 +11,7 @@ import {
   ListboxField,
   NameField,
   SideModalForm,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
