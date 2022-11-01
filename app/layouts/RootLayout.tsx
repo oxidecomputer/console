@@ -1,5 +1,6 @@
+import { animated, useSpring } from '@react-spring/web'
 import { useEffect } from 'react'
-import { Outlet, ScrollRestoration } from 'react-router-dom'
+import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
 
@@ -26,10 +27,20 @@ function useSetTitle() {
  */
 export default function RootLayout() {
   useSetTitle()
+  const navigation = useNavigation()
+  const isLoading = navigation.state === 'loading'
+  const style = useSpring({
+    from: { width: '0%' },
+    to: { width: isLoading ? '95%' : '0%' },
+    reset: !isLoading,
+  })
   return (
-    <>
+    <div>
+      <div className="h-px w-full">
+        <animated.div style={style} className="h-px bg-accent" />
+      </div>
       <Outlet />
       <ScrollRestoration />
-    </>
+    </div>
   )
 }
