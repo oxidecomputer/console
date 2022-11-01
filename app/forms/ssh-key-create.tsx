@@ -40,7 +40,7 @@ export function CreateSSHKeySideModalForm() {
       submitDisabled={createSshKey.isLoading}
       submitError={createSshKey.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

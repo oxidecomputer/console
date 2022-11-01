@@ -40,7 +40,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       submitDisabled={createSubnet.isLoading}
       submitError={createSubnet.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

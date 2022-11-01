@@ -43,7 +43,7 @@ export function CreateOrgSideModalForm() {
       submitDisabled={createOrg.isLoading}
       submitError={createOrg.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

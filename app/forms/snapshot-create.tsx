@@ -66,7 +66,7 @@ export function CreateSnapshotSideModalForm() {
       }}
       submitError={createSnapshot.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

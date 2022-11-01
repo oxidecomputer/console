@@ -49,7 +49,7 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
       submitDisabled={createRouter.isLoading}
       submitError={createRouter.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

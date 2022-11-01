@@ -41,7 +41,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       submitError={updatePolicy.error}
       submitLabel="Add user"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <ListboxField
             name="userId"
@@ -93,7 +93,7 @@ export function SiloAccessEditUserSideModal({
       submitLabel="Update role"
       onDismiss={onDismiss}
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           name="roleName"
           label="Role"

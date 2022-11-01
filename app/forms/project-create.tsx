@@ -54,7 +54,7 @@ export function CreateProjectSideModalForm() {
       submitDisabled={createProject.isLoading}
       submitError={createProject.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

@@ -62,7 +62,7 @@ export function AttachDiskSideModalForm({
       submitError={attachDisk.error}
       onDismiss={onDismiss}
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           label="Disk name"
           name="name"

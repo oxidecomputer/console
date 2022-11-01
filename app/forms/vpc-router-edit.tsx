@@ -38,7 +38,7 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
       submitDisabled={updateRouter.isLoading}
       submitError={updateRouter.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

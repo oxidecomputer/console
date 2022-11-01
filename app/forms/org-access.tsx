@@ -45,7 +45,7 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
       submitError={updatePolicy.error}
       submitLabel="Add user"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <ListboxField
             name="userId"
@@ -100,7 +100,7 @@ export function OrgAccessEditUserSideModal({
       onDismiss={onDismiss}
       submitLabel="Update role"
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           name="roleName"
           label="Role"

@@ -72,7 +72,7 @@ export default function CreateNetworkInterfaceForm({
       submitDisabled={createNetworkInterface.isLoading}
       submitError={createNetworkInterface.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

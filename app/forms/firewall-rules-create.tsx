@@ -444,7 +444,7 @@ export function CreateFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      {(control) => <CommonFields error={updateRules.error} control={control} />}
+      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
     </SideModalForm>
   )
 }

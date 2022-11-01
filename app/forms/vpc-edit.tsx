@@ -59,7 +59,7 @@ export function EditVpcSideModalForm() {
       submitLabel="Save changes"
       submitError={editVpc.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

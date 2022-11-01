@@ -50,7 +50,7 @@ export function CreateVpcSideModalForm() {
       submitDisabled={createVpc.isLoading}
       submitError={createVpc.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

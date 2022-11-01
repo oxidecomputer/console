@@ -56,7 +56,7 @@ export function EditOrgSideModalForm() {
       submitError={updateOrg.error}
       submitLabel="Save changes"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

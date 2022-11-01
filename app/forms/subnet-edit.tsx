@@ -39,7 +39,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       submitError={updateSubnet.error}
       submitLabel="Update subnet"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
