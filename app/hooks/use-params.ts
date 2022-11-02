@@ -23,11 +23,18 @@ export const requireOrgParams = requireParams('orgName')
 export const requireProjectParams = requireParams('orgName', 'projectName')
 export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
 export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
+export const requireNicParams = requireParams(
+  'orgName',
+  'projectName',
+  'instanceName',
+  'interfaceName'
+)
 
 export const useOrgParams = () => requireOrgParams(useParams())
 export const useProjectParams = () => requireProjectParams(useParams())
 export const useInstanceParams = () => requireInstanceParams(useParams())
 export const useVpcParams = () => requireVpcParams(useParams())
+export const useNicParams = () => requireNicParams(useParams())
 
 /**
  * Wrapper for RR's `useParams` that guarantees (in dev) that the specified

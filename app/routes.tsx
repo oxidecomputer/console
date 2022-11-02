@@ -4,6 +4,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateInstanceForm } from './forms/instance-create'
+import EditNetworkInterfaceForm from './forms/network-interface-edit'
 import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -182,7 +183,14 @@ export const routes = createRoutesFromElements(
                   path="network-interfaces"
                   element={<NetworkingTab />}
                   handle={{ crumb: 'network-interfaces' }}
-                />
+                >
+                  <Route
+                    path=":interfaceName/edit"
+                    element={<EditNetworkInterfaceForm />}
+                    loader={EditNetworkInterfaceForm.loader}
+                    handle={{ crumb: 'Edit VPC' }}
+                  />
+                </Route>
                 <Route
                   path="metrics"
                   element={

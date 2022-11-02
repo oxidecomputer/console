@@ -27,6 +27,8 @@ export const pb = {
 
   nics: (params: PP.Instance) =>
     `${pb.instances(params)}/${params.instanceName}/network-interfaces`,
+  nicEdit: (params: PP.NetworkInterface) =>
+    `${pb.nics(params)}/${params.interfaceName}/edit`,
 
   serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
 

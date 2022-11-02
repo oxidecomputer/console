@@ -1,46 +1,53 @@
-import invariant from 'tiny-invariant'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import type { NetworkInterface } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useInstanceParams } from 'app/hooks'
+import { requireNicParams, useInstanceParams, useNicParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-type EditNetworkInterfaceFormProps = {
-  editing: NetworkInterface
-  onDismiss: () => void
+EditNetworkInterfaceForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('instanceNetworkInterfaceView', {
+    path: requireNicParams(params),
+  })
 }
 
-export default function EditNetworkInterfaceForm({
-  onDismiss,
-  editing,
-}: EditNetworkInterfaceFormProps) {
+export default function EditNetworkInterfaceForm() {
+  const nicParams = useNicParams()
   const queryClient = useApiQueryClient()
+  const navigate = useNavigate()
   const { orgName, projectName, instanceName } = useInstanceParams()
 
+  const { data: nic } = useApiQuery('instanceNetworkInterfaceView', { path: nicParams })
+
+  const onDismiss = () => navigate(pb.nics(nicParams))
+
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
-    onSuccess() {
-      invariant(instanceName, 'instanceName is required when posting a network interface')
+    onSuccess(nic) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         path: { orgName, projectName, instanceName },
       })
+      queryClient.setQueryData(
+        'instanceNetworkInterfaceView',
+        { path: { ...nicParams, interfaceName: nic.name } },
+        nic
+      )
       onDismiss()
     },
   })
-
-  const defaultValues = pick(editing, 'name', 'description') // satisfies NetworkInterfaceUpdate
 
   return (
     <SideModalForm
       id="edit-network-interface-form"
       title="Edit network interface"
-      formOptions={{ defaultValues }}
+      formOptions={{ defaultValues: nic }}
       onDismiss={onDismiss}
       onSubmit={(body) => {
-        const interfaceName = defaultValues.name
         editNetworkInterface.mutate({
-          path: { orgName, projectName, instanceName, interfaceName },
+          path: nicParams,
           body,
         })
       }}

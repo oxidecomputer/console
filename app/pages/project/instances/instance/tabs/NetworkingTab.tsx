@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { NetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -16,7 +16,6 @@ import {
 } from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
-import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -51,9 +50,9 @@ export function NetworkingTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
   const getQuery = ['instanceNetworkInterfaceList', { path: instanceParams }] as const
 
@@ -90,7 +89,7 @@ export function NetworkingTab() {
     {
       label: 'Edit',
       onActivate() {
-        setEditing(nic)
+        navigate(pb.nicEdit({ ...instanceParams, interfaceName: nic.name }))
       },
       disabled: !instanceStopped,
     },
@@ -171,9 +170,7 @@ export function NetworkingTab() {
       {createModalOpen && (
         <CreateNetworkInterfaceForm onDismiss={() => setCreateModalOpen(false)} />
       )}
-      {editing && (
-        <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
-      )}
+      <Outlet />
     </>
   )
 }
