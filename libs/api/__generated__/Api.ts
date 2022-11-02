@@ -898,6 +898,13 @@ export type OrganizationRolePolicy = {
 export type OrganizationUpdate = { description?: string; name?: Name }
 
 /**
+ * A password used to authenticate a user
+ *
+ * Passwords may be subject to additional constraints.
+ */
+export type Password = string
+
+/**
  * Client view of a {@link Project}
  */
 export type Project = {
@@ -1439,11 +1446,22 @@ export type UserBuiltinResultsPage = {
 export type UserId = string
 
 /**
+ * Parameters for setting a user's password
+ */
+export type UserPassword =
+  /** Sets the user's password to the provided value */
+  | { details: Password; userPasswordValue: 'password' }
+  /** Invalidates any current password (disabling password authentication) */
+  | { userPasswordValue: 'invalid_password' }
+
+/**
  * Create-time parameters for a {@link User}
  */
 export type UserCreate = {
   /** username used to log in */
   externalId: UserId
+  /** password used to log in */
+  password: UserPassword
 }
 
 /**
@@ -1455,6 +1473,11 @@ export type UserResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
+
+/**
+ * Credentials for local user login
+ */
+export type UsernamePasswordCredentials = { password: Password; username: UserId }
 
 /**
  * Client view of a {@link Vpc}
@@ -1800,6 +1823,10 @@ export interface GroupListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface LoginLocalPathParams {
+  siloName: Name
+}
+
 export interface LoginSamlBeginPathParams {
   providerName: Name
   siloName: Name
@@ -2054,6 +2081,12 @@ export interface InstanceSerialConsoleQueryParams {
   fromStart?: number
   maxBytes?: number
   mostRecent?: number
+}
+
+export interface InstanceSerialConsoleStreamPathParams {
+  instanceName: Name
+  orgName: Name
+  projectName: Name
 }
 
 export interface InstanceStartPathParams {
@@ -2461,6 +2494,11 @@ export interface LocalIdpUserDeletePathParams {
   userId: string
 }
 
+export interface LocalIdpUserSetPasswordPathParams {
+  siloName: Name
+  userId: string
+}
+
 export interface SamlIdentityProviderCreatePathParams {
   siloName: Name
 }
@@ -2779,6 +2817,21 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Authenticate a user (i.e., log in) via username and password
+     */
+    loginLocal: (
+      { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
+      params: RequestParams = {}
+    ) => {
+      const { siloName } = path
+      return this.request<void>({
+        path: `/login/${siloName}/local`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * Prompt user login
      */
     loginSamlBegin: (
@@ -2793,7 +2846,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Authenticate a user
+     * Authenticate a user (i.e., log in) via SAML
      */
     loginSaml: ({ path }: { path: LoginSamlPathParams }, params: RequestParams = {}) => {
       const { providerName, siloName } = path
@@ -3366,6 +3419,20 @@ export class Api extends HttpClient {
         path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial-console`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Connect to an instance's serial console
+     */
+    instanceSerialConsoleStream: (
+      { path }: { path: InstanceSerialConsoleStreamPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { instanceName, orgName, projectName } = path
+      return this.request<void>({
+        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial-console/stream`,
+        method: 'GET',
         ...params,
       })
     },
@@ -4430,6 +4497,21 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/system/silos/${siloName}/identity-providers/local/users/${userId}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Set or invalidate a user's password
+     */
+    localIdpUserSetPassword: (
+      { path, body }: { path: LocalIdpUserSetPasswordPathParams; body: UserPassword },
+      params: RequestParams = {}
+    ) => {
+      const { siloName, userId } = path
+      return this.request<void>({
+        path: `/system/silos/${siloName}/identity-providers/local/users/${userId}/set-password`,
+        method: 'POST',
+        body,
         ...params,
       })
     },
