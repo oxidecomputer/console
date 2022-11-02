@@ -31,6 +31,7 @@ import {
 import {
   NotImplemented,
   errIfExists,
+  errIfInvalidDiskSize,
   getStartAndEndTime,
   getTimestamps,
   paginated,
@@ -243,8 +244,95 @@ export const handlers = makeHandlers({
 
     errIfExists(db.instances, { name: body.name, project_id: project.id })
 
+    const instanceId = uuid()
+
+    /**
+     * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
+     * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
+     */
+    for (const diskParams of body.disks || []) {
+      if (diskParams.type === 'create') {
+        errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
+        errIfInvalidDiskSize(params.path, diskParams)
+      } else {
+        lookupDisk({ ...params.path, diskName: diskParams.name })
+      }
+    }
+
+    /**
+     * Eagerly check for nic lookup failures. Execution will stop early and prevent orphaned nics from
+     * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
+     */
+    if (body.network_interfaces?.type === 'create') {
+      body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
+        lookupVpc({ ...params.path, vpcName: vpc_name })
+        lookupVpcSubnet({
+          ...params.path,
+          vpcName: vpc_name,
+          subnetName: subnet_name,
+        })
+      })
+    }
+
+    for (const diskParams of body.disks || []) {
+      if (diskParams.type === 'create') {
+        const { size, name, description, disk_source } = diskParams
+        const newDisk: Json<Api.Disk> = {
+          id: uuid(),
+          name,
+          description,
+          size,
+          project_id: project.id,
+          state: { state: 'attached', instance: instanceId },
+          device_path: '/mnt/disk',
+          block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+          ...getTimestamps(),
+        }
+        db.disks.push(newDisk)
+      } else {
+        const disk = lookupDisk({ ...params.path, diskName: diskParams.name })
+        disk.state = { state: 'attached', instance: instanceId }
+      }
+    }
+
+    if (body.network_interfaces?.type === 'default') {
+      db.networkInterfaces.push({
+        id: uuid(),
+        description: 'The default network interface',
+        instance_id: instanceId,
+        primary: true,
+        mac: '00:00:00:00:00:00',
+        ip: '127.0.0.1',
+        name: 'default',
+        vpc_id: uuid(),
+        subnet_id: uuid(),
+        ...getTimestamps(),
+      })
+    } else if (body.network_interfaces?.type === 'create') {
+      body.network_interfaces.params.forEach(
+        ({ name, description, ip, subnet_name, vpc_name }, i) => {
+          db.networkInterfaces.push({
+            id: uuid(),
+            name,
+            description,
+            instance_id: instanceId,
+            primary: i === 0 ? true : false,
+            mac: '00:00:00:00:00:00',
+            ip: ip || '127.0.0.1',
+            vpc_id: lookupVpc({ ...params.path, vpcName: vpc_name }).id,
+            subnet_id: lookupVpcSubnet({
+              ...params.path,
+              vpcName: vpc_name,
+              subnetName: subnet_name,
+            }).id,
+            ...getTimestamps(),
+          })
+        }
+      )
+    }
+
     const newInstance: Json<Api.Instance> = {
-      id: uuid(),
+      id: instanceId,
       project_id: project.id,
       ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
       ...getTimestamps(),

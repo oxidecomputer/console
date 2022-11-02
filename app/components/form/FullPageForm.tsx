@@ -17,7 +17,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   submitDisabled?: boolean
   error?: Error
   formOptions: UseFormProps<TFieldValues>
-  onSubmit: (values: TFieldValues) => Promise<void>
+  onSubmit: (values: TFieldValues) => void
   /** Error from the API call */
   submitError: ErrorResult | null
   /**
