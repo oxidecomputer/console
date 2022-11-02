@@ -945,6 +945,13 @@ export const OrganizationUpdate = z.preprocess(
 )
 
 /**
+ * A password used to authenticate a user
+ *
+ * Passwords may be subject to additional constraints.
+ */
+export const Password = z.preprocess(processResponseBody, z.string().max(512))
+
+/**
  * Client view of a {@link Project}
  */
 export const Project = z.preprocess(
@@ -1475,11 +1482,22 @@ export const UserId = z.preprocess(
 )
 
 /**
+ * Parameters for setting a user's password
+ */
+export const UserPassword = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ details: Password, userPasswordValue: z.enum(['password']) }),
+    z.object({ userPasswordValue: z.enum(['invalid_password']) }),
+  ])
+)
+
+/**
  * Create-time parameters for a {@link User}
  */
 export const UserCreate = z.preprocess(
   processResponseBody,
-  z.object({ externalId: UserId })
+  z.object({ externalId: UserId, password: UserPassword })
 )
 
 /**
@@ -1488,6 +1506,14 @@ export const UserCreate = z.preprocess(
 export const UserResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: User.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Credentials for local user login
+ */
+export const UsernamePasswordCredentials = z.preprocess(
+  processResponseBody,
+  z.object({ password: Password, username: UserId })
 )
 
 /**
@@ -1923,6 +1949,16 @@ export const LoginSpoofParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const LoginLocalParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+    }),
     query: z.object({}),
   })
 )
@@ -2408,6 +2444,18 @@ export const InstanceSerialConsoleParams = z.preprocess(
       maxBytes: z.number().min(0).optional(),
       mostRecent: z.number().min(0).optional(),
     }),
+  })
+)
+
+export const InstanceSerialConsoleStreamParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instanceName: Name,
+      orgName: Name,
+      projectName: Name,
+    }),
+    query: z.object({}),
   })
 )
 
@@ -3256,6 +3304,17 @@ export const LocalIdpUserCreateParams = z.preprocess(
 )
 
 export const LocalIdpUserDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const LocalIdpUserSetPasswordParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
