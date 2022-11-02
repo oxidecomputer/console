@@ -1,6 +1,7 @@
+import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 
-import type { NetworkInterface, NetworkInterfaceCreate } from '@oxide/api'
+import type { NetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
@@ -10,13 +11,12 @@ import {
   ListboxField,
   NameField,
   SideModalForm,
+  SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { SubnetListbox } from 'app/components/form/fields/SubnetListbox'
-import type { CreateSideModalFormProps } from 'app/forms'
 import { useAllParams } from 'app/hooks'
 
-const values: NetworkInterfaceCreate = {
+const defaultValues: NetworkInterfaceCreate = {
   name: '',
   description: '',
   ip: '',
@@ -24,38 +24,36 @@ const values: NetworkInterfaceCreate = {
   vpcName: '',
 }
 
-export default function CreateNetworkInterfaceSideModalForm({
-  id = 'create-network-interface-form',
-  title = 'Add network interface',
-  initialValues = values,
+type CreateNetworkInterfaceFormProps = {
+  onDismiss: () => void
+  onSubmit?: (values: NetworkInterfaceCreate) => void
+}
+
+export default function CreateNetworkInterfaceForm({
   onSubmit,
-  onSuccess,
-  onError,
   onDismiss,
-  ...props
-}: CreateSideModalFormProps<NetworkInterfaceCreate, NetworkInterface>) {
+}: CreateNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
   const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
-    onSuccess(data) {
+    onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         path: { instanceName, projectName, orgName },
       })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
 
-  const vpcs = useApiQuery('vpcList', { path: { orgName, projectName } }).data?.items || []
+  const { data: vpcsData } = useApiQuery('vpcList', { path: { orgName, projectName } })
+  const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-network-interface-form"
+      title="Add network interface"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={
         onSubmit ||
@@ -67,34 +65,36 @@ export default function CreateNetworkInterfaceSideModalForm({
 
           createNetworkInterface.mutate({
             path: { instanceName, projectName, orgName },
-            body: { ...body },
+            body,
           })
         })
       }
       submitDisabled={createNetworkInterface.isLoading}
-      error={createNetworkInterface.error?.error as Error | undefined}
-      {...props}
+      submitError={createNetworkInterface.error}
     >
-      <NameField id="nic-name" />
-      <DescriptionField id="nic-description" />
-      <Divider />
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <Divider />
 
-      <ListboxField
-        id="nic-vpc"
-        name="vpcName"
-        label="VPC"
-        items={vpcs.map(({ name }) => ({ label: name, value: name }))}
-        required
-      />
-      <SubnetListbox
-        id="nic-subnet"
-        name="subnetName"
-        label="Subnet"
-        vpcNameField="vpcName"
-        vpcs={vpcs}
-        required
-      />
-      <TextField id="nic-ip" name="ip" label="IP Address" />
+          <ListboxField
+            name="vpcName"
+            label="VPC"
+            items={vpcs.map(({ name }) => ({ label: name, value: name }))}
+            required
+            control={control}
+          />
+          <SubnetListbox
+            name="subnetName"
+            label="Subnet"
+            vpcNameField="vpcName"
+            required
+            control={control}
+          />
+          <TextField id="nic-ip" name="ip" label="IP Address" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

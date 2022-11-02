@@ -1,7 +1,7 @@
-import { getNameValidator } from './NameField'
+import { validateName } from './NameField'
 
 describe('validateName', () => {
-  const validate = getNameValidator('Name', true)
+  const validate = (name: string) => validateName(name, 'Name', true)
   it('returns undefined for valid names', () => {
     expect(validate('abc')).toBeUndefined()
     expect(validate('abc-def')).toBeUndefined()

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Divider, Key16Icon, Profile16Icon, Show16Icon } from '@oxide/ui'
+import { Divider, Key16Icon, Profile16Icon } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
 import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
@@ -20,8 +20,6 @@ const SettingsLayout = () => {
       () =>
         [
           { value: 'Profile', path: 'profile' },
-          { value: 'Appearance', path: 'appearance' },
-          { value: 'Hotkeys', path: 'hotkeys' },
           { value: 'SSH Keys', path: 'ssh-keys' },
         ]
           // filter out the entry for the path we're currently on
@@ -51,12 +49,6 @@ const SettingsLayout = () => {
         <Sidebar.Nav heading="User">
           <NavLinkItem to={pb.profile()}>
             <Profile16Icon /> Profile
-          </NavLinkItem>
-          <NavLinkItem to={pb.appearance()}>
-            <Show16Icon /> Appearance
-          </NavLinkItem>
-          <NavLinkItem to={pb.hotkeys()}>
-            <Profile16Icon /> Hotkeys
           </NavLinkItem>
           <NavLinkItem to={pb.sshKeys()}>
             <Key16Icon /> SSH Keys

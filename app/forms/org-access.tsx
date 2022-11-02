@@ -5,7 +5,7 @@ import {
   useUsersNotInPolicy,
 } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/hook-form'
+import { ListboxField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
@@ -45,7 +45,7 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
       submitError={updatePolicy.error}
       submitLabel="Add user"
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <ListboxField
             name="userId"
@@ -100,7 +100,7 @@ export function OrgAccessEditUserSideModal({
       onDismiss={onDismiss}
       submitLabel="Update role"
     >
-      {(control) => (
+      {({ control }) => (
         <ListboxField
           name="roleName"
           label="Role"

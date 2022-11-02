@@ -13,11 +13,9 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
-        "appearance": "/settings/appearance",
         "deviceSuccess": "/device/success",
         "diskNew": "/orgs/a/projects/b/disks-new",
         "disks": "/orgs/a/projects/b/disks",
-        "hotkeys": "/settings/hotkeys",
         "instance": "/orgs/a/projects/b/instances/c",
         "instanceMetrics": "/orgs/a/projects/b/instances/c/metrics",
         "instanceNew": "/orgs/a/projects/b/instances-new",

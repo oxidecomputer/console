@@ -1,34 +1,52 @@
-import type { ReactElement } from 'react'
-import { useState } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { cloneElement } from 'react'
+import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
+import type { ErrorResult } from '@oxide/api'
 import { PageHeader, PageTitle } from '@oxide/ui'
 import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { PageActions } from '../PageActions'
-import type { FormProps } from './Form'
-import { Form } from './Form'
+import { Form } from '../form/Form'
 
-interface FullPageFormProps<Values> extends Omit<FormProps<Values>, 'setSubmitState'> {
+interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
   title: string
   icon: ReactElement
   submitDisabled?: boolean
   error?: Error
+  formOptions: UseFormProps<TFieldValues>
+  onSubmit: (values: TFieldValues) => Promise<void>
+  /** Error from the API call */
+  submitError: ErrorResult | null
+  /**
+   * A function that returns the fields.
+   *
+   * Implemented as a function so we can pass `control` to the fields in the
+   * calling code. We could do that internally with `cloneElement` instead, but
+   * then in the calling code, the field would not infer `TFieldValues` and
+   * constrain the `name` prop to paths in the values object.
+   */
+  children: (form: UseFormReturn<TFieldValues>) => ReactNode
 }
 
 const PageActionsContainer = classed.div`flex h-20 items-center gutter`
 
-export function FullPageForm<Values extends Record<string, unknown>>({
+export function FullPageForm<TFieldValues extends FieldValues>({
+  id,
   title,
   children,
   submitDisabled = false,
   error,
   icon,
-  ...formProps
-}: FullPageFormProps<Values>) {
-  const [submitState, setSubmitState] = useState(true)
-  const childArray = flattenChildren(children)
+  formOptions,
+  onSubmit,
+}: FullPageFormProps<TFieldValues>) {
+  const form = useForm(formOptions)
+  const { isSubmitting, isDirty } = form.formState
+
+  const childArray = flattenChildren(children(form))
   const actions = pluckFirstOfType(childArray, Form.Actions)
 
   return (
@@ -36,15 +54,15 @@ export function FullPageForm<Values extends Record<string, unknown>>({
       <PageHeader>
         <PageTitle icon={icon}>{title}</PageTitle>
       </PageHeader>
-      <Form setSubmitState={setSubmitState} className="pb-20" {...formProps}>
+      <form className="ox-form pb-20" id={id} onSubmit={form.handleSubmit(onSubmit)}>
         {childArray}
-      </Form>
+      </form>
       {actions && (
         <PageActions>
           <PageActionsContainer>
             {cloneElement(actions, {
-              formId: formProps.id,
-              submitDisabled: submitDisabled || !submitState,
+              formId: id,
+              submitDisabled: submitDisabled || isSubmitting || !isDirty,
               error,
             })}
           </PageActionsContainer>

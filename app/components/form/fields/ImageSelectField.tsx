@@ -1,10 +1,8 @@
 import cn from 'classnames'
 import { useSelect } from 'downshift'
-import { useField } from 'formik'
 import type { ComponentType } from 'react'
-import { useState } from 'react'
-import { useCallback } from 'react'
-import { useEffect } from 'react'
+import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import type { GlobalImage } from '@oxide/api'
 import {
@@ -13,14 +11,14 @@ import {
   FedoraDistroIcon,
   Images24Icon,
   RadioCard,
+  RadioGroup,
   SelectArrows6Icon,
   UbuntuDistroIcon,
   WindowsDistroIcon,
 } from '@oxide/ui'
 import { classed, groupBy } from '@oxide/util'
 
-import type { RadioFieldProps } from './RadioField'
-import { RadioField } from './RadioField'
+import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 const ArchDistroIcon = (props: { className?: string }) => {
   return (
@@ -35,92 +33,70 @@ const ArchDistroIcon = (props: { className?: string }) => {
   )
 }
 
-function distroDisplay(image: GlobalImage): GlobalImage & {
+function distroDisplay(image: GlobalImage): {
   label: string
   Icon: ComponentType<{ className?: string }>
 } {
   const distro = image.distribution.toLowerCase()
   if (distro.includes('ubuntu')) {
-    return {
-      label: 'Ubuntu',
-      Icon: UbuntuDistroIcon,
-      ...image,
-    }
+    return { label: 'Ubuntu', Icon: UbuntuDistroIcon }
   }
   if (distro.includes('debian')) {
-    return {
-      label: 'Debian',
-      Icon: DebianDistroIcon,
-      ...image,
-    }
+    return { label: 'Debian', Icon: DebianDistroIcon }
   }
   if (distro.includes('centos')) {
-    return {
-      label: 'CentOS',
-      Icon: CentosDistroIcon,
-      ...image,
-    }
+    return { label: 'CentOS', Icon: CentosDistroIcon }
   }
   if (distro.includes('fedora')) {
-    return {
-      label: 'Fedora',
-      Icon: FedoraDistroIcon,
-      ...image,
-    }
+    return { label: 'Fedora', Icon: FedoraDistroIcon }
   }
   if (distro.includes('arch')) {
-    return {
-      label: 'Arch',
-      Icon: ArchDistroIcon,
-      ...image,
-    }
+    return { label: 'Arch', Icon: ArchDistroIcon }
   }
   if (distro.includes('windows')) {
-    return {
-      label: 'Windows',
-      Icon: WindowsDistroIcon,
-      ...image,
-    }
+    return { label: 'Windows', Icon: WindowsDistroIcon }
   }
   return {
     label: distro.replace(/-/g, ' ').replace(/(?:\s)[a-z]/g, (x) => x.toUpperCase()),
     Icon: Images24Icon,
-    ...image,
   }
 }
 
-interface ImageSelectFieldProps extends Omit<RadioFieldProps, 'children'> {
-  name: string
+type ImageSelectFieldProps = {
+  required: boolean
   images: GlobalImage[]
+  control: Control<InstanceCreateInput>
 }
 
-export function ImageSelectField({ images, name, ...props }: ImageSelectFieldProps) {
+export function ImageSelectField({ images, control, required }: ImageSelectFieldProps) {
   return (
-    <RadioField name={name} {...props}>
+    <RadioGroup name="globalImage" aria-label="Global image" required={required}>
       {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
-        <ImageSelect key={distroName} images={distroValues} fieldName={name} />
+        <ImageSelect key={distroName} images={distroValues} control={control} />
       ))}
-    </RadioField>
+    </RadioGroup>
   )
 }
 
 const Outline = classed.div`absolute z-10 h-full w-full rounded border border-accent pointer-events-none`
 
-interface ImageSelectProps {
+function ImageSelect({
+  images,
+  control,
+}: {
   images: GlobalImage[]
-  fieldName: string
-}
-function ImageSelect({ images, fieldName }: ImageSelectProps) {
-  const distros = images.map(distroDisplay)
-  const { label, Icon, id } = distros[0]
-  const [, { value }, { setValue }] = useField<string>(fieldName)
-  const [currentDistro, setCurrentDistro] = useState<string | undefined>(id)
+  control: Control<InstanceCreateInput>
+}) {
+  const distros = images.map((image) => ({ ...image, ...distroDisplay(image) }))
+  const { label, Icon } = distros[0]
 
-  useEffect(() => {
-    if (distros.some((d) => d.id === value)) {
-      setCurrentDistro(value)
-    }
-  }, [distros, value])
+  const {
+    field: { value, onChange },
+  } = useController({ control, name: 'globalImage' })
+
+  // current distro is the one from the field value *if* it exists in the list
+  // of distros. default to first distro in the list
+  const currentDistro = distros.find((d) => d.id === value)?.id || distros[0].id
 
   const select = useSelect({
     initialSelectedItem: distros[0],
@@ -128,21 +104,21 @@ function ImageSelect({ images, fieldName }: ImageSelectProps) {
     itemToString: (distro) => distro?.version || '',
     onSelectedItemChange(changes) {
       if (changes.selectedItem) {
-        setValue(changes.selectedItem.id)
+        onChange(changes.selectedItem.id)
       }
     },
   })
-  const onClick = useCallback(() => {
+  const onClick = () => {
     if (select.selectedItem) {
-      setValue(select.selectedItem.id)
+      onChange(select.selectedItem.id)
     }
-  }, [select.selectedItem, setValue])
+  }
 
   const selected = currentDistro === value
   return (
     <div className="relative">
       <RadioCard
-        name={fieldName}
+        name="globalImage"
         value={currentDistro}
         className={cn(
           'relative h-44 w-44 pb-0',

@@ -1,13 +1,22 @@
-import { useField } from 'formik'
 import { useState } from 'react'
+import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
-import { Button, Error16Icon, MiniTable, Radio } from '@oxide/ui'
+import { Button, Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
 
-import { RadioField } from 'app/components/form'
-import CreateNetworkInterfaceSideModalForm from 'app/forms/network-interface-create'
+import type { InstanceCreateInput } from 'app/forms/instance-create'
+import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
-export function NetworkInterfaceField() {
+/**
+ * Designed less for reuse, more to encapsulate logic that would otherwise
+ * clutter the instance create form.
+ */
+export function NetworkInterfaceField({
+  control,
+}: {
+  control: Control<InstanceCreateInput>
+}) {
   const [showForm, setShowForm] = useState(false)
 
   /**
@@ -16,18 +25,19 @@ export function NetworkInterfaceField() {
    */
   const [oldParams, setOldParams] = useState<NetworkInterfaceCreate[]>([])
 
-  const [, { value }, { setValue }] = useField<InstanceNetworkInterfaceAttachment>({
-    name: 'networkInterfaces',
-  })
+  const {
+    field: { value, onChange },
+  } = useController({ control, name: 'networkInterfaces' })
 
   return (
     <div className="max-w-lg space-y-5">
-      <RadioField
-        id="network-interface-type"
+      <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
+      <RadioGroup
+        aria-labelledby="network-interface-type-label"
         name="networkInterfaceType"
         column
-        label="Network interface"
         className="pt-1"
+        defaultChecked={value.type}
         onChange={(event) => {
           const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
 
@@ -36,14 +46,14 @@ export function NetworkInterfaceField() {
           }
 
           newType === 'create'
-            ? setValue({ type: newType, params: oldParams })
-            : setValue({ type: newType })
+            ? onChange({ type: newType, params: oldParams })
+            : onChange({ type: newType })
         }}
       >
         <Radio value="none">None</Radio>
         <Radio value="default">Default</Radio>
         <Radio value="create">Custom</Radio>
-      </RadioField>
+      </RadioGroup>
       {value.type === 'create' && (
         <>
           {value.params.length > 0 && (
@@ -69,7 +79,7 @@ export function NetworkInterfaceField() {
                     <MiniTable.Cell>
                       <button
                         onClick={() =>
-                          setValue({
+                          onChange({
                             type: 'create',
                             params: value.params.filter((i) => i.name !== item.name),
                           })
@@ -84,17 +94,18 @@ export function NetworkInterfaceField() {
             </MiniTable.Table>
           )}
 
-          <CreateNetworkInterfaceSideModalForm
-            isOpen={showForm}
-            onSubmit={(networkInterface) => {
-              setValue({
-                type: 'create',
-                params: [...value.params, networkInterface],
-              })
-              setShowForm(false)
-            }}
-            onDismiss={() => setShowForm(false)}
-          />
+          {showForm && (
+            <CreateNetworkInterfaceForm
+              onSubmit={(networkInterface) => {
+                onChange({
+                  type: 'create',
+                  params: [...value.params, networkInterface],
+                })
+                setShowForm(false)
+              }}
+              onDismiss={() => setShowForm(false)}
+            />
+          )}
           <div className="space-x-3">
             <Button variant="default" size="sm" onClick={() => setShowForm(true)}>
               Add network interface

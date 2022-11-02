@@ -2,12 +2,7 @@ import type { VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
-import {
-  DescriptionField,
-  NameField,
-  SideModalForm,
-  TextField,
-} from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 const defaultValues: VpcSubnetCreate = {
@@ -40,7 +35,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       submitDisabled={createSubnet.isLoading}
       submitError={createSubnet.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

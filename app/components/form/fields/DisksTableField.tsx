@@ -1,23 +1,29 @@
-import { useField } from 'formik'
 import { useState } from 'react'
+import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import type { DiskCreate, DiskIdentifier } from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
+import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
   | (DiskIdentifier & { type: 'attach' })
 
-export function DisksTableField() {
+/**
+ * Designed less for reuse, more to encapsulate logic that would otherwise
+ * clutter the instance create form.
+ */
+export function DisksTableField({ control }: { control: Control<InstanceCreateInput> }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  const [, { value: items = [] }, { setValue: setItems }] = useField<DiskTableItem[]>({
-    name: 'disks',
-  })
+  const {
+    field: { value: items, onChange },
+  } = useController({ control, name: 'disks' })
 
   return (
     <>
@@ -43,7 +49,7 @@ export function DisksTableField() {
                   <MiniTable.Cell>{item.type}</MiniTable.Cell>
                   <MiniTable.Cell>
                     <button
-                      onClick={() => setItems(items.filter((i) => i.name !== item.name))}
+                      onClick={() => onChange(items.filter((i) => i.name !== item.name))}
                     >
                       <Error16Icon title={`remove ${item.name}`} />
                     </button>
@@ -72,7 +78,7 @@ export function DisksTableField() {
       {showDiskCreate && (
         <CreateDiskSideModalForm
           onSubmit={(values) => {
-            setItems([...items, { type: 'create', ...values }])
+            onChange([...items, { type: 'create', ...values }])
             setShowDiskCreate(false)
           }}
           onDismiss={() => setShowDiskCreate(false)}
@@ -82,7 +88,7 @@ export function DisksTableField() {
         <AttachDiskSideModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {
-            setItems([...items, { type: 'attach', ...values }])
+            onChange([...items, { type: 'attach', ...values }])
             setShowDiskAttach(false)
           }}
         />

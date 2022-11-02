@@ -25,7 +25,7 @@ import {
   RadioField,
   SideModalForm,
   TextField,
-} from 'app/components/hook-form'
+} from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 export type FirewallRuleValues = {
@@ -444,7 +444,7 @@ export function CreateFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      {(control) => <CommonFields error={updateRules.error} control={control} />}
+      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
     </SideModalForm>
   )
 }

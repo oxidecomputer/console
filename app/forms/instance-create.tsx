@@ -1,11 +1,9 @@
-import * as Yup from 'yup'
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
+import type { SetRequired } from 'type-fest'
 
-import type {
-  Instance,
-  InstanceCreate,
-  InstanceNetworkInterfaceAttachment,
-} from '@oxide/api'
+import type { InstanceCreate } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { genName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -20,27 +18,26 @@ import {
 } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
+import { Form, FullPageForm } from 'app/components/form'
 import type { DiskTableItem } from 'app/components/form'
-import { CheckboxField } from 'app/components/form'
-import { FullPageForm } from 'app/components/form'
-import { DiskSizeField } from 'app/components/form'
 import {
+  CheckboxField,
   DescriptionField,
+  DiskSizeField,
   DisksTableField,
-  Form,
+  ImageSelectField,
   NameField,
   NetworkInterfaceField,
-  RadioField,
+  RadioFieldDyn,
   TextField,
 } from 'app/components/form'
-import { ImageSelectField } from 'app/components/form/fields/ImageSelectField'
-import type { CreateFormProps } from 'app/forms'
 import { useRequiredParams, useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-type InstanceCreateInput = Assign<
-  InstanceCreate,
+export type InstanceCreateInput = Assign<
+  // API accepts undefined but it's easier if we don't
+  SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
-    networkInterfaceType: InstanceNetworkInterfaceAttachment['type']
     type: typeof INSTANCE_SIZES[number]['id']
     disks: DiskTableItem[]
     bootDiskName: string
@@ -49,7 +46,7 @@ type InstanceCreateInput = Assign<
   }
 >
 
-const values: InstanceCreateInput = {
+const baseDefaultValues: InstanceCreateInput = {
   name: '',
   description: '',
   /**
@@ -67,27 +64,19 @@ const values: InstanceCreateInput = {
 
   disks: [],
   networkInterfaces: { type: 'default' },
-  /**
-   * This is a hack to ensure the network interface radio has a default selection.
-   * We actually don't care about this value outside of that.
-   */
-  networkInterfaceType: 'default',
 
   start: true,
 }
 
-export function CreateInstanceForm({
-  id = 'create-instance-form',
-  initialValues = values,
-  onSubmit,
-  onSuccess,
-  onDismiss,
-  onError,
-  ...props
-}: CreateFormProps<InstanceCreateInput, Instance>) {
+CreateInstanceForm.loader = async () => {
+  await apiQueryClient.prefetchQuery('systemImageList', {})
+}
+
+export function CreateInstanceForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const pageParams = useRequiredParams('orgName', 'projectName')
+  const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate')
 
@@ -106,178 +95,185 @@ export function CreateInstanceForm({
         title: 'Success!',
         content: 'Your instance has been created.',
       })
-      onSuccess?.(instance)
+      navigate(pb.instance({ ...pageParams, instanceName: instance.name }))
     },
-    onError,
   })
 
   const images = useApiQuery('systemImageList', {}).data?.items || []
 
-  initialValues.globalImage = images[0]?.id || ''
+  const defaultValues: InstanceCreateInput = {
+    ...baseDefaultValues,
+    globalImage: images[0]?.id || '',
+  }
 
   return (
     <FullPageForm
-      id={id}
-      initialValues={initialValues}
+      id="create-instance-form"
+      formOptions={{ defaultValues }}
       title="Create instance"
       icon={<Instances24Icon />}
-      validationSchema={Yup.object({
-        // needed to cover case where there are no images, in which case there
-        // are no individual radio fields marked required, which unfortunately
-        // is how required radio fields work
-        globalImage: Yup.string().required(),
-      })}
-      onSubmit={
-        onSubmit ||
-        (async (values) => {
-          const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
-          invariant(instance, 'Expected instance type to be defined')
-          const image = images.find((i) => values.globalImage === i.id)
-          invariant(image, 'Expected image to be defined')
+      // validationSchema={Yup.object({
+      //   // needed to cover case where there are no images, in which case there
+      //   // are no individual radio fields marked required, which unfortunately
+      //   // is how required radio fields work
+      //   globalImage: Yup.string().required(),
+      // })}
+      onSubmit={async (values) => {
+        const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
+        invariant(instance, 'Expected instance type to be defined')
+        const image = images.find((i) => values.globalImage === i.id)
+        invariant(image, 'Expected image to be defined')
 
-          const bootDiskName = values.bootDiskName || genName(values.name, image.name)
+        const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
-          await createDisk.mutateAsync({
-            path: pageParams,
-            body: {
-              // TODO: Determine the pattern of the default boot disk name
-              name: bootDiskName,
-              description: `Created as a boot disk for ${values.bootDiskName}`,
-              // TODO: Verify size is larger than the minimum image size
-              size: values.bootDiskSize * GiB,
-              diskSource: {
-                type: 'global_image',
-                imageId: values.globalImage,
-              },
+        await createDisk.mutateAsync({
+          path: pageParams,
+          body: {
+            // TODO: Determine the pattern of the default boot disk name
+            name: bootDiskName,
+            description: `Created as a boot disk for ${values.bootDiskName}`,
+            // TODO: Verify size is larger than the minimum image size
+            size: values.bootDiskSize * GiB,
+            diskSource: {
+              type: 'global_image',
+              imageId: values.globalImage,
             },
-          })
-          createInstance.mutate({
-            path: pageParams,
-            body: {
-              name: values.name,
-              hostname: values.hostname || values.name,
-              description: `An instance in project: ${pageParams.projectName}`,
-              memory: instance.memory * GiB,
-              ncpus: instance.ncpus,
-              disks: [
-                {
-                  type: 'attach',
-                  name: bootDiskName,
-                },
-                ...values.disks,
-              ],
-              externalIps: [{ type: 'ephemeral' }],
-              start: values.start,
-            },
-          })
+          },
         })
-      }
-      {...props}
+        createInstance.mutate({
+          path: pageParams,
+          body: {
+            name: values.name,
+            hostname: values.hostname || values.name,
+            description: `An instance in project: ${pageParams.projectName}`,
+            memory: instance.memory * GiB,
+            ncpus: instance.ncpus,
+            disks: [
+              {
+                type: 'attach',
+                name: bootDiskName,
+              },
+              ...values.disks,
+            ],
+            externalIps: [{ type: 'ephemeral' }],
+            start: values.start,
+            networkInterfaces: values.networkInterfaces,
+          },
+        })
+      }}
       submitDisabled={createDisk.isLoading || createInstance.isLoading}
-      error={(createDisk.error?.error || createInstance.error?.error) as Error | undefined}
+      submitError={createDisk.error || createInstance.error}
     >
-      <NameField id="name" />
-      <DescriptionField id="description" />
-      <CheckboxField id="start-instance" name="start" label="Start Instance">
-        Start Instance
-      </CheckboxField>
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <CheckboxField id="start-instance" name="start" control={control}>
+            Start Instance
+          </CheckboxField>
 
-      <Divider />
+          <Divider />
 
-      <Form.Heading id="hardware">Hardware</Form.Heading>
-      <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
-        <Tab>General Purpose</Tab>
-        <Tab.Panel>
-          <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
-            General purpose instances provide a good balance of CPU, memory, and high
-            performance storage; well suited for a wide range of use cases.
-          </TextInputHint>
-          <RadioField id="hw-general-purpose" name="type" label="">
-            {renderLargeRadioCards('general')}
-          </RadioField>
-        </Tab.Panel>
+          <Form.Heading id="hardware">Hardware</Form.Heading>
+          <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
+            <Tab>General Purpose</Tab>
+            <Tab.Panel>
+              <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+                General purpose instances provide a good balance of CPU, memory, and high
+                performance storage; well suited for a wide range of use cases.
+              </TextInputHint>
+              <RadioFieldDyn name="type" label="" control={control}>
+                {renderLargeRadioCards('general')}
+              </RadioFieldDyn>
+            </Tab.Panel>
 
-        <Tab>CPU Optimized</Tab>
-        <Tab.Panel>
-          <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
-            CPU optimized instances provide a good balance of...
-          </TextInputHint>
-          <RadioField id="hw-cpu-optimized" name="type" label="">
-            {renderLargeRadioCards('cpuOptimized')}
-          </RadioField>
-        </Tab.Panel>
+            <Tab>CPU Optimized</Tab>
+            <Tab.Panel>
+              <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
+                CPU optimized instances provide a good balance of...
+              </TextInputHint>
+              <RadioFieldDyn name="type" label="" control={control}>
+                {renderLargeRadioCards('cpuOptimized')}
+              </RadioFieldDyn>
+            </Tab.Panel>
 
-        <Tab>Memory optimized</Tab>
-        <Tab.Panel>
-          <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
-            CPU optimized instances provide a good balance of...
-          </TextInputHint>
-          <RadioField id="hw-mem-optimized" name="type" label="">
-            {renderLargeRadioCards('memoryOptimized')}
-          </RadioField>
-        </Tab.Panel>
+            <Tab>Memory optimized</Tab>
+            <Tab.Panel>
+              <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
+                CPU optimized instances provide a good balance of...
+              </TextInputHint>
+              <RadioFieldDyn name="type" label="" control={control}>
+                {renderLargeRadioCards('memoryOptimized')}
+              </RadioFieldDyn>
+            </Tab.Panel>
 
-        <Tab>Custom</Tab>
-        <Tab.Panel>
-          <TextInputHint id="hw-custom-help-text" className="mb-12 max-w-xl  text-sans-md">
-            Custom instances...
-          </TextInputHint>
-          <RadioField id="hw-custom" name="type" label="">
-            {renderLargeRadioCards('custom')}
-          </RadioField>
-        </Tab.Panel>
-      </Tabs>
+            <Tab>Custom</Tab>
+            <Tab.Panel>
+              <TextInputHint
+                // TODO: is this getting hooked up to the field with describedby?
+                id="hw-custom-help-text"
+                className="mb-12 max-w-xl  text-sans-md"
+              >
+                Custom instances...
+              </TextInputHint>
+              <RadioFieldDyn name="type" label="" control={control}>
+                {renderLargeRadioCards('custom')}
+              </RadioFieldDyn>
+            </Tab.Panel>
+          </Tabs>
 
-      <Divider />
+          <Divider />
 
-      <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-      <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
-        <Tab>Distros</Tab>
-        <Tab.Panel className="space-y-4">
-          {images.length === 0 && <span>No images found</span>}
-          <ImageSelectField
-            id="boot-disk-image"
-            name="globalImage"
-            images={images}
-            required
+          <Form.Heading id="boot-disk">Boot disk</Form.Heading>
+          <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
+            <Tab>Distros</Tab>
+            <Tab.Panel className="space-y-4">
+              {images.length === 0 && <span>No images found</span>}
+              <ImageSelectField images={images} required control={control} />
+
+              <NameField
+                id="boot-disk-name"
+                name="bootDiskName"
+                label="Disk name"
+                description="Will be autogenerated if name not provided"
+                required={false}
+                control={control}
+              />
+              <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
+            </Tab.Panel>
+            <Tab>Images</Tab>
+            <Tab.Panel>
+              <span>No images found</span>
+            </Tab.Panel>
+            <Tab>Snapshots</Tab>
+            <Tab.Panel>
+              <span>No snapshots found</span>
+            </Tab.Panel>
+          </Tabs>
+          <Divider />
+          <Form.Heading id="additional-disks">Additional disks</Form.Heading>
+
+          <DisksTableField control={control} />
+
+          <Divider />
+          <Form.Heading id="networking">Networking</Form.Heading>
+
+          <NetworkInterfaceField control={control} />
+
+          <TextField
+            name="hostname"
+            description="Will be generated if not provided"
+            control={control}
           />
 
-          <NameField
-            id="boot-disk-name"
-            name="bootDiskName"
-            label="Disk name"
-            description="Will be autogenerated if name not provided"
-            required={false}
-          />
-          <DiskSizeField id="disk-size" label="Disk size" name="bootDiskSize" />
-        </Tab.Panel>
-        <Tab>Images</Tab>
-        <Tab.Panel>
-          <span>No images found</span>
-        </Tab.Panel>
-        <Tab>Snapshots</Tab>
-        <Tab.Panel>
-          <span>No snapshots found</span>
-        </Tab.Panel>
-      </Tabs>
-      <Divider />
-      <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-
-      <DisksTableField />
-
-      <Divider />
-      <Form.Heading id="networking">Networking</Form.Heading>
-
-      <NetworkInterfaceField />
-
-      <TextField id="hostname" description="Will be generated if not provided" />
-
-      <Form.Actions>
-        <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
-          Create instance
-        </Form.Submit>
-        {onDismiss && <Form.Cancel onClick={onDismiss} />}
-      </Form.Actions>
+          <Form.Actions>
+            <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
+              Create instance
+            </Form.Submit>
+            <Form.Cancel onClick={() => navigate(pb.instances(pageParams))} />
+          </Form.Actions>
+        </>
+      )}
     </FullPageForm>
   )
 }

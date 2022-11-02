@@ -4,12 +4,7 @@ import type { VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import {
-  DescriptionField,
-  NameField,
-  SideModalForm,
-  TextField,
-} from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -50,7 +45,7 @@ export function CreateVpcSideModalForm() {
       submitDisabled={createVpc.isLoading}
       submitError={createVpc.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

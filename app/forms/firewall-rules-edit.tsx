@@ -1,7 +1,7 @@
 import type { VpcFirewallRule } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { SideModalForm } from 'app/components/hook-form'
+import { SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 import { CommonFields, valuesToRuleUpdate } from './firewall-rules-create'
@@ -71,7 +71,7 @@ export function EditFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Update rule"
     >
-      {(control) => <CommonFields error={updateRules.error} control={control} />}
+      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
     </SideModalForm>
   )
 }

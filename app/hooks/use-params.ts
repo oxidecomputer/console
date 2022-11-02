@@ -26,6 +26,7 @@ export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName
 
 export const useOrgParams = () => requireOrgParams(useParams())
 export const useProjectParams = () => requireProjectParams(useParams())
+export const useInstanceParams = () => requireInstanceParams(useParams())
 export const useVpcParams = () => requireVpcParams(useParams())
 
 /**
