@@ -7,6 +7,7 @@ const params = {
   instanceName: 'c',
   vpcName: 'd',
   siloName: 's',
+  interfaceName: 'i',
 }
 
 test('path builder', () => {
@@ -21,6 +22,7 @@ test('path builder', () => {
         "instanceNew": "/orgs/a/projects/b/instances-new",
         "instanceStorage": "/orgs/a/projects/b/instances/c/storage",
         "instances": "/orgs/a/projects/b/instances",
+        "nicEdit": "/orgs/a/projects/b/instances/c/network-interfaces/i/edit",
         "nics": "/orgs/a/projects/b/instances/c/network-interfaces",
         "org": "/orgs/a",
         "orgAccess": "/orgs/a/access",
