@@ -116,7 +116,7 @@ export function CreateInstanceForm() {
       //   // is how required radio fields work
       //   globalImage: Yup.string().required(),
       // })}
-      onSubmit={async (values) => {
+      onSubmit={(values) => {
         const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
         invariant(instance, 'Expected instance type to be defined')
         const image = images.find((i) => values.globalImage === i.id)
