@@ -924,4 +924,7 @@ export const handlers = makeHandlers({
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
   updatesRefresh: NotImplemented,
+  loginLocal: NotImplemented,
+  localIdpUserSetPassword: NotImplemented,
+  instanceSerialConsoleStream: NotImplemented,
 })
