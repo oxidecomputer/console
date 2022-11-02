@@ -1,5 +1,5 @@
-import { animated, config, useSpring } from '@react-spring/web'
-import { useEffect } from 'react'
+import cn from 'classnames'
+import { useEffect, useState } from 'react'
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
@@ -38,35 +38,32 @@ export default function RootLayout() {
 }
 
 function LoadingBar() {
-  const isLoading = useNavigation().state === 'loading'
+  const loading = useNavigation().state === 'loading'
 
-  const initialJump = useSpring(
-    isLoading
-      ? {
-          from: { width: '0%', opacity: 1 },
-          // TODO: would be nice to have the thing keep moving slowly instead of
-          // hanging out at 30% but I couldn't get it to look right
-          to: { width: '30%', opacity: 1 },
-          // start animation over if you nav while navving (technically if
-          // anything triggers another render while nav is happening, but the
-          // only thing that triggers renders in this function is useNavigation)
-          reset: isLoading,
-          // sometimes navs are instantaneous due to RQ cache. a small delay
-          // lets us avoid flashing the animation very briefly
-          delay: 5,
-        }
-      : {
-          to: {
-            width: '100%',
-            opacity: 0,
-            config: (key: string) => (key === 'opacity' ? config.molasses : config.stiff),
-          },
-        }
-  )
+  const [state, setState] = useState<'idle' | 'start' | 'middle' | 'done'>('idle')
+
+  console.log({ loading, state })
+
+  // one problem here is it's pretty hard to do a reset if we get another
+  // navigation while the current one is running
+
+  useEffect(() => {
+    // transition from idle to start
+    if (loading && state === 'idle') {
+      setState('start')
+      setTimeout(() => setState('middle'), 150)
+    }
+
+    // transition from loading to done
+    if (!loading && (state === 'start' || state === 'middle')) {
+      setState('done')
+      setTimeout(() => setState('idle'), 200)
+    }
+  }, [state, loading])
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <animated.div style={initialJump} className="h-px bg-accent" />
+      <div className={cn('global-loading-bar h-px bg-accent', state)} />
     </div>
   )
 }
