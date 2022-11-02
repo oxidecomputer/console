@@ -1,7 +1,6 @@
-import { animated, useSpring } from '@react-spring/web'
-import { useEffect, useState } from 'react'
+import { animated, config, useSpring } from '@react-spring/web'
+import { useEffect } from 'react'
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
-import type { Navigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
 
@@ -27,50 +26,47 @@ function useSetTitle() {
  * anything to actually belong here.
  */
 export default function RootLayout() {
-  const [prevNav, setPrevNav] = useState<Navigation>()
-  const [width, setWidth] = useState('0%')
-  const [reset, setReset] = useState(false)
-
   useSetTitle()
-  const navigation = useNavigation()
 
-  if (!prevNav) {
-    setPrevNav(navigation)
-  } else if (prevNav.state !== navigation.state) {
-    setPrevNav(navigation)
-
-    if (prevNav && navigation.location && prevNav.location === undefined) {
-      setWidth('0%')
-      setReset(true)
-    } else {
-      setReset(false)
-    }
-
-    if (navigation.state === 'idle' && prevNav.state === 'loading') {
-      setWidth('100%')
-    }
-
-    if (prevNav && navigation.state === 'loading' && prevNav.state === 'idle') {
-      setWidth('10%')
-    }
-  }
-
-  const style = useSpring({
-    from: { width: '0%' },
-    to: { width: width },
-    reset: reset,
-    onRest: () => {
-      setWidth('0%')
-      setReset(true)
-    },
-  })
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 h-0.5">
-        <animated.div style={style} className="h-0.5 bg-accent" />
-      </div>
+      <LoadingBar />
       <Outlet />
       <ScrollRestoration />
     </>
+  )
+}
+
+function LoadingBar() {
+  const isLoading = useNavigation().state === 'loading'
+
+  const initialJump = useSpring(
+    isLoading
+      ? {
+          from: { width: '0%', opacity: 1 },
+          // TODO: would be nice to have the thing keep moving slowly instead of
+          // hanging out at 30% but I couldn't get it to look right
+          to: { width: '30%', opacity: 1 },
+          // start animation over if you nav while navving (technically if
+          // anything triggers another render while nav is happening, but the
+          // only thing that triggers renders in this function is useNavigation)
+          reset: isLoading,
+          // sometimes navs are instantaneous due to RQ cache. a small delay
+          // lets us avoid flashing the animation very briefly
+          delay: 5,
+        }
+      : {
+          to: {
+            width: '100%',
+            opacity: 0,
+            config: (key: string) => (key === 'opacity' ? config.molasses : config.stiff),
+          },
+        }
+  )
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <animated.div style={initialJump} className="h-px bg-accent" />
+    </div>
   )
 }
