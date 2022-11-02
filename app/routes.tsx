@@ -188,7 +188,7 @@ export const routes = createRoutesFromElements(
                     path=":interfaceName/edit"
                     element={<EditNetworkInterfaceForm />}
                     loader={EditNetworkInterfaceForm.loader}
-                    handle={{ crumb: 'Edit VPC' }}
+                    handle={{ crumb: 'Edit Network Interface' }}
                   />
                 </Route>
                 <Route
