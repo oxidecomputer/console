@@ -78,8 +78,6 @@ export function CreateInstanceForm() {
   const pageParams = useRequiredParams('orgName', 'projectName')
   const navigate = useNavigate()
 
-  const createDisk = useApiMutation('diskCreate')
-
   const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
@@ -126,20 +124,6 @@ export function CreateInstanceForm() {
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
-        await createDisk.mutateAsync({
-          path: pageParams,
-          body: {
-            // TODO: Determine the pattern of the default boot disk name
-            name: bootDiskName,
-            description: `Created as a boot disk for ${values.bootDiskName}`,
-            // TODO: Verify size is larger than the minimum image size
-            size: values.bootDiskSize * GiB,
-            diskSource: {
-              type: 'global_image',
-              imageId: values.globalImage,
-            },
-          },
-        })
         createInstance.mutate({
           path: pageParams,
           body: {
@@ -150,8 +134,17 @@ export function CreateInstanceForm() {
             ncpus: instance.ncpus,
             disks: [
               {
-                type: 'attach',
+                type: 'create',
+                // TODO: Determine the pattern of the default boot disk name
                 name: bootDiskName,
+                description: `Created as a boot disk for ${values.name}`,
+
+                // TODO: Verify size is larger than the minimum image size
+                size: values.bootDiskSize * GiB,
+                diskSource: {
+                  type: 'global_image',
+                  imageId: values.globalImage,
+                },
               },
               ...values.disks,
             ],
@@ -161,8 +154,8 @@ export function CreateInstanceForm() {
           },
         })
       }}
-      submitDisabled={createDisk.isLoading || createInstance.isLoading}
-      submitError={createDisk.error || createInstance.error}
+      submitDisabled={createInstance.isLoading}
+      submitError={createInstance.error}
     >
       {({ control }) => (
         <>
@@ -267,9 +260,7 @@ export function CreateInstanceForm() {
           />
 
           <Form.Actions>
-            <Form.Submit loading={createDisk.isLoading || createInstance.isLoading}>
-              Create instance
-            </Form.Submit>
+            <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
             <Form.Cancel onClick={() => navigate(pb.instances(pageParams))} />
           </Form.Actions>
         </>
