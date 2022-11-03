@@ -60,7 +60,7 @@ function LoadingBar() {
 
   useEffect(() => {
     const loading = navigation.state === 'loading'
-    const el = ref?.current
+    const el = ref.current
     if (el) {
       if (loading) {
         // Remove class and force reflow. Without this, the animation does not
