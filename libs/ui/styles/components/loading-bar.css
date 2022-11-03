@@ -3,24 +3,41 @@
   width: 0%;
 }
 
-.global-loading-bar.start {
-  opacity: 1;
-  width: 20%;
-
-  transition: width 0.15s ease-out;
-}
-
-.global-loading-bar.middle {
-  opacity: 1;
-  width: 75%;
-
-  transition: width 2s ease-out;
+.global-loading-bar.loading {
+  animation-name: loading-bar-loading;
+  animation-duration: 1.5s;
 }
 
 .global-loading-bar.done {
-  opacity: 0;
-  width: 100%;
+  animation-name: loading-bar-done;
+  animation-duration: 0.3s;
+}
 
-  /* opacity uses https://easings.net/#easeInQuart */
-  transition: opacity 0.2s cubic-bezier(0.5, 0, 0.75, 0), width 0.2s ease-out;
+@keyframes loading-bar-loading {
+  0% {
+    opacity: 1;
+    width: 0%;
+  }
+
+  10% {
+    opacity: 1;
+    width: 20%;
+  }
+
+  100% {
+    opacity: 1;
+    width: 40%;
+  }
+}
+
+@keyframes loading-bar-done {
+  0% {
+    opacity: 1;
+    width: 40%;
+  }
+
+  100% {
+    opacity: 0;
+    width: 100%;
+  }
 }
