@@ -13,11 +13,9 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
-        "appearance": "/settings/appearance",
         "deviceSuccess": "/device/success",
         "diskNew": "/orgs/a/projects/b/disks-new",
         "disks": "/orgs/a/projects/b/disks",
-        "hotkeys": "/settings/hotkeys",
         "instance": "/orgs/a/projects/b/instances/c",
         "instanceNew": "/orgs/a/projects/b/instances-new",
         "instances": "/orgs/a/projects/b/instances",
@@ -42,6 +40,7 @@ test('path builder', () => {
         "silos": "/sys/silos",
         "snapshotNew": "/orgs/a/projects/b/snapshots-new",
         "snapshots": "/orgs/a/projects/b/snapshots",
+        "sshKeyNew": "/settings/ssh-keys-new",
         "sshKeys": "/settings/ssh-keys",
         "system": "/sys",
         "systemHealth": "/sys/health",

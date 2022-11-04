@@ -1,21 +1,29 @@
-import type { Organization, OrganizationCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
-import type { EditSideModalFormProps } from 'app/components/hook-form'
-import { useToast } from 'app/hooks'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-export function EditOrgSideModalForm({
-  title = 'Edit organization',
-  defaultValues,
-  onSuccess,
-  onError,
-  onDismiss,
-  isOpen,
-}: EditSideModalFormProps<OrganizationCreate, Organization>) {
+EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('organizationView', {
+    path: requireOrgParams(params),
+  })
+}
+
+export function EditOrgSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
+
+  const { orgName } = useOrgParams()
+
+  const onDismiss = () => navigate(pb.orgs())
+
+  const { data: org } = useApiQuery('organizationView', { path: { orgName } })
 
   const updateOrg = useApiMutation('organizationUpdate', {
     onSuccess(org) {
@@ -28,30 +36,27 @@ export function EditOrgSideModalForm({
         content: 'Your organization has been updated.',
         timeout: 5000,
       })
-      onSuccess?.(org)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
       id="edit-org-form"
-      formOptions={{ defaultValues }}
-      title={title}
+      formOptions={{ defaultValues: org }}
+      title="Edit organization"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         updateOrg.mutate({
-          path: { orgName: defaultValues.name },
+          path: { orgName },
           body: { name, description },
         })
       }
       submitDisabled={updateOrg.isLoading}
-      error={updateOrg.error?.error as Error | undefined}
+      submitError={updateOrg.error}
       submitLabel="Save changes"
-      isOpen={isOpen}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

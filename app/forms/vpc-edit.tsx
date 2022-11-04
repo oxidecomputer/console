@@ -1,32 +1,30 @@
-import invariant from 'tiny-invariant'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import type { Vpc, VpcUpdate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditSideModalFormProps } from 'app/forms'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { requireVpcParams, useToast, useVpcParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
-const values: VpcUpdate = {
-  name: '',
-  description: '',
-  dnsName: '',
+EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('vpcView', {
+    path: requireVpcParams(params),
+  })
 }
 
-export function EditVpcSideModalForm({
-  id = 'edit-vpc-form',
-  title = 'Edit VPC',
-  initialValues = values,
-  onSubmit,
-  onSuccess,
-  onDismiss,
-  onError,
-  ...props
-}: EditSideModalFormProps<VpcUpdate, Vpc>) {
-  const parentNames = useRequiredParams('orgName', 'projectName')
+export function EditVpcSideModalForm() {
+  const vpcParams = useVpcParams()
+  const parentNames = { orgName: vpcParams.orgName, projectName: vpcParams.projectName }
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
+
+  const { data: vpc } = useApiQuery('vpcView', { path: vpcParams })
+
+  const onDismiss = () => navigate(pb.vpcs(parentNames))
 
   const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
@@ -41,38 +39,33 @@ export function EditVpcSideModalForm({
         title: 'Success!',
         content: 'Your VPC has been created.',
       })
-      onSuccess?.(vpc)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="edit-vpc-form"
+      title="Edit VPC"
+      formOptions={{ defaultValues: vpc }}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ??
-        (({ name, description, dnsName }) => {
-          invariant(initialValues.name, 'Initial vpc name is required to update the VPC')
-          editVpc.mutate({
-            path: { ...parentNames, vpcName: initialValues.name },
-            body: { name, description, dnsName },
-          })
+      onSubmit={({ name, description, dnsName }) => {
+        editVpc.mutate({
+          path: vpcParams,
+          body: { name, description, dnsName },
         })
-      }
+      }}
       submitDisabled={editVpc.isLoading}
-      error={editVpc.error?.error as Error | undefined}
-      {...props}
+      submitLabel="Save changes"
+      submitError={editVpc.error}
     >
-      <NameField id="vpc-name" />
-      <DescriptionField id="vpc-description" />
-      <NameField id="vpc-dns-name" name="dnsName" label="DNS name" required={false} />
-      <Form.Submit>Save changes</Form.Submit>
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <NameField name="dnsName" label="DNS name" required={false} control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default EditVpcSideModalForm

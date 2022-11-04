@@ -1,4 +1,4 @@
-import { expect, expectVisible, test } from 'app/test/e2e'
+import { expect, expectNotVisible, expectVisible, test } from 'app/test/e2e'
 
 test.beforeEach(async ({ page, createVpc, orgName, projectName, vpcName }) => {
   await createVpc(orgName, projectName, vpcName)
@@ -12,10 +12,10 @@ test.fixme('Expect no firewall rules by default', async ({ page }) => {
 })
 
 test('Can create a firewall rule', async ({ page, genName }) => {
-  const modal = page.locator('text="Add firewall rule"')
   await page.locator('text="New rule"').first().click()
 
-  await expect(modal).toBeVisible()
+  const modal = 'role=dialog[name="Add firewall rule"]'
+  await expectVisible(page, [modal])
 
   const rule = genName('rule-1')
   await page.fill('input[name=name]', rule)
@@ -29,7 +29,7 @@ test('Can create a firewall rule', async ({ page, genName }) => {
   await page.locator('text="Add rule"').click()
 
   // modal closes again
-  await expect(modal).not.toBeVisible()
+  await expectNotVisible(page, [modal])
 
   // table refetches and now includes the new rule
   await expect(page.locator(`td >> text="${rule}"`)).toBeVisible()

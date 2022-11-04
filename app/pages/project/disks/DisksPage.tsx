@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
 import { genName } from '@oxide/api'
@@ -21,7 +22,6 @@ import {
 } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import CreateDiskSideModalForm from 'app/forms/disk-create'
 import {
   requireProjectParams,
   useProjectParams,
@@ -60,10 +60,6 @@ const EmptyState = () => (
   />
 )
 
-interface DisksPageProps {
-  modal?: 'createDisk'
-}
-
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('diskList', {
     path: requireProjectParams(params),
@@ -71,9 +67,7 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-export function DisksPage({ modal }: DisksPageProps) {
-  const navigate = useNavigate()
-
+export function DisksPage() {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
@@ -162,10 +156,7 @@ export function DisksPage({ modal }: DisksPageProps) {
         />
         <Column header="Created" accessor="timeCreated" cell={DateCell} />
       </Table>
-      <CreateDiskSideModalForm
-        isOpen={modal === 'createDisk'}
-        onDismiss={() => navigate(pb.disks({ orgName, projectName }))}
-      />
+      <Outlet />
     </>
   )
 }

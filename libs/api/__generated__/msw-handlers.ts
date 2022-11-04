@@ -101,6 +101,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.GroupResultsPage>
   /** `POST /login` */
   loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
+  /** `POST /login/:siloName/local` */
+  loginLocal: (params: {
+    path: Api.LoginLocalPathParams
+    body: Json<Api.UsernamePasswordCredentials>
+  }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
   loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
@@ -259,6 +264,10 @@ export interface MSWHandlers {
     path: Api.InstanceSerialConsolePathParams
     query: Api.InstanceSerialConsoleQueryParams
   }) => HandlerResult<Api.InstanceSerialConsoleData>
+  /** `GET /organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console/stream` */
+  instanceSerialConsoleStream: (params: {
+    path: Api.InstanceSerialConsoleStreamPathParams
+  }) => StatusCode
   /** `POST /organizations/:orgName/projects/:projectName/instances/:instanceName/start` */
   instanceStart: (params: {
     path: Api.InstanceStartPathParams
@@ -539,6 +548,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.User>
   /** `DELETE /system/silos/:siloName/identity-providers/local/users/:userId` */
   localIdpUserDelete: (params: { path: Api.LocalIdpUserDeletePathParams }) => StatusCode
+  /** `POST /system/silos/:siloName/identity-providers/local/users/:userId/set-password` */
+  localIdpUserSetPassword: (params: {
+    path: Api.LocalIdpUserSetPasswordPathParams
+    body: Json<Api.UserPassword>
+  }) => StatusCode
   /** `POST /system/silos/:siloName/identity-providers/saml` */
   samlIdentityProviderCreate: (params: {
     path: Api.SamlIdentityProviderCreatePathParams
@@ -714,6 +728,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
     rest.get('/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
+    rest.post(
+      '/login/:siloName/local',
+      handler(
+        handlers['loginLocal'],
+        schema.LoginLocalParams,
+        schema.UsernamePasswordCredentials
+      )
+    ),
     rest.get(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
@@ -914,6 +936,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console',
       handler(handlers['instanceSerialConsole'], schema.InstanceSerialConsoleParams, null)
+    ),
+    rest.get(
+      '/organizations/:orgName/projects/:projectName/instances/:instanceName/serial-console/stream',
+      handler(
+        handlers['instanceSerialConsoleStream'],
+        schema.InstanceSerialConsoleStreamParams,
+        null
+      )
     ),
     rest.post(
       '/organizations/:orgName/projects/:projectName/instances/:instanceName/start',
@@ -1246,6 +1276,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/system/silos/:siloName/identity-providers/local/users/:userId',
       handler(handlers['localIdpUserDelete'], schema.LocalIdpUserDeleteParams, null)
+    ),
+    rest.post(
+      '/system/silos/:siloName/identity-providers/local/users/:userId/set-password',
+      handler(
+        handlers['localIdpUserSetPassword'],
+        schema.LocalIdpUserSetPasswordParams,
+        schema.UserPassword
+      )
     ),
     rest.post(
       '/system/silos/:siloName/identity-providers/saml',

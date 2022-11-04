@@ -1,21 +1,22 @@
+import type { FieldPath, FieldValues } from 'react-hook-form'
+
 import { capitalize } from '@oxide/util'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
 
-export interface NameFieldProps extends Omit<TextFieldProps, 'name' | 'validate'> {
-  name?: string
-}
-
-export function NameField({
+export function NameField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({
   required = true,
-  name = 'name',
+  name,
   label = capitalize(name),
   ...textFieldProps
-}: NameFieldProps) {
+}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & { label?: string }) {
   return (
     <TextField
-      validate={getNameValidator(label, required)}
+      validate={(name) => validateName(name, label, required)}
       required={required}
       label={label}
       name={name}
@@ -25,7 +26,7 @@ export function NameField({
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
-export const getNameValidator = (label: string, required: boolean) => (name: string) => {
+export const validateName = (name: string, label: string, required: boolean) => {
   if (!required && !name) return
 
   if (name.length === 0) {

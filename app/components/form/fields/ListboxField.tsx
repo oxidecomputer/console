@@ -1,35 +1,47 @@
 import cn from 'classnames'
-import { useField } from 'formik'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
-import type { ListboxProps } from '@oxide/ui'
+import type { ListboxItem } from '@oxide/ui'
 import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
+import { capitalize } from '@oxide/util'
 
-export type ListboxFieldProps = {
-  name: string
-  id: string
+import { useUuid } from 'app/hooks'
+
+import { ErrorMessage } from './ErrorMessage'
+
+export type ListboxFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+> = {
+  name: TName
   className?: string
-  label: string
+  label?: string
   required?: boolean
   helpText?: string
   description?: string
-} & Pick<ListboxProps, 'disabled' | 'items' | 'onChange'>
+  control: Control<TFieldValues>
+  disabled?: boolean
+  items: ListboxItem[]
+}
 
-export function ListboxField({
-  id,
+export function ListboxField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({
   items,
-  label,
   name,
+  label = capitalize(name),
   disabled,
   required,
   description,
   helpText,
-  onChange,
   className,
-}: ListboxFieldProps) {
-  const [, { value }, { setValue }] = useField<string | undefined>({
-    name,
-    validate: (v) => (required && !v ? `${name} is required` : undefined),
-  })
+  control,
+}: ListboxFieldProps<TFieldValues, TName>) {
+  // TODO: recreate this logic
+  //   validate: (v) => (required && !v ? `${name} is required` : undefined),
+  const id = useUuid(name)
   return (
     <div className={cn('max-w-lg', className)}>
       <div className="mb-2">
@@ -38,19 +50,30 @@ export function ListboxField({
         </FieldLabel>
         {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
-      <Listbox
-        defaultValue={value}
-        items={items}
-        onChange={(i) => {
-          setValue(i?.value)
-          onChange?.(i)
-        }}
-        disabled={disabled}
-        aria-labelledby={cn(`${id}-label`, {
-          [`${id}-help-text`]: !!description,
-        })}
-        aria-describedby={description ? `${id}-label-tip` : undefined}
+      <Controller
         name={name}
+        rules={{ required }}
+        control={control}
+        render={({ field: { onBlur, onChange, value }, fieldState: { error } }) => (
+          <>
+            <Listbox
+              defaultValue={value}
+              items={items}
+              onChange={(i) => {
+                if (i) onChange(i.value)
+              }}
+              // required to get required error to trigger on blur
+              onBlur={onBlur}
+              disabled={disabled}
+              aria-labelledby={cn(`${id}-label`, {
+                [`${id}-help-text`]: !!description,
+              })}
+              aria-describedby={description ? `${id}-label-tip` : undefined}
+              name={name}
+            />
+            <ErrorMessage error={error} label={label} />
+          </>
+        )}
       />
     </div>
   )

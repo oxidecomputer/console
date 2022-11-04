@@ -1,6 +1,11 @@
 import { subHours } from 'date-fns'
 
+import type { DiskCreate, DiskCreatePathParams } from '@oxide/api'
+import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
+import { GiB } from '@oxide/util'
+
+import { db } from './db'
 
 export { json } from '@oxide/gen/msw-handlers'
 
@@ -84,5 +89,32 @@ export const errIfExists = <T extends Record<string, unknown>>(
     )
   ) {
     throw json({ error_code: 'ObjectAlreadyExists' }, { status: 400 })
+  }
+}
+
+export const errIfInvalidDiskSize = (
+  params: DiskCreatePathParams,
+  disk: Json<DiskCreate>
+) => {
+  const source = disk.disk_source
+  if (source.type === 'snapshot') {
+    const snapshotSize = db.snapshots.find((s) => source.snapshot_id === s.id)?.size ?? 0
+    if (disk.size >= snapshotSize) return
+    throw 'Disk size must be greater than or equal to the snapshot size'
+  }
+  if (source.type === 'image') {
+    const imageSize = db.images.find((i) => source.image_id === i.id)?.size ?? 0
+    if (disk.size >= imageSize) return
+    throw 'Disk size must be greater than or equal to the image size'
+  }
+  if (source.type === 'global_image') {
+    const globalImageSize = db.globalImages.find((i) => source.image_id === i.id)?.size ?? 0
+    if (disk.size >= globalImageSize) return
+    throw 'Disk size must be greater than or equal to the global image size'
+  }
+  if (source.type === 'blank') {
+    if (disk.size >= 1 * GiB) return
+    // TODO: this is a bit arbitrary, should match whatever the API does
+    throw 'Minimum disk size is 1 GiB'
   }
 }

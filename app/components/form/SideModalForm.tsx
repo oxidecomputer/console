@@ -1,57 +1,96 @@
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { useNavigationType } from 'react-router-dom'
 
-import { SideModal } from '@oxide/ui'
-import { flattenChildren, pluckFirstOfType } from '@oxide/util'
+import type { ErrorResult } from '@oxide/api'
+import { Error12Icon } from '@oxide/ui'
+import { Button, SideModal } from '@oxide/ui'
 
-import type { FormProps } from './Form'
-import { Form } from './Form'
-
-interface SideModalFormProps<Values> extends Omit<FormProps<Values>, 'setSubmitState'> {
-  isOpen: boolean
+type SideModalFormProps<TFieldValues extends FieldValues> = {
+  id: string
+  formOptions: UseFormProps<TFieldValues>
+  /**
+   * A function that returns the fields.
+   *
+   * Implemented as a function so we can pass `control` to the fields in the
+   * calling code. We could do that internally with `cloneElement` instead, but
+   * then in the calling code, the field would not infer `TFieldValues` and
+   * constrain the `name` prop to paths in the values object.
+   */
+  children: (form: UseFormReturn<TFieldValues>) => ReactNode
   onDismiss: () => void
   submitDisabled?: boolean
-  error?: Error
-  title: ReactNode
+  /** Error from the API call */
+  submitError: ErrorResult | null
+  title: string
+  onSubmit: (values: TFieldValues) => void
+  submitLabel?: string
 }
 
-export function SideModalForm<Values extends Record<string, unknown>>({
+export function SideModalForm<TFieldValues extends FieldValues>({
   id,
+  formOptions,
   children,
   onDismiss,
-  isOpen,
   submitDisabled = false,
-  error,
+  submitError,
   title,
-  ...formProps
-}: SideModalFormProps<Values>) {
-  const [submitState, setSubmitState] = useState(true)
-  const childArray = flattenChildren(children)
-  const submit = pluckFirstOfType(childArray, Form.Submit)
+  onSubmit,
+  submitLabel,
+}: SideModalFormProps<TFieldValues>) {
+  // TODO: RHF docs warn about the performance impact of validating on every
+  // change
+  const form = useForm({ mode: 'all', ...formOptions })
+
+  const { isDirty, isValid } = form.formState
+
+  const canSubmit = isDirty && isValid
+
+  /**
+   * Only animate the modal in when we're navigating by a client-side click.
+   * Don't animate on a fresh pageload or on back/forward. The latter may be
+   * slightly awkward but it also makes some sense. I do not believe there is
+   * any way to distinguish between fresh pageload and back/forward.
+   */
+  const animate = useNavigationType() === 'PUSH'
 
   return (
-    <SideModal onDismiss={onDismiss} isOpen={isOpen}>
-      {title && <SideModal.Title id={`${id}-title`}>{title}</SideModal.Title>}
+    <SideModal onDismiss={onDismiss} isOpen title={title} animate={animate}>
       <SideModal.Body>
-        <Form
+        <form
           id={id}
-          className="is-side-modal"
-          setSubmitState={setSubmitState}
-          {...formProps}
+          className="ox-form is-side-modal"
+          autoComplete="off"
+          onSubmit={(e) => {
+            // This modal being in a portal doesn't prevent the submit event
+            // from bubbling up out of the portal. Normally that's not a
+            // problem, but sometimes (e.g., instance create) we render the
+            // SideModalForm from inside another form, in which case submitting
+            // the inner form submits the outer form unless we stop propagation
+            e.stopPropagation()
+            form.handleSubmit(onSubmit)(e)
+          }}
         >
-          {childArray}
-        </Form>
+          {children(form)}
+        </form>
       </SideModal.Body>
       <SideModal.Footer>
-        <Form.Actions
-          formId={id}
-          submitDisabled={submitDisabled || !submitState}
-          error={error}
-          className="flex-row-reverse"
-        >
-          {submit || <Form.Submit>{title}</Form.Submit>}
-          <Form.Cancel onClick={onDismiss} />
-        </Form.Actions>
+        <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
+          {/* TODO: Better error component here */}
+          {submitError?.error && 'message' in submitError.error && (
+            <div className="flex grow items-start text-mono-sm text-error">
+              <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+              <span>{submitError.error.message}</span>
+            </div>
+          )}
+          <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
+            Cancel
+          </Button>
+          <Button type="submit" size="sm" disabled={submitDisabled || !canSubmit} form={id}>
+            {submitLabel || title}
+          </Button>
+        </div>
       </SideModal.Footer>
     </SideModal>
   )

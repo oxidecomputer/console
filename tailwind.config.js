@@ -7,6 +7,7 @@ const {
   textUtilities,
   colorUtilities,
   borderRadiusTokens,
+  elevationUtilities,
 } = require('@oxide/design-system/styles/dist/tailwind-tokens')
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
@@ -68,6 +69,7 @@ module.exports = {
           appearance: 'textfield',
         },
       })
+      addUtilities(elevationUtilities)
     }),
   ],
 }

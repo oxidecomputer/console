@@ -5,7 +5,7 @@ import type { Json } from './json-type'
 export const globalImages: Json<GlobalImage>[] = [
   {
     id: 'ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b',
-    name: 'ubuntu-22.04',
+    name: 'ubuntu-22-04',
     description: 'Latest Ubuntu LTS',
     distribution: 'ubuntu',
     version: '22.04',
@@ -16,7 +16,7 @@ export const globalImages: Json<GlobalImage>[] = [
   },
   {
     id: 'a2ea1d7a-cc5a-4fda-a400-e2d2b18f53c5',
-    name: 'ubuntu-20.04',
+    name: 'ubuntu-20-04',
     description: 'Previous LTS',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),

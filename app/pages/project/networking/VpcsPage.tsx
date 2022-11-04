@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -15,8 +16,6 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import CreateVpcSideModalForm from 'app/forms/vpc-create'
-import EditVpcSideModalForm from 'app/forms/vpc-edit'
 import {
   requireProjectParams,
   useProjectParams,
@@ -44,14 +43,9 @@ VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-interface VpcsPageProps {
-  modal?: 'createVpc' | 'editVpc'
-}
-
-export function VpcsPage({ modal }: VpcsPageProps) {
+export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const location = useLocation()
   const { data: vpcs } = useApiQuery('vpcList', {
     path: { orgName, projectName },
     query: { limit: 10 }, // to have same params as QueryTable
@@ -91,8 +85,6 @@ export function VpcsPage({ modal }: VpcsPageProps) {
     )
   )
 
-  const backToVpcs = () => navigate(pb.vpcs({ orgName, projectName }))
-
   const { Table, Column } = useQueryTable('vpcList', { path: { orgName, projectName } })
   return (
     <>
@@ -116,16 +108,7 @@ export function VpcsPage({ modal }: VpcsPageProps) {
         <Column accessor="description" />
         <Column accessor="timeCreated" cell={DateCell} />
       </Table>
-      <CreateVpcSideModalForm
-        isOpen={modal === 'createVpc'}
-        onDismiss={backToVpcs}
-        onSuccess={backToVpcs}
-      />
-      <EditVpcSideModalForm
-        isOpen={modal === 'editVpc'}
-        onDismiss={backToVpcs}
-        initialValues={location.state}
-      />
+      <Outlet />
     </>
   )
 }

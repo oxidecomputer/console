@@ -1,27 +1,19 @@
 import { useNavigate } from 'react-router-dom'
 
-import type { Organization, OrganizationCreate } from '@oxide/api'
+import type { OrganizationCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import type { CreateSideModalFormProps } from 'app/components/hook-form'
-import { DescriptionField, NameField, SideModalForm } from 'app/components/hook-form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const values = {
+const defaultValues: OrganizationCreate = {
   name: '',
   description: '',
 }
 
-export function CreateOrgSideModalForm({
-  title = 'Create organization',
-  defaultValues = values,
-  onSuccess,
-  onError,
-  onDismiss,
-  isOpen,
-}: CreateSideModalFormProps<OrganizationCreate, Organization>) {
+export function CreateOrgSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -37,24 +29,21 @@ export function CreateOrgSideModalForm({
         title: 'Success!',
         content: 'Your organization has been created.',
       })
-      onSuccess?.(org)
       navigate(pb.projects(orgParams))
     },
-    onError,
   })
 
   return (
     <SideModalForm
       id="create-org-form"
       formOptions={{ defaultValues }}
-      title={title}
-      onDismiss={onDismiss}
+      title="Create organization"
+      onDismiss={() => navigate(pb.orgs())}
       onSubmit={(values) => createOrg.mutate({ body: values })}
       submitDisabled={createOrg.isLoading}
-      error={createOrg.error?.error as Error | undefined}
-      isOpen={isOpen}
+      submitError={createOrg.error}
     >
-      {(control) => (
+      {({ control }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />

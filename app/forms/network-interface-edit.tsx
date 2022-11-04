@@ -1,69 +1,59 @@
 import invariant from 'tiny-invariant'
 
-import type { NetworkInterface, NetworkInterfaceUpdate } from '@oxide/api'
+import type { NetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { pick } from '@oxide/util'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditSideModalFormProps } from 'app/forms'
-import { useAllParams } from 'app/hooks'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { useInstanceParams } from 'app/hooks'
 
-export default function EditNetworkInterfaceSideModalForm({
-  id = 'edit-network-interface-form',
-  title = 'Edit network interface',
-  onSubmit,
-  onSuccess,
-  onError,
+type EditNetworkInterfaceFormProps = {
+  editing: NetworkInterface
+  onDismiss: () => void
+}
+
+export default function EditNetworkInterfaceForm({
   onDismiss,
-  initialValues,
-  ...props
-}: EditSideModalFormProps<NetworkInterfaceUpdate, NetworkInterface>) {
+  editing,
+}: EditNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
+  const { orgName, projectName, instanceName } = useInstanceParams()
 
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
-    onSuccess(data) {
+    onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         path: { orgName, projectName, instanceName },
       })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
+
+  const defaultValues = pick(editing, 'name', 'description') // satisfies NetworkInterfaceUpdate
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="edit-network-interface-form"
+      title="Edit network interface"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        ((body) => {
-          const interfaceName = initialValues.name
-          invariant(
-            interfaceName,
-            'interfaceName is required when updating a network interface'
-          )
-          invariant(
-            instanceName,
-            'instanceName is required when posting a network interface'
-          )
-
-          editNetworkInterface.mutate({
-            path: { orgName, projectName, instanceName, interfaceName },
-            body,
-          })
+      onSubmit={(body) => {
+        const interfaceName = defaultValues.name
+        editNetworkInterface.mutate({
+          path: { orgName, projectName, instanceName, interfaceName },
+          body,
         })
-      }
+      }}
       submitDisabled={editNetworkInterface.isLoading}
-      error={editNetworkInterface.error?.error as Error | undefined}
-      {...props}
+      submitError={editNetworkInterface.error}
+      submitLabel="Save changes"
     >
-      <NameField id="nic-name" />
-      <DescriptionField id="nic-description" />
-      <Form.Submit>Save changes</Form.Submit>
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }

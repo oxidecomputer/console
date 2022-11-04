@@ -10,7 +10,7 @@ import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
-import CreateDiskSideModalForm from 'app/forms/disk-create'
+import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { useRequiredParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
@@ -160,26 +160,19 @@ export function StorageTab() {
           </span>
         )}
       </div>
-      <CreateDiskSideModalForm
-        isOpen={showDiskCreate}
-        onDismiss={() => setShowDiskCreate(false)}
-        onSuccess={(disk) => {
-          setShowDiskCreate(false)
-          attachDisk.mutate({
-            path: instanceParams,
-            body: {
-              name: disk.name,
-            },
-          })
-        }}
-      />
-      <AttachDiskSideModalForm
-        isOpen={showDiskAttach}
-        onSuccess={() => {
-          setShowDiskAttach(false)
-        }}
-        onDismiss={() => setShowDiskAttach(false)}
-      />
+      {showDiskCreate && (
+        <CreateDiskSideModalForm
+          onDismiss={() => setShowDiskCreate(false)}
+          onSuccess={({ name }) => {
+            // TODO: this should probably be done with `mutateAsync` and
+            // awaited, but it's a pain, so punt for now
+            attachDisk.mutate({ path: instanceParams, body: { name } })
+          }}
+        />
+      )}
+      {showDiskAttach && (
+        <AttachDiskSideModalForm onDismiss={() => setShowDiskAttach(false)} />
+      )}
     </div>
   )
 }

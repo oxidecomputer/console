@@ -1,25 +1,25 @@
 import invariant from 'tiny-invariant'
 
 import type { Disk, DiskIdentifier } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
-import { ListboxField } from 'app/components/form'
-import { SideModalForm } from 'app/components/form/SideModalForm'
-import type { CreateSideModalFormProps } from 'app/forms'
+import { ListboxField, SideModalForm } from 'app/components/form'
 import { useAllParams } from 'app/hooks'
 
-const values = { name: '' }
+const defaultValues = { name: '' }
+
+type AttachDiskProps = {
+  /** If defined, this overrides the usual mutation */
+  onSubmit?: (diskAttach: DiskIdentifier) => void
+  onDismiss: () => void
+  onSuccess?: (disk: Disk) => void
+}
 
 export function AttachDiskSideModalForm({
-  id = 'form-disk-attach',
-  title = 'Attach Disk',
-  initialValues = values,
   onSubmit,
   onSuccess,
-  onError,
-  ...props
-}: CreateSideModalFormProps<DiskIdentifier, Disk>) {
+  onDismiss,
+}: AttachDiskProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
@@ -30,8 +30,8 @@ export function AttachDiskSideModalForm({
         path: { orgName, projectName, instanceName },
       })
       onSuccess?.(data)
+      onDismiss()
     },
-    onError,
   })
 
   // TODO: loading state? because this fires when the modal opens and not when
@@ -45,9 +45,9 @@ export function AttachDiskSideModalForm({
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="form-disk-attach"
+      title="Attach Disk"
+      formOptions={{ defaultValues }}
       onSubmit={
         onSubmit ||
         (({ name }) => {
@@ -59,15 +59,17 @@ export function AttachDiskSideModalForm({
         })
       }
       submitDisabled={attachDisk.isLoading}
-      error={attachDisk.error?.error as Error | undefined}
-      {...props}
+      submitError={attachDisk.error}
+      onDismiss={onDismiss}
     >
-      <ListboxField
-        label="Disk name"
-        id="disk-name"
-        name="name"
-        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
-      />
+      {({ control }) => (
+        <ListboxField
+          label="Disk name"
+          name="name"
+          items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
+          control={control}
+        />
+      )}
     </SideModalForm>
   )
 }

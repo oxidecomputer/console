@@ -50,9 +50,8 @@ export const pb = {
 
   settings: () => '/settings',
   profile: () => '/settings/profile',
-  appearance: () => '/settings/appearance',
-  hotkeys: () => '/settings/hotkeys',
   sshKeys: () => '/settings/ssh-keys',
+  sshKeyNew: () => '/settings/ssh-keys-new',
 
   deviceSuccess: () => '/device/success',
 }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Organization } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
@@ -16,8 +16,6 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { CreateOrgSideModalForm } from 'app/forms/org-create'
-import { EditOrgSideModalForm } from 'app/forms/org-edit'
 import { pb } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -36,13 +34,8 @@ OrgsPage.loader = async () => {
   await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
 }
 
-interface OrgsPageProps {
-  modal?: 'createOrg' | 'editOrg'
-}
-
-export default function OrgsPage({ modal }: OrgsPageProps) {
+export default function OrgsPage() {
   const navigate = useNavigate()
-  const location = useLocation()
 
   const { Table, Column } = useQueryTable('organizationList', {})
   const queryClient = useApiQueryClient()
@@ -61,7 +54,9 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
     {
       label: 'Edit',
       onActivate() {
-        navigate(pb.orgEdit({ orgName: org.name }), { state: org })
+        const path = { orgName: org.name }
+        apiQueryClient.setQueryData('organizationView', { path }, org)
+        navigate(pb.orgEdit({ orgName: org.name }))
       },
     },
     {
@@ -101,15 +96,7 @@ export default function OrgsPage({ modal }: OrgsPageProps) {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
-      <CreateOrgSideModalForm
-        isOpen={modal === 'createOrg'}
-        onDismiss={() => navigate(pb.orgs())}
-      />
-      <EditOrgSideModalForm
-        isOpen={modal === 'editOrg'}
-        onDismiss={() => navigate(pb.orgs())}
-        defaultValues={location.state}
-      />
+      <Outlet />
     </>
   )
 }

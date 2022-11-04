@@ -1,20 +1,30 @@
 import cn from 'classnames'
-import type { FieldValidator } from 'formik'
-import { useField } from 'formik'
+import type {
+  Control,
+  FieldPath,
+  FieldPathValue,
+  FieldValues,
+  Validate,
+} from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
 import type {
   TextAreaProps as UITextAreaProps,
   TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextInputError } from '@oxide/ui'
 import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
-export interface TextFieldProps extends UITextFieldProps {
-  id: string
-  /** Will default to id if not provided */
-  name?: string
+import { useUuid } from 'app/hooks'
+
+import { ErrorMessage } from './ErrorMessage'
+
+export interface TextFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+> extends UITextFieldProps {
+  name: TName
   /** HTML type attribute, defaults to text */
   type?: string
   /** Will default to name if not provided */
@@ -37,20 +47,27 @@ export interface TextFieldProps extends UITextFieldProps {
   description?: string
   placeholder?: string
   units?: string
-  validate?: FieldValidator
+  // TODO: think about this doozy of a type
+  validate?: Validate<FieldPathValue<TFieldValues, TName>>
+  control: Control<TFieldValues>
 }
 
-export function TextField({
-  id,
-  name = id,
+export function TextField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({
+  name,
   type = 'text',
   label = capitalize(name),
   units,
   validate,
+  control,
+  description,
+  helpText,
+  required,
   ...props
-}: TextFieldProps & UITextAreaProps) {
-  const { description, helpText, required } = props
-  const [field, meta] = useField({ name, validate, type })
+}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) {
+  const id = useUuid(name)
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -59,19 +76,29 @@ export function TextField({
         </FieldLabel>
       </div>
       {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
-      <UITextField
-        id={id}
-        title={label}
-        type={type}
-        error={!!meta.error}
-        aria-labelledby={cn(`${id}-label`, {
-          [`${id}-help-text`]: !!description,
-        })}
-        aria-describedby={description ? `${id}-label-tip` : undefined}
-        {...props}
-        {...field}
+      <Controller
+        name={name}
+        control={control}
+        rules={{ required, validate }}
+        render={({ field, fieldState: { error } }) => {
+          return (
+            <>
+              <UITextField
+                title={label}
+                type={type}
+                error={!!error}
+                aria-labelledby={cn(`${id}-label`, {
+                  [`${id}-help-text`]: !!description,
+                })}
+                aria-describedby={description ? `${id}-label-tip` : undefined}
+                {...field}
+                {...props}
+              />
+              <ErrorMessage error={error} label={label} />
+            </>
+          )
+        }}
       />
-      <TextInputError>{meta.error}</TextInputError>
     </div>
   )
 }

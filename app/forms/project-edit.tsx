@@ -1,26 +1,30 @@
-import type { Project, ProjectCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { pb } from 'app/util/path-builder'
 
-import type { EditSideModalFormProps } from '.'
-import { useRequiredParams, useToast } from '../hooks'
+import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
 
-export function EditProjectSideModalForm({
-  id = 'edit-project-form',
-  title = 'Edit project',
-  initialValues,
-  onSubmit,
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: EditSideModalFormProps<ProjectCreate, Project>) {
+EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('projectView', {
+    path: requireProjectParams(params),
+  })
+}
+
+export function EditProjectSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
+  const navigate = useNavigate()
 
-  const { orgName } = useRequiredParams('orgName')
+  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+
+  const onDismiss = () => navigate(pb.projects({ orgName }))
+
+  const { data: project } = useApiQuery('projectView', { path: { orgName, projectName } })
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
@@ -37,39 +41,32 @@ export function EditProjectSideModalForm({
         title: 'Success!',
         content: 'Your project has been updated.',
       })
-      onSuccess?.(project)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      initialValues={initialValues}
-      title={title}
+      id="edit-project-form"
+      formOptions={{ defaultValues: project }}
+      title="Edit project"
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        (({ name, description }) => {
-          editProject.mutate({
-            path: {
-              projectName: initialValues.name,
-              orgName,
-            },
-            body: { name, description },
-          })
+      onSubmit={({ name, description }) => {
+        editProject.mutate({
+          path: { orgName, projectName },
+          body: { name, description },
         })
-      }
+      }}
       submitDisabled={editProject.isLoading}
-      error={editProject.error?.error as Error | undefined}
-      {...props}
+      submitError={editProject.error}
+      submitLabel="Save changes"
     >
-      <NameField id="name" />
-      <DescriptionField id="description" />
-      <Form.Submit>Save changes</Form.Submit>
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default EditProjectSideModalForm

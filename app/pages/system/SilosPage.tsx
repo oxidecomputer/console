@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Silo } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
@@ -18,7 +18,6 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { CreateSiloSideModalForm } from 'app/forms/silo-create'
 import { useQuickActions } from 'app/hooks/use-quick-actions'
 import { pb } from 'app/util/path-builder'
 
@@ -36,11 +35,7 @@ SilosPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: 10 } })
 }
 
-interface SilosPageProps {
-  modal?: 'createSilo'
-}
-
-export default function SilosPage({ modal }: SilosPageProps) {
+export default function SilosPage() {
   const navigate = useNavigate()
 
   const { Table, Column } = useQueryTable('siloList', {})
@@ -100,10 +95,7 @@ export default function SilosPage({ modal }: SilosPageProps) {
         />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
-      <CreateSiloSideModalForm
-        isOpen={modal === 'createSilo'}
-        onDismiss={() => navigate(pb.silos())}
-      />
+      <Outlet />
     </>
   )
 }

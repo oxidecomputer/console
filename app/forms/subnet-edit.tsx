@@ -1,64 +1,50 @@
-import invariant from 'tiny-invariant'
-
-import type { VpcSubnet, VpcSubnetUpdate } from '@oxide/api'
+import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { pick } from '@oxide/util'
 
-import { DescriptionField, Form, NameField, SideModalForm } from 'app/components/form'
-import type { EditSideModalFormProps } from 'app/forms'
+import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
-export function EditSubnetSideModalForm({
-  id = 'edit-subnet-form',
-  title = 'Edit subnet',
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: EditSideModalFormProps<VpcSubnetUpdate, VpcSubnet>) {
+type EditSubnetFormProps = {
+  onDismiss: () => void
+  editing: VpcSubnet
+}
+
+export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
   const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
   const queryClient = useApiQueryClient()
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
+
+  const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
+      id="edit-subnet-form"
+      title="Edit subnet"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        invariant(
-          props.initialValues.name,
-          'Tried to edit a subnet without providing an initial name'
-        )
+      formOptions={{ defaultValues }}
+      onSubmit={(body) => {
         updateSubnet.mutate({
-          path: {
-            ...parentNames,
-            subnetName: props.initialValues.name,
-          },
-          body: {
-            name,
-            description,
-          },
+          path: { ...parentNames, subnetName: editing.name },
+          body,
         })
       }}
       submitDisabled={updateSubnet.isLoading}
-      error={updateSubnet.error?.error as Error | undefined}
-      {...props}
+      submitError={updateSubnet.error}
+      submitLabel="Update subnet"
     >
-      <NameField id="subnet-name" />
-      <DescriptionField id="subnet-description" />
-      <Divider />
-      <Form.Submit>Update subnet</Form.Submit>
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+        </>
+      )}
     </SideModalForm>
   )
 }
-
-export default EditSubnetSideModalForm

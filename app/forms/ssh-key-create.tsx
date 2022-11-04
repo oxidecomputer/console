@@ -1,58 +1,55 @@
-import type { SshKey, SshKeyCreate } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
+import { useNavigate } from 'react-router-dom'
+
+import type { SshKeyCreate } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { pb } from 'app/util/path-builder'
 
-import type { CreateSideModalFormProps } from '.'
-
-const values: SshKeyCreate = {
+const defaultValues: SshKeyCreate = {
   name: '',
   description: '',
   publicKey: '',
 }
 
-export function CreateSSHKeySideModalForm({
-  id = 'create-ssh-key-form',
-  title = 'Add SSH key',
-  initialValues = values,
-  onSuccess,
-  onError,
-  onDismiss,
-  ...props
-}: CreateSideModalFormProps<SshKeyCreate, SshKey>) {
+export function CreateSSHKeySideModalForm() {
   const queryClient = useApiQueryClient()
+  const navigate = useNavigate()
+
+  const onDismiss = () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('sessionSshkeyCreate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('sessionSshkeyList', {})
-      onSuccess?.(data)
       onDismiss()
     },
-    onError,
   })
 
   return (
     <SideModalForm
-      id={id}
-      title={title}
-      initialValues={initialValues}
+      id="create-ssh-key-form"
+      title="Add SSH key"
+      formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
       submitDisabled={createSshKey.isLoading}
-      error={createSshKey.error?.error as Error | undefined}
-      {...props}
+      submitError={createSshKey.error}
     >
-      <NameField id="ssh-key-name" />
-      <DescriptionField id="ssh-key-description" />
-      <TextField
-        as="textarea"
-        id="ssh-key-public-key"
-        name="publicKey"
-        label="Public key"
-        required
-        rows={8}
-      />
+      {({ control }) => (
+        <>
+          <NameField name="name" control={control} />
+          <DescriptionField name="description" control={control} />
+          <TextField
+            as="textarea"
+            id="ssh-key-public-key"
+            name="publicKey"
+            label="Public key"
+            required
+            rows={8}
+            control={control}
+          />
+        </>
+      )}
     </SideModalForm>
   )
 }

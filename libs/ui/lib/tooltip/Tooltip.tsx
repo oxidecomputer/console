@@ -1,5 +1,4 @@
 import cn from 'classnames'
-import type { FC } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 
@@ -17,13 +16,13 @@ export interface TooltipProps {
 
 const ARROW_SIZE = 12
 
-export const Tooltip: FC<TooltipProps> = ({
+export const Tooltip = ({
   id,
   children,
   content,
   onClick,
   definition = false,
-}) => {
+}: TooltipProps) => {
   const referenceElement = useRef(null)
   const popperElement = useRef(null)
   const arrowElement = useRef(null)

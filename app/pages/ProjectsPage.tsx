@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
@@ -16,8 +17,6 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import CreateProjectSideModalForm from 'app/forms/project-create'
-import EditProjectSideModalForm from 'app/forms/project-edit'
 import { pb } from 'app/util/path-builder'
 
 import { requireOrgParams, useOrgParams, useQuickActions } from '../hooks'
@@ -39,13 +38,8 @@ ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-interface ProjectsPageProps {
-  modal?: 'createProject' | 'editProject'
-}
-
-export default function ProjectsPage({ modal }: ProjectsPageProps) {
+export default function ProjectsPage() {
   const navigate = useNavigate()
-  const location = useLocation()
 
   const queryClient = useApiQueryClient()
   const { orgName } = useOrgParams()
@@ -68,9 +62,11 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     {
       label: 'Edit',
       onActivate: () => {
-        navigate(pb.projectEdit({ orgName, projectName: project.name }), {
-          state: project,
-        })
+        const path = { orgName, projectName: project.name }
+        // the edit view has its own loader, but we can make the modal open
+        // instantaneously by preloading the fetch result
+        apiQueryClient.setQueryData('projectView', { path }, project)
+        navigate(pb.projectEdit(path))
       },
     },
     {
@@ -95,8 +91,6 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
     )
   )
 
-  const backToProjects = () => navigate(pb.projects({ orgName }))
-
   return (
     <>
       <PageHeader>
@@ -118,15 +112,7 @@ export default function ProjectsPage({ modal }: ProjectsPageProps) {
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>
-      <CreateProjectSideModalForm
-        isOpen={modal === 'createProject'}
-        onDismiss={backToProjects}
-      />
-      <EditProjectSideModalForm
-        isOpen={modal === 'editProject'}
-        onDismiss={backToProjects}
-        initialValues={location.state}
-      />
+      <Outlet />
     </>
   )
 }

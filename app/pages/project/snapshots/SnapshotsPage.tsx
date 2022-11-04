@@ -1,10 +1,8 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
 import type { Snapshot } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import {
@@ -17,7 +15,6 @@ import {
 } from '@oxide/ui'
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
-import { CreateSnapshotSideModalForm } from 'app/forms/snapshot-create'
 import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -44,13 +41,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   })
 }
 
-interface SnapshotsPageProps {
-  modal?: 'createSnapshot'
-}
-
-export function SnapshotsPage({ modal }: SnapshotsPageProps) {
-  const navigate = useNavigate()
-
+export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const projectParams = useRequiredParams('orgName', 'projectName')
   const { Table, Column } = useQueryTable('snapshotList', { path: projectParams })
@@ -94,10 +85,7 @@ export function SnapshotsPage({ modal }: SnapshotsPageProps) {
         <Column accessor="size" cell={SizeCell} />
         <Column accessor="timeCreated" id="Created" cell={DateCell} />
       </Table>
-      <CreateSnapshotSideModalForm
-        isOpen={modal === 'createSnapshot'}
-        onDismiss={() => navigate(pb.snapshots(projectParams))}
-      />
+      <Outlet />
     </>
   )
 }
