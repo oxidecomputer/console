@@ -1,8 +1,21 @@
+import {
+  FloatingPortal,
+  arrow,
+  autoUpdate,
+  flip,
+  offset,
+  useDismiss,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+  useRole,
+} from '@floating-ui/react-dom-interactions'
+import type { Placement } from '@floating-ui/react-dom-interactions'
 import cn from 'classnames'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { usePopper } from 'react-popper'
+import { useRef, useState } from 'react'
 
-import { KEYS } from '../../util/keys'
+// import { mergeRefs } from 'react-merge-refs'
 import './tooltip.css'
 
 export interface TooltipProps {
@@ -12,99 +25,81 @@ export interface TooltipProps {
   content: string | React.ReactNode
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   definition?: boolean
+  placement: Placement
 }
 
-const ARROW_SIZE = 12
+const flipPlacement = (placement: Placement): Placement => {
+  if (placement.startsWith('top')) return placement.replace('top', 'bottom') as Placement
+  if (placement.startsWith('bottom')) return placement.replace('bottom', 'top') as Placement
+  if (placement.startsWith('left')) return placement.replace('left', 'right') as Placement
+  if (placement.startsWith('right')) return placement.replace('right', 'left') as Placement
+  return placement
+}
 
 export const Tooltip = ({
-  id,
   children,
   content,
-  onClick,
+  placement,
   definition = false,
 }: TooltipProps) => {
-  const referenceElement = useRef(null)
-  const popperElement = useRef(null)
-  const arrowElement = useRef(null)
-  const [isOpen, setIsOpen] = useState(false)
+  const [open, setOpen] = useState(false)
+  const arrowRef = useRef(null)
 
-  const { attributes, styles, update } = usePopper(
-    referenceElement.current,
-    popperElement.current,
-    {
-      modifiers: [
-        { name: 'arrow', options: { element: arrowElement.current } },
-        {
-          name: 'offset',
-          options: {
-            offset: [0, ARROW_SIZE],
-          },
-        },
-        // disable eventListeners when closed for optimization
-        // (could make difference with many Tooltips on a single page)
-        { name: 'eventListeners', enabled: isOpen },
-      ],
-    }
-  )
+  const { x, y, reference, floating, strategy, context, middlewareData } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [flip(), offset(12), arrow({ element: arrowRef, padding: 12 })],
+  })
 
-  const openTooltip = () => {
-    setIsOpen(true)
-    if (update) {
-      // Update popper position
-      // (position will need to update after scrolling, for example)
-      update()
-    }
-  }
-  const closeTooltip = useCallback(() => setIsOpen(false), [setIsOpen])
+  const hover = useHover(context, { move: false })
+  const focus = useFocus(context)
+  const dismiss = useDismiss(context)
+  const role = useRole(context, { role: 'tooltip' })
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const { key } = event
-      switch (key) {
-        case KEYS.escape:
-          event.preventDefault()
-          // Close tooltip on escape
-          closeTooltip()
-          break
-      }
-    }
+  const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
+  const shouldFlip = !!middlewareData.flip?.overflows
 
-    window.addEventListener('keydown', handleKeyDown)
-
-    return function cleanup() {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [closeTooltip])
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ])
 
   return (
     <>
       <button
         type="button"
-        ref={referenceElement}
-        onClick={onClick}
-        onMouseEnter={openTooltip}
-        onMouseLeave={closeTooltip}
-        onFocus={openTooltip}
-        onBlur={closeTooltip}
-        className={cn('h-4 svg:pointer-events-none svg:align-top', {
+        ref={reference}
+        {...getReferenceProps()}
+        className={cn('svg:pointer-events-none', {
           'dashed-underline': definition,
         })}
       >
         {children}
       </button>
-      <div
-        className={cn('TooltipContainer', isOpen ? 'block' : 'hidden')}
-        ref={popperElement}
-        role="tooltip"
-        id={id}
-        style={styles.popper}
-        {...attributes.popper}
-      >
-        <div className="max-w-xs rounded border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
-          {content}
-        </div>
-        <div className="TooltipArrow" ref={arrowElement} style={styles.arrow} />
-      </div>
+      <FloatingPortal>
+        {open && (
+          <>
+            <div
+              ref={floating}
+              style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
+              className={cn('ox-tooltip max-content')}
+              data-placement={shouldFlip ? flipPlacement(placement) : placement}
+              {...getFloatingProps()}
+            >
+              {content}
+              <div
+                className="ox-tooltip-arrow"
+                ref={arrowRef}
+                style={{ left: arrowX, top: arrowY }}
+              />
+            </div>
+          </>
+        )}
+      </FloatingPortal>
     </>
   )
 }
