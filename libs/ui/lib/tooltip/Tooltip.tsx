@@ -16,7 +16,6 @@ import type { Placement } from '@floating-ui/react-dom-interactions'
 import cn from 'classnames'
 import { useRef, useState } from 'react'
 
-// import { mergeRefs } from 'react-merge-refs'
 import './tooltip.css'
 
 /**
