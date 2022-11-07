@@ -36,6 +36,7 @@ export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
       <div role="tablist" className="ox-tabs-list flex" onKeyDown={selectTab}>
         {children}
       </div>
+      {/* TODO: Add aria-describedby for active tab */}
       <div className="ox-tabs-panel" role="tabpanel" tabIndex={0}>
         <Outlet />
       </div>
