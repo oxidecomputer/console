@@ -1,10 +1,11 @@
 import cn from 'classnames'
-import type { LinkProps } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
-import type { ChildrenProp } from '@oxide/util'
-
-type RouteTabsProps = ChildrenProp & { fullWidth?: boolean }
+export interface RouteTabsProps {
+  children: ReactNode
+  fullWidth?: boolean
+}
 export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   return (
     <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
@@ -18,7 +19,10 @@ export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   )
 }
 
-type TabProps = Pick<LinkProps, 'to'> & ChildrenProp
+export interface TabProps {
+  to: string
+  children: ReactNode
+}
 export const Tab = ({ to, children }: TabProps) => {
   return (
     <NavLink
