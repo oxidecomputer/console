@@ -1,6 +1,7 @@
 import {
   FloatingPortal,
   arrow,
+  autoPlacement,
   autoUpdate,
   flip,
   offset,
@@ -18,6 +19,8 @@ import { useRef, useState } from 'react'
 // import { mergeRefs } from 'react-merge-refs'
 import './tooltip.css'
 
+type PlacementOrAuto = Placement | 'auto'
+
 export interface TooltipProps {
   id: string
   children?: React.ReactNode
@@ -25,32 +28,37 @@ export interface TooltipProps {
   content: string | React.ReactNode
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   definition?: boolean
-  placement: Placement
-}
-
-const flipPlacement = (placement: Placement): Placement => {
-  if (placement.startsWith('top')) return placement.replace('top', 'bottom') as Placement
-  if (placement.startsWith('bottom')) return placement.replace('bottom', 'top') as Placement
-  if (placement.startsWith('left')) return placement.replace('left', 'right') as Placement
-  if (placement.startsWith('right')) return placement.replace('right', 'left') as Placement
-  return placement
+  placement?: PlacementOrAuto
 }
 
 export const Tooltip = ({
   children,
   content,
-  placement,
+  placement = 'auto',
   definition = false,
 }: TooltipProps) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
-  const { x, y, reference, floating, strategy, context, middlewareData } = useFloating({
+  const {
+    x,
+    y,
+    reference,
+    floating,
+    strategy,
+    context,
+    placement: finalPlacement,
+    middlewareData,
+  } = useFloating({
     open,
     onOpenChange: setOpen,
-    placement,
+    placement: placement === 'auto' ? undefined : placement,
     whileElementsMounted: autoUpdate,
-    middleware: [flip(), offset(12), arrow({ element: arrowRef, padding: 12 })],
+    middleware: [
+      placement === 'auto' ? autoPlacement() : flip(),
+      offset(12),
+      arrow({ element: arrowRef, padding: 12 }),
+    ],
   })
 
   const hover = useHover(context, { move: false })
@@ -59,7 +67,6 @@ export const Tooltip = ({
   const role = useRole(context, { role: 'tooltip' })
 
   const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
-  const shouldFlip = !!middlewareData.flip?.overflows
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
     hover,
@@ -87,7 +94,7 @@ export const Tooltip = ({
               ref={floating}
               style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
               className={cn('ox-tooltip max-content')}
-              data-placement={shouldFlip ? flipPlacement(placement) : placement}
+              data-placement={finalPlacement}
               {...getFloatingProps()}
             >
               {content}

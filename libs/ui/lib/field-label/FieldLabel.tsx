@@ -32,7 +32,7 @@ export const FieldLabel = ({
         )}
       </Component>
       {tip && (
-        <Tooltip placement="top" id={`${id}-tip`} content={tip}>
+        <Tooltip id={`${id}-tip`} content={tip}>
           <Info8Icon />
         </Tooltip>
       )}
