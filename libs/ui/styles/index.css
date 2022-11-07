@@ -5,6 +5,7 @@
 @import './components/menu-button.css';
 @import '@reach/tabs/styles.css';
 @import './components/menu-list.css';
+@import './components/loading-bar.css';
 
 @import '@oxide/design-system/styles/dist/main.css';
 @import './themes/selection.css';
