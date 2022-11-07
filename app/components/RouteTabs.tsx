@@ -1,6 +1,29 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
+
+import { useIsActivePath } from 'app/hooks/use-is-active-path'
+
+const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  if (e.key === 'ArrowLeft') {
+    e.stopPropagation()
+    e.preventDefault()
+    const sibling = (e.target as HTMLDivElement).previousSibling as HTMLDivElement | null
+    if (sibling) {
+      sibling.focus()
+      sibling.click()
+    }
+  }
+  if (e.key === 'ArrowRight') {
+    e.stopPropagation()
+    e.preventDefault()
+    const sibling = (e.target as HTMLDivElement).nextSibling as HTMLDivElement | null
+    if (sibling) {
+      sibling.focus()
+      sibling.click()
+    }
+  }
+}
 
 export interface RouteTabsProps {
   children: ReactNode
@@ -9,10 +32,11 @@ export interface RouteTabsProps {
 export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   return (
     <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
-      <div role="tablist" className="ox-tabs-list flex">
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+      <div role="tablist" className="ox-tabs-list flex" onKeyDown={selectTab}>
         {children}
       </div>
-      <div className="ox-tabs-panel">
+      <div className="ox-tabs-panel" role="tabpanel" tabIndex={0}>
         <Outlet />
       </div>
     </div>
@@ -24,13 +48,16 @@ export interface TabProps {
   children: ReactNode
 }
 export const Tab = ({ to, children }: TabProps) => {
+  const isActive = useIsActivePath(to)
   return (
-    <NavLink
+    <Link
       role="tab"
       to={to}
-      className={({ isActive }) => cn('ox-tab', { 'is-selected': isActive })}
+      className={cn('ox-tab', { 'is-selected': isActive })}
+      tabIndex={isActive ? 0 : -1}
+      aria-selected={isActive}
     >
       <div>{children}</div>
-    </NavLink>
+    </Link>
   )
 }
