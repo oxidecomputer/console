@@ -68,7 +68,6 @@ export function CapacityUtilizationPage() {
 
         <DateTimeRangePicker
           initialPreset={initialPreset}
-          slideInterval={5000}
           startTime={startTime}
           endTime={endTime}
           onChange={onTimeChange}

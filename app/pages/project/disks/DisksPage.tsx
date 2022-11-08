@@ -12,9 +12,11 @@ import { DateCell } from '@oxide/table'
 import { SizeCell } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
+  Button,
   EmptyMessage,
   PageHeader,
   PageTitle,
+  Refresh16Icon,
   Storage24Icon,
   Success16Icon,
   TableActions,
@@ -73,10 +75,11 @@ export function DisksPage() {
   const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
   const addToast = useToast()
 
+  const refetchDisks = () =>
+    queryClient.invalidateQueries('diskList', { path: { orgName, projectName } })
+
   const deleteDisk = useApiMutation('diskDelete', {
-    onSuccess() {
-      queryClient.invalidateQueries('diskList', { path: { orgName, projectName } })
-    },
+    onSuccess: refetchDisks,
   })
 
   const createSnapshot = useApiMutation('snapshotCreate', {
@@ -120,6 +123,9 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
+        <Button size="sm" onClick={refetchDisks} variant="ghost">
+          <Refresh16Icon />
+        </Button>
         <Link
           to={pb.diskNew({ orgName, projectName })}
           className={buttonStyle({ size: 'sm', variant: 'default' })}

@@ -7,7 +7,7 @@ import { Listbox, Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
 import { DateTimeRangePicker, useDateTimeRangePickerState } from 'app/components/form'
-import { useRefetchInterval, useRequiredParams } from 'app/hooks'
+import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
   title: string
@@ -69,8 +69,6 @@ function DiskMetric({
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
 
-  const { refetchInterval, intervalListbox } = useRefetchInterval('5s')
-
   const initialPreset = 'lastDay'
   const {
     startTime,
@@ -100,10 +98,8 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
           }}
           defaultValue={diskName}
         />
-        {intervalListbox}
         <DateTimeRangePicker
           initialPreset={initialPreset}
-          slideInterval={refetchInterval || undefined}
           startTime={startTime}
           endTime={endTime}
           onChange={onTimeChange}

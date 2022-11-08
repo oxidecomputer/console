@@ -34,11 +34,6 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
 
 type Props = {
   initialPreset: RangeKey
-  /**
-   * if set and range is a relative preset, update the range to have `endTime`
-   * of now every X ms
-   */
-  slideInterval?: number
   startTime: Date
   endTime: Date
   onChange: (startTime: Date, endTime: Date) => void
@@ -67,13 +62,17 @@ function validateRange(startTime: Date, endTime: Date): string | null {
   return null
 }
 
+/** Interval for sliding range forward when using a relative time preset */
+const SLIDE_INTERVAL = 10_000
+
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
- * a JSX element to render.
+ * a JSX element to render. When we're using a relative preset like last N
+ * hours, automatically slide the window forward live by updating the range to
+ * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
  */
 export function DateTimeRangePicker({
   initialPreset,
-  slideInterval,
   startTime,
   endTime,
   onChange,
@@ -105,7 +104,7 @@ export function DateTimeRangePicker({
     () => {
       if (preset !== 'custom') setTimesForPreset(preset)
     },
-    slideInterval && preset !== 'custom' ? slideInterval : null
+    preset !== 'custom' ? SLIDE_INTERVAL : null
   )
 
   return (
