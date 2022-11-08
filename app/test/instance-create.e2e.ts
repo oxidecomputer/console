@@ -1,6 +1,7 @@
 import { globalImages } from '@oxide/api-mocks'
 
 import { expectVisible, test } from 'app/test/e2e'
+import { pb } from 'app/util/path-builder'
 
 test.beforeEach(async ({ createProject, orgName, projectName }) => {
   await createProject(orgName, projectName)
@@ -12,7 +13,7 @@ test('can invoke instance create form from instances page', async ({
   projectName,
   genName,
 }) => {
-  await page.goto(`/orgs/${orgName}/projects/${projectName}/instances`)
+  await page.goto(pb.instances({ orgName, projectName }))
   await page.locator('text="New Instance"').click()
 
   await expectVisible(page, [
@@ -41,9 +42,7 @@ test('can invoke instance create form from instances page', async ({
 
   await page.locator('button:has-text("Create instance")').click()
 
-  await page.waitForURL(
-    `/orgs/${orgName}/projects/${projectName}/instances/${instanceName}`
-  )
+  await page.waitForURL(pb.instancePage({ orgName, projectName, instanceName }))
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
