@@ -5,23 +5,25 @@ import { Link, Outlet } from 'react-router-dom'
 import { useIsActivePath } from 'app/hooks/use-is-active-path'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const target = e.target as HTMLDivElement
   if (e.key === 'ArrowLeft') {
     e.stopPropagation()
     e.preventDefault()
-    const sibling = (e.target as HTMLDivElement).previousSibling as HTMLDivElement | null
-    if (sibling) {
-      sibling.focus()
-      sibling.click()
-    }
-  }
-  if (e.key === 'ArrowRight') {
+
+    const sibling = (target.previousSibling ??
+      target.parentElement!.lastChild!) as HTMLDivElement
+
+    sibling.focus()
+    sibling.click()
+  } else if (e.key === 'ArrowRight') {
     e.stopPropagation()
     e.preventDefault()
-    const sibling = (e.target as HTMLDivElement).nextSibling as HTMLDivElement | null
-    if (sibling) {
-      sibling.focus()
-      sibling.click()
-    }
+
+    const sibling = (target.nextSibling ??
+      target.parentElement!.firstChild!) as HTMLDivElement
+
+    sibling.focus()
+    sibling.click()
   }
 }
 
