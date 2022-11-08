@@ -1,4 +1,5 @@
 import cn from 'classnames'
+import type { MouseEventHandler } from 'react'
 import { forwardRef } from 'react'
 
 import { Spinner } from '@oxide/ui'
@@ -90,18 +91,45 @@ export const buttonStyle = ({
   )
 }
 
+/**
+ * When the `disabled` prop is passed to the button we put it in a visually disabled state.
+ * In that case we want to override the default mouse down and click behavior to simulate a
+ * disabled state.
+ */
+const noop: MouseEventHandler<HTMLButtonElement> = (e) => {
+  e.stopPropagation()
+  e.preventDefault()
+}
+
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
 // so it can be focused using the DOM API (eg. this.buttonRef.current.focus())
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { children, size, variant, color, className, loading, innerClassName, ...rest },
+    {
+      children,
+      size,
+      variant,
+      color,
+      className,
+      loading,
+      innerClassName,
+      disabled,
+      onClick,
+      'aria-disabled': ariaDisabled,
+      ...rest
+    },
     ref
   ) => {
     return (
       <button
-        className={cn(buttonStyle({ size, variant, color }), className)}
+        className={cn(buttonStyle({ size, variant, color }), className, {
+          'visually-disabled': disabled,
+        })}
         ref={ref}
         type="button"
+        onMouseDown={disabled ? noop : undefined}
+        onClick={disabled ? noop : onClick}
+        aria-disabled={disabled ? true : ariaDisabled}
         {...rest}
       >
         <>
