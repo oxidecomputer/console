@@ -19,6 +19,7 @@ test('path builder', () => {
         "instance": "/orgs/a/projects/b/instances/c",
         "instanceMetrics": "/orgs/a/projects/b/instances/c/metrics",
         "instanceNew": "/orgs/a/projects/b/instances-new",
+        "instancePage": "/orgs/a/projects/b/instances/c/storage",
         "instanceStorage": "/orgs/a/projects/b/instances/c/storage",
         "instances": "/orgs/a/projects/b/instances",
         "nics": "/orgs/a/projects/b/instances/c/network-interfaces",
