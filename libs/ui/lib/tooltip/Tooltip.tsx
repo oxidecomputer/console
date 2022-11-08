@@ -71,18 +71,13 @@ export const Tooltip = ({
     ],
   })
 
-  const hover = useHover(context, { move: false })
-  const focus = useFocus(context)
-  const dismiss = useDismiss(context)
-  const role = useRole(context, { role: 'tooltip' })
-
   const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    hover,
-    focus,
-    dismiss,
-    role,
+    useHover(context, { move: false }),
+    useFocus(context),
+    useDismiss(context),
+    useRole(context, { role: 'tooltip' }),
   ])
 
   return (
@@ -99,23 +94,21 @@ export const Tooltip = ({
       </button>
       <FloatingPortal>
         {open && (
-          <>
+          <div
+            ref={floating}
+            style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
+            className={cn('ox-tooltip max-content')}
+            /** Used to ensure the arrow is styled correctly */
+            data-placement={finalPlacement}
+            {...getFloatingProps()}
+          >
+            {content}
             <div
-              ref={floating}
-              style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
-              className={cn('ox-tooltip max-content')}
-              /** Used to ensure the arrow is styled correctly */
-              data-placement={finalPlacement}
-              {...getFloatingProps()}
-            >
-              {content}
-              <div
-                className="ox-tooltip-arrow"
-                ref={arrowRef}
-                style={{ left: arrowX, top: arrowY }}
-              />
-            </div>
-          </>
+              className="ox-tooltip-arrow"
+              ref={arrowRef}
+              style={{ left: arrowX, top: arrowY }}
+            />
+          </div>
         )}
       </FloatingPortal>
     </>
