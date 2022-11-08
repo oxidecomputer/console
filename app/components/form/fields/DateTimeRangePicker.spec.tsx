@@ -76,8 +76,8 @@ describe('custom mode', () => {
 
     expect(onChange).not.toBeCalled()
     expect(screen.getByLabelText('Start time')).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Reset' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Load' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Reset' })).toHaveClass('visually-disabled')
+    expect(screen.getByRole('button', { name: 'Load' })).toHaveClass('visually-disabled')
   })
 
   it('clicking load after changing date changes range', async () => {
