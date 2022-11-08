@@ -93,7 +93,7 @@ export function CreateInstanceForm() {
         title: 'Success!',
         content: 'Your instance has been created.',
       })
-      navigate(pb.instance({ ...pageParams, instanceName: instance.name }))
+      navigate(pb.instancePage({ ...pageParams, instanceName: instance.name }))
     },
   })
 

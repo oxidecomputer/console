@@ -20,6 +20,9 @@ export const pb = {
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
 
+  /** The landing page for the instance, this path should be used instead of `instance` */
+  instancePage: (params: PP.Instance) => pb.instanceStorage(params),
+
   instanceMetrics: (params: PP.Instance) => `${pb.instance(params)}/metrics`,
   instanceStorage: (params: PP.Instance) => `${pb.instance(params)}/storage`,
 
