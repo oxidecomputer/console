@@ -32,26 +32,25 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
 //   - list of presets is hard-coded
 //   - initial preset can't be "custom"
 
-type Props = {
-  initialPreset: RangeKey
-  startTime: Date
-  endTime: Date
-  onChange: (startTime: Date, endTime: Date) => void
-}
-
-export function useDateTimeRange(initialPreset: RangeKey) {
-  // default endTime is now, i.e., mount time
+/**
+ * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
+ * a JSX element to render. When we're using a relative preset like last N
+ * hours, automatically slide the window forward live by updating the range to
+ * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
+ */
+export function useDateTimeRangePicker(initialPreset: RangeKey) {
   const now = useMemo(() => new Date(), [])
 
   const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
   const [endTime, setEndTime] = useState(now)
 
-  const onChange = useCallback((newStart: Date, newEnd: Date) => {
-    setStartTime(newStart)
-    setEndTime(newEnd)
-  }, [])
+  const props = { initialPreset, startTime, endTime, setStartTime, setEndTime }
 
-  return { startTime, endTime, onChange }
+  return {
+    startTime,
+    endTime,
+    dateTimeRangePicker: <DateTimeRangePicker {...props} />,
+  }
 }
 
 function validateRange(startTime: Date, endTime: Date): string | null {
@@ -65,18 +64,21 @@ function validateRange(startTime: Date, endTime: Date): string | null {
 /** Interval for sliding range forward when using a relative time preset */
 const SLIDE_INTERVAL = 10_000
 
-/**
- * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
- * a JSX element to render. When we're using a relative preset like last N
- * hours, automatically slide the window forward live by updating the range to
- * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
- */
+type DateTimeRangePickerProps = {
+  initialPreset: RangeKey
+  startTime: Date
+  endTime: Date
+  setStartTime: (startTime: Date) => void
+  setEndTime: (endTime: Date) => void
+}
+
 export function DateTimeRangePicker({
   initialPreset,
   startTime,
   endTime,
-  onChange,
-}: Props) {
+  setStartTime,
+  setEndTime,
+}: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
 
   // needs a separate pair of values because they can be edited without
@@ -99,12 +101,13 @@ export function DateTimeRangePicker({
       if (preset !== 'custom') {
         const now = new Date()
         const newStartTime = computeStart[preset](now)
-        onChange(newStartTime, now)
+        setStartTime(newStartTime)
+        setEndTime(now)
         setStartTimeInput(newStartTime)
         setEndTimeInput(now)
       }
     },
-    [onChange]
+    [setStartTime, setEndTime]
   )
 
   useInterval({
@@ -176,7 +179,10 @@ export function DateTimeRangePicker({
       {enableInputs && (
         <Button
           disabled={!customInputsDirty || !!error}
-          onClick={() => onChange(startTimeInput, endTimeInput)}
+          onClick={() => {
+            setStartTime(startTimeInput)
+            setEndTime(endTimeInput)
+          }}
         >
           Load
         </Button>

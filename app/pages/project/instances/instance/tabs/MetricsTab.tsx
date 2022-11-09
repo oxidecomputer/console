@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
-import { DateTimeRangePicker, useDateTimeRange } from 'app/components/form'
+import { useDateTimeRangePicker } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -69,8 +69,7 @@ function DiskMetric({
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
 
-  const initialPreset = 'lastDay'
-  const { startTime, endTime, onChange: onTimeChange } = useDateTimeRange(initialPreset)
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
   invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
   const [diskName, setDiskName] = useState<string>(disks[0].name)
@@ -94,12 +93,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
           }}
           defaultValue={diskName}
         />
-        <DateTimeRangePicker
-          initialPreset={initialPreset}
-          startTime={startTime}
-          endTime={endTime}
-          onChange={onTimeChange}
-        />
+        {dateTimeRangePicker}
       </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can
