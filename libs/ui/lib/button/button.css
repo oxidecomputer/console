@@ -4,7 +4,8 @@
 .btn-primary {
   @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover disabled:text-accent-disabled disabled:bg-accent-secondary;
 }
-.btn-primary:disabled > .spinner {
+.btn-primary:disabled > .spinner,
+.btn-primary.visually-disabled > .spinner {
   @apply text-accent;
 }
 
@@ -12,21 +13,24 @@
 .btn-secondary-solid {
   @apply text-secondary bg-secondary hover:bg-secondary-hover disabled:text-quaternary disabled:bg-secondary;
 }
-.btn-secondary-solid:disabled > .spinner {
+.btn-secondary-solid:disabled > .spinner,
+.btn-secondary-solid.visually-disabled > .spinner {
   @apply text-secondary;
 }
 
 .btn-destructive {
   @apply text-destructive bg-destructive-secondary hover:bg-destructive-secondary-hover disabled:text-destructive-disabled disabled:bg-destructive-secondary;
 }
-.btn-destructive:disabled > .spinner {
+.btn-destructive:disabled > .spinner,
+.btn-destructive.visually-disabled > .spinner {
   @apply text-destructive;
 }
 
 .btn-notice {
   @apply text-notice bg-notice-secondary hover:bg-notice-secondary-hover disabled:text-notice-disabled disabled:bg-notice-secondary;
 }
-.btn-notice:disabled > .spinner {
+.btn-notice:disabled > .spinner,
+.btn-notice.visually-disabled > .spinner {
   @apply text-notice;
 }
 
