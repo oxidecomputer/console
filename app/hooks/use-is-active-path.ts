@@ -1,6 +1,7 @@
 import { useLocation, useResolvedPath } from 'react-router-dom'
 
 interface ActivePathOptions {
+  to: string
   end?: boolean
 }
 /**
@@ -13,7 +14,7 @@ interface ActivePathOptions {
  * @param to The path to check
  * @param options.end Ensure this path isn't matched as "active" when its descendant paths are matched.
  */
-export const useIsActivePath = (to: string, { end }: ActivePathOptions = {}) => {
+export const useIsActivePath = ({ to, end }: ActivePathOptions) => {
   const path = useResolvedPath(to)
   const location = useLocation()
 

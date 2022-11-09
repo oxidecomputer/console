@@ -51,7 +51,7 @@ export interface TabProps {
   children: ReactNode
 }
 export const Tab = ({ to, children }: TabProps) => {
-  const isActive = useIsActivePath(to)
+  const isActive = useIsActivePath({ to })
   return (
     <Link
       role="tab"
