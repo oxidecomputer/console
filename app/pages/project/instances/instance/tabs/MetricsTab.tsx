@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
 import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
-import { DateTimeRangePicker, useDateTimeRangePickerState } from 'app/components/form'
+import { useDateTimeRangePicker } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
@@ -69,12 +69,7 @@ function DiskMetric({
 function DiskMetrics({ disks }: { disks: Disk[] }) {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
 
-  const initialPreset = 'lastDay'
-  const {
-    startTime,
-    endTime,
-    onChange: onTimeChange,
-  } = useDateTimeRangePickerState(initialPreset)
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
   invariant(disks.length > 0, 'DiskMetrics should not be rendered with zero disks')
   const [diskName, setDiskName] = useState<string>(disks[0].name)
@@ -86,9 +81,6 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
   return (
     <>
       <div className="mt-8 mb-4 flex justify-between">
-        {/* TODO: using a Formik field here feels like overkill, but we've built
-            ListboxField to require that, i.e., there's no way to get the nice worked-out
-            layout from ListboxField without using Formik. Something to think about. */}
         <Listbox
           className="w-48"
           aria-label="Choose disk"
@@ -101,13 +93,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
           }}
           defaultValue={diskName}
         />
-        <DateTimeRangePicker
-          initialPreset={initialPreset}
-          slideInterval={5000}
-          startTime={startTime}
-          endTime={endTime}
-          onChange={onTimeChange}
-        />
+        {dateTimeRangePicker}
       </div>
 
       {/* TODO: separate "Reads" from "(count)" so we can
