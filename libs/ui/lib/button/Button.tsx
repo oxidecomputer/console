@@ -1,9 +1,8 @@
 import cn from 'classnames'
 import type { MouseEventHandler } from 'react'
 import { forwardRef } from 'react'
-import { mergeRefs } from 'react-merge-refs'
 
-import { Spinner, useTooltip } from '@oxide/ui'
+import { Spinner, Tooltip, Wrap } from '@oxide/ui'
 import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
@@ -123,24 +122,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const {
-      Tooltip,
-      props: tooltipProps,
-      ref: tooltipRef,
-    } = useTooltip({ content: disabledReason })
     return (
-      <>
+      <Wrap
+        when={disabled && disabledReason}
+        with={<Tooltip content={disabledReason!} childAsAnchor />}
+      >
         <button
           className={cn(buttonStyle({ size, variant, color }), className, {
             'visually-disabled': disabled,
           })}
-          ref={mergeRefs([ref, tooltipRef])}
+          ref={ref}
           type="button"
           onMouseDown={disabled ? noop : undefined}
           onClick={disabled ? noop : onClick}
           aria-disabled={disabled || ariaDisabled}
           {...rest}
-          {...tooltipProps}
         >
           <>
             {loading && <Spinner className="absolute" />}
@@ -151,8 +147,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </span>
           </>
         </button>
-        {disabled && disabledReason && <Tooltip />}
-      </>
+      </Wrap>
     )
   }
 )

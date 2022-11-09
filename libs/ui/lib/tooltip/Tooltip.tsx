@@ -14,7 +14,13 @@ import {
 } from '@floating-ui/react-dom-interactions'
 import type { Placement } from '@floating-ui/react-dom-interactions'
 import cn from 'classnames'
+import type { ReactElement } from 'react'
+import { forwardRef } from 'react'
+import { cloneElement } from 'react'
+import { Children } from 'react'
 import { useRef, useState } from 'react'
+import { mergeRefs } from 'react-merge-refs'
+import invariant from 'tiny-invariant'
 
 import './tooltip.css'
 
@@ -103,32 +109,50 @@ export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
     ),
   }
 }
-
 export interface TooltipProps {
   children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
   /** Defaults to auto if not supplied */
   placement?: PlacementOrAuto
+  /** If present the component will use the provided child as an anchor instead of wrapping it in a button */
+  childAsAnchor?: boolean
 }
 
-export const Tooltip = ({ children, content, placement = 'auto' }: TooltipProps) => {
-  const {
-    ref,
-    props,
-    Tooltip: TooltipPopup,
-  } = useTooltip({
-    content,
-    placement,
-  })
+export const Tooltip = forwardRef(
+  ({ children, content, placement = 'auto', childAsAnchor }: TooltipProps, elRef) => {
+    const {
+      ref,
+      props,
+      Tooltip: TooltipPopup,
+    } = useTooltip({
+      content,
+      placement,
+    })
 
-  return (
-    <>
-      <button type="button" ref={ref} {...props} className="svg:pointer-events-none">
-        {children}
-      </button>
-      <TooltipPopup />
-    </>
-  )
-}
+    if (childAsAnchor) {
+      let child = Children.only(children)
+      invariant(child, 'TooltipAnchor must have a single child')
+      child = cloneElement(child as ReactElement, {
+        ...props,
+        ref: mergeRefs([ref, elRef]),
+      })
+
+      return (
+        <>
+          {child}
+          <TooltipPopup />
+        </>
+      )
+    }
+
+    return (
+      <>
+        <button type="button" ref={ref} {...props} className="svg:pointer-events-none">
+          {children}
+        </button>
+        <TooltipPopup />
+      </>
+    )
+  }
+)
