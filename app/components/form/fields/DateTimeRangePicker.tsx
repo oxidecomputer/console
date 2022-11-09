@@ -1,5 +1,5 @@
 import { format, subDays, subHours } from 'date-fns'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Listbox, useInterval } from '@oxide/ui'
 import { Button, TextInput } from '@oxide/ui'
@@ -46,10 +46,10 @@ export function useDateTimeRangePickerState(initialPreset: RangeKey) {
   const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
   const [endTime, setEndTime] = useState(now)
 
-  function onChange(newStart: Date, newEnd: Date) {
+  const onChange = useCallback((newStart: Date, newEnd: Date) => {
     setStartTime(newStart)
     setEndTime(newEnd)
-  }
+  }, [])
 
   return { startTime, endTime, onChange }
 }
@@ -91,21 +91,20 @@ export function DateTimeRangePicker({
 
   const enableInputs = preset === 'custom'
 
-  /** Set the input values and call the passed-on onChange with the new times */
-  function setTimesForPreset(newPreset: RangeKey) {
-    const now = new Date()
-    const newStartTime = computeStart[newPreset](now)
-    onChange(newStartTime, now)
-    setStartTimeInput(newStartTime)
-    setEndTimeInput(now)
-  }
-
-  useInterval(
-    () => {
-      if (preset !== 'custom') setTimesForPreset(preset)
+  useInterval({
+    fn: () => {
+      if (preset !== 'custom') {
+        const now = new Date()
+        const newStartTime = computeStart[preset](now)
+        onChange(newStartTime, now)
+        setStartTimeInput(newStartTime)
+        setEndTimeInput(now)
+      }
     },
-    preset !== 'custom' ? SLIDE_INTERVAL : null
-  )
+    delay: preset !== 'custom' ? SLIDE_INTERVAL : null,
+    key: preset, // force a render which clears current interval
+    immediate: true, // run callback immediately as well as on interval
+  })
 
   return (
     <form className="flex h-20 gap-4">
@@ -115,12 +114,7 @@ export function DateTimeRangePicker({
         defaultValue={initialPreset}
         aria-label="Choose a time range"
         items={rangePresets}
-        onChange={(item) => {
-          if (item) {
-            setPreset(item.value as RangeKeyAll)
-            if (item.value !== 'custom') setTimesForPreset(item.value as RangeKey)
-          }
-        }}
+        onChange={(item) => item && setPreset(item.value as RangeKeyAll)}
       />
 
       {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
