@@ -39,7 +39,7 @@ type Props = {
   onChange: (startTime: Date, endTime: Date) => void
 }
 
-export function useDateTimeRangePickerState(initialPreset: RangeKey) {
+export function useDateTimeRange(initialPreset: RangeKey) {
   // default endTime is now, i.e., mount time
   const now = useMemo(() => new Date(), [])
 
