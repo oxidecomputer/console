@@ -91,8 +91,11 @@ export function DateTimeRangePicker({
 
   const enableInputs = preset === 'custom'
 
-  useInterval({
-    fn: () => {
+  // could handle this in a useEffect that looks at `preset`, but that would
+  // also run on initial render, which is silly. Instead explicitly call it on
+  // preset change and in useInterval.
+  const setRange = useCallback(
+    (preset: RangeKeyAll) => {
       if (preset !== 'custom') {
         const now = new Date()
         const newStartTime = computeStart[preset](now)
@@ -101,9 +104,13 @@ export function DateTimeRangePicker({
         setEndTimeInput(now)
       }
     },
+    [onChange]
+  )
+
+  useInterval({
+    fn: () => setRange(preset),
     delay: preset !== 'custom' ? SLIDE_INTERVAL : null,
     key: preset, // force a render which clears current interval
-    immediate: true, // run callback immediately as well as on interval
   })
 
   return (
@@ -114,7 +121,13 @@ export function DateTimeRangePicker({
         defaultValue={initialPreset}
         aria-label="Choose a time range"
         items={rangePresets}
-        onChange={(item) => item && setPreset(item.value as RangeKeyAll)}
+        onChange={(item) => {
+          if (item) {
+            const newPreset = item.value as RangeKeyAll
+            setPreset(newPreset)
+            setRange(newPreset)
+          }
+        }}
       />
 
       {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}

@@ -22,6 +22,13 @@ function renderLastDay() {
   return { onChange }
 }
 
+beforeAll(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(now)
+
+  return () => vi.useRealTimers()
+})
+
 describe('useDateTimeRangePicker', () => {
   it.each([
     ['lastHour', subHours(now, 1)],
@@ -52,17 +59,12 @@ it.each([
   ['Last week', subDays(now, 7)],
   ['Last 30 days', subDays(now, 30)],
 ])('choosing a preset sets the times', (option, start) => {
-  vi.useFakeTimers()
-  vi.setSystemTime(now)
-
   const { onChange } = renderLastDay()
 
   clickByRole('button', 'Choose a time range')
   clickByRole('option', option)
 
   expect(onChange).toBeCalledWith(start, now)
-
-  vi.useRealTimers()
 })
 
 describe('custom mode', () => {
@@ -100,7 +102,7 @@ describe('custom mode', () => {
     // changing the input value without clicking Load doesn't do anything
     expect(onChange).not.toBeCalled()
 
-    // clicking Load calls onChange
+    // clicking Load calls onChange with the new range
     clickByRole('button', 'Load')
     expect(onChange).toBeCalledWith(new Date(2020, 0, 15), new Date(2020, 0, 17))
   })

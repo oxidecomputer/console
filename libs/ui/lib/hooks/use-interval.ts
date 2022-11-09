@@ -5,15 +5,16 @@ interface UseIntervalProps {
   delay: number | null
   /** Use to force a render because changes to the callback won't */
   key?: string
-  /**
-   * If true, run the callback immediately while setting up the interval.
-   * Otherwise it will only run after the first interval.
-   */
-  immediate?: boolean
 }
 
-// use null delay to prevent the interval from firing
-export default function useInterval({ fn, delay, key, immediate }: UseIntervalProps) {
+/**
+ * Fire `fn` on an interval. Does not fire immediately, only after `delay`.
+ *
+ * Use null `delay` to prevent the interval from firing at all. Change `key` to
+ * force a render, which cleans up the currently set interval and possibly sets
+ * a new one..
+ */
+export default function useInterval({ fn, delay, key }: UseIntervalProps) {
   const callbackRef = useRef<() => void>()
 
   useEffect(() => {
@@ -22,8 +23,7 @@ export default function useInterval({ fn, delay, key, immediate }: UseIntervalPr
 
   useEffect(() => {
     if (delay === null) return
-    if (immediate) callbackRef.current?.()
     const intervalId = setInterval(() => callbackRef.current?.(), delay)
     return () => clearInterval(intervalId)
-  }, [delay, key, immediate])
+  }, [delay, key])
 }
