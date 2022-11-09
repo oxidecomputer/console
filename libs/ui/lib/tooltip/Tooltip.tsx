@@ -26,23 +26,13 @@ import './tooltip.css'
  */
 type PlacementOrAuto = Placement | 'auto'
 
-export interface TooltipProps {
-  id: string
-  children?: React.ReactNode
-  /** The text to appear on hover/focus */
+export interface UseTooltipOptions {
+  /** Text to be rendered inside the tooltip */
   content: string | React.ReactNode
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
-  definition?: boolean
   /** Defaults to auto if not supplied */
   placement?: PlacementOrAuto
 }
-
-export const Tooltip = ({
-  children,
-  content,
-  placement = 'auto',
-  definition = false,
-}: TooltipProps) => {
+export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
@@ -80,18 +70,17 @@ export const Tooltip = ({
     useRole(context, { role: 'tooltip' }),
   ])
 
-  return (
-    <>
-      <button
-        type="button"
-        ref={reference}
-        {...getReferenceProps()}
-        className={cn('svg:pointer-events-none', {
-          'dashed-underline': definition,
-        })}
-      >
-        {children}
-      </button>
+  return {
+    /**
+     * Ref to be added to the anchor element of the tooltip. Use
+     * `react-merge-refs` if more than one ref is required for the element.
+     * */
+    ref: reference,
+    /** Props to be passed to the anchor element of the tooltip */
+    props: {
+      ...getReferenceProps(),
+    },
+    Tooltip: () => (
       <FloatingPortal>
         {open && (
           <div
@@ -111,6 +100,35 @@ export const Tooltip = ({
           </div>
         )}
       </FloatingPortal>
+    ),
+  }
+}
+
+export interface TooltipProps {
+  children?: React.ReactNode
+  /** The text to appear on hover/focus */
+  content: string | React.ReactNode
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  /** Defaults to auto if not supplied */
+  placement?: PlacementOrAuto
+}
+
+export const Tooltip = ({ children, content, placement = 'auto' }: TooltipProps) => {
+  const {
+    ref,
+    props,
+    Tooltip: TooltipPopup,
+  } = useTooltip({
+    content,
+    placement,
+  })
+
+  return (
+    <>
+      <button type="button" ref={ref} {...props} className="svg:pointer-events-none">
+        {children}
+      </button>
+      <TooltipPopup />
     </>
   )
 }

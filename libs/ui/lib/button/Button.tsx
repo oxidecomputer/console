@@ -1,8 +1,9 @@
 import cn from 'classnames'
 import type { MouseEventHandler } from 'react'
 import { forwardRef } from 'react'
+import { mergeRefs } from 'react-merge-refs'
 
-import { Spinner } from '@oxide/ui'
+import { Spinner, useTooltip } from '@oxide/ui'
 import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
@@ -74,6 +75,7 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> &
   ButtonStyleProps & {
     innerClassName?: string
     loading?: boolean
+    disabledReason?: string
   }
 
 export const buttonStyle = ({
@@ -116,29 +118,41 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       onClick,
       'aria-disabled': ariaDisabled,
+      disabledReason,
       ...rest
     },
     ref
   ) => {
+    const {
+      Tooltip,
+      props: tooltipProps,
+      ref: tooltipRef,
+    } = useTooltip({ content: disabledReason })
     return (
-      <button
-        className={cn(buttonStyle({ size, variant, color }), className, {
-          'visually-disabled': disabled,
-        })}
-        ref={ref}
-        type="button"
-        onMouseDown={disabled ? noop : undefined}
-        onClick={disabled ? noop : onClick}
-        aria-disabled={disabled || ariaDisabled}
-        {...rest}
-      >
-        <>
-          {loading && <Spinner className="absolute" />}
-          <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
-            {children}
-          </span>
-        </>
-      </button>
+      <>
+        <button
+          className={cn(buttonStyle({ size, variant, color }), className, {
+            'visually-disabled': disabled,
+          })}
+          ref={mergeRefs([ref, tooltipRef])}
+          type="button"
+          onMouseDown={disabled ? noop : undefined}
+          onClick={disabled ? noop : onClick}
+          aria-disabled={disabled || ariaDisabled}
+          {...rest}
+          {...tooltipProps}
+        >
+          <>
+            {loading && <Spinner className="absolute" />}
+            <span
+              className={cn('flex items-center', innerClassName, { invisible: loading })}
+            >
+              {children}
+            </span>
+          </>
+        </button>
+        {disabled && disabledReason && <Tooltip />}
+      </>
     )
   }
 )
