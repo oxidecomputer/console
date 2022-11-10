@@ -179,10 +179,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <TextField name="value" label="Target name" required control={targetForm.control} />
 
       <div className="flex justify-end">
-        <Button variant="ghost" className="mr-2.5" onClick={() => targetForm.reset()}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mr-2.5"
+          onClick={() => targetForm.reset()}
+        >
           Clear
         </Button>
         <Button
+          size="sm"
           onClick={targetForm.handleSubmit(({ type, value }) => {
             // TODO: show error instead of ignoring click
             // TODO: do this with a normal validation
@@ -260,10 +266,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       />
 
       <div className="flex justify-end">
-        <Button variant="ghost" className="mr-2.5" onClick={() => hostForm.reset()}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mr-2.5"
+          onClick={() => hostForm.reset()}
+        >
           Clear
         </Button>
         <Button
+          size="sm"
           onClick={hostForm.handleSubmit(({ type, value }) => {
             // TODO: show error instead of ignoring click
             if (
@@ -319,10 +331,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         control={portRangeForm.control}
       />
       <div className="flex justify-end">
-        <Button variant="ghost" className="mr-2.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mr-2.5"
+          onClick={() => portRangeForm.reset()}
+        >
           Clear
         </Button>
         <Button
+          size="sm"
           onClick={portRangeForm.handleSubmit(({ portRange }) => {
             const portRangeValue = portRange.trim()
             // TODO: show error instead of ignoring the click
@@ -380,9 +398,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </div>
       </fieldset>
 
-      <Divider />
-
-      <div className="text-destructive">{error?.error.message}</div>
+      {error?.error.message && (
+        <>
+          <Divider />
+          <div className="text-destructive">{error.error.message}</div>
+        </>
+      )}
     </>
   )
 }
