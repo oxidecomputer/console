@@ -38,7 +38,7 @@
  * Ghost
  */
 .btn-primary-ghost {
-  @apply border text-accent border-accent-tertiary hover:bg-accent-secondary disabled:bg-transparent;
+  @apply border text-secondary border-default hover:bg-hover disabled:bg-transparent;
 }
 
 /* Removing `-ghost` so this version is default `btn-secondary` */

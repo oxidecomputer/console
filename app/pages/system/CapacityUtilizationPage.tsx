@@ -5,7 +5,7 @@ import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide
 import { bytesToGiB } from '@oxide/util'
 
 import { SystemMetric } from 'app/components/SystemMetric'
-import { DateTimeRangePicker, useDateTimeRangePickerState } from 'app/components/form'
+import { useDateTimeRangePicker } from 'app/components/form'
 
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
@@ -20,11 +20,7 @@ export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
 
   const initialPreset = 'lastHour'
-  const {
-    startTime,
-    endTime,
-    onChange: onTimeChange,
-  } = useDateTimeRangePickerState(initialPreset)
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker(initialPreset)
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -66,13 +62,7 @@ export function CapacityUtilizationPage() {
           {/* TODO: need a button to clear the silo */}
         </div>
 
-        <DateTimeRangePicker
-          initialPreset={initialPreset}
-          slideInterval={5000}
-          startTime={startTime}
-          endTime={endTime}
-          onChange={onTimeChange}
-        />
+        {dateTimeRangePicker}
       </div>
       {/* TODO: this divider is supposed to go all the way across */}
       <Divider className="mb-6" />
