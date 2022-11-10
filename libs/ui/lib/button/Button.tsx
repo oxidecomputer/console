@@ -70,7 +70,17 @@ type ButtonStyleProps = {
   color?: Color
 }
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> &
+export type ButtonProps = Pick<
+  React.ComponentProps<'button'>,
+  | 'className'
+  | 'onClick'
+  | 'aria-disabled'
+  | 'disabled'
+  | 'children'
+  | 'type'
+  | 'title'
+  | 'form'
+> &
   ButtonStyleProps & {
     innerClassName?: string
     loading?: boolean
@@ -106,6 +116,7 @@ const noop: MouseEventHandler<HTMLButtonElement> = (e) => {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
+      type = 'button',
       children,
       size,
       variant,
@@ -116,7 +127,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       onClick,
       'aria-disabled': ariaDisabled,
-      ...rest
+      form,
+      title,
     },
     ref
   ) => {
@@ -126,11 +138,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'visually-disabled': disabled,
         })}
         ref={ref}
-        type="button"
+        type={type}
         onMouseDown={disabled ? noop : undefined}
         onClick={disabled ? noop : onClick}
         aria-disabled={disabled || ariaDisabled}
-        {...rest}
+        form={form}
+        title={title}
       >
         <>
           {loading && <Spinner className="absolute" />}
