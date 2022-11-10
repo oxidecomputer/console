@@ -136,6 +136,7 @@ export function StorageTab() {
             variant="default"
             size="sm"
             onClick={() => setShowDiskCreate(true)}
+            disabledReason="Instance must be stopped to create a disk"
             disabled={!instanceStopped}
           >
             Create new disk
@@ -145,6 +146,7 @@ export function StorageTab() {
             color="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
+            disabledReason="Instance must be stopped to attach a disk"
             disabled={!instanceStopped}
           >
             Attach existing disk

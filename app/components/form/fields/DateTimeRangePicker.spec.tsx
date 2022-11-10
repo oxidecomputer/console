@@ -10,17 +10,26 @@ import { DateTimeRangePicker, dateForInput } from './DateTimeRangePicker'
 const now = new Date(2020, 1, 1)
 
 function renderLastDay() {
-  const onChange = vi.fn()
+  const setStartTime = vi.fn()
+  const setEndTime = vi.fn()
   render(
     <DateTimeRangePicker
       initialPreset="lastDay"
       startTime={subDays(now, 1)}
       endTime={now}
-      onChange={onChange}
+      setStartTime={setStartTime}
+      setEndTime={setEndTime}
     />
   )
-  return { onChange }
+  return { setStartTime, setEndTime }
 }
+
+beforeAll(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(now)
+
+  return () => vi.useRealTimers()
+})
 
 describe('useDateTimeRangePicker', () => {
   it.each([
@@ -30,13 +39,13 @@ describe('useDateTimeRangePicker', () => {
     ['lastWeek', subDays(now, 7)],
     ['last30Days', subDays(now, 30)],
   ])('sets initial start and end', (preset, start) => {
-    const onChange = vi.fn()
     render(
       <DateTimeRangePicker
         initialPreset={preset as RangeKey}
         startTime={start}
         endTime={now}
-        onChange={onChange}
+        setStartTime={() => {}}
+        setEndTime={() => {}}
       />
     )
 
@@ -52,36 +61,33 @@ it.each([
   ['Last week', subDays(now, 7)],
   ['Last 30 days', subDays(now, 30)],
 ])('choosing a preset sets the times', (option, start) => {
-  vi.useFakeTimers()
-  vi.setSystemTime(now)
-
-  const { onChange } = renderLastDay()
+  const { setStartTime, setEndTime } = renderLastDay()
 
   clickByRole('button', 'Choose a time range')
   clickByRole('option', option)
 
-  expect(onChange).toBeCalledWith(start, now)
-
-  vi.useRealTimers()
+  expect(setStartTime).toBeCalledWith(start)
+  expect(setEndTime).toBeCalledWith(now)
 })
 
 describe('custom mode', () => {
   it('enables datetime inputs', () => {
-    const { onChange } = renderLastDay()
+    const { setStartTime, setEndTime } = renderLastDay()
 
     expect(screen.getByLabelText('Start time')).toBeDisabled()
 
     clickByRole('button', 'Choose a time range')
     clickByRole('option', 'Custom...')
 
-    expect(onChange).not.toBeCalled()
+    expect(setStartTime).not.toBeCalled()
+    expect(setEndTime).not.toBeCalled()
     expect(screen.getByLabelText('Start time')).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Reset' })).toHaveClass('visually-disabled')
     expect(screen.getByRole('button', { name: 'Load' })).toHaveClass('visually-disabled')
   })
 
   it('clicking load after changing date changes range', async () => {
-    const { onChange } = renderLastDay()
+    const { setStartTime, setEndTime } = renderLastDay()
 
     expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))
     expect(screen.getByLabelText('End time')).toHaveValue(dateForInput(now))
@@ -98,15 +104,17 @@ describe('custom mode', () => {
     fireEvent.change(endInput, { target: { value: '2020-01-17T00:00' } })
 
     // changing the input value without clicking Load doesn't do anything
-    expect(onChange).not.toBeCalled()
+    expect(setStartTime).not.toBeCalled()
+    expect(setEndTime).not.toBeCalled()
 
-    // clicking Load calls onChange
+    // clicking Load calls setTime with the new range
     clickByRole('button', 'Load')
-    expect(onChange).toBeCalledWith(new Date(2020, 0, 15), new Date(2020, 0, 17))
+    expect(setStartTime).toBeCalledWith(new Date(2020, 0, 15))
+    expect(setEndTime).toBeCalledWith(new Date(2020, 0, 17))
   })
 
   it('clicking reset after changing inputs resets inputs', async () => {
-    const { onChange } = renderLastDay()
+    const { setStartTime, setEndTime } = renderLastDay()
 
     expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))
     expect(screen.getByLabelText('End time')).toHaveValue(dateForInput(now))
@@ -127,8 +135,8 @@ describe('custom mode', () => {
     expect(startInput).toHaveValue('2020-01-31T00:00')
     expect(endInput).toHaveValue('2020-02-01T00:00')
 
-    // onChange is never called
-    expect(onChange).not.toBeCalled()
+    expect(setStartTime).not.toBeCalled()
+    expect(setEndTime).not.toBeCalled()
   })
 
   it('shows error for invalid range', () => {

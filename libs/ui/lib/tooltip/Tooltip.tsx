@@ -14,7 +14,13 @@ import {
 } from '@floating-ui/react-dom-interactions'
 import type { Placement } from '@floating-ui/react-dom-interactions'
 import cn from 'classnames'
+import type { ReactElement } from 'react'
+import { forwardRef } from 'react'
+import { cloneElement } from 'react'
+import { Children } from 'react'
 import { useRef, useState } from 'react'
+import { mergeRefs } from 'react-merge-refs'
+import invariant from 'tiny-invariant'
 
 import './tooltip.css'
 
@@ -26,23 +32,13 @@ import './tooltip.css'
  */
 type PlacementOrAuto = Placement | 'auto'
 
-export interface TooltipProps {
-  id: string
-  children?: React.ReactNode
-  /** The text to appear on hover/focus */
+export interface UseTooltipOptions {
+  /** Text to be rendered inside the tooltip */
   content: string | React.ReactNode
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
-  definition?: boolean
   /** Defaults to auto if not supplied */
   placement?: PlacementOrAuto
 }
-
-export const Tooltip = ({
-  children,
-  content,
-  placement = 'auto',
-  definition = false,
-}: TooltipProps) => {
+export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
@@ -80,18 +76,15 @@ export const Tooltip = ({
     useRole(context, { role: 'tooltip' }),
   ])
 
-  return (
-    <>
-      <button
-        type="button"
-        ref={reference}
-        {...getReferenceProps()}
-        className={cn('svg:pointer-events-none', {
-          'dashed-underline': definition,
-        })}
-      >
-        {children}
-      </button>
+  return {
+    /**
+     * Ref to be added to the anchor element of the tooltip. Use
+     * `react-merge-refs` if more than one ref is required for the element.
+     * */
+    ref: reference,
+    /** Props to be passed to the anchor element of the tooltip */
+    props: getReferenceProps(),
+    Tooltip: () => (
       <FloatingPortal>
         {open && (
           <div
@@ -111,6 +104,40 @@ export const Tooltip = ({
           </div>
         )}
       </FloatingPortal>
-    </>
-  )
+    ),
+  }
 }
+export interface TooltipProps {
+  children?: React.ReactNode
+  /** The text to appear on hover/focus */
+  content: string | React.ReactNode
+  /** Defaults to auto if not supplied */
+  placement?: PlacementOrAuto
+}
+
+export const Tooltip = forwardRef(
+  ({ children, content, placement = 'auto' }: TooltipProps, elRef) => {
+    const {
+      ref,
+      props,
+      Tooltip: TooltipPopup,
+    } = useTooltip({
+      content,
+      placement,
+    })
+
+    let child = Children.only(children)
+    invariant(child, 'Tooltip must have a single child')
+    child = cloneElement(child as ReactElement, {
+      ...props,
+      ref: mergeRefs([ref, elRef]),
+    })
+
+    return (
+      <>
+        {child}
+        <TooltipPopup />
+      </>
+    )
+  }
+)
