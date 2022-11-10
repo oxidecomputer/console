@@ -150,7 +150,6 @@ export function NetworkingTab() {
         <div className="flex gap-3">
           <Button
             size="sm"
-            variant="default"
             onClick={() => setCreateModalOpen(true)}
             disabled={!instanceStopped}
           >

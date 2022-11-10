@@ -64,7 +64,7 @@ export const Form = {
   Submit: (props: ButtonProps) => <Button type="submit" size="sm" {...props} />,
 
   Cancel: (props: ButtonProps) => (
-    <Button variant="ghost" color="secondary" size="sm" {...props}>
+    <Button variant="ghost" size="sm" {...props}>
       Cancel
     </Button>
   ),

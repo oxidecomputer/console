@@ -61,15 +61,10 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
         )}
 
         <div className="space-x-3">
-          <Button variant="default" size="sm" onClick={() => setShowDiskCreate(true)}>
+          <Button size="sm" onClick={() => setShowDiskCreate(true)}>
             Create new disk
           </Button>
-          <Button
-            variant="ghost"
-            color="secondary"
-            size="sm"
-            onClick={() => setShowDiskAttach(true)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setShowDiskAttach(true)}>
             Attach existing disk
           </Button>
         </div>

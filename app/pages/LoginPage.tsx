@@ -62,7 +62,6 @@ export default function LoginPage() {
       </Button>
       <Button
         type="submit"
-        variant="default"
         className="w-full"
         disabled={loginPost.isLoading}
         onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
@@ -71,7 +70,7 @@ export default function LoginPage() {
       </Button>
       <Button
         type="submit"
-        variant="ghost"
+        variant="danger"
         className="w-full"
         disabled={loginPost.isLoading}
         onClick={() => loginPost.mutate({ body: { username: 'other' } })}
@@ -80,7 +79,7 @@ export default function LoginPage() {
       </Button>
       <Button
         type="submit"
-        variant="link"
+        variant="ghost"
         className="w-full"
         disabled={loginPost.isLoading}
         onClick={() => logout.mutate({})}

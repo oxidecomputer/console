@@ -122,7 +122,7 @@ export function DisksPage() {
       <TableActions>
         <Link
           to={pb.diskNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm', variant: 'default' })}
+          className={buttonStyle({ size: 'sm' })}
         >
           New Disk
         </Link>

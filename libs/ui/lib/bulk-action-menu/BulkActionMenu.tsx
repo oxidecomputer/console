@@ -24,7 +24,6 @@ export function BulkActionMenu({ children, selectedCount }: BulkActionMenuProps)
 BulkActionMenu.Button = (props: Omit<ButtonProps, 'size' | 'variant'>) => (
   <Button
     size="sm"
-    variant="default"
     // TODO: Remove this border once the proper button styles are available
     className="rounded border !border-accent-secondary"
     {...props}

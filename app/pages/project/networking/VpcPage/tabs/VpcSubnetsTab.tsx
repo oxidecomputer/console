@@ -35,7 +35,7 @@ export const VpcSubnetsTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="sm" variant="default" onClick={() => setCreating(true)}>
+        <Button size="sm" onClick={() => setCreating(true)}>
           New subnet
         </Button>
         {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}

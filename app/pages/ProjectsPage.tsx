@@ -97,10 +97,7 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.projectNew({ orgName })}
-          className={buttonStyle({ variant: 'default', size: 'sm' })}
-        >
+        <Link to={pb.projectNew({ orgName })} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>

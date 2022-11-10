@@ -107,7 +107,7 @@ export function NetworkInterfaceField({
             />
           )}
           <div className="space-x-3">
-            <Button variant="default" size="sm" onClick={() => setShowForm(true)}>
+            <Button size="sm" onClick={() => setShowForm(true)}>
               Add network interface
             </Button>
           </div>

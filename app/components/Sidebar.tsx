@@ -28,7 +28,6 @@ const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
 const JumpToButton = () => (
   <Button
     variant="ghost"
-    color="secondary"
     size="sm"
     // TODO: click should open jump to menu
     onClick={() => alert('click not implemented, press cmd+k')}

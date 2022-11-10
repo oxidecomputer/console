@@ -47,17 +47,17 @@ export function TopBar({ children }: { children: React.ReactNode }) {
             {otherPickers}
           </div>
           <div>
-            <Button variant="default" color="secondary" size="sm" title="Info">
+            <Button variant="secondary" size="icon" title="Info">
               <Info16Icon className="text-quaternary" />
             </Button>
-            <Button color="secondary" size="sm" className="ml-2" title="Notifications">
+            <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button>
             <Menu>
               <MenuButton
                 as={Button}
-                color="secondary"
                 size="sm"
+                variant="secondary"
                 aria-label="User menu"
                 className="ml-2"
                 innerClassName="space-x-2"
