@@ -17,7 +17,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=heading[name*=db1]',
     'role=tab[name="Storage"]',
     'role=tab[name="Metrics"]',
-    'role=tab[name="Networking"]',
+    'role=tab[name="Network Interfaces"]',
     'role=table[name="Boot disk"] >> role=cell[name="disk-1"]',
     'role=table[name="Attached disks"] >> role=cell[name="disk-2"]',
     // buttons disabled while instance is running

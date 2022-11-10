@@ -67,7 +67,8 @@ export function InstancesPage() {
         { value: 'New instance', onSelect: () => navigate(pb.instanceNew(projectParams)) },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
-          onSelect: () => navigate(pb.instance({ ...projectParams, instanceName: i.name })),
+          onSelect: () =>
+            navigate(pb.instancePage({ ...projectParams, instanceName: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
@@ -103,7 +104,7 @@ export function InstancesPage() {
         <Column
           accessor="name"
           cell={linkCell((instanceName) =>
-            pb.instance({ orgName, projectName, instanceName })
+            pb.instancePage({ orgName, projectName, instanceName })
           )}
         />
         <Column
