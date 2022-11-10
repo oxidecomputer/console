@@ -33,7 +33,9 @@ export const FieldLabel = ({
       </Component>
       {tip && (
         <Tooltip content={tip}>
-          <Info8Icon />
+          <button className="svg:pointer-events-none">
+            <Info8Icon />
+          </button>
         </Tooltip>
       )}
     </div>

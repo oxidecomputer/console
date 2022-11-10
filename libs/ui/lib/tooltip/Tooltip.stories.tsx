@@ -3,6 +3,8 @@ import { Tooltip } from './Tooltip'
 
 export const Default = () => (
   <Tooltip content="Filter">
-    <Filter12Icon />
+    <button>
+      <Filter12Icon />
+    </button>
   </Tooltip>
 )

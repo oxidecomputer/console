@@ -137,10 +137,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     return (
-      <Wrap
-        when={disabled && disabledReason}
-        with={<Tooltip content={disabledReason!} childAsAnchor />}
-      >
+      <Wrap when={disabled && disabledReason} with={<Tooltip content={disabledReason!} />}>
         <button
           className={cn(buttonStyle({ size, variant, color }), className, {
             'visually-disabled': disabled,

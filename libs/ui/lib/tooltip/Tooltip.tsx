@@ -83,9 +83,7 @@ export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
      * */
     ref: reference,
     /** Props to be passed to the anchor element of the tooltip */
-    props: {
-      ...getReferenceProps(),
-    },
+    props: getReferenceProps(),
     Tooltip: () => (
       <FloatingPortal>
         {open && (
@@ -115,12 +113,10 @@ export interface TooltipProps {
   content: string | React.ReactNode
   /** Defaults to auto if not supplied */
   placement?: PlacementOrAuto
-  /** If present the component will use the provided child as an anchor instead of wrapping it in a button */
-  childAsAnchor?: boolean
 }
 
 export const Tooltip = forwardRef(
-  ({ children, content, placement = 'auto', childAsAnchor }: TooltipProps, elRef) => {
+  ({ children, content, placement = 'auto' }: TooltipProps, elRef) => {
     const {
       ref,
       props,
@@ -130,27 +126,16 @@ export const Tooltip = forwardRef(
       placement,
     })
 
-    if (childAsAnchor) {
-      let child = Children.only(children)
-      invariant(child, 'TooltipAnchor must have a single child')
-      child = cloneElement(child as ReactElement, {
-        ...props,
-        ref: mergeRefs([ref, elRef]),
-      })
-
-      return (
-        <>
-          {child}
-          <TooltipPopup />
-        </>
-      )
-    }
+    let child = Children.only(children)
+    invariant(child, 'Tooltip must have a single child')
+    child = cloneElement(child as ReactElement, {
+      ...props,
+      ref: mergeRefs([ref, elRef]),
+    })
 
     return (
       <>
-        <button type="button" ref={ref} {...props} className="svg:pointer-events-none">
-          {children}
-        </button>
+        {child}
         <TooltipPopup />
       </>
     )
