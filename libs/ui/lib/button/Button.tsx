@@ -2,7 +2,7 @@ import cn from 'classnames'
 import type { MouseEventHandler } from 'react'
 import { forwardRef } from 'react'
 
-import { Spinner } from '@oxide/ui'
+import { Spinner, Tooltip, Wrap } from '@oxide/ui'
 import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
@@ -86,6 +86,7 @@ export type ButtonProps = Pick<
   ButtonStyleProps & {
     innerClassName?: string
     loading?: boolean
+    disabledReason?: string
   }
 
 export const buttonStyle = ({
@@ -129,31 +130,36 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       onClick,
       'aria-disabled': ariaDisabled,
+      disabledReason,
       form,
       title,
     },
     ref
   ) => {
     return (
-      <button
-        className={cn(buttonStyle({ size, variant, color }), className, {
-          'visually-disabled': disabled,
-        })}
-        ref={ref}
-        type={type}
-        onMouseDown={disabled ? noop : undefined}
-        onClick={disabled ? noop : onClick}
-        aria-disabled={disabled || ariaDisabled}
-        form={form}
-        title={title}
-      >
-        <>
-          {loading && <Spinner className="absolute" />}
-          <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
-            {children}
-          </span>
-        </>
-      </button>
+      <Wrap when={disabled && disabledReason} with={<Tooltip content={disabledReason!} />}>
+        <button
+          className={cn(buttonStyle({ size, variant, color }), className, {
+            'visually-disabled': disabled,
+          })}
+          ref={ref}
+          type={type}
+          onMouseDown={disabled ? noop : undefined}
+          onClick={disabled ? noop : onClick}
+          aria-disabled={disabled || ariaDisabled}
+          form={form}
+          title={title}
+        >
+          <>
+            {loading && <Spinner className="absolute" />}
+            <span
+              className={cn('flex items-center', innerClassName, { invisible: loading })}
+            >
+              {children}
+            </span>
+          </>
+        </button>
+      </Wrap>
     )
   }
 )
