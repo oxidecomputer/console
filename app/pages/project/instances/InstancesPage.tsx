@@ -89,7 +89,7 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button size="sm" variant="ghost" onClick={refetchInstances}>
+        <Button size="icon" variant="ghost" onClick={refetchInstances}>
           <Refresh16Icon />
         </Button>
         <Link

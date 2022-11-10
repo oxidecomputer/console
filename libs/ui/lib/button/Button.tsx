@@ -7,7 +7,7 @@ import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
 
-export const buttonSizes = ['sm', 'base'] as const
+export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['default', 'ghost', 'link'] as const
 export const colors = ['primary', 'secondary', 'destructive', 'notice'] as const
 
@@ -17,6 +17,8 @@ export type Color = typeof colors[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
   sm: 'h-8 px-3 text-mono-sm svg:w-4',
+  // meant for buttons that only contain a single icon
+  icon: 'h-8 w-8 text-mono-sm svg:w-4',
   base: 'h-10 px-3 text-mono-md svg:w-5',
 }
 
