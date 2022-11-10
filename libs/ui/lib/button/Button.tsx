@@ -48,22 +48,11 @@ type ButtonStyleProps = {
   variant?: Variant
 }
 
-export type ButtonProps = Pick<
-  React.ComponentProps<'button'>,
-  | 'className'
-  | 'onClick'
-  | 'aria-disabled'
-  | 'disabled'
-  | 'children'
-  | 'type'
-  | 'title'
-  | 'form'
-> &
-  ButtonStyleProps & {
-    innerClassName?: string
-    loading?: boolean
-    disabledReason?: string
-  }
+export interface ButtonProps extends React.ComponentProps<'button'>, ButtonStyleProps {
+  innerClassName?: string
+  loading?: boolean
+  disabledReason?: string
+}
 
 export const buttonStyle = ({
   size = 'base',
@@ -105,8 +94,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       onClick,
       'aria-disabled': ariaDisabled,
       disabledReason,
-      form,
-      title,
+      // needs to be a spread because we pass this component to Reach
+      // <MenuButton> with the `as` prop and get passed arbitrary <button> props
+      ...rest
     },
     ref
   ) => {
@@ -121,8 +111,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           onMouseDown={disabled ? noop : undefined}
           onClick={disabled ? noop : onClick}
           aria-disabled={disabled || ariaDisabled}
-          form={form}
-          title={title}
+          {...rest}
         >
           <>
             {loading && <Spinner className="absolute" />}
