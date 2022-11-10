@@ -20,7 +20,13 @@ export const pb = {
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
 
-  /** The landing page for the instance, this path should be used instead of `instance` */
+  /**
+   * This route exists as a direct link to the default tab of the instance page. Unfortunately
+   * we don't currently have a good mechanism at the moment to handle a redirect to the default
+   * tab in a seemless way so we need all in-app links to go directly to the default tab.
+   *
+   * @see https://github.com/oxidecomputer/console/pull/1267#discussion_r1016766205
+   */
   instancePage: (params: PP.Instance) => pb.instanceStorage(params),
 
   instanceMetrics: (params: PP.Instance) => `${pb.instance(params)}/metrics`,
