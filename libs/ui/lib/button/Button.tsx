@@ -48,7 +48,9 @@ const noop: MouseEventHandler<HTMLButtonElement> = (e) => {
   e.preventDefault()
 }
 
-export interface ButtonProps extends React.ComponentProps<'button'>, ButtonStyleProps {
+export interface ButtonProps
+  extends React.ComponentPropsWithRef<'button'>,
+    ButtonStyleProps {
   innerClassName?: string
   loading?: boolean
   disabledReason?: string
