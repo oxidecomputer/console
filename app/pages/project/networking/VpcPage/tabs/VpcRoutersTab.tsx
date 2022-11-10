@@ -36,7 +36,7 @@ export const VpcRoutersTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-4">
-        <Button size="sm" variant="default" onClick={() => setCreating(true)}>
+        <Button size="sm" onClick={() => setCreating(true)}>
           New router
         </Button>
         {creating && <CreateVpcRouterForm onDismiss={() => setCreating(false)} />}

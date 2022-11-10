@@ -87,7 +87,7 @@ export default function OrgsPage() {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.orgNew()} className={buttonStyle({ variant: 'default', size: 'sm' })}>
+        <Link to={pb.orgNew()} className={buttonStyle({ size: 'sm' })}>
           New Organization
         </Link>
       </TableActions>

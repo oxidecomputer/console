@@ -133,7 +133,6 @@ export function StorageTab() {
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
-            variant="default"
             size="sm"
             onClick={() => setShowDiskCreate(true)}
             disabledReason="Instance must be stopped to create a disk"
@@ -142,8 +141,7 @@ export function StorageTab() {
             Create new disk
           </Button>
           <Button
-            variant="ghost"
-            color="secondary"
+            variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabledReason="Instance must be stopped to attach a disk"

@@ -94,7 +94,7 @@ export function InstancesPage() {
         </Button>
         <Link
           to={pb.instanceNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm', variant: 'default' })}
+          className={buttonStyle({ size: 'sm' })}
         >
           New Instance
         </Link>

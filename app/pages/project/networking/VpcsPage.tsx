@@ -94,7 +94,7 @@ export function VpcsPage() {
       <TableActions>
         <Link
           to={pb.vpcNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm', variant: 'default' })}
+          className={buttonStyle({ size: 'sm' })}
         >
           New Vpc
         </Link>

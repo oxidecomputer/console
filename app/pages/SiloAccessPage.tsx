@@ -147,7 +147,7 @@ export function SiloAccessPage() {
       </PageHeader>
 
       <TableActions>
-        <Button size="sm" variant="default" onClick={() => setAddModalOpen(true)}>
+        <Button size="sm" onClick={() => setAddModalOpen(true)}>
           Add user or group
         </Button>
       </TableActions>

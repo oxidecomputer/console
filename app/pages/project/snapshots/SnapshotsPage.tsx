@@ -67,10 +67,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.snapshotNew(projectParams)}
-          className={buttonStyle({ size: 'sm', variant: 'default' })}
-        >
+        <Link to={pb.snapshotNew(projectParams)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

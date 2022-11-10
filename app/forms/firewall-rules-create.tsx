@@ -179,12 +179,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <TextField name="value" label="Target name" required control={targetForm.control} />
 
       <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          color="secondary"
-          className="mr-2.5"
-          onClick={() => targetForm.reset()}
-        >
+        <Button variant="ghost" className="mr-2.5" onClick={() => targetForm.reset()}>
           Clear
         </Button>
         <Button
@@ -265,12 +260,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       />
 
       <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          color="secondary"
-          className="mr-2.5"
-          onClick={() => hostForm.reset()}
-        >
+        <Button variant="ghost" className="mr-2.5" onClick={() => hostForm.reset()}>
           Clear
         </Button>
         <Button
@@ -329,7 +319,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         control={portRangeForm.control}
       />
       <div className="flex justify-end">
-        <Button variant="ghost" color="secondary" className="mr-2.5">
+        <Button variant="ghost" className="mr-2.5">
           Clear
         </Button>
         <Button

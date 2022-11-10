@@ -178,7 +178,7 @@ export function ProjectAccessPage() {
       </PageHeader>
 
       <TableActions>
-        <Button size="sm" variant="default" onClick={() => setAddModalOpen(true)}>
+        <Button size="sm" onClick={() => setAddModalOpen(true)}>
           Add user to project
         </Button>
       </TableActions>

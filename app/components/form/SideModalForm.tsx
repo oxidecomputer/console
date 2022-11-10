@@ -84,7 +84,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
               <span>{submitError.error.message}</span>
             </div>
           )}
-          <Button variant="ghost" color="secondary" size="sm" onClick={onDismiss}>
+          <Button variant="ghost" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
           <Button type="submit" size="sm" disabled={submitDisabled || !canSubmit} form={id}>

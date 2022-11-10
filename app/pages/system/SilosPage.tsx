@@ -80,7 +80,7 @@ export default function SilosPage() {
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.siloNew()} className={buttonStyle({ variant: 'default', size: 'sm' })}>
+        <Link to={pb.siloNew()} className={buttonStyle({ size: 'sm' })}>
           New silo
         </Link>
       </TableActions>

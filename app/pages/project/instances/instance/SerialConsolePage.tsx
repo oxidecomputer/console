@@ -30,7 +30,7 @@ export function SerialConsolePage() {
       </Suspense>
       <PageActions>
         <div className="gutter flex h-20 items-center">
-          <Button variant="default" size="sm" onClick={() => refetch()}>
+          <Button size="sm" onClick={() => refetch()}>
             Refresh
           </Button>
         </div>
