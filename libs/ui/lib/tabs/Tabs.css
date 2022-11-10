@@ -20,7 +20,7 @@
 }
 
 .ox-tab {
-  @apply h-10 space-x-2 whitespace-nowrap border-b px-[6px]
+  @apply h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2
   uppercase !no-underline text-mono-sm text-tertiary border-secondary;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .ox-tab > * {
-  @apply rounded bg-transparent px-[6px] py-[4px];
+  @apply rounded bg-transparent px-1.5 py-1;
 }
 .ox-tab:hover > * {
   @apply bg-secondary;
