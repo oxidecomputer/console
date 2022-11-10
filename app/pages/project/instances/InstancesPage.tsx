@@ -11,10 +11,12 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import {
+  Button,
   EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,
+  Refresh16Icon,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -76,10 +78,7 @@ export function InstancesPage() {
   const { Table, Column } = useQueryTable(
     'instanceList',
     { path: projectParams },
-    {
-      refetchInterval: 5000,
-      keepPreviousData: true,
-    }
+    { keepPreviousData: true }
   )
 
   if (!instances) return null
@@ -90,6 +89,9 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
+        <Button size="sm" variant="ghost" onClick={refetchInstances}>
+          <Refresh16Icon />
+        </Button>
         <Link
           to={pb.instanceNew({ orgName, projectName })}
           className={buttonStyle({ size: 'sm', variant: 'default' })}
