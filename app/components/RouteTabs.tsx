@@ -1,32 +1,66 @@
 import cn from 'classnames'
-import type { LinkProps } from 'react-router-dom'
-import { NavLink, Outlet } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { Link, Outlet } from 'react-router-dom'
 
-import type { ChildrenProp } from '@oxide/util'
+import { useIsActivePath } from 'app/hooks/use-is-active-path'
 
-type RouteTabsProps = ChildrenProp & { fullWidth?: boolean }
+const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const target = e.target as HTMLDivElement
+  if (e.key === 'ArrowLeft') {
+    e.stopPropagation()
+    e.preventDefault()
+
+    const sibling = (target.previousSibling ??
+      target.parentElement!.lastChild!) as HTMLDivElement
+
+    sibling.focus()
+    sibling.click()
+  } else if (e.key === 'ArrowRight') {
+    e.stopPropagation()
+    e.preventDefault()
+
+    const sibling = (target.nextSibling ??
+      target.parentElement!.firstChild!) as HTMLDivElement
+
+    sibling.focus()
+    sibling.click()
+  }
+}
+
+export interface RouteTabsProps {
+  children: ReactNode
+  fullWidth?: boolean
+}
 export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   return (
     <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
-      <div role="tablist" className="ox-tabs-list flex">
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+      <div role="tablist" className="ox-tabs-list flex" onKeyDown={selectTab}>
         {children}
       </div>
-      <div className="ox-tabs-panel">
+      {/* TODO: Add aria-describedby for active tab */}
+      <div className="ox-tabs-panel" role="tabpanel" tabIndex={0}>
         <Outlet />
       </div>
     </div>
   )
 }
 
-type TabProps = Pick<LinkProps, 'to'> & ChildrenProp
+export interface TabProps {
+  to: string
+  children: ReactNode
+}
 export const Tab = ({ to, children }: TabProps) => {
+  const isActive = useIsActivePath({ to })
   return (
-    <NavLink
+    <Link
       role="tab"
       to={to}
-      className={({ isActive }) => cn('ox-tab', { 'is-selected': isActive })}
+      className={cn('ox-tab', { 'is-selected': isActive })}
+      tabIndex={isActive ? 0 : -1}
+      aria-selected={isActive}
     >
       <div>{children}</div>
-    </NavLink>
+    </Link>
   )
 }

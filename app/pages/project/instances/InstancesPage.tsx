@@ -11,10 +11,12 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import {
+  Button,
   EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,
+  Refresh16Icon,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -65,7 +67,8 @@ export function InstancesPage() {
         { value: 'New instance', onSelect: () => navigate(pb.instanceNew(projectParams)) },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
-          onSelect: () => navigate(pb.instance({ ...projectParams, instanceName: i.name })),
+          onSelect: () =>
+            navigate(pb.instancePage({ ...projectParams, instanceName: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
@@ -76,10 +79,7 @@ export function InstancesPage() {
   const { Table, Column } = useQueryTable(
     'instanceList',
     { path: projectParams },
-    {
-      refetchInterval: 5000,
-      keepPreviousData: true,
-    }
+    { keepPreviousData: true }
   )
 
   if (!instances) return null
@@ -90,6 +90,9 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
+        <Button size="icon" variant="ghost" onClick={refetchInstances}>
+          <Refresh16Icon />
+        </Button>
         <Link
           to={pb.instanceNew({ orgName, projectName })}
           className={buttonStyle({ size: 'sm', variant: 'default' })}
@@ -101,7 +104,7 @@ export function InstancesPage() {
         <Column
           accessor="name"
           cell={linkCell((instanceName) =>
-            pb.instance({ orgName, projectName, instanceName })
+            pb.instancePage({ orgName, projectName, instanceName })
           )}
         />
         <Column

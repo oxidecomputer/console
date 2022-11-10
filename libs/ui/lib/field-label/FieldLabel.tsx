@@ -32,8 +32,10 @@ export const FieldLabel = ({
         )}
       </Component>
       {tip && (
-        <Tooltip id={`${id}-tip`} content={tip}>
-          <Info8Icon />
+        <Tooltip content={tip}>
+          <button className="svg:pointer-events-none">
+            <Info8Icon />
+          </button>
         </Tooltip>
       )}
     </div>

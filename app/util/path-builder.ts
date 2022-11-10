@@ -20,16 +20,21 @@ export const pb = {
   instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
   instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
 
-  instanceMetrics: (params: PP.Instance) =>
-    `${pb.instances(params)}/${params.instanceName}/metrics`,
-  instanceStorage: (params: PP.Instance) =>
-    `${pb.instances(params)}/${params.instanceName}/storage`,
+  /**
+   * This route exists as a direct link to the default tab of the instance page. Unfortunately
+   * we don't currently have a good mechanism at the moment to handle a redirect to the default
+   * tab in a seemless way so we need all in-app links to go directly to the default tab.
+   *
+   * @see https://github.com/oxidecomputer/console/pull/1267#discussion_r1016766205
+   */
+  instancePage: (params: PP.Instance) => pb.instanceStorage(params),
 
-  nics: (params: PP.Instance) =>
-    `${pb.instances(params)}/${params.instanceName}/network-interfaces`,
+  instanceMetrics: (params: PP.Instance) => `${pb.instance(params)}/metrics`,
+  instanceStorage: (params: PP.Instance) => `${pb.instance(params)}/storage`,
+
+  nics: (params: PP.Instance) => `${pb.instance(params)}/network-interfaces`,
   nicEdit: (params: PP.NetworkInterface) =>
     `${pb.nics(params)}/${params.interfaceName}/edit`,
-
   serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
 
   diskNew: (params: PP.Project) => `${pb.project(params)}/disks-new`,

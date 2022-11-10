@@ -1,5 +1,5 @@
 import { format, subDays, subHours } from 'date-fns'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Listbox, useInterval } from '@oxide/ui'
 import { Button, TextInput } from '@oxide/ui'
@@ -32,31 +32,25 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
 //   - list of presets is hard-coded
 //   - initial preset can't be "custom"
 
-type Props = {
-  initialPreset: RangeKey
-  /**
-   * if set and range is a relative preset, update the range to have `endTime`
-   * of now every X ms
-   */
-  slideInterval?: number
-  startTime: Date
-  endTime: Date
-  onChange: (startTime: Date, endTime: Date) => void
-}
-
-export function useDateTimeRangePickerState(initialPreset: RangeKey) {
-  // default endTime is now, i.e., mount time
+/**
+ * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
+ * a JSX element to render. When we're using a relative preset like last N
+ * hours, automatically slide the window forward live by updating the range to
+ * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
+ */
+export function useDateTimeRangePicker(initialPreset: RangeKey) {
   const now = useMemo(() => new Date(), [])
 
   const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
   const [endTime, setEndTime] = useState(now)
 
-  function onChange(newStart: Date, newEnd: Date) {
-    setStartTime(newStart)
-    setEndTime(newEnd)
-  }
+  const props = { initialPreset, startTime, endTime, setStartTime, setEndTime }
 
-  return { startTime, endTime, onChange }
+  return {
+    startTime,
+    endTime,
+    dateTimeRangePicker: <DateTimeRangePicker {...props} />,
+  }
 }
 
 function validateRange(startTime: Date, endTime: Date): string | null {
@@ -67,17 +61,24 @@ function validateRange(startTime: Date, endTime: Date): string | null {
   return null
 }
 
-/**
- * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
- * a JSX element to render.
- */
+/** Interval for sliding range forward when using a relative time preset */
+const SLIDE_INTERVAL = 10_000
+
+type DateTimeRangePickerProps = {
+  initialPreset: RangeKey
+  startTime: Date
+  endTime: Date
+  setStartTime: (startTime: Date) => void
+  setEndTime: (endTime: Date) => void
+}
+
 export function DateTimeRangePicker({
   initialPreset,
-  slideInterval,
   startTime,
   endTime,
-  onChange,
-}: Props) {
+  setStartTime,
+  setEndTime,
+}: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
 
   // needs a separate pair of values because they can be edited without
@@ -92,21 +93,28 @@ export function DateTimeRangePicker({
 
   const enableInputs = preset === 'custom'
 
-  /** Set the input values and call the passed-on onChange with the new times */
-  function setTimesForPreset(newPreset: RangeKey) {
-    const now = new Date()
-    const newStartTime = computeStart[newPreset](now)
-    onChange(newStartTime, now)
-    setStartTimeInput(newStartTime)
-    setEndTimeInput(now)
-  }
-
-  useInterval(
-    () => {
-      if (preset !== 'custom') setTimesForPreset(preset)
+  // could handle this in a useEffect that looks at `preset`, but that would
+  // also run on initial render, which is silly. Instead explicitly call it on
+  // preset change and in useInterval.
+  const setRange = useCallback(
+    (preset: RangeKeyAll) => {
+      if (preset !== 'custom') {
+        const now = new Date()
+        const newStartTime = computeStart[preset](now)
+        setStartTime(newStartTime)
+        setEndTime(now)
+        setStartTimeInput(newStartTime)
+        setEndTimeInput(now)
+      }
     },
-    slideInterval && preset !== 'custom' ? slideInterval : null
+    [setStartTime, setEndTime]
   )
+
+  useInterval({
+    fn: () => setRange(preset),
+    delay: preset !== 'custom' ? SLIDE_INTERVAL : null,
+    key: preset, // force a render which clears current interval
+  })
 
   return (
     <form className="flex h-20 gap-4">
@@ -118,8 +126,9 @@ export function DateTimeRangePicker({
         items={rangePresets}
         onChange={(item) => {
           if (item) {
-            setPreset(item.value as RangeKeyAll)
-            if (item.value !== 'custom') setTimesForPreset(item.value as RangeKey)
+            const newPreset = item.value as RangeKeyAll
+            setPreset(newPreset)
+            setRange(newPreset)
           }
         }}
       />
@@ -170,7 +179,10 @@ export function DateTimeRangePicker({
       {enableInputs && (
         <Button
           disabled={!customInputsDirty || !!error}
-          onClick={() => onChange(startTimeInput, endTimeInput)}
+          onClick={() => {
+            setStartTime(startTimeInput)
+            setEndTime(endTimeInput)
+          }}
         >
           Load
         </Button>

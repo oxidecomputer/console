@@ -110,7 +110,7 @@ export function StorageTab() {
   if (!data) return null
 
   return (
-    <div className="mt-8">
+    <>
       <h2 id={bootLabelId} className="mb-4 text-mono-sm text-secondary">
         Boot disk
       </h2>
@@ -136,6 +136,7 @@ export function StorageTab() {
             variant="default"
             size="sm"
             onClick={() => setShowDiskCreate(true)}
+            disabledReason="Instance must be stopped to create a disk"
             disabled={!instanceStopped}
           >
             Create new disk
@@ -145,6 +146,7 @@ export function StorageTab() {
             color="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
+            disabledReason="Instance must be stopped to attach a disk"
             disabled={!instanceStopped}
           >
             Attach existing disk
@@ -173,6 +175,6 @@ export function StorageTab() {
       {showDiskAttach && (
         <AttachDiskSideModalForm onDismiss={() => setShowDiskAttach(false)} />
       )}
-    </div>
+    </>
   )
 }

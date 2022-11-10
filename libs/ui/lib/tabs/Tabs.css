@@ -2,8 +2,11 @@
   @apply !mx-0 !w-full;
 }
 
+.ox-tabs.full-width .ox-tabs-panel {
+  @apply mx-[var(--content-gutter)];
+}
 .ox-tabs.full-width .ox-tabs-panel > * {
-  @apply mx-[var(--content-gutter)] w-[calc(100%-var(--content-gutter)*2)];
+  @apply w-[calc(100%-var(--content-gutter)*2)];
 }
 
 .ox-tabs-list {
@@ -19,8 +22,12 @@
   content: ' ';
 }
 
+.ox-tabs-panel:focus-visible {
+  @apply outline outline-2 outline-offset-[1rem] outline-accent-secondary;
+}
+
 .ox-tab {
-  @apply h-10 space-x-2 whitespace-nowrap border-b px-[6px]
+  @apply h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2
   uppercase !no-underline text-mono-sm text-tertiary border-secondary;
 }
 
@@ -30,7 +37,7 @@
 }
 
 .ox-tab > * {
-  @apply rounded bg-transparent px-[6px] py-[4px];
+  @apply rounded bg-transparent px-1.5 py-1;
 }
 .ox-tab:hover > * {
   @apply bg-secondary;

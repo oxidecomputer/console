@@ -1,35 +1,29 @@
-.TooltipArrow {
-  visibility: hidden;
-
-  &,
-  &:before {
-    position: absolute;
-    height: 12px;
-    width: 12px;
-  }
-
-  &:before {
-    content: '';
-    transform: rotate(45deg);
-    visibility: visible;
-    @apply border-t border-l bg-raise border-secondary;
-  }
+.ox-tooltip {
+  @apply rounded border p-2 border-secondary elevation-1;
 }
 
-.TooltipContainer {
-  &[data-popper-placement^='top'] > .TooltipArrow {
-    bottom: -6px;
-  }
+.ox-tooltip-arrow {
+  position: absolute;
+  height: 12px;
+  width: 12px;
+  transform: rotate(-135deg);
+  @apply bg-raise border-secondary;
+}
 
-  &[data-popper-placement^='right'] > .TooltipArrow {
-    left: -6px;
-  }
+.ox-tooltip[data-placement^='top'] .ox-tooltip-arrow {
+  @apply border-t border-l;
+  margin-top: 2.5px;
+}
 
-  &[data-popper-placement^='bottom'] > .TooltipArrow {
-    top: -6px;
-  }
+.ox-tooltip[data-placement^='bottom'] .ox-tooltip-arrow {
+  @apply -top-[6.5px] border-b border-r;
+  margin-top: 0px;
+}
 
-  &[data-popper-placement^='left'] > .TooltipArrow {
-    right: -6px;
-  }
+.ox-tooltip[data-placement^='right'] .ox-tooltip-arrow {
+  @apply -left-[6.5px] border-r border-t;
+}
+
+.ox-tooltip[data-placement^='left'] .ox-tooltip-arrow {
+  @apply -right-[6.5px] border-b border-l;
 }

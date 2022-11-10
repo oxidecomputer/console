@@ -1,110 +1,143 @@
+import {
+  FloatingPortal,
+  arrow,
+  autoPlacement,
+  autoUpdate,
+  flip,
+  offset,
+  useDismiss,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+  useRole,
+} from '@floating-ui/react-dom-interactions'
+import type { Placement } from '@floating-ui/react-dom-interactions'
 import cn from 'classnames'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { usePopper } from 'react-popper'
+import type { ReactElement } from 'react'
+import { forwardRef } from 'react'
+import { cloneElement } from 'react'
+import { Children } from 'react'
+import { useRef, useState } from 'react'
+import { mergeRefs } from 'react-merge-refs'
+import invariant from 'tiny-invariant'
 
-import { KEYS } from '../../util/keys'
 import './tooltip.css'
 
+/**
+ * This component allows either auto or manual placement of the tooltip. When `auto` is used, the
+ * tooltip will be placed in the best position based on the available space. When any other placement
+ * is used, the tooltip will be placed in that position but will also be flipped if there is not enough
+ * space for it to be displayed in that position.
+ */
+type PlacementOrAuto = Placement | 'auto'
+
+export interface UseTooltipOptions {
+  /** Text to be rendered inside the tooltip */
+  content: string | React.ReactNode
+  /** Defaults to auto if not supplied */
+  placement?: PlacementOrAuto
+}
+export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
+  const [open, setOpen] = useState(false)
+  const arrowRef = useRef(null)
+
+  const {
+    x,
+    y,
+    reference,
+    floating,
+    strategy,
+    context,
+    placement: finalPlacement,
+    middlewareData,
+  } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: placement === 'auto' ? undefined : placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      /**
+       * `autoPlacement` and `flip` are mututally excusive behaviors. If we manually provide a placement we want to make sure
+       * it flips to the other side if there is not enough space for it to be displayed in that position.
+       */
+      placement === 'auto' ? autoPlacement() : flip(),
+      offset(12),
+      arrow({ element: arrowRef, padding: 12 }),
+    ],
+  })
+
+  const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    useHover(context, { move: false }),
+    useFocus(context),
+    useDismiss(context),
+    useRole(context, { role: 'tooltip' }),
+  ])
+
+  return {
+    /**
+     * Ref to be added to the anchor element of the tooltip. Use
+     * `react-merge-refs` if more than one ref is required for the element.
+     * */
+    ref: reference,
+    /** Props to be passed to the anchor element of the tooltip */
+    props: getReferenceProps(),
+    Tooltip: () => (
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={floating}
+            style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
+            className={cn('ox-tooltip max-content')}
+            /** Used to ensure the arrow is styled correctly */
+            data-placement={finalPlacement}
+            {...getFloatingProps()}
+          >
+            {content}
+            <div
+              className="ox-tooltip-arrow"
+              ref={arrowRef}
+              style={{ left: arrowX, top: arrowY }}
+            />
+          </div>
+        )}
+      </FloatingPortal>
+    ),
+  }
+}
 export interface TooltipProps {
-  id: string
   children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
-  definition?: boolean
+  /** Defaults to auto if not supplied */
+  placement?: PlacementOrAuto
 }
 
-const ARROW_SIZE = 12
+export const Tooltip = forwardRef(
+  ({ children, content, placement = 'auto' }: TooltipProps, elRef) => {
+    const {
+      ref,
+      props,
+      Tooltip: TooltipPopup,
+    } = useTooltip({
+      content,
+      placement,
+    })
 
-export const Tooltip = ({
-  id,
-  children,
-  content,
-  onClick,
-  definition = false,
-}: TooltipProps) => {
-  const referenceElement = useRef(null)
-  const popperElement = useRef(null)
-  const arrowElement = useRef(null)
-  const [isOpen, setIsOpen] = useState(false)
+    let child = Children.only(children)
+    invariant(child, 'Tooltip must have a single child')
+    child = cloneElement(child as ReactElement, {
+      ...props,
+      ref: mergeRefs([ref, elRef]),
+    })
 
-  const { attributes, styles, update } = usePopper(
-    referenceElement.current,
-    popperElement.current,
-    {
-      modifiers: [
-        { name: 'arrow', options: { element: arrowElement.current } },
-        {
-          name: 'offset',
-          options: {
-            offset: [0, ARROW_SIZE],
-          },
-        },
-        // disable eventListeners when closed for optimization
-        // (could make difference with many Tooltips on a single page)
-        { name: 'eventListeners', enabled: isOpen },
-      ],
-    }
-  )
-
-  const openTooltip = () => {
-    setIsOpen(true)
-    if (update) {
-      // Update popper position
-      // (position will need to update after scrolling, for example)
-      update()
-    }
+    return (
+      <>
+        {child}
+        <TooltipPopup />
+      </>
+    )
   }
-  const closeTooltip = useCallback(() => setIsOpen(false), [setIsOpen])
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const { key } = event
-      switch (key) {
-        case KEYS.escape:
-          event.preventDefault()
-          // Close tooltip on escape
-          closeTooltip()
-          break
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-
-    return function cleanup() {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [closeTooltip])
-
-  return (
-    <>
-      <button
-        type="button"
-        ref={referenceElement}
-        onClick={onClick}
-        onMouseEnter={openTooltip}
-        onMouseLeave={closeTooltip}
-        onFocus={openTooltip}
-        onBlur={closeTooltip}
-        className={cn('h-4 svg:pointer-events-none svg:align-top', {
-          'dashed-underline': definition,
-        })}
-      >
-        {children}
-      </button>
-      <div
-        className={cn('TooltipContainer', isOpen ? 'block' : 'hidden')}
-        ref={popperElement}
-        role="tooltip"
-        id={id}
-        style={styles.popper}
-        {...attributes.popper}
-      >
-        <div className="max-w-xs rounded border py-1 px-2 text-sans-sm text-default bg-raise border-secondary">
-          {content}
-        </div>
-        <div className="TooltipArrow" ref={arrowElement} style={styles.arrow} />
-      </div>
-    </>
-  )
-}
+)

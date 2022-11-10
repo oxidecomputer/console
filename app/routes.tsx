@@ -169,7 +169,10 @@ export const routes = createRoutesFromElements(
             loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
-          <Route path="instances/:instanceName" element={<Navigate to="storage" />} />
+          <Route
+            path="instances/:instanceName"
+            element={<Navigate to="storage" replace />}
+          />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
             <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
