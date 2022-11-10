@@ -80,7 +80,7 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
 
   return (
     <>
-      <div className="mt-8 mb-4 flex justify-between">
+      <div className="mb-4 flex justify-between">
         <Listbox
           className="w-48"
           aria-label="Choose disk"

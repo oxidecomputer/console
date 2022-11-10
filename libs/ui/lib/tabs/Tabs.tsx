@@ -41,37 +41,25 @@ export function Tabs({
       addProps<typeof Tab.Panel>((i, panelProps) => ({
         key: `${id}-panel-${i}`,
         index: i,
-        className: cn(
-          fullWidth &&
-            'children:mx-[var(--content-gutter)] children:w-[calc(100%-var(--content-gutter)*2)]',
-          panelProps.className
-        ),
+        className: cn('ox-tabs-panel', panelProps.className),
       }))
     )
     return [tabs, panels]
-  }, [children, fullWidth, id])
+  }, [children, id])
 
   invariant(
     tabs.length === panels.length,
     'Expected there to be exactly one Tab for every Tab.Panel'
   )
 
-  const after = 'after:block after:w-full after:border-b after:border-secondary'
-  const before =
-    'before:block before:min-w-max before:w-10 before:border-b before:flex-shrink-0 before:border-secondary'
-
   return (
     <RTabs
       id={id}
       as="div"
-      className={cn('ox-tabs', className, fullWidth && '!mx-0 !w-full')}
+      className={cn('ox-tabs', className, fullWidth && 'full-width')}
       {...props}
     >
-      <RTabList
-        aria-labelledby={labelledby}
-        aria-label={label}
-        className={cn(after, fullWidth && before)}
-      >
+      <RTabList aria-labelledby={labelledby} aria-label={label} className="ox-tabs-list">
         {tabs}
       </RTabList>
       <RTabPanels>{panels}</RTabPanels>
@@ -85,10 +73,8 @@ export type TabProps = Assign<JSX.IntrinsicElements['button'], RTabProps> & {
 }
 export function Tab({ className, ...props }: TabProps) {
   return (
-    <RTab as="button" className={cn('group !no-underline', className)} {...props}>
-      <div className="rounded bg-transparent px-[6px] py-[4px] group-hover:bg-secondary">
-        {props.children}
-      </div>
+    <RTab as="button" className={cn('ox-tab', className)} {...props}>
+      <div>{props.children}</div>
     </RTab>
   )
 }

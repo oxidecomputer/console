@@ -1,47 +1,19 @@
 import filesize from 'filesize'
-import React, { Suspense, memo, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Instances24Icon, PageHeader, PageTitle, PropertiesTable, Tab } from '@oxide/ui'
+import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 import { pick } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
+import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { Tabs } from 'app/components/Tabs'
 import { requireInstanceParams, useQuickActions, useRequiredParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
-import { NetworkingTab } from './tabs/NetworkingTab'
-import { SerialConsoleTab } from './tabs/SerialConsoleTab'
-import { StorageTab } from './tabs/StorageTab'
-
-const MetricsTab = React.lazy(() => import('./tabs/MetricsTab'))
-
-const InstanceTabs = memo(() => (
-  <Tabs id="tabs-instance" fullWidth>
-    <Tab>Storage</Tab>
-    <Tab.Panel>
-      <StorageTab />
-    </Tab.Panel>
-    <Tab>Metrics</Tab>
-    <Tab.Panel>
-      <Suspense fallback={null}>
-        <MetricsTab />
-      </Suspense>
-    </Tab.Panel>
-    <Tab>Networking</Tab>
-    <Tab.Panel>
-      <NetworkingTab />
-    </Tab.Panel>
-    <Tab>Serial Console</Tab>
-    <Tab.Panel>
-      <SerialConsoleTab />
-    </Tab.Panel>
-  </Tabs>
-))
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceView', {
@@ -111,7 +83,12 @@ export function InstancePage() {
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
-      <InstanceTabs />
+      <RouteTabs fullWidth>
+        <Tab to={pb.instanceStorage(instanceParams)}>Storage</Tab>
+        <Tab to={pb.instanceMetrics(instanceParams)}>Metrics</Tab>
+        <Tab to={pb.nics(instanceParams)}>Network Interfaces</Tab>
+        <Tab to={pb.serialConsole(instanceParams)}>Serial Console</Tab>
+      </RouteTabs>
     </>
   )
 }

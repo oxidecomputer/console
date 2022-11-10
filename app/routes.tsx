@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -40,11 +40,17 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
-import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
+import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
+import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
+import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
+
+const MetricsTab = React.lazy(
+  () => import('./pages/project/instances/instance/tabs/MetricsTab')
+)
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -162,15 +168,39 @@ export const routes = createRoutesFromElements(
             loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
+          <Route
+            path="instances/:instanceName"
+            element={<Navigate to="storage" replace />}
+          />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
             <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
-              <Route index element={<InstancePage />} loader={InstancePage.loader} />
-              <Route
-                path="serial-console"
-                element={<SerialConsolePage />}
-                handle={{ crumb: 'serial-console' }}
-              />
+              <Route element={<InstancePage />} loader={InstancePage.loader}>
+                <Route
+                  path="storage"
+                  element={<StorageTab />}
+                  handle={{ crumb: 'storage' }}
+                />
+                <Route
+                  path="network-interfaces"
+                  element={<NetworkingTab />}
+                  handle={{ crumb: 'network-interfaces' }}
+                />
+                <Route
+                  path="metrics"
+                  element={
+                    <Suspense fallback={null}>
+                      <MetricsTab />
+                    </Suspense>
+                  }
+                  handle={{ crumb: 'metrics' }}
+                />
+                <Route
+                  path="serial-console"
+                  element={<SerialConsoleTab />}
+                  handle={{ crumb: 'serial-console' }}
+                />
+              </Route>
             </Route>
           </Route>
 

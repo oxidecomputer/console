@@ -43,7 +43,7 @@ function AttachedInstance({
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={pb.instance({ orgName, projectName, instanceName: instance.name })}
+      to={pb.instancePage({ orgName, projectName, instanceName: instance.name })}
     >
       {instance.name}
     </Link>
