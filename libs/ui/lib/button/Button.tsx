@@ -3,7 +3,6 @@ import type { MouseEventHandler } from 'react'
 import { forwardRef } from 'react'
 
 import { Spinner, Tooltip, Wrap } from '@oxide/ui'
-import { assertUnreachable } from '@oxide/util'
 
 import './button.css'
 
@@ -20,38 +19,9 @@ const sizeStyle: Record<ButtonSize, string> = {
   base: 'h-10 px-3 text-mono-md svg:w-5',
 }
 
-const colorStyle = (variant: Variant): string => {
-  switch (variant) {
-    case 'primary':
-      return 'btn-primary'
-    case 'secondary':
-      return 'btn-secondary'
-    case 'ghost':
-      return 'btn-ghost'
-    case 'danger':
-      return 'btn-danger'
-    default:
-      assertUnreachable(`Invalid button state ${variant}`, variant)
-  }
-}
-
-const ringStyle = (variant: Variant) =>
-  variant === 'danger' ? 'focus:ring-destructive-secondary' : 'focus:ring-accent-secondary'
-
-const baseStyle = `
-  rounded inline-flex items-center justify-center align-top
-  disabled:cursor-not-allowed focus:ring-2
-`
-
 type ButtonStyleProps = {
   size?: ButtonSize
   variant?: Variant
-}
-
-export interface ButtonProps extends React.ComponentProps<'button'>, ButtonStyleProps {
-  innerClassName?: string
-  loading?: boolean
-  disabledReason?: string
 }
 
 export const buttonStyle = ({
@@ -59,12 +29,12 @@ export const buttonStyle = ({
   variant = 'primary',
 }: ButtonStyleProps = {}) => {
   return cn(
-    'ox-button',
-    `variant-${variant}`,
-    baseStyle,
+    'ox-button rounded inline-flex items-center justify-center align-top disabled:cursor-not-allowed focus:ring-2',
+    `btn-${variant}`,
     sizeStyle[size],
-    ringStyle(variant),
-    colorStyle(variant)
+    variant === 'danger'
+      ? 'focus:ring-destructive-secondary'
+      : 'focus:ring-accent-secondary'
   )
 }
 
@@ -76,6 +46,12 @@ export const buttonStyle = ({
 const noop: MouseEventHandler<HTMLButtonElement> = (e) => {
   e.stopPropagation()
   e.preventDefault()
+}
+
+export interface ButtonProps extends React.ComponentProps<'button'>, ButtonStyleProps {
+  innerClassName?: string
+  loading?: boolean
+  disabledReason?: string
 }
 
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)
@@ -113,14 +89,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           aria-disabled={disabled || ariaDisabled}
           {...rest}
         >
-          <>
-            {loading && <Spinner className="absolute" />}
-            <span
-              className={cn('flex items-center', innerClassName, { invisible: loading })}
-            >
-              {children}
-            </span>
-          </>
+          {loading && <Spinner className="absolute" />}
+          <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
+            {children}
+          </span>
         </button>
       </Wrap>
     )
