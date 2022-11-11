@@ -95,7 +95,7 @@ export function OrgAccessEditUserSideModal({
           body: setUserRole(userId, roleName, policy),
         })
       }}
-      submitDisabled={updatePolicy.isLoading || !policy}
+      loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
       submitLabel="Update role"
