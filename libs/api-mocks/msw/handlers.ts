@@ -860,6 +860,13 @@ export const handlers = makeHandlers({
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
+  siloIdentityProviderList(params) {
+    const silo = lookupSilo(params.path)
+    const idpIds = new Set(
+      db.siloIdps.filter(({ siloId }) => siloId === silo.id).map((si) => si.idpId)
+    )
+    return { items: db.identityProviders.filter(({ id }) => idpIds.has(id)) }
+  },
   userList: (params) => paginated(params.query, db.users),
 
   systemPolicyView() {
@@ -912,7 +919,7 @@ export const handlers = makeHandlers({
   sagaView: NotImplemented,
   samlIdentityProviderCreate: NotImplemented,
   samlIdentityProviderView: NotImplemented,
-  siloIdentityProviderList: NotImplemented,
+
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUsersList: NotImplemented,

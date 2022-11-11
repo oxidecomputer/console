@@ -45,6 +45,7 @@ import { SerialConsoleTab } from './pages/project/instances/instance/tabs/Serial
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
 
@@ -89,6 +90,7 @@ export const routes = createRoutesFromElements(
           <Route path="silos" />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
+        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader} />
         <Route path="issues" element={null} />
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />

@@ -157,6 +157,7 @@ const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
   userGroups: [...mock.userGroups],
+  /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
   instances: [mock.instance],
@@ -164,7 +165,10 @@ const initDb = {
   orgs: [...mock.orgs],
   projects: [...mock.projects],
   roleAssignments: [...mock.roleAssignments],
+  /** Join table for `silos` and `identityProviders` */
+  siloIdps: [...mock.siloIdps],
   silos: [...mock.silos],
+  identityProviders: [...mock.identityProviders],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
