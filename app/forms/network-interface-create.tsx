@@ -69,7 +69,7 @@ export default function CreateNetworkInterfaceForm({
           })
         })
       }
-      submitDisabled={createNetworkInterface.isLoading}
+      loading={createNetworkInterface.isLoading}
       submitError={createNetworkInterface.error}
     >
       {({ control }) => (

@@ -32,7 +32,7 @@ export function CreateSSHKeySideModalForm() {
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
-      submitDisabled={createSshKey.isLoading}
+      loading={createSshKey.isLoading}
       submitError={createSshKey.error}
     >
       {({ control }) => (

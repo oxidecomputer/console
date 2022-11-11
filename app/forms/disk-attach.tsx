@@ -58,7 +58,7 @@ export function AttachDiskSideModalForm({
           })
         })
       }
-      submitDisabled={attachDisk.isLoading}
+      loading={attachDisk.isLoading}
       submitError={attachDisk.error}
       onDismiss={onDismiss}
     >

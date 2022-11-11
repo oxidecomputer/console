@@ -40,7 +40,7 @@ export function CreateOrgSideModalForm() {
       title="Create organization"
       onDismiss={() => navigate(pb.orgs())}
       onSubmit={(values) => createOrg.mutate({ body: values })}
-      submitDisabled={createOrg.isLoading}
+      loading={createOrg.isLoading}
       submitError={createOrg.error}
     >
       {({ control }) => (

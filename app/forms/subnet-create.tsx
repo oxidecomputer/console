@@ -32,7 +32,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ path: parentNames, body })}
-      submitDisabled={createSubnet.isLoading}
+      loading={createSubnet.isLoading}
       submitError={createSubnet.error}
     >
       {({ control }) => (

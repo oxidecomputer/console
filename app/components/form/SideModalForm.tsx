@@ -20,9 +20,11 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    */
   children: (form: UseFormReturn<TFieldValues>) => ReactNode
   onDismiss: () => void
-  submitDisabled?: boolean
+  /** Must be provided with a reason describing why it's disabled */
+  submitDisabled?: string
   /** Error from the API call */
   submitError: ErrorResult | null
+  loading?: boolean
   title: string
   onSubmit: (values: TFieldValues) => void
   submitLabel?: string
@@ -33,19 +35,18 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   formOptions,
   children,
   onDismiss,
-  submitDisabled = false,
+  submitDisabled,
   submitError,
   title,
   onSubmit,
   submitLabel,
+  loading,
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
   const form = useForm({ mode: 'all', ...formOptions })
 
-  const { isDirty, isValid } = form.formState
-
-  const canSubmit = isDirty && isValid
+  const { isSubmitting } = form.formState
 
   /**
    * Only animate the modal in when we're navigating by a client-side click.
@@ -87,7 +88,14 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           <Button variant="ghost" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
-          <Button type="submit" size="sm" disabled={submitDisabled || !canSubmit} form={id}>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!!submitDisabled}
+            disabledReason={submitDisabled}
+            loading={loading || isSubmitting}
+            form={id}
+          >
             {submitLabel || title}
           </Button>
         </div>

@@ -12,7 +12,9 @@ import './form.css'
 interface FormActionsProps {
   formId?: string
   children: React.ReactNode
-  submitDisabled?: boolean
+  /** Must be provided with a reason why the submit button is disabled */
+  submitDisabled?: string
+  loading?: boolean
   error?: Error | null
   className?: string
 }
@@ -27,9 +29,10 @@ export const Form = {
   Actions: ({
     children,
     formId,
-    submitDisabled = true,
+    submitDisabled,
     error,
     className,
+    loading,
   }: FormActionsProps) => {
     const childArray = flattenChildren(children)
 
@@ -49,7 +52,12 @@ export const Form = {
           className
         )}
       >
-        {cloneElement(submit, { form: formId, disabled: submitDisabled })}
+        {cloneElement(submit, {
+          form: formId,
+          disabled: !!submitDisabled,
+          disabledReason: submitDisabled,
+          loading,
+        })}
         {childArray}
         {error && (
           <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">

@@ -154,7 +154,7 @@ export function CreateInstanceForm() {
           },
         })
       }}
-      submitDisabled={createInstance.isLoading}
+      loading={createInstance.isLoading}
       submitError={createInstance.error}
     >
       {({ control }) => (

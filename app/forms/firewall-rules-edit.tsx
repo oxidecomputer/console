@@ -67,7 +67,7 @@ export function EditFirewallRuleForm({
       }}
       // validationSchema={validationSchema}
       // validateOnBlur
-      submitDisabled={updateRules.isLoading}
+      loading={updateRules.isLoading}
       submitError={updateRules.error}
       submitLabel="Update rule"
     >
