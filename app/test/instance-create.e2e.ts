@@ -28,7 +28,7 @@ test('can invoke instance create form from instances page', async ({
     'role=spinbutton[name="Disk size (GiB)"]',
     'role=radiogroup[name="Network interface"]',
     'role=textbox[name="Hostname"]',
-    'role=button[name="Create instance"][disabled]',
+    'role=button[name="Create instance"]',
   ])
 
   const instanceName = genName('instance')
