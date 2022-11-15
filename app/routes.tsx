@@ -3,6 +3,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateIdpSideModalForm } from './forms/idp-create'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
@@ -90,7 +91,10 @@ export const routes = createRoutesFromElements(
           <Route path="silos" />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
-        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader} />
+        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader}>
+          <Route index />
+          <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+        </Route>
         <Route path="issues" element={null} />
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />

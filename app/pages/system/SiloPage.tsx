@@ -1,10 +1,21 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import { useQueryTable } from '@oxide/table'
-import { Badge, Cloud16Icon, EmptyMessage, PageHeader, PageTitle } from '@oxide/ui'
+import {
+  Badge,
+  Cloud16Icon,
+  EmptyMessage,
+  PageHeader,
+  PageTitle,
+  TableActions,
+  buttonStyle,
+} from '@oxide/ui'
 
 import { requireSiloParams, useSiloParams } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
@@ -31,7 +42,12 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle /*icon={icon}*/>{siloName}</PageTitle>
       </PageHeader>
-      <h2 className="mb-4 text-sans-light-2xl">Identity providers</h2>
+      <h2 className="mb-2 text-sans-light-2xl">Identity providers</h2>
+      <TableActions>
+        <Link to={pb.siloIdpNew({ siloName })} className={buttonStyle({ size: 'sm' })}>
+          New provider
+        </Link>
+      </TableActions>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
         <Column accessor="name" />
@@ -41,6 +57,7 @@ export function SiloPage() {
           cell={({ value }) => <Badge color="neutral">{value}</Badge>}
         />
       </Table>
+      <Outlet />
     </>
   )
 }
