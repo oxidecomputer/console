@@ -2,7 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
 
-import { More12Icon } from '@oxide/ui'
+import { More12Icon, Tooltip, Wrap } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
@@ -10,7 +10,7 @@ export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 export type MenuAction = {
   label: string
   onActivate: () => void
-  disabled?: boolean
+  disabled?: false | string
   className?: string
 }
 
@@ -50,19 +50,22 @@ export const getActionsCol = <TData extends { id?: string }>(
               )}
               {actions.map((action) => {
                 return (
-                  <MenuItem
-                    className={cn(
-                      action.className,
-                      action.label.toLowerCase() === 'delete' &&
-                        !action.disabled &&
-                        'destructive'
-                    )}
+                  <Wrap
+                    when={!!action.disabled}
+                    with={<Tooltip content={action.disabled} />}
                     key={kebabCase(`action-${action.label}`)}
-                    onSelect={action.onActivate}
-                    disabled={action.disabled}
                   >
-                    {action.label}
-                  </MenuItem>
+                    <MenuItem
+                      className={cn(action.className, {
+                        destructive:
+                          action.label.toLowerCase() === 'delete' && !action.disabled,
+                      })}
+                      onSelect={action.onActivate}
+                      disabled={!!action.disabled}
+                    >
+                      {action.label}
+                    </MenuItem>
+                  </Wrap>
                 )
               })}
             </MenuList>

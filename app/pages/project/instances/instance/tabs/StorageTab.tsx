@@ -62,7 +62,7 @@ export function StorageTab() {
   const makeActions = (disk: Disk): MenuAction[] => [
     {
       label: 'Detach',
-      disabled: !instanceStopped,
+      disabled: !instanceStopped && 'Instance must be stopped before disk can be detached',
       onActivate() {
         detachDisk.mutate(
           { body: { name: disk.name }, path: instanceParams },
