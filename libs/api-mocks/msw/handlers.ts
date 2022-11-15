@@ -15,6 +15,7 @@ import {
   lookupById,
   lookupDisk,
   lookupGlobalImage,
+  lookupIdp,
   lookupImage,
   lookupInstance,
   lookupNetworkInterface,
@@ -867,6 +868,14 @@ export const handlers = makeHandlers({
     )
     return { items: db.identityProviders.filter(({ id }) => idpIds.has(id)) }
   },
+
+  samlIdentityProviderCreate(_params) {
+    return {
+      slo_url: '',
+    }
+  },
+  samlIdentityProviderView: (params) => lookupIdp(params.path),
+
   userList: (params) => paginated(params.query, db.users),
 
   systemPolicyView() {
@@ -917,8 +926,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   sagaList: NotImplemented,
   sagaView: NotImplemented,
-  samlIdentityProviderCreate: NotImplemented,
-  samlIdentityProviderView: NotImplemented,
 
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,

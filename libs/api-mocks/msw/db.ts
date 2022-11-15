@@ -145,6 +145,26 @@ export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
   return silo
 }
 
+// TODO: ugh, need a separate table and lookup function for saml IDPs.
+// `db.identityProviders` is going away
+export function lookupIdp(params: PP.IdentityProvider): Json<Api.IdentityProvider> {
+  const silo = lookupSilo(params)
+
+  const idpIds = new Set(
+    db.siloIdps.filter(({ siloId }) => siloId === silo.id).map(({ idpId }) => idpId)
+  )
+  if (idpIds.size === 0) throw notFoundErr
+
+  // assume there's only one
+  const idp = db.identityProviders.find(
+    (idp) =>
+      idpIds.has(idp.id) && idp.name === params.providerName && idp.provider_type === 'saml'
+  )
+  if (!idp) throw notFoundErr
+
+  return idp
+}
+
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   const sshKey = db.sshKeys.find(
     (key) => key.name === params.sshKeyName && key.silo_user_id === user1.id
