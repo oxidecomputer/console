@@ -147,22 +147,17 @@ export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
 
 // TODO: ugh, need a separate table and lookup function for saml IDPs.
 // `db.identityProviders` is going away
-export function lookupIdp(params: PP.IdentityProvider): Json<Api.IdentityProvider> {
+export function lookupSamlIdp(params: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
   const silo = lookupSilo(params)
 
-  const idpIds = new Set(
-    db.siloIdps.filter(({ siloId }) => siloId === silo.id).map(({ idpId }) => idpId)
+  const dbIdp = db.identityProviders.find(
+    ({ type, siloId, provider }) =>
+      type === 'saml' && siloId === silo.id && provider.name === params.providerName
   )
-  if (idpIds.size === 0) throw notFoundErr
 
-  // assume there's only one
-  const idp = db.identityProviders.find(
-    (idp) =>
-      idpIds.has(idp.id) && idp.name === params.providerName && idp.provider_type === 'saml'
-  )
-  if (!idp) throw notFoundErr
+  if (!dbIdp) throw notFoundErr
 
-  return idp
+  return dbIdp.provider
 }
 
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
@@ -186,7 +181,6 @@ const initDb = {
   projects: [...mock.projects],
   roleAssignments: [...mock.roleAssignments],
   /** Join table for `silos` and `identityProviders` */
-  siloIdps: [...mock.siloIdps],
   silos: [...mock.silos],
   identityProviders: [...mock.identityProviders],
   snapshots: [...mock.snapshots],
