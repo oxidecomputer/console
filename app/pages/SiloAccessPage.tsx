@@ -115,7 +115,8 @@ export function SiloAccessPage() {
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.siloRole,
+          disabled:
+            !row.siloRole && "You don't have permissions to change this user's role",
         },
         // TODO: only show if you have permission to do this
         {
@@ -127,7 +128,7 @@ export function SiloAccessPage() {
               body: setUserRole(row.id, null, siloPolicy!),
             })
           },
-          disabled: !row.siloRole,
+          disabled: !row.siloRole && "You don't have permissions to delete this user",
         },
       ]),
     ],

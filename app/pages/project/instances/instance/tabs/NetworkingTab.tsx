@@ -85,22 +85,27 @@ export function NetworkingTab() {
           body: { ...nic, primary: true },
         })
       },
-      disabled: nic.primary || !instanceStopped,
+      disabled: nic.primary
+        ? 'This network interface is already set as primary'
+        : !instanceStopped &&
+          'The instance must be stopped to change its primary network interface',
     },
     {
       label: 'Edit',
       onActivate() {
         setEditing(nic)
       },
-      disabled: !instanceStopped,
+      disabled:
+        !instanceStopped &&
+        "The instance must be stopped before editing a network interface's settings",
     },
     {
       label: 'Delete',
-      className: 'destructive',
       onActivate: () => {
         deleteNic.mutate({ path: { ...instanceParams, interfaceName: nic.name } })
       },
-      disabled: !instanceStopped,
+      disabled:
+        !instanceStopped && 'The instance must be stopped to delete a network interface.',
     },
   ]
 

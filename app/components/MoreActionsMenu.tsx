@@ -1,7 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 
 import type { MenuAction } from '@oxide/table'
-import { More12Icon } from '@oxide/ui'
+import { More12Icon, Tooltip, Wrap } from '@oxide/ui'
 
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
@@ -19,14 +19,15 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
       </MenuButton>
       <MenuList className="mt-2">
         {actions.map((a) => (
-          <MenuItem
-            className={a.className}
-            disabled={a.disabled}
-            key={a.label}
-            onSelect={a.onActivate}
-          >
-            {a.label}
-          </MenuItem>
+          <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
+            <MenuItem
+              className={a.className}
+              disabled={!!a.disabled}
+              onSelect={a.onActivate}
+            >
+              {a.label}
+            </MenuItem>
+          </Wrap>
         ))}
       </MenuList>
     </Menu>
