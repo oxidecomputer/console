@@ -91,6 +91,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           type={type}
           onMouseDown={disabled ? noop : undefined}
           onClick={disabled ? noop : onClick}
+          disabled={loading || undefined}
           aria-disabled={disabled || ariaDisabled}
           {...rest}
         >
