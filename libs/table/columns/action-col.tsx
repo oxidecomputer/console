@@ -56,12 +56,10 @@ export const getActionsCol = <TData extends { id?: string }>(
                     key={kebabCase(`action-${action.label}`)}
                   >
                     <MenuItem
-                      className={cn(
-                        action.className,
-                        action.label.toLowerCase() === 'delete' &&
-                          !action.disabled &&
-                          'destructive'
-                      )}
+                      className={cn(action.className, {
+                        destructive:
+                          action.label.toLowerCase() === 'delete' && !action.disabled,
+                      })}
                       onSelect={action.onActivate}
                       disabled={!!action.disabled}
                     >
