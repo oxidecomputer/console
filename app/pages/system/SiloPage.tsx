@@ -26,6 +26,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('siloView', { path: requireSiloParams(params) }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
       path: requireSiloParams(params),
+      query: { limit: 10 }, // same as query table
     }),
   ])
 }
