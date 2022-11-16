@@ -39,6 +39,7 @@ test('path builder', () => {
         "settings": "/settings",
         "silo": "/sys/silos/s",
         "siloAccess": "/access",
+        "siloIdpNew": "/sys/silos/s/idps-new",
         "siloNew": "/sys/silos-new",
         "siloUtilization": "/utilization",
         "silos": "/sys/silos",
