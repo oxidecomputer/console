@@ -64,7 +64,7 @@ export function CreateIdpSideModalForm() {
           },
         })
       }
-      submitDisabled={createIdp.isLoading}
+      loading={createIdp.isLoading}
       submitError={createIdp.error}
       submitLabel="Create provider"
     >
