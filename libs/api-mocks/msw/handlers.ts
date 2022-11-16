@@ -891,13 +891,11 @@ export const handlers = makeHandlers({
       ),
       ...getTimestamps(),
     }
-    console.log(db.identityProviders)
     db.identityProviders.push({
       type: 'saml',
       siloId: silo.id,
       provider,
     })
-    console.log(db.identityProviders)
     return provider
   },
   samlIdentityProviderView: (params) => lookupSamlIdp(params.path),

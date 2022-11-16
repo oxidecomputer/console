@@ -1,8 +1,10 @@
+import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
-import type { SamlIdentityProviderCreate } from '@oxide/api'
+import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { FieldLabel, Radio, RadioGroup, Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
@@ -25,6 +27,7 @@ const defaultValues: IdpCreateFormValues = {
   spClientId: '',
   technicalContactEmail: '',
   groupAttributeName: '',
+  signingKeypair: undefined,
 }
 
 export function CreateIdpSideModalForm() {
@@ -61,6 +64,7 @@ export function CreateIdpSideModalForm() {
             ...values,
             // convert empty string to undefined so it remains unset
             groupAttributeName: values.groupAttributeName?.trim() || undefined,
+            // TODO: set idpMetadataSource to undefined explicitly if value string is empty
           },
         })
       }
@@ -108,9 +112,55 @@ export function CreateIdpSideModalForm() {
             required
             control={control}
           />
+          <MetadataSourceField control={control} />
           {/* TODO: signingKeypair */}
         </>
       )}
     </SideModalForm>
+  )
+}
+
+function MetadataSourceField({ control }: { control: Control<IdpCreateFormValues> }) {
+  const {
+    field: { value: source, onChange: setSource },
+  } = useController({ control, name: 'idpMetadataSource' })
+  return (
+    <>
+      <FieldLabel id="metadata-source-label">Metadata source</FieldLabel>
+      <RadioGroup
+        name="metadata_source_type"
+        defaultChecked="url"
+        onChange={(e) => {
+          const newValue: IdpMetadataSource =
+            e.target.value === 'url'
+              ? { type: 'url', url: '' }
+              : { type: 'base64_encoded_xml', data: '' }
+          setSource(newValue)
+        }}
+      >
+        <Radio value="url">URL</Radio>
+        <Radio value="base64_encoded_xml">Base64-encoded XML</Radio>
+      </RadioGroup>
+      {/* TODO: these inputs should not have their own label */}
+      {/* TODO: preserve whatever was in the input in local state
+          when the type changes */}
+      {source.type === 'url' && (
+        <TextField
+          name="idpMetadataSource.url"
+          label="Metadata URL"
+          // to give it the same height as the textarea
+          className="mb-8"
+          control={control}
+        />
+      )}
+      {source.type === 'base64_encoded_xml' && (
+        <TextField
+          name="idpMetadataSource.data"
+          as="textarea"
+          label="Metadata"
+          control={control}
+        />
+      )}
+    </>
   )
 }
