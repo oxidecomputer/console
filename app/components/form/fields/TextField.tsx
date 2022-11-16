@@ -75,7 +75,11 @@ export function TextField<
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
       </div>
-      {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+      {helpText && (
+        <TextInputHint id={`${id}-help-text`} className="mb-2">
+          {helpText}
+        </TextInputHint>
+      )}
       <Controller
         name={name}
         control={control}
