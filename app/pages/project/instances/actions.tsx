@@ -52,7 +52,7 @@ export const useMakeInstanceActions = (
             onSuccess: () => successToast(`Starting instance '${instanceName}'`),
           })
         },
-        disabled: !instanceCan.start(instance),
+        disabled: !instanceCan.start(instance) && 'Only stopped instances can be started',
       },
       {
         label: 'Stop',
@@ -61,7 +61,7 @@ export const useMakeInstanceActions = (
             onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
           })
         },
-        disabled: !instanceCan.stop(instance),
+        disabled: !instanceCan.stop(instance) && 'Only running instances can be stopped',
       },
       {
         label: 'Reboot',
@@ -70,7 +70,7 @@ export const useMakeInstanceActions = (
             onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
           })
         },
-        disabled: !instanceCan.reboot(instance),
+        disabled: !instanceCan.reboot(instance) && 'Only running instances can be rebooted',
       },
       {
         label: 'View serial console',
@@ -88,7 +88,7 @@ export const useMakeInstanceActions = (
             },
           })
         },
-        disabled: !instanceCan.delete(instance),
+        disabled: !instanceCan.delete(instance) && 'Only stopped instances can be deleted',
         className: instanceCan.delete(instance) ? 'destructive' : '',
       },
     ]

@@ -42,7 +42,7 @@ export function CreateVpcSideModalForm() {
       formOptions={{ defaultValues }}
       onSubmit={(values) => createVpc.mutate({ path: parentNames, body: values })}
       onDismiss={() => navigate(pb.vpcs(parentNames))}
-      submitDisabled={createVpc.isLoading}
+      loading={createVpc.isLoading}
       submitError={createVpc.error}
     >
       {({ control }) => (

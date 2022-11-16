@@ -52,7 +52,7 @@ export function CreateSiloSideModalForm() {
           body: { name, description, discoverable, identityMode },
         })
       }
-      submitDisabled={createSilo.isLoading}
+      loading={createSilo.isLoading}
       submitError={createSilo.error}
     >
       {({ control }) => (

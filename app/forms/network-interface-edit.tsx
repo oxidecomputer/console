@@ -44,7 +44,7 @@ export default function EditNetworkInterfaceForm({
           body,
         })
       }}
-      submitDisabled={editNetworkInterface.isLoading}
+      loading={editNetworkInterface.isLoading}
       submitError={editNetworkInterface.error}
       submitLabel="Save changes"
     >

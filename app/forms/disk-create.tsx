@@ -73,7 +73,7 @@ export function CreateDiskSideModalForm({
         const body = { size: size * GiB, ...rest }
         onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })
       }}
-      submitDisabled={createDisk.isLoading}
+      loading={createDisk.isLoading}
       submitError={createDisk.error}
     >
       {({ control }) => (

@@ -451,7 +451,7 @@ export function CreateFirewallRuleForm({
           },
         })
       }}
-      submitDisabled={updateRules.isLoading}
+      loading={updateRules.isLoading}
       submitError={updateRules.error}
       submitLabel="Add rule"
     >

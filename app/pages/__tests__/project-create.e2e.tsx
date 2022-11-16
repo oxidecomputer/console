@@ -12,7 +12,7 @@ test.describe('Project create', () => {
       'role=heading[name*="Create project"]', // TODO: standardize capitalization
       'role=textbox[name="Name"]',
       'role=textbox[name="Description"]',
-      'role=button[name="Create project"][disabled]',
+      'role=button[name="Create project"]',
     ])
   })
 
@@ -24,8 +24,6 @@ test.describe('Project create', () => {
 
   test('shows field-level validation error and does not POST', async ({ page }) => {
     await page.fill('role=textbox[name="Name"]', 'Invalid name')
-
-    await expect(page.locator('role=button[name="Create project"]')).toBeDisabled()
 
     await page.click('role=textbox[name="Description"]') // just to blur name input
     await expectVisible(page, ['text="Must start with a lower-case letter"'])

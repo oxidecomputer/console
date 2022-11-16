@@ -103,14 +103,20 @@ export function DisksPage() {
           },
         })
       },
-      disabled: disk.state.state !== 'attached',
+      disabled:
+        disk.state.state !== 'attached' &&
+        'Only disks attached to an instance can be snapshotted',
     },
     {
       label: 'Delete',
       onActivate: () => {
         deleteDisk.mutate({ path: { orgName, projectName, diskName: disk.name } })
       },
-      disabled: !['detached', 'creating', 'faulted'].includes(disk.state.state),
+      disabled:
+        !['detached', 'creating', 'faulted'].includes(disk.state.state) &&
+        (disk.state.state === 'attached'
+          ? 'Disk must be detached before it can be deleted'
+          : `A ${disk.state.state} disk cannon be deleted`),
     },
   ]
 

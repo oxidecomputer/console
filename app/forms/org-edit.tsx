@@ -52,7 +52,7 @@ export function EditOrgSideModalForm() {
           body: { name, description },
         })
       }
-      submitDisabled={updateOrg.isLoading}
+      loading={updateOrg.isLoading}
       submitError={updateOrg.error}
       submitLabel="Save changes"
     >

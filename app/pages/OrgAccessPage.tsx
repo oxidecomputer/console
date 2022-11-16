@@ -130,7 +130,7 @@ export function OrgAccessPage() {
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.orgRole,
+          disabled: !row.orgRole && "You don't have permission to change this user's role",
         },
         // TODO: only show if you have permission to do this
         {
@@ -143,7 +143,7 @@ export function OrgAccessPage() {
               body: setUserRole(row.id, null, orgPolicy!),
             })
           },
-          disabled: !row.orgRole,
+          disabled: !row.orgRole && "You don't have permission to delete this user",
         },
       ]),
     ],

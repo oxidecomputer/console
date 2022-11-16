@@ -145,7 +145,8 @@ export function ProjectAccessPage() {
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.projectRole,
+          disabled:
+            !row.projectRole && "You don't have permission to change this user's role",
         },
         // TODO: only show if you have permission to do this
         {
@@ -158,7 +159,7 @@ export function ProjectAccessPage() {
               body: setUserRole(row.id, null, projectPolicy!),
             })
           },
-          disabled: !row.projectRole,
+          disabled: !row.projectRole && "You don't have permission to delete this user",
         },
       ]),
     ],
