@@ -17,7 +17,7 @@ test('Orgs list and detail click work', async ({ page }) => {
     'role=heading[name*="Create organization"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=button[name="Create organization"][disabled]',
+    'role=button[name="Create organization"]',
   ])
   await page.goBack()
 

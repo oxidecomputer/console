@@ -60,7 +60,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=textbox[name="Description"]',
     'role=radiogroup[name="Block size (Bytes)"]',
     'role=spinbutton[name="Size (GiB)"]',
-    'role=button[name="Create Disk"][disabled]',
+    'role=button[name="Create Disk"]',
   ])
   await page.goBack()
 
@@ -104,7 +104,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=textbox[name="Description"]',
     'role=textbox[name="DNS name"]',
     'role=textbox[name="IPV6 prefix"]',
-    'role=button[name="Create VPC"][disabled]',
+    'role=button[name="Create VPC"]',
   ])
   await page.goBack()
 
@@ -119,7 +119,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="DNS name"]',
-    'role=button[name="Save changes"][disabled]',
+    'role=button[name="Save changes"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-vpc')
   await page.click('role=button[name="Save changes"]')
@@ -146,7 +146,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await page.click('role=button[name="New subnet"]')
   await expectVisible(page, [
     'role=heading[name="Create subnet"]',
-    'role=button[name="Create subnet"][disabled]',
+    'role=button[name="Create subnet"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-subnet')
   await page.fill('role=textbox[name="IPv4 block"]', '10.1.1.1/24')
@@ -162,7 +162,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
 
   await expectVisible(page, [
     'role=heading[name="Edit subnet"]',
-    'role=button[name="Update subnet"][disabled]',
+    'role=button[name="Update subnet"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'edited-subnet')
   await page.fill('role=textbox[name="Description"]', 'behold')
@@ -181,7 +181,7 @@ test("Click through everything and make it's all there", async ({ page }) => {
   await page.click('role=button[name="New router"]')
   await expectVisible(page, [
     'role=heading[name="Create VPC Router"]',
-    'role=button[name="Create VPC Router"][disabled]',
+    'role=button[name="Create VPC Router"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-router')
   await page.click('role=button[name="Create VPC Router"]')

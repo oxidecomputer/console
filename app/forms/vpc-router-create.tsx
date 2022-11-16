@@ -46,7 +46,7 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
       onSubmit={({ name, description }) =>
         createRouter.mutate({ path: parentNames, body: { name, description } })
       }
-      submitDisabled={createRouter.isLoading}
+      loading={createRouter.isLoading}
       submitError={createRouter.error}
     >
       {({ control }) => (

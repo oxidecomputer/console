@@ -17,7 +17,7 @@ test('Attach disk', async ({ page }) => {
     'role=textbox[name="Description"]',
     'role=radiogroup[name="Block size (Bytes)"]',
     'role=spinbutton[name="Size (GiB)"]',
-    'role=button[name="Create Disk"][disabled]',
+    'role=button[name="Create Disk"]',
   ])
   await page.click('role=button[name="Cancel"]')
 

@@ -51,7 +51,7 @@ export function CreateProjectSideModalForm() {
           body: { name, description },
         })
       }}
-      submitDisabled={createProject.isLoading}
+      loading={createProject.isLoading}
       submitError={createProject.error}
     >
       {({ control }) => (

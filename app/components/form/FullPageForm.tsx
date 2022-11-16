@@ -14,9 +14,11 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
   title: string
   icon: ReactElement
-  submitDisabled?: boolean
+  /** Must provide a reason for submit being disabled */
+  submitDisabled?: string
   error?: Error
   formOptions: UseFormProps<TFieldValues>
+  loading?: boolean
   onSubmit: (values: TFieldValues) => void
   /** Error from the API call */
   submitError: ErrorResult | null
@@ -37,14 +39,15 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   id,
   title,
   children,
-  submitDisabled = false,
+  submitDisabled,
   error,
   icon,
+  loading,
   formOptions,
   onSubmit,
 }: FullPageFormProps<TFieldValues>) {
   const form = useForm(formOptions)
-  const { isSubmitting, isDirty } = form.formState
+  const { isSubmitting, isSubmitSuccessful } = form.formState
 
   const childArray = flattenChildren(children(form))
   const actions = pluckFirstOfType(childArray, Form.Actions)
@@ -62,7 +65,8 @@ export function FullPageForm<TFieldValues extends FieldValues>({
           <PageActionsContainer>
             {cloneElement(actions, {
               formId: id,
-              submitDisabled: submitDisabled || isSubmitting || !isDirty,
+              submitDisabled,
+              loading: loading || isSubmitting || isSubmitSuccessful,
               error,
             })}
           </PageActionsContainer>

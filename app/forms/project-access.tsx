@@ -41,7 +41,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
           body: setUserRole(userId, roleName, policy),
         })
       }}
-      submitDisabled={updatePolicy.isLoading}
+      loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
       submitLabel="Add user"
       onDismiss={onDismiss}
@@ -96,7 +96,7 @@ export function ProjectAccessEditUserSideModal({
           body: setUserRole(userId, roleName, policy),
         })
       }}
-      submitDisabled={updatePolicy.isLoading || !policy}
+      loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
       submitLabel="Update role"
       onDismiss={onDismiss}

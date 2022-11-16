@@ -70,7 +70,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       innerClassName,
       disabled,
       onClick,
-      'aria-disabled': ariaDisabled,
       disabledReason,
       // needs to be a spread because we pass this component to Reach
       // <MenuButton> with the `as` prop and get passed arbitrary <button> props
@@ -78,20 +77,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isDisabled = disabled || loading
     return (
       <Wrap
-        when={disabled && disabledReason}
+        when={isDisabled && disabledReason}
         with={<Tooltip content={disabledReason!} ref={ref} />}
       >
         <button
           className={cn(buttonStyle({ size, variant }), className, {
-            'visually-disabled': disabled,
+            'visually-disabled': isDisabled,
           })}
           ref={ref}
           type={type}
-          onMouseDown={disabled ? noop : undefined}
-          onClick={disabled ? noop : onClick}
-          aria-disabled={disabled || ariaDisabled}
+          onMouseDown={isDisabled ? noop : undefined}
+          onClick={isDisabled ? noop : onClick}
+          aria-disabled={isDisabled}
           {...rest}
         >
           {loading && <Spinner className="absolute" />}
