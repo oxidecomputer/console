@@ -138,9 +138,6 @@ function MetadataSourceField({ control }: { control: Control<IdpCreateFormValues
     <fieldset>
       <legend id="metadata-source-legend" className="mb-4 text-sans-md">
         Metadata source
-        <span className="pl-1 text-tertiary" aria-hidden="true">
-          (Optional)
-        </span>
       </legend>
       {/* TODO: probably need some help text here */}
       <RadioGroup
