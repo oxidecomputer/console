@@ -297,6 +297,7 @@ export const test = base.extend<Fixtures>({
         .locator('role=button[name="Row actions"]')
         .click()
       await page.click('role=menuitem[name="Delete"]')
+      await page.reload()
       await expectNotVisible(page, [`role=cell[name="${rowText}"]`])
     })
   },
