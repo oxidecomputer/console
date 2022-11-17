@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
-import { useRequiredParams } from 'app/hooks'
+import { useProjectParams, useSiloParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -126,6 +126,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
+/** Choose between System and Silo-scoped route trees */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
@@ -146,6 +147,28 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
     <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
+  )
+}
+
+/** Used when drilling down into a silo from the System view. */
+export function SiloPicker() {
+  // picker only shows up when a silo is in scope
+  const { siloName } = useSiloParams()
+  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
+  const items = (data?.items || []).map((silo) => ({
+    label: silo.name,
+    to: pb.silo({ siloName: silo.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch silo"
+      category="Silo"
+      icon={<OrgLogo name={siloName} />}
+      current={siloName}
+      items={items}
+      noItemsText="No silos found"
+    />
   )
 }
 
@@ -170,7 +193,8 @@ export function OrgPicker() {
 }
 
 export function ProjectPicker() {
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  // picker only shows up when a project is in scope
+  const { orgName, projectName } = useProjectParams()
   const { data } = useApiQuery('projectList', { path: { orgName }, query: { limit: 20 } })
   const items = (data?.items || []).map((p) => ({
     label: p.name,

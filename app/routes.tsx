@@ -3,6 +3,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateIdpSideModalForm } from './forms/idp-create'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateOrgSideModalForm } from './forms/org-create'
 import { EditOrgSideModalForm } from './forms/org-edit'
@@ -45,6 +46,7 @@ import { SerialConsoleTab } from './pages/project/instances/instance/tabs/Serial
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
 
@@ -88,6 +90,10 @@ export const routes = createRoutesFromElements(
         <Route element={<SilosPage />} loader={SilosPage.loader}>
           <Route path="silos" />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
+        </Route>
+        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader}>
+          <Route index />
+          <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
         <Route path="issues" element={null} />
         <Route path="utilization" element={null} />

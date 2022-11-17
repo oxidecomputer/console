@@ -38,31 +38,34 @@ export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
 export const TextInput = React.forwardRef<
   HTMLInputElement,
   TextInputBaseProps & TextAreaProps
->(({ type = 'text', error, className, fieldClassName, ...fieldProps }, ref) => (
-  <div
-    className={cn(
-      'flex rounded border border-default',
-      'focus-within:ring-2 focus-within:ring-accent-secondary',
-      error && '!border-destructive',
-      className
-    )}
-  >
-    <input
-      ref={ref}
-      type={type}
+>(({ type = 'text', error, className, fieldClassName, as: asProp, ...fieldProps }, ref) => {
+  const Component = asProp || 'input'
+  return (
+    <div
       className={cn(
-        `w-full border-none bg-transparent
+        'flex rounded border border-default',
+        'focus-within:ring-2 focus-within:ring-accent-secondary',
+        error && '!border-destructive',
+        className
+      )}
+    >
+      <Component
+        // @ts-ignore this is fine, it's just mad because Component is a variable
+        ref={ref}
+        type={type}
+        className={cn(
+          `w-full border-none bg-transparent
         py-[0.6875rem] px-3
         text-sans-md text-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
-        fieldClassName
-      )}
-      aria-invalid={error}
-      placeholder=""
-      {...fieldProps}
-    />
-  </div>
-))
+          fieldClassName
+        )}
+        aria-invalid={error}
+        {...fieldProps}
+      />
+    </div>
+  )
+})
 
 // TODO: do this properly: extract a NumberField that styles the up and down
 // buttons for when we do want them *and* add a flag to hide them using

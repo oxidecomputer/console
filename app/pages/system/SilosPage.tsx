@@ -5,6 +5,7 @@ import type { Silo } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
+import { linkCell } from '@oxide/table'
 import { BooleanCell } from '@oxide/table'
 import { DateCell } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
@@ -85,7 +86,7 @@ export default function SilosPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
+        <Column accessor="name" cell={linkCell((siloName) => pb.silo({ siloName }))} />
         <Column accessor="description" />
         <Column accessor="discoverable" cell={BooleanCell} />
         <Column

@@ -62,6 +62,7 @@ export const pb = {
   silos: () => '/sys/silos',
   siloNew: () => '/sys/silos-new',
   silo: ({ siloName }: PP.Silo) => `/sys/silos/${siloName}`,
+  siloIdpNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

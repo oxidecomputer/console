@@ -8,7 +8,7 @@ import { pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
-import { defaultSilo } from '../silo'
+import { defaultSilo, toIdp } from '../silo'
 import { user1 } from '../user'
 import {
   db,
@@ -20,6 +20,7 @@ import {
   lookupNetworkInterface,
   lookupOrg,
   lookupProject,
+  lookupSamlIdp,
   lookupSilo,
   lookupSnapshot,
   lookupSshKey,
@@ -860,6 +861,45 @@ export const handlers = makeHandlers({
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
+  siloIdentityProviderList(params) {
+    const silo = lookupSilo(params.path)
+    const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
+    return { items: idps }
+  },
+
+  samlIdentityProviderCreate(params) {
+    const silo = lookupSilo(params.path)
+
+    // this is a bit silly, but errIfExists doesn't handle nested keys like
+    // provider.name, so to do the check we make a flatter object
+    errIfExists(
+      db.identityProviders.map(({ siloId, provider }) => ({ siloId, name: provider.name })),
+      { siloId: silo.id, name: params.body.name }
+    )
+
+    const provider = {
+      id: uuid(),
+      ...pick(
+        params.body,
+        'name',
+        'acs_url',
+        'description',
+        'idp_entity_id',
+        'slo_url',
+        'sp_client_id',
+        'technical_contact_email'
+      ),
+      ...getTimestamps(),
+    }
+    db.identityProviders.push({
+      type: 'saml',
+      siloId: silo.id,
+      provider,
+    })
+    return provider
+  },
+  samlIdentityProviderView: (params) => lookupSamlIdp(params.path),
+
   userList: (params) => paginated(params.query, db.users),
 
   systemPolicyView() {
@@ -910,9 +950,7 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   sagaList: NotImplemented,
   sagaView: NotImplemented,
-  samlIdentityProviderCreate: NotImplemented,
-  samlIdentityProviderView: NotImplemented,
-  siloIdentityProviderList: NotImplemented,
+
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUsersList: NotImplemented,

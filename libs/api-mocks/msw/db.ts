@@ -145,6 +145,19 @@ export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
   return silo
 }
 
+export function lookupSamlIdp(params: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+  const silo = lookupSilo(params)
+
+  const dbIdp = db.identityProviders.find(
+    ({ type, siloId, provider }) =>
+      type === 'saml' && siloId === silo.id && provider.name === params.providerName
+  )
+
+  if (!dbIdp) throw notFoundErr
+
+  return dbIdp.provider
+}
+
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   const sshKey = db.sshKeys.find(
     (key) => key.name === params.sshKeyName && key.silo_user_id === user1.id
@@ -157,6 +170,7 @@ const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
   userGroups: [...mock.userGroups],
+  /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
   instances: [mock.instance],
@@ -164,7 +178,9 @@ const initDb = {
   orgs: [...mock.orgs],
   projects: [...mock.projects],
   roleAssignments: [...mock.roleAssignments],
+  /** Join table for `silos` and `identityProviders` */
   silos: [...mock.silos],
+  identityProviders: [...mock.identityProviders],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],

@@ -1,3 +1,5 @@
+import { useParams } from 'react-router-dom'
+
 import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
@@ -14,7 +16,7 @@ import {
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
-import { SiloSystemPicker } from 'app/components/TopBarPicker'
+import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
@@ -39,11 +41,16 @@ SystemLayout.loader = async () => {
 }
 
 export default function SystemLayout() {
+  // Only show silo picker if we are looking at a particular silo. The more
+  // robust way of doing this would be to make a separate layout for the
+  // silo-specific routes in the route config, but it's overkill considering
+  // this is a one-liner. Switch to that approach at the first sign of trouble.
+  const { siloName } = useParams()
   return (
     <PageContainer>
       <TopBar>
-        {/* don't use the hook bc if we're here, this needs to show up */}
         <SiloSystemPicker value="system" />
+        {siloName && <SiloPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
@@ -55,7 +62,6 @@ export default function SystemLayout() {
             <Cloud16Icon /> Silos
           </NavLinkItem>
           <NavLinkItem to={pb.systemIssues()}>
-            {/* TODO: active green color should apply to icon */}
             <Instances16Icon /> Issues
           </NavLinkItem>
           <NavLinkItem to={pb.systemUtilization()}>
