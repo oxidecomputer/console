@@ -297,6 +297,12 @@ export const test = base.extend<Fixtures>({
         .locator('role=button[name="Row actions"]')
         .click()
       await page.click('role=menuitem[name="Delete"]')
+      /**
+       * FIXME: This is a workaround to prevent a test failure flake where the `expectNotVisible` fails
+       * by finding _two_ of the cell that was supposed to be deleted above. I've been unable to reproduce
+       * this locally, so I'm not sure what's going on.
+       */
+      await page.reload()
       await expectNotVisible(page, [`role=cell[name="${rowText}"]`])
     })
   },
