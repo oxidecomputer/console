@@ -145,8 +145,6 @@ export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
   return silo
 }
 
-// TODO: ugh, need a separate table and lookup function for saml IDPs.
-// `db.identityProviders` is going away
 export function lookupSamlIdp(params: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
   const silo = lookupSilo(params)
 

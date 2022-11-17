@@ -63,17 +63,16 @@ export function CreateIdpSideModalForm() {
       formOptions={{ defaultValues }}
       title="Create identity provider"
       onDismiss={onDismiss}
-      onSubmit={(values) =>
+      onSubmit={(values) => {
         createIdp.mutate({
           path: { siloName },
           body: {
             ...values,
             // convert empty string to undefined so it remains unset
             groupAttributeName: values.groupAttributeName?.trim() || undefined,
-            // TODO: set idpMetadataSource to undefined explicitly if value string is empty
           },
         })
-      }
+      }}
       loading={createIdp.isLoading}
       submitError={createIdp.error}
       submitLabel="Create provider"
