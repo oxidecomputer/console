@@ -13,8 +13,13 @@ import {
 } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
-import { OrgPicker, ProjectPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions, useRequiredParams } from 'app/hooks'
+import {
+  InstancePicker,
+  OrgPicker,
+  ProjectPicker,
+  useSiloSystemPicker,
+} from 'app/components/TopBarPicker'
+import { useAllParams, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -22,8 +27,9 @@ import { ContentPane, PageContainer } from './helpers'
 
 const ProjectLayout = () => {
   const navigate = useNavigate()
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const { orgName, projectName } = projectParams
+  // org and project will always be there, instance may not
+  const { instanceName, orgName, projectName } = useAllParams('orgName', 'projectName')
+  const projectParams = { orgName, projectName }
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -54,6 +60,7 @@ const ProjectLayout = () => {
         {useSiloSystemPicker('silo')}
         <OrgPicker />
         <ProjectPicker />
+        {instanceName && <InstancePicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

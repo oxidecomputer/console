@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
-import { useProjectParams, useSiloParams } from 'app/hooks'
+import { useInstanceParams, useProjectParams, useSiloParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -175,9 +175,9 @@ export function SiloPicker() {
 export function OrgPicker() {
   const { orgName } = useParams()
   const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
-  const items = (data?.items || []).map((org) => ({
-    label: org.name,
-    to: pb.projects({ orgName: org.name }),
+  const items = (data?.items || []).map(({ name }) => ({
+    label: name,
+    to: pb.projects({ orgName: name }),
   }))
 
   return (
@@ -196,9 +196,9 @@ export function ProjectPicker() {
   // picker only shows up when a project is in scope
   const { orgName, projectName } = useProjectParams()
   const { data } = useApiQuery('projectList', { path: { orgName }, query: { limit: 20 } })
-  const items = (data?.items || []).map((p) => ({
-    label: p.name,
-    to: pb.instances({ orgName, projectName: p.name }),
+  const items = (data?.items || []).map(({ name }) => ({
+    label: name,
+    to: pb.instances({ orgName, projectName: name }),
   }))
 
   return (
@@ -208,6 +208,29 @@ export function ProjectPicker() {
       current={projectName}
       items={items}
       noItemsText="No projects found"
+    />
+  )
+}
+
+export function InstancePicker() {
+  // picker only shows up when an instance is in scope
+  const { orgName, projectName, instanceName } = useInstanceParams()
+  const { data } = useApiQuery('instanceList', {
+    path: { orgName, projectName },
+    query: { limit: 50 },
+  })
+  const items = (data?.items || []).map(({ name }) => ({
+    label: name,
+    to: pb.instance({ orgName, projectName, instanceName: name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch instance"
+      category="Instance"
+      current={instanceName}
+      items={items}
+      noItemsText="No instances found"
     />
   )
 }
