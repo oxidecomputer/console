@@ -41,7 +41,6 @@ export function CreateSSHKeySideModalForm() {
           <DescriptionField name="description" control={control} />
           <TextField
             as="textarea"
-            id="ssh-key-public-key"
             name="publicKey"
             label="Public key"
             required

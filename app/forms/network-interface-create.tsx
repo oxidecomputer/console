@@ -92,7 +92,7 @@ export default function CreateNetworkInterfaceForm({
             required
             control={control}
           />
-          <TextField id="nic-ip" name="ip" label="IP Address" control={control} />
+          <TextField name="ip" label="IP Address" control={control} />
         </>
       )}
     </SideModalForm>

@@ -43,7 +43,6 @@ export function ProfilePage() {
       {({ control }) => (
         <>
           <TextField
-            id="profile-id"
             name="id"
             label="User ID"
             required
