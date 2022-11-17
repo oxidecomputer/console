@@ -126,6 +126,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
+/** Choose between System and Silo-scoped route trees */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
@@ -146,6 +147,27 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
     <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
+  )
+}
+
+/** Used when drilling down into a silo from the System view. */
+export function SiloPicker() {
+  const { siloName } = useParams()
+  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
+  const items = (data?.items || []).map((silo) => ({
+    label: silo.name,
+    to: pb.silo({ siloName: silo.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch silo"
+      icon={siloName ? <OrgLogo name={siloName} /> : <NoOrgLogo />}
+      category="Silo"
+      current={siloName}
+      items={items}
+      noItemsText="No silos found"
+    />
   )
 }
 
