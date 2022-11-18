@@ -16,8 +16,8 @@ export default function NotFound() {
           <Error12Icon className="relative h-8 w-8 text-error" />
         </div>
 
-        <div className="space-y-1">
-          <h1 className="text-center text-sans-light-2xl">Page not found</h1>
+        <div className="space-y-2">
+          <h1 className="text-center text-sans-light-3xl">Page not found</h1>
           <p className="text-center text-tertiary">
             The page you are looking for doesn’t exist or you may not have access to it.
           </p>
