@@ -1,11 +1,16 @@
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { Disk } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
-import { DateCell, SizeCell, Table, getActionsCol } from '@oxide/table'
+import {
+  DateCell,
+  SizeCell,
+  Table,
+  createColumnHelper,
+  getActionsCol,
+  useReactTable,
+} from '@oxide/table'
 import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
@@ -24,7 +29,7 @@ const OtherDisksEmpty = () => (
 
 const colHelper = createColumnHelper<Disk>()
 
-const columns = [
+const staticCols = [
   colHelper.accessor('name', {
     header: 'Name',
     cell: (info) => <div>{info.getValue()}</div>,
@@ -59,22 +64,26 @@ export function StorageTab() {
   const instanceStopped =
     useApiQuery('instanceView', { path: instanceParams }).data?.runState === 'stopped'
 
-  const makeActions = (disk: Disk): MenuAction[] => [
-    {
-      label: 'Detach',
-      disabled: !instanceStopped && 'Instance must be stopped before disk can be detached',
-      onActivate() {
-        detachDisk.mutate(
-          { body: { name: disk.name }, path: instanceParams },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
-            },
-          }
-        )
+  const makeActions = useCallback(
+    (disk: Disk): MenuAction[] => [
+      {
+        label: 'Detach',
+        disabled:
+          !instanceStopped && 'Instance must be stopped before disk can be detached',
+        onActivate() {
+          detachDisk.mutate(
+            { body: { name: disk.name }, path: instanceParams },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
+              },
+            }
+          )
+        },
       },
-    },
-  ]
+    ],
+    [detachDisk, instanceParams, instanceStopped, queryClient]
+  )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess() {
@@ -93,18 +102,12 @@ export function StorageTab() {
   const bootDisks = useMemo(() => data?.items.slice(0, 1) || [], [data])
   const otherDisks = useMemo(() => data?.items.slice(1) || [], [data])
 
-  const bootDiskTable = useReactTable({
-    columns: [...columns, getActionsCol(makeActions)],
-    data: bootDisks,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  const columns = useMemo(() => [...staticCols, getActionsCol(makeActions)], [makeActions])
+
+  const bootDiskTable = useReactTable({ columns, data: bootDisks })
   const bootLabelId = 'boot-disk-label'
 
-  const otherDisksTable = useReactTable({
-    columns: [...columns, getActionsCol(makeActions)],
-    data: otherDisks,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  const otherDisksTable = useReactTable({ columns, data: otherDisks })
   const attachedLabelId = 'attached-disks-label'
 
   if (!data) return null

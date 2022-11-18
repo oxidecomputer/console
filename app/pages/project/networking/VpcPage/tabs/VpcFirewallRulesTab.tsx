@@ -1,4 +1,3 @@
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import type { VpcFirewallRule } from '@oxide/api'
@@ -9,7 +8,9 @@ import {
   FirewallFilterCell,
   Table,
   TypeValueListCell,
+  createColumnHelper,
   getActionsCol,
+  useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
@@ -79,11 +80,7 @@ export const VpcFirewallRulesTab = () => {
     ]
   }, [setEditing, rules, updateRules, vpcParams])
 
-  const table = useReactTable({
-    columns,
-    data: rules,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  const table = useReactTable({ columns, data: rules })
 
   const emptyState = (
     <TableEmptyBox>
