@@ -1,9 +1,8 @@
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
 
 import type { Group } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Table } from '@oxide/table'
+import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
 import { FullPageForm, TextField } from 'app/components/form'
@@ -21,11 +20,7 @@ export function ProfilePage() {
 
   const groupRows = useMemo(() => groups?.items || [], [groups])
 
-  const groupsTable = useReactTable({
-    columns,
-    data: groupRows,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  const groupsTable = useReactTable({ columns, data: groupRows })
 
   return (
     <FullPageForm

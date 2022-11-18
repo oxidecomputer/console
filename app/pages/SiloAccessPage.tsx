@@ -1,19 +1,17 @@
-import { createColumnHelper } from '@tanstack/react-table'
-import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
+import type { IdentityType, RoleKey } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
   setUserRole,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
-import type { IdentityType, RoleKey } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { Table, getActionsCol } from '@oxide/table'
+import { Table, createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -134,11 +132,7 @@ export function SiloAccessPage() {
     [siloPolicy, updatePolicy]
   )
 
-  const tableInstance = useReactTable({
-    columns,
-    data: rows,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  const tableInstance = useReactTable({ columns, data: rows })
 
   return (
     <>
