@@ -64,7 +64,7 @@ button:focus-visible,
 [role='button']:focus-visible,
 input[type='radio']:focus-visible,
 input[type='checkbox']:focus-visible {
-  @apply shadow-none outline outline-2 outline-offset-[-2px] outline-accent-secondary;
+  @apply shadow-none outline outline-2 outline-offset-0 outline-accent-secondary;
 }
 
 a:focus,
@@ -75,7 +75,7 @@ button:focus,
 [role='button']:focus,
 input[type='radio']:focus,
 input[type='checkbox']:focus {
-  @apply shadow-none outline outline-2 outline-offset-[-2px] outline-accent-secondary;
+  @apply shadow-none outline outline-2 outline-offset-0 outline-accent-secondary;
 }
 
 a:focus:not(:focus-visible),
