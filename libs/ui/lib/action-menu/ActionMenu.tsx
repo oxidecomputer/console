@@ -100,7 +100,7 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <div
           className={cn(
-            'shadow-black/25 rounded-lg flex h-14 w-full overflow-y-auto border shadow-2xl bg-raise border-secondary'
+            'shadow-black/25 flex h-14 w-full overflow-y-auto rounded-lg border shadow-2xl bg-raise border-secondary'
           )}
         >
           <input
@@ -139,7 +139,7 @@ export function ActionMenu(props: ActionMenuProps) {
         </div>
 
         {items.length > 0 && (
-          <div className="rounded-lg relative mt-5 transform-gpu overflow-hidden">
+          <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg">
             <div
               className="overflow-y-auto"
               ref={divRef}

@@ -51,7 +51,7 @@ export default function LoginPage() {
   })
   return (
     <div className="space-y-4 bg-default">
-      <h3 className="mb-2 text-center text-sans-light-2xl">Log in as</h3>
+      <h3 className="text-sans-light-2xl mb-2 text-center">Log in as</h3>
       <Button
         type="submit"
         className="w-full"
