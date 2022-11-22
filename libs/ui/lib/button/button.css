@@ -32,6 +32,9 @@
 .btn-ghost {
   @apply border text-secondary border-default hover:bg-hover disabled:bg-transparent;
 }
+.btn-ghost:after {
+  @apply hidden;
+}
 
 /**
  * A class to make it very visually obvious that a button style is missing
