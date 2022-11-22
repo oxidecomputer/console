@@ -10,7 +10,7 @@ export default function NotFound() {
             'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
         }}
       />
-      <div className="absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded border p-8 !bg-raise border-secondary elevation-3">
+      <div className="absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8 !bg-raise border-secondary elevation-3">
         <div className="my-2 flex inline-flex h-12 w-12 items-center justify-center">
           <div className="absolute h-12 w-12 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
           <Error12Icon className="relative h-8 w-8 text-error" />
