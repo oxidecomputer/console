@@ -27,7 +27,7 @@ export interface ActionMenuProps {
 
 const LIST_HEIGHT = 384
 
-const Outline = classed.div`absolute z-10 h-full w-full rounded-lg border border-accent pointer-events-none`
+const Outline = classed.div`absolute z-10 h-full w-full rounded border border-accent pointer-events-none`
 
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
@@ -100,7 +100,7 @@ export function ActionMenu(props: ActionMenuProps) {
       >
         <div
           className={cn(
-            'shadow-black/25 rounded-lg flex h-14 w-full overflow-y-auto border shadow-2xl bg-raise border-secondary'
+            'flex h-14 w-full overflow-y-auto rounded-lg border bg-raise border-secondary elevation-3'
           )}
         >
           <input
@@ -139,7 +139,7 @@ export function ActionMenu(props: ActionMenuProps) {
         </div>
 
         {items.length > 0 && (
-          <div className="rounded-lg relative mt-5 transform-gpu overflow-hidden">
+          <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg elevation-3">
             <div
               className="overflow-y-auto"
               ref={divRef}
@@ -208,7 +208,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="border-white/[.15] mr-1 inline-block rounded border py-1 px-2 text-mono-xs text-default"
+          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] py-1 px-2 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>
