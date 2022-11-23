@@ -31,6 +31,55 @@ tr:last-of-type td:last-of-type {
   border-bottom-width: 0px;
 }
 
+th,
+td {
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* th,
+td > div {
+  @apply pr-8;
+} */
+
+th:first-of-type,
+td:first-of-type {
+  @apply sticky left-0 bg-default;
+}
+th:first-of-type {
+  @apply bg-secondary;
+}
+
+th:last-of-type,
+td:last-of-type {
+  @apply sticky right-0 bg-default;
+}
+th:last-of-type {
+  @apply bg-secondary;
+}
+td:last-of-type > div {
+  @apply pr-3;
+}
+
+tr:hover td {
+  @apply bg-raise;
+}
+
+.scrolled td:first-of-type:after,
+.scrolled th:first-of-type:after {
+  @apply absolute right-0 top-0 bottom-0 w-[4px] translate-x-[4px] opacity-10 content-[''] bg-inverse;
+}
+
+.overflowing td:last-of-type:after,
+.overflowing th:last-of-type:after {
+  @apply absolute left-0 top-0 bottom-0 w-[4px] -translate-x-[4px] opacity-10 content-[''] bg-inverse;
+}
+
+.scrolled td:first-of-type:before,
+.scrolled th:first-of-type:before {
+  @apply absolute right-0 top-0 bottom-0 border-r content-[''] border-r-secondary;
+}
+
 /* === Begin table selection styles === */
 
 /**
