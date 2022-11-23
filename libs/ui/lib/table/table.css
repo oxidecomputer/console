@@ -75,6 +75,13 @@ tr:hover td {
   @apply absolute left-0 top-0 bottom-0 w-[4px] -translate-x-[4px] opacity-10 content-[''] bg-inverse;
 }
 
+.scrolled td:first-of-type,
+.scrolled th:first-of-type,
+.overflowing td:last-of-type,
+.overflowing th:last-of-type {
+  box-shadow: var(--elevation-2);
+}
+
 .scrolled td:first-of-type:before,
 .scrolled th:first-of-type:before {
   @apply absolute right-0 top-0 bottom-0 border-r content-[''] border-r-secondary;
