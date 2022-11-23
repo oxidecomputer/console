@@ -9,7 +9,7 @@ import './table.css'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
-  const overflowRef = useRef<HTMLDivElement | undefined>()
+  const overflowRef = useRef<HTMLDivElement>(undefined)
   const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef)
 
   return (
