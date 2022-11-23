@@ -16,7 +16,7 @@ export function Table({ className, ...props }: TableProps) {
     <div
       ref={overflowRef}
       className={cn(
-        'overflow-x-auto',
+        'overflow-x-auto rounded',
         !scrollStart && 'scrolled',
         isOverflow && !scrollEnd && 'overflowing'
       )}
