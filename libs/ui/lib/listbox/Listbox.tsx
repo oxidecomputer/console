@@ -48,7 +48,7 @@ export const Listbox = ({
         type="button"
         className={cn(
           `flex h-10 w-full items-center justify-between rounded
-          border px-3 text-sans-md bg-default border-default
+          border px-3 text-sans-md border-default
           focus:outline-none focus:ring-2 focus:ring-accent-secondary
           disabled:cursor-not-allowed disabled:bg-disabled`,
           select.isOpen ? 'ring-2 text-secondary ring-accent-secondary' : 'text-default'

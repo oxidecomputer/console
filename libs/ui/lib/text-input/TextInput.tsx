@@ -43,9 +43,11 @@ export const TextInput = React.forwardRef<
   return (
     <div
       className={cn(
-        'flex rounded border border-default',
-        'focus-within:ring-2 focus-within:ring-accent-secondary',
-        error && '!border-destructive',
+        'flex rounded border',
+        'focus-within:ring-2',
+        error
+          ? 'border-error focus-within:ring-error-secondary'
+          : 'border-default focus-within:ring-accent-secondary',
         className
       )}
     >
