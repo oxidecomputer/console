@@ -2,7 +2,7 @@ import type { MutableRefObject } from 'react'
 import { useLayoutEffect, useState } from 'react'
 
 export const useIsOverflow = (
-  ref: MutableRefObject<HTMLDivElement> | undefined,
+  ref: MutableRefObject<HTMLDivElement | null>,
   callback?: (hasOverflow: boolean) => void
 ) => {
   const [isOverflow, setIsOverflow] = useState<boolean | undefined>()
