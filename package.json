@@ -52,6 +52,7 @@
     "react-merge-refs": "^2.0.1",
     "react-router-dom": "^6.4.2",
     "recharts": "^2.1.12",
+    "simplebar-react": "^2.4.3",
     "tiny-invariant": "^1.2.0",
     "ts-dedent": "^2.2.0",
     "tslib": "^2.4.0",

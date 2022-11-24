@@ -1,5 +1,7 @@
 import cn from 'classnames'
 import React, { useRef } from 'react'
+import SimpleBar from 'simplebar-react'
+import 'simplebar-react/dist/simplebar.min.css'
 
 import { addProps, classed } from '@oxide/util'
 
@@ -13,19 +15,20 @@ export function Table({ className, ...props }: TableProps) {
   const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef)
 
   return (
-    <div
-      ref={overflowRef}
+    <SimpleBar
+      scrollableNodeProps={{ ref: overflowRef }}
       className={cn(
-        'overflow-x-auto rounded',
+        'overflow-x-auto rounded pb-4',
         !scrollStart && 'scrolled',
         isOverflow && !scrollEnd && 'overflowing'
       )}
+      autoHide={false}
     >
       <table
         className={cn(className, 'ox-table w-full border-separate text-sans-md')}
         {...props}
       />
-    </div>
+    </SimpleBar>
   )
 }
 

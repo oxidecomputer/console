@@ -87,6 +87,25 @@ tr:hover td {
   @apply absolute right-0 top-0 bottom-0 border-r content-[''] border-r-secondary;
 }
 
+.simplebar-scrollbar {
+  height: 8px;
+}
+
+.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.28);
+  left: 0;
+  top: 0;
+  right: 0;
+}
+
+.simplebar-hover.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.simplebar-track.simplebar-horizontal {
+  height: 8px;
+}
+
 /* === Begin table selection styles === */
 
 /**
