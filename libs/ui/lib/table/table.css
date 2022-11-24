@@ -65,7 +65,7 @@ tr:hover td {
   @apply bg-raise;
 }
 
-.scrolled td:first-of-type:after,
+/* .scrolled td:first-of-type:after,
 .scrolled th:first-of-type:after {
   @apply absolute right-0 top-0 bottom-0 w-[4px] translate-x-[4px] opacity-5 content-[''] bg-inverse;
 }
@@ -73,7 +73,7 @@ tr:hover td {
 .overflowing td:last-of-type:after,
 .overflowing th:last-of-type:after {
   @apply absolute left-0 top-0 bottom-0 w-[4px] -translate-x-[4px] opacity-5 content-[''] bg-inverse;
-}
+} */
 
 .scrolled td:first-of-type,
 .scrolled th:first-of-type,
