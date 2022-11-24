@@ -37,11 +37,6 @@ td {
   white-space: nowrap;
 }
 
-/* th,
-td > div {
-  @apply pr-8;
-} */
-
 th:first-of-type,
 td:first-of-type {
   @apply sticky left-0 bg-default;
