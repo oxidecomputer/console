@@ -83,14 +83,16 @@ tr:hover td {
 }
 
 .simplebar-scrollbar {
-  height: 8px;
+  top: 0 !important;
+  height: 8px !important;
 }
 
 .simplebar-scrollbar:before {
   background-color: rgba(255, 255, 255, 0.28);
-  left: 0;
-  top: 0;
-  right: 0;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  border-radius: 8px !important;
 }
 
 .simplebar-hover.simplebar-scrollbar:before {
