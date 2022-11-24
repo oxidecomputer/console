@@ -95,6 +95,6 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
  * Used _outside_ of the `Table`, this element wraps buttons that sit on top
  * of the table.
  */
-export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-4`
+export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-2`
 
 export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded border border-secondary p-4`
