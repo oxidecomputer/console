@@ -31,7 +31,7 @@ const JumpToButton = () => (
     size="sm"
     // TODO: click should open jump to menu
     onClick={() => alert('click not implemented, press cmd+k')}
-    className="w-full !px-2"
+    className="w-full"
     // TODO: the more I use innerClassName the wronger it feels
     innerClassName="w-full justify-between text-quaternary"
   >
