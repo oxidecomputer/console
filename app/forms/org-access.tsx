@@ -1,5 +1,5 @@
 import {
-  setUserRole,
+  updateRole,
   useApiMutation,
   useApiQueryClient,
   useUsersNotInPolicy,
@@ -38,7 +38,10 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
 
         updatePolicy.mutate({
           path: orgParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole(
+            { identityId: userId, identityType: 'silo_user', roleName },
+            policy
+          ),
         })
       }}
       loading={updatePolicy.isLoading}
@@ -69,7 +72,8 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
 
 export function OrgAccessEditUserSideModal({
   onDismiss,
-  userId,
+  identityId,
+  identityType,
   policy,
   defaultValues,
 }: EditRoleModalProps) {
@@ -92,7 +96,7 @@ export function OrgAccessEditUserSideModal({
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: orgParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}

@@ -55,23 +55,23 @@ export type Policy = { roleAssignments: RoleAssignment[] }
 
 /**
  * Returns a new updated policy. Does not modify the passed-in policy.
- *
- * @param roleName Pass `null` to delete the user from the policy.
  */
-export function setUserRole(
-  userId: string,
-  roleName: RoleKey | null,
-  policy: Policy
-): Policy {
-  // filter out any existing role assignments — we're pretending for now that you can only
-  const roleAssignments = policy.roleAssignments.filter((ra) => ra.identityId !== userId)
-  if (roleName !== null) {
-    roleAssignments.push({
-      identityId: userId,
-      identityType: 'silo_user',
-      roleName,
-    })
-  }
+export function updateRole(newAssignment: RoleAssignment, policy: Policy): Policy {
+  const roleAssignments = policy.roleAssignments.filter(
+    (ra) => ra.identityId !== newAssignment.identityId
+  )
+  roleAssignments.push(newAssignment)
+  return { roleAssignments }
+}
+
+/**
+ * Delete any role assignments for user or group ID. Returns a new updated
+ * policy. Does not modify the passed-in policy.
+ */
+export function deleteRole(identityId: string, policy: Policy): Policy {
+  const roleAssignments = policy.roleAssignments.filter(
+    (ra) => ra.identityId !== identityId
+  )
   return { roleAssignments }
 }
 

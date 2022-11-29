@@ -1,4 +1,4 @@
-import type { Policy, RoleKey } from '@oxide/api'
+import type { IdentityType, Policy, RoleKey } from '@oxide/api'
 import { allRoles } from '@oxide/api'
 import { capitalize } from '@oxide/util'
 
@@ -20,6 +20,7 @@ export type AddRoleModalProps = {
 }
 
 export type EditRoleModalProps = AddRoleModalProps & {
-  userId: string
+  identityId: string
+  identityType: IdentityType
   defaultValues: { roleName: RoleKey }
 }

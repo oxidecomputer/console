@@ -1,5 +1,5 @@
 import {
-  setUserRole,
+  updateRole,
   useApiMutation,
   useApiQueryClient,
   useUsersNotInPolicy,
@@ -34,7 +34,10 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         if (roleName === '') return
 
         updatePolicy.mutate({
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole(
+            { identityId: userId, identityType: 'silo_user', roleName },
+            policy
+          ),
         })
       }}
       loading={updatePolicy.isLoading}
@@ -65,7 +68,8 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
 export function SiloAccessEditUserSideModal({
   onDismiss,
-  userId,
+  identityId,
+  identityType,
   policy,
   defaultValues,
 }: EditRoleModalProps) {
@@ -85,7 +89,7 @@ export function SiloAccessEditUserSideModal({
       formOptions={{ defaultValues }}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}
