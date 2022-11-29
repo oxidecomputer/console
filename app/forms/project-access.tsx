@@ -1,5 +1,5 @@
 import {
-  setUserRole,
+  updateRole,
   useApiMutation,
   useApiQueryClient,
   useUsersNotInPolicy,
@@ -38,7 +38,10 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
         updatePolicy.mutate({
           path: projectParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole(
+            { identityId: userId, identityType: 'silo_user', roleName },
+            policy
+          ),
         })
       }}
       loading={updatePolicy.isLoading}
@@ -70,7 +73,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
 export function ProjectAccessEditUserSideModal({
   onDismiss,
-  userId,
+  identityId,
+  identityType,
   policy,
   defaultValues,
 }: EditRoleModalProps) {
@@ -93,7 +97,7 @@ export function ProjectAccessEditUserSideModal({
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: projectParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}
