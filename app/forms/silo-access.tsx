@@ -49,7 +49,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
           <ListboxField
             name="userId"
             items={userItems}
-            label="User"
+            label="User or group"
             required
             control={control}
           />

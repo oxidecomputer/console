@@ -54,7 +54,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
           <ListboxField
             name="userId"
             items={userItems}
-            label="User"
+            label="User or group"
             required
             control={control}
           />

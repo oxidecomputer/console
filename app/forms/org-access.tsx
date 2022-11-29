@@ -53,7 +53,7 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
           <ListboxField
             name="userId"
             items={userItems}
-            label="User"
+            label="User or group"
             required
             control={control}
           />
