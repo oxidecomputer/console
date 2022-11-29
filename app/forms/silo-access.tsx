@@ -1,8 +1,8 @@
 import {
   updateRole,
+  useActorsNotInPolicy,
   useApiMutation,
   useApiQueryClient,
-  useUsersNotInPolicy,
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
@@ -11,7 +11,7 @@ import { defaultValues, roleItems } from './access-util'
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const users = useUsersNotInPolicy(policy)
+  const users = useActorsNotInPolicy(policy)
   const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
 
   const queryClient = useApiQueryClient()
