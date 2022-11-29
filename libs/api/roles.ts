@@ -137,15 +137,15 @@ export function useActorsNotInPolicy(
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    // use displayName to distinguish groups in the list since Listbox only
-    // takes a string as the label
-    // TODO: make this a badge instead
     const allGroups = (groups?.items || []).map((g) => ({
       ...g,
-      displayName: g.displayName + ' [group]',
+      identityType: 'silo_group' as IdentityType,
     }))
-    const allUsers = users?.items || []
-    // groups go before users in the list
+    const allUsers = (users?.items || []).map((u) => ({
+      ...u,
+      identityType: 'silo_user' as IdentityType,
+    }))
+    // groups go before users
     return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
   }, [users, groups, policy])
 }

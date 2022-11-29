@@ -15,8 +15,11 @@ import { defaultValues } from './access-util'
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const projectParams = useRequiredParams('orgName', 'projectName')
 
-  const users = useActorsNotInPolicy(policy)
-  const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
+  const actors = useActorsNotInPolicy(policy)
+  const actorItems = actors.map((u) => ({
+    value: u.id,
+    label: u.displayName + (u.identityType === 'silo_group' ? ' [group]' : ''),
+  }))
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -28,32 +31,32 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   return (
     <SideModalForm
-      title="Add actor to project"
+      title="Add user or group"
       id="project-access-add-user"
       formOptions={{ defaultValues }}
-      onSubmit={({ userId, roleName }) => {
+      onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
         if (roleName === '') return
 
+        // actor is guaranteed to be in the list because it came from there
+        const identityType = actors.find((a) => a.id === identityId)!.identityType
+
         updatePolicy.mutate({
           path: projectParams,
-          body: updateRole(
-            { identityId: userId, identityType: 'silo_user', roleName },
-            policy
-          ),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
-      submitLabel="Add user"
+      submitLabel="Assign role"
       onDismiss={onDismiss}
     >
       {({ control }) => (
         <>
           <ListboxField
-            name="userId"
-            items={userItems}
+            name="identityId"
+            items={actorItems}
             label="User or group"
             required
             control={control}

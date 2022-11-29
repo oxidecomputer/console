@@ -3,12 +3,12 @@ import { allRoles } from '@oxide/api'
 import { capitalize } from '@oxide/util'
 
 type AddUserValues = {
-  userId: string
+  identityId: string
   roleName: RoleKey | ''
 }
 
 export const defaultValues: AddUserValues = {
-  userId: '',
+  identityId: '',
   roleName: '',
 }
 
