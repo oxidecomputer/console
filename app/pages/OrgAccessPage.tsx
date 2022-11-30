@@ -35,7 +35,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
       icon={<Access24Icon />}
       title="No authorized users"
       body="Give permission to view, edit, or administer this organization"
-      buttonText="Add user to organization"
+      buttonText="Add user or group to organization"
       onClick={onClick}
     />
   </TableEmptyBox>
@@ -158,7 +158,7 @@ export function OrgAccessPage() {
 
       <TableActions>
         <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user to organization
+          Add user or group
         </Button>
       </TableActions>
       {orgPolicy && addModalOpen && (

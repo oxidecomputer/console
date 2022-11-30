@@ -1,18 +1,17 @@
 import {
   updateRole,
+  useActorsNotInPolicy,
   useApiMutation,
   useApiQueryClient,
-  useUsersNotInPolicy,
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 
-import { defaultValues, roleItems } from './access-util'
+import { actorToItem, defaultValues, roleItems } from './access-util'
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const users = useUsersNotInPolicy(policy)
-  const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
+  const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('policyUpdate', {
@@ -28,28 +27,29 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       title="Add user or group"
       id="silo-access-add-user"
       formOptions={{ defaultValues }}
-      onSubmit={({ userId, roleName }) => {
+      onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
         if (roleName === '') return
 
+        // TODO: DRY logic
+        // actor is guaranteed to be in the list because it came from there
+        const identityType = actors.find((a) => a.id === identityId)!.identityType
+
         updatePolicy.mutate({
-          body: updateRole(
-            { identityId: userId, identityType: 'silo_user', roleName },
-            policy
-          ),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
-      submitLabel="Add user"
+      submitLabel="Assign role"
     >
       {({ control }) => (
         <>
           <ListboxField
-            name="userId"
-            items={userItems}
-            label="User"
+            name="identityId"
+            items={actors.map(actorToItem)}
+            label="User or group"
             required
             control={control}
           />

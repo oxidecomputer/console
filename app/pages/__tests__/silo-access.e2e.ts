@@ -44,7 +44,7 @@ test('Click through silo access page', async ({ page }) => {
   await page.click('role=button[name="Add user or group"]')
   await expectVisible(page, ['role=heading[name*="Add user or group"]'])
 
-  await page.click('role=button[name="User"]')
+  await page.click('role=button[name="User or group"]')
   // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Hannah Arendt"]'])
   await expectVisible(page, [
@@ -63,7 +63,7 @@ test('Click through silo access page', async ({ page }) => {
   ])
 
   await page.click('role=option[name="Collaborator"]')
-  await page.click('role=button[name="Add user"]')
+  await page.click('role=button[name="Assign role"]')
 
   // User 3 shows up in the table
   await expectRowVisible(table, {

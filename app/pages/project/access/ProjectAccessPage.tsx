@@ -39,7 +39,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
       icon={<Access24Icon />}
       title="No authorized users"
       body="Give permission to view, edit, or administer this project"
-      buttonText="Add user to project"
+      buttonText="Add user or group to project"
       onClick={onClick}
     />
   </TableEmptyBox>
@@ -175,7 +175,7 @@ export function ProjectAccessPage() {
 
       <TableActions>
         <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user to project
+          Add user or group
         </Button>
       </TableActions>
       {projectPolicy && addModalOpen && (
