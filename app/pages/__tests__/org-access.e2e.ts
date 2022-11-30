@@ -1,7 +1,6 @@
 import { test } from '@playwright/test'
 
-import { user1, user2, user3, userGroup1 } from '@oxide/api-mocks'
-import { userGroups } from '@oxide/api-mocks'
+import { user1, user2, user3, userGroup1, userGroup2, userGroups } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -60,6 +59,8 @@ test('Click through org access page', async ({ page }) => {
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Jacob Klein"]',
     'role=option[name="Simone de Beauvoir"]',
+    'role=option[name="kernel-devs [group]"]',
+    'role=option[name="real-estate-devs [group]"]',
   ])
 
   await page.click('role=option[name="Jacob Klein"]')
@@ -119,5 +120,19 @@ test('Click through org access page', async ({ page }) => {
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': 'viewer',
+  })
+
+  // add an org role to a group, which currently has no role
+  await page.click('role=button[name="Add user or group"]')
+  await page.click('role=button[name="User or group"]')
+  await page.click('role=option[name="kernel-devs [group]"]')
+  await page.click('role=button[name="Role"]')
+  await page.click('role=option[name="Collaborator"]')
+  await page.click('role=button[name="Assign role"]')
+  await expectRowVisible(table, {
+    ID: userGroup2.id,
+    Name: 'kernel-devsGroup',
+    'Silo role': '',
+    'Org role': 'collaborator',
   })
 })

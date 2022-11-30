@@ -9,17 +9,12 @@ import { ListboxField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
-import { roleItems } from './access-util'
-import { defaultValues } from './access-util'
+import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const projectParams = useRequiredParams('orgName', 'projectName')
 
   const actors = useActorsNotInPolicy(policy)
-  const actorItems = actors.map((u) => ({
-    value: u.id,
-    label: u.displayName + (u.identityType === 'silo_group' ? ' [group]' : ''),
-  }))
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -56,7 +51,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         <>
           <ListboxField
             name="identityId"
-            items={actorItems}
+            items={actors.map(actorToItem)}
             label="User or group"
             required
             control={control}

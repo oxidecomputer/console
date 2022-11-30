@@ -124,6 +124,12 @@ export function byGroupThenName(a: SortableUserRow, b: SortableUserRow) {
   return bGroup - aGroup || a.name.localeCompare(b.name)
 }
 
+export type Actor = {
+  identityType: IdentityType
+  displayName: string
+  id: string
+}
+
 /**
  * Fetch lists of users and groups, filtering out the ones that are already in
  * the given policy.
@@ -131,7 +137,7 @@ export function byGroupThenName(a: SortableUserRow, b: SortableUserRow) {
 export function useActorsNotInPolicy(
   // allow undefined because this is fetched with RQ
   policy: Policy | undefined
-) {
+): Actor[] {
   const { data: users } = useApiQuery('userList', {})
   const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {

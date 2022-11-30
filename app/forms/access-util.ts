@@ -1,4 +1,4 @@
-import type { IdentityType, Policy, RoleKey } from '@oxide/api'
+import type { Actor, IdentityType, Policy, RoleKey } from '@oxide/api'
 import { allRoles } from '@oxide/api'
 import { capitalize } from '@oxide/util'
 
@@ -13,6 +13,11 @@ export const defaultValues: AddUserValues = {
 }
 
 export const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
+
+export const actorToItem = (actor: Actor) => ({
+  value: actor.id,
+  label: actor.displayName + (actor.identityType === 'silo_group' ? ' [group]' : ''),
+})
 
 export type AddRoleModalProps = {
   onDismiss: () => void
