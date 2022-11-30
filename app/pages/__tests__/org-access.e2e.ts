@@ -55,12 +55,13 @@ test('Click through org access page', async ({ page }) => {
   await page.click('role=button[name="User or group"]')
   // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Hans Jonas"]'])
+  await page.pause()
   await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Jacob Klein"]',
     'role=option[name="Simone de Beauvoir"]',
-    'role=option[name="kernel-devs [group]"]',
-    'role=option[name="real-estate-devs [group]"]',
+    'role=option[name="kernel-devs Group"]',
+    'role=option[name="real-estate-devs Group"]',
   ])
 
   await page.click('role=option[name="Jacob Klein"]')
@@ -125,7 +126,7 @@ test('Click through org access page', async ({ page }) => {
   // add an org role to a group, which currently has no role
   await page.click('role=button[name="Add user or group"]')
   await page.click('role=button[name="User or group"]')
-  await page.click('role=option[name="kernel-devs [group]"]')
+  await page.click('role=option[name="kernel-devs Group"]')
   await page.click('role=button[name="Role"]')
   await page.click('role=option[name="Collaborator"]')
   await page.click('role=button[name="Assign role"]')
