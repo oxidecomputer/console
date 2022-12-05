@@ -1,3 +1,4 @@
+import throttle from 'lodash.throttle'
 import type { MutableRefObject } from 'react'
 import { useLayoutEffect, useState } from 'react'
 
@@ -8,8 +9,6 @@ export const useIsOverflow = (
   const [isOverflow, setIsOverflow] = useState<boolean | undefined>()
   const [scrollStart, setScrollStart] = useState<boolean>(true)
   const [scrollEnd, setScrollEnd] = useState<boolean>(false)
-
-  const size = useWindowSize()
 
   useLayoutEffect(() => {
     if (!ref?.current) return
@@ -24,30 +23,34 @@ export const useIsOverflow = (
       if (callback) callback(hasOverflow)
     }
 
-    const handleScroll = () => {
-      if (!ref?.current) return
-      const { current } = ref
+    const handleScroll = throttle(
+      () => {
+        if (!ref?.current) return
+        const { current } = ref
 
-      if (current.scrollLeft === 0) {
-        setScrollStart(true)
-      } else {
-        setScrollStart(false)
-      }
+        if (current.scrollLeft === 0) {
+          setScrollStart(true)
+        } else {
+          setScrollStart(false)
+        }
 
-      const offsetRight = current.scrollWidth - current.clientWidth
-      if (current.scrollLeft >= offsetRight && scrollEnd === false) {
-        setScrollEnd(true)
-      } else {
-        setScrollEnd(false)
-      }
-    }
+        const offsetRight = current.scrollWidth - current.clientWidth
+        if (current.scrollLeft >= offsetRight && scrollEnd === false) {
+          setScrollEnd(true)
+        } else {
+          setScrollEnd(false)
+        }
+      },
+      125,
+      { leading: true, trailing: true }
+    )
 
     trigger()
 
     const { current } = ref
     current.addEventListener('scroll', handleScroll)
     return () => current.removeEventListener('scroll', handleScroll)
-  }, [callback, ref, size, scrollStart, scrollEnd])
+  }, [callback, ref, scrollStart, scrollEnd])
 
   return {
     isOverflow,
@@ -55,39 +58,3 @@ export const useIsOverflow = (
     scrollEnd,
   }
 }
-
-function useWindowSize() {
-  const [size, setSize] = useState<{
-    width: number
-    height: number
-  }>({
-    width: 0,
-    height: 0,
-  })
-
-  useLayoutEffect(() => {
-    // Only execute all the code below in client side
-    if (typeof window !== 'undefined') {
-      // Handler to call on window resize
-      const handleResize = () => {
-        // Set window width/height to state
-        setSize({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        })
-      }
-
-      window.addEventListener('resize', handleResize)
-
-      handleResize()
-
-      return () => window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  return {
-    size,
-  }
-}
-
-export default useWindowSize
