@@ -20,7 +20,7 @@ export const getActionsCol = <TData extends { id?: string }>(
   return {
     id: 'menu',
     header: '',
-    meta: { thClassName: 'w-12' },
+    meta: { thClassName: 'w-12 action-col', tdClassName: 'action-col' },
 
     cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out

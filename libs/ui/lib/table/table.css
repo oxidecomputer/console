@@ -5,14 +5,14 @@ th:first-of-type {
   border-left-width: 1px;
   border-top-left-radius: 0.1875rem;
 }
-th:last-of-type {
+th:last-of-type.action-col {
   border-right-width: 1px;
   border-top-right-radius: 0.1875rem;
 }
 tr:last-of-type td:first-of-type {
   border-bottom-left-radius: 0.1875rem;
 }
-tr:last-of-type td:last-of-type {
+tr:last-of-type td:last-of-type.action-col {
   border-bottom-right-radius: 0.1875rem;
 }
 
@@ -36,6 +36,9 @@ td {
   min-width: fit-content;
   white-space: nowrap;
 }
+td:not(.action-col) > div {
+  @apply pr-8;
+}
 
 th:first-of-type,
 td:first-of-type {
@@ -45,30 +48,18 @@ th:first-of-type {
   @apply bg-secondary;
 }
 
-th:last-of-type,
-td:last-of-type {
+th:last-of-type.action-col,
+td:last-of-type.action-col {
   @apply sticky right-0 bg-default;
 }
-th:last-of-type {
+th:last-of-type.action-col {
   @apply bg-secondary;
 }
-td:last-of-type > div {
-  @apply pr-3;
-}
 
-tr:hover td {
+tr:hover td,
+tr:hover td.action-col {
   @apply bg-raise;
 }
-
-/* .scrolled td:first-of-type:after,
-.scrolled th:first-of-type:after {
-  @apply absolute right-0 top-0 bottom-0 w-[4px] translate-x-[4px] opacity-5 content-[''] bg-inverse;
-}
-
-.overflowing td:last-of-type:after,
-.overflowing th:last-of-type:after {
-  @apply absolute left-0 top-0 bottom-0 w-[4px] -translate-x-[4px] opacity-5 content-[''] bg-inverse;
-} */
 
 .scrolled td:first-of-type,
 .scrolled th:first-of-type,
@@ -101,6 +92,10 @@ tr:hover td {
 
 .simplebar-track.simplebar-horizontal {
   height: 8px;
+}
+
+[data-simplebar]:after {
+  @apply absolute right-0 top-0 bottom-4 z-10 w-4 rounded border-r content-[''] border-r-default;
 }
 
 /* === Begin table selection styles === */

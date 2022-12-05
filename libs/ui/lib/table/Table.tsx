@@ -102,7 +102,7 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b py-3 pl-3 pr-8 border-secondary">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b py-3 pl-3 pr-3 border-secondary">
       {children}
     </div>
   </td>
