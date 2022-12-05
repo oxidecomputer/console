@@ -12,12 +12,12 @@ export const useIsOverflow = (
   const size = useWindowSize()
 
   useLayoutEffect(() => {
-    if (!ref || !ref.current) {
-      return
-    }
-    const { current } = ref
+    if (!ref?.current) return
 
     const trigger = () => {
+      if (!ref?.current) return
+      const { current } = ref
+
       const hasOverflow = current.scrollWidth > current.clientWidth
       setIsOverflow(hasOverflow)
 
@@ -25,6 +25,9 @@ export const useIsOverflow = (
     }
 
     const handleScroll = () => {
+      if (!ref?.current) return
+      const { current } = ref
+
       if (current.scrollLeft === 0) {
         setScrollStart(true)
       } else {
@@ -41,6 +44,7 @@ export const useIsOverflow = (
 
     trigger()
 
+    const { current } = ref
     current.addEventListener('scroll', handleScroll)
     return () => current.removeEventListener('scroll', handleScroll)
   }, [callback, ref, size, scrollStart, scrollEnd])
