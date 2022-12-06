@@ -1,10 +1,10 @@
-import { Spinner, sizes, variants } from './Spinner'
+import { Spinner, spinnerSizes, spinnerVariants } from './Spinner'
 
 export const Default = () => (
   <div className="space-y-2">
-    {sizes.map((size) => (
+    {spinnerSizes.map((size) => (
       <div key={size} className="flex flex-row flex-wrap space-x-2">
-        {variants.map((variant) => (
+        {spinnerVariants.map((variant) => (
           <Spinner key={size + variant} size={size} variant={variant} />
         ))}
       </div>

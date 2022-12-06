@@ -2,15 +2,15 @@ import cn from 'classnames'
 
 import './spinner.css'
 
-export const sizes = ['base', 'lg'] as const
-export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
-export type SpinnerSize = typeof sizes[number]
-export type Variant = typeof variants[number]
+export const spinnerSizes = ['base', 'lg'] as const
+export const spinnerVariants = ['primary', 'secondary', 'ghost', 'danger'] as const
+export type SpinnerSize = typeof spinnerSizes[number]
+export type SpinnerVariant = typeof spinnerVariants[number]
 
 interface SpinnerProps {
   className?: string
   size?: SpinnerSize
-  variant?: Variant
+  variant?: SpinnerVariant
 }
 
 export const Spinner = ({
