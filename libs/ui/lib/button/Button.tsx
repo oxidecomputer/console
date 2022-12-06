@@ -29,12 +29,12 @@ export const buttonStyle = ({
   variant = 'primary',
 }: ButtonStyleProps = {}) => {
   return cn(
-    'ox-button rounded inline-flex items-center justify-center align-top disabled:cursor-not-allowed focus:ring-2',
+    'ox-button elevation-1 rounded inline-flex items-center justify-center align-top disabled:cursor-not-allowed',
     `btn-${variant}`,
     sizeStyle[size],
     variant === 'danger'
-      ? 'focus:ring-destructive-secondary'
-      : 'focus:ring-accent-secondary'
+      ? 'focus:outline-destructive-secondary'
+      : 'focus:outline-accent-secondary'
   )
 }
 
@@ -94,7 +94,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           aria-disabled={isDisabled}
           {...rest}
         >
-          {loading && <Spinner className="absolute" />}
+          {loading && <Spinner className="absolute" variant={variant} />}
           <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
             {children}
           </span>

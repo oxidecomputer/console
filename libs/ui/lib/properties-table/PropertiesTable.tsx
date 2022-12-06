@@ -21,7 +21,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid min-w-min basis-6/12 divide-y rounded border border-default children:p-3 children:border-secondary'
+        'properties-table grid min-w-min basis-6/12 divide-y rounded-lg border border-default children:p-3 children:border-secondary'
       )}
     >
       {children}

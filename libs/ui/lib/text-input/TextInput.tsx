@@ -43,9 +43,11 @@ export const TextInput = React.forwardRef<
   return (
     <div
       className={cn(
-        'flex rounded border border-default',
-        'focus-within:ring-2 focus-within:ring-accent-secondary',
-        error && '!border-destructive',
+        'flex rounded border',
+        'focus-within:ring-2',
+        error
+          ? 'border-error focus-within:ring-error-secondary'
+          : 'border-default focus-within:ring-accent-secondary',
         className
       )}
     >
@@ -54,9 +56,9 @@ export const TextInput = React.forwardRef<
         ref={ref}
         type={type}
         className={cn(
-          `w-full border-none bg-transparent
-        py-[0.6875rem] px-3
-        text-sans-md text-default focus:outline-none
+          `w-full rounded border-none py-[0.6875rem]
+        px-3 text-sans-md
+        text-default bg-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
           fieldClassName
         )}

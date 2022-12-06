@@ -1,5 +1,5 @@
 .ox-menu {
-  @apply absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded shadow-2xl bg-raise border-secondary focus:outline-none children:border-b children:border-secondary children:border-b-secondary last:children:border-b-0;
+  @apply absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded bg-raise border-secondary elevation-2 focus:outline-none children:border-b children:border-secondary children:border-b-secondary last:children:border-b-0;
 }
 
 .ox-menu-item {

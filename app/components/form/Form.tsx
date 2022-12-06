@@ -77,5 +77,5 @@ export const Form = {
     </Button>
   ),
 
-  Heading: classed.h2`text-content text-sans-light-2xl`,
+  Heading: classed.h2`text-content text-sans-2xl`,
 }

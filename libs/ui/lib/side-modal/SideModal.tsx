@@ -59,7 +59,7 @@ export function SideModal({
               dangerouslyBypassFocusLock={status === 'focus-unlocked'}
             >
               <AnimatedDialogContent
-                className="ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default border-secondary"
+                className="ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-default bg-raise border-secondary elevation-2"
                 aria-labelledby={titleId}
                 style={{
                   transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
@@ -75,7 +75,7 @@ export function SideModal({
   )
 }
 
-SideModal.Title = classed.h2`mt-8 mb-12 text-sans-light-2xl`
+SideModal.Title = classed.h2`mt-8 mb-12 text-sans-2xl`
 
 SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
 

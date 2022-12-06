@@ -92,7 +92,7 @@ export const MultiSelect = ({
         <SelectArrows6Icon title="select" />
       </button>
       <ul
-        className="absolute left-0 right-0 z-10 mt-1 overflow-y-auto overflow-x-hidden rounded border-0 bg-default focus:ring-1 focus:ring-accent children:border children:border-b-0 children:border-default children:border-b-secondary last:children:border-b"
+        className="absolute left-0 right-0 z-10 mt-1 overflow-y-auto overflow-x-hidden rounded border-0 bg-default children:border children:border-b-0 children:border-default children:border-b-secondary last:children:border-b"
         {...select.getMenuProps()}
       >
         {select.isOpen &&

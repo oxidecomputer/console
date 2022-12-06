@@ -149,7 +149,7 @@ function ImageSelect({
       </RadioCard>
       <ul
         className={cn(
-          '!children:border-b-secondary absolute -top-2 left-0 right-0 max-h-[17.5rem] -translate-y-full overflow-y-auto rounded shadow-2xl bg-raise border-secondary focus:outline-none children:border-b children:border-secondary last:children:border-b-0',
+          '!children:border-b-secondary absolute -top-2 left-0 right-0 max-h-[17.5rem] -translate-y-full overflow-y-auto rounded bg-raise border-secondary elevation-2 focus:outline-none children:border-b children:border-secondary last:children:border-b-0',
           select.isOpen && 'border'
         )}
         {...select.getMenuProps()}
