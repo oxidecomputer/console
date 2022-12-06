@@ -71,15 +71,15 @@ export const Listbox = ({
       <button
         type="button"
         className={cn(
-          `flex h-10 w-full items-center justify-between rounded
-          border px-3 text-sans-md bg-default
-          disabled:cursor-not-allowed disabled:bg-disabled`,
+          `flex h-10 w-full items-center justify-between
+          rounded border px-3 text-sans-md`,
           hasError ? 'focus-error border-destructive' : 'border-default',
           select.isOpen
-            ? `ring-2 text-secondary ${
-                hasError ? 'ring-destructive-secondary' : 'ring-accent-secondary'
-              }`
-            : 'text-default'
+            ? `ring-2 ${hasError ? 'ring-destructive-secondary' : 'ring-accent-secondary'}`
+            : 'text-default',
+          props.disabled
+            ? 'cursor-not-allowed text-quaternary bg-disabled'
+            : 'text-secondary bg-default'
         )}
         {...select.getToggleButtonProps()}
         {...props}
