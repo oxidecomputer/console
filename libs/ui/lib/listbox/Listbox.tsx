@@ -29,7 +29,7 @@ export interface ListboxProps {
   disabled?: boolean
   onChange?: (value: ListboxItem | null | undefined) => void
   onBlur?: () => void
-  hasError: boolean
+  hasError?: boolean
   name?: string
 }
 
@@ -40,7 +40,7 @@ export const Listbox = ({
   className,
   onChange,
   onBlur,
-  hasError,
+  hasError = false,
   ...props
 }: ListboxProps) => {
   const itemToString = (item: ListboxItem | null) => {
