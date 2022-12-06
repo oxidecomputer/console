@@ -1,0 +1,63 @@
+.spinner {
+  --radius: 4;
+  --PI: 3.14159265358979;
+  --circumference: calc(var(--PI) * var(--radius) * 2px);
+  animation: rotate 5s linear infinite;
+}
+
+.spinner.spinner-lg {
+  --radius: 10;
+  --circumference: calc(var(--PI) * var(--radius) * 3px);
+}
+
+.spinner .path {
+  stroke-dasharray: var(--circumference);
+  transform-origin: center;
+  animation: dash 8s ease-in-out infinite;
+  stroke: var(--content-accent);
+}
+
+@media (prefers-reduced-motion) {
+  .spinner {
+    animation: rotate 12s linear infinite;
+  }
+
+  .spinner .path {
+    animation: none;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 100;
+  }
+
+  .spinner-lg .path {
+    stroke-dasharray: 50;
+  }
+}
+
+.spinner-ghost .bg,
+.spinner-secondary .bg {
+  stroke: var(--content-default);
+}
+
+.spinner-primary .bg {
+  stroke: var(--content-accent);
+}
+
+.spinner-danger .bg,
+.spinner-danger .path {
+  stroke: var(--content-destructive);
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: var(--circumference);
+  }
+  to {
+    stroke-dashoffset: calc(var(--circumference) * -1);
+  }
+}
