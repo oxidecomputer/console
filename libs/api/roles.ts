@@ -55,23 +55,23 @@ export type Policy = { roleAssignments: RoleAssignment[] }
 
 /**
  * Returns a new updated policy. Does not modify the passed-in policy.
- *
- * @param roleName Pass `null` to delete the user from the policy.
  */
-export function setUserRole(
-  userId: string,
-  roleName: RoleKey | null,
-  policy: Policy
-): Policy {
-  // filter out any existing role assignments — we're pretending for now that you can only
-  const roleAssignments = policy.roleAssignments.filter((ra) => ra.identityId !== userId)
-  if (roleName !== null) {
-    roleAssignments.push({
-      identityId: userId,
-      identityType: 'silo_user',
-      roleName,
-    })
-  }
+export function updateRole(newAssignment: RoleAssignment, policy: Policy): Policy {
+  const roleAssignments = policy.roleAssignments.filter(
+    (ra) => ra.identityId !== newAssignment.identityId
+  )
+  roleAssignments.push(newAssignment)
+  return { roleAssignments }
+}
+
+/**
+ * Delete any role assignments for user or group ID. Returns a new updated
+ * policy. Does not modify the passed-in policy.
+ */
+export function deleteRole(identityId: string, policy: Policy): Policy {
+  const roleAssignments = policy.roleAssignments.filter(
+    (ra) => ra.identityId !== identityId
+  )
   return { roleAssignments }
 }
 
@@ -124,25 +124,36 @@ export function byGroupThenName(a: SortableUserRow, b: SortableUserRow) {
   return bGroup - aGroup || a.name.localeCompare(b.name)
 }
 
+export type Actor = {
+  identityType: IdentityType
+  displayName: string
+  id: string
+}
+
 /**
- * Fetch list of users and filter out the ones that are already in the given
- * policy.
+ * Fetch lists of users and groups, filtering out the ones that are already in
+ * the given policy.
  */
-export function useUsersNotInPolicy(
+export function useActorsNotInPolicy(
   // allow undefined because this is fetched with RQ
   policy: Policy | undefined
-) {
+): Actor[] {
   const { data: users } = useApiQuery('userList', {})
-  // const { data: groups } = useApiQuery('groupList', {})
+  const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
-    const usersInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    return (
-      users?.items
-        // only show users for adding if they're not already in the policy
-        .filter((u) => !usersInPolicy.has(u.id)) || []
-    )
-  }, [users, policy])
+    const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
+    const allGroups = (groups?.items || []).map((g) => ({
+      ...g,
+      identityType: 'silo_group' as IdentityType,
+    }))
+    const allUsers = (users?.items || []).map((u) => ({
+      ...u,
+      identityType: 'silo_user' as IdentityType,
+    }))
+    // groups go before users
+    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
+  }, [users, groups, policy])
 }
 
 export function userRoleFromPolicies(

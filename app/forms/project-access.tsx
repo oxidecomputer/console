@@ -1,22 +1,20 @@
 import {
-  setUserRole,
+  updateRole,
+  useActorsNotInPolicy,
   useApiMutation,
   useApiQueryClient,
-  useUsersNotInPolicy,
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
-import { roleItems } from './access-util'
-import { defaultValues } from './access-util'
+import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const projectParams = useRequiredParams('orgName', 'projectName')
 
-  const users = useUsersNotInPolicy(policy)
-  const userItems = users.map((u) => ({ value: u.id, label: u.displayName }))
+  const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -28,30 +26,33 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   return (
     <SideModalForm
-      title="Add user to project"
+      title="Add user or group"
       id="project-access-add-user"
       formOptions={{ defaultValues }}
-      onSubmit={({ userId, roleName }) => {
+      onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
         if (roleName === '') return
 
+        // actor is guaranteed to be in the list because it came from there
+        const identityType = actors.find((a) => a.id === identityId)!.identityType
+
         updatePolicy.mutate({
           path: projectParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}
       submitError={updatePolicy.error}
-      submitLabel="Add user"
+      submitLabel="Assign role"
       onDismiss={onDismiss}
     >
       {({ control }) => (
         <>
           <ListboxField
-            name="userId"
-            items={userItems}
-            label="User"
+            name="identityId"
+            items={actors.map(actorToItem)}
+            label="User or group"
             required
             control={control}
           />
@@ -70,7 +71,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
 export function ProjectAccessEditUserSideModal({
   onDismiss,
-  userId,
+  identityId,
+  identityType,
   policy,
   defaultValues,
 }: EditRoleModalProps) {
@@ -93,7 +95,7 @@ export function ProjectAccessEditUserSideModal({
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: projectParams,
-          body: setUserRole(userId, roleName, policy),
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isLoading}

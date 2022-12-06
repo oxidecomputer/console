@@ -3,11 +3,11 @@ import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
+import { deleteRole } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
-  setUserRole,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -39,7 +39,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
       icon={<Access24Icon />}
       title="No authorized users"
       body="Give permission to view, edit, or administer this project"
-      buttonText="Add user to project"
+      buttonText="Add user or group to project"
       onClick={onClick}
     />
   </TableEmptyBox>
@@ -155,7 +155,7 @@ export function ProjectAccessPage() {
             updatePolicy.mutate({
               path: projectParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, projectPolicy!),
+              body: deleteRole(row.id, projectPolicy!),
             })
           },
           disabled: !row.projectRole && "You don't have permission to delete this user",
@@ -175,7 +175,7 @@ export function ProjectAccessPage() {
 
       <TableActions>
         <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user to project
+          Add user or group
         </Button>
       </TableActions>
       {projectPolicy && addModalOpen && (
@@ -188,7 +188,8 @@ export function ProjectAccessPage() {
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
-          userId={editingUserRow.id}
+          identityId={editingUserRow.id}
+          identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.projectRole }}
         />
       )}

@@ -1,9 +1,25 @@
 import cn from 'classnames'
 import { useSelect } from 'downshift'
+import type { ReactElement } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/ui'
 
-export type ListboxItem = { value: string; label: string }
+export type ListboxItem = {
+  value: string
+} & (
+  | {
+      label: string
+      labelString?: never
+    }
+  | {
+      label: ReactElement
+      /**
+       * Required when `label` is a `ReactElement` because downshift needs a
+       * string to display in the button when the item is selected.
+       */
+      labelString: string
+    }
+)
 
 export interface ListboxProps {
   defaultValue?: string
@@ -25,7 +41,13 @@ export const Listbox = ({
   onBlur,
   ...props
 }: ListboxProps) => {
-  const itemToString = (item: ListboxItem | null) => (item ? item.label : '')
+  const itemToString = (item: ListboxItem | null) => {
+    if (!item) return ''
+    // not sure why TS isn't able to infer that labelString must be present when
+    // label isn't a string. it enforces it correctly on the props side
+    if (typeof item.label !== 'string') return item.labelString!
+    return item.label
+  }
   const select = useSelect({
     initialSelectedItem: items.find((i) => i.value === defaultValue) || null,
     items,

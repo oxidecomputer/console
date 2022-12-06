@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
+import { deleteRole } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
-  setUserRole,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -35,7 +35,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
       icon={<Access24Icon />}
       title="No authorized users"
       body="Give permission to view, edit, or administer this organization"
-      buttonText="Add user to organization"
+      buttonText="Add user or group to organization"
       onClick={onClick}
     />
   </TableEmptyBox>
@@ -138,7 +138,7 @@ export function OrgAccessPage() {
             updatePolicy.mutate({
               path: orgParams,
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, orgPolicy!),
+              body: deleteRole(row.id, orgPolicy!),
             })
           },
           disabled: !row.orgRole && "You don't have permission to delete this user",
@@ -158,7 +158,7 @@ export function OrgAccessPage() {
 
       <TableActions>
         <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user to organization
+          Add user or group
         </Button>
       </TableActions>
       {orgPolicy && addModalOpen && (
@@ -171,7 +171,8 @@ export function OrgAccessPage() {
         <OrgAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={orgPolicy}
-          userId={editingUserRow.id}
+          identityId={editingUserRow.id}
+          identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.orgRole }}
         />
       )}

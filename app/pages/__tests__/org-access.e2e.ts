@@ -1,7 +1,6 @@
 import { test } from '@playwright/test'
 
-import { user1, user2, user3, userGroup1 } from '@oxide/api-mocks'
-import { userGroups } from '@oxide/api-mocks'
+import { user1, user2, user3, userGroup1, userGroup2, userGroups } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -50,16 +49,19 @@ test('Click through org access page', async ({ page }) => {
   await expectNotVisible(page, [`role=cell[name="${user3.id}"]`])
 
   // Add user 2 as collab
-  await page.click('role=button[name="Add user to organization"]')
-  await expectVisible(page, ['role=heading[name*="Add user to organization"]'])
+  await page.click('role=button[name="Add user or group"]')
+  await expectVisible(page, ['role=heading[name*="Add user or group"]'])
 
-  await page.click('role=button[name="User"]')
+  await page.click('role=button[name="User or group"]')
   // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Hans Jonas"]'])
+  await page.pause()
   await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Jacob Klein"]',
     'role=option[name="Simone de Beauvoir"]',
+    'role=option[name="kernel-devs Group"]',
+    'role=option[name="real-estate-devs Group"]',
   ])
 
   await page.click('role=option[name="Jacob Klein"]')
@@ -72,7 +74,7 @@ test('Click through org access page', async ({ page }) => {
   ])
 
   await page.click('role=option[name="Collaborator"]')
-  await page.click('role=button[name="Add user"]')
+  await page.click('role=button[name="Assign role"]')
 
   // User 3 shows up in the table
   await expectRowVisible(table, {
@@ -108,16 +110,30 @@ test('Click through org access page', async ({ page }) => {
   await expectNotVisible(page, [`role=cell[name=${user2.id}]`])
 
   // now add an org role to user 1, who currently only has silo role
-  await page.click('role=button[name="Add user to organization"]')
-  await page.click('role=button[name="User"]')
+  await page.click('role=button[name="Add user or group"]')
+  await page.click('role=button[name="User or group"]')
   await page.click('role=option[name="Hannah Arendt"]')
   await page.click('role=button[name="Role"]')
   await page.click('role=option[name="Viewer"]')
-  await page.click('role=button[name="Add user"]')
+  await page.click('role=button[name="Assign role"]')
   await expectRowVisible(table, {
     ID: user1.id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
     'Org role': 'viewer',
+  })
+
+  // add an org role to a group, which currently has no role
+  await page.click('role=button[name="Add user or group"]')
+  await page.click('role=button[name="User or group"]')
+  await page.click('role=option[name="kernel-devs Group"]')
+  await page.click('role=button[name="Role"]')
+  await page.click('role=option[name="Collaborator"]')
+  await page.click('role=button[name="Assign role"]')
+  await expectRowVisible(table, {
+    ID: userGroup2.id,
+    Name: 'kernel-devsGroup',
+    'Silo role': '',
+    'Org role': 'collaborator',
   })
 })

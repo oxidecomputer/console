@@ -1,9 +1,10 @@
 import type { Policy } from './roles'
+import { deleteRole } from './roles'
 import {
   byGroupThenName,
   getEffectiveRole,
   roleOrder,
-  setUserRole,
+  updateRole,
   userRoleFromPolicies,
 } from './roles'
 
@@ -32,25 +33,35 @@ test('role order assigns a different order number to every role', () => {
 
 const emptyPolicy = { roleAssignments: [] }
 
-const abcAdmin: Policy = {
-  roleAssignments: [{ identityId: 'abc', identityType: 'silo_user', roleName: 'admin' }],
-}
+const abcAdmin = {
+  identityId: 'abc',
+  identityType: 'silo_user',
+  roleName: 'admin',
+} as const
 
-const abcViewer: Policy = {
-  roleAssignments: [{ identityId: 'abc', identityType: 'silo_user', roleName: 'viewer' }],
-}
+const abcAdminPolicy: Policy = { roleAssignments: [abcAdmin] }
 
-describe('setUserRole', () => {
+const abcViewer = {
+  identityId: 'abc',
+  identityType: 'silo_user',
+  roleName: 'viewer',
+} as const
+
+const abcViewerPolicy: Policy = { roleAssignments: [abcViewer] }
+
+describe('updateRole', () => {
   it('adds a user', () => {
-    expect(setUserRole('abc', 'admin', emptyPolicy)).toEqual(abcAdmin)
+    expect(updateRole(abcAdmin, emptyPolicy)).toEqual(abcAdminPolicy)
   })
 
   it('overrides an existing user', () => {
-    expect(setUserRole('abc', 'viewer', abcAdmin)).toEqual(abcViewer)
+    expect(updateRole(abcViewer, abcAdminPolicy)).toEqual(abcViewerPolicy)
   })
+})
 
-  it('deletes a user when passed a roleId of null', () => {
-    expect(setUserRole('abc', null, abcViewer)).toEqual(emptyPolicy)
+describe('deleteRole', () => {
+  it('deletes a user by ID', () => {
+    expect(deleteRole('abc', abcViewerPolicy)).toEqual(emptyPolicy)
   })
 })
 
