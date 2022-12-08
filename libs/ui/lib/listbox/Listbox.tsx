@@ -29,6 +29,7 @@ export interface ListboxProps {
   disabled?: boolean
   onChange?: (value: ListboxItem | null | undefined) => void
   onBlur?: () => void
+  hasError?: boolean
   name?: string
 }
 
@@ -39,6 +40,7 @@ export const Listbox = ({
   className,
   onChange,
   onBlur,
+  hasError = false,
   ...props
 }: ListboxProps) => {
   const itemToString = (item: ListboxItem | null) => {
@@ -69,11 +71,15 @@ export const Listbox = ({
       <button
         type="button"
         className={cn(
-          `flex h-10 w-full items-center justify-between rounded
-          border px-3 text-sans-md bg-default border-default
-          focus:outline-none focus:ring-2 focus:ring-accent-secondary
-          disabled:cursor-not-allowed disabled:bg-disabled`,
-          select.isOpen ? 'ring-2 text-secondary ring-accent-secondary' : 'text-default'
+          `flex h-10 w-full items-center justify-between
+          rounded border px-3 text-sans-md`,
+          hasError ? 'focus-error border-destructive' : 'border-default',
+          select.isOpen
+            ? `ring-2 ${hasError ? 'ring-destructive-secondary' : 'ring-accent-secondary'}`
+            : 'text-default',
+          props.disabled
+            ? 'cursor-not-allowed text-quaternary bg-disabled'
+            : 'text-secondary bg-default'
         )}
         {...select.getToggleButtonProps()}
         {...props}

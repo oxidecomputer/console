@@ -70,6 +70,7 @@ export function ListboxField<
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
               name={name}
+              hasError={error !== undefined}
             />
             <ErrorMessage error={error} label={label} />
           </>
