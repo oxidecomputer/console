@@ -63,8 +63,8 @@ tr:hover td.action-col {
 
 .scrolled td:first-of-type,
 .scrolled th:first-of-type,
-.overflowing td:last-of-type,
-.overflowing th:last-of-type {
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
   box-shadow: var(--elevation-2);
 }
 
