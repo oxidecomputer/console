@@ -44,10 +44,8 @@ export const TextInput = React.forwardRef<
     <div
       className={cn(
         'flex rounded border',
+        error ? 'border-error' : 'border-default',
         'focus-within:ring-2',
-        error
-          ? 'border-error focus-within:ring-error-secondary'
-          : 'border-default focus-within:ring-accent-secondary',
         className
       )}
     >
@@ -56,10 +54,11 @@ export const TextInput = React.forwardRef<
         ref={ref}
         type={type}
         className={cn(
-          `w-full border-none bg-transparent
-        py-[0.6875rem] px-3
-        text-sans-md text-default focus:outline-none
+          `w-full rounded border-none py-[0.6875rem]
+        px-3 !outline-offset-1 text-sans-md
+        text-default bg-default focus:outline-none
         disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+          error && 'focus-error',
           fieldClassName
         )}
         aria-invalid={error}

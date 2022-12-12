@@ -6,13 +6,13 @@ export default function NotFound() {
   return (
     <div className="flex w-full justify-center">
       <div
-        className="fixed top-0 left-0 right-0 bottom-0 -z-10"
+        className="fixed top-0 left-0 right-0 bottom-0"
         style={{
           background:
             'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
         }}
       />
-      <div className="w-full">
+      <div className="relative w-full">
         <Link
           to="/"
           className="flex inline-flex items-center p-6 text-mono-sm text-secondary hover:text-default"

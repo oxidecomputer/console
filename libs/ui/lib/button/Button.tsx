@@ -94,7 +94,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           aria-disabled={isDisabled}
           {...rest}
         >
-          {loading && <Spinner className="absolute" />}
+          {loading && <Spinner className="absolute" variant={variant} />}
           <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
             {children}
           </span>

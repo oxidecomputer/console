@@ -3,17 +3,17 @@ table.ox-table {
 }
 th:first-of-type {
   border-left-width: 1px;
-  border-top-left-radius: 0.1875rem;
+  border-top-left-radius: var(--border-radius-lg);
 }
 th:last-of-type.action-col {
   border-right-width: 1px;
-  border-top-right-radius: 0.1875rem;
+  border-top-right-radius: var(--border-radius-lg);
 }
 tr:last-of-type td:first-of-type {
-  border-bottom-left-radius: 0.1875rem;
+  border-bottom-left-radius: var(--border-radius-lg);
 }
 tr:last-of-type td:last-of-type.action-col {
-  border-bottom-right-radius: 0.1875rem;
+  border-bottom-right-radius: var(--border-radius-lg);
 }
 
 .ox-table tbody tr:last-child td {

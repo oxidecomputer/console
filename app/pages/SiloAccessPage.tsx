@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
+import { deleteRole } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
-  setUserRole,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -122,7 +122,7 @@ export function SiloAccessPage() {
             // TODO: confirm delete
             updatePolicy.mutate({
               // we know policy is there, otherwise there's no row to display
-              body: setUserRole(row.id, null, siloPolicy!),
+              body: deleteRole(row.id, siloPolicy!),
             })
           },
           disabled: !row.siloRole && "You don't have permission to delete this user",
@@ -155,7 +155,8 @@ export function SiloAccessPage() {
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
-          userId={editingUserRow.id}
+          identityId={editingUserRow.id}
+          identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.siloRole }}
         />
       )}

@@ -45,7 +45,7 @@ export const Toast = ({
   return (
     <Alert
       className={cn(
-        'relative flex w-96 items-start overflow-hidden rounded p-4',
+        'relative flex w-96 items-start overflow-hidden rounded-lg p-4',
         color[variant],
         textColor[variant]
       )}
