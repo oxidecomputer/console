@@ -116,7 +116,7 @@ tr:last-of-type td:first-of-type {
 
 tr:last-of-type td:first-of-type:after {
   border-bottom-left-radius: var(--border-radius-lg);
-  @apply absolute top-0 left-0 right-0 bottom-0 border-b border-l content-[''] border-default;
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-b border-l content-[''] border-default;
 }
 
 th:first-of-type {
@@ -130,7 +130,7 @@ th:first-of-type > div {
 
 th:first-of-type:after {
   border-top-left-radius: var(--border-radius-lg);
-  @apply absolute top-0 left-0 right-0 bottom-0 border-l border-t content-[''] border-default;
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-l border-t content-[''] border-default;
 }
 
 th:last-of-type.action-col {
@@ -144,7 +144,7 @@ th:last-of-type.action-col > div {
 
 th:last-of-type.action-col:after {
   border-top-right-radius: var(--border-radius-lg);
-  @apply absolute top-0 left-0 right-0 bottom-0 border-t border-r content-[''] border-default;
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-t border-r content-[''] border-default;
 }
 
 /*
