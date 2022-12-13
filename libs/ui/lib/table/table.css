@@ -75,7 +75,7 @@ tr:hover td:first-of-type {
 }
 
 tr:hover td:first-of-type > div {
-  @apply bg-hover;
+  @apply w-[calc(100%+1px)] bg-hover;
 }
 
 tr:last-of-type td:first-of-type > div {
