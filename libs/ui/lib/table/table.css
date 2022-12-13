@@ -68,6 +68,20 @@ tr:hover td.action-col {
   box-shadow: var(--elevation-2);
 }
 
+/*
+  Stops shadow from overflowing below
+  -1px helps with a visual glitch when a bit
+  underneath shows through
+*/
+.scrolled td:first-of-type,
+.scrolled th:first-of-type {
+  clip-path: inset(0px -40px 0px -1px);
+}
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
+  clip-path: inset(0px -1px 0px -40px);
+}
+
 .scrolled td:first-of-type:before,
 .scrolled th:first-of-type:before {
   @apply absolute right-0 top-0 bottom-0 border-r content-[''] border-r-secondary;
