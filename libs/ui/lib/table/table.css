@@ -2,6 +2,10 @@ table.ox-table {
   border-spacing: 0px;
 }
 
+/*
+  Adds borders to first and last in a
+  row excluding table corners
+*/
 .ox-table tbody tr:last-child td {
   border-bottom-width: 1px;
 }
@@ -22,18 +26,25 @@ td {
   min-width: fit-content;
   white-space: nowrap;
 }
+
+/*
+  Adds padding to all cells except from
+  the action cells since they are a fixed width
+*/
 td:not(.action-col) > div {
   @apply pr-8;
 }
 
+/* First column is sticky */
 th:first-of-type,
 td:first-of-type {
   @apply sticky left-0 bg-default;
 }
-th:first-of-type {
-  @apply bg-secondary;
-}
 
+/*
+  Last column is sticky if it
+  is a more actions cell
+*/
 th:last-of-type.action-col,
 td:last-of-type.action-col {
   @apply sticky right-0 bg-default;
@@ -42,11 +53,19 @@ th:last-of-type.action-col {
   @apply bg-secondary;
 }
 
+/*
+  Rows have a raised bg on hover as it can make it
+  easier to read across to other cells
+*/
 tr:hover td,
 tr:hover td.action-col {
   @apply bg-raise;
 }
 
+/*
+  Drop shadow appears if content is below a sticky
+  cell and the table is overflowing
+*/
 .scrolled td:first-of-type,
 .scrolled th:first-of-type,
 .overflowing td:last-of-type.action-col,
@@ -54,12 +73,15 @@ tr:hover td.action-col {
   box-shadow: var(--elevation-2);
 }
 
+/*
+  We hide the default border and background on the sticky
+  cells. This is to stop anything underneath it showing through
+  at the corner. By leaving the cell square, and instead applying
+  it to the div child which has a rounded corner we cover what's
+  below with a background colour and still keep the styling
+*/
 tr:last-of-type td:last-of-type.action-col {
-  @apply border-r-0 border-b-0;
-}
-
-tr:last-of-type td:last-of-type.action-col {
-  @apply !bg-default;
+  @apply border-r-0 border-b-0 !bg-default;
 }
 
 tr:hover td:last-of-type.action-col > div {
@@ -74,6 +96,7 @@ tr:hover td:first-of-type {
   @apply !bg-default;
 }
 
+/* Fixes an issue where border is not visible when not scrolled */
 tr:hover td:first-of-type > div {
   @apply w-[calc(100%+1px)] bg-hover;
 }
