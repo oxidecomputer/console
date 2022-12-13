@@ -1,20 +1,6 @@
 table.ox-table {
   border-spacing: 0px;
 }
-th:first-of-type {
-  border-left-width: 1px;
-  border-top-left-radius: var(--border-radius-lg);
-}
-th:last-of-type.action-col {
-  border-right-width: 1px;
-  border-top-right-radius: var(--border-radius-lg);
-}
-tr:last-of-type td:first-of-type {
-  border-bottom-left-radius: var(--border-radius-lg);
-}
-tr:last-of-type td:last-of-type.action-col {
-  border-bottom-right-radius: var(--border-radius-lg);
-}
 
 .ox-table tbody tr:last-child td {
   border-bottom-width: 1px;
@@ -66,6 +52,76 @@ tr:hover td.action-col {
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
   box-shadow: var(--elevation-2);
+}
+
+tr:last-of-type td:last-of-type.action-col {
+  @apply border-r-0 border-b-0;
+}
+
+tr:last-of-type td:last-of-type.action-col {
+  @apply !bg-default;
+}
+
+tr:hover td:last-of-type.action-col > div {
+  @apply bg-raise;
+}
+
+tr:last-of-type td:last-of-type.action-col > div {
+  border-bottom-right-radius: var(--border-radius-lg);
+}
+
+tr:hover td:first-of-type {
+  @apply !bg-default;
+}
+
+tr:hover td:first-of-type > div {
+  @apply bg-hover;
+}
+
+tr:last-of-type td:first-of-type > div {
+  border-bottom-left-radius: var(--border-radius-lg);
+}
+
+tr:last-of-type td:last-of-type.action-col:after {
+  border-bottom-right-radius: var(--border-radius-lg);
+  @apply absolute top-0 left-0 right-0 bottom-0 border-b border-r content-[''] border-default;
+}
+
+tr:last-of-type td:first-of-type {
+  @apply !border-l-0 !border-b-0;
+}
+
+tr:last-of-type td:first-of-type:after {
+  border-bottom-left-radius: var(--border-radius-lg);
+  @apply absolute top-0 left-0 right-0 bottom-0 border-b border-l content-[''] border-default;
+}
+
+th:first-of-type {
+  @apply border-l-0 border-t-0 !bg-default;
+}
+
+th:first-of-type > div {
+  border-top-left-radius: var(--border-radius-lg);
+  @apply w-[calc(100%+1px)] bg-secondary;
+}
+
+th:first-of-type:after {
+  border-top-left-radius: var(--border-radius-lg);
+  @apply absolute top-0 left-0 right-0 bottom-0 border-l border-t content-[''] border-default;
+}
+
+th:last-of-type.action-col {
+  @apply !border-r-0 !border-t-0 !bg-default;
+}
+
+th:last-of-type.action-col > div {
+  border-top-right-radius: var(--border-radius-lg);
+  @apply bg-secondary;
+}
+
+th:last-of-type.action-col:after {
+  border-top-right-radius: var(--border-radius-lg);
+  @apply absolute top-0 left-0 right-0 bottom-0 border-t border-r content-[''] border-default;
 }
 
 /*
