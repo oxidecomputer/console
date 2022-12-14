@@ -49,7 +49,11 @@ export const useIsOverflow = (
 
     const { current } = ref
     current.addEventListener('scroll', handleScroll)
-    return () => current.removeEventListener('scroll', handleScroll)
+    window.addEventListener('resize', handleScroll)
+    return () => {
+      current.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
   }, [callback, ref, scrollStart, scrollEnd])
 
   return {
