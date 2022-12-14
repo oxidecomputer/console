@@ -20,7 +20,7 @@ export const getActionsCol = <TData extends { id?: string }>(
   return {
     id: 'menu',
     header: '',
-    meta: { thClassName: 'w-12' },
+    meta: { thClassName: 'w-12 action-col', tdClassName: 'action-col' },
 
     cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out
@@ -32,7 +32,7 @@ export const getActionsCol = <TData extends { id?: string }>(
             {/* TODO: This name should not suck; future us, make it so! */}
             {/* stopPropagation prevents clicks from toggling row select in a single select table */}
             <MenuButton
-              className="-m-4 p-4"
+              className="-m-3 p-3"
               aria-label="Row actions"
               onClick={(e) => e.stopPropagation()}
             >

@@ -1,21 +1,11 @@
 table.ox-table {
   border-spacing: 0px;
 }
-th:first-of-type {
-  border-left-width: 1px;
-  border-top-left-radius: var(--border-radius-lg);
-}
-th:last-of-type {
-  border-right-width: 1px;
-  border-top-right-radius: var(--border-radius-lg);
-}
-tr:last-of-type td:first-of-type {
-  border-bottom-left-radius: var(--border-radius-lg);
-}
-tr:last-of-type td:last-of-type {
-  border-bottom-right-radius: var(--border-radius-lg);
-}
 
+/*
+  Adds borders to first and last in a
+  row excluding table corners
+*/
 .ox-table tbody tr:last-child td {
   border-bottom-width: 1px;
 }
@@ -29,6 +19,172 @@ tr:last-of-type td:last-of-type {
 
 .ox-table tr:last-child td > div {
   border-bottom-width: 0px;
+}
+
+th,
+td {
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/*
+  Adds padding to all cells except from
+  the action cells since they are a fixed width
+*/
+td:not(.action-col) > div {
+  @apply pr-8;
+}
+
+/* First column is sticky */
+th:first-of-type,
+td:first-of-type {
+  @apply sticky left-0 bg-default;
+}
+
+/*
+  Last column is sticky if it
+  is a more actions cell
+*/
+th:last-of-type.action-col,
+td:last-of-type.action-col {
+  @apply sticky right-0 bg-default;
+}
+th:last-of-type.action-col {
+  @apply bg-secondary;
+}
+
+/*
+  Rows have a raised bg on hover as it can make it
+  easier to read across to other cells
+*/
+tr:hover td,
+tr:hover td.action-col {
+  @apply bg-raise;
+}
+
+/*
+  Drop shadow appears if content is below a sticky
+  cell and the table is overflowing
+*/
+.scrolled td:first-of-type,
+.scrolled th:first-of-type,
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
+  box-shadow: var(--elevation-2);
+}
+
+/*
+  We hide the default border and background on the sticky
+  cells. This is to stop anything underneath it showing through
+  at the corner. By leaving the cell square, and instead applying
+  it to the div child which has a rounded corner we cover what's
+  below with a background colour and still keep the styling
+*/
+tr:last-of-type td:last-of-type.action-col {
+  @apply border-r-0 border-b-0 !bg-default;
+}
+
+tr:hover td:last-of-type.action-col > div {
+  @apply bg-raise;
+}
+
+tr:last-of-type td:last-of-type.action-col > div {
+  border-bottom-right-radius: var(--border-radius-lg);
+}
+
+tr:hover td:first-of-type {
+  @apply !bg-default;
+}
+
+/* Fixes an issue where border is not visible when not scrolled */
+tr:hover td:first-of-type > div {
+  @apply w-[calc(100%+1px)] bg-hover;
+}
+
+tr:last-of-type td:first-of-type > div {
+  border-bottom-left-radius: var(--border-radius-lg);
+}
+
+tr:last-of-type td:last-of-type.action-col:after {
+  border-bottom-right-radius: var(--border-radius-lg);
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-b border-r content-[''] border-default;
+}
+
+tr:last-of-type td:first-of-type {
+  @apply !border-l-0 !border-b-0;
+}
+
+tr:last-of-type td:first-of-type:after {
+  border-bottom-left-radius: var(--border-radius-lg);
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-b border-l content-[''] border-default;
+}
+
+th:first-of-type {
+  @apply border-l-0 border-t-0 !bg-default;
+}
+
+th:first-of-type > div {
+  border-top-left-radius: var(--border-radius-lg);
+  @apply w-[calc(100%+1px)] bg-secondary;
+}
+
+th:first-of-type:after {
+  border-top-left-radius: var(--border-radius-lg);
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-l border-t content-[''] border-default;
+}
+
+th:last-of-type.action-col {
+  @apply !border-r-0 !border-t-0 !bg-default;
+}
+
+th:last-of-type.action-col > div {
+  border-top-right-radius: var(--border-radius-lg);
+  @apply bg-secondary;
+}
+
+th:last-of-type.action-col:after {
+  border-top-right-radius: var(--border-radius-lg);
+  @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-t border-r content-[''] border-default;
+}
+
+/*
+  Stops shadow from overflowing below
+  -1px helps with a visual glitch when a bit
+  underneath shows through
+*/
+.scrolled td:first-of-type,
+.scrolled th:first-of-type {
+  clip-path: inset(0px -40px 0px -1px);
+}
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
+  clip-path: inset(0px -1px 0px -40px);
+}
+
+.scrolled td:first-of-type:before,
+.scrolled th:first-of-type:before {
+  @apply absolute right-0 top-0 bottom-0 border-r content-[''] border-r-secondary;
+}
+
+.simplebar-scrollbar {
+  top: 0 !important;
+  height: 8px !important;
+}
+
+.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.28);
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  border-radius: 8px !important;
+}
+
+.simplebar-hover.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.simplebar-track.simplebar-horizontal {
+  height: 8px;
 }
 
 /* === Begin table selection styles === */

@@ -1,17 +1,34 @@
 import cn from 'classnames'
-import React from 'react'
+import React, { useRef } from 'react'
+import SimpleBar from 'simplebar-react'
+import 'simplebar-react/dist/simplebar.min.css'
 
 import { addProps, classed } from '@oxide/util'
+
+import { useIsOverflow } from 'app/hooks'
 
 import './table.css'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
+  const overflowRef = useRef<HTMLDivElement>(null)
+  const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef)
+
   return (
-    <table
-      className={cn(className, 'ox-table w-full border-separate text-sans-md')}
-      {...props}
-    />
+    <SimpleBar
+      scrollableNodeProps={{ ref: overflowRef }}
+      className={cn(
+        'overflow-x-auto rounded pb-4',
+        !scrollStart && 'scrolled',
+        isOverflow && !scrollEnd && 'overflowing'
+      )}
+      autoHide={false}
+    >
+      <table
+        className={cn(className, 'ox-table w-full border-separate text-sans-md')}
+        {...props}
+      />
+    </SimpleBar>
   )
 }
 
@@ -85,7 +102,7 @@ Table.Cell = ({ className, children, ...props }: TableCellProps) => (
     )}
     {...props}
   >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b px-3 border-secondary">
+    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b py-3 pl-3 pr-3 border-secondary">
       {children}
     </div>
   </td>

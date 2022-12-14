@@ -5,9 +5,6 @@
 .ox-tabs.full-width .ox-tabs-panel {
   @apply mx-[var(--content-gutter)];
 }
-.ox-tabs.full-width .ox-tabs-panel > * {
-  @apply w-[calc(100%-var(--content-gutter)*2)];
-}
 
 .ox-tabs-list {
   @apply mb-8 bg-transparent;

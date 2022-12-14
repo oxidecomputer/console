@@ -60,7 +60,11 @@ export const Table = <TData,>({
         return (
           <UITable.Row key={row.id} {...rowProps}>
             {row.getAllCells().map((cell, i) => (
-              <UITable.Cell key={cell.column.id} {...(i === 0 ? firstCellProps : {})}>
+              <UITable.Cell
+                key={cell.column.id}
+                {...(i === 0 ? firstCellProps : {})}
+                className={cell.column.columnDef.meta?.tdClassName}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </UITable.Cell>
             ))}
