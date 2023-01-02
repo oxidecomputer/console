@@ -495,25 +495,18 @@ export interface MSWHandlers {
     path: Api.IpPoolRangeRemovePathParams
     body: Json<Api.IpRange>
   }) => StatusCode
-  /** `GET /system/ip-pools-service/:rackId` */
-  ipPoolServiceView: (params: {
-    path: Api.IpPoolServiceViewPathParams
-  }) => HandlerResult<Api.IpPool>
-  /** `GET /system/ip-pools-service/:rackId/ranges` */
+  /** `GET /system/ip-pools-service` */
+  ipPoolServiceView: () => HandlerResult<Api.IpPool>
+  /** `GET /system/ip-pools-service/ranges` */
   ipPoolServiceRangeList: (params: {
-    path: Api.IpPoolServiceRangeListPathParams
     query: Api.IpPoolServiceRangeListQueryParams
   }) => HandlerResult<Api.IpPoolRangeResultsPage>
-  /** `POST /system/ip-pools-service/:rackId/ranges/add` */
+  /** `POST /system/ip-pools-service/ranges/add` */
   ipPoolServiceRangeAdd: (params: {
-    path: Api.IpPoolServiceRangeAddPathParams
     body: Json<Api.IpRange>
   }) => HandlerResult<Api.IpPoolRange>
-  /** `POST /system/ip-pools-service/:rackId/ranges/remove` */
-  ipPoolServiceRangeRemove: (params: {
-    path: Api.IpPoolServiceRangeRemovePathParams
-    body: Json<Api.IpRange>
-  }) => StatusCode
+  /** `POST /system/ip-pools-service/ranges/remove` */
+  ipPoolServiceRangeRemove: (params: { body: Json<Api.IpRange> }) => StatusCode
   /** `GET /system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /system/policy` */
@@ -596,6 +589,120 @@ export interface MSWHandlers {
   userList: (params: {
     query: Api.UserListQueryParams
   }) => HandlerResult<Api.UserResultsPage>
+  /** `GET /v1/instances` */
+  instanceListV1: (params: {
+    query: Api.InstanceListV1QueryParams
+  }) => HandlerResult<Api.InstanceResultsPage>
+  /** `POST /v1/instances` */
+  instanceCreateV1: (params: {
+    query: Api.InstanceCreateV1QueryParams
+    body: Json<Api.InstanceCreate>
+  }) => HandlerResult<Api.Instance>
+  /** `GET /v1/instances/:instance` */
+  instanceViewV1: (params: {
+    path: Api.InstanceViewV1PathParams
+    query: Api.InstanceViewV1QueryParams
+  }) => HandlerResult<Api.Instance>
+  /** `DELETE /v1/instances/:instance` */
+  instanceDeleteV1: (params: {
+    path: Api.InstanceDeleteV1PathParams
+    query: Api.InstanceDeleteV1QueryParams
+  }) => StatusCode
+  /** `POST /v1/instances/:instance/migrate` */
+  instanceMigrateV1: (params: {
+    path: Api.InstanceMigrateV1PathParams
+    query: Api.InstanceMigrateV1QueryParams
+    body: Json<Api.InstanceMigrate>
+  }) => HandlerResult<Api.Instance>
+  /** `POST /v1/instances/:instance/reboot` */
+  instanceRebootV1: (params: {
+    path: Api.InstanceRebootV1PathParams
+    query: Api.InstanceRebootV1QueryParams
+  }) => HandlerResult<Api.Instance>
+  /** `GET /v1/instances/:instance/serial-console` */
+  instanceSerialConsoleV1: (params: {
+    path: Api.InstanceSerialConsoleV1PathParams
+    query: Api.InstanceSerialConsoleV1QueryParams
+  }) => HandlerResult<Api.InstanceSerialConsoleData>
+  /** `GET /v1/instances/:instance/serial-console/stream` */
+  instanceSerialConsoleStreamV1: (params: {
+    path: Api.InstanceSerialConsoleStreamV1PathParams
+    query: Api.InstanceSerialConsoleStreamV1QueryParams
+  }) => StatusCode
+  /** `POST /v1/instances/:instance/start` */
+  instanceStartV1: (params: {
+    path: Api.InstanceStartV1PathParams
+    query: Api.InstanceStartV1QueryParams
+  }) => HandlerResult<Api.Instance>
+  /** `POST /v1/instances/:instance/stop` */
+  instanceStopV1: (params: {
+    path: Api.InstanceStopV1PathParams
+    query: Api.InstanceStopV1QueryParams
+  }) => HandlerResult<Api.Instance>
+  /** `GET /v1/organizations` */
+  organizationListV1: (params: {
+    query: Api.OrganizationListV1QueryParams
+  }) => HandlerResult<Api.OrganizationResultsPage>
+  /** `POST /v1/organizations` */
+  organizationCreateV1: (params: {
+    body: Json<Api.OrganizationCreate>
+  }) => HandlerResult<Api.Organization>
+  /** `GET /v1/organizations/:org` */
+  organizationViewV1: (params: {
+    path: Api.OrganizationViewV1PathParams
+  }) => HandlerResult<Api.Organization>
+  /** `PUT /v1/organizations/:org` */
+  organizationUpdateV1: (params: {
+    path: Api.OrganizationUpdateV1PathParams
+    body: Json<Api.OrganizationUpdate>
+  }) => HandlerResult<Api.Organization>
+  /** `DELETE /v1/organizations/:org` */
+  organizationDeleteV1: (params: { path: Api.OrganizationDeleteV1PathParams }) => StatusCode
+  /** `GET /v1/organizations/:org/policy` */
+  organizationPolicyViewV1: (params: {
+    path: Api.OrganizationPolicyViewV1PathParams
+  }) => HandlerResult<Api.OrganizationRolePolicy>
+  /** `PUT /v1/organizations/:org/policy` */
+  organizationPolicyUpdateV1: (params: {
+    path: Api.OrganizationPolicyUpdateV1PathParams
+    body: Json<Api.OrganizationRolePolicy>
+  }) => HandlerResult<Api.OrganizationRolePolicy>
+  /** `GET /v1/projects` */
+  projectListV1: (params: {
+    query: Api.ProjectListV1QueryParams
+  }) => HandlerResult<Api.ProjectResultsPage>
+  /** `POST /v1/projects` */
+  projectCreateV1: (params: {
+    query: Api.ProjectCreateV1QueryParams
+    body: Json<Api.ProjectCreate>
+  }) => HandlerResult<Api.Project>
+  /** `GET /v1/projects/:project` */
+  projectViewV1: (params: {
+    path: Api.ProjectViewV1PathParams
+    query: Api.ProjectViewV1QueryParams
+  }) => HandlerResult<Api.Project>
+  /** `PUT /v1/projects/:project` */
+  projectUpdateV1: (params: {
+    path: Api.ProjectUpdateV1PathParams
+    query: Api.ProjectUpdateV1QueryParams
+    body: Json<Api.ProjectUpdate>
+  }) => HandlerResult<Api.Project>
+  /** `DELETE /v1/projects/:project` */
+  projectDeleteV1: (params: {
+    path: Api.ProjectDeleteV1PathParams
+    query: Api.ProjectDeleteV1QueryParams
+  }) => StatusCode
+  /** `GET /v1/projects/:project/policy` */
+  projectPolicyViewV1: (params: {
+    path: Api.ProjectPolicyViewV1PathParams
+    query: Api.ProjectPolicyViewV1QueryParams
+  }) => HandlerResult<Api.ProjectRolePolicy>
+  /** `PUT /v1/projects/:project/policy` */
+  projectPolicyUpdateV1: (params: {
+    path: Api.ProjectPolicyUpdateV1PathParams
+    query: Api.ProjectPolicyUpdateV1QueryParams
+    body: Json<Api.ProjectRolePolicy>
+  }) => HandlerResult<Api.ProjectRolePolicy>
 }
 
 function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
@@ -1220,28 +1327,20 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['ipPoolRangeRemove'], schema.IpPoolRangeRemoveParams, schema.IpRange)
     ),
     rest.get(
-      '/system/ip-pools-service/:rackId',
-      handler(handlers['ipPoolServiceView'], schema.IpPoolServiceViewParams, null)
+      '/system/ip-pools-service',
+      handler(handlers['ipPoolServiceView'], null, null)
     ),
     rest.get(
-      '/system/ip-pools-service/:rackId/ranges',
+      '/system/ip-pools-service/ranges',
       handler(handlers['ipPoolServiceRangeList'], schema.IpPoolServiceRangeListParams, null)
     ),
     rest.post(
-      '/system/ip-pools-service/:rackId/ranges/add',
-      handler(
-        handlers['ipPoolServiceRangeAdd'],
-        schema.IpPoolServiceRangeAddParams,
-        schema.IpRange
-      )
+      '/system/ip-pools-service/ranges/add',
+      handler(handlers['ipPoolServiceRangeAdd'], null, schema.IpRange)
     ),
     rest.post(
-      '/system/ip-pools-service/:rackId/ranges/remove',
-      handler(
-        handlers['ipPoolServiceRangeRemove'],
-        schema.IpPoolServiceRangeRemoveParams,
-        schema.IpRange
-      )
+      '/system/ip-pools-service/ranges/remove',
+      handler(handlers['ipPoolServiceRangeRemove'], null, schema.IpRange)
     ),
     rest.get('/system/policy', handler(handlers['systemPolicyView'], null, null)),
     rest.put(
@@ -1341,5 +1440,141 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['timeseriesSchemaGet'], schema.TimeseriesSchemaGetParams, null)
     ),
     rest.get('/users', handler(handlers['userList'], schema.UserListParams, null)),
+    rest.get(
+      '/v1/instances',
+      handler(handlers['instanceListV1'], schema.InstanceListV1Params, null)
+    ),
+    rest.post(
+      '/v1/instances',
+      handler(
+        handlers['instanceCreateV1'],
+        schema.InstanceCreateV1Params,
+        schema.InstanceCreate
+      )
+    ),
+    rest.get(
+      '/v1/instances/:instance',
+      handler(handlers['instanceViewV1'], schema.InstanceViewV1Params, null)
+    ),
+    rest.delete(
+      '/v1/instances/:instance',
+      handler(handlers['instanceDeleteV1'], schema.InstanceDeleteV1Params, null)
+    ),
+    rest.post(
+      '/v1/instances/:instance/migrate',
+      handler(
+        handlers['instanceMigrateV1'],
+        schema.InstanceMigrateV1Params,
+        schema.InstanceMigrate
+      )
+    ),
+    rest.post(
+      '/v1/instances/:instance/reboot',
+      handler(handlers['instanceRebootV1'], schema.InstanceRebootV1Params, null)
+    ),
+    rest.get(
+      '/v1/instances/:instance/serial-console',
+      handler(
+        handlers['instanceSerialConsoleV1'],
+        schema.InstanceSerialConsoleV1Params,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/instances/:instance/serial-console/stream',
+      handler(
+        handlers['instanceSerialConsoleStreamV1'],
+        schema.InstanceSerialConsoleStreamV1Params,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/instances/:instance/start',
+      handler(handlers['instanceStartV1'], schema.InstanceStartV1Params, null)
+    ),
+    rest.post(
+      '/v1/instances/:instance/stop',
+      handler(handlers['instanceStopV1'], schema.InstanceStopV1Params, null)
+    ),
+    rest.get(
+      '/v1/organizations',
+      handler(handlers['organizationListV1'], schema.OrganizationListV1Params, null)
+    ),
+    rest.post(
+      '/v1/organizations',
+      handler(handlers['organizationCreateV1'], null, schema.OrganizationCreate)
+    ),
+    rest.get(
+      '/v1/organizations/:org',
+      handler(handlers['organizationViewV1'], schema.OrganizationViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/organizations/:org',
+      handler(
+        handlers['organizationUpdateV1'],
+        schema.OrganizationUpdateV1Params,
+        schema.OrganizationUpdate
+      )
+    ),
+    rest.delete(
+      '/v1/organizations/:org',
+      handler(handlers['organizationDeleteV1'], schema.OrganizationDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/organizations/:org/policy',
+      handler(
+        handlers['organizationPolicyViewV1'],
+        schema.OrganizationPolicyViewV1Params,
+        null
+      )
+    ),
+    rest.put(
+      '/v1/organizations/:org/policy',
+      handler(
+        handlers['organizationPolicyUpdateV1'],
+        schema.OrganizationPolicyUpdateV1Params,
+        schema.OrganizationRolePolicy
+      )
+    ),
+    rest.get(
+      '/v1/projects',
+      handler(handlers['projectListV1'], schema.ProjectListV1Params, null)
+    ),
+    rest.post(
+      '/v1/projects',
+      handler(
+        handlers['projectCreateV1'],
+        schema.ProjectCreateV1Params,
+        schema.ProjectCreate
+      )
+    ),
+    rest.get(
+      '/v1/projects/:project',
+      handler(handlers['projectViewV1'], schema.ProjectViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/projects/:project',
+      handler(
+        handlers['projectUpdateV1'],
+        schema.ProjectUpdateV1Params,
+        schema.ProjectUpdate
+      )
+    ),
+    rest.delete(
+      '/v1/projects/:project',
+      handler(handlers['projectDeleteV1'], schema.ProjectDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/projects/:project/policy',
+      handler(handlers['projectPolicyViewV1'], schema.ProjectPolicyViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/projects/:project/policy',
+      handler(
+        handlers['projectPolicyUpdateV1'],
+        schema.ProjectPolicyUpdateV1Params,
+        schema.ProjectRolePolicy
+      )
+    ),
   ]
 }

@@ -686,7 +686,6 @@ export type IpPool = {
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  projectId?: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -698,12 +697,7 @@ export type IpPool = {
  *
  * See {@link IpPool}
  */
-export type IpPoolCreate = {
-  description: string
-  name: Name
-  organization?: Name
-  project?: Name
-}
+export type IpPoolCreate = { description: string; name: Name }
 
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
@@ -1773,6 +1767,8 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
+export type NameOrId = string | Name
+
 export interface DiskViewByIdPathParams {
   id: string
 }
@@ -2430,25 +2426,9 @@ export interface IpPoolRangeRemovePathParams {
   poolName: Name
 }
 
-export interface IpPoolServiceViewPathParams {
-  rackId: string
-}
-
-export interface IpPoolServiceRangeListPathParams {
-  rackId: string
-}
-
 export interface IpPoolServiceRangeListQueryParams {
   limit?: number
   pageToken?: string
-}
-
-export interface IpPoolServiceRangeAddPathParams {
-  rackId: string
-}
-
-export interface IpPoolServiceRangeRemovePathParams {
-  rackId: string
 }
 
 export interface SagaListQueryParams {
@@ -2550,6 +2530,171 @@ export interface UserListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
+}
+
+export interface InstanceListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameSortMode
+}
+
+export interface InstanceCreateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceViewV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceViewV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceDeleteV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceMigrateV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceMigrateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceRebootV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceRebootV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsoleV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleV1QueryParams {
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceStartV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStartV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceStopV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStopV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface OrganizationListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface OrganizationViewV1PathParams {
+  organization: NameOrId
+}
+
+export interface OrganizationUpdateV1PathParams {
+  organization: NameOrId
+}
+
+export interface OrganizationDeleteV1PathParams {
+  organization: NameOrId
+}
+
+export interface OrganizationPolicyViewV1PathParams {
+  organization: NameOrId
+}
+
+export interface OrganizationPolicyUpdateV1PathParams {
+  organization: NameOrId
+}
+
+export interface ProjectListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ProjectCreateV1QueryParams {
+  organization?: NameOrId
+}
+
+export interface ProjectViewV1PathParams {
+  project: NameOrId
+}
+
+export interface ProjectViewV1QueryParams {
+  organization?: NameOrId
+}
+
+export interface ProjectUpdateV1PathParams {
+  project: NameOrId
+}
+
+export interface ProjectUpdateV1QueryParams {
+  organization?: NameOrId
+}
+
+export interface ProjectDeleteV1PathParams {
+  project: NameOrId
+}
+
+export interface ProjectDeleteV1QueryParams {
+  organization?: NameOrId
+}
+
+export interface ProjectPolicyViewV1PathParams {
+  project: NameOrId
+}
+
+export interface ProjectPolicyViewV1QueryParams {
+  organization?: NameOrId
+}
+
+export interface ProjectPolicyUpdateV1PathParams {
+  project: NameOrId
+}
+
+export interface ProjectPolicyUpdateV1QueryParams {
+  organization?: NameOrId
 }
 
 export type ApiViewByIdMethods = Pick<
@@ -4293,35 +4438,24 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an IP pool used for Oxide services.
+     * Fetch the IP pool used for Oxide services.
      */
-    ipPoolServiceView: (
-      { path }: { path: IpPoolServiceViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      const { rackId } = path
+    ipPoolServiceView: (_: EmptyObj, params: RequestParams = {}) => {
       return this.request<IpPool>({
-        path: `/system/ip-pools-service/${rackId}`,
+        path: `/system/ip-pools-service`,
         method: 'GET',
         ...params,
       })
     },
     /**
-     * List ranges for an IP pool used for Oxide services.
+     * List ranges for the IP pool used for Oxide services.
      */
     ipPoolServiceRangeList: (
-      {
-        path,
-        query = {},
-      }: {
-        path: IpPoolServiceRangeListPathParams
-        query?: IpPoolServiceRangeListQueryParams
-      },
+      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { rackId } = path
       return this.request<IpPoolRangeResultsPage>({
-        path: `/system/ip-pools-service/${rackId}/ranges`,
+        path: `/system/ip-pools-service/ranges`,
         method: 'GET',
         query,
         ...params,
@@ -4330,13 +4464,9 @@ export class Api extends HttpClient {
     /**
      * Add a range to an IP pool used for Oxide services.
      */
-    ipPoolServiceRangeAdd: (
-      { path, body }: { path: IpPoolServiceRangeAddPathParams; body: IpRange },
-      params: RequestParams = {}
-    ) => {
-      const { rackId } = path
+    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
       return this.request<IpPoolRange>({
-        path: `/system/ip-pools-service/${rackId}/ranges/add`,
+        path: `/system/ip-pools-service/ranges/add`,
         method: 'POST',
         body,
         ...params,
@@ -4345,13 +4475,9 @@ export class Api extends HttpClient {
     /**
      * Remove a range from an IP pool used for Oxide services.
      */
-    ipPoolServiceRangeRemove: (
-      { path, body }: { path: IpPoolServiceRangeRemovePathParams; body: IpRange },
-      params: RequestParams = {}
-    ) => {
-      const { rackId } = path
+    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
       return this.request<void>({
-        path: `/system/ip-pools-service/${rackId}/ranges/remove`,
+        path: `/system/ip-pools-service/ranges/remove`,
         method: 'POST',
         body,
         ...params,
@@ -4667,6 +4793,377 @@ export class Api extends HttpClient {
       return this.request<UserResultsPage>({
         path: `/users`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceListV1: (
+      { query = {} }: { query?: InstanceListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<InstanceResultsPage>({
+        path: `/v1/instances`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceCreateV1: (
+      { query = {}, body }: { query?: InstanceCreateV1QueryParams; body: InstanceCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    instanceViewV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceViewV1PathParams; query?: InstanceViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Instance>({
+        path: `/v1/instances/${instance}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceDeleteV1PathParams; query?: InstanceDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<void>({
+        path: `/v1/instances/${instance}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    instanceMigrateV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceMigrateV1PathParams
+        query?: InstanceMigrateV1QueryParams
+        body: InstanceMigrate
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Instance>({
+        path: `/v1/instances/${instance}/migrate`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    instanceRebootV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceRebootV1PathParams; query?: InstanceRebootV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Instance>({
+        path: `/v1/instances/${instance}/reboot`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    instanceSerialConsoleV1: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSerialConsoleV1PathParams
+        query?: InstanceSerialConsoleV1QueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<InstanceSerialConsoleData>({
+        path: `/v1/instances/${instance}/serial-console`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceSerialConsoleStreamV1: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSerialConsoleStreamV1PathParams
+        query?: InstanceSerialConsoleStreamV1QueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<void>({
+        path: `/v1/instances/${instance}/serial-console/stream`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Boot an instance
+     */
+    instanceStartV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceStartV1PathParams; query?: InstanceStartV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Instance>({
+        path: `/v1/instances/${instance}/start`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    instanceStopV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceStopV1PathParams; query?: InstanceStopV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Instance>({
+        path: `/v1/instances/${instance}/stop`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List organizations
+     */
+    organizationListV1: (
+      { query = {} }: { query?: OrganizationListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<OrganizationResultsPage>({
+        path: `/v1/organizations`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an organization
+     */
+    organizationCreateV1: (
+      { body }: { body: OrganizationCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Organization>({
+        path: `/v1/organizations`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    organizationViewV1: (
+      { path }: { path: OrganizationViewV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      const { organization } = path
+      return this.request<Organization>({
+        path: `/v1/organizations/${organization}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    organizationUpdateV1: (
+      { path, body }: { path: OrganizationUpdateV1PathParams; body: OrganizationUpdate },
+      params: RequestParams = {}
+    ) => {
+      const { organization } = path
+      return this.request<Organization>({
+        path: `/v1/organizations/${organization}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    organizationDeleteV1: (
+      { path }: { path: OrganizationDeleteV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      const { organization } = path
+      return this.request<void>({
+        path: `/v1/organizations/${organization}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    organizationPolicyViewV1: (
+      { path }: { path: OrganizationPolicyViewV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      const { organization } = path
+      return this.request<OrganizationRolePolicy>({
+        path: `/v1/organizations/${organization}/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    organizationPolicyUpdateV1: (
+      {
+        path,
+        body,
+      }: { path: OrganizationPolicyUpdateV1PathParams; body: OrganizationRolePolicy },
+      params: RequestParams = {}
+    ) => {
+      const { organization } = path
+      return this.request<OrganizationRolePolicy>({
+        path: `/v1/organizations/${organization}/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List projects
+     */
+    projectListV1: (
+      { query = {} }: { query?: ProjectListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<ProjectResultsPage>({
+        path: `/v1/projects`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    projectCreateV1: (
+      { query = {}, body }: { query?: ProjectCreateV1QueryParams; body: ProjectCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Project>({
+        path: `/v1/projects`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    projectViewV1: (
+      {
+        path,
+        query = {},
+      }: { path: ProjectViewV1PathParams; query?: ProjectViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { project } = path
+      return this.request<Project>({
+        path: `/v1/projects/${project}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update a project
+     */
+    projectUpdateV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ProjectUpdateV1PathParams
+        query?: ProjectUpdateV1QueryParams
+        body: ProjectUpdate
+      },
+      params: RequestParams = {}
+    ) => {
+      const { project } = path
+      return this.request<Project>({
+        path: `/v1/projects/${project}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete a project
+     */
+    projectDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: ProjectDeleteV1PathParams; query?: ProjectDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { project } = path
+      return this.request<void>({
+        path: `/v1/projects/${project}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a project's IAM policy
+     */
+    projectPolicyViewV1: (
+      {
+        path,
+        query = {},
+      }: { path: ProjectPolicyViewV1PathParams; query?: ProjectPolicyViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { project } = path
+      return this.request<ProjectRolePolicy>({
+        path: `/v1/projects/${project}/policy`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update a project's IAM policy
+     */
+    projectPolicyUpdateV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ProjectPolicyUpdateV1PathParams
+        query?: ProjectPolicyUpdateV1QueryParams
+        body: ProjectRolePolicy
+      },
+      params: RequestParams = {}
+    ) => {
+      const { project } = path
+      return this.request<ProjectRolePolicy>({
+        path: `/v1/projects/${project}/policy`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })
