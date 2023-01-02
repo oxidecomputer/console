@@ -69,6 +69,62 @@ export type BlockSize = 512 | 2048 | 4096
  */
 export type ByteCount = number
 
+export type DeviceType = 'disk'
+
+export type SemverVersion = string
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type ComponentUpdate = {
+  deviceType: DeviceType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** ID of the parent component. Not present for top-level components. */
+  parentId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type ComponentUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: ComponentUpdate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
+
+export type VersionStatus =
+  | { updating: { target: SemverVersion } }
+  | { steady: { reason: VersionSteadyReason } }
+
+export type ComponentVersion = {
+  componentId: string
+  deviceId: string
+  deviceType: DeviceType
+  /** ID of the parent component, e.g., the sled a disk belongs to. Value will be `None` for top-level components whose "parent" is the rack. */
+  parentId?: string
+  status: VersionStatus
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type ComponentVersionResultsPage = {
+  /** list of items on this page of results */
+  items: ComponentVersion[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
 /**
  * A cumulative or counter data type.
  */
@@ -1365,6 +1421,33 @@ export type SshKeyResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type SystemUpdate = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type SystemUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: SystemUpdate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type VersionRange = { high: SemverVersion; low: SemverVersion }
+
+export type SystemVersion = { status: VersionStatus; versionRange: VersionRange }
 
 /**
  * The name of a timeseries
@@ -2697,6 +2780,22 @@ export interface ProjectPolicyUpdateV1QueryParams {
   organization?: NameOrId
 }
 
+export interface SystemUpdateViewPathParams {
+  updateId: string
+}
+
+export interface SystemUpdateComponentsListPathParams {
+  updateId: string
+}
+
+export interface SystemUpdateStartPathParams {
+  updateId: string
+}
+
+export interface SystemUpdateStopPathParams {
+  updateId: string
+}
+
 export type ApiViewByIdMethods = Pick<
   InstanceType<typeof Api>['methods'],
   | 'diskViewById'
@@ -2746,6 +2845,9 @@ export type ApiListMethods = Pick<
   | 'siloUsersList'
   | 'systemUserList'
   | 'userList'
+  | 'systemComponentVersionList'
+  | 'systemUpdateList'
+  | 'systemUpdateComponentsList'
 >
 
 type EmptyObj = Record<string, never>
@@ -5165,6 +5267,92 @@ export class Api extends HttpClient {
         method: 'PUT',
         body,
         query,
+        ...params,
+      })
+    },
+    /**
+     * View version and update status of component tree
+     */
+    systemComponentVersionList: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<ComponentVersionResultsPage>({
+        path: `/v1/system/update/components`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List all updates
+     */
+    systemUpdateList: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<SystemUpdateResultsPage>({
+        path: `/v1/system/update/updates`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system update
+     */
+    systemUpdateView: (
+      { path }: { path: SystemUpdateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { updateId } = path
+      return this.request<SystemUpdate>({
+        path: `/v1/system/update/updates/${updateId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system update component tree
+     */
+    systemUpdateComponentsList: (
+      { path }: { path: SystemUpdateComponentsListPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { updateId } = path
+      return this.request<ComponentUpdateResultsPage>({
+        path: `/v1/system/update/updates/${updateId}/components`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Start system update
+     */
+    systemUpdateStart: (
+      { path }: { path: SystemUpdateStartPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { updateId } = path
+      return this.request<void>({
+        path: `/v1/system/update/updates/${updateId}/start`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Stop system update
+     */
+    systemUpdateStop: (
+      { path }: { path: SystemUpdateStopPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { updateId } = path
+      return this.request<void>({
+        path: `/v1/system/update/updates/${updateId}/stop`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * View system version and update status
+     */
+    systemVersion: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<SystemVersion>({
+        path: `/v1/system/update/version`,
+        method: 'GET',
         ...params,
       })
     },

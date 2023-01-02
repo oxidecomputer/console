@@ -910,6 +910,25 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
 
+  systemComponentVersionList: NotImplemented,
+  systemUpdateComponentsList: NotImplemented,
+  systemUpdateList: NotImplemented,
+  systemUpdateStart: NotImplemented,
+  systemUpdateStop: NotImplemented,
+  systemUpdateView: NotImplemented,
+
+  systemVersion: () => {
+    return {
+      version_range: {
+        low: '1.0.0',
+        high: '2.0.0',
+      },
+      status: {
+        steady: { reason: 'completed' },
+      },
+    }
+  },
+
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
   instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),

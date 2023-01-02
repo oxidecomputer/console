@@ -703,6 +703,24 @@ export interface MSWHandlers {
     query: Api.ProjectPolicyUpdateV1QueryParams
     body: Json<Api.ProjectRolePolicy>
   }) => HandlerResult<Api.ProjectRolePolicy>
+  /** `GET /v1/system/update/components` */
+  systemComponentVersionList: () => HandlerResult<Api.ComponentVersionResultsPage>
+  /** `GET /v1/system/update/updates` */
+  systemUpdateList: () => HandlerResult<Api.SystemUpdateResultsPage>
+  /** `GET /v1/system/update/updates/:updateId` */
+  systemUpdateView: (params: {
+    path: Api.SystemUpdateViewPathParams
+  }) => HandlerResult<Api.SystemUpdate>
+  /** `GET /v1/system/update/updates/:updateId/components` */
+  systemUpdateComponentsList: (params: {
+    path: Api.SystemUpdateComponentsListPathParams
+  }) => HandlerResult<Api.ComponentUpdateResultsPage>
+  /** `POST /v1/system/update/updates/:updateId/start` */
+  systemUpdateStart: (params: { path: Api.SystemUpdateStartPathParams }) => StatusCode
+  /** `POST /v1/system/update/updates/:updateId/stop` */
+  systemUpdateStop: (params: { path: Api.SystemUpdateStopPathParams }) => StatusCode
+  /** `GET /v1/system/update/version` */
+  systemVersion: () => HandlerResult<Api.SystemVersion>
 }
 
 function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
@@ -1576,5 +1594,34 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.ProjectRolePolicy
       )
     ),
+    rest.get(
+      '/v1/system/update/components',
+      handler(handlers['systemComponentVersionList'], null, null)
+    ),
+    rest.get(
+      '/v1/system/update/updates',
+      handler(handlers['systemUpdateList'], null, null)
+    ),
+    rest.get(
+      '/v1/system/update/updates/:updateId',
+      handler(handlers['systemUpdateView'], schema.SystemUpdateViewParams, null)
+    ),
+    rest.get(
+      '/v1/system/update/updates/:updateId/components',
+      handler(
+        handlers['systemUpdateComponentsList'],
+        schema.SystemUpdateComponentsListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/update/updates/:updateId/start',
+      handler(handlers['systemUpdateStart'], schema.SystemUpdateStartParams, null)
+    ),
+    rest.post(
+      '/v1/system/update/updates/:updateId/stop',
+      handler(handlers['systemUpdateStop'], schema.SystemUpdateStopParams, null)
+    ),
+    rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
   ]
 }

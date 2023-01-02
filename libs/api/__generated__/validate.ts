@@ -77,6 +77,69 @@ export const BlockSize = z.preprocess(
  */
 export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
 
+export const DeviceType = z.preprocess(processResponseBody, z.enum(['disk']))
+
+export const SemverVersion = z.preprocess(
+  processResponseBody,
+  z.string().regex(/^\d+\.\d+\.\d+([\-\+].+)?$/)
+)
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export const ComponentUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    deviceType: DeviceType,
+    id: z.string().uuid(),
+    parentId: z.string().uuid().optional(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    version: SemverVersion,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const ComponentUpdateResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: ComponentUpdate.array(), nextPage: z.string().optional() })
+)
+
+export const VersionSteadyReason = z.preprocess(
+  processResponseBody,
+  z.enum(['completed', 'stopped', 'failed'])
+)
+
+export const VersionStatus = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ updating: z.object({ target: SemverVersion }) }),
+    z.object({ steady: z.object({ reason: VersionSteadyReason }) }),
+  ])
+)
+
+export const ComponentVersion = z.preprocess(
+  processResponseBody,
+  z.object({
+    componentId: z.string().uuid(),
+    deviceId: z.string(),
+    deviceType: DeviceType,
+    parentId: z.string().uuid().optional(),
+    status: VersionStatus,
+    version: SemverVersion,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const ComponentVersionResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: ComponentVersion.array(), nextPage: z.string().optional() })
+)
+
 /**
  * A cumulative or counter data type.
  */
@@ -1395,6 +1458,37 @@ export const SshKeyCreate = z.preprocess(
 export const SshKeyResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SshKey.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export const SystemUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    version: SemverVersion,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SystemUpdateResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SystemUpdate.array(), nextPage: z.string().optional() })
+)
+
+export const VersionRange = z.preprocess(
+  processResponseBody,
+  z.object({ high: SemverVersion, low: SemverVersion })
+)
+
+export const SystemVersion = z.preprocess(
+  processResponseBody,
+  z.object({ status: VersionStatus, versionRange: VersionRange })
 )
 
 /**
@@ -3717,5 +3811,69 @@ export const ProjectPolicyUpdateV1Params = z.preprocess(
     query: z.object({
       organization: NameOrId.optional(),
     }),
+  })
+)
+
+export const SystemComponentVersionListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      updateId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateComponentsListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      updateId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateStartParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      updateId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateStopParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      updateId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemVersionParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
