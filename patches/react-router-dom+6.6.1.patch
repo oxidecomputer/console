@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
-index aeec512..b617027 100644
+index 29f0923..bd32195 100644
 --- a/node_modules/react-router-dom/dist/index.js
 +++ b/node_modules/react-router-dom/dist/index.js
-@@ -796,6 +796,19 @@ function useScrollRestoration(_temp3) {
+@@ -835,6 +835,19 @@ function useScrollRestoration(_temp3) {
    let matches = useMatches();
    let navigation = useNavigation(); // Trigger manual scroll restoration while we're active
  
@@ -22,7 +22,7 @@ index aeec512..b617027 100644
    React.useEffect(() => {
      window.history.scrollRestoration = "manual";
      return () => {
-@@ -806,7 +819,7 @@ function useScrollRestoration(_temp3) {
+@@ -845,7 +858,7 @@ function useScrollRestoration(_temp3) {
    useBeforeUnload(React.useCallback(() => {
      if (navigation.state === "idle") {
        let key = (getKey ? getKey(location, matches) : null) || location.key;
@@ -31,31 +31,30 @@ index aeec512..b617027 100644
      }
  
      sessionStorage.setItem(storageKey || SCROLL_RESTORATION_STORAGE_KEY, JSON.stringify(savedScrollPositions));
-@@ -825,7 +838,7 @@ function useScrollRestoration(_temp3) {
-   }, [storageKey]); // Enable scroll restoration in the router
+@@ -867,7 +880,7 @@ function useScrollRestoration(_temp3) {
+     // eslint-disable-next-line react-hooks/rules-of-hooks
  
-   React.useLayoutEffect(() => {
--    let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, () => window.scrollY, getKey);
-+    let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, () => getScrollY(), getKey);
-     return () => disableScrollRestoration && disableScrollRestoration();
-   }, [router, getKey]); // Restore scrolling when state.restoreScrollPosition changes
+     React.useLayoutEffect(() => {
+-      let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, () => window.scrollY, getKey);
++      let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, getScrollY, getKey);
+       return () => disableScrollRestoration && disableScrollRestoration();
+     }, [router, getKey]); // Restore scrolling when state.restoreScrollPosition changes
+     // eslint-disable-next-line react-hooks/rules-of-hooks
+@@ -880,7 +893,7 @@ function useScrollRestoration(_temp3) {
  
-@@ -837,7 +850,7 @@ function useScrollRestoration(_temp3) {
+ 
+       if (typeof restoreScrollPosition === "number") {
+-        window.scrollTo(0, restoreScrollPosition);
++        getScrollTarget().scrollTo(0, restoreScrollPosition);
+         return;
+       } // try to scroll to the hash
+ 
+@@ -900,7 +913,7 @@ function useScrollRestoration(_temp3) {
+       } // otherwise go to the top on new locations
  
  
-     if (typeof restoreScrollPosition === "number") {
--      window.scrollTo(0, restoreScrollPosition);
-+      getScrollTarget().scrollTo(0, restoreScrollPosition);
-       return;
-     } // try to scroll to the hash
- 
-@@ -856,8 +869,7 @@ function useScrollRestoration(_temp3) {
-       return;
-     } // otherwise go to the top on new locations
- 
--
--    window.scrollTo(0, 0);
-+    getScrollTarget().scrollTo(0, 0);
-   }, [location, restoreScrollPosition, preventScrollReset]);
+-      window.scrollTo(0, 0);
++      getScrollTarget().scrollTo(0, 0);
+     }, [location, restoreScrollPosition, preventScrollReset]);
+   }
  }
- 
