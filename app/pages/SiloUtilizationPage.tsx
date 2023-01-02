@@ -12,6 +12,7 @@ const ALL_PROJECTS = '|ALL_PROJECTS|'
 
 SiloUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('organizationList', {})
+  return null
 }
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })

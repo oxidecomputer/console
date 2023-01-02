@@ -70,6 +70,7 @@ const baseDefaultValues: InstanceCreateInput = {
 
 CreateInstanceForm.loader = async () => {
   await apiQueryClient.prefetchQuery('systemImageList', {})
+  return null
 }
 
 export function CreateInstanceForm() {

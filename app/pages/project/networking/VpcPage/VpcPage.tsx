@@ -16,6 +16,7 @@ const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('vpcView', { path: requireVpcParams(params) })
+  return null
 }
 
 export function VpcPage() {

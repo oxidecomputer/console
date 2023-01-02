@@ -20,6 +20,7 @@ import { pb } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
   await apiQueryClient.prefetchQuery('sessionSshkeyList', { query: { limit: 10 } })
+  return null
 }
 
 export function SSHKeysPage() {

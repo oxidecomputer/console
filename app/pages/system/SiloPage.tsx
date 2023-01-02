@@ -29,6 +29,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { limit: 10 }, // same as query table
     }),
   ])
+  return null
 }
 
 export function SiloPage() {

@@ -21,6 +21,7 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
     path: requireProjectParams(params),
     query: { limit: 10 },
   })
+  return null
 }
 
 export function ImagesPage() {

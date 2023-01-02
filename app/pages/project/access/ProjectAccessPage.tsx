@@ -55,6 +55,7 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
   ])
+  return null
 }
 
 type UserRow = {

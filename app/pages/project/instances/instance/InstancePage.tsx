@@ -19,6 +19,7 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceView', {
     path: requireInstanceParams(params),
   })
+  return null
 }
 
 export function InstancePage() {

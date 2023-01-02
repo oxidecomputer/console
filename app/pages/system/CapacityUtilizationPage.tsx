@@ -12,6 +12,7 @@ const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
 CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
+  return null
 }
 
 export function CapacityUtilizationPage() {

@@ -36,6 +36,7 @@ ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
     path: requireOrgParams(params),
     query: { limit: 10 },
   })
+  return null
 }
 
 export default function ProjectsPage() {

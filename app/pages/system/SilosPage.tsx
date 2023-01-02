@@ -34,6 +34,7 @@ const EmptyState = () => (
 
 SilosPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: 10 } })
+  return null
 }
 
 export default function SilosPage() {

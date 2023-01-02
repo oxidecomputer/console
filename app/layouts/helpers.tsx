@@ -37,4 +37,5 @@ export const userLoader = async () => {
     // loader to figure out whether to 404, but RQ dedupes the request.
     apiQueryClient.prefetchQuery('systemPolicyView', {}),
   ])
+  return null
 }
