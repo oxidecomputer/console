@@ -13,6 +13,7 @@ EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('projectView', {
     path: requireProjectParams(params),
   })
+  return null
 }
 
 export function EditProjectSideModalForm() {

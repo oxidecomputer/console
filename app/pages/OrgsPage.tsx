@@ -32,6 +32,7 @@ const EmptyState = () => (
 
 OrgsPage.loader = async () => {
   await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
+  return null
 }
 
 export default function OrgsPage() {

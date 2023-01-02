@@ -49,6 +49,7 @@ SiloAccessPage.loader = async () => {
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
   ])
+  return null
 }
 
 type UserRow = {

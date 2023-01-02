@@ -13,6 +13,7 @@ EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('vpcView', {
     path: requireVpcParams(params),
   })
+  return null
 }
 
 export function EditVpcSideModalForm() {

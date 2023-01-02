@@ -12,6 +12,7 @@ EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('organizationView', {
     path: requireOrgParams(params),
   })
+  return null
 }
 
 export function EditOrgSideModalForm() {
