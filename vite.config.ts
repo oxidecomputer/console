@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
@@ -50,14 +50,7 @@ export default defineConfig(({ mode }) => ({
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
-  plugins: [
-    react({
-      babel: {
-        plugins:
-          mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
-      },
-    }),
-  ],
+  plugins: [react()],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
     // replace is there to turn
