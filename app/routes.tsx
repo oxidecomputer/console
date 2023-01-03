@@ -48,6 +48,7 @@ import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
+import { UpdatePage } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const MetricsTab = React.lazy(
@@ -99,7 +100,7 @@ export const routes = createRoutesFromElements(
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
-        <Route path="update" element={null} />
+        <Route path="update" element={<UpdatePage />} />
         <Route path="networking" element={null} />
         <Route path="settings" element={null} />
       </Route>

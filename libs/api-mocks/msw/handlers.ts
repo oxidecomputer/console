@@ -912,12 +912,14 @@ export const handlers = makeHandlers({
 
   systemComponentVersionList: NotImplemented,
   systemUpdateComponentsList: NotImplemented,
-  systemUpdateList: NotImplemented,
+  systemUpdateList() {
+    return { items: db.systemUpdates }
+  },
   systemUpdateStart: NotImplemented,
   systemUpdateStop: NotImplemented,
   systemUpdateView: NotImplemented,
 
-  systemVersion: () => {
+  systemVersion() {
     return {
       version_range: {
         low: '1.0.0',
