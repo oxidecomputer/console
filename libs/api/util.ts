@@ -54,3 +54,14 @@ export const genName = (...parts: [string, ...string[]]) => {
       .concat(`-${Math.random().toString(16).substring(2, 8)}`)
   )
 }
+
+type Node<T> = T & { children: Node<T>[] }
+
+export function listToTree<T extends { id: string; parentId?: string }>(
+  items: T[],
+  parentId?: string | undefined
+): Node<T>[] {
+  return items
+    .filter((i) => i.parentId === parentId)
+    .map((o) => ({ ...o, children: listToTree(items, o.id) }))
+}

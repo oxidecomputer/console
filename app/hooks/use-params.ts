@@ -24,12 +24,14 @@ export const requireProjectParams = requireParams('orgName', 'projectName')
 export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
 export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
 export const requireSiloParams = requireParams('siloName')
+export const requireUpdateParams = requireParams('updateId')
 
 export const useOrgParams = () => requireOrgParams(useParams())
 export const useProjectParams = () => requireProjectParams(useParams())
 export const useInstanceParams = () => requireInstanceParams(useParams())
 export const useVpcParams = () => requireVpcParams(useParams())
 export const useSiloParams = () => requireSiloParams(useParams())
+export const useUpdateParams = () => requireUpdateParams(useParams())
 
 /**
  * Wrapper for RR's `useParams` that guarantees (in dev) that the specified

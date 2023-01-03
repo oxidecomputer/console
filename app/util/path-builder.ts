@@ -55,7 +55,10 @@ export const pb = {
   systemUtilization: () => '/sys/utilization',
   systemInventory: () => '/sys/inventory',
   systemHealth: () => '/sys/health',
+
   systemUpdate: () => '/sys/update',
+  systemUpdateDetail: (params: PP.SystemUpdate) => `/sys/update/updates/${params.updateId}`,
+
   systemNetworking: () => '/sys/networking',
   systemSettings: () => '/sys/settings',
 

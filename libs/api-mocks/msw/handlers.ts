@@ -24,6 +24,7 @@ import {
   lookupSilo,
   lookupSnapshot,
   lookupSshKey,
+  lookupSystemUpdate,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
@@ -910,12 +911,21 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
 
-  systemComponentVersionList: NotImplemented,
-  systemUpdateComponentsList: NotImplemented,
   systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
+  // TODO: change to lookupById after changing :updateId to id?
+  systemUpdateView: (params) => lookupSystemUpdate(params.path),
+  systemUpdateComponentsList: (params) => {
+    const ids = new Set(
+      db.systemUpdateComponentUpdates
+        .filter((o) => o.system_update_id === params.path.updateId)
+        .map((o) => o.component_update_id)
+    )
+    return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
+  },
+
+  systemComponentVersionList: NotImplemented,
   systemUpdateStart: NotImplemented,
   systemUpdateStop: NotImplemented,
-  systemUpdateView: NotImplemented,
 
   systemVersion() {
     return {

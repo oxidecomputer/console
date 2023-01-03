@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { useQueryTable } from '@oxide/table'
+import { linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   EmptyMessage,
@@ -11,14 +11,14 @@ import {
   SoftwareUpdate24Icon,
 } from '@oxide/ui'
 
+import { pb } from 'app/util/path-builder'
+
 const EmptyState = () => (
   <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
 )
 
-// TODO: add page size limit once I add that in the API
-
 UpdatePage.loader = async () => {
-  await Promise.all([apiQueryClient.prefetchQuery('systemUpdateList', {})])
+  await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
   return null
 }
 
@@ -36,7 +36,10 @@ export function UpdatePage() {
         </Link>
       </TableActions> */}
       <Table emptyState={<EmptyState />}>
-        <Column accessor="id" />
+        <Column
+          accessor="id"
+          cell={linkCell((updateId) => pb.systemUpdateDetail({ updateId }))}
+        />
         <Column
           accessor="version"
           header="Version"
