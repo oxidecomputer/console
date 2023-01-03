@@ -57,6 +57,7 @@ export const genName = (...parts: [string, ...string[]]) => {
 
 type Node<T> = T & { children: Node<T>[] }
 
+// TODO: optimize implementation, it's O(N^2)
 export function listToTree<T extends { id: string; parentId?: string }>(
   items: T[],
   parentId?: string | undefined
