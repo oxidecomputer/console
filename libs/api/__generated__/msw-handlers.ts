@@ -706,7 +706,9 @@ export interface MSWHandlers {
   /** `GET /v1/system/update/components` */
   systemComponentVersionList: () => HandlerResult<Api.ComponentVersionResultsPage>
   /** `GET /v1/system/update/updates` */
-  systemUpdateList: () => HandlerResult<Api.SystemUpdateResultsPage>
+  systemUpdateList: (params: {
+    query: Api.SystemUpdateListQueryParams
+  }) => HandlerResult<Api.SystemUpdateResultsPage>
   /** `GET /v1/system/update/updates/:updateId` */
   systemUpdateView: (params: {
     path: Api.SystemUpdateViewPathParams
@@ -1600,7 +1602,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/v1/system/update/updates',
-      handler(handlers['systemUpdateList'], null, null)
+      handler(handlers['systemUpdateList'], schema.SystemUpdateListParams, null)
     ),
     rest.get(
       '/v1/system/update/updates/:updateId',

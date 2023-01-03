@@ -3826,7 +3826,11 @@ export const SystemUpdateListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
-    query: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
   })
 )
 

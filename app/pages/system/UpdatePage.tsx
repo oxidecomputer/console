@@ -2,11 +2,17 @@ import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import { useQueryTable } from '@oxide/table'
-import { Badge, Cloud16Icon, EmptyMessage, PageHeader, PageTitle } from '@oxide/ui'
+import {
+  Badge,
+  EmptyMessage,
+  PageHeader,
+  PageTitle,
+  SoftwareUpdate16Icon,
+  SoftwareUpdate24Icon,
+} from '@oxide/ui'
 
 const EmptyState = () => (
-  // TODO: icon
-  <EmptyMessage icon={<Cloud16Icon />} title="No updates available" />
+  <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
 )
 
 // TODO: add page size limit once I add that in the API
@@ -22,7 +28,7 @@ export function UpdatePage() {
   return (
     <>
       <PageHeader>
-        <PageTitle /*icon={icon}*/>System update</PageTitle>
+        <PageTitle icon={<SoftwareUpdate24Icon />}>System Update</PageTitle>
       </PageHeader>
       {/* <TableActions>
         <Link to={pb.siloIdpNew({ siloName })} className={buttonStyle({ size: 'sm' })}>

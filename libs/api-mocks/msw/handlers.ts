@@ -912,9 +912,7 @@ export const handlers = makeHandlers({
 
   systemComponentVersionList: NotImplemented,
   systemUpdateComponentsList: NotImplemented,
-  systemUpdateList() {
-    return { items: db.systemUpdates }
-  },
+  systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
   systemUpdateStart: NotImplemented,
   systemUpdateStop: NotImplemented,
   systemUpdateView: NotImplemented,

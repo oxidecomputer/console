@@ -2780,6 +2780,12 @@ export interface ProjectPolicyUpdateV1QueryParams {
   organization?: NameOrId
 }
 
+export interface SystemUpdateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface SystemUpdateViewPathParams {
   updateId: string
 }
@@ -5283,10 +5289,14 @@ export class Api extends HttpClient {
     /**
      * List all updates
      */
-    systemUpdateList: (_: EmptyObj, params: RequestParams = {}) => {
+    systemUpdateList: (
+      { query = {} }: { query?: SystemUpdateListQueryParams },
+      params: RequestParams = {}
+    ) => {
       return this.request<SystemUpdateResultsPage>({
         path: `/v1/system/update/updates`,
         method: 'GET',
+        query,
         ...params,
       })
     },
