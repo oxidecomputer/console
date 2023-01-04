@@ -7,7 +7,7 @@ const params = {
   instanceName: 'c',
   vpcName: 'd',
   siloName: 's',
-  updateId: 'u',
+  id: 'u',
 }
 
 test('path builder', () => {

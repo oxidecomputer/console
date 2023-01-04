@@ -36,10 +36,7 @@ export function UpdatePage() {
         </Link>
       </TableActions> */}
       <Table emptyState={<EmptyState />}>
-        <Column
-          accessor="id"
-          cell={linkCell((updateId) => pb.systemUpdateDetail({ updateId }))}
-        />
+        <Column accessor="id" cell={linkCell((id) => pb.systemUpdateDetail({ id }))} />
         <Column
           accessor="version"
           header="Version"

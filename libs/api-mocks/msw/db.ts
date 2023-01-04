@@ -167,7 +167,7 @@ export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
 }
 
 export function lookupSystemUpdate(params: PP.SystemUpdate): Json<Api.SystemUpdate> {
-  const update = db.systemUpdates.find((i) => i.id === params.updateId)
+  const update = db.systemUpdates.find((i) => i.id === params.id)
   if (!update) throw notFoundErr
   return update
 }

@@ -104,7 +104,8 @@ export const routes = createRoutesFromElements(
         <Route path="update">
           <Route index element={<UpdatePage />} loader={UpdatePage.loader} />
           <Route
-            path="updates/:updateId"
+            // TODO: this param should be the version string, or maybe version or ID (ew)
+            path="updates/:id"
             element={<UpdateDetailPage />}
             loader={UpdateDetailPage.loader}
           />

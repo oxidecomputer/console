@@ -102,8 +102,8 @@ export type ComponentUpdateResultsPage = {
 export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
 
 export type VersionStatus =
-  | { updating: { target: SemverVersion } }
-  | { steady: { reason: VersionSteadyReason } }
+  | { status: 'updating'; target: SemverVersion }
+  | { reason: VersionSteadyReason; status: 'steady' }
 
 export type ComponentVersion = {
   componentId: string
@@ -2787,19 +2787,19 @@ export interface SystemUpdateListQueryParams {
 }
 
 export interface SystemUpdateViewPathParams {
-  updateId: string
+  id: string
 }
 
 export interface SystemUpdateComponentsListPathParams {
-  updateId: string
+  id: string
 }
 
 export interface SystemUpdateStartPathParams {
-  updateId: string
+  id: string
 }
 
 export interface SystemUpdateStopPathParams {
-  updateId: string
+  id: string
 }
 
 export type ApiViewByIdMethods = Pick<
@@ -5307,9 +5307,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { updateId } = path
+      const { id } = path
       return this.request<SystemUpdate>({
-        path: `/v1/system/update/updates/${updateId}`,
+        path: `/v1/system/update/updates/${id}`,
         method: 'GET',
         ...params,
       })
@@ -5321,9 +5321,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateComponentsListPathParams },
       params: RequestParams = {}
     ) => {
-      const { updateId } = path
+      const { id } = path
       return this.request<ComponentUpdateResultsPage>({
-        path: `/v1/system/update/updates/${updateId}/components`,
+        path: `/v1/system/update/updates/${id}/components`,
         method: 'GET',
         ...params,
       })
@@ -5335,9 +5335,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateStartPathParams },
       params: RequestParams = {}
     ) => {
-      const { updateId } = path
+      const { id } = path
       return this.request<void>({
-        path: `/v1/system/update/updates/${updateId}/start`,
+        path: `/v1/system/update/updates/${id}/start`,
         method: 'POST',
         ...params,
       })
@@ -5349,9 +5349,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateStopPathParams },
       params: RequestParams = {}
     ) => {
-      const { updateId } = path
+      const { id } = path
       return this.request<void>({
-        path: `/v1/system/update/updates/${updateId}/stop`,
+        path: `/v1/system/update/updates/${id}/stop`,
         method: 'POST',
         ...params,
       })

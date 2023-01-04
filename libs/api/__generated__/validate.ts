@@ -115,8 +115,8 @@ export const VersionSteadyReason = z.preprocess(
 export const VersionStatus = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ updating: z.object({ target: SemverVersion }) }),
-    z.object({ steady: z.object({ reason: VersionSteadyReason }) }),
+    z.object({ status: z.enum(['updating']), target: SemverVersion }),
+    z.object({ reason: VersionSteadyReason, status: z.enum(['steady']) }),
   ])
 )
 
@@ -3838,7 +3838,7 @@ export const SystemUpdateViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      updateId: z.string().uuid(),
+      id: z.string().uuid(),
     }),
     query: z.object({}),
   })
@@ -3848,7 +3848,7 @@ export const SystemUpdateComponentsListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      updateId: z.string().uuid(),
+      id: z.string().uuid(),
     }),
     query: z.object({}),
   })
@@ -3858,7 +3858,7 @@ export const SystemUpdateStartParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      updateId: z.string().uuid(),
+      id: z.string().uuid(),
     }),
     query: z.object({}),
   })
@@ -3868,7 +3868,7 @@ export const SystemUpdateStopParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      updateId: z.string().uuid(),
+      id: z.string().uuid(),
     }),
     query: z.object({}),
   })

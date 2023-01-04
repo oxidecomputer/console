@@ -709,17 +709,17 @@ export interface MSWHandlers {
   systemUpdateList: (params: {
     query: Api.SystemUpdateListQueryParams
   }) => HandlerResult<Api.SystemUpdateResultsPage>
-  /** `GET /v1/system/update/updates/:updateId` */
+  /** `GET /v1/system/update/updates/:id` */
   systemUpdateView: (params: {
     path: Api.SystemUpdateViewPathParams
   }) => HandlerResult<Api.SystemUpdate>
-  /** `GET /v1/system/update/updates/:updateId/components` */
+  /** `GET /v1/system/update/updates/:id/components` */
   systemUpdateComponentsList: (params: {
     path: Api.SystemUpdateComponentsListPathParams
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
-  /** `POST /v1/system/update/updates/:updateId/start` */
+  /** `POST /v1/system/update/updates/:id/start` */
   systemUpdateStart: (params: { path: Api.SystemUpdateStartPathParams }) => StatusCode
-  /** `POST /v1/system/update/updates/:updateId/stop` */
+  /** `POST /v1/system/update/updates/:id/stop` */
   systemUpdateStop: (params: { path: Api.SystemUpdateStopPathParams }) => StatusCode
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
@@ -1605,11 +1605,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['systemUpdateList'], schema.SystemUpdateListParams, null)
     ),
     rest.get(
-      '/v1/system/update/updates/:updateId',
+      '/v1/system/update/updates/:id',
       handler(handlers['systemUpdateView'], schema.SystemUpdateViewParams, null)
     ),
     rest.get(
-      '/v1/system/update/updates/:updateId/components',
+      '/v1/system/update/updates/:id/components',
       handler(
         handlers['systemUpdateComponentsList'],
         schema.SystemUpdateComponentsListParams,
@@ -1617,11 +1617,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.post(
-      '/v1/system/update/updates/:updateId/start',
+      '/v1/system/update/updates/:id/start',
       handler(handlers['systemUpdateStart'], schema.SystemUpdateStartParams, null)
     ),
     rest.post(
-      '/v1/system/update/updates/:updateId/stop',
+      '/v1/system/update/updates/:id/stop',
       handler(handlers['systemUpdateStop'], schema.SystemUpdateStopParams, null)
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
