@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { ComponentUpdate } from '@oxide/api'
@@ -38,6 +39,11 @@ export function UpdateDetailPage() {
     path: useUpdateParams(),
   })
 
+  const tree = useMemo(
+    () => (components ? listToTree(components.items) : null),
+    [components]
+  )
+
   return (
     <>
       <PageHeader>
@@ -45,7 +51,7 @@ export function UpdateDetailPage() {
       </PageHeader>
       <p>Version: {update?.version}</p>
       <h1 className="mb-4 mt-8 text-sans-2xl">Components in this update</h1>
-      {components && <Tree tree={listToTree(components.items)} />}
+      {tree && <Tree tree={tree} />}
     </>
   )
 }

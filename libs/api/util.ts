@@ -1,5 +1,5 @@
 /// Helpers for working with API objects
-import { pick } from '@oxide/util'
+import { groupBy, partitionBy, pick } from '@oxide/util'
 
 import type { VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
 
@@ -55,14 +55,30 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
+// In rather unscientific testing, optimized version showed 20-50x speedup, with
+// times around 1ms for 1200 nodes and two levels of nesting.
+
+// export function listToTreeSlow<T extends { id: string; parentId?: string }>(
+//   items: T[],
+//   parentId?: string | undefined
+// ): Node<T>[] {
+//   return items
+//     .filter((i) => i.parentId === parentId)
+//     .map((o) => ({ ...o, children: listToTreeSlow(items, o.id) }))
+// }
+
+type Item = { id: string; parentId?: string }
 type Node<T> = T & { children: Node<T>[] }
 
-// TODO: optimize implementation, it's O(N^2)
-export function listToTree<T extends { id: string; parentId?: string }>(
-  items: T[],
-  parentId?: string | undefined
-): Node<T>[] {
-  return items
-    .filter((i) => i.parentId === parentId)
-    .map((o) => ({ ...o, children: listToTree(items, o.id) }))
+export function listToTree<T extends Item>(items: T[]): Node<T>[] {
+  const [rest, roots] = partitionBy(items, (i) => !!i.parentId)
+
+  const parentIdToChildren = Object.fromEntries(groupBy(rest, (i) => i.parentId!))
+
+  function addChildren(parent: T): Node<T> {
+    const children = parentIdToChildren[parent.id] || []
+    return { ...parent, children: children.map(addChildren) }
+  }
+
+  return roots.map(addChildren)
 }
