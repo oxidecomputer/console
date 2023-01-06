@@ -1,7 +1,11 @@
 /// Helpers for working with API objects
 import { groupBy, partitionBy, pick } from '@oxide/util'
 
-import type { VpcFirewallRule, VpcFirewallRuleUpdate } from './__generated__/Api'
+import type {
+  UpdateableComponentType,
+  VpcFirewallRule,
+  VpcFirewallRuleUpdate,
+} from './__generated__/Api'
 
 type PortRange = [number, number]
 
@@ -81,4 +85,19 @@ export function listToTree<T extends Item>(items: T[]): Node<T>[] {
   }
 
   return roots.map(addChildren)
+}
+
+export const componentTypeNames: Record<UpdateableComponentType, string> = {
+  bootloader_for_rot: 'Bootloader for RoT',
+  bootloader_for_sp: 'Bootloader for SP',
+  bootloader_for_host_proc: 'Bootloader for Host Processor',
+  hubris_for_psc_rot: 'Hubris for PSC RoT',
+  hubris_for_psc_sp: 'Hubris for PSC SP',
+  hubris_for_sidecar_rot: 'Hubris for Sidecar RoT',
+  hubris_for_sidecar_sp: 'Hubris for Sidecar SP',
+  hubris_for_gimlet_rot: 'Hubris for Gimlet RoT',
+  hubris_for_gimlet_sp: 'Hubris for Gimlet SP',
+  helios_host_phase1: 'Helios for Host Phase 1',
+  helios_host_phase2: 'Helios for Host Phase 2',
+  host_omicron: 'Host Omicron',
 }

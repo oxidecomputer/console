@@ -77,7 +77,23 @@ export const BlockSize = z.preprocess(
  */
 export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
 
-export const DeviceType = z.preprocess(processResponseBody, z.enum(['disk']))
+export const UpdateableComponentType = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'bootloader_for_rot',
+    'bootloader_for_sp',
+    'bootloader_for_host_proc',
+    'hubris_for_psc_rot',
+    'hubris_for_psc_sp',
+    'hubris_for_sidecar_rot',
+    'hubris_for_sidecar_sp',
+    'hubris_for_gimlet_rot',
+    'hubris_for_gimlet_sp',
+    'helios_host_phase1',
+    'helios_host_phase2',
+    'host_omicron',
+  ])
+)
 
 export const SemverVersion = z.preprocess(
   processResponseBody,
@@ -90,7 +106,7 @@ export const SemverVersion = z.preprocess(
 export const ComponentUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    deviceType: DeviceType,
+    componentType: UpdateableComponentType,
     id: z.string().uuid(),
     parentId: z.string().uuid().optional(),
     timeCreated: DateType,
@@ -105,39 +121,6 @@ export const ComponentUpdate = z.preprocess(
 export const ComponentUpdateResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: ComponentUpdate.array(), nextPage: z.string().optional() })
-)
-
-export const VersionSteadyReason = z.preprocess(
-  processResponseBody,
-  z.enum(['completed', 'stopped', 'failed'])
-)
-
-export const VersionStatus = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ status: z.enum(['updating']), target: SemverVersion }),
-    z.object({ reason: VersionSteadyReason, status: z.enum(['steady']) }),
-  ])
-)
-
-export const ComponentVersion = z.preprocess(
-  processResponseBody,
-  z.object({
-    componentId: z.string().uuid(),
-    deviceId: z.string(),
-    deviceType: DeviceType,
-    parentId: z.string().uuid().optional(),
-    status: VersionStatus,
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const ComponentVersionResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: ComponentVersion.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1481,6 +1464,19 @@ export const SystemUpdateResultsPage = z.preprocess(
   z.object({ items: SystemUpdate.array(), nextPage: z.string().optional() })
 )
 
+export const VersionSteadyReason = z.preprocess(
+  processResponseBody,
+  z.enum(['completed', 'stopped', 'failed'])
+)
+
+export const VersionStatus = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ status: z.enum(['updating']), target: SemverVersion }),
+    z.object({ reason: VersionSteadyReason, status: z.enum(['steady']) }),
+  ])
+)
+
 export const VersionRange = z.preprocess(
   processResponseBody,
   z.object({ high: SemverVersion, low: SemverVersion })
@@ -1522,6 +1518,30 @@ export const TimeseriesSchema = z.preprocess(
 export const TimeseriesSchemaResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: TimeseriesSchema.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export const UpdateableComponent = z.preprocess(
+  processResponseBody,
+  z.object({
+    componentType: UpdateableComponentType,
+    deviceId: z.string(),
+    id: z.string().uuid(),
+    parentId: z.string().uuid().optional(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    version: SemverVersion,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const UpdateableComponentResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: UpdateableComponent.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -3818,7 +3838,11 @@ export const SystemComponentVersionListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
-    query: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
   })
 )
 

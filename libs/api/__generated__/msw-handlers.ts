@@ -704,7 +704,9 @@ export interface MSWHandlers {
     body: Json<Api.ProjectRolePolicy>
   }) => HandlerResult<Api.ProjectRolePolicy>
   /** `GET /v1/system/update/components` */
-  systemComponentVersionList: () => HandlerResult<Api.ComponentVersionResultsPage>
+  systemComponentVersionList: (params: {
+    query: Api.SystemComponentVersionListQueryParams
+  }) => HandlerResult<Api.UpdateableComponentResultsPage>
   /** `GET /v1/system/update/updates` */
   systemUpdateList: (params: {
     query: Api.SystemUpdateListQueryParams
@@ -1598,7 +1600,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/v1/system/update/components',
-      handler(handlers['systemComponentVersionList'], null, null)
+      handler(
+        handlers['systemComponentVersionList'],
+        schema.SystemComponentVersionListParams,
+        null
+      )
     ),
     rest.get(
       '/v1/system/update/updates',

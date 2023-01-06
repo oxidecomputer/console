@@ -69,7 +69,19 @@ export type BlockSize = 512 | 2048 | 4096
  */
 export type ByteCount = number
 
-export type DeviceType = 'disk'
+export type UpdateableComponentType =
+  | 'bootloader_for_rot'
+  | 'bootloader_for_sp'
+  | 'bootloader_for_host_proc'
+  | 'hubris_for_psc_rot'
+  | 'hubris_for_psc_sp'
+  | 'hubris_for_sidecar_rot'
+  | 'hubris_for_sidecar_sp'
+  | 'hubris_for_gimlet_rot'
+  | 'hubris_for_gimlet_sp'
+  | 'helios_host_phase1'
+  | 'helios_host_phase2'
+  | 'host_omicron'
 
 export type SemverVersion = string
 
@@ -77,7 +89,7 @@ export type SemverVersion = string
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
  */
 export type ComponentUpdate = {
-  deviceType: DeviceType
+  componentType: UpdateableComponentType
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   /** ID of the parent component. Not present for top-level components. */
@@ -95,32 +107,6 @@ export type ComponentUpdate = {
 export type ComponentUpdateResultsPage = {
   /** list of items on this page of results */
   items: ComponentUpdate[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
-
-export type VersionStatus =
-  | { status: 'updating'; target: SemverVersion }
-  | { reason: VersionSteadyReason; status: 'steady' }
-
-export type ComponentVersion = {
-  componentId: string
-  deviceId: string
-  deviceType: DeviceType
-  /** ID of the parent component, e.g., the sled a disk belongs to. Value will be `None` for top-level components whose "parent" is the rack. */
-  parentId?: string
-  status: VersionStatus
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type ComponentVersionResultsPage = {
-  /** list of items on this page of results */
-  items: ComponentVersion[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -1445,6 +1431,12 @@ export type SystemUpdateResultsPage = {
   nextPage?: string
 }
 
+export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
+
+export type VersionStatus =
+  | { status: 'updating'; target: SemverVersion }
+  | { reason: VersionSteadyReason; status: 'steady' }
+
 export type VersionRange = { high: SemverVersion; low: SemverVersion }
 
 export type SystemVersion = { status: VersionStatus; versionRange: VersionRange }
@@ -1474,6 +1466,33 @@ export type TimeseriesSchema = {
 export type TimeseriesSchemaResultsPage = {
   /** list of items on this page of results */
   items: TimeseriesSchema[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type UpdateableComponent = {
+  componentType: UpdateableComponentType
+  deviceId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** ID of the parent component, e.g., the sled a disk belongs to. Value will be `None` for top-level components whose "parent" is the rack. */
+  parentId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateableComponentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateableComponent[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -2778,6 +2797,12 @@ export interface ProjectPolicyUpdateV1PathParams {
 
 export interface ProjectPolicyUpdateV1QueryParams {
   organization?: NameOrId
+}
+
+export interface SystemComponentVersionListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
 }
 
 export interface SystemUpdateListQueryParams {
@@ -5279,10 +5304,14 @@ export class Api extends HttpClient {
     /**
      * View version and update status of component tree
      */
-    systemComponentVersionList: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<ComponentVersionResultsPage>({
+    systemComponentVersionList: (
+      { query = {} }: { query?: SystemComponentVersionListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateableComponentResultsPage>({
         path: `/v1/system/update/components`,
         method: 'GET',
+        query,
         ...params,
       })
     },

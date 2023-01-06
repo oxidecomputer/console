@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { ComponentUpdate } from '@oxide/api'
+import { componentTypeNames } from '@oxide/api'
 import { apiQueryClient, listToTree, useApiQuery } from '@oxide/api'
 import { Badge, PageHeader, PageTitle, SoftwareUpdate24Icon } from '@oxide/ui'
 
@@ -23,7 +24,7 @@ function Tree({ tree }: { tree: ComponentNode[] }) {
     <ul className="ml-8 list-disc">
       {tree.map((node) => (
         <li key={node.id}>
-          {node.deviceType} <Badge>{node.version}</Badge>
+          {componentTypeNames[node.componentType]} <Badge>{node.version}</Badge>
           <Tree tree={node.children} />
         </li>
       ))}
