@@ -48,7 +48,7 @@ import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
-import { UpdateDetailPage } from './pages/system/UpdateDetailPage'
+import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
 import { UpdatePage } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
@@ -101,13 +101,12 @@ export const routes = createRoutesFromElements(
         <Route path="utilization" element={null} />
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
-        <Route path="update">
-          <Route index element={<UpdatePage />} loader={UpdatePage.loader} />
+        <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
+          {/* TODO: this param should be the version string, or maybe version or ID (ew) */}
           <Route
-            // TODO: this param should be the version string, or maybe version or ID (ew)
             path="updates/:id"
-            element={<UpdateDetailPage />}
-            loader={UpdateDetailPage.loader}
+            element={<UpdateDetailSideModal />}
+            loader={UpdateDetailSideModal.loader}
           />
         </Route>
         <Route path="networking" element={null} />

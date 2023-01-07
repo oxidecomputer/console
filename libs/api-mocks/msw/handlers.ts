@@ -922,8 +922,8 @@ export const handlers = makeHandlers({
   },
 
   systemComponentVersionList: NotImplemented,
-  systemUpdateStart: NotImplemented,
-  systemUpdateStop: NotImplemented,
+  systemUpdateStart: () => 204,
+  systemUpdateStop: () => 204,
 
   systemVersion() {
     return {
