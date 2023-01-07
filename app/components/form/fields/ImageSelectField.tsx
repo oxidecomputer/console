@@ -16,7 +16,7 @@ import {
   UbuntuDistroIcon,
   WindowsDistroIcon,
 } from '@oxide/ui'
-import { classed, groupBy } from '@oxide/util'
+import { GiB, classed, groupBy } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
@@ -94,6 +94,8 @@ function ImageSelect({
     field: { value, onChange },
   } = useController({ control, name: 'globalImage' })
 
+  const bootDiskSizeCtrl = useController({ control, name: 'bootDiskSize' })
+
   // current distro is the one from the field value *if* it exists in the list
   // of distros. default to first distro in the list
   const currentDistro = distros.find((d) => d.id === value)?.id || distros[0].id
@@ -105,12 +107,14 @@ function ImageSelect({
     onSelectedItemChange(changes) {
       if (changes.selectedItem) {
         onChange(changes.selectedItem.id)
+        bootDiskSizeCtrl.field.onChange(Math.ceil(changes.selectedItem.size / GiB) * 2)
       }
     },
   })
   const onClick = () => {
     if (select.selectedItem) {
       onChange(select.selectedItem.id)
+      bootDiskSizeCtrl.field.onChange(Math.ceil(select.selectedItem.size / GiB) * 2)
     }
   }
 
