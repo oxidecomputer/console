@@ -4615,6 +4615,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete a user
+     */
     localIdpUserDelete: (
       { path }: { path: LocalIdpUserDeletePathParams },
       params: RequestParams = {}
@@ -4703,7 +4706,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List users in a specific Silo
+     * List users in a silo
      */
     siloUsersList: (
       {
@@ -4720,6 +4723,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch a user
+     */
     siloUserView: (
       { path }: { path: SiloUserViewPathParams },
       params: RequestParams = {}
@@ -4797,6 +4803,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * List instances
+     */
     instanceListV1: (
       { query = {} }: { query?: InstanceListV1QueryParams },
       params: RequestParams = {}
@@ -4808,6 +4817,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Create an instance
+     */
     instanceCreateV1: (
       { query = {}, body }: { query?: InstanceCreateV1QueryParams; body: InstanceCreate },
       params: RequestParams = {}
@@ -4820,6 +4832,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an instance
+     */
     instanceViewV1: (
       {
         path,
@@ -4835,6 +4850,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete an instance
+     */
     instanceDeleteV1: (
       {
         path,
@@ -4850,6 +4868,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Migrate an instance
+     */
     instanceMigrateV1: (
       {
         path,
@@ -4871,6 +4892,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Reboot an instance
+     */
     instanceRebootV1: (
       {
         path,
@@ -4886,6 +4910,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an instance's serial console
+     */
     instanceSerialConsoleV1: (
       {
         path,
@@ -4904,6 +4931,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Stream an instance's serial console
+     */
     instanceSerialConsoleStreamV1: (
       {
         path,
@@ -4940,6 +4970,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Stop an instance
+     */
     instanceStopV1: (
       {
         path,
@@ -4983,6 +5016,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an organization
+     */
     organizationViewV1: (
       { path }: { path: OrganizationViewV1PathParams },
       params: RequestParams = {}
@@ -4994,6 +5030,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Update an organization
+     */
     organizationUpdateV1: (
       { path, body }: { path: OrganizationUpdateV1PathParams; body: OrganizationUpdate },
       params: RequestParams = {}
@@ -5006,6 +5045,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete an organization
+     */
     organizationDeleteV1: (
       { path }: { path: OrganizationDeleteV1PathParams },
       params: RequestParams = {}
@@ -5017,6 +5059,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an organization's IAM policy
+     */
     organizationPolicyViewV1: (
       { path }: { path: OrganizationPolicyViewV1PathParams },
       params: RequestParams = {}
@@ -5028,6 +5073,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Update an organization's IAM policy
+     */
     organizationPolicyUpdateV1: (
       {
         path,
@@ -5057,6 +5105,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Create a project
+     */
     projectCreateV1: (
       { query = {}, body }: { query?: ProjectCreateV1QueryParams; body: ProjectCreate },
       params: RequestParams = {}
@@ -5069,6 +5120,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch a project
+     */
     projectViewV1: (
       {
         path,
