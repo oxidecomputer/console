@@ -100,7 +100,10 @@ function ImageSelect({
   function onChange(selectedItem: typeof distros[number] | undefined | null) {
     if (selectedItem) {
       imageField.onChange(selectedItem.id)
-      diskSizeField.onChange(Math.ceil(selectedItem.size / GiB) * 2)
+      // if the current disk size is less than 2x the image size, bump it up
+      if (diskSizeField.value < (2 * selectedItem.size) / GiB) {
+        diskSizeField.onChange(Math.ceil(selectedItem.size / GiB) * 2)
+      }
     }
   }
 
