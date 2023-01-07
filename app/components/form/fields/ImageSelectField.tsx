@@ -90,35 +90,28 @@ function ImageSelect({
   const distros = images.map((image) => ({ ...image, ...distroDisplay(image) }))
   const { label, Icon } = distros[0]
 
-  const {
-    field: { value, onChange },
-  } = useController({ control, name: 'globalImage' })
-
-  const bootDiskSizeCtrl = useController({ control, name: 'bootDiskSize' })
+  const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
+  const imageField = useController({ control, name: 'globalImage' }).field
 
   // current distro is the one from the field value *if* it exists in the list
   // of distros. default to first distro in the list
-  const currentDistro = distros.find((d) => d.id === value)?.id || distros[0].id
+  const currentDistro = distros.find((d) => d.id === imageField.value)?.id || distros[0].id
+
+  function onChange(selectedItem: typeof distros[number] | undefined | null) {
+    if (selectedItem) {
+      imageField.onChange(selectedItem.id)
+      diskSizeField.onChange(Math.ceil(selectedItem.size / GiB) * 2)
+    }
+  }
 
   const select = useSelect({
     initialSelectedItem: distros[0],
     items: distros,
     itemToString: (distro) => distro?.version || '',
-    onSelectedItemChange(changes) {
-      if (changes.selectedItem) {
-        onChange(changes.selectedItem.id)
-        bootDiskSizeCtrl.field.onChange(Math.ceil(changes.selectedItem.size / GiB) * 2)
-      }
-    },
+    onSelectedItemChange: (changes) => onChange(changes.selectedItem),
   })
-  const onClick = () => {
-    if (select.selectedItem) {
-      onChange(select.selectedItem.id)
-      bootDiskSizeCtrl.field.onChange(Math.ceil(select.selectedItem.size / GiB) * 2)
-    }
-  }
 
-  const selected = currentDistro === value
+  const selected = currentDistro === imageField.value
   return (
     <div className="relative">
       <RadioCard
@@ -128,7 +121,7 @@ function ImageSelect({
           'relative h-44 w-44 pb-0',
           selected && 'bg-accent-secondary hover:bg-accent-secondary-hover'
         )}
-        onClick={onClick}
+        onClick={() => onChange(select.selectedItem)}
       >
         <div className=" relative flex h-full flex-col items-center justify-end space-y-3 !pb-4">
           <button
