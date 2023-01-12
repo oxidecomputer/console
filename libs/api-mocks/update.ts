@@ -148,12 +148,12 @@ export const componentUpdates: Json<ComponentUpdate[]> = [
 ]
 
 type SystemUpdateComponentUpdate = {
-  system_update_id: string
+  system_update_version: string
   component_update_id: string
 }
 
 export const systemUpdateComponentUpdates: SystemUpdateComponentUpdate[] =
   componentUpdates.map(({ id }) => ({
-    system_update_id: systemUpdate1.id,
+    system_update_version: systemUpdate1.version,
     component_update_id: id,
   }))

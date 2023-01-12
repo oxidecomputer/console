@@ -73,9 +73,9 @@ export function UpdateDetailSideModal() {
       onDismiss={dismiss}
       submitLabel="Start update"
       onSubmit={() => {
-        const id = update?.id
-        if (!id) return
-        startUpdate.mutate({ path: { id } })
+        const version = update?.version
+        if (!version) return
+        startUpdate.mutate({ path: { version } })
       }}
       submitError={startUpdate.error}
     >

@@ -18,4 +18,4 @@ export type Silo = { siloName: string }
 export type IdentityProvider = Merge<Silo, { providerName: string }>
 export type Id = { id: string }
 export type SystemMetric = { resourceName: string }
-export type SystemUpdate = { id: string }
+export type SystemUpdate = { version: string }

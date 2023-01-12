@@ -7,7 +7,7 @@ const params = {
   instanceName: 'c',
   vpcName: 'd',
   siloName: 's',
-  id: 'u',
+  version: 'v',
 }
 
 test('path builder', () => {
@@ -55,7 +55,7 @@ test('path builder', () => {
         "systemNetworking": "/sys/networking",
         "systemSettings": "/sys/settings",
         "systemUpdate": "/sys/update",
-        "systemUpdateDetail": "/sys/update/updates/u",
+        "systemUpdateDetail": "/sys/update/updates/v",
         "systemUtilization": "/sys/utilization",
         "vpc": "/orgs/a/projects/b/vpcs/d",
         "vpcEdit": "/orgs/a/projects/b/vpcs/d/edit",

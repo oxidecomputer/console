@@ -3496,14 +3496,6 @@ export const SiloUserViewParams = z.preprocess(
   })
 )
 
-export const UpdatesRefreshParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
 export const SystemUserListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3558,7 +3550,7 @@ export const InstanceListV1Params = z.preprocess(
       organization: NameOrId.optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: NameSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -3846,6 +3838,14 @@ export const SystemComponentVersionListParams = z.preprocess(
   })
 )
 
+export const SystemUpdateRefreshParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const SystemUpdateListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3862,7 +3862,7 @@ export const SystemUpdateViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      id: z.string().uuid(),
+      version: SemverVersion,
     }),
     query: z.object({}),
   })
@@ -3872,7 +3872,7 @@ export const SystemUpdateComponentsListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      id: z.string().uuid(),
+      version: SemverVersion,
     }),
     query: z.object({}),
   })
@@ -3882,7 +3882,7 @@ export const SystemUpdateStartParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      id: z.string().uuid(),
+      version: SemverVersion,
     }),
     query: z.object({}),
   })
@@ -3892,7 +3892,7 @@ export const SystemUpdateStopParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      id: z.string().uuid(),
+      version: SemverVersion,
     }),
     query: z.object({}),
   })

@@ -1,9 +1,8 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { DateCell, useQueryTable } from '@oxide/table'
-import { Badge, EmptyMessage, PageHeader, PageTitle, SoftwareUpdate16Icon } from '@oxide/ui'
-import { pick } from '@oxide/util'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { EmptyMessage, PageHeader, PageTitle, SoftwareUpdate16Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 
@@ -30,19 +29,9 @@ export function UpdatePage() {
         </Link>
       </TableActions> */}
       <Table emptyState={<EmptyState />}>
-        {/* HACK: API doesn't have fetch by version string yet, so we display the 
-            version string but construct the link href out of the ID */}
         <Column
-          id="version"
-          accessor={(row) => pick(row, 'id', 'version')}
-          cell={({ value: { id, version } }) => (
-            <Link
-              className="text-sans-semi-md text-default hover:underline"
-              to={pb.systemUpdateDetail({ id })}
-            >
-              <Badge color="neutral">{version}</Badge>
-            </Link>
-          )}
+          accessor="version"
+          cell={linkCell((version) => pb.systemUpdateDetail({ version }))}
         />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>

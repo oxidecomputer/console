@@ -571,8 +571,6 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.UserResultsPage>
   /** `GET /system/silos/:siloName/users/id/:userId` */
   siloUserView: (params: { path: Api.SiloUserViewPathParams }) => HandlerResult<Api.User>
-  /** `POST /system/updates/refresh` */
-  updatesRefresh: () => StatusCode
   /** `GET /system/user` */
   systemUserList: (params: {
     query: Api.SystemUserListQueryParams
@@ -707,21 +705,23 @@ export interface MSWHandlers {
   systemComponentVersionList: (params: {
     query: Api.SystemComponentVersionListQueryParams
   }) => HandlerResult<Api.UpdateableComponentResultsPage>
+  /** `POST /v1/system/update/refresh` */
+  systemUpdateRefresh: () => StatusCode
   /** `GET /v1/system/update/updates` */
   systemUpdateList: (params: {
     query: Api.SystemUpdateListQueryParams
   }) => HandlerResult<Api.SystemUpdateResultsPage>
-  /** `GET /v1/system/update/updates/:id` */
+  /** `GET /v1/system/update/updates/:version` */
   systemUpdateView: (params: {
     path: Api.SystemUpdateViewPathParams
   }) => HandlerResult<Api.SystemUpdate>
-  /** `GET /v1/system/update/updates/:id/components` */
+  /** `GET /v1/system/update/updates/:version/components` */
   systemUpdateComponentsList: (params: {
     path: Api.SystemUpdateComponentsListPathParams
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
-  /** `POST /v1/system/update/updates/:id/start` */
+  /** `POST /v1/system/update/updates/:version/start` */
   systemUpdateStart: (params: { path: Api.SystemUpdateStartPathParams }) => StatusCode
-  /** `POST /v1/system/update/updates/:id/stop` */
+  /** `POST /v1/system/update/updates/:version/stop` */
   systemUpdateStop: (params: { path: Api.SystemUpdateStopPathParams }) => StatusCode
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
@@ -1448,7 +1448,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/system/silos/:siloName/users/id/:userId',
       handler(handlers['siloUserView'], schema.SiloUserViewParams, null)
     ),
-    rest.post('/system/updates/refresh', handler(handlers['updatesRefresh'], null, null)),
     rest.get(
       '/system/user',
       handler(handlers['systemUserList'], schema.SystemUserListParams, null)
@@ -1606,16 +1605,20 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         null
       )
     ),
+    rest.post(
+      '/v1/system/update/refresh',
+      handler(handlers['systemUpdateRefresh'], null, null)
+    ),
     rest.get(
       '/v1/system/update/updates',
       handler(handlers['systemUpdateList'], schema.SystemUpdateListParams, null)
     ),
     rest.get(
-      '/v1/system/update/updates/:id',
+      '/v1/system/update/updates/:version',
       handler(handlers['systemUpdateView'], schema.SystemUpdateViewParams, null)
     ),
     rest.get(
-      '/v1/system/update/updates/:id/components',
+      '/v1/system/update/updates/:version/components',
       handler(
         handlers['systemUpdateComponentsList'],
         schema.SystemUpdateComponentsListParams,
@@ -1623,11 +1626,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.post(
-      '/v1/system/update/updates/:id/start',
+      '/v1/system/update/updates/:version/start',
       handler(handlers['systemUpdateStart'], schema.SystemUpdateStartParams, null)
     ),
     rest.post(
-      '/v1/system/update/updates/:id/stop',
+      '/v1/system/update/updates/:version/stop',
       handler(handlers['systemUpdateStop'], schema.SystemUpdateStopParams, null)
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),

@@ -2639,7 +2639,7 @@ export interface InstanceListV1QueryParams {
   organization?: NameOrId
   pageToken?: string
   project?: NameOrId
-  sortBy?: NameSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface InstanceCreateV1QueryParams {
@@ -2812,19 +2812,19 @@ export interface SystemUpdateListQueryParams {
 }
 
 export interface SystemUpdateViewPathParams {
-  id: string
+  version: SemverVersion
 }
 
 export interface SystemUpdateComponentsListPathParams {
-  id: string
+  version: SemverVersion
 }
 
 export interface SystemUpdateStartPathParams {
-  id: string
+  version: SemverVersion
 }
 
 export interface SystemUpdateStopPathParams {
-  id: string
+  version: SemverVersion
 }
 
 export type ApiViewByIdMethods = Pick<
@@ -4748,6 +4748,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete a user
+     */
     localIdpUserDelete: (
       { path }: { path: LocalIdpUserDeletePathParams },
       params: RequestParams = {}
@@ -4836,7 +4839,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List users in a specific Silo
+     * List users in a silo
      */
     siloUsersList: (
       {
@@ -4853,6 +4856,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch a user
+     */
     siloUserView: (
       { path }: { path: SiloUserViewPathParams },
       params: RequestParams = {}
@@ -4861,16 +4867,6 @@ export class Api extends HttpClient {
       return this.request<User>({
         path: `/system/silos/${siloName}/users/id/${userId}`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Refresh update data
-     */
-    updatesRefresh: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/updates/refresh`,
-        method: 'POST',
         ...params,
       })
     },
@@ -4930,6 +4926,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * List instances
+     */
     instanceListV1: (
       { query = {} }: { query?: InstanceListV1QueryParams },
       params: RequestParams = {}
@@ -4941,6 +4940,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Create an instance
+     */
     instanceCreateV1: (
       { query = {}, body }: { query?: InstanceCreateV1QueryParams; body: InstanceCreate },
       params: RequestParams = {}
@@ -4953,6 +4955,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an instance
+     */
     instanceViewV1: (
       {
         path,
@@ -4968,6 +4973,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete an instance
+     */
     instanceDeleteV1: (
       {
         path,
@@ -4983,6 +4991,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Migrate an instance
+     */
     instanceMigrateV1: (
       {
         path,
@@ -5004,6 +5015,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Reboot an instance
+     */
     instanceRebootV1: (
       {
         path,
@@ -5019,6 +5033,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an instance's serial console
+     */
     instanceSerialConsoleV1: (
       {
         path,
@@ -5037,6 +5054,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Stream an instance's serial console
+     */
     instanceSerialConsoleStreamV1: (
       {
         path,
@@ -5073,6 +5093,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Stop an instance
+     */
     instanceStopV1: (
       {
         path,
@@ -5116,6 +5139,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an organization
+     */
     organizationViewV1: (
       { path }: { path: OrganizationViewV1PathParams },
       params: RequestParams = {}
@@ -5127,6 +5153,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Update an organization
+     */
     organizationUpdateV1: (
       { path, body }: { path: OrganizationUpdateV1PathParams; body: OrganizationUpdate },
       params: RequestParams = {}
@@ -5139,6 +5168,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Delete an organization
+     */
     organizationDeleteV1: (
       { path }: { path: OrganizationDeleteV1PathParams },
       params: RequestParams = {}
@@ -5150,6 +5182,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch an organization's IAM policy
+     */
     organizationPolicyViewV1: (
       { path }: { path: OrganizationPolicyViewV1PathParams },
       params: RequestParams = {}
@@ -5161,6 +5196,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Update an organization's IAM policy
+     */
     organizationPolicyUpdateV1: (
       {
         path,
@@ -5190,6 +5228,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Create a project
+     */
     projectCreateV1: (
       { query = {}, body }: { query?: ProjectCreateV1QueryParams; body: ProjectCreate },
       params: RequestParams = {}
@@ -5202,6 +5243,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Fetch a project
+     */
     projectViewV1: (
       {
         path,
@@ -5316,6 +5360,16 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Refresh update data
+     */
+    systemUpdateRefresh: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/refresh`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
      * List all updates
      */
     systemUpdateList: (
@@ -5336,9 +5390,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
+      const { version } = path
       return this.request<SystemUpdate>({
-        path: `/v1/system/update/updates/${id}`,
+        path: `/v1/system/update/updates/${version}`,
         method: 'GET',
         ...params,
       })
@@ -5350,9 +5404,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateComponentsListPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
+      const { version } = path
       return this.request<ComponentUpdateResultsPage>({
-        path: `/v1/system/update/updates/${id}/components`,
+        path: `/v1/system/update/updates/${version}/components`,
         method: 'GET',
         ...params,
       })
@@ -5364,9 +5418,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateStartPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
+      const { version } = path
       return this.request<void>({
-        path: `/v1/system/update/updates/${id}/start`,
+        path: `/v1/system/update/updates/${version}/start`,
         method: 'POST',
         ...params,
       })
@@ -5378,9 +5432,9 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateStopPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
+      const { version } = path
       return this.request<void>({
-        path: `/v1/system/update/updates/${id}/stop`,
+        path: `/v1/system/update/updates/${version}/stop`,
         method: 'POST',
         ...params,
       })

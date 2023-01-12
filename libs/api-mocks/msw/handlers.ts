@@ -24,6 +24,7 @@ import {
   lookupSilo,
   lookupSnapshot,
   lookupSshKey,
+  lookupSystemUpdate,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
@@ -911,11 +912,11 @@ export const handlers = makeHandlers({
   },
 
   systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
-  systemUpdateView: lookupById(db.systemUpdates),
+  systemUpdateView: ({ path }) => lookupSystemUpdate(path),
   systemUpdateComponentsList: (params) => {
     const ids = new Set(
       db.systemUpdateComponentUpdates
-        .filter((o) => o.system_update_id === params.path.id)
+        .filter((o) => o.system_update_version === params.path.version)
         .map((o) => o.component_update_id)
     )
     return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
@@ -924,6 +925,7 @@ export const handlers = makeHandlers({
   systemComponentVersionList: NotImplemented,
   systemUpdateStart: () => 204,
   systemUpdateStop: () => 204,
+  systemUpdateRefresh: NotImplemented,
 
   systemVersion() {
     return {
@@ -983,7 +985,6 @@ export const handlers = makeHandlers({
   systemUserList: NotImplemented,
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
-  updatesRefresh: NotImplemented,
   loginLocal: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,

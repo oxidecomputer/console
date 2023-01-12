@@ -24,7 +24,7 @@ export const requireProjectParams = requireParams('orgName', 'projectName')
 export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
 export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
 export const requireSiloParams = requireParams('siloName')
-export const requireUpdateParams = requireParams('id')
+export const requireUpdateParams = requireParams('version')
 
 export const useOrgParams = () => requireOrgParams(useParams())
 export const useProjectParams = () => requireProjectParams(useParams())

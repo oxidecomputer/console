@@ -102,9 +102,8 @@ export const routes = createRoutesFromElements(
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
         <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
-          {/* TODO: this param should be the version string, or maybe version or ID (ew) */}
           <Route
-            path="updates/:id"
+            path="updates/:version"
             element={<UpdateDetailSideModal />}
             loader={UpdateDetailSideModal.loader}
           />
