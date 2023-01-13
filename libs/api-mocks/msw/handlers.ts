@@ -924,7 +924,12 @@ export const handlers = makeHandlers({
   },
 
   systemComponentVersionList: NotImplemented,
-  systemUpdateStart: () => 204,
+  systemUpdateStart: () => ({
+    id: 'update-deployment-id',
+    version: '1.0.0',
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+  }),
   systemUpdateStop: () => 204,
   systemUpdateRefresh: NotImplemented,
 

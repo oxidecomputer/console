@@ -1457,11 +1457,29 @@ export const SystemUpdate = z.preprocess(
 )
 
 /**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export const SystemUpdateDeployment = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    version: SemverVersion,
+  })
+)
+
+/**
  * A single page of results
  */
 export const SystemUpdateResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SystemUpdate.array(), nextPage: z.string().optional() })
+)
+
+export const SystemUpdateStart = z.preprocess(
+  processResponseBody,
+  z.object({ version: SemverVersion })
 )
 
 export const VersionSteadyReason = z.preprocess(
@@ -3846,6 +3864,22 @@ export const SystemUpdateRefreshParams = z.preprocess(
   })
 )
 
+export const SystemUpdateStartParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateStopParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const SystemUpdateListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3869,26 +3903,6 @@ export const SystemUpdateViewParams = z.preprocess(
 )
 
 export const SystemUpdateComponentsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      version: SemverVersion,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateStartParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      version: SemverVersion,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateStopParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

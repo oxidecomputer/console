@@ -1422,6 +1422,19 @@ export type SystemUpdate = {
 }
 
 /**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type SystemUpdateDeployment = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
  * A single page of results
  */
 export type SystemUpdateResultsPage = {
@@ -1430,6 +1443,8 @@ export type SystemUpdateResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
+
+export type SystemUpdateStart = { version: SemverVersion }
 
 export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
 
@@ -2816,14 +2831,6 @@ export interface SystemUpdateViewPathParams {
 }
 
 export interface SystemUpdateComponentsListPathParams {
-  version: SemverVersion
-}
-
-export interface SystemUpdateStartPathParams {
-  version: SemverVersion
-}
-
-export interface SystemUpdateStopPathParams {
   version: SemverVersion
 }
 
@@ -5370,6 +5377,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Start system update
+     */
+    systemUpdateStart: (
+      { body }: { body: SystemUpdateStart },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SystemUpdateDeployment>({
+        path: `/v1/system/update/start`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Stop system update
+     */
+    systemUpdateStop: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/stop`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
      * List all updates
      */
     systemUpdateList: (
@@ -5408,34 +5439,6 @@ export class Api extends HttpClient {
       return this.request<ComponentUpdateResultsPage>({
         path: `/v1/system/update/updates/${version}/components`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Start system update
-     */
-    systemUpdateStart: (
-      { path }: { path: SystemUpdateStartPathParams },
-      params: RequestParams = {}
-    ) => {
-      const { version } = path
-      return this.request<void>({
-        path: `/v1/system/update/updates/${version}/start`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Stop system update
-     */
-    systemUpdateStop: (
-      { path }: { path: SystemUpdateStopPathParams },
-      params: RequestParams = {}
-    ) => {
-      const { version } = path
-      return this.request<void>({
-        path: `/v1/system/update/updates/${version}/stop`,
-        method: 'POST',
         ...params,
       })
     },

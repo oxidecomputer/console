@@ -75,7 +75,7 @@ export function UpdateDetailSideModal() {
       onSubmit={() => {
         const version = update?.version
         if (!version) return
-        startUpdate.mutate({ path: { version } })
+        startUpdate.mutate({ body: { version } })
       }}
       submitError={startUpdate.error}
     >

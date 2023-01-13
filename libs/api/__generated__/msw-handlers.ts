@@ -707,6 +707,12 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.UpdateableComponentResultsPage>
   /** `POST /v1/system/update/refresh` */
   systemUpdateRefresh: () => StatusCode
+  /** `POST /v1/system/update/start` */
+  systemUpdateStart: (params: {
+    body: Json<Api.SystemUpdateStart>
+  }) => HandlerResult<Api.SystemUpdateDeployment>
+  /** `POST /v1/system/update/stop` */
+  systemUpdateStop: () => StatusCode
   /** `GET /v1/system/update/updates` */
   systemUpdateList: (params: {
     query: Api.SystemUpdateListQueryParams
@@ -719,10 +725,6 @@ export interface MSWHandlers {
   systemUpdateComponentsList: (params: {
     path: Api.SystemUpdateComponentsListPathParams
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
-  /** `POST /v1/system/update/updates/:version/start` */
-  systemUpdateStart: (params: { path: Api.SystemUpdateStartPathParams }) => StatusCode
-  /** `POST /v1/system/update/updates/:version/stop` */
-  systemUpdateStop: (params: { path: Api.SystemUpdateStopPathParams }) => StatusCode
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
 }
@@ -1609,6 +1611,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/system/update/refresh',
       handler(handlers['systemUpdateRefresh'], null, null)
     ),
+    rest.post(
+      '/v1/system/update/start',
+      handler(handlers['systemUpdateStart'], null, schema.SystemUpdateStart)
+    ),
+    rest.post('/v1/system/update/stop', handler(handlers['systemUpdateStop'], null, null)),
     rest.get(
       '/v1/system/update/updates',
       handler(handlers['systemUpdateList'], schema.SystemUpdateListParams, null)
@@ -1624,14 +1631,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.SystemUpdateComponentsListParams,
         null
       )
-    ),
-    rest.post(
-      '/v1/system/update/updates/:version/start',
-      handler(handlers['systemUpdateStart'], schema.SystemUpdateStartParams, null)
-    ),
-    rest.post(
-      '/v1/system/update/updates/:version/stop',
-      handler(handlers['systemUpdateStop'], schema.SystemUpdateStopParams, null)
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
   ]
