@@ -914,9 +914,10 @@ export const handlers = makeHandlers({
   systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
   systemUpdateView: ({ path }) => lookupSystemUpdate(path),
   systemUpdateComponentsList: (params) => {
+    const systemUpdate = lookupSystemUpdate(params.path)
     const ids = new Set(
       db.systemUpdateComponentUpdates
-        .filter((o) => o.system_update_version === params.path.version)
+        .filter((o) => o.system_update_id === systemUpdate.id)
         .map((o) => o.component_update_id)
     )
     return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
