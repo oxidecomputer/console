@@ -103,6 +103,8 @@ export function CreateInstanceForm() {
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     globalImage: images[0]?.id || '',
+    // Use 2x the image size as the default boot disk size
+    bootDiskSize: Math.ceil(images[0]?.size / GiB) * 2 || 10,
   }
 
   return (
