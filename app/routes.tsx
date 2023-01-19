@@ -46,6 +46,7 @@ import { SerialConsoleTab } from './pages/project/instances/instance/tabs/Serial
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
@@ -96,7 +97,7 @@ export const routes = createRoutesFromElements(
           <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
         <Route path="issues" element={null} />
-        <Route path="utilization" element={null} />
+        <Route path="utilization" element={<CapacityUtilizationPage />} />
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
         <Route path="update" element={null} />

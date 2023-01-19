@@ -280,9 +280,16 @@ export const DiskCreate = z.preprocess(
 )
 
 /**
- * Parameters for the {@link Disk} to be attached or detached to an instance
+ * TODO-v1: Delete this Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export const DiskIdentifier = z.preprocess(processResponseBody, z.object({ name: Name }))
+
+export const NameOrId = z.preprocess(
+  processResponseBody,
+  z.union([z.string().uuid(), Name])
+)
+
+export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameOrId }))
 
 /**
  * A single page of results
@@ -1793,9 +1800,9 @@ export const DiskMetricName = z.preprocess(
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
 )
 
-export const NameOrId = z.preprocess(
+export const SystemMetricName = z.preprocess(
   processResponseBody,
-  z.union([z.string().uuid(), Name])
+  z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
 )
 
 export const DiskViewByIdParams = z.preprocess(
@@ -3192,6 +3199,22 @@ export const IpPoolServiceRangeRemoveParams = z.preprocess(
   })
 )
 
+export const SystemMetricParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      metricName: SystemMetricName,
+    }),
+    query: z.object({
+      endTime: DateType.optional(),
+      id: z.string().uuid().optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      startTime: DateType.optional(),
+    }),
+  })
+)
+
 export const SystemPolicyViewParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3435,6 +3458,57 @@ export const UserListParams = z.preprocess(
   })
 )
 
+export const DiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const DiskCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -3444,7 +3518,7 @@ export const InstanceListV1Params = z.preprocess(
       organization: NameOrId.optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: NameSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -3474,6 +3548,48 @@ export const InstanceViewV1Params = z.preprocess(
 )
 
 export const InstanceDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskAttachV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskDetachV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

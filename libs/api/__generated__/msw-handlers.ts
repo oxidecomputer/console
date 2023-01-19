@@ -507,6 +507,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools-service/ranges/remove` */
   ipPoolServiceRangeRemove: (params: { body: Json<Api.IpRange> }) => StatusCode
+  /** `GET /system/metrics/:metricName` */
+  systemMetric: (params: {
+    path: Api.SystemMetricPathParams
+    query: Api.SystemMetricQueryParams
+  }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /system/policy` */
@@ -589,6 +594,25 @@ export interface MSWHandlers {
   userList: (params: {
     query: Api.UserListQueryParams
   }) => HandlerResult<Api.UserResultsPage>
+  /** `GET /v1/disks` */
+  diskListV1: (params: {
+    query: Api.DiskListV1QueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
+  /** `POST /v1/disks` */
+  diskCreateV1: (params: {
+    query: Api.DiskCreateV1QueryParams
+    body: Json<Api.DiskCreate>
+  }) => HandlerResult<Api.Disk>
+  /** `GET /v1/disks/:disk` */
+  diskViewV1: (params: {
+    path: Api.DiskViewV1PathParams
+    query: Api.DiskViewV1QueryParams
+  }) => HandlerResult<Api.Disk>
+  /** `DELETE /v1/disks/:disk` */
+  diskDeleteV1: (params: {
+    path: Api.DiskDeleteV1PathParams
+    query: Api.DiskDeleteV1QueryParams
+  }) => StatusCode
   /** `GET /v1/instances` */
   instanceListV1: (params: {
     query: Api.InstanceListV1QueryParams
@@ -608,6 +632,23 @@ export interface MSWHandlers {
     path: Api.InstanceDeleteV1PathParams
     query: Api.InstanceDeleteV1QueryParams
   }) => StatusCode
+  /** `GET /v1/instances/:instance/disks` */
+  instanceDiskListV1: (params: {
+    path: Api.InstanceDiskListV1PathParams
+    query: Api.InstanceDiskListV1QueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
+  /** `POST /v1/instances/:instance/disks/attach` */
+  instanceDiskAttachV1: (params: {
+    path: Api.InstanceDiskAttachV1PathParams
+    query: Api.InstanceDiskAttachV1QueryParams
+    body: Json<Api.DiskPath>
+  }) => HandlerResult<Api.Disk>
+  /** `POST /v1/instances/:instance/disks/detach` */
+  instanceDiskDetachV1: (params: {
+    path: Api.InstanceDiskDetachV1PathParams
+    query: Api.InstanceDiskDetachV1QueryParams
+    body: Json<Api.DiskPath>
+  }) => HandlerResult<Api.Disk>
   /** `POST /v1/instances/:instance/migrate` */
   instanceMigrateV1: (params: {
     path: Api.InstanceMigrateV1PathParams
@@ -1342,6 +1383,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/system/ip-pools-service/ranges/remove',
       handler(handlers['ipPoolServiceRangeRemove'], null, schema.IpRange)
     ),
+    rest.get(
+      '/system/metrics/:metricName',
+      handler(handlers['systemMetric'], schema.SystemMetricParams, null)
+    ),
     rest.get('/system/policy', handler(handlers['systemPolicyView'], null, null)),
     rest.put(
       '/system/policy',
@@ -1440,6 +1485,19 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['timeseriesSchemaGet'], schema.TimeseriesSchemaGetParams, null)
     ),
     rest.get('/users', handler(handlers['userList'], schema.UserListParams, null)),
+    rest.get('/v1/disks', handler(handlers['diskListV1'], schema.DiskListV1Params, null)),
+    rest.post(
+      '/v1/disks',
+      handler(handlers['diskCreateV1'], schema.DiskCreateV1Params, schema.DiskCreate)
+    ),
+    rest.get(
+      '/v1/disks/:disk',
+      handler(handlers['diskViewV1'], schema.DiskViewV1Params, null)
+    ),
+    rest.delete(
+      '/v1/disks/:disk',
+      handler(handlers['diskDeleteV1'], schema.DiskDeleteV1Params, null)
+    ),
     rest.get(
       '/v1/instances',
       handler(handlers['instanceListV1'], schema.InstanceListV1Params, null)
@@ -1459,6 +1517,26 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/instances/:instance',
       handler(handlers['instanceDeleteV1'], schema.InstanceDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/instances/:instance/disks',
+      handler(handlers['instanceDiskListV1'], schema.InstanceDiskListV1Params, null)
+    ),
+    rest.post(
+      '/v1/instances/:instance/disks/attach',
+      handler(
+        handlers['instanceDiskAttachV1'],
+        schema.InstanceDiskAttachV1Params,
+        schema.DiskPath
+      )
+    ),
+    rest.post(
+      '/v1/instances/:instance/disks/detach',
+      handler(
+        handlers['instanceDiskDetachV1'],
+        schema.InstanceDiskDetachV1Params,
+        schema.DiskPath
+      )
     ),
     rest.post(
       '/v1/instances/:instance/migrate',

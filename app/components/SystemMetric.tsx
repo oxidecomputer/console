@@ -1,4 +1,4 @@
-// import type { SystemMetricName } from '@oxide/api'
+import type { SystemMetricName } from '@oxide/api'
 // import { useApiQuery } from '@oxide/api'
 import type { MeasurementResultsPage } from '@oxide/api'
 import { Spinner } from '@oxide/ui'
@@ -9,8 +9,7 @@ type SystemMetricProps = {
   title: string
   startTime: Date
   endTime: Date
-  metricName: string
-  // metricName: SystemMetricName
+  metricName: SystemMetricName
   /** Resource to filter data by. Can be fleet, silo, org, project. */
   filterId: string
   valueTransform?: (n: number) => number

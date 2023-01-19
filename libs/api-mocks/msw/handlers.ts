@@ -5,7 +5,7 @@ import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
-import { genCumulativeI64Data } from '../metrics'
+import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
@@ -910,6 +910,29 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
 
+  systemMetric: (params) => {
+    // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
+    // if (!result.success) return res(notFoundErr)
+    // const resourceName = result.data
+
+    const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
+
+    // note we're ignoring the required id query param. since the data is fake
+    // it wouldn't matter, though we should probably 400 if it's missing
+
+    const { startTime, endTime } = getStartAndEndTime(params.query)
+
+    if (endTime <= startTime) return { items: [] }
+
+    return {
+      items: genI64Data(
+        new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
+        startTime,
+        endTime
+      ),
+    }
+  },
+
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
   instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),
@@ -990,4 +1013,12 @@ export const handlers = makeHandlers({
   projectPolicyViewV1: NotImplemented,
   projectUpdateV1: NotImplemented,
   projectViewV1: NotImplemented,
+
+  diskListV1: NotImplemented,
+  diskCreateV1: NotImplemented,
+  diskViewV1: NotImplemented,
+  diskDeleteV1: NotImplemented,
+  instanceDiskListV1: NotImplemented,
+  instanceDiskAttachV1: NotImplemented,
+  instanceDiskDetachV1: NotImplemented,
 })
