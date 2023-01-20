@@ -201,6 +201,7 @@ export const routes = createRoutesFromElements(
                 <Route
                   path="metrics"
                   element={<MetricsTab />}
+                  loader={MetricsTab.loader}
                   handle={{ crumb: 'metrics' }}
                 />
                 <Route
