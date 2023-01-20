@@ -5,12 +5,13 @@ import type { Cumulativeint64, Disk, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
-import { TimeSeriesAreaChart } from 'app/components/TimeSeriesChart'
+import { TimeSeriesLineChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
 
 type DiskMetricParams = {
   title: string
+  unit?: string
   startTime: Date
   endTime: Date
   metricName: DiskMetricName
@@ -20,6 +21,7 @@ type DiskMetricParams = {
 
 function DiskMetric({
   title,
+  unit,
   startTime,
   endTime,
   metricName,
@@ -47,17 +49,20 @@ function DiskMetric({
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
-    <div>
-      <h2 className="flex items-center text-mono-sm text-secondary">
-        {title} {isLoading && <Spinner className="ml-2" />}
+    <div className="flex w-1/2 flex-grow flex-col">
+      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
+        {title} {unit && <div className="ml-1 text-quaternary">{unit}</div>}
+        {isLoading && <Spinner className="ml-2" />}
       </h2>
-      <TimeSeriesAreaChart
-        className="mt-4"
+      <TimeSeriesLineChart
+        className="mt-3"
         data={data}
         title={title}
         width={480}
         height={240}
         customXTicks
+        startTime={startTime}
+        endTime={endTime}
       />
     </div>
   )
@@ -96,18 +101,32 @@ function DiskMetrics({ disks }: { disks: Disk[] }) {
         {dateTimeRangePicker}
       </div>
 
-      {/* TODO: separate "Reads" from "(count)" so we can
-                a) style them differently in the title, and
-                b) show "Reads" but not "(count)" in the Tooltip?
-        */}
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-12">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
-        <DiskMetric {...commonProps} title="Reads (Count)" metricName="read" />
-        <DiskMetric {...commonProps} title="Read (Bytes)" metricName="read_bytes" />
-        <DiskMetric {...commonProps} title="Writes (Count)" metricName="write" />
-        <DiskMetric {...commonProps} title="Write (Bytes)" metricName="write_bytes" />
-        <DiskMetric {...commonProps} title="Flushes (Count)" metricName="flush" />
+        <div className="flex w-full space-x-4">
+          <DiskMetric {...commonProps} title="Reads" unit="(Count)" metricName="read" />
+          <DiskMetric
+            {...commonProps}
+            title="Read"
+            unit="(Bytes)"
+            metricName="read_bytes"
+          />
+        </div>
+
+        <div className="flex w-full space-x-4">
+          <DiskMetric {...commonProps} title="Writes" unit="(Count)" metricName="write" />
+          <DiskMetric
+            {...commonProps}
+            title="Write"
+            unit="(Bytes)"
+            metricName="write_bytes"
+          />
+        </div>
+
+        <div className="flex w-full space-x-4">
+          <DiskMetric {...commonProps} title="Flushes" unit="(Count)" metricName="flush" />
+        </div>
       </div>
     </>
   )
