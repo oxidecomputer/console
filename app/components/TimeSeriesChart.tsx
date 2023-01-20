@@ -47,10 +47,10 @@ const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
 const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
-// TODO: change these to theme colors so they work in light mode
 const GRID_GRAY = 'var(--stroke-secondary)'
-const GREEN_600 = 'var(--base-green-600)'
-const GREEN_800 = 'var(--base-green-800)'
+const GREEN_400 = 'var(--theme-accent-400)'
+const GREEN_600 = 'var(--theme-accent-600)'
+const GREEN_800 = 'var(--theme-accent-800)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
@@ -123,8 +123,8 @@ export function TimeSeriesAreaChart({
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <XAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
-          tickLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: GRID_GRAY }}
+          tickLine={{ stroke: GRID_GRAY }}
           // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}
           dataKey="timestamp"
@@ -136,8 +136,8 @@ export function TimeSeriesAreaChart({
           tickMargin={8}
         />
         <YAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
-          tickLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: GRID_GRAY }}
+          tickLine={{ stroke: GRID_GRAY }}
           orientation="right"
           tick={textMonoMd}
           tickMargin={8}
@@ -146,7 +146,7 @@ export function TimeSeriesAreaChart({
         <Tooltip
           isAnimationActive={false}
           content={renderTooltip}
-          cursor={{ stroke: 'var(--base-green-400)', strokeDasharray: '3,3' }}
+          cursor={{ stroke: GREEN_400, strokeDasharray: '3,3' }}
           wrapperStyle={{ outline: 'none' }}
         />
         <Area
@@ -155,8 +155,6 @@ export function TimeSeriesAreaChart({
           type={interpolation}
           stroke={GREEN_600}
           strokeWidth={1}
-          // cheating to make this a line chart
-          fillOpacity={0}
           isAnimationActive={false}
           activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
         />
@@ -187,8 +185,8 @@ export function TimeSeriesLineChart({
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
         <XAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
-          tickLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: GRID_GRAY }}
+          tickLine={{ stroke: GRID_GRAY }}
           // TODO: show full given date range in the chart even if the data doesn't fill the range
           domain={['auto', 'auto']}
           dataKey="timestamp"
@@ -198,14 +196,13 @@ export function TimeSeriesLineChart({
           type="number"
           name="Time"
           ticks={customXTicks ? getTicks(data, 5) : undefined}
-          // TODO: decide timestamp format based on time range of chart
           tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
           tick={textMonoMd}
           tickMargin={8}
         />
         <YAxis
-          axisLine={{ stroke: 'var(--stroke-secondary)' }}
-          tickLine={{ stroke: 'var(--stroke-secondary)' }}
+          axisLine={{ stroke: GRID_GRAY }}
+          tickLine={{ stroke: GRID_GRAY }}
           orientation="right"
           tick={textMonoMd}
           tickSize={6}
@@ -216,7 +213,7 @@ export function TimeSeriesLineChart({
         <Tooltip
           isAnimationActive={false}
           content={renderTooltip}
-          cursor={{ stroke: 'var(--base-green-400)', strokeDasharray: '3,3' }}
+          cursor={{ stroke: GREEN_400, strokeDasharray: '3,3' }}
           wrapperStyle={{ outline: 'none' }}
         />
         <Line
