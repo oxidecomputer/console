@@ -1,9 +1,8 @@
 import type { SystemMetricName } from '@oxide/api'
-// import { useApiQuery } from '@oxide/api'
-import type { MeasurementResultsPage } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Spinner } from '@oxide/ui'
 
-import { TimeSeriesAreaChart } from './TimeSeriesChart'
+import { TimeSeriesLineChart } from './TimeSeriesChart'
 
 type SystemMetricProps = {
   title: string
@@ -19,22 +18,22 @@ export function SystemMetric({
   title,
   startTime,
   endTime,
+  metricName,
+  filterId,
   valueTransform = (x) => x,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  // const { data: metrics, isLoading } = useApiQuery(
-  //   'systemMetric',
-  //   { id: filterId, metricName, startTime, endTime },
-  //   {
-  //     // TODO: this is actually kind of useless unless the time interval slides forward as time passes
-  //     refetchInterval: 5000,
-  //     // avoid graphs flashing blank while loading when you change the time
-  //     keepPreviousData: true,
-  //   }
-  // )
-  const metrics: MeasurementResultsPage = { items: [] }
-  const isLoading = false
+  const { data: metrics, isLoading } = useApiQuery(
+    'systemMetric',
+    { path: { metricName }, query: { id: filterId, startTime, endTime } },
+    {
+      // TODO: this is actually kind of useless unless the time interval slides forward as time passes
+      refetchInterval: 5000,
+      // avoid graphs flashing blank while loading when you change the time
+      keepPreviousData: true,
+    }
+  )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
@@ -65,7 +64,7 @@ export function SystemMetric({
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
       {/* TODO: this is supposed to be full width */}
-      <TimeSeriesAreaChart
+      <TimeSeriesLineChart
         className="mt-4"
         data={data}
         title={title}

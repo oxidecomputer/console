@@ -1,8 +1,6 @@
 import cn from 'classnames'
 import { format } from 'date-fns'
 import {
-  Area,
-  AreaChart,
   CartesianGrid,
   Line,
   LineChart,
@@ -98,70 +96,6 @@ type Props = {
   customXTicks?: boolean
   startTime: Date
   endTime: Date
-}
-
-// Limitations
-//   - Only one dataset — can't do overlapping area chart yet
-
-export function TimeSeriesAreaChart({
-  className,
-  data,
-  title,
-  width,
-  height,
-  interpolation = 'linear',
-  customXTicks,
-  startTime,
-  endTime,
-}: Props) {
-  return (
-    <ResponsiveContainer width="100%" height={280}>
-      <AreaChart
-        width={width}
-        height={height}
-        data={data}
-        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
-        className={className}
-      >
-        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-        <XAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          // TODO: show full given date range in the chart even if the data doesn't fill the range
-          domain={['auto', 'auto']}
-          dataKey="timestamp"
-          name="Time"
-          ticks={customXTicks ? getTicks(data, 5) : undefined}
-          tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
-          tick={textMonoMd}
-          tickMargin={8}
-        />
-        <YAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          orientation="right"
-          tick={textMonoMd}
-          tickMargin={8}
-        />
-        {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-        <Tooltip
-          isAnimationActive={false}
-          content={renderTooltip}
-          cursor={{ stroke: GREEN_400, strokeDasharray: '3,3' }}
-          wrapperStyle={{ outline: 'none' }}
-        />
-        <Area
-          dataKey="value"
-          name={title}
-          type={interpolation}
-          stroke={GREEN_600}
-          strokeWidth={1}
-          isAnimationActive={false}
-          activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
-  )
 }
 
 export function TimeSeriesLineChart({

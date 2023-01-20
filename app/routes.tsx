@@ -31,6 +31,7 @@ import { OrgAccessPage } from './pages/OrgAccessPage'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
+import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
 import {
   DisksPage,
   ImagesPage,
@@ -115,7 +116,11 @@ export const routes = createRoutesFromElements(
       />
 
       <Route element={<SiloLayout />}>
-        <Route path="utilization" element={null} />
+        <Route
+          path="utilization"
+          element={<SiloUtilizationPage />}
+          loader={SiloUtilizationPage.loader}
+        />
         <Route element={<OrgsPage />} loader={OrgsPage.loader}>
           <Route path="orgs" handle={{ crumb: 'Orgs' }} />
           <Route
