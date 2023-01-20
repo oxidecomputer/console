@@ -1,8 +1,10 @@
+import React, { Suspense } from 'react'
+
 import type { SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Spinner } from '@oxide/ui'
 
-import { TimeSeriesLineChart } from './TimeSeriesChart'
+const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 
 type SystemMetricProps = {
   title: string
@@ -63,17 +65,19 @@ export function SystemMetric({
       <h2 className="flex items-center text-mono-md text-secondary">
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
-      {/* TODO: this is supposed to be full width */}
-      <TimeSeriesLineChart
-        className="mt-4"
-        data={data}
-        title={title}
-        width={480}
-        height={240}
-        interpolation="stepAfter"
-        startTime={startTime}
-        endTime={endTime}
-      />
+      {/* TODO: proper skeleton for empty chart */}
+      <Suspense fallback={<div className="mt-4 h-[300px]" />}>
+        <TimeSeriesChart
+          className="mt-4"
+          data={data}
+          title={title}
+          width={480}
+          height={240}
+          interpolation="stepAfter"
+          startTime={startTime}
+          endTime={endTime}
+        />
+      </Suspense>
     </div>
   )
 }

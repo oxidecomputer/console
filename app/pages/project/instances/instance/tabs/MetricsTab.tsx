@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import React from 'react'
 import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, Disk, DiskMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
-import { TimeSeriesLineChart } from 'app/components/TimeSeriesChart'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { useRequiredParams } from 'app/hooks'
+
+const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
 
 type DiskMetricParams = {
   title: string
@@ -16,7 +18,6 @@ type DiskMetricParams = {
   endTime: Date
   metricName: DiskMetricName
   diskParams: { orgName: string; projectName: string; diskName: string }
-  // TODO: specify bytes or count
 }
 
 function DiskMetric({
@@ -54,15 +55,17 @@ function DiskMetric({
         {title} {unit && <div className="ml-1 text-quaternary">{unit}</div>}
         {isLoading && <Spinner className="ml-2" />}
       </h2>
-      <TimeSeriesLineChart
-        className="mt-3"
-        data={data}
-        title={title}
-        width={480}
-        height={240}
-        startTime={startTime}
-        endTime={endTime}
-      />
+      <Suspense fallback={<div className="mt-3 h-[300px]" />}>
+        <TimeSeriesChart
+          className="mt-3"
+          data={data}
+          title={title}
+          width={480}
+          height={240}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      </Suspense>
     </div>
   )
 }
@@ -138,7 +141,7 @@ const Loading = () => (
   </div>
 )
 
-export default function MetricsTab() {
+export function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { data: disks } = useApiQuery('instanceDiskList', { path: instanceParams })
 

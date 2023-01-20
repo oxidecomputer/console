@@ -97,7 +97,7 @@ type Props = {
   endTime: Date
 }
 
-export function TimeSeriesLineChart({
+export default function TimeSeriesChart({
   className,
   data,
   title,
