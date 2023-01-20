@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 import { bytesToGiB } from '@oxide/util'
 
@@ -10,12 +10,7 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
-CapacityUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', {})
-  return null
-}
-
-export function CapacityUtilizationPage() {
+export default function CapacityUtilizationPage() {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})

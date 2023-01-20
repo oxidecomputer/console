@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 import { bytesToGiB } from '@oxide/util'
 
@@ -10,14 +10,9 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 const ALL_PROJECTS = '|ALL_PROJECTS|'
 
-SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', {})
-  return null
-}
-
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
-export function SiloUtilizationPage() {
+export default function SiloUtilizationPage() {
   // this will come from /session/me
   const siloId = DEFAULT_SILO_ID
 

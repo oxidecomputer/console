@@ -31,7 +31,6 @@ import { OrgAccessPage } from './pages/OrgAccessPage'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
-import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
 import {
   DisksPage,
   ImagesPage,
@@ -47,13 +46,19 @@ import { SerialConsoleTab } from './pages/project/instances/instance/tabs/Serial
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
-import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
+import { siloUtilizationPageloader } from './pages/silo-utilization-loader'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
 
 const MetricsTab = React.lazy(
   () => import('./pages/project/instances/instance/tabs/MetricsTab')
+)
+
+// loaders are imported separately the normal way
+const SiloUtilizationPage = React.lazy(() => import('./pages/SiloUtilizationPage'))
+const CapacityUtilizationPage = React.lazy(
+  () => import('./pages/system/CapacityUtilizationPage')
 )
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
@@ -118,8 +123,12 @@ export const routes = createRoutesFromElements(
       <Route element={<SiloLayout />}>
         <Route
           path="utilization"
-          element={<SiloUtilizationPage />}
-          loader={SiloUtilizationPage.loader}
+          element={
+            <Suspense fallback={null}>
+              <SiloUtilizationPage />
+            </Suspense>
+          }
+          loader={siloUtilizationPageloader}
         />
         <Route element={<OrgsPage />} loader={OrgsPage.loader}>
           <Route path="orgs" handle={{ crumb: 'Orgs' }} />
