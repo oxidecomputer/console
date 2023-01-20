@@ -93,7 +93,6 @@ type Props = {
   width: number
   height: number
   interpolation?: 'linear' | 'stepAfter'
-  customXTicks?: boolean
   startTime: Date
   endTime: Date
 }
@@ -105,7 +104,6 @@ export function TimeSeriesLineChart({
   width,
   height,
   interpolation = 'linear',
-  customXTicks,
   startTime,
   endTime,
 }: Props) {
@@ -130,7 +128,7 @@ export function TimeSeriesLineChart({
           // TODO: use Date directly as x-axis values
           type="number"
           name="Time"
-          ticks={customXTicks ? getTicks(data, 5) : undefined}
+          ticks={getTicks(data, 5)}
           tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
           tick={textMonoMd}
           tickMargin={8}

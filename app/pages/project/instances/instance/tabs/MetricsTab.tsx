@@ -60,7 +60,6 @@ function DiskMetric({
         title={title}
         width={480}
         height={240}
-        customXTicks
         startTime={startTime}
         endTime={endTime}
       />
