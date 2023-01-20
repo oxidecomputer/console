@@ -111,6 +111,8 @@ export function TimeSeriesAreaChart({
   height,
   interpolation = 'linear',
   customXTicks,
+  startTime,
+  endTime,
 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={280}>
@@ -130,8 +132,7 @@ export function TimeSeriesAreaChart({
           dataKey="timestamp"
           name="Time"
           ticks={customXTicks ? getTicks(data, 5) : undefined}
-          // TODO: decide timestamp format based on time range of chart
-          tickFormatter={shortDateTime}
+          tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
           tick={textMonoMd}
           tickMargin={8}
         />
