@@ -70,7 +70,7 @@ function renderTooltip(props: TooltipProps<number, string>) {
   } = payload[0]
   if (!timestamp || !value) return null
   return (
-    <div className="border outline-0 text-sans-md text-tertiary bg-raise border-secondary">
+    <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary">
       <div className="border-b py-2 px-3 border-secondary">{longDateTime(timestamp)}</div>
       <div className="py-2 px-3">
         <div className="text-secondary">{name}</div>
