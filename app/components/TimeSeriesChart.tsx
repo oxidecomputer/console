@@ -120,7 +120,7 @@ export function TimeSeriesAreaChart({
         width={width}
         height={height}
         data={data}
-        margin={{ top: 0, right: 20, bottom: 5, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
         className={className}
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
@@ -176,12 +176,12 @@ export function TimeSeriesLineChart({
   endTime,
 }: Props) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={300}>
       <LineChart
         width={width}
         height={height}
         data={data}
-        margin={{ top: 0, right: 0, bottom: 5, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
         className={cn(className, 'rounded-lg border border-default')}
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
