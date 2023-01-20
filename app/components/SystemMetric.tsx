@@ -72,6 +72,8 @@ export function SystemMetric({
         width={480}
         height={240}
         interpolation="stepAfter"
+        startTime={startTime}
+        endTime={endTime}
       />
     </div>
   )
