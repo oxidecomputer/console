@@ -251,9 +251,13 @@ export type DiskCreate = {
 }
 
 /**
- * Parameters for the {@link Disk} to be attached or detached to an instance
+ * TODO-v1: Delete this Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export type DiskIdentifier = { name: Name }
+
+export type NameOrId = string | Name
+
+export type DiskPath = { disk: NameOrId }
 
 /**
  * A single page of results
@@ -1767,7 +1771,10 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
-export type NameOrId = string | Name
+export type SystemMetricName =
+  | 'virtual_disk_space_provisioned'
+  | 'cpus_provisioned'
+  | 'ram_provisioned'
 
 export interface DiskViewByIdPathParams {
   id: string
@@ -2431,6 +2438,18 @@ export interface IpPoolServiceRangeListQueryParams {
   pageToken?: string
 }
 
+export interface SystemMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SystemMetricQueryParams {
+  endTime?: Date
+  id?: string
+  limit?: number
+  pageToken?: string
+  startTime?: Date
+}
+
 export interface SagaListQueryParams {
   limit?: number
   pageToken?: string
@@ -2532,12 +2551,43 @@ export interface UserListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface DiskListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface DiskCreateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface DiskViewV1PathParams {
+  disk: NameOrId
+}
+
+export interface DiskViewV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface DiskDeleteV1PathParams {
+  disk: NameOrId
+}
+
+export interface DiskDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
 export interface InstanceListV1QueryParams {
   limit?: number
   organization?: NameOrId
   pageToken?: string
   project?: NameOrId
-  sortBy?: NameSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface InstanceCreateV1QueryParams {
@@ -2559,6 +2609,36 @@ export interface InstanceDeleteV1PathParams {
 }
 
 export interface InstanceDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceDiskListV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceDiskAttachV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskAttachV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceDiskDetachV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskDetachV1QueryParams {
   organization?: NameOrId
   project?: NameOrId
 }
@@ -3200,7 +3280,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a disk
+     * Use `POST /v1/disks` instead
      */
     diskCreate: (
       { path, body }: { path: DiskCreatePathParams; body: DiskCreate },
@@ -3226,7 +3306,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a disk
+     * Use `DELETE /v1/disks/{disk}` instead
      */
     diskDelete: ({ path }: { path: DiskDeletePathParams }, params: RequestParams = {}) => {
       const { diskName, orgName, projectName } = path
@@ -4484,6 +4564,24 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Access metrics data
+     */
+    systemMetric: (
+      {
+        path,
+        query = {},
+      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { metricName } = path
+      return this.request<MeasurementResultsPage>({
+        path: `/system/metrics/${metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Fetch the top-level IAM policy
      */
     systemPolicyView: (_: EmptyObj, params: RequestParams = {}) => {
@@ -4804,6 +4902,68 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List disks
+     */
+    diskListV1: (
+      { query = {} }: { query?: DiskListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<DiskResultsPage>({
+        path: `/v1/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a disk
+     */
+    diskCreateV1: (
+      { query = {}, body }: { query?: DiskCreateV1QueryParams; body: DiskCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/disks`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a disk
+     */
+    diskViewV1: (
+      { path, query = {} }: { path: DiskViewV1PathParams; query?: DiskViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { disk } = path
+      return this.request<Disk>({
+        path: `/v1/disks/${disk}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete a disk
+     */
+    diskDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: DiskDeleteV1PathParams; query?: DiskDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { disk } = path
+      return this.request<void>({
+        path: `/v1/disks/${disk}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List instances
      */
     instanceListV1: (
@@ -4864,6 +5024,63 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/instances/${instance}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    instanceDiskListV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceDiskListV1PathParams; query?: InstanceDiskListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<DiskResultsPage>({
+        path: `/v1/instances/${instance}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceDiskAttachV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskAttachV1PathParams
+        query?: InstanceDiskAttachV1QueryParams
+        body: DiskPath
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Disk>({
+        path: `/v1/instances/${instance}/disks/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    instanceDiskDetachV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskDetachV1PathParams
+        query?: InstanceDiskDetachV1QueryParams
+        body: DiskPath
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Disk>({
+        path: `/v1/instances/${instance}/disks/detach`,
+        method: 'POST',
+        body,
         query,
         ...params,
       })
