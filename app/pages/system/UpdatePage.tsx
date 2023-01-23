@@ -41,7 +41,7 @@ export function UpdatePage() {
           <Badge color="neutral">Steady</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="version">
-          <span className="text-secondary">v1.0.2–v1.2.4</span>
+          <span className="text-secondary">v1.0.2&ndash;v1.2.4</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="last updated">
           <span className="text-secondary">{new Date().toISOString()}</span>
