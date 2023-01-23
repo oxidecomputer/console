@@ -69,6 +69,59 @@ export type BlockSize = 512 | 2048 | 4096
  */
 export type ByteCount = number
 
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type Name = string
+
+/**
+ * The service intended to use this certificate.
+ */
+export type ServiceUsingCertificate = 'external_api'
+
+/**
+ * Client view of a {@link Certificate}
+ */
+export type Certificate = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  service: ServiceUsingCertificate
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a {@link Certificate}
+ */
+export type CertificateCreate = {
+  /** PEM file containing public certificate chain */
+  cert: number[]
+  description: string
+  /** PEM file containing private key */
+  key: number[]
+  name: Name
+  /** The service using this certificate */
+  service: ServiceUsingCertificate
+}
+
+/**
+ * A single page of results
+ */
+export type CertificateResultsPage = {
+  /** list of items on this page of results */
+  items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
 export type UpdateableComponentType =
   | 'bootloader_for_rot'
   | 'bootloader_for_sp'
@@ -215,13 +268,6 @@ export type DeviceAuthVerify = { userCode: string }
 export type Digest = { type: 'sha256'; value: string }
 
 /**
- * A name unique within the parent collection
- *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export type Name = string
-
-/**
  * State of a Disk (primarily: attached or not)
  */
 export type DiskState =
@@ -293,9 +339,13 @@ export type DiskCreate = {
 }
 
 /**
- * Parameters for the {@link Disk} to be attached or detached to an instance
+ * TODO-v1: Delete this Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export type DiskIdentifier = { name: Name }
+
+export type NameOrId = string | Name
+
+export type DiskPath = { disk: NameOrId }
 
 /**
  * A single page of results
@@ -1437,6 +1487,16 @@ export type SystemUpdateDeployment = {
 /**
  * A single page of results
  */
+export type SystemUpdateDeploymentResultsPage = {
+  /** list of items on this page of results */
+  items: SystemUpdateDeployment[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A single page of results
+ */
 export type SystemUpdateResultsPage = {
   /** list of items on this page of results */
   items: SystemUpdate[]
@@ -1884,7 +1944,10 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
-export type NameOrId = string | Name
+export type SystemMetricName =
+  | 'virtual_disk_space_provisioned'
+  | 'cpus_provisioned'
+  | 'ram_provisioned'
 
 export interface DiskViewByIdPathParams {
   id: string
@@ -2474,6 +2537,20 @@ export interface SiloViewByIdPathParams {
   id: string
 }
 
+export interface CertificateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface CertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface CertificateDeletePathParams {
+  certificate: NameOrId
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -2546,6 +2623,18 @@ export interface IpPoolRangeRemovePathParams {
 export interface IpPoolServiceRangeListQueryParams {
   limit?: number
   pageToken?: string
+}
+
+export interface SystemMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SystemMetricQueryParams {
+  endTime?: Date
+  id?: string
+  limit?: number
+  pageToken?: string
+  startTime?: Date
 }
 
 export interface SagaListQueryParams {
@@ -2649,6 +2738,37 @@ export interface UserListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface DiskListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface DiskCreateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface DiskViewV1PathParams {
+  disk: NameOrId
+}
+
+export interface DiskViewV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface DiskDeleteV1PathParams {
+  disk: NameOrId
+}
+
+export interface DiskDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
 export interface InstanceListV1QueryParams {
   limit?: number
   organization?: NameOrId
@@ -2676,6 +2796,36 @@ export interface InstanceDeleteV1PathParams {
 }
 
 export interface InstanceDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceDiskListV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceDiskAttachV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskAttachV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceDiskDetachV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskDetachV1QueryParams {
   organization?: NameOrId
   project?: NameOrId
 }
@@ -2820,6 +2970,16 @@ export interface SystemComponentVersionListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface SystemUpdateDeploymentsListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SystemUpdateDeploymentViewPathParams {
+  id: string
+}
+
 export interface SystemUpdateListQueryParams {
   limit?: number
   pageToken?: string
@@ -2871,6 +3031,7 @@ export type ApiListMethods = Pick<
   | 'vpcSubnetList'
   | 'roleList'
   | 'sessionSshkeyList'
+  | 'certificateList'
   | 'rackList'
   | 'sledList'
   | 'systemImageList'
@@ -2884,6 +3045,7 @@ export type ApiListMethods = Pick<
   | 'systemUserList'
   | 'userList'
   | 'systemComponentVersionList'
+  | 'systemUpdateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
 >
@@ -3340,7 +3502,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a disk
+     * Use `POST /v1/disks` instead
      */
     diskCreate: (
       { path, body }: { path: DiskCreatePathParams; body: DiskCreate },
@@ -3366,7 +3528,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a disk
+     * Use `DELETE /v1/disks/{disk}` instead
      */
     diskDelete: ({ path }: { path: DiskDeletePathParams }, params: RequestParams = {}) => {
       const { diskName, orgName, projectName } = path
@@ -4359,6 +4521,62 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List system-wide certificates
+     */
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/system/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new system-wide x.509 certificate.
+     */
+    certificateCreate: (
+      { body }: { body: CertificateCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/system/certificates`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a certificate
+     */
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<Certificate>({
+        path: `/system/certificates/${certificate}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a certificate
+     */
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<void>({
+        path: `/system/certificates/${certificate}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
      * List racks
      */
     rackList: (
@@ -4620,6 +4838,24 @@ export class Api extends HttpClient {
         path: `/system/ip-pools-service/ranges/remove`,
         method: 'POST',
         body,
+        ...params,
+      })
+    },
+    /**
+     * Access metrics data
+     */
+    systemMetric: (
+      {
+        path,
+        query = {},
+      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { metricName } = path
+      return this.request<MeasurementResultsPage>({
+        path: `/system/metrics/${metricName}`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -4934,6 +5170,68 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List disks
+     */
+    diskListV1: (
+      { query = {} }: { query?: DiskListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<DiskResultsPage>({
+        path: `/v1/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a disk
+     */
+    diskCreateV1: (
+      { query = {}, body }: { query?: DiskCreateV1QueryParams; body: DiskCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/disks`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a disk
+     */
+    diskViewV1: (
+      { path, query = {} }: { path: DiskViewV1PathParams; query?: DiskViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { disk } = path
+      return this.request<Disk>({
+        path: `/v1/disks/${disk}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete a disk
+     */
+    diskDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: DiskDeleteV1PathParams; query?: DiskDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { disk } = path
+      return this.request<void>({
+        path: `/v1/disks/${disk}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List instances
      */
     instanceListV1: (
@@ -4994,6 +5292,63 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/instances/${instance}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    instanceDiskListV1: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceDiskListV1PathParams; query?: InstanceDiskListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<DiskResultsPage>({
+        path: `/v1/instances/${instance}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    instanceDiskAttachV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskAttachV1PathParams
+        query?: InstanceDiskAttachV1QueryParams
+        body: DiskPath
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Disk>({
+        path: `/v1/instances/${instance}/disks/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    instanceDiskDetachV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskDetachV1PathParams
+        query?: InstanceDiskDetachV1QueryParams
+        body: DiskPath
+      },
+      params: RequestParams = {}
+    ) => {
+      const { instance } = path
+      return this.request<Disk>({
+        path: `/v1/instances/${instance}/disks/detach`,
+        method: 'POST',
+        body,
         query,
         ...params,
       })
@@ -5363,6 +5718,34 @@ export class Api extends HttpClient {
         path: `/v1/system/update/components`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * List all update deployments
+     */
+    systemUpdateDeploymentsList: (
+      { query = {} }: { query?: SystemUpdateDeploymentsListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SystemUpdateDeploymentResultsPage>({
+        path: `/v1/system/update/deployments`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a system update deployment
+     */
+    systemUpdateDeploymentView: (
+      { path }: { path: SystemUpdateDeploymentViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { id } = path
+      return this.request<SystemUpdateDeployment>({
+        path: `/v1/system/update/deployments/${id}`,
+        method: 'GET',
         ...params,
       })
     },

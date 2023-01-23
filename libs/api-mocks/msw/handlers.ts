@@ -939,6 +939,10 @@ export const handlers = makeHandlers({
       status: { status: 'steady', reason: 'completed' },
     }
   },
+  systemUpdateDeploymentsList: NotImplemented,
+  systemUpdateDeploymentView: NotImplemented,
+
+  systemMetric: NotImplemented,
 
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
@@ -954,6 +958,10 @@ export const handlers = makeHandlers({
   vpcSubnetViewById: lookupById(db.vpcSubnets),
   vpcViewById: lookupById(db.vpcs),
 
+  certificateCreate: NotImplemented,
+  certificateDelete: NotImplemented,
+  certificateList: NotImplemented,
+  certificateView: NotImplemented,
   instanceMigrate: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
@@ -995,8 +1003,15 @@ export const handlers = makeHandlers({
   localIdpUserSetPassword: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
 
+  diskCreateV1: NotImplemented,
+  diskDeleteV1: NotImplemented,
+  diskListV1: NotImplemented,
+  diskViewV1: NotImplemented,
   instanceCreateV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
+  instanceDiskAttachV1: NotImplemented,
+  instanceDiskDetachV1: NotImplemented,
+  instanceDiskListV1: NotImplemented,
   instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceRebootV1: NotImplemented,

@@ -439,6 +439,20 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.IpPool>
   /** `GET /system/by-id/silos/:id` */
   siloViewById: (params: { path: Api.SiloViewByIdPathParams }) => HandlerResult<Api.Silo>
+  /** `GET /system/certificates` */
+  certificateList: (params: {
+    query: Api.CertificateListQueryParams
+  }) => HandlerResult<Api.CertificateResultsPage>
+  /** `POST /system/certificates` */
+  certificateCreate: (params: {
+    body: Json<Api.CertificateCreate>
+  }) => HandlerResult<Api.Certificate>
+  /** `GET /system/certificates/:certificate` */
+  certificateView: (params: {
+    path: Api.CertificateViewPathParams
+  }) => HandlerResult<Api.Certificate>
+  /** `DELETE /system/certificates/:certificate` */
+  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -507,6 +521,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.IpPoolRange>
   /** `POST /system/ip-pools-service/ranges/remove` */
   ipPoolServiceRangeRemove: (params: { body: Json<Api.IpRange> }) => StatusCode
+  /** `GET /system/metrics/:metricName` */
+  systemMetric: (params: {
+    path: Api.SystemMetricPathParams
+    query: Api.SystemMetricQueryParams
+  }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /system/policy` */
@@ -587,6 +606,25 @@ export interface MSWHandlers {
   userList: (params: {
     query: Api.UserListQueryParams
   }) => HandlerResult<Api.UserResultsPage>
+  /** `GET /v1/disks` */
+  diskListV1: (params: {
+    query: Api.DiskListV1QueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
+  /** `POST /v1/disks` */
+  diskCreateV1: (params: {
+    query: Api.DiskCreateV1QueryParams
+    body: Json<Api.DiskCreate>
+  }) => HandlerResult<Api.Disk>
+  /** `GET /v1/disks/:disk` */
+  diskViewV1: (params: {
+    path: Api.DiskViewV1PathParams
+    query: Api.DiskViewV1QueryParams
+  }) => HandlerResult<Api.Disk>
+  /** `DELETE /v1/disks/:disk` */
+  diskDeleteV1: (params: {
+    path: Api.DiskDeleteV1PathParams
+    query: Api.DiskDeleteV1QueryParams
+  }) => StatusCode
   /** `GET /v1/instances` */
   instanceListV1: (params: {
     query: Api.InstanceListV1QueryParams
@@ -606,6 +644,23 @@ export interface MSWHandlers {
     path: Api.InstanceDeleteV1PathParams
     query: Api.InstanceDeleteV1QueryParams
   }) => StatusCode
+  /** `GET /v1/instances/:instance/disks` */
+  instanceDiskListV1: (params: {
+    path: Api.InstanceDiskListV1PathParams
+    query: Api.InstanceDiskListV1QueryParams
+  }) => HandlerResult<Api.DiskResultsPage>
+  /** `POST /v1/instances/:instance/disks/attach` */
+  instanceDiskAttachV1: (params: {
+    path: Api.InstanceDiskAttachV1PathParams
+    query: Api.InstanceDiskAttachV1QueryParams
+    body: Json<Api.DiskPath>
+  }) => HandlerResult<Api.Disk>
+  /** `POST /v1/instances/:instance/disks/detach` */
+  instanceDiskDetachV1: (params: {
+    path: Api.InstanceDiskDetachV1PathParams
+    query: Api.InstanceDiskDetachV1QueryParams
+    body: Json<Api.DiskPath>
+  }) => HandlerResult<Api.Disk>
   /** `POST /v1/instances/:instance/migrate` */
   instanceMigrateV1: (params: {
     path: Api.InstanceMigrateV1PathParams
@@ -705,6 +760,14 @@ export interface MSWHandlers {
   systemComponentVersionList: (params: {
     query: Api.SystemComponentVersionListQueryParams
   }) => HandlerResult<Api.UpdateableComponentResultsPage>
+  /** `GET /v1/system/update/deployments` */
+  systemUpdateDeploymentsList: (params: {
+    query: Api.SystemUpdateDeploymentsListQueryParams
+  }) => HandlerResult<Api.SystemUpdateDeploymentResultsPage>
+  /** `GET /v1/system/update/deployments/:id` */
+  systemUpdateDeploymentView: (params: {
+    path: Api.SystemUpdateDeploymentViewPathParams
+  }) => HandlerResult<Api.SystemUpdateDeployment>
   /** `POST /v1/system/update/refresh` */
   systemUpdateRefresh: () => StatusCode
   /** `POST /v1/system/update/start` */
@@ -1287,6 +1350,22 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['siloViewById'], schema.SiloViewByIdParams, null)
     ),
     rest.get(
+      '/system/certificates',
+      handler(handlers['certificateList'], schema.CertificateListParams, null)
+    ),
+    rest.post(
+      '/system/certificates',
+      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
+    ),
+    rest.get(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateView'], schema.CertificateViewParams, null)
+    ),
+    rest.delete(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
+    ),
+    rest.get(
       '/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -1365,6 +1444,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.post(
       '/system/ip-pools-service/ranges/remove',
       handler(handlers['ipPoolServiceRangeRemove'], null, schema.IpRange)
+    ),
+    rest.get(
+      '/system/metrics/:metricName',
+      handler(handlers['systemMetric'], schema.SystemMetricParams, null)
     ),
     rest.get('/system/policy', handler(handlers['systemPolicyView'], null, null)),
     rest.put(
@@ -1463,6 +1546,19 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['timeseriesSchemaGet'], schema.TimeseriesSchemaGetParams, null)
     ),
     rest.get('/users', handler(handlers['userList'], schema.UserListParams, null)),
+    rest.get('/v1/disks', handler(handlers['diskListV1'], schema.DiskListV1Params, null)),
+    rest.post(
+      '/v1/disks',
+      handler(handlers['diskCreateV1'], schema.DiskCreateV1Params, schema.DiskCreate)
+    ),
+    rest.get(
+      '/v1/disks/:disk',
+      handler(handlers['diskViewV1'], schema.DiskViewV1Params, null)
+    ),
+    rest.delete(
+      '/v1/disks/:disk',
+      handler(handlers['diskDeleteV1'], schema.DiskDeleteV1Params, null)
+    ),
     rest.get(
       '/v1/instances',
       handler(handlers['instanceListV1'], schema.InstanceListV1Params, null)
@@ -1482,6 +1578,26 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/instances/:instance',
       handler(handlers['instanceDeleteV1'], schema.InstanceDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/instances/:instance/disks',
+      handler(handlers['instanceDiskListV1'], schema.InstanceDiskListV1Params, null)
+    ),
+    rest.post(
+      '/v1/instances/:instance/disks/attach',
+      handler(
+        handlers['instanceDiskAttachV1'],
+        schema.InstanceDiskAttachV1Params,
+        schema.DiskPath
+      )
+    ),
+    rest.post(
+      '/v1/instances/:instance/disks/detach',
+      handler(
+        handlers['instanceDiskDetachV1'],
+        schema.InstanceDiskDetachV1Params,
+        schema.DiskPath
+      )
     ),
     rest.post(
       '/v1/instances/:instance/migrate',
@@ -1604,6 +1720,22 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(
         handlers['systemComponentVersionList'],
         schema.SystemComponentVersionListParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/update/deployments',
+      handler(
+        handlers['systemUpdateDeploymentsList'],
+        schema.SystemUpdateDeploymentsListParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/update/deployments/:id',
+      handler(
+        handlers['systemUpdateDeploymentView'],
+        schema.SystemUpdateDeploymentViewParams,
         null
       )
     ),

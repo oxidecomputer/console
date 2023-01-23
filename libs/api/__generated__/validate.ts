@@ -77,6 +77,66 @@ export const BlockSize = z.preprocess(
  */
 export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
 
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export const Name = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .max(63)
+    .regex(
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
+    )
+)
+
+/**
+ * The service intended to use this certificate.
+ */
+export const ServiceUsingCertificate = z.preprocess(
+  processResponseBody,
+  z.enum(['external_api'])
+)
+
+/**
+ * Client view of a {@link Certificate}
+ */
+export const Certificate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    service: ServiceUsingCertificate,
+    timeCreated: DateType,
+    timeModified: DateType,
+  })
+)
+
+/**
+ * Create-time parameters for a {@link Certificate}
+ */
+export const CertificateCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    cert: z.number().min(0).max(255).array(),
+    description: z.string(),
+    key: z.number().min(0).max(255).array(),
+    name: Name,
+    service: ServiceUsingCertificate,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const CertificateResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Certificate.array(), nextPage: z.string().optional() })
+)
+
 export const UpdateableComponentType = z.preprocess(
   processResponseBody,
   z.enum([
@@ -253,21 +313,6 @@ export const Digest = z.preprocess(
 )
 
 /**
- * A name unique within the parent collection
- *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export const Name = z.preprocess(
-  processResponseBody,
-  z
-    .string()
-    .max(63)
-    .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
-    )
-)
-
-/**
  * State of a Disk (primarily: attached or not)
  */
 export const DiskState = z.preprocess(
@@ -326,9 +371,16 @@ export const DiskCreate = z.preprocess(
 )
 
 /**
- * Parameters for the {@link Disk} to be attached or detached to an instance
+ * TODO-v1: Delete this Parameters for the {@link Disk} to be attached or detached to an instance
  */
 export const DiskIdentifier = z.preprocess(processResponseBody, z.object({ name: Name }))
+
+export const NameOrId = z.preprocess(
+  processResponseBody,
+  z.union([z.string().uuid(), Name])
+)
+
+export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameOrId }))
 
 /**
  * A single page of results
@@ -1472,6 +1524,14 @@ export const SystemUpdateDeployment = z.preprocess(
 /**
  * A single page of results
  */
+export const SystemUpdateDeploymentResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SystemUpdateDeployment.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
 export const SystemUpdateResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SystemUpdate.array(), nextPage: z.string().optional() })
@@ -1925,9 +1985,9 @@ export const DiskMetricName = z.preprocess(
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
 )
 
-export const NameOrId = z.preprocess(
+export const SystemMetricName = z.preprocess(
   processResponseBody,
-  z.union([z.string().uuid(), Name])
+  z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
 )
 
 export const DiskViewByIdParams = z.preprocess(
@@ -3122,6 +3182,46 @@ export const SiloViewByIdParams = z.preprocess(
   })
 )
 
+export const CertificateListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameSortMode.optional(),
+    }),
+  })
+)
+
+export const CertificateCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CertificateViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CertificateDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3321,6 +3421,22 @@ export const IpPoolServiceRangeRemoveParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({}),
+  })
+)
+
+export const SystemMetricParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      metricName: SystemMetricName,
+    }),
+    query: z.object({
+      endTime: DateType.optional(),
+      id: z.string().uuid().optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      startTime: DateType.optional(),
+    }),
   })
 )
 
@@ -3559,6 +3675,57 @@ export const UserListParams = z.preprocess(
   })
 )
 
+export const DiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const DiskCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -3598,6 +3765,48 @@ export const InstanceViewV1Params = z.preprocess(
 )
 
 export const InstanceDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskAttachV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceDiskDetachV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3853,6 +4062,28 @@ export const SystemComponentVersionListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const SystemUpdateDeploymentsListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SystemUpdateDeploymentViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      id: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
