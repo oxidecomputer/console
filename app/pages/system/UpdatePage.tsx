@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
@@ -11,19 +12,60 @@ import {
   SoftwareUpdate16Icon,
 } from '@oxide/ui'
 
+import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
 )
 
-UpdatePage.loader = async () => {
+UpdatePageUpdates.loader = async () => {
   await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
   return null
 }
 
-export function UpdatePage() {
+export function UpdatePageUpdates() {
   const { Table, Column } = useQueryTable('systemUpdateList', {})
+
+  return (
+    <>
+      <Outlet />
+      <Table emptyState={<EmptyState />}>
+        <Column
+          accessor="version"
+          cell={linkCell((version) => pb.systemUpdateDetail({ version }))}
+        />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
+      </Table>
+    </>
+  )
+}
+
+export function UpdatePageComponents() {
+  return null
+}
+
+UpdatePageHistory.loader = async () => {
+  await apiQueryClient.prefetchQuery('systemUpdateDeploymentsList', {
+    query: { limit: 10 },
+  })
+  return null
+}
+
+export function UpdatePageHistory() {
+  return null
+}
+
+UpdatePage.loader = async () => {
+  await apiQueryClient.prefetchQuery('systemVersion', {}) // not used yet
+  return null
+}
+
+export function UpdatePage() {
+  const version = useApiQuery('systemVersion', {}).data
+  invariant(version, 'System version must be prefetched')
+
+  const { low, high } = version.versionRange
 
   return (
     <>
@@ -38,23 +80,26 @@ export function UpdatePage() {
 
       <PropertiesTable className="mb-8">
         <PropertiesTable.Row label="status">
-          <Badge color="neutral">Steady</Badge>
+          {version.status.status === 'steady' ? (
+            <Badge color="neutral">Steady</Badge>
+          ) : (
+            <Badge color="notice">Updating</Badge>
+          )}
         </PropertiesTable.Row>
+        {/* TODO: ? icone with tooltip explaining why version is a range */}
         <PropertiesTable.Row label="version">
-          <span className="text-secondary">v1.0.2&ndash;v1.2.4</span>
+          <span className="text-secondary">{low === high ? low : low + '—' + high}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="last updated">
+        {/* <PropertiesTable.Row label="last updated">
           <span className="text-secondary">{new Date().toISOString()}</span>
-        </PropertiesTable.Row>
+        </PropertiesTable.Row> */}
       </PropertiesTable>
-      <Table emptyState={<EmptyState />}>
-        <Column
-          accessor="version"
-          cell={linkCell((version) => pb.systemUpdateDetail({ version }))}
-        />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
-      <Outlet />
+
+      <RouteTabs fullWidth>
+        <Tab to={pb.systemUpdates()}>Updates</Tab>
+        <Tab to={pb.updateableComponents()}>Components</Tab>
+        <Tab to={pb.systemUpdateHistory()}>History</Tab>
+      </RouteTabs>
     </>
   )
 }

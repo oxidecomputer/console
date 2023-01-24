@@ -939,7 +939,7 @@ export const handlers = makeHandlers({
       status: { status: 'steady', reason: 'completed' },
     }
   },
-  systemUpdateDeploymentsList: NotImplemented,
+  systemUpdateDeploymentsList: () => ({ items: [] }),
   systemUpdateDeploymentView: NotImplemented,
 
   systemMetric: NotImplemented,

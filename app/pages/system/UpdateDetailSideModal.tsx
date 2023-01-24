@@ -46,7 +46,7 @@ export function UpdateDetailSideModal() {
     path: useUpdateParams(),
   })
 
-  const dismiss = () => navigate(pb.systemUpdate())
+  const dismiss = () => navigate(pb.systemUpdates())
 
   const startUpdate = useApiMutation('systemUpdateStart', {
     onSuccess() {

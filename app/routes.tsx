@@ -49,7 +49,12 @@ import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-import { UpdatePage } from './pages/system/UpdatePage'
+import {
+  UpdatePage,
+  UpdatePageComponents,
+  UpdatePageHistory,
+  UpdatePageUpdates,
+} from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const MetricsTab = React.lazy(
@@ -102,10 +107,23 @@ export const routes = createRoutesFromElements(
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
         <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
+          <Route index element={<Navigate to="updates" replace />} />
           <Route
-            path="updates/:version"
-            element={<UpdateDetailSideModal />}
-            loader={UpdateDetailSideModal.loader}
+            path="updates"
+            element={<UpdatePageUpdates />}
+            loader={UpdatePageUpdates.loader}
+          >
+            <Route
+              path=":version"
+              element={<UpdateDetailSideModal />}
+              loader={UpdateDetailSideModal.loader}
+            />
+          </Route>
+          <Route path="components" element={<UpdatePageComponents />} />
+          <Route
+            path="history"
+            element={<UpdatePageHistory />}
+            loader={UpdatePageHistory.loader}
           />
         </Route>
         <Route path="networking" element={null} />
