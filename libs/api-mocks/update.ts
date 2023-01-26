@@ -1,3 +1,5 @@
+import semverRCompare from 'semver/functions/rcompare'
+
 import type { ComponentUpdate, SystemUpdate } from '@oxide/gen/Api'
 
 import type { Json } from './json-type'
@@ -13,7 +15,20 @@ export const systemUpdate1: Json<SystemUpdate> = {
   ...timestamps,
 }
 
-export const systemUpdates: Json<SystemUpdate[]> = [systemUpdate1]
+export const systemUpdate2: Json<SystemUpdate> = {
+  id: 'dd802504-1b50-4720-ae60-1369b90fd5ea',
+  version: '2.0.0',
+  ...timestamps,
+}
+
+export function sortBySemverDesc(updates: Json<SystemUpdate[]>): Json<SystemUpdate[]> {
+  return updates.sort((a, b) => semverRCompare(a.version, b.version))
+}
+
+export const systemUpdates: Json<SystemUpdate[]> = sortBySemverDesc([
+  systemUpdate1,
+  systemUpdate2,
+])
 
 // WIP: a more natural way of expressing the mock tree. needs API changes to
 // let me represent the PSC as the parent of the PSC RoT and PSC SP, and possibly
