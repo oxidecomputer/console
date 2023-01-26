@@ -933,6 +933,11 @@ export const handlers = makeHandlers({
     }
   },
 
+  certificateList: NotImplemented,
+  certificateCreate: NotImplemented,
+  certificateView: NotImplemented,
+  certificateDelete: NotImplemented,
+
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
   instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),

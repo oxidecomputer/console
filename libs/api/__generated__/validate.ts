@@ -78,6 +78,66 @@ export const BlockSize = z.preprocess(
 export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
 
 /**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export const Name = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .max(63)
+    .regex(
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
+    )
+)
+
+/**
+ * The service intended to use this certificate.
+ */
+export const ServiceUsingCertificate = z.preprocess(
+  processResponseBody,
+  z.enum(['external_api'])
+)
+
+/**
+ * Client view of a {@link Certificate}
+ */
+export const Certificate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    service: ServiceUsingCertificate,
+    timeCreated: DateType,
+    timeModified: DateType,
+  })
+)
+
+/**
+ * Create-time parameters for a {@link Certificate}
+ */
+export const CertificateCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    cert: z.number().min(0).max(255).array(),
+    description: z.string(),
+    key: z.number().min(0).max(255).array(),
+    name: Name,
+    service: ServiceUsingCertificate,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const CertificateResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Certificate.array(), nextPage: z.string().optional() })
+)
+
+/**
  * A cumulative or counter data type.
  */
 export const Cumulativedouble = z.preprocess(
@@ -204,21 +264,6 @@ export const DeviceAuthVerify = z.preprocess(
 export const Digest = z.preprocess(
   processResponseBody,
   z.object({ type: z.enum(['sha256']), value: z.string() })
-)
-
-/**
- * A name unique within the parent collection
- *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export const Name = z.preprocess(
-  processResponseBody,
-  z
-    .string()
-    .max(63)
-    .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
-    )
 )
 
 /**
@@ -2992,6 +3037,46 @@ export const SiloViewByIdParams = z.preprocess(
   z.object({
     path: z.object({
       id: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CertificateListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameSortMode.optional(),
+    }),
+  })
+)
+
+export const CertificateCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CertificateViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CertificateDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
     }),
     query: z.object({}),
   })
