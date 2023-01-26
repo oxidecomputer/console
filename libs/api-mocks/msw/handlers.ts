@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -9,6 +9,7 @@ import { genCumulativeI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
+import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
 import {
   db,
@@ -923,25 +924,43 @@ export const handlers = makeHandlers({
     return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
   },
 
-  systemComponentVersionList: NotImplemented,
-  systemUpdateStart: () => ({
-    id: 'update-deployment-id',
-    version: '1.0.0',
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    status: { status: 'updating' },
-  }),
+  systemComponentVersionList: (params) => paginated(params.query, db.updateableComponents),
+
+  systemUpdateStart: ({ body }) => {
+    const latestDeployment = db.updateDeployments[0]
+    if (latestDeployment?.status.status === 'updating') {
+      // TODO: do nothing, return some kind of failure
+    }
+
+    const newDeployment: Json<UpdateDeployment> = {
+      id: uuid(),
+      version: body.version,
+      status: { status: 'updating' },
+      ...getTimestamps(),
+    }
+
+    // add to the beginning of to he list to maintain sort by most recent
+    db.updateDeployments = [newDeployment, ...db.updateDeployments]
+
+    return newDeployment
+  },
   systemUpdateStop: () => 204,
   systemUpdateRefresh: NotImplemented,
 
   systemVersion() {
+    const sortedComponents = sortBySemverDesc(db.updateableComponents)
+    const low = sortedComponents[sortedComponents.length - 1].version
+    const high = sortedComponents[0].version
+
+    // assume they're sorted by most recent first
+    const latestDeployment = db.updateDeployments[0]
     return {
-      version_range: { low: '1.0.0', high: '2.0.0' },
-      status: { status: 'steady', reason: 'completed' },
+      version_range: { low, high },
+      status: latestDeployment.status,
     }
   },
-  updateDeploymentsList: () => ({ items: [] }),
-  updateDeploymentView: NotImplemented,
+  updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
+  updateDeploymentView: lookupById(db.updateDeployments),
 
   systemMetric: NotImplemented,
 

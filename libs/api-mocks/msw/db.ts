@@ -192,6 +192,8 @@ const initDb = {
   componentUpdates: [...mock.componentUpdates],
   systemUpdates: [...mock.systemUpdates],
   systemUpdateComponentUpdates: [...mock.systemUpdateComponentUpdates],
+  updateableComponents: [...mock.updateableComponents],
+  updateDeployments: [...mock.updateDeployments],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],

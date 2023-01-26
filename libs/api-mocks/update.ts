@@ -1,6 +1,11 @@
 import semverRCompare from 'semver/functions/rcompare'
 
-import type { ComponentUpdate, SystemUpdate } from '@oxide/gen/Api'
+import type {
+  ComponentUpdate,
+  SystemUpdate,
+  UpdateDeployment,
+  UpdateableComponent,
+} from '@oxide/gen/Api'
 
 import type { Json } from './json-type'
 
@@ -10,7 +15,7 @@ const timestamps = {
 }
 
 export const systemUpdate1: Json<SystemUpdate> = {
-  id: 'dd802504-1b50-4720-ae60-1369b90fd5ea',
+  id: '14321d42-e4d7-4796-97d4-fabad5ab352d',
   version: '1.0.0',
   ...timestamps,
 }
@@ -21,8 +26,9 @@ export const systemUpdate2: Json<SystemUpdate> = {
   ...timestamps,
 }
 
-export function sortBySemverDesc(updates: Json<SystemUpdate[]>): Json<SystemUpdate[]> {
-  return updates.sort((a, b) => semverRCompare(a.version, b.version))
+export function sortBySemverDesc<T extends { version: string }>(updates: T[]): T[] {
+  const copy = [...updates] // don't sort the original, that would be confusing
+  return copy.sort((a, b) => semverRCompare(a.version, b.version))
 }
 
 export const systemUpdates: Json<SystemUpdate[]> = sortBySemverDesc([
@@ -155,3 +161,31 @@ export const systemUpdateComponentUpdates: SystemUpdateComponentUpdate[] =
     system_update_id: systemUpdate1.id,
     component_update_id: id,
   }))
+
+export const updateableComponents: Json<UpdateableComponent[]> = [
+  {
+    id: '275cfce8-3897-4778-946f-53cde00c7d65',
+    version: '1.0.0',
+    component_type: 'helios_host_phase1',
+    device_id: 'abc',
+    status: { status: 'steady' },
+    ...timestamps,
+  },
+  {
+    id: '39e86b41-9f12-4e16-b59a-aed742a03814',
+    version: '0.2.0',
+    component_type: 'hubris_for_psc_rot',
+    device_id: 'abc',
+    status: { status: 'steady' },
+    ...timestamps,
+  },
+]
+
+export const updateDeployments: Json<UpdateDeployment[]> = [
+  {
+    id: 'f3d4dc98-8f75-4b93-95c7-264163074661',
+    version: '1.0.0',
+    status: { status: 'updating' },
+    ...timestamps,
+  },
+]

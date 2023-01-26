@@ -1,7 +1,8 @@
 import { Outlet } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import type { UpdateStatus, UpdateableComponentType } from '@oxide/api'
+import { apiQueryClient, componentTypeNames, useApiQuery } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
@@ -19,6 +20,12 @@ const EmptyState = () => (
   <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
 )
 
+const StatusBadge = ({ status }: { status: UpdateStatus['status'] }) =>
+  status === 'steady' ? (
+    <Badge color="neutral">Steady</Badge>
+  ) : (
+    <Badge color="notice">Updating</Badge>
+  )
 UpdatePageUpdates.loader = async () => {
   await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
   return null
@@ -41,8 +48,32 @@ export function UpdatePageUpdates() {
   )
 }
 
-export function UpdatePageComponents() {
+UpdatePageComponents.loader = async () => {
+  await apiQueryClient.prefetchQuery('systemComponentVersionList', {
+    query: { limit: 10 },
+  })
   return null
+}
+
+export function UpdatePageComponents() {
+  const { Table, Column } = useQueryTable('systemComponentVersionList', {})
+
+  return (
+    <>
+      <Outlet />
+      <Table emptyState={<EmptyState />}>
+        <Column
+          accessor="componentType"
+          header="Type"
+          cell={({ value }: { value: UpdateableComponentType }) => (
+            <>{componentTypeNames[value]}</>
+          )}
+        />
+        <Column accessor="version" />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
+      </Table>
+    </>
+  )
 }
 
 UpdatePageHistory.loader = async () => {
@@ -53,7 +84,23 @@ UpdatePageHistory.loader = async () => {
 }
 
 export function UpdatePageHistory() {
-  return null
+  const { Table, Column } = useQueryTable('updateDeploymentsList', {})
+
+  return (
+    <>
+      <Outlet />
+      <Table emptyState={<EmptyState />}>
+        <Column accessor="version" />
+        <Column
+          accessor="status.status"
+          header="Status"
+          cell={({ value }) => <StatusBadge status={value} />}
+        />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
+        <Column accessor="timeModified" header="Updated" cell={DateCell} />
+      </Table>
+    </>
+  )
 }
 
 UpdatePage.loader = async () => {
@@ -80,11 +127,7 @@ export function UpdatePage() {
 
       <PropertiesTable className="mb-8">
         <PropertiesTable.Row label="status">
-          {version.status.status === 'steady' ? (
-            <Badge color="neutral">Steady</Badge>
-          ) : (
-            <Badge color="notice">Updating</Badge>
-          )}
+          <StatusBadge status={version.status.status} />
         </PropertiesTable.Row>
         {/* TODO: ? icone with tooltip explaining why version is a range */}
         <PropertiesTable.Row label="version">
