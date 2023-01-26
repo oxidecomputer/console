@@ -70,6 +70,59 @@ export type BlockSize = 512 | 2048 | 4096
 export type ByteCount = number
 
 /**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type Name = string
+
+/**
+ * The service intended to use this certificate.
+ */
+export type ServiceUsingCertificate = 'external_api'
+
+/**
+ * Client view of a {@link Certificate}
+ */
+export type Certificate = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  service: ServiceUsingCertificate
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a {@link Certificate}
+ */
+export type CertificateCreate = {
+  /** PEM file containing public certificate chain */
+  cert: number[]
+  description: string
+  /** PEM file containing private key */
+  key: number[]
+  name: Name
+  /** The service using this certificate */
+  service: ServiceUsingCertificate
+}
+
+/**
+ * A single page of results
+ */
+export type CertificateResultsPage = {
+  /** list of items on this page of results */
+  items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
  * A cumulative or counter data type.
  */
 export type Cumulativedouble = { startTime: Date; value: number }
@@ -171,13 +224,6 @@ export type DeviceAuthRequest = { clientId: string }
 export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
-
-/**
- * A name unique within the parent collection
- *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export type Name = string
 
 /**
  * State of a Disk (primarily: attached or not)
@@ -1269,7 +1315,11 @@ export type SiloRolePolicy = {
 export type Sled = {
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  partNumber?: string
+  revision?: number
+  serialNumber?: string
   serviceAddress: string
+  slot?: number
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -2364,6 +2414,20 @@ export interface SiloViewByIdPathParams {
   id: string
 }
 
+export interface CertificateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface CertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface CertificateDeletePathParams {
+  certificate: NameOrId
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -2814,6 +2878,7 @@ export type ApiListMethods = Pick<
   | 'vpcSubnetList'
   | 'roleList'
   | 'sessionSshkeyList'
+  | 'certificateList'
   | 'rackList'
   | 'sledList'
   | 'systemImageList'
@@ -4295,6 +4360,62 @@ export class Api extends HttpClient {
       return this.request<Silo>({
         path: `/system/by-id/silos/${id}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List system-wide certificates
+     */
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/system/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new system-wide x.509 certificate.
+     */
+    certificateCreate: (
+      { body }: { body: CertificateCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/system/certificates`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a certificate
+     */
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<Certificate>({
+        path: `/system/certificates/${certificate}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a certificate
+     */
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<void>({
+        path: `/system/certificates/${certificate}`,
+        method: 'DELETE',
         ...params,
       })
     },

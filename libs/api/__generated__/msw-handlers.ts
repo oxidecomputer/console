@@ -439,6 +439,20 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.IpPool>
   /** `GET /system/by-id/silos/:id` */
   siloViewById: (params: { path: Api.SiloViewByIdPathParams }) => HandlerResult<Api.Silo>
+  /** `GET /system/certificates` */
+  certificateList: (params: {
+    query: Api.CertificateListQueryParams
+  }) => HandlerResult<Api.CertificateResultsPage>
+  /** `POST /system/certificates` */
+  certificateCreate: (params: {
+    body: Json<Api.CertificateCreate>
+  }) => HandlerResult<Api.Certificate>
+  /** `GET /system/certificates/:certificate` */
+  certificateView: (params: {
+    path: Api.CertificateViewPathParams
+  }) => HandlerResult<Api.Certificate>
+  /** `DELETE /system/certificates/:certificate` */
+  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -766,16 +780,10 @@ function validateParams<S extends ZodSchema>(schema: S, req: RestRequest) {
     path: req.params,
     query: Object.fromEntries(params),
   })
-
   if (result.success) {
     return { params: result.data }
   }
-
-  // if any of the errors come from path params, just 404 — the resource cannot
-  // exist if there's no valid name
-  const { issues } = result.error
-  const status = issues.some((e) => e.path[0] === 'path') ? 404 : 400
-  return { paramsErr: json(issues, { status }) }
+  return { paramsErr: json(result.error.issues, { status: 400 }) }
 }
 
 const handler =
@@ -1302,6 +1310,22 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/system/by-id/silos/:id',
       handler(handlers['siloViewById'], schema.SiloViewByIdParams, null)
+    ),
+    rest.get(
+      '/system/certificates',
+      handler(handlers['certificateList'], schema.CertificateListParams, null)
+    ),
+    rest.post(
+      '/system/certificates',
+      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
+    ),
+    rest.get(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateView'], schema.CertificateViewParams, null)
+    ),
+    rest.delete(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
     ),
     rest.get(
       '/system/hardware/racks',
