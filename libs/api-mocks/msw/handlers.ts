@@ -929,6 +929,7 @@ export const handlers = makeHandlers({
     version: '1.0.0',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
+    status: { status: 'updating' },
   }),
   systemUpdateStop: () => 204,
   systemUpdateRefresh: NotImplemented,
@@ -939,8 +940,8 @@ export const handlers = makeHandlers({
       status: { status: 'steady', reason: 'completed' },
     }
   },
-  systemUpdateDeploymentsList: () => ({ items: [] }),
-  systemUpdateDeploymentView: NotImplemented,
+  updateDeploymentsList: () => ({ items: [] }),
+  updateDeploymentView: NotImplemented,
 
   systemMetric: NotImplemented,
 

@@ -168,7 +168,6 @@ export const ComponentUpdate = z.preprocess(
   z.object({
     componentType: UpdateableComponentType,
     id: z.string().uuid(),
-    parentId: z.string().uuid().optional(),
     timeCreated: DateType,
     timeModified: DateType,
     version: SemverVersion,
@@ -1509,27 +1508,6 @@ export const SystemUpdate = z.preprocess(
 )
 
 /**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export const SystemUpdateDeployment = z.preprocess(
-  processResponseBody,
-  z.object({
-    id: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const SystemUpdateDeploymentResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: SystemUpdateDeployment.array(), nextPage: z.string().optional() })
-)
-
-/**
  * A single page of results
  */
 export const SystemUpdateResultsPage = z.preprocess(
@@ -1542,16 +1520,11 @@ export const SystemUpdateStart = z.preprocess(
   z.object({ version: SemverVersion })
 )
 
-export const VersionSteadyReason = z.preprocess(
-  processResponseBody,
-  z.enum(['completed', 'stopped', 'failed'])
-)
-
-export const VersionStatus = z.preprocess(
+export const UpdateStatus = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ status: z.enum(['updating']), target: SemverVersion }),
-    z.object({ reason: VersionSteadyReason, status: z.enum(['steady']) }),
+    z.object({ status: z.enum(['updating']) }),
+    z.object({ status: z.enum(['steady']) }),
   ])
 )
 
@@ -1562,7 +1535,7 @@ export const VersionRange = z.preprocess(
 
 export const SystemVersion = z.preprocess(
   processResponseBody,
-  z.object({ status: VersionStatus, versionRange: VersionRange })
+  z.object({ status: UpdateStatus, versionRange: VersionRange })
 )
 
 /**
@@ -1601,13 +1574,35 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
 /**
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
  */
+export const UpdateDeployment = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    status: UpdateStatus,
+    timeCreated: DateType,
+    timeModified: DateType,
+    version: SemverVersion,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const UpdateDeploymentResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: UpdateDeployment.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
 export const UpdateableComponent = z.preprocess(
   processResponseBody,
   z.object({
     componentType: UpdateableComponentType,
     deviceId: z.string(),
     id: z.string().uuid(),
-    parentId: z.string().uuid().optional(),
+    status: UpdateStatus,
     timeCreated: DateType,
     timeModified: DateType,
     version: SemverVersion,
@@ -4065,7 +4060,7 @@ export const SystemComponentVersionListParams = z.preprocess(
   })
 )
 
-export const SystemUpdateDeploymentsListParams = z.preprocess(
+export const UpdateDeploymentsListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -4077,7 +4072,7 @@ export const SystemUpdateDeploymentsListParams = z.preprocess(
   })
 )
 
-export const SystemUpdateDeploymentViewParams = z.preprocess(
+export const UpdateDeploymentViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

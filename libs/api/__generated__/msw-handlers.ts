@@ -761,19 +761,19 @@ export interface MSWHandlers {
     query: Api.SystemComponentVersionListQueryParams
   }) => HandlerResult<Api.UpdateableComponentResultsPage>
   /** `GET /v1/system/update/deployments` */
-  systemUpdateDeploymentsList: (params: {
-    query: Api.SystemUpdateDeploymentsListQueryParams
-  }) => HandlerResult<Api.SystemUpdateDeploymentResultsPage>
+  updateDeploymentsList: (params: {
+    query: Api.UpdateDeploymentsListQueryParams
+  }) => HandlerResult<Api.UpdateDeploymentResultsPage>
   /** `GET /v1/system/update/deployments/:id` */
-  systemUpdateDeploymentView: (params: {
-    path: Api.SystemUpdateDeploymentViewPathParams
-  }) => HandlerResult<Api.SystemUpdateDeployment>
+  updateDeploymentView: (params: {
+    path: Api.UpdateDeploymentViewPathParams
+  }) => HandlerResult<Api.UpdateDeployment>
   /** `POST /v1/system/update/refresh` */
   systemUpdateRefresh: () => StatusCode
   /** `POST /v1/system/update/start` */
   systemUpdateStart: (params: {
     body: Json<Api.SystemUpdateStart>
-  }) => HandlerResult<Api.SystemUpdateDeployment>
+  }) => HandlerResult<Api.UpdateDeployment>
   /** `POST /v1/system/update/stop` */
   systemUpdateStop: () => StatusCode
   /** `GET /v1/system/update/updates` */
@@ -1725,19 +1725,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/v1/system/update/deployments',
-      handler(
-        handlers['systemUpdateDeploymentsList'],
-        schema.SystemUpdateDeploymentsListParams,
-        null
-      )
+      handler(handlers['updateDeploymentsList'], schema.UpdateDeploymentsListParams, null)
     ),
     rest.get(
       '/v1/system/update/deployments/:id',
-      handler(
-        handlers['systemUpdateDeploymentView'],
-        schema.SystemUpdateDeploymentViewParams,
-        null
-      )
+      handler(handlers['updateDeploymentView'], schema.UpdateDeploymentViewParams, null)
     ),
     rest.post(
       '/v1/system/update/refresh',

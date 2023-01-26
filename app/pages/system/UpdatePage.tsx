@@ -46,7 +46,7 @@ export function UpdatePageComponents() {
 }
 
 UpdatePageHistory.loader = async () => {
-  await apiQueryClient.prefetchQuery('systemUpdateDeploymentsList', {
+  await apiQueryClient.prefetchQuery('updateDeploymentsList', {
     query: { limit: 10 },
   })
   return null

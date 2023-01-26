@@ -145,8 +145,6 @@ export type ComponentUpdate = {
   componentType: UpdateableComponentType
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** ID of the parent component. Not present for top-level components. */
-  parentId?: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -1472,29 +1470,6 @@ export type SystemUpdate = {
 }
 
 /**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type SystemUpdateDeployment = {
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type SystemUpdateDeploymentResultsPage = {
-  /** list of items on this page of results */
-  items: SystemUpdateDeployment[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
  * A single page of results
  */
 export type SystemUpdateResultsPage = {
@@ -1506,15 +1481,11 @@ export type SystemUpdateResultsPage = {
 
 export type SystemUpdateStart = { version: SemverVersion }
 
-export type VersionSteadyReason = 'completed' | 'stopped' | 'failed'
-
-export type VersionStatus =
-  | { status: 'updating'; target: SemverVersion }
-  | { reason: VersionSteadyReason; status: 'steady' }
+export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
 
 export type VersionRange = { high: SemverVersion; low: SemverVersion }
 
-export type SystemVersion = { status: VersionStatus; versionRange: VersionRange }
+export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
 
 /**
  * The name of a timeseries
@@ -1548,13 +1519,36 @@ export type TimeseriesSchemaResultsPage = {
 /**
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
  */
+export type UpdateDeployment = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  status: UpdateStatus
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateDeploymentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateDeployment[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
 export type UpdateableComponent = {
   componentType: UpdateableComponentType
   deviceId: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** ID of the parent component, e.g., the sled a disk belongs to. Value will be `None` for top-level components whose "parent" is the rack. */
-  parentId?: string
+  status: UpdateStatus
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -2970,13 +2964,13 @@ export interface SystemComponentVersionListQueryParams {
   sortBy?: IdSortMode
 }
 
-export interface SystemUpdateDeploymentsListQueryParams {
+export interface UpdateDeploymentsListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface SystemUpdateDeploymentViewPathParams {
+export interface UpdateDeploymentViewPathParams {
   id: string
 }
 
@@ -3045,7 +3039,7 @@ export type ApiListMethods = Pick<
   | 'systemUserList'
   | 'userList'
   | 'systemComponentVersionList'
-  | 'systemUpdateDeploymentsList'
+  | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
 >
@@ -5724,11 +5718,11 @@ export class Api extends HttpClient {
     /**
      * List all update deployments
      */
-    systemUpdateDeploymentsList: (
-      { query = {} }: { query?: SystemUpdateDeploymentsListQueryParams },
+    updateDeploymentsList: (
+      { query = {} }: { query?: UpdateDeploymentsListQueryParams },
       params: RequestParams = {}
     ) => {
-      return this.request<SystemUpdateDeploymentResultsPage>({
+      return this.request<UpdateDeploymentResultsPage>({
         path: `/v1/system/update/deployments`,
         method: 'GET',
         query,
@@ -5738,12 +5732,12 @@ export class Api extends HttpClient {
     /**
      * Fetch a system update deployment
      */
-    systemUpdateDeploymentView: (
-      { path }: { path: SystemUpdateDeploymentViewPathParams },
+    updateDeploymentView: (
+      { path }: { path: UpdateDeploymentViewPathParams },
       params: RequestParams = {}
     ) => {
       const { id } = path
-      return this.request<SystemUpdateDeployment>({
+      return this.request<UpdateDeployment>({
         path: `/v1/system/update/deployments/${id}`,
         method: 'GET',
         ...params,
@@ -5766,7 +5760,7 @@ export class Api extends HttpClient {
       { body }: { body: SystemUpdateStart },
       params: RequestParams = {}
     ) => {
-      return this.request<SystemUpdateDeployment>({
+      return this.request<UpdateDeployment>({
         path: `/v1/system/update/start`,
         method: 'POST',
         body,

@@ -105,62 +105,45 @@ Rack─┬─PSC─┬─RoT──Hubris Archive ABCD
 
 // console.dir(componentUpdates)
 
-export const componentUpdate1: Json<ComponentUpdate> = {
-  id: 'df9f1550-ce9d-4d9b-abc7-a75706a4a7c8',
-  component_type: 'bootloader_for_rot',
-  version: '1.0.0',
-  ...timestamps,
-}
-
-export const componentUpdate2: Json<ComponentUpdate> = {
-  id: 'd656468a-b891-4902-bfbe-43ff9cb1b1fb',
-  component_type: 'bootloader_for_rot',
-  version: '2.0.0',
-  parent_id: componentUpdate1.id,
-  ...timestamps,
-}
-
-export const componentUpdate3: Json<ComponentUpdate> = {
-  id: '95e724e3-2f7f-4d44-9a4e-defac158361b',
-  component_type: 'bootloader_for_rot',
-  version: '3.0.0',
-  parent_id: componentUpdate1.id,
-  ...timestamps,
-}
-
-export const componentUpdates: Json<ComponentUpdate[]> = [
-  componentUpdate1,
-  componentUpdate2,
-  componentUpdate3,
-  {
-    id: '4008ead5-1b19-48ba-abe2-be006e280252',
-    component_type: 'bootloader_for_rot',
-    version: '4.0.0',
-    parent_id: componentUpdate1.id,
-    ...timestamps,
-  },
-  {
-    id: '157eae35-ce79-4c31-8ce8-c3479103b280',
-    component_type: 'bootloader_for_rot',
-    version: '5.0.0',
-    parent_id: componentUpdate2.id,
-    ...timestamps,
-  },
-  {
-    id: '763768a0-2b4d-4abd-852a-53df1c35b293',
-    component_type: 'bootloader_for_rot',
-    version: '6.0.0',
-    parent_id: componentUpdate2.id,
-    ...timestamps,
-  },
-  {
-    id: '8e055fe5-ec97-46ca-be78-45e8ef543094',
-    component_type: 'bootloader_for_rot',
-    version: '7.0.0',
-    parent_id: componentUpdate3.id,
-    ...timestamps,
-  },
-]
+export const componentUpdates: Json<ComponentUpdate[]> = (
+  [
+    {
+      id: 'df9f1550-ce9d-4d9b-abc7-a75706a4a7c8',
+      component_type: 'bootloader_for_rot',
+      version: '1.0.0',
+    },
+    {
+      id: 'd656468a-b891-4902-bfbe-43ff9cb1b1fb',
+      component_type: 'bootloader_for_host_proc',
+      version: '2.0.0',
+    },
+    {
+      id: '95e724e3-2f7f-4d44-9a4e-defac158361b',
+      component_type: 'bootloader_for_sp',
+      version: '3.0.0',
+    },
+    {
+      id: '4008ead5-1b19-48ba-abe2-be006e280252',
+      component_type: 'helios_host_phase1',
+      version: '4.0.0',
+    },
+    {
+      id: '157eae35-ce79-4c31-8ce8-c3479103b280',
+      component_type: 'helios_host_phase2',
+      version: '5.0.0',
+    },
+    {
+      id: '763768a0-2b4d-4abd-852a-53df1c35b293',
+      component_type: 'host_omicron',
+      version: '6.0.0',
+    },
+    {
+      id: '8e055fe5-ec97-46ca-be78-45e8ef543094',
+      component_type: 'hubris_for_gimlet_rot',
+      version: '7.0.0',
+    },
+  ] as const
+).map((o) => ({ ...o, ...timestamps }))
 
 type SystemUpdateComponentUpdate = {
   system_update_id: string

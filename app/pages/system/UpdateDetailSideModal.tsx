@@ -1,11 +1,9 @@
-import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import type { ComponentUpdate } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { componentTypeNames } from '@oxide/api'
-import { apiQueryClient, listToTree, useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Badge, Hourglass16Icon } from '@oxide/ui'
 
 import { SideModalForm } from 'app/components/form'
@@ -19,21 +17,6 @@ UpdateDetailSideModal.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('systemUpdateComponentsList', { path }),
   ])
   return null
-}
-
-type ComponentNode = ComponentUpdate & { children: ComponentNode[] }
-
-function Tree({ tree }: { tree: ComponentNode[] }) {
-  return (
-    <ul className="ml-8 list-disc">
-      {tree.map((node) => (
-        <li key={node.id}>
-          {componentTypeNames[node.componentType]} <Badge>{node.version}</Badge>
-          <Tree tree={node.children} />
-        </li>
-      ))}
-    </ul>
-  )
 }
 
 export function UpdateDetailSideModal() {
@@ -60,11 +43,6 @@ export function UpdateDetailSideModal() {
     },
   })
 
-  const tree = useMemo(
-    () => (components ? listToTree(components.items) : null),
-    [components]
-  )
-
   return (
     <SideModalForm
       id="system-update-detail"
@@ -82,7 +60,13 @@ export function UpdateDetailSideModal() {
       {() => (
         <>
           <h1 className="mb-4 text-sans-xl">Components in this update</h1>
-          {tree && <Tree tree={tree} />}
+          <ul className="ml-8 list-disc">
+            {(components?.items || []).map((node) => (
+              <li key={node.id}>
+                {componentTypeNames[node.componentType]} <Badge>{node.version}</Badge>
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </SideModalForm>
