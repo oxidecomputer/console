@@ -1,4 +1,4 @@
-import { genName, listToTree, parsePortRange } from './util'
+import { genName, parsePortRange } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
@@ -48,22 +48,4 @@ test('genName', () => {
     expect(doublePartName.length).toBeLessThanOrEqual(63)
     expect(doublePartName).toMatch(/^a+-b+-[0-9a-f]{6}$/)
   }
-})
-
-const nodeA = { id: 'a' }
-const nodeB = { id: 'b', parentId: 'a' }
-const nodeC = { id: 'c', parentId: 'a' }
-const nodeD = { id: 'd', parentId: 'b' }
-
-test('listToTree', () => {
-  expect(listToTree([])).toEqual([])
-  expect(listToTree([nodeA, nodeB, nodeC, nodeD])).toEqual([
-    {
-      ...nodeA,
-      children: [
-        { ...nodeB, children: [{ ...nodeD, children: [] }] },
-        { ...nodeC, children: [] },
-      ],
-    },
-  ])
 })

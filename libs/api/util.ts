@@ -1,5 +1,5 @@
 /// Helpers for working with API objects
-import { groupBy, partitionBy, pick } from '@oxide/util'
+import { pick } from '@oxide/util'
 
 import type {
   UpdateableComponentType,
@@ -59,38 +59,7 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-// In rather unscientific testing, optimized version showed 20-50x speedup, with
-// times around 1ms for 1200 nodes and two levels of nesting.
-
-// export function listToTreeSlow<T extends { id: string; parentId?: string }>(
-//   items: T[],
-//   parentId?: string | undefined
-// ): Node<T>[] {
-//   return items
-//     .filter((i) => i.parentId === parentId)
-//     .map((o) => ({ ...o, children: listToTreeSlow(items, o.id) }))
-// }
-
-type Item = { id: string; parentId?: string }
-type Node<T> = T & { children: Node<T>[] }
-
-export function listToTree<T extends Item>(items: T[]): Node<T>[] {
-  const [rest, roots] = partitionBy(items, (i) => !!i.parentId)
-
-  const parentIdToChildren = Object.fromEntries(groupBy(rest, (i) => i.parentId!))
-
-  function addChildren(parent: T): Node<T> {
-    const children = parentIdToChildren[parent.id] || []
-    return { ...parent, children: children.map(addChildren) }
-  }
-
-  return roots.map(addChildren)
-}
-
-export const componentTypeNames: Record<
-  UpdateableComponentType | UpdateableComponentParent,
-  string
-> = {
+export const componentTypeNames: Record<UpdateableComponentType, string> = {
   bootloader_for_rot: 'Bootloader for RoT',
   bootloader_for_sp: 'Bootloader for SP',
   bootloader_for_host_proc: 'Bootloader for Host Processor',
@@ -103,62 +72,4 @@ export const componentTypeNames: Record<
   helios_host_phase1: 'Helios for Host Phase 1',
   helios_host_phase2: 'Helios for Host Phase 2',
   host_omicron: 'Host Omicron',
-
-  gimlet_rot: 'Gimlet RoT',
-  gimlet_host: 'Gimlet Host',
-  gimlet_sp: 'Gimlet SP',
-  gimlet: 'Gimlet',
-  sidecar_rot: 'Sidecar RoT',
-  sidecar_sp: 'Sidecar SP',
-  sidecar: 'Sidecar',
-  psc_rot: 'PSC RoT',
-  psc_sp: 'PSC SP',
-  psc: 'PSC',
-}
-
-type UpdateableComponentParent =
-  | 'gimlet_rot'
-  | 'gimlet_host'
-  | 'gimlet_sp'
-  | 'gimlet'
-  | 'sidecar_rot'
-  | 'sidecar_sp'
-  | 'sidecar'
-  | 'psc_rot'
-  | 'psc_sp'
-  | 'psc'
-
-export const componentTypeParents: Record<
-  UpdateableComponentType | UpdateableComponentParent,
-  UpdateableComponentParent | 'rack'
-> = {
-  // TODO: get correct answers for these
-  bootloader_for_rot: 'rack',
-  bootloader_for_sp: 'rack',
-  bootloader_for_host_proc: 'rack',
-
-  gimlet: 'rack',
-
-  gimlet_rot: 'gimlet',
-  hubris_for_gimlet_rot: 'gimlet_rot',
-
-  gimlet_sp: 'gimlet',
-  hubris_for_gimlet_sp: 'gimlet_sp',
-
-  gimlet_host: 'gimlet',
-  helios_host_phase1: 'gimlet_host',
-  helios_host_phase2: 'gimlet_host',
-  host_omicron: 'gimlet_host',
-
-  sidecar: 'rack',
-  sidecar_rot: 'sidecar',
-  hubris_for_sidecar_rot: 'sidecar_rot',
-  sidecar_sp: 'sidecar',
-  hubris_for_sidecar_sp: 'sidecar_sp',
-
-  psc: 'rack',
-  psc_rot: 'psc',
-  hubris_for_psc_rot: 'psc_rot',
-  hubris_for_psc_sp: 'psc_sp',
-  psc_sp: 'psc',
 }
