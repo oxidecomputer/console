@@ -1,10 +1,9 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { useApiMutation } from '@oxide/api'
-import { componentTypeNames } from '@oxide/api'
-import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Badge, Hourglass16Icon } from '@oxide/ui'
+import { apiQueryClient, componentTypeNames, useApiMutation, useApiQuery } from '@oxide/api'
+import { Badge, Hourglass16Icon, PropertiesTable, Tab, Tabs } from '@oxide/ui'
+import { formatDateTime } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
 import { requireUpdateParams, useToast, useUpdateParams } from 'app/hooks'
@@ -59,14 +58,25 @@ export function UpdateDetailSideModal() {
     >
       {() => (
         <>
-          <h1 className="mb-4 text-sans-xl">Components in this update</h1>
-          <ul className="ml-8 list-disc">
-            {(components?.items || []).map((node) => (
-              <li key={node.id}>
-                {componentTypeNames[node.componentType]} <Badge>{node.version}</Badge>
-              </li>
-            ))}
-          </ul>
+          <PropertiesTable>
+            <PropertiesTable.Row label="version">{update?.version}</PropertiesTable.Row>
+            <PropertiesTable.Row label="created">
+              {update?.timeCreated && formatDateTime(update.timeCreated)}
+            </PropertiesTable.Row>
+          </PropertiesTable>
+          {/* TODO: 40px offset for full width tabs for main page doesn't work here, should be 32px */}
+          <Tabs id="system-update-detail-tabs" fullWidth>
+            <Tab>Contained updates</Tab>
+            <Tab.Panel>
+              <ul className="ml-8 list-disc">
+                {(components?.items || []).map((node) => (
+                  <li key={node.id}>
+                    {componentTypeNames[node.componentType]} <Badge>{node.version}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </Tab.Panel>
+          </Tabs>
         </>
       )}
     </SideModalForm>
