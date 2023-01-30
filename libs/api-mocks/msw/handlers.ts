@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -9,6 +9,7 @@ import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
+import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
 import {
   db,
@@ -24,6 +25,7 @@ import {
   lookupSilo,
   lookupSnapshot,
   lookupSshKey,
+  lookupSystemUpdate,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
@@ -910,6 +912,56 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
 
+  systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
+  systemUpdateView: ({ path }) => lookupSystemUpdate(path),
+  systemUpdateComponentsList: (params) => {
+    const systemUpdate = lookupSystemUpdate(params.path)
+    const ids = new Set(
+      db.systemUpdateComponentUpdates
+        .filter((o) => o.system_update_id === systemUpdate.id)
+        .map((o) => o.component_update_id)
+    )
+    return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
+  },
+
+  systemComponentVersionList: (params) => paginated(params.query, db.updateableComponents),
+
+  systemUpdateStart: ({ body }) => {
+    const latestDeployment = db.updateDeployments[0]
+    if (latestDeployment?.status.status === 'updating') {
+      // TODO: do nothing, return some kind of failure
+    }
+
+    const newDeployment: Json<UpdateDeployment> = {
+      id: uuid(),
+      version: body.version,
+      status: { status: 'updating' },
+      ...getTimestamps(),
+    }
+
+    // add to the beginning of to he list to maintain sort by most recent
+    db.updateDeployments = [newDeployment, ...db.updateDeployments]
+
+    return newDeployment
+  },
+  systemUpdateStop: () => 204,
+  systemUpdateRefresh: NotImplemented,
+
+  systemVersion() {
+    const sortedComponents = sortBySemverDesc(db.updateableComponents)
+    const low = sortedComponents[sortedComponents.length - 1].system_version
+    const high = sortedComponents[0].system_version
+
+    // assume they're sorted by most recent first
+    const latestDeployment = db.updateDeployments[0]
+    return {
+      version_range: { low, high },
+      status: latestDeployment.status,
+    }
+  },
+  updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
+  updateDeploymentView: lookupById(db.updateDeployments),
+
   systemMetric: (params) => {
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
     // if (!result.success) return res(notFoundErr)
@@ -933,10 +985,7 @@ export const handlers = makeHandlers({
     }
   },
 
-  certificateList: NotImplemented,
-  certificateCreate: NotImplemented,
-  certificateView: NotImplemented,
-  certificateDelete: NotImplemented,
+  // by ID endpoints (will be gone soon)
 
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
@@ -952,7 +1001,14 @@ export const handlers = makeHandlers({
   vpcSubnetViewById: lookupById(db.vpcSubnets),
   vpcViewById: lookupById(db.vpcs),
 
+  // Misc endpoints we're not using yet in the console
+
+  certificateCreate: NotImplemented,
+  certificateDelete: NotImplemented,
+  certificateList: NotImplemented,
+  certificateView: NotImplemented,
   instanceMigrate: NotImplemented,
+  instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
   ipPoolList: NotImplemented,
@@ -968,6 +1024,8 @@ export const handlers = makeHandlers({
   ipPoolViewById: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
+  localIdpUserSetPassword: NotImplemented,
+  loginLocal: NotImplemented,
   loginSaml: NotImplemented,
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
@@ -978,7 +1036,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   sagaList: NotImplemented,
   sagaView: NotImplemented,
-
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUsersList: NotImplemented,
@@ -989,13 +1046,18 @@ export const handlers = makeHandlers({
   systemUserList: NotImplemented,
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
-  updatesRefresh: NotImplemented,
-  loginLocal: NotImplemented,
-  localIdpUserSetPassword: NotImplemented,
-  instanceSerialConsoleStream: NotImplemented,
 
+  // V1 endpoints
+
+  diskCreateV1: NotImplemented,
+  diskDeleteV1: NotImplemented,
+  diskListV1: NotImplemented,
+  diskViewV1: NotImplemented,
   instanceCreateV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
+  instanceDiskAttachV1: NotImplemented,
+  instanceDiskDetachV1: NotImplemented,
+  instanceDiskListV1: NotImplemented,
   instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceRebootV1: NotImplemented,
@@ -1018,12 +1080,4 @@ export const handlers = makeHandlers({
   projectPolicyViewV1: NotImplemented,
   projectUpdateV1: NotImplemented,
   projectViewV1: NotImplemented,
-
-  diskListV1: NotImplemented,
-  diskCreateV1: NotImplemented,
-  diskViewV1: NotImplemented,
-  diskDeleteV1: NotImplemented,
-  instanceDiskListV1: NotImplemented,
-  instanceDiskAttachV1: NotImplemented,
-  instanceDiskDetachV1: NotImplemented,
 })

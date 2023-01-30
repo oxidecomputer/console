@@ -40,6 +40,20 @@ export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
   return Object.entries(groups)
 }
 
+/**
+ * Split a list into two, one with `by(item)` true, the other with `by(item)`
+ * false
+ */
+export function partitionBy<T>(arr: T[], by: (t: T) => boolean): [T[], T[]] {
+  const yes: T[] = []
+  const no: T[] = []
+  for (const item of arr) {
+    const target = by(item) ? yes : no
+    target.push(item)
+  }
+  return [yes, no]
+}
+
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
 
 /**

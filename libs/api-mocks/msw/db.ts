@@ -166,6 +166,12 @@ export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   return sshKey
 }
 
+export function lookupSystemUpdate(params: PP.SystemUpdate): Json<Api.SystemUpdate> {
+  const update = db.systemUpdates.find((o) => o.version === params.version)
+  if (!update) throw notFoundErr
+  return update
+}
+
 const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
@@ -183,6 +189,11 @@ const initDb = {
   identityProviders: [...mock.identityProviders],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
+  componentUpdates: [...mock.componentUpdates],
+  systemUpdates: [...mock.systemUpdates],
+  systemUpdateComponentUpdates: [...mock.systemUpdateComponentUpdates],
+  updateableComponents: [...mock.updateableComponents],
+  updateDeployments: [...mock.updateDeployments],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],
