@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { UpdateStatus, UpdateableComponentType } from '@oxide/api'
 import { apiQueryClient, componentTypeNames, useApiQuery } from '@oxide/api'
@@ -20,12 +19,15 @@ const EmptyState = () => (
   <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
 )
 
-const StatusBadge = ({ status }: { status: UpdateStatus['status'] }) =>
-  status === 'steady' ? (
+const StatusBadge = ({ status }: { status: UpdateStatus['status'] | undefined }) => {
+  if (!status) return <Badge color="neutral">Unknown</Badge>
+
+  return status === 'steady' ? (
     <Badge color="neutral">Steady</Badge>
   ) : (
     <Badge color="notice">Updating</Badge>
   )
+}
 UpdatePageUpdates.loader = async () => {
   await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
   return null
@@ -110,10 +112,21 @@ UpdatePage.loader = async () => {
 }
 
 export function UpdatePage() {
-  const version = useApiQuery('systemVersion', {}).data
-  invariant(version, 'System version must be prefetched')
+  const { data: version } = useApiQuery('systemVersion', {})
 
-  const { low, high } = version.versionRange
+  // TODO: turn this back on once we can expect it to work on the API side
+  // invariant(version, 'System version must be prefetched')
+
+  // API 500s and `version` is undefined when there are no updateable components
+  // in the DB
+
+  let low = 'Unknown'
+  let high = 'Unknown'
+
+  if (version) {
+    low = version.versionRange.low
+    high = version.versionRange.high
+  }
 
   return (
     <>
@@ -128,7 +141,7 @@ export function UpdatePage() {
 
       <PropertiesTable className="mb-8">
         <PropertiesTable.Row label="status">
-          <StatusBadge status={version.status.status} />
+          <StatusBadge status={version?.status.status} />
         </PropertiesTable.Row>
         {/* TODO: ? icone with tooltip explaining why version is a range */}
         <PropertiesTable.Row label="version">

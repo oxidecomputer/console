@@ -187,7 +187,7 @@ export const updateDeployments: Json<UpdateDeployment[]> = [
   {
     id: 'f3d4dc98-8f75-4b93-95c7-264163074661',
     version: '1.0.0',
-    status: { status: 'updating' },
+    status: { status: 'steady' },
     ...timestamps,
   },
 ]
