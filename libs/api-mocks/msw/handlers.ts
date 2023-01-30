@@ -5,7 +5,7 @@ import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
-import { genCumulativeI64Data } from '../metrics'
+import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
@@ -962,7 +962,30 @@ export const handlers = makeHandlers({
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
   updateDeploymentView: lookupById(db.updateDeployments),
 
-  systemMetric: NotImplemented,
+  systemMetric: (params) => {
+    // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
+    // if (!result.success) return res(notFoundErr)
+    // const resourceName = result.data
+
+    const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
+
+    // note we're ignoring the required id query param. since the data is fake
+    // it wouldn't matter, though we should probably 400 if it's missing
+
+    const { startTime, endTime } = getStartAndEndTime(params.query)
+
+    if (endTime <= startTime) return { items: [] }
+
+    return {
+      items: genI64Data(
+        new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
+        startTime,
+        endTime
+      ),
+    }
+  },
+
+  // by ID endpoints (will be gone soon)
 
   diskViewById: lookupById(db.disks),
   imageViewById: lookupById(db.images),
@@ -978,11 +1001,14 @@ export const handlers = makeHandlers({
   vpcSubnetViewById: lookupById(db.vpcSubnets),
   vpcViewById: lookupById(db.vpcs),
 
+  // Misc endpoints we're not using yet in the console
+
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
   instanceMigrate: NotImplemented,
+  instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
   ipPoolList: NotImplemented,
@@ -998,6 +1024,8 @@ export const handlers = makeHandlers({
   ipPoolViewById: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
+  localIdpUserSetPassword: NotImplemented,
+  loginLocal: NotImplemented,
   loginSaml: NotImplemented,
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
@@ -1008,7 +1036,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   sagaList: NotImplemented,
   sagaView: NotImplemented,
-
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUsersList: NotImplemented,
@@ -1019,9 +1046,8 @@ export const handlers = makeHandlers({
   systemUserList: NotImplemented,
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
-  loginLocal: NotImplemented,
-  localIdpUserSetPassword: NotImplemented,
-  instanceSerialConsoleStream: NotImplemented,
+
+  // V1 endpoints
 
   diskCreateV1: NotImplemented,
   diskDeleteV1: NotImplemented,

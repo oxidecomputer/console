@@ -1,4 +1,3 @@
-import React, { Suspense } from 'react'
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
@@ -31,6 +30,7 @@ import { OrgAccessPage } from './pages/OrgAccessPage'
 import OrgsPage from './pages/OrgsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
+import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
 import {
   DisksPage,
   ImagesPage,
@@ -41,11 +41,13 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
@@ -56,10 +58,6 @@ import {
   UpdatePageUpdates,
 } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
-
-const MetricsTab = React.lazy(
-  () => import('./pages/project/instances/instance/tabs/MetricsTab')
-)
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -103,7 +101,11 @@ export const routes = createRoutesFromElements(
           <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
         <Route path="issues" element={null} />
-        <Route path="utilization" element={null} />
+        <Route
+          path="utilization"
+          element={<CapacityUtilizationPage />}
+          loader={CapacityUtilizationPage.loader}
+        />
         <Route path="inventory" element={null} />
         <Route path="health" element={null} />
         <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
@@ -140,7 +142,11 @@ export const routes = createRoutesFromElements(
       />
 
       <Route element={<SiloLayout />}>
-        <Route path="utilization" element={null} />
+        <Route
+          path="utilization"
+          element={<SiloUtilizationPage />}
+          loader={SiloUtilizationPage.loader}
+        />
         <Route element={<OrgsPage />} loader={OrgsPage.loader}>
           <Route path="orgs" handle={{ crumb: 'Orgs' }} />
           <Route
@@ -220,11 +226,8 @@ export const routes = createRoutesFromElements(
                 />
                 <Route
                   path="metrics"
-                  element={
-                    <Suspense fallback={null}>
-                      <MetricsTab />
-                    </Suspense>
-                  }
+                  element={<MetricsTab />}
+                  loader={MetricsTab.loader}
                   handle={{ crumb: 'metrics' }}
                 />
                 <Route

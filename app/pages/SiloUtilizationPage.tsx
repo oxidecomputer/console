@@ -10,12 +10,12 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 const ALL_PROJECTS = '|ALL_PROJECTS|'
 
+const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
+
 SiloUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('organizationList', {})
   return null
 }
-
-const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 export function SiloUtilizationPage() {
   // this will come from /session/me
