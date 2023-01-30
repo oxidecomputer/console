@@ -1603,6 +1603,7 @@ export const UpdateableComponent = z.preprocess(
     deviceId: z.string(),
     id: z.string().uuid(),
     status: UpdateStatus,
+    systemVersion: SemverVersion,
     timeCreated: DateType,
     timeModified: DateType,
     version: SemverVersion,

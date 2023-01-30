@@ -166,6 +166,7 @@ export const updateableComponents: Json<UpdateableComponent[]> = [
   {
     id: '275cfce8-3897-4778-946f-53cde00c7d65',
     version: '1.0.0',
+    system_version: systemUpdate1.version,
     component_type: 'helios_host_phase1',
     device_id: 'abc',
     status: { status: 'steady' },
@@ -174,6 +175,7 @@ export const updateableComponents: Json<UpdateableComponent[]> = [
   {
     id: '39e86b41-9f12-4e16-b59a-aed742a03814',
     version: '0.2.0',
+    system_version: systemUpdate2.version,
     component_type: 'hubris_for_psc_rot',
     device_id: 'abc',
     status: { status: 'steady' },

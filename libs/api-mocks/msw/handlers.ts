@@ -949,8 +949,8 @@ export const handlers = makeHandlers({
 
   systemVersion() {
     const sortedComponents = sortBySemverDesc(db.updateableComponents)
-    const low = sortedComponents[sortedComponents.length - 1].version
-    const high = sortedComponents[0].version
+    const low = sortedComponents[sortedComponents.length - 1].system_version
+    const high = sortedComponents[0].system_version
 
     // assume they're sorted by most recent first
     const latestDeployment = db.updateDeployments[0]

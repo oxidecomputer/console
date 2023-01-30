@@ -70,6 +70,7 @@ export function UpdatePageComponents() {
           )}
         />
         <Column accessor="version" />
+        <Column accessor="systemVersion" header="System version" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>

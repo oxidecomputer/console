@@ -1549,6 +1549,7 @@ export type UpdateableComponent = {
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   status: UpdateStatus
+  systemVersion: SemverVersion
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
