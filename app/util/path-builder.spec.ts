@@ -24,7 +24,6 @@ test('path builder', () => {
         "instancePage": "/orgs/a/projects/b/instances/c/storage",
         "instanceStorage": "/orgs/a/projects/b/instances/c/storage",
         "instances": "/orgs/a/projects/b/instances",
-        "inventory": "/sys/inventory/racks",
         "nics": "/orgs/a/projects/b/instances/c/network-interfaces",
         "org": "/orgs/a",
         "orgAccess": "/orgs/a/access",
